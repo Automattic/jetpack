@@ -13,11 +13,24 @@ import QueryAkismetData from 'components/data/query-akismet-data';
 import {
 	getAkismetData as _getAkismetData
 } from 'state/at-a-glance';
+import {
+	isModuleActivated as _isModuleActivated,
+	activateModule
+} from 'state/modules';
 
 const DashAkismet = React.createClass( {
+	activateManageAndRedirect: function( e ) {
+		e.preventDefault();
+
+		this.props.activateModule( 'manage' )
+			.then( window.location = 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl )
+			.catch( console.log( 'Error: unable to activate Manage' ) );
+	},
+
 	getContent: function() {
 		const akismetData = this.props.getAkismetData();
 		const akismetSettingsUrl = window.Initial_State.adminUrl + 'admin.php?page=akismet-key-config';
+		const manageActive = this.props.isModuleActivated( 'manage' );
 
 		if ( akismetData === 'N/A' ) {
 			return(
@@ -27,12 +40,38 @@ const DashAkismet = React.createClass( {
 			);
 		}
 
-		if ( akismetData === 'not_installed' ) {
-			return(
-				<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
-					<p className="jp-dash-item__description"><a href="#">Install Akismet (null)</a> to automatically block spam comments and more.</p>
-				</DashItem>
-			);
+		if ( manageActive ) {
+			if ( akismetData === 'not_active' ) {
+				return(
+					<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
+						<p className="jp-dash-item__description"><a href={ 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl }>Activate Akismet</a> to automatically block spam comments and more.</p>
+					</DashItem>
+				);
+			}
+
+			if ( akismetData === 'not_installed' ) {
+				return(
+					<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
+						<p className="jp-dash-item__description"><a href={ 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl }>Install Akismet</a> to automatically block spam comments and more.</p>
+					</DashItem>
+				);
+			}
+		} else {
+			if ( akismetData === 'not_active' ) {
+				return(
+					<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
+						<p className="jp-dash-item__description"><a onClick={ this.activateManageAndRedirect } href='#'>Activate Manage and Akismet</a> to automatically block spam comments and more.</p>
+					</DashItem>
+				);
+			}
+
+			if ( akismetData === 'not_installed' ) {
+				return(
+					<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
+						<p className="jp-dash-item__description"><a onClick={ this.activateManageAndRedirect } href='#'>Activate Manage and Install Akismet</a> to automatically block spam comments and more.</p>
+					</DashItem>
+				);
+			}
 		}
 
 		if ( akismetData === 'invalid_key' ) {
@@ -41,14 +80,6 @@ const DashAkismet = React.createClass( {
 					<p className="jp-dash-item__description">
 						Whoops! It appears your Akismet key is missing or invalid. <br/>
 						<a href={ akismetSettingsUrl }>Go to Akismet settings to fix</a></p>
-				</DashItem>
-			);
-		}
-
-		if ( akismetData === 'not_active' ) {
-			return(
-				<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
-					<p className="jp-dash-item__description"><a href="#">Activate Akismet (null)</a> to automatically block spam comments and more.</p>
 				</DashItem>
 			);
 		}
@@ -81,7 +112,15 @@ const DashAkismet = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			getAkismetData: () => _getAkismetData( state )
+			getAkismetData: () => _getAkismetData( state ),
+			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
 		};
+	},
+	( dispatch ) => {
+		return {
+			activateModule: ( slug ) => {
+				return dispatch( activateModule( slug ) );
+			}
+		}
 	}
 )( DashAkismet );

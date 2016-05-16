@@ -23,9 +23,14 @@ import {
 
 const DashScan = React.createClass( {
 	getContent: function() {
-		if ( this.props.isModuleActivated( 'vaultpress' )  ) {
-			let vpData = this.props.getVaultPressData();
+		const vpData = this.props.getVaultPressData();
+		let vpActive = typeof vpData.data !== 'undefined' && vpData.data.active;
 
+		const ctaLink = vpActive
+			? 'https://dashboard.vaultpress.com/'
+			: 'https://wordpress.com/plans/' + window.Initial_State.rawUrl;
+
+		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
 				return(
 					<DashItem label="Security Scan (VaultPress)">
@@ -40,7 +45,7 @@ const DashScan = React.createClass( {
 				return(
 					<DashItem label="Security Scan (VaultPress)" status="is-error">
 						<h3>Uh oh, { threats } found!</h3>
-						<p className="jp-dash-item__description"><a href="#">Do something. (null)</a></p>
+						<p className="jp-dash-item__description"><a href={ ctaLink }>Do something.</a></p>
 					</DashItem>
 				);
 			}
@@ -50,7 +55,6 @@ const DashScan = React.createClass( {
 				return(
 					<DashItem label="Security Scan (VaultPress)" status="is-working">
 						<h3>No threats found, you're good to go!</h3>
-						<p className="jp-dash-item__description">[number] files scanned, [time] hours ago.</p>
 					</DashItem>
 				);
 			}
@@ -58,7 +62,7 @@ const DashScan = React.createClass( {
 
 		return(
 			<DashItem label="Security Scan (VaultPress)" className="jp-dash-item__is-inactive" status="is-premium-inactive">
-				<p className="jp-dash-item__description">To automatically scan your site for malicious threats, please <a href="#">upgrade your account (null)</a> or <a href="#">learn more (null)</a>.</p>
+				<p className="jp-dash-item__description">To automatically scan your site for malicious threats, please <a href={ ctaLink }>upgrade your account</a> or <a href={ ctaLink }>learn more</a>.</p>
 			</DashItem>
 		);
 	},
