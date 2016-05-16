@@ -30,7 +30,7 @@ class Jetpack_Sync_Actions {
 			return $rpc->get_jetpack_error();
 		}
 
-		return $result;
+		return $rpc->getResponse();
 	}
 
 	static function schedule_full_sync() {
