@@ -68,7 +68,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 		$this->assertFalse( is_wp_error( $buffer ) );
 
-		$this->assertEquals( array( 'foo' ), $buffer->get_items() );
+		$this->assertEquals( array( 'foo' ), array_values( $buffer->get_items() ) );
 
 		$second_buffer = $this->queue->checkout( 5 );
 
@@ -81,7 +81,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout( 5 );
 
-		$this->assertEquals( array( 'foo' ), $buffer->get_items() );
+		$this->assertEquals( array( 'foo' ), array_values( $buffer->get_items() ) );
 	}
 
 	function test_checkout_with_memory_limit_works() {
@@ -160,7 +160,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		
 		$buffer = $this->queue->checkout( 2 );
 
-		$this->assertEquals( array(1, 2), $buffer->get_items() );
+		$this->assertEquals( array(1, 2), array_values( $buffer->get_items() ) );
 
 		$other_buffer = $other_queue->checkout( 2 );
 
@@ -198,18 +198,18 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->queue->add_all( array(1, 2, 3, 4, 5) );
 		$buffer = $this->queue->checkout( 2 );
 
-		$this->assertEquals( array(1, 2), $buffer->get_items() );
+		$this->assertEquals( array(1, 2), array_values( $buffer->get_items() ) );
 
 		$this->queue->close( $buffer );
 
 		// $this->assertEquals( array(3, 4, 5), $this->queue->flush_all() );
 
 		$buffer = $this->queue->checkout( 2 );
-		$this->assertEquals( array(3, 4), $buffer->get_items() );
+		$this->assertEquals( array(3, 4), array_values( $buffer->get_items() ) );
 		$this->queue->close( $buffer );
 
 		$buffer = $this->queue->checkout( 2 );
-		$this->assertEquals( array(5), $buffer->get_items() );
+		$this->assertEquals( array(5), array_values( $buffer->get_items() ) );
 		$this->queue->close( $buffer );
 	}
 
@@ -251,7 +251,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$other_queue = new Jetpack_Sync_Queue( $this->queue->id );
 
 		$this->queue->add( 'foo' );
-		$this->assertEquals( array( 'foo' ), $other_queue->checkout( 5 )->get_items() );
+		$this->assertEquals( array( 'foo' ), array_values( $other_queue->checkout( 5 )->get_items() ) );
 	}
 
 	function test_benchmark() {
