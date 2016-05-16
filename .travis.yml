@@ -3,11 +3,6 @@
 # Tell Travis CI we're using PHP
 language: php
 
-install:
-    - npm install -g npm@'>=3.9.0'
-    - ./bin/travis_install.sh
-    - npm install
-
 # PHP version used in first build configuration.
 php:
     - "5.6"
