@@ -231,7 +231,7 @@ class Jetpack_Sync_Queue {
 		return true;
 	}
 
-	function close( $buffer, $ids_to_remove ) {
+	function close( $buffer, $ids_to_remove = null ) {
 		$is_valid = $this->validate_checkout( $buffer );
 
 		if ( is_wp_error( $is_valid ) ) {
@@ -241,6 +241,11 @@ class Jetpack_Sync_Queue {
 		}
 
 		$this->delete_checkout_id();
+
+		// by default clear all items in the buffer
+		if ( is_null( $ids_to_remove ) ) {
+			$ids_to_remove = $buffer->get_item_ids();
+		}
 
 		global $wpdb;
 
