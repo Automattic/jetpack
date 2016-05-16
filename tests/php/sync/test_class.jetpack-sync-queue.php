@@ -217,7 +217,8 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->queue->add_all( array(1, 2, 3, 4, 5) );
 		$buffer = $this->queue->checkout( 4 );
 
-		$this->queue->close( $buffer, 2 );
+		$two_items = array_slice( $buffer->get_item_ids(), 0, 2 );
+		$this->queue->close( $buffer, $two_items );
 
 		$this->assertEquals( 3, $this->queue->size() ); // 5 - 2 = 3
 	}
