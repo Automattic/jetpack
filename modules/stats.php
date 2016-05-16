@@ -36,6 +36,16 @@ Jetpack_Sync::sync_options( __FILE__,
 	'tag_base'
 );
 
+function is_dnt_enabled() {
+	foreach ($_SERVER as $name => $value) {
+		if ( strtolower( $name ) == 'http_dnt' && $value == 1 ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 function stats_load() {
 	global $wp_roles;
 
@@ -132,7 +142,7 @@ function stats_map_meta_caps( $caps, $cap, $user_id, $args ) {
 function stats_template_redirect() {
 	global $current_user, $stats_footer;
 
-	if ( is_feed() || is_robots() || is_trackback() || is_preview() )
+	if ( is_feed() || is_robots() || is_trackback() || is_preview() || is_dnt_enabled() )
 		return;
 
 	// Should we be counting this user's views?
@@ -149,9 +159,7 @@ function stats_template_redirect() {
 	$data = stats_build_view_data();
 	$data_stats_array = stats_array( $data );
 
-	// Check if user is requesting DNT.
-	if ( !Jetpack_DNT::is_dnt_enabled() ) {
-		$stats_footer = <<<END
+	$stats_footer = <<<END
 <script type='text/javascript' src='{$script}' async defer></script>
 <script type='text/javascript'>
 	_stq = window._stq || [];
@@ -160,7 +168,6 @@ function stats_template_redirect() {
 </script>
 
 END;
-	}
 }
 
 function stats_build_view_data() {
