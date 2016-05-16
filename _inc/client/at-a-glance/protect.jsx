@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
-import DashSectionHeader from 'components/dash-section-header';
 
 /**
  * Internal dependencies
@@ -13,7 +12,6 @@ import QueryProtectCount from 'components/data/query-dash-protect';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isActivatingModule,
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
 import {
@@ -23,7 +21,7 @@ import {
 
 const DashProtect = React.createClass( {
 	getContent: function() {
-		if ( this.props.isModuleActivated( 'protect' )  ) {
+		if ( this.props.isModuleActivated( 'protect' ) ) {
 			const protectCount = this.props.getProtectCount();
 
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
