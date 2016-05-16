@@ -46,7 +46,7 @@ const DashProtect = React.createClass( {
 
 		return(
 			<DashItem label="Protect" className="jp-dash-item__is-inactive">
-				<p className="jp-dash-item__description"><a href="javascript:void(0)" onClick={ this.props.activateProtect }>Activate Protect</a>to keep your
+				<p className="jp-dash-item__description"><a href="javascript:void(0)" onClick={ this.props.activateProtect }>Activate Protect</a> to keep your
 site protected from malicious attacks.</p>
 			</DashItem>
 		);
