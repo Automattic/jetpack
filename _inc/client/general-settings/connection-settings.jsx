@@ -18,7 +18,7 @@ const ConnectionSettings = React.createClass( {
 		const userData = window.Initial_State.userData;
 		const isLinked = this.props.isLinked( this.props );
 
-		const maybeShowDisconnectBtn = userData.currentUser.canDisconnect
+		const maybeShowDisconnectBtn = userData.currentUser.permissions.disconnect
 			? <ConnectButton />
 			: null;
 
