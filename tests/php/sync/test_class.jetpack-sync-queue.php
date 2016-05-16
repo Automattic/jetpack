@@ -150,7 +150,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 		$this->assertEquals( 1, count( $buffer_items ) );
 
-		$this->assertEquals( $large_string, $buffer_items[0] );
+		$this->assertEquals( $large_string, array_values( $buffer_items )[0] );
 	}
 
 	function test_checkout_enforced_across_multiple_instances() {
