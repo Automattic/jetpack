@@ -72,9 +72,10 @@ to your site and keep them there.</p>
 						<h2 className="jp-jetpack-connect__container-subtitle" title="Track your growth">Track your growth</h2>
 						<p className="jp-jetpack-connect__description">Jetpack harnesses the power of WordPress.com to show you detailed insights about your visitors, what they’re reading, and where they’re coming from.</p>
 
-						<img src={ imagePath + "stats-example-med.png" }
-							srcSet={ `${imagePath}stats-example-sm.png 500w, ${imagePath}stats-example-med.png 600w, ${imagePath}stats-example-lrg.png 900w` }
-							className="jp-jetpack-connect__feature-image"  alt="Jetpack statistics and traffic insights graph" />
+						<img src={ imagePath + "stats-example-med.png" } 
+							srcSet={ `${imagePath}stats-example-sm.png 445w, ${imagePath}stats-example-med.png 770w, ${imagePath}stats-example-lrg.png 1200w` }
+						 	sizes="(min-width: 200px) 445px, (min-width: 445px) 770px, (min-width: 771px) 1200px"
+						 	className="jp-jetpack-connect__feature-image" alt="Jetpack statistics and traffic insights graph" />
 					</div>
 				</Card>
 				<Card className="jp-jetpack-connect__feature">
@@ -117,9 +118,10 @@ to your site and keep them there.</p>
 					</header>
 
 					<div className="jp-jetpack-connect__interior-container">
-						<img src={ imagePath + "feature-photon-med.jpg" }
-							srcSet={ `${imagePath}feature-photon-sm.jpg 500w, ${imagePath}feature-photon-med.jpg 600w, ${imagePath}feature-photon-lrg.jpg 900w` }
-							className="jp-jetpack-connect__feature-image"  alt="Jetpacks photon serves up lightning fast, optimized images" />
+						<img src={ imagePath + "feature-photon-med.jpg" } 
+							srcSet={ `${imagePath}feature-photon-sm.jpg 600w, ${imagePath}feature-photon-med.jpg 770w, ${imagePath}feature-photon-lrg.jpg 1200w` }
+							sizes="(min-width: 200px) 600px, (min-width: 600px) 770px, (min-width: 800px) 1200px"
+							className="jp-jetpack-connect__feature-image" alt="Jetpacks photon serves up lightning fast, optimized images" />
 					</div>
 				</Card>
 				<Card className="jp-jetpack-connect__feature">
@@ -129,9 +131,10 @@ to your site and keep them there.</p>
 					</header>
 
 					<div className="jp-jetpack-connect__interior-container">
-						<img src={ imagePath + "aurora-med.jpg" }
-							srcSet={ `${imagePath}aurora-sm.jpg 500w, ${imagePath}aurora-med.jpg 600w, ${imagePath}aurora-lrg.jpg 900w` }
-							className="jp-jetpack-connect__feature-image"  alt="Jetpack's free support team" />
+						<img src={ imagePath + "aurora-med.jpg" } 
+							srcSet={ `${imagePath}aurora-sm.jpg 600w, ${imagePath}aurora-med.jpg 770w, ${imagePath}aurora-lrg.jpg 1200w` }
+							sizes="(min-width: 200px) 600px, (min-width: 600px) 770px, (min-width: 800px) 1200px"
+							className="jp-jetpack-connect__feature-image" alt="Jetpack's free support team" />
 					</div>
 				</Card>
 				<Card className="jp-jetpack-connect__cta">
