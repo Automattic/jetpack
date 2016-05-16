@@ -54,13 +54,3 @@ export function getHappinessGravatarIds( state ) {
 export function isDevVersion( state ) {
 	return state.jetpack.initialState.isDevVersion;
 }
-
-/**
- * Returns the URL to wp-admin for this install
- *
- * @param  {Object}  state  Global state tree
- * @return {string} URL to wp-admin
- */
-export function adminUrl( state ) {
-	return state.jetpack.initialState.adminUrl;
-}
