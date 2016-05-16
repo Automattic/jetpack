@@ -995,12 +995,12 @@ class Jetpack_SSO {
 	 */
 	function build_reauth_and_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
+		$redirect = $this->build_sso_url( array( 'force_auth' => '1', 'sso_nonce' => $sso_nonce ) );
 
 		if ( is_wp_error( $redirect ) ) {
 			return $redirect;
 		}
 
-		$redirect = $this->build_sso_url( array( 'force_auth' => '1', 'sso_nonce' => $sso_nonce ) );
 		$defaults = array(
 			'action'      => 'jetpack-sso',
 			'site_id'     => Jetpack_Options::get_option( 'id' ),
