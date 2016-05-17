@@ -947,10 +947,12 @@ jQuery(document).ready(function($) {
 				medium_width      = parseInt( medium_size_parts[0], 10 ),
 				medium_height     = parseInt( medium_size_parts[1], 10 );
 
+			// Assign max width and height.
+			args.orig_max_width  = args.max_width;
+			args.orig_max_height = args.max_height;
+
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ( 'undefined' !== typeof window.devicePixelRatio && window.devicePixelRatio > 1 ) {
-				args.orig_max_width = args.max_width;
-				args.orig_max_height = args.max_height;
 				args.max_width  = args.max_width * window.devicePixelRatio;
 				args.max_height = args.max_height * window.devicePixelRatio;
 			}
