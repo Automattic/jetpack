@@ -4984,6 +4984,9 @@ p {
 					<a href="#" id="jetpack-recheck-ssl-button"><?php _e( 'Try again' ); ?></a>
 					<span id="jetpack-recheck-ssl-output"><?php echo get_transient( 'jetpack_https_test_message' ); ?></span>
 				</p>
+				<p>
+					<?php _e( 'For more help, see our ', 'jetpack' ); ?><a href="https://jetpack.com/support/getting-started-with-jetpack/troubleshooting-tips/"><?php _e( 'troubleshooting tips', 'jetpack' ); ?></a>
+				</p>
 			</div>
 		</div>
 		<style>
