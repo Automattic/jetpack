@@ -78,11 +78,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 		?>
 		<?php
-			/**
-			 * Fires when a notice is displayed in the Jetpack menu.
-			 *
-			 * @since 3.0.0
-			 */
+			/** This action is already documented in views/admin/admin-page.php */
 			do_action( 'jetpack_notices' );
 		?>
 		<div id="jp-plugin-container"></div>
