@@ -78,9 +78,9 @@ function renderSettings( module ) {
 					<a href={ module.configure_url }>Link to old settings</a>
 				</div>
 			);
-		
+
 		default:
-			return ( 
+			return (
 				<div>
 					<a href={ module.configure_url }>Link to old settings</a>
 				</div>
