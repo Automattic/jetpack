@@ -23,7 +23,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
 		[ 'monitor', getModule( 'monitor' ).name, getModule( 'monitor' ).description, getModule( 'monitor' ).learn_more_button ],
 		[ 'scan', 'Security Scanning', 'Automatically scan your site for common threats and attacks.' ],
-		[ 'sso',  getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
+		[ 'sso', getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
 	].map( ( element ) => {
 		var toggle = (
 			<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
@@ -49,7 +49,6 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				<a href={ element[3] } target="_blank">Learn More</a>
 			</FoldableCard>
 		);
-
 	} );
 
 	return (
@@ -66,7 +65,6 @@ function renderLongDescription( module ) {
 }
 
 function renderSettings( module ) {
-
 	// If there is no module with that slug, it must be the Scan module
 	module.module = module.module || 'scan';
 
