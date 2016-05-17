@@ -3,15 +3,13 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
  */
 import { isCurrentUserLinked as _isCurrentUserLinked } from 'state/connection';
 import QueryUserConnectionData from 'components/data/query-user-connection';
-import ConnectButton  from 'components/connect-button';
+import ConnectButton from 'components/connect-button';
 
 const ConnectionSettings = React.createClass( {
 	renderContent: function() {
@@ -56,4 +54,3 @@ export default connect(
 		}
 	}
 )( ConnectionSettings );
-
