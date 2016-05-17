@@ -18,6 +18,16 @@ Initial_State.locale = JSON.parse( Initial_State.locale );
 
 if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
 	Initial_State.locale[ '' ].localeSlug = Initial_State.localeSlug;
+
+	// Overloading the toLocaleString method to use the set locale
+	Number.prototype.realToLocaleString = Number.prototype.toLocaleString;
+
+	Number.prototype.toLocaleString = function( locale, options ) {
+		locale = locale || Initial_State.localeSlug;
+		options = options || {};
+
+		return this.realToLocaleString( locale, options );
+	};
 }
 
 i18n.initialize( Initial_State.locale );
