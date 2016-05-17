@@ -3,10 +3,7 @@
  */
 import React from 'react';
 import Card from 'components/card';
-import SectionHeader from 'components/section-header';
-import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
-import ExpandedCard from 'components/expanded-card';
 
 /**
  * Internal dependencies
@@ -34,7 +31,6 @@ export default ( props ) =>
 			settingsPath="#security"
 			externalLink="Manage Security on WordPress.com"
 			externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } />
-		
 		<div className="jp-at-a-glance__item-grid">
 			<div className="jp-at-a-glance__left">
 				<DashProtect { ...props } />
