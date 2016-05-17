@@ -77,6 +77,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return $this->render_nojs_configurable();
 		}
 		?>
+		<?php
+			/**
+			 * Fires when a notice is displayed in the Jetpack menu.
+			 *
+			 * @since 3.0.0
+			 */
+			do_action( 'jetpack_notices' );
+		?>
 		<div id="jp-plugin-container"></div>
 	<?php }
 
