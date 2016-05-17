@@ -4927,12 +4927,14 @@ p {
 	public static function permit_ssl( $force_recheck = false ) {
 		// Do some fancy tests to see if ssl is being supported
 		if ( $force_recheck || false === ( $ssl = get_transient( 'jetpack_https_test' ) ) ) {
+			$message = '';
 			if ( 'https' !== substr( JETPACK__API_BASE, 0, 5 ) ) {
 				$ssl = 0;
 			} else {
 				switch ( JETPACK_CLIENT__HTTPS ) {
 					case 'NEVER':
 						$ssl = 0;
+						$message = __( 'JETPACK_CLIENT__HTTPS is set to NEVER', 'jetpack' );
 						break;
 					case 'ALWAYS':
 					case 'AUTO':
@@ -4944,16 +4946,22 @@ p {
 				// If it's not 'NEVER', test to see
 				if ( $ssl ) {
 					if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
-						$ssl = 0;	
+						$ssl = 0;
+						$message = __( 'WordPress reports no SSL support', 'jetpack' );
 					} else {
 						$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
-						if ( is_wp_error( $response ) || ( 'OK' !== wp_remote_retrieve_body( $response ) ) ) {
+						if ( is_wp_error( $response ) ) {
 							$ssl = 0;
+							$message = __( 'WordPress reports no SSL support', 'jetpack' );
+						} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
+							$ssl = 0;
+							$message = __( 'Response was not OK: ', 'jetpack' ) . wp_remote_retrieve_body( $response );
 						}
 					}
 				}
 			}
 			set_transient( 'jetpack_https_test', $ssl, DAY_IN_SECONDS );
+			set_transient( 'jetpack_https_test_message', $message, DAY_IN_SECONDS );
 		}
 
 		return (bool) $ssl;
@@ -4992,7 +5000,7 @@ p {
 				<p>
 					<?php _e( 'Jetpack will re-test for HTTPS support once a day, but you can click here to try again immediately: ', 'jetpack' ); ?>
 					<a href="#" id="jetpack-recheck-ssl-button"><?php _e( 'Try again' ); ?></a>
-					<span id="jetpack-recheck-ssl-output"></span>
+					<span id="jetpack-recheck-ssl-output"><?php echo get_transient( 'jetpack_https_test_message' ); ?></span>
 				</p>
 			</div>
 		</div>
@@ -5008,11 +5016,11 @@ p {
 					e.preventDefault();
 					$.post( '/wp-json/jetpack/v4/recheck-ssl' )
 					  .done( function( response ) {
-					  	if ( response == true ) {
+					  	if ( response.enabled ) {
 					  		$( '#jetpack-ssl-warning' ).hide();
 					  	} else {
 					  		this.html( <?php echo json_encode(__( 'Try again', 'jetpack' )); ?> );
-					  		$( '#jetpack-recheck-ssl-output' ).html( "SSL Failed" );
+					  		$( '#jetpack-recheck-ssl-output' ).html( "SSL Failed: "+response.message );
 					  	}
 					  }.bind( $this ) );
 				} );
