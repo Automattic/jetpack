@@ -4886,7 +4886,8 @@ p {
 					<span id="jetpack-recheck-ssl-output"><?php echo get_transient( 'jetpack_https_test_message' ); ?></span>
 				</p>
 				<p>
-					<?php _e( 'For more help, see our ', 'jetpack' ); ?><a href="https://jetpack.com/support/getting-started-with-jetpack/troubleshooting-tips/"><?php _e( 'troubleshooting tips', 'jetpack' ); ?></a>
+					<?php printf( __( 'For more help, see our <a href="%s" target="_blank">troubleshooting tips</a>', 'jetpack' ), 
+							esc_url( "https://jetpack.com/support/getting-started-with-jetpack/troubleshooting-tips/" ) ); ?>
 				</p>
 			</div>
 		</div>
