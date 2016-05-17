@@ -4869,24 +4869,6 @@ p {
 	}
 
 	/*
-	 * Displays an admin_notice, alerting the user to their JETPACK_CLIENT__HTTPS constant being 'ALWAYS' but SSL isn't working.
-	 */
-	public function alert_required_ssl_fail() {
-		if ( ! current_user_can( 'manage_options' ) )
-			return;
-		?>
-
-		<div id="message" class="error jetpack-message jp-identity-crisis">
-			<div class="jp-banner__content">
-				<h2><?php _e( 'Something is being cranky!', 'jetpack' ); ?></h2>
-				<p><?php _e( 'Your site is configured to only permit SSL connections to Jetpack, but SSL connections don\'t seem to be functional!', 'jetpack' ); ?></p>
-			</div>
-		</div>
-
-		<?php
-	}
-
-	/*
 	 * Displays an admin_notice, alerting the user to their JETPACK_CLIENT__HTTPS constant being 'AUTO' but SSL isn't working.
 	 */
 	public function alert_auto_ssl_fail() {
