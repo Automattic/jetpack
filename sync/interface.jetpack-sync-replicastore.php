@@ -86,7 +86,7 @@ interface iJetpack_Sync_Replicastore {
 	// functions
 	public function get_callable( $callable );
 
-	public function set_callables( $callables );
+	public function set_callable( $callable, $value );
 
 	// network options
 	public function get_site_option( $option );
