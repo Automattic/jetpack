@@ -27,7 +27,7 @@ QueryLastDownTime.defaultProps = {
 	fetchLastDownTime: () => {}
 };
 
-export default connect( ( state, ownProps ) => {
+export default connect( ( state ) => {
 	return {
 		fetchLastDownTime: fetchLastDownTime(),
 		fetchingMonitorData: isFetchingMonitorData( state ),

@@ -27,7 +27,7 @@ QueryModules.defaultProps = {
 	fetchModules: () => {}
 };
 
-export default connect( ( state, ownProps ) => {
+export default connect( ( state ) => {
 	return {
 		fetchingModulesList: isFetchingModulesList( state )
 	};

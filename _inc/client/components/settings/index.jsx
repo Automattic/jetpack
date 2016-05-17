@@ -50,7 +50,8 @@ export default connect(
 		return {
 			fetchSettings: () => dispatch( fetchSettings() ),
 			toggleSetting: ( setting_name, activated ) => {
-				dispatch ( updateSetting( { [ setting_name ] : ! activated } ) );
+				dispatch( updateSetting( { [ setting_name ]: ! activated } ) );
 			}
 		}
-} )( Settings );
+	}
+)( Settings );
