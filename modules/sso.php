@@ -504,11 +504,11 @@ class Jetpack_SSO {
 			$site_name = get_bloginfo( 'url' );
 		}
 
-		$display_name = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_name' . COOKIEHASH ] )
-			? $_COOKIE[ 'jetpack_sso_wpcom_name' . COOKIEHASH ]
+		$display_name = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] )
+			? $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ]
 			: false;
-		$gravatar = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_gravatar' . COOKIEHASH ] )
-			? $_COOKIE[ 'jetpack_sso_wpcom_gravatar' . COOKIEHASH ]
+		$gravatar = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] )
+			? $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ]
 			: false;
 
 		?>
@@ -577,9 +577,9 @@ class Jetpack_SSO {
 	 * WPCOM user to connect.
 	 */
 	static function clear_wpcom_profile_cookies() {
-		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_name' . COOKIEHASH ] ) ) {
+		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] ) ) {
 			setcookie(
-				'jetpack_sso_wpcom_name' . COOKIEHASH,
+				'jetpack_sso_wpcom_name_' . COOKIEHASH,
 				' ',
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
@@ -587,9 +587,9 @@ class Jetpack_SSO {
 			);
 		}
 
-		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_gravatar' . COOKIEHASH ] ) ) {
+		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] ) ) {
 			setcookie(
-				'jetpack_sso_wpcom_gravatar' . COOKIEHASH,
+				'jetpack_sso_wpcom_gravatar_' . COOKIEHASH,
 				' ',
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
@@ -1159,7 +1159,7 @@ class Jetpack_SSO {
 		}
 
 		setcookie(
-			'jetpack_sso_wpcom_name' . COOKIEHASH,
+			'jetpack_sso_wpcom_name_' . COOKIEHASH,
 			$user_data->display_name,
 			time() + WEEK_IN_SECONDS,
 			COOKIEPATH,
@@ -1167,7 +1167,7 @@ class Jetpack_SSO {
 		);
 
 		setcookie(
-			'jetpack_sso_wpcom_gravatar' . COOKIEHASH,
+			'jetpack_sso_wpcom_gravatar_' . COOKIEHASH,
 			get_avatar_url(
 				$user_data->email,
 				array( 'size' => 72, 'default' => 'mystery' )
