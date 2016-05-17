@@ -1,0 +1,68 @@
+.jp-masthead {
+	background-color: $green-secondary;
+	text-align: center;
+}
+
+.jp-masthead__inside-container {
+	background: transparent url('../../images/jp-4/mast-bg.svg') no-repeat 100%;
+	background-size: 648px 125px;
+	padding: rem( 10px );
+	margin: 0 auto;
+	width: 100%;
+	max-width: rem( 1220px);
+	display: flex;
+	flex-flow: row nowrap;
+	@include breakpoint( "<480px" ) { background-image: none; }
+}
+
+.jp-masthead__logo-container {
+	padding: rem( 5px ) rem( 5px ) rem( 2px );
+}
+
+.jp-masthead__logo {
+	width: rem( 185px );
+	height: rem( 32px ); // for IE
+	path {
+		fill: $white;
+	}
+}
+
+.jp-masthead__links {
+	display: flex;
+	margin-top: 0;
+	margin-bottom: 0;
+	flex-flow: row wrap;
+	flex: 2 50%;
+	justify-content: flex-end;
+}
+
+.jp-masthead__link {
+	font-style: normal;
+	color: $white;
+	padding: rem( 10px );
+	display: inline-block;
+
+	&:visited,
+	&:active,
+	&:hover {
+		color: $white;
+	}
+	.dashicons {
+		display: none;
+	}
+	@include breakpoint( "<480px" ) {
+		padding: rem( 10px ) rem( 15px );
+
+		&:hover,
+		&:active {
+			text-decoration: none;
+		}
+		.dashicons {
+			display: block;
+			font-size: rem( 28px );
+		}
+		span + span {
+			display: none;
+		}
+	} // < 480px
+}

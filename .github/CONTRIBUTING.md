@@ -28,7 +28,7 @@ There are a few bonuses that can increase the chances that your Pull Request is 
 
 - If you've created a new action or filter, [add inline documentation](https://make.wordpress.org/core/handbook/best-practices/inline-documentation-standards/php/#4-hooks-actions-and-filters) to help others understand how to use the action or the filter.
 - Create [unit tests](https://github.com/Automattic/jetpack/tree/master/tests) if you can. If you're not familiar with Unit Testing, you can check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/).
-- If [Grunt](http://gruntjs.com/) is installed on your testing environment, run it after committing your changes. It will allow you to [detect errors in Javascript files](http://jshint.com/about/), compile Sass to CSS, and [a few other things](https://github.com/Automattic/jetpack/blob/master/Gruntfile.js).
+- If [Gulp](http://gulpjs.com/) is installed on your testing environment, run it after committing your changes. It will allow you to [detect errors in Javascript files](http://jshint.com/about/), compile Sass to CSS, and [a few other things](https://github.com/Automattic/jetpack/blob/master/gulpfile.js).
 
 #### Where to get started?
 

@@ -1,12 +1,13 @@
 <?php
 /**
  * Module Name: Infinite Scroll
- * Module Description: Add support for infinite scroll to your theme.
+ * Module Description: Automatically load new content when a visitor scrolls.
  * Sort Order: 26
  * First Introduced: 2.0
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Appearance
+ * Feature: Appearance
  * Additional Search Queries: scroll, infinite, infinite scroll
  */
 

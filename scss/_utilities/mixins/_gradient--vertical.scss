@@ -1,8 +1,0 @@
-// ==========================================================================
-// Vertical gradient
-// ==========================================================================
-
-@mixin gradient--vertical($start, $end){
-	background-color: $end;
-	background-image: linear-gradient(top, $start, $end); // Chrome 26, Firefox 16+, IE 10+, Opera 12.10+
-}

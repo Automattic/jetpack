@@ -7,7 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Public
  * Module Tags: Writing
- * Feature: Traffic
+ * Feature: Engagement
  * Additional Search Queries: google, seo, firehose, search, broadcast, broadcasting
  */
 

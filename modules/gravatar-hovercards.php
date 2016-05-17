@@ -9,7 +9,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
- * Feature: Jumpstart
+ * Feature: Appearance, Jumpstart
  * Additional Search Queries: gravatar, hovercards
  */
 
