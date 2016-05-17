@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
-import DashSectionHeader from 'components/dash-section-header';
 
 /**
  * Internal dependencies
@@ -16,17 +15,17 @@ import {
 
 const DashSiteVerify = React.createClass( {
 	getContent: function() {
-		if ( this.props.isModuleActivated( 'verification-tools' )  ) {
+		if ( this.props.isModuleActivated( 'verification-tools' ) ) {
 			return(
 				<DashItem label="Site Verification Tools" status="is-working">
-					<p className="jp-dash-item__description">Site verification tools is active. Ensure your site is verifed with Google, Bing, &amp; Pinterest for more accurate indexing and ranking. <a href="#">Verify now (null)</a></p>
+					<p className="jp-dash-item__description">Site verification tools is active. Ensure your site is verifed with Google, Bing, &amp; Pinterest for more accurate indexing and ranking. <a href={ window.Initial_State.adminUrl + 'tools.php' }>Verify now</a></p>
 				</DashItem>
 			);
 		}
 
 		return(
 			<DashItem label="Site Verification Tools" className="jp-dash-item__is-inactive">
-				<p className="jp-dash-item__description"><a onClick={ this.props.activatePhoton }>Activate Site Verification</a> to verify your site and increase ranking with Google, Bing, and Pinterest.</p>
+				<p className="jp-dash-item__description"><a onClick={ this.props.activateVerificationTools } href="javascript:void(0)">Activate Site Verification</a> to verify your site and increase ranking with Google, Bing, and Pinterest.</p>
 			</DashItem>
 		);
 	},
@@ -48,7 +47,7 @@ export default connect(
 	},
 	( dispatch ) => {
 		return {
-			activatePhoton: () => {
+			activateVerificationTools: () => {
 				return dispatch( activateModule( 'verification-tools' ) );
 			}
 		};

@@ -21,8 +21,6 @@ import Security from 'security/index.jsx';
 import Health from 'site-health/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import More from 'more/index.jsx';
-import QueryModules from 'components/data/query-modules';
-import { getModules } from 'state/modules';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
@@ -50,6 +48,9 @@ const Main = React.createClass( {
 		const showJumpStart = getJumpStartStatus( this.props );
 		const canManageModules = window.Initial_State.userData.currentUser.permissions.manage_modules;
 
+		// On any route change/re-render, jump back to the top of the page
+		window.scrollTo( 0, 0 );
+
 		if ( ! canManageModules ) {
 			return <NonAdminView { ...this.props } />
 		}
@@ -63,7 +64,7 @@ const Main = React.createClass( {
 		}
 
 		let pageComponent;
-		switch( route ) {
+		switch ( route ) {
 			case '/dashboard':
 				pageComponent = <AtAGlance { ...this.props } />;
 				break;

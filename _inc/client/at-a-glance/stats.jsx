@@ -2,10 +2,9 @@
  * External dependencies
  */
 import React from 'react';
-import forEach  from 'lodash/foreach';
+import forEach from 'lodash/foreach';
 import Card from 'components/card';
 import Chart from 'components/chart';
-import Tabs from 'components/tabs';
 import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
 import Button from 'components/button';
@@ -22,7 +21,6 @@ import {
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isActivatingModule,
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
 
@@ -33,12 +31,12 @@ const DashStats = React.createClass( {
 			let label = v[0];
 			let views = v[1];
 			s.push( {
-				'label': label,
-				'value': views,
-				'nestedValue': null,
-				'className': 'statsChartbar',
-				'data': {},
-				'tooltipData': [ {
+				label: label,
+				value: views,
+				nestedValue: null,
+				className: 'statsChartbar',
+				data: {},
+				tooltipData: [ {
 					label: label,
 					value: 'Views: ' + views,
 					link: null,
@@ -76,17 +74,17 @@ const DashStats = React.createClass( {
 				<ul className="jp-at-a-glance__stats-views">
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'day' ) }
-						   className={ this.getClass( 'day' ) }
+							className={ this.getClass( 'day' ) }
 						>Days</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'week' ) }
-						   className={ this.getClass( 'week' ) }
+							className={ this.getClass( 'week' ) }
 						>Weeks</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'month' ) }
-						   className={ this.getClass( 'month' ) }
+							className={ this.getClass( 'month' ) }
 						>Months</a>
 					</li>
 				</ul>
@@ -156,11 +154,11 @@ const DashStatsBottom = React.createClass( {
 				</div>
 				<div className="jp-at-a-glance__stats-summary-alltime">
 					<div className="jp-at-a-glance__stats-alltime-views">
-						<p className="jp-at-a-glance__stat-details">All-time views</p> 
+						<p className="jp-at-a-glance__stat-details">All-time views</p>
 						<h3 className="jp-at-a-glance__stat-number">{ s.allTime.views }</h3>
 					</div>
 					<div className="jp-at-a-glance__stats-alltime-comments">
-						<p className="jp-at-a-glance__stat-details">All-time comments</p> 
+						<p className="jp-at-a-glance__stat-details">All-time comments</p>
 						<h3 className="jp-at-a-glance__stat-number">{ s.allTime.comments }</h3>
 					</div>
 				</div>
@@ -171,7 +169,7 @@ const DashStatsBottom = React.createClass( {
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
 					<Button href="?page=stats">View old stats</Button>
-					<Button className="is-primary" href="https://wordpress.com/stats/day/">View enhanced stats on WordPress.com</Button>
+					<Button className="is-primary" href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl }>View enhanced stats on WordPress.com</Button>
 				</div>
 			</div>
 		</div>

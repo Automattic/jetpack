@@ -21,15 +21,18 @@ class Jetpack_SSO {
 
 		self::$instance = $this;
 
-		add_action( 'admin_init',  array( $this, 'maybe_authorize_user_after_sso' ), 1 );
-		add_action( 'admin_init',  array( $this, 'admin_init' ) );
-		add_action( 'admin_init',  array( $this, 'register_settings' ) );
-		add_action( 'login_init',  array( $this, 'login_init' ) );
-		add_action( 'delete_user', array( $this, 'delete_connection_for_user' ) );
+		add_action( 'admin_init',             array( $this, 'maybe_authorize_user_after_sso' ), 1 );
+		add_action( 'admin_init',             array( $this, 'admin_init' ) );
+		add_action( 'admin_init',             array( $this, 'register_settings' ) );
+		add_action( 'login_init',             array( $this, 'login_init' ) );
+		add_action( 'delete_user',            array( $this, 'delete_connection_for_user' ) );
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
-		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
+		add_action( 'init',                   array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'admin_enqueue_scripts',  array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'login_form_logout',      array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
+		add_action( 'wp_login',               array( 'Jetpack_SSO', 'clear_wpcom_profile_cookies' ) );
+
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -501,11 +504,11 @@ class Jetpack_SSO {
 			$site_name = get_bloginfo( 'url' );
 		}
 
-		$display_name = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_name' . COOKIEHASH ] )
-			? $_COOKIE[ 'jetpack_sso_wpcom_name' . COOKIEHASH ]
+		$display_name = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] )
+			? $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ]
 			: false;
-		$gravatar = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_gravatar' . COOKIEHASH ] )
-			? $_COOKIE[ 'jetpack_sso_wpcom_gravatar' . COOKIEHASH ]
+		$gravatar = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] )
+			? $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ]
 			: false;
 
 		?>
@@ -574,9 +577,9 @@ class Jetpack_SSO {
 	 * WPCOM user to connect.
 	 */
 	static function clear_wpcom_profile_cookies() {
-		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_name' . COOKIEHASH ] ) ) {
+		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] ) ) {
 			setcookie(
-				'jetpack_sso_wpcom_name' . COOKIEHASH,
+				'jetpack_sso_wpcom_name_' . COOKIEHASH,
 				' ',
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
@@ -584,9 +587,9 @@ class Jetpack_SSO {
 			);
 		}
 
-		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_gravatar' . COOKIEHASH ] ) ) {
+		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] ) ) {
 			setcookie(
-				'jetpack_sso_wpcom_gravatar' . COOKIEHASH,
+				'jetpack_sso_wpcom_gravatar_' . COOKIEHASH,
 				' ',
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
@@ -770,26 +773,6 @@ class Jetpack_SSO {
 			// Cache the user's details, so we can present it back to them on their user screen
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
 
-			// Cache user's display name and Gravatar so it can be displayed on the login screen
-			setcookie(
-				'jetpack_sso_wpcom_name' . COOKIEHASH,
-				$user_data->display_name,
-				time() + YEAR_IN_SECONDS,
-				COOKIEPATH,
-				COOKIE_DOMAIN
-			);
-
-			setcookie(
-				'jetpack_sso_wpcom_gravatar' . COOKIEHASH,
-				get_avatar_url(
-					$user_data->email,
-					array( 'size' => 72, 'default' => 'mystery' )
-				),
-				time() + YEAR_IN_SECONDS,
-				COOKIEPATH,
-				COOKIE_DOMAIN
-			);
-
 			$remember = false;
 			if ( ! empty( $_COOKIE['jetpack_sso_remember_me'] ) ) {
 				$remember = true;
@@ -823,11 +806,16 @@ class Jetpack_SSO {
 			}
 
 			if ( ! Jetpack::is_user_connected( $user->ID ) ) {
+				$calypso_env = ! empty( $_GET['calypso_env'] )
+					? sanitize_key( $_GET['calypso_env'] )
+					: '';
+
 				wp_safe_redirect(
 					add_query_arg(
 						array(
 							'redirect_to'               => $redirect_to,
 							'request_redirect_to'       => $_request_redirect_to,
+							'calypso_env'               => $calypso_env,
 							'jetpack-sso-auth-redirect' => '1',
 						),
 						admin_url()
@@ -1133,8 +1121,8 @@ class Jetpack_SSO {
 			return;
 		}
 
-		$redirect_to = ! empty( $_GET['redirect_to'] ) ? $_GET['redirect_to'] : admin_url();
-		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) ? $_GET['request_redirect_to'] : $redirect_to;
+		$redirect_to = ! empty( $_GET['redirect_to'] ) ? esc_url_raw( $_GET['redirect_to'] ) : admin_url();
+		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) ? esc_url_raw( $_GET['request_redirect_to'] ) : $redirect_to;
 
 		/** This filter is documented in core/src/wp-login.php */
 		$redirect_after_auth = apply_filters( 'login_redirect', $redirect_to, $request_redirect_to, wp_get_current_user() );
@@ -1154,6 +1142,40 @@ class Jetpack_SSO {
 		add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 		wp_safe_redirect( $connect_url );
 		exit;
+	}
+
+	/**
+	 * Cache user's display name and Gravatar so it can be displayed on the login screen. These cookies are
+	 * stored when the user logs out, and then deleted when the user logs in.
+	 */
+	function store_wpcom_profile_cookies_on_logout() {
+		if ( ! Jetpack::is_user_connected( get_current_user_id() ) ) {
+			return;
+		}
+
+		$user_data = $this->get_user_data( get_current_user_id() );
+		if ( ! $user_data ) {
+			return;
+		}
+
+		setcookie(
+			'jetpack_sso_wpcom_name_' . COOKIEHASH,
+			$user_data->display_name,
+			time() + WEEK_IN_SECONDS,
+			COOKIEPATH,
+			COOKIE_DOMAIN
+		);
+
+		setcookie(
+			'jetpack_sso_wpcom_gravatar_' . COOKIEHASH,
+			get_avatar_url(
+				$user_data->email,
+				array( 'size' => 72, 'default' => 'mystery' )
+			),
+			time() + WEEK_IN_SECONDS,
+			COOKIEPATH,
+			COOKIE_DOMAIN
+		);
 	}
 
 	/**

@@ -4,12 +4,12 @@
 import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
 
 export const setInitialState = () => {
-    return ( dispatch ) => {
-        dispatch( {
-            type: JETPACK_SET_INITIAL_STATE,
-            initialState: window.Initial_State
-        } );
-    }
+	return ( dispatch ) => {
+		dispatch( {
+			type: JETPACK_SET_INITIAL_STATE,
+			initialState: window.Initial_State
+		} );
+	}
 }
 
 /**
@@ -49,7 +49,7 @@ export function getHappinessGravatarIds( state ) {
  * Which means -alpha, -beta, etc...
  *
  * @param  {Object}  state  Global state tree
- * @return {bool}
+ * @return {bool} true if dev version
  */
 export function isDevVersion( state ) {
 	return state.jetpack.initialState.isDevVersion;
