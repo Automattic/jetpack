@@ -30,20 +30,20 @@ export const fetchSiteConnectionStatus = () => {
 }
 
 export const fetchConnectUrl = () => {
-	return (dispatch) => {
-		dispatch({
+	return ( dispatch ) => {
+		dispatch( {
 			type: CONNECT_URL_FETCH
 		} );
-		return restApi.fetchConnectUrl().then(connectUrl => {
-			dispatch({
+		return restApi.fetchConnectUrl().then( connectUrl => {
+			dispatch( {
 				type: CONNECT_URL_FETCH_SUCCESS,
 				connectUrl: connectUrl
-			});
-		} )['catch'](error => {
-			dispatch({
+			} );
+		} )['catch']( error => {
+			dispatch( {
 				type: CONNECT_URL_FETCH_FAIL,
 				error: error
-			});
+			} );
 		} );
 	}
 }
