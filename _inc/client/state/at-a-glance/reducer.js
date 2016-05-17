@@ -154,7 +154,7 @@ export function isFetchingAkismetData( state ) {
  * Returns int of protect count of blocked attempts.
  *
  * @param  {Object}  state  Global state tree
- * @return {int}
+ * @return {int} Number of comments blocked by Akismet
  */
 export function getAkismetData( state ) {
 	return state.jetpack.dashboard.akismetData;
@@ -174,7 +174,7 @@ export function isFetchingProtectData( state ) {
  * Returns int of protect count of blocked attempts.
  *
  * @param  {Object}  state  Global state tree
- * @return {int}
+ * @return {int} Number of blocked brute force login attempts
  */
 export function getProtectCount( state ) {
 	return state.jetpack.dashboard.protectCount;
@@ -194,7 +194,7 @@ export function isFetchingMonitorData( state ) {
  * Returns last downtime of the site, from Monitor.
  *
  * @param  {Object}  state  Global state tree
- * @return {String}
+ * @return {String} Date/time stamp when last downtime was detected/logged
  */
 export function getLastDownTime( state ) {
 	return state.jetpack.dashboard.lastDownTime;
@@ -215,7 +215,7 @@ export function isFetchingVaultPressData( state ) {
  * Returns all VaultPress data as an object.
  *
  * @param  {Object}  state  Global state tree
- * @return {Object}
+ * @return {Object} All VaultPress configuration/status data
  */
 export function getVaultPressData( state ) {
 	return state.jetpack.dashboard.vaultPressData;
@@ -226,7 +226,7 @@ export function getVaultPressData( state ) {
  * Returns number of VaultPress Scan threats found.
  *
  * @param  {Object}  state  Global state tree
- * @return {int}
+ * @return {int} The number of current security threats found by VaultPress
  */
 export function getVaultPressScanThreatCount( state ) {
 	return state.jetpack.dashboard.vaultPressData.data.security.notice_count;
@@ -246,7 +246,7 @@ export function isFetchingPluginUpdates( state ) {
  * Returns int of plugin updates
  *
  * @param  {Object}  state  Global state tree
- * @return {int}
+ * @return {int} Number of plugin updates currently available
  */
 export function getPluginUpdates( state ) {
 	return state.jetpack.dashboard.pluginUpdates;

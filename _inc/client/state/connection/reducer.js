@@ -139,7 +139,7 @@ export function isDisconnectingSite( state ) {
  * Returns true if currently fetching connectUrl
  *
  * @param  {Object} state Global state tree
- * @return {bool}
+ * @return {bool} true if currently fetching connectUrl, false otherwise
  */
 export function isFetchingConnectUrl( state ) {
 	return !! state.jetpack.connection.requests.fetchingConnectUrl;
@@ -149,7 +149,7 @@ export function isFetchingConnectUrl( state ) {
  * Returns true if currently unlinking the user
  *
  * @param  {Object} state Global state tree
- * @return {bool}
+ * @return {bool} true if currently unlinking a user, false otherwise
  */
 export function isUnlinkingUser( state ) {
 	return !! state.jetpack.connection.requests.unlinkingUser;
@@ -159,7 +159,7 @@ export function isUnlinkingUser( state ) {
  * Returns true if currently fetching user data
  *
  * @param  {Object} state Global state tree
- * @return {bool}
+ * @return {bool} true if currently fetching user data, false otherwise
  */
 export function isFetchingUserData( state ) {
 	return !! state.jetpack.connection.requests.fetchingUserData;
@@ -169,7 +169,7 @@ export function isFetchingUserData( state ) {
  * Returns true if current user is linked to WordPress.com
  *
  * @param  {Object} state Global state tree
- * @return {bool}
+ * @return {bool} true if the current user is connected to WP.com, false otherwise
  */
 export function isCurrentUserLinked( state ) {
 	return !! state.jetpack.connection.user.currentUser.isConnected;
