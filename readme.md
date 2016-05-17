@@ -31,7 +31,7 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 2. Clone this repository locally inside your `/wp-content/plugins` directory.
 
 	```
-	git clone https://github.com/Automattic/jetpack-react.git
+	git clone https://github.com/Automattic/jetpack.git
 	```
 
 3. Make sure the Jetpack plugin is active and run
