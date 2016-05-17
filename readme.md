@@ -27,6 +27,19 @@ Developers of all levels can help — whether you can barely recognize a filter 
 
 The javascript and CSS components of this plugin's admin interface need to be built in order to get the runtime bundle (`_inc/build/admin.js`)
 
+**Recommended Dependencies and Known Issues**
+
+Recommended environment:
+- Node 5.x (preferably 5.11 or 5.10)
+- npm 3.8.x
+
+If you're having trouble installing 5.x, [nvm](https://www.npmjs.com/package/nvm) is a nice tool for node version management :)
+
+Known Issues:
+- Does not work with Node 6.x nor 4.x.
+
+**Start Development**
+
 1. Make sure you have `git`, `node`, and `npm` installed and a working WordPress installation.
 2. Clone this repository locally inside your `/wp-content/plugins` directory.
 
