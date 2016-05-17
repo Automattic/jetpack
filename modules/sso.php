@@ -443,7 +443,7 @@ class Jetpack_SSO {
 			return;
 		}
 
-		add_action( 'login_form',            array( $this, 'login_form' ) );
+		add_action( 'login_form',            array( $this, 'login_form' ), 20 );
 		add_filter( 'login_body_class',      array( $this, 'login_body_class' ) );
 		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 	}
