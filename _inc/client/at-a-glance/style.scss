@@ -1,0 +1,193 @@
+// This document contains styles that influence the styles of Stats & At a Glance, overall. 
+// For more precise styles, dig into the styles of each component. ie. dash-item
+
+.jp-at-a-glance__stats-container {
+	margin: rem( -24px );
+}
+
+.jp-at-a-glance__stats-chart {
+	padding: rem( 16px );
+}
+
+.jp-at-a-glance__stats-bottom {
+	margin: rem( 32px ) 0 0;
+
+	@include breakpoint( "<480px" ) {
+		margin: rem( 16px ) 0;
+		box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+	}
+}
+
+.jp-at-a-glance__stats-summary {
+	text-align: center;
+	border-top: 1px $gray-light solid;
+
+	@include breakpoint( ">660px" ) {
+		flex-wrap: nowrap;
+		display: flex;
+		flex-direction: row;
+	}
+	@include breakpoint( "<660px" ) {
+		display: block;
+	}
+}
+
+.jp-at-a-glance__stats-summary-today,
+.jp-at-a-glance__stats-summary-bestday {
+	flex-basis: 25%;
+	padding: rem( 16px );
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+}
+
+.jp-at-a-glance__stats-summary-alltime {
+	flex-basis: 50%;
+	//align-items: center;
+	padding: rem( 16px );
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+	}
+}
+
+.jp-at-a-glance__stats-alltime-views,
+.jp-at-a-glance__stats-alltime-comments {
+	flex-basis: 50%;
+}
+
+.jp-at-a-glance__stats-cta {
+	padding: rem( 16px );
+	background-color: lighten( $gray, 35% );
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		justify-content: space-between;
+	}
+	@include breakpoint( "<660px" ) {
+		display: block;
+	}
+}
+
+.jp-at-a-glance__stats-cta-description {
+	padding-right: rem( 16px );
+}
+
+.jp-at-a-glance__stat-details {
+	margin: 0;
+}
+
+.jp-at-a-glance__stat-number {
+	font-size: rem( 22px );
+	font-weight: 400;
+	margin: rem( 8px ) 0;
+}
+
+.jp-at-a-glance__stats-cta-buttons {
+
+	@include breakpoint( ">480px" ) {
+		display: flex;
+		flex-shrink: 0;
+		align-items: center;
+	}
+
+	@include breakpoint( "<660px" ) {
+		text-align: center;
+
+		.dops-button {
+			width: 100%;
+			margin-bottom: rem( 4px );
+		}
+	}
+
+	.dops-button:first-of-type {
+		margin-right: rem( 8px );
+	}
+}
+
+.jp-at-a-glance__stats-views {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.jp-at-a-glance__stats-view {
+	display: inline-block;
+	margin-top: 0;
+	margin-bottom: 0;
+	margin-left: rem( 16px );
+}
+
+.jp-at-a-glance__stats-view-link,
+.jp-at-a-glance__stats-view-link:visited {
+	color: $gray;
+	text-decoration: underline;
+
+	&.is-current {
+		font-weight: 600;
+		text-decoration: none;
+	}
+}
+
+// heavy flexbox nesting below, careful! – @jeffgolenski
+.jp-at-a-glance__item-grid {
+	display: flex;
+
+	@include breakpoint( "<660px" ) {
+		display: block; // don't need flexbox on smaller screens
+	}
+}
+
+.jp-at-a-glance__left,
+.jp-at-a-glance__right {
+	@include breakpoint( ">660px" ) {
+		flex-basis: 50%;
+	} 
+}
+
+.jp-at-a-glance__left {
+	display: flex;
+	flex-direction: row;
+
+	@include breakpoint( ">660px" ) {
+		margin: 0 rem( 16px ) rem( 16px ) 0;
+	}
+	@include breakpoint( "<660px" ) {
+		margin-bottom: rem( 12px );
+	}
+}
+
+.jp-dash-item__interior {
+	display: flex;
+	flex: 1;
+	flex-direction: row;
+	align-items: stretch;
+}
+
+.jp-dash-item__interior .jp-dash-item {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
+.jp-dash-item__interior .dops-card {
+	margin: 0;
+
+	&:last-of-type {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		justify-content: flex-end;
+		margin-bottom: 0;
+	}
+}
+// end flexbox nesting
+
+.jp-dash-item__feedback-request {
+	@include breakpoint( ">660px" ) {
+		margin-bottom: rem( 64px );
+	}
+	@include breakpoint( "<660px" ) {
+		margin-bottom: rem( 24px );
+	}
+}

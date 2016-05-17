@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Single Sign On
- * Module Description: Secure user authentication.
+ * Module Description: Secure user authentication with WordPress.com.
  * Jumpstart Description: Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.
  * Sort Order: 30
  * Recommendation Order: 5
@@ -10,7 +10,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Developers
- * Feature: Jumpstart, Performance-Security
+ * Feature: Security, Jumpstart
  * Additional Search Queries: sso, single sign on, login, log in
  */
 
@@ -21,6 +21,7 @@ class Jetpack_SSO {
 
 		self::$instance = $this;
 
+		add_action( 'admin_init',  array( $this, 'maybe_authorize_user_after_sso' ), 1 );
 		add_action( 'admin_init',  array( $this, 'admin_init' ) );
 		add_action( 'admin_init',  array( $this, 'register_settings' ) );
 		add_action( 'login_init',  array( $this, 'login_init' ) );
@@ -28,7 +29,6 @@ class Jetpack_SSO {
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
-		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
@@ -168,6 +168,28 @@ class Jetpack_SSO {
 		}
 
 		wp_enqueue_style( 'jetpack-sso-profile', plugins_url( 'modules/sso/jetpack-sso-profile.css', JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION );
+	}
+
+	/**
+	 * Adds Jetpack SSO classes to login body
+	 *
+	 * @param  array $classes Array of classes to add to body tag
+	 * @return array          Array of classes to add to body tag
+	 */
+	public function login_body_class( $classes ) {
+		global $action;
+
+		if ( ! in_array( $action, array( 'jetpack-sso', 'login' ) ) ) {
+			return $classes;
+		}
+
+		// If jetpack-sso-default-form, show the default login form.
+		if ( isset( $_GET['jetpack-sso-default-form'] ) && 1 == $_GET['jetpack-sso-default-form'] ) {
+			return $classes;
+		}
+
+		$classes[] = 'jetpack-sso-body';
+		return $classes;
 	}
 
 	/**
@@ -320,20 +342,6 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Removes 'Lost your password?' text from the login form if user
-	 * does not want to show the login form
-	 *
-	 * @since 2.7
-	 * @return string
-	 **/
-	public function remove_lost_password_text( $text ) {
-		if ( 'Lost your password?' == $text ) {
-			$text = '';
-		}
-		return $text;
-	}
-
-	/**
 	 * Checks to determine if the user wants to login on wp-login
 	 *
 	 * This function mostly exists to cover the exceptions to login
@@ -383,7 +391,6 @@ class Jetpack_SSO {
 		 */
 		if ( isset( $_GET['loggedout'] ) && $this->bypass_login_forward_wpcom() ) {
 			add_filter( 'jetpack_remove_login_form', '__return_true' );
-			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 		}
 
 		/**
@@ -397,27 +404,17 @@ class Jetpack_SSO {
 		) {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 			$this->maybe_save_cookie_redirect();
-			wp_safe_redirect( $this->build_sso_url() );
+			$reauth = ! empty( $_GET['reauth'] );
+			wp_safe_redirect( $this->get_sso_url_or_die( $reauth ) );
 			exit;
 		}
 
 		if ( 'login' === $action ) {
-			add_action( 'login_footer', array( $this, 'login_form' ) );
-
-			/*
-			if ( get_option( 'jetpack_sso_remove_login_form' ) ) {
-				// Check to see if the user is attempting to login via the default login form.
-				// If so we need to deny it and forward elsewhere.
-				if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit'] ) {
-					wp_die( 'Login not permitted by this method. ');
-				}
-				add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
-			}
-			*/
+			$this->display_sso_login_form();
 		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
-				add_action( 'login_footer', array( $this, 'login_form' ) );
+				$this->display_sso_login_form();
 			} else {
 				if ( Jetpack::check_identity_crisis() ) {
 					wp_die( __( "Error: This site's Jetpack connection is currently experiencing problems.", 'jetpack' ) );
@@ -425,11 +422,27 @@ class Jetpack_SSO {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
-					wp_safe_redirect( $this->build_sso_url() );
+					$reauth = ! empty( $_GET['reauth'] );
+					wp_safe_redirect( $this->get_sso_url_or_die( $reauth ) );
 					exit;
 				}
 			}
 		}
+	}
+
+	/**
+	 * Ensures that we can get a nonce from WordPress.com via XML-RPC before setting
+	 * up the hooks required to display the SSO form.
+	 */
+	public function display_sso_login_form() {
+		$sso_nonce = self::request_initial_nonce();
+		if ( is_wp_error( $sso_nonce ) ) {
+			return;
+		}
+
+		add_action( 'login_form',            array( $this, 'login_form' ) );
+		add_filter( 'login_body_class',      array( $this, 'login_body_class' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 	}
 
 	/**
@@ -478,13 +491,108 @@ class Jetpack_SSO {
 		return apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form', false ) );
 	}
 
+	/**
+	 * Outputs the Jetpack SSO button and description as well as the toggle link
+	 * for switching between Jetpack SSO and default login.
+	 */
 	function login_form() {
-		$classes = '';
-
-		if ( $this->should_hide_login_form() ) {
-			$classes .= ' forced-sso';
+		$site_name = get_bloginfo( 'name' );
+		if ( ! $site_name ) {
+			$site_name = get_bloginfo( 'url' );
 		}
-		echo '<div id="jetpack-sso-wrap" class="jetpack-sso-wrap' . $classes . '">' . $this->button() . '</div>';
+
+		$display_name = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_name' . COOKIEHASH ] )
+			? $_COOKIE[ 'jetpack_sso_wpcom_name' . COOKIEHASH ]
+			: false;
+		$gravatar = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_gravatar' . COOKIEHASH ] )
+			? $_COOKIE[ 'jetpack_sso_wpcom_gravatar' . COOKIEHASH ]
+			: false;
+
+		?>
+		<div id="jetpack-sso-wrap">
+			<?php if ( $display_name && $gravatar ) : ?>
+				<div id="jetpack-sso-wrap__user">
+					<img width="72" height="72" src="<?php echo esc_html( $gravatar ); ?>" />
+
+					<h2>
+						<?php
+							echo wp_kses(
+								sprintf( __( 'Log in as <span>%s</span>', 'jetpack' ), esc_html( $display_name ) ),
+								array( 'span' => true )
+							);
+						?>
+					</h2>
+				</div>
+
+			<?php endif; ?>
+
+
+			<div id="jetpack-sso-wrap__action">
+				<?php echo $this->build_sso_button( array(), 'is_primary' ); ?>
+
+				<?php if ( $display_name && $gravatar ) : ?>
+					<a class="jetpack-sso-wrap__reauth" href="<?php echo $this->build_sso_button_url( array( 'reauth' => '1' ) ); ?>">
+						<?php esc_html_e( 'Log in as a different WordPress.com user', 'jetpack' ); ?>
+					</a>
+				<?php else : ?>
+					<p>
+						<?php
+							echo esc_html(
+								sprintf(
+									__( 'You can now save time spent logging in by connecting your WordPress.com account to %s.', 'jetpack' ),
+									esc_html( $site_name )
+								)
+							);
+						?>
+					</p>
+				<?php endif; ?>
+			</div>
+
+			<?php if ( ! $this->should_hide_login_form() ) : ?>
+				<div class="jetpack-sso-or">
+					<span><?php esc_html_e( 'Or', 'jetpack' ); ?></span>
+				</div>
+
+				<a href="<?php echo add_query_arg( 'jetpack-sso-default-form', '1' ); ?>" class="jetpack-sso-toggle wpcom">
+					<?php
+						esc_html_e( 'Log in with username and password', 'jetpack' )
+					?>
+				</a>
+
+				<a href="<?php echo add_query_arg( 'jetpack-sso-default-form', '0' ); ?>" class="jetpack-sso-toggle default">
+					<?php
+						esc_html_e( 'Log in with WordPress.com', 'jetpack' )
+					?>
+				</a>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Clear the cookies that store the profile information for the last
+	 * WPCOM user to connect.
+	 */
+	static function clear_wpcom_profile_cookies() {
+		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_name' . COOKIEHASH ] ) ) {
+			setcookie(
+				'jetpack_sso_wpcom_name' . COOKIEHASH,
+				' ',
+				time() - YEAR_IN_SECONDS,
+				COOKIEPATH,
+				COOKIE_DOMAIN
+			);
+		}
+
+		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_gravatar' . COOKIEHASH ] ) ) {
+			setcookie(
+				'jetpack_sso_wpcom_gravatar' . COOKIEHASH,
+				' ',
+				time() - YEAR_IN_SECONDS,
+				COOKIEPATH,
+				COOKIE_DOMAIN
+			);
+		}
 	}
 
 	static function delete_connection_for_user( $user_id ) {
@@ -493,13 +601,15 @@ class Jetpack_SSO {
 		}
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => $user_id,
+			'wpcom_user_id' => $user_id,
 		) );
 		$xml->query( 'jetpack.sso.removeUser', $wpcom_user_id );
 
 		if ( $xml->isError() ) {
 			return false;
 		}
+
+		self::clear_wpcom_profile_cookies();
 
 		return $xml->getResponse();
 	}
@@ -512,7 +622,7 @@ class Jetpack_SSO {
 		$xml->query( 'jetpack.sso.requestNonce' );
 
 		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+			return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage() );
 		}
 
 		return $xml->getResponse();
@@ -657,8 +767,28 @@ class Jetpack_SSO {
 		do_action( 'jetpack_sso_handle_login', $user, $user_data );
 
 		if ( $user ) {
-			// Cache the user's details, so we can present it back to them on their user screen.
+			// Cache the user's details, so we can present it back to them on their user screen
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
+
+			// Cache user's display name and Gravatar so it can be displayed on the login screen
+			setcookie(
+				'jetpack_sso_wpcom_name' . COOKIEHASH,
+				$user_data->display_name,
+				time() + YEAR_IN_SECONDS,
+				COOKIEPATH,
+				COOKIE_DOMAIN
+			);
+
+			setcookie(
+				'jetpack_sso_wpcom_gravatar' . COOKIEHASH,
+				get_avatar_url(
+					$user_data->email,
+					array( 'size' => 72, 'default' => 'mystery' )
+				),
+				time() + YEAR_IN_SECONDS,
+				COOKIEPATH,
+				COOKIE_DOMAIN
+			);
 
 			$remember = false;
 			if ( ! empty( $_COOKIE['jetpack_sso_remember_me'] ) ) {
@@ -681,7 +811,7 @@ class Jetpack_SSO {
 			/** This filter is documented in core/src/wp-includes/user.php */
 			do_action( 'wp_login', $user->user_login, $user );
 
-			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( $_REQUEST['redirect_to'] ) : '';
 			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
 
 			// If we have a saved redirect to request in a cookie
@@ -690,6 +820,25 @@ class Jetpack_SSO {
 				$redirect_to = $_request_redirect_to = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
 				// And then purge it
 				setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+			}
+
+			if ( ! Jetpack::is_user_connected( $user->ID ) ) {
+				$calypso_env = ! empty( $_GET['calypso_env'] )
+					? sanitize_key( $_GET['calypso_env'] )
+					: '';
+
+				wp_safe_redirect(
+					add_query_arg(
+						array(
+							'redirect_to'               => $redirect_to,
+							'request_redirect_to'       => $_request_redirect_to,
+							'calypso_env'               => $calypso_env,
+							'jetpack-sso-auth-redirect' => '1',
+						),
+						admin_url()
+					)
+				);
+				exit;
 			}
 
 			wp_safe_redirect(
@@ -745,11 +894,39 @@ class Jetpack_SSO {
 			$hosts = array();
 		}
 		$hosts[] = 'wordpress.com';
+		$hosts[] = 'jetpack.wordpress.com';
 
 		return array_unique( $hosts );
 	}
 
-	function button( $args = array() ) {
+	/**
+	 * Builds the "Login to WordPress.com" button that is displayed on the login page as well as user profile page.
+	 *
+	 * @param  array   $args       An array of arguments to add to the SSO URL.
+	 * @param  boolean $is_primary Should the button have the `button-primary` class?
+	 * @return string              Returns the HTML markup for the button.
+	 */
+	function build_sso_button( $args = array(), $is_primary = false ) {
+		$url = $this->build_sso_button_url( $args );
+		$classes = $is_primary
+			? 'jetpack-sso button button-primary'
+			: 'jetpack-sso button';
+
+		return sprintf(
+			'<a href="%1$s" class="%2$s">%3$s</a>',
+			esc_url( $url ),
+			$classes,
+			esc_html__( 'Log in with WordPress.com', 'jetpack' )
+		);
+	}
+
+	/**
+	 * Builds a URL with `jetpack-sso` action and option args which is used to setup SSO.
+	 *
+	 * @param  array  $args An array of arguments to add to the SSO URL.
+	 * @return string       The URL used for SSO.
+	 */
+	function build_sso_button_url( $args = array() ) {
 		$defaults = array(
 			'action'  => 'jetpack-sso',
 		);
@@ -760,17 +937,44 @@ class Jetpack_SSO {
 			$args['redirect_to'] = esc_url_raw( $_GET['redirect_to'] );
 		}
 
-		$url  = add_query_arg( $args, wp_login_url() );
-
-		$button = sprintf( '<a href="%1$s" class="jetpack-sso button">%2$s</a>', esc_url( $url ), esc_html__( 'Log in with WordPress.com', 'jetpack' ) );
-		return $button;
+		return add_query_arg( $args, wp_login_url() );
 	}
 
+	/**
+	 * Retrieves a WordPress.com SSO URL with appropriate query parameters or dies.
+	 *
+	 * @param  boolean  $reauth  Should the user be forced to reauthenticate on WordPress.com?
+	 * @param  array    $args    Optional query parameters.
+	 * @return string            The WordPress.com SSO URL.
+	 */
+	function get_sso_url_or_die( $reauth = false, $args = array() ) {
+		if ( empty( $reauth ) ) {
+			$sso_redirect = $this->build_sso_url( $args );
+		} else {
+			self::clear_wpcom_profile_cookies();
+			$sso_redirect = $this->build_reauth_and_sso_url( $args );
+		}
+
+		// If there was an error retrieving the SSO URL, then error.
+		if ( is_wp_error( $sso_redirect ) ) {
+			wp_die( sprintf( '%s: %s', $sso_redirect->get_error_code(), $sso_redirect->get_error_message() ) );
+		}
+
+		return $sso_redirect;
+	}
+
+	/**
+	 * Build WordPress.com SSO URL with appropriate query parameters.
+	 *
+	 * @param  array  $args Optional query parameters.
+	 * @return string       WordPress.com SSO URL
+	 */
 	function build_sso_url( $args = array() ) {
+		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
 		$defaults = array(
 			'action'    => 'jetpack-sso',
 			'site_id'   => Jetpack_Options::get_option( 'id' ),
-			'sso_nonce' => self::request_initial_nonce(),
+			'sso_nonce' => $sso_nonce,
 		);
 
 		if ( isset( $_GET['state'] ) && check_admin_referer( $_GET['state'] ) ) {
@@ -778,9 +982,45 @@ class Jetpack_SSO {
 		}
 
 		$args = wp_parse_args( $args, $defaults );
-		$url  = add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
 
-		return $url;
+		if ( is_wp_error( $args['sso_nonce'] ) ) {
+			return $args['sso_nonce'];
+		}
+
+		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
+	}
+
+	/**
+	 * Build WordPress.com SSO URL with appropriate query parameters,
+	 * including the parameters necessary to force the user to reauthenticate
+	 * on WordPress.com.
+	 *
+	 * @param  array  $args Optional query parameters.
+	 * @return string       WordPress.com SSO URL
+	 */
+	function build_reauth_and_sso_url( $args = array() ) {
+		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
+		$redirect = $this->build_sso_url( array( 'force_auth' => '1', 'sso_nonce' => $sso_nonce ) );
+
+		if ( is_wp_error( $redirect ) ) {
+			return $redirect;
+		}
+
+		$defaults = array(
+			'action'      => 'jetpack-sso',
+			'site_id'     => Jetpack_Options::get_option( 'id' ),
+			'sso_nonce'   => $sso_nonce,
+			'reauth'      => '1',
+			'redirect_to' => urlencode( $redirect ),
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+
+		if ( is_wp_error( $args['sso_nonce'] ) ) {
+			return $args['sso_nonce'];
+		}
+
+		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
 	}
 
 	/**
@@ -887,6 +1127,41 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * When jetpack-sso-auth-redirect query parameter is set, will redirect user to
+	 * WordPress.com authorization flow.
+	 *
+	 * We redirect here instead of in handle_login() because Jetpack::init()->build_connect_url
+	 * calls menu_page_url() which doesn't work properly until admin menus are registered.
+	 */
+	function maybe_authorize_user_after_sso() {
+		if ( empty( $_GET['jetpack-sso-auth-redirect'] ) ) {
+			return;
+		}
+
+		$redirect_to = ! empty( $_GET['redirect_to'] ) ? esc_url_raw( $_GET['redirect_to'] ) : admin_url();
+		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) ? esc_url_raw( $_GET['request_redirect_to'] ) : $redirect_to;
+
+		/** This filter is documented in core/src/wp-login.php */
+		$redirect_after_auth = apply_filters( 'login_redirect', $redirect_to, $request_redirect_to, wp_get_current_user() );
+
+		/**
+		 * Since we are passing this redirect to WordPress.com and therefore can not use wp_safe_redirect(),
+		 * let's sanitize it here to make sure it's safe. If the redirect is not safe, then use admin_url().
+		 */
+		$redirect_after_auth = wp_sanitize_redirect( $redirect_after_auth );
+		$redirect_after_auth = wp_validate_redirect( $redirect_after_auth, admin_url() );
+
+		/**
+		 * Return the raw connect URL with our redirect and attribute connection to SSO.
+		 */
+		$connect_url = Jetpack::init()->build_connect_url( true, $redirect_after_auth, 'sso' );
+
+		add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+		wp_safe_redirect( $connect_url );
+		exit;
+	}
+
+	/**
 	 * Deal with user connections...
 	 */
 	function admin_init() {
@@ -962,7 +1237,7 @@ class Jetpack_SSO {
 			</table>
 		<?php elseif ( get_current_user_id() == $user->ID && Jetpack::is_user_connected( $user->ID ) ) : ?>
 
-			<?php echo $this->button( 'state=sso-link-user&_wpnonce=' . wp_create_nonce( 'sso-link-user' ) ); // update ?>
+			<?php echo $this->build_sso_button( 'state=sso-link-user&_wpnonce=' . wp_create_nonce( 'sso-link-user' ) ); ?>
 
 		<?php else : ?>
 

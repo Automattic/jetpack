@@ -1,14 +1,9 @@
 jQuery( document ).ready( function( $ ) {
-	var ssoWrap = $( '#jetpack-sso-wrap' ),
+	var body = $( 'body' ),
 		rememberMe = $( '#rememberme' ),
-		ssoButton  = $( 'a.jetpack-sso.button' );
-
-	// If forcing SSO, then let's remove the default login form
-	if ( ssoWrap.hasClass( 'forced-sso' ) ) {
-		$( '#loginform' ).empty();
-	}
-
-	$( '#loginform' ).append( ssoWrap );
+		ssoButton = $( 'a.jetpack-sso.button' ),
+		toggleSSO = $( '.jetpack-sso-toggle' ),
+		userLogin = $( '#user_login' );
 
 	rememberMe.on( 'change', function() {
 		var url       = ssoButton.prop( 'href' ),
@@ -22,4 +17,12 @@ jQuery( document ).ready( function( $ ) {
 
 		ssoButton.prop( 'href', url );
 	} ).change();
+
+	toggleSSO.on( 'click', function( e ) {
+		e.preventDefault();
+		body.toggleClass( 'jetpack-sso-body' );
+		if ( ! body.hasClass( 'jetpack-sso-body' ) ) {
+			userLogin.focus();
+		}
+	} );
 } );

@@ -1,14 +1,14 @@
 <?php
 /**
  * Module Name: Site Stats
- * Module Description: Collect traffic stats and insights.
+ * Module Description: Collect valuable traffic stats and insights.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 1.1
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Site Stats, Recommended
- * Feature: Recommended, Traffic
+ * Feature: Engagement
  * Additional Search Queries: statistics, tracking, analytics, views, traffic, stats
  */
 

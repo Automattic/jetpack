@@ -12,9 +12,6 @@
 	$( document ).ready(function () {
 
 		data = {
-			'jumpstartModules'      : jetpackL10n.jumpstart_modules,
-			'jumpstartModSlug'      : jetpackL10n.jumpstart_modules,
-			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
 			'nuxAdminStatsURLS'     : jetpackL10n.admin_stats_urls,
 			'showJumpstart'         : jetpackL10n.show_jumpstart,
@@ -41,7 +38,6 @@
 			}
 		};
 
-		jumpStartAJAX();
 		adminAJAX();
 	});
 
@@ -238,110 +234,6 @@
 
 		// Apply new height plus 20 pixels
 		module.css( 'height', ( parseInt( tallest, 10 ) + 5 ) + 'px' );
-	}
-
-	/*
-	Handles the jump start ajax requests.
-
-	Dismissing the Jump Start area will set an option, so it will never be seen again
-	Initiating Jump Start will activate all modules that are recommended and set a sharing options while doing so.
-	For either request, if update_option has failed, look for an error in the console.
-	@todo delete the "reset everything" call - meant for testing only.
-	 */
-	function jumpStartAJAX() {
-
-		// Will dismiss the Jump Start area, and set wp option in callback
-		$( '.dismiss-jumpstart' ).click(function(){
-			$( '#jump-start-area' ).hide( 600 );
-
-			data.disableJumpStart = true;
-			data.action = 'jetpack_jumpstart_ajax';
-
-			$.post( jetpackL10n.ajaxurl, data, function (response) {
-				// If there's no response, something bad happened
-				if ( ! response ) {
-					//console.log( 'Option "jetpack_dismiss_jumpstart" not updated.' );
-				}
-
-				window.location.hash = 'refresh';
-			});
-
-			$( '.nux-intro' ).show();
-
-			// Log Jump Start event in MC Stats
-			new Image().src = data.jumpstartStatsURLS.dismiss;
-
-			return false;
-		});
-
-		// Activate all Jump-start modules
-		$( '#jump-start' ).click(function () {
-			var module, dataName, configURL, checkBox;
-
-			$( '.jumpstart-spinner' ).show().css( 'display', 'block' );
-			$( '#jump-start' ).hide();
-			$( '.dismiss-jumpstart' ).hide();
-
-			data.jumpStartActivate = 'jump-start-activate';
-			data.action = 'jetpack_jumpstart_ajax';
-
-			$( '#jp-config-list' ).hide();
-
-			$.post( jetpackL10n.ajaxurl, data, function (response) {
-				// If there's no response, option 'sharing-services' was not updated.
-				if ( ! response ) {
-					//console.log( 'Option "sharing-services" not updated. Either you already had sharing buttons enabled, or something is broken.' );
-				}
-
-				module = data.jumpstartModules;
-
-				// Only target Jump Start modules
-				_.each( module, function( mod ) {
-					dataName = $( 'label[for="active-' + mod.module_slug + '"]' + '.plugin-action__label' );
-					configURL = mod.configure_url;
-					checkBox = $( 'input[id="active-' + mod.module_slug + '"]' );
-					
-					$( '#toggle-' + mod.module_slug ).addClass( 'activated' );
-					dataName.html( 'ACTIVE' );
-					$( checkBox ).prop( 'checked', true );
-				});
-
-				$( '.jumpstart-spinner, .jstart, #jumpstart-cta, .manage-cta-inactive' ).hide();
-				$( '.jumpstart-message, .manage-cta-active' ).toggle();
-				$( '#jump-start-area' ).delay( 5000 ).hide( 600 );
-
-				// Log Jump Start event in MC Stats
-				new Image().src = data.jumpstartStatsURLS.jumpstarted;
-
-				$( '.nux-intro' ).show();
-
-				window.location.hash = 'refresh';
-			});
-
-			return false;
-		});
-
-		/*
-			RESET EVERYTHING (for testing only)
-			@todo remove
-		 */
-
-		$( '#jump-start-deactivate' ).click(function () {
-			$( '.jumpstart-spinner' ).show();
-
-			data.jumpStartDeactivate = 'jump-start-deactivate';
-			data.action = 'jetpack_jumpstart_ajax';
-
-			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
-				//$('#jumpstart-cta').html(response);
-				$( '#deactivate-success' ).html( response );
-				$( '.jumpstart-spinner' ).hide();
-				window.location.hash = '';
-
-			});
-
-			return false;
-		});
 	}
 
 	/*

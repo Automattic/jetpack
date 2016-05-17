@@ -1,0 +1,128 @@
+.jp-dash-item {
+	a {
+		font-style: italic;
+	}
+}
+
+.jp-dash-item__count {
+	margin-bottom: 0;
+	letter-spacing: rem( -1px );
+
+	@include breakpoint( ">960px" ) {
+		font-size: rem( 60px );
+		margin-top: 0;
+	}
+	@include breakpoint( ">660px" ) {
+		font-size: rem( 48px );
+		margin-top: 0;
+	}
+	@include breakpoint( "<660px" ) {
+		font-size: rem( 32px );
+	}
+}
+
+.jp-dash-item__description {
+	margin: 0;
+	font-size: rem( 14px );
+}
+
+.jp-dash-item .dops-section-header {
+	background: lighten( $gray, 35% );
+
+	.dops-section-header__label:before {
+		@include long-content-fade( $color : lighten( $gray, 35% ) );
+	}
+
+	&.is-success {
+		background: $alert-green;
+
+		.dops-section-header__label:before {
+			@include long-content-fade( $color : $alert-green );
+		}
+	}
+	&.is-warning {
+		background: $alert-yellow;
+
+		.dops-section-header__label:before {
+			@include long-content-fade( $color : $alert-yellow );
+		}
+	}
+	&.is-error {
+		background: $alert-red;
+
+		.dops-section-header__label:before {
+			@include long-content-fade( $color : $alert-red );
+		}
+	}
+	&.is-info {
+		background: $blue-wordpress;
+
+		.dops-section-header__label:before {
+			@include long-content-fade( $color : $blue-wordpress );
+		}
+	}
+	&.is-working,
+	&.is-premium-inactive {
+		.dops-section-header__actions {
+			color: lighten( $gray, 20% );
+		}
+	}
+}
+
+// conditional styles for content when items are inactive
+.jp-dash-item__is-inactive {
+
+	.dops-section-header .dops-section-header__label:before {
+		@include long-content-fade( $color : $gray-light );
+	}
+
+	.dops-card {
+		background-color: $gray-light;
+	}
+
+	.jp-dash-item__description {
+		color: darken( $gray, 20% );
+	}
+}
+
+.jp-dash-item__recently-activated .dops-card:last-of-type {
+	padding: 0;
+}
+
+.jp-dash-item__recently-activated-lower {
+	background: $gray-light;
+
+	@include breakpoint( "<660px" ) {
+		background: $white;
+	}
+
+	&:before {
+		display: block;
+		content: "";
+		background: $white url('../../images/jp-4/long-clouds.svg') 50% 100% no-repeat;
+		background-size: 150%;
+		padding: 0;
+		height: rem( 63px );
+
+		@include breakpoint( "<660px" ) {
+			display: none;
+		}
+	}
+}
+
+.jp-dash-item__recently-activated .jp-dash-item__description {
+	padding: rem( 16px );
+	font-style: italic;
+}
+
+// I apologize for this, but the icons were misbehaving. - MJA
+.jp-dash-item .is-success .dops-section-header__label,
+.jp-dash-item .is-success .dops-section-header__actions,
+.jp-dash-item .is-warning .dops-section-header__label,
+.jp-dash-item .is-warning .dops-section-header__actions,
+.jp-dash-item .is-error .dops-section-header__label,
+.jp-dash-item .is-error .dops-section-header__actions,
+.jp-dash-item .is-info .dops-section-header__label,
+.jp-dash-item .is-info .dops-section-header__actions {
+	color: $white;
+}

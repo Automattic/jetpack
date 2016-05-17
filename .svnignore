@@ -10,7 +10,7 @@ phpunit.xml.dist
 tests
 tools
 package.json
-Gruntfile.js
+gulpfile.js
 node_modules
 languages/jetpack.pot
 _inc/lib/icalendar-reader.php

@@ -286,7 +286,6 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				'modules'           => Jetpack::get_translated_modules( array_values( Jetpack_Admin::init()->get_modules() ) ),
 				'currentVersion'    => JETPACK__VERSION,
 				'ajaxurl'           => admin_url( 'admin-ajax.php' ),
-				'jumpstart_modules' => $this->jumpstart_module_tag( 'Jumpstart' ),
 				'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 				'activate_nonce'    => wp_create_nonce( 'jetpack-jumpstart-nonce' ),
 				'admin_nonce'       => wp_create_nonce( 'jetpack-admin-nonce' ),
