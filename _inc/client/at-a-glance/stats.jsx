@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import forEach from 'lodash/foreach';
+import forEach from 'lodash/forEach';
 import Card from 'components/card';
 import Chart from 'components/chart';
 import { connect } from 'react-redux';
