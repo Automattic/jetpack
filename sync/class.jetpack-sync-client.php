@@ -563,9 +563,10 @@ class Jetpack_Sync_Client {
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
-			if ( $checksum !== get_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME."_$name" ) ) {
+			// explicitly not using Identical comparison as get_option returns a string
+			if ( $checksum != get_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME . "_$name" ) ) {
 				do_action( 'jetpack_sync_current_callable', $name, $value );
-				update_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME."_$name", $checksum );
+				update_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME . "_$name", $checksum );
 			}
 		}
 	}
