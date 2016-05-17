@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
-import DashSectionHeader from 'components/dash-section-header';
 
 /**
  * Internal dependencies
@@ -19,7 +18,7 @@ import { getLastDownTime as _getLastDownTime } from 'state/at-a-glance';
 
 const DashMonitor = React.createClass( {
 	getContent: function() {
-		if ( this.props.isModuleActivated( 'monitor' )  ) {
+		if ( this.props.isModuleActivated( 'monitor' ) ) {
 			const lastDowntime = this.props.getLastDownTime();
 
 			if ( lastDowntime === 'N/A' ) {
