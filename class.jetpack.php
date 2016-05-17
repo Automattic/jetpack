@@ -3244,8 +3244,8 @@ p {
 			add_action( 'jetpack_notices', array( $this, 'disconnect_survey_notice' ) );
 		}
 
-		if ( current_user_can( 'manage_options' ) && 'ALWAYS' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
-			add_action( 'admin_notices', array( $this, 'alert_required_ssl_fail' ) );
+		if ( current_user_can( 'manage_options' ) && 'AUTO' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
+			add_action( 'admin_notices', array( $this, 'alert_auto_ssl_fail' ) );
 		}
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
@@ -4815,13 +4815,8 @@ p {
 			// default : case 'AUTO' :
 		}
 
-		// Yay! Your host is good!
-		if ( self::permit_ssl() && wp_http_supports( array( 'ssl' => true ) ) ) {
-			return $url;
-		}
-
-		// Boo! Your host is bad and makes Jetpack cry!
-		return set_url_scheme( $url, 'http' );
+		// we now return the unmodified SSL URL by default, as a security precaution
+		return $url;
 	}
 
 	/**
@@ -4849,9 +4844,13 @@ p {
 
 				// If it's not 'NEVER', test to see
 				if ( $ssl ) {
-					$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
-					if ( is_wp_error( $response ) || ( 'OK' !== wp_remote_retrieve_body( $response ) ) ) {
-						$ssl = 0;
+					if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
+						$ssl = 0;	
+					} else {
+						$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
+						if ( is_wp_error( $response ) || ( 'OK' !== wp_remote_retrieve_body( $response ) ) ) {
+							$ssl = 0;
+						}
 					}
 				}
 			}
@@ -4875,6 +4874,51 @@ p {
 				<p><?php _e( 'Your site is configured to only permit SSL connections to Jetpack, but SSL connections don\'t seem to be functional!', 'jetpack' ); ?></p>
 			</div>
 		</div>
+
+		<?php
+	}
+
+	/*
+	 * Displays an admin_notice, alerting the user to their JETPACK_CLIENT__HTTPS constant being 'AUTO' but SSL isn't working.
+	 */
+	public function alert_auto_ssl_fail() {
+		if ( ! current_user_can( 'manage_options' ) )
+			return;
+		?>
+
+		<div id="jetpack-ssl-warning" class="error jp-identity-crisis">
+			<div class="jp-banner__content">
+				<h2><?php _e( 'Outbound HTTPS not working', 'jetpack' ); ?></h2>
+				<p><?php _e( 'Your site could not connect to WordPress.com via HTTPS. This could be due to any number of reasons, including faulty SSL certificates, misconfigured or missing SSL libraries, or network issues.', 'jetpack' ); ?></p>
+				<p>
+					<?php _e( 'Jetpack will re-test for HTTPS support once a day, but you can click here to try again immediately: ', 'jetpack' ); ?>
+					<a href="#" id="jetpack-recheck-ssl-button"><?php _e( 'Try again' ); ?></a>
+					<span id="jetpack-recheck-ssl-output"></span>
+				</p>
+			</div>
+		</div>
+		<style>
+			#jetpack-recheck-ssl-output { margin-left: 5px; color: red; }
+		</style>
+		<script type="text/javascript">
+			jQuery(document).ready( function( $ ) {
+				$('#jetpack-recheck-ssl-button').click( function( e ) {
+					var $this = $( this );
+					$this.html( <?php echo json_encode(__( 'Checking', 'jetpack' )); ?> );
+					$( '#jetpack-recheck-ssl-output' ).html( "" );
+					e.preventDefault();
+					$.post( '/wp-json/jetpack/v4/recheck-ssl' )
+					  .done( function( response ) {
+					  	if ( response == true ) {
+					  		$( '#jetpack-ssl-warning' ).hide();
+					  	} else {
+					  		this.html( <?php echo json_encode(__( 'Try again', 'jetpack' )); ?> );
+					  		$( '#jetpack-recheck-ssl-output' ).html( "SSL Failed" );
+					  	}
+					  }.bind( $this ) );
+				} );
+			} );
+		</script>
 
 		<?php
 	}
