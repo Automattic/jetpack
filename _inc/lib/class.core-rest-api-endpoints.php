@@ -386,7 +386,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function recheck_ssl() {
-		return Jetpack::permit_ssl( true );
+		$result = Jetpack::permit_ssl( true );
+		return array(
+			'enabled' => $result,
+			'message' => get_transient( 'jetpack_https_test_message' )
+		);
 	}
 
 	/**
