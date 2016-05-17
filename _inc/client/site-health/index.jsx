@@ -47,7 +47,6 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				<a href={ element[3] } target="_blank">Learn More</a>
 			</FoldableCard>
 		);
-
 	} );
 
 	return (
@@ -64,7 +63,6 @@ function renderLongDescription( module ) {
 }
 
 function renderSettings( module ) {
-
 	switch ( module ) {
 		case 'akismet':
 			return ( <div>Please go to <a href="/wp-admin/admin.php?page=akismet-key-config">Akismet Settings</a> to configure</div> );
