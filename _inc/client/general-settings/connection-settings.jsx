@@ -22,7 +22,7 @@ const ConnectionSettings = React.createClass( {
 			? <ConnectButton />
 			: null;
 
-		const maybeShowLinkUnlinkBtn = userData.currentUser.isMaster || isLinked
+		const maybeShowLinkUnlinkBtn = userData.currentUser.isMaster
 			? null
 			: <ConnectButton connectUser={ true } />;
 
