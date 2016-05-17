@@ -26,7 +26,7 @@ QueryPluginUpdates.defaultProps = {
 	fetchPluginUpdates: () => {}
 };
 
-export default connect( ( state, ownProps ) => {
+export default connect( ( state ) => {
 	return {
 		fetchPluginUpdates: fetchPluginUpdates(),
 		fetchingPluginUpdates: isFetchingPluginUpdates( state ),

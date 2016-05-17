@@ -14,7 +14,6 @@ import {
 	JUMPSTART_ACTIVATE_SUCCESS,
 	JUMPSTART_SKIP
 } from 'state/action-types';
-import restApi from 'rest-api';
 
 const jumpstartState = {
 	showJumpStart: window.Initial_State.showJumpstart,
@@ -58,7 +57,7 @@ export function getJumpStartStatus( state ) {
  * Returns true if activating Jumpstart
  *
  * @param  {Object} state Global state tree
- * @return {bool}
+ * @return {bool} true if Jump Start is being activated
  */
 export function isJumpstarting( state ) {
 	return state.jetpack.jumpstart.status.isJumpstarting;

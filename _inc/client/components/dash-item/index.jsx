@@ -65,7 +65,7 @@ export default React.createClass( {
 
 		if ( this.props.status ) {
 			icon = (
-				<Gridicon icon={ this.props.icon || this.getIcon() } size={ 24 }  />
+				<Gridicon icon={ this.props.icon || this.getIcon() } size={ 24 } />
 			);
 		}
 

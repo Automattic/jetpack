@@ -12,7 +12,6 @@ import { SettingToggle } from 'components/setting-toggle';
 import {
 	fetchSettings,
 	isSettingActivated,
-	toggleSetting,
 	updateSetting,
 	isFetchingSettingsList
 } from 'state/settings';
@@ -21,15 +20,15 @@ export const Settings = React.createClass( {
 	componentDidMount() {
 		this.props.fetchSettings();
 	},
+
 	render() {
-		let { toggleSetting, isSettingActivated, isFetchingSettingsList } = this.props;
 		return (
 			<div>
 				<SettingToggle
 					slug={ window.Initial_State.settingNames.jetpack_holiday_snow_enabled }
-					activated={ isSettingActivated( window.Initial_State.settingNames.jetpack_holiday_snow_enabled ) }
-					toggleSetting={ toggleSetting }
-					disabled={ isFetchingSettingsList }
+					activated={ this.props.isSettingActivated( window.Initial_State.settingNames.jetpack_holiday_snow_enabled ) }
+					toggleSetting={ this.props.toggleSetting }
+					disabled={ this.props.isFetchingSettingsList }
 				>Show falling snow on my blog until January 4<sup>th</sup>.</SettingToggle>
 			</div>
 		);
@@ -50,7 +49,8 @@ export default connect(
 		return {
 			fetchSettings: () => dispatch( fetchSettings() ),
 			toggleSetting: ( setting_name, activated ) => {
-				dispatch ( updateSetting( { [ setting_name ] : ! activated } ) );
+				dispatch( updateSetting( { [ setting_name ]: ! activated } ) );
 			}
 		}
-} )( Settings );
+	}
+)( Settings );

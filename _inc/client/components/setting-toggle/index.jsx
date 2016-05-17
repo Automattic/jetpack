@@ -23,10 +23,10 @@ export const SettingToggle = React.createClass( {
 	},
 	render() {
 		return <FormToggle checked={ this.props.activated }
-						   className={ this.props.className }
-						   onChange={ this.toggleSetting }
-						   disabled={ this.props.disabled }
-						   id={ this.props.id }
+			className={ this.props.className }
+			onChange={ this.toggleSetting }
+			disabled={ this.props.disabled }
+			id={ this.props.id }
 		> { this.props.children }</FormToggle>;
 	}
-});
+} );

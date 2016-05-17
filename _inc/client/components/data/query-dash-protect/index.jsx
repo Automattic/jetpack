@@ -27,7 +27,7 @@ QueryProtectCount.defaultProps = {
 	fetchProtectCount: () => {}
 };
 
-export default connect( ( state, ownProps ) => {
+export default connect( ( state ) => {
 	return {
 		fetchProtectCount: fetchProtectCount(),
 		fetchingProtectData: isFetchingProtectData( state ),

@@ -3,18 +3,12 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import Card from 'components/card';
-import SectionHeader from 'components/section-header';
 
 /**
  * Internal dependencies
  */
 import ConnectButton from 'components/connect-button';
-import {
-	isFetchingConnectUrl as _isFetchingConnectUrl,
-	getConnectUrl as _getConnectUrl
-} from 'state/connection';
 import { imagePath } from 'constants';
 
 const JetpackConnect = React.createClass( {
@@ -35,12 +29,10 @@ const JetpackConnect = React.createClass( {
 
 					<header className="jp-jetpack-connect__header">
 						<h2 className="jp-jetpack-connect__container-subtitle" title="Drive more traffic to your site with Jetpack">Drive more traffic to your site</h2>
-						<p className="jp-jetpack-connect__description">Jetpack has many traffic and engagement tools to help you get more viewers
-to your site and keep them there.</p>
-
+						<p className="jp-jetpack-connect__description">Jetpack has many traffic and engagement tools to help you get more viewers to your site and keep them there.</p>
 						<div className="jp-jetpack-connect__header-img-container">
-							<img src={ imagePath + "long-clouds.svg" } width="1160" height="63" alt="Decoration: Jetpack clouds" className="jp-jetpack-connect__header-img" /> {/* defining width and height for IE here */}
-							<img src={ imagePath + "stat-bars.svg" } width="400" alt="Decoration: Jetpack bar graph" className="jp-jetpack-connect__header-img" />
+							<img src={ imagePath + 'long-clouds.svg' } width="1160" height="63" alt="Decoration: Jetpack clouds" className="jp-jetpack-connect__header-img" /> {/* defining width and height for IE here */}
+							<img src={ imagePath + 'stat-bars.svg' } width="400" alt="Decoration: Jetpack bar graph" className="jp-jetpack-connect__header-img" />
 						</div>
 					</header>
 
@@ -72,10 +64,10 @@ to your site and keep them there.</p>
 						<h2 className="jp-jetpack-connect__container-subtitle" title="Track your growth">Track your growth</h2>
 						<p className="jp-jetpack-connect__description">Jetpack harnesses the power of WordPress.com to show you detailed insights about your visitors, what they’re reading, and where they’re coming from.</p>
 
-						<img src={ imagePath + "stats-example-med.png" } 
+						<img src={ imagePath + 'stats-example-med.png' }
 							srcSet={ `${imagePath}stats-example-sm.png 445w, ${imagePath}stats-example-med.png 770w, ${imagePath}stats-example-lrg.png 1200w` }
-						 	sizes="(min-width: 200px) 445px, (min-width: 445px) 770px, (min-width: 771px) 1200px"
-						 	className="jp-jetpack-connect__feature-image" alt="Jetpack statistics and traffic insights graph" />
+							sizes="(min-width: 200px) 445px, (min-width: 445px) 770px, (min-width: 771px) 1200px"
+							className="jp-jetpack-connect__feature-image" alt="Jetpack statistics and traffic insights graph" />
 					</div>
 				</Card>
 				<Card className="jp-jetpack-connect__feature">
@@ -118,7 +110,7 @@ to your site and keep them there.</p>
 					</header>
 
 					<div className="jp-jetpack-connect__interior-container">
-						<img src={ imagePath + "feature-photon-med.jpg" } 
+						<img src={ imagePath + 'feature-photon-med.jpg' }
 							srcSet={ `${imagePath}feature-photon-sm.jpg 600w, ${imagePath}feature-photon-med.jpg 770w, ${imagePath}feature-photon-lrg.jpg 1200w` }
 							sizes="(min-width: 200px) 600px, (min-width: 600px) 770px, (min-width: 800px) 1200px"
 							className="jp-jetpack-connect__feature-image" alt="Jetpacks photon serves up lightning fast, optimized images" />
@@ -127,11 +119,11 @@ to your site and keep them there.</p>
 				<Card className="jp-jetpack-connect__feature">
 					<header className="jp-jetpack-connect__header">
 						<h2 className="jp-jetpack-connect__container-subtitle" title="Jetpack offers free, professional support">Did we mention free, professional support?</h2>
-						<p className="jp-jetpack-connect__description">Jetpack is supported by some of the most technical and passionate people in the community. They're located around the globe and ready to help you.</p>
+						<p className="jp-jetpack-connect__description">Jetpack is supported by some of the most technical and passionate people in the community. They&#8217;re located around the globe and ready to help you.</p>
 					</header>
 
 					<div className="jp-jetpack-connect__interior-container">
-						<img src={ imagePath + "aurora-med.jpg" } 
+						<img src={ imagePath + 'aurora-med.jpg' }
 							srcSet={ `${imagePath}aurora-sm.jpg 600w, ${imagePath}aurora-med.jpg 770w, ${imagePath}aurora-lrg.jpg 1200w` }
 							sizes="(min-width: 200px) 600px, (min-width: 600px) 770px, (min-width: 800px) 1200px"
 							className="jp-jetpack-connect__feature-image" alt="Jetpack's free support team" />
