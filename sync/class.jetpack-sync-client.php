@@ -64,10 +64,7 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_post', $handler, 10 );
 		add_filter( 'jetpack_sync_before_send_wp_insert_post', array( $this, 'expand_wp_insert_post' ) );
 		add_action( 'transition_post_status', $handler, 10, 3 ); // $new_status, $old_status, $post)
-		add_filter( 'jetpack_sync_before_send_transition_post_status', array(
-			$this,
-			'expand_transition_post_status'
-		) );
+		add_filter( 'jetpack_sync_before_send_transition_post_status', array( $this, 'expand_transition_post_status' ) );
 
 		// attachments
 
@@ -406,12 +403,12 @@ class Jetpack_Sync_Client {
 
 		if ( ! $buffer ) {
 			// buffer has no items
-			return;
+			return false;
 		}
 
 		if ( is_wp_error( $buffer ) ) {
 			// another buffer is currently sending
-			return;
+			return false;
 		}
 
 		$upload_size   = 0;
