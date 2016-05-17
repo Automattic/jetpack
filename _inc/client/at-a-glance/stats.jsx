@@ -98,9 +98,9 @@ const DashStats = React.createClass( {
 
 	getClass: function( view ) {
 		const activeTab = this.props.activeTab();
-		return activeTab === view
-			? 'jp-at-a-glance__stats-view-link is-current'
-			: 'jp-at-a-glance__stats-view-link';
+		return activeTab === view ?
+			'jp-at-a-glance__stats-view-link is-current' :
+			'jp-at-a-glance__stats-view-link';
 	},
 
 	render: function() {
