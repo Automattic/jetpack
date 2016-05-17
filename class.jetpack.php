@@ -4888,7 +4888,7 @@ p {
 				<p>
 					<?php printf( __( 'For more help, try our <a href="$1%s">connection debugger</a> or <a href="$2%s" target="_blank">troubleshooting tips</a>', 'jetpack' ), 
 							esc_url( Jetpack::admin_url( array( 'page' => 'jetpack-debugger' )  ) ),
-							esc_url( "https://jetpack.com/support/getting-started-with-jetpack/troubleshooting-tips/" ) ); ?>
+							esc_url( 'https://jetpack.com/support/getting-started-with-jetpack/troubleshooting-tips/' ) ); ?>
 				</p>
 			</div>
 		</div>
@@ -4896,19 +4896,19 @@ p {
 			#jetpack-recheck-ssl-output { margin-left: 5px; color: red; }
 		</style>
 		<script type="text/javascript">
-			jQuery(document).ready( function( $ ) {
-				$('#jetpack-recheck-ssl-button').click( function( e ) {
+			jQuery( document ).ready( function( $ ) {
+				$( '#jetpack-recheck-ssl-button' ).click( function( e ) {
 					var $this = $( this );
-					$this.html( <?php echo json_encode(__( 'Checking', 'jetpack' )); ?> );
-					$( '#jetpack-recheck-ssl-output' ).html( "" );
+					$this.html( <?php echo json_encode( __( 'Checking', 'jetpack' ) ); ?> );
+					$( '#jetpack-recheck-ssl-output' ).html( '' );
 					e.preventDefault();
 					$.post( '/wp-json/jetpack/v4/recheck-ssl' )
 					  .done( function( response ) {
 					  	if ( response.enabled ) {
 					  		$( '#jetpack-ssl-warning' ).hide();
 					  	} else {
-					  		this.html( <?php echo json_encode(__( 'Try again', 'jetpack' )); ?> );
-					  		$( '#jetpack-recheck-ssl-output' ).html( "SSL Failed: "+response.message );
+					  		this.html( <?php echo json_encode( __( 'Try again', 'jetpack' ) ); ?> );
+					  		$( '#jetpack-recheck-ssl-output' ).html( 'SSL Failed: ' + response.message );
 					  	}
 					  }.bind( $this ) );
 				} );
