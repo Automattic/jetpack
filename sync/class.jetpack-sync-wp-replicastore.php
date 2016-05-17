@@ -338,8 +338,8 @@ ENDSQL;
 	}
 
 	// functions
-	public function get_callable( $constant ) {
-		$value = get_option( 'jetpack_' . $constant );
+	public function get_callable( $name ) {
+		$value = get_option( 'jetpack_' . $name );
 
 		if ( $value ) {
 			return $value;
@@ -348,10 +348,8 @@ ENDSQL;
 		return null;
 	}
 
-	public function set_callables( $constants ) {
-		foreach ( $constants as $key => $value ) {
-			update_option( 'jetpack_' . $key, $value );
-		}
+	public function set_callable( $name, $value ) {
+		update_option( 'jetpack_' . $name, $value );
 	}
 
 	// network options
