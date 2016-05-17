@@ -267,15 +267,15 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	// updates
-	public function get_callable( $function ) {
-		if ( ! isset( $this->callable[ $function ] ) ) {
+	public function get_callable( $name ) {
+		if ( ! isset( $this->callable[ $name ] ) ) {
 			return null;
 		}
-		return $this->callable[ $function ];
+		return $this->callable[ $name ];
 	}
 
-	public function set_callables( $callables ) {
-		$this->callable = $callables;
+	public function set_callable( $name, $value ) {
+		$this->callable[ $name ] = $value;
 	}
 
 	// network options

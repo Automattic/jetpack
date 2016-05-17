@@ -117,9 +117,9 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// functions
-			case 'jetpack_sync_current_callables':
-				list( $functions ) = $args;
-				$this->store->set_callables( $functions );
+			case 'jetpack_sync_current_callable':
+				list( $name, $value ) = $args;
+				$this->store->set_callable( $name, $value );
 				break;
 
 			// network options
@@ -229,9 +229,6 @@ class Jetpack_Sync_Server_Replicator {
 				list( $user_id, $reassign ) = $args;
 				$this->store->delete_user( $user_id );
 				break;
-
-			default:
-				error_log( "The action '$action_name' is unknown. See class.jetpack-sync-server-replicator.php." );
 		}
 	}
 }

@@ -57,7 +57,7 @@ class Jetpack_Sync_Client {
 		add_action( 'jetpack_sync_current_constants', $handler, 10 );
 
 		// functions
-		add_action( 'jetpack_sync_current_callables', $handler, 10 );
+		add_action( 'jetpack_sync_current_callable', $handler, 10, 2 );
 
 		// posts
 		add_action( 'wp_insert_post', $handler, 10, 3 );
@@ -550,7 +550,10 @@ class Jetpack_Sync_Client {
 	}
 
 	public function force_sync_callables() {
-		delete_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME );
+		foreach ( $this->callable_whitelist as $name => $config ) {
+			delete_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME."_$name" );
+		}
+		
 		$this->maybe_sync_callables();
 	}
 
@@ -559,10 +562,14 @@ class Jetpack_Sync_Client {
 		if ( empty( $callables ) ) {
 			return;
 		}
-		$callables_check_sum = $this->get_check_sum( $callables );
-		if ( $callables_check_sum !== (int) get_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME ) ) {
-			do_action( 'jetpack_sync_current_callables', $callables );
-			update_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME, $callables_check_sum );
+
+		// only send the callables that have changed
+		foreach ( $callables as $name => $value ) {
+			$checksum = $this->get_check_sum( $value );
+			if ( $checksum !== get_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME."_$name" ) ) {
+				do_action( 'jetpack_sync_current_callable', $name, $value );
+				update_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME."_$name", $checksum );
+			}
 		}
 	}
 

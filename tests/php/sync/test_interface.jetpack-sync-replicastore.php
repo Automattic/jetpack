@@ -518,7 +518,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$this->assertNull( $store->get_callable( 'is_main_network' ) );
 
-		$store->set_callables( array( 'is_main_network' => 'yes' ) );
+		$store->set_callable( 'is_main_network', 'yes' );
 
 		$this->assertEquals( 'yes', $store->get_callable( 'is_main_network' ) );	
 	}
@@ -757,11 +757,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// fetch the taxonomy, sync it then delete it
 		global $wp_taxonomies;
 
-		$store->set_callables( array(
-			'taxonomies' => array(
-				$slug => $wp_taxonomies[ $slug ]
-			)
-		) );
+		$store->set_callable( 'taxonomies', array( $slug => $wp_taxonomies[ $slug ] ) );
 
 		// unregister_taxonomy( $slug );
 	}
