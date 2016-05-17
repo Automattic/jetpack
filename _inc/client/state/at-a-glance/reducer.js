@@ -120,7 +120,6 @@ const pluginUpdates = ( state = 'N/A', action ) => {
 	}
 };
 
-
 export const dashboard = combineReducers( {
 	requests,
 	activeStatsTab,
