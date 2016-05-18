@@ -128,9 +128,8 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( $result );
 		}
 		// Creates a new secret, allowing someone to activate the manage module for up to 10 minutes after authorization.
-		$secrets = Jetpack::init()->generate_secrets( DAY_IN_SECONDS );
-		Jetpack_Options::update_option( 'activate_manage', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] . ':' . $secrets[3] );
-		@list( $secret ) = explode( ':', Jetpack_Options::get_option( 'activate_manage' ) );
+		$secrets = Jetpack::init()->generate_secrets( 'activate_manage', DAY_IN_SECONDS );
+		@list( $secret ) = explode( ':', $secrets );
 		$response = array(
 			'result' => $result,
 			'activate_manage' => $secret,
