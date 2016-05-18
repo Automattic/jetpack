@@ -18,7 +18,7 @@ const DashSiteVerify = React.createClass( {
 		if ( this.props.isModuleActivated( 'verification-tools' ) ) {
 			return(
 				<DashItem label="Site Verification Tools" status="is-working">
-					<p className="jp-dash-item__description">Site verification tools is active. Ensure your site is verifed with Google, Bing, &amp; Pinterest for more accurate indexing and ranking. <a href={ window.Initial_State.adminUrl + 'tools.php' }>Verify now</a></p>
+					<p className="jp-dash-item__description">Site Verification Tools are active. Ensure your site is verified with Google, Bing, &amp; Pinterest for more accurate indexing and ranking. <a href={ window.Initial_State.adminUrl + 'tools.php' }>Verify now</a></p>
 				</DashItem>
 			);
 		}
