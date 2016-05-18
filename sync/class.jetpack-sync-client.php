@@ -596,7 +596,7 @@ class Jetpack_Sync_Client {
 	}
 
 	private function get_check_sum( $values ) {
-		return crc32( serialize( $values ) );
+		return crc32( json_encode( $values ) );
 	}
 
 	function jetpack_sync_core_icon() {
