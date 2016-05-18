@@ -639,20 +639,6 @@ class Jetpack_SSO {
 			return;
 		}
 
-		if ( isset( $_GET['state'] ) && ( 0 < strpos( $_GET['state'], '|' ) ) ) {
-			list( $state, $nonce ) = explode( '|', $_GET['state'] );
-
-			if ( wp_verify_nonce( $nonce, $state ) ) {
-				if ( 'sso-link-user' == $state ) {
-					$user = wp_get_current_user();
-					update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
-					add_filter( 'login_redirect', array( __CLASS__, 'profile_page_url' ) );
-				}
-			} else {
-				wp_nonce_ays();
-			}
-		}
-
 		if ( empty( $user ) ) {
 			$user = $this->get_user_by_wpcom_id( $user_data->ID );
 		}
@@ -911,10 +897,6 @@ class Jetpack_SSO {
 			'site_id'   => Jetpack_Options::get_option( 'id' ),
 			'sso_nonce' => $sso_nonce,
 		);
-
-		if ( isset( $_GET['state'] ) && check_admin_referer( $_GET['state'] ) ) {
-			$defaults['state'] = rawurlencode( $_GET['state'] . '|' . $_GET['_wpnonce'] );
-		}
 
 		$args = wp_parse_args( $args, $defaults );
 
