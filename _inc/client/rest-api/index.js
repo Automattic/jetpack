@@ -155,6 +155,15 @@ const restApi = {
 			'Content-type': 'application/json'
 		}
 	} )
+		.then( checkStatus ).then( response => response.json() ),
+	fetchSiteData: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/site`, {
+		method: 'get',
+		credentials: 'same-origin',
+		headers: {
+			'X-WP-Nonce': window.Initial_State.WP_API_nonce,
+			'Content-type': 'application/json'
+		}
+	} )
 		.then( checkStatus ).then( response => response.json() )
 };
 

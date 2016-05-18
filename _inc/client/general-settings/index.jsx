@@ -11,6 +11,7 @@ import Settings from 'components/settings';
  * Internal dependencies
  */
 import ConnectionSettings from './connection-settings';
+import SitePlan from './site-plan';
 import { disconnectSite } from 'state/connection';
 
 const GeneralSettings = React.createClass( {
@@ -21,7 +22,7 @@ const GeneralSettings = React.createClass( {
 					header="Jetpack Add-ons"
 					subheader="Manage your Jetpack account and premium add-ons."
 				>
-					settings
+					<SitePlan />
 				</FoldableCard>
 				<FoldableCard
 					header="Jetpack Connection Settings"
