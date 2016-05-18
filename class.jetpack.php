@@ -6340,8 +6340,20 @@ p {
 
 		$jetpack_url = plugins_url( '', JETPACK__PLUGIN_FILE );
 
-		// Short out on non-Jetpack assets.
-		if ( false === strpos( $url, $jetpack_url ) ) {
+		$load_minified_scripts = ! ( ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || Jetpack::is_development_mode() ||
+		                             ( defined( 'IS_WPCOM' ) && IS_WPCOM ) );
+
+		/**
+		 * Filters Jetpack's development mode.
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param bool $development_mode Whether to load minified script.
+		 */
+		$load_minified_scripts = apply_filters( 'jetpack_load_minified_scripts', $load_minified_scripts );
+
+		// Short out on non-Jetpack assets or in dev mode.
+		if ( false === strpos( $url, $jetpack_url ) || ! $load_minified_scripts ) {
 			return $url;
 		}
 
