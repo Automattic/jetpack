@@ -3748,13 +3748,11 @@ p {
 		?>
 		<div id="message" class="updated jetpack-message jp-banner is-opt-in" style="display:block !important;">
 			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
-			<div class="jp-banner__content">
-				<h2><?php esc_html_e( 'New in Jetpack: Centralized Site Management', 'jetpack' ); ?></h2>
-				<p><?php printf( __( 'Manage multiple sites from one dashboard at wordpress.com/sites. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.com/support/site-management' ); ?></p>
-			</div>
-			<div class="jp-banner__action-container is-opt-in">
-				<a href="<?php echo esc_url( $opt_in_url ); ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Activate now', 'jetpack' ); ?></a>
-			</div>
+				<h2><?php esc_html_e( 'Jetpack Centralized Site Management', 'jetpack' ); ?></h2>
+				<p><?php printf( __( 'Manage multiple jetpack enabled sites from one single dashboard at wordpress.com. Allows all existing, connected Administrators to modify your site. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.com/support/site-management' ); ?></p>
+				<p>
+				<a href="<?php echo esc_url( $opt_in_url ); ?>" class="button button-primary" id="wpcom-connect"><?php _e( 'Activate Jetpack Manage', 'jetpack' ); ?></a>
+				</p>
 		</div>
 		<?php
 	}
