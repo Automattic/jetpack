@@ -3139,6 +3139,15 @@ p {
 
 		Jetpack_Options::update_option( 'user_tokens', $tokens );
 
+		/**
+		 * Fires after the current user has been unlinked from WordPress.com.
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param int $user_id The current user's ID.
+		 */
+		do_action( 'jetpack_unlinked_user', $user_id );
+
 		return true;
 	}
 
