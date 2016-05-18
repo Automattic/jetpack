@@ -323,20 +323,6 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( $user_id, $event->user_id );
 	}
 
-	function test_send_transition_post_status_action() {
-		// this event is not used for syncing but is used to trigger other events on .com
-		$this->factory->post->create();
-		$this->client->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'transition_post_status' );
-
-		$this->assertEquals( $event->action, 'transition_post_status' );
-		$this->assertEquals( $event->args[0], 'publish' );
-		$this->assertEquals( $event->args[1], 'new' );
-		$this->assertTrue( is_object( $event->args[2] ) );
-
-	}
-
 	function test_adds_timestamp_to_action() {
 		$beginning_of_test = microtime(true);
 
