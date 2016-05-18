@@ -621,7 +621,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		if ( ! empty( $media_results['errors'] ) )
 			$return['media_errors'] = $media_results['errors'];
 
-		if ( 'publish' !== $post->post_status && isset( $input['title'] )) {
+		if ( 'publish' !== $return['status'] && isset( $input['title'] )) {
 			$sal_site = $this->get_sal_post_by( 'ID', $post_id, $args['context'] );
 			$return['other_URLs'] = (object) $sal_site->get_permalink_suggestions( $input['title'] );
 		}
