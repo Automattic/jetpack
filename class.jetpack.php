@@ -6328,7 +6328,7 @@ p {
 	}
 
 	/**
-	 * Maybe Use a .min.css stylesheet, maybe not.
+	 * Maybe use a minified asset, maybe not.
 	 *
 	 * Hooks onto `plugins_url` filter at priority 1, and accepts all 3 args.
 	 */
@@ -6338,15 +6338,15 @@ p {
 			return $url;
 		}
 
-		// Strip out the abspath.
-		$base = dirname( plugin_basename( $plugin ) );
+		$jetpack_url = plugins_url( '', JETPACK__PLUGIN_FILE );
 
 		// Short out on non-Jetpack assets.
-		if ( 'jetpack/' !== substr( $base, 0, 8 ) ) {
+		if ( false === strpos( $url, $jetpack_url ) ) {
 			return $url;
 		}
 
 		// File name parsing.
+		$base              = dirname( plugin_basename( $plugin ) );
 		$file              = "{$base}/{$path}";
 		$full_path         = JETPACK__PLUGIN_DIR . substr( $file, 8 );
 		$file_name         = substr( $full_path, strrpos( $full_path, '/' ) + 1 );
