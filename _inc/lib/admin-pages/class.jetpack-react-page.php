@@ -84,11 +84,24 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		<div id="jp-plugin-container"></div>
 	<?php }
 
+	function get_i18n_data() {
+		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . '/languages/json/jetpack-' . get_locale() . '.json' );
+		if ( $locale_data ) {
+			return $locale_data;
+		} else {
+			return '{}';
+		}
+	}
+
 	function page_admin_scripts() {
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
 		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
 		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), time() );
+
+		$localeSlug = explode( '_', get_locale() );
+		$localeSlug = $localeSlug[0];
+
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
@@ -110,6 +123,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'othersLinked' => jetpack_get_other_linked_users(),
 				'currentUser'  => jetpack_current_user_data(),
 			),
+			'locale' => $this->get_i18n_data(),
+			'localeSlug' => $localeSlug,
 		) );
 	}
 }

@@ -26,7 +26,7 @@ QueryAkismetData.defaultProps = {
 	fetchAkismetData: () => {}
 };
 
-export default connect( ( state, ownProps ) => {
+export default connect( ( state ) => {
 	return {
 		fetchAkismetData: fetchAkismetData(),
 		fetchingAkismetData: isFetchingAkismetData( state )

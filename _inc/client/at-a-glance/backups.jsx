@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
-import DashSectionHeader from 'components/dash-section-header';
 
 /**
  * Internal dependencies
@@ -13,7 +12,6 @@ import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isActivatingModule,
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
 import {
@@ -22,7 +20,7 @@ import {
 
 const DashBackups = React.createClass( {
 	getContent: function() {
-		if ( this.props.isModuleActivated( 'vaultpress' )  ) {
+		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			const vpData = this.props.getVaultPressData();
 
 			if ( vpData === 'N/A' ) {

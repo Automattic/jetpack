@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import forEach from 'lodash/foreach';
+import forEach from 'lodash/forEach';
 import Card from 'components/card';
 import Chart from 'components/chart';
 import { connect } from 'react-redux';
@@ -98,9 +98,9 @@ const DashStats = React.createClass( {
 
 	getClass: function( view ) {
 		const activeTab = this.props.activeTab();
-		return activeTab === view
-			? 'jp-at-a-glance__stats-view-link is-current'
-			: 'jp-at-a-glance__stats-view-link';
+		return activeTab === view ?
+			'jp-at-a-glance__stats-view-link is-current' :
+			'jp-at-a-glance__stats-view-link';
 	},
 
 	render: function() {

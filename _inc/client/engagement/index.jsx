@@ -78,9 +78,9 @@ function renderSettings( module ) {
 					<a href={ module.configure_url }>Link to old settings</a>
 				</div>
 			);
-		
+
 		default:
-			return ( 
+			return (
 				<div>
 					<a href={ module.configure_url }>Link to old settings</a>
 				</div>
@@ -88,7 +88,7 @@ function renderSettings( module ) {
 	}
 }
 
-function renderStatsSettings( module ) {
+function renderStatsSettings() {
 	return (
 		<div>Stats Settings</div>
 	);
@@ -106,11 +106,9 @@ export default connect(
 	( dispatch ) => {
 		return {
 			toggleModule: ( module_name, activated ) => {
-				if ( activated ) {
-					return dispatch( deactivateModule( module_name ) );
-				} else {
-					return dispatch( activateModule( module_name ) );
-				}
+				return ( activated )
+					? dispatch( deactivateModule( module_name ) )
+					: dispatch( activateModule( module_name ) );
 			}
 		};
 	}

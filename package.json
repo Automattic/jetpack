@@ -16,7 +16,9 @@
     "watch": "gulp watch",
     "clean": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map",
     "distclean": "rm -rf node_modules",
-    "build": "npm install && npm run build-client",
+    "calypso-regenerate-client-dev": "node node_modules/wp-calypso/server/config/regenerate-client.js > node_modules/wp-calypso/client/config/index.js",
+    "build-i18n": "./bin/translate.sh",
+    "build": "npm install && npm run calypso-regenerate-client-dev && npm run build-client && npm run build-i18n",
     "build-client": "gulp",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js"
   },
@@ -45,6 +47,7 @@
     "gulp-check": "^0.1.1",
     "gulp-clean-css": "^2.0.2",
     "gulp-concat": "^2.6.0",
+    "gulp-download-stream": "0.0.13",
     "gulp-live-server": "0.0.28",
     "gulp-jshint": "2.0.0",
     "gulp-open": "^1.0.0",
@@ -84,10 +87,13 @@
     "sinon-chai": "^2.8.0",
     "style-loader": "0.13",
     "webpack": "1.12.9",
-    "webpack-dev-server": "1.14.0"
+    "webpack-dev-server": "1.14.0",
+    "wp-calypso": "github:automattic/wp-calypso"
   },
   "engines": {
     "node": ">=0.8"
   },
-  "dependencies": {}
+  "dependencies": {
+    "del": "^2.2.0"
+  }
 }

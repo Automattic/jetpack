@@ -138,7 +138,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 				$response[$key] = (int) $post->ID;
 				break;
 			case 'site_ID' :
-				$response[$key] = $post->site->blog_id;
+				$response[$key] = $post->site->get_id();
 				break;
 			case 'author' :
 				$response[$key] = $post->get_author();

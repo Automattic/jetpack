@@ -72,7 +72,6 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				<a href={ element[3] } target="_blank">Learn More</a>
 			</FoldableCard>
 		);
-
 	} );
 
 	return (
@@ -89,7 +88,6 @@ function renderLongDescription( module ) {
 }
 
 function renderSettings( module ) {
-
 	switch ( module.module ) {
 		default:
 			return (
@@ -112,11 +110,9 @@ export default connect(
 	( dispatch ) => {
 		return {
 			toggleModule: ( module_name, activated ) => {
-				if ( activated ) {
-					return dispatch( deactivateModule( module_name ) );
-				} else {
-					return dispatch( activateModule( module_name ) );
-				}
+				return ( activated )
+					? dispatch( deactivateModule( module_name ) )
+					: dispatch( activateModule( module_name ) );
 			}
 		};
 	}

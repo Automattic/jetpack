@@ -307,11 +307,6 @@ class Jetpack {
 	 */
 	public static function init() {
 		if ( ! self::$instance ) {
-			if ( did_action( 'plugins_loaded' ) )
-				self::plugin_textdomain();
-			else
-				add_action( 'plugins_loaded', array( __CLASS__, 'plugin_textdomain' ), 99 );
-
 			self::$instance = new Jetpack;
 
 			self::$instance->plugin_upgrade();
@@ -777,6 +772,7 @@ class Jetpack {
 
 	/**
 	 * Load language files
+	 * @action plugins_loaded
 	 */
 	public static function plugin_textdomain() {
 		// Note to self, the third argument must not be hardcoded, to account for relocated folders.
@@ -2909,6 +2905,15 @@ p {
 
 		Jetpack_Options::update_option( 'user_tokens', $tokens );
 
+		/**
+		 * Fires after the current user has been unlinked from WordPress.com.
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param int $user_id The current user's ID.
+		 */
+		do_action( 'jetpack_unlinked_user', $user_id );
+
 		return true;
 	}
 
@@ -4365,6 +4370,7 @@ p {
 			    'admin.php?page=jetpack-settings' ), $url );
 			}
 		} else {
+			require_once JETPACK__GLOTPRESS_LOCALES_PATH;
 			$role = $this->translate_current_user_to_role();
 			$signed_role = $this->sign_role( $role );
 
@@ -4372,14 +4378,14 @@ p {
 
 			$redirect = $redirect ? esc_url_raw( $redirect ) : esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
 
+			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+
 			if( isset( $_REQUEST['is_multisite'] ) ) {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 			}
 
-			$secrets = Jetpack::init()->generate_secrets();
-			Jetpack_Options::update_option( 'authorize', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] . ':' . $secrets[3] );
-
-			@list( $secret ) = explode( ':', Jetpack_Options::get_option( 'authorize' ) );
+			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
+			@list( $secret ) = explode( ':', $secrets );
 
 			$args = urlencode_deep(
 				array(
@@ -4400,7 +4406,9 @@ p {
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
 					'auth_type'     => 'calypso',
-					'secret'		=> $secret,
+					'secret'        => $secret,
+					'locale'        => isset( $gp_locale->slug ) ? $gp_locale->slug : '',
+					'blogname'      => get_option( 'blogname' ),
 				)
 			);
 
@@ -4802,15 +4810,14 @@ p {
 	 * @since 2.6
 	 * @return array
 	 */
-	public function generate_secrets() {
-	    $secrets = array(
-			wp_generate_password( 32, false ), // secret_1
-			wp_generate_password( 32, false ), // secret_2
-			( time() + 600 ), // eol ( End of Life )
-			get_current_user_id(), // ties the secrets to the current user
-	    );
+	public function generate_secrets( $action ) {
+	    $secret = wp_generate_password( 32, false ) // secret_1
+	    		. ':' . wp_generate_password( 32, false ) // secret_2
+	    		. ':' . ( time() + 600 ) // eol ( End of Life )
+	    		. ':' . get_current_user_id(); // ties the secrets to the current user
+		Jetpack_Options::update_option( $action, $secret );
 
-	    return $secrets;
+	    return Jetpack_Options::get_option( $action );
 	}
 
 	/**
@@ -4876,11 +4883,9 @@ p {
 	 */
 	public static function register() {
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
-		$secrets = Jetpack::init()->generate_secrets();
+		$secrets = Jetpack::init()->generate_secrets( 'register' );
 
-		Jetpack_Options::update_option( 'register', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] . ':' . $secrets[3] );
-
-		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', Jetpack_Options::get_option( 'register' ) );
+		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', $secrets );
 		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
 			return new Jetpack_Error( 'missing_secrets' );
 		}

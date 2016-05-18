@@ -27,7 +27,7 @@ QueryVaultPressData.defaultProps = {
 	fetchVaultPressData: () => {}
 };
 
-export default connect( ( state, ownProps ) => {
+export default connect( ( state ) => {
 	return {
 		fetchVaultPressData: fetchVaultPressData(),
 		fetchingVaultPressData: isFetchingVaultPressData( state ),

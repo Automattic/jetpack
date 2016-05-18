@@ -4,14 +4,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
-import DashSectionHeader from 'components/dash-section-header';
 
 /**
  * Internal dependencies
  */
 import QueryPluginUpdates from 'components/data/query-plugin-updates';
 import {
-	fetchPluginUpdates,
 	getPluginUpdates as _getPluginUpdates
 } from 'state/at-a-glance';
 import {
@@ -30,9 +28,9 @@ const DashPluginUpdates = React.createClass( {
 	getContent: function() {
 		const pluginUpdates = this.props.getPluginUpdates();
 		const manageActive = this.props.isModuleActivated( 'manage' );
-		const ctaLink = manageActive
-			? 'https://wordpress.com/plugins/' + window.Initial_State.rawUrl
-			: window.Initial_State.adminUrl + 'plugins.php';
+		const ctaLink = manageActive ?
+			'https://wordpress.com/plugins/' + window.Initial_State.rawUrl :
+			window.Initial_State.adminUrl + 'plugins.php';
 
 		if ( 'N/A' === pluginUpdates ) {
 			return(
@@ -49,9 +47,9 @@ const DashPluginUpdates = React.createClass( {
 					<p className="jp-dash-item__description">
 						<strong>{ pluginUpdates.count } plugins need updating.</strong><br/>
 						{
-							manageActive
-								? <a href={ ctaLink }>Turn on plugin auto updates</a>
-								: <a onClick={ this.activateAndRedirect } href="#" >Activate Manage and turn on auto updates</a>
+							manageActive ?
+								<a href={ ctaLink }>Turn on plugin auto updates</a> :
+								<a onClick={ this.activateAndRedirect } href="#" >Activate Manage and turn on auto updates</a>
 						}
 					</p>
 				</DashItem>

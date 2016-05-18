@@ -18,10 +18,8 @@ import {
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser
 } from 'state/connection';
-import QueryUserConnectionData from 'components/data/query-user-connection';
 import QueryConnectionStatus from 'components/data/query-connection-status';
-import { getConnectUrl } from 'state/initial-state';
-import QueryConnectUrl  from 'components/data/query-connect-url';
+import QueryConnectUrl from 'components/data/query-connect-url';
 
 const ConnectButton = React.createClass( {
 	displayName: 'ConnectButton',
@@ -75,7 +73,7 @@ const ConnectButton = React.createClass( {
 			return(
 				<Button
 					onClick={ this.props.disconnectSite }
-				    disabled={ disconnecting }
+					disabled={ disconnecting }
 				>
 					Disconnect site from WordPress.com
 				</Button>

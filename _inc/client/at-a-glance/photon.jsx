@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
-import DashSectionHeader from 'components/dash-section-header';
 
 /**
  * Internal dependencies
@@ -16,7 +15,7 @@ import {
 
 const DashPhoton = React.createClass( {
 	getContent: function() {
-		if ( this.props.isModuleActivated( 'photon' )  ) {
+		if ( this.props.isModuleActivated( 'photon' ) ) {
 			return(
 				<DashItem label="Image Performance (Photon)" status="is-working">
 					<p className="jp-dash-item__description">Photon is active and currently improving image performance.</p>

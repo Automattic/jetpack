@@ -15,7 +15,7 @@ import {
 	deactivateModule,
 	isActivatingModule,
 	isDeactivatingModule,
-	getModule
+	getModule as _getModule
 } from 'state/modules';
 
 export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
@@ -23,7 +23,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
 		[ 'monitor', getModule( 'monitor' ).name, getModule( 'monitor' ).description, getModule( 'monitor' ).learn_more_button ],
 		[ 'scan', 'Security Scanning', 'Automatically scan your site for common threats and attacks.' ],
-		[ 'sso',  getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
+		[ 'sso', getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
 	].map( ( element ) => {
 		var toggle = (
 			<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
@@ -49,7 +49,6 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				<a href={ element[3] } target="_blank">Learn More</a>
 			</FoldableCard>
 		);
-
 	} );
 
 	return (
@@ -66,7 +65,6 @@ function renderLongDescription( module ) {
 }
 
 function renderSettings( module ) {
-
 	// If there is no module with that slug, it must be the Scan module
 	module.module = module.module || 'scan';
 
@@ -88,17 +86,15 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) =>
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
-			getModule: ( module_name ) => getModule( state, module_name )
+			getModule: ( module_name ) => _getModule( state, module_name )
 		};
 	},
 	( dispatch ) => {
 		return {
 			toggleModule: ( module_name, activated ) => {
-				if ( activated ) {
-					return dispatch( deactivateModule( module_name ) );
-				} else {
-					return dispatch( activateModule( module_name ) );
-				}
+				return ( activated )
+					? dispatch( deactivateModule( module_name ) )
+					: dispatch( activateModule( module_name ) );
 			}
 		};
 	}

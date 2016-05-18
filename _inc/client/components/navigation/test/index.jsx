@@ -9,12 +9,13 @@ var assert = require( 'chai' ).assert,
 function mockComponent( displayName ) {
 	return React.createClass( {
 		displayName,
-		render: () => { return <div/> }
+		render: () => {
+			return <div/>
+		}
 	} );
 };
 
 describe( 'Navigation', function() {
-
 	before( function() {
 		mockery.registerMock( 'components/tabs', mockComponent() );
 		mockery.registerMock( 'components/card', mockComponent() );
@@ -40,5 +41,4 @@ describe( 'Navigation', function() {
 			assert( this.navigationElement.props.className === 'dops-navigation', 'className does not equal "dops-navigation"' );
 		} );
 	} );
-
 } );
