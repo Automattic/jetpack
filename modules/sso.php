@@ -589,7 +589,6 @@ class Jetpack_SSO {
 	function handle_login() {
 		$wpcom_nonce   = sanitize_key( $_GET['sso_nonce'] );
 		$wpcom_user_id = (int) $_GET['user_id'];
-		$result        = sanitize_key( $_GET['result'] );
 
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
@@ -639,8 +638,11 @@ class Jetpack_SSO {
 			return;
 		}
 
-		if ( empty( $user ) ) {
-			$user = $this->get_user_by_wpcom_id( $user_data->ID );
+		if ( empty( $user ) && isset( $user_data->external_user_id ) ) {
+			$user = get_user_by( 'id', intval( $user_data->external_user_id ) );
+			if ( $user ) {
+				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
+			}
 		}
 
 		// If we don't have one by wpcom_user_id, try by the email?
