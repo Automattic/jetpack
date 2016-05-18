@@ -37,8 +37,8 @@ Jetpack_Sync::sync_options( __FILE__,
 );
 
 function is_dnt_enabled() {
-	foreach ($_SERVER as $name => $value) {
-		if ( strtolower( $name ) == 'http_dnt' && $value == 1 ) {
+	foreach ( $_SERVER as $name => $value ) {
+		if ( 'http_dnt' == strtolower( $name ) && 1 == $value ) {
 			return true;
 		}
 	}
