@@ -35,25 +35,6 @@ const GeneralSettings = React.createClass( {
 				>
 					<Settings />
 				</FoldableCard>
-				<FoldableCard
-					header="Summary Report Settings"
-					subheader="Manage how Jetpack informs you about your site."
-				>
-					settings
-				</FoldableCard>
-				<FoldableCard
-					header="Import Jetpack Feature Configuration"
-					subheader="Import your Jetpack setup from another intsallation."
-				>
-					settings
-				</FoldableCard>
-				<FoldableCard
-					header="Widget Settings"
-					subheader="Configure your WordPress admin dashboard widget."
-				>
-					settings
-				</FoldableCard>
-
 			</div>
 		)
 	}
