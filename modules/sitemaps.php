@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Sitemaps
- * Module Description: Creates sitemaps to allow your site to be easily indexed by search engines.
+ * Module Description: Allow your site to be indexed by search engines.
  * Sort Order: 13
  * First Introduced: 3.9
  * Requires Connection: No

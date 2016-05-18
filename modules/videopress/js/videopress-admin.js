@@ -1,5 +1,5 @@
 /* jshint onevar: false, smarttabs: true, devel: true */
-/* global VideoPressAdminSettings, setUserSetting */
+/* global VideoPressAdminSettings, setUserSetting, JSON */
 
 /**
  * VideoPress Admin

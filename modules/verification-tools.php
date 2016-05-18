@@ -2,11 +2,12 @@
 
 /**
  * Module Name: Site Verification
- * Module Description: Verify your site or domain with Google Search Console, Pinterest, and others.
+ * Module Description: Verify your site with Google Search Console, Pinterest, and others.
  * First Introduced: 3.0
  * Sort Order: 33
  * Requires Connection: No
  * Auto Activate: Yes
+ * Feature: Engagement
  * Additional Search Queries: webmaster, seo, google, bing, pinterest, search, console
  */
 
