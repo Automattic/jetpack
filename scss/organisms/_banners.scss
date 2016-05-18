@@ -75,104 +75,9 @@
 	}
 }
 
+
 #message.jp-banner {
 	position: relative;
-	margin-bottom: 26px;
-	padding: 17px 44px 17px 0;
-	border: none;
-	background: #81a844;
-	color: #fff;
-	overflow: hidden;
-	box-sizing: border-box;
-
-	&:after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		right: -100px;
-		width: 100%;
-		height: 50px;
-		background: url('../images/the-footcloud.svg') right bottom no-repeat;
-		pointer-events: none;
-		z-index: 1;
-
-		@media ( max-width: 830px ) {
-			display: none;
-		}
-	}
-	a {
-		color: #fff;
-	}
-	h2 {
-		display: block;
-		margin: 0;
-		padding: 0;
-		color: #fff;
-		font-size: 20px;
-		line-height: 1.3;
-		font-weight: normal;
-
-		+ p {
-			margin-top: 10px;
-		}
-	}
-}
-
-.jp-banner a {
-	padding: 0;
-}
-
-#message .jp-banner__content {
-	color: #dfffcc;
-	padding: 0 0 0 20px;
-	box-sizing: border-box;
-	width: 50%;
-
-	@media ( max-width: 768px ) {
-		width: 100%;
-
-		&.is-connection {
-			width: 100%;
-		}
-	}
-
-	a {
-		text-decoration: underline;
-	}
-
-	p {
-		margin: 0;
-		padding: 0;
-		line-height: 1.5;
-	}
-}
-
-#message .jp-banner__action-container {
-	position: absolute;
-	top: 0;
-	right: 0;
-	padding-left: 20px;
-	width: 50%;
-	height: 100%;
-	box-sizing: border-box;
-
-	@media ( max-width: 768px ) {
-		position: static;
-		margin: 14px 0 9px;
-		width: 100%;
-	}
-	&.is-full-width {
-		position: static;
-		margin: 14px 0 9px;
-		width: 100%;
-		height: auto;
-	}
-	&.is-connection {
-
-		@media ( max-width: 768px ) {
-			width: 100%;
-		}
-	}
 }
 
 // 'activate now' banner displayed on dashboard
@@ -193,6 +98,7 @@
 	}
 }
 
+/*
 #message .jp-banner__button {
 	display: inline-block;
 	position: absolute;
@@ -264,6 +170,7 @@
 		}
 	}
 }
+*/
 
 #message .is-full-width .jp-banner__button {
 	position: static;
@@ -287,14 +194,12 @@
 	height: 44px;
 	text-align: center;
 	z-index: 99;
+	text-decoration: none;
 
 	&:before {
-		color: #a7c979;
+		color: #666;
 		content: '\f158';
 		font: normal 20px/44px 'dashicons';
-	}
-	&:hover {
-		opacity: 0.8;
 	}
 	&:active {
 		opacity: 1;
