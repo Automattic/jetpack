@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname( __FILE__ ) . '/class.json-api-site-jetpack-base.php';
+require_once dirname( __FILE__ ) . '/class.json-api-post-jetpack.php';
 
 // this code runs on Jetpack (.org) sites
 class Jetpack_Site extends Abstract_Jetpack_Site {
@@ -22,6 +23,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 
 	protected function get_theme_support( $feature_name ) {
 		return get_theme_support( $feature_name );
+	}
+
+	function get_id() {
+		return $this->platform->token->blog_id;	
 	}
 
 	function has_videopress() {
