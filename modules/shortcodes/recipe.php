@@ -97,28 +97,28 @@ class Jetpack_Recipes {
 
 			if ( '' != $atts['servings'] ) {
 				$html .= sprintf( '<li class="jetpack-recipe-servings" itemprop="recipeYield"><strong>%1$s: </strong>%2$s</li>',
-					__( 'Servings', 'jetpack' ),
+					_x( 'Servings', 'recipe', 'jetpack' ),
 					esc_html( $atts['servings'] )
 				);
 			}
 
 			if ( '' != $atts['time'] ) {
 				$html .= sprintf( '<li class="jetpack-recipe-time" itemprop="totalTime"><strong>%1$s: </strong>%2$s</li>',
-					__( 'Time', 'jetpack' ),
+					_x( 'Time', 'recipe', 'jetpack' ),
 					esc_html( $atts['time'] )
 				);
 			}
 
 			if ( '' != $atts['difficulty'] ) {
 				$html .= sprintf( '<li class="jetpack-recipe-difficulty"><strong>%1$s: </strong>%2$s</li>',
-					__( 'Difficulty', 'jetpack' ),
+					_x( 'Difficulty', 'recipe', 'jetpack' ),
 					esc_html( $atts['difficulty'] )
 				);
 			}
 
 			if ( 'false' != $atts['print'] ) {
 				$html .= sprintf( '<li class="jetpack-recipe-print"><a href="#">%s</a></li>',
-					__( 'Print', 'jetpack' )
+					_x( 'Print', 'recipe', 'jetpack' )
 				);
 			}
 
