@@ -57,7 +57,7 @@ class Jetpack_Sync_Client {
 		// constants
 		add_action( 'jetpack_sync_current_constants', $handler, 10 );
 
-		// functions
+		// callables
 		add_action( 'jetpack_sync_current_callable', $handler, 10, 2 );
 
 		// posts
@@ -183,8 +183,8 @@ class Jetpack_Sync_Client {
 		return $this->callable_whitelist;
 	}
 
-	function set_callable_whitelist( $functions ) {
-		$this->callable_whitelist = $functions;
+	function set_callable_whitelist( $callables ) {
+		$this->callable_whitelist = $callables;
 	}
 
 	function set_network_options_whitelist( $options ) {
