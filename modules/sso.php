@@ -31,7 +31,7 @@ class Jetpack_SSO {
 		add_action( 'admin_enqueue_scripts',  array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'login_form_logout',      array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
 		add_action( 'wp_login',               array( 'Jetpack_SSO', 'clear_wpcom_profile_cookies' ) );
-
+		add_action( 'jetpack_unlinked_user',  array( $this, 'delete_connection_for_user') );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -561,6 +561,9 @@ class Jetpack_SSO {
 			return false;
 		}
 
+		// Clean up local data stored for SSO
+		delete_user_meta( $user_id, 'wpcom_user_id' );
+		delete_user_meta( $user_id, 'wpcom_user_data'  );
 		self::clear_wpcom_profile_cookies();
 
 		return $xml->getResponse();
