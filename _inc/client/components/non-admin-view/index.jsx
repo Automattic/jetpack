@@ -3,15 +3,12 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import Card from 'components/card';
-import SectionHeader from 'components/section-header';
 
 /**
  * Internal dependencies
  */
 import ConnectButton from 'components/connect-button';
-import { imagePath } from 'constants';
 import { isCurrentUserLinked as _isCurrentUserLinked } from 'state/connection';
 import QueryUserConnectionData from 'components/data/query-user-connection';
 

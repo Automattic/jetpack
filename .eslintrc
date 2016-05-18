@@ -55,7 +55,7 @@
 		"no-use-before-define": [ 2, "nofunc" ],
 		// We split external, internal, module variables
 		"one-var": 0,
-		"operator-linebreak": [ 1, "after" ],
+		"operator-linebreak": [ 1, "after", { "overrides": { "?": "ignore", ":": "ignore" } } ],
 		"padded-blocks": [ 1, "never" ],
 		"quote-props": [ 1, "as-needed" ],
 		"quotes": [ 1, "single", "avoid-escape" ],
@@ -77,4 +77,3 @@
 		"yoda": 0
 	}
 }
-

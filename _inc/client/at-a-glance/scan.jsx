@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
-import DashSectionHeader from 'components/dash-section-header';
 
 /**
  * Internal dependencies
@@ -13,7 +12,6 @@ import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isActivatingModule,
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
 import {
@@ -26,9 +24,9 @@ const DashScan = React.createClass( {
 		const vpData = this.props.getVaultPressData();
 		let vpActive = typeof vpData.data !== 'undefined' && vpData.data.active;
 
-		const ctaLink = vpActive
-			? 'https://dashboard.vaultpress.com/'
-			: 'https://wordpress.com/plans/' + window.Initial_State.rawUrl;
+		const ctaLink = vpActive ?
+			'https://dashboard.vaultpress.com/' :
+			'https://wordpress.com/plans/' + window.Initial_State.rawUrl;
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {

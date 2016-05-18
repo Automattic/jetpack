@@ -14,7 +14,6 @@ import Spinner from 'components/spinner';
 import {
 	jumpStartActivate,
 	jumpStartSkip,
-	getJumpStartStatus,
 	isJumpstarting as _isJumpstarting
 } from 'state/jumpstart';
 

@@ -15,7 +15,7 @@ import {
 	deactivateModule,
 	isActivatingModule,
 	isDeactivatingModule,
-	getModule
+	getModule as _getModule
 } from 'state/modules';
 
 export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
@@ -47,7 +47,6 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				<a href={ element[3] } target="_blank">Learn More</a>
 			</FoldableCard>
 		);
-
 	} );
 
 	return (
@@ -64,7 +63,6 @@ function renderLongDescription( module ) {
 }
 
 function renderSettings( module ) {
-
 	switch ( module ) {
 		case 'akismet':
 			return ( <div>Please go to <a href="/wp-admin/admin.php?page=akismet-key-config">Akismet Settings</a> to configure</div> );
@@ -85,17 +83,15 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) =>
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
-			getModule: ( module_name ) => getModule( state, module_name )
+			getModule: ( module_name ) => _getModule( state, module_name )
 		};
 	},
 	( dispatch ) => {
 		return {
 			toggleModule: ( module_name, activated ) => {
-				if ( activated ) {
-					return dispatch( deactivateModule( module_name ) );
-				} else {
-					return dispatch( activateModule( module_name ) );
-				}
+				return ( activated )
+					? dispatch( deactivateModule( module_name ) )
+					: dispatch( activateModule( module_name ) );
 			}
 		};
 	}

@@ -5,10 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import FoldableCard from 'components/foldable-card';
-import FormToggle from 'components/form/form-toggle';
-import Button from 'components/button';
 import Settings from 'components/settings';
-import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -68,4 +65,3 @@ export default connect(
 	},
 	dispatch => bindActionCreators( { disconnectSite }, dispatch )
 )( GeneralSettings );
-

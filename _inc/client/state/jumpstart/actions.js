@@ -5,7 +5,9 @@ import {
 	JUMPSTART_ACTIVATE,
 	JUMPSTART_ACTIVATE_FAIL,
 	JUMPSTART_ACTIVATE_SUCCESS,
-	JUMPSTART_SKIP
+	JUMPSTART_SKIP,
+	JUMPSTART_SKIP_SUCCESS,
+	JUMPSTART_SKIP_FAIL
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -41,7 +43,7 @@ export const jumpStartSkip = () => {
 		} )['catch']( error => {
 			dispatch( {
 				type: JUMPSTART_SKIP_FAIL,
-				jumpStart: false
+				error: error
 			} );
 		} );
 	}

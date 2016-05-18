@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import classNames from 'classnames';
 
 /**
@@ -47,7 +46,7 @@ export const Footer = React.createClass( {
 					<li className="jp-footer__link-item"><a href="http://jetpack.com" target="_blank" className="jp-footer__link" title={ version } >{ version }</a></li>
 					<li className="jp-footer__link-item"><a href="http://wordpress.com/tos/" target="_blank" title="WordPress.com Terms of Service" className="jp-footer__link">Terms</a></li>
 					<li className="jp-footer__link-item"><a href="http://automattic.com/privacy/" target="_blank" title="Automattic's Privacy Policy" className="jp-footer__link">Privacy</a></li>
-					<li className="jp-footer__link-item"><a href="/wp-admin/admin.php?page=jetpack-debugger" title="Test your site’s compatibility with Jetpack." className="jp-footer__link">Debug</a></li>
+					<li className="jp-footer__link-item"><a href={ window.Initial_State.adminUrl + 'admin.php?page=jetpack-debugger' } title="Test your site’s compatibility with Jetpack." className="jp-footer__link">Debug</a></li>
 					{ maybeShowReset() }
 				</ul>
 			</div>

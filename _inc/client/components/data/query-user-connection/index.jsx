@@ -24,7 +24,7 @@ QueryUserConnectionData.defaultProps = {
 	fetchSiteConnectionStatus: () => {}
 };
 
-export default connect( ( state, ownProps ) => {
+export default connect( () => {
 	return {
 		fetchUserConnectionData: fetchUserConnectionData()
 	};
