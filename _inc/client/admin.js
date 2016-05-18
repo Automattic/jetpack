@@ -28,6 +28,8 @@ if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
 
 		return this.realToLocaleString( locale, options );
 	};
+} else {
+	Initial_State.locale = { '': { localeSlug: Initial_State.localeSlug } };
 }
 
 i18n.initialize( Initial_State.locale );
