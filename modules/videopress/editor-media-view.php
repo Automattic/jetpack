@@ -174,7 +174,7 @@ function videopress_override_media_templates(){
 				};
 			} else { /* console.log( 'media.view.Attachment.Details.TwoColumn undefined' ); */ }
 
-			// This handles the recreating of the shortcode when editing the mce embed.
+			// This handles the recreating of the core video shortcode when editing the mce embed.
 			if ( typeof media.video !== 'undefined' ) {
 				var old_video_shortcode = media.video.shortcode;
 
