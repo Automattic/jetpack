@@ -49,7 +49,7 @@ class Jetpack_SSO {
 			 */
 			apply_filters( 'jetpack_sso_display_disclaimer', true )
 		) {
-			add_action( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
+			add_filter( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
 		}
 	}
 
@@ -634,7 +634,7 @@ class Jetpack_SSO {
 			$this->user_data = $user_data;
 			/** This filter is documented in core/src/wp-includes/pluggable.php */
 			do_action( 'wp_login_failed', $user_data->login );
-			add_action( 'login_message', array( $this, 'error_msg_enable_two_step' ) );
+			add_filter( 'login_message', array( $this, 'error_msg_enable_two_step' ) );
 			return;
 		}
 
@@ -692,7 +692,7 @@ class Jetpack_SSO {
 			} else {
 				$this->user_data = $user_data;
 				// do_action( 'wp_login_failed', $user_data->login );
-				add_action( 'login_message', array( $this, 'error_msg_email_already_exists' ) );
+				add_filter( 'login_message', array( $this, 'error_msg_email_already_exists' ) );
 				return;
 			}
 		}
@@ -774,7 +774,7 @@ class Jetpack_SSO {
 		$this->user_data = $user_data;
 		/** This filter is documented in core/src/wp-includes/pluggable.php */
 		do_action( 'wp_login_failed', $user_data->login );
-		add_action( 'login_message', array( $this, 'cant_find_user' ) );
+		add_filter( 'login_message', array( $this, 'cant_find_user' ) );
 	}
 
 	static function profile_page_url() {
