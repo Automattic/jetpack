@@ -359,7 +359,9 @@ class Publicize extends Publicize_Base {
 	}
 
 	function flag_post_for_publicize( $new_status, $old_status, $post ) {
-		// Stub only. Doesn't need to do anything on Jetpack Client
+		if ( 'publish' == $new_status && 'publish' != $old_status ) {
+			do_action( 'jetpack_publicize_post', $post );
+		}
 	}
 
 	function test_connection( $service_name, $connection ) {
