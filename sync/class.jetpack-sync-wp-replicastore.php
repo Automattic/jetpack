@@ -67,7 +67,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		return get_post( $id );
 	}
 
-	public function upsert_post( $post ) {
+	public function upsert_post( $post, $silent = false ) {
 		global $wpdb;
 
 		// reject the post if it's not a WP_Post

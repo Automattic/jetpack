@@ -94,7 +94,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return isset( $this->posts[ $id ] ) ? $this->posts[ $id ] : false ;
 	}
 
-	function upsert_post( $post ) {
+	function upsert_post( $post, $silent = false ) {
 		$this->posts[ $post->ID ] = $post;
 	}
 
