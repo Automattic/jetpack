@@ -486,15 +486,17 @@ class Jetpack_Sync_Client {
 
 	function expand_wp_insert_post( $args ) {
 		// list( $post_ID, $post, $update ) = $args;
-		return array( $args[0], $this->filter_post_content( $args[1] ), $args[2] );
+		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2] );
 	}
 
 	// Expands wp_insert_post to include filteredpl
-	function filter_post_content( $post ) {
+	function filter_post_content_and_add_links( $post ) {
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 		$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
+		$post->permalink = get_permalink( $post->ID );
+		$post->shortlink = wp_get_shortlink( $post->ID );
 
 		return $post;
 	}

@@ -24,14 +24,14 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->assertEquals( 'wp_insert_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
-		$this->post = $this->client->filter_post_content( $this->post );
+		$this->post = $this->client->filter_post_content_and_add_links( $this->post );
 		$this->assertEquals( $this->post, $event->args[1] );
 	}
 
 	public function test_add_post_syncs_post_data() {
 		// post stored by server should equal post in client
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
-		$this->post = $this->client->filter_post_content( $this->post );
+		$this->post = $this->client->filter_post_content_and_add_links( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
 	}
 
@@ -304,6 +304,17 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		// Make sure it is not empty
 		$this->assertNotEmpty( $post_on_server->post_password );
 
+	}
+
+	function test_sync_post_includes_permalink_and_shortlink() {
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$post = $insert_post_event->args[1];
+
+		$this->assertObjectHasAttribute( 'permalink', $post );
+		$this->assertObjectHasAttribute( 'shortlink', $post );
+
+		$this->assertEquals( $post->permalink, get_permalink( $this->post->ID ) );
+		$this->assertEquals( $post->shortlink, wp_get_shortlink( $this->post->ID ) );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {

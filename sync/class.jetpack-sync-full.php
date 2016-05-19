@@ -183,7 +183,7 @@ class Jetpack_Sync_Full {
 		$post_ids = $args[0];
 
 		$posts = array_map( array( 'WP_Post', 'get_instance' ), $post_ids );
-		$posts = array_map( array( $this->get_client(), 'filter_post_content' ), $posts );
+		$posts = array_map( array( $this->get_client(), 'filter_post_content_and_add_links' ), $posts );
 
 		return array(
 			'posts'      => $posts,
