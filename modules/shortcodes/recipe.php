@@ -196,6 +196,8 @@ class Jetpack_Recipes {
 			'title' => '', //string
 		), $atts, 'recipe-notes' );
 
+		$html ='';
+
 		// Print a title if one exists.
 		if ( '' !== $atts['title'] ) {
 			$html .= '<h4 class="jetpack-recipe-notes-title">' . esc_html( $atts['title'] ) . '</h4>';
@@ -257,18 +259,23 @@ class Jetpack_Recipes {
 	 * @return string content formatted as a list item
 	 */
 	static function output_list_content( $content, $type ) {
+		$html ='';
+
 		switch ( $type ) {
 			case 'directions' :
 				$list_item_replacement = '<li class="jetpack-recipe-directions">${1}</li>';
-				$itemprop = ' itemprop="recipeInstructions"';
+				$itemprop              = ' itemprop="recipeInstructions"';
+				$listtype              = 'ol';
 				break;
 			case 'ingredients' :
-				$list_item_replacement = '<li class="jetpack-recipe-ingredient" itemprop="recipeIngredient">${1}</li>';
-				$listtype = 'ul';
+				$list_item_replacement = '<li class="jetpack-recipe-ingredient">${1}</li>';
+				$itemprop              = ' itemprop="recipeIngredient"';
+				$listtype              = 'ul';
 				break;
 			default:
 				$list_item_replacement = '<li class="jetpack-recipe-notes">${1}</li>';
-				$listtype = 'ul';
+				$itemprop              = '';
+				$listtype              = 'ul';
 		}
 
 		// Check to see if the user is trying to use shortened formatting.
