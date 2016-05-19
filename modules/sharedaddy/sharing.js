@@ -21,7 +21,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				requests = {
 					// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
 					linkedin: [
-						'https://www.linkedin.com/countserv/count/share?format=jsonp&callback=updateLinkedInCount&url=' +
+						'https://www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
 							encodeURIComponent( url )
 					],
 					// Facebook protocol summing has been shown to falsely double counts, so we only request the current URL
@@ -114,10 +114,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		}
 	};
 }
-	
-var updateLinkedInCount = function( data ) {
-	WPCOMSharing.update_linkedin_count( data );
-};
 
 (function($){
 	var $body, $sharing_email;
