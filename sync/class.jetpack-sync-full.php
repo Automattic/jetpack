@@ -73,6 +73,7 @@ class Jetpack_Sync_Full {
 		if ( is_multisite() ) {
 			$this->enqueue_all_network_options();
 		}
+		
 		$this->enqueue_all_terms();
 		$this->enqueue_all_theme_info();
 		$this->enqueue_all_users();
