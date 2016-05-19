@@ -66,6 +66,8 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_post', $handler, 10 );
 		add_filter( 'jetpack_sync_before_send_wp_insert_post', array( $this, 'expand_wp_insert_post' ) );
 
+		add_action( 'jetpack_publicize_post', $handler );
+
 		// attachments
 
 		add_action( 'edit_attachment', array( $this, 'send_attachment_info' ) );
