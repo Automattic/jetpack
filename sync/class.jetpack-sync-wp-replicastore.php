@@ -286,18 +286,64 @@ ENDSQL;
 		return current_theme_supports( $feature );
 	}
 
-	// meta
 	public function get_metadata( $type, $object_id, $meta_key = '', $single = false ) {
 		return get_metadata( $type, $object_id, $meta_key, $single );
 	}
 
+	/**
+	 *
+	 * Stores remote meta key/values alongside an ID mapping key
+	 * 
+	 * @param $type
+	 * @param $object_id
+	 * @param $meta_key
+	 * @param $meta_value
+	 * @param $meta_id
+	 *
+	 * @return bool
+	 */
 	public function upsert_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id ) {
-		// add_metadata( $type, $object_id, $meta_key, $value, $unique );
+
+		$table = _get_meta_table( $type );
+		if ( ! $table ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		$exists = $wpdb->get_var( $wpdb->prepare(
+			"SELECT EXISTS( SELECT 1 FROM $table WHERE meta_id = %d )",
+			$meta_id
+		) );
+
+		if ( $exists ) {
+			$wpdb->update( $table, array( 'meta_key' => $meta_key, 'meta_value' => $meta_value ), array( 'meta_id' => $meta_id ) );
+		} else {
+			$object_id_field = $type.'_id';
+			$wpdb->insert( $table, array( 'meta_id' => $meta_id, $object_id_field => $object_id, 'meta_key' => $meta_key, 'meta_value' => $meta_value ) );
+		}
+
+		wp_cache_delete($object_id, $type . '_meta');
+
+		return true;
 	}
 
 	public function delete_metadata( $type, $object_id, $meta_ids ) {
-		// TODO: SQL delete
-		// delete_metadata( $meta_type, $object_id, $meta_key, $meta_value, $delete_all );
+		global $wpdb;
+
+		$table = _get_meta_table( $type );
+		if ( ! $table ) {
+			return false;
+		}
+
+		foreach ( $meta_ids as $meta_id ) {
+			$wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE meta_id = %d", $meta_id ) );
+		}
+
+		// if we don't have an object ID what do we do - invalidate ALL meta?
+		if ( $object_id ) {
+			wp_cache_delete( $object_id, $type . '_meta' );
+		}
 	}
 
 	// constants
