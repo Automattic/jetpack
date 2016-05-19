@@ -157,17 +157,17 @@ function videopress_override_media_templates(){
 					old_render  = TwoColumn.prototype.render,
 					vp_template = wp.template('videopress_iframe_vnext');
 
-				TwoColumn.prototype.render = function () {
+				TwoColumn.prototype.render = function() {
 					// Have the original renderer run first.
-					old_render.apply(this, arguments);
+					old_render.apply( this, arguments );
 
 					// Now our stuff!
-					if ('video' === this.model.get('type')) {
-						if (this.model.get('videopress_guid')) {
-							this.$('.attachment-media-view .thumbnail-video').html(vp_template({
-								guid: this.model.get('videopress_guid'),
-								width: this.model.get('width'),
-								height: this.model.get('height')
+					if ( 'video' === this.model.get('type') ) {
+						if ( this.model.get('videopress_guid') ) {
+							this.$('.attachment-media-view .thumbnail-video').html( vp_template( {
+								guid   : this.model.get('videopress_guid'),
+								width  : this.model.get('width'),
+								height : this.model.get('height')
 							}));
 						}
 					}
@@ -179,10 +179,10 @@ function videopress_override_media_templates(){
 				var old_video_shortcode = media.video.shortcode;
 
 				media.video.defaults.videopress_guid = '';
-				media.video.shortcode = function (model) {
+				media.video.shortcode = function( model ) {
 					model.videopress_guid = 'FOOBAR';
-					console.log(model);
-					return old_video_shortcode(model);
+					console.log( model );
+					return old_video_shortcode( model );
 				};
 			} else { /* console.log( 'media.video undefined' ); */ }
 
