@@ -1,15 +1,23 @@
 .updated { // utlizes some core styles, overrides some others
 	&.jp-banner {
 		position: relative;
+		padding: 0;
+
+		@media (min-width: 660px) {
+			display: flex;
+			flex-wrap: nowrap;
+			flex-direction: row;
+		}
 	}
 
 	.jp-banner__header {
 		font-size: 18px;
 		font-weight: 400;
+		margin-top: 0;
 	}
 
 	.jp-banner__button-container {
-		padding: 12px 0;
+		padding: 12px 0 0;
 	}
 }
 
@@ -19,4 +27,20 @@
 
 .jp-banner__description {
 	font-size: 14px;
+}
+
+.jp-banner__image-container {
+	text-align: center;
+	
+	@media (min-width: 660px) {
+		padding: 48px 16px 16px;
+	}
+
+	img {
+		max-width: 450px;
+	}
+}
+
+.jp-banner__description-container {
+	padding: 16px;
 }
