@@ -27,7 +27,7 @@ class Publicize extends Publicize_Base {
 
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 4 );
 
-		add_action( 'transition_post_status', array( $this, 'save_publicized' ), 10, 3 );
+		add_action( 'wp_insert_post', array( $this, 'save_publicized' ), 11, 3 );
 
 		add_filter( 'jetpack_twitter_cards_site_tag', array( $this, 'enhaced_twitter_cards_site_tag' ) );
 
@@ -360,7 +360,7 @@ class Publicize extends Publicize_Base {
 
 	function flag_post_for_publicize( $new_status, $old_status, $post ) {
 		if ( 'publish' == $new_status && 'publish' != $old_status ) {
-			do_action( 'jetpack_publicize_post', $post );
+			update_post_meta( $post->ID, $this->PENDING, true );
 		}
 	}
 
@@ -407,9 +407,14 @@ class Publicize extends Publicize_Base {
 	 * Save a flag locally to indicate that this post has already been Publicized via the selected
 	 * connections.
 	 */
-	function save_publicized( $new_status, $old_status, $post ) {
+	function save_publicized( $post_ID, $post, $update ) {
 		// Only do this when a post transitions to being published
-		if ( 'publish' == $new_status && 'publish' != $old_status ) {
+		if ( get_post_meta( $post->ID, $this->PENDING ) ) {
+
+			// Publicize via sync
+			do_action( 'jetpack_publicize_post', $post );
+			delete_post_meta( $post->ID, $this->PENDING );
+
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}
 	}
