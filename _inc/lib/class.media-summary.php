@@ -81,7 +81,7 @@ class Jetpack_Media_Summary {
 								}
 
 								$return['type'] = 'video';
-								$return['video'] = esc_url( $url );
+								$return['video'] = esc_url_raw( $url );
 								$return['video_type'] = 'video/mp4';
 								$return['secure']['video'] = $return['video'];
 							}
