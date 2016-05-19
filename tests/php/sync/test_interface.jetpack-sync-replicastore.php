@@ -420,55 +420,15 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @requires PHP 5.3
 	 */
 	function test_replica_update_meta( $store ) {
-		$this->markTestIncomplete('contains SQL');
-		global $wpdb;
-		$wpdb->query("DELETE FROM $wpdb->postmeta WHERE meta_key LIKE '_jp_%'");
-		$result = $store->upsert_metadata( 'post', 1, 'foo', 'bar', 3 );
-		$this->assertTrue( $result, 'Post meta update failed!' );
-		$this->assertEquals( 'bar', $store->get_metadata( 'post', 1, 'foo', true ), 'Get post meta is not bar!' );
+		$store->upsert_post( self::$factory->post( 1 ) );
 
-		$result = $store->upsert_metadata( 'post', 1, 'foo', 'baz', 3 );
-		$this->assertTrue( $result, 'Second Post meta update failed ' );
-
-		$this->assertEquals( 'baz', $store->get_metadata( 'post', 1, 'foo', true ), 'Get post meta is not baz!' );
-	}
-
-	/**
-	 * @dataProvider store_provider
-	 * @requires PHP 5.3
-	 */
-	function test_replica_get_meta( $store ) {
-		$this->markTestIncomplete('contains SQL');
-		global $wpdb;
-		$wpdb->query("DELETE FROM $wpdb->postmeta WHERE meta_key LIKE '_jp_%'");
-		$store->upsert_metadata( 'post', 1, 'food', 'bar', 3 );
-		$result = $store->upsert_metadata( 'post', 1, 'food', 'baz', 4 );
-
-		$this->assertTrue( $result, 'Post meta update failed!' );
-		$this->assertEquals( 'bar', $store->get_metadata( 'post', 1, 'food', true ), 'Get post meta is not bar!' );
-
-		$this->assertEquals( array( 'bar','baz'), $store->get_metadata( 'post', 1, 'food' ), 'Get post meta is not an array' );
-	}
-
-	/**
-	 * @dataProvider store_provider
-	 * @requires PHP 5.3
-	 */
-	function test_replica_delete_meta( $store ) {
-		$this->markTestIncomplete('contains SQL');
-		global $wpdb;
-		$wpdb->query("DELETE FROM $wpdb->postmeta WHERE meta_key LIKE '_jp_%'");
 		$store->upsert_metadata( 'post', 1, 'foo', 'bar', 3 );
-		$store->upsert_metadata( 'post', 1, 'fish', 'nemo', 10 );
 
-
-		$this->assertEquals( 'bar', $store->get_metadata( 'post', 1, 'foo', true ), 'GET post meta is not set to bar!' );
+		$this->assertEquals( array( 'bar' ), $store->get_metadata( 'post', 1, 'foo' ) );
 
 		$store->delete_metadata( 'post', 1, array( 3 ) );
 
-		$this->assertEquals( null, $store->get_metadata( 'post', 1, 'foo', true ), 'We Didn\'t delete post meta' );
-		$this->assertEquals( 'nemo', $store->get_metadata( 'post', 1, 'fish', true ), 'Post meta for the post was deleted.' );
-
+		$this->assertEquals( array(), $store->get_metadata( 'post', 1, 'foo' ) );
 	}
 
 	/**
