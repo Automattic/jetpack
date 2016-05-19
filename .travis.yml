@@ -58,6 +58,13 @@ matrix:
    - php: "hhvm"
    - php: "nightly"
 
+# whitelist branches for the "push" build check.
+branches:
+  only:
+    - master
+    - master-stable
+    - /^branch-.*$/
+
 # Clones WordPress and configures our testing environment.
 before_script:
     - export PLUGIN_SLUG=$(basename $(pwd))
