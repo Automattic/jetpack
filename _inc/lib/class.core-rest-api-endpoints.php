@@ -1588,7 +1588,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
 					),
-					'Complex Phrases' => array(
+					'Complex Expression' => array(
 						'description'        => esc_html__( 'Complex Phrases', 'jetpack' ),
 						'type'               => 'boolean',
 						'default'            => 0,
