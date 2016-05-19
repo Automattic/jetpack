@@ -58,7 +58,7 @@ class JetpackTracking {
 		self::record_user_event( 'module_deactivated', array( 'module' => $module ) );
 	}
 
-	static function record_user_event( $event_type, $data ) {
+	static function record_user_event( $event_type, $data= array() ) {
 
 		$user = wp_get_current_user();
 		$site_url = get_option( 'siteurl' );
