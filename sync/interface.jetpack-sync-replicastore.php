@@ -31,7 +31,7 @@ interface iJetpack_Sync_Replicastore {
 
 	public function get_post( $id );
 
-	public function upsert_post( $post );
+	public function upsert_post( $post, $silent = false );
 
 	public function delete_post( $post_id );
 
