@@ -57,12 +57,13 @@ class Jetpack_Recipes {
 			return;
 		}
 
-		if( is_rtl() ) {
+		if ( is_rtl() ) {
 			wp_enqueue_style( 'jetpack-recipes-style',  plugins_url( '/css/rtl/recipes-rtl.css',  __FILE__ ), array(), '20130919' );
 		} else {
 			wp_enqueue_style( 'jetpack-recipes-style',  plugins_url( '/css/recipes.css',  __FILE__ ), array(), '20130919' );
 		}
 
+		wp_add_inline_style( 'jetpack-recipes-style', self::themecolor_styles() ); // add $themecolors-defined styles
 
 		wp_enqueue_script( 'jetpack-recipes-printthis', plugins_url( '/js/recipes-printthis.js', __FILE__ ), array( 'jquery' ), '20131230' );
 		wp_enqueue_script( 'jetpack-recipes-js',        plugins_url( '/js/recipes.js', __FILE__ ),   array( 'jquery', 'jetpack-recipes-printthis' ), '20131230' );
@@ -77,7 +78,7 @@ class Jetpack_Recipes {
 	 * Our [recipe] shortcode.
 	 * Prints recipe data styled to look good on *any* theme.
 	 *
-	 * @return string HTML for resume shortcode.
+	 * @return string HTML for recipe shortcode.
 	 */
 	static function recipe_shortcode( $atts, $content = '' ) {
 		$atts = shortcode_atts(
@@ -347,6 +348,25 @@ class Jetpack_Recipes {
 		// Return the HTML block.
 		return $html;
 	}
+
+	/**
+	 * Use $themecolors array to style the Recipes shortcode
+	 *
+	 * @print style block
+	 * @return string $style
+	 */
+	function themecolor_styles() {
+		global $themecolors;
+		$style = '';
+
+		if ( isset( $themecolors ) ) {
+			$style .= '.jetpack-recipe { border-color: #' . esc_attr( $themecolors['border'] ) . '; }';
+			$style .= '.jetpack-recipe-title { border-bottom-color: #' . esc_attr( $themecolors['link'] ) . '; }';
+		}
+
+		return $style;
+	}
+
 }
 
 new Jetpack_Recipes();
