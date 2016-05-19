@@ -3607,15 +3607,15 @@ p {
 
 		$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
 		?>
-		<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
-			<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice.', 'jetpack' ); ?>"></a>
+		<div id="message" class="updated jp-banner">
+			<a href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" class="notice-dismiss" title="Dismiss this notice."></a>
 			<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
-					<h2><?php _e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h2>
-					<p><?php _e( 'Please connect to or create a WordPress.com account to enable Jetpack, including powerful security, traffic, and customization services.', 'jetpack' ); ?></p>
-					<p>
+					<h2 class="jp-banner__header"><?php _e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h2>
+					<p class="jp-banner__description"><?php _e( 'Please connect to or create a WordPress.com account to enable Jetpack, including powerful security, traffic, and customization services.', 'jetpack' ); ?></p>
+					<p class="jp-banner__button-container">
 						<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="button button-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 						<a href="admin.php?page=jetpack" class="button"><?php _e( 'Learn more', 'jetpack' ); ?></a>
-						</p>
+					</p>
 			<?php else : ?>
 				<div class="jp-banner__content">
 					<h2><?php _e( 'Jetpack is installed!', 'jetpack' ) ?></h2>
@@ -3659,11 +3659,11 @@ p {
 		 */
 
 		?>
-		<div id="message" class="updated jetpack-message jp-banner is-opt-in" style="display:block !important;">
-			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
-				<h2><?php esc_html_e( 'Jetpack Centralized Site Management', 'jetpack' ); ?></h2>
-				<p><?php printf( __( 'Manage multiple jetpack enabled sites from one single dashboard at wordpress.com. Allows all existing, connected Administrators to modify your site. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.com/support/site-management' ); ?></p>
-				<p>
+		<div id="message" class="updated jp-banner" style="display:block !important;">
+				<a href="<?php echo esc_url( $opt_out_url ); ?>" class="notice-dismiss" title="Dismiss this notice."></a>
+				<h2 class="jp-banner__header"><?php esc_html_e( 'Jetpack Centralized Site Management', 'jetpack' ); ?></h2>
+				<p class="jp-banner__description"><?php printf( __( 'Manage multiple jetpack enabled sites from one single dashboard at wordpress.com. Allows all existing, connected Administrators to modify your site. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.com/support/site-management' ); ?></p>
+				<p class="jp-banner__button-container">
 				<a href="<?php echo esc_url( $opt_in_url ); ?>" class="button button-primary" id="wpcom-connect"><?php _e( 'Activate Jetpack Manage', 'jetpack' ); ?></a>
 				</p>
 		</div>

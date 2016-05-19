@@ -1,116 +1,22 @@
-#message.jp-banner {
-	position: relative;
-}
-
-// 'activate now' banner displayed on dashboard
-#message {
-	&.is-opt-in {
-		.jp-banner__content {
-			width: 60%;
-		}
-		.jp-banner__action-container {
-			width: 40%;
-		}
-
-		@media ( max-width: 768px ) {
-			.jp-banner__content, .jp-banner__action-container {
-				width: 100%;
-			}
-		}
-	}
-}
-
-/*
-#message .jp-banner__button {
-	display: inline-block;
-	position: absolute;
-		top: 50%;
-		right: 125px;
-	margin-top: -23px;
-	padding: em(12px, 21px) em(18px, 21px) em(8px, 21px) em(12px, 21px);
-	border-radius: 6px;
-	box-sizing: border-box;
-	background: #518d2a;
-	box-shadow:
-		0 4px 0 #3e6c20,
-		0 2px 3px rgba(0,0,0,.2);
-	font: 400 1.5em/1 'Open Sans', Helvetica, sans-serif;
-	transition: all .1s ease-in-out;
-
-	@media ( max-width: 1175px ){
-		font-size: 1.25em;
-		right: 110px;
-	}
-
-	@media ( max-width: 830px ){
-		right: 45px;
-	}
-
-	@media ( max-width: 768px ) {
-		position: static;
-		margin: 0;
-	}
-	@media ( max-width: 420px ) {
-		display: block;
-		width: 100%;
-		text-align: center;
-		font-size: 1.1em;
-		right: 0;
-	}
-	&:hover,
-	&:focus {
-		box-shadow:
-			0 4px 0 #3e6c20,
-			0 2px 3px rgba(0,0,0,.2);
-	}
-	&:active {
-		outline: none;
-		transform: translateY(2px);
-		box-shadow:
-			0 0px 0 #3e6c20,
-			0 0 0 rgba(0,0,0,.2);
-
-		&:after {
-			// fixes buggy clicks
-			top: -2px;
-		}
-	}
-	&:before {
-		content: '';
-		display: inline-block;
+.updated { // utlizes some core styles, overrides some others
+	&.jp-banner {
 		position: relative;
-		vertical-align: middle;
-		background: url('../images/connect-plug.svg') center center no-repeat;
-		background-size: 100%;
-		top: -2px;
-		margin-right: 13px;
-		width: 22px;
-		height: 22px;
+	}
 
-		@media ( max-width: 420px ) {
-			display: none;
-		}
+	.jp-banner__header {
+		font-size: 18px;
+		font-weight: 400;
+	}
+
+	.jp-banner__button-container {
+		padding: 12px 0;
 	}
 }
-*/
 
-#message .jp-banner__dismiss {
-	position: absolute;
-		top: 0;
-		right: 0;
-	width: 44px;
-	height: 44px;
-	text-align: center;
-	z-index: 99;
+.jp-banner .notice-dismiss {
 	text-decoration: none;
+}
 
-	&:before {
-		color: #666;
-		content: '\f158';
-		font: normal 20px/44px 'dashicons';
-	}
-	&:active {
-		opacity: 1;
-		outline: none;
-	}
+.jp-banner__description {
+	font-size: 14px;
 }
