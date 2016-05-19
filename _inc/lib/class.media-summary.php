@@ -63,11 +63,29 @@ class Jetpack_Media_Summary {
 				switch ( $type ) {
 					case 'wpvideo':
 						if ( 0 == $return['count']['video'] ) {
-							$return['type'] = 'video';
-							$return['video'] = esc_url_raw( 'http://s0.videopress.com/player.swf?guid=' . $extract['shortcode']['wpvideo']['id'][0] . '&isDynamicSeeking=true' );
-							$return['image'] = self::get_video_poster( 'videopress', $extract['shortcode']['wpvideo']['id'][0] );
-							$return['secure']['video'] = preg_replace( '@http://[^\.]+.videopress.com/@', 'https://v0.wordpress.com/', $return['video'] );
-							$return['secure']['image'] = str_replace( 'http://videos.videopress.com', 'https://videos.files.wordpress.com', $return['image'] );
+							$guid = $extract['shortcode']['wpvideo']['id'][0];
+							$video_info = videopress_get_video_details( $guid );
+
+							// Only add the video tags if the guid returns a valid videopress object.
+							if ( $video_info instanceof stdClass ) {
+								$url = sprintf(
+									'https://videos.files.wordpress.com/%1$s/%2$s',
+									$guid,
+									$video_info->files->std->mp4
+								);
+
+								$thumbnail = $video_info->poster;
+								if ( ! empty( $thumbnail ) ) {
+									$return['image'] = $thumbnail;
+									$return['secure']['image'] = $thumbnail;
+								}
+
+								$return['type'] = 'video';
+								$return['video'] = esc_url( $url );
+								$return['video_type'] = 'video/mp4';
+								$return['secure']['video'] = $return['video'];
+							}
+
 						}
 						$return['count']['video']++;
 						break;
@@ -202,6 +220,16 @@ class Jetpack_Media_Summary {
 		if ( $switched ) {
 			restore_current_blog();
 		}
+
+		/**
+		 * Allow a theme or plugin to inspect and ultimately change the media summary.
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param array $data The calculated media summary data.
+		 * @param int $post_id The id of the post this data applies to.
+		 */
+		$return = apply_filters( 'jetpack_media_summary_output', $return, $post_id );
 
 		return $return;
 	}
