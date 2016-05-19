@@ -68,6 +68,11 @@ class Jetpack_Media_Summary {
 
 							// Only add the video tags if the guid returns a valid videopress object.
 							if ( $video_info instanceof stdClass ) {
+								// Return early if we can't find a Video slug.
+								if ( empty( $video_info->files->std->mp4 ) ) {
+									return;
+								}
+
 								$url = sprintf(
 									'https://videos.files.wordpress.com/%1$s/%2$s',
 									$guid,
@@ -224,7 +229,7 @@ class Jetpack_Media_Summary {
 		/**
 		 * Allow a theme or plugin to inspect and ultimately change the media summary.
 		 *
-		 * @since 4.1.0
+		 * @since 4.4.0
 		 *
 		 * @param array $data The calculated media summary data.
 		 * @param int $post_id The id of the post this data applies to.
