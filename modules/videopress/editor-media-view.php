@@ -176,12 +176,13 @@ function videopress_override_media_templates(){
 
 			// This handles the recreating of the core video shortcode when editing the mce embed.
 			if ( typeof media.video !== 'undefined' ) {
-				var old_video_shortcode = media.video.shortcode;
-
 				media.video.defaults.videopress_guid = '';
+
+				// For some reason, even though we're not currently changing anything, the following proxy
+				// function is necessary to include the above default `videopress_guid` param. ¯\_(ツ)_/¯
+				var old_video_shortcode = media.video.shortcode;
 				media.video.shortcode = function( model ) {
-					model.videopress_guid = 'FOOBAR';
-					console.log( model );
+					// model.videopress_guid = 'FOOBAR';
 					return old_video_shortcode( model );
 				};
 			} else { /* console.log( 'media.video undefined' ); */ }
