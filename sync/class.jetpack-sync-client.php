@@ -12,6 +12,7 @@ class Jetpack_Sync_Client {
 	const SYNC_THROTTLE_OPTION_NAME = 'jetpack_sync_min_wait';
 	const LAST_SYNC_TIME_OPTION_NAME = 'jetpack_last_sync_time';
 	const CALLABLES_AWAIT_TRANSIENT_NAME = 'jetpack_sync_callables_await';
+	const CONSTANTS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_constants_await';
 
 	private $checkout_memory_size;
 	private $upload_max_bytes;
@@ -503,7 +504,7 @@ class Jetpack_Sync_Client {
 	}
 
 	function force_sync_constants() {
-		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
+		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
 		$this->maybe_sync_constants();
 	}
 
@@ -516,15 +517,16 @@ class Jetpack_Sync_Client {
 	}
 
 	private function maybe_sync_constants() {
+		if ( get_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME ) ) {
+			return;
+		}
+		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime(true), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
+
 		$constants = $this->get_all_constants();
 		if ( empty( $constants ) ) {
 			return;
 		}
-		$constants_check_sum = $this->get_check_sum( $constants );
-		if ( $constants_check_sum !== (int) get_option( self::CONSTANTS_CHECKSUM_OPTION_NAME ) ) {
-			do_action( 'jetpack_sync_current_constants', $constants );
-			update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, $constants_check_sum );
-		}
+		do_action( 'jetpack_sync_current_constants', $constants );
 	}
 
 	private function get_all_constants() {
@@ -547,7 +549,7 @@ class Jetpack_Sync_Client {
 			delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME."_$name" );
 		}
 
-		delete_transient( Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
+		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->maybe_sync_callables();
 	}
 
@@ -561,7 +563,7 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
-		set_transient( 'self::CALLABLES_AWAIT_TRANSIENT_NAME', microtime(true), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
+		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime(true), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
