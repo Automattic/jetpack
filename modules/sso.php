@@ -1020,20 +1020,6 @@ class Jetpack_SSO {
 		return $message;
 	}
 
-	/**
-	 * Error message displayed on the login form when the user attempts
-	 * to post to the login form and it is disabled.
-	 *
-	 * @since 2.8
-	 * @param string $message
-	 * @param string
-	 **/
-	public function error_msg_login_method_not_allowed( $message ) {
-		$err = __( 'Login method not allowed' , 'jetpack' );
-		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
-
-		return $message;
-	}
 	function cant_find_user( $message ) {
 		if ( self::match_by_email() ) {
 			$err_format = __( 'We couldn\'t find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page.', 'jetpack' );
