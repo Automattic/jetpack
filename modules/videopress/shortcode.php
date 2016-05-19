@@ -148,7 +148,7 @@ add_filter( 'oembed_fetch_url', 'videopress_add_oembed_for_parameter' );
  *
  * @return string|void
  * /
-function videopress_shortcode_override_for_core_shortcode( $raw_attr ) {
+function videopress_shortcode_override_for_core_shortcode( $raw_attr, $contents, $tag ) {
 	$attr = $raw_attr;
 	$videopress_guid = false;
 
@@ -180,8 +180,11 @@ function videopress_shortcode_override_for_core_shortcode( $raw_attr ) {
 	}
 
 	// Nothing else caught, so fall back to the core shortcode.
-	return wp_video_shortcode( $raw_attr );
+	return call_user_func( $GLOBALS['vp_original_video_shortcode_callback'], $raw_attr, $contents, $tag );
 }
+// The callback should nearly always be `wp_video_shortcode` unless some other plugin
+// has overridden it similarly to what we're doing here.
+$GLOBALS['vp_original_video_shortcode_callback'] = $GLOBALS['shortcode_tags']['video'];
 remove_shortcode( 'video' );
 add_shortcode( 'video', 'videopress_shortcode_override_for_core_shortcode' );
 /**/
