@@ -324,86 +324,58 @@ EXPECTED;
 
 	/**
 	 * @author jubstuff
-	 * @covers Jetpack::load_minified_scripts
-	 * @since 4.0.0
+	 * @covers Jetpack::maybe_min_assets
+	 * @since 4.1.0
 	 */
-	public function test_load_minified_scripts() {
-		$old_wp_scripts = $this->clean_wp_scripts();
-
+	function test_maybe_min_assets() {
 		add_filter( 'jetpack_load_minified_scripts', '__return_true' );
 
-		wp_enqueue_script( 'script1', plugins_url( "_inc/script1.js", __FILE__ ), array() );
-		wp_enqueue_script( 'script2', plugins_url( "_inc/script2.js", __FILE__ ) );
-		wp_enqueue_script( 'script3', plugins_url( "_inc/script3.js", __FILE__ ), array(), '1.2' );
-		wp_enqueue_script( 'script4', plugins_url( "_inc/script4.js", __FILE__ ), array(), null );
-		wp_enqueue_script( 'false-jsfile', plugins_url( "_inc/my.js/script6.js", __FILE__ ), array(), null );
-		wp_enqueue_script( 'script7', plugins_url( "_inc/script7.js.js", __FILE__ ), array(), '1.2' );
-		wp_enqueue_script( 'external-script', "external/script5.js" );
-		wp_enqueue_script( 'core-jsdom', plugins_url( "_inc/core.jsdom.js", __FILE__ ), array(), '1.2' );
-		wp_enqueue_script( 'kernel-jsdom', plugins_url( "_inc/kernel.jsdom.js", __FILE__ ), array(), null );
-		wp_enqueue_script( 'case-sensitive', plugins_url( "_inc/case-sensitive.JS", __FILE__ ), array(), null );
+		$scripts = array(
+			'script1.min.js',
+			'my.js.script6.min.js',
+			'script7.js.min.js',
+			'case-sensitive.min.js',
+			'core.jsdom.min.js'
+		);
 
-		$wp_print_scripts = get_echo( 'wp_print_scripts' );
+		$base      = dirname( plugin_basename( JETPACK__PLUGIN_FILE ) );
+		$base_path = JETPACK__PLUGIN_DIR . substr( $base, strlen( basename( JETPACK__PLUGIN_DIR ) ) + 1 ) . '/_inc';
 
-		$this->assertContains( '_inc/script1.min.js', $wp_print_scripts );
-		$this->assertContains( '_inc/script2.min.js', $wp_print_scripts );
-		$this->assertContains( '_inc/script3.min.js', $wp_print_scripts );
-		$this->assertContains( '_inc/script4.min.js', $wp_print_scripts );
-		$this->assertContains( 'external/script5.js', $wp_print_scripts );
-		$this->assertContains( '_inc/my.js/script6.min.js', $wp_print_scripts );
-		$this->assertContains( '_inc/script7.js.min.js', $wp_print_scripts );
-		$this->assertContains( '_inc/core.jsdom.min.js', $wp_print_scripts );
-		$this->assertContains( '_inc/kernel.jsdom.min.js', $wp_print_scripts );
-		$this->assertContains( '_inc/case-sensitive.min.js', $wp_print_scripts );
+		if( ! is_dir( $base_path ) ) {
+			mkdir( $base_path, 0777, true );
+		}
+		foreach ( $scripts as $script ) {
+			@touch( "$base_path/$script" );
+		}
 
-		$this->revert_wp_scripts( $old_wp_scripts );
+		$min_file = plugins_url( '_inc/script1.js', JETPACK__PLUGIN_FILE );
+		$this->assertContains( 'script1.min.js', $min_file );
+
+		$min_file = plugins_url( '_inc/my.js.script6.js', JETPACK__PLUGIN_FILE );
+		$this->assertContains( '_inc/my.js.script6.min.js', $min_file );
+
+		$min_file = plugins_url( '_inc/script7.js.js', JETPACK__PLUGIN_FILE );
+		$this->assertContains( 'script7.js.min.js', $min_file );
+
+		$min_file = plugins_url( '_inc/core.jsdom.js', JETPACK__PLUGIN_FILE );
+		$this->assertContains( '_inc/core.jsdom.min.js', $min_file );
+
+		$min_file = plugins_url( 'external/script5.js' );
+		$this->assertNotContains( 'script5.min.js', $min_file );
+
+		$min_file = plugins_url( '_inc/script2.js', JETPACK__PLUGIN_FILE );
+		$this->assertNotContains( 'script2.min.js', $min_file );
+
+		foreach ( $scripts as $script ) {
+			@unlink( "$base_path/$script" );
+		}
+
+		// Too dangerous?
+		while ( $base_path !== untrailingslashit( JETPACK__PLUGIN_DIR ) ) {
+			rmdir( $base_path );
+
+			$base_path = dirname( $base_path );
+		}
 	}
 
-	/**
-	 * @author jubstuff
-	 * @covers Jetpack::load_minified_scripts
-	 * @since 4.0.0
-	 */
-	public function test_load_unminified_scripts() {
-		$old_wp_scripts = $this->clean_wp_scripts();
-
-		add_filter( 'jetpack_load_minified_scripts', '__return_false' );
-
-		wp_enqueue_script( 'script1', plugins_url( "_inc/script1.js", __FILE__ ), array() );
-		wp_enqueue_script( 'script2', plugins_url( "_inc/script2.js", __FILE__ ) );
-		wp_enqueue_script( 'script3', plugins_url( "_inc/script3.js", __FILE__ ), array(), '1.2' );
-		wp_enqueue_script( 'script4', plugins_url( "_inc/script4.js", __FILE__ ), array(), null );
-
-		$wp_print_scripts = get_echo( 'wp_print_scripts' );
-
-		$this->assertNotContains( '_inc/script1.min.js', $wp_print_scripts );
-		$this->assertNotContains( '_inc/script2.min.js', $wp_print_scripts );
-		$this->assertNotContains( '_inc/script3.min.js', $wp_print_scripts );
-		$this->assertNotContains( '_inc/script4.min.js', $wp_print_scripts );
-
-		$this->revert_wp_scripts( $old_wp_scripts );
-	}
-
-	/**
-	 * Create empty WP_Scripts
-	 */
-	protected function clean_wp_scripts() {
-		$old_wp_scripts = isset( $GLOBALS['wp_scripts'] ) ? $GLOBALS['wp_scripts'] : null;
-		remove_action( 'wp_default_scripts', 'wp_default_scripts' );
-
-		$GLOBALS['wp_scripts']                  = new WP_Scripts();
-		$GLOBALS['wp_scripts']->default_version = get_bloginfo( 'version' );
-
-		return $old_wp_scripts;
-	}
-
-	/**
-	 * Revert previous WP_Scripts
-	 *
-	 * @param $old_wp_scripts WP_Scripts Return value from $this::clean_wp_scripts
-	 */
-	protected function revert_wp_scripts( $old_wp_scripts ) {
-		$GLOBALS['wp_scripts'] = $old_wp_scripts;
-		add_action( 'wp_default_scripts', 'wp_default_scripts' );
-	}
 } // end class
