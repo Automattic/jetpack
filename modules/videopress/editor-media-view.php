@@ -172,7 +172,7 @@ function videopress_override_media_templates(){
 						}
 					}
 				};
-			} else { console.log( 'media.view.Attachment.Details.TwoColumn undefined' ); }
+			} else { /* console.log( 'media.view.Attachment.Details.TwoColumn undefined' ); */ }
 
 			// This handles the recreating of the shortcode when editing the mce embed.
 			if ( typeof media.video !== 'undefined' ) {
@@ -184,7 +184,7 @@ function videopress_override_media_templates(){
 					console.log(model);
 					return old_video_shortcode(model);
 				};
-			} else { console.log( 'media.video undefined' ); }
+			} else { /* console.log( 'media.video undefined' ); */ }
 
 		})( wp.media );
 	</script>
