@@ -257,9 +257,7 @@ class Jetpack_Sync_Full {
 	private function enqueue_all_users() {
 		$this->set_status( 'users', 0 );
 
-		global $wpdb;
-
-		$user_ids          = $wpdb->get_col( "SELECT ID FROM $wpdb->users" ); // Should we set a limit here?
+		$user_ids = get_users( array( 'fields' => 'ID' ) );
 		$chunked_users_ids = array_chunk( $user_ids, self::$array_chunk_size );
 
 		$counter = 0;

@@ -8,9 +8,11 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 class Jetpack_Sync_Client {
 
 	const CONSTANTS_CHECKSUM_OPTION_NAME = 'jetpack_constants_sync_checksum';
-	const FUNCTIONS_CHECKSUM_OPTION_NAME = 'jetpack_functions_sync_checksum';
+	const CALLABLES_CHECKSUM_OPTION_NAME = 'jetpack_callables_sync_checksum';
 	const SYNC_THROTTLE_OPTION_NAME = 'jetpack_sync_min_wait';
 	const LAST_SYNC_TIME_OPTION_NAME = 'jetpack_last_sync_time';
+	const CALLABLES_AWAIT_TRANSIENT_NAME = 'jetpack_sync_callables_await';
+	const CONSTANTS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_constants_await';
 
 	private $checkout_memory_size;
 	private $upload_max_bytes;
@@ -56,7 +58,7 @@ class Jetpack_Sync_Client {
 		// constants
 		add_action( 'jetpack_sync_current_constants', $handler, 10 );
 
-		// functions
+		// callables
 		add_action( 'jetpack_sync_current_callable', $handler, 10, 2 );
 
 		// posts
@@ -116,7 +118,7 @@ class Jetpack_Sync_Client {
 		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'jetpack_sync_save_term', $handler, 10, 4 );
 		add_action( 'delete_term', $handler, 10, 4 );
-		add_action( 'set_object_terms', $handler, 10, 5 );
+		add_action( 'set_object_terms', $handler, 10, 6 );
 		add_action( 'deleted_term_relationships', $handler, 10, 2 );
 
 		// users
@@ -182,8 +184,8 @@ class Jetpack_Sync_Client {
 		return $this->callable_whitelist;
 	}
 
-	function set_callable_whitelist( $functions ) {
-		$this->callable_whitelist = $functions;
+	function set_callable_whitelist( $callables ) {
+		$this->callable_whitelist = $callables;
 	}
 
 	function set_network_options_whitelist( $options ) {
@@ -438,6 +440,7 @@ class Jetpack_Sync_Client {
 		 *
 		 * @param array $data The action buffer
 		 */
+
 		$result = apply_filters( 'jetpack_sync_client_send_data', $items_to_send );
 
 		if ( ! $result || is_wp_error( $result ) ) {
@@ -501,7 +504,7 @@ class Jetpack_Sync_Client {
 	}
 
 	function force_sync_constants() {
-		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
+		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
 		$this->maybe_sync_constants();
 	}
 
@@ -514,15 +517,16 @@ class Jetpack_Sync_Client {
 	}
 
 	private function maybe_sync_constants() {
+		if ( get_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME ) ) {
+			return;
+		}
+		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime(true), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
+
 		$constants = $this->get_all_constants();
 		if ( empty( $constants ) ) {
 			return;
 		}
-		$constants_check_sum = $this->get_check_sum( $constants );
-		if ( $constants_check_sum !== (int) get_option( self::CONSTANTS_CHECKSUM_OPTION_NAME ) ) {
-			do_action( 'jetpack_sync_current_constants', $constants );
-			update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, $constants_check_sum );
-		}
+		do_action( 'jetpack_sync_current_constants', $constants );
 	}
 
 	private function get_all_constants() {
@@ -542,25 +546,31 @@ class Jetpack_Sync_Client {
 
 	public function force_sync_callables() {
 		foreach ( $this->callable_whitelist as $name => $config ) {
-			delete_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME."_$name" );
+			delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME."_$name" );
 		}
-		
+
+		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->maybe_sync_callables();
 	}
 
 	private function maybe_sync_callables() {
+		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
+			return;
+		}
+
 		$callables = $this->get_all_callables();
 		if ( empty( $callables ) ) {
 			return;
 		}
 
+		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime(true), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
 			// explicitly not using Identical comparison as get_option returns a string
-			if ( $checksum != get_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME . "_$name" ) ) {
+			if ( $checksum != get_option( self::CALLABLES_CHECKSUM_OPTION_NAME . "_$name" ) ) {
 				do_action( 'jetpack_sync_current_callable', $name, $value );
-				update_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME . "_$name", $checksum );
+				update_option( self::CALLABLES_CHECKSUM_OPTION_NAME . "_$name", $checksum );
 			}
 		}
 	}
@@ -596,7 +606,7 @@ class Jetpack_Sync_Client {
 	}
 
 	private function get_check_sum( $values ) {
-		return crc32( serialize( $values ) );
+		return crc32( json_encode( $values ) );
 	}
 
 	function jetpack_sync_core_icon() {
