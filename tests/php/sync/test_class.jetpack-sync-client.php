@@ -63,7 +63,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$remote = $this->server_replica_storage;
 
 		// Also pass the posts though the same filter other wise they woun't match any more.
-		$local_posts = array_map( array( $this->client, 'filter_post_content' ), $local->get_posts() );
+		$local_posts = array_map( array( $this->client, 'filter_post_content_and_add_links' ), $local->get_posts() );
 		$this->assertEquals( $local_posts, $remote->get_posts() );
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
 
