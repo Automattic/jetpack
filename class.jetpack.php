@@ -684,7 +684,6 @@ class Jetpack {
 		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'jetpack_heartbeat',       array( $this, 'jetpack_sync_core_icon' ) );
-
 	}
 
 	/*
@@ -1039,6 +1038,7 @@ class Jetpack {
 	 * @return null
 	 */
 	public function register_assets() {
+
 		if ( ! wp_script_is( 'spin', 'registered' ) ) {
 			wp_register_script( 'spin', plugins_url( '_inc/spin.js', JETPACK__PLUGIN_FILE ), false, '1.3' );
 		}
@@ -6328,7 +6328,7 @@ p {
 	}
 
 	/**
-	 * Maybe Use a .min.css stylesheet, maybe not.
+	 * Maybe use a minified asset, maybe not.
 	 *
 	 * Hooks onto `plugins_url` filter at priority 1, and accepts all 3 args.
 	 */
@@ -6338,17 +6338,29 @@ p {
 			return $url;
 		}
 
-		// Strip out the abspath.
-		$base = dirname( plugin_basename( $plugin ) );
+		$jetpack_url = plugins_url( '', JETPACK__PLUGIN_FILE );
 
-		// Short out on non-Jetpack assets.
-		if ( 'jetpack/' !== substr( $base, 0, 8 ) ) {
+		$load_minified_scripts = ! ( ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || Jetpack::is_development_mode() ||
+		                             ( defined( 'IS_WPCOM' ) && IS_WPCOM ) );
+
+		/**
+		 * Filters Jetpack's development mode.
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param bool $development_mode Whether to load minified script.
+		 */
+		$load_minified_scripts = apply_filters( 'jetpack_load_minified_scripts', $load_minified_scripts );
+
+		// Short out on non-Jetpack assets or in dev mode.
+		if ( false === strpos( $url, $jetpack_url ) || ! $load_minified_scripts ) {
 			return $url;
 		}
 
 		// File name parsing.
+		$base              = dirname( plugin_basename( $plugin ) );
 		$file              = "{$base}/{$path}";
-		$full_path         = JETPACK__PLUGIN_DIR . substr( $file, 8 );
+		$full_path         = JETPACK__PLUGIN_DIR . substr( $file, strlen( basename( JETPACK__PLUGIN_DIR ) ) + 1 );
 		$file_name         = substr( $full_path, strrpos( $full_path, '/' ) + 1 );
 		$file_name_parts_r = array_reverse( explode( '.', $file_name ) );
 		$extension         = array_shift( $file_name_parts_r );
@@ -6358,10 +6370,12 @@ p {
 			if ( 'min' === $file_name_parts_r[0] ) {
 				return $url;
 			}
+			
+			$min_extension = strtolower( $extension );
 
-			$min_full_path = preg_replace( "#\.{$extension}$#", ".min.{$extension}", $full_path );
+			$min_full_path = preg_replace( "#\.{$extension}$#", ".min.{$min_extension}", $full_path );
 			if ( file_exists( $min_full_path ) ) {
-				$url = preg_replace( "#\.{$extension}$#", ".min.{$extension}", $url );
+				$url = preg_replace( "#\.{$extension}$#", ".min.{$min_extension}", $url );
 			}
 		}
 

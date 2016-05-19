@@ -321,4 +321,64 @@ EXPECTED;
 
 		$this->assertEquals( $expected, get_echo( array( 'Jetpack', 'dns_prefetch' ) ) );
 	}
+
+	/**
+	 * @author jubstuff
+	 * @covers Jetpack::maybe_min_assets
+	 * @since 4.1.0
+	 */
+	function test_maybe_min_assets() {
+		add_filter( 'jetpack_load_minified_scripts', '__return_true' );
+
+		$scripts = array(
+			'script1.min.js',
+			'my.js.script6.min.js',
+			'script7.js.min.js',
+			'case-sensitive.min.js',
+			'core.jsdom.min.js'
+		);
+
+		$base      = dirname( plugin_basename( JETPACK__PLUGIN_FILE ) );
+		$base_path = JETPACK__PLUGIN_DIR . substr( $base, strlen( basename( JETPACK__PLUGIN_DIR ) ) + 1 ) . '/_inc';
+
+		if( ! is_dir( $base_path ) ) {
+			mkdir( $base_path, 0777, true );
+		}
+		foreach ( $scripts as $script ) {
+			@touch( "$base_path/$script" );
+		}
+
+		$min_file = plugins_url( '_inc/script1.js', JETPACK__PLUGIN_FILE );
+		$this->assertContains( 'script1.min.js', $min_file );
+
+		$min_file = plugins_url( '_inc/my.js.script6.js', JETPACK__PLUGIN_FILE );
+		$this->assertContains( '_inc/my.js.script6.min.js', $min_file );
+
+		$min_file = plugins_url( '_inc/script7.js.js', JETPACK__PLUGIN_FILE );
+		$this->assertContains( 'script7.js.min.js', $min_file );
+
+		$min_file = plugins_url( '_inc/core.jsdom.js', JETPACK__PLUGIN_FILE );
+		$this->assertContains( '_inc/core.jsdom.min.js', $min_file );
+
+		$min_file = plugins_url( '_inc/case-sensitive.JS', JETPACK__PLUGIN_FILE );
+		$this->assertContains( '_inc/case-sensitive.min.js', $min_file );
+
+		$min_file = plugins_url( 'external/script5.js' );
+		$this->assertNotContains( 'script5.min.js', $min_file );
+
+		$min_file = plugins_url( '_inc/script2.js', JETPACK__PLUGIN_FILE );
+		$this->assertNotContains( 'script2.min.js', $min_file );
+
+		foreach ( $scripts as $script ) {
+			@unlink( "$base_path/$script" );
+		}
+
+		// Too dangerous?
+		while ( $base_path !== untrailingslashit( JETPACK__PLUGIN_DIR ) ) {
+			rmdir( $base_path );
+
+			$base_path = dirname( $base_path );
+		}
+	}
+
 } // end class

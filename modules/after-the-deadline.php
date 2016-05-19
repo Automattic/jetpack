@@ -195,6 +195,7 @@ function AtD_settings() {
 
 function AtD_load_javascripts() {
 	if ( AtD_should_load_on_page() ) {
+
 		wp_enqueue_script( 'AtD_core', plugins_url( '/after-the-deadline/atd.core.js', __FILE__ ), array(), ATD_VERSION );
 		wp_enqueue_script( 'AtD_quicktags', plugins_url( '/after-the-deadline/atd-nonvis-editor-plugin.js', __FILE__ ), array('quicktags'), ATD_VERSION );
 		wp_enqueue_script( 'AtD_jquery', plugins_url( '/after-the-deadline/jquery.atd.js', __FILE__ ), array('jquery'), ATD_VERSION );

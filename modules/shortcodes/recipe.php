@@ -45,7 +45,7 @@ class Jetpack_Recipes {
 			wp_enqueue_style( 'jetpack-recipes-style',  plugins_url( '/css/recipes.css',  __FILE__ ), array(), '20130919' );
 		}
 
-
+		
 		wp_enqueue_script( 'jetpack-recipes-printthis', plugins_url( '/js/recipes-printthis.js', __FILE__ ), array( 'jquery' ), '20131230' );
 		wp_enqueue_script( 'jetpack-recipes-js',        plugins_url( '/js/recipes.js', __FILE__ ),   array( 'jquery', 'jetpack-recipes-printthis' ), '20131230' );
 

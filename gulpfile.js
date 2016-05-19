@@ -15,7 +15,8 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	shell = require( 'gulp-shell' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	util = require( 'gulp-util' ),
-	stylish = require( 'jshint-stylish' );
+	stylish = require( 'jshint-stylish'),
+	uglify = require( 'gulp-uglify' );
 
 /* Admin CSS to be minified, autoprefixed, rtl */
 var admincss = [
@@ -226,10 +227,29 @@ gulp.task( 'js:qunit', function() {
 		.pipe( qunit() );
 });
 
-// Default task
-gulp.task( 'default',      ['styles', 'checkstrings', 'php:lint', 'js:hint'] );
+gulp.task( 'js:uglify', function() {
+	return gulp.src( [
+		'_inc/*.js',
+		'modules/*.js',
+		'modules/**/*.js',
+		'!_inc/*.min.js',
+		'!modules/*.min.',
+		'!modules/**/*.min.js'
+	], { base: './' } )
+		.pipe( sourcemaps.init() )
+		.pipe( uglify() )
+		.pipe( rename( { suffix: '.min' } ) )
+		.pipe( sourcemaps.write( '.' ) )
+		.pipe( gulp.dest( '.' ) )
+		.on( 'end', function() {
+			console.log( 'js:uglify finished.' );
+		});
+});
 
-gulp.task( 'js',           ['js:hint'] );
+// Default task
+gulp.task( 'default',      ['styles', 'checkstrings', 'php:lint', 'js'] );
+
+gulp.task( 'js',           ['js:hint', 'js:uglify'] );
 gulp.task( 'php',          ['php:lint', 'php:unit'] );
 gulp.task( 'checkstrings', ['check:DIR'] );
 gulp.task( 'styles',       ['frontendcss', 'admincss', 'admincss:rtl', 'sass', 'sass:rtl'] );
