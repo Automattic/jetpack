@@ -970,9 +970,18 @@ class Jetpack_SSO {
 	 * @return string
 	 **/
 	public function error_msg_enable_two_step( $message ) {
-		$err = __( sprintf( 'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s" target="_blank"> Security Settings</a> page to enable two step', 'https://wordpress.com/me/security/two-step' ) , 'jetpack' );
+		$error = sprintf(
+			wp_kses(
+				__(
+					'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s" target="_blank"> Security Settings</a> page to enable two step.',
+					'jetpack'
+				),
+				array(  'a' => array( 'href' => array() ) )
+			),
+			'https://wordpress.com/me/security/two-step'
+		);
 
-		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
 
 		return $message;
 	}
@@ -986,9 +995,18 @@ class Jetpack_SSO {
 	 * @return string
 	 */
 	public function error_msg_email_already_exists( $message ) {
-		$err = __( sprintf( 'You already have an account on this site. Please visit your <a href="%1$s">profile page</a> page to link your account to WordPress.com!', admin_url( 'profile.php' ) ) , 'jetpack' );
+		$error = sprintf(
+			wp_kses(
+				__(
+					'You already have an account on this site. Please visit your <a href="%1$s">profile page</a> page to link your account to WordPress.com!',
+					'jetpack'
+				),
+				array(  'a' => array( 'href' => array() ) )
+			),
+			admin_url( 'profile.php' )
+		);
 
-		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
 
 		return $message;
 	}
@@ -1002,8 +1020,16 @@ class Jetpack_SSO {
 	 * @return string
 	 **/
 	public function msg_login_by_jetpack( $message ) {
-
-		$msg = __( sprintf( 'Jetpack authenticates through WordPress.com — to log in, enter your WordPress.com username and password, or <a href="%1$s" target="_blank">visit WordPress.com</a> to create a free account now.', 'http://wordpress.com/signup' ) , 'jetpack' );
+		$msg = sprintf(
+			wp_kses(
+				__(
+					'Jetpack authenticates through WordPress.com — to log in, enter your WordPress.com username and password, or <a href="%1$s" target="_blank">visit WordPress.com</a> to create a free account now.',
+					'jetpack'
+				),
+				array(  'a' => array( 'href' => array() ) )
+			),
+			'http://wordpress.com/signup'
+		);
 
 		/**
 		 * Filter the message displayed when the default WordPress login form is disabled.
@@ -1016,18 +1042,27 @@ class Jetpack_SSO {
 		 */
 		$msg = apply_filters( 'jetpack_sso_disclaimer_message', $msg );
 
+		if ( empty( $msg ) ) {
+			return $message;
+		}
+
 		$message .= sprintf( '<p class="message">%s</p>', $msg );
 		return $message;
 	}
 
+	/**
+	 * Message displayed when the user can not be found after approving the SSO process on WordPress.com
+	 *
+	 * @param string $message
+	 * @return string
+	 */
 	function cant_find_user( $message ) {
-		if ( self::match_by_email() ) {
-			$err_format = __( 'We couldn\'t find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page.', 'jetpack' );
-		} else {
-			$err_format = __( 'We couldn\'t find any account on <strong>%2$s</strong> that is linked to your WordPress.com account to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that you have connected to WordPress.com on your profile page.', 'jetpack' );
-		}
-		$err = sprintf( $err_format, $this->user_data->email, get_bloginfo( 'name' ) );
-		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
+		$error = esc_html__(
+			"We couldn't find an account to log you in with. If you already have an account, please make sure that you have connected it to WordPress.com.",
+			'jetpack'
+		);
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
+
 		return $message;
 	}
 
