@@ -998,12 +998,12 @@ class Jetpack_SSO {
 		$error = sprintf(
 			wp_kses(
 				__(
-					'You already have an account on this site. Please visit your <a href="%1$s">profile page</a> page to link your account to WordPress.com.',
+					'You already have an account on this site. Please log in <a href="%1$s">with your username and password</a> and connect your account to WordPress.com.',
 					'jetpack'
 				),
 				array(  'a' => array( 'href' => array() ) )
 			),
-			admin_url( 'profile.php' )
+			add_query_arg( 'jetpack-sso-default-form', '1', wp_login_url() )
 		);
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
