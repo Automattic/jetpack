@@ -1023,12 +1023,12 @@ class Jetpack_SSO {
 		$msg = sprintf(
 			wp_kses(
 				__(
-					'Jetpack authenticates through WordPress.com — to log in, enter your WordPress.com username and password, or <a href="%1$s" target="_blank">visit WordPress.com</a> to create a free account now.',
+					'Jetpack authenticates through WordPress.com. To log in, enter your WordPress.com username and password, or <a href="%1$s" target="_blank">visit WordPress.com</a> to create a free account now.',
 					'jetpack'
 				),
 				array(  'a' => array( 'href' => array() ) )
 			),
-			'http://wordpress.com/signup'
+			'http://wordpress.com/start/jetpack'
 		);
 
 		/**
