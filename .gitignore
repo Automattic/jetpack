@@ -5,3 +5,7 @@
 languages/messages.pot
 .idea
 /wpcom-test-backup/
+npm-debug.log
+/modules/**/*.min.css
+/modules/**/*-rtl.css
+tests/php/files/jetpack-150x150.jpg
