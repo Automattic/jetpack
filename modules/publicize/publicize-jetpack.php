@@ -360,7 +360,21 @@ class Publicize extends Publicize_Base {
 
 	function flag_post_for_publicize( $new_status, $old_status, $post ) {
 		if ( 'publish' == $new_status && 'publish' != $old_status ) {
-			update_post_meta( $post->ID, $this->PENDING, true );
+			/**
+			 * Determines whether a post being published gets publicized.
+			 * Side-note: Possibly our most alliterative filter name.
+			 *
+			 * @module publicize
+			 *
+			 * @since 4.1.0
+			 *
+			 * @param bool should_publicize
+			 */
+			$should_publicize = apply_filters( 'publicize_should_publicize_published_post', true, $post );
+
+			if ( $should_publicize ) {
+				update_post_meta( $post->ID, $this->PENDING, true );	
+			}
 		}
 	}
 
