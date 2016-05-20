@@ -293,7 +293,7 @@ ENDSQL;
 	/**
 	 *
 	 * Stores remote meta key/values alongside an ID mapping key
-	 * 
+	 *
 	 * @param $type
 	 * @param $object_id
 	 * @param $meta_key
@@ -317,13 +317,19 @@ ENDSQL;
 		) );
 
 		if ( $exists ) {
-			$wpdb->update( $table, array( 'meta_key' => $meta_key, 'meta_value' => $meta_value ), array( 'meta_id' => $meta_id ) );
+			$wpdb->update( $table, array( 'meta_key'   => $meta_key,
+			                              'meta_value' => $meta_value
+			), array( 'meta_id' => $meta_id ) );
 		} else {
-			$object_id_field = $type.'_id';
-			$wpdb->insert( $table, array( 'meta_id' => $meta_id, $object_id_field => $object_id, 'meta_key' => $meta_key, 'meta_value' => $meta_value ) );
+			$object_id_field = $type . '_id';
+			$wpdb->insert( $table, array( 'meta_id'        => $meta_id,
+			                              $object_id_field => $object_id,
+			                              'meta_key'       => $meta_key,
+			                              'meta_value'     => $meta_value
+			) );
 		}
 
-		wp_cache_delete($object_id, $type . '_meta');
+		wp_cache_delete( $object_id, $type . '_meta' );
 
 		return true;
 	}

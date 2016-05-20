@@ -222,7 +222,7 @@ class Jetpack_Sync_Client {
 	}
 
 	private function set_last_sync_time() {
-		return update_option( self::LAST_SYNC_TIME_OPTION_NAME, microtime(true), true );
+		return update_option( self::LAST_SYNC_TIME_OPTION_NAME, microtime( true ), true );
 	}
 
 	function set_taxonomy_whitelist( $taxonomies ) {
@@ -497,8 +497,8 @@ class Jetpack_Sync_Client {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 		$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
-		$post->permalink = get_permalink( $post->ID );
-		$post->shortlink = wp_get_shortlink( $post->ID );
+		$post->permalink             = get_permalink( $post->ID );
+		$post->shortlink             = wp_get_shortlink( $post->ID );
 
 		return $post;
 	}
@@ -524,7 +524,7 @@ class Jetpack_Sync_Client {
 		if ( get_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME ) ) {
 			return;
 		}
-		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime(true), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
+		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
 
 		$constants = $this->get_all_constants();
 		if ( empty( $constants ) ) {
@@ -550,7 +550,7 @@ class Jetpack_Sync_Client {
 
 	public function force_sync_callables() {
 		foreach ( $this->callable_whitelist as $name => $config ) {
-			delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME."_$name" );
+			delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME . "_$name" );
 		}
 
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
@@ -567,7 +567,7 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
-		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime(true), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
+		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
