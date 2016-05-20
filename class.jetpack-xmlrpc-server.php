@@ -127,7 +127,7 @@ class Jetpack_XMLRPC_Server {
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result );
 		}
-		// Creates a new secret, allowing someone to activate the manage module for up to 10 minutes after authorization.
+		// Creates a new secret, allowing someone to activate the manage module for up to 1 day after authorization.
 		$secrets = Jetpack::init()->generate_secrets( 'activate_manage', DAY_IN_SECONDS );
 		@list( $secret ) = explode( ':', $secrets );
 		$response = array(
