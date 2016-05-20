@@ -9,10 +9,13 @@
 	padding: rem( 10px );
 	margin: 0 auto;
 	width: 100%;
-	max-width: rem( 1220px);
+	max-width: rem( 1220px );
 	display: flex;
 	flex-flow: row nowrap;
-	@include breakpoint( "<480px" ) { background-image: none; }
+
+	@include breakpoint( "<480px" ) { 
+		background-image: none; 
+	}
 }
 
 .jp-masthead__logo-container {
@@ -29,11 +32,15 @@
 
 .jp-masthead__links {
 	display: flex;
-	margin-top: 0;
-	margin-bottom: 0;
 	flex-flow: row wrap;
 	flex: 2 50%;
 	justify-content: flex-end;
+	margin: 0;
+}
+
+.jp-masthead__link-li {
+	margin: 0;
+	padding: 0 rem( 8px );
 }
 
 .jp-masthead__link {
@@ -47,9 +54,15 @@
 	&:hover {
 		color: $white;
 	}
+
+	&:hover {
+		text-decoration: underline;
+	}
+
 	.dashicons {
 		display: none;
 	}
+
 	@include breakpoint( "<480px" ) {
 		padding: rem( 10px ) rem( 15px );
 
@@ -64,5 +77,5 @@
 		span + span {
 			display: none;
 		}
-	} // < 480px
+	}
 }
