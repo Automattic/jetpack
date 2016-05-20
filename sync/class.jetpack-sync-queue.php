@@ -146,8 +146,6 @@ class Jetpack_Sync_Queue {
 		$result = $this->set_checkout_id( $buffer_id );
 
 		if ( ! $result || is_wp_error( $result ) ) {
-			error_log( "badness setting checkout ID (this should not happen)" );
-
 			return $result;
 		}
 
@@ -177,8 +175,6 @@ class Jetpack_Sync_Queue {
 		$result = $this->set_checkout_id( $buffer_id );
 
 		if ( ! $result || is_wp_error( $result ) ) {
-			error_log( "badness setting checkout ID (this should not happen)" );
-
 			return $result;
 		}
 
@@ -225,8 +221,6 @@ class Jetpack_Sync_Queue {
 		$is_valid = $this->validate_checkout( $buffer );
 
 		if ( is_wp_error( $is_valid ) ) {
-			error_log( "Invalid checkin: " . $is_valid->get_error_message() );
-
 			return $is_valid;
 		}
 
@@ -239,8 +233,6 @@ class Jetpack_Sync_Queue {
 		$is_valid = $this->validate_checkout( $buffer );
 
 		if ( is_wp_error( $is_valid ) ) {
-			error_log( "Invalid close: " . $is_valid->get_error_message() );
-
 			return $is_valid;
 		}
 
@@ -301,8 +293,6 @@ class Jetpack_Sync_Queue {
 		$result = $this->set_checkout_id( 'lock' );
 
 		if ( ! $result || is_wp_error( $result ) ) {
-			error_log( "badness setting checkout ID (this should not happen)" );
-
 			return $result;
 		}
 

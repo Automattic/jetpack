@@ -14,3 +14,4 @@ languages/messages.pot
 npm-debug.log
 /modules/**/*.min.css
 /modules/**/*-rtl.css
+tests/php/files/jetpack-150x150.jpg

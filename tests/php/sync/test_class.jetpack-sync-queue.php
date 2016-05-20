@@ -255,6 +255,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_benchmark() {
+		$this->markTestIncomplete( "We don't want to run this every time" );
 		$iterations = 100;
 		$buffer_size = 10;
 
