@@ -4,7 +4,7 @@ require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
 class WP_Test_Publicize extends WP_UnitTestCase {
 
 	private $fired_publicized_post = false;
-	private $publicized_post = null;
+	private $publicized_post_id = null;
 	private $post;
 
 	public function setUp() {
@@ -12,7 +12,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 		$this->publicize = publicize_init();
 		$this->fired_publicized_post = false;
-		$this->publicized_post = null;
+		$this->publicized_post_id = null;
 
 		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
@@ -49,17 +49,17 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	function assertPublicized( $should_have_publicized, $post ) {
 		if ( $should_have_publicized ) {
 			$this->assertTrue( $this->fired_publicized_post );
-			$this->assertEquals( $post->ID, $this->publicized_post->ID );	
+			$this->assertEquals( $post->ID, $this->publicized_post_id );	
 		} else {
 			$this->assertFalse( $this->fired_publicized_post );
-			$this->assertNull( $this->publicized_post );
+			$this->assertNull( $this->publicized_post_id );
 		}
 		
 	}
 
-	function publicized_post( $post ) {
+	function publicized_post( $post_id ) {
 		$this->fired_publicized_post = true;
-		$this->publicized_post = $post;
+		$this->publicized_post_id = $post_id;
 	}
 
 	function prevent_publicize_post( $should_publicize, $post ) {
