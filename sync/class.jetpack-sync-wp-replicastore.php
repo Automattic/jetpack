@@ -36,7 +36,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 
 		// callables and constants
 		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE 'jetpack_%'" );
-		$wpdb->query( "DELETE FROM $wpdb->postmeta WHERE meta_key NOT LIKE '_%'" ); //TODO: delete by special prefix?
+		$wpdb->query( "DELETE FROM $wpdb->postmeta WHERE meta_key NOT LIKE '\_%'" );
 	}
 
 	function full_sync_start() {
@@ -318,14 +318,14 @@ ENDSQL;
 
 		if ( $exists ) {
 			$wpdb->update( $table, array( 'meta_key'   => $meta_key,
-			                              'meta_value' => $meta_value
+			                              'meta_value' => serialize( $meta_value )
 			), array( 'meta_id' => $meta_id ) );
 		} else {
 			$object_id_field = $type . '_id';
 			$wpdb->insert( $table, array( 'meta_id'        => $meta_id,
 			                              $object_id_field => $object_id,
 			                              'meta_key'       => $meta_key,
-			                              'meta_value'     => $meta_value
+			                              'meta_value'     => serialize( $meta_value )
 			) );
 		}
 
