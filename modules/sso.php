@@ -973,12 +973,13 @@ class Jetpack_SSO {
 		$error = sprintf(
 			wp_kses(
 				__(
-					'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s" target="_blank"> Security Settings</a> page to enable two step.',
+					'Two-Step Authentication is required to access this site. Please visit your <a href="%1$s" target="_blank">Security Settings</a> to configure <a href="%2$S" target="_blank">Two-step Authentication</a> for your account.',
 					'jetpack'
 				),
 				array(  'a' => array( 'href' => array() ) )
 			),
-			'https://wordpress.com/me/security/two-step'
+			'https://wordpress.com/me/security/two-step',
+			'https://support.wordpress.com/security/two-step-authentication/'
 		);
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
@@ -998,7 +999,7 @@ class Jetpack_SSO {
 		$error = sprintf(
 			wp_kses(
 				__(
-					'You already have an account on this site. Please log in <a href="%1$s">with your username and password</a> and connect your account to WordPress.com.',
+					'You already have an account on this site. Please <a href="%1$s">sign in</a> with your username and password and then connect to WordPress.com.',
 					'jetpack'
 				),
 				array(  'a' => array( 'href' => array() ) )
@@ -1058,7 +1059,7 @@ class Jetpack_SSO {
 	 */
 	function cant_find_user( $message ) {
 		$error = esc_html__(
-			"We couldn't find an account to log you in with. If you already have an account, please make sure that you have connected it to WordPress.com.",
+			"We couldn't find your account. If you already have an account, make sure you have connected to WordPress.com.",
 			'jetpack'
 		);
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
