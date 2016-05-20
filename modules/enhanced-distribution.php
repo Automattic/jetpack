@@ -11,9 +11,6 @@
  * Additional Search Queries: google, seo, firehose, search, broadcast, broadcasting
  */
 
-Jetpack_Sync::sync_posts( __FILE__ );
-Jetpack_Sync::sync_comments( __FILE__ );
-
 function jetpack_enhanced_distribution_activate() {
 	Jetpack::check_privacy( __FILE__ );
 }

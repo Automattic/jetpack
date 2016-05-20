@@ -10,6 +10,3 @@
  * Feature: Developer
  * Additional Search Queries: api, rest, develop, developers, json, klout, oauth
  */
-
-add_action( 'jetpack_activate_module_json-api',   array( Jetpack::init(), 'toggle_module_on_wpcom' ) );
-add_action( 'jetpack_deactivate_module_json-api', array( Jetpack::init(), 'toggle_module_on_wpcom' ) );

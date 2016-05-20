@@ -27,6 +27,11 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class.jetpack-react-page' );
 		$this->jetpack_react = new Jetpack_React_Page;
 
+		// TODO: reactify
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-dashboard.php';
+		$this->sync_dashboard = new Jetpack_Sync_Dashboard;
+		$this->sync_dashboard->init();
+
 //		jetpack_require_lib( 'admin-pages/class.jetpack-landing-page' );
 //		$this->landing_page = new Jetpack_Landing_Page;
 //
@@ -40,6 +45,10 @@ class Jetpack_Admin {
 //			add_action( 'init', array( $this->my_jetpack_page, 'jetpack_my_jetpack_change_user' ) );
 //		}
 
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-dashboard.php';
+		$this->sync_dashboard = new Jetpack_Sync_Dashboard;
+		$this->sync_dashboard->init();
+
 		// Add hooks for admin menus
 //		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'add_actions' ) );
 
@@ -47,7 +56,7 @@ class Jetpack_Admin {
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
 //		add_action( 'jetpack_admin_menu',            array( $this->settings_page, 'add_actions' ) );
 //		add_action( 'jetpack_admin_menu',            array( $this->my_jetpack_page, 'add_actions' ) );
-
+		add_action( 'jetpack_admin_menu',            array( $this->sync_dashboard, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules
 		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ), 10, 2 );

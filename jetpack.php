@@ -43,13 +43,12 @@ function jetpack_require_lib_dir() {
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
-// @todo: Only include things like class.jetpack-sync.php if we're connected.
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-sync.php'          );
+require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-actions.php' );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );

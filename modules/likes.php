@@ -39,9 +39,6 @@ class Jetpack_Likes {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( $this->in_jetpack ) {
-			add_action( 'jetpack_activate_module_likes',   array( $this, 'maybe_sync_content' ) );
-			add_action( 'jetpack_activate_module_likes',   array( $this, 'module_toggle' ) );
-			add_action( 'jetpack_deactivate_module_likes', array( $this, 'module_toggle' ) );
 			add_action( 'jetpack_activate_module_likes',   array( $this, 'set_social_notifications_like' ) );
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
@@ -71,9 +68,6 @@ class Jetpack_Likes {
 				add_filter( 'sharing_meta_box_title', array( $this, 'add_likes_to_sharing_meta_box_title' ) );
 				add_action( 'start_sharing_meta_box_content', array( $this, 'meta_box_content' ) );
 			}
-
-			Jetpack_Sync::sync_options( __FILE__, 'social_notifications_like' );
-
 		} else { // wpcom
 			add_action( 'wpmu_new_blog', array( $this, 'enable_comment_likes' ), 10, 1 );
 			add_action( 'admin_init', array( $this, 'add_meta_box' ) );
@@ -91,17 +85,6 @@ class Jetpack_Likes {
 		add_action( 'edit_attachment', array( $this, 'meta_box_save' ) );
 		add_action( 'sharing_global_options', array( $this, 'admin_settings_init' ), 20 );
 		add_action( 'sharing_admin_update',   array( $this, 'admin_settings_callback' ), 20 );
-	}
-
-	function maybe_sync_content() {
-		if ( Jetpack::init()->sync->reindex_needed() ) {
-			Jetpack::init()->sync->reindex_trigger();
-		}
-	}
-
-	function module_toggle() {
-		$jetpack = Jetpack::init();
-		$jetpack->sync->register( 'noop' );
 	}
 
 	/**
@@ -636,16 +619,6 @@ class Jetpack_Likes {
 		add_action( 'manage_pages_custom_column', array( $this, 'likes_edit_column' ), 10, 2 );
 		add_action( 'admin_print_styles-edit.php', array( $this, 'load_admin_css' ) );
 		add_action( "admin_print_scripts-edit.php", array( $this, 'enqueue_admin_scripts' ) );
-
-
-		if ( $this->in_jetpack ) {
-			$post_stati = get_post_stati( array( 'public' => true ) ); // All public post stati
-			$post_stati[] = 'private';                                 // Content from private stati will be redacted
-			Jetpack_Sync::sync_posts( __FILE__, array(
-				'post_types' => get_post_types( array( 'public' => true ) ),
-				'post_stati' => $post_stati,
-				) );
-		}
 	}
 
 	function action_init() {
