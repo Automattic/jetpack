@@ -323,6 +323,15 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( $user_id, $event->user_id );
 	}
 
+	function test_sends_publicize_action() {
+		$post_id = $this->factory->post->create();
+		do_action( 'jetpack_publicize_post', $post_id );
+		$this->client->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_publicize_post' );
+		$this->assertEquals( $post_id, $event->args[0] );
+	}
+
 	function test_adds_timestamp_to_action() {
 		$beginning_of_test = microtime(true);
 

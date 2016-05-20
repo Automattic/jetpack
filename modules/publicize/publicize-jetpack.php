@@ -426,9 +426,8 @@ class Publicize extends Publicize_Base {
 		if ( get_post_meta( $post->ID, $this->PENDING ) ) {
 
 			// Publicize via sync
-			do_action( 'jetpack_publicize_post', $post );
+			do_action( 'jetpack_publicize_post', $post->ID );
 			delete_post_meta( $post->ID, $this->PENDING );
-
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}
 	}
