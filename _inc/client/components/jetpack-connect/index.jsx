@@ -66,7 +66,6 @@ const JetpackConnect = React.createClass( {
 
 						<img src={ imagePath + 'stats-example-med.png' }
 							srcSet={ `${imagePath}stats-example-sm.png 445w, ${imagePath}stats-example-med.png 770w, ${imagePath}stats-example-lrg.png 1200w` }
-							sizes="(min-width: 200px) 445px, (min-width: 445px) 770px, (min-width: 771px) 1200px"
 							className="jp-jetpack-connect__feature-image" alt="Jetpack statistics and traffic insights graph" />
 					</div>
 				</Card>
@@ -112,7 +111,6 @@ const JetpackConnect = React.createClass( {
 					<div className="jp-jetpack-connect__interior-container">
 						<img src={ imagePath + 'feature-photon-med.jpg' }
 							srcSet={ `${imagePath}feature-photon-sm.jpg 600w, ${imagePath}feature-photon-med.jpg 770w, ${imagePath}feature-photon-lrg.jpg 1200w` }
-							sizes="(min-width: 200px) 600px, (min-width: 600px) 770px, (min-width: 800px) 1200px"
 							className="jp-jetpack-connect__feature-image" alt="Jetpacks photon serves up lightning fast, optimized images" />
 					</div>
 				</Card>
@@ -125,7 +123,6 @@ const JetpackConnect = React.createClass( {
 					<div className="jp-jetpack-connect__interior-container">
 						<img src={ imagePath + 'aurora-med.jpg' }
 							srcSet={ `${imagePath}aurora-sm.jpg 600w, ${imagePath}aurora-med.jpg 770w, ${imagePath}aurora-lrg.jpg 1200w` }
-							sizes="(min-width: 200px) 600px, (min-width: 600px) 770px, (min-width: 800px) 1200px"
 							className="jp-jetpack-connect__feature-image" alt="Jetpack's free support team" />
 					</div>
 				</Card>

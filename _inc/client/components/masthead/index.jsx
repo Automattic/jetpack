@@ -25,8 +25,8 @@ const Masthead = React.createClass( {
 					</div>
 
 					<ul className="jp-masthead__links">
-						<li><a href="http://jetpack.com/support/" target="_blank" className="jp-masthead__link"><span className="dashicons dashicons-editor-help" title="Need Help?"></span><span>Need Help?</span></a></li>
-						<li><a href="http://surveys.jetpack.me/research-plugin?rel=3.9.4" target="_blank" className="jp-masthead__link"><span className="dashicons dashicons-admin-comments" title="Send us Feedback"></span><span>Send us Feedback</span></a></li>
+						<li className="jp-masthead__link-li"><a href="http://jetpack.com/support/" target="_blank" className="jp-masthead__link"><span className="dashicons dashicons-editor-help" title="Need Help?"></span><span>Need Help?</span></a></li>
+						<li className="jp-masthead__link-li"><a href="http://surveys.jetpack.me/research-plugin?rel=3.9.4" target="_blank" className="jp-masthead__link"><span className="dashicons dashicons-admin-comments" title="Send us Feedback"></span><span>Send us Feedback</span></a></li>
 					</ul>
 				</div>
 			</div>

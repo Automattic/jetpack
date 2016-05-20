@@ -31,17 +31,9 @@ const Main = React.createClass( {
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
-		if ( nextProps.jetpack.connection.status !== this.props.jetpack.connection.status ) {
-			return true;
-		}
-
-		if ( nextProps.jetpack.jumpstart.status.showJumpStart !== getJumpStartStatus( this.props ) ) {
-			return true;
-		}
-
-		if ( nextProps.route.path !== this.props.route.path ) {
-			return true;
-		}
+		return nextProps.jetpack.connection.status !== this.props.jetpack.connection.status ||
+			nextProps.jetpack.jumpstart.status.showJumpStart !== getJumpStartStatus( this.props ) ||
+			nextProps.route.path !== this.props.route.path;
 	},
 
 	renderMainContent: function( route ) {

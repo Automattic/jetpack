@@ -90,8 +90,6 @@ gulp.task( 'react:build', function( done ) {
 } );
 
 gulp.task( 'react:watch', function() {
-	process.env.NODE_ENV = "production";
-
 	var config = getWebpackConfig();
 
 	webpack( config ).watch( 100, onBuild() );
