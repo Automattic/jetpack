@@ -62,10 +62,6 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	if ( ! is_array( $image_url_parts ) || empty( $image_url_parts['host'] ) || empty( $image_url_parts['path'] ) )
 		return $image_url;
 
-	if ( isset( $image_url_parts['scheme'] ) && 'https' == $image_url_parts['scheme'] ) {
-		$args['ssl'] = '1';
-	}
-
 	if ( is_array( $args ) ){
 		// Convert values that are arrays into strings
 		foreach ( $args as $arg => $value ) {
@@ -158,6 +154,10 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 			// You can pass a query string for complicated requests but where you still want CDN subdomain help, etc.
 			$photon_url .= '?' . $args;
 		}
+	}
+
+	if ( isset( $image_url_parts['scheme'] ) && 'https' == $image_url_parts['scheme'] ) {
+		$photon_url = add_query_arg( array( 'ssl' => 1 ), $photon_url );
 	}
 
 	return jetpack_photon_url_scheme( $photon_url, $scheme );
