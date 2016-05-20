@@ -8,12 +8,10 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
  */
 class Jetpack_Sync_Server {
 	private $codec;
-	private $initial_time;
-	const MAX_TIME_PER_REQUEST_IN_SECONDS = 9;
+	const MAX_TIME_PER_REQUEST_IN_SECONDS = 15;
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
-		$this->initial_time = time();
 		$this->codec = new Jetpack_Sync_Deflate_Codec();
 		$this->events_processed = array();
 	}
@@ -23,6 +21,7 @@ class Jetpack_Sync_Server {
 	}
 
 	function receive( $data, $token = null ) {
+		$start_time = microtime(true);
 		if ( ! is_array( $data ) ) {
 			return new WP_Error( 'action_decoder_error', 'Events must be an array' );
 		}
@@ -47,13 +46,28 @@ class Jetpack_Sync_Server {
 			 *
 			 * @param string $action_name The name of the action executed on the remote site
 			 * @param array $args The arguments passed to the action
+			 * @param int $user_id The external_user_id who did the action
+			 * @param double $timestamp Timestamp (in seconds) when the action occurred
+			 * @param array $token The auth token used to invoke the API
 			 */
 			do_action( 'jetpack_sync_remote_action', $action_name, $args, $user_id, $timestamp, $token );
+
+			/**
+			 * Fires when an action is received from a remote Jetpack site
+			 *
+			 * @since 4.1
+			 *
+			 * @param array $args The arguments passed to the action
+			 * @param int $user_id The external_user_id who did the action
+			 * @param double $timestamp Timestamp (in seconds) when the action occurred
+			 * @param array $token The auth token used to invoke the API
+			 */
+			do_action( 'jetpack_sync_'.$action_name, $args, $user_id, $timestamp, $token );
 
 			$this->events_processed[] = $key;
 
 			// TODO this can be improved to be more intelligent
-			if ( time() - $this->initial_time > self::MAX_TIME_PER_REQUEST_IN_SECONDS ) {
+			if ( microtime(true) - $start_time > self::MAX_TIME_PER_REQUEST_IN_SECONDS ) {
 				break;
 			}
 		}
