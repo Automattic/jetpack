@@ -73,7 +73,7 @@ class Jetpack_Sync_Full {
 		if ( is_multisite() ) {
 			$this->enqueue_all_network_options();
 		}
-		
+
 		$this->enqueue_all_terms();
 		$this->enqueue_all_theme_info();
 		$this->enqueue_all_users();
@@ -257,7 +257,7 @@ class Jetpack_Sync_Full {
 	private function enqueue_all_users() {
 		$this->set_status( 'users', 0 );
 
-		$user_ids = get_users( array( 'fields' => 'ID' ) );
+		$user_ids          = get_users( array( 'fields' => 'ID' ) );
 		$chunked_users_ids = array_chunk( $user_ids, self::$array_chunk_size );
 
 		$counter = 0;
