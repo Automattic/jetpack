@@ -35,7 +35,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 		}
 
 		return (
-			<FoldableCard
+			<FoldableCard key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 				header={ element[1] }
 				subheader={ element[2] }
 				summary={ toggle }
