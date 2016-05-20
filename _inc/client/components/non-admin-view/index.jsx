@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
+import { translate as __ } from 'lib/mixins/i18n';
 
 /**
  * Internal dependencies
@@ -18,14 +19,19 @@ const NonAdminView = React.createClass( {
 	renderContent: function() {
 		const userData = window.Initial_State.userData.currentUser;
 		const isLinked = this.props.isLinked( this.props );
-		let headerText = userData.permissions.edit_posts
-			? 'Write posts via email, get notifications about your site activity, and log in with a single click.'
-			: 'Get notifications about your site activity and log in with a single click.';
-		let descriptionText = 'Sign in to your WordPress.com account to unlock these features.';
-		let belowText = 'No WordPress.com account? Create one for free.';
+		const headerText = userData.permissions.edit_posts
+			? __( 'Write posts via email, get notifications about your site activity, and log in with a single click.' )
+			: __( 'Get notifications about your site activity and log in with a single click.' );
+		let descriptionText = __( 'Sign in to your WordPress.com account to unlock these features.' );
+		let belowText = __( 'No WordPress.com account? Create one for free.' );
 
 		if ( isLinked ) {
-			descriptionText = `Connected as user ${ userData.wpcomUser.login } / ${ userData.wpcomUser.email }`;
+			descriptionText = __( 'Connected as user %(userLogin)s / %(userEmail)s', {
+				args: {
+					userLogin: userData.wpcomUser.login,
+					userEmail: userData.wpcomUser.email
+				}
+			} );
 			belowText = '';
 		}
 
