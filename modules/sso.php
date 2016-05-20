@@ -768,6 +768,8 @@ class Jetpack_SSO {
 			/** This filter is documented in core/src/wp-includes/user.php */
 			do_action( 'wp_login', $user->user_login, $user );
 
+			wp_set_current_user( $user->ID );
+
 			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( $_REQUEST['redirect_to'] ) : '';
 			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
 
@@ -782,7 +784,8 @@ class Jetpack_SSO {
 			$is_user_connected = Jetpack::is_user_connected( $user->ID );
 			JetpackTracking::record_user_event( 'sso_user_logged_in', array(
 				'user_found_with' => $user_found_with,
-				'user_connected'  => (bool) $is_user_connected
+				'user_connected'  => (bool) $is_user_connected,
+				'user_role'       => Jetpack::init()->translate_current_user_to_role()
 			) );
 
 			if ( ! $is_user_connected ) {
