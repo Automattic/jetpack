@@ -1,0 +1,136 @@
+.form-fieldset {
+	clear: both;
+	margin-bottom: 20px;
+}
+
+.form-legend {
+	font-size: 14px;
+	font-weight: 600;
+	margin-bottom: 5px;
+}
+
+.form-label {
+	display: block;
+	font-size: 14px;
+	font-weight: 600;
+	margin-bottom: 5px;
+}
+
+.form-label input[type="checkbox"] + span,
+.form-label input[type="radio"] + span {
+	font-weight: normal;
+}
+
+.form-textarea {
+	display: block;
+	width: 100%;
+	height: 250px;
+}
+
+.form-button {
+	float: right;
+	margin-left: 10px;
+}
+
+// ==========================================================================
+// Buttons
+// ==========================================================================
+
+// resets button styles
+button {
+	background: transparent;
+	border: none;
+	outline: 0;
+	padding: 0;
+	font-size: 14px;
+	-webkit-appearance: none;
+	appearance: none;
+	vertical-align: baseline;
+}
+
+.button {
+	background: $white;
+	border-color: lighten( $gray, 20% );
+	border-style: solid;
+	border-width: 1px 1px 2px;
+	color: $gray-dark;
+	cursor: pointer;
+	display: inline-block;
+	margin: 0;
+	outline: 0;
+	overflow: hidden;
+	font-weight: 500;
+	text-overflow: ellipsis;
+	text-decoration: none;
+	vertical-align: top;
+	box-sizing: border-box;
+	font-size: 14px;
+	line-height: 21px;
+	border-radius: 4px;
+	padding: 7px 14px 9px;
+	-webkit-appearance: none;
+	appearance: none;
+
+	&:hover {
+		border-color: lighten( $gray, 10% );
+		color: $gray-dark;
+	}
+	&:active {
+		border-width: 2px 1px 1px;
+	}
+	&:visited {
+		color: $gray-dark;
+	}
+	&[disabled],
+	&:disabled {
+		color: lighten( $gray, 30% );
+		background: $white;
+		border-color: lighten( $gray, 30% );
+		cursor: default;
+
+		&:active {
+			border-width: 1px 1px 2px;
+		}
+	}
+	&:focus {
+		border-color: $blue-medium;
+		box-shadow: 0 0 0 2px $blue-light;
+	}
+	&.is-compact {
+		padding: 7px;
+		color: darken( $gray, 10% );
+		font-size: 11px;
+		line-height: 1;
+		text-transform: uppercase;
+
+		&:disabled {
+			color: lighten( $gray, 30% );
+		}
+		.gridicon {
+			top: 4px;
+			margin-top: -8px;
+		}
+		// Make the left margin of the small plus icon visually less huge
+		.gridicons-plus-small {
+			margin-left: -4px;
+		}
+		// Reset the left margin if the button contains only the plus icon
+		.gridicons-plus-small:last-of-type {
+			margin-left: 0;
+		}
+		// Make plus icon nudged closer to adjacent icons for add-people and add-plugin type buttons
+		.gridicons-plus-small + .gridicon {
+			margin-left: -4px;
+		}
+	}
+	&.hidden {
+		display: none;
+	}
+	.gridicon {
+		position: relative;
+			top: 4px;
+		margin-top: -2px;
+		width: 18px;
+		height: 18px;
+	}
+}
