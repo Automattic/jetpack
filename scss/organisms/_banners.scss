@@ -2,12 +2,6 @@
 	&.jp-banner {
 		position: relative;
 		padding: 0;
-
-		@media (min-width: 660px) {
-			display: flex;
-			flex-wrap: nowrap;
-			flex-direction: row;
-		}
 	}
 
 	.jp-banner__header {
@@ -27,18 +21,6 @@
 
 .jp-banner__description {
 	font-size: 14px;
-}
-
-.jp-banner__image-container {
-	text-align: center;
-	
-	@media (min-width: 660px) {
-		padding: 48px 16px 16px;
-	}
-
-	img {
-		max-width: 450px;
-	}
 }
 
 .jp-banner__description-container {
