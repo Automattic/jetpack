@@ -805,28 +805,10 @@ class Jetpack {
 				if ( Jetpack::is_development_mode() ) {
 					$caps = array( 'manage_options' );
 					break;
+				} else {
+					$caps = array( 'read' );
 				}
-
-				// Don't ever show to subscribers, but allow access to the page if they're trying to unlink.
-				if ( ! current_user_can( 'edit_posts' ) ) {
-					if ( isset( $_GET['redirect'] ) && 'sub-unlink' == $_GET['redirect'] ) {
-						// We need this in order to unlink the user.
-						$this->admin_page_load();
-					}
-					if ( ! wp_verify_nonce( 'jetpack-unlink' ) ) {
-						$caps = array( 'do_not_allow' );
-						break;
-					}
-				}
-
-				if ( ! self::is_active() && ! current_user_can( 'jetpack_connect' ) ) {
-					$caps = array( 'do_not_allow' );
-					break;
-				}
-				/**
-				 * Pass through. If it's not development mode, these should match the admin page.
-				 * Let users disconnect if it's development mode, just in case things glitch.
-				 */
+				break;
 			case 'jetpack_connect_user' :
 				if ( Jetpack::is_development_mode() ) {
 					$caps = array( 'do_not_allow' );
