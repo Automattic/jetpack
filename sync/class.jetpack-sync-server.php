@@ -12,7 +12,7 @@ class Jetpack_Sync_Server {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
-		$this->codec = new Jetpack_Sync_Deflate_Codec();
+		$this->codec            = new Jetpack_Sync_Deflate_Codec();
 		$this->events_processed = array();
 	}
 
@@ -21,7 +21,7 @@ class Jetpack_Sync_Server {
 	}
 
 	function receive( $data, $token = null ) {
-		$start_time = microtime(true);
+		$start_time = microtime( true );
 		if ( ! is_array( $data ) ) {
 			return new WP_Error( 'action_decoder_error', 'Events must be an array' );
 		}
@@ -62,12 +62,12 @@ class Jetpack_Sync_Server {
 			 * @param double $timestamp Timestamp (in seconds) when the action occurred
 			 * @param array $token The auth token used to invoke the API
 			 */
-			do_action( 'jetpack_sync_'.$action_name, $args, $user_id, $timestamp, $token );
+			do_action( 'jetpack_sync_' . $action_name, $args, $user_id, $timestamp, $token );
 
 			$this->events_processed[] = $key;
 
 			// TODO this can be improved to be more intelligent
-			if ( microtime(true) - $start_time > self::MAX_TIME_PER_REQUEST_IN_SECONDS ) {
+			if ( microtime( true ) - $start_time > self::MAX_TIME_PER_REQUEST_IN_SECONDS ) {
 				break;
 			}
 		}
