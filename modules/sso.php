@@ -998,7 +998,7 @@ class Jetpack_SSO {
 		$error = sprintf(
 			wp_kses(
 				__(
-					'You already have an account on this site. Please visit your <a href="%1$s">profile page</a> page to link your account to WordPress.com!',
+					'You already have an account on this site. Please visit your <a href="%1$s">profile page</a> page to link your account to WordPress.com.',
 					'jetpack'
 				),
 				array(  'a' => array( 'href' => array() ) )
