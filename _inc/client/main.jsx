@@ -24,6 +24,7 @@ import More from 'more/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
+import JetpackNotices from 'components/jetpack-notices';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
@@ -93,6 +94,7 @@ const Main = React.createClass( {
 			<div>
 				<Masthead { ...this.props } />
 					<div className="jp-lower">
+						<JetpackNotices { ...this.props } />
 						{ this.renderMainContent( this.props.route.path ) }
 						<SupportCard { ...this.props } />
 					</div>

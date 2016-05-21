@@ -107,7 +107,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'WP_API_root' => esc_url_raw( rest_url() ),
 			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
 			'pluginBaseUrl' => plugins_url( '', JETPACK__PLUGIN_FILE ),
-			'connectionStatus' => Jetpack::is_development_mode() ? 'dev' : (bool) Jetpack::is_active(),
+			'connectionStatus' => array(
+				'isActive'  => Jetpack::is_active(),
+				'isStaging' => Jetpack::is_staging_site(),
+				'devMode'   => array(
+					'isActive' => Jetpack::is_development_mode(),
+					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
+					'url'      => site_url() && false === strpos( site_url(), '.' ),
+					'filter'   => apply_filters( 'jetpack_development_mode', false ),
+				),
+			),
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
 			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),

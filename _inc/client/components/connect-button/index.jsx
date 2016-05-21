@@ -18,7 +18,6 @@ import {
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser
 } from 'state/connection';
-import QueryConnectionStatus from 'components/data/query-connection-status';
 import QueryConnectUrl from 'components/data/query-connect-url';
 
 const ConnectButton = React.createClass( {
@@ -94,7 +93,6 @@ const ConnectButton = React.createClass( {
 	render() {
 		return (
 			<div>
-				<QueryConnectionStatus />
 				<QueryConnectUrl />
 				{ this.renderContent() }
 			</div>
