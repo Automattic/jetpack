@@ -9,9 +9,16 @@ jQuery( document ).ready( function( $ ) {
 		overflow  = $( '<div style="overflow: auto;"></div>' );
 
 
+	// The overflow div is a poor man's clearfloat. We reposition the remember me
+	// checkbox and the submit button within that to clear the float on the
+	// remember me checkbox. This is important since we're positioning the SSO
+	// UI under the submit button.
 	loginForm.append( overflow );
 	overflow.append( $( 'p.forgetmenot' ), $( 'p.submit' ) );
 
+	// We reposition the SSO UI at the bottom of the login form which
+	// fixes a tab order issue. Then we override any styles for absolute
+	// positioning of the SSO UI.
 	loginForm.append( ssoWrap );
 	body.addClass( 'jetpack-sso-repositioned' );
 
