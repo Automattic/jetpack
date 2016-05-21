@@ -3,7 +3,17 @@ jQuery( document ).ready( function( $ ) {
 		rememberMe = $( '#rememberme' ),
 		ssoButton = $( 'a.jetpack-sso.button' ),
 		toggleSSO = $( '.jetpack-sso-toggle' ),
-		userLogin = $( '#user_login' );
+		userLogin = $( '#user_login' ),
+		ssoWrap   = $( '#jetpack-sso-wrap' ),
+		loginForm = $( '#loginform' ),
+		overflow  = $( '<div style="overflow: auto;"></div>' );
+
+
+	loginForm.append( overflow );
+	overflow.append( $( 'p.forgetmenot' ), $( 'p.submit' ) );
+
+	loginForm.append( ssoWrap );
+	body.addClass( 'jetpack-sso-repositioned' );
 
 	rememberMe.on( 'change', function() {
 		var url       = ssoButton.prop( 'href' ),
