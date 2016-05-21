@@ -16,11 +16,13 @@ import {
 } from 'state/action-types';
 
 const jumpstartState = {
-	showJumpStart: window.Initial_State.showJumpstart,
+	showJumpStart: typeof window !== 'undefined' && typeof window.Initial_State === 'object' ?
+		window.Initial_State.showJumpstart :
+		{},
 	isJumpstarting: false
 };
 
-const status = ( state = jumpstartState, action ) => {
+export const status = ( state = jumpstartState, action ) => {
 	switch ( action.type ) {
 		case JUMPSTART_ACTIVATE:
 			return assign( {}, state, { isJumpstarting: true } );
