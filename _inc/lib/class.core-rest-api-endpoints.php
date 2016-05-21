@@ -219,6 +219,39 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::vaultpress_get_site_data',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
+
+		// Dismiss Jetpack Notices
+		register_rest_route( 'jetpack/v4', '/dismiss-jetpack-notice/(?P<notice>[a-z\-]+)', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::dismiss_jetpack_notice',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+		) );
+	}
+
+	/**
+	 * Handles dismissing of Jetpack Notices
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return array|wp-error
+	 */
+	public static function dismiss_jetpack_notice( $data ) {
+		$notice = $data['notice'];
+		if ( isset( $notice ) && ! empty( $notice ) ) {
+			switch( $notice ) {
+				case 'example':
+				case 'exampletwo':
+					$notices = get_option( 'jetpack_dismissed_notices', array() );
+					$notices[ $notice ] = true;
+					update_option( 'jetpack_dismissed_notices', $notices );
+					return rest_ensure_response( get_option( 'jetpack_dismissed_notices', array() ) );
+
+				default:
+					return new WP_Error( 'invalid_param', esc_html__( 'Invalid parameter "notice".', 'jetpack' ), array( 'status' => 404 ) );
+			}
+		}
+
+		return new WP_Error( 'required_param', esc_html__( 'Missing parameter "notice".', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**

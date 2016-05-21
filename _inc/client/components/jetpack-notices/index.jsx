@@ -16,7 +16,6 @@ import { getSiteConnectionStatus as _getSiteConnectionStatus } from 'state/conne
 
 const JetpackNotices = React.createClass( {
 	displayName: 'JetpackNotices',
-
 	maybeShowDevVersion: function() {
 		if ( window.Initial_State.isDevVersion ) {
 			const text = __( 'You are currently running a development version of Jetpack. {{a}} Submit your feedback {{/a}}',
