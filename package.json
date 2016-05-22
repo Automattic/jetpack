@@ -13,13 +13,13 @@
     "url": "https://github.com/Automattic/jetpack/issues"
   },
   "scripts": {
-    "watch": "gulp watch",
+    "watch": "npm run init-dependencies && gulp watch",
     "clean": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map",
     "distclean": "rm -rf node_modules",
-    "calypso-regenerate-client-dev": "node node_modules/wp-calypso/server/config/regenerate-client.js > node_modules/wp-calypso/client/config/index.js",
+    "init-dependencies": "node node_modules/wp-calypso/server/config/regenerate-client.js > node_modules/wp-calypso/client/config/index.js",
     "build-i18n": "./bin/translate.sh",
-    "build": "npm install && npm run calypso-regenerate-client-dev && npm run build-client && npm run build-i18n",
-    "build-client": "gulp",
+    "build": "npm install && npm run build-client && npm run build-i18n",
+    "build-client": "npm run init-dependencies && gulp",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js"
   },
   "devDependencies": {
