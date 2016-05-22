@@ -159,6 +159,7 @@ const DashStatsBottom = React.createClass( {
 
 	render: function() {
 		const s = this.statsBottom()[0];
+		const bestDay = s.bestDay.day;
 		return (
 		<div>
 			<div className="jp-at-a-glance__stats-summary">
@@ -172,7 +173,7 @@ const DashStatsBottom = React.createClass( {
 						{
 							__( '%(number)s View', '%(number)s Views',
 								{
-									count: number,
+									count: s.bestDay.count,
 									args: {
 										number: s.bestDay.count
 									}
@@ -180,7 +181,7 @@ const DashStatsBottom = React.createClass( {
 							)
 						}
 					</h3>
-					<p className="jp-at-a-glance__stat-details">{ s.bestDay.day }</p>
+					<p className="jp-at-a-glance__stat-details">{ moment( bestDay ).format( 'MMMM Do, YYYY' ) }</p>
 				</div>
 				<div className="jp-at-a-glance__stats-summary-alltime">
 					<div className="jp-at-a-glance__stats-alltime-views">
