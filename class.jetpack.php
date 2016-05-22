@@ -4358,7 +4358,10 @@ p {
 
 			$user = wp_get_current_user();
 
-			$redirect = $redirect ? esc_url_raw( $redirect ) : esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
+			$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
+			$redirect = $redirect
+				? wp_validate_redirect( esc_url_raw( $redirect ), $jetpack_admin_page )
+				: $jetpack_admin_page;
 
 			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
 
