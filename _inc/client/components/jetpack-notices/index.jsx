@@ -13,9 +13,30 @@ import {
 	getJetpackNotices as _getJetpackNotices
 } from 'state/jetpack-notices';
 import { getSiteConnectionStatus as _getSiteConnectionStatus } from 'state/connection';
+import {
+	isNoticeDismissed as _isNoticeDismissed,
+	dismissJetpackNotice
+} from 'state/jetpack-notices';
 
 const JetpackNotices = React.createClass( {
 	displayName: 'JetpackNotices',
+
+	maybeShowWelcomeNotice: function() {
+		if ( this.props.isDismissed( 'welcome' ) ) {
+			return;
+		}
+		return (
+			<div>
+				<SimpleNotice
+					status="is-success"
+					onClick={ this.props.dismissWelcomeNotice }
+				>
+					Welcome to Jetpack in React! (this message is not complete)
+				</SimpleNotice>
+			</div>
+		);
+	},
+
 	maybeShowDevVersion: function() {
 		if ( window.Initial_State.isDevVersion ) {
 			const text = __( 'You are currently running a development version of Jetpack. {{a}} Submit your feedback {{/a}}',
@@ -103,6 +124,7 @@ const JetpackNotices = React.createClass( {
 	render() {
 		return (
 			<div>
+				{ this.maybeShowWelcomeNotice() }
 				{ this.maybeShowDevVersion() }
 				{ this.maybeShowDevMode() }
 				{ this.maybeShowStagingSite() }
@@ -115,7 +137,15 @@ const JetpackNotices = React.createClass( {
 export default connect(
 	state => {
 		return {
-			jetpackNotices: () => _getJetpackNotices( state )
+			jetpackNotices: () => _getJetpackNotices( state ),
+			isDismissed: ( notice ) => _isNoticeDismissed( state, notice )
+		};
+	},
+	( dispatch ) => {
+		return {
+			dismissWelcomeNotice: () => {
+				return dispatch( dismissJetpackNotice( 'welcome' ) );
+			}
 		};
 	}
 )( JetpackNotices );

@@ -164,6 +164,15 @@ const restApi = {
 			'Content-type': 'application/json'
 		}
 	} )
+		.then( checkStatus ).then( response => response.json() ),
+	dismissJetpackNotice: ( notice ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/dismiss-jetpack-notice/${ notice }`, {
+		method: 'put',
+		credentials: 'same-origin',
+		headers: {
+			'X-WP-Nonce': window.Initial_State.WP_API_nonce,
+			'Content-type': 'application/json'
+		}
+	} )
 		.then( checkStatus ).then( response => response.json() )
 };
 

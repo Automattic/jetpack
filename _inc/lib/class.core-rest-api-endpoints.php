@@ -239,8 +239,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$notice = $data['notice'];
 		if ( isset( $notice ) && ! empty( $notice ) ) {
 			switch( $notice ) {
-				case 'example':
-				case 'exampletwo':
+				case 'welcome':
 					$notices = get_option( 'jetpack_dismissed_notices', array() );
 					$notices[ $notice ] = true;
 					update_option( 'jetpack_dismissed_notices', $notices );
