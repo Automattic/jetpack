@@ -8,7 +8,7 @@ import Chart from 'components/chart';
 import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
 import Button from 'components/button';
-import { translate as __ } from 'lib/mixins/i18n';
+import { moment, translate as __ } from 'lib/mixins/i18n';
 
 /**
  * Internal dependencies
@@ -33,12 +33,12 @@ const DashStats = React.createClass( {
 			let views = v[1];
 
 			if ( 'day' === unit ) {
-				label = i18n.moment( v[0] ).format( 'MMM D' );
+				label = moment( v[0] ).format( 'MMM D' );
 			} else if ( 'week' === unit ) {
 				label = label.replace( /W/g, '-' );
-				label = i18n.moment( label ).format( 'MMM D' );
+				label = __( 'Week of ' ) + moment( label ).format( 'MMM D' );
 			} else if ( 'month' ) {
-				label = i18n.moment( label ).format( 'MMMM' );
+				label = moment( label ).format( 'MMMM' );
 			}
 
 			s.push( {
@@ -49,7 +49,7 @@ const DashStats = React.createClass( {
 				data: {},
 				tooltipData: [ {
 					label: label,
-					value: 'Views: ' + views,
+					value: __( 'Views: ' ) + views,
 					link: null,
 					icon: '',
 					className: 'tooltip class'
