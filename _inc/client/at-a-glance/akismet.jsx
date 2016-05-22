@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
+import { translate as __ } from 'lib/mixins/i18n';
 
 /**
  * Internal dependencies
@@ -34,7 +35,9 @@ const DashAkismet = React.createClass( {
 		if ( akismetData === 'N/A' ) {
 			return(
 				<DashItem label="Anti-spam (Akismet)">
-					<p className="jp-dash-item__description">Loading&#8230;</p>
+					<p className="jp-dash-item__description">
+						{ __( 'Loading…' ) }
+					</p>
 				</DashItem>
 			);
 		}
@@ -43,7 +46,15 @@ const DashAkismet = React.createClass( {
 			if ( akismetData === 'not_active' ) {
 				return(
 					<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
-						<p className="jp-dash-item__description"><a href={ 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl }>Activate Akismet</a> to automatically block spam comments and more.</p>
+						<p className="jp-dash-item__description">
+							{
+								__( '{{akismetLink}}Activate Akismet{{/akismetLink}} to automatically block spam comments and more.', {
+									components: {
+										akismetLink: <a href={ 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl } />
+									}
+								} )
+							}
+						</p>
 					</DashItem>
 				);
 			}
@@ -51,7 +62,15 @@ const DashAkismet = React.createClass( {
 			if ( akismetData === 'not_installed' ) {
 				return(
 					<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
-						<p className="jp-dash-item__description"><a href={ 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl }>Install Akismet</a> to automatically block spam comments and more.</p>
+						<p className="jp-dash-item__description">
+							{
+								__( '{{akismetLink}}Install Akismet{{/akismetLink}} to automatically block spam comments and more.', {
+									components: {
+										akismetLink: <a href={ 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl } />
+									}
+								} )
+							}
+						</p>
 					</DashItem>
 				);
 			}
@@ -59,7 +78,15 @@ const DashAkismet = React.createClass( {
 			if ( akismetData === 'not_active' ) {
 				return(
 					<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
-						<p className="jp-dash-item__description"><a onClick={ this.activateManageAndRedirect } href='#'>Activate Manage and Akismet</a> to automatically block spam comments and more.</p>
+						<p className="jp-dash-item__description">
+							{
+								__( '{{manageLink}}Activate Manage and Akismet{{/manageLink}} to automatically block spam comments and more.', {
+									components: {
+										manageLink: <a onClick={ this.activateManageAndRedirect } href='#' />
+									}
+								} )
+							}
+						</p>
 					</DashItem>
 				);
 			}
@@ -67,7 +94,15 @@ const DashAkismet = React.createClass( {
 			if ( akismetData === 'not_installed' ) {
 				return(
 					<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
-						<p className="jp-dash-item__description"><a onClick={ this.activateManageAndRedirect } href='#'>Activate Manage and Install Akismet</a> to automatically block spam comments and more.</p>
+						<p className="jp-dash-item__description">
+							{
+								__( '{{manageLink}}Activate Manage and Install Akismet{{/manageLink}} to automatically block spam comments and more.', {
+									components: {
+										manageLink: <a onClick={ this.activateManageAndRedirect } href='#' />
+									}
+								} )
+							}
+						</p>
 					</DashItem>
 				);
 			}
@@ -78,7 +113,15 @@ const DashAkismet = React.createClass( {
 				<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive" status="is-warning">
 					<p className="jp-dash-item__description">
 						Whoops! It appears your Akismet key is missing or invalid. <br/>
-						<a href={ akismetSettingsUrl }>Go to Akismet settings to fix</a></p>
+						<a href={ akismetSettingsUrl }>Go to Akismet settings to fix</a>
+						{
+							__( 'Whoops! It appears your Akismet key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.', {
+								components: {
+									akismetSettings:<a href={ akismetSettingsUrl } />
+								}
+							} )
+						}
+					</p>
 				</DashItem>
 			);
 		}
@@ -86,7 +129,9 @@ const DashAkismet = React.createClass( {
 		return(
 			<DashItem label="Anti-spam (Akismet)" status="is-working">
 				<h2 className="jp-dash-item__count">{ akismetData.all.spam }</h2>
-				<p className="jp-dash-item__description">Spam comments blocked.</p>
+				<p className="jp-dash-item__description">
+					{ __( 'Spam comments blocked.' ) }
+				</p>
 				{/*
 				<strong>This is the data we could show here: </strong> <br/>
 				Spam blocked all-time: { akismetData.all.spam } <br/>
