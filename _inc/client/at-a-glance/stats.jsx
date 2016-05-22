@@ -31,6 +31,16 @@ const DashStats = React.createClass( {
 		forEach( window.Initial_State.statsData[unit].data, function( v ) {
 			let label = v[0];
 			let views = v[1];
+
+			if ( 'day' === unit ) {
+				label = i18n.moment( v[0] ).format( 'MMM D' );
+			} else if ( 'week' === unit ) {
+				label = label.replace( /W/g, '-' );
+				label = i18n.moment( label ).format( 'MMM D' );
+			} else if ( 'month' ) {
+				label = i18n.moment( label ).format( 'MMMM' );
+			}
+
 			s.push( {
 				label: label,
 				value: views,
