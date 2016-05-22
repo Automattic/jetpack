@@ -61,6 +61,13 @@ class Jetpack_Sync_Full {
 	}
 
 	function start() {
+		/**
+		 * Fires when a full sync begins. This action is serialized
+		 * and sent to the server so that it can clear the replica storage,
+		 * and/or reset other data.
+		 *
+		 * @since 4.1
+		 */
 		do_action( 'jetpack_full_sync_start' );
 
 		$this->set_status_queuing_started();
@@ -265,6 +272,12 @@ class Jetpack_Sync_Full {
 
 		foreach ( $chunked_users_ids as $chunk ) {
 			$this->set_status( 'users', ( $counter / $total ) * 100 );
+			/**
+			 * Fires with a chunk of user IDs during full sync.
+			 * These get expanded to full user objects before upload (minus passwords)
+			 *
+			 * @since 4.1
+			 */
 			do_action( 'jetpack_full_sync_users', $chunk );
 			$counter += 1;
 		}
@@ -340,11 +353,23 @@ class Jetpack_Sync_Full {
 
 	// these are called by the Sync Client when it sees that the full sync start/end actions have actually been transmitted
 	public function set_status_sending_started() {
+		/**
+		 * Fires when the full_sync_start action is actually transmitted.
+		 * This is useful for telling the user the status of full synchronization.
+		 *
+		 * @since 4.1
+		 */
 		do_action( 'jetpack_full_sync_start_sent' );
 		set_transient( self::$status_transient_name, array( 'phase' => 'sending started' ), self::$transient_timeout );
 	}
 
 	public function set_status_sending_finished() {
+		/**
+		 * Fires when the full_sync_end action is actually transmitted.
+		 * This is useful for telling the user the status of full synchronization.
+		 *
+		 * @since 4.1
+		 */
 		do_action( 'jetpack_full_sync_end_sent' );
 		set_transient( self::$status_transient_name, array( 'phase' => 'sending finished' ), self::$transient_timeout );
 	}

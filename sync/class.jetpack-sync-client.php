@@ -314,12 +314,29 @@ class Jetpack_Sync_Client {
 			}
 
 		}
+
+		/**
+		 * Fires when the client needs to sync theme support info
+		 * Only sends theme support attributes whitelisted in Jetpack_Sync_Defaults::$default_theme_support_whitelist
+		 * 
+		 * @since 4.1.0
+		 *
+		 * @param object the theme support hash
+		 */
 		do_action( 'jetpack_sync_current_theme_support', $theme_support );
 	}
 
 	function send_wp_version( $update, $meta_data ) {
 		if ( 'update' === $meta_data['action'] && 'core' === $meta_data['type'] ) {
 			global $wp_version;
+
+			/**
+			 * Fires when the client needs to sync WordPress version
+			 * 
+			 * @since 4.1.0
+			 *
+			 * @param string The WordPress version number
+			 */
 			do_action( 'jetpack_sync_wp_version', $wp_version );
 		}
 	}
@@ -331,11 +348,27 @@ class Jetpack_Sync_Client {
 			$term_object = get_term_by( 'id', $term_id, $taxonomy );
 		}
 
+		/**
+		 * Fires when the client needs to sync a new term
+		 * 
+		 * @since 4.1.0
+		 *
+		 * @param object the Term object
+		 */
 		do_action( 'jetpack_sync_save_term', $term_object );
 	}
 
 	function send_attachment_info( $attachment_id ) {
 		$attachment = get_post( $attachment_id );
+
+		/**
+		 * Fires when the client needs to sync an attachment for a post
+		 * 
+		 * @since 4.1.0
+		 *
+		 * @param int The attachment ID
+		 * @param object The attachment
+		 */
 		do_action( 'jetpack_sync_save_add_attachment', $attachment_id, $attachment );
 	}
 
@@ -355,17 +388,40 @@ class Jetpack_Sync_Client {
 				return;
 			}
 		}
+
+		/**
+		 * Fires when the client needs to sync an updated user
+		 * 
+		 * @since 4.1.0
+		 *
+		 * @param object The WP_User object
+		 */
 		do_action( 'jetpack_sync_save_user', $user );
 	}
 
 	function save_user_role_handler( $user_id, $role, $old_roles = null ) {
 		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
+
+		/**
+		 * Fires when the client needs to sync an updated user
+		 * 
+		 * @since 4.1.0
+		 *
+		 * @param object The WP_User object
+		 */
 		do_action( 'jetpack_sync_save_user', $user );
 	}
 
 	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
 		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
 		if ( $meta_key === $user->cap_key ) {
+			/**
+			 * Fires when the client needs to sync an updated user
+			 * 
+			 * @since 4.1.0
+			 *
+			 * @param object The WP_User object
+			 */
 			do_action( 'jetpack_sync_save_user', $user );
 		}
 	}
@@ -420,7 +476,15 @@ class Jetpack_Sync_Client {
 		// this is expensive, but the only way to really know :/
 		foreach ( $buffer->get_items() as $key => $item ) {
 
-			// expand item data, e.g. IDs into posts (for full sync)
+			/**
+			 * Modify the data within an action before it is serialized and sent to the server
+			 * For example, during full sync this expands Post ID's into full Post objects,
+			 * so that we don't have to serialize the whole object into the queue.
+			 * 
+			 * @since 4.1.0
+			 *
+			 * @param array The action parameters
+			 */
 			$item[1] = apply_filters( "jetpack_sync_before_send_" . $item[0], $item[1] );
 
 			$encoded_item = $this->codec->encode( $item );
@@ -442,7 +506,6 @@ class Jetpack_Sync_Client {
 		 *
 		 * @param array $data The action buffer
 		 */
-
 		$result = apply_filters( 'jetpack_sync_client_send_data', $items_to_send );
 
 		if ( ! $result || is_wp_error( $result ) ) {
@@ -491,11 +554,12 @@ class Jetpack_Sync_Client {
 		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2] );
 	}
 
-	// Expands wp_insert_post to include filteredpl
+	// Expands wp_insert_post to include filtered content
 	function filter_post_content_and_add_links( $post ) {
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
+		/** This filter is already documented in core. wp-includes/post-template.php */
 		$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
 		$post->permalink             = get_permalink( $post->ID );
 		$post->shortlink             = wp_get_shortlink( $post->ID );
@@ -513,10 +577,24 @@ class Jetpack_Sync_Client {
 	}
 
 	function force_sync_options() {
+		/**
+		 * Tells the client to sync all options to the server
+		 *
+		 * @since 4.1
+		 *
+		 * @param boolean Whether to expand options (should always be true)
+		 */
 		do_action( 'jetpack_full_sync_options', true );
 	}
 
 	function force_sync_network_options() {
+		/**
+		 * Tells the client to sync all network options to the server
+		 *
+		 * @since 4.1
+		 *
+		 * @param boolean Whether to expand options (should always be true)
+		 */
 		do_action( 'jetpack_full_sync_network_options', true );
 	}
 
@@ -530,6 +608,14 @@ class Jetpack_Sync_Client {
 		if ( empty( $constants ) ) {
 			return;
 		}
+
+		/**
+		 * Tells the client to sync all constants to the server
+		 *
+		 * @since 4.1
+		 *
+		 * @param array All the constants
+		 */
 		do_action( 'jetpack_sync_current_constants', $constants );
 	}
 
@@ -573,6 +659,14 @@ class Jetpack_Sync_Client {
 			$checksum = $this->get_check_sum( $value );
 			// explicitly not using Identical comparison as get_option returns a string
 			if ( $checksum != get_option( self::CALLABLES_CHECKSUM_OPTION_NAME . "_$name" ) ) {
+				/**
+				 * Tells the client to sync a callable (aka function) to the server
+				 *
+				 * @since 4.1
+				 *
+				 * @param string The name of the callable
+				 * @param mixed The value of the callable
+				 */
 				do_action( 'jetpack_sync_current_callable', $name, $value );
 				update_option( self::CALLABLES_CHECKSUM_OPTION_NAME . "_$name", $checksum );
 			}
