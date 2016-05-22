@@ -8,6 +8,7 @@ import Chart from 'components/chart';
 import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
 import Button from 'components/button';
+import { translate as __ } from 'lib/mixins/i18n';
 
 /**
  * Internal dependencies
@@ -63,7 +64,15 @@ const DashStats = React.createClass( {
 			);
 		} else {
 			return (
-				<div><a href="javascript:void(0)" onClick={ this.props.activateStats } >Activate Site Statistics</a> to see detailed stats, likes, followers, subscribers, and more!</div>
+				<div>
+					{
+						__( '{{a}}Activate Site Statistics{{/a}} to see detailed stats, likes, followers, subscribers, and more!', {
+							components: {
+								a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />
+							}
+						} )
+					}
+				</div>
 			);
 		}
 	},
@@ -75,17 +84,17 @@ const DashStats = React.createClass( {
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'day' ) }
 							className={ this.getClass( 'day' ) }
-						>Days</a>
+						>{ __( 'Days' ) }</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'week' ) }
 							className={ this.getClass( 'week' ) }
-						>Weeks</a>
+						>{ __( 'Weeks' ) }</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'month' ) }
 							className={ this.getClass( 'month' ) }
-						>Months</a>
+						>{ __( 'Months' ) }</a>
 					</li>
 				</ul>
 			);
@@ -144,32 +153,34 @@ const DashStatsBottom = React.createClass( {
 		<div>
 			<div className="jp-at-a-glance__stats-summary">
 				<div className="jp-at-a-glance__stats-summary-today">
-					<p className="jp-at-a-glance__stat-details">Views today</p>
+					<p className="jp-at-a-glance__stat-details">{ __( 'Views today', { comment: 'Referring to a number of page views' } ) }</p>
 					<h3 className="jp-at-a-glance__stat-number">{ s.viewsToday }</h3>
 				</div>
 				<div className="jp-at-a-glance__stats-summary-bestday">
-					<p className="jp-at-a-glance__stat-details">Best overall day</p>
-					<h3 className="jp-at-a-glance__stat-number">{ s.bestDay.count } Views</h3>
+					<p className="jp-at-a-glance__stat-details">{ __( 'Best overall day', { comment: 'Referring to a number of page views' } ) }</p>
+					<h3 className="jp-at-a-glance__stat-number">{ __( '%(number)s Views', { args: { number: s.bestDay.count } } ) }</h3>
 					<p className="jp-at-a-glance__stat-details">{ s.bestDay.day }</p>
 				</div>
 				<div className="jp-at-a-glance__stats-summary-alltime">
 					<div className="jp-at-a-glance__stats-alltime-views">
-						<p className="jp-at-a-glance__stat-details">All-time views</p>
+						<p className="jp-at-a-glance__stat-details">{ __( 'All-time views', { comment: 'Referring to a number of page views' } ) }</p>
 						<h3 className="jp-at-a-glance__stat-number">{ s.allTime.views }</h3>
 					</div>
 					<div className="jp-at-a-glance__stats-alltime-comments">
-						<p className="jp-at-a-glance__stat-details">All-time comments</p>
+						<p className="jp-at-a-glance__stat-details">{ __( 'All-time comments', { comment: 'Referring to a number of comments' } ) }</p>
 						<h3 className="jp-at-a-glance__stat-number">{ s.allTime.comments }</h3>
 					</div>
 				</div>
 			</div>
 			<div className="jp-at-a-glance__stats-cta">
 				<div className="jp-at-a-glance__stats-cta-description">
-					<p>Need to see more stats, likes, followers, subscribers, and more?</p>
+					<p>{ __( 'Need to see more stats, likes, followers, subscribers, and more?' ) }</p>
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
-					<Button href="?page=stats">View old stats</Button>
-					<Button className="is-primary" href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl }>View enhanced stats on WordPress.com</Button>
+					{ __( '{{button}}View old stats{{/button}}', { components: { button: <Button href="?page=stats" /> } } ) }
+					{ __( '{{button}}View enhanced stats on WordPress.com{{/button}}', {
+						components: { button: <Button className="is-primary" href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl } /> }
+					} ) }
 				</div>
 			</div>
 		</div>
