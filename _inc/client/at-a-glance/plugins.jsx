@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
+import { translate as __ } from 'lib/mixins/i18n';
 
 /**
  * Internal dependencies
@@ -26,6 +27,7 @@ const DashPluginUpdates = React.createClass( {
 	},
 
 	getContent: function() {
+		const labelName = __( 'Plugin Updates' );
 		const pluginUpdates = this.props.getPluginUpdates();
 		const manageActive = this.props.isModuleActivated( 'manage' );
 		const ctaLink = manageActive ?
@@ -34,22 +36,31 @@ const DashPluginUpdates = React.createClass( {
 
 		if ( 'N/A' === pluginUpdates ) {
 			return(
-				<DashItem label="Plugin Updates" status="is-working">
+				<DashItem label={ labelName } status="is-working">
 					<QueryPluginUpdates />
-					<p className="jp-dash-item__description">Loading&#8230;</p>
+					<p className="jp-dash-item__description">{ __( 'Loading' ) }&#8230;</p>
 				</DashItem>
 			);
 		}
 
 		if ( 'updates-available' === pluginUpdates.code ) {
 			return(
-				<DashItem label="Plugin Updates" status="is-warning">
+				<DashItem label={ labelName } status="is-warning">
 					<p className="jp-dash-item__description">
-						<strong>{ pluginUpdates.count } plugins need updating.</strong><br/>
+						<strong>
+							{
+								__( '%(number)s plugins need updating.', {
+									args: {
+										number: pluginUpdates.count
+									}
+								} )
+							}
+						</strong>
+						<br/>
 						{
 							manageActive ?
-								<a href={ ctaLink }>Turn on plugin auto updates</a> :
-								<a onClick={ this.activateAndRedirect } href="#" >Activate Manage and turn on auto updates</a>
+								__( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } ):
+								__( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="#" /> } } )
 						}
 					</p>
 				</DashItem>
@@ -57,9 +68,9 @@ const DashPluginUpdates = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Plugin Updates" status="is-working">
+			<DashItem label={ labelName } status="is-working">
 				<p className="jp-dash-item__description">
-					All plugins are up-to-date. Keep up the good work!
+					{ __( 'All plugins are up-to-date. Keep up the good work!' ) }
 				</p>
 			</DashItem>
 		);
