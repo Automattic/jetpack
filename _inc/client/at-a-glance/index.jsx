@@ -18,6 +18,7 @@ import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
 import DashSiteVerify from './site-verification';
 import FeedbackDashRequest from 'components/jetpack-notices/feedback-dash-request';
+import { translate as __ } from 'lib/mixins/i18n';
 
 export default ( props ) =>
 	<div>
@@ -28,9 +29,9 @@ export default ( props ) =>
 		}
 
 		<DashSectionHeader
-			label="Site Security"
+			label={ __( 'Site Security' ) }
 			settingsPath="#security"
-			externalLink="Manage Security on WordPress.com"
+			externalLink={ __( 'Manage Security on WordPress.com' ) }
 			externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } />
 		<div className="jp-at-a-glance__item-grid">
 			<div className="jp-at-a-glance__left">
@@ -47,7 +48,7 @@ export default ( props ) =>
 		}
 
 		<DashSectionHeader
-			label="Site Health"
+			label={ __( 'Site Health' ) }
 			settingsPath="#health" />
 
 		<div className="jp-at-a-glance__item-grid">
@@ -65,7 +66,7 @@ export default ( props ) =>
 		}
 
 		<DashSectionHeader
-			label="Traffic Tools"
+			label={ __( 'Traffic Tools' ) }
 			settingsPath="#engagement" />
 
 		<div className="jp-at-a-glance__item-grid">
@@ -78,5 +79,4 @@ export default ( props ) =>
 		</div>
 
 		<FeedbackDashRequest { ...props } />
-
 	</div>
