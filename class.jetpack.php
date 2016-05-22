@@ -6312,6 +6312,7 @@ p {
 			'jetpack-tools-to-include'                 => 'jetpack_tools_to_include',
 			'jetpack_identity_crisis_options_to_check' => null,
 			'audio_player_default_colors'              => null,
+			'update_option_jetpack_single_user_site'   => null,
 		);
 
 		// This is a silly loop depth. Better way?
