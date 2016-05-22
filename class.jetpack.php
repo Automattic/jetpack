@@ -6563,6 +6563,7 @@ p {
 			'site_icon_temp_data',
 			'featured-content',
 			'site_logo',
+			'jetpack_dismissed_notices',
 		);
 
 		// Flag some Jetpack options as unsafe

@@ -13,7 +13,8 @@ import {
 	JETPACK_NOTICES_DISMISS,
 	JETPACK_NOTICES_DISMISS_FAIL,
 	JETPACK_NOTICES_DISMISS_SUCCESS,
-	DISCONNECT_SITE_SUCCESS
+	DISCONNECT_SITE_SUCCESS,
+	RESET_OPTIONS_SUCCESS
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -31,6 +32,9 @@ const dismissed = ( state = window.Initial_State.dismissedNotices, action ) => {
 	switch ( action.type ) {
 		case JETPACK_NOTICES_DISMISS_SUCCESS:
 			return assign( {}, state, action.dismissedNotices );
+
+		case RESET_OPTIONS_SUCCESS:
+			return false;
 
 		default:
 			return state;
