@@ -4,6 +4,7 @@
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import { translate as __ } from 'i18n-calypso';
 import { createHistory } from 'history';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -58,6 +59,7 @@ export const jumpStartSkip = () => {
 		dispatch( {
 			type: JUMPSTART_SKIP
 		} );
+		analytics.tracks.recordEvent( 'jetpack_jumpstart_skip', {} );
 		history.push( '/wp-admin/admin.php?page=jetpack#/dashboard' );
 		return restApi.jumpStart( 'deactivate' ).then( () => {
 			dispatch( {

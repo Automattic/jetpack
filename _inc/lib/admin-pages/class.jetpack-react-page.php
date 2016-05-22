@@ -164,6 +164,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return $dismissed_notices;
 	}
 
+	function jetpack_get_tracks_user_data() {
+		if ( ! $user_data = Jetpack::get_connected_user_data() ) {
+			return false;
+		}
+
+		return array(
+			'userid' => $user_data['ID'],
+			'username' => $user_data['login'],
+		);
+	}
+
 	function page_admin_scripts() {
 		if ( $this->is_redirecting ) {
 			return; // No need for scripts on a fallback page
@@ -175,6 +186,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+
+		// Required for Analytics
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js?48' );
 
 		$localeSlug = explode( '_', get_locale() );
 		$localeSlug = $localeSlug[0];
@@ -237,6 +251,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'errorCode' => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
+			'tracksUserData' => $this->jetpack_get_tracks_user_data(),
 		) );
 	}
 }
