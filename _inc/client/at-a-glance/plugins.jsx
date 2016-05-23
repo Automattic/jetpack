@@ -50,7 +50,7 @@ const DashPluginUpdates = React.createClass( {
 						<strong>
 							{
 								__( '%(number)s plugin needs updating.', '%(number)s plugins need updating.', {
-									count: number,
+									count: pluginUpdates.count,
 									args: {
 										number: pluginUpdates.count
 									}
