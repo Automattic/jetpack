@@ -36,7 +36,6 @@ const JetpackNotices = React.createClass( {
 			</div>
 		);
 	},
-
 	maybeShowDevVersion: function() {
 		if ( window.Initial_State.isDevVersion ) {
 			const text = __( 'You are currently running a development version of Jetpack. {{a}} Submit your feedback {{/a}}',

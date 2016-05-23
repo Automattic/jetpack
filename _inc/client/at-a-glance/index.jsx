@@ -17,6 +17,7 @@ import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
 import DashSiteVerify from './site-verification';
+import FeedbackDashRequest from 'components/jetpack-notices/feedback-dash-request';
 
 export default ( props ) =>
 	<div>
@@ -76,7 +77,6 @@ export default ( props ) =>
 				</div>
 		</div>
 
-		<Card className="jp-dash-item__feedback-request">
-			<p className="jp-dash-item__description">[make dismissable notice] What would you like to see on your Jetpack Dashboard. <a href="https://jetpack.com/contact" target="_blank">Send us some feedback and let us know!</a></p>
-		</Card>
+		<FeedbackDashRequest { ...props } />
+
 	</div>
