@@ -14,11 +14,11 @@ describe( 'items reducer', () => {
 	} );
 
 	let modules = {
-		a: {
+		'module-a': {
 			module: 'module-a',
 			activated: false
 		},
-		b: {
+		'module-b': {
 			module: 'module-b',
 			activated: true,
 			options: {
@@ -69,11 +69,12 @@ describe( 'items reducer', () => {
 			const action = {
 				type: 'JETPACK_MODULE_UPDATE_OPTION_SUCCESS',
 				module: 'module-b',
-				option_name: 'c',
-				option_value: 30
+				optionName: 'c',
+				optionValue: 30
 			};
 			let stateOut = itemsReducer( stateIn, action );
-			expect( stateOut[ action.module ].options[ action.option_name ].currentValue ).to.eql( action.option_value );
+
+			expect( stateOut[ action.module ].options[ action.optionName ].current_value ).to.equal( action.optionValue );
 		} );
 	} );
 } );
