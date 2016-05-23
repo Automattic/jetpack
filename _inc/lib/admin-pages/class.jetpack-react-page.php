@@ -93,6 +93,25 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 	}
 
+	/**
+	 * Gets array of any Jetpack notices that have been dismissed.
+	 *
+	 * @since 4.0.1
+	 * @return mixed|void
+	 */
+	function get_dismissed_jetpack_notices() {
+		$jetpack_dismissed_notices = get_option( 'jetpack_dismissed_notices', array() );
+		/**
+		 * Array of notices that have been dismissed.
+		 *
+		 * @since 4.0.1
+		 *
+		 * @param array $jetpack_dismissed_notices If empty, will not show any Jetpack notices.
+		 */
+		$dismissed_notices = apply_filters( 'jetpack_dismissed_notices', $jetpack_dismissed_notices );
+		return $dismissed_notices;
+	}
+
 	function page_admin_scripts() {
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
@@ -107,7 +126,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'WP_API_root' => esc_url_raw( rest_url() ),
 			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
 			'pluginBaseUrl' => plugins_url( '', JETPACK__PLUGIN_FILE ),
-			'connectionStatus' => Jetpack::is_development_mode() ? 'dev' : (bool) Jetpack::is_active(),
+			'connectionStatus' => array(
+				'isActive'  => Jetpack::is_active(),
+				'isStaging' => Jetpack::is_staging_site(),
+				'devMode'   => array(
+					'isActive' => Jetpack::is_development_mode(),
+					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
+					'url'      => site_url() && false === strpos( site_url(), '.' ),
+					'filter'   => apply_filters( 'jetpack_development_mode', false ),
+				),
+			),
+			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
 			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),

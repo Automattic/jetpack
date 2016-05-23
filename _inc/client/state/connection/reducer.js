@@ -23,7 +23,7 @@ import {
 	UNLINK_USER_SUCCESS
 } from 'state/action-types';
 
-export const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
+export const status = ( state = { siteConnected: window.Initial_State.connectionStatus.isActive }, action ) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_STATUS_FETCH:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
