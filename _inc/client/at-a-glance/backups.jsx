@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
+import { translate as __ } from 'lib/mixins/i18n';
 
 /**
  * Internal dependencies
@@ -20,13 +21,15 @@ import {
 
 const DashBackups = React.createClass( {
 	getContent: function() {
+		const labelName = __( 'Site Backups %(vaultpress)s', { args: { vaultpress: '(VaultPress)' } } );
+
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			const vpData = this.props.getVaultPressData();
 
 			if ( vpData === 'N/A' ) {
 				return(
-					<DashItem label="Site Backups (VaultPress)">
-						<p className="jp-dash-item__description">Loading&#8230;</p>
+					<DashItem label={ labelName }>
+						{ __( 'Loading…' ) }
 					</DashItem>
 				);
 			}
@@ -35,10 +38,10 @@ const DashBackups = React.createClass( {
 
 			if ( vpData.code === 'success' && backupData.has_full_backup ) {
 				return(
-					<DashItem label="Site Backups (VaultPress)" status="is-working">
-						<h3>Your site is completely backed up!</h3>
-						<p className="jp-dash-item__description">Full Backup Status: { backupData.full_backup_status } </p>
-						<p className="jp-dash-item__description">Last Backup: { backupData.last_backup } </p>
+					<DashItem label={ labelName } status="is-working">
+						<h3>{ __( 'Your site is completely backed up!' ) }</h3>
+						<p className="jp-dash-item__description">{ __( 'Full Backup Status:' ) } { backupData.full_backup_status } </p>
+						<p className="jp-dash-item__description">{ __( 'Last Backup:' ) } { backupData.last_backup } </p>
 					</DashItem>
 				);
 			}
@@ -46,18 +49,26 @@ const DashBackups = React.createClass( {
 			// All good
 			if ( vpData.code === 'success' && backupData.full_backup_status !== '100% complete' ) {
 				return(
-					<DashItem label="Site Backups (VaultPress)" status="is-working">
-						<h3>Currently backing up your site...</h3>
-						<p className="jp-dash-item__description">Full Backup Status: { backupData.full_backup_status } </p>
-						<p className="jp-dash-item__description">Last Backup: { backupData.last_backup }</p>
+					<DashItem label={ labelName } status="is-working">
+						<h3>{ __( 'Currently backing up your site.' ) }</h3>
+						<p className="jp-dash-item__description">{ __( 'Full Backup Status:' ) } { backupData.full_backup_status } </p>
+						<p className="jp-dash-item__description">{ __( 'Last Backup:' ) } { backupData.last_backup }</p>
 					</DashItem>
 				);
 			}
 		}
 
 		return(
-			<DashItem label="Site Backups (VaultPress)" className="jp-dash-item__is-inactive" status="is-premium-inactive">
-				<p className="jp-dash-item__description">To automatically back up your site, please <a href="#">upgrade your account (null)</a> or <a href="#">learn more (null)</a>.</p>
+			<DashItem label={ labelName } className="jp-dash-item__is-inactive" status="is-premium-inactive">
+				<p className="jp-dash-item__description">
+					{
+						__( 'To automatically back up your site, please {{a}}upgrade your account{{/a}}', {
+							components: {
+								a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
+							}
+						} )
+					}
+				</p>
 			</DashItem>
 		);
 	},

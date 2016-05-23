@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
+import { translate as __ } from 'lib/mixins/i18n';
 
 /**
  * Internal dependencies
@@ -15,17 +16,35 @@ import {
 
 const DashSiteVerify = React.createClass( {
 	getContent: function() {
+		const labelName = __( 'Site Verification Tools' );
 		if ( this.props.isModuleActivated( 'verification-tools' ) ) {
 			return(
-				<DashItem label="Site Verification Tools" status="is-working">
-					<p className="jp-dash-item__description">Site Verification Tools are active. Ensure your site is verified with Google, Bing, &amp; Pinterest for more accurate indexing and ranking. <a href={ window.Initial_State.adminUrl + 'tools.php' }>Verify now</a></p>
+				<DashItem label={ labelName } status="is-working">
+					<p className="jp-dash-item__description">
+						{
+							__( 'Site Verification Tools are active. Ensure your site is verified with Google, ' +
+								'Bing, and Pinterest for more accurate indexing and ranking. {{a}}Verify now{{/a}}', {
+								components: {
+									a: <a href={ window.Initial_State.adminUrl + 'tools.php' } />
+								}
+							} )
+						}
+					</p>
 				</DashItem>
 			);
 		}
 
 		return(
-			<DashItem label="Site Verification Tools" className="jp-dash-item__is-inactive">
-				<p className="jp-dash-item__description"><a onClick={ this.props.activateVerificationTools } href="javascript:void(0)">Activate Site Verification</a> to verify your site and increase ranking with Google, Bing, and Pinterest.</p>
+			<DashItem label={ labelName } className="jp-dash-item__is-inactive">
+				<p className="jp-dash-item__description">
+					{
+						__( '{{a}}Activate Site Verification{{/a}} to verify your site and increase ranking with Google, Bing, and Pinterest.', {
+							components: {
+								a: <a onClick={ this.props.activateVerificationTools } href="javascript:void(0)" />
+							}
+						} )
+					}
+				</p>
 			</DashItem>
 		);
 	},
