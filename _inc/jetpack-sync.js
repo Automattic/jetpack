@@ -1,4 +1,4 @@
-/* global ajaxurl, sync_dashboard, wp */
+/* global ajaxurl, sync_dashboard, wp, JSON */
 
 jQuery( document ).ready( function($) {
 
