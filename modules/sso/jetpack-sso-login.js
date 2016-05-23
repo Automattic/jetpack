@@ -12,6 +12,9 @@ jQuery( document ).ready( function( $ ) {
 	// checkbox and the submit button within that to clear the float on the
 	// remember me checkbox. This is important since we're positioning the SSO
 	// UI under the submit button.
+	//
+	// @TODO: Remove this approach once core ticket 28528 is in and we have more actions in wp-login.php.
+	// See - https://core.trac.wordpress.org/ticket/28528
 	loginForm.append( overflow );
 	overflow.append( $( 'p.forgetmenot' ), $( 'p.submit' ) );
 
