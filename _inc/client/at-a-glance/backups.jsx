@@ -21,7 +21,7 @@ import {
 
 const DashBackups = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Site Backups' ) + ' (VaultPress)';
+		const labelName = __( 'Site Backups %(vaultpress)s', { args: { vaultpress: '(VaultPress)' } } );
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			const vpData = this.props.getVaultPressData();
@@ -29,7 +29,7 @@ const DashBackups = React.createClass( {
 			if ( vpData === 'N/A' ) {
 				return(
 					<DashItem label={ labelName }>
-						{ __( 'Loading' ) }&#8230;
+						{ __( 'Loading…' ) }
 					</DashItem>
 				);
 			}

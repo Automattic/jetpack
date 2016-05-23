@@ -28,7 +28,7 @@ const DashMonitor = React.createClass( {
 				return(
 					<DashItem label={ labelName } status="is-working">
 						<QueryLastDownTime />
-						<p className="jp-dash-item__description">{ __( 'Loading' ) }&#8230;</p>
+						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 					</DashItem>
 				);
 			}

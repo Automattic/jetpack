@@ -22,7 +22,7 @@ import {
 
 const DashScan = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Security Scan' ) + ' (VaultPress)';
+		const labelName = __( 'Security Scan %(vaultpress)s', { args: { vaultpress: '(VaultPress)' } } );
 		const vpData = this.props.getVaultPressData();
 		let vpActive = typeof vpData.data !== 'undefined' && vpData.data.active;
 
@@ -34,7 +34,7 @@ const DashScan = React.createClass( {
 			if ( vpData === 'N/A' ) {
 				return(
 					<DashItem label={ labelName }>
-						<p className="jp-dash-item__description">{ __( 'Loading' ) }&#8230;</p>
+						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 					</DashItem>
 				);
 			}
@@ -55,7 +55,7 @@ const DashScan = React.createClass( {
 								} )
 						}</h3>
 						<p className="jp-dash-item__description">
-							{ __( '{{a}}Go to VaultPress.com to do something.{{/a}}', { components: { a: <a href={ ctaLink } /> } } ) }
+							{ __( '{{a}}View details at VaultPress.com{{/a}}', { components: { a: <a href={ ctaLink } /> } } ) }
 							<br/>
 							{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href='https://jetpack.com/support' /> } } ) }
 						</p>
@@ -67,7 +67,7 @@ const DashScan = React.createClass( {
 			if ( vpData.code === 'success' ) {
 				return(
 					<DashItem label={ labelName } status="is-working">
-						<h3>{ __( 'No threats found, you\'re good to go!' ) }</h3>
+						<h3>{ __( "No threats found, you're good to go!" ) }</h3>
 					</DashItem>
 				);
 			}

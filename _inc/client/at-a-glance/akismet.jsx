@@ -31,13 +31,13 @@ const DashAkismet = React.createClass( {
 		const akismetData = this.props.getAkismetData();
 		const akismetSettingsUrl = window.Initial_State.adminUrl + 'admin.php?page=akismet-key-config';
 		const manageActive = this.props.isModuleActivated( 'manage' );
-		const labelName = __( 'Anti-spam' ) + ' (Akismet)';
+		const labelName = __( 'Anti-spam %(akismet)s', { args: { akismet: '(Akismet)' } } );
 
 		if ( akismetData === 'N/A' ) {
 			return(
 				<DashItem label="Anti-spam (Akismet)">
 					<p className="jp-dash-item__description">
-						{ __( 'Loading' ) }&#8230;
+						{ __( 'Loading…' ) }
 					</p>
 				</DashItem>
 			);
@@ -113,10 +113,14 @@ const DashAkismet = React.createClass( {
 			return(
 				<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive" status="is-warning">
 					<p className="jp-dash-item__description">
-						{ __( 'Whoops! It appears your Akismet key is missing or invalid.' ) }<br/>
-						<a href={ akismetSettingsUrl }>
-							{ __( 'Go to Akismet settings to fix' ) }
-						</a></p>
+						{
+							__( 'Whoops! It appears your Akismet key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.', {
+								components: {
+									akismetSettings: <a href={ akismetSettingsUrl } />
+								}
+							} )
+						}
+					</p>
 				</DashItem>
 			);
 		}
@@ -127,7 +131,7 @@ const DashAkismet = React.createClass( {
 				<p className="jp-dash-item__description">
 					{
 						__( 'Spam comments blocked.', {
-							comment: 'Referring to a number of how many comments were blocked. Example "412 Spam comments blocked"'
+							context: 'Example: "412 Spam comments blocked"'
 						} )
 					}
 				</p>

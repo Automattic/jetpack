@@ -158,7 +158,18 @@ const DashStatsBottom = React.createClass( {
 				</div>
 				<div className="jp-at-a-glance__stats-summary-bestday">
 					<p className="jp-at-a-glance__stat-details">{ __( 'Best overall day', { comment: 'Referring to a number of page views' } ) }</p>
-					<h3 className="jp-at-a-glance__stat-number">{ __( '%(number)s Views', { args: { number: s.bestDay.count } } ) }</h3>
+					<h3 className="jp-at-a-glance__stat-number">
+						{
+							__( '%(number)s View', '%(number)s Views',
+								{
+									count: number,
+									args: {
+										number: s.bestDay.count
+									}
+								}
+							)
+						}
+					</h3>
 					<p className="jp-at-a-glance__stat-details">{ s.bestDay.day }</p>
 				</div>
 				<div className="jp-at-a-glance__stats-summary-alltime">

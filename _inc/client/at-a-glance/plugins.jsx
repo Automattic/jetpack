@@ -38,7 +38,7 @@ const DashPluginUpdates = React.createClass( {
 			return(
 				<DashItem label={ labelName } status="is-working">
 					<QueryPluginUpdates />
-					<p className="jp-dash-item__description">{ __( 'Loading' ) }&#8230;</p>
+					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 				</DashItem>
 			);
 		}
@@ -49,7 +49,8 @@ const DashPluginUpdates = React.createClass( {
 					<p className="jp-dash-item__description">
 						<strong>
 							{
-								__( '%(number)s plugins need updating.', {
+								__( '%(number)s plugin needs updating.', '%(number)s plugins need updating.', {
+									count: number,
 									args: {
 										number: pluginUpdates.count
 									}

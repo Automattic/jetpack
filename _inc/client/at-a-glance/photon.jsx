@@ -16,7 +16,7 @@ import {
 
 const DashPhoton = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Image Performance' ) + ' (Photon)';
+		const labelName = __( 'Image Performance %(photon)s', { args: { photon: '(Photon)' } } );
 
 		if ( this.props.isModuleActivated( 'photon' ) ) {
 			return(
