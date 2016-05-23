@@ -1004,7 +1004,7 @@ class Jetpack_SSO {
 				),
 				array(  'a' => array( 'href' => array() ) )
 			),
-			add_query_arg( 'jetpack-sso-default-form', '1', wp_login_url() )
+			esc_url_raw( add_query_arg( 'jetpack-sso-default-form', '1', wp_login_url() ) )
 		);
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
