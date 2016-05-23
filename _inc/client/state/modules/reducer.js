@@ -43,9 +43,15 @@ export const items = ( state = initialItemsState, action ) => {
 				[ action.module ]: assign( {}, state[ action.module ], { activated: false } )
 			} );
 		case JETPACK_MODULE_UPDATE_OPTION_SUCCESS:
+			let module = state[ action.module ];
+			let newOptions = assign( {}, module.options, {
+				[ action.optionName ]: Object.assign( {}, module.options[ action.optionName ], {
+					current_value: action.optionValue
+				} )
+			} );
 			return assign( {}, state, {
 				[ action.module ]: assign( {}, state[ action.module ], {
-					[ action.option_name ]: action.option_value
+					options: newOptions
 				} )
 			} );
 		default:
