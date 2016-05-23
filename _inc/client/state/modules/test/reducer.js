@@ -10,7 +10,7 @@ import {
 describe( 'items reducer', () => {
 	it( 'state should default to empty object', () => {
 		const state = itemsReducer( undefined, {} );
-		expect( state ).to.equal( {} );
+		expect( state ).to.eql( {} );
 	} );
 
 	let modules = {

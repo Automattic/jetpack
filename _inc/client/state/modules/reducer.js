@@ -25,7 +25,11 @@ import {
 
 } from 'state/action-types';
 
-export const items = ( state = window.Initial_State.getModules, action ) => {
+export const initialItemsState = typeof window !== 'undefined' && typeof window.Initial_State === 'object' ?
+	window.Initial_State.getModules :
+	{};
+
+export const items = ( state = initialItemsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
 		case JETPACK_MODULES_LIST_RECEIVE:
