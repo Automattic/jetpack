@@ -957,6 +957,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		);
 
 		// Used if there was an error. Can be overwritten with specific error messages.
+		/* Translators: the variable is a module option name. */
 		$error = sprintf( __( 'The option %s was not updated.', 'jetpack' ), $option );
 
 		// Set to true if the option update was successful.
@@ -976,11 +977,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'post_by_email_address':
 				$post_by_email = new Jetpack_Post_By_Email();
 				if ( 'create' == $value ) {
-					$result = $post_by_email->create_post_by_email_address();
+					$result = self::_process_post_by_email(
+						'jetpack.createPostByEmailAddress',
+						esc_html__( 'Unable to create the Post by Email address. Please try again later.', 'jetpack' )
+					);
 				} elseif ( 'regenerate' == $value ) {
-					$result = $post_by_email->regenerate_post_by_email_address();
+					$result = self::_process_post_by_email(
+						'jetpack.regeneratePostByEmailAddress',
+						esc_html__( 'Unable to regenerate the Post by Email address. Please try again later.', 'jetpack' )
+					);
 				} elseif ( 'delete' == $value ) {
-					$result = $post_by_email->delete_post_by_email_address();
+					$result = self::_process_post_by_email(
+						'jetpack.deletePostByEmailAddress',
+						esc_html__( 'Unable to delete the Post by Email address. Please try again later.', 'jetpack' )
+					);
 				} else {
 					$result = false;
 				}
@@ -1137,6 +1147,42 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// The option was updated.
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Calls WPCOM through authenticated request to create, regenerate or delete the Post by Email address.
+	 * @todo: When all settings are updated to use endpoints, move this to the Post by Email module and replace __process_ajax_proxy_request.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string $endpoint Process to call on WPCOM to create, regenerate or delete the Post by Email address.
+	 * @param string $error	   Error message to return.
+	 *
+	 * @return array
+	 */
+	private static function _process_post_by_email( $endpoint, $error ) {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return array( 'message' => $error );
+		}
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id(),
+		) );
+		$xml->query( $endpoint );
+
+		if ( $xml->isError() ) {
+			return array( 'message' => $error );
+		}
+
+		$response = $xml->getResponse();
+		if ( empty( $response ) ) {
+			return array( 'message' => $error );
+		}
+
+		// Used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
+		update_option( 'post_by_email_address', $response );
+
+		return $response;
 	}
 
 	/**
