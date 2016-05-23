@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-require( 'babel-core/register' )( {
-	ignore: /\/node_modules\/(?!@automattic\/dops-components\/)/
+require( 'babel-register' )( {
+        ignore: /\/node_modules\/(?!@automattic\/dops-components\/)/
 } );
 
 const program = require( 'commander' ),
