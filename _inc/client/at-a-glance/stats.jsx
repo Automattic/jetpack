@@ -36,7 +36,7 @@ const DashStats = React.createClass( {
 				label = moment( v[0] ).format( 'MMM D' );
 			} else if ( 'week' === unit ) {
 				label = label.replace( /W/g, '-' );
-				label = __( 'Week of ' ) + moment( label ).format( 'MMM D' );
+				label = __( 'Week of %(date)s', { args: { date: moment( label ).format( 'MMM D' ) } } );
 			} else if ( 'month' ) {
 				label = moment( label ).format( 'MMMM' );
 			}
@@ -49,7 +49,7 @@ const DashStats = React.createClass( {
 				data: {},
 				tooltipData: [ {
 					label: label,
-					value: __( 'Views: ' ) + views,
+					value: __( 'Views: %(numberOfViews)s', { args: { numberOfViews: views } } ),
 					link: null,
 					icon: '',
 					className: 'tooltip class'
