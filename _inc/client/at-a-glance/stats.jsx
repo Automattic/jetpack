@@ -162,7 +162,7 @@ const DashStatsBottom = React.createClass( {
 						{
 							__( '%(number)s View', '%(number)s Views',
 								{
-									count: number,
+									count: s.bestDay.count,
 									args: {
 										number: s.bestDay.count
 									}
