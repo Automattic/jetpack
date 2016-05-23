@@ -113,7 +113,6 @@ function is_dnt_enabled() {
 	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) )
 		return false;
 
-	echo "Respecting DNT!";
 	foreach ( $_SERVER as $name => $value ) {
 		if ( 'http_dnt' == strtolower( $name ) && 1 == $value ) {
 			return true;
@@ -647,7 +646,7 @@ function stats_configuration_screen() {
 			}
 			?>
 		</td><tr valign="top"><th scope="row"><?php _e( 'Do Not Track' , 'jetpack' ); ?></th>
-		<td><label><input type='checkbox'<?php checked( isset( $options['do_not_track'] ) && $options['do_not_track'] ); ?> name='do_not_track' id='do_not_track' /> <?php _e( 'Respect DNT header from user.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'Don\'t include tracking code when user wants not to be tracked.', 'jetpack' ); ?></span></td></tr>
+		<td><label><input type='checkbox'<?php checked( isset( $options['do_not_track'] ) && $options['do_not_track'] ); ?> name='do_not_track' id='do_not_track' /> <?php _e( 'Respect DNT header from user.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'Don\'t include tracking code when user doesn\'t want to be tracked.', 'jetpack' ); ?></span></td></tr>
 		</table>
 		<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save configuration', 'jetpack' ) ); ?>' /></p>
 		</form>
