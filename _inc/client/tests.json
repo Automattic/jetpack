@@ -1,7 +1,17 @@
 {
-	"components": {
-		"navigation": {
-			"test": [ "index" ]
+	"state": {
+		"modules": {
+			"test": [ "reducer" ]
+		},
+		"settings": {
+			"test": [ "reducer" ]
+		},
+		"jumpstart": {
+			"test": [ "reducer" ]
+		},
+		"connection": {
+			"test": [ "reducer" ]
 		}
 	}
+
 }
