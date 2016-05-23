@@ -11,6 +11,7 @@ import Settings from 'components/settings';
  * Internal dependencies
  */
 import ConnectionSettings from './connection-settings';
+import SitePlan from './site-plan';
 import { disconnectSite } from 'state/connection';
 
 const GeneralSettings = React.createClass( {
@@ -21,7 +22,7 @@ const GeneralSettings = React.createClass( {
 					header="Jetpack Add-ons"
 					subheader="Manage your Jetpack account and premium add-ons."
 				>
-					settings
+					<SitePlan />
 				</FoldableCard>
 				<FoldableCard
 					header="Jetpack Connection Settings"
@@ -35,25 +36,6 @@ const GeneralSettings = React.createClass( {
 				>
 					<Settings />
 				</FoldableCard>
-				<FoldableCard
-					header="Summary Report Settings"
-					subheader="Manage how Jetpack informs you about your site."
-				>
-					settings
-				</FoldableCard>
-				<FoldableCard
-					header="Import Jetpack Feature Configuration"
-					subheader="Import your Jetpack setup from another intsallation."
-				>
-					settings
-				</FoldableCard>
-				<FoldableCard
-					header="Widget Settings"
-					subheader="Configure your WordPress admin dashboard widget."
-				>
-					settings
-				</FoldableCard>
-
 			</div>
 		)
 	}

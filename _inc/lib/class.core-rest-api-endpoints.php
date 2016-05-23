@@ -86,6 +86,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::recheck_ssl',
 		) );
 
+		// Get current site data
+		register_rest_route( 'jetpack/v4', '/site', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_site_data',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+		) );
+
 		// Return all modules
 		register_rest_route( 'jetpack/v4', '/modules', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -533,6 +540,33 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Get site data, including for example, the site's current plan.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return array Array of Jetpack modules.
+	 */
+	public static function get_site_data() {
+
+		if ( $site_id = Jetpack_Options::get_option( 'id' ) ) {
+			$response = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ), '1.1' );
+
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				return new WP_Error( 'site_data_fetch_failed', esc_html__( 'Failed fetching site data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
+			}
+
+			return rest_ensure_response( array(
+					'code' => 'success',
+					'message' => esc_html__( 'Site data correctly received.', 'jetpack' ),
+					'data' => wp_remote_retrieve_body( $response ),
+				)
+			);
+		}
+
+		return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
