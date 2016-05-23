@@ -4765,13 +4765,12 @@ p {
 	 * @since 2.6
 	 * @return array
 	 */
-	public function generate_secrets( $action ) {
+	public function generate_secrets( $action, $exp = 600 ) {
 	    $secret = wp_generate_password( 32, false ) // secret_1
 	    		. ':' . wp_generate_password( 32, false ) // secret_2
-	    		. ':' . ( time() + 600 ) // eol ( End of Life )
+	    		. ':' . ( time() + $exp ) // eol ( End of Life )
 	    		. ':' . get_current_user_id(); // ties the secrets to the current user
 		Jetpack_Options::update_option( $action, $secret );
-
 	    return Jetpack_Options::get_option( $action );
 	}
 
