@@ -419,10 +419,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool True if site is connected
 	 */
 	public static function jetpack_connection_status() {
-		if ( Jetpack::is_development_mode() ) {
-			return rest_ensure_response( 'dev' );
-		}
-		return Jetpack::is_active();
+		return rest_ensure_response( array(
+				'isActive'  => Jetpack::is_active(),
+				'isStaging' => Jetpack::is_staging_site(),
+				'devMode'   => array(
+					'isActive' => Jetpack::is_development_mode(),
+					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
+					'url'      => site_url() && false === strpos( site_url(), '.' ),
+					'filter'   => apply_filters( 'jetpack_development_mode', false ),
+				),
+			)
+		);
 	}
 
 	public static function recheck_ssl() {

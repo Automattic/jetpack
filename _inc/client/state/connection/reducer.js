@@ -23,7 +23,7 @@ import {
 	UNLINK_USER_SUCCESS
 } from 'state/action-types';
 
-export const status = ( state = { siteConnected: window.Initial_State.connectionStatus.isActive }, action ) => {
+export const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_STATUS_FETCH:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
@@ -108,11 +108,17 @@ export const reducer = combineReducers( {
 /**
  * Returns true if site is connected to WordPress.com
  *
- * @param  {Object} state Global state tree
- * @return {bool}         True if site is connected, False if it is not.
+ * @param  {Object}      state Global state tree
+ * @return {bool|string} True if site is connected, False if it is not, 'dev' if site is in development mode.
  */
 export function getSiteConnectionStatus( state ) {
-	return state.jetpack.connection.status.siteConnected;
+	if ( 'object' !== typeof state.jetpack.connection.status.siteConnected ) {
+		return false;
+	}
+	if ( state.jetpack.connection.status.siteConnected.devMode.isActive ) {
+		return 'dev';
+	}
+	return state.jetpack.connection.status.siteConnected.isActive;
 }
 
 /**
