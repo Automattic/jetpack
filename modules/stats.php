@@ -36,16 +36,6 @@ Jetpack_Sync::sync_options( __FILE__,
 	'tag_base'
 );
 
-function is_dnt_enabled() {
-	foreach ( $_SERVER as $name => $value ) {
-		if ( 'http_dnt' == strtolower( $name ) && 1 == $value ) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 function stats_load() {
 	global $wp_roles;
 
@@ -85,6 +75,9 @@ function stats_load() {
 
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
+
+
+	add_filter( 'jetpack_honor_dnt_header_for_stats', 'stats_honor_dnt_header_for_stats' );
 }
 
 /**
@@ -100,6 +93,34 @@ function stats_merged_widget_admin_init() {
 
 function stats_enqueue_dashboard_head() {
 	add_action( 'admin_head', 'stats_dashboard_head' );
+}
+
+/**
+ * Checks do_not_track config.
+ *
+ * @return true if config honors DNT, false if not.
+ */
+function stats_honor_dnt_header_for_stats() {
+	$options = stats_get_options();
+
+	if ( true === $options['do_not_track'] )
+		return true;
+
+	return false;
+}
+
+function is_dnt_enabled() {
+	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) )
+		return false;
+
+	echo "Respecting DNT!";
+	foreach ( $_SERVER as $name => $value ) {
+		if ( 'http_dnt' == strtolower( $name ) && 1 == $value ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**
@@ -554,6 +575,7 @@ function stats_configuration_load() {
 		$options = stats_get_options();
 		$options['admin_bar']  = isset( $_POST['admin_bar']  ) && $_POST['admin_bar'];
 		$options['hide_smile'] = isset( $_POST['hide_smile'] ) && $_POST['hide_smile'];
+		$options['do_not_track'] = isset( $_POST['do_not_track'] ) && $_POST['do_not_track'];
 
 		$options['roles'] = array( 'administrator' );
 		foreach ( get_editable_roles() as $role => $details )
@@ -624,7 +646,8 @@ function stats_configuration_screen() {
 				<?php
 			}
 			?>
-		</td></tr>
+		</td><tr valign="top"><th scope="row"><?php _e( 'Do Not Track' , 'jetpack' ); ?></th>
+		<td><label><input type='checkbox'<?php checked( isset( $options['do_not_track'] ) && $options['do_not_track'] ); ?> name='do_not_track' id='do_not_track' /> <?php _e( 'Respect DNT header from user.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'Don\'t include tracking code when user wants not to be tracked.', 'jetpack' ); ?></span></td></tr>
 		</table>
 		<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save configuration', 'jetpack' ) ); ?>' /></p>
 		</form>
