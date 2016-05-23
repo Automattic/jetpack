@@ -6273,6 +6273,7 @@ p {
 			'jetpack-tools-to-include'                 => 'jetpack_tools_to_include',
 			'jetpack_identity_crisis_options_to_check' => null,
 			'update_option_jetpack_single_user_site'   => null,
+			'jetpack_modules_list_table_js_template_callback' => null,
 		);
 
 		// This is a silly loop depth. Better way?
