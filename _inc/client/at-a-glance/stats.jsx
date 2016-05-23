@@ -8,7 +8,7 @@ import Chart from 'components/chart';
 import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
 import Button from 'components/button';
-import { translate as __ } from 'lib/mixins/i18n';
+import { moment, translate as __ } from 'lib/mixins/i18n';
 
 /**
  * Internal dependencies
@@ -31,6 +31,16 @@ const DashStats = React.createClass( {
 		forEach( window.Initial_State.statsData[unit].data, function( v ) {
 			let label = v[0];
 			let views = v[1];
+
+			if ( 'day' === unit ) {
+				label = moment( v[0] ).format( 'MMM D' );
+			} else if ( 'week' === unit ) {
+				label = label.replace( /W/g, '-' );
+				label = __( 'Week of %(date)s', { args: { date: moment( label ).format( 'MMM D' ) } } );
+			} else if ( 'month' ) {
+				label = moment( label ).format( 'MMMM' );
+			}
+
 			s.push( {
 				label: label,
 				value: views,
@@ -39,7 +49,7 @@ const DashStats = React.createClass( {
 				data: {},
 				tooltipData: [ {
 					label: label,
-					value: 'Views: ' + views,
+					value: __( 'Views: %(numberOfViews)s', { args: { numberOfViews: views } } ),
 					link: null,
 					icon: '',
 					className: 'tooltip class'
@@ -149,6 +159,7 @@ const DashStatsBottom = React.createClass( {
 
 	render: function() {
 		const s = this.statsBottom()[0];
+		const bestDay = s.bestDay.day;
 		return (
 		<div>
 			<div className="jp-at-a-glance__stats-summary">
@@ -170,7 +181,7 @@ const DashStatsBottom = React.createClass( {
 							)
 						}
 					</h3>
-					<p className="jp-at-a-glance__stat-details">{ s.bestDay.day }</p>
+					<p className="jp-at-a-glance__stat-details">{ moment( bestDay ).format( 'MMMM Do, YYYY' ) }</p>
 				</div>
 				<div className="jp-at-a-glance__stats-summary-alltime">
 					<div className="jp-at-a-glance__stats-alltime-views">
