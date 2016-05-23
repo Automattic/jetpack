@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import Card from 'components/card';
 import Button from 'components/button';
 import Spinner from 'components/spinner';
+import { translate as __ } from 'lib/mixins/i18n';
 
 /**
  * Internal dependencies
@@ -24,33 +25,66 @@ const JumpStart = React.createClass( {
 	render: function() {
 		return (
 			<div className="jp-jumpstart">
-				<h2 className="jp-jumpstart__title">Jump Start your Website</h2>
+				<h2 className="jp-jumpstart__title">
+					{ __( 'Jump Start your Website' ) }
+				</h2>
 				<Card className="jp-jumpstart__cta-container">
 					{ this.props.jumpstarting( this.props ) ? <Spinner /> : null }
 					<Card className="jp-jumpstart__cta">
-						<p className="jp-jumpstart__description">Quickly enhance your site by activating Jetpack's recommended features.</p>
-						<Button primary={ true } onClick={ this.props.jumpStartActivate }>Activate Recommended Features</Button>
+						<p className="jp-jumpstart__description">
+							{ __( "Quickly enhance your site by activating Jetpack's recommended features." ) }
+						</p>
+						<Button primary={ true } onClick={ this.props.jumpStartActivate }>
+							{ __( 'Activate Recommended Features' ) }
+						</Button>
 					</Card>
 					<Card className="jp-jumpstart__features">
-						<p className="jp-jumpstart__description">Jetpack's recommended features include:</p>
+						<p className="jp-jumpstart__description">
+							{ __( "Jetpack's recommended features include:" ) }
+						</p>
 
 						<ul className="jp-jumpstart__feature-list">
-							<li>Social Sharing Tools</li>
-							<li>Image Performance (Photon)</li>
-							<li>Single Sign On</li>
-							<li>Contact Form</li>
-							<li>Related Posts</li>
+							<li>
+								{ __( 'Social Sharing Tools' ) }
+							</li>
+							<li>
+								{ __( 'Image Performance (Photon)' ) }
+							</li>
+							<li>
+								{ __( 'Single Sign On' ) }
+							</li>
+							<li>
+								{ __( 'Contact Form' ) }
+							</li>
+							<li>
+								{ __( 'Related Posts' ) }
+							</li>
 						</ul>
 						<ul className="jp-jumpstart__feature-list">
-							<li>Automatic Updates (Site Manangement)</li>
-							<li>Image Carousel</li>
-							<li>Gravatar Hovercards</li>
-							<li>Visitor Subscriptions</li>
+							<li>
+								{ __( 'Automatic Updates (Site Manangement)' ) }
+							</li>
+							<li>
+								{ __( 'Image Carousel' ) }
+							</li>
+							<li>
+								{ __( 'Gravatar Hovercards' ) }
+							</li>
+							<li>
+								{ __( 'Visitor Subscriptions' ) }
+							</li>
 						</ul>
-						<p className="jp-jumpstart__note">Features can be activated or deactivated at any time.</p>
+						<p className="jp-jumpstart__note">
+							{ __( 'Features can be activated or deactivated at any time.' ) }
+						</p>
 					</Card>
 				</Card>
-				<a onClick={ this.props.jumpStartSkip } className="jp-jumpstart__skip-step" title="Skip the Jetpack Jumpstart process">Skip this step</a>
+				<a
+					onClick={ this.props.jumpStartSkip }
+					className="jp-jumpstart__skip-step"
+					title={ __( 'Skip the Jetpack Jumpstart process' ) }>
+					{ __( 'Skip this step' ) }
+				</a>
 			</div>
 		);
 	}
