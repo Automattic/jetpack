@@ -55,7 +55,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SETTING_UPDATE_FAIL:
 		case JETPACK_SETTING_UPDATE_SUCCESS:
 			return assign( {}, state, {
-				updatingSetting: true
+				updatingSetting: false
 			} );
 		default:
 			return state;
