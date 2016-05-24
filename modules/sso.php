@@ -356,7 +356,7 @@ class Jetpack_SSO {
 		) {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 			$this->maybe_save_cookie_redirect();
-			$reauth = ! empty( $_GET['reauth'] );
+			$reauth = ! empty( $_GET['force_reauth'] );
 			$sso_url = $this->get_sso_url_or_die( $reauth );
 			JetpackTracking::record_user_event( 'sso_login_redirect_bypass_success' );
 			wp_safe_redirect( $sso_url );
@@ -379,7 +379,7 @@ class Jetpack_SSO {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
-					$reauth = ! empty( $_GET['reauth'] );
+					$reauth = ! empty( $_GET['force_reauth'] );
 					$sso_url = $this->get_sso_url_or_die( $reauth );
 					JetpackTracking::record_user_event( 'sso_login_redirect_success' );
 					wp_safe_redirect( $sso_url );
@@ -490,7 +490,7 @@ class Jetpack_SSO {
 				<?php echo $this->build_sso_button( array(), 'is_primary' ); ?>
 
 				<?php if ( $display_name && $gravatar ) : ?>
-					<a class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'reauth' => '1' ) ) ); ?>">
+					<a class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'force_reauth' => '1' ) ) ); ?>">
 						<?php esc_html_e( 'Log in as a different WordPress.com user', 'jetpack' ); ?>
 					</a>
 				<?php else : ?>
