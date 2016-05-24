@@ -1,7 +1,7 @@
 {
 	"state": {
 		"modules": {
-			"test": [ "reducer" ]
+			"test": [ "reducer", "selectors" ]
 		},
 		"settings": {
 			"test": [ "reducer" ]
