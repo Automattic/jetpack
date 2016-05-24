@@ -21,7 +21,12 @@ if ( maybe_load_old_jetpack_config_page() ) {
 }
 ?>
 	<noscript>
-		<p><?php esc_html_e( "Turn on JavaScript to unlock Jetpack's full potential!" ) ?></p>
+		<div id="message" class="jetpack-message jetpack-err">
+			<div class="squeezer">
+				<h2><?php esc_html_e( 'You have JavaScript disabled', 'jetpack' ); ?></h2>
+				<p><?php esc_html_e( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ); ?></p>
+			</div>
+		</div>
 	</noscript>
 	<div class="page-content configure">
 		<div class="frame bottom">
