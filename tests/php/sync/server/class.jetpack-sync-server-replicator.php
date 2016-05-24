@@ -93,9 +93,9 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// constants
-			case 'jetpack_sync_current_constants':
-				list( $constants ) = $args;
-				$this->store->set_constants( $constants );
+			case 'jetpack_sync_constant':
+				list( $name, $value ) = $args;
+				$this->store->set_constant( $name, $value );
 				break;
 
 			// updates
@@ -113,7 +113,7 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// functions
-			case 'jetpack_sync_current_callable':
+			case 'jetpack_sync_callable':
 				list( $name, $value ) = $args;
 				$this->store->set_callable( $name, $value );
 				break;

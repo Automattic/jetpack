@@ -363,14 +363,8 @@ ENDSQL;
 		return null;
 	}
 
-	public function set_constants( $constants ) {
-		global $wpdb;
-
-		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE 'jetpack_constant_%'" );
-
-		foreach ( $constants as $key => $value ) {
-			update_option( 'jetpack_constant_' . $key, $value );
-		}
+	public function set_constant( $constant, $value ) {
+		update_option( 'jetpack_constant_' . $constant, $value );
 	}
 
 	public function get_updates( $type ) {

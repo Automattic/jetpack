@@ -56,10 +56,10 @@ class Jetpack_Sync_Client {
 		 */
 
 		// constants
-		add_action( 'jetpack_sync_current_constants', $handler, 10 );
+		add_action( 'jetpack_sync_constant', $handler, 10, 2 );
 
 		// callables
-		add_action( 'jetpack_sync_current_callable', $handler, 10, 2 );
+		add_action( 'jetpack_sync_callable', $handler, 10, 2 );
 
 		// posts
 		add_action( 'wp_insert_post', $handler, 10, 3 );
@@ -572,6 +572,10 @@ class Jetpack_Sync_Client {
 	}
 
 	function force_sync_constants() {
+		foreach ( $this->constants_whitelist as $name ) {
+			delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME . "_$name" );
+		}
+
 		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
 		$this->maybe_sync_constants();
 	}
@@ -602,21 +606,32 @@ class Jetpack_Sync_Client {
 		if ( get_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME ) ) {
 			return;
 		}
-		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
 
 		$constants = $this->get_all_constants();
 		if ( empty( $constants ) ) {
 			return;
 		}
 
-		/**
-		 * Tells the client to sync all constants to the server
-		 *
-		 * @since 4.1
-		 *
-		 * @param array All the constants
-		 */
-		do_action( 'jetpack_sync_current_constants', $constants );
+		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
+
+		// only send the constants that have changed
+		foreach ( $constants as $name => $value ) {
+			$checksum = $this->get_check_sum( $value );
+
+			// explicitly not using Identical comparison as get_option returns a string
+			if ( $checksum != get_option( self::CONSTANTS_CHECKSUM_OPTION_NAME . "_$name" ) ) {
+				/**
+				 * Tells the client to sync a constant to the server
+				 *
+				 * @since 4.1
+				 *
+				 * @param string The name of the constant
+				 * @param mixed The value of the constant
+				 */
+				do_action( 'jetpack_sync_constant', $name, $value );
+				update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME . "_$name", $checksum );
+			}
+		}
 	}
 
 	private function get_all_constants() {
@@ -654,6 +669,7 @@ class Jetpack_Sync_Client {
 		}
 
 		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
+
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
@@ -667,7 +683,7 @@ class Jetpack_Sync_Client {
 				 * @param string The name of the callable
 				 * @param mixed The value of the callable
 				 */
-				do_action( 'jetpack_sync_current_callable', $name, $value );
+				do_action( 'jetpack_sync_callable', $name, $value );
 				update_option( self::CALLABLES_CHECKSUM_OPTION_NAME . "_$name", $checksum );
 			}
 		}
@@ -760,7 +776,6 @@ class Jetpack_Sync_Client {
 	}
 
 	function reset_data() {
-		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
 		$this->reset_sync_queue();
 	}
 }
