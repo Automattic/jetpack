@@ -765,7 +765,10 @@ class Jetpack_Sync_Client {
 		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
 		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist       = Jetpack_Sync_Defaults::$default_constants_whitelist;
-		$this->options_whitelist         = Jetpack_Sync_Defaults::$default_options_whitelist;
+		/**
+		 * This filter is already documented class.wpcom-json-api-get-option-endpoint.php
+		 */
+		$this->options_whitelist         = apply_filters( 'jetpack_options_whitelist', Jetpack_Sync_Defaults::$default_options_whitelist );
 		$this->network_options_whitelist = Jetpack_Sync_Defaults::$default_network_options_whitelist;
 		$this->taxonomy_whitelist        = Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
 		$this->is_multisite              = is_multisite();

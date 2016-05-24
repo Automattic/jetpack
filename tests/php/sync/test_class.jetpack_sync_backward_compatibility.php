@@ -7,7 +7,6 @@ class WP_Test_Jetpack_Sync_Backward_Compatibility extends WP_Test_Jetpack_New_Sy
 
 	public function setUp() {
 		parent::setUp();
-
 	}
 
 	public function test_backwards_compatibility_sync_options() {
