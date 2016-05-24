@@ -140,7 +140,6 @@ const DashStats = React.createClass( {
 			<div>
 				<DashSectionHeader
 					label="Site Statistics"
-					settingsPath="#engagement"
 				>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
