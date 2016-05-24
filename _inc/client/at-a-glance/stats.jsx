@@ -8,7 +8,7 @@ import Chart from 'components/chart';
 import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
 import Button from 'components/button';
-import { moment, translate as __ } from 'lib/mixins/i18n';
+import { numberFormat, moment, translate as __ } from 'lib/mixins/i18n';
 
 /**
  * Internal dependencies
@@ -26,34 +26,44 @@ import {
 } from 'state/modules';
 
 const DashStats = React.createClass( {
+	barClick: function( bar ) {
+		if ( bar.data.link ) {
+			window.open(
+				bar.data.link,
+				'_blank'
+			);
+		}
+	},
+
 	statsChart: function( unit ) {
 		let s = [];
 		forEach( window.Initial_State.statsData[unit].data, function( v ) {
-			let label = v[0];
+			let date = v[0];
+			let formattedDate = '';
 			let views = v[1];
 
 			if ( 'day' === unit ) {
-				label = moment( v[0] ).format( 'MMM D' );
+				formattedDate = moment( date ).format( 'MMM D' );
 			} else if ( 'week' === unit ) {
-				label = label.replace( /W/g, '-' );
-				label = __( 'Week of %(date)s', { args: { date: moment( label ).format( 'MMM D' ) } } );
+				date = date.replace( /W/g, '-' );
+				formattedDate = __( 'Week of %(date)s', { args: { date: moment( date ).format( 'MMM D' ) } } );
 			} else if ( 'month' ) {
-				label = moment( label ).format( 'MMMM' );
+				formattedDate = moment( date ).format( 'MMMM' );
 			}
 
 			s.push( {
-				label: label,
-				value: views,
+				label: formattedDate,
+				value: numberFormat( views ),
 				nestedValue: null,
 				className: 'statsChartbar',
-				data: {},
+				data: {
+					link: `https://wordpress.com/stats/${ unit }/${ window.Initial_State.rawUrl }?startDate=${ date }`
+				},
 				tooltipData: [ {
-					label: label,
-					value: __( 'Views: %(numberOfViews)s', { args: { numberOfViews: views } } ),
-					link: null,
-					icon: '',
+					label: formattedDate,
+					value: __( 'Views: %(numberOfViews)s', { args: { numberOfViews: numberFormat( views ) } } ),
 					className: 'tooltip class'
-				} ]
+				}, { label: __( 'Click to view detailed stats.' ) } ]
 			} );
 		} );
 		return ( getSiteConnectionStatus( this.props ) === 'dev' ) ? demoStatsData : s;
@@ -65,7 +75,10 @@ const DashStats = React.createClass( {
 			return (
 				<div className="jp-at-a-glance__stats-container">
 					<div className="jp-at-a-glance__stats-chart">
-						<Chart data={ this.statsChart( activeTab ) } />
+						<Chart
+							data={ this.statsChart( activeTab ) }
+							barClick={ this.barClick }
+						/>
 					</div>
 					<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
 						<DashStatsBottom { ...this.props } />
@@ -127,7 +140,6 @@ const DashStats = React.createClass( {
 			<div>
 				<DashSectionHeader
 					label="Site Statistics"
-					settingsPath="#engagement"
 				>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
@@ -175,7 +187,7 @@ const DashStatsBottom = React.createClass( {
 								{
 									count: s.bestDay.count,
 									args: {
-										number: s.bestDay.count
+										number: numberFormat( s.bestDay.count )
 									}
 								}
 							)
@@ -186,11 +198,11 @@ const DashStatsBottom = React.createClass( {
 				<div className="jp-at-a-glance__stats-summary-alltime">
 					<div className="jp-at-a-glance__stats-alltime-views">
 						<p className="jp-at-a-glance__stat-details">{ __( 'All-time views', { comment: 'Referring to a number of page views' } ) }</p>
-						<h3 className="jp-at-a-glance__stat-number">{ s.allTime.views }</h3>
+						<h3 className="jp-at-a-glance__stat-number">{ numberFormat( s.allTime.views ) }</h3>
 					</div>
 					<div className="jp-at-a-glance__stats-alltime-comments">
 						<p className="jp-at-a-glance__stat-details">{ __( 'All-time comments', { comment: 'Referring to a number of comments' } ) }</p>
-						<h3 className="jp-at-a-glance__stat-number">{ s.allTime.comments }</h3>
+						<h3 className="jp-at-a-glance__stat-number">{ numberFormat( s.allTime.comments ) }</h3>
 					</div>
 				</div>
 			</div>
