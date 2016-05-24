@@ -12,7 +12,7 @@ class Jetpack_Sync_Server_Replicator {
 	}
 
 	function init() {
-		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 10, 5 );
+		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 5, 5 );
 	}
 	
 	function handle_remote_action( $action_name, $args, $user_id, $timestamp, $token ) {
@@ -145,7 +145,7 @@ class Jetpack_Sync_Server_Replicator {
 
 			case 'jetpack_full_sync_posts':
 				foreach( $args['posts'] as $post ) {
-					$this->store->upsert_post( $post );
+					$this->store->upsert_post( $post, true ); // upsert silently
 				}
 				foreach ( $args['post_metas'] as $meta ) {
 					$this->store->upsert_metadata( 'post', $meta->post_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
