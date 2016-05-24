@@ -357,7 +357,9 @@ class Jetpack_SSO {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 			$this->maybe_save_cookie_redirect();
 			$reauth = ! empty( $_GET['reauth'] );
-			wp_safe_redirect( $this->get_sso_url_or_die( $reauth ) );
+			$sso_url = $this->get_sso_url_or_die( $reauth );
+			JetpackTracking::record_user_event( 'sso_login_redirect_bypass_success' );
+			wp_safe_redirect( $sso_url );
 			exit;
 		}
 
@@ -369,13 +371,18 @@ class Jetpack_SSO {
 				$this->display_sso_login_form();
 			} else {
 				if ( Jetpack::check_identity_crisis() ) {
+					JetpackTracking::record_user_event( 'sso_login_redirect_failed', array(
+						'error_message' => 'identity_crisis'
+					) );
 					wp_die( __( "Error: This site's Jetpack connection is currently experiencing problems.", 'jetpack' ) );
 				} else {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 					$reauth = ! empty( $_GET['reauth'] );
-					wp_safe_redirect( $this->get_sso_url_or_die( $reauth ) );
+					$sso_url = $this->get_sso_url_or_die( $reauth );
+					JetpackTracking::record_user_event( 'sso_login_redirect_success' );
+					wp_safe_redirect( $sso_url );
 					exit;
 				}
 			}
@@ -597,12 +604,21 @@ class Jetpack_SSO {
 		$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id );
 
 		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+			$error_message = sanitize_text_field(
+				sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() )
+			);
+			JetpackTracking::record_user_event( 'sso_login_failed', array(
+				'error_message' => $error_message
+			) );
+			wp_die( $error_message );
 		}
 
 		$user_data = $xml->getResponse();
 
 		if ( empty( $user_data ) ) {
+			JetpackTracking::record_user_event( 'sso_login_failed', array(
+				'error_message' => 'invalid_response_data'
+			) );
 			wp_die( __( 'Error, invalid response data.', 'jetpack' ) );
 		}
 
@@ -632,13 +648,20 @@ class Jetpack_SSO {
 		$require_two_step = apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step' ) );
 		if ( $require_two_step && 0 == (int) $user_data->two_step_enabled ) {
 			$this->user_data = $user_data;
+
+			JetpackTracking::record_user_event( 'sso_login_failed', array(
+				'error_message' => 'error_msg_enable_two_step'
+			) );
+			
 			/** This filter is documented in core/src/wp-includes/pluggable.php */
 			do_action( 'wp_login_failed', $user_data->login );
 			add_filter( 'login_message', array( $this, 'error_msg_enable_two_step' ) );
 			return;
 		}
 
+		$user_found_with = '';
 		if ( empty( $user ) && isset( $user_data->external_user_id ) ) {
+			$user_found_with = 'external_user_id';
 			$user = get_user_by( 'id', intval( $user_data->external_user_id ) );
 			if ( $user ) {
 				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
@@ -647,6 +670,7 @@ class Jetpack_SSO {
 
 		// If we don't have one by wpcom_user_id, try by the email?
 		if ( empty( $user ) && self::match_by_email() ) {
+			$user_found_with = 'match_by_email';
 			$user = get_user_by( 'email', $user_data->email );
 			if ( $user ) {
 				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
@@ -673,9 +697,16 @@ class Jetpack_SSO {
 				while ( username_exists( $username ) ) {
 					$username = $user_data->login . '_' . $user_data->ID . '_' . mt_rand();
 					if ( $tries++ >= 5 ) {
+						JetpackTracking::record_user_event( 'sso_login_failed', array(
+							'error_message' => 'could_not_create_username'
+						) );
 						wp_die( __( "Error: Couldn't create suitable username.", 'jetpack' ) );
 					}
 				}
+
+				$user_found_with = self::new_user_override()
+					? 'user_created_new_user_override'
+					: 'user_created_users_can_register';
 
 				$password = wp_generate_password( 20 );
 				$user_id  = wp_create_user( $username, $password, $user_data->email );
@@ -690,9 +721,12 @@ class Jetpack_SSO {
 
 				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 			} else {
+				JetpackTracking::record_user_event( 'sso_login_failed', array(
+					'error_message' => 'error_msg_email_already_exists'
+				) );
+
 				$this->user_data = $user_data;
-				// do_action( 'wp_login_failed', $user_data->login );
-				add_filter( 'login_message', array( $this, 'error_msg_email_already_exists' ) );
+				add_action( 'login_message', array( $this, 'error_msg_email_already_exists' ) );
 				return;
 			}
 		}
@@ -734,6 +768,8 @@ class Jetpack_SSO {
 			/** This filter is documented in core/src/wp-includes/user.php */
 			do_action( 'wp_login', $user->user_login, $user );
 
+			wp_set_current_user( $user->ID );
+
 			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( $_REQUEST['redirect_to'] ) : '';
 			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
 
@@ -745,7 +781,14 @@ class Jetpack_SSO {
 				setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 			}
 
-			if ( ! Jetpack::is_user_connected( $user->ID ) ) {
+			$is_user_connected = Jetpack::is_user_connected( $user->ID );
+			JetpackTracking::record_user_event( 'sso_user_logged_in', array(
+				'user_found_with' => $user_found_with,
+				'user_connected'  => (bool) $is_user_connected,
+				'user_role'       => Jetpack::init()->translate_current_user_to_role()
+			) );
+
+			if ( ! $is_user_connected ) {
 				$calypso_env = ! empty( $_GET['calypso_env'] )
 					? sanitize_key( $_GET['calypso_env'] )
 					: '';
@@ -770,6 +813,10 @@ class Jetpack_SSO {
 			);
 			exit;
 		}
+
+		JetpackTracking::record_user_event( 'sso_login_failed', array(
+			'error_message' => 'cant_find_user'
+		) );
 
 		$this->user_data = $user_data;
 		/** This filter is documented in core/src/wp-includes/pluggable.php */
@@ -880,7 +927,13 @@ class Jetpack_SSO {
 
 		// If there was an error retrieving the SSO URL, then error.
 		if ( is_wp_error( $sso_redirect ) ) {
-			wp_die( sprintf( '%s: %s', $sso_redirect->get_error_code(), $sso_redirect->get_error_message() ) );
+			$error_message = sanitize_text_field(
+				sprintf( '%s: %s', $sso_redirect->get_error_code(), $sso_redirect->get_error_message() )
+			);
+			JetpackTracking::record_user_event( 'sso_login_redirect_failed', array(
+				'error_message' => $error_message
+			) );
+			wp_die( $error_message );
 		}
 
 		return $sso_redirect;
