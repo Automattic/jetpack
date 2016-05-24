@@ -52,6 +52,8 @@ matrix:
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: hhvm
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+     sudo: required
+     dist: trusty
    - php: "nightly"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
   allow_failures:
