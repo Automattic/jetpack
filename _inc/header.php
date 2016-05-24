@@ -8,8 +8,18 @@
 		</div>
 
 		<ul class="jp-masthead__links">
-			<li><a href="http://jetpack.com/support/" target="_blank" class="jp-masthead__link"><span class="dashicons dashicons-editor-help" title="Need Help?"></span><span>Need Help?</span></a></li>
-			<li><a href="http://surveys.jetpack.me/research-plugin?rel=3.9.4" target="_blank" class="jp-masthead__link"><span className="dashicons dashicons-admin-comments" title="Send us Feedback"></span><span>Send us Feedback</span></a></li>
+			<li>
+				<a href="http://jetpack.com/support/" target="_blank" class="jp-masthead__link">
+					<span class="dashicons dashicons-editor-help" title="<?php esc_attr_e( 'Need Help?', 'jetpack' ); ?>"></span>
+					<span><?php _e( 'Need Help?', 'jetpack' ); ?></span>
+				</a>
+			</li>
+			<li>
+				<a href="http://surveys.jetpack.me/research-plugin?rel=<?php echo esc_attr( JETPACK__VERSION ); ?>" target="_blank" class="jp-masthead__link">
+					<span className="dashicons dashicons-admin-comments" title="<?php esc_attr_e( 'Send us Feedback', 'jetpack' ); ?>"></span>
+					<span><?php esc_attr_e( 'Send us Feedback', 'jetpack' ); ?></span>
+				</a>
+			</li>
 		</ul>
 	</div>
 </div>
