@@ -1,6 +1,6 @@
 <?php
 
-require_once 'class.jetpack-sync-client.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-client.php';
 
 class Jetpack_Sync_Actions {
 	static $client = null;
