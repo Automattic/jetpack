@@ -498,7 +498,7 @@ class Jetpack_PostImages {
 
 	/**
 	 * Takes an image URL and pixel dimensions then returns a URL for the
-	 * resized and croped image.
+	 * resized and cropped image.
 	 *
 	 * @param  string $src
 	 * @param  int    $dimension
@@ -508,7 +508,6 @@ class Jetpack_PostImages {
 		$width = (int) $width;
 		$height = (int) $height;
 
-		// Umm...
 		if ( $width < 1 || $height < 1 ) {
 			return $src;
 		}
@@ -530,14 +529,14 @@ class Jetpack_PostImages {
 		// If WPCOM hosted image use native transformations
 		$img_host = parse_url( $src, PHP_URL_HOST );
 		if ( '.files.wordpress.com' == substr( $img_host, -20 ) ) {
-			return add_query_arg( array( 'w' => $width, 'h' => $height, 'crop' => 1 ), $src );
+			return add_query_arg( array( 'w' => $width, 'h' => $height, 'crop' => 1 ), set_url_scheme( $src ) );
 		}
 
 		// Use Photon magic
 		if( function_exists( 'jetpack_photon_url' ) ) {
 			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
 		}
-
+		
 		// Arg... no way to resize image using WordPress.com infrastructure!
 		return $src;
 	}
