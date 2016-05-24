@@ -59,8 +59,47 @@ const DashStats = React.createClass( {
 		return ( getSiteConnectionStatus( this.props ) === 'dev' ) ? demoStatsData : s;
 	},
 
+	/**
+	 * Checks that the stats fetching didn't return errors.
+	 *
+	 * @returns {object|bool}
+	 */
+	statsErrors() {
+		let checkStats = window.Initial_State.statsData.general;
+		if ( 'object' === typeof checkStats.errors ) {
+			return checkStats.errors;
+		}
+		return false;
+	},
+
 	renderStatsArea: function() {
 		if ( this.props.isModuleActivated( 'stats' ) ) {
+			let statsErrors = this.statsErrors();
+			if ( statsErrors ) {
+				forEach( statsErrors, function( error ) {
+					console.log( error );
+				} );
+				if ( getSiteConnectionStatus( this.props ) === 'dev' ) {
+					return (
+						<p>
+							{
+								__( 'Error loading stats. See JavaScript console for logs.' )
+							}
+						</p>
+					);
+				}
+				return (
+					<p>
+						{
+							__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
+								components: {
+									a: <a href="{ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl }" />
+								}
+							} )
+						}
+					</p>
+				);
+			}
 			const activeTab = this.props.activeTab();
 			return (
 				<div className="jp-at-a-glance__stats-container">
@@ -88,7 +127,7 @@ const DashStats = React.createClass( {
 	},
 
 	maybeShowStatsTabs: function() {
-		if ( this.props.isModuleActivated( 'stats' ) ) {
+		if ( this.props.isModuleActivated( 'stats' ) && ! this.statsErrors() ) {
 			return(
 				<ul className="jp-at-a-glance__stats-views">
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
