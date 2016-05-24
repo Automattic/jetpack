@@ -76,7 +76,7 @@ interface iJetpack_Sync_Replicastore {
 	// constants
 	public function get_constant( $constant );
 
-	public function set_constants( $constants );
+	public function set_constant( $constant, $value );
 
 	// updates
 	public function get_updates( $type );

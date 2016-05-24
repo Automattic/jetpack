@@ -478,10 +478,10 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_replica_update_constant( $store ) {
+	function test_replica_set_constant( $store ) {
 		$this->assertNull( $store->get_constant('FOO') );
 
-		$store->set_constants( array( 'FOO' => array( 'foo' => 'bar' ) ) );
+		$store->set_constant( 'FOO', array( 'foo' => 'bar' ) );
 
 		$this->assertEquals( array( 'foo' => 'bar' ), $store->get_constant('FOO') );
 	}

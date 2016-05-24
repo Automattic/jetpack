@@ -250,8 +250,8 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return $this->constants[ $constant ];
 	}
 
-	public function set_constants( $constants ) {
-		return $this->constants = $constants;
+	public function set_constant( $constant, $value ) {
+		return $this->constants[$constant] = $value;
 	}
 
 	// updates
