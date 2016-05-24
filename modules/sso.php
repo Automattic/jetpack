@@ -490,7 +490,7 @@ class Jetpack_SSO {
 				<?php echo $this->build_sso_button( array(), 'is_primary' ); ?>
 
 				<?php if ( $display_name && $gravatar ) : ?>
-					<a class="jetpack-sso-wrap__reauth" href="<?php echo $this->build_sso_button_url( array( 'reauth' => '1' ) ); ?>">
+					<a class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'reauth' => '1' ) ) ); ?>">
 						<?php esc_html_e( 'Log in as a different WordPress.com user', 'jetpack' ); ?>
 					</a>
 				<?php else : ?>
