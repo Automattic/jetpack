@@ -65,6 +65,20 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 		}
 	}
 
+	public function test_sync_options_that_use_filter() {
+		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
+		$this->client->set_defaults();
+		update_option( 'foo_option_bar', '123' );
+		$this->client->do_sync();
+
+		$this->assertEquals( '123', $this->server_replica_storage->get_option( 'foo_option_bar' ) );
+	}
+
+	public function add_jetpack_options_whitelist_filter( $options ) {
+		$options[] = 'foo_option_bar';
+		return $options;
+	}
+
 	function _get_site_icon( $url, $size, $blog_id ) {
 		return 'http://foo.com/icon.gif';
 	}
