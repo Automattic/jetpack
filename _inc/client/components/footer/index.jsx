@@ -37,6 +37,21 @@ export const Footer = React.createClass( {
 			return '';
 		};
 
+		const maybeShowDebug = () =>  {
+			if ( window.Initial_State.userData.currentUser.permissions.manage_options ) {
+				return (
+					<li className="jp-footer__link-item">
+						<a
+							href={ window.Initial_State.adminUrl + 'admin.php?page=jetpack-debugger' }
+							title={ __( "Test your site’s compatibility with Jetpack." ) }
+							className="jp-footer__link">
+							{ __( 'Debug', { context: 'Navigation item. Noun. Links to a debugger tool for Jetpack.' } ) }
+						</a>
+					</li>
+				);
+			}
+		};
+
 		return (
 			<div className={ classes }>
 				<div className="jp-footer__a8c-attr-container">
@@ -71,14 +86,7 @@ export const Footer = React.createClass( {
 							{ __( 'Privacy', { context: 'Shorthand for Privacy Policy.' } ) }
 						</a>
 					</li>
-					<li className="jp-footer__link-item">
-						<a
-							href={ window.Initial_State.adminUrl + 'admin.php?page=jetpack-debugger' }
-							title={ __( "Test your site’s compatibility with Jetpack." ) }
-							className="jp-footer__link">
-							{ __( 'Debug', { context: 'Navigation item. Noun. Links to a debugger tool for Jetpack.' } ) }
-						</a>
-					</li>
+					{ maybeShowDebug() }
 					{ maybeShowReset() }
 				</ul>
 			</div>

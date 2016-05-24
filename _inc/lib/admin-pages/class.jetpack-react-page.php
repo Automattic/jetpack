@@ -313,6 +313,7 @@ function jetpack_current_user_data() {
 			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
 			'network_sites_page' => current_user_can( 'jetpack_network_sites_page' ),
 			'edit_posts'         => current_user_can( 'edit_posts' ),
+			'manage_options'     => current_user_can( 'manage_options' ),
 		),
 	);
 
