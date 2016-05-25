@@ -356,7 +356,7 @@ gulp.task( 'languages:cleanup', [ 'languages:build' ], function () {
 	);
 } );
 
-gulp.task( 'languages:extract', function( callback ) {
+gulp.task( 'languages:extract', [ 'react:build' ], function( callback ) {
 	glotpress( {
 		inputPaths: [ '_inc/build/admin.js' ],
 		output: '_inc/jetpack-strings.php',
