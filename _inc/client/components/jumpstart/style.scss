@@ -55,44 +55,58 @@
 
 .jp-jumpstart__features {
 	margin: 0;
-	padding: rem( 16px ) rem( 48px );
+	padding: rem( 16px );
 	background-color: lighten( $gray, 35% );
-
-	@include breakpoint( ">960px" ) {
-		padding: rem( 16px ) 20% rem( 24px );
-	}
-
-	@include breakpoint( "<660px" ) {
-		padding: rem( 16px ) rem( 24px );
-	}
 }
 
 .jp-jumpstart__feature-list {
-	text-align: left;
-	list-style: disc;
-	list-style-position: inside;
-	padding: 0;
 	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
 
-	@include breakpoint( ">660px" ) {
-		width: 50%;
-		float: left;
+	@include breakpoint( ">660px" ) { 
+		flex-wrap: nowrap;
 	}
-
 	@include breakpoint( "<660px" ) {
-		margin-left: rem( 16px );
+		margin: rem( -8px ) rem( -16px ) 0; // to avoid altering multiple other elements
 	}
+}
+
+.jp-jumpstart__feature-list-column {
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+	text-align: left;
+	background: $white;
+
+	@include breakpoint( ">660px" ) { 
+		flex-grow: 1;
+		flex-shrink: 0;
+		flex-basis: 50%;
+	}
+
+	@include breakpoint( "<660px" ) { 
+		flex-basis: 100%;
+	}
+}
+
+.jp-jumpstart__feature-content {
+	padding: rem( 16px );
+}
+
+.jp-jumpstart__feature-content-title {
+	margin: 0;
 }
 
 .jp-jumpstart__note {
 	margin: 0;
-	padding: rem( 24px ) rem( 16px ) 0;
+	padding: rem( 16px ) 0;
 	font-size: rem( 14px );
 	clear: both;
 	font-style: italic;
 
-	@include breakpoint( "<660px" ) {
-		padding: rem( 24px ) 0 0;
+	@include breakpoint( "<660px" ) { 
+		padding-bottom: 0;
 	}
 }
 
