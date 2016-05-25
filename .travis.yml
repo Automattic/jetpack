@@ -9,7 +9,12 @@ php:
 
 # WordPress version used in first build configuration.
 env:
-    - WP_VERSION=master WP_TRAVISCI=travis:phpunit
+    - WP_VERSION=master
+
+# Setup a global environemnt and overide as needed
+env:
+  global:
+    - WP_TRAVISCI=travis:phpunit
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
@@ -25,38 +30,47 @@ env:
 
 matrix:
   include:
-   - php: "5.6"
-     env: WP_VERSION=4.5 WP_TRAVISCI=travis:js
-   - php: "5.2"
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   - php: "5.2"
-     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
-   - php: "5.2"
-     env: WP_VERSION=4.5 WP_TRAVISCI=travis:phpunit
-   - php: "5.3"
-     env: WP_VERSION=4.5 WP_TRAVISCI=travis:phpunit
-   - php: "5.4"
-     env: WP_VERSION=4.5 WP_TRAVISCI=travis:phpunit
-   - php: "5.5"
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   - php: "5.5"
-     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
-   - php: "5.5"
-     env: WP_VERSION=4.5 WP_TRAVISCI=travis:phpunit
-     # 5.6 / master already included above as first build.
-   - php: "5.6"
-     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
-   - php: "5.6"
-     env: WP_VERSION=4.5 WP_TRAVISCI=travis:phpunit
-   - php: "7.0"
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   - php: hhvm
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   - php: "nightly"
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+  - php: "5.6"
+    env: WP_VERSION=4.5 WP_TRAVISCI=travis:js
+  - php: "5.2"
+    env: WP_VERSION=master
+  - php: "5.2"
+    env: WP_VERSION=4.4
+  - php: "5.2"
+    env: WP_VERSION=4.5
+  - php: "5.3"
+    env: WP_VERSION=4.5
+  - php: "5.4"
+    env: WP_VERSION=4.5
+  - php: "5.5"
+    env: WP_VERSION=master
+  - php: "5.5"
+    env: WP_VERSION=4.4
+  - php: "5.5"
+    env: WP_VERSION=4.5
+    # 5.6 / master already included above as first build.
+  - php: "5.6"
+    env: WP_VERSION=4.4
+  - php: "5.6"
+    env: WP_VERSION=4.5
+  - php: "7.0"
+    env: WP_VERSION=master
+  - php: hhvm
+    env: WP_VERSION=master
+    sudo: required
+    dist: trusty
+    group: edge
+    addons:
+      apt:
+        packages:
+        - mysql-server-5.6
+        - mysql-client-core-5.6
+        - mysql-client-5.6
+  - php: "nightly"
+    env: WP_VERSION=master
   allow_failures:
-   - php: "hhvm"
-   - php: "nightly"
+  - php: "hhvm"
+  - php: "nightly"
 
 # whitelist branches for the "push" build check.
 branches:
@@ -74,10 +88,10 @@ before_script:
     - mv $PLUGIN_SLUG "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
     - cd /tmp/wordpress
     - git checkout $WP_VERSION
-    - mysql -e "CREATE DATABASE wordpress_tests;" -uroot
+    - mysql -e -u root "CREATE DATABASE wordpress_tests;" -uroot
     - cp wp-tests-config-sample.php wp-tests-config.php
     - sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
-    - sed -i "s/yourusernamehere/travis/" wp-tests-config.php
+    - sed -i "s/yourusernamehere/root/" wp-tests-config.php
     - sed -i "s/yourpasswordhere//" wp-tests-config.php
     - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
     - gem install sass
