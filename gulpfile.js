@@ -293,7 +293,8 @@ gulp.task( 'js:hint', function() {
 		'!modules/**/*.min.js'
 	] )
 		.pipe( jshint( '.jshintrc' ) )
-		.pipe( jshint.reporter('jshint-stylish') );
+		.pipe( jshint.reporter('jshint-stylish') )
+		.pipe( jshint.reporter('fail') );
 } );
 
 /*
