@@ -367,5 +367,4 @@ gulp.task( 'old-styles',   ['frontendcss', 'admincss', 'admincss:rtl', 'old-sass
 gulp.task( 'languages',    ['languages:get', 'languages:build', 'languages:cleanup'] );
 
 // travis CI tasks.
-gulp.task( 'travis:phpunit', ['php:unit'] );
 gulp.task( 'travis:js', ['js:hint', 'js:qunit'] );
