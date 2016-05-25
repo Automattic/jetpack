@@ -30,8 +30,8 @@ const JumpStart = React.createClass( {
 					{ __( 'Jump Start your Website' ) }
 				</h2>
 				<Card className="jp-jumpstart__cta-container">
-					{ this.props.jumpstarting( this.props ) ? <Spinner /> : null }
 					<Card className="jp-jumpstart__cta">
+						{ this.props.jumpstarting( this.props ) ? <Spinner /> : null }
 						<p className="jp-jumpstart__description">
 							{ __( "Quickly enhance your site by activating Jetpack's recommended features." ) }
 						</p>
