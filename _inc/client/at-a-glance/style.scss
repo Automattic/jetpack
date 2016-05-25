@@ -2,6 +2,7 @@
 // For more precise styles, dig into the styles of each component. ie. dash-item
 
 .jp-at-a-glance__stats-card {
+	
 	@include breakpoint( "<480px" ) {
 		padding: 0;
 	}
