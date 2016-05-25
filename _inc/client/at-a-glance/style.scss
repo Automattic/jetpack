@@ -45,6 +45,12 @@
 	}
 }
 
+.jp-at-a-glance__stats-summary-bestday {
+	@include breakpoint( ">660px" ) {
+		margin: 0 rem( 1px );
+	}
+}
+
 .jp-at-a-glance__stats-summary-bestday,
 .jp-at-a-glance__stats-summary-alltime {
 
