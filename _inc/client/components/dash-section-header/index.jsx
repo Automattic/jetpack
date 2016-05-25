@@ -4,7 +4,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import Gridicon from 'components/gridicon';
-import { translate as __ } from 'lib/mixins/i18n';
+import { translate as __ } from 'i18n-calypso';
 
 export default React.createClass( {
 	displayName: 'DashSectionHeader',

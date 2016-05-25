@@ -4,7 +4,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import sample from 'lodash/sample';
-import { translate as __ } from 'lib/mixins/i18n';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies

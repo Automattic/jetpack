@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from'react';
-import { translate as __ } from 'lib/mixins/i18n';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies

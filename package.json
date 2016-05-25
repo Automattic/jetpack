@@ -13,13 +13,12 @@
     "url": "https://github.com/Automattic/jetpack/issues"
   },
   "scripts": {
-    "watch": "npm run init-dependencies && gulp watch",
+    "watch": "gulp watch",
     "clean": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map",
     "distclean": "rm -rf node_modules",
-    "init-dependencies": "node node_modules/wp-calypso/server/config/regenerate-client.js > node_modules/wp-calypso/client/config/index.js",
-    "build-i18n": "./bin/translate.sh",
     "build": "npm install && npm run build-client && npm run build-i18n",
-    "build-client": "npm run init-dependencies && gulp",
+    "build-client": "gulp",
+    "build-languages": "gulp languages",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js"
   },
   "devDependencies": {
@@ -66,6 +65,7 @@
     "jshint-stylish": "~2.1.0",
     "qunitjs": "~1.20.0",
     "sinon-qunit": "~2.0.0",
+    "i18n-calypso": "github:automattic/i18n-calypso",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.9.0",
     "mocha": "^2.4.5",
@@ -87,8 +87,7 @@
     "sinon-chai": "^2.8.0",
     "style-loader": "0.13",
     "webpack": "1.12.9",
-    "webpack-dev-server": "1.14.0",
-    "wp-calypso": "github:automattic/wp-calypso"
+    "webpack-dev-server": "1.14.0"
   },
   "engines": {
     "node": ">=0.8"
