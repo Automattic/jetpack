@@ -7,7 +7,7 @@
 			"test": [ "reducer", "selectors" ]
 		},
 		"jumpstart": {
-			"test": [ "reducer" ]
+			"test": [ "reducer", "selectors" ]
 		},
 		"connection": {
 			"test": [ "reducer", "selectors" ]
