@@ -6,7 +6,7 @@ language: php
 # Setup a global environemnt and overide as needed
 env:
   global:
-    - WP_TRAVISCI=travis:phpunit
+    - WP_TRAVISCI=phpunit
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
@@ -23,7 +23,7 @@ env:
 matrix:
   include:
   - php: "5.6"
-    env: WP_VERSION=4.5 WP_TRAVISCI=travis:js
+    env: WP_VERSION=4.5 WP_TRAVISCI="gulp travis:js"
   - php: "5.2"
     env: WP_VERSION=master
   - php: "5.2"
@@ -94,7 +94,9 @@ before_script:
     - npm install -g gulp-cli
     - npm install
 
-script: gulp $WP_TRAVISCI
+script:
+    - gulp
+    - $WP_TRAVISCI
 
 sudo: false
 
