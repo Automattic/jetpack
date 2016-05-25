@@ -50,7 +50,13 @@ const JumpStart = React.createClass( {
 										{ __( 'Photon' ) }
 									</h4>
 									<p>
-										{ __( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.' ) }
+										{
+											__( 'Mirrors and serves your images from our free and fast image Content Delivery Network (CDN), improving your site’s performance with no additional load on your servers. {{a}}Learn more.{{/a}}', {
+												components: {
+													a: <a href={ 'https://jetpack.com/support/photon/' } target="_blank" />
+												}
+											} )
+										}
 									</p>
 								</div>
 							</div>
@@ -60,7 +66,13 @@ const JumpStart = React.createClass( {
 										{ __( 'Manage' ) }
 									</h4>
 									<p>
-										{ __( 'Helps you remotely manage plugins, turn on automated updates, and more from WordPress.com.' ) }
+										{
+											__( 'Helps you remotely manage plugins, turn on automated updates, and more from WordPress.com. {{a}}Learn more.{{/a}}', {
+												components: {
+													a: <a href={ 'https://jetpack.com/support/site-management/' } target="_blank" />
+												}
+											} )
+										}
 									</p>
 								</div>
 							</div>
@@ -72,7 +84,13 @@ const JumpStart = React.createClass( {
 									{ __( 'Single Sign On' ) }
 									</h4>
 									<p>
-										{ __( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.' ) }
+										{
+											__( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account. {{a}}Learn more.{{/a}}', {
+												components: {
+													a: <a href={ 'https://jetpack.com/support/sso/' } target="_blank" />
+												}
+											} )
+										}
 									</p>
 								</div>
 							</div>
@@ -82,7 +100,13 @@ const JumpStart = React.createClass( {
 									{ __( 'Image Carousel' ) }
 									</h4>
 									<p>
-										{ __( 'Brings your photos and images to life as full-size, easily navigable galleries.' ) }
+										{
+											__( 'Brings your photos and images to life as full-size, easily navigable galleries. {{a}}Learn more.{{/a}}', {
+												components: {
+													a: <a href={ 'https://jetpack.com/support/carousel/' } target="_blank" />
+												}
+											} )
+										}
 									</p>
 								</div>
 							</div>
@@ -94,7 +118,13 @@ const JumpStart = React.createClass( {
 									{ __( 'Related Posts' ) }
 									</h4>
 									<p>
-										{ __( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.' ) }
+										{
+											__( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post. {{a}}Learn more.{{/a}}', {
+												components: {
+													a: <a href={ 'https://jetpack.com/support/related-posts/' } target="_blank" />
+												}
+											} )
+										}
 									</p>
 								</div>
 							</div>

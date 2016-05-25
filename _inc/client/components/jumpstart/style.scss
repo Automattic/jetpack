@@ -100,14 +100,10 @@
 
 .jp-jumpstart__note {
 	margin: 0;
-	padding: rem( 16px ) 0;
+	padding: rem( 16px ) 0 0;
 	font-size: rem( 14px );
 	clear: both;
 	font-style: italic;
-
-	@include breakpoint( "<660px" ) { 
-		padding-bottom: 0;
-	}
 }
 
 .jp-jumpstart__skip-step {
