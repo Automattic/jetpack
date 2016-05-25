@@ -45,12 +45,12 @@
 }
 
 .jp-jumpstart__description {
+	margin-top: 0;
 	padding: 0 rem( 16px ) rem( 16px );
 	font-size: rem( 16px );
 
 	@include breakpoint( "<660px" ) {
 		padding: 0 0 rem( 16px );
-		margin-top: 0;
 	}
 }
 
