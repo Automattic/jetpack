@@ -13,7 +13,14 @@ include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
 $list_table = new Jetpack_Modules_List_Table;
 
 if ( wp_version_too_old() ) {
-	echo 'Update WordPress to unlock Jetpack\'s full potential!';
+	?>
+	<div id="message" class="jetpack-message jetpack-err">
+		<div class="squeezer">
+			<h2><?php esc_html_e( 'You are using an outdated version of WordPress', 'jetpack' ); ?></h2>
+			<p><?php esc_html_e( "Update WordPress to unlock Jetpack's full potential!", 'jetpack' ); ?></p>
+		</div>
+	</div>
+	<?php
 }
 
 if ( maybe_load_old_jetpack_config_page() ) {
