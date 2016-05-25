@@ -3,7 +3,7 @@
 
 	// modding header__label specifically on the connection page.
 	.dops-section-header__label {
-		margin: 1px; // allows box-shadow of parent to display properly.
+		margin: rem( 1px) ; // allows box-shadow of parent to display properly.
 		padding: rem( 16px );
 		font-size: rem( 16px );
 		font-weight: 400;
@@ -77,10 +77,6 @@
 			padding-bottom: rem( 50px );
 		}
 
-		@include breakpoint( ">1040px" ) {
-			background-position: 50% 108%;
-		}
-
 		@include breakpoint( "<960px" ) {
 			border-bottom: 1px lighten( $gray, 30% ) solid;
 			background-image: none;
@@ -118,7 +114,6 @@
 	&:first-of-type {
 
 		@include breakpoint( ">960px" ) { bottom: -15px; }
-		@include breakpoint( ">1040px" ) { bottom: -12px; }
 	}
 	&:last-of-type {
 		z-index: 999;
