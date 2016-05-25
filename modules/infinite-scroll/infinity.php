@@ -331,7 +331,7 @@ class The_Neverending_Home_Page {
 			return;
 
 		// Add the setting field [infinite_scroll] and place it in Settings > Reading
-		add_settings_field( self::$option_name_enabled, '<span id="infinite-scroll-options">' . __( 'To infinity and beyond', 'jetpack' ) . '</span>', array( $this, 'infinite_setting_html' ), 'reading' );
+		add_settings_field( self::$option_name_enabled, '<span id="infinite-scroll-options">' . esc_html__( 'Infinite Scroll Behavior', 'jetpack' ) . '</span>', array( $this, 'infinite_setting_html' ), 'reading' );
 		register_setting( 'reading', self::$option_name_enabled, 'esc_attr' );
 	}
 
@@ -346,7 +346,8 @@ class The_Neverending_Home_Page {
 		if ( self::get_settings()->footer_widgets || 'click' == self::get_settings()->requested_type ) {
 			echo '<label>' . $notice . '</label>';
 		} else {
-			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . __( 'Scroll Infinitely', 'jetpack' ) . '</br><small>' . sprintf( __( '(Shows %s posts on each load)', 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) . '</small>' . '</label>';
+			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
+			echo '<p class="description">' . sprintf( esc_html__( 'Shows %s posts on each load.', 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) . '</p>';
 		}
 	}
 
