@@ -16,7 +16,6 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	rename = require( 'gulp-rename' ),
 	rtlcss = require( 'gulp-rtlcss' ),
 	sass = require( 'gulp-sass' ),
-	shell = require( 'gulp-shell' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	stylish = require( 'jshint-stylish'),
 	util = require( 'gulp-util' ),
@@ -240,13 +239,6 @@ gulp.task( 'old-sass:rtl', function() {
 			console.log( 'Global admin RTL CSS finished.' );
 		} );
 } );
-
-/*
-	Shell commands
- */
-gulp.task( 'shell', shell.task( [
-	'echo hello'
-], { verbose: true } ) );
 
 /*
 	"Check" task
