@@ -40,7 +40,9 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				header={ element[1] }
 				subheader={ element[2] }
 				summary={ toggle }
-				expandedSummary={ toggle } >
+				expandedSummary={ toggle }
+				clickableHeaderText={ true }
+			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ? renderSettings( getModule( element[0] ) ) :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />

@@ -21,18 +21,21 @@ const GeneralSettings = React.createClass( {
 				<FoldableCard
 					header="Jetpack Add-ons"
 					subheader="Manage your Jetpack account and premium add-ons."
+					clickableHeaderText={ true }
 				>
 					<SitePlan />
 				</FoldableCard>
 				<FoldableCard
 					header="Jetpack Connection Settings"
 					subheader="Manage your connected user accounts or disconnect."
+					clickableHeaderText={ true }
 				>
 					<ConnectionSettings { ...this.props } />
 				</FoldableCard>
 				<FoldableCard
 					header="Miscellaneous Settings"
 					subheader="Manage Snow and other fun things for your site."
+					clickableHeaderText={ true }
 				>
 					<Settings />
 				</FoldableCard>

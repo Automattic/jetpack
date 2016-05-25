@@ -49,7 +49,9 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
 					toggling={ isTogglingModule( element[0] ) }
 					toggleModule={ toggleModule } />
-			} >
+			}
+			clickableHeaderText={ true }
+		>
 				{ isModuleActivated( element[0] ) ? renderSettings( getModule( element[0] ) ) :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
