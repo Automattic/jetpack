@@ -87,12 +87,7 @@ before_script:
     - sed -i "s/yourusernamehere/root/" wp-tests-config.php
     - sed -i "s/yourpasswordhere//" wp-tests-config.php
     - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - gem install sass
-    - gem install compass
-    - nvm install 5
-    - npm install -g npm@'3.8.9'
-    - npm install -g gulp-cli
-    - npm install
+    - ./tests/load-travis.sh
 
 script:
     - $WP_TRAVISCI
