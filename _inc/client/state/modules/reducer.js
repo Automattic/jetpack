@@ -45,7 +45,7 @@ export const items = ( state = initialItemsState, action ) => {
 		case JETPACK_MODULE_UPDATE_OPTION_SUCCESS:
 			let module = state[ action.module ];
 			let newOptions = assign( {}, module.options, {
-				[ action.optionName ]: Object.assign( {}, module.options[ action.optionName ], {
+				[ action.optionName ]: assign( {}, module.options[ action.optionName ], {
 					current_value: action.optionValue
 				} )
 			} );
@@ -102,7 +102,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_MODULE_UPDATE_OPTION:
 			return assign( {}, state, {
 				updatingOption: assign( {}, state.updatingOption, {
-					[ action.module ]: Object.assign( {}, get( state.updatingOption, action.module, {} ), {
+					[ action.module ]: assign( {}, get( state.updatingOption, action.module, {} ), {
 						[ action.option_name ]: true
 					} )
 				}
@@ -111,7 +111,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_MODULE_UPDATE_OPTION_SUCCESS:
 			return assign( {}, state, {
 				updatingOption: assign( {}, state.updatingOption, {
-					[ action.module ]: Object.assign( {}, get( state.updatingOption, action.module, {} ), {
+					[ action.module ]: assign( {}, get( state.updatingOption, action.module, {} ), {
 						[ action.option_name ]: false
 					} )
 				}
