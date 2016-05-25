@@ -182,7 +182,7 @@ const DashStats = React.createClass( {
 				>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
-				<Card>
+				<Card className="jp-at-a-glance__stats-card">
 					{ this.renderStatsArea() }
 				</Card>
 			</div>
