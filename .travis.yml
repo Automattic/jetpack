@@ -95,7 +95,6 @@ before_script:
     - npm install
 
 script:
-    - gulp
     - $WP_TRAVISCI
 
 sudo: false
