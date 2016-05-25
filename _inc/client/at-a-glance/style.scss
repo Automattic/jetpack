@@ -38,6 +38,21 @@
 	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
 }
 
+.jp-at-a-glance__stats-summary-today {
+
+	@include breakpoint( "<660px" ) {
+		margin-top: rem( -1px );
+	}
+}
+
+.jp-at-a-glance__stats-summary-bestday,
+.jp-at-a-glance__stats-summary-alltime {
+
+	@include breakpoint( "<660px" ) {
+		margin-top: rem( 1px );
+	}
+}
+
 .jp-at-a-glance__stats-summary-alltime {
 	flex-basis: 50%;
 	padding: rem( 16px );
