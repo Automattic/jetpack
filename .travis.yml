@@ -3,14 +3,6 @@
 # Tell Travis CI we're using PHP
 language: php
 
-# PHP version used in first build configuration.
-php:
-    - "5.6"
-
-# WordPress version used in first build configuration.
-env:
-    - WP_VERSION=master
-
 # Setup a global environemnt and overide as needed
 env:
   global:
