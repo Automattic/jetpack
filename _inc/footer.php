@@ -8,9 +8,9 @@
 			</svg></a>
 	</div>
 	<div class="jp-footer__links">
-		<a href="http://jetpack.com" target="_blank" class="jp-footer__link" title="<?php echo JETPACK__VERSION ?>"><?php echo JETPACK__VERSION ?></a>
-		<a href="http://wordpress.com/tos/" target="_blank" title="WordPress.com Terms of Service" class="jp-footer__link">Terms</a>
-		<a href="http://automattic.com/privacy/" target="_blank" title="Automattic's Privacy Policy" class="jp-footer__link">Privacy</a>
-		<a href="/wp-admin/admin.php?page=jetpack-debugger" title="Test your site’s compatibility with Jetpack." class="jp-footer__link">Debug</a>
+		<a href="https://jetpack.com" target="_blank" class="jp-footer__link" title="<?php echo JETPACK__VERSION ?>"><?php echo JETPACK__VERSION ?></a>
+		<a href="https://wordpress.com/tos/" target="_blank"><?php esc_html_e( 'Terms', 'jetpack' ); ?></a>
+		<a href="https://automattic.com/privacy/" target="_blank"><?php esc_html_e( 'Privacy', 'jetpack' ); ?></a>
+		<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?><a href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack-debugger' ) ); ?>" title="<?php esc_attr_e( 'Test your site&#8217;s compatibility with Jetpack.', 'jetpack' ); ?>"><?php _e( 'Debug', 'jetpack' ); ?><?php endif; ?></a>
 	</div>
 </div>
