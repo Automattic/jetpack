@@ -47,6 +47,8 @@
 	@include breakpoint( ">660px" ) {
 		max-width: 40%; // for IE 10 since it doesn't recognize flex-basis
 		display: flex;
+		flex-grow: 1;
+		flex-shrink: 1;
 	}
 }
 
@@ -70,6 +72,13 @@
 	}
 }
 
+/* .jp-at-a-glance__stats-cta-description,
+.jp-at-a-glance__stats-cta-buttons {
+	@include breakpoint( ">660px" ) {
+		flex-basis: 50%;
+	}
+} */
+
 .jp-at-a-glance__stats-cta-description {
 	padding-right: rem( 16px );
 }
@@ -86,11 +95,19 @@
 
 .jp-at-a-glance__stats-cta-buttons {
 
-	@include breakpoint( ">480px" ) {
+		@media (max-width: rem( 720px ) ) {
+			text-align: right;
+			display: flex;
+			flex-direction: column;
+		}
+
+	/* @include breakpoint( ">660px" ) {
+		max-width: 70%; for IE 10 since it doesn't recognize flex-basis
 		display: flex;
-		flex-shrink: 0;
+		flex-grow: 1;
+		flex-shrink: 1;
 		align-items: center;
-	}
+	} */
 
 	@include breakpoint( "<660px" ) {
 		text-align: center;
@@ -101,8 +118,13 @@
 		}
 	}
 
-	.dops-button:first-of-type {
-		margin-right: rem( 8px );
+	.dops-button {
+		text-align: center;
+		margin: rem( 4px );
+
+		/*&:first-of-type {
+			margin-right: rem( 8px );
+		}*/
 	}
 }
 
