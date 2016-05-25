@@ -64,6 +64,13 @@
 }
 
 .jp-support-card__happiness-engineer {
+
+	@include breakpoint( ">660px" ) {
+		flex-basis: 15%;
+		flex-shrink: 1;
+		flex-grow: 1;
+	}
+
 	@include breakpoint( "<660px" ) {
 		display: none;
 	}
@@ -77,5 +84,10 @@
 }
 
 .jp-support-card__happiness-contact {
-	width: 100%;
+
+	@include breakpoint( ">660px" ) {
+		flex-basis: 85%;
+		flex-shrink: 1;
+		flex-grow: 1;
+	}
 }
