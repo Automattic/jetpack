@@ -65,22 +65,18 @@
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
-		justify-content: space-between;
+		align-items: center;
 	}
 	@include breakpoint( "<660px" ) {
 		display: block;
 	}
 }
 
-/* .jp-at-a-glance__stats-cta-description,
-.jp-at-a-glance__stats-cta-buttons {
-	@include breakpoint( ">660px" ) {
-		flex-basis: 50%;
-	}
-} */
-
 .jp-at-a-glance__stats-cta-description {
-	padding-right: rem( 16px );
+
+	@include breakpoint( ">660px" ) {
+		flex-basis: 30%;
+	}
 }
 
 .jp-at-a-glance__stat-details {
@@ -95,19 +91,10 @@
 
 .jp-at-a-glance__stats-cta-buttons {
 
-		@media (max-width: rem( 720px ) ) {
-			text-align: right;
-			display: flex;
-			flex-direction: column;
-		}
-
-	/* @include breakpoint( ">660px" ) {
-		max-width: 70%; for IE 10 since it doesn't recognize flex-basis
-		display: flex;
-		flex-grow: 1;
-		flex-shrink: 1;
-		align-items: center;
-	} */
+	@include breakpoint( ">660px" ) {
+		text-align: right;
+		flex-basis: 70%;
+	} 
 
 	@include breakpoint( "<660px" ) {
 		text-align: center;
@@ -121,10 +108,6 @@
 	.dops-button {
 		text-align: center;
 		margin: rem( 4px );
-
-		/*&:first-of-type {
-			margin-right: rem( 8px );
-		}*/
 	}
 }
 
