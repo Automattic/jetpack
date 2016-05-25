@@ -10,7 +10,7 @@
 			"test": [ "reducer" ]
 		},
 		"connection": {
-			"test": [ "reducer" ]
+			"test": [ "reducer", "selectors" ]
 		}
 	}
 
