@@ -36,6 +36,7 @@
 
 .jp-jumpstart__cta {
 	margin-bottom: 0;
+	padding-bottom: 0;
 }
 
 .jp-jumpstart__title {
@@ -56,7 +57,38 @@
 .jp-jumpstart__features {
 	margin: 0;
 	padding: rem( 16px );
-	background-color: lighten( $gray, 35% );
+
+	// overriding general FoldableCard styles for special use here
+	&.dops-foldable-card {
+		box-shadow: none;
+	}
+
+	&.dops-foldable-card.is-expanded {
+		margin-bottom: 0;
+	}
+
+	.dops-foldable-card__header,
+	&.dops-foldable-card.is-expanded .dops-foldable-card__header {
+		min-height: auto;
+	}
+
+	.dops-foldable-card__main {
+		max-width: 100%;
+		margin-right: 0;
+	}
+
+	.dops-foldable-card__secondary {
+		display: none;
+	}
+
+	.dops-foldable-card__subheader {
+		color: $blue-wordpress;
+		font-style: italic;
+	}
+
+	.dops-foldable-card__content {
+		background-color: lighten( $gray, 35% );
+	}
 }
 
 .jp-jumpstart__feature-list {

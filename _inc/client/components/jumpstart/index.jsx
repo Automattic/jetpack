@@ -5,6 +5,7 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Card from 'components/card';
+import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Spinner from 'components/spinner';
 import { translate as __ } from 'i18n-calypso';
@@ -29,8 +30,8 @@ const JumpStart = React.createClass( {
 					{ __( 'Jump Start your Website' ) }
 				</h2>
 				<Card className="jp-jumpstart__cta-container">
-					{ this.props.jumpstarting( this.props ) ? <Spinner /> : null }
 					<Card className="jp-jumpstart__cta">
+						{ this.props.jumpstarting( this.props ) ? <Spinner /> : null }
 						<p className="jp-jumpstart__description">
 							{ __( "Quickly enhance your site by activating Jetpack's recommended features." ) }
 						</p>
@@ -38,7 +39,11 @@ const JumpStart = React.createClass( {
 							{ __( 'Activate Recommended Features' ) }
 						</Button>
 					</Card>
-					<Card className="jp-jumpstart__features">
+					<FoldableCard 
+						className="jp-jumpstart__features"
+						clickableHeaderText={ true }
+						subheader="Learn more"
+					>
 						<p className="jp-jumpstart__description">
 							{ __( "Jetpack's recommended features include:" ) }
 						</p>
@@ -133,7 +138,7 @@ const JumpStart = React.createClass( {
 						<p className="jp-jumpstart__note">
 							{ __( 'Features can be activated or deactivated at any time.' ) }
 						</p>
-					</Card>
+					</FoldableCard>
 				</Card>
 				<a
 					onClick={ this.props.jumpStartSkip }
