@@ -307,13 +307,13 @@ class Jetpack_Sync_Full {
 			return array();
 		}
 
-		return $wpdb->get_results( "SELECT * FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . " )", OBJECT );
+		return $wpdb->get_results( "SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . " )", OBJECT );
 	}
 
 	private function get_term_relationships( $ids ) {
 		global $wpdb;
 
-		return $wpdb->get_results( "SELECT * FROM $wpdb->term_relationships WHERE object_id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . " )", OBJECT );
+		return $wpdb->get_results( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE object_id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . " )", OBJECT );
 	}
 
 	// TODO:
