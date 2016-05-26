@@ -42,7 +42,7 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 				$this->markTestSkipped( $constant . ' not defined.');
 			}
 		}
-		
+
 		$this->server_replica_storage->reset();
 		$this->client->do_sync();
 

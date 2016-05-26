@@ -4,7 +4,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	require_once ABSPATH . 'wp-content/mu-plugins/jetpack/sync/class.jetpack-sync-test-object-factory.php';
 } else {
 	// is running in jetpack
-	require_once dirname( __FILE__ ) . '/server/class.jetpack-sync-test-object-factory.php';    
+	require_once dirname( __FILE__ ) . '/server/class.jetpack-sync-test-object-factory.php';
 }
 
 /*
@@ -30,23 +30,23 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		self::$factory = new JetpackSyncTestObjectFactory();
 	}
-	
+
 	function setUp() {
 		parent::setUp();
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			switch_to_blog( self::$token->blog_id );
-		} 
+		}
 
 		// this is a hack so that our setUp method can access the $store instance and call reset()
 		$prop = new ReflectionProperty( 'PHPUnit_Framework_TestCase', 'data' );
 		$prop->setAccessible( true );
 		$test_data = $prop->getValue( $this );
-		
+
 		if ( isset( $test_data[0] ) && $test_data[0] ) {
 			$store = $test_data[0];
-			$store->reset();    
-		}   
+			$store->reset();
+		}
 	}
 
 	function tearDown() {
@@ -72,7 +72,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 				if ( method_exists( $className, 'getInstance' ) ) {
 					$all_replicastores[] = call_user_func( array( $className, 'getInstance' ) );
 				} else {
-					$all_replicastores[] = new $className();  
+					$all_replicastores[] = new $className();
 				}
 			}
 		}
@@ -192,7 +192,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 1, $store->comment_count() );
 
 		$retrieved_comment = $store->get_comment( $comment->comment_ID );
-		
+
 		// insane hack because sometimes MySQL retrurns dates that are off by a second or so. WTF?
 		unset($comment->comment_date);
 		unset($comment->comment_date_gmt);
@@ -439,8 +439,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * Determine if two associative arrays are similar
 	 *
 	 * Both arrays must have the same indexes with identical values
-	 * without respect to key ordering 
-	 * 
+	 * without respect to key ordering
+	 *
 	 * @param array $a
 	 * @param array $b
 	 * @return bool
@@ -510,7 +510,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$store->set_callable( 'is_main_network', 'yes' );
 
-		$this->assertEquals( 'yes', $store->get_callable( 'is_main_network' ) );	
+		$this->assertEquals( 'yes', $store->get_callable( 'is_main_network' ) );
 	}
 
 	/**
@@ -626,7 +626,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 				'term_taxonomy_id' => 22,
 				'taxonomy' => $taxonomy,
 			)
-		); 
+		);
 
 		$this->assertEmpty( $store->get_term( $term_object->taxonomy, $term_object->term_id ) );
 
@@ -653,7 +653,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 				'term_taxonomy_id' => 22,
 				'taxonomy' => $taxonomy,
 			)
-		); 
+		);
 
 		$store->update_term( $term_object );
 
@@ -677,7 +677,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 				'term_taxonomy_id' => 22,
 				'taxonomy' => $taxonomy,
 			)
-		); 
+		);
 
 		$store->update_term( $term_object );
 
@@ -734,7 +734,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 1, $terms[0]->count );
 
 		$store->delete_object_terms( $replica_post->ID, array( 22 ) );
-		
+
 		$this->assertEquals( null, $wpdb->get_row( "SELECT * FROM $wpdb->term_relationships WHERE object_id = 5 ") );
 
 		$terms = get_the_terms( $replica_post->ID, $taxonomy );
@@ -759,9 +759,9 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 			if ( method_exists( $replicastore_class, 'getInstance' ) ) {
 				$instance = call_user_func( array( $replicastore_class, 'getInstance' ) );
 			} else {
-				$instance = new $replicastore_class();  
+				$instance = new $replicastore_class();
 			}
-			
+
 			$return[] = array( $instance );
 		}
 
