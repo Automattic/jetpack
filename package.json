@@ -20,7 +20,7 @@
     "build-i18n": "./bin/translate.sh",
     "build": "npm install && npm run build-client && npm run build-i18n",
     "build-client": "npm run init-dependencies && gulp",
-    "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js"
+    "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client gulp js:mocha"
   },
   "devDependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",

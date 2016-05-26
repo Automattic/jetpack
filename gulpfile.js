@@ -8,6 +8,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
 	jshint = require( 'gulp-jshint' ),
+	Mocha = require( 'mocha' ),
 	path = require( 'path' ),
 	phplint = require( 'gulp-phplint' ),
 	phpunit = require( 'gulp-phpunit' ),
@@ -22,7 +23,8 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
 
-var language_packs = require( './language-packs.js' );
+var test_boot = require( './tests/boot-test.js' ),
+	language_packs = require( './language-packs.js' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -305,6 +307,26 @@ gulp.task( 'js:qunit', function() {
 });
 
 /*
+	JS Mocha
+*/
+
+gulp.task( 'js:mocha', function( callback ) {
+	var mocha = new Mocha( {
+		ui: 'bdd',
+		reporter: 'spec'
+	} );
+
+	mocha.suite.beforeAll( test_boot.before );
+	mocha.suite.afterAll( test_boot.after );
+
+	mocha.addFile( path.join( __dirname, 'tests/load-suite.js' ) );
+
+	mocha.run( function( failures ) {
+		callback( failures );
+	});
+} );
+
+/*
 	I18n land
 */
 
@@ -367,4 +389,4 @@ gulp.task( 'languages',    ['languages:get', 'languages:build', 'languages:clean
 
 // travis CI tasks.
 gulp.task( 'travis:phpunit', ['php:unit'] );
-gulp.task( 'travis:js', ['js:hint', 'js:qunit'] );
+gulp.task( 'travis:js', ['js:hint', 'js:qunit', 'js:mocha' ] );

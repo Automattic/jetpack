@@ -23,7 +23,7 @@ env:
 matrix:
   include:
   - php: "5.6"
-    env: WP_VERSION=4.5 WP_TRAVISCI=travis:js
+    env: WP_VERSION=4.5 WP_TRAVISCI=travis:js NODE_ENV=test NODE_PATH=tests:_inc/client
   - php: "5.2"
     env: WP_VERSION=master
   - php: "5.2"
