@@ -8,14 +8,14 @@
  * This class contains a few non-obvious optimisations that should be explained:
  * - we fire an action called jetpack_full_sync_start so that WPCOM can erase the contents of the cached database
  * - for each object type, we obtain a full list of object IDs to sync via a single API call (hoping that since they're ints, they can all fit in RAM)
- * - we load the full objects for those IDs in chunks of Jetpack_Sync_Full::$array_chunk_size (to reduce the number of MySQL calls)
+ * - we load the full objects for those IDs in chunks of Jetpack_Sync_Full::ARRAY_CHUNK_SIZE (to reduce the number of MySQL calls)
  * - we fire a trigger for the entire array which the Jetpack_Sync_Client then serializes and queues.
  */
 
 require_once 'class.jetpack-sync-wp-replicastore.php';
 
 class Jetpack_Sync_Full {
-	static $array_chunk_size = 5;
+	const ARRAY_CHUNK_SIZE = 10;
 	static $status_transient_name = 'jetpack_full_sync_progress';
 	static $transient_timeout = 3600; // an hour
 	static $modules = array(
@@ -147,7 +147,7 @@ class Jetpack_Sync_Full {
 			// I hope this is never bigger than RAM...
 			$term_ids = $wpdb->get_col( $wpdb->prepare( "SELECT term_id FROM $wpdb->term_taxonomy WHERE taxonomy = %s", $taxonomy ) ); // Should we set a limit here?
 			// Request posts in groups of N for efficiency
-			$chunked_term_ids = array_chunk( $term_ids, self::$array_chunk_size );
+			$chunked_term_ids = array_chunk( $term_ids, self::ARRAY_CHUNK_SIZE );
 
 			$total_chunks  = count( $chunked_term_ids );
 			$chunk_counter = 0;
@@ -171,7 +171,7 @@ class Jetpack_Sync_Full {
 		$post_ids      = $wpdb->get_col( "SELECT id FROM $wpdb->posts WHERE $post_type_sql" ); // Should we set a limit here?
 
 		// Request posts in groups of N for efficiency
-		$chunked_post_ids = array_chunk( $post_ids, self::$array_chunk_size );
+		$chunked_post_ids = array_chunk( $post_ids, self::ARRAY_CHUNK_SIZE );
 
 		$counter = 0;
 		$total   = count( $chunked_post_ids );
@@ -205,7 +205,7 @@ class Jetpack_Sync_Full {
 		global $wpdb;
 
 		$comment_ids         = $wpdb->get_col( "SELECT comment_id FROM $wpdb->comments" ); // Should we set a limit here?
-		$chunked_comment_ids = array_chunk( $comment_ids, self::$array_chunk_size );
+		$chunked_comment_ids = array_chunk( $comment_ids, self::ARRAY_CHUNK_SIZE );
 
 		$counter = 0;
 		$total   = count( $chunked_comment_ids );
@@ -265,7 +265,7 @@ class Jetpack_Sync_Full {
 		$this->set_status( 'users', 0 );
 
 		$user_ids          = get_users( array( 'fields' => 'ID' ) );
-		$chunked_users_ids = array_chunk( $user_ids, self::$array_chunk_size );
+		$chunked_users_ids = array_chunk( $user_ids, self::ARRAY_CHUNK_SIZE );
 
 		$counter = 0;
 		$total   = count( $chunked_users_ids );
