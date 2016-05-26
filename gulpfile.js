@@ -16,7 +16,6 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	rename = require( 'gulp-rename' ),
 	rtlcss = require( 'gulp-rtlcss' ),
 	sass = require( 'gulp-sass' ),
-	shell = require( 'gulp-shell' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	stylish = require( 'jshint-stylish'),
 	util = require( 'gulp-util' ),
@@ -242,13 +241,6 @@ gulp.task( 'old-sass:rtl', function() {
 } );
 
 /*
-	Shell commands
- */
-gulp.task( 'shell', shell.task( [
-	'echo hello'
-], { verbose: true } ) );
-
-/*
 	"Check" task
 	Search for strings and fail if found.
  */
@@ -293,7 +285,8 @@ gulp.task( 'js:hint', function() {
 		'!modules/**/*.min.js'
 	] )
 		.pipe( jshint( '.jshintrc' ) )
-		.pipe( jshint.reporter('jshint-stylish') );
+		.pipe( jshint.reporter('jshint-stylish') )
+		.pipe( jshint.reporter('fail') );
 } );
 
 /*
@@ -366,5 +359,4 @@ gulp.task( 'old-styles',   ['frontendcss', 'admincss', 'admincss:rtl', 'old-sass
 gulp.task( 'languages',    ['languages:get', 'languages:build', 'languages:cleanup'] );
 
 // travis CI tasks.
-gulp.task( 'travis:phpunit', ['php:unit'] );
-gulp.task( 'travis:js', ['js:hint', 'js:qunit'] );
+gulp.task( 'travis:js', ['react:build', 'js:hint', 'js:qunit'] );
