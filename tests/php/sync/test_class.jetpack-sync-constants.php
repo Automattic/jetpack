@@ -39,7 +39,7 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 				$value = constant( $constant );
 				$this->assertEquals( $value, $this->server_replica_storage->get_constant( $constant ) );
 			} catch( Exception $e ) {
-				error_log( "Warning: No such constant: ".$constant );
+				$this->markTestSkipped( $constant . ' not defined.');
 			}
 		}
 		
