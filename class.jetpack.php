@@ -512,35 +512,8 @@ class Jetpack {
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
 
-		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.
-		add_action( 'add_option_site_icon',    array( $this, 'jetpack_sync_core_icon' ) );
-		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
-		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
-		add_action( 'jetpack_heartbeat',       array( $this, 'jetpack_sync_core_icon' ) );
-
 	}
-
-	/*
-	 * Make sure any site icon added to core can get
-	 * synced back to dotcom, so we can display it there.
-	 */
-	function jetpack_sync_core_icon() {
-		if ( function_exists( 'get_site_icon_url' ) ) {
-			$url = get_site_icon_url();
-		} else {
-			return;
-		}
-
-		require_once( JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' );
-		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
-		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
-			// This is the option that is synced with dotcom
-			Jetpack_Options::update_option( 'site_icon_url', $url );
-		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
-			Jetpack_Options::delete_option( 'site_icon_url' );
-		}
-	}
-
+	
 	function jetpack_admin_ajax_tracks_callback() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
