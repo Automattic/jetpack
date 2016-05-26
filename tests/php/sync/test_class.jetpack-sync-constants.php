@@ -31,7 +31,7 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_does_not_fire_if_constants_havent_changed() {
 		$this->client->set_defaults(); // use the default constants
-		
+
 		$this->client->do_sync();
 
 		foreach( Jetpack_Sync_Defaults::$default_constants_whitelist as $constant ) {
@@ -42,7 +42,7 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 				error_log( "Warning: No such constant: ".$constant );
 			}
 		}
-		
+
 		$this->server_replica_storage->reset();
 		$this->client->do_sync();
 
