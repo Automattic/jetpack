@@ -30,7 +30,19 @@ function onBuild( done ) {
 		}
 
 		gutil.log( 'Building JS…', stats.toString( {
-			colors: true
+			colors: true,
+			hash: true,
+			version: false,
+			timings: true,
+			assets: true,
+			chunks: true,
+			chunkModules: false,
+			modules: false,
+			cached: false,
+			reasons: false,
+			source: false,
+			errorDetails: true,
+			children: false
 		} ), "\nJS finished at", Date.now() );
 
 		if ( done ) {
@@ -79,7 +91,11 @@ gulp.task( 'react:build', function( done ) {
 	var config = getWebpackConfig();
 	config.plugins = config.plugins.concat(
 		new webpack.optimize.DedupePlugin(),
-		new webpack.optimize.UglifyJsPlugin()
+		new webpack.optimize.UglifyJsPlugin( {
+			compress: {
+				warnings: false
+			}
+		} )
 	);
 
 	config.devtool = 'source-map';
