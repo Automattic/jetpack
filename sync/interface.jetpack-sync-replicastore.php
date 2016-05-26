@@ -52,7 +52,7 @@ interface iJetpack_Sync_Replicastore {
 	// options
 	public function update_option( $option, $value );
 
-	public function get_option( $option );
+	public function get_option( $option, $default );
 
 	public function delete_option( $option );
 
@@ -113,6 +113,11 @@ interface iJetpack_Sync_Replicastore {
 	public function upsert_user( $user );
 
 	public function delete_user( $user_id );
+
+	// plugins
+	public function get_plugins();
+	public function get_active_plugins();
+	public function upsert_plugins( $plugins );
 
 	// full checksum
 	public function checksum_all();

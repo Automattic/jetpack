@@ -261,8 +261,8 @@ ENDSQL;
 		return update_option( $option, $value );
 	}
 
-	public function get_option( $option ) {
-		return get_option( $option );
+	public function get_option( $option, $default ) {
+		return get_option( $option, $default );
 	}
 
 	public function delete_option( $option ) {
@@ -539,6 +539,19 @@ ENDSQL;
 
 	public function delete_user( $user_id ) {
 		$this->invalid_call();
+	}
+	
+	// plugins
+	public function get_plugins() {
+		// TODO: Implement get_plugins() method.
+	}
+
+	public function get_active_plugins() {
+		// TODO: Implement get_active_plugins() method.
+	}
+
+	public function upsert_plugins( $plugins ) {
+		// TODO: Implement upsert_plugins() method.
 	}
 
 	public function checksum_all() {
