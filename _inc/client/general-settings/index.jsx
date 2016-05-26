@@ -23,7 +23,7 @@ const GeneralSettings = React.createClass( {
 					subheader="Manage your Jetpack account and premium add-ons."
 					clickableHeaderText={ true }
 				>
-					<SitePlan />
+					<SitePlan { ...this.props } />
 				</FoldableCard>
 				<FoldableCard
 					header="Jetpack Connection Settings"
