@@ -103,6 +103,9 @@ class VaultPress_Hotfixes {
 		// Protect WooCommerce from object injection via PayPal IPN notifications. Affects 2.0.20 -> 2.3.10
 		add_action( 'init', array( $this , 'protect_woocommerce_paypal_object_injection' ), 1 );
 
+		// Protect Jetpack from comments-based XSS attack
+		add_action( 'plugins_loaded', array( $this, 'protect_jetpack_402_from_oembed_xss' ), 1 );
+		
 		if ( version_compare(  $wp_version, '3.1', '>=') && version_compare( $wp_version, '4.3', '<=' ) ) {
 			if ( is_admin() ) {
 				add_filter( 'user_email', array( $this, 'patch_user_email' ), 10 , 3 );
@@ -117,7 +120,72 @@ class VaultPress_Hotfixes {
 		// Protect Akismet < 3.1.5 from stored XSS in admin page
 		add_filter( 'init', array( $this, 'protect_akismet_comment_xss' ), 50 );
 	}
-	
+
+	function protect_jetpack_402_from_oembed_xss() {
+		if ( $this->needs_jetpack_402_fix() ) {
+			add_filter( 'jetpack_comments_allow_oembed', array( $this, 'disable_jetpack_oembed' ) );
+		}
+	}
+
+	function needs_jetpack_402_fix() {
+		if ( ! defined( 'JETPACK__VERSION' ) ) {
+			return false;
+		}
+
+		if ( version_compare( JETPACK__VERSION, '2.0.7', '<' ) ) {
+			return true;
+		}
+
+		if ( version_compare( JETPACK__VERSION, '4.0.2', '>' ) ) {
+			return false;
+		}
+
+		$secure_jetpacks = array(
+			'2.1' => '2.1.5',
+			'2.2' => '2.2.8',
+			'2.3' => '2.3.8',
+			'2.4' => '2.4.5',
+			'2.5' => '2.5.3',
+			'2.6' => '2.6.4',
+			'2.7' => '2.7.3',
+			'2.8' => '2.8.3',
+			'2.9' => '2.9.4',
+			'3.0' => '3.0.4',
+			'3.1' => '3.1.3',
+			'3.2' => '3.2.3',
+			'3.3' => '3.3.4',
+			'3.4' => '3.4.4',
+			'3.5' => '3.5.4',
+			'3.6' => '3.6.2',
+			'3.7' => '3.7.3',
+			'3.8' => '3.8.3',
+			'3.9' => '3.9.7',
+			'4.0' => '4.0.3',
+		);
+
+		$parts = explode( '.', JETPACK__VERSION, 3 );
+		if ( count( $parts ) < 2 ) {
+			// no/not enough periods in the version;
+			return false;
+		}
+
+		// pull out the first two components, cast to int to get rid of weird 'beta2' junk
+		$int_parts = array();
+		$int_parts[0] = intval( $parts[0] );
+		$int_parts[1] = intval( $parts[1] );
+
+		// and find the secure version for this branch
+		$branch = sprintf( '%d.%d', $int_parts[0], $int_parts[1] );
+		if ( ! isset( $secure_jetpacks[ $branch ] ) ) {
+			return false;
+		}
+		return version_compare( JETPACK__VERSION, $secure_jetpacks[ $branch ], '<' );
+	}
+
+	function disable_jetpack_oembed( $enabled ) {
+		return false;
+	}
+
 	function filter_long_comment_xss( $commentdata ) {
 		if ( strlen( $commentdata['comment_content'] ) > 65500 )
 			wp_die( 'Comment too long', 'Invalid comment' );
