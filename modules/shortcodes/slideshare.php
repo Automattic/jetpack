@@ -111,5 +111,10 @@ function slideshare_shortcode( $atts ) {
 
 	$player .= ' allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
 
-	return $player;
+	/**
+	 * Filter the returned shortcode.
+	 *
+	 * @param string $player The iframe to return.
+	 */
+	return apply_filters( 'slideshare_shortcode', $player );
 }
