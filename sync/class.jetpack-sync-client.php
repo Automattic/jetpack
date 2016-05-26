@@ -81,7 +81,7 @@ class Jetpack_Sync_Client {
 		add_action( 'trashed_comment', $handler, 10 );
 		add_action( 'spammed_comment', $handler, 10 );
 
-		// even though it's messy, we implement these hooks because 
+		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
 		// so this saves us a DB read for every comment event
 		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
@@ -176,6 +176,10 @@ class Jetpack_Sync_Client {
 	// TODO: Refactor to use one set whitelist function, with one is_whitelisted.
 	function set_options_whitelist( $options ) {
 		$this->options_whitelist = $options;
+	}
+
+	function get_options_whitelist() {
+		return $this->options_whitelist;
 	}
 
 	function set_constants_whitelist( $constants ) {
@@ -318,7 +322,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Fires when the client needs to sync theme support info
 		 * Only sends theme support attributes whitelisted in Jetpack_Sync_Defaults::$default_theme_support_whitelist
-		 * 
+		 *
 		 * @since 4.1.0
 		 *
 		 * @param object the theme support hash
@@ -332,7 +336,7 @@ class Jetpack_Sync_Client {
 
 			/**
 			 * Fires when the client needs to sync WordPress version
-			 * 
+			 *
 			 * @since 4.1.0
 			 *
 			 * @param string The WordPress version number
@@ -350,7 +354,7 @@ class Jetpack_Sync_Client {
 
 		/**
 		 * Fires when the client needs to sync a new term
-		 * 
+		 *
 		 * @since 4.1.0
 		 *
 		 * @param object the Term object
@@ -363,7 +367,7 @@ class Jetpack_Sync_Client {
 
 		/**
 		 * Fires when the client needs to sync an attachment for a post
-		 * 
+		 *
 		 * @since 4.1.0
 		 *
 		 * @param int The attachment ID
@@ -391,7 +395,7 @@ class Jetpack_Sync_Client {
 
 		/**
 		 * Fires when the client needs to sync an updated user
-		 * 
+		 *
 		 * @since 4.1.0
 		 *
 		 * @param object The WP_User object
@@ -404,7 +408,7 @@ class Jetpack_Sync_Client {
 
 		/**
 		 * Fires when the client needs to sync an updated user
-		 * 
+		 *
 		 * @since 4.1.0
 		 *
 		 * @param object The WP_User object
@@ -417,7 +421,7 @@ class Jetpack_Sync_Client {
 		if ( $meta_key === $user->cap_key ) {
 			/**
 			 * Fires when the client needs to sync an updated user
-			 * 
+			 *
 			 * @since 4.1.0
 			 *
 			 * @param object The WP_User object
@@ -480,7 +484,7 @@ class Jetpack_Sync_Client {
 			 * Modify the data within an action before it is serialized and sent to the server
 			 * For example, during full sync this expands Post ID's into full Post objects,
 			 * so that we don't have to serialize the whole object into the queue.
-			 * 
+			 *
 			 * @since 4.1.0
 			 *
 			 * @param array The action parameters
@@ -761,7 +765,10 @@ class Jetpack_Sync_Client {
 		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
 		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist       = Jetpack_Sync_Defaults::$default_constants_whitelist;
-		$this->options_whitelist         = Jetpack_Sync_Defaults::$default_options_whitelist;
+		/**
+		 * This filter is already documented class.wpcom-json-api-get-option-endpoint.php
+		 */
+		$this->options_whitelist         = apply_filters( 'jetpack_options_whitelist', Jetpack_Sync_Defaults::$default_options_whitelist );
 		$this->network_options_whitelist = Jetpack_Sync_Defaults::$default_network_options_whitelist;
 		$this->taxonomy_whitelist        = Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
 		$this->is_multisite              = is_multisite();
