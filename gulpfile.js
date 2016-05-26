@@ -42,7 +42,8 @@ function onBuild( done ) {
 			cached: false,
 			reasons: false,
 			source: false,
-			errorDetails: true
+			errorDetails: true,
+			children: false
 		} ), "\nJS finished at", Date.now() );
 
 		if ( done ) {
