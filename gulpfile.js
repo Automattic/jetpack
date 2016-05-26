@@ -76,16 +76,16 @@ gulp.task( 'sass:watch', function() {
 } );
 
 gulp.task( 'react:build', function( done ) {
-//	process.env.NODE_ENV = 'production';
+	process.env.NODE_ENV = 'production';
 
 	var config = getWebpackConfig();
-/*	config.plugins = config.plugins.concat(
+	config.plugins = config.plugins.concat(
 		new webpack.optimize.DedupePlugin(),
 		new webpack.optimize.UglifyJsPlugin()
 	);
 
 	config.devtool = 'source-map';
-	config.debug = false;*/
+	config.debug = false;
 
 	webpack( config ).run( onBuild( done ) );
 } );
