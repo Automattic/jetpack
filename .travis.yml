@@ -22,6 +22,19 @@ env:
 
 matrix:
   include:
+  - php: hhvm
+    env: WP_VERSION=master
+    sudo: required
+    dist: trusty
+    group: edge
+    addons:
+      apt:
+        packages:
+        - mysql-server-5.6
+        - mysql-client-core-5.6
+        - mysql-client-5.6
+  - php: "nightly"
+    env: WP_VERSION=master
   - php: "5.6"
     env: WP_VERSION=4.5 WP_TRAVISCI="gulp travis:js"
   - php: "5.6"
@@ -49,19 +62,6 @@ matrix:
   - php: "5.6"
     env: WP_VERSION=4.5
   - php: "7.0"
-    env: WP_VERSION=master
-  - php: hhvm
-    env: WP_VERSION=master
-    sudo: required
-    dist: trusty
-    group: edge
-    addons:
-      apt:
-        packages:
-        - mysql-server-5.6
-        - mysql-client-core-5.6
-        - mysql-client-5.6
-  - php: "nightly"
     env: WP_VERSION=master
   allow_failures:
   - php: "hhvm"
