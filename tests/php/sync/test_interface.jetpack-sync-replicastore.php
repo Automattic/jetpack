@@ -441,7 +441,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$store->upsert_post( self::$factory->post( 1 ) );
 		$store->upsert_metadata( 'post', 1, 'colors', $meta_array, 3 );
 
-		$this->assertTrue( $this->arrays_are_similar( $meta_array, $store->get_metadata( 'post', 1, 'colors' )[0] ) );
+		$colors = $store->get_metadata( 'post', 1, 'colors' );
+		$this->assertTrue( $this->arrays_are_similar( $meta_array, $colors[0] ) );
 	}
 
 	/**
