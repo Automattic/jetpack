@@ -31,7 +31,18 @@ function onBuild( done ) {
 		}
 
 		gutil.log( 'Building JS…', stats.toString( {
-			colors: true
+			colors: true,
+			hash: true,
+			version: false,
+			timings: true,
+			assets: true,
+			chunks: true,
+			chunkModules: false,
+			modules: false,
+			cached: false,
+			reasons: false,
+			source: false,
+			errorDetails: true
 		} ), "\nJS finished at", Date.now() );
 
 		if ( done ) {
