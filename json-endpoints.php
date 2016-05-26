@@ -2534,6 +2534,9 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'jetpack_portfolio_posts_per_page' => '(int) Number of portfolio projects to show per page',
 		'seo_meta_description' 		   => '(string) The seo meta description for the site.',
 		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
+		'markdown_supported'            => '(bool) Whether markdown is supported for this site',
+		'wpcom_publish_posts_with_markdown' => '(bool) Whether markdown is enabled for posts',
+		'wpcom_publish_comments_with_markdown' => '(bool) Whether markdown is enabled for comments',
 	),
 
 	'response_format' => array(
