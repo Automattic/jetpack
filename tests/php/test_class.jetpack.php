@@ -169,6 +169,10 @@ EXPECTED;
 
 		add_filter( 'jetpack_implode_frontend_css', '__return_true' );
 
+		if ( ! file_exists( plugins_url( 'jetpack-carousel.css', __FILE__ ) ) ) {
+			$this->markTestSkipped( 'Required CSS file not found.' );
+		}
+
 		// Enqueue some script on the $to_dequeue list
 		$style_handle = 'jetpack-carousel';
 		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) );
