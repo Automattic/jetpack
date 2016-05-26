@@ -7,6 +7,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	spawn = require('child_process').spawn,
 	gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
+	glotpress = require( 'glotpress-js' ),
 	jshint = require( 'gulp-jshint' ),
 	path = require( 'path' ),
 	phplint = require( 'gulp-phplint' ),
@@ -364,6 +365,16 @@ gulp.task( 'languages:cleanup', [ 'languages:build' ], function () {
 	);
 } );
 
+gulp.task( 'languages:extract', [ 'react:build' ], function( callback ) {
+	glotpress( {
+		inputPaths: [ '_inc/build/admin.js' ],
+		output: '_inc/jetpack-strings.php',
+		format: 'php'
+	} );
+
+	callback();
+} );
+
 // Default task
 gulp.task( 'default', ['react:build', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint'] );
 gulp.task( 'watch',   ['react:watch', 'sass:watch', 'old-styles:watch'] );
@@ -372,7 +383,7 @@ gulp.task( 'jshint',       ['js:hint'] );
 gulp.task( 'php',          ['php:lint', 'php:unit'] );
 gulp.task( 'checkstrings', ['check:DIR'] );
 gulp.task( 'old-styles',   ['frontendcss', 'admincss', 'admincss:rtl', 'old-sass', 'old-sass:rtl'] );
-gulp.task( 'languages',    ['languages:get', 'languages:build', 'languages:cleanup'] );
+gulp.task( 'languages',    ['languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ] );
 
 // travis CI tasks.
 gulp.task( 'travis:js', ['react:build', 'js:hint', 'js:qunit'] );

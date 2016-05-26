@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import { ModuleToggle } from 'components/module-toggle';
-import { translate as __ } from 'lib/mixins/i18n';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies

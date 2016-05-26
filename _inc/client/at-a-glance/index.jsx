@@ -18,7 +18,7 @@ import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
 import DashSiteVerify from './site-verification';
 import FeedbackDashRequest from 'components/jetpack-notices/feedback-dash-request';
-import { translate as __ } from 'lib/mixins/i18n';
+import { translate as __ } from 'i18n-calypso';
 
 export default ( props ) =>
 	<div>

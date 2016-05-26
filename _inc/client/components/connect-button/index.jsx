@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
-import { translate as __ } from 'lib/mixins/i18n';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies

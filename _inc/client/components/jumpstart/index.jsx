@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import Card from 'components/card';
 import Button from 'components/button';
 import Spinner from 'components/spinner';
-import { translate as __ } from 'lib/mixins/i18n';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies

@@ -8,7 +8,7 @@ import Chart from 'components/chart';
 import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
 import Button from 'components/button';
-import { numberFormat, moment, translate as __ } from 'lib/mixins/i18n';
+import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
