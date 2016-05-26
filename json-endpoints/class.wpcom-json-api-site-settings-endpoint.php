@@ -190,6 +190,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_testimonial_posts_per_page' => (int) get_option( 'jetpack_testimonial_posts_per_page', '10' ),
 					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
 					'jetpack_portfolio_posts_per_page' => (int) get_option( 'jetpack_portfolio_posts_per_page', '10' ),
+					'markdown_supported'      => true,
+					'wpcom_publish_posts_with_markdown' => (bool) WPCom_Markdown::is_posting_enabled(),
+					'wpcom_publish_comments_with_markdown' => (bool) WPCom_Markdown::is_commenting_enabled(),
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -399,7 +402,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$value = '';
 					}
 
-					// Always set timezone_string either with the given value or with an 
+					// Always set timezone_string either with the given value or with an
 					// empty string
 					if ( update_option( $key, $value ) ) {
 						$updated[ $key ] = $value;
@@ -420,6 +423,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'verification_services_codes':
 					$verification_codes = jetpack_verification_validate( $value );
 					update_option( 'verification_services_codes', $verification_codes );
+					break;
+
+				case 'wpcom_publish_posts_with_markdown':
+				case 'wpcom_publish_comments_with_markdown':
+					$coerce_value = (bool) $value;
+					if ( update_option( $key, $coerce_value ) ) {
+						$updated[ $key ] = $coerce_value;
+					}
 					break;
 
 				default:
