@@ -7,16 +7,163 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import {
-	FormFieldset,
-	FormLegend,
-	FormButton
-} from 'components/forms';
+import { FormFieldset, FormLegend, FormTextarea, FormLabel, FormButton} from 'components/forms';
 import {
 	ModuleOptionEnum,
 	ModuleOptionBoolean,
 	ModuleOptionTextInput
 } from 'components/module-options';
+
+export const EngagementModulesSettings = React.createClass( {
+	render() {
+		let { module } = this.props;
+
+		switch ( module.module ) {
+			// case 'stats':
+				// return( <StatsSettings module={ module } { ...this.props } /> );
+			case 'related-posts':
+				return ( <RelatedPostsSettings module={ module } { ...this.props } /> );
+			case 'subscriptions':
+				return ( <SubscriptionsSettings module={ module } { ...this.props } /> );
+			case 'likes':
+			case 'notifications':
+			case 'enhanced-distribution':
+				return <span>{ __( 'This module has no configuration options' ) } </span>;
+			case 'sharedaddy':
+			case 'verification-tools':
+			case 'publicize':
+			default:
+				return (
+					<div>
+						<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
+					</div>
+				);
+		}
+	}
+} );
+
+export const SharingSettings = React.createClass( {
+	render() {
+		return (
+			<FormFieldset>
+				<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Subscriber' ) } />
+			</FormFieldset>
+		)
+	}
+} );
+
+export const RelatedPostsSettings = React.createClass( {
+	render() {
+		return (
+			<FormFieldset>
+				<ModuleOptionBoolean option_name={ 'show_headline' } { ...this.props } label={ __( 'Show a "Related" header to more clearly separate the related section from posts' ) } />
+				<ModuleOptionBoolean option_name={ 'show_thumbnails' } { ...this.props } label={ __( 'Use a large and visually striking layout' ) } />
+			</FormFieldset>
+		)
+	}
+} );
+
+export const SubscriptionsSettings = React.createClass( {
+	render() {
+		return (
+			<FormFieldset>
+				<ModuleOptionBoolean option_name={ "stb_enabled" } { ...this.props } label={ __( 'Show a "follow blog" options in the comment form' ) } />
+				<ModuleOptionBoolean option_name={ 'stc_enabled' } { ...this.props } label={ __( 'Show a "follow comments" option in the comment form.' ) } />
+			</FormFieldset>
+		)
+	}
+} );
+
+export const StatsSettings = React.createClass( {
+	render() {
+		return (
+			<div>
+				<FormFieldset>
+					<FormLegend>{ __( 'Admin Bar' ) }</FormLegend>
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Put a chart showing 48 hours of views in the admin bar' ) } />
+				</FormFieldset>
+				<FormFieldset>
+					<FormLegend>{ __( 'Registered Users' ) }</FormLegend>
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Administrator' ) } />
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Editor' ) } />
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Author' ) } />
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Contributor' ) } />
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Subscriber' ) } />
+				</FormFieldset>
+				<FormFieldset>
+					<FormLegend>{ __( 'Smiley' ) }</FormLegend>
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Hide the stats smiley face image' ) } />
+				</FormFieldset>
+				<FormFieldset>
+					<FormLegend>{ __( 'Report Visibility' ) }</FormLegend>
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Administrator' ) } />
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Editor' ) } />
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Author' ) } />
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Contributor' ) } />
+					<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Subscriber' ) } />
+				</FormFieldset>
+			</div>
+		);
+	}
+} );
+
+export const SecurityModulesSettings = React.createClass( {
+	render() {
+		let { module } = this.props;
+		switch ( module.module ) {
+			case 'protect':
+				return( <ProtectSettings module={ module } { ...this.props } /> );
+			case 'monitor':
+				return ( <MonitorSettings module={ module } { ...this.props } /> );
+			case 'scan':
+				return ( <div>You can see the information about security scanning in the "At a Glance" section.</div> );
+			case 'sso':
+				return ( <SingleSignOnSettings module={ module } { ...this.props } /> );
+			default:
+				return (
+					<div>
+						<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
+					</div>
+				);
+		}
+	}
+} );
+
+export const ProtectSettings = React.createClass( {
+	render() {
+		return (
+			<FormFieldset>
+				<FormLegend>{ __( 'Whitelist Management' ) }</FormLegend>
+				<FormLabel>
+					<span>{ __( 'IP addresses/ranges list' ) }</span>
+					<FormTextarea></FormTextarea>
+				</FormLabel>
+			</FormFieldset>
+		)
+	}
+} );
+
+export const MonitorSettings = React.createClass( {
+	render() {
+		return (
+			<FormFieldset>
+				<ModuleOptionBoolean option_name={ 'monitor_receive_notifications' } { ...this.props } label={ __( 'Receive Monitor Email Notifications' ) } />
+				<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Emails will be sent to admin address' ) } />
+			</FormFieldset>
+		)
+	}
+} );
+
+export const SingleSignOnSettings = React.createClass( {
+	render() {
+		return (
+			<FormFieldset>
+				<ModuleOptionBoolean option_name={ 'jetpack_sso_require_two_step' } { ...this.props } label={ __( 'Require Two-Step Authentication' ) } />
+				<ModuleOptionBoolean option_name={ 'jetpack_sso_match_by_email' } { ...this.props } label={ __( 'Match By Email' ) } />
+			</FormFieldset>
+		)
+	}
+} );
 
 export const MoreModulesSettings = React.createClass( {
 	render() {

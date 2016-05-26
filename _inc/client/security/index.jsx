@@ -17,7 +17,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
-import { SecurityModulesSettings } from './modules-settings';
+import { SecurityModulesSettings } from 'components/module-options/moduleoptions';
 
 export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
 	var cards = [

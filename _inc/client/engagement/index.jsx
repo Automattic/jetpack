@@ -18,7 +18,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
-import { EngagementModulesSettings } from './modules-settings';
+import { EngagementModulesSettings } from 'components/module-options/moduleoptions';
 
 export const Page = ( props ) => {
 	let { toggleModule,
