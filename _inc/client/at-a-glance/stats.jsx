@@ -39,20 +39,24 @@ const DashStats = React.createClass( {
 		let s = [];
 		forEach( window.Initial_State.statsData[unit].data, function( v ) {
 			let date = v[0];
-			let formattedDate = '';
+			let chartLabel = '';
+			let tooltipLabel = '';
 			let views = v[1];
 
 			if ( 'day' === unit ) {
-				formattedDate = moment( date ).format( 'MMM D' );
+				chartLabel = moment( date ).format( 'MMM D' );
+				tooltipLabel = moment( date ).format( 'MMMM Do' );
 			} else if ( 'week' === unit ) {
 				date = date.replace( /W/g, '-' );
-				formattedDate = __( 'Week of %(date)s', { args: { date: moment( date ).format( 'MMM D' ) } } );
+				chartLabel = moment( date ).format( 'MMM D' );
+				tooltipLabel = __( 'Week of %(date)s', { args: { date: moment( date ).format( 'MMMM Do' ) } } );
 			} else if ( 'month' ) {
-				formattedDate = moment( date ).format( 'MMMM' );
+				chartLabel = moment( date ).format( 'MMM' );
+				tooltipLabel = moment( date ).format( 'MMMM, YYYY' );
 			}
 
 			s.push( {
-				label: formattedDate,
+				label: chartLabel,
 				value: numberFormat( views ),
 				nestedValue: null,
 				className: 'statsChartbar',
@@ -60,7 +64,7 @@ const DashStats = React.createClass( {
 					link: `https://wordpress.com/stats/${ unit }/${ window.Initial_State.rawUrl }?startDate=${ date }`
 				},
 				tooltipData: [ {
-					label: formattedDate,
+					label: tooltipLabel,
 					value: __( 'Views: %(numberOfViews)s', { args: { numberOfViews: numberFormat( views ) } } ),
 					className: 'tooltip class'
 				}, { label: __( 'Click to view detailed stats.' ) } ]
