@@ -59,7 +59,10 @@ export const DevVersionNotice = React.createClass( {
 			);
 
 			return (
-				<SimpleNotice showDismiss={ false }>
+				<SimpleNotice 
+					showDismiss={ false }
+					status="is-basic"
+				>
 					{ text }
 				</SimpleNotice>
 			);
@@ -84,7 +87,10 @@ export const StagingSiteNotice = React.createClass( {
 			);
 
 			return (
-				<SimpleNotice showDismiss={ false }>
+				<SimpleNotice 
+					showDismiss={ false }
+					status="is-basic"
+				>
 					{ text }
 				</SimpleNotice>
 			);
@@ -121,7 +127,10 @@ export const DevModeNotice = React.createClass( {
 			);
 
 			return (
-				<SimpleNotice showDismiss={ false }>
+				<SimpleNotice 
+					showDismiss={ false }
+					status="is-basic"
+				>
 					{ text }
 				</SimpleNotice>
 			);
@@ -154,7 +163,7 @@ export const ActionNotices = React.createClass( {
 				<div>
 					<SimpleNotice>
 						{ __( 'You have successfully disconnected Jetpack' ) }
-						<br/>
+						<br />
 						{
 							__(	'Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack.',
 								{
