@@ -110,11 +110,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event();
 
-		error_log(print_r($event, 1));
-
 		$synced_comment = $event->args[1];
-
-		error_log(print_r($synced_comment, 1));
 
 		$this->assertObjectHasAttribute( 'meta', $synced_comment );
 
