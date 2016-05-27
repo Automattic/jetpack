@@ -592,7 +592,7 @@ class Jetpack_Sync_Client {
 		// add meta-property with Highlander Comment meta, which we 
 		// we need to process synchronously on .com
 		$hc_post_as = get_comment_meta( $comment->comment_ID, 'hc_post_as', true );
-		if ( $hc_post_as === 'wordpress' ) {
+		if ( 'wordpress' === $hc_post_as ) {
 			$meta = array();
 			$meta['hc_post_as']         = $hc_post_as;
 			$meta['hc_wpcom_id_sig']    = get_comment_meta( $comment->comment_ID, 'hc_wpcom_id_sig', true );
