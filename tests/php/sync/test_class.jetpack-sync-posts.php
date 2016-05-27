@@ -317,6 +317,32 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( $post->shortlink, wp_get_shortlink( $this->post->ID ) );
 	}
 
+	function test_sync_post_includes_legacy_author_info() {
+		// hopefully we can drop this once users are syncing properly
+		$author_id = $this->factory->user->create( array( 'user_email' => 'foo@bar.com', 'display_name' => 'Henry Rollins' ) );
+		$post_id = $this->factory->post->create( array( 'post_author' => $author_id ) );
+
+		$this->client->do_sync();
+
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+		$post_extra = $post_on_server->extra;
+
+		$this->assertEquals( 'foo@bar.com', $post_extra['author_email'] );
+		$this->assertEquals( 'Henry Rollins', $post_extra['author_display_name'] );
+	}
+
+	function test_sync_post_includes_dont_email_post_to_subs() {
+		$post_id = $this->factory->post->create();
+		add_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true );
+
+		$this->client->do_sync();
+
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+		$post_extra = $post_on_server->extra;
+
+		$this->assertEquals( true, $post_extra['dont_email_post_to_subs'] );
+	}
+
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment = get_post( $attachment_id );
