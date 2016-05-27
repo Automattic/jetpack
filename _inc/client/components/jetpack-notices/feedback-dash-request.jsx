@@ -25,6 +25,7 @@ const FeedbackDashRequest = React.createClass( {
 		return (
 			<div>
 				<SimpleNotice
+					className="jp-dash-item__feedback-request"
 					status="is-basic"
 					onClick={ this.props.dismissNotice }
 				>
