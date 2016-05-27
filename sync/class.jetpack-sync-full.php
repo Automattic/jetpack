@@ -225,6 +225,7 @@ class Jetpack_Sync_Full {
 			'include_unapproved' => true,
 			'comment__in'        => $comment_ids,
 		) );
+		$comments = array_map( array( $this->get_client(), 'filter_comment_and_add_hc_meta' ), $comments );
 
 		return array(
 			'comments'      => $comments,

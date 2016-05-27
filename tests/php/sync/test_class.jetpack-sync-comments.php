@@ -111,9 +111,10 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event();
 
 		$synced_comment = $event->args[1];
-
 		$this->assertObjectHasAttribute( 'meta', $synced_comment );
-
+		$this->assertEquals( 'wordpress', $synced_comment->meta['hc_post_as'] );
+		$this->assertEquals( 'abcd1234', $synced_comment->meta['hc_wpcom_id_sig'] );
+		$this->assertEquals( 55, $synced_comment->meta['hc_foreign_user_id'] );
 		
 	}
 
