@@ -564,11 +564,12 @@ class Jetpack_Sync_Client {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 		/** This filter is already documented in core. wp-includes/post-template.php */
-		$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
-		$post->permalink             = get_permalink( $post->ID );
-		$post->shortlink             = wp_get_shortlink( $post->ID );
-		$post->author_email          = get_the_author_meta( 'email', $post->post_author );
-		$post->author_display_name   = get_the_author_meta( 'display_name', $post->post_author );
+		$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
+		$post->permalink               = get_permalink( $post->ID );
+		$post->shortlink               = wp_get_shortlink( $post->ID );
+		$post->author_email            = get_the_author_meta( 'email', $post->post_author );
+		$post->author_display_name     = get_the_author_meta( 'display_name', $post->post_author );
+		$post->dont_email_post_to_subs = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
 
 		return $post;
 	}
