@@ -298,6 +298,13 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
+		// if we add any items to the queue, we should 
+		// try to ensure that our script can't be killed before
+		// they are sent
+		if ( function_exists( 'ignore_user_abort' ) ) {
+			ignore_user_abort( true );
+		}
+
 		$this->sync_queue->add( array(
 			$current_filter,
 			$args,
