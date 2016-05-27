@@ -60,11 +60,33 @@ class Jetpack_VideoPress {
 		}
 
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
+		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
+	}
+
+	/**
+	 * Adds additional methods the WordPress xmlrpc API for handling VideoPress specific features
+	 *
+	 * @param array $methods
+	 * @return array
+	 **/
+	public function xmlrpc_methods( $methods ) {
+		$methods['jetpack.createMediaItem'] = array( $this, 'xmlrpc_create_media_item' );
+		return $methods;
+	}
+
+	public function xmlrpc_create_media_item() {
+		$media_id = wp_insert_post( array(
+			'post_type'   => 'attachment',
+			'post_status' => 'draft',
+		) );
+
+		return array( 'media_id' => $media_id );
 	}
 
 	function wp_ajax_videopress_get_upload_token() {
-		if ( ! $this->can( 'upload_videos' ) )
+		if ( ! $this->can( 'upload_videos' ) ) {
 			return wp_send_json_error();
+		}
 
 		$options = $this->get_options();
 
@@ -72,18 +94,18 @@ class Jetpack_VideoPress {
 			'method'  => 'POST',
 		);
 
-		$endpoint = "sites/{$options['blog_id']}/media/token";
+		$endpoint = "sites/{$options['id']}/media/token";
 		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args );
 
-		$response = $result['body'];
-
-		if ( is_wp_error( $response ) )
+		if ( is_wp_error( $result ) ) {
 			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+		}
 
-		$response = json_decode( $response, true );
+		$response = json_decode( $result['body'], true );
 
-		if ( empty( $response['upload_blog_id'] ) || empty( $response['upload_token'] ) )
+		if ( empty( $response['upload_blog_id'] ) || empty( $response['upload_token'] ) ) {
 			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+		}
 
 		$response['upload_action_url'] = self::make_media_upload_path( $response['upload_blog_id'] );
 
@@ -100,7 +122,7 @@ class Jetpack_VideoPress {
 		return sprintf(
 			'%s://%s/rest/v%s/sites/%s/media/new',
 			'https',
-			JETPACK__WPCOM_JSON_API_HOST,
+			'public-api.wordpress.com', //JETPACK__WPCOM_JSON_API_HOST,
 			Jetpack_Client::WPCOM_JSON_API_VERSION,
 			$blog_id
 		);
@@ -139,6 +161,8 @@ class Jetpack_VideoPress {
 		}
 
 		$options = array_merge( $defaults, $options );
+		$options['id'] = Jetpack_Options::get_option( 'id' );
+
 		return $options;
 	}
 
