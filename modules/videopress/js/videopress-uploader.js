@@ -183,13 +183,14 @@ window.wp = window.wp || {};
 		 */
 		plupload.addFileFilter( 'videopress_check_uploads', function( check, file, cb ) {
 			var mimeParts = file.type.split('/');
+			var self = this;
 
 			if ( mimeParts[0] === 'video' ) {
 				media.ajax( 'videopress-get-upload-token', { async: false } ).done( function ( response ) {
 					file.videopress = response;
 
 				}).fail( function ( response ) {
-					this.trigger( 'Error', {
+					self.trigger( 'Error', {
 						code : plupload.VIDEOPRESS_TOKEN_FAILURE,
 						message : plupload.translate( 'Could not get the videopress token needed for uploading' ),
 						file : file,
