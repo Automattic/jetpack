@@ -317,6 +317,18 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( $post->shortlink, wp_get_shortlink( $this->post->ID ) );
 	}
 
+	function test_sync_post_includes_legacy_author_info() {
+		// hopefully we can drop this once users are syncing properly
+		$author_id = $this->factory->user->create( array( 'user_email' => 'foo@bar.com' ) );
+		$post_id = $this->factory->post->create( array( 'post_author' => $author_id ) );
+
+		$this->client->do_sync();
+
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+		$this->assertObjectHasAttribute( 'author_email', $post_on_server );
+		$this->assertEquals( 'foo@bar.com', $post_on_server->author_email );
+	}
+
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment = get_post( $attachment_id );
