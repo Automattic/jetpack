@@ -24,6 +24,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return get_theme_support( $feature_name );
 	}
 
+	protected function get_updates() {
+		return (array) Jetpack::get_updates();
+	}
+
 	function has_videopress() {
 		// TODO - this only works on wporg site - need to detect videopress option for remote Jetpack site on WPCOM
 		$videopress = Jetpack_Options::get_option( 'videopress', array() );
