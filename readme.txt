@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chaselivingston, chellycat, christinepollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, HypertextRanch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, michael-arestad, migueluy, mikeyarce, mjangda, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 4.0
+Stable tag: 4.0.3
 Requires at least: 4.4
 Tested up to: 4.5
 
@@ -73,7 +73,16 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 4. Publicize.
 5. Related Posts.
 
+== Upgrade Notice ==
+= 4.0.3 =
+Jetpack 4.0.3 fixes a critical security issue. Please upgrade immediately.
+
 == Changelog ==
+= 4.0.3 =
+Release date: May 26th, 2016
+
+* Important security update. Please upgrade immediately.
+
 = 4.0.2 =
 Release date: April 21st, 2016
 
