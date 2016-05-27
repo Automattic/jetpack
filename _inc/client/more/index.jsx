@@ -47,7 +47,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 
 		[ 'json-api', getModule( 'json-api' ).name, getModule( 'json-api' ).description, getModule( 'json-api' ).learn_more_button ],
 		[ 'omnisearch', getModule( 'omnisearch' ).name, getModule( 'omnisearch' ).description, getModule( 'omnisearch' ).learn_more_button ]
-	].map( ( element ) => {
+	].map( ( element, i ) => {
 		var toggle = (
 			<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
 				toggling={ isTogglingModule( element[0] ) }
@@ -55,15 +55,17 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 		);
 
 		if ( 1 === element.length ) {
-			return ( <h1>{ element[0] }</h1> );
+			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
 		}
 
 		return (
-			<FoldableCard
+			<FoldableCard key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 				header={ element[1] }
 				subheader={ element[2] }
 				summary={ toggle }
-				expandedSummary={ toggle } >
+				expandedSummary={ toggle }
+				clickableHeaderText={ true }
+			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ? renderSettings( getModule( element[0] ) ) :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />

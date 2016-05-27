@@ -4,6 +4,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import Gridicon from 'components/gridicon';
+import { translate as __ } from 'i18n-calypso';
 
 export default React.createClass( {
 	displayName: 'DashSectionHeader',
@@ -37,7 +38,9 @@ export default React.createClass( {
 		if ( this.props.settingsPath ) {
 			settingsIcon = (
 				<a className="jp-dash-section-header__settings" href={ this.props.settingsPath }>
-					<span className="screen-reader-text">Settings</span>
+					<span className="screen-reader-text">
+						{ __( 'Settings', { context: 'Noun. Displayed to screen readers.' } ) }
+					</span>
 					<Gridicon icon="cog" size={ 16 } />
 				</a>
 			);
@@ -56,7 +59,7 @@ export default React.createClass( {
 		if ( this.props.children ) {
 			children = (
 				<div className="jp-dash-section-header__children" >
-						{ this.props.children }
+					{ this.props.children }
 				</div>
 			);
 		}

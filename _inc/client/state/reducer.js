@@ -13,6 +13,8 @@ import { reducer as modules } from 'state/modules';
 import { reducer as connection } from 'state/connection';
 import { reducer as jumpstart } from 'state/jumpstart';
 import { reducer as settings } from 'state/settings';
+import { reducer as siteData } from 'state/site';
+import { reducer as jetpackNotices } from 'state/jetpack-notices';
 
 const jetpackReducer = combineReducers( {
 	initialState,
@@ -20,7 +22,9 @@ const jetpackReducer = combineReducers( {
 	modules,
 	connection,
 	jumpstart,
-	settings
+	settings,
+	siteData,
+	jetpackNotices
 } );
 
 export default combineReducers( {

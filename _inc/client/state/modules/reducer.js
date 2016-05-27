@@ -25,7 +25,11 @@ import {
 
 } from 'state/action-types';
 
-const items = ( state = window.Initial_State.getModules, action ) => {
+export const initialItemsState = typeof window !== 'undefined' && typeof window.Initial_State === 'object' ?
+	window.Initial_State.getModules :
+	{};
+
+export const items = ( state = initialItemsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
 		case JETPACK_MODULES_LIST_RECEIVE:
@@ -39,9 +43,15 @@ const items = ( state = window.Initial_State.getModules, action ) => {
 				[ action.module ]: assign( {}, state[ action.module ], { activated: false } )
 			} );
 		case JETPACK_MODULE_UPDATE_OPTION_SUCCESS:
+			let module = state[ action.module ];
+			let newOptions = assign( {}, module.options, {
+				[ action.optionName ]: assign( {}, module.options[ action.optionName ], {
+					current_value: action.optionValue
+				} )
+			} );
 			return assign( {}, state, {
 				[ action.module ]: assign( {}, state[ action.module ], {
-					[ action.option_name ]: action.option_value
+					options: newOptions
 				} )
 			} );
 		default:
@@ -49,14 +59,14 @@ const items = ( state = window.Initial_State.getModules, action ) => {
 	}
 };
 
-const initialRequestsState = {
+export const initialRequestsState = {
 	fetchingModulesList: false,
 	activating: {},
 	deactivating: {},
 	updatingOption: {}
 };
 
-const requests = ( state = initialRequestsState, action ) => {
+export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_MODULES_LIST_FETCH:
 			return assign( {}, state, { fetchingModulesList: true} );
@@ -92,14 +102,18 @@ const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_MODULE_UPDATE_OPTION:
 			return assign( {}, state, {
 				updatingOption: assign( {}, state.updatingOption, {
-					[ action.module ]: true
+					[ action.module ]: assign( {}, get( state.updatingOption, action.module, {} ), {
+						[ action.option_name ]: true
+					} )
 				}
 			) } );
 		case JETPACK_MODULE_UPDATE_OPTION_FAIL:
 		case JETPACK_MODULE_UPDATE_OPTION_SUCCESS:
 			return assign( {}, state, {
 				updatingOption: assign( {}, state.updatingOption, {
-					[ action.module ]: false
+					[ action.module ]: assign( {}, get( state.updatingOption, action.module, {} ), {
+						[ action.option_name ]: false
+					} )
 				}
 			) } );
 		default:

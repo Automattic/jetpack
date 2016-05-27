@@ -24,6 +24,7 @@ import More from 'more/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
+import JetpackNotices from 'components/jetpack-notices';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
@@ -31,17 +32,9 @@ const Main = React.createClass( {
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
-		if ( nextProps.jetpack.connection.status !== this.props.jetpack.connection.status ) {
-			return true;
-		}
-
-		if ( nextProps.jetpack.jumpstart.status.showJumpStart !== getJumpStartStatus( this.props ) ) {
-			return true;
-		}
-
-		if ( nextProps.route.path !== this.props.route.path ) {
-			return true;
-		}
+		return nextProps.jetpack.connection.status !== this.props.jetpack.connection.status ||
+			nextProps.jetpack.jumpstart.status.showJumpStart !== getJumpStartStatus( this.props ) ||
+			nextProps.route.path !== this.props.route.path;
 	},
 
 	renderMainContent: function( route ) {
@@ -101,6 +94,7 @@ const Main = React.createClass( {
 			<div>
 				<Masthead { ...this.props } />
 					<div className="jp-lower">
+						<JetpackNotices { ...this.props } />
 						{ this.renderMainContent( this.props.route.path ) }
 						<SupportCard { ...this.props } />
 					</div>

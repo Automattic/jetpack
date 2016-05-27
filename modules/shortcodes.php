@@ -2,14 +2,13 @@
 
 /**
  * Module Name: Shortcode Embeds
- * Module Description: Embed external content (e.g. from YouTube) with zero coding.
+ * Module Description: Embed content from YouTube, Vimeo, SlideShare, and more, no coding necessary.
  * Sort Order: 3
  * First Introduced: 1.1
  * Major Changes In: 1.2
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Photos and Videos, Social, Writing, Appearance
- * Feature: Writing
  * Additional Search Queries: shortcodes, shortcode, embeds, media, bandcamp, blip.tv, dailymotion, digg, facebook, flickr, google calendars, google maps, google+, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube
  */
 
@@ -66,6 +65,66 @@ function jetpack_load_shortcodes() {
 
 		include $include;
 	}
+}
+
+/**
+ * Runs preg_replace so that replacements don't happen within open tags.  
+ * Parameters are the same as preg_replace, with an added optional search param for improved performance
+ *
+ * @param String $pattern
+ * @param String $replacement
+ * @param String $content
+ * @param String $search
+ * @return String $content
+ */
+function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $search = null ) {
+	if( ! function_exists( 'wp_html_split' ) ) {
+		return $content;
+	}
+
+	if ( $search && false === strpos( $content, $search ) ) {
+		return $content;
+	}
+	
+	$textarr = wp_html_split( $content );
+	unset( $content );
+	foreach( $textarr as &$element ) {
+	    if ( '' === $element || '<' === $element{0} )
+	        continue;
+	    $element = preg_replace( $pattern, $replacement, $element );
+	}
+	
+	return join( $textarr );
+}
+
+/**
+ * Runs preg_replace_callback so that replacements don't happen within open tags.  
+ * Parameters are the same as preg_replace, with an added optional search param for improved performance
+ *
+ * @param String $pattern
+ * @param String $replacement
+ * @param String $content
+ * @param String $search
+ * @return String $content
+ */
+function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $content, $search = null ) {
+	if( ! function_exists( 'wp_html_split' ) ) {
+		return $content;
+	}
+
+	if ( $search && false === strpos( $content, $search ) ) {
+		return $content;
+	}
+	
+	$textarr = wp_html_split( $content );
+	unset( $content );
+	foreach( $textarr as &$element ) {
+	    if ( '' === $element || '<' === $element{0} )
+	        continue;
+	    $element = preg_replace_callback( $pattern, $callback, $element );
+	}
+	
+	return join( $textarr );
 }
 
 global $wp_version;

@@ -8,6 +8,7 @@ import Chart from 'components/chart';
 import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
 import Button from 'components/button';
+import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -25,36 +26,102 @@ import {
 } from 'state/modules';
 
 const DashStats = React.createClass( {
+	barClick: function( bar ) {
+		if ( bar.data.link ) {
+			window.open(
+				bar.data.link,
+				'_blank'
+			);
+		}
+	},
+
 	statsChart: function( unit ) {
 		let s = [];
 		forEach( window.Initial_State.statsData[unit].data, function( v ) {
-			let label = v[0];
+			let date = v[0];
+			let chartLabel = '';
+			let tooltipLabel = '';
 			let views = v[1];
+
+			if ( 'day' === unit ) {
+				chartLabel = moment( date ).format( 'MMM D' );
+				tooltipLabel = moment( date ).format( 'MMMM Do' );
+			} else if ( 'week' === unit ) {
+				date = date.replace( /W/g, '-' );
+				chartLabel = moment( date ).format( 'MMM D' );
+				tooltipLabel = __( 'Week of %(date)s', { args: { date: moment( date ).format( 'MMMM Do' ) } } );
+			} else if ( 'month' ) {
+				chartLabel = moment( date ).format( 'MMM' );
+				tooltipLabel = moment( date ).format( 'MMMM, YYYY' );
+			}
+
 			s.push( {
-				label: label,
-				value: views,
+				label: chartLabel,
+				value: numberFormat( views ),
 				nestedValue: null,
 				className: 'statsChartbar',
-				data: {},
+				data: {
+					link: `https://wordpress.com/stats/${ unit }/${ window.Initial_State.rawUrl }?startDate=${ date }`
+				},
 				tooltipData: [ {
-					label: label,
-					value: 'Views: ' + views,
-					link: null,
-					icon: '',
+					label: tooltipLabel,
+					value: __( 'Views: %(numberOfViews)s', { args: { numberOfViews: numberFormat( views ) } } ),
 					className: 'tooltip class'
-				} ]
+				}, { label: __( 'Click to view detailed stats.' ) } ]
 			} );
 		} );
 		return ( getSiteConnectionStatus( this.props ) === 'dev' ) ? demoStatsData : s;
 	},
 
+	/**
+	 * Checks that the stats fetching didn't return errors.
+	 *
+	 * @returns {object|bool}
+	 */
+	statsErrors() {
+		let checkStats = window.Initial_State.statsData.general;
+		if ( 'object' === typeof checkStats.errors ) {
+			return checkStats.errors;
+		}
+		return false;
+	},
+
 	renderStatsArea: function() {
 		if ( this.props.isModuleActivated( 'stats' ) ) {
+			let statsErrors = this.statsErrors();
+			if ( statsErrors ) {
+				forEach( statsErrors, function( error ) {
+					console.log( error );
+				} );
+				if ( getSiteConnectionStatus( this.props ) === 'dev' ) {
+					return (
+						<p>
+							{
+								__( 'Error loading stats. See JavaScript console for logs.' )
+							}
+						</p>
+					);
+				}
+				return (
+					<p>
+						{
+							__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
+								components: {
+									a: <a href="{ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl }" />
+								}
+							} )
+						}
+					</p>
+				);
+			}
 			const activeTab = this.props.activeTab();
 			return (
 				<div className="jp-at-a-glance__stats-container">
 					<div className="jp-at-a-glance__stats-chart">
-						<Chart data={ this.statsChart( activeTab ) } />
+						<Chart
+							data={ this.statsChart( activeTab ) }
+							barClick={ this.barClick }
+						/>
 					</div>
 					<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
 						<DashStatsBottom { ...this.props } />
@@ -63,29 +130,37 @@ const DashStats = React.createClass( {
 			);
 		} else {
 			return (
-				<div><a href="javascript:void(0)" onClick={ this.props.activateStats } >Activate Site Statistics</a> to see detailed stats, likes, followers, subscribers, and more!</div>
+				<div>
+					{
+						__( '{{a}}Activate Site Statistics{{/a}} to see detailed stats, likes, followers, subscribers, and more!', {
+							components: {
+								a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />
+							}
+						} )
+					}
+				</div>
 			);
 		}
 	},
 
 	maybeShowStatsTabs: function() {
-		if ( this.props.isModuleActivated( 'stats' ) ) {
+		if ( this.props.isModuleActivated( 'stats' ) && ! this.statsErrors() ) {
 			return(
 				<ul className="jp-at-a-glance__stats-views">
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'day' ) }
 							className={ this.getClass( 'day' ) }
-						>Days</a>
+						>{ __( 'Days' ) }</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'week' ) }
 							className={ this.getClass( 'week' ) }
-						>Weeks</a>
+						>{ __( 'Weeks' ) }</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'month' ) }
 							className={ this.getClass( 'month' ) }
-						>Months</a>
+						>{ __( 'Months' ) }</a>
 					</li>
 				</ul>
 			);
@@ -108,11 +183,10 @@ const DashStats = React.createClass( {
 			<div>
 				<DashSectionHeader
 					label="Site Statistics"
-					settingsPath="#engagement"
 				>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
-				<Card>
+				<Card className="jp-at-a-glance__stats-card">
 					{ this.renderStatsArea() }
 				</Card>
 			</div>
@@ -140,36 +214,50 @@ const DashStatsBottom = React.createClass( {
 
 	render: function() {
 		const s = this.statsBottom()[0];
+		const bestDay = s.bestDay.day;
 		return (
 		<div>
 			<div className="jp-at-a-glance__stats-summary">
 				<div className="jp-at-a-glance__stats-summary-today">
-					<p className="jp-at-a-glance__stat-details">Views today</p>
+					<p className="jp-at-a-glance__stat-details">{ __( 'Views today', { comment: 'Referring to a number of page views' } ) }</p>
 					<h3 className="jp-at-a-glance__stat-number">{ s.viewsToday }</h3>
 				</div>
 				<div className="jp-at-a-glance__stats-summary-bestday">
-					<p className="jp-at-a-glance__stat-details">Best overall day</p>
-					<h3 className="jp-at-a-glance__stat-number">{ s.bestDay.count } Views</h3>
-					<p className="jp-at-a-glance__stat-details">{ s.bestDay.day }</p>
+					<p className="jp-at-a-glance__stat-details">{ __( 'Best overall day', { comment: 'Referring to a number of page views' } ) }</p>
+					<h3 className="jp-at-a-glance__stat-number">
+						{
+							__( '%(number)s View', '%(number)s Views',
+								{
+									count: s.bestDay.count,
+									args: {
+										number: numberFormat( s.bestDay.count )
+									}
+								}
+							)
+						}
+					</h3>
+					<p className="jp-at-a-glance__stat-details">{ moment( bestDay ).format( 'MMMM Do, YYYY' ) }</p>
 				</div>
 				<div className="jp-at-a-glance__stats-summary-alltime">
 					<div className="jp-at-a-glance__stats-alltime-views">
-						<p className="jp-at-a-glance__stat-details">All-time views</p>
-						<h3 className="jp-at-a-glance__stat-number">{ s.allTime.views }</h3>
+						<p className="jp-at-a-glance__stat-details">{ __( 'All-time views', { comment: 'Referring to a number of page views' } ) }</p>
+						<h3 className="jp-at-a-glance__stat-number">{ numberFormat( s.allTime.views ) }</h3>
 					</div>
 					<div className="jp-at-a-glance__stats-alltime-comments">
-						<p className="jp-at-a-glance__stat-details">All-time comments</p>
-						<h3 className="jp-at-a-glance__stat-number">{ s.allTime.comments }</h3>
+						<p className="jp-at-a-glance__stat-details">{ __( 'All-time comments', { comment: 'Referring to a number of comments' } ) }</p>
+						<h3 className="jp-at-a-glance__stat-number">{ numberFormat( s.allTime.comments ) }</h3>
 					</div>
 				</div>
 			</div>
 			<div className="jp-at-a-glance__stats-cta">
 				<div className="jp-at-a-glance__stats-cta-description">
-					<p>Need to see more stats, likes, followers, subscribers, and more?</p>
+					<p>{ __( 'Need to see more stats, likes, followers, subscribers, and more?' ) }</p>
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
-					<Button href="?page=stats">View old stats</Button>
-					<Button className="is-primary" href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl }>View enhanced stats on WordPress.com</Button>
+					{ __( '{{button}}View old stats{{/button}}', { components: { button: <Button href="?page=stats" /> } } ) }
+					{ __( '{{button}}View enhanced stats on WordPress.com{{/button}}', {
+						components: { button: <Button className="is-primary" href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl } /> }
+					} ) }
 				</div>
 			</div>
 		</div>

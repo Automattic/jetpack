@@ -1,10 +1,8 @@
 ## FOLDERS
 /.sass-cache/
-/_inc/build
 /node_modules
 /vendor/
 /wpcom-test-backup/
-/css
 
 
 ## FILES
@@ -12,5 +10,11 @@
 languages/messages.pot
 .idea
 npm-debug.log
+tests/php/files/jetpack-150x150.jpg
+
+## Things we will need in release branches
+/_inc/build
 /modules/**/*.min.css
 /modules/**/*-rtl.css
+/css
+_inc/jetpack-strings.php

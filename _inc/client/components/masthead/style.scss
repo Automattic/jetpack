@@ -1,22 +1,29 @@
 .jp-masthead {
 	background-color: $green-secondary;
 	text-align: center;
+
+	@media (max-width: rem( 720px ) ) {
+		padding: 0 rem( 20px );
+	}
 }
 
 .jp-masthead__inside-container {
 	background: transparent url('../../images/jp-4/mast-bg.svg') no-repeat 100%;
 	background-size: 648px 125px;
-	padding: rem( 10px );
+	padding: rem( 10px ) 0;
 	margin: 0 auto;
 	width: 100%;
-	max-width: rem( 1220px);
+	max-width: rem( 720px );
 	display: flex;
 	flex-flow: row nowrap;
-	@include breakpoint( "<480px" ) { background-image: none; }
+
+	@media (max-width: rem( 720px ) ) {
+		background-image: none; 
+	}
 }
 
 .jp-masthead__logo-container {
-	padding: rem( 5px ) rem( 5px ) rem( 2px );
+	padding: rem( 5px ) 0 0;
 }
 
 .jp-masthead__logo {
@@ -29,11 +36,19 @@
 
 .jp-masthead__links {
 	display: flex;
-	margin-top: 0;
-	margin-bottom: 0;
 	flex-flow: row wrap;
 	flex: 2 50%;
 	justify-content: flex-end;
+	margin: 0;
+
+	@include breakpoint( "<480px" ) {
+		padding-right: rem( 10px );
+	}
+}
+
+.jp-masthead__link-li {
+	margin: 0;
+	padding: 0;
 }
 
 .jp-masthead__link {
@@ -47,11 +62,16 @@
 	&:hover {
 		color: $white;
 	}
+
+	&:hover {
+		text-decoration: underline;
+	}
+
 	.dashicons {
 		display: none;
 	}
+
 	@include breakpoint( "<480px" ) {
-		padding: rem( 10px ) rem( 15px );
 
 		&:hover,
 		&:active {
@@ -64,5 +84,11 @@
 		span + span {
 			display: none;
 		}
-	} // < 480px
+	}
+}
+
+.jp-masthead__link-li {
+	&:last-of-type .jp-masthead__link {
+		padding-right: 0;
+	}
 }

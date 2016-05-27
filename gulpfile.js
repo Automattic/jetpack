@@ -3,21 +3,26 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	check = require( 'gulp-check' ),
 	cleanCSS = require( 'gulp-clean-css' ),
 	concat = require( 'gulp-concat' ),
+	del = require('del'),
+	spawn = require('child_process').spawn,
 	gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
+	glotpress = require( 'glotpress-js' ),
 	jshint = require( 'gulp-jshint' ),
 	path = require( 'path' ),
 	phplint = require( 'gulp-phplint' ),
 	phpunit = require( 'gulp-phpunit' ),
+	po2json = require('gulp-po2json'),
 	qunit = require( 'gulp-qunit' ),
 	rename = require( 'gulp-rename' ),
 	rtlcss = require( 'gulp-rtlcss' ),
 	sass = require( 'gulp-sass' ),
-	shell = require( 'gulp-shell' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	stylish = require( 'jshint-stylish'),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
+
+var language_packs = require( './language-packs.js' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -26,7 +31,19 @@ function onBuild( done ) {
 		}
 
 		gutil.log( 'Building JS…', stats.toString( {
-			colors: true
+			colors: true,
+			hash: true,
+			version: false,
+			timings: true,
+			assets: true,
+			chunks: true,
+			chunkModules: false,
+			modules: false,
+			cached: false,
+			reasons: false,
+			source: false,
+			errorDetails: true,
+			children: false
 		} ), "\nJS finished at", Date.now() );
 
 		if ( done ) {
@@ -75,7 +92,11 @@ gulp.task( 'react:build', function( done ) {
 	var config = getWebpackConfig();
 	config.plugins = config.plugins.concat(
 		new webpack.optimize.DedupePlugin(),
-		new webpack.optimize.UglifyJsPlugin()
+		new webpack.optimize.UglifyJsPlugin( {
+			compress: {
+				warnings: false
+			}
+		} )
 	);
 
 	config.devtool = 'source-map';
@@ -85,8 +106,6 @@ gulp.task( 'react:build', function( done ) {
 } );
 
 gulp.task( 'react:watch', function() {
-	process.env.NODE_ENV = "production";
-
 	var config = getWebpackConfig();
 
 	webpack( config ).watch( 100, onBuild() );
@@ -239,13 +258,6 @@ gulp.task( 'old-sass:rtl', function() {
 } );
 
 /*
-	Shell commands
- */
-gulp.task( 'shell', shell.task( [
-	'echo hello'
-], { verbose: true } ) );
-
-/*
 	"Check" task
 	Search for strings and fail if found.
  */
@@ -290,7 +302,8 @@ gulp.task( 'js:hint', function() {
 		'!modules/**/*.min.js'
 	] )
 		.pipe( jshint( '.jshintrc' ) )
-		.pipe( jshint.reporter('jshint-stylish') );
+		.pipe( jshint.reporter('jshint-stylish') )
+		.pipe( jshint.reporter('fail') );
 } );
 
 /*
@@ -301,6 +314,67 @@ gulp.task( 'js:qunit', function() {
 		.pipe( qunit() );
 });
 
+/*
+	I18n land
+*/
+
+gulp.task( 'languages:get', function ( callback ) {
+	var process = spawn(
+		'php',
+		[
+			'tools/export-translations.php',
+			'.',
+			'https://translate.wordpress.org/projects/wp-plugins/jetpack/dev'
+		]
+	);
+
+	process.stderr.on( 'data', function ( data ) {
+		gutil.log( data.toString() );
+	} );
+	process.stdout.on( 'data', function ( data ) {
+		gutil.log( data.toString() );
+	} );
+	process.on( 'exit', function ( code ) {
+		if ( 0 !== code ) {
+			gutil.log( 'Failed getting languages: process exited with code ', code );
+		}
+		callback();
+	} );
+} );
+
+gulp.task( 'languages:build', [ 'languages:get' ], function ( ) {
+	return gulp.src(['languages/*.po'])
+		.pipe(po2json())
+		.pipe(gulp.dest('languages/json/'));
+} );
+
+gulp.task( 'languages:cleanup', [ 'languages:build' ], function () {
+	return del(
+		language_packs.map( function ( item ) {
+			var locale = item.split( '-' );
+
+			if ( locale.length > 1 ) {
+				locale[1] = locale[1].toUpperCase();
+				locale = locale.join( '_' );
+			} else {
+				locale = locale[0];
+			}
+
+			return './languages/jetpack-' + locale + '.*';
+		} )
+	);
+} );
+
+gulp.task( 'languages:extract', [ 'react:build' ], function( callback ) {
+	glotpress( {
+		inputPaths: [ '_inc/build/admin.js' ],
+		output: '_inc/jetpack-strings.php',
+		format: 'php'
+	} );
+
+	callback();
+} );
+
 // Default task
 gulp.task( 'default', ['react:build', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint'] );
 gulp.task( 'watch',   ['react:watch', 'sass:watch', 'old-styles:watch'] );
@@ -309,7 +383,7 @@ gulp.task( 'jshint',       ['js:hint'] );
 gulp.task( 'php',          ['php:lint', 'php:unit'] );
 gulp.task( 'checkstrings', ['check:DIR'] );
 gulp.task( 'old-styles',   ['frontendcss', 'admincss', 'admincss:rtl', 'old-sass', 'old-sass:rtl'] );
+gulp.task( 'languages',    ['languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ] );
 
-// Travis CI tasks.
-gulp.task( 'travis:phpunit', ['php:unit'] );
-gulp.task( 'travis:js', ['js:hint', 'js:qunit'] );
+// travis CI tasks.
+gulp.task( 'travis:js', ['react:build', 'js:hint', 'js:qunit'] );

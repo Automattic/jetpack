@@ -23,7 +23,7 @@ import {
 	UNLINK_USER_SUCCESS
 } from 'state/action-types';
 
-const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
+export const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_STATUS_FETCH:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
@@ -35,7 +35,7 @@ const status = ( state = { siteConnected: window.Initial_State.connectionStatus 
 	}
 };
 
-const connectUrl = ( state = {}, action ) => {
+export const connectUrl = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case CONNECT_URL_FETCH_SUCCESS:
 			return action.connectUrl;
@@ -45,7 +45,7 @@ const connectUrl = ( state = {}, action ) => {
 	}
 };
 
-const user = ( state = window.Initial_State.userData, action ) => {
+export const user = ( state = window.Initial_State.userData, action ) => {
 	switch ( action.type ) {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.userConnectionData );
@@ -59,14 +59,14 @@ const user = ( state = window.Initial_State.userData, action ) => {
 	}
 };
 
-const connectionRequests = {
+export const connectionRequests = {
 	disconnectingSite: false,
 	unlinkingUser: false,
 	fetchingConnectUrl: false,
 	fetchingUserData: false
 };
 
-const requests = ( state = connectionRequests, action ) => {
+export const requests = ( state = connectionRequests, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_SITE:
 			return assign( {}, state, { disconnectingSite: true } );
@@ -108,11 +108,17 @@ export const reducer = combineReducers( {
 /**
  * Returns true if site is connected to WordPress.com
  *
- * @param  {Object} state Global state tree
- * @return {bool}         True if site is connected, False if it is not.
+ * @param  {Object}      state Global state tree
+ * @return {bool|string} True if site is connected, False if it is not, 'dev' if site is in development mode.
  */
 export function getSiteConnectionStatus( state ) {
-	return state.jetpack.connection.status.siteConnected;
+	if ( 'object' !== typeof state.jetpack.connection.status.siteConnected ) {
+		return false;
+	}
+	if ( state.jetpack.connection.status.siteConnected.devMode.isActive ) {
+		return 'dev';
+	}
+	return state.jetpack.connection.status.siteConnected.isActive;
 }
 
 /**

@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -25,11 +26,30 @@ export const Footer = React.createClass( {
 			if ( isDevVersion( this.props ) ) {
 				return(
 					<li className="jp-footer__link-item">
-						<a onClick={ this.props.resetOptions } className="jp-footer__link">Reset Options (dev versions only)</a>
+						<a
+							onClick={ this.props.resetOptions }
+							className="jp-footer__link">
+							{ __( 'Reset Options (dev versions only)', { context: 'Navigation item.' } ) }
+						</a>
 					</li>
 				);
 			}
 			return '';
+		};
+
+		const maybeShowDebug = () =>  {
+			if ( window.Initial_State.userData.currentUser.permissions.manage_options ) {
+				return (
+					<li className="jp-footer__link-item">
+						<a
+							href={ window.Initial_State.adminUrl + 'admin.php?page=jetpack-debugger' }
+							title={ __( "Test your site’s compatibility with Jetpack." ) }
+							className="jp-footer__link">
+							{ __( 'Debug', { context: 'Navigation item. Noun. Links to a debugger tool for Jetpack.' } ) }
+						</a>
+					</li>
+				);
+			}
 		};
 
 		return (
@@ -43,10 +63,30 @@ export const Footer = React.createClass( {
 					</svg></a>
 				</div>
 				<ul className="jp-footer__links">
-					<li className="jp-footer__link-item"><a href="http://jetpack.com" target="_blank" className="jp-footer__link" title={ version } >{ version }</a></li>
-					<li className="jp-footer__link-item"><a href="http://wordpress.com/tos/" target="_blank" title="WordPress.com Terms of Service" className="jp-footer__link">Terms</a></li>
-					<li className="jp-footer__link-item"><a href="http://automattic.com/privacy/" target="_blank" title="Automattic's Privacy Policy" className="jp-footer__link">Privacy</a></li>
-					<li className="jp-footer__link-item"><a href={ window.Initial_State.adminUrl + 'admin.php?page=jetpack-debugger' } title="Test your site’s compatibility with Jetpack." className="jp-footer__link">Debug</a></li>
+					<li className="jp-footer__link-item">
+						<a href="http://jetpack.com" target="_blank" className="jp-footer__link" title={ version } >
+							{ version }
+						</a>
+					</li>
+					<li className="jp-footer__link-item">
+						<a
+							href="http://wordpress.com/tos/"
+							target="_blank"
+							title={ __( 'WordPress.com Terms of Service' ) }
+							className="jp-footer__link">
+							{ __( 'Terms', { context: 'Shorthand for Terms of Service.' } ) }
+						</a>
+					</li>
+					<li className="jp-footer__link-item">
+						<a
+							href="http://automattic.com/privacy/"
+							target="_blank"
+							title={ __( "Automattic's Privacy Policy" ) }
+							className="jp-footer__link">
+							{ __( 'Privacy', { context: 'Shorthand for Privacy Policy.' } ) }
+						</a>
+					</li>
+					{ maybeShowDebug() }
 					{ maybeShowReset() }
 				</ul>
 			</div>

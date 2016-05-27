@@ -17,7 +17,7 @@ import {
 	JETPACK_SETTING_UPDATE_FAIL
 } from 'state/action-types';
 
-const items = ( state = {}, action ) => {
+export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
 			return assign( {}, action.settings );
@@ -31,12 +31,12 @@ const items = ( state = {}, action ) => {
 	}
 };
 
-const initialRequestsState = {
+export const initialRequestsState = {
 	fetchingSettingsList: false,
 	updatingSetting: {}
 };
 
-const requests = ( state = initialRequestsState, action ) => {
+export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SETTINGS_FETCH:
 			return assign( {}, state, {
@@ -55,7 +55,7 @@ const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SETTING_UPDATE_FAIL:
 		case JETPACK_SETTING_UPDATE_SUCCESS:
 			return assign( {}, state, {
-				updatingSetting: true
+				updatingSetting: false
 			} );
 		default:
 			return state;

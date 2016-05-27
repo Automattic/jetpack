@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -18,8 +19,8 @@ import {
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser
 } from 'state/connection';
-import QueryConnectionStatus from 'components/data/query-connection-status';
 import QueryConnectUrl from 'components/data/query-connect-url';
+
 
 const ConnectButton = React.createClass( {
 	displayName: 'ConnectButton',
@@ -44,8 +45,9 @@ const ConnectButton = React.createClass( {
 				<div>
 					<Button
 						onClick={ this.props.unlinkUser }
-						disabled={ isUnlinking }
-					>Unlink me from WordPress.com</Button>
+						disabled={ isUnlinking } >
+						{ __( 'Unlink me from WordPress.com' ) }
+					</Button>
 				</div>
 			);
 		}
@@ -54,9 +56,8 @@ const ConnectButton = React.createClass( {
 			<Button
 				className="is-primary jp-jetpack-connect__button"
 				href={ this.props.connectUrl( this.props ) }
-				disabled={ fetchingUrl }
-			>
-				Link to WordPress.com
+				disabled={ fetchingUrl } >
+				{ __( 'Link to WordPress.com' ) }
 			</Button>
 		);
 	},
@@ -73,9 +74,8 @@ const ConnectButton = React.createClass( {
 			return(
 				<Button
 					onClick={ this.props.disconnectSite }
-					disabled={ disconnecting }
-				>
-					Disconnect site from WordPress.com
+					disabled={ disconnecting }>
+					{ __( 'Disconnect site from WordPress.com ') }
 				</Button>
 			);
 		}
@@ -84,9 +84,8 @@ const ConnectButton = React.createClass( {
 			<Button
 				className="is-primary jp-jetpack-connect__button"
 				href={ this.props.connectUrl( this.props ) }
-				disabled={ fetchingUrl }
-			>
-				Connect to WordPress.com
+				disabled={ fetchingUrl }>
+				{ __( 'Connect to WordPress.com' ) }
 			</Button>
 		);
 	},
@@ -94,7 +93,6 @@ const ConnectButton = React.createClass( {
 	render() {
 		return (
 			<div>
-				<QueryConnectionStatus />
 				<QueryConnectUrl />
 				{ this.renderContent() }
 			</div>

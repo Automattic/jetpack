@@ -1,8 +1,8 @@
 // This document contains styles that influence the styles of Stats & At a Glance, overall. 
 // For more precise styles, dig into the styles of each component. ie. dash-item
 
-.jp-at-a-glance__stats-container {
-	margin: rem( -24px );
+.jp-at-a-glance__stats-card {
+	padding: 0;
 }
 
 .jp-at-a-glance__stats-chart {
@@ -13,7 +13,6 @@
 	margin: rem( 32px ) 0 0;
 
 	@include breakpoint( "<480px" ) {
-		margin: rem( 16px ) 0;
 		box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
 	}
 }
@@ -39,14 +38,37 @@
 	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
 }
 
+.jp-at-a-glance__stats-summary-today {
+
+	@include breakpoint( "<660px" ) {
+		margin-top: rem( -1px );
+	}
+}
+
+.jp-at-a-glance__stats-summary-bestday {
+	@include breakpoint( ">660px" ) {
+		margin: 0 rem( 1px );
+	}
+}
+
+.jp-at-a-glance__stats-summary-bestday,
+.jp-at-a-glance__stats-summary-alltime {
+
+	@include breakpoint( "<660px" ) {
+		margin-top: rem( 1px );
+	}
+}
+
 .jp-at-a-glance__stats-summary-alltime {
 	flex-basis: 50%;
-	//align-items: center;
 	padding: rem( 16px );
 	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
 
 	@include breakpoint( ">660px" ) {
+		max-width: 40%; // for IE 10 since it doesn't recognize flex-basis
 		display: flex;
+		flex-grow: 1;
+		flex-shrink: 1;
 	}
 }
 
@@ -63,7 +85,7 @@
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
-		justify-content: space-between;
+		align-items: center;
 	}
 	@include breakpoint( "<660px" ) {
 		display: block;
@@ -71,7 +93,10 @@
 }
 
 .jp-at-a-glance__stats-cta-description {
-	padding-right: rem( 16px );
+
+	@include breakpoint( ">660px" ) {
+		flex-basis: 30%;
+	}
 }
 
 .jp-at-a-glance__stat-details {
@@ -86,11 +111,10 @@
 
 .jp-at-a-glance__stats-cta-buttons {
 
-	@include breakpoint( ">480px" ) {
-		display: flex;
-		flex-shrink: 0;
-		align-items: center;
-	}
+	@include breakpoint( ">660px" ) {
+		text-align: right;
+		flex-basis: 70%;
+	} 
 
 	@include breakpoint( "<660px" ) {
 		text-align: center;
@@ -101,8 +125,9 @@
 		}
 	}
 
-	.dops-button:first-of-type {
-		margin-right: rem( 8px );
+	.dops-button {
+		text-align: center;
+		margin: rem( 4px );
 	}
 }
 

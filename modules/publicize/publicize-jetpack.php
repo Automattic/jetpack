@@ -27,7 +27,7 @@ class Publicize extends Publicize_Base {
 
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 4 );
 
-		add_action( 'transition_post_status', array( $this, 'save_publicized' ), 10, 3 );
+		add_action( 'wp_insert_post', array( $this, 'save_publicized' ), 11, 3 );
 
 		add_filter( 'jetpack_twitter_cards_site_tag', array( $this, 'enhaced_twitter_cards_site_tag' ) );
 
@@ -359,7 +359,23 @@ class Publicize extends Publicize_Base {
 	}
 
 	function flag_post_for_publicize( $new_status, $old_status, $post ) {
-		// Stub only. Doesn't need to do anything on Jetpack Client
+		if ( 'publish' == $new_status && 'publish' != $old_status ) {
+			/**
+			 * Determines whether a post being published gets publicized.
+			 * Side-note: Possibly our most alliterative filter name.
+			 *
+			 * @module publicize
+			 *
+			 * @since 4.1.0
+			 *
+			 * @param bool should_publicize
+			 */
+			$should_publicize = apply_filters( 'publicize_should_publicize_published_post', true, $post );
+
+			if ( $should_publicize ) {
+				update_post_meta( $post->ID, $this->PENDING, true );	
+			}
+		}
 	}
 
 	function test_connection( $service_name, $connection ) {
@@ -405,9 +421,19 @@ class Publicize extends Publicize_Base {
 	 * Save a flag locally to indicate that this post has already been Publicized via the selected
 	 * connections.
 	 */
-	function save_publicized( $new_status, $old_status, $post ) {
+	function save_publicized( $post_ID, $post, $update ) {
 		// Only do this when a post transitions to being published
-		if ( 'publish' == $new_status && 'publish' != $old_status ) {
+		if ( get_post_meta( $post->ID, $this->PENDING ) ) {
+
+			/**
+			 * Fires when a post is saved that has is marked as pending publicizing
+			 *
+			 * @since 4.1.0
+			 *
+			 * @param int The post ID
+			 */
+			do_action( 'jetpack_publicize_post', $post->ID );
+			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}
 	}

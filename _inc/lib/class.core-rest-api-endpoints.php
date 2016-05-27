@@ -86,6 +86,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::recheck_ssl',
 		) );
 
+		// Get current site data
+		register_rest_route( 'jetpack/v4', '/site', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_site_data',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+		) );
+
 		// Return all modules
 		register_rest_route( 'jetpack/v4', '/modules', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -212,6 +219,39 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::vaultpress_get_site_data',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
+
+		// Dismiss Jetpack Notices
+		register_rest_route( 'jetpack/v4', '/dismiss-jetpack-notice/(?P<notice>[a-z\-_]+)', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::dismiss_jetpack_notice',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+		) );
+	}
+
+	/**
+	 * Handles dismissing of Jetpack Notices
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return array|wp-error
+	 */
+	public static function dismiss_jetpack_notice( $data ) {
+		$notice = $data['notice'];
+		if ( isset( $notice ) && ! empty( $notice ) ) {
+			switch( $notice ) {
+				case 'feedback_dash_request':
+				case 'welcome':
+					$notices = get_option( 'jetpack_dismissed_notices', array() );
+					$notices[ $notice ] = true;
+					update_option( 'jetpack_dismissed_notices', $notices );
+					return rest_ensure_response( get_option( 'jetpack_dismissed_notices', array() ) );
+
+				default:
+					return new WP_Error( 'invalid_param', esc_html__( 'Invalid parameter "notice".', 'jetpack' ), array( 'status' => 404 ) );
+			}
+		}
+
+		return new WP_Error( 'required_param', esc_html__( 'Missing parameter "notice".', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -379,10 +419,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool True if site is connected
 	 */
 	public static function jetpack_connection_status() {
-		if ( Jetpack::is_development_mode() ) {
-			return rest_ensure_response( 'dev' );
-		}
-		return Jetpack::is_active();
+		return rest_ensure_response( array(
+				'isActive'  => Jetpack::is_active(),
+				'isStaging' => Jetpack::is_staging_site(),
+				'devMode'   => array(
+					'isActive' => Jetpack::is_development_mode(),
+					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
+					'url'      => site_url() && false === strpos( site_url(), '.' ),
+					'filter'   => apply_filters( 'jetpack_development_mode', false ),
+				),
+			)
+		);
 	}
 
 	public static function recheck_ssl() {
@@ -418,7 +465,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function build_connect_url() {
 		if ( require_once( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
-			$url = Jetpack::init()->build_connect_url( true, true, false );
+			$url = Jetpack::init()->build_connect_url( true, false, false );
 			return rest_ensure_response( $url );
 		}
 
@@ -533,6 +580,33 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Get site data, including for example, the site's current plan.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return array Array of Jetpack modules.
+	 */
+	public static function get_site_data() {
+
+		if ( $site_id = Jetpack_Options::get_option( 'id' ) ) {
+			$response = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ), '1.1' );
+
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				return new WP_Error( 'site_data_fetch_failed', esc_html__( 'Failed fetching site data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
+			}
+
+			return rest_ensure_response( array(
+					'code' => 'success',
+					'message' => esc_html__( 'Site data correctly received.', 'jetpack' ),
+					'data' => wp_remote_retrieve_body( $response ),
+				)
+			);
+		}
+
+		return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -957,6 +1031,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		);
 
 		// Used if there was an error. Can be overwritten with specific error messages.
+		/* Translators: the variable is a module option name. */
 		$error = sprintf( __( 'The option %s was not updated.', 'jetpack' ), $option );
 
 		// Set to true if the option update was successful.
@@ -974,13 +1049,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 				break;
 
 			case 'post_by_email_address':
-				$post_by_email = new Jetpack_Post_By_Email();
 				if ( 'create' == $value ) {
-					$result = $post_by_email->create_post_by_email_address();
+					$result = self::_process_post_by_email(
+						'jetpack.createPostByEmailAddress',
+						esc_html__( 'Unable to create the Post by Email address. Please try again later.', 'jetpack' )
+					);
 				} elseif ( 'regenerate' == $value ) {
-					$result = $post_by_email->regenerate_post_by_email_address();
+					$result = self::_process_post_by_email(
+						'jetpack.regeneratePostByEmailAddress',
+						esc_html__( 'Unable to regenerate the Post by Email address. Please try again later.', 'jetpack' )
+					);
 				} elseif ( 'delete' == $value ) {
-					$result = $post_by_email->delete_post_by_email_address();
+					$result = self::_process_post_by_email(
+						'jetpack.deletePostByEmailAddress',
+						esc_html__( 'Unable to delete the Post by Email address. Please try again later.', 'jetpack' )
+					);
 				} else {
 					$result = false;
 				}
@@ -1137,6 +1220,42 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// The option was updated.
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Calls WPCOM through authenticated request to create, regenerate or delete the Post by Email address.
+	 * @todo: When all settings are updated to use endpoints, move this to the Post by Email module and replace __process_ajax_proxy_request.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string $endpoint Process to call on WPCOM to create, regenerate or delete the Post by Email address.
+	 * @param string $error	   Error message to return.
+	 *
+	 * @return array
+	 */
+	private static function _process_post_by_email( $endpoint, $error ) {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return array( 'message' => $error );
+		}
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id(),
+		) );
+		$xml->query( $endpoint );
+
+		if ( $xml->isError() ) {
+			return array( 'message' => $error );
+		}
+
+		$response = $xml->getResponse();
+		if ( empty( $response ) ) {
+			return array( 'message' => $error );
+		}
+
+		// Used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
+		update_option( 'post_by_email_address', $response );
+
+		return $response;
 	}
 
 	/**
@@ -1588,7 +1707,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
 					),
-					'Complex Phrases' => array(
+					'Complex Expression' => array(
 						'description'        => esc_html__( 'Complex Phrases', 'jetpack' ),
 						'type'               => 'boolean',
 						'default'            => 0,
@@ -2153,7 +2272,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		// If the module is inactive, load the class to use the method.
-		if ( ! Jetpack::is_module_active( $module ) ) {
+		if ( ! did_action( 'jetpack_module_loaded_' . $module ) ) {
 			// Class can't be found so do nothing.
 			if ( ! @include( Jetpack::get_module_path( $module ) ) ) {
 				return false;

@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -15,17 +16,27 @@ import {
 
 const DashPhoton = React.createClass( {
 	getContent: function() {
+		const labelName = __( 'Image Performance %(photon)s', { args: { photon: '(Photon)' } } );
+
 		if ( this.props.isModuleActivated( 'photon' ) ) {
 			return(
-				<DashItem label="Image Performance (Photon)" status="is-working">
-					<p className="jp-dash-item__description">Photon is active and currently improving image performance.</p>
+				<DashItem label={ labelName } status="is-working">
+					<p className="jp-dash-item__description">{ __( 'Photon is active and currently improving image performance.' ) }</p>
 				</DashItem>
 			);
 		}
 
 		return(
-			<DashItem label="Image Performance (Photon)" className="jp-dash-item__is-inactive">
-				<p className="jp-dash-item__description"><a href="javascript:void(0)" onClick={ this.props.activatePhoton }>Activate Photon</a> to enhance the performance of your images.</p>
+			<DashItem label={ labelName } className="jp-dash-item__is-inactive">
+				<p className="jp-dash-item__description">
+					{
+						__( '{{a}}Activate Photon{{/a}} to enhance the performance of your images.', {
+							components: {
+								a: <a href="javascript:void(0)" onClick={ this.props.activatePhoton } />
+							}
+						} )
+					}
+				</p>
 			</DashItem>
 		);
 	},

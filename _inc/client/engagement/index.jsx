@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import { ModuleToggle } from 'components/module-toggle';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -33,9 +34,10 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
 		[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description, getModule( 'subscriptions' ).learn_more_button ],
 		[ 'comments', getModule( 'comments' ).name, getModule( 'comments' ).description, getModule( 'comments' ).learn_more_button ],
-		[ 'notes', getModule( 'notes' ).name, getModule( 'notes' ).description, getModule( 'notes' ).learn_more_button ]
+		[ 'notes', getModule( 'notes' ).name, getModule( 'notes' ).description, getModule( 'notes' ).learn_more_button ],
+		[ 'sitemaps', getModule( 'sitemaps' ).name, getModule( 'sitemaps' ).description, getModule( 'sitemaps' ).learn_more_button ]
 	].map( ( element ) => (
-		<FoldableCard
+		<FoldableCard key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 			header={ element[1] }
 			subheader={ element[2] }
 			summary={
@@ -47,13 +49,16 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
 					toggling={ isTogglingModule( element[0] ) }
 					toggleModule={ toggleModule } />
-			} >
+			}
+			clickableHeaderText={ true }
+		>
 				{ isModuleActivated( element[0] ) ? renderSettings( getModule( element[0] ) ) :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
-			<br/>
-			<a href={ element[3] } target="_blank">Learm More</a>
+			<p>
+				<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
+			</p>
 		</FoldableCard>
 	) );
 	return (
@@ -75,14 +80,18 @@ function renderSettings( module ) {
 			return(
 				<div>
 					{ renderStatsSettings( module ) }
-					<a href={ module.configure_url }>Link to old settings</a>
+					<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
 				</div>
 			);
+
+		case 'enhanced-distribution':
+		case 'sitemaps':
+			return null;
 
 		default:
 			return (
 				<div>
-					<a href={ module.configure_url }>Link to old settings</a>
+					<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
 				</div>
 			);
 	}

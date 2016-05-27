@@ -13,6 +13,10 @@
 
 // General Elements
 
+.jetpack-pagestyles #wpcontent {
+	padding-left: 0;
+}
+
 .jetpack-pagestyles #wpbody-content {
 	background-color: $gray-light;
 }
@@ -20,7 +24,7 @@
 .jp-lower {
 	margin: 0 auto;
 	text-align: left;
-	max-width: rem( 1200px );
+	max-width: rem( 720px );
 	padding: rem( 20px );
 }
 

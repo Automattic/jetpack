@@ -38,19 +38,6 @@ class Jetpack_RelatedPosts_Module {
 	 */
 	private function __construct() {
 		add_action( 'jetpack_module_loaded_related-posts', array( $this, 'action_on_load' ) );
-		add_action( 'jetpack_activate_module_related-posts', array( $this, 'action_on_activate' ) );
-	}
-
-	/**
-	 * This action triggers when module is activated.
-	 *
-	 * @uses Jetpack::init, Jetpack_Sync::reindex_needed, Jetpack_Sync::reindex_trigger
-	 * @return null
-	 */
-	public function action_on_activate() {
-		if ( Jetpack::init()->sync->reindex_needed() ) {
-			Jetpack::init()->sync->reindex_trigger();
-		}
 	}
 
 	/**
@@ -67,9 +54,6 @@ class Jetpack_RelatedPosts_Module {
 			// Enable "Configure" button on module card
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'module_configuration_load' ) );
-
-			// Sync new posts
-			Jetpack_Sync::sync_posts( __FILE__ );
 		}
 	}
 

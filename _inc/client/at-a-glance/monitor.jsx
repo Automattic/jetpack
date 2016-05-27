@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -18,29 +19,47 @@ import { getLastDownTime as _getLastDownTime } from 'state/at-a-glance';
 
 const DashMonitor = React.createClass( {
 	getContent: function() {
+		const labelName = __( 'Downtime Monitoring' );
+
 		if ( this.props.isModuleActivated( 'monitor' ) ) {
 			const lastDowntime = this.props.getLastDownTime();
 
 			if ( lastDowntime === 'N/A' ) {
 				return(
-					<DashItem label="Downtime Monitoring" status="is-working">
+					<DashItem label={ labelName } status="is-working">
 						<QueryLastDownTime />
-						<p className="jp-dash-item__description">Loading&#8230;</p>
+						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 					</DashItem>
 				);
 			}
 
 			return(
-				<DashItem label="Downtime Monitoring" status="is-working">
-					<p className="jp-dash-item__description">Monitor is on and is watching your site.</p>
-					<p className="jp-dash-item__description">Last downtime was { lastDowntime.date } ago.</p>
+				<DashItem label={ labelName } status="is-working">
+					<p className="jp-dash-item__description">{ __( 'Monitor is on and is watching your site.' ) }</p>
+					<p className="jp-dash-item__description">
+						{
+							__( 'Last downtime was %(time)s ago.', {
+								args: {
+									time: lastDowntime.date
+								}
+							} )
+						}
+					</p>
 				</DashItem>
 			);
 		}
 
 		return(
-			<DashItem label="Downtime Monitoring" className="jp-dash-item__is-inactive">
-				<p className="jp-dash-item__description"><a href="javascript:void(0)" onClick={ this.props.activateMonitor }>Activate Monitor</a> to receive notifications if your site goes down.</p>
+			<DashItem label={ labelName } className="jp-dash-item__is-inactive">
+				<p className="jp-dash-item__description">
+					{
+						__( '{{a}}Activate Monitor{{/a}} to receive notifications if your site goes down.', {
+							components: {
+								a:<a href="javascript:void(0)" onClick={ this.props.activateMonitor } />
+							}
+						} )
+					}
+				</p>
 			</DashItem>
 		);
 	},

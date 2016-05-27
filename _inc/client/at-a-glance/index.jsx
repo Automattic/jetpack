@@ -17,6 +17,8 @@ import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
 import DashSiteVerify from './site-verification';
+import FeedbackDashRequest from 'components/jetpack-notices/feedback-dash-request';
+import { translate as __ } from 'i18n-calypso';
 
 export default ( props ) =>
 	<div>
@@ -27,9 +29,9 @@ export default ( props ) =>
 		}
 
 		<DashSectionHeader
-			label="Site Security"
+			label={ __( 'Site Security' ) }
 			settingsPath="#security"
-			externalLink="Manage Security on WordPress.com"
+			externalLink={ __( 'Manage Security on WordPress.com' ) }
 			externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } />
 		<div className="jp-at-a-glance__item-grid">
 			<div className="jp-at-a-glance__left">
@@ -46,7 +48,7 @@ export default ( props ) =>
 		}
 
 		<DashSectionHeader
-			label="Site Health"
+			label={ __( 'Site Health' ) }
 			settingsPath="#health" />
 
 		<div className="jp-at-a-glance__item-grid">
@@ -64,7 +66,7 @@ export default ( props ) =>
 		}
 
 		<DashSectionHeader
-			label="Traffic Tools"
+			label={ __( 'Traffic Tools' ) }
 			settingsPath="#engagement" />
 
 		<div className="jp-at-a-glance__item-grid">
@@ -76,7 +78,5 @@ export default ( props ) =>
 				</div>
 		</div>
 
-		<Card className="jp-dash-item__feedback-request">
-			<p className="jp-dash-item__description">[make dismissable notice] What would you like to see on your Jetpack Dashboard. <a href="https://jetpack.com/contact" target="_blank">Send us some feedback and let us know!</a></p>
-		</Card>
+		<FeedbackDashRequest { ...props } />
 	</div>
