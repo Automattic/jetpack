@@ -20,7 +20,12 @@ let state = {
 				fetchingUserData: true,
 			},
 			status: {
-				siteConnected: true
+				siteConnected: {
+					isActive: true,
+					devMode: {
+						isActive: false
+					}
+				}
 			},
 			connectUrl: '/asd',
 			user: {
@@ -71,7 +76,7 @@ describe( 'status selectors', () => {
 		it( 'should return state.jetpack.connection.status.siteConnected', () => {
 			const stateIn = state;
 			const output = getSiteConnectionStatus( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.status.siteConnected );
+			expect( output ).to.be.equal( state.jetpack.connection.status.siteConnected.isActive );
 		} );
 	} );
 } );
