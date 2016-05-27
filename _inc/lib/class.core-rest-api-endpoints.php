@@ -1042,7 +1042,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				break;
 
 			case 'post_by_email_address':
-				$post_by_email = new Jetpack_Post_By_Email();
 				if ( 'create' == $value ) {
 					$result = self::_process_post_by_email(
 						'jetpack.createPostByEmailAddress',
