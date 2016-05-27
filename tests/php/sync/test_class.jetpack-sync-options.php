@@ -74,6 +74,16 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( '123', $this->server_replica_storage->get_option( 'foo_option_bar' ) );
 	}
 
+	public function test_sync_initalize_Jetpack_Sync_Action_on_init() {
+		// prioroty should be set to 11 so that Plugins by default (10) initialize the whitelist_filter before.
+		$this->assertEquals( 11, has_action('init', array( 'Jetpack_Sync_Actions', 'init' ) ) );
+	}
+
+
+	function add_fiter_on_init() {
+		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
+	}
+
 	public function add_jetpack_options_whitelist_filter( $options ) {
 		$options[] = 'foo_option_bar';
 		return $options;
