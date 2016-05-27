@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import assign from 'lodash/assign';
 
 /**
  * Internal dependencies
@@ -96,7 +97,11 @@ const Main = React.createClass( {
 					<div className="jp-lower">
 						<JetpackNotices { ...this.props } />
 						{ this.renderMainContent( this.props.route.path ) }
-						<SupportCard { ...this.props } />
+						{
+							this.props.getJumpStartStatus ?
+							null :
+							<SupportCard { ...this.props } />
+						}
 					</div>
 				<Footer { ...this.props } />
 			</div>
@@ -107,7 +112,9 @@ const Main = React.createClass( {
 
 export default connect(
 	state => {
-		return state;
+		return assign( {}, state, {
+			getJumpStartStatus: getJumpStartStatus( state )
+		} );
 	},
 	dispatch => bindActionCreators( { setInitialState }, dispatch )
 )( Main );

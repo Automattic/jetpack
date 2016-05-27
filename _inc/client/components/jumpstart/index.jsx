@@ -39,7 +39,7 @@ const JumpStart = React.createClass( {
 							{ __( 'Activate Recommended Features' ) }
 						</Button>
 					</Card>
-					<FoldableCard 
+					<FoldableCard
 						className="jp-jumpstart__features"
 						clickableHeaderText={ true }
 						subheader="Learn more"
@@ -134,7 +134,7 @@ const JumpStart = React.createClass( {
 								</div>
 							</div>
 						</div>
-						
+
 						<p className="jp-jumpstart__note">
 							{ __( 'Features can be activated or deactivated at any time.' ) }
 						</p>
