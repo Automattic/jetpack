@@ -128,7 +128,8 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->full_sync->start();
 		$this->client->do_sync();
 
-		$comment = $this->server_replica_storage->get_comments()[0];
+		$comments = $this->server_replica_storage->get_comments();
+		$comment = $comments[0];
 		$this->assertObjectHasAttribute( 'meta', $comment );
 		$this->assertEquals( 'wordpress', $comment->meta['hc_post_as'] );
 		$this->assertEquals( 'abcd1234', $comment->meta['hc_wpcom_id_sig'] );
