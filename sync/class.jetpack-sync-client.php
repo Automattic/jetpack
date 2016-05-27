@@ -602,7 +602,7 @@ class Jetpack_Sync_Client {
 		return array( $args[0], $this->filter_comment_and_add_hc_meta( $args[1] ) );
 	}
 
-	private function filter_comment_and_add_hc_meta( $comment ) {
+	function filter_comment_and_add_hc_meta( $comment ) {
 		// add meta-property with Highlander Comment meta, which we 
 		// we need to process synchronously on .com
 		$hc_post_as = get_comment_meta( $comment->comment_ID, 'hc_post_as', true );
