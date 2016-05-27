@@ -68,7 +68,8 @@ export const SubscriptionsSettings = React.createClass( {
 		return (
 			<FormFieldset>
 				<ModuleOptionBoolean option_name={ "stb_enabled" } { ...this.props } label={ __( 'Show a "follow blog" options in the comment form' ) } />
-				<ModuleOptionBoolean option_name={ 'stc_enabled' } { ...this.props } label={ __( 'Show a "follow comments" option in the comment form.' ) } />
+				<ModuleOptionBoolean option_name={ 'stc_enabled' } { ...this.props } label={ __( 'Show a "follow comments" option in the comment form.' ) +
+					' (Currently does not work)' } />
 			</FormFieldset>
 		)
 	}
@@ -133,6 +134,7 @@ export const ProtectSettings = React.createClass( {
 	render() {
 		return (
 			<FormFieldset>
+				<span> { '(Currently does not work)' } </span>
 				<FormLegend>{ __( 'Whitelist Management' ) }</FormLegend>
 				<FormLabel>
 					<span>{ __( 'IP addresses/ranges list' ) }</span>
@@ -148,7 +150,8 @@ export const MonitorSettings = React.createClass( {
 		return (
 			<FormFieldset>
 				<ModuleOptionBoolean option_name={ 'monitor_receive_notifications' } { ...this.props } label={ __( 'Receive Monitor Email Notifications' ) } />
-				<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Emails will be sent to admin address' ) } />
+				<ModuleOptionBoolean option_name={ 'option_name' } { ...this.props } label={ __( 'Emails will be sent to admin address' ) +
+					' (Currently does not work)' } />
 			</FormFieldset>
 		)
 	}
@@ -212,6 +215,7 @@ export const MinilevenSettings = React.createClass( {
 	render() {
 		return (
 			<div>
+				<span>{ '(These options currently do not work)' } </span>
 				<FormFieldset>
 					<FormLegend> { __( 'Excerpts' ) } </FormLegend>
 					<ModuleOptionEnum option_name={ 'wp_mobile_excerpt' } { ...this.props } />
@@ -265,6 +269,7 @@ export const GravatarHovercardsSettings = React.createClass( {
 			<div>
 				<FormFieldset>
 					<FormLegend>{ __( 'View people\'s profiles when you mouse over their Gravatars' ) }</FormLegend>
+					<span> { '(Currently does not work)' } </span>
 					<ModuleOptionEnum option_name={ 'gravatar_disable_hovercards' } { ...this.props } />
 				</FormFieldset>
 			</div>
@@ -289,6 +294,7 @@ export const PostByEmailSettings = React.createClass( {
 		return (
 			<div>
 				<FormFieldset>
+					<span> { '(Currently does not work)' } </span>
 					<ModuleOptionTextInput option_name={ 'post_by_email_address' } { ...this.props } label={ __( 'Email Address' ) } />
 					<FormButton>{ __( 'Regenerate address' ) }</FormButton>
 				</FormFieldset>
@@ -338,6 +344,7 @@ export const AfterTheDeadlineSettings = React.createClass( {
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend> { __( 'Ignored Phrases' ) } </FormLegend>
+						<span> { '(Currently does not work)' } </span>
 						<ModuleOptionTextInput option_name={ 'ignored_phrases' } { ...this.props } label={ __( 'New phrase' ) } />
 				</FormFieldset>
 			</div>
