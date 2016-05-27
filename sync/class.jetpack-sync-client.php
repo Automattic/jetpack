@@ -567,6 +567,7 @@ class Jetpack_Sync_Client {
 		$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
 		$post->permalink             = get_permalink( $post->ID );
 		$post->shortlink             = wp_get_shortlink( $post->ID );
+		$post->author_email          = get_the_author_meta( 'email', $post->post_author );
 
 		return $post;
 	}
