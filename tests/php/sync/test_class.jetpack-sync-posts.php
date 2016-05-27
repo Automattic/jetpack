@@ -319,14 +319,16 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_sync_post_includes_legacy_author_info() {
 		// hopefully we can drop this once users are syncing properly
-		$author_id = $this->factory->user->create( array( 'user_email' => 'foo@bar.com' ) );
+		$author_id = $this->factory->user->create( array( 'user_email' => 'foo@bar.com', 'display_name' => 'Henry Rollins' ) );
 		$post_id = $this->factory->post->create( array( 'post_author' => $author_id ) );
 
 		$this->client->do_sync();
 
 		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
 		$this->assertObjectHasAttribute( 'author_email', $post_on_server );
+		$this->assertObjectHasAttribute( 'author_display_name', $post_on_server );
 		$this->assertEquals( 'foo@bar.com', $post_on_server->author_email );
+		$this->assertEquals( 'Henry Rollins', $post_on_server->author_display_name );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {
