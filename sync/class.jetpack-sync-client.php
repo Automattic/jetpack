@@ -80,13 +80,16 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_comment', $handler, 10 );
 		add_action( 'trashed_comment', $handler, 10 );
 		add_action( 'spammed_comment', $handler, 10 );
+		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
 
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
 		// so this saves us a DB read for every comment event
 		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
-				add_action( "comment_{$comment_status}_{$comment_type}", $handler, 10, 2 );
+				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
+				add_action( $comment_action_name, $handler, 10, 2 );
+				add_filter( "jetpack_sync_before_send_$comment_action_name", array( $this, 'expand_wp_comment_status_change' ) );
 			}
 		}
 
@@ -554,7 +557,6 @@ class Jetpack_Sync_Client {
 	}
 
 	function expand_wp_insert_post( $args ) {
-		// list( $post_ID, $post, $update ) = $args;
 		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2] );
 	}
 
@@ -576,6 +578,29 @@ class Jetpack_Sync_Client {
 		$post->extra = $extra;
 
 		return $post;
+	}
+
+	function expand_wp_comment_status_change( $args ) {
+		return array( $args[0], $this->filter_comment_and_add_hc_meta( $args[1] ) );
+	}
+
+	function expand_wp_insert_comment( $args ) {
+		return array( $args[0], $this->filter_comment_and_add_hc_meta( $args[1] ) );
+	}
+
+	function filter_comment_and_add_hc_meta( $comment ) {
+		// add meta-property with Highlander Comment meta, which we 
+		// we need to process synchronously on .com
+		$hc_post_as = get_comment_meta( $comment->comment_ID, 'hc_post_as', true );
+		if ( 'wordpress' === $hc_post_as ) {
+			$meta = array();
+			$meta['hc_post_as']         = $hc_post_as;
+			$meta['hc_wpcom_id_sig']    = get_comment_meta( $comment->comment_ID, 'hc_wpcom_id_sig', true );
+			$meta['hc_foreign_user_id'] = get_comment_meta( $comment->comment_ID, 'hc_foreign_user_id', true );
+			$comment->meta = $meta;	
+		}
+
+		return $comment;
 	}
 
 	private function schedule_sync( $when ) {
