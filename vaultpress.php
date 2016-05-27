@@ -2258,7 +2258,7 @@ JS;
 	 * Sync the VaultPress options to WordPress.com if the Jetpack plugin is active.
 	 */
 	function sync_jetpack_options() {
-		if ( class_exists( 'Jetpack_Sync' ) ) {
+		if ( class_exists( 'Jetpack_Sync' ) && method_exists( 'Jetpack_Sync', 'sync_options' ) ) {
 			Jetpack_Sync::sync_options( __FILE__, $this->auto_register_option, $this->option_name );
 		}
 	}
