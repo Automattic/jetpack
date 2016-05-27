@@ -122,7 +122,7 @@ class Jetpack_Slideshow_Shortcode {
 				'trans'     => 'fade',
 				'order'     => 'ASC',
 				'orderby'   => 'menu_order ID',
-				'id'        => isset( $post->ID ) ? $post->ID : null,
+				'id'        => $post->ID,
 				'include'   => '',
 				'exclude'   => '',
 				'autostart' => true,
