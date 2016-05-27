@@ -325,10 +325,10 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 
 		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
-		$this->assertObjectHasAttribute( 'author_email', $post_on_server );
-		$this->assertObjectHasAttribute( 'author_display_name', $post_on_server );
-		$this->assertEquals( 'foo@bar.com', $post_on_server->author_email );
-		$this->assertEquals( 'Henry Rollins', $post_on_server->author_display_name );
+		$post_extra = $post_on_server->extra;
+
+		$this->assertEquals( 'foo@bar.com', $post_extra['author_email'] );
+		$this->assertEquals( 'Henry Rollins', $post_extra['author_display_name'] );
 	}
 
 	function test_sync_post_includes_dont_email_post_to_subs() {
@@ -338,8 +338,9 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 
 		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
-		$this->assertObjectHasAttribute( 'dont_email_post_to_subs', $post_on_server );
-		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
+		$post_extra = $post_on_server->extra;
+
+		$this->assertEquals( true, $post_extra['dont_email_post_to_subs'] );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {
