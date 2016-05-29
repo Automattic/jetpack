@@ -157,6 +157,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'jetpackStateNotices' => array(
 				'messageCode' => Jetpack::state( 'message' ),
 				'errorCode' => Jetpack::state( 'error' ),
+				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
 		) );
 	}

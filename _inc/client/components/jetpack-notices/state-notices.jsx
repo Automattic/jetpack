@@ -20,11 +20,15 @@ const JetpackStateNotices = React.createClass( {
 	},
 
 	getErrorFromKey: function( key ) {
+		const errorDesc = window.Initial_State.jetpackStateNotices.errorDescription || false;
+		let message = '';
+
 		switch ( key ) {
 			case 'cheatin' :
-				return __( "Cheatin' uh?" );
+				message = __( "Cheatin' uh?" );
+				break;
 			case 'access_denied' :
-				return __( '{{p}}Would you mind telling us why you did not complete the Jetpack connection in this {{a}}2 question survey{{/a}}?{{/p}}' +
+				message = __( '{{p}}Would you mind telling us why you did not complete the Jetpack connection in this {{a}}2 question survey{{/a}}?{{/p}}' +
 					'{{p}}A Jetpack connection is required for our free security and traffic features to work.{{/p}}',
 					{
 						components: {
@@ -33,23 +37,28 @@ const JetpackStateNotices = React.createClass( {
 						}
 					}
 				);
+				break;
 			case 'wrong_state' :
-				return __( 'You need to stay logged in to your WordPress blog while you authorize Jetpack.' );
+				message = __( 'You need to stay logged in to your WordPress blog while you authorize Jetpack.' );
+				break;
 			case 'invalid_client' :
-				return __( 'We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again.' );
+				message = __( 'We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again.' );
+				break;
 			case 'invalid_grant' :
-				return __( 'There was an issue connecting your Jetpack. Please click "Connect to WordPress.com" again.' );
+				message = __( 'There was an issue connecting your Jetpack. Please click "Connect to WordPress.com" again.' );
+				break;
 			case 'site_inaccessible' :
 			case 'site_requires_authorization' :
-				return __( 'Your website needs to be publicly accessible to use Jetpack: %(error_key)s',
+				message = __( 'Your website needs to be publicly accessible to use Jetpack: %(error_key)s',
 					{
 						args: {
 							error_key: key
 						}
 					}
 				);
+				break;
 			case 'not_public' :
-				return __( '{{s}}Your Jetpack has a glitch.{{/s}} Connecting this site with WordPress.com is not possible. ' +
+				message = __( '{{s}}Your Jetpack has a glitch.{{/s}} Connecting this site with WordPress.com is not possible. ' +
 					'This usually means your site is not publicly accessible (localhost).',
 					{
 						components: {
@@ -57,20 +66,23 @@ const JetpackStateNotices = React.createClass( {
 						}
 					}
 				);
+				break;
 			case 'wpcom_408' :
 			case 'wpcom_5??' :
 			case 'wpcom_bad_response' :
 			case 'wpcom_outage' :
-				return __( 'WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.' );
+				message = __( 'WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.' );
+				break;
 			case 'register_http_request_failed' :
 			case 'token_http_request_failed' :
-				return __( 'Jetpack could not contact WordPress.com: %(error_key)s.  This usually means something is incorrectly configured on your web host.',
+				message = __( 'Jetpack could not contact WordPress.com: %(error_key)s.  This usually means something is incorrectly configured on your web host.',
 					{
 						args: {
 							error_key: key
 						}
 					}
 				);
+				break;
 			case 'no_role' :
 			case 'no_cap' :
 			case 'no_code' :
@@ -102,7 +114,7 @@ const JetpackStateNotices = React.createClass( {
 			case 'verify_secret_1_malformed' :
 			case 'verify_secrets_missing' :
 			case 'verify_secrets_mismatch' :
-				return __( "{{s}}Your Jetpack has a glitch.{{/s}}  We're sorry for the inconvenience. " +
+				message = __( "{{s}}Your Jetpack has a glitch.{{/s}}  We're sorry for the inconvenience. " +
 					"Please try again later, if the issue continues please contact support with this message: %(error_key)s",
 					{
 						components: {
@@ -113,14 +125,50 @@ const JetpackStateNotices = React.createClass( {
 						}
 					}
 				);
+				break;
 
 			default:
-				return key;
+				message = key;
 		}
+
+		if ( errorDesc ) {
+			return (
+				<div>
+					{ message }
+					<br/>
+					{ errorDesc }
+				</div>
+			)
+		}
+
+		return (
+			<div>
+				{ message }
+			</div>
+		)
 	},
 
 	getMessageFromKey: function( key ) {
 		switch ( key ) {
+			// This is the message that is shown on first page load after a Jetpack plugin update.
+			case 'modules_activated' :
+				return __( 'Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!',
+					{
+						args: {
+							jetpack_version: window.Initial_State.currentVersion
+						},
+						components: {
+							s: <strong />
+						}
+					}
+				);
+			case 'already_authorized' :
+				return __( 'Your Jetpack is already connected.' );
+			case 'authorized' :
+				return __( "You're fueled up and ready to go, Jetpack is now active." );
+			case 'linked' :
+				return __( "You're fueled up and ready to go." );
+
 
 			default:
 				return key;
