@@ -4611,6 +4611,10 @@ p {
 
 			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
 			@list( $secret ) = explode( ':', $secrets );
+			
+			$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
+				? get_site_icon_url()
+				: false;
 
 			$args = urlencode_deep(
 				array(
@@ -4634,6 +4638,9 @@ p {
 					'secret'        => $secret,
 					'locale'        => isset( $gp_locale->slug ) ? $gp_locale->slug : '',
 					'blogname'      => get_option( 'blogname' ),
+					'site_url'      => site_url(),
+					'home_url'      => home_url(),
+					'site_icon'     => $site_icon,
 				)
 			);
 
