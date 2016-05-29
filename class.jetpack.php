@@ -4604,11 +4604,12 @@ p {
 			if( isset( $_REQUEST['is_multisite'] ) ) {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 			}
-
-			$secrets = Jetpack::init()->generate_secrets();
-			Jetpack_Options::update_option( 'authorize', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] . ':' . $secrets[3] );
-
-			@list( $secret ) = explode( ':', Jetpack_Options::get_option( 'authorize' ) );
+			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
+			@list( $secret ) = explode( ':', $secrets );
+			
+			$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
+				? get_site_icon_url()
+				: false;
 
 			$args = urlencode_deep(
 				array(
@@ -4629,7 +4630,16 @@ p {
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
 					'auth_type'     => 'calypso',
+<<<<<<< HEAD
 					'secret'		=> $secret,
+=======
+					'secret'        => $secret,
+					'locale'        => isset( $gp_locale->slug ) ? $gp_locale->slug : '',
+					'blogname'      => get_option( 'blogname' ),
+					'site_url'      => site_url(),
+					'home_url'      => home_url(),
+					'site_icon'     => $site_icon,
+>>>>>>> 2d70d79... Jetpack Connect URL
 				)
 			);
 
