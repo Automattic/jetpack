@@ -169,6 +169,14 @@ const JetpackStateNotices = React.createClass( {
 			case 'linked' :
 				return __( "You're fueled up and ready to go." );
 
+			// @todo: These notices should be handled in-app
+			case 'module_activated' :
+			case 'module_deactivated' :
+			case 'module_configured' :
+			case 'unlinked' : // unlinked user
+			case 'switch_master' :
+				return key;
+
 
 			default:
 				return key;
