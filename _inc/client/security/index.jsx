@@ -18,7 +18,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
-import { SecurityModulesSettings } from 'components/module-options/moduleoptions';
+import { SecurityModulesSettings } from 'components/module-settings/modules-per-tab-page';
 import {
 	fetchPluginsData,
 	isFetchingPluginsData,

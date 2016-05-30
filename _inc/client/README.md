@@ -44,7 +44,7 @@ window.Initial_State.WP_API_root;
 * modules.fetchModules()
 * modules.activateModule( name )
 * modules.deactivateModule( name )
-* modules.updateModuleOption( name, { optionKey: optionValue} )
+* modules.updateModuleOptions( name, { option1Key: option1Value, option2Key: option2Value } )
 
 ### Action types
 

@@ -18,7 +18,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
-import { MoreModulesSettings } from 'components/module-options/moduleoptions';
+import { MoreModulesSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {

@@ -18,7 +18,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
-import { EngagementModulesSettings } from 'components/module-options/moduleoptions';
+import { EngagementModulesSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
@@ -94,7 +94,7 @@ export const Page = ( props ) => {
 				</p>
 			</FoldableCard>
 		);
-	});
+	} );
 	return (
 		<div>
 			{ cards }
