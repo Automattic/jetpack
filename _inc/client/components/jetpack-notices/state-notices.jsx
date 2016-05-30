@@ -149,10 +149,12 @@ const JetpackStateNotices = React.createClass( {
 	},
 
 	getMessageFromKey: function( key ) {
+		let message = '';
+		let status = 'is-info';
 		switch ( key ) {
 			// This is the message that is shown on first page load after a Jetpack plugin update.
 			case 'modules_activated' :
-				return __( 'Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!',
+				message = __( 'Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!',
 					{
 						args: {
 							jetpack_version: window.Initial_State.currentVersion
@@ -162,28 +164,38 @@ const JetpackStateNotices = React.createClass( {
 						}
 					}
 				);
+				break;
 			case 'already_authorized' :
-				return __( 'Your Jetpack is already connected.' );
+				message = __( 'Your Jetpack is already connected.' );
+				status = 'is-success';
+				break;
 			case 'authorized' :
-				return __( "You're fueled up and ready to go, Jetpack is now active." );
+				message = __( "You're fueled up and ready to go, Jetpack is now active." );
+				status = 'is-success';
+				break;
 			case 'linked' :
-				return __( "You're fueled up and ready to go." );
+				message = __( "You're fueled up and ready to go." );
+				status = 'is-success';
+				break;
 
 			// @todo: These notices should be handled in-app
-			case 'module_activated' :
-			case 'module_deactivated' :
-			case 'module_configured' :
-			case 'unlinked' : // unlinked user
-			case 'switch_master' :
-				return key;
+			//case 'module_activated' :
+			//case 'module_deactivated' :
+			//case 'module_configured' :
+			//case 'unlinked' : // unlinked user
+			//case 'switch_master' :
+			//	return key;
 
 
 			default:
-				return key;
+				message = key;
 		}
+
+		return [ message, status ];
 	},
 
 	renderContent: function() {
+		let status = 'is-info';
 		let noticeText = '';
 		const error = window.Initial_State.jetpackStateNotices.errorCode,
 			message = window.Initial_State.jetpackStateNotices.messageCode;
@@ -194,15 +206,20 @@ const JetpackStateNotices = React.createClass( {
 
 		if ( error ) {
 			noticeText = this.getErrorFromKey( error );
+			if ( error !== 'access_denied' ) {
+				status = 'is-error';
+			}
 		}
 
 		if ( message ) {
-			noticeText = this.getMessageFromKey( message );
+			const messageData = this.getMessageFromKey( message );
+			noticeText = messageData[0];
+			status = messageData[1];
 		}
 
 		return (
 			<SimpleNotice
-				status="is-info"
+				status={ status }
 				onClick={ this.dismissJetpackStateNotice }
 			>
 				{ noticeText }
