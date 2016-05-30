@@ -221,9 +221,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Dismiss Jetpack Notices
-		register_rest_route( 'jetpack/v4', '/dismiss-jetpack-notice/(?P<notice>[a-z\-_]+)', array(
+		register_rest_route( 'jetpack/v4', '/notice/(?P<notice>[a-z\-_]+)/dismiss', array(
 			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::dismiss_jetpack_notice',
+			'callback' => __CLASS__ . '::dismiss_notice',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 	}
@@ -235,7 +235,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return array|wp-error
 	 */
-	public static function dismiss_jetpack_notice( $data ) {
+	public static function dismiss_notice( $data ) {
 		$notice = $data['notice'];
 		if ( isset( $notice ) && ! empty( $notice ) ) {
 			switch( $notice ) {
