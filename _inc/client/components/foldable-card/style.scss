@@ -1,0 +1,16 @@
+.dops-foldable-card.dops-card {
+
+	.dops-foldable-card__header-text {
+
+		@include breakpoint( "<480px" ) {
+			font-size: rem( 14px );
+		}
+	}
+
+	.dops-foldable-card__subheader {
+
+		@include breakpoint( "<480px" ) {
+			display: none;
+		}
+	}
+}
