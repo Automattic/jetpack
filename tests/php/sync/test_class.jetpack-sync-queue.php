@@ -232,6 +232,26 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( 0, $this->queue->size() );
 	}
 
+	function test_skip_adding_actions_filter() {
+		$this->assertEquals( 0, $this->queue->size() );
+		add_filter( 'jetpack_skip_sync_item', array( $this, 'skip_sync_action' ), 10, 2 );
+
+		$this->queue->add( 'skip_me' );
+		$this->assertEquals( 0, $this->queue->size() );
+		$this->queue->reset();
+
+		$this->queue->add_all( array( 'don\'t skip me','skip_me' ) );
+		$this->assertEquals( 1, $this->queue->size() );
+		$this->queue->reset();
+	}
+
+	function skip_sync_action( $skip, $item ) {
+		if ( 'skip_me' === $item ) {
+			return true;
+		}
+		return false;
+	}
+
 	function test_checkout_returns_false_if_checkout_zero_items() {
 		$this->queue->add_all( array(1, 2, 3) );
 

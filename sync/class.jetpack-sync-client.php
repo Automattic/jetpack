@@ -300,7 +300,7 @@ class Jetpack_Sync_Client {
 		) {
 			return;
 		}
-
+		
 		$this->sync_queue->add( array(
 			$current_filter,
 			$args,

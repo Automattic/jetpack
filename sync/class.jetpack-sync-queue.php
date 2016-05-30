@@ -43,6 +43,21 @@ class Jetpack_Sync_Queue {
 	function add( $item ) {
 		global $wpdb;
 		$added = false;
+
+		/**
+		 * Filters whether to skip adding an item to the sync que.
+		 *
+		 * Passing true to the filter will prevent the item to not be added to the que.
+		 * $item = array( $action, $args, $user_id, $microtime );
+		 *
+		 * @since 4.1.0
+		 *
+		 * @see Jetpack_Sync_Queue->add()
+		 */
+		if ( apply_filters( 'jetpack_skip_sync_item', false, $item ) ) {
+			return false;
+		}
+
 		// this basically tries to add the option until enough time has elapsed that
 		// it has a unique (microtime-based) option key
 		while ( ! $added ) {
@@ -66,14 +81,21 @@ class Jetpack_Sync_Queue {
 		$rows = array();
 
 		for ( $i = 0; $i < count( $items ); $i += 1 ) {
+			if ( apply_filters( 'jetpack_skip_sync_item', false, $items[ $i ]) ) {
+				continue;
+			}
 			$option_name  = esc_sql( $base_option_name . '-' . $i );
 			$option_value = esc_sql( serialize( $items[ $i ] ) );
 			$rows[]       = "('$option_name', '$option_value', 'no')";
 		}
 
+		if ( empty( $rows ) ) {
+			return false;
+		}
+
 		$rows_added = $wpdb->query( $query . join( ',', $rows ) );
 
-		if ( $rows_added !== count( $items ) ) {
+		if ( $rows_added !== count( $rows ) ) {
 			return new WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
 	}
