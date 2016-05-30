@@ -771,7 +771,7 @@ class Jetpack_Sync_Client {
 		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
 			// This is the option that is synced with dotcom
 			Jetpack_Options::update_option( 'site_icon_url', $url );
-		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
+		} else if ( empty( $url ) ) {
 			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 	}
