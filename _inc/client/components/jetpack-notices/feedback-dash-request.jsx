@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
+import SimpleNotice from 'components/notice';
 
 /**
  * Internal dependencies
@@ -22,23 +23,21 @@ const FeedbackDashRequest = React.createClass( {
 		}
 
 		return (
-			<Card className="jp-dash-item__feedback-request">
-				<p className="jp-dash-item__description">
-					<a
-						onClick={ this.props.dismissNotice }
-						href="#"
-					>
-						[dismiss] 
-					</a>
-					{
-						__( 'What would you like to see on your Jetpack Dashboard? {{a}}Send us some feedback and let us know!{{/a}}', {
-							components: {
-								a: <a href="https://jetpack.com/contact" target="_blank" />
-							}
-						} )
-					}
-				</p>
-			</Card>
+			<div>
+				<SimpleNotice
+					className="jp-dash-item__feedback-request"
+					status="is-basic"
+					onClick={ this.props.dismissNotice }
+				>
+				{
+					__( 'What would you like to see on your Jetpack Dashboard? {{a}}Let us know!{{/a}}', {
+						components: {
+							a: <a href="https://jetpack.com/contact" target="_blank" />
+						}
+					} )
+				}
+				</SimpleNotice>
+			</div>
 		);
 	},
 
