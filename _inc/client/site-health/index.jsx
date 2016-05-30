@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
-import { ModuleToggle } from 'components/module-toggle';
 
 /**
  * Internal dependencies
@@ -17,6 +16,7 @@ import {
 	isDeactivatingModule,
 	getModule as _getModule
 } from 'state/modules';
+import { ModuleToggle } from 'components/module-toggle';
 
 export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
 	var cards = [
@@ -66,6 +66,8 @@ function renderLongDescription( module ) {
 
 function renderSettings( module ) {
 	switch ( module ) {
+		case 'manage':
+			return <div>{ ( 'This module has no configuration options' ) } </div>;
 		case 'akismet':
 			return ( <div>Please go to <a href="/wp-admin/admin.php?page=akismet-key-config">Akismet Settings</a> to configure</div> );
 		case 'backups':
