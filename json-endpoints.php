@@ -118,7 +118,7 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'path_labels' => array(
 		'$site' => '(int|string) Site ID or domain',
 	),
-
+	'allow_jetpack_site_auth' => true,
 	'query_parameters' => array(
 		'context' => false,
 	),
