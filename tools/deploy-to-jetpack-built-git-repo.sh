@@ -32,10 +32,6 @@ echo "Rsync'ing everything over from Git except for .git and npm stuffs."
 rsync -r --exclude='*.git*' --exclude=node_modules $JETPACK_GIT_DIR/* $JETPACK_TMP_DIR_2
 echo "Done!"
 
-echo "Purging .po files"
-rm -f $JETPACK_TMP_DIR_2/languages/*.po
-echo "Done!"
-
 echo "Purging paths included in .svnignore"
 # check .svnignore
 for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
