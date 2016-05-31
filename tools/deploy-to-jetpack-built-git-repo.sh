@@ -43,8 +43,8 @@ for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
 done
 echo "Done!"
 
-echo "Pulling latest build"
-git clone git@github.com:Automattic/jetpack-built.git $JETPACK_TMP_DIR
+echo "Pulling latest from jetpack-built branch"
+git clone -b jetpack-built --single-branch git@github.com:Automattic/jetpack.git $JETPACK_TMP_DIR
 echo "Done!"
 
 echo "Rsync'ing everything over remote version"
@@ -53,8 +53,14 @@ echo "Done!"
 
 cd $JETPACK_TMP_DIR
 
-echo "Finally, Commiting and Pushing"
+echo "Finally, Committing and Pushing"
 git add .
 git commit -am 'New build'
-git push origin master
-echo "Done!"
+git push origin jetpack-built
+echo "Done! Branch jetpack-react has been updated."
+
+echo "Cleaning up the mess"
+cd $JETPACK_GIT_DIR
+rm -rf $JETPACK_TMP_DIR
+rm -rf $JETPACK_TMP_DIR_2
+echo "All clean!"
