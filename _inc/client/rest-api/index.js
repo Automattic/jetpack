@@ -165,7 +165,7 @@ const restApi = {
 		}
 	} )
 		.then( checkStatus ).then( response => response.json() ),
-	dismissJetpackNotice: ( notice ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/dismiss-jetpack-notice/${ notice }`, {
+	dismissJetpackNotice: ( notice ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/notice/${ notice }/dismiss`, {
 		method: 'put',
 		credentials: 'same-origin',
 		headers: {
