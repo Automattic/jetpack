@@ -30,8 +30,9 @@ function onBuild( done ) {
 		// Webpack doesn't populate err in case the build fails
 		// @see https://github.com/webpack/webpack/issues/708
 		if ( stats.compilation.errors && stats.compilation.errors.length ) {
-			done( new gutil.PluginError( 'webpack', stats.compilation.errors[0] ) );
-			return;
+			if ( done ) {
+				done( new gutil.PluginError( 'webpack', stats.compilation.errors[0] ) );
+			}
 		}
 
 		gutil.log( 'Building JS…', stats.toString( {
