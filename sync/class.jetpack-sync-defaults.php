@@ -110,6 +110,7 @@ class Jetpack_Sync_Defaults {
 		'modules'                      => array( 'Jetpack_Sync_Callables', 'get_modules' ),
 		'taxonomies'                   => array( 'Jetpack_Sync_Callables', 'get_taxonomies' ),
 		'post_types'                   => array( 'Jetpack_Sync_Callables', 'get_post_types' ),
+		'allowed_file_types'           => array( 'Jetpack_Sync_Callables', 'allowed_file_types' ),
 	);
 
 	static $blacklisted_post_types = array(
