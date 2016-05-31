@@ -6,6 +6,15 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { Route, Router, hashHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
+import analytics from 'lib/analytics';
+
+const tracksUser = window.Initial_State.tracksUserData;
+if ( tracksUser ) {
+	analytics.initialize(
+		tracksUser.userid,
+		tracksUser.username
+	);
+}
 
 /**
  * Internal dependencies

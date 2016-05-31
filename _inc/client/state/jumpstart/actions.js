@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import analytics from 'lib/analytics';
+
+/**
  * Internal dependencies
  */
 import {
@@ -35,6 +40,7 @@ export const jumpStartSkip = () => {
 		dispatch( {
 			type: JUMPSTART_SKIP
 		} );
+		analytics.tracks.recordEvent( 'jetpack_jumpstart_skip', {} );
 		return restApi.jumpStart( 'deactivate' ).then( () => {
 			dispatch( {
 				type: JUMPSTART_SKIP_SUCCESS,
