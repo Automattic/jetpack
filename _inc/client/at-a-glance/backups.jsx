@@ -18,6 +18,7 @@ import {
 import {
 	getVaultPressData as _getVaultPressData
 } from 'state/at-a-glance';
+import { isDevMode } from 'state/connection';
 
 const DashBackups = React.createClass( {
 	getContent: function() {
@@ -38,7 +39,7 @@ const DashBackups = React.createClass( {
 
 			if ( vpData.code === 'success' && backupData.has_full_backup ) {
 				return(
-					<DashItem label={ labelName } status="is-working">
+					<DashItem label={ labelName } status="is-working" disabled={ isDevMode( this.props ) }>
 						<h3>{ __( 'Your site is completely backed up!' ) }</h3>
 						<p className="jp-dash-item__description">{ __( 'Full Backup Status:' ) } { backupData.full_backup_status } </p>
 						<p className="jp-dash-item__description">{ __( 'Last Backup:' ) } { backupData.last_backup } </p>
@@ -49,7 +50,7 @@ const DashBackups = React.createClass( {
 			// All good
 			if ( vpData.code === 'success' && backupData.full_backup_status !== '100% complete' ) {
 				return(
-					<DashItem label={ labelName } status="is-working">
+					<DashItem label={ labelName } status="is-working" disabled={ isDevMode( this.props ) }>
 						<h3>{ __( 'Currently backing up your site.' ) }</h3>
 						<p className="jp-dash-item__description">{ __( 'Full Backup Status:' ) } { backupData.full_backup_status } </p>
 						<p className="jp-dash-item__description">{ __( 'Last Backup:' ) } { backupData.last_backup }</p>
@@ -59,7 +60,7 @@ const DashBackups = React.createClass( {
 		}
 
 		return(
-			<DashItem label={ labelName } className="jp-dash-item__is-inactive" status="is-premium-inactive">
+			<DashItem label={ labelName } className="jp-dash-item__is-inactive" status="is-premium-inactive" disabled={ isDevMode( this.props ) }>
 				<p className="jp-dash-item__description">
 					{
 						__( 'To automatically back up your site, please {{a}}upgrade your account{{/a}}', {

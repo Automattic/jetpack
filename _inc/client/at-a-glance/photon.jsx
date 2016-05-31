@@ -13,6 +13,7 @@ import {
 	isModuleActivated as _isModuleActivated,
 	activateModule
 } from 'state/modules';
+import { isDevMode } from 'state/connection';
 
 const DashPhoton = React.createClass( {
 	getContent: function() {
@@ -20,14 +21,14 @@ const DashPhoton = React.createClass( {
 
 		if ( this.props.isModuleActivated( 'photon' ) ) {
 			return(
-				<DashItem label={ labelName } status="is-working">
+				<DashItem label={ labelName } status="is-working" disabled={ isDevMode( this.props ) }>
 					<p className="jp-dash-item__description">{ __( 'Photon is active and currently improving image performance.' ) }</p>
 				</DashItem>
 			);
 		}
 
 		return(
-			<DashItem label={ labelName } className="jp-dash-item__is-inactive">
+			<DashItem label={ labelName } className="jp-dash-item__is-inactive" disabled={ isDevMode( this.props ) }>
 				<p className="jp-dash-item__description">
 					{
 						__( '{{a}}Activate Photon{{/a}} to enhance the performance of your images.', {

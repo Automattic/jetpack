@@ -214,6 +214,21 @@ export function getModulesByFeature( state, feature ) {
 }
 
 /**
+ * Returns an array of modules that require connection.
+ *
+ * The module's header comments indicates if it requires connection or not.
+ *
+ * @param  {Object} state   Global state tree
+ * @return {Array}          Array of modules that require connection.
+ */
+export function getModulesThatRequireConnection( state ) {
+	return Object.keys( state.jetpack.modules.items ).filter( ( module_slug ) =>
+		state.jetpack.modules.items[ module_slug ].requires_connection
+	);
+}
+
+
+/**
  * Returns true if the module is activated
  * @param  {Object}  state Global state tree
  * @param  {String}  name  A module's name

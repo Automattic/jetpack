@@ -13,7 +13,7 @@ import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { getSiteConnectionStatus } from 'state/connection';
+import { getSiteConnectionStatus, isDevMode } from 'state/connection';
 import { demoStatsData, demoStatsBottom } from 'devmode';
 import {
 	statsSwitchTab,
@@ -186,7 +186,7 @@ const DashStats = React.createClass( {
 				>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
-				<Card className="jp-at-a-glance__stats-card">
+				<Card className={ 'jp-at-a-glance__stats-card ' + ( isDevMode( this.props ) ? 'is-inactive': '' ) }>
 					{ this.renderStatsArea() }
 				</Card>
 			</div>

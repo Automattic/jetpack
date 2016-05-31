@@ -17,6 +17,7 @@ import {
 	isModuleActivated as _isModuleActivated,
 	activateModule
 } from 'state/modules';
+import { isDevMode } from 'state/connection';
 
 const DashPluginUpdates = React.createClass( {
 	activateAndRedirect: function( e ) {
@@ -36,7 +37,7 @@ const DashPluginUpdates = React.createClass( {
 
 		if ( 'N/A' === pluginUpdates ) {
 			return(
-				<DashItem label={ labelName } status="is-working">
+				<DashItem label={ labelName } status="is-working" disabled={ isDevMode( this.props ) }>
 					<QueryPluginUpdates />
 					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 				</DashItem>
@@ -45,7 +46,7 @@ const DashPluginUpdates = React.createClass( {
 
 		if ( 'updates-available' === pluginUpdates.code ) {
 			return(
-				<DashItem label={ labelName } status="is-warning">
+				<DashItem label={ labelName } status="is-warning" disabled={ isDevMode( this.props ) }>
 					<p className="jp-dash-item__description">
 						<strong>
 							{
@@ -69,7 +70,7 @@ const DashPluginUpdates = React.createClass( {
 		}
 
 		return(
-			<DashItem label={ labelName } status="is-working">
+			<DashItem label={ labelName } status="is-working" disabled={ isDevMode( this.props ) }>
 				<p className="jp-dash-item__description">
 					{ __( 'All plugins are up-to-date. Keep up the good work!' ) }
 				</p>

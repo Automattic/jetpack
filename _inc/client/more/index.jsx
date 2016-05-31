@@ -18,8 +18,14 @@ import {
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { MoreModulesSettings } from 'components/module-options/moduleoptions';
+import { isUnavailableInDevMode } from 'state/connection';
 
-export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
+export const Page = ( props ) => {
+	let { toggleModule,
+		isModuleActivated,
+		isTogglingModule,
+		getModule
+		} = props;
 	var cards = [
 		[ 'Appearance & Customization Tools' ],
 		[ 'custom-css', getModule( 'custom-css' ).name, getModule( 'custom-css' ).description, getModule( 'custom-css' ).learn_more_button ],
@@ -66,6 +72,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
+				disabled={ isUnavailableInDevMode( props, element[0] ) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
 					<MoreModulesSettings module={ getModule( element[0] ) } /> :

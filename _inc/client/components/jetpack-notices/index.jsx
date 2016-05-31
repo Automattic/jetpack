@@ -119,10 +119,11 @@ export const DevModeNotice = React.createClass( {
 				devModeType += __('your site URL lacking a dot (e.g. http://localhost).');
 			}
 
-			const text = __('Currently in {{a}}Development Mode{{/a}} VIA ' + devModeType,
+			const text = __('Currently in {{a}}Development Mode{{/a}} VIA ' + devModeType + '{{br/}}Some features are disabled.',
 				{
 					components: {
-						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>
+						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+						br: <br />
 					}
 				}
 			);

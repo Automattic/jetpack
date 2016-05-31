@@ -16,12 +16,13 @@ export default React.createClass( {
 
 	propTypes: {
 		label: React.PropTypes.string,
-		status: React.PropTypes.string
+		status: React.PropTypes.string,
+		disabled: React.PropTypes.bool
 	},
 
 	getDefaultProps() {
 		return {
-			label: '',
+			label: ''
 		};
 	},
 
@@ -60,7 +61,8 @@ export default React.createClass( {
 
 		const classes = classNames(
 			this.props.className,
-			'jp-dash-item'
+			'jp-dash-item',
+			this.props.disabled ? 'jp-dash-item__disabled' : ''
 		);
 
 		if ( this.props.status ) {

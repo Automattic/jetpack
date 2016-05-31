@@ -19,6 +19,7 @@ import {
 	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
 	getVaultPressData as _getVaultPressData
 } from 'state/at-a-glance';
+import { isDevMode } from 'state/connection';
 
 const DashScan = React.createClass( {
 	getContent: function() {
@@ -33,7 +34,7 @@ const DashScan = React.createClass( {
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
 				return(
-					<DashItem label={ labelName }>
+					<DashItem label={ labelName } disabled={ isDevMode( this.props ) }>
 						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 					</DashItem>
 				);
@@ -43,7 +44,7 @@ const DashScan = React.createClass( {
 			const threats = this.props.getScanThreats();
 			if ( threats !== 0 ) {
 				return(
-					<DashItem label={ labelName } status="is-error">
+					<DashItem label={ labelName } status="is-error" disabled={ isDevMode( this.props ) }>
 						<h3>{
 							__(
 								'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
@@ -66,7 +67,7 @@ const DashScan = React.createClass( {
 			// All good
 			if ( vpData.code === 'success' ) {
 				return(
-					<DashItem label={ labelName } status="is-working">
+					<DashItem label={ labelName } status="is-working" disabled={ isDevMode( this.props ) }>
 						<h3>{ __( "No threats found, you're good to go!" ) }</h3>
 					</DashItem>
 				);
@@ -74,7 +75,7 @@ const DashScan = React.createClass( {
 		}
 
 		return(
-			<DashItem label={ labelName } className="jp-dash-item__is-inactive" status="is-premium-inactive">
+			<DashItem label={ labelName } className="jp-dash-item__is-inactive" status="is-premium-inactive" disabled={ isDevMode( this.props ) }>
 				<p className="jp-dash-item__description">
 					{
 						__( 'To automatically scan your site for malicious threats, please {{a}}upgrade your account{{/a}}', {

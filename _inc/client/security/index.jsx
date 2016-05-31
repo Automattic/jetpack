@@ -26,6 +26,7 @@ import {
 	isPluginInstalled
 } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
 	let {
@@ -65,6 +66,7 @@ export const Page = ( props ) => {
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
+				disabled={ isUnavailableInDevMode( props, element[0] ) }
 			>
 				{ isModuleActivated( element[0] ) || isScan ?
 					<SecurityModulesSettings module={ isScan ? scanProps : getModule( element[ 0 ] ) } /> :

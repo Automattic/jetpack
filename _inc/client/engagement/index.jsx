@@ -19,6 +19,7 @@ import {
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { EngagementModulesSettings } from 'components/module-options/moduleoptions';
+import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
 	let { toggleModule,
@@ -57,6 +58,7 @@ export const Page = ( props ) => {
 					toggleModule={ toggleModule } />
 			}
 			clickableHeaderText={ true }
+			disabled={ isUnavailableInDevMode( props, element[0] ) }
 		>
 			{ isModuleActivated( element[0] ) ?
 				<EngagementModulesSettings module={ getModule( element[0] ) } /> :
