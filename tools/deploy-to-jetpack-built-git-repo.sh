@@ -28,8 +28,8 @@ echo "Done"
 rm -rf $JETPACK_TMP_DIR
 rm -rf $JETPACK_TMP_DIR_2
 
-echo "Rsync'ing everything over from Git except for .git stuffs"
-rsync -r --exclude='*.git*' $JETPACK_GIT_DIR/* $JETPACK_TMP_DIR_2
+echo "Rsync'ing everything over from Git except for .git and npm stuffs."
+rsync -r --exclude='*.git*' --exclude=node_modules $JETPACK_GIT_DIR/* $JETPACK_TMP_DIR_2
 echo "Done!"
 
 echo "Purging .po files"
