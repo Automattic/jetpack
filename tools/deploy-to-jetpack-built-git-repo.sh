@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Currently a one-off script to push a built version to GitHub.
+# @todo: Setup a webhook to capture merges and automatically built/push.
+
 JETPACK_GIT_DIR=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )
 JETPACK_TMP_DIR="/tmp/jetpack"
 JETPACK_TMP_DIR_2="/tmp/jetpack2"
@@ -13,7 +16,7 @@ if [[ -n $( git status -s --porcelain ) ]]; then
  	exit 1
 fi
 
-read -p "You are about to deploy a new built to the jetpack-built repo. Are you sure? [y/N]" -n 1 -r
+read -p "You are about to deploy a new built to the jetpack-built branch. Are you sure? [y/N]" -n 1 -r
 if [[ $REPLY != "y" && $REPLY != "Y" ]]
 then
     exit 1
