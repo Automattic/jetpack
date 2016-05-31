@@ -12,9 +12,12 @@ languages/messages.pot
 npm-debug.log
 tests/php/files/jetpack-150x150.jpg
 
+## Only ignore in this branch "jetpack-built"
+/_inc/client
+
 ## Things we will need in release branches
-/_inc/build
-/modules/**/*.min.css
-/modules/**/*-rtl.css
-/css
-_inc/jetpack-strings.php
+#/_inc/build
+#/modules/**/*.min.css
+#/modules/**/*-rtl.css
+#/css
+#_inc/jetpack-strings.php
