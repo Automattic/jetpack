@@ -99,15 +99,15 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// updates
-			case 'set_site_transient_update_plugins':
+			case 'jetpack_sync_update_plugins':
 				list( $updates ) = $args;
 				$this->store->set_updates( 'plugins', $updates );
 				break;
-			case 'set_site_transient_update_themes':
+			case 'jetpack_sync_update_themes':
 				list( $updates ) = $args;
 				$this->store->set_updates( 'themes', $updates );
 				break;
-			case 'set_site_transient_update_core':
+			case 'jetpack_sync_update_core':
 				list( $updates ) = $args;
 				$this->store->set_updates( 'core', $updates );
 				break;
