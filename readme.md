@@ -75,8 +75,19 @@ Running `npm run watch` instead of `npm run build` will build all the code and c
 ```
 $ cd wp-content/plugins
 $ git clone https://github.com/Automattic/jetpack.git
+$ cd jetpack
 $ npm install
 $ npm run watch
+```
+
+#### Unit-testing the JS Admin Page
+
+You can run Mocha based tests for the Admin Page source code with `npm run test-client`
+
+```
+$ cd wp-content/plugins/jetpack
+$ npm install
+$ npm run test-client
 ```
 
 ## Monitor our activity on this repository
