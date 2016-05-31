@@ -346,11 +346,36 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_stop_sync_filter_stops_syncing() {
 		add_filter( 'jetpack_skip_sync_item', '__return_true' );
-		$this->factory->post->create();
+		$post_id = $this->factory->post->create();
 		$this->client->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 		$this->assertFalse( $event );
+
 	}
+
+	function test_syncing_of_blacklist_of_posts_we_do_not_sync() {
+		add_filter( 'jetpack_skip_sync_item', '__return_true' );
+		$post_id = $this->factory->post->create();
+		$this->client->do_sync();
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_post_ids', array() );
+		$this->assertContains( $post_id, $blacklist );
+	}
+
+	function test_syncing_of_blacklist_of_comments_we_do_not_sync() {
+		add_filter( 'jetpack_skip_sync_item', '__return_true' );
+		$comment_ids = $this->factory->comment->create_post_comments(
+			$this->factory->post->create()
+		);
+
+		$this->client->do_sync();
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_comment_ids' );
+		$this->assertContains( $comment_ids[0], $blacklist );
+	}
+
+
+
 
 	function action_ran( $data ) {
 		$this->action_ran = true;

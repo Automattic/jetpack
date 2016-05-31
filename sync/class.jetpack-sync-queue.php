@@ -38,12 +38,10 @@ class Jetpack_Sync_Queue {
 	function __construct( $id ) {
 		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 		$this->row_iterator = 0;
+		$this->blacklist_names = array( 'jetpack_skipped_sync_post_ids', 'jetpack_skipped_sync_comment_ids' );
 	}
 
 	function add( $item ) {
-		global $wpdb;
-		$added = false;
-
 		/**
 		 * Filters whether to skip adding an item to the sync que.
 		 *
@@ -55,9 +53,16 @@ class Jetpack_Sync_Queue {
 		 * @see Jetpack_Sync_Queue->add()
 		 */
 		if ( apply_filters( 'jetpack_skip_sync_item', false, $item ) ) {
+			$this->store_skipped_item( $item );
 			return false;
 		}
 
+		$this->_add( $item );
+	}
+
+	private function _add( $item ) {
+		global $wpdb;
+		$added = false;
 		// this basically tries to add the option until enough time has elapsed that
 		// it has a unique (microtime-based) option key
 		while ( ! $added ) {
@@ -68,6 +73,39 @@ class Jetpack_Sync_Queue {
 				'no'
 			) );
 			$added      = ( $rows_added !== 0 );
+		}
+	}
+
+	function store_skipped_item( $item ) {
+		list( $action, $args ) = $item;
+		switch( $action ) {
+			case 'wp_insert_post':
+				$this->store_skipped_id( $args[0], 'post' );
+				break;
+
+			case 'wp_insert_comment':
+				$this->store_skipped_id( $args[0], 'comment' );
+				break;
+
+			case 'added_option':
+			case 'updated_option':
+			case 'deleted_option':
+				if ( in_array( $args[0], $this->blacklist_names ) ) {
+					// we have to make sure that the blacklist always gets synced
+					$this->_add( $item );
+				}
+				break;
+
+		}
+	}
+
+	function store_skipped_id( $post_id, $type = 'post' ) {
+		$option_name = 'jetpack_skipped_sync_' . $type . '_ids';
+		$blacklist = get_option( $option_name, array() );
+		if ( ! in_array( $post_id, $blacklist ) ) {
+			$new_blacklist = $blacklist;
+			$new_blacklist[] = $post_id;
+			update_option( $option_name, $new_blacklist );
 		}
 	}
 
