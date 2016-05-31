@@ -39,24 +39,31 @@ class Jetpack_Sync_Queue {
 		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 		$this->row_iterator = 0;
 		$this->blacklist_names = array( 'jetpack_skipped_sync_post_ids', 'jetpack_skipped_sync_comment_ids' );
+
+		add_action( 'deleted_post', array( $this, 'maybe_update_post_blacklist' ) );
+		add_action( 'deleted_comment', array( $this, 'maybe_update_comment_blacklist' ) );
 	}
 
 	function add( $item ) {
 		/**
 		 * Filters whether to skip adding an item to the sync que.
 		 *
-		 * Passing true to the filter will prevent the item to not be added to the que.
-		 * $item = array( $action, $args, $user_id, $microtime );
+		 * Passing true to the filter will prevent the item being synced
+		 * we keep a blacklist of post ids and comment ids so that we can
+		 * an accurate checksum of what is being synced.
 		 *
 		 * @since 4.1.0
+		 *
+		 * @param boolean false whether to skip syncing an item
+		 * @param mixed $item an Array containing array( $action, $args, $user_id, $microtime );
 		 *
 		 * @see Jetpack_Sync_Queue->add()
 		 */
 		if ( apply_filters( 'jetpack_skip_sync_item', false, $item ) ) {
-			$this->store_skipped_item( $item );
+			$this->add_skipped_item( $item );
 			return false;
 		}
-
+		$this->remove_skipped_item( $item );
 		$this->_add( $item );
 	}
 
@@ -76,15 +83,21 @@ class Jetpack_Sync_Queue {
 		}
 	}
 
-	function store_skipped_item( $item ) {
+	function add_skipped_item( $item ) {
 		list( $action, $args ) = $item;
 		switch( $action ) {
 			case 'wp_insert_post':
-				$this->store_skipped_id( $args[0], 'post' );
+				$this->add_skipped_id( $args[0], 'post' );
 				break;
 
 			case 'wp_insert_comment':
-				$this->store_skipped_id( $args[0], 'comment' );
+			case 'comment_unapproved_':
+			case 'comment_approved_':
+			case 'comment_unapproved_trackback':
+			case 'comment_approved_trackback':
+			case 'comment_unapproved_pingback':
+			case 'comment_approved_pingback':
+				$this->add_skipped_id( $args[0], 'comment' );
 				break;
 
 			case 'added_option':
@@ -95,18 +108,52 @@ class Jetpack_Sync_Queue {
 					$this->_add( $item );
 				}
 				break;
-
 		}
 	}
 
-	function store_skipped_id( $post_id, $type = 'post' ) {
+	function remove_skipped_item( $item ) {
+		list( $action, $args ) = $item;
+		switch ( $action ) {
+			case 'wp_insert_post':
+				$this->remove_skipped_id( $args[0], 'post' );
+				break;
+
+			case 'wp_insert_comment':
+			case 'comment_unapproved_':
+			case 'comment_approved_':
+			case 'comment_unapproved_trackback':
+			case 'comment_approved_trackback':
+			case 'comment_unapproved_pingback':
+			case 'comment_approved_pingback':
+				$this->remove_skipped_id( $args[0], 'comment' );
+				break;
+		}
+	}
+
+	function add_skipped_id( $object_id, $type ) {
 		$option_name = 'jetpack_skipped_sync_' . $type . '_ids';
 		$blacklist = get_option( $option_name, array() );
-		if ( ! in_array( $post_id, $blacklist ) ) {
-			$new_blacklist = $blacklist;
-			$new_blacklist[] = $post_id;
-			update_option( $option_name, $new_blacklist );
+		if ( ! in_array( $object_id, $blacklist ) ) {
+			$blacklist[] = $object_id;
+			update_option( $option_name, $blacklist );
 		}
+	}
+
+	function remove_skipped_id( $object_id, $type ) {
+		$option_name = 'jetpack_skipped_sync_' . $type . '_ids';
+		$blacklist = get_option( $option_name, array() );
+		if ( in_array( $object_id, $blacklist ) ) {
+			$blacklist = $blacklist = array_diff( $blacklist, array( $object_id ) );
+			update_option( $option_name, $blacklist );
+		}
+	}
+
+	function maybe_update_post_blacklist( $post_id ) {
+		$this->remove_skipped_id( $post_id, 'post' );
+	}
+
+	function maybe_update_comment_blacklist( $comment_id ) {
+		$this->remove_skipped_id( $comment_id, 'comment' );
 	}
 
 	// Attempts to insert all the items in a single SQL query. May be subject to query size limits!
@@ -119,6 +166,7 @@ class Jetpack_Sync_Queue {
 		$rows = array();
 
 		for ( $i = 0; $i < count( $items ); $i += 1 ) {
+			/** This action is already documented in sync/class.jetpack-sync-queue.php */
 			if ( apply_filters( 'jetpack_skip_sync_item', false, $items[ $i ]) ) {
 				continue;
 			}
