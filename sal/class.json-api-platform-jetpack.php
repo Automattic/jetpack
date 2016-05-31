@@ -3,12 +3,15 @@
 require_once dirname( __FILE__ ) . '/class.json-api-platform.php';
 
 class WPORG_Platform extends SAL_Platform {
-	public function get_site( $blog_id ) {
+	public function get_site( $blog_id = null ) {
+		if ( ! is_null( $blog_id ) ) {
+			$blog_id = get_current_blog_id();
+		}
 		require_once dirname( __FILE__ ) . '/class.json-api-site-jetpack.php';
 		return new Jetpack_Site( $blog_id, $this );
 	}
 }
 
-function wpcom_get_sal_platform( $token ) {
+function wpcom_get_sal_platform( $token = null ) {
 	return new WPORG_Platform( $token );
 }
