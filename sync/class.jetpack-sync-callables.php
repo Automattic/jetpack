@@ -4,7 +4,7 @@
  * Utility functions to generate data synced to wpcom
  */
 
-class Jetpack_Sync_Functions {
+class Jetpack_Sync_Callables {
 
 	public static function get_modules() {
 		$modules        = array();
@@ -72,5 +72,11 @@ class Jetpack_Sync_Functions {
 		}
 
 		return 0;
+	}
+	
+	public static function allowed_file_types() {
+		require_once( JETPACK__PLUGIN_DIR . '/sal/class.json-api-platform-jetpack.php' );
+		$site = wpcom_get_sal_platform()->get_site();
+		return $site->allowed_file_types();
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-callables.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 
