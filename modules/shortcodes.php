@@ -108,7 +108,7 @@ function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $s
  * @return String $content
  */
 function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $content, $search = null ) {
-	if( ! function_exists( 'wp_html_split' ) ) {
+	if ( ! function_exists( 'wp_html_split' ) ) {
 		return $content;
 	}
 
@@ -118,13 +118,78 @@ function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $conte
 	
 	$textarr = wp_html_split( $content );
 	unset( $content );
+
+	// Flag to check we're inside an HTML tag.
+	$surrounding_tag = '';
+
 	foreach( $textarr as &$element ) {
-	    if ( '' === $element || '<' === $element{0} )
+
+		// If it's an empty element, continue.
+		if ( '' === $element ) {
 	        continue;
-	    $element = preg_replace_callback( $pattern, $callback, $element );
+		}
+
+		// If this is an opening HTML tag, save it and move to the next element.
+		if ( '<' === $element[0] && '/>' !== substr( $element, -2 ) && ! jetpack_is_html_self_closing_tag( $element ) ) {
+			$surrounding_tag = $element;
+			continue;
+		}
+
+		// If this is a closing HTML tag, erase the previously saved element.
+		if ( '</' === substr( $element, 0, 2 ) ) {
+			$surrounding_tag = '';
+			continue;
+		}
+
+		// If we're inside a link, don't embed the video.
+		// Covers cases like "Here's a link to the video: <a href="https://vimeo.com/123456">https://vimeo.com/123456</a>".
+		if ( 'vimeo_link_callback' === $callback && jetpack_is_html_tag( 'a', $surrounding_tag ) ) {
+			continue;
+		}
+
+		$element = preg_replace_callback( $pattern, $callback, $element );
 	}
-	
-	return join( $textarr );
+	return join( '', $textarr );
+}
+
+/**
+ * True if the passed text is a self-closing HTML tag. False otherwise.
+ *
+ * @since 4.0.4
+ *
+ * @param string $text Text that might be an HTML tag.
+ *
+ * @return bool
+ */
+function jetpack_is_html_self_closing_tag( $text ) {
+	// http://w3c.github.io/html/single-page.html#void-elements
+	$self_closing_tags = array(
+		'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+		'keygen', 'link', 'menuitem', 'meta', 'param', 'source', 'track', 'wbr'
+	);
+	foreach ( $self_closing_tags as $tag ) {
+		if ( 1 === preg_match( sprintf( '#^<%s.*/?>$#i', $tag ), $text ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Check if the text passed is an HTML tag.
+ *
+ * @since 4.0.4
+ *
+ * @param string $tag  A Valid HTML tag like 'a'.
+ * @param string $text Text to check and see if it's the HTML tag we expect it to be.
+ *
+ * @return bool True if the passed text is an HTML tag. False otherwise.
+ */
+function jetpack_is_html_tag( $tag = '', $text ) {
+	return (
+		! empty( $tag ) &&
+		( 1 === preg_match( sprintf( '/^<%s[^>]*>$/i', $tag ), $text ) )
+	);
 }
 
 global $wp_version;

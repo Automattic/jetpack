@@ -120,7 +120,8 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$video_id = '141358';
 		$player = '<iframe src="https://player.vimeo.com/video/' . $video_id . '"';
 		$text_link = 'Vimeo <a href="https://vimeo.com/123456">link</a>';
-		$url_link = 'Link <a href="https://vimeo.com/123456">https://vimeo.com/123456</a>';
+		// Todo: test with 'Link <a title="This > that" href="https://vimeo.com/123456" alt="This > that">>>https://vimeo.com/123456</a>'
+		$url_link = 'Link <a title="This that" href="https://vimeo.com/123456" alt="This that">https://vimeo.com/123456</a>';
 
 		$this->assertContains( $player, vimeo_link( "[vimeo $video_id]" ) );
 		$this->assertContains( $player, vimeo_link( "[vimeo http://vimeo.com/$video_id]" ) );
@@ -131,6 +132,13 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$this->assertContains( $player, vimeo_link( "https://vimeo.com/$video_id" ) );
 		$this->assertContains( $player, vimeo_link( "//vimeo.com/$video_id" ) );
 		$this->assertContains( $player, vimeo_link( "vimeo.com/$video_id" ) );
+		$this->assertContains( $player, vimeo_link( "<br/>vimeo.com/$video_id" ) );
+		$this->assertContains( $player, vimeo_link( "<img src='https://example.com/some-image.jpg'><br>vimeo.com/$video_id" ) );
+		$this->assertContains( $player, vimeo_link( "<p>vimeo.com/$video_id</p>" ) );
+		$this->assertContains( $player, vimeo_link( "<div>vimeo.com/$video_id</div>" ) );
+		$this->assertContains( $player, vimeo_link( "<p></p>vimeo.com/$video_id" ) );
+		$this->assertContains( $player, vimeo_link( "<a></a>vimeo.com/$video_id" ) );
+		$this->assertContains( "Random $video_id numbers $video_id", vimeo_link( "Random $video_id numbers $video_id" ) );
 
 		$this->assertEquals( $text_link, vimeo_link( $text_link ) );
 		$this->assertEquals( $url_link, vimeo_link( $url_link ) );
@@ -138,6 +146,12 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$mixed = vimeo_link( "[vimeo $video_id]\nvimeo.com/$video_id\n$text_link\n$url_link" );
 		$this->assertContains( $player, $mixed );
 		$this->assertContains( $text_link, $mixed );
+		$this->assertContains( $url_link, $mixed );
+
+		$url_link = 'Link <a>https://vimeo.com/123456</a>';
+		$this->assertEquals( $url_link, vimeo_link( $url_link ) );
+
+		$mixed = vimeo_link( "[vimeo $video_id]\nvimeo.com/$video_id\n$text_link\n$url_link" );
 		$this->assertContains( $url_link, $mixed );
 	}
 
