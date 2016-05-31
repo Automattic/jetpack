@@ -32,6 +32,7 @@ function onBuild( done ) {
 		if ( stats.compilation.errors && stats.compilation.errors.length ) {
 			if ( done ) {
 				done( new gutil.PluginError( 'webpack', stats.compilation.errors[0] ) );
+				return; // Otherwise gulp complains about done called twice
 			}
 		}
 
