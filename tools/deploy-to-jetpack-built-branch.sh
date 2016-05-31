@@ -1,4 +1,11 @@
 #!/bin/bash
+RED='\033[0;31m'
+trap 'exit_build' ERR
+
+function exit_build {
+    echo -e "${RED}Something went wrong and the build has stopped.  See error above for more details."
+    exit 1
+}
 
 # Currently a one-off script to push a built version to GitHub.
 # @todo: Setup a webhook to capture merges and automatically built/push.
