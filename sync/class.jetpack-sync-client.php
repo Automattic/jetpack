@@ -301,6 +301,13 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
+		// if we add any items to the queue, we should 
+		// try to ensure that our script can't be killed before
+		// they are sent
+		if ( function_exists( 'ignore_user_abort' ) ) {
+			ignore_user_abort( true );
+		}
+
 		$this->sync_queue->add( array(
 			$current_filter,
 			$args,
@@ -462,6 +469,13 @@ class Jetpack_Sync_Client {
 
 		if ( $this->sync_queue->size() === 0 ) {
 			return false;
+		}
+
+		// now that we're sure we are about to sync, try to
+		// ignore user abort so we can avoid getting into a
+		// bad state
+		if ( function_exists( 'ignore_user_abort' ) ) {
+			ignore_user_abort( true );
 		}
 
 		$buffer = $this->sync_queue->checkout_with_memory_limit( $this->checkout_memory_size, $this->upload_max_rows );
