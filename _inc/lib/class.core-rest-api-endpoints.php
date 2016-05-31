@@ -15,6 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Load WP_Error for error messages.
 require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
+// Load API endpoint base classes
+require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
+
+// Load API endpoints
+require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
+
 // Register endpoints when WP REST API is initialized.
 add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
 
@@ -111,10 +117,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Activate a module
+		Jetpack::load_xml_rpc_client();
+		$xmlrpc = new Jetpack_IXR_Client();
+		$module_activate = new Jetpack_Core_API_Module_Activate_Endpoint( $xmlrpc );
 		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/activate', array(
 			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::activate_module',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'callback' => array( $module_activate, 'process' ),
+			'permission_callback' => array( $module_activate, 'can_write' ),
 		) );
 
 		// Deactivate a module
