@@ -26,8 +26,12 @@ var language_packs = require( './language-packs.js' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
-		if ( err ) {
-			throw new gutil.PluginError( 'webpack', err );
+
+		// Webpack doesn't populate err in case the build fails
+		// @see https://github.com/webpack/webpack/issues/708
+		if ( stats.compilation.errors && stats.compilation.errors.length ) {
+			done( new gutil.PluginError( 'webpack', stats.compilation.errors[0] ) );
+			return;
 		}
 
 		gutil.log( 'Building JS…', stats.toString( {
