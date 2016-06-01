@@ -13,4 +13,11 @@
 			display: none;
 		}
 	}
+
+	&.devmode-disabled {
+		.dops-foldable-card__summary,
+		.dops-foldable-card__summary_expanded {
+			width: 100px;
+		}
+	}
 }
