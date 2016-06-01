@@ -9,6 +9,7 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import JetpackStateNotices from './state-notices';
 import {
 	getJetpackNotices as _getJetpackNotices
 } from 'state/jetpack-notices';
@@ -190,6 +191,7 @@ const JetpackNotices = React.createClass( {
 	render() {
 		return (
 			<div>
+				<JetpackStateNotices />
 				<WelcomeNotice { ...this.props } />
 				<DevVersionNotice { ...this.props } />
 				<DevModeNotice { ...this.props } />

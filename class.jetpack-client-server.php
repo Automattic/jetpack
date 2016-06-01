@@ -110,6 +110,7 @@ class Jetpack_Client_Server {
 		Jetpack::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
 
 		if ( ! $is_master_user ) {
+			Jetpack::state( 'message', 'linked' );
 			// Don't activate anything since we are just connecting a user.
 			return 'linked';
 		}
@@ -131,6 +132,7 @@ class Jetpack_Client_Server {
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 
+		Jetpack::state( 'message', 'authorized' );
 		return 'authorized';
 	}
 
