@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -55,24 +56,26 @@ export const Page = ( props ) => {
 		[ 'json-api', getModule( 'json-api' ).name, getModule( 'json-api' ).description, getModule( 'json-api' ).learn_more_button ],
 		[ 'omnisearch', getModule( 'omnisearch' ).name, getModule( 'omnisearch' ).description, getModule( 'omnisearch' ).learn_more_button ]
 	].map( ( element, i ) => {
-		var toggle = (
-			<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
-				toggling={ isTogglingModule( element[0] ) }
-				toggleModule={ toggleModule } />
-		);
+		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
+			toggle = (
+				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
+					<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
+								  toggling={ isTogglingModule( element[0] ) }
+								  toggleModule={ toggleModule } />
+			),
+			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
 
 		if ( 1 === element.length ) {
 			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
 		}
 
 		return (
-			<FoldableCard key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
+			<FoldableCard className={ customClasses } key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 				header={ element[1] }
 				subheader={ element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
-				disabled={ isUnavailableInDevMode( props, element[0] ) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
 					<MoreModulesSettings module={ getModule( element[0] ) } /> :

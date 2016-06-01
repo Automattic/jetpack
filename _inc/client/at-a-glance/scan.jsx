@@ -34,7 +34,7 @@ const DashScan = React.createClass( {
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
 				return(
-					<DashItem label={ labelName } disabled={ isDevMode( this.props ) }>
+					<DashItem label={ labelName }>
 						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 					</DashItem>
 				);
@@ -44,7 +44,7 @@ const DashScan = React.createClass( {
 			const threats = this.props.getScanThreats();
 			if ( threats !== 0 ) {
 				return(
-					<DashItem label={ labelName } status="is-error" disabled={ isDevMode( this.props ) }>
+					<DashItem label={ labelName } status="is-error">
 						<h3>{
 							__(
 								'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
@@ -67,7 +67,7 @@ const DashScan = React.createClass( {
 			// All good
 			if ( vpData.code === 'success' ) {
 				return(
-					<DashItem label={ labelName } status="is-working" disabled={ isDevMode( this.props ) }>
+					<DashItem label={ labelName } status="is-working">
 						<h3>{ __( "No threats found, you're good to go!" ) }</h3>
 					</DashItem>
 				);
@@ -75,9 +75,10 @@ const DashScan = React.createClass( {
 		}
 
 		return(
-			<DashItem label={ labelName } className="jp-dash-item__is-inactive" status="is-premium-inactive" disabled={ isDevMode( this.props ) }>
+			<DashItem label={ labelName } className="jp-dash-item__is-inactive" status="is-premium-inactive">
 				<p className="jp-dash-item__description">
 					{
+						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
 						__( 'To automatically scan your site for malicious threats, please {{a}}upgrade your account{{/a}}', {
 							components: {
 								a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />

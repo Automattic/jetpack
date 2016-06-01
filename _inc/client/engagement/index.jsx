@@ -43,33 +43,35 @@ export const Page = ( props ) => {
 		[ 'comments', getModule( 'comments' ).name, getModule( 'comments' ).description, getModule( 'comments' ).learn_more_button ],
 		[ 'notes', getModule( 'notes' ).name, getModule( 'notes' ).description, getModule( 'notes' ).learn_more_button ],
 		[ 'sitemaps', getModule( 'sitemaps' ).name, getModule( 'sitemaps' ).description, getModule( 'sitemaps' ).learn_more_button ]
-	].map( ( element ) => (
-		<FoldableCard key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
-			header={ element[1] }
-			subheader={ element[2] }
-			summary={
-				<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
-					toggling={ isTogglingModule( element[0] ) }
-					toggleModule={ toggleModule } />
-			}
-			expandedSummary={
-				<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
-					toggling={ isTogglingModule( element[0] ) }
-					toggleModule={ toggleModule } />
-			}
-			clickableHeaderText={ true }
-			disabled={ isUnavailableInDevMode( props, element[0] ) }
-		>
-			{ isModuleActivated( element[0] ) ?
-				<EngagementModulesSettings module={ getModule( element[0] ) } /> :
-				// Render the long_description if module is deactivated
-				<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
-			}
-			<p>
-				<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
-			</p>
-		</FoldableCard>
-	) );
+	].map( ( element ) => {
+		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
+			toggle = (
+				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
+					<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
+								  toggling={ isTogglingModule( element[0] ) }
+								  toggleModule={ toggleModule } />
+			),
+			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
+
+		return (
+			<FoldableCard className={ customClasses } key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
+				header={ element[1] }
+				subheader={ element[2] }
+				summary={ toggle }
+				expandedSummary={ toggle }
+				clickableHeaderText={ true }
+			>
+				{ isModuleActivated( element[0] ) ?
+					<EngagementModulesSettings module={ getModule( element[0] ) } /> :
+					// Render the long_description if module is deactivated
+					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
+				}
+				<p>
+					<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
+				</p>
+			</FoldableCard>
+		);
+	});
 	return (
 		<div>
 			{ cards }

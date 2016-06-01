@@ -37,7 +37,7 @@ const DashPluginUpdates = React.createClass( {
 
 		if ( 'N/A' === pluginUpdates ) {
 			return(
-				<DashItem label={ labelName } status="is-working" disabled={ isDevMode( this.props ) }>
+				<DashItem label={ labelName } status="is-working">
 					<QueryPluginUpdates />
 					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 				</DashItem>
@@ -46,7 +46,7 @@ const DashPluginUpdates = React.createClass( {
 
 		if ( 'updates-available' === pluginUpdates.code ) {
 			return(
-				<DashItem label={ labelName } status="is-warning" disabled={ isDevMode( this.props ) }>
+				<DashItem label={ labelName } status="is-warning">
 					<p className="jp-dash-item__description">
 						<strong>
 							{
@@ -60,6 +60,7 @@ const DashPluginUpdates = React.createClass( {
 						</strong>
 						<br/>
 						{
+							isDevMode( this.props ) ? '' :
 							manageActive ?
 								__( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } ):
 								__( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="#" /> } } )
@@ -70,7 +71,7 @@ const DashPluginUpdates = React.createClass( {
 		}
 
 		return(
-			<DashItem label={ labelName } status="is-working" disabled={ isDevMode( this.props ) }>
+			<DashItem label={ labelName } status="is-working">
 				<p className="jp-dash-item__description">
 					{ __( 'All plugins are up-to-date. Keep up the good work!' ) }
 				</p>

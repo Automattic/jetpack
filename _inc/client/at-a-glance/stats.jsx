@@ -132,6 +132,7 @@ const DashStats = React.createClass( {
 			return (
 				<div>
 					{
+						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
 						__( '{{a}}Activate Site Statistics{{/a}} to see detailed stats, likes, followers, subscribers, and more!', {
 							components: {
 								a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />
