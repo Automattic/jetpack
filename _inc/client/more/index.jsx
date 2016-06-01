@@ -22,7 +22,8 @@ import { MoreModulesSettings } from 'components/module-options/moduleoptions';
 import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
-	let { toggleModule,
+	let {
+		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
 		getModule

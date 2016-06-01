@@ -22,7 +22,8 @@ import { EngagementModulesSettings } from 'components/module-options/moduleoptio
 import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
-	let { toggleModule,
+	let {
+		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
 		getModule
