@@ -71,16 +71,73 @@ class Jetpack_VideoPress {
 	 **/
 	public function xmlrpc_methods( $methods ) {
 		$methods['jetpack.createMediaItem'] = array( $this, 'xmlrpc_create_media_item' );
+		$methods['jetpack.updateVideoPressInfo'] = array( $this, 'xmlrpc_update_videopress_info' );
+
 		return $methods;
 	}
+	
+	public function xmlrpc_update_videopress_info( $vp_info ) {
 
-	public function xmlrpc_create_media_item() {
-		$media_id = wp_insert_post( array(
-			'post_type'   => 'attachment',
-			'post_status' => 'draft',
-		) );
+		$errors = null;
+		foreach ( $vp_info as $vp_item ) {
+			$id = $vp_item['id'];
+			$info = $vp_item['info'];
 
-		return array( 'media_id' => $media_id );
+			$post = get_post( $id );
+
+			if ( ! $post ) {
+				$errors[] = array(
+					'id' => $id,
+					'error' => 'Post not found',
+				);
+
+				continue;
+			}
+
+			$meta = wp_get_attachment_metadata( $post->ID );
+			$meta['videopress'] = $info;
+
+			wp_update_attachment_metadata( $post->ID, $meta );
+		}
+
+		if ( count( $errors ) > 0 ) {
+			return array( 'errors' => $errors );
+
+		} else {
+			return true;
+		}
+	}
+	
+	public function xmlrpc_create_media_item( $media ) {
+		$created_items = array();
+
+		foreach ( $media as $media_item ) {
+			$post = array(
+				'post_type'   => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title' => sanitize_title( basename( $media_item['url'] ) ),
+				'post_content' => '',
+				'file' => $media_item['file'],
+				'guid' => $media_item['url'],
+			);
+
+			$media_id = wp_insert_post( $post );
+
+			wp_update_attachment_metadata( $media_id, array(
+				'original' => array(
+					'url' => $media_item['url'],
+					'file' => $media_item['file'],
+					'mime_type' => $media_item['type'],
+				),
+			) );
+
+			$created_items[] = array(
+				'id' => $media_id,
+				'post' => get_post( $media_id ),
+			);
+		}
+
+		return array( 'media' => $created_items );
 	}
 
 	function wp_ajax_videopress_get_upload_token() {
@@ -120,7 +177,7 @@ class Jetpack_VideoPress {
 	 */
 	function make_media_upload_path( $blog_id ) {
 		return sprintf(
-			'%s://%s/rest/v%s/sites/%s/media/new',
+			'%s://%s/rest/v%s/videos/%s/new',
 			'https',
 			'public-api.wordpress.com', //JETPACK__WPCOM_JSON_API_HOST,
 			Jetpack_Client::WPCOM_JSON_API_VERSION,
