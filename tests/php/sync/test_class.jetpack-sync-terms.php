@@ -11,7 +11,6 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$this->client->set_defaults();
 		$this->client->reset_data();
 
 		$this->taxonomy = 'genre';
