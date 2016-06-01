@@ -28,8 +28,8 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->client = Jetpack_Sync_Client::getInstance();
-		$this->client->set_send_buffer_memory_size( 5000000 ); // process 5MB of items at a time
-		$this->client->set_min_sync_wait_time(0); // disable rate limiting
+		$this->client->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
+		$this->client->set_sync_wait_time(0); // disable rate limiting
 
 		$server       = new Jetpack_Sync_Server();
 		$this->server = $server;
@@ -101,7 +101,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_queues_cron_job_if_queue_exceeds_max_buffer() {
-		$this->client->set_send_buffer_memory_size( 500 ); // bytes
+		$this->client->set_dequeue_max_bytes( 500 ); // bytes
 
 		for ( $i = 0; $i < 20; $i+= 1) {
 			$this->factory->post->create();
@@ -117,6 +117,21 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		// we're making some assumptions here about how fast the test will run...
 		$this->assertTrue( $timestamp >= time()+59 );
 		$this->assertTrue( $timestamp <= time()+61 );
+	}
+
+	function test_can_write_settings() {
+		$settings = $this->client->get_settings();
+
+		foreach( array( 'dequeue_max_bytes', 'sync_wait_time', 'upload_max_bytes', 'upload_max_rows' ) as $key ) {
+			$this->assertTrue( isset( $settings[ $key ] ) );	
+		}
+
+		$settings[ 'dequeue_max_bytes' ] = 50;
+		$this->client->update_settings( $settings );
+
+		$updated_settings = $this->client->get_settings();
+
+		$this->assertSame( 50, $updated_settings[ 'dequeue_max_bytes' ] );
 	}
 
 	function test_queue_limits_upload_bytes() {
@@ -268,8 +283,8 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		// now let's try to sync and observe the rate limit
 		$this->client->do_sync();
 
-		$this->client->set_min_sync_wait_time( 2 );
-		$this->assertSame( 2, $this->client->get_min_sync_wait_time() );
+		$this->client->set_sync_wait_time( 2 );
+		$this->assertSame( 2, $this->client->get_sync_wait_time() );
 
 		$this->assertEquals( 2, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
