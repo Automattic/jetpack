@@ -6554,4 +6554,19 @@ p {
 		return true;
 	}
 
+	/**
+	 * Build WPCOM static URL and return it with the proper scheme.
+	 *
+	 * @since 4.1.0 Moved from modules/notes.php to this location so it's always available.
+	 *
+	 * @param string $file File to load from WPCOM. Should include slash at the beginning.
+	 *
+	 * @return string
+	 */
+	public static function wpcom_static_url( $file ) {
+		$i = hexdec( substr( md5( $file ), -1 ) ) % 2;
+		$url = esc_url( "http://s$i.wp.com$file" );
+		return set_url_scheme( $url );
+	}
+
 }
