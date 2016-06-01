@@ -150,9 +150,7 @@ function videopress_handle_editor_view_js() {
 
 	add_action( 'admin_print_footer_scripts', 'videopress_editor_view_js_templates' );
 
-	wp_enqueue_media();
-
-	wp_enqueue_script( 'videopress-editor-view', plugins_url( 'js/editor-view.js', __FILE__ ), array( 'wp-util', 'jquery' ), false, true );
+	wp_enqueue_script( 'videopress-editor-view', plugins_url( 'js/editor-view.js', __FILE__ ), array( 'wp-util', 'mce-views', 'jquery' ), false, true );
 	wp_localize_script( 'videopress-editor-view', 'vpEditorView', array(
 		'home_url_host'     => parse_url( home_url(), PHP_URL_HOST ),
 		'min_content_width' => VIDEOPRESS_MIN_WIDTH,
