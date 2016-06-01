@@ -36,8 +36,14 @@ class Jetpack_SSO {
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
 
-		if (
-			$this->should_hide_login_form() &&
+		if ( $this->should_hide_login_form() ) {
+			/**
+			 * Since the default authenticate filters fire at priority 20 for checking username and password,
+			 * let's fire at priority 30. wp_authenticate_spam_check is fired at priority 99, but since we return a
+			 * WP_Error in disable_default_login_form, then we won't trigger spam processing logic.
+			 */
+			add_filter( 'authenticate', array( $this, 'disable_default_login_form' ), 30 );
+
 			/**
 			 * Filter the display of the disclaimer message appearing when default WordPress login form is disabled.
 			 *
@@ -47,9 +53,10 @@ class Jetpack_SSO {
 			 *
 			 * @param bool true Should the disclaimer be displayed. Default to true.
 			 */
-			apply_filters( 'jetpack_sso_display_disclaimer', true )
-		) {
-			add_filter( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
+			$display_sso_disclaimer = apply_filters( 'jetpack_sso_display_disclaimer', true );
+			if ( $display_sso_disclaimer ) {
+				add_filter( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
+			}
 		}
 	}
 
@@ -89,6 +96,28 @@ class Jetpack_SSO {
 			<?php submit_button(); ?>
 		</form>
 		<?php
+	}
+
+
+	/**
+	 * When the default login form is hidden, this method is called on the 'authenticate' filter with a priority of 30.
+	 * This method disables the ability to submit the default login form.
+	 *
+	 * @param $user
+	 *
+	 * @return WP_Error
+	 */
+	public function disable_default_login_form( $user ) {
+		if ( is_wp_error( $user ) ) {
+			return $user;
+		}
+
+		/**
+		 * Since we're returning an error that will be shown as a red notice, let's remove the
+		 * informational "blue" notice.
+		 */
+		remove_filter( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
+		return new WP_Error( 'jetpack_sso_required', $this->get_sso_required_message() );
 	}
 
 	/**
@@ -1066,14 +1095,13 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Message displayed when the site admin has disabled the default WordPress
-	 * login form in Settings > General > Single Sign On
+	 * Builds the translation ready string that is to be used when the site hides the default login form.
 	 *
-	 * @since 2.7
-	 * @param string $message
+	 * @since 4.1
+	 * 
 	 * @return string
-	 **/
-	public function msg_login_by_jetpack( $message ) {
+	 */
+	public function get_sso_required_message() {
 		$msg = esc_html__( 'A WordPress.com account is required to access this site. Click the button below to sign in or create a free WordPress.com account.', 'jetpack' );
 
 		/**
@@ -1085,7 +1113,20 @@ class Jetpack_SSO {
 		 *
 		 * @param string $msg Disclaimer when default WordPress login form is disabled.
 		 */
-		$msg = apply_filters( 'jetpack_sso_disclaimer_message', $msg );
+		return apply_filters( 'jetpack_sso_disclaimer_message', $msg );
+	}
+
+	/**
+	 * Message displayed when the site admin has disabled the default WordPress
+	 * login form in Settings > General > Single Sign On
+	 *
+	 * @since 2.7
+	 * @param string $message
+	 * 
+	 * @return string
+	 **/
+	public function msg_login_by_jetpack( $message ) {
+		$msg = $this->get_sso_required_message();
 
 		if ( empty( $msg ) ) {
 			return $message;
