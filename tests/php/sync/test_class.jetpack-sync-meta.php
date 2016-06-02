@@ -8,7 +8,6 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$this->client->set_defaults();
 
 		// create a post
 		$this->post_id    = $this->factory->post->create();

@@ -10,10 +10,7 @@ class WP_Test_Jetpack_Sync_Site_Icon_Url extends WP_Test_Jetpack_New_Sync_Base {
 		global $wp_version;
 		parent::setUp();
 
-		$this->client->set_defaults();
-
 		if ( version_compare( $wp_version, '4.4', '>=' ) ) {
-			$this->client->set_defaults();
 			add_filter( 'get_site_icon_url', array( $this, '_get_site_icon' ), 99, 3 );
 			update_option( 'site_icon', '5' );
 		} else {

@@ -44,7 +44,7 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 	
 	public function test_sync_options_that_use_filter() {
 		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
-		$this->client->set_defaults();
+		$this->client->update_options_whitelist();
 		update_option( 'foo_option_bar', '123' );
 		$this->client->do_sync();
 
