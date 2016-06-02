@@ -81,7 +81,8 @@ class Jetpack_Sync_Defaults {
 		'disabled_reblogs',
 		'jetpack_comment_likes_enabled',
 		'twitter_via',
-		'twitter-cards-site-tag'
+		'twitter-cards-site-tag',
+		'jetpack_active_modules'
 	);
 
 	static $default_constants_whitelist = array(

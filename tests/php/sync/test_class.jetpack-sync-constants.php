@@ -31,7 +31,7 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_does_not_fire_if_constants_havent_changed() {
 		$this->client->set_defaults(); // use the default constants
-		
+
 		$this->client->do_sync();
 
 		foreach( Jetpack_Sync_Defaults::$default_constants_whitelist as $constant ) {
