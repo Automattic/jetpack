@@ -12,7 +12,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	abstract protected function get_mock_option( $name );
 
-	abstract public function get_jetpack_version();
+	abstract protected function get_jetpack_version();
 
 	abstract protected function get_updates();
 
