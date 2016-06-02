@@ -57,10 +57,11 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_sync_active_modules() {
-		// so that we return the right value for activated
-		$this->client->set_defaults();
+		// Instead of calling $this->client->set_defaults();
+		$this->client->set_options_whitelist( array( 'jetpack_active_modules' ) );
 		Jetpack_Options::update_option( 'active_modules', array( 'manage' ) );
 		$this->client->do_sync();
+		$this->assertContains( 'jetpack_active_modules', Jetpack_Sync_Defaults::$default_options_whitelist );
 		$this->assertEquals( array( 'manage' ), $this->server_replica_storage->get_option( 'jetpack_active_modules' ) );
 	}
 
