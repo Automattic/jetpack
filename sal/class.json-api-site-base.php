@@ -324,6 +324,7 @@ abstract class SAL_Site {
 			'list_users'          => current_user_can( 'list_users' ),
 			'manage_categories'   => current_user_can( 'manage_categories' ),
 			'manage_options'      => current_user_can( 'manage_options' ),
+			'activate_wordads'    => wpcom_get_blog_owner() === (int) get_current_user_id(),
 			'promote_users'       => current_user_can( 'promote_users' ),
 			'publish_posts'       => current_user_can( 'publish_posts' ),
 			'upload_files'        => current_user_can( 'upload_files' ),
