@@ -18,12 +18,36 @@ import {
 	jumpStartSkip,
 	isJumpstarting as _isJumpstarting
 } from 'state/jumpstart';
+import { getModulesByFeature as _getModulesByFeature } from 'state/modules';
 
 const JumpStart = React.createClass( {
 
 	displayName: 'JumpStart',
 
 	render: function() {
+		let jumpstartModules = this.props.jumpstartFeatures( this.props ).map( ( module ) => (
+			<div
+				className="jp-jumpstart__feature-list-column"
+				key={ `module-card_${ module.name }` /* https://fb.me/react-warning-keys */ }
+			>
+				<div className="jp-jumpstart__feature-content">
+					<h4
+						className="jp-jumpstart__feature-content-title"
+						title={ module.name }>
+						{ module.name }
+					</h4>
+					<p dangerouslySetInnerHTML={ renderJumpstartDescription( module ) } />
+					{ __( '{{a}}Learn More{{/a}}',
+						{
+							components: {
+								a: <a href={ module.learn_more_button } target="_blank" />
+							}
+						}
+					) }
+				</div>
+			</div>
+		) );
+
 		return (
 			<div className="jp-jumpstart">
 				<h2 className="jp-jumpstart__title">
@@ -48,92 +72,7 @@ const JumpStart = React.createClass( {
 							{ __( "Jetpack's recommended features include:" ) }
 						</p>
 
-					<div className="jp-jumpstart__feature-list">
-							<div className="jp-jumpstart__feature-list-column">
-								<div className="jp-jumpstart__feature-content">
-									<h4 className="jp-jumpstart__feature-content-title" title="Automated social marketing">
-										{ __( 'Photon' ) }
-									</h4>
-									<p>
-										{
-											__( 'Mirrors and serves your images from our free and fast image Content Delivery Network (CDN), improving your site’s performance with no additional load on your servers. {{a}}Learn more.{{/a}}', {
-												components: {
-													a: <a href={ 'https://jetpack.com/support/photon/' } target="_blank" />
-												}
-											} )
-										}
-									</p>
-								</div>
-							</div>
-							<div className="jp-jumpstart__feature-list-column">
-								<div className="jp-jumpstart__feature-content">
-									<h4 className="jp-jumpstart__feature-content-title" title="Build a community">
-										{ __( 'Manage' ) }
-									</h4>
-									<p>
-										{
-											__( 'Helps you remotely manage plugins, turn on automated updates, and more from WordPress.com. {{a}}Learn more.{{/a}}', {
-												components: {
-													a: <a href={ 'https://jetpack.com/support/site-management/' } target="_blank" />
-												}
-											} )
-										}
-									</p>
-								</div>
-							</div>
-					</div>
-					<div className="jp-jumpstart__feature-list">
-							<div className="jp-jumpstart__feature-list-column">
-								<div className="jp-jumpstart__feature-content">
-									<h4 className="jp-jumpstart__feature-content-title" title="Increase page views">
-									{ __( 'Single Sign On' ) }
-									</h4>
-									<p>
-										{
-											__( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account. {{a}}Learn more.{{/a}}', {
-												components: {
-													a: <a href={ 'https://jetpack.com/support/sso/' } target="_blank" />
-												}
-											} )
-										}
-									</p>
-								</div>
-							</div>
-							<div className="jp-jumpstart__feature-list-column">
-								<div className="jp-jumpstart__feature-content">
-									<h4 className="jp-jumpstart__feature-content-title" title="Increase page views">
-									{ __( 'Image Carousel' ) }
-									</h4>
-									<p>
-										{
-											__( 'Brings your photos and images to life as full-size, easily navigable galleries. {{a}}Learn more.{{/a}}', {
-												components: {
-													a: <a href={ 'https://jetpack.com/support/carousel/' } target="_blank" />
-												}
-											} )
-										}
-									</p>
-								</div>
-							</div>
-					</div>
-					<div className="jp-jumpstart__feature-list">
-							<div className="jp-jumpstart__feature-list-column">
-								<div className="jp-jumpstart__feature-content">
-									<h4 className="jp-jumpstart__feature-content-title" title="Increase page views">
-									{ __( 'Related Posts' ) }
-									</h4>
-									<p>
-										{
-											__( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post. {{a}}Learn more.{{/a}}', {
-												components: {
-													a: <a href={ 'https://jetpack.com/support/related-posts/' } target="_blank" />
-												}
-											} )
-										}
-									</p>
-								</div>
-							</div>
-						</div>
+						{ jumpstartModules }
 
 						<p className="jp-jumpstart__note">
 							{ __( 'Features can be activated or deactivated at any time.' ) }
@@ -154,8 +93,15 @@ const JumpStart = React.createClass( {
 export default connect(
 	state => {
 		return {
-			jumpstarting: () => _isJumpstarting( state )
+			jumpstarting: () => _isJumpstarting( state ),
+			jumpstartFeatures: () => _getModulesByFeature( state, 'Jumpstart' )
 		};
 	},
 	dispatch => bindActionCreators( { jumpStartActivate, jumpStartSkip }, dispatch )
 )( JumpStart );
+
+function renderJumpstartDescription( module ) {
+	// Rationale behind returning an object and not just the string
+	// https://facebook.github.io/react/tips/dangerously-set-inner-html.html
+	return { __html: module.jumpstart_desc };
+}
