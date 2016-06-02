@@ -47,7 +47,13 @@ class Jetpack_Sync_Server {
 		}
 
 		if ( $token && ! $this->attempt_request_lock( $token->blog_id ) ) {
-			// log multi-request
+			/**
+			 * Fires when the server receives two concurrent requests from the same blog
+			 *
+			 * @since 4.1
+			 *
+			 * @param token The token object of the misbehaving site
+			 */
 			do_action( "jetpack_sync_multi_request_fail", $token );
 			return new WP_Error( 'concurrent_request_error', 'There is another request running for the same blog ID' );
 		}
