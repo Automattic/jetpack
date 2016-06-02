@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -21,8 +22,8 @@ import { ModuleToggle } from 'components/module-toggle';
 export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
 	var cards = [
 		[ 'manage', getModule( 'manage' ).name, getModule( 'manage' ).description, getModule( 'manage' ).learn_more_button ],
-		[ 'backups', 'Site Backups', 'Keep your site backed up!' ],
-		[ 'akismet', 'Akismet', 'Keep those spammers away!' ]
+		[ 'backups', __( 'Site Backups' ), __( 'Keep your site backed up!' ) ],
+		[ 'akismet', 'Akismet', __( 'Keep those spammers away!' ) ]
 	].map( ( element ) => {
 		var toggle = (
 			<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
@@ -46,7 +47,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
-				<a href={ element[3] } target="_blank">Learn More</a>
+				<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
 			</FoldableCard>
 		);
 	} );
@@ -67,15 +68,31 @@ function renderLongDescription( module ) {
 function renderSettings( module ) {
 	switch ( module ) {
 		case 'manage':
-			return <div>{ ( 'This module has no configuration options' ) } </div>;
+			return <div>{ __( 'This module has no configuration options' ) } </div>;
 		case 'akismet':
-			return ( <div>Please go to <a href="/wp-admin/admin.php?page=akismet-key-config">Akismet Settings</a> to configure</div> );
+			return (
+				<div>{
+					__( 'Please go to {{a}}Akismet Settings{{/a}} to configure', {
+						components: {
+							a: <a href={ Initial_State.WP_Admin + 'admin.php?page=akismet-key-config' } />
+						}
+					} )
+				}
+				</div> );
 		case 'backups':
-			return ( <div>Please go to <a href="/wp-admin/admin.php?page=vaultpress">VaultPress Settings</a> to configure</div> );
+			return (
+				<div>{
+					__( 'Please go to {{a}}VaultPress Settings{{/a}} to configure', {
+						components: {
+							a: <a href={ Initial_State.WP_Admin + 'admin.php?page=vaultpress' } />
+						}
+					} )
+				}
+				</div> );
 		default:
 			return (
 				<div>
-					<a href={ module.configure_url }>Link to old settings</a>
+					<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
 				</div>
 			);
 	}

@@ -123,6 +123,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
+			'WP_Admin' => admin_url(),
 			'WP_API_root' => esc_url_raw( rest_url() ),
 			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
 			'pluginBaseUrl' => plugins_url( '', JETPACK__PLUGIN_FILE ),
