@@ -82,7 +82,14 @@ class Jetpack_Sync_Defaults {
 		'jetpack_comment_likes_enabled',
 		'twitter_via',
 		'twitter-cards-site-tag',
-		'jetpack_active_modules'
+		'wpcom_publish_posts_with_markdown',
+		'wpcom_publish_comments_with_markdown',
+		'jetpack_activated',
+		'jetpack_active_modules',
+		'jetpack_available_modules',
+		'jetpack_autoupdate_plugins',
+		'jetpack_autoupdate_themes',
+		'jetpack_autoupdate_core',
 	);
 
 	static $default_constants_whitelist = array(
@@ -178,4 +185,3 @@ class Jetpack_Sync_Defaults {
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
 }
-
