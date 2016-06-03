@@ -241,7 +241,7 @@ function jetpack_print_news_sitemap_xsl() {
  * @link http://sitemaps.org/protocol.php Sitemaps.org protocol.
  */
 function jetpack_print_sitemap() {
-	global $wpdb;
+	global $wpdb, $post;
 
 	$xml = get_transient( 'jetpack_sitemap' );
 
@@ -291,6 +291,7 @@ function jetpack_print_sitemap() {
 	unset( $initstr );
 	$latest_mod = '';
 	foreach ( $posts as $post ) {
+		setup_postdata( $post );
 
 		/**
 		 * Filter condition to allow skipping specific posts in sitemap.
@@ -397,6 +398,7 @@ function jetpack_print_sitemap() {
 		jetpack_sitemap_array_to_simplexml( array( 'url' => $url_node ), $tree );
 		unset( $url );
 	}
+	wp_reset_postdata();
 	$blog_home = array(
 		'loc'        => esc_url( get_option( 'home' ) ),
 		'changefreq' => 'daily',
@@ -459,7 +461,7 @@ function jetpack_print_news_sitemap() {
 		die();
 	}
 
-	global $wpdb;
+	global $wpdb, $post;
 
 	/**
 	 * Filter post types to be included in news sitemap.
@@ -532,6 +534,7 @@ function jetpack_print_news_sitemap() {
 		<?php
 		$posts = $wpdb->get_results( $query );
 		foreach ( $posts as $post ):
+			setup_postdata( $post );
 
 			/**
 			 * Filter condition to allow skipping specific posts in news sitemap.
@@ -584,6 +587,7 @@ function jetpack_print_news_sitemap() {
 
 			jetpack_print_sitemap_item( $url );
 		endforeach;
+		wp_reset_postdata();
 		?>
 	</urlset>
 	<?php
