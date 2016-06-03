@@ -163,27 +163,47 @@ class Jetpack_Sync_Full {
 	}
 
 	private function enqueue_all_posts() {
+		global $wpdb;
 		$this->set_status( 'posts', 0 );
+		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
+		$this->enqueue_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $post_type_sql, 'posts' );
+		$this->set_status( 'posts', 100 );
+	}
+
+	private function enqueue_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $status_name ) {
 		global $wpdb;
 
-		// I hope this is never bigger than RAM...
-		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
-		$post_ids      = $wpdb->get_col( "SELECT id FROM $wpdb->posts WHERE $post_type_sql" ); // Should we set a limit here?
-
-		// Request posts in groups of N for efficiency
-		$chunked_post_ids = array_chunk( $post_ids, self::ARRAY_CHUNK_SIZE );
-
-		$counter = 0;
-		$total   = count( $chunked_post_ids );
-
-		// Send each chunk as an array of objects
-		foreach ( $chunked_post_ids as $chunk ) {
-			$this->set_status( 'posts', ( $counter / $total ) * 100 );
-			do_action( 'jetpack_full_sync_posts', $chunk );
-			$counter += 1;
+		if ( ! $where_sql ) {
+			$where_sql = "1 = 1";
 		}
 
-		$this->set_status( 'posts', 100 );
+		$total = $wpdb->get_var( "SELECT count(*) FROM {$table_name} WHERE {$where_sql}" );
+		$items_per_page = 500;
+		$page = 1;
+		$counter = 1;
+		$offset = ( $page * $items_per_page ) - $items_per_page;
+
+		while( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} ORDER BY {$id_field} asc LIMIT {$offset}, {$items_per_page}" ) ) {
+			print_r($ids, true);
+			// Request posts in groups of N for efficiency
+			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
+
+			// Send each chunk as an array of objects
+			foreach ( $chunked_ids as $chunk ) {
+				$this->set_status( $status_name, ( $counter / $total ) * 100 );
+				/**
+			 	 * Fires with a chunk of object IDs during full sync.
+			 	 * These are expanded to full objects before upload
+			 	 *
+			 	 * @since 4.1
+			 	 */
+				do_action( $action_name, $chunk );
+				$counter += count( $chunked_ids );
+			}
+
+			$page += 1;
+			$offset = ( $page * $items_per_page ) - $items_per_page;
+		}
 	}
 
 	public function expand_post_ids( $args ) {
@@ -200,22 +220,9 @@ class Jetpack_Sync_Full {
 	}
 
 	private function enqueue_all_comments() {
-		$this->set_status( 'comments', 0 );
-
 		global $wpdb;
-
-		$comment_ids         = $wpdb->get_col( "SELECT comment_id FROM $wpdb->comments" ); // Should we set a limit here?
-		$chunked_comment_ids = array_chunk( $comment_ids, self::ARRAY_CHUNK_SIZE );
-
-		$counter = 0;
-		$total   = count( $chunked_comment_ids );
-
-		foreach ( $chunked_comment_ids as $chunk ) {
-			$this->set_status( 'comments', ( $counter / $total ) * 100 );
-			do_action( 'jetpack_full_sync_comments', $chunk );
-			$counter += 1;
-		}
-
+		$this->set_status( 'comments', 0 );
+		$this->enqueue_all_ids_as_action( 'jetpack_full_sync_comments', $wpdb->comments, 'comment_ID', null, 'comments' );
 		$this->set_status( 'comments', 100 );
 	}
 
@@ -263,26 +270,9 @@ class Jetpack_Sync_Full {
 	}
 
 	private function enqueue_all_users() {
+		global $wpdb;
 		$this->set_status( 'users', 0 );
-
-		$user_ids          = get_users( array( 'fields' => 'ID' ) );
-		$chunked_users_ids = array_chunk( $user_ids, self::ARRAY_CHUNK_SIZE );
-
-		$counter = 0;
-		$total   = count( $chunked_users_ids );
-
-		foreach ( $chunked_users_ids as $chunk ) {
-			$this->set_status( 'users', ( $counter / $total ) * 100 );
-			/**
-			 * Fires with a chunk of user IDs during full sync.
-			 * These get expanded to full user objects before upload (minus passwords)
-			 *
-			 * @since 4.1
-			 */
-			do_action( 'jetpack_full_sync_users', $chunk );
-			$counter += 1;
-		}
-
+		$this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->users, 'ID', null, 'users' );
 		$this->set_status( 'users', 100 );
 	}
 
