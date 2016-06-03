@@ -12,8 +12,12 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_sync_modules_callable() {
 		$this->client->do_sync();
-		// we want to be able to reproduce the get modules endpoint from .com
-		$this->assertTrue( ! empty( $this->server_replica_storage->get_callable( 'modules' ) ) );
+	
+		$modules = $this->server_replica_storage->get_callable( 'modules' );
+		$this->assertTrue( is_array( $modules ) );
+		foreach ( $modules as $module ) {
+			$this->assertModuleData( $module );
+		}
 	}
 
 
@@ -24,9 +28,9 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_New_Sync_Base {
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_activate_module' );
 		$event = $events[0];
+
 		$this->assertEquals( 'jetpack_activate_module', $event->action );
 		$this->assertEquals( 'stuff', $event->args[0] );
-
 	}
 
 
@@ -42,5 +46,11 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 'stuff', $event->args[0] );
 		$this->assertEquals( 1, count( $events ) );
 
+	}
+
+	function assertModuleData( $module ) {
+		foreach( array( 'module_tags', 'free', 'introduced', 'sort', 'description', 'name', 'jumpstart_desc' )  as $key ) {
+			$this->assertArrayHasKey( $key, $module );
+		}
 	}
 }
