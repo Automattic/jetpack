@@ -4,9 +4,9 @@
 Plugin Name: Jetpack Beta Tester
 Plugin URI: https://github.com/Automattic/jetpack
 Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master-stable branch on GitHub.  DO NOT USE IN PRODUCTION.
-Version: 1.0.2
+Version: 1.0.3
 Author: Automattic
-Author URI: http://jetpack.me/
+Author URI: https://jetpack.com/
 License: GPLv2 or later
 */
 
@@ -33,23 +33,23 @@ define( 'JPBETA__DIR', dirname(__FILE__).'/' );
 if( !file_exists( WP_PLUGIN_DIR . '/jetpack/jetpack.php' ) ) { return; }
 
 function set_up_auto_updater() {
-	
+
     $forceUpdate = get_option( 'force-jetpack-update' );
-	
+
     if( $forceUpdate != get_current_jetpack_version() ) {
         update_option( 'force-jetpack-update', 'just-updated' );
     }
-	
+
 	$beta_type = get_option( 'jp_beta_type' );
-	
+
 	if( $beta_type == 'rc_only' ) {
 		$json_url = 'http://betadownload.jetpack.me/rc/rc.json';
 	} else {
 		$json_url = 'http://betadownload.jetpack.me/jetpack-bleeding-edge.json';
 	}
-		
+
     do_action( 'add_debug_info', $json_url, 'json_url' );
-	
+
 	require 'plugin-updates/plugin-update-checker.php';
 	$JetpackBeta = PucFactory::buildUpdateChecker(
 	    $json_url,
@@ -57,7 +57,7 @@ function set_up_auto_updater() {
 	    'jetpack',
 	    '0.01'
 	);
-	
+
 	// Allows us to update the Jetpack Beta tool by updating GitHub
 	$className = PucFactory::getLatestClassVersion('PucGitHubChecker');
 	$myUpdateChecker = new $className(
@@ -65,8 +65,8 @@ function set_up_auto_updater() {
 		__FILE__,
 		'master'
 	);
-	
-	
+
+
 	$jp_beta_autoupdate = get_option( 'jp_beta_autoupdate' );
 	if( $jp_beta_autoupdate != 'no' ) {
 		function auto_update_jetpack_beta ( $update, $item ) {
@@ -82,7 +82,7 @@ function set_up_auto_updater() {
 		}
 		add_filter( 'auto_update_plugin', 'auto_update_jetpack_beta', 10, 2 );
 	}
-	
+
 }
 add_action( 'plugins_loaded', 'set_up_auto_updater' );
 
