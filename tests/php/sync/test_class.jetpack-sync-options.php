@@ -155,9 +155,10 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 		foreach( $options as $option_name => $value) {
 			$this->assertOptionIsSynced( $option_name, $value );
 		}
-
+		$option_keys = array_keys( $options );
+		$whitelist_and_option_keys_difference = array_diff( $option_keys,$this->client->get_options_whitelist() );
 		// Are we testing all the options
-		$this->assertTrue( empty( array_diff( array_keys( $options ), $this->client->get_options_whitelist() ) ) );
+		$this->assertTrue( empty( $whitelist_and_option_keys_difference ) );
 	}
 
 	function assertOptionIsSynced( $option_name, $value ) {
