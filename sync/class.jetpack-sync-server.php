@@ -9,8 +9,8 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
 class Jetpack_Sync_Server {
 	private $codec;
 	const MAX_TIME_PER_REQUEST_IN_SECONDS = 15;
-	const BLOG_LOCK_TRANSIENT_PREFIX = 'jetpack_sync_request_lock_';
-	const BLOG_LOCK_TRANSIENT_EXPIRY = 60;
+	const BLOG_LOCK_TRANSIENT_PREFIX = 'jp_sync_req_lock_';
+	const BLOG_LOCK_TRANSIENT_EXPIRY = 60; // seconds
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
@@ -23,12 +23,11 @@ class Jetpack_Sync_Server {
 
 	function attempt_request_lock( $blog_id, $expiry = self::BLOG_LOCK_TRANSIENT_EXPIRY ) {
 		$transient_name = $this->get_concurrent_request_transient_name( $blog_id );
-		$locked_time = get_transient( $transient_name );
+		$locked_time = get_site_transient( $transient_name );
 		if ( $locked_time ) {
 			return false;
 		}
-		// for some reason set_transient isn't returning TRUE like it's supposed to...
-		set_transient( $transient_name, microtime( true ), $expiry );
+		set_site_transient( $transient_name, microtime(true), $expiry );
 		return true;
 	}
 
@@ -37,7 +36,7 @@ class Jetpack_Sync_Server {
 	}
 
 	function remove_request_lock( $blog_id ) {
-		delete_transient( $this->get_concurrent_request_transient_name( $blog_id ) );
+		delete_site_transient( $this->get_concurrent_request_transient_name( $blog_id ) );
 	}
 
 	function receive( $data, $token = null ) {
