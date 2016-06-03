@@ -72,7 +72,9 @@ const JumpStart = React.createClass( {
 							{ __( "Jetpack's recommended features include:" ) }
 						</p>
 
-						{ jumpstartModules }
+						<div className="jp-jumpstart__feature-list">
+							{ jumpstartModules }
+						</div>
 
 						<p className="jp-jumpstart__note">
 							{ __( 'Features can be activated or deactivated at any time.' ) }

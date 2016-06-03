@@ -98,9 +98,6 @@
 	flex-direction: row;
 	flex-wrap: wrap;
 
-	@include breakpoint( ">660px" ) { 
-		flex-wrap: nowrap;
-	}
 	@include breakpoint( "<660px" ) {
 		margin: rem( -8px ) rem( -16px ) 0; // to avoid altering multiple other elements
 	}
