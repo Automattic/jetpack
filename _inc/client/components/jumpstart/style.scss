@@ -112,6 +112,11 @@
 		flex-grow: 1;
 		flex-shrink: 0;
 		flex-basis: 50%;
+
+		&:last-of-type {
+			margin-top: 1px;
+			max-width: 49.9%;
+		}
 	}
 
 	@include breakpoint( "<660px" ) { 
