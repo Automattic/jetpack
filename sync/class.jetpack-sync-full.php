@@ -191,6 +191,12 @@ class Jetpack_Sync_Full {
 			// Send each chunk as an array of objects
 			foreach ( $chunked_ids as $chunk ) {
 				$this->set_status( $status_name, ( $counter / $total ) * 100 );
+				/**
+			 	 * Fires with a chunk of object IDs during full sync.
+			 	 * These are expanded to full objects before upload
+			 	 *
+			 	 * @since 4.1
+			 	 */
 				do_action( $action_name, $chunk );
 				$counter += count( $chunked_ids );
 			}
@@ -264,26 +270,9 @@ class Jetpack_Sync_Full {
 	}
 
 	private function enqueue_all_users() {
+		global $wpdb;
 		$this->set_status( 'users', 0 );
-
-		$user_ids          = get_users( array( 'fields' => 'ID' ) );
-		$chunked_users_ids = array_chunk( $user_ids, self::ARRAY_CHUNK_SIZE );
-
-		$counter = 0;
-		$total   = count( $chunked_users_ids );
-
-		foreach ( $chunked_users_ids as $chunk ) {
-			$this->set_status( 'users', ( $counter / $total ) * 100 );
-			/**
-			 * Fires with a chunk of user IDs during full sync.
-			 * These get expanded to full user objects before upload (minus passwords)
-			 *
-			 * @since 4.1
-			 */
-			do_action( 'jetpack_full_sync_users', $chunk );
-			$counter += 1;
-		}
-
+		$this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->users, 'ID', null, 'users' );
 		$this->set_status( 'users', 100 );
 	}
 
