@@ -18,8 +18,21 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
+import {
+	fetchPluginsData,
+	isFetchingPluginsData,
+	isPluginActive,
+	isPluginInstalled
+} from 'state/site/plugins';
+import QuerySitePlugins from 'components/data/query-site-plugins';
 
-export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
+export const Page = ( props ) => {
+	let {
+		toggleModule,
+		isModuleActivated,
+		isTogglingModule,
+		getModule
+		} = props;
 	var cards = [
 		[ 'manage', getModule( 'manage' ).name, getModule( 'manage' ).description, getModule( 'manage' ).learn_more_button ],
 		[ 'backups', __( 'Site Backups' ), __( 'Keep your site backed up!' ) ],
@@ -43,7 +56,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
 			>
-				{ isModuleActivated( element[0] ) || 'akismet' === element[0] || 'backups' === element[0] ? renderSettings( element[0] ) :
+				{ isModuleActivated( element[0] ) || 'akismet' === element[0] || 'backups' === element[0] ? renderSettings( element[0], props ) :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -54,6 +67,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 
 	return (
 		<div>
+			<QuerySitePlugins />
 			{ cards }
 		</div>
 	);
@@ -65,28 +79,64 @@ function renderLongDescription( module ) {
 	return { __html: module.long_description };
 }
 
-function renderSettings( module ) {
+function renderSettings( module, props ) {
 	switch ( module ) {
 		case 'manage':
 			return <div>{ __( 'This module has no configuration options' ) } </div>;
 		case 'akismet':
+			if ( props.isFetchingPluginsData ) {
+				return ( __( 'Loading...' ) );
+			}
+			var slug = 'akismet/akismet.php';
 			return (
 				<div>{
-					__( 'Please go to {{a}}Akismet Settings{{/a}} to configure', {
-						components: {
-							a: <a href={ Initial_State.WP_Admin + 'admin.php?page=akismet-key-config' } />
-						}
-					} )
+					props.isPluginActive( slug ) ?
+						__( 'Please go to {{a}}Akismet Settings{{/a}} to configure.', {
+							components: {
+								a: <a href={ Initial_State.adminUrl + 'admin.php?page=akismet-key-config' } />
+							}
+						} )
+						:
+						props.isPluginInstalled( slug ) ?
+							__( 'Please go to {{a}}Plugins{{/a}} and activate Akismet.', {
+								components: {
+									a: <a href={ Initial_State.adminUrl + 'plugins.php' } />
+								}
+							} )
+							:
+							__( 'Please go to {{a}}Plugins{{/a}}, install Akismet and activate it.', {
+								components: {
+									a: <a href={ Initial_State.adminUrl + 'plugins.php' } />
+								}
+							} )
 				}
 				</div> );
 		case 'backups':
+			if ( props.isFetchingPluginsData ) {
+				return ( __( 'Loading...' ) );
+			}
+			var slug = 'vaultpress/vaultpress.php';
 			return (
 				<div>{
-					__( 'Please go to {{a}}VaultPress Settings{{/a}} to configure', {
-						components: {
-							a: <a href={ Initial_State.WP_Admin + 'admin.php?page=vaultpress' } />
-						}
-					} )
+					props.isPluginActive( slug ) ?
+						__( 'Please go to {{a}}VaultPress Settings{{/a}} to configure', {
+							components: {
+								a: <a href={ Initial_State.adminUrl + 'admin.php?page=vaultpress' } />
+							}
+						} )
+						:
+						props.isPluginInstalled( slug ) ?
+							__( 'Please go to {{a}}Plugins{{/a}} and activate VaultPress.', {
+								components: {
+									a: <a href={ Initial_State.adminUrl + 'plugins.php' } />
+								}
+							} )
+							:
+							__( 'Please go to {{a}}Plugins{{/a}}, install VaultPress and activate it.', {
+								components: {
+									a: <a href={ Initial_State.adminUrl + 'plugins.php' } />
+								}
+							} )
 				}
 				</div> );
 		default:
@@ -104,7 +154,10 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) =>
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
-			getModule: ( module_name ) => _getModule( state, module_name )
+			getModule: ( module_name ) => _getModule( state, module_name ),
+			isFetchingPluginsData: isFetchingPluginsData( state ),
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
 		};
 	},
 	( dispatch ) => {
@@ -113,7 +166,8 @@ export default connect(
 				return ( activated )
 					? dispatch( deactivateModule( module_name ) )
 					: dispatch( activateModule( module_name ) );
-			}
+			},
+			fetchPluginsData: () => dispatch( fetchPluginsData() )
 		};
 	}
 )( Page );
