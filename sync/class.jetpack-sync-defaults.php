@@ -90,6 +90,30 @@ class Jetpack_Sync_Defaults {
 		'jetpack_autoupdate_plugins',
 		'jetpack_autoupdate_themes',
 		'jetpack_autoupdate_core',
+		'carousel_background_color',
+		'carousel_display_exif',
+		'jetpack_portfolio',
+		'jetpack_portfolio_posts_per_page',
+		'jetpack_testimonial',
+		'jetpack_testimonial_posts_per_page',
+		'tiled_galleries',
+		'gravatar_disable_hovercards',
+		'infinite_scroll',
+		'infinite_scroll_google_analytics',
+		'wpl_default',
+		'social_notifications_like',
+		'wp_mobile_excerpt',
+		'wp_mobile_featured_images',
+		'wp_mobile_app_promos',
+		'monitor_receive_notifications',
+		'post_by_email_address',
+		'jetpack_protect_key',
+		'jetpack_protect_global_whitelist',
+		'sharing_services',
+		'sharing-options',
+		'jetpack_sso_require_two_step',
+		'jetpack_relatedposts',
+		'verification_services_codes',
 	);
 
 	static $default_constants_whitelist = array(
@@ -176,7 +200,7 @@ class Jetpack_Sync_Defaults {
 		return false;
 	}
 
-	static $default_network_options_whitelist = array( 'site_name' );
+	static $default_network_options_whitelist = array( 'site_name', 'jetpack_protect_key', 'jetpack_protect_global_whitelist' );
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
