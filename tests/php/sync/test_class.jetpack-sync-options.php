@@ -144,7 +144,33 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 			'jetpack_autoupdate_plugins'=> 'pineapple',
 			'jetpack_autoupdate_themes'=> 'pineapple',
 			'jetpack_autoupdate_core'=> 'pineapple',
+			'carousel_background_color'=> 'pineapple',
+			'carousel_display_exif'=> 'pineapple',
+			'jetpack_portfolio'=> 'pineapple',
+			'jetpack_portfolio_posts_per_page'=> 'pineapple',
+			'jetpack_testimonial'=> 'pineapple',
+			'jetpack_testimonial_posts_per_page'=> 'pineapple',
+			'tiled_galleries'=> 'pineapple',
+			'gravatar_disable_hovercards'=> 'pineapple',
+			'infinite_scroll'=> 'pineapple',
+			'infinite_scroll_google_analytics'=> 'pineapple',
+			'wpl_default'=> 'pineapple',
+			'wp_mobile_excerpt'=> 'pineapple',
+			'wp_mobile_featured_images'=> 'pineapple',
+			'wp_mobile_app_promos'=> 'pineapple',
+			'monitor_receive_notifications'=> 'pineapple',
+			'post_by_email_address'=> 'pineapple',
+			'jetpack_protect_key'=> 'pineapple',
+			'jetpack_protect_global_whitelist'=> 'pineapple',
+			'sharing_services'=> 'pineapple',
+			'jetpack_sso_require_two_step'=> 'pineapple',
+			'jetpack_relatedposts'=> 'pineapple',
+			'verification_services_codes'=> 'pineapple',
 		);
+		
+		$theme_mod_key = 'theme_mods_' . get_option( 'stylesheet' );
+		$options[ $theme_mod_key ] = 'pineapple';
+
 		// update all the opyions.
 		foreach( $options as $option_name => $value) {
 			update_option( $option_name, $value );
@@ -156,9 +182,10 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 			$this->assertOptionIsSynced( $option_name, $value );
 		}
 		$option_keys = array_keys( $options );
-		$whitelist_and_option_keys_difference = array_diff( $option_keys,$this->client->get_options_whitelist() );
+		$whitelist_and_option_keys_difference = array_diff( $this->client->get_options_whitelist(), $option_keys );
 		// Are we testing all the options
-		$this->assertTrue( empty( $whitelist_and_option_keys_difference ) );
+
+		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 )  );
 	}
 
 	function assertOptionIsSynced( $option_name, $value ) {
