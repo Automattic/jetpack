@@ -2758,7 +2758,18 @@ class Jetpack {
 			$jetpack->do_stats( 'server_side' );
 		}
 
-		return Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
+		$success = Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
+		/**
+		 * Fired after a module has been deactivated.
+		 *
+		 * @since 4.1
+		 *
+		 * @param string $module Module slug.
+		 * @param boolean $success whether the module was deactivated.
+		 */
+		do_action( 'jetpack_deactivate_module', $module, $success );
+
+		return $success;
 	}
 
 	public static function enable_module_configurable( $module ) {

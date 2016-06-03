@@ -171,7 +171,9 @@ class Jetpack_Sync_Client {
 		}
 
 
-		// TODO: Callables, Constanst, Network Options, Users, Terms
+		// Module Activation
+		add_action( 'jetpack_activate_module', $handler );
+		add_action( 'jetpack_deactivate_module', $handler );
 
 		/**
 		 * Sync all pending actions with server
