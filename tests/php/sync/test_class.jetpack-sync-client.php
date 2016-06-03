@@ -58,6 +58,12 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->assertTrue( true );
 	}
 
+	public function setSyncClientDefaults() {
+		$this->client->set_defaults();
+		$this->client->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
+		$this->client->set_sync_wait_time(0); // disable rate limiting
+	}
+
 	protected function assertDataIsSynced() {
 		$local  = new Jetpack_Sync_WP_Replicastore();
 		$remote = $this->server_replica_storage;
