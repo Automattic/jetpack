@@ -30,6 +30,7 @@ import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
+import GlobalNotices from 'components/jetpack-notices/example.jsx';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
@@ -118,6 +119,7 @@ const Main = React.createClass( {
 				<Masthead { ...this.props } />
 					<div className="jp-lower">
 						<JetpackNotices { ...this.props } />
+						<GlobalNotices />
 						{ this.renderMainContent( this.props.route.path ) }
 						{
 							this.props.getJumpStartStatus || '/apps' === this.props.route.path ?
