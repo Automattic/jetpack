@@ -50,7 +50,7 @@ done
 echo "Done!"
 
 echo "Pulling latest from jetpack-built branch"
-git clone -b jetpack-built --single-branch git@github.com:Automattic/jetpack.git $JETPACK_TMP_DIR
+git clone --depth 1 -b jetpack-built --single-branch git@github.com:Automattic/jetpack.git $JETPACK_TMP_DIR
 echo "Done!"
 
 echo "Rsync'ing everything over remote version"
