@@ -105,11 +105,12 @@ class Jetpack_Sync_Defaults {
 		'is_multi_site'                => 'is_multisite',
 		'main_network_site'            => 'network_site_url',
 		'single_user_site'             => array( 'Jetpack', 'is_single_user_site' ),
-		'has_file_system_write_access' => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
-		'is_version_controlled'        => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
-		'modules'                      => array( 'Jetpack_Sync_Functions', 'get_modules' ),
-		'taxonomies'                   => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
-		'post_types'                   => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
+		'has_file_system_write_access' => array( 'Jetpack_Sync_Callables', 'file_system_write_access' ),
+		'is_version_controlled'        => array( 'Jetpack_Sync_Callables', 'is_version_controlled' ),
+		'modules'                      => array( 'Jetpack_Sync_Callables', 'get_modules' ),
+		'taxonomies'                   => array( 'Jetpack_Sync_Callables', 'get_taxonomies' ),
+		'post_types'                   => array( 'Jetpack_Sync_Callables', 'get_post_types' ),
+		'allowed_file_types'           => array( 'Jetpack_Sync_Callables', 'allowed_file_types' ),
 	);
 
 	static $blacklisted_post_types = array(

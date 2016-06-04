@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-functions.php';
+require_once dirname(__FILE__) . '/../../../sync/class.jetpack-sync-callables.php';
 
 require_once 'test_class.jetpack-sync-client.php';
 
