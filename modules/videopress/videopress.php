@@ -61,6 +61,28 @@ class Jetpack_VideoPress {
 
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
+		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
+	}
+
+	/**
+	 * @param string $url
+	 * @param int $post_id
+	 *
+	 * @return mixed
+	 */
+	public function update_attachment_url_for_videopress( $url, $post_id ) {
+
+		$post = get_post( $post_id );
+
+		if ( $post->post_mime_type === 'video/videopress' ) {
+			$meta = wp_get_attachment_metadata( $post->ID );
+
+			if ( isset( $meta['original']['url'] ) ) {
+				$url = $meta['original']['url'];
+			}
+		}
+
+		return $url;
 	}
 
 	/**
@@ -81,6 +103,9 @@ class Jetpack_VideoPress {
 		$errors = null;
 		foreach ( $vp_info as $vp_item ) {
 			$id = $vp_item['id'];
+			$url = $vp_item['url'];
+			$guid = $vp_item['guid'];
+			$poster = $vp_item['poster'];
 			$info = $vp_item['info'];
 
 			$post = get_post( $id );
@@ -94,8 +119,16 @@ class Jetpack_VideoPress {
 				continue;
 			}
 
+			$post->guid = $url;
+			$post->file = $url;
+
+			wp_update_post( $post );
+
 			$meta = wp_get_attachment_metadata( $post->ID );
+			$meta['original']['url'] = $url;
 			$meta['videopress'] = $info;
+			$meta['videopress']['poster'] = $poster;
+			$meta['videopress']['url'] = 'https://videopress.com/v/' . $guid;
 
 			wp_update_attachment_metadata( $post->ID, $meta );
 		}
@@ -117,8 +150,6 @@ class Jetpack_VideoPress {
 				'post_mime_type' => 'video/videopress',
 				'post_title' => sanitize_title( basename( $media_item['url'] ) ),
 				'post_content' => '',
-				'file' => $media_item['file'],
-				'guid' => $media_item['url'],
 			);
 
 			$media_id = wp_insert_post( $post );
