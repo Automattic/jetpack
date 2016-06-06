@@ -117,7 +117,24 @@ export const SecurityModulesSettings = React.createClass( {
 			case 'monitor':
 				return ( <MonitorSettings module={ module } { ...this.props } /> );
 			case 'scan':
-				return ( <div>{ __( 'You can see the information about security scanning in the "At a Glance" section.' ) }</div> );
+				return ( <div>{
+					module.isVaultPressActive ?
+						__( 'You can see the information about security scanning in the "At a Glance" section.' )
+						:
+						module.isVaultPressInstalled ?
+							__( 'Please go to {{a}}Plugins{{/a}} and activate VaultPress.', {
+								components: {
+									a: <a href={ Initial_State.adminUrl + 'plugins.php' } />
+								}
+							} )
+							:
+							__( 'Please go to {{a}}Plugins{{/a}}, install VaultPress and activate it.', {
+								components: {
+									a: <a href={ Initial_State.adminUrl + 'plugins.php' } />
+								}
+							} )
+				}
+				</div> );
 			case 'sso':
 				return ( <SingleSignOnSettings module={ module } { ...this.props } /> );
 			default:
