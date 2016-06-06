@@ -34,10 +34,7 @@ class Jetpack_Admin {
 
 //		jetpack_require_lib( 'admin-pages/class.jetpack-landing-page' );
 //		$this->landing_page = new Jetpack_Landing_Page;
-//
-//		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
-//		$this->settings_page = new Jetpack_Settings_Page;
-//
+
 //		jetpack_require_lib( 'admin-pages/class.jetpack-my-jetpack-page' );
 //		$this->my_jetpack_page = new Jetpack_My_Jetpack_Page;
 

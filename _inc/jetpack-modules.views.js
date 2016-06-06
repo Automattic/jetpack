@@ -19,7 +19,7 @@ window.jetpackModules.views = (function( window, $, _, Backbone, wp ) {
 					return;
 				}
 
-				var url      = window.location.href.split('?')[0] + '?page=jetpack_modules',
+				var url      = window.location.href.split('?')[0] + '?page=fallback',
 					m_tag    = $('.subsubsub .current'),
 					m_filter = $('.button-group.filter-active .active'),
 					m_sort   = $('.button-group.sort .active'),

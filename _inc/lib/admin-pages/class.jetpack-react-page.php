@@ -3,13 +3,22 @@ include_once( 'class.jetpack-admin-page.php' );
 
 // Builds the landing page and its menu
 class Jetpack_React_Page extends Jetpack_Admin_Page {
+
 	protected $dont_show_if_not_active = false;
+
+	public function __construct() {
+		parent::__construct();
+
+		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
+		$this->fallback_page = new Jetpack_Settings_Page;
+	}
 
 	function get_page_hook() {
 		$title = _x( 'Jetpack', 'The menu item label', 'jetpack' );
 
+		$this->fallback_page->get_page_hook();
+
 		// Add the main admin Jetpack menu
-		return add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
 	}
 
 	function add_page_actions( $hook ) {
@@ -33,6 +42,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_filter( 'custom_menu_order',         '__return_true' );
 		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
 
+		if ( isset( $_GET['page'] ) && 'fallback' !== $_GET['page'] && ! isset( $_GET['configure'] ) ) {
+			add_action( 'admin_head', array( $this, 'add_head_meta' ) );
+		}
+
 //		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
 	}
 
@@ -46,6 +59,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		global $submenu;
 		$permalink = Jetpack::admin_url( 'page=jetpack#/settings' );
 		$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', $permalink );
+	}
+
+	function add_head_meta() {
+		echo '<noscript><meta http-equiv="refresh" content="0; url=?page=fallback"></noscript>';
 	}
 
 	function jetpack_menu_order( $menu_order ) {
@@ -65,12 +82,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	// Render the configuration page for the module if it exists and an error
 	// screen if the module is not configurable
 	// @todo remove when real settings are in place
-	function render_nojs_configurable() {
+	function render_nojs_configurable( $module_name ) {
+		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
+
 		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
 		echo '<div class="clouds-sm"></div>';
 		echo '<div class="wrap configure-module">';
 
-		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
 		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
 			Jetpack::admin_screen_configure_module( $module_name );
 		} else {
@@ -81,9 +99,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_render() {
+		// Handle old WP and No-JS page
+		if ( isset( $_GET['fallback'] ) ) {
+			$this->fallback_page->page_admin_scripts();
+			return $this->fallback_page->page_render();
+		}
 		// Handle redirects to configuration pages
 		if ( ! empty( $_GET['configure'] ) ) {
-			return $this->render_nojs_configurable();
+			return $this->render_nojs_configurable( $_GET['configure'] );
 		}
 		?>
 		<?php

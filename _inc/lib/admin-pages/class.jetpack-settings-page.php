@@ -4,13 +4,15 @@ include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
 
 // Builds the settings page and its menu
 class Jetpack_Settings_Page extends Jetpack_Admin_Page {
+
 	// Show the settings page only when Jetpack is connected or in dev mode
 	protected $dont_show_if_not_active = true;
+
 	function add_page_actions( $hook ) {} // There are no page specific actions to attach to the menu
 
 	// Adds the Settings sub menu
 	function get_page_hook() {
-		return add_submenu_page( 'jetpack', __( 'Jetpack Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_manage_modules', 'jetpack_modules', array( $this, 'render' ) );
+		return add_submenu_page( null, __( 'Jetpack Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_manage_modules', 'fallback', array( $this, 'render' ) );
 	}
 
 	// Renders the module list table where you can use bulk action or row
