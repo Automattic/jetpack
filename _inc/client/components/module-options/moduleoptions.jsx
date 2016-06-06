@@ -117,7 +117,7 @@ export const SecurityModulesSettings = React.createClass( {
 			case 'monitor':
 				return ( <MonitorSettings module={ module } { ...this.props } /> );
 			case 'scan':
-				return ( <div>You can see the information about security scanning in the "At a Glance" section.</div> );
+				return ( <div>{ __( 'You can see the information about security scanning in the "At a Glance" section.' ) }</div> );
 			case 'sso':
 				return ( <SingleSignOnSettings module={ module } { ...this.props } /> );
 			default:

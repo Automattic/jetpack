@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -23,7 +24,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 	var cards = [
 		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
 		[ 'monitor', getModule( 'monitor' ).name, getModule( 'monitor' ).description, getModule( 'monitor' ).learn_more_button ],
-		[ 'scan', 'Security Scanning', 'Automatically scan your site for common threats and attacks.' ],
+		[ 'scan', __( 'Security Scanning' ), __( 'Automatically scan your site for common threats and attacks.' ) ],
 		[ 'sso', getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
 	].map( ( element ) => {
 		var toggle = (
@@ -50,7 +51,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<br/>
-				<a href={ element[3] } target="_blank">Learn More</a>
+				<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
 			</FoldableCard>
 		);
 	} );
