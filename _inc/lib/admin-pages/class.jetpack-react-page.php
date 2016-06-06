@@ -4,7 +4,15 @@ include_once( 'class.jetpack-admin-page.php' );
 // Builds the landing page and its menu
 class Jetpack_React_Page extends Jetpack_Admin_Page {
 
+	protected $fallback_page;
+
 	protected $dont_show_if_not_active = false;
+
+	protected $is_redirecting = false;
+
+	protected $is_fallback = false;
+
+	protected $is_fallback_configuration = false;
 
 	public function __construct() {
 		parent::__construct();
@@ -42,11 +50,33 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_filter( 'custom_menu_order',         '__return_true' );
 		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
 
-		if ( isset( $_GET['page'] ) && 'fallback' !== $_GET['page'] && ! isset( $_GET['configure'] ) ) {
-			add_action( 'admin_head', array( $this, 'add_head_meta' ) );
+//		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
+
+		if (
+			(
+				isset( $_GET['page'] )
+				&& 'fallback' === $_GET['page']
+			)
+			|| ! empty( $_GET['configure'] )
+		) {
+			$this->is_fallback = true;
+			$this->is_fallback_configuration = ! empty( $_GET['configure'] );
+			return; // No need to handle the fallback if it's already active
 		}
 
-//		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
+		// Adding a redirect meta tag for older WordPress versions
+		global $wp_version;
+		if (
+			! function_exists( 'rest_api_init' )
+			|| version_compare( $wp_version, '4.4-z', '<=' )
+		) {
+			$this->is_redirecting = true;
+			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
+		}
+
+		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have
+		// JavaScript disabled
+		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 	}
 
 	function jetpack_add_dashboard_sub_nav_item() {
@@ -61,8 +91,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', $permalink );
 	}
 
-	function add_head_meta() {
-		echo '<noscript><meta http-equiv="refresh" content="0; url=?page=fallback"></noscript>';
+	function add_fallback_head_meta() {
+		echo '<meta http-equiv="refresh" content="0; url=?page=fallback">';
+	}
+
+	function add_noscript_head_meta() {
+		echo '<noscript>';
+		$this->add_fallback_head_meta();
+		echo '</noscript>';
 	}
 
 	function jetpack_menu_order( $menu_order ) {
@@ -99,14 +135,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_render() {
+		// Handle redirects to configuration pages
+		if ( $this->is_fallback_configuration ) {
+			return $this->render_nojs_configurable( $_GET['configure'] );
+		}
 		// Handle old WP and No-JS page
-		if ( isset( $_GET['fallback'] ) ) {
+		if ( $this->is_fallback ) {
 			$this->fallback_page->page_admin_scripts();
 			return $this->fallback_page->page_render();
-		}
-		// Handle redirects to configuration pages
-		if ( ! empty( $_GET['configure'] ) ) {
-			return $this->render_nojs_configurable( $_GET['configure'] );
 		}
 		?>
 		<?php
@@ -145,6 +181,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
+		if ( $this->is_redirecting ) {
+			return; // No need for scripts on a fallback page
+		}
+
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
 		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );

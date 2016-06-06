@@ -15,9 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Load WP_Error for error messages.
 require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
-// Register endpoints when WP REST API is initialized.
-add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
-
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
  *
@@ -26,6 +23,21 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 class Jetpack_Core_Json_Api_Endpoints {
 
 	public static $user_permissions_error_msg;
+
+	/**
+	 * WordPress REST API is only available starting with version 4.4, so we don't do anything
+	 * if the current installation is older than that.
+	 */
+	public static function init() {
+		global $wp_version;
+		if ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) ) {
+
+			return;
+		}
+
+		// Register endpoints when WP REST API is initialized.
+		add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
+	}
 
 	function __construct() {
 		self::$user_permissions_error_msg = esc_html__(
@@ -2626,3 +2638,5 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 } // class end
+
+Jetpack_Core_Json_Api_Endpoints::init();
