@@ -212,6 +212,10 @@ Dismiss a Jetpack notice by Id.
 	* `"feedback_dash_request"`
 	* `"welcome"`.
 
+** HTTP Status codes**
+
+* `404` - When `:notice` is not valid or absent
+
 #### GET /wp-json/jetpack/v4/site
 
 Get current site data
