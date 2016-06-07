@@ -458,6 +458,11 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 */
 		$days = (int) apply_filters( 'jetpack_top_posts_days', 2, $args );
 
+		/** Handling situations where the number of days makes no sense - allows for unlimited days where $days = -1 */
+		if ( 0 == $days || false == $days ) {
+			$days = 2;
+		}
+
 		$post_view_posts = stats_get_csv( 'postviews', array( 'days' => absint( $days ), 'limit' => 11 ) );
 		if ( ! $post_view_posts ) {
 			return array();
