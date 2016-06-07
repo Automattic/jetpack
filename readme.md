@@ -16,11 +16,11 @@ Do you need help installing Jetpack, or do you have questions about one of the J
 
 ## Installation from  git repo
 
-The `master-stable` branch of this repo contains an stable version with every JS file pre-built.
+The `master-stable` branch of this repo contains an stable version with every JS and CSS file pre-built.
 
 ```
 $ cd wp-content/plugins
-$ git clone https://github.com/Automattic/jetpack
+$ git clone git@github.com:Automattic/jetpack.git
 $ cd jetpack
 $ git checkout master-stable
 ```
@@ -74,7 +74,7 @@ Running `npm run watch` instead of `npm run build` will build all the code and c
 
 ```
 $ cd wp-content/plugins
-$ git clone https://github.com/Automattic/jetpack.git
+$ git clone git@github.com:Automattic/jetpack.git
 $ cd jetpack
 $ npm install
 $ npm run watch
