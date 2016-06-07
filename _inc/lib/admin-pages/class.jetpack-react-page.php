@@ -12,8 +12,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	protected $is_fallback = false;
 
-	protected $is_fallback_configuration = false;
-
 	public function __construct() {
 		parent::__construct();
 
@@ -52,16 +50,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 //		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
 
-		if (
-			(
-				isset( $_GET['page'] )
-				&& 'jetpack_fallback' === $_GET['page']
-			)
-			|| ! empty( $_GET['configure'] )
-		) {
+		if ( isset( $_GET['page'] ) && 'jetpack_fallback' === $_GET['page'] ) {
 			$this->is_fallback = true;
-			$this->is_fallback_configuration = ! empty( $_GET['configure'] );
-			return; // No need to handle the fallback if it's already active
+			$this->fallback_page->admin_styles();
+		}
+
+		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] || ! empty( $_GET['configure'] ) ) {
+			return; // No need to handle the fallback redirection if we are not on the Jetpack page
 		}
 
 		// Adding a redirect meta tag for older WordPress versions
@@ -132,12 +127,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function page_render() {
 		// Handle redirects to configuration pages
-		if ( $this->is_fallback_configuration ) {
+		if ( ! empty( $_GET['configure'] ) ) {
 			return $this->render_nojs_configurable( $_GET['configure'] );
 		}
 		// Handle old WP and No-JS page
 		if ( $this->is_fallback ) {
-			$this->fallback_page->page_admin_scripts();
 			return $this->fallback_page->page_render();
 		}
 		?>
