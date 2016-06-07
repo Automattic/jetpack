@@ -40,11 +40,11 @@ class Jetpack_PostImages {
 
 		foreach ( $slideshow_matches as $slideshow_match ) {
 			$slideshow = do_shortcode_tag( $slideshow_match );
-			if ( false === $pos = stripos( $slideshow, 'slideShow.images' ) ) // must be something wrong - or we changed the output format in which case none of the following will work
+			if ( false === $pos = stripos( $slideshow, 'jetpack-slideshow' ) ) // must be something wrong - or we changed the output format in which case none of the following will work
 				continue;
 			$start = strpos( $slideshow, '[', $pos );
 			$end = strpos( $slideshow, ']', $start );
-			$post_images = json_decode( str_replace( "'", '"', substr( $slideshow, $start, $end - $start + 1 ) ) ); // parse via JSON
+			$post_images = json_decode( wp_specialchars_decode( str_replace( "'", '"', substr( $slideshow, $start, $end - $start + 1 ) ), ENT_QUOTES ) ); // parse via JSON
 			foreach ( $post_images as $post_image ) {
 				if ( !$post_image_id = absint( $post_image->id ) )
 					continue;
