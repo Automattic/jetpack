@@ -25,7 +25,7 @@ const GeneralSettings = React.createClass( {
 					clickableHeaderText={ true }
 					disabled={ isDevMode( this.props ) }
 				>
-					<SitePlan />
+					<SitePlan { ...this.props } />
 				</FoldableCard>
 				<FoldableCard
 					header="Jetpack Connection Settings"
