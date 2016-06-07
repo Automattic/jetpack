@@ -176,7 +176,7 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 			update_option( $option_name, $value );
 		}
 
-			$this->client->do_sync();
+		$this->client->do_sync();
 
 		foreach( $options as $option_name => $value) {
 			$this->assertOptionIsSynced( $option_name, $value );

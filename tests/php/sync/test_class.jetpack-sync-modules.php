@@ -2,13 +2,9 @@
 require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-client.php';
 
 /**
- * Testing CRUD on Posts
+ * Testing Activation and Deactivation of Modules
  */
 class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_New_Sync_Base {
-
-	public function setUp() {
-		parent::setUp();
-	}
 
 	function test_sync_modules_callable() {
 		$this->client->do_sync();
@@ -20,9 +16,10 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_New_Sync_Base {
 		}
 	}
 
-
 	function test_sync_activate_module_event() {
-		// calling the activate_module in tests is a bit
+		// Calling the activate_module in tests is difficult.
+		// Since the site need to eather be connected or in development mode.
+		// But we don't allow sync to happen in development mode.
 		do_action( 'jetpack_activate_module', 'stuff' );
 		$this->client->do_sync();
 
@@ -33,8 +30,8 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 'stuff', $event->args[0] );
 	}
 
-
 	function test_sync_deactivate_module_event() {
+
 		Jetpack_Options::update_option( 'active_modules', array( 'stuff' ) );
 		Jetpack::deactivate_module( 'stuff' );
 
