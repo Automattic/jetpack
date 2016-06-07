@@ -91,19 +91,38 @@ class Jetpack_PostImages {
 
 		$permalink = get_permalink( $post->ID );
 
-		$gallery_images = get_post_galleries_images( $post->ID, false );
+		$galleries = get_post_galleries( $post->ID, false );
 
-		foreach ( $gallery_images as $galleries ) {
-			foreach ( $galleries as $src ) {
-				list( $raw_src ) = explode( '?', $src ); // pull off any Query string (?w=250)
-				$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
-				$raw_src = esc_url_raw( $raw_src ); // clean it
-				$images[] = array(
-					'type'  => 'image',
-					'from'  => 'gallery',
-					'src'   => $raw_src,
-					'href'  => $permalink,
-				);
+		foreach ( $galleries as $gallery ) {
+			if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] && ! empty( $gallery['ids'] ) ) {
+				$image_ids = explode( ',', $gallery['ids'] );
+				$image_size = isset( $gallery['size'] ) ? $gallery['size'] : 'thumbnail';
+				foreach ( $image_ids as $image_id ) {
+					$image = wp_get_attachment_image_src( $image_id, $image_size );
+					if ( ! empty( $image[0] ) ) {
+						list( $raw_src ) = explode( '?', $image[0] ); // pull off any Query string (?w=250)
+						$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
+						$raw_src = esc_url_raw( $raw_src ); // clean it
+						$images[] = array(
+							'type'  => 'image',
+							'from'  => 'gallery',
+							'src'   => $raw_src,
+							'href'  => $permalink,
+						);
+					}
+				}
+			} elseif ( ! empty( $gallery['src'] ) ) {
+				foreach ( $gallery['src'] as $src ) {
+					list( $raw_src ) = explode( '?', $src ); // pull off any Query string (?w=250)
+					$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
+					$raw_src = esc_url_raw( $raw_src ); // clean it
+					$images[] = array(
+						'type'  => 'image',
+						'from'  => 'gallery',
+						'src'   => $raw_src,
+						'href'  => $permalink,
+					);
+				}
 			}
 		}
 
