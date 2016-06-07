@@ -106,4 +106,9 @@ abstract class Jetpack_Admin_Page {
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
 	}
+
+	function is_wp_version_too_old() {
+		global $wp_version;
+		return ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) );
+	}
 }

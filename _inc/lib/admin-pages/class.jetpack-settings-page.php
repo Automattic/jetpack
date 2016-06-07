@@ -23,6 +23,25 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		<div class="clouds-sm"></div>
 		<?php /** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' ) ?>
+
+		<?php if ( $this->is_wp_version_too_old() ): ?>
+			<div id="message" class="jetpack-message jetpack-err">
+				<div class="squeezer">
+					<h2><?php esc_html_e( 'You are using an outdated version of WordPress', 'jetpack' ); ?></h2>
+					<p><?php esc_html_e( "Update WordPress to unlock Jetpack's full potential!", 'jetpack' ); ?></p>
+				</div>
+			</div>
+		<?php endif; ?>
+
+		<noscript>
+			<div id="message" class="jetpack-message jetpack-err">
+				<div class="squeezer">
+					<h2><?php esc_html_e( 'You have JavaScript disabled', 'jetpack' ); ?></h2>
+					<p><?php esc_html_e( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ); ?></p>
+				</div>
+			</div>
+		</noscript>
+
 		<div class="page-content configure">
 			<div class="frame top hide-if-no-js">
 				<div class="wrap">

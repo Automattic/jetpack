@@ -65,11 +65,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 		// Adding a redirect meta tag for older WordPress versions
-		global $wp_version;
-		if (
-			! function_exists( 'rest_api_init' )
-			|| version_compare( $wp_version, '4.4-z', '<=' )
-		) {
+		if ( $this->is_wp_version_too_old() ) {
 			$this->is_redirecting = true;
 			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
 		}
