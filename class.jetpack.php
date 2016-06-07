@@ -2571,8 +2571,6 @@ class Jetpack {
 		$active[] = $module;
 		Jetpack_Options::update_option( 'active_modules', array_unique( $active ) );
 		Jetpack::state( 'error', false ); // the override
-		Jetpack::state( 'message', 'module_activated' );
-		Jetpack::state( 'module', $module );
 		ob_end_clean();
 		Jetpack::catch_errors( false );
 
