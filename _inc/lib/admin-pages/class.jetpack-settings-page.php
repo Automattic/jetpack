@@ -12,7 +12,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 	// Adds the Settings sub menu
 	function get_page_hook() {
-		return add_submenu_page( null, __( 'Jetpack Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_manage_modules', 'fallback', array( $this, 'render' ) );
+		return add_submenu_page( null, __( 'Jetpack Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_manage_modules', 'jetpack_fallback', array( $this, 'render' ) );
 	}
 
 	// Renders the module list table where you can use bulk action or row

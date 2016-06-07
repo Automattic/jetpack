@@ -55,7 +55,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if (
 			(
 				isset( $_GET['page'] )
-				&& 'fallback' === $_GET['page']
+				&& 'jetpack_fallback' === $_GET['page']
 			)
 			|| ! empty( $_GET['configure'] )
 		) {
@@ -92,7 +92,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function add_fallback_head_meta() {
-		echo '<meta http-equiv="refresh" content="0; url=?page=fallback">';
+		echo '<meta http-equiv="refresh" content="0; url=?page=jetpack_fallback">';
 	}
 
 	function add_noscript_head_meta() {
