@@ -1,4 +1,7 @@
 <?php
+
+if ( ! class_exists( 'GP_Locale' ) ) :
+
 class GP_Locale {
 	public $english_name;
 	public $native_name;
@@ -84,6 +87,10 @@ class GP_Locale {
 	}
 
 }
+
+endif;
+
+if ( ! class_exists( 'GP_Locales' ) ) :
 
 class GP_Locales {
 
@@ -2105,3 +2112,5 @@ class GP_Locales {
 		return $result;
 	}
 }
+
+endif;
