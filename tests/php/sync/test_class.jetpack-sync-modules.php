@@ -6,16 +6,6 @@ require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-client.php
  */
 class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_New_Sync_Base {
 
-	function test_sync_modules_callable() {
-		$this->client->do_sync();
-	
-		$modules = $this->server_replica_storage->get_callable( 'modules' );
-		$this->assertTrue( is_array( $modules ) );
-		foreach ( $modules as $module ) {
-			$this->assertModuleData( $module );
-		}
-	}
-
 	function test_sync_activate_module_event() {
 		// Calling the activate_module in tests is difficult.
 		// Since the site need to eather be connected or in development mode.
@@ -42,12 +32,6 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 'jetpack_deactivate_module', $event->action );
 		$this->assertEquals( 'stuff', $event->args[0] );
 		$this->assertEquals( 1, count( $events ) );
-
 	}
-
-	function assertModuleData( $module ) {
-		foreach( array( 'module_tags', 'free', 'introduced', 'sort', 'description', 'name', 'jumpstart_desc' )  as $key ) {
-			$this->assertArrayHasKey( $key, $module );
-		}
-	}
+	
 }
