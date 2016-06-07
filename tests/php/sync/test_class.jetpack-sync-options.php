@@ -71,7 +71,7 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 			'tag_base' => 'apple',
 			'comment_moderation' => true,
 			'default_comment_status' => 'kiwi',
-			'thread_comments' => true,
+			'thread_comments' => 0,
 			'thread_comments_depth' => 2,
 			'social_notifications_like' => 'test',
 			'page_on_front' => false,
@@ -80,7 +80,6 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 			'stb_enabled' => true,
 			'stc_enabled' => false,
 			'comment_registration' => 'pineapple',
-			'require_name_email' => 'pineapple',
 			'show_avatars' => 'pineapple',
 			'avatar_default'=> 'pineapple',
 			'avatar_rating' => 'pineapple',
@@ -109,20 +108,17 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 			'post_count'=> 'pineapple',
 			'default_ping_status'=> 'pineapple',
 			'sticky_posts'=> 'pineapple',
-			'disabled_likes'=> 'pineapple',
 			'blog_public'=> 0,
 			'default_pingback_flag'=> 'pineapple',
 			'require_name_email'=> 'pineapple',
 			'close_comments_for_old_posts'=> 'pineapple',
 			'close_comments_days_old'=> 99,
-			'thread_comments'=> 'pineapple',
 			'page_comments'=> 'pineapple',
 			'comments_per_page'=> 99,
 			'default_comments_page'=> 'pineapple',
 			'comment_order'=> 'pineapple',
 			'comments_notify'=> 'pineapple',
 			'moderation_notify'=> 'pineapple',
-			'social_notifications_like'=> 'pineapple',
 			'social_notifications_reblog'=> 'pineapple',
 			'social_notifications_subscribe'=> 'pineapple',
 			'comment_whitelist'=> 'pineapple',
@@ -154,7 +150,6 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 			'gravatar_disable_hovercards'=> 'pineapple',
 			'infinite_scroll'=> 'pineapple',
 			'infinite_scroll_google_analytics'=> 'pineapple',
-			'wpl_default'=> 'pineapple',
 			'wp_mobile_excerpt'=> 'pineapple',
 			'wp_mobile_featured_images'=> 'pineapple',
 			'wp_mobile_app_promos'=> 'pineapple',
@@ -171,6 +166,8 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 		$theme_mod_key = 'theme_mods_' . get_option( 'stylesheet' );
 		$options[ $theme_mod_key ] = 'pineapple';
 
+		$whitelist = $this->client->get_options_whitelist();
+
 		// update all the opyions.
 		foreach( $options as $option_name => $value) {
 			update_option( $option_name, $value );
@@ -178,18 +175,20 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->client->do_sync();
 
-		foreach( $options as $option_name => $value) {
+		foreach( $options as $option_name => $value ) {
 			$this->assertOptionIsSynced( $option_name, $value );
 		}
 		$option_keys = array_keys( $options );
-		$whitelist_and_option_keys_difference = array_diff( $this->client->get_options_whitelist(), $option_keys );
+		$whitelist_and_option_keys_difference = array_diff( $whitelist, $option_keys );
 		// Are we testing all the options
-
+		$unique_whitelist = array_unique( $whitelist );
+		
+		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: '. print_r( array_diff_key( $whitelist , array_unique( $whitelist ) ) ,1 ) );
 		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 )  );
 	}
 
 	function assertOptionIsSynced( $option_name, $value ) {
-		$this->assertEquals( $value, $this->server_replica_storage->get_option( $option_name ) );
+		$this->assertEquals( $value, $this->server_replica_storage->get_option( $option_name ), 'Option '. $option_name .' did\'t have the extected value of ' . json_encode( $value ) );
 	}
 
 	function add_fiter_on_init() {
