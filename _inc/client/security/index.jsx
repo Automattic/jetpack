@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -18,22 +19,43 @@ import {
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { SecurityModulesSettings } from 'components/module-options/moduleoptions';
+import {
+	fetchPluginsData,
+	isFetchingPluginsData,
+	isPluginActive,
+	isPluginInstalled
+} from 'state/site/plugins';
+import QuerySitePlugins from 'components/data/query-site-plugins';
 
-export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
+export const Page = ( props ) => {
+	let {
+		toggleModule,
+		isModuleActivated,
+		isTogglingModule,
+		getModule
+		} = props;
 	var cards = [
 		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
 		[ 'monitor', getModule( 'monitor' ).name, getModule( 'monitor' ).description, getModule( 'monitor' ).learn_more_button ],
-		[ 'scan', 'Security Scanning', 'Automatically scan your site for common threats and attacks.' ],
+		[ 'scan', __( 'Security Scanning' ), __( 'Automatically scan your site for common threats and attacks.' ) ],
 		[ 'sso', getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
 	].map( ( element ) => {
 		var toggle = (
 			<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
 				toggling={ isTogglingModule( element[0] ) }
 				toggleModule={ toggleModule } />
-		);
+			),
+			isScan = 'scan' === element[0],
+			scanProps = {};
 
 		if ( 'scan' === element[0] ) {
 			toggle = '';
+			scanProps = {
+				module: 'scan',
+				isFetchingPluginsData: props.isFetchingPluginsData,
+				isVaultPressInstalled: props.isPluginInstalled( 'vaultpress/vaultpress.php' ),
+				isVaultPressActive: props.isPluginActive( 'vaultpress/vaultpress.php' )
+			};
 		}
 
 		return (
@@ -44,19 +66,20 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
 			>
-				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<SecurityModulesSettings module={ getModule( element[ 0 ] ) } /> :
+				{ isModuleActivated( element[0] ) || isScan ?
+					<SecurityModulesSettings module={ isScan ? scanProps : getModule( element[ 0 ] ) } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<br/>
-				<a href={ element[3] } target="_blank">Learn More</a>
+				<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
 			</FoldableCard>
 		);
 	} );
 
 	return (
 		<div>
+			<QuerySitePlugins />
 			{ cards }
 		</div>
 	);
@@ -74,7 +97,10 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) =>
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
-			getModule: ( module_name ) => _getModule( state, module_name )
+			getModule: ( module_name ) => _getModule( state, module_name ),
+			isFetchingPluginsData: isFetchingPluginsData( state ),
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
 		};
 	},
 	( dispatch ) => {
@@ -83,7 +109,8 @@ export default connect(
 				return ( activated )
 					? dispatch( deactivateModule( module_name ) )
 					: dispatch( activateModule( module_name ) );
-			}
+			},
+			fetchPluginsData: () => dispatch( fetchPluginsData() )
 		};
 	}
 )( Page );
