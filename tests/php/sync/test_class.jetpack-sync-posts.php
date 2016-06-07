@@ -343,6 +343,47 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( true, $post_extra['dont_email_post_to_subs'] );
 	}
 
+	function test_syncing_of_blacklist_of_posts_we_do_not_sync() {
+		add_filter( 'jetpack_skip_sync_item', '__return_true' );
+		$post_id = $this->factory->post->create();
+		$this->client->do_sync();
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_post_ids', array() );
+		$this->assertContains( $post_id, $blacklist );
+	}
+
+	function test_updating_blacklist_when_post_is_synced() {
+		update_option( 'jetpack_skipped_sync_post_ids', array( $this->post->ID ) );
+		$this->client->do_sync();
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_post_ids', array() );
+		$this->assertContains( $this->post->ID, $blacklist );
+
+		$this->post->post_content = "foo bar";
+		wp_update_post( $this->post );
+		$this->client->do_sync();
+
+		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( "foo bar", $remote_post->post_content );
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_post_ids', array() );
+		$this->assertNotContains( $this->post->ID, $blacklist );
+	}
+
+	public function test_update_blacklist_when_post_is_deleted() {
+		update_option( 'jetpack_skipped_sync_post_ids', array( $this->post->ID ) );
+		$this->client->do_sync();
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_post_ids', array() );
+		$this->assertContains( $this->post->ID, $blacklist );
+
+		wp_delete_post( $this->post->ID, true );
+		$this->client->do_sync();
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_post_ids', array() );
+		$this->assertNotContains( $this->post->ID, $blacklist );
+	}
+
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment = get_post( $attachment_id );

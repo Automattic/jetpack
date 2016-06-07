@@ -126,4 +126,49 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'spam' ) );
 	}
+
+	function test_syncing_of_blacklist_of_comments_we_do_not_sync() {
+		add_filter( 'jetpack_skip_sync_item', '__return_true' );
+		$comment_ids = $this->factory->comment->create_post_comments(
+			$this->factory->post->create()
+		);
+
+		$this->client->do_sync();
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_comment_ids' );
+		$this->assertContains( $comment_ids[0], $blacklist );
+	}
+	
+	function test_updating_blacklist_when_comment_is_synced() {
+		update_option( 'jetpack_skipped_sync_comment_ids', array( $this->comment->comment_ID ) );
+		$this->client->do_sync();
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_comment_ids', array() );
+		$this->assertContains( $this->comment->comment_ID, $blacklist );
+
+		$this->comment->comment_content = "foo bar baz";
+		wp_update_comment( (array) $this->comment );
+		$this->client->do_sync();
+		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
+		$this->assertEquals( "foo bar baz", $remote_comment->comment_content );
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_comment_ids', array() );
+
+		$this->assertNotContains( $this->comment->comment_ID, $blacklist );
+	}
+
+	function test_update_blacklist_when_comment_that_is_deleted() {
+		update_option( 'jetpack_skipped_sync_comment_ids', array( $this->comment->comment_ID ) );
+		$this->client->do_sync();
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_comment_ids', array() );
+		$this->assertContains( $this->comment->comment_ID, $blacklist );
+
+		wp_delete_comment( $this->comment->comment_ID, true );
+		$this->client->do_sync();
+
+		$blacklist = $this->server_replica_storage->get_option( 'jetpack_skipped_sync_comment_ids', array() );
+		$this->assertNotContains( $this->comment->comment_ID, $blacklist );
+	}
+	
 }
