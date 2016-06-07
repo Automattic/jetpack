@@ -33,6 +33,10 @@ describe( 'status reducer', () => {
 } );
 
 describe( 'connect url reducer', () => {
+	it( 'state should default to empty string', () => {
+		const state = connectUrlReducer( undefined, {} );
+		expect( state ).to.eql( '' );
+	} );
 	describe( '#fetchConnectUrl', () => {
 		it( 'should set connectUrl to action.connectUrl\'s value when fetching connect url', () => {
 			const stateIn = {};
