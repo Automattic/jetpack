@@ -18,8 +18,9 @@ Do you need help installing Jetpack, or do you have questions about one of the J
 
 The `master-stable` branch of this repo contains an stable version with every JS and CSS file pre-built.
 
+CD into your Plugins directory
+
 ```
-$ cd wp-content/plugins
 $ git clone git@github.com:Automattic/jetpack.git
 $ cd jetpack
 $ git checkout master-stable
@@ -72,8 +73,9 @@ Known Issues:
 
 Running `npm run watch` instead of `npm run build` will build all the code and continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly. Before running `npm run watch` you may need to `npm install` the npm dependencies first.
 
+Clone this repository inside your Plugins directory.
+
 ```
-$ cd wp-content/plugins
 $ git clone git@github.com:Automattic/jetpack.git
 $ cd jetpack
 $ npm install
@@ -82,10 +84,11 @@ $ npm run watch
 
 #### Unit-testing the JS Admin Page
 
-You can run Mocha based tests for the Admin Page source code with `npm run test-client`
+You can run [Mocha](https://mochajs.org/) based tests for the Admin Page source code with `npm run test-client`
+
+Standing on your jetpack directory, run
 
 ```
-$ cd wp-content/plugins/jetpack
 $ npm install
 $ npm run test-client
 ```
