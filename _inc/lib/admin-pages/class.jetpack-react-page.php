@@ -117,6 +117,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
 		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
 		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), time() );
+		// modules/notes.php also attemps to load this but since the handler is the same it won't load it twice.
+		wp_enqueue_style( 'noticons', Jetpack::wpcom_static_url( '/i/noticons/noticons.css' ), array(), time() );
 
 		$localeSlug = explode( '_', get_locale() );
 		$localeSlug = $localeSlug[0];

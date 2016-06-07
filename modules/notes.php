@@ -36,12 +36,6 @@ class Jetpack_Notifications {
 		add_action( 'init', array( &$this, 'action_init' ) );
 	}
 
-	function wpcom_static_url($file) {
-		$i = hexdec( substr( md5( $file ), -1 ) ) % 2;
-		$url = 'http://s' . $i . '.wp.com' . $file;
-		return set_url_scheme( $url );
-	}
-
 	// return the major version of Internet Explorer the viewer is using or false if it's not IE
 	public static function get_internet_explorer_version() {
 		static $version;
@@ -105,27 +99,27 @@ class Jetpack_Notifications {
 
 	function styles_and_scripts() {
 		if ( !is_rtl() ) {
-			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+			wp_enqueue_style( 'wpcom-notes-admin-bar', Jetpack::wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 		} else {
-			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/rtl/admin-bar-v2-rtl.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+			wp_enqueue_style( 'wpcom-notes-admin-bar', Jetpack::wpcom_static_url( '/wp-content/mu-plugins/notes/rtl/admin-bar-v2-rtl.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 		}
-		wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+		wp_enqueue_style( 'noticons', Jetpack::wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 
 		$this->print_js();
 
 		// attempt to use core or plugin libraries if registered
 		if ( !wp_script_is( 'mustache', 'registered' ) ) {
-			wp_register_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
+			wp_register_script( 'mustache', Jetpack::wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
 		}
 		if ( !wp_script_is( 'underscore', 'registered' ) ) {
-			wp_register_script( 'underscore', $this->wpcom_static_url( '/wp-includes/js/underscore.min.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
+			wp_register_script( 'underscore', Jetpack::wpcom_static_url( '/wp-includes/js/underscore.min.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
 		}
 		if ( !wp_script_is( 'backbone', 'registered' ) ) {
-			wp_register_script( 'backbone', $this->wpcom_static_url( '/wp-includes/js/backbone.min.js' ), array( 'underscore' ), JETPACK_NOTES__CACHE_BUSTER );
+			wp_register_script( 'backbone', Jetpack::wpcom_static_url( '/wp-includes/js/backbone.min.js' ), array( 'underscore' ), JETPACK_NOTES__CACHE_BUSTER );
 		}
 
-		wp_register_script( 'wpcom-notes-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-common-v2.js' ), array( 'jquery', 'underscore', 'backbone', 'mustache' ), JETPACK_NOTES__CACHE_BUSTER );
-		wp_enqueue_script( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.js' ), array( 'wpcom-notes-common' ), JETPACK_NOTES__CACHE_BUSTER );
+		wp_register_script( 'wpcom-notes-common', Jetpack::wpcom_static_url( '/wp-content/mu-plugins/notes/notes-common-v2.js' ), array( 'jquery', 'underscore', 'backbone', 'mustache' ), JETPACK_NOTES__CACHE_BUSTER );
+		wp_enqueue_script( 'wpcom-notes-admin-bar', Jetpack::wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.js' ), array( 'wpcom-notes-common' ), JETPACK_NOTES__CACHE_BUSTER );
 	}
 
 	function admin_bar_menu() {
