@@ -16,17 +16,13 @@ class Jetpack_Sync_Defaults {
 		'tag_base',
 		'comment_moderation',
 		'default_comment_status',
-		'thread_comments',
-		'thread_comments_depth',
 		'jetpack_site_icon_url',
-		'social_notifications_like',
 		'page_on_front',
 		'rss_use_excerpt',
 		'subscription_options',
 		'stb_enabled',
 		'stc_enabled',
 		'comment_registration',
-		'require_name_email',
 		'show_avatars',
 		'avatar_default',
 		'avatar_rating',
@@ -54,7 +50,6 @@ class Jetpack_Sync_Defaults {
 		'post_count',
 		'default_ping_status',
 		'sticky_posts',
-		'disabled_likes',
 		'blog_public',
 		'default_pingback_flag',
 		'require_name_email',
@@ -81,7 +76,36 @@ class Jetpack_Sync_Defaults {
 		'disabled_reblogs',
 		'jetpack_comment_likes_enabled',
 		'twitter_via',
-		'twitter-cards-site-tag'
+		'twitter-cards-site-tag',
+		'wpcom_publish_posts_with_markdown',
+		'wpcom_publish_comments_with_markdown',
+		'jetpack_activated',
+		'jetpack_active_modules',
+		'jetpack_available_modules',
+		'jetpack_autoupdate_plugins',
+		'jetpack_autoupdate_themes',
+		'jetpack_autoupdate_core',
+		'carousel_background_color',
+		'carousel_display_exif',
+		'jetpack_portfolio',
+		'jetpack_portfolio_posts_per_page',
+		'jetpack_testimonial',
+		'jetpack_testimonial_posts_per_page',
+		'tiled_galleries',
+		'gravatar_disable_hovercards',
+		'infinite_scroll',
+		'infinite_scroll_google_analytics',
+		'wp_mobile_excerpt',
+		'wp_mobile_featured_images',
+		'wp_mobile_app_promos',
+		'monitor_receive_notifications',
+		'post_by_email_address',
+		'jetpack_protect_key',
+		'jetpack_protect_global_whitelist',
+		'sharing_services',
+		'jetpack_sso_require_two_step',
+		'jetpack_relatedposts',
+		'verification_services_codes',
 	);
 
 	static $default_constants_whitelist = array(
@@ -107,7 +131,6 @@ class Jetpack_Sync_Defaults {
 		'single_user_site'             => array( 'Jetpack', 'is_single_user_site' ),
 		'has_file_system_write_access' => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
 		'is_version_controlled'        => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
-		'modules'                      => array( 'Jetpack_Sync_Functions', 'get_modules' ),
 		'taxonomies'                   => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
 		'post_types'                   => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
 	);
@@ -168,7 +191,7 @@ class Jetpack_Sync_Defaults {
 		return false;
 	}
 
-	static $default_network_options_whitelist = array( 'site_name' );
+	static $default_network_options_whitelist = array( 'site_name', 'jetpack_protect_key', 'jetpack_protect_global_whitelist' );
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
@@ -177,4 +200,3 @@ class Jetpack_Sync_Defaults {
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
 }
-
