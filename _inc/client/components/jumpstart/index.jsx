@@ -37,13 +37,6 @@ const JumpStart = React.createClass( {
 						{ module.name }
 					</h4>
 					<p dangerouslySetInnerHTML={ renderJumpstartDescription( module ) } />
-					{ __( '{{a}}Learn More{{/a}}',
-						{
-							components: {
-								a: <a href={ module.learn_more_button } target="_blank" />
-							}
-						}
-					) }
 				</div>
 			</div>
 		) );
