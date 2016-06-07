@@ -35,7 +35,7 @@ export const status = ( state = { siteConnected: window.Initial_State.connection
 	}
 };
 
-export const connectUrl = ( state = {}, action ) => {
+export const connectUrl = ( state = '', action ) => {
 	switch ( action.type ) {
 		case CONNECT_URL_FETCH_SUCCESS:
 			return action.connectUrl;
