@@ -25,6 +25,7 @@ import {
 	isPluginInstalled
 } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
 	let {
@@ -38,18 +39,21 @@ export const Page = ( props ) => {
 		[ 'backups', __( 'Site Backups' ), __( 'Keep your site backed up!' ) ],
 		[ 'akismet', 'Akismet', __( 'Keep those spammers away!' ) ]
 	].map( ( element ) => {
-		var toggle = (
-			<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
-				toggling={ isTogglingModule( element[0] ) }
-				toggleModule={ toggleModule } />
-		);
+		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
+			toggle = (
+				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
+					<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
+								  toggling={ isTogglingModule( element[0] ) }
+								  toggleModule={ toggleModule } />
+			),
+			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
 
 		if ( 'backups' === element[0] || 'akismet' === element[0] ) {
 			toggle = '';
 		}
 
 		return (
-			<FoldableCard key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
+			<FoldableCard className={ customClasses } key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 				header={ element[1] }
 				subheader={ element[2] }
 				summary={ toggle }

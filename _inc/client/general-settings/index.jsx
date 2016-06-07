@@ -13,6 +13,7 @@ import Settings from 'components/settings';
 import ConnectionSettings from './connection-settings';
 import SitePlan from './site-plan';
 import { disconnectSite } from 'state/connection';
+import { isDevMode } from 'state/connection';
 
 const GeneralSettings = React.createClass( {
 	render() {
@@ -22,6 +23,7 @@ const GeneralSettings = React.createClass( {
 					header="Jetpack Add-ons"
 					subheader="Manage your Jetpack account and premium add-ons."
 					clickableHeaderText={ true }
+					disabled={ isDevMode( this.props ) }
 				>
 					<SitePlan />
 				</FoldableCard>
@@ -29,6 +31,7 @@ const GeneralSettings = React.createClass( {
 					header="Jetpack Connection Settings"
 					subheader="Manage your connected user accounts or disconnect."
 					clickableHeaderText={ true }
+					disabled={ isDevMode( this.props ) }
 				>
 					<ConnectionSettings { ...this.props } />
 				</FoldableCard>

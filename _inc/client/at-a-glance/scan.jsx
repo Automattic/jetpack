@@ -19,6 +19,7 @@ import {
 	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
 	getVaultPressData as _getVaultPressData
 } from 'state/at-a-glance';
+import { isDevMode } from 'state/connection';
 
 const DashScan = React.createClass( {
 	getContent: function() {
@@ -77,6 +78,7 @@ const DashScan = React.createClass( {
 			<DashItem label={ labelName } className="jp-dash-item__is-inactive" status="is-premium-inactive">
 				<p className="jp-dash-item__description">
 					{
+						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
 						__( 'To automatically scan your site for malicious threats, please {{a}}upgrade your account{{/a}}', {
 							components: {
 								a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
