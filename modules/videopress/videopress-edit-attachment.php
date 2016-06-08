@@ -14,6 +14,31 @@ class VideoPress_Edit_Attachment {
 	public function __construct() {
 		add_filter( 'attachment_fields_to_edit', array( $this, 'fields_to_edit' ), 10, 2 );
 		add_filter( 'attachment_fields_to_save', array( $this, 'save_fields' ), 10, 2 );
+
+		add_action( 'add_meta_boxes', array( $this, 'configure_meta_boxes' ), 10, 2 );
+	}
+
+	/**
+	 * @param string  $post_type
+	 * @param object  $post
+	 */
+	public function configure_meta_boxes( $post_type = 'unknown', $post = NULL ) {
+		if ( NULL == $post ) {
+			$post = (object) array ( 'ID' => 0 );
+		}
+
+		if ( 'attachment' != $post_type ) {
+			return;
+		}
+
+		$meta = wp_get_attachment_metadata( $post->ID );
+
+		// If this has not been processed by videopress, we can skip the rest.
+		if ( ! isset( $meta['videopress'] ) ) {
+			return;
+		}
+
+		add_meta_box( 'videopress-media-info', __( 'VideoPress Information', 'jetpack' ), array( $this, 'videopress_information_box' ), 'attachment', 'side', 'core' );
 	}
 
 	/**
@@ -86,8 +111,6 @@ class VideoPress_Edit_Attachment {
 		unset( $fields['url'] );
 		unset( $fields['post_content'] );
 
-		$embed = "[wpvideo {$info->guid}]";
-
 		if ( 'done' === $info->fmts_ogg ) {
 			$v_name  = preg_replace( '/\.\w+/', '', basename( $info->path ) );
 			$video_name = $v_name . '_fmt1.ogv';
@@ -119,13 +142,54 @@ class VideoPress_Edit_Attachment {
 			'html'  => $this->display_rating( $info )
 		);
 
-		$fields['video-shortcode'] = array(
-			'label' => __( 'Shortcode' ),
-			'input' => 'html',
-			'html'  => $this->display_shortcode( $info, $embed )
+		return $fields;
+	}
+
+	/**
+	 * @param object $post
+	 */
+	public function videopress_information_box( $post ) {
+		$post_id = absint( $post->ID );
+
+		$meta = wp_get_attachment_metadata( $post_id );
+
+		// If this has not been processed by videopress, we can skip the rest.
+		if ( ! isset( $meta['videopress'] ) ) {
+			return;
+		}
+
+		$info = (object) $meta['videopress'];
+
+		$formats = array(
+			'fmt_std'  => 'Standard',
+			'fmt_dvd'  => 'DVD',
+			'fmts_ogg' => 'Ogg Vorbis',
+			'fmt_hd'   => 'High Definition',
 		);
 
-		return $fields;
+		$embed = "[wpvideo {$info->guid}]";
+
+		$shortcode = '<input type="text" id="plugin-embed" readonly="readonly" style="width:180px;" value="' . esc_attr($embed) . '" onclick="this.focus();this.select();" />';
+
+		$trans_status = '';
+		foreach ( $formats as $format => $name ) {
+			$trans_status .= '<strong>' . $name . ':</strong> ' . ( 'done' === $info->$format  ? 'Done' : 'Processing' ) . '<br>';
+		}
+
+		$html = <<< HTML
+<dl>
+<dt>Shortcode:</dt>
+<dd>{$shortcode}</dd>
+<dt>Url:</dt>
+<dd><a href="{$info->url}">{$info->url}</a></dd>
+<dt>Poster:</dt>
+<dd><img src="{$info->poster}" width="175px"></dd>
+<dt>Transcoding Status:</dt>
+<dd>{$trans_status}</dd>
+</dl>
+HTML;
+
+		echo $html;
 	}
 
 	/**
@@ -141,20 +205,6 @@ class VideoPress_Edit_Attachment {
 			$out .= ' checked="checked"';
 		$out .= " /><label for='$id'>" . __( 'Display share menu and allow viewers to embed or download this video' ) . '</label>';
 		return $out;
-	}
-
-
-	/**
-	 * Build HTML to display shortcode link
-	 *
-	 * @param int $post_id numeric post (attachment) identifier
-	 * @param object $info database row from the videos table
-	 * @return string input elements of type text with existing stored value shown
-	 */
-	function display_shortcode( $info, $embed ) {
-		$shortcode = '<input type="text" id="plugin-embed" style="width:180px;" value="' . esc_attr($embed) . '" onclick="this.focus();this.select();" />';
-
-		return $shortcode;
 	}
 
 	/**
