@@ -209,7 +209,7 @@ export function getModule( state, name ) {
  */
 export function getModulesByFeature( state, feature ) {
 	return Object.keys( state.jetpack.modules.items ).filter( ( name ) =>
-		state.jetpack.modules[ name ].feature.indexOf( feature ) !== -1
+		state.jetpack.modules.items[ name ].feature.indexOf( feature ) !== -1
 	).map( ( name ) => state.jetpack.modules.items[ name ] );
 }
 
