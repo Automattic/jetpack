@@ -55,17 +55,17 @@ class Jetpack_Sync_Functions {
 
 		$filesystem_method = get_filesystem_method();
 		if ( $filesystem_method === 'direct' ) {
-			return 1;
+			return '1';
 		}
 
 		ob_start();
 		$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
 		ob_end_clean();
 		if ( $filesystem_credentials_are_stored ) {
-			return 1;
+			return '1';
 		}
 
-		return 0;
+		return '0';
 	}
 
 	public static function wp_version() {
