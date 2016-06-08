@@ -42,6 +42,9 @@
 		<testsuite name="widgets">
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
+		<testsuite name="sso">
+			<directory prefix="test_" suffix=".php">tests/php/modules/sso</directory>
+		</testsuite>
 		<testsuite name="sync">
 			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
 			<exclude>tests/php/sync/test_interface.jetpack-sync-replicastore.php</exclude>
