@@ -1023,7 +1023,7 @@ class Jetpack_SSO {
 	/**
 	 * Builds the translation ready string that is to be used when the site hides the default login form.
 	 *
-	 * @since 4.1
+	 * @since 4.1.0
 	 * 
 	 * @return string
 	 */

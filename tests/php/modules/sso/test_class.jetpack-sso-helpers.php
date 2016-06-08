@@ -4,7 +4,7 @@ require dirname( __FILE__ ) . '/../../../../modules/sso/class.jetpack-sso-helper
 /**
  * Testing functions in Jetpack_SSO_Helpers class.
  *
- * @since 4.1
+ * @since 4.1.0
  */
 class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	function test_sso_helpers_is_two_step_required_filter_true() {
