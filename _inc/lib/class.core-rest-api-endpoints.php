@@ -1257,36 +1257,32 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$not_updated_count = count( $not_updated );
 			$error = '';
 			if ( $invalid_count > 0 ) {
-				$invalid_last = array_pop( $invalid );
-				$invalid_text = $invalid_count > 1 ? sprintf(
-					/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
-					__( '%s and %s', 'jetpack' ),
-					join( ', ', $invalid ), $invalid_last ) : $invalid_last;
 				$error = sprintf(
-					/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
-					_n( 'The option %s is invalid for this module.', 'The options %s are invalid for this module.', $invalid_count, 'jetpack' ),
-					$invalid_text ) . ' ';
+					/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
+					_n( 'Invalid option for this module: %s.', 'Invalid options for this module: %s.', $invalid_count, 'jetpack' ),
+					join( ', ', $invalid )
+				);
 			}
 			if ( $not_updated_count > 0 ) {
 				$not_updated_messages = array();
 				foreach ( $not_updated as $not_updated_option => $not_updated_message ) {
 					if ( ! empty( $not_updated_message ) ) {
 						$not_updated_messages[] = sprintf(
-						/* Translators: the first variable is a module option name. The second is the error message . */
-							__( 'Extra info for %s: %s', 'jetpack' ),
+							/* Translators: the first variable is a module option name. The second is the error message . */
+							__( 'Extra info for %1$s: %2$s', 'jetpack' ),
 							$not_updated_option, $not_updated_message );
 					}
 				}
-				$not_updated = array_keys( $not_updated );
-				$not_updated_last = array_pop( $not_updated );
-				$not_updated_text = $not_updated_count > 1 ? sprintf(
-					/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
-					__( '%s and %s', 'jetpack' ),
-					join( ', ', $not_updated ), $not_updated_last ) : $not_updated_last;
+				if ( ! empty( $error ) ) {
+					$error .= ' ';
+				}
 				$error .= sprintf(
-					/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
-					_n( 'The option %s was not updated.', 'The options %s were not updated.', $not_updated_count, 'jetpack' ),
-					$not_updated_text ) . ' ' . join( '. ', $not_updated_messages );
+					/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
+					_n( 'Option not updated: %s.', 'Options not updated: %s.', $not_updated_count, 'jetpack' ),
+					join( ', ', array_keys( $not_updated ) ) );
+				if ( ! empty( $not_updated_messages ) ) {
+					$error .= ' ' . join( '. ', $not_updated_messages );
+				}
 
 			}
 			// There was an error because some options were updated but others were invalid or failed to update.
