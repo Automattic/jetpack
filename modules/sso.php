@@ -632,7 +632,7 @@ class Jetpack_SSO {
 		 */
 		do_action( 'jetpack_sso_pre_handle_login', $user_data );
 
-		if ( Jetpack_SSO_Helpers::is_two_step_required() && 0 == (int) $user_data->two_step_enabled ) {
+		if ( Jetpack_SSO_Helpers::is_two_step_required() && 0 === (int) $user_data->two_step_enabled ) {
 			$this->user_data = $user_data;
 
 			JetpackTracking::record_user_event( 'sso_login_failed', array(
