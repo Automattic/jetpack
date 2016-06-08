@@ -1889,7 +1889,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool
 	 */
 	public static function validate_boolean( $value, $request, $param ) {
-		if ( ! is_bool( $value ) && ! in_array( $value, array( 0, 1 ) ) ) {
+		if ( ! is_bool( $value ) && ! ( ( ctype_digit( $value ) || is_numeric( $value ) ) && in_array( $value, array( 0, 1 ) ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be true, false, 0 or 1.', 'jetpack' ), $param ) );
 		}
 		return true;
