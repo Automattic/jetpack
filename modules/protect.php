@@ -672,7 +672,7 @@ class Jetpack_Protect_Module {
 		 *
 		 * @module protect
 		 *
-		 * @since 4.1.0
+		 * @since 4.0.4
 		 *
 		 * @param int $timeout Max time (in seconds) to wait for a response.
 		 */
