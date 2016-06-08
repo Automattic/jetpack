@@ -169,8 +169,15 @@ function jetpack_sitemap_namespaces() {
  * @return string
  */
 function jetpack_sitemap_initstr( $charset ) {
+	global $wp_rewrite;
 	// URL to XSLT
-	$xsl = get_option( 'permalink_structure' ) ? home_url( '/sitemap.xsl' ) : home_url( '/?jetpack-sitemap-xsl=true' );
+	if ( $wp_rewrite->using_index_permalinks() ){
+		$xsl = home_url( '/index.php/sitemap.xsl' );
+	} else if ( $wp_rewrite->using_permalinks() ) {
+		$xsl = home_url( '/sitemap.xsl' );
+	} else {
+		$xsl = home_url( '/?jetpack-sitemap-xsl=true' );
+	}
 
 	$initstr = '<?xml version="1.0" encoding="' . $charset . '"?>' . "\n";
 	$initstr .= '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xsl ) . '"?>' . "\n";
@@ -605,11 +612,16 @@ function jetpack_print_news_sitemap() {
  * @return string Sitemap URL.
  */
 function jetpack_sitemap_uri() {
-	if ( get_option( 'permalink_structure' ) ) {
+	global $wp_rewrite;
+
+	if ( $wp_rewrite->using_index_permalinks() ){
+		$sitemap_url = home_url( '/index.php/sitemap.xml' );
+	} else if ( $wp_rewrite->using_permalinks() ) {
 		$sitemap_url = home_url( '/sitemap.xml' );
 	} else {
 		$sitemap_url = home_url( '/?jetpack-sitemap=true' );
 	}
+
 	/**
 	 * Filter sitemap URL relative to home URL.
 	 *
@@ -628,11 +640,16 @@ function jetpack_sitemap_uri() {
  * @module sitemaps
  */
 function jetpack_news_sitemap_uri() {
-	if ( get_option( 'permalink_structure' ) ) {
+	global $wp_rewrite;
+
+	if ( $wp_rewrite->using_index_permalinks() ){
+		$news_sitemap_url = home_url( '/index.php/news-sitemap.xml' );
+	} else if ( $wp_rewrite->using_permalinks() ) {
 		$news_sitemap_url = home_url( '/news-sitemap.xml' );
 	} else {
 		$news_sitemap_url = home_url( '/?jetpack-news-sitemap=true' );
 	}
+
 	/**
 	 * Filter news sitemap URL relative to home URL.
 	 *
