@@ -1,4 +1,5 @@
 <?php
+require dirname( __FILE__ ) . '/../../../../modules/sso/class.jetpack-sso-helpers.php';
 
 /**
  * Testing functions in Jetpack_SSO_Helpers class.
