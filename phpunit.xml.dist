@@ -39,6 +39,9 @@
 		<testsuite name="widgets">
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
+		<testsuite name="sso">
+			<directory prefix="test_" suffix=".php">tests/php/modules/sso</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
