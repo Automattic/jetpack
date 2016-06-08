@@ -50,7 +50,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 //		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
 
-		if ( isset( $_GET['page'] ) && 'jetpack_fallback' === $_GET['page'] ) {
+		if ( isset( $_GET['page'] ) && 'jetpack_modules' === $_GET['page'] ) {
 			$this->is_fallback = true;
 			$this->fallback_page->admin_styles();
 		}
@@ -83,7 +83,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function add_fallback_head_meta() {
-		echo '<meta http-equiv="refresh" content="0; url=?page=jetpack_fallback">';
+		echo '<meta http-equiv="refresh" content="0; url=?page=jetpack_modules">';
 	}
 
 	function add_noscript_head_meta() {
