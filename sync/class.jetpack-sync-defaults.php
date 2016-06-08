@@ -1,4 +1,5 @@
 <?php
+require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
 
 /**
  * Just some defaults that we share with the server
@@ -106,6 +107,7 @@ class Jetpack_Sync_Defaults {
 		'jetpack_sso_require_two_step',
 		'jetpack_relatedposts',
 		'verification_services_codes',
+		'users_can_register',
 	);
 
 	static $default_constants_whitelist = array(
@@ -124,15 +126,20 @@ class Jetpack_Sync_Defaults {
 	);
 
 	static $default_callable_whitelist = array(
-		'wp_max_upload_size'           => 'wp_max_upload_size',
-		'is_main_network'              => array( 'Jetpack', 'is_multi_network' ),
-		'is_multi_site'                => 'is_multisite',
-		'main_network_site'            => 'network_site_url',
-		'single_user_site'             => array( 'Jetpack', 'is_single_user_site' ),
-		'has_file_system_write_access' => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
-		'is_version_controlled'        => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
-		'taxonomies'                   => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
-		'post_types'                   => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
+		'wp_max_upload_size'              => 'wp_max_upload_size',
+		'is_main_network'                 => array( 'Jetpack', 'is_multi_network' ),
+		'is_multi_site'                   => 'is_multisite',
+		'main_network_site'               => 'network_site_url',
+		'single_user_site'                => array( 'Jetpack', 'is_single_user_site' ),
+		'has_file_system_write_access'    => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
+		'is_version_controlled'           => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
+		'taxonomies'                      => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
+		'post_types'                      => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
+		'sso_is_two_step_required'        => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
+		'sso_should_hide_login_form'      => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
+		'sso_match_by_email'              => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
+		'sso_new_user_override'           => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
+		'sso_bypass_default_login_form'   => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
 	);
 
 	static $blacklisted_post_types = array(
