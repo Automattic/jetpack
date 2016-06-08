@@ -668,15 +668,14 @@ class Jetpack_Protect_Module {
 
 
 		/**
-		 * Filter controls maximum timeout in waiting for reponse from protect servers
+		 * Filter controls maximum timeout in waiting for reponse from Protect servers.
 		 *
 		 * @module protect
 		 *
 		 * @since 4.1.0
 		 *
-		 * @param int $timeout Max time (in seconds) to wait for a response
+		 * @param int $timeout Max time (in seconds) to wait for a response.
 		 */
-
 		$timeout = apply_filters( 'jetpack_protect_connect_timeout', 30 );
 
 		$args = array (
