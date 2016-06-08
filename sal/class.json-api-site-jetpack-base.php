@@ -14,20 +14,22 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	abstract protected function get_jetpack_version();
 
+	abstract protected function get_updates();
+
 	function before_render() {
 	}
 
 	function after_render( &$response ) {
 		// Add the updates only make them visible if the user has manage options permission and the site is the main site of the network
 		if ( current_user_can( 'manage_options' ) && $this->is_main_site( $response ) ) {
-			$jetpack_update = (array) get_option( 'jetpack_updates' );
+			$jetpack_update = $this->get_updates();
 			if ( ! empty( $jetpack_update ) ) {
 				// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the wp_version into to jetpack_updates
 				unset( $jetpack_update['wp_version'] );
 				// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the site_is_version_controlled into to jetpack_updates
 				unset( $jetpack_update['site_is_version_controlled'] );
 
-				$response['updates'] = (array) $jetpack_update;
+				$response['updates'] = $jetpack_update;
 			}
 		}
 	}

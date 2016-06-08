@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -20,19 +19,21 @@ import QueryConnectionStatus from 'components/data/query-connection-status';
 
 export const SitePlan = React.createClass( {
 	render() {
-		let sitePlan = this.props.getSitePlan(),
-			sitePlanName = '';
+		let sitePlanName = '';
 
-		if ( 'dev' === this.props.getSiteConnectionStatus() ) {
+		if ( 'dev' === this.props.getSiteConnectionStatus( this.props ) ) {
 			sitePlanName = __( 'No plan available since site runs in development mode.' );
 		} else if ( this.props.isFetchingSiteData ) {
 			sitePlanName = __( 'Loading plan data...' );
-		} else if ( 'object' === typeof sitePlan ) {
-			sitePlanName = __( 'Your current plan is: %s', {
-				args: sitePlan.product_name_short
-			} );
 		} else {
-			sitePlanName = __( 'No plan information available.' );
+			let sitePlan = this.props.getSitePlan();
+			if ( 'object' === typeof sitePlan ) {
+				sitePlanName = __( 'Your current plan is: %s', {
+					args: sitePlan.product_name_short
+				} );
+			} else {
+				sitePlanName = __( 'No plan information available.' );
+			}
 		}
 
 		return (
@@ -50,9 +51,7 @@ export default connect(
 		return {
 			getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
 			isFetchingSiteData: isFetchingSiteData( state ),
-			getSitePlan: () => {
-				return getSitePlan( state );
-			}
+			getSitePlan: () => getSitePlan( state )
 		};
 	},
 	( dispatch ) => {

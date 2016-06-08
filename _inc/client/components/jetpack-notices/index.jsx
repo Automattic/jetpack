@@ -9,6 +9,7 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import JetpackStateNotices from './state-notices';
 import {
 	getJetpackNotices as _getJetpackNotices
 } from 'state/jetpack-notices';
@@ -20,18 +21,55 @@ import {
 
 export const WelcomeNotice = React.createClass( {
 	displayName: 'WelcomeNotice',
+	getInitialState: function() {
+		return { showNotice: true };
+	},
+
+	dismissWelcomeNotice: function() {
+		this.setState( { showNotice: false } );
+	},
+
+	propTypes: {
+		jumpstarted: React.PropTypes.bool
+	},
+
+	getDefaultProps() {
+		return {
+			jumpstarted: false
+		};
+	},
+
+	getWelcomeMessageText: function() {
+		if ( this.props.jumpstarted ) {
+			return(
+				__( '(NEED BETTER TEXT) Great choice! By Jumpstarting your site, you have unlocked even more power of wordpress.com! {{a}}Learn more{{/a}}', {
+					components: {
+						a: <a href={ 'https://jetpack.com/support/' } target="_blank" />
+					}
+				} )
+			);
+		} else {
+			return(
+				__( 'Welcome to your Jetpack dashboard! Now you can quickly manage all of Jetpack’s great features from one central location. {{a}}Learn more{{/a}}.', {
+					components: {
+						a: <a href={ 'https://jetpack.com/support/' } target="_blank" />
+					}
+				} )
+			);
+		}
+	},
 
 	render() {
-		if ( this.props.isDismissed( 'welcome' ) ) {
+		if ( ! this.state.showNotice ) {
 			return false;
 		}
 		return (
 			<div>
 				<SimpleNotice
-					status="is-success"
-					onClick={ this.props.dismissWelcomeNotice }
+					status="is-info"
+					onClick={ this.dismissWelcomeNotice }
 				>
-					Welcome to Jetpack in React! (this message is not complete)
+					{ this.getWelcomeMessageText() }
 				</SimpleNotice>
 			</div>
 		);
@@ -53,7 +91,10 @@ export const DevVersionNotice = React.createClass( {
 			);
 
 			return (
-				<SimpleNotice showDismiss={ false }>
+				<SimpleNotice 
+					showDismiss={ false }
+					status="is-basic"
+				>
 					{ text }
 				</SimpleNotice>
 			);
@@ -78,7 +119,10 @@ export const StagingSiteNotice = React.createClass( {
 			);
 
 			return (
-				<SimpleNotice showDismiss={ false }>
+				<SimpleNotice 
+					showDismiss={ false }
+					status="is-basic"
+				>
 					{ text }
 				</SimpleNotice>
 			);
@@ -106,16 +150,20 @@ export const DevModeNotice = React.createClass( {
 				devModeType += __('your site URL lacking a dot (e.g. http://localhost).');
 			}
 
-			const text = __('Currently in {{a}}Development Mode{{/a}} VIA ' + devModeType,
+			const text = __('Currently in {{a}}Development Mode{{/a}} VIA ' + devModeType + '{{br/}}Some features are disabled.',
 				{
 					components: {
-						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>
+						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+						br: <br />
 					}
 				}
 			);
 
 			return (
-				<SimpleNotice showDismiss={ false }>
+				<SimpleNotice 
+					showDismiss={ false }
+					status="is-basic"
+				>
 					{ text }
 				</SimpleNotice>
 			);
@@ -143,27 +191,34 @@ export const ActionNotices = React.createClass( {
 	render() {
 		const notices = this.props.jetpackNotices( this.props );
 
-		if ( 'disconnected' === notices ) {
-			return (
-				<div>
-					<SimpleNotice>
-						{ __( 'You have successfully disconnected Jetpack' ) }
-						<br/>
-						{
-							__(	'Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack.',
-								{
-									components: {
-										a: <a href="https://jetpack.com/survey-disconnected/" target="_blank" />
+		switch ( notices ) {
+			case 'disconnected' :
+				return (
+					<div>
+						<SimpleNotice>
+							{ __( 'You have successfully disconnected Jetpack' ) }
+							<br />
+							{
+								__(	'Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack.',
+									{
+										components: {
+											a: <a href="https://jetpack.com/survey-disconnected/" target="_blank" />
+										}
 									}
-								}
-							)
-						}
-					</SimpleNotice>
-				</div>
-			);
-		}
+								)
+							}
+						</SimpleNotice>
+					</div>
+				);
 
-		return false;
+			case 'new_connection_jumpstart' :
+				return <WelcomeNotice jumpstarted={ true } />;
+			case 'new_connection_no_jumpstart' :
+				return <WelcomeNotice jumpstarted={ false } />;
+
+			default:
+				return false;
+		}
 	}
 
 } );
@@ -175,7 +230,7 @@ const JetpackNotices = React.createClass( {
 	render() {
 		return (
 			<div>
-				<WelcomeNotice { ...this.props } />
+				<JetpackStateNotices />
 				<DevVersionNotice { ...this.props } />
 				<DevModeNotice { ...this.props } />
 				<StagingSiteNotice { ...this.props } />
@@ -190,13 +245,6 @@ export default connect(
 		return {
 			jetpackNotices: () => _getJetpackNotices( state ),
 			isDismissed: ( notice ) => _isNoticeDismissed( state, notice )
-		};
-	},
-	( dispatch ) => {
-		return {
-			dismissWelcomeNotice: () => {
-				return dispatch( dismissJetpackNotice( 'welcome' ) );
-			}
 		};
 	}
 )( JetpackNotices );

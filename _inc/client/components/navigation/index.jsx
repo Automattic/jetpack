@@ -15,7 +15,6 @@ injectTapEventPlugin();
  * Internal dependencies
  */
 import QueryModules from 'components/data/query-modules';
-import { getModules } from 'state/modules';
 
 const Navigation = React.createClass( {
 	demoSearch: function( keywords ) {
@@ -73,8 +72,4 @@ const Navigation = React.createClass( {
 	}
 } );
 
-export default connect( ( state ) => {
-	return {
-		modules: getModules( state )
-	};
-} )( Navigation );
+export default Navigation;

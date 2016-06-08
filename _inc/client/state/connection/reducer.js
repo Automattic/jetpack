@@ -22,6 +22,7 @@ import {
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS
 } from 'state/action-types';
+import { getModulesThatRequireConnection } from 'state/modules';
 
 export const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
 	switch ( action.type ) {
@@ -35,7 +36,7 @@ export const status = ( state = { siteConnected: window.Initial_State.connection
 	}
 };
 
-export const connectUrl = ( state = {}, action ) => {
+export const connectUrl = ( state = '', action ) => {
 	switch ( action.type ) {
 		case CONNECT_URL_FETCH_SUCCESS:
 			return action.connectUrl;
@@ -179,4 +180,39 @@ export function isFetchingUserData( state ) {
  */
 export function isCurrentUserLinked( state ) {
 	return !! state.jetpack.connection.user.currentUser.isConnected;
+}
+
+/**
+ * Checks if the site is currently in development mode.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {boolean} True if site is in dev mode. False otherwise.
+ */
+export function isDevMode( state ) {
+	return 'dev' === getSiteConnectionStatus( state );
+}
+
+/**
+ * Checks if the module requires connection.
+ *
+ * @param  {Object}  state Global state tree
+ * @param  {String}  slug Module slug.
+ * @return {boolean} True if module requires connection.
+ */
+export function requiresConnection( state, slug ) {
+	return getModulesThatRequireConnection( state ).concat( [
+		'backups',
+		'scan'
+	] ).includes( slug );
+}
+
+/**
+ * Checks if the current module is unavailable in development mode.
+ *
+ * @param  {Object}  state Global state tree
+ * @param  {String}  module Module slug.
+ * @return {boolean} True if site is in dev mode and module requires connection. False otherwise.
+ */
+export function isUnavailableInDevMode( state, module ) {
+	return isDevMode( state ) && requiresConnection( state, module );
 }

@@ -9,15 +9,34 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
 class Jetpack_Sync_Server {
 	private $codec;
 	const MAX_TIME_PER_REQUEST_IN_SECONDS = 15;
+	const BLOG_LOCK_TRANSIENT_PREFIX = 'jp_sync_req_lock_';
+	const BLOG_LOCK_TRANSIENT_EXPIRY = 60; // seconds
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
 		$this->codec            = new Jetpack_Sync_Deflate_Codec();
-		$this->events_processed = array();
 	}
 
 	function set_codec( iJetpack_Sync_Codec $codec ) {
 		$this->codec = $codec;
+	}
+
+	function attempt_request_lock( $blog_id, $expiry = self::BLOG_LOCK_TRANSIENT_EXPIRY ) {
+		$transient_name = $this->get_concurrent_request_transient_name( $blog_id );
+		$locked_time = get_site_transient( $transient_name );
+		if ( $locked_time ) {
+			return false;
+		}
+		set_site_transient( $transient_name, microtime(true), $expiry );
+		return true;
+	}
+
+	private function get_concurrent_request_transient_name( $blog_id ) {
+		return self::BLOG_LOCK_TRANSIENT_PREFIX.$blog_id;
+	}
+
+	function remove_request_lock( $blog_id ) {
+		delete_site_transient( $this->get_concurrent_request_transient_name( $blog_id ) );
 	}
 
 	function receive( $data, $token = null ) {
@@ -26,7 +45,20 @@ class Jetpack_Sync_Server {
 			return new WP_Error( 'action_decoder_error', 'Events must be an array' );
 		}
 
+		if ( $token && ! $this->attempt_request_lock( $token->blog_id ) ) {
+			/**
+			 * Fires when the server receives two concurrent requests from the same blog
+			 *
+			 * @since 4.1
+			 *
+			 * @param token The token object of the misbehaving site
+			 */
+			do_action( "jetpack_sync_multi_request_fail", $token );
+			return new WP_Error( 'concurrent_request_error', 'There is another request running for the same blog ID' );
+		}
+
 		$events = wp_unslash( array_map( array( $this->codec, 'decode' ), $data ) );
+		$events_processed = array();
 
 		/**
 		 * Fires when an array of actions are received from a remote Jetpack site
@@ -39,6 +71,7 @@ class Jetpack_Sync_Server {
 
 		foreach ( $events as $key => $event ) {
 			list( $action_name, $args, $user_id, $timestamp ) = $event;
+
 			/**
 			 * Fires when an action is received from a remote Jetpack site
 			 *
@@ -64,14 +97,17 @@ class Jetpack_Sync_Server {
 			 */
 			do_action( 'jetpack_sync_' . $action_name, $args, $user_id, $timestamp, $token );
 
-			$this->events_processed[] = $key;
+			$events_processed[] = $key;
 
-			// TODO this can be improved to be more intelligent
 			if ( microtime( true ) - $start_time > self::MAX_TIME_PER_REQUEST_IN_SECONDS ) {
 				break;
 			}
 		}
 
-		return $this->events_processed;
+		if ( $token ) {
+			$this->remove_request_lock( $token->blog_id );
+		}
+
+		return $events_processed;
 	}
 }

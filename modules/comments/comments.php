@@ -257,7 +257,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			 */
 			'greeting_reply'       => apply_filters( 'jetpack_comment_form_prompt_reply', __( 'Leave a Reply to %s' , 'jetpack' ) ),
 			'color_scheme'         => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
-			'lang'                 => get_bloginfo( 'language' ),
+			'lang'                 => get_locale(),
 			'jetpack_version'      => JETPACK__VERSION,
 		);
 

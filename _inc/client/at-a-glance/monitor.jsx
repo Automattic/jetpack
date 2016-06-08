@@ -16,6 +16,7 @@ import {
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
 import { getLastDownTime as _getLastDownTime } from 'state/at-a-glance';
+import { isDevMode } from 'state/connection';
 
 const DashMonitor = React.createClass( {
 	getContent: function() {
@@ -53,6 +54,7 @@ const DashMonitor = React.createClass( {
 			<DashItem label={ labelName } className="jp-dash-item__is-inactive">
 				<p className="jp-dash-item__description">
 					{
+						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
 						__( '{{a}}Activate Monitor{{/a}} to receive notifications if your site goes down.', {
 							components: {
 								a:<a href="javascript:void(0)" onClick={ this.props.activateMonitor } />

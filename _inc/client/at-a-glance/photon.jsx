@@ -13,6 +13,7 @@ import {
 	isModuleActivated as _isModuleActivated,
 	activateModule
 } from 'state/modules';
+import { isDevMode } from 'state/connection';
 
 const DashPhoton = React.createClass( {
 	getContent: function() {
@@ -30,6 +31,7 @@ const DashPhoton = React.createClass( {
 			<DashItem label={ labelName } className="jp-dash-item__is-inactive">
 				<p className="jp-dash-item__description">
 					{
+						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
 						__( '{{a}}Activate Photon{{/a}} to enhance the performance of your images.', {
 							components: {
 								a: <a href="javascript:void(0)" onClick={ this.props.activatePhoton } />

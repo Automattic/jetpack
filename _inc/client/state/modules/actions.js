@@ -107,18 +107,21 @@ export const deactivateModule = ( slug ) => {
 	}
 }
 
-export const updateModuleOption = ( slug, updatedOption ) => {
+export const updateModuleOption = ( slug, optionName, optionValue ) => {
+	const updatedOption = { [ optionName ]: optionValue };
 	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_MODULE_UPDATE_OPTION,
 			module: slug,
-			updatedOption
+			optionName,
+			optionValue
 		} );
 		return restApi.updateModuleOption( slug, updatedOption ).then( success => {
 			dispatch( {
 				type: JETPACK_MODULE_UPDATE_OPTION_SUCCESS,
 				module: slug,
-				updatedOption,
+				optionName,
+				optionValue,
 				success: success
 			} );
 		} )['catch']( error => {
@@ -127,7 +130,8 @@ export const updateModuleOption = ( slug, updatedOption ) => {
 				module: slug,
 				success: false,
 				error: error,
-				updatedOption
+				optionName,
+				optionValue
 			} );
 		} );
 	}

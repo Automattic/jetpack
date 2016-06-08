@@ -14,7 +14,7 @@ import {
 	JETPACK_SITE_DATA_FETCH_FAIL
 } from 'state/action-types';
 
-const items = ( state = {}, action ) => {
+export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
 			return assign( {}, action.siteData );
@@ -23,11 +23,11 @@ const items = ( state = {}, action ) => {
 	}
 };
 
-const initialRequestsState = {
+export const initialRequestsState = {
 	isFetchingSiteData: false
 };
 
-const requests = ( state = initialRequestsState, action ) => {
+export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH:
 			return assign( {}, state, {

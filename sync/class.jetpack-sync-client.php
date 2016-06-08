@@ -13,8 +13,11 @@ class Jetpack_Sync_Client {
 	const LAST_SYNC_TIME_OPTION_NAME = 'jetpack_last_sync_time';
 	const CALLABLES_AWAIT_TRANSIENT_NAME = 'jetpack_sync_callables_await';
 	const CONSTANTS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_constants_await';
+	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
+	
+	private static $valid_settings = array( 'dequeue_max_bytes' => true, 'upload_max_bytes' => true, 'upload_max_rows' => true, 'sync_wait_time' => true );
 
-	private $checkout_memory_size;
+	private $dequeue_max_bytes;
 	private $upload_max_bytes;
 	private $upload_max_rows;
 	private $sync_queue;
@@ -80,13 +83,16 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_comment', $handler, 10 );
 		add_action( 'trashed_comment', $handler, 10 );
 		add_action( 'spammed_comment', $handler, 10 );
+		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
 
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
 		// so this saves us a DB read for every comment event
 		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
-				add_action( "comment_{$comment_status}_{$comment_type}", $handler, 10, 2 );
+				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
+				add_action( $comment_action_name, $handler, 10, 2 );
+				add_filter( "jetpack_sync_before_send_{$comment_action_name}", array( $this, 'expand_wp_comment_status_change' ) );
 			}
 		}
 
@@ -165,7 +171,9 @@ class Jetpack_Sync_Client {
 		}
 
 
-		// TODO: Callables, Constanst, Network Options, Users, Terms
+		// Module Activation
+		add_action( 'jetpack_activate_module', $handler );
+		add_action( 'jetpack_deactivate_module', $handler );
 
 		/**
 		 * Sync all pending actions with server
@@ -198,8 +206,8 @@ class Jetpack_Sync_Client {
 		$this->network_options_whitelist = $options;
 	}
 
-	function set_send_buffer_memory_size( $size ) {
-		$this->checkout_memory_size = $size;
+	function set_dequeue_max_bytes( $size ) {
+		$this->dequeue_max_bytes = $size;
 	}
 
 	// in bytes
@@ -213,11 +221,11 @@ class Jetpack_Sync_Client {
 	}
 
 	// in seconds
-	function set_min_sync_wait_time( $seconds ) {
+	function set_sync_wait_time( $seconds ) {
 		update_option( self::SYNC_THROTTLE_OPTION_NAME, $seconds, true );
 	}
 
-	function get_min_sync_wait_time() {
+	function get_sync_wait_time() {
 		return get_option( self::SYNC_THROTTLE_OPTION_NAME );
 	}
 
@@ -296,6 +304,13 @@ class Jetpack_Sync_Client {
 		     && ! in_array( $args[2], Jetpack_Sync_Defaults::$default_whitelist_meta_keys )
 		) {
 			return;
+		}
+
+		// if we add any items to the queue, we should 
+		// try to ensure that our script can't be killed before
+		// they are sent
+		if ( function_exists( 'ignore_user_abort' ) ) {
+			ignore_user_abort( true );
 		}
 
 		$this->sync_queue->add( array(
@@ -446,7 +461,7 @@ class Jetpack_Sync_Client {
 		}
 
 		// don't sync if we are throttled
-		$sync_wait = $this->get_min_sync_wait_time();
+		$sync_wait = $this->get_sync_wait_time();
 		$last_sync = $this->get_last_sync_time();
 
 		if ( $last_sync && $sync_wait && $last_sync + $sync_wait > microtime( true ) ) {
@@ -461,7 +476,14 @@ class Jetpack_Sync_Client {
 			return false;
 		}
 
-		$buffer = $this->sync_queue->checkout_with_memory_limit( $this->checkout_memory_size, $this->upload_max_rows );
+		// now that we're sure we are about to sync, try to
+		// ignore user abort so we can avoid getting into a
+		// bad state
+		if ( function_exists( 'ignore_user_abort' ) ) {
+			ignore_user_abort( true );
+		}
+
+		$buffer = $this->sync_queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
 
 		if ( ! $buffer ) {
 			// buffer has no items
@@ -554,7 +576,6 @@ class Jetpack_Sync_Client {
 	}
 
 	function expand_wp_insert_post( $args ) {
-		// list( $post_ID, $post, $update ) = $args;
 		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2] );
 	}
 
@@ -576,6 +597,29 @@ class Jetpack_Sync_Client {
 		$post->extra = $extra;
 
 		return $post;
+	}
+
+	function expand_wp_comment_status_change( $args ) {
+		return array( $args[0], $this->filter_comment_and_add_hc_meta( $args[1] ) );
+	}
+
+	function expand_wp_insert_comment( $args ) {
+		return array( $args[0], $this->filter_comment_and_add_hc_meta( $args[1] ) );
+	}
+
+	function filter_comment_and_add_hc_meta( $comment ) {
+		// add meta-property with Highlander Comment meta, which we 
+		// we need to process synchronously on .com
+		$hc_post_as = get_comment_meta( $comment->comment_ID, 'hc_post_as', true );
+		if ( 'wordpress' === $hc_post_as ) {
+			$meta = array();
+			$meta['hc_post_as']         = $hc_post_as;
+			$meta['hc_wpcom_id_sig']    = get_comment_meta( $comment->comment_ID, 'hc_wpcom_id_sig', true );
+			$meta['hc_foreign_user_id'] = get_comment_meta( $comment->comment_ID, 'hc_foreign_user_id', true );
+			$comment->meta = $meta;	
+		}
+
+		return $comment;
 	}
 
 	private function schedule_sync( $when ) {
@@ -746,7 +790,7 @@ class Jetpack_Sync_Client {
 		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
 			// This is the option that is synced with dotcom
 			Jetpack_Options::update_option( 'site_icon_url', $url );
-		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
+		} else if ( empty( $url ) ) {
 			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 	}
@@ -759,23 +803,41 @@ class Jetpack_Sync_Client {
 		$this->sync_queue->reset();
 	}
 
+	function get_settings() {
+		$settings = array();
+		foreach( array_keys( self::$valid_settings ) as $setting ) {
+			$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
+			$settings[ $setting ] = (int) get_option( self::SETTINGS_OPTION_PREFIX.$setting, Jetpack_Sync_Defaults::$$default_name );
+		}
+		return $settings;
+	}
+
+	function update_settings( $new_settings ) {
+		$validated_settings = array_intersect_key( $new_settings, self::$valid_settings );
+		foreach( $validated_settings as $setting => $value ) {
+			update_option( self::SETTINGS_OPTION_PREFIX.$setting, $value, true );
+		}
+	}
+
+	function update_options_whitelist() {
+		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
+		$this->options_whitelist = apply_filters( 'jetpack_options_whitelist', Jetpack_Sync_Defaults::$default_options_whitelist );
+	}
+
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
-		$this->set_send_buffer_memory_size( Jetpack_Sync_Defaults::$default_send_buffer_memory_size );
-		$this->set_upload_max_bytes( Jetpack_Sync_Defaults::$default_upload_max_bytes );
-		$this->set_upload_max_rows( Jetpack_Sync_Defaults::$default_upload_max_rows );
 
-		if ( $this->get_min_sync_wait_time() === false ) {
-			$this->set_min_sync_wait_time( Jetpack_Sync_Defaults::$default_sync_wait_time );
-		}
+		// saved settings
+		$settings = $this->get_settings();
+		$this->set_dequeue_max_bytes( $settings['dequeue_max_bytes'] );
+		$this->set_upload_max_bytes( $settings['upload_max_bytes'] );
+		$this->set_upload_max_rows( $settings['upload_max_rows'] );
+		$this->set_sync_wait_time( $settings['sync_wait_time'] );
 
 		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
 		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist       = Jetpack_Sync_Defaults::$default_constants_whitelist;
-		/**
-		 * This filter is already documented class.wpcom-json-api-get-option-endpoint.php
-		 */
-		$this->options_whitelist         = apply_filters( 'jetpack_options_whitelist', Jetpack_Sync_Defaults::$default_options_whitelist );
+		$this->update_options_whitelist();
 		$this->network_options_whitelist = Jetpack_Sync_Defaults::$default_network_options_whitelist;
 		$this->taxonomy_whitelist        = Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
 		$this->is_multisite              = is_multisite();

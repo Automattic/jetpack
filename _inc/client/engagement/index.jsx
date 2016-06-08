@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
-import { ModuleToggle } from 'components/module-toggle';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -18,8 +17,17 @@ import {
 	isDeactivatingModule,
 	getModule as _getModule
 } from 'state/modules';
+import { ModuleToggle } from 'components/module-toggle';
+import { EngagementModulesSettings } from 'components/module-options/moduleoptions';
+import { isUnavailableInDevMode } from 'state/connection';
 
-export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
+export const Page = ( props ) => {
+	let {
+		toggleModule,
+		isModuleActivated,
+		isTogglingModule,
+		getModule
+	} = props;
 	/**
 	 * Array of modules that directly map to a card for rendering
 	 * @type {Array}
@@ -36,31 +44,35 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 		[ 'comments', getModule( 'comments' ).name, getModule( 'comments' ).description, getModule( 'comments' ).learn_more_button ],
 		[ 'notes', getModule( 'notes' ).name, getModule( 'notes' ).description, getModule( 'notes' ).learn_more_button ],
 		[ 'sitemaps', getModule( 'sitemaps' ).name, getModule( 'sitemaps' ).description, getModule( 'sitemaps' ).learn_more_button ]
-	].map( ( element ) => (
-		<FoldableCard key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
-			header={ element[1] }
-			subheader={ element[2] }
-			summary={
-				<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
-					toggling={ isTogglingModule( element[0] ) }
-					toggleModule={ toggleModule } />
-			}
-			expandedSummary={
-				<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
-					toggling={ isTogglingModule( element[0] ) }
-					toggleModule={ toggleModule } />
-			}
-			clickableHeaderText={ true }
-		>
-				{ isModuleActivated( element[0] ) ? renderSettings( getModule( element[0] ) ) :
+	].map( ( element ) => {
+		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
+			toggle = (
+				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
+					<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
+								  toggling={ isTogglingModule( element[0] ) }
+								  toggleModule={ toggleModule } />
+			),
+			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
+
+		return (
+			<FoldableCard className={ customClasses } key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
+				header={ element[1] }
+				subheader={ element[2] }
+				summary={ toggle }
+				expandedSummary={ toggle }
+				clickableHeaderText={ true }
+			>
+				{ isModuleActivated( element[0] ) ?
+					<EngagementModulesSettings module={ getModule( element[0] ) } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
-			<p>
-				<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
-			</p>
-		</FoldableCard>
-	) );
+				<p>
+					<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
+				</p>
+			</FoldableCard>
+		);
+	});
 	return (
 		<div>
 			{ cards }
@@ -72,35 +84,6 @@ function renderLongDescription( module ) {
 	// Rationale behind returning an object and not just the string
 	// https://facebook.github.io/react/tips/dangerously-set-inner-html.html
 	return { __html: module.long_description };
-}
-
-function renderSettings( module ) {
-	switch ( module.module ) {
-		case 'stats':
-			return(
-				<div>
-					{ renderStatsSettings( module ) }
-					<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
-				</div>
-			);
-
-		case 'enhanced-distribution':
-		case 'sitemaps':
-			return null;
-
-		default:
-			return (
-				<div>
-					<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
-				</div>
-			);
-	}
-}
-
-function renderStatsSettings() {
-	return (
-		<div>Stats Settings</div>
-	);
 }
 
 export default connect(

@@ -162,7 +162,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/setting/update', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::update_setting',
-			'permission_callback' => __CLASS__ . '::update_settings',
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 		) );
 
 		// Jumpstart
@@ -221,10 +221,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Dismiss Jetpack Notices
-		register_rest_route( 'jetpack/v4', '/dismiss-jetpack-notice/(?P<notice>[a-z\-_]+)', array(
+		register_rest_route( 'jetpack/v4', '/notice/(?P<notice>[a-z\-_]+)/dismiss', array(
 			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::dismiss_jetpack_notice',
+			'callback' => __CLASS__ . '::dismiss_notice',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+		) );
+
+		// Plugins: get list of all plugins.
+		register_rest_route( 'jetpack/v4', '/plugins', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_plugins',
+			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
+		) );
+
+		// Plugins: check if the plugin is active.
+		register_rest_route( 'jetpack/v4', '/plugin/(?P<plugin>[a-z\/\.\-_]+)', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_plugin',
+			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 		) );
 	}
 
@@ -235,7 +249,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return array|wp-error
 	 */
-	public static function dismiss_jetpack_notice( $data ) {
+	public static function dismiss_notice( $data ) {
 		$notice = $data['notice'];
 		if ( isset( $notice ) && ! empty( $notice ) ) {
 			switch( $notice ) {
@@ -389,12 +403,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool Whether user has the capability 'jetpack_admin_page'.
 	 */
-	public static function update_settings() {
+	public static function update_settings_permission_check() {
 		if ( current_user_can( 'manage_options' ) ) {
 			return true;
 		}
 
 		return new WP_Error( 'invalid_user_permission_manage_settings', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that user can view Jetpack admin page and can activate plugins.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return bool Whether user has the capability 'jetpack_admin_page' and 'activate_plugins'.
+	 */
+	public static function activate_plugins_permission_check() {
+		if ( current_user_can( 'jetpack_admin_page', 'activate_plugins' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_activate_plugins', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -2472,6 +2501,102 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'not_active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Returns a list of all plugins in the site.
+	 *
+	 * @since 4.2.0
+	 * @uses get_plugins()
+	 *
+	 * @return array
+	 */
+	private static function core_get_plugins() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$plugins = get_plugins();
+
+		if ( is_array( $plugins ) && ! empty( $plugins ) ) {
+			foreach ( $plugins as $plugin_slug => $plugin_data ) {
+				$plugins[ $plugin_slug ]['active'] = self::core_is_plugin_active( $plugin_slug );
+			}
+			return $plugins;
+		}
+
+		return array();
+	}
+
+	/**
+	 * Checks if the queried plugin is active.
+	 *
+	 * @since 4.2.0
+	 * @uses is_plugin_active()
+	 *
+	 * @return bool
+	 */
+	private static function core_is_plugin_active( $plugin ) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return is_plugin_active( $plugin );
+	}
+
+	/**
+	 * Get plugins data in site.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @return WP_REST_Response|WP_Error List of plugins in the site. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function get_plugins() {
+		$plugins = self::core_get_plugins();
+
+		if ( ! empty( $plugins ) ) {
+			return rest_ensure_response( $plugins );
+		}
+
+		return new WP_Error( 'not_found', esc_html__( 'Unable to list plugins.', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Get data about the queried plugin. Currently it only returns whether the plugin is active or not.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
+	 * }
+	 *
+	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function get_plugin( $data ) {
+
+		$plugins = self::core_get_plugins();
+
+		if ( empty( $plugins ) ) {
+			return new WP_Error( 'no_plugins_found', esc_html__( 'This site has no plugins.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		$plugin = stripslashes( $data['plugin'] );
+
+		if ( ! in_array( $plugin, array_keys( $plugins ) ) ) {
+			return new WP_Error( 'plugin_not_found', esc_html( sprintf( __( 'Plugin %s is not installed.', 'jetpack' ), $plugin ) ), array( 'status' => 404 ) );
+		}
+
+		$plugin_data = $plugins[ $plugin ];
+
+		$plugin_data['active'] = self::core_is_plugin_active( $plugin );
+
+		return rest_ensure_response( array(
+			'code'    => 'success',
+			'message' => esc_html__( 'Plugin found.', 'jetpack' ),
+			'data'    => $plugin_data
+		) );
 	}
 
 } // class end

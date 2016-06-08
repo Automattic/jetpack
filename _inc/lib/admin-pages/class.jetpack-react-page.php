@@ -154,6 +154,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			),
 			'locale' => $this->get_i18n_data(),
 			'localeSlug' => $localeSlug,
+			'jetpackStateNotices' => array(
+				'messageCode' => Jetpack::state( 'message' ),
+				'errorCode' => Jetpack::state( 'error' ),
+				'errorDescription' => Jetpack::state( 'error_description' ),
+			),
 		) );
 	}
 }
