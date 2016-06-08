@@ -1,4 +1,5 @@
 <?php
+require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
 
 /**
  * Module Name: Single Sign On
@@ -36,7 +37,7 @@ class Jetpack_SSO {
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
 
-		if ( $this->should_hide_login_form() ) {
+		if ( Jetpack_SSO_Helpers::should_hide_login_form() ) {
 			/**
 			 * Since the default authenticate filters fire at priority 20 for checking username and password,
 			 * let's fire at priority 30. wp_authenticate_spam_check is fired at priority 99, but since we return a
@@ -279,7 +280,7 @@ class Jetpack_SSO {
 	 **/
 	public function render_require_two_step() {
 		/** This filter is documented in modules/sso.php */
-		$require_two_step = ( 1 == apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step' ) ) );
+		$require_two_step = Jetpack_SSO_Helpers::is_two_step_required();
 		$disabled = $require_two_step ? ' disabled="disabled"' : '';
 		echo '<label>';
 		echo '<input type="checkbox" name="jetpack_sso_require_two_step" ' . checked( $require_two_step, true, false ) . "$disabled>";
@@ -349,19 +350,6 @@ class Jetpack_SSO {
 		return $wants_to_login;
 	}
 
-	private function bypass_login_forward_wpcom() {
-		/**
-		 * Redirect the site's log in form to WordPress.com's log in form.
-		 *
-		 * @module sso
-		 *
-		 * @since 3.1.0
-		 *
-		 * @param bool false Should the site's log in form be automatically forwarded to WordPress.com's log in form.
-		 */
-		return apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false );
-	}
-
 	function login_init() {
 		global $action;
 
@@ -370,7 +358,7 @@ class Jetpack_SSO {
 		 * login is set then we need to ensure we do not auto-forward the user and get
 		 * them stuck in an infinite logout loop.
 		 */
-		if ( isset( $_GET['loggedout'] ) && $this->bypass_login_forward_wpcom() ) {
+		if ( isset( $_GET['loggedout'] ) && Jetpack_SSO_Helpers::bypass_login_forward_wpcom() ) {
 			add_filter( 'jetpack_remove_login_form', '__return_true' );
 		}
 
@@ -381,7 +369,7 @@ class Jetpack_SSO {
 		 */
 		if (
 			$this->wants_to_login()
-			&& $this->bypass_login_forward_wpcom()
+			&& Jetpack_SSO_Helpers::bypass_login_forward_wpcom()
 		) {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 			$this->maybe_save_cookie_redirect();
@@ -459,27 +447,6 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Determine if the login form should be hidden or not
-	 *
-	 * Method is private only because it is only used in this class so far.
-	 * Feel free to change it later
-	 *
-	 * @return bool
-	 **/
-	private function should_hide_login_form() {
-		/**
-		 * Remove the default log in form, only leave the WordPress.com log in button.
-		 *
-		 * @module sso
-		 *
-		 * @since 3.1.0
-		 *
-		 * @param bool get_option( 'jetpack_sso_remove_login_form', false ) Should the default log in form be removed. Default to false.
-		 */
-		return apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form', false ) );
-	}
-
-	/**
 	 * Outputs the Jetpack SSO button and description as well as the toggle link
 	 * for switching between Jetpack SSO and default login.
 	 */
@@ -536,7 +503,7 @@ class Jetpack_SSO {
 				<?php endif; ?>
 			</div>
 
-			<?php if ( ! $this->should_hide_login_form() ) : ?>
+			<?php if ( ! Jetpack_SSO_Helpers::should_hide_login_form() ) : ?>
 				<div class="jetpack-sso-or">
 					<span><?php esc_html_e( 'Or', 'jetpack' ); ?></span>
 				</div>
@@ -665,17 +632,7 @@ class Jetpack_SSO {
 		 */
 		do_action( 'jetpack_sso_pre_handle_login', $user_data );
 
-		/**
-		 * Is it required to have 2-step authentication enabled on WordPress.com to use SSO?
-		 *
-		 * @module sso
-		 *
-		 * @since 2.8.0
-		 *
-		 * @param bool get_option( 'jetpack_sso_require_two_step' ) Does SSO require 2-step authentication?
-		 */
-		$require_two_step = apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step' ) );
-		if ( $require_two_step && 0 == (int) $user_data->two_step_enabled ) {
+		if ( Jetpack_SSO_Helpers::is_two_step_required() && 0 == (int) $user_data->two_step_enabled ) {
 			$this->user_data = $user_data;
 
 			JetpackTracking::record_user_event( 'sso_login_failed', array(
@@ -698,7 +655,7 @@ class Jetpack_SSO {
 		}
 
 		// If we don't have one by wpcom_user_id, try by the email?
-		if ( empty( $user ) && self::match_by_email() ) {
+		if ( empty( $user ) && Jetpack_SSO_Helpers::match_by_email() ) {
 			$user_found_with = 'match_by_email';
 			$user = get_user_by( 'email', $user_data->email );
 			if ( $user ) {
@@ -707,7 +664,7 @@ class Jetpack_SSO {
 		}
 
 		// If we've still got nothing, create the user.
-		if ( empty( $user ) && ( get_option( 'users_can_register' ) || self::new_user_override() ) ) {
+		if ( empty( $user ) && ( get_option( 'users_can_register' ) || Jetpack_SSO_Helpers::new_user_override() ) ) {
 			// If not matching by email we still need to verify the email does not exist
 			// or this blows up
 			/**
@@ -715,7 +672,7 @@ class Jetpack_SSO {
 			 * been found in the first pass.  If get_user_by( 'email' ) doesn't find the
 			 * user, then we know that email is unused, so it's safe to add.
 			 */
-			if ( self::match_by_email() || ! get_user_by( 'email', $user_data->email ) ) {
+			if ( Jetpack_SSO_Helpers::match_by_email() || ! get_user_by( 'email', $user_data->email ) ) {
 				$username = $user_data->login;
 
 				if ( username_exists( $username ) ) {
@@ -733,7 +690,7 @@ class Jetpack_SSO {
 					}
 				}
 
-				$user_found_with = self::new_user_override()
+				$user_found_with = Jetpack_SSO_Helpers::new_user_override()
 					? 'user_created_new_user_override'
 					: 'user_created_users_can_register';
 
@@ -855,37 +812,6 @@ class Jetpack_SSO {
 
 	static function profile_page_url() {
 		return admin_url( 'profile.php' );
-	}
-
-	static function match_by_email() {
-		$match_by_email = ( 1 == get_option( 'jetpack_sso_match_by_email', true ) ) ? true: false;
-		$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : $match_by_email;
-
-		/**
-		 * Link the local account to an account on WordPress.com using the same email address.
-		 *
-		 * @module sso
-		 *
-		 * @since 2.6.0
-		 *
-		 * @param bool $match_by_email Should we link the local account to an account on WordPress.com using the same email address. Default to false.
-		 */
-		return apply_filters( 'jetpack_sso_match_by_email', $match_by_email );
-	}
-
-	static function new_user_override() {
-		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
-
-		/**
-		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations.
-		 *
-		 * @module sso
-		 *
-		 * @since 2.6.0
-		 *
-		 * @param bool $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
-		 */
-		return apply_filters( 'jetpack_sso_new_user_override', $new_user_override );
 	}
 
 	function allowed_redirect_hosts( $hosts ) {
