@@ -666,11 +666,23 @@ class Jetpack_Protect_Module {
 			$request['multisite'] = get_blog_count();
 		}
 
+
+		/**
+		 * Filter controls maximum timeout in waiting for reponse from Protect servers.
+		 *
+		 * @module protect
+		 *
+		 * @since 4.0.4
+		 *
+		 * @param int $timeout Max time (in seconds) to wait for a response.
+		 */
+		$timeout = apply_filters( 'jetpack_protect_connect_timeout', 30 );
+
 		$args = array (
 			'body'        => $request,
 			'user-agent'  => $user_agent,
 			'httpversion' => '1.0',
-			'timeout'     => 15
+			'timeout'     => absint( $timeout )
 		);
 
 		$response_json           = wp_remote_post( $this->get_api_host(), $args );
