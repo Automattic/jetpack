@@ -682,7 +682,7 @@ class Jetpack_Protect_Module {
 			'body'        => $request,
 			'user-agent'  => $user_agent,
 			'httpversion' => '1.0',
-			'timeout'     => $timeout
+			'timeout'     => absint( $timeout )
 		);
 
 		$response_json           = wp_remote_post( $this->get_api_host(), $args );
