@@ -56,7 +56,7 @@ class Jetpack_SSO_Helpers {
 	/**
 	 * Returns a boolean value for whether two-step authentication is required for SSO.
 	 *
-	 * @since 4.1
+	 * @since 4.1.0
 	 *
 	 * @return bool
 	 */
