@@ -1,11 +1,22 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-client.php';
-
 class Jetpack_Sync_Actions {
 	static $client = null;
 
 	static function init() {
+		/**
+		 * Fires on every request before default loading sync code.
+		 * Return false to not load sync code and hook sync actions.
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param bool should we load sync code for this request
+		 */
+		if ( ! apply_filters( 'jetpack_sync_should_load', $_SERVER['REQUEST_METHOD'] === 'POST' || current_user_can( 'manage_options' ) || is_admin() ) ) {
+			return;
+		}
+
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-client.php';
 
 		self::$client = Jetpack_Sync_Client::getInstance();
 
