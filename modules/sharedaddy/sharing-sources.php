@@ -1602,6 +1602,49 @@ class Share_Pocket extends Sharing_Source {
 
 }
 
+class Share_Telegram extends Sharing_Source {
+	public $shortname = 'telegram';
+
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+	}
+
+	public function get_name() {
+		return __( 'Telegram', 'jetpack' );
+	}
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+		$telegram_url = esc_url_raw( 'https://telegram.me/share/url?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&text=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
+		wp_redirect( $telegram_url );
+		exit;
+	}
+
+	public function get_display( $post ) {
+		return $this->get_link( get_permalink( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram' );
+	}
+
+	function display_footer() {
+		$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
+	}
+}
+
+class Jetpack_Share_WhatsApp extends Sharing_Source {
+	public $shortname = 'jetpack-whatsapp';
+
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+	}
+
+	public function get_name() {
+		return __( 'WhatsApp', 'jetpack' );
+	}
+
+	public function get_display( $post ) {
+		return $this->get_link( 'whatsapp://send?text=' . rawurlencode( $this->get_share_title( $post->ID ) ) . ' ' . rawurlencode( get_permalink( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
+	}
+}
+
 class Share_Skype extends Sharing_Source {
 	public $shortname = 'skype';
 	public $genericon = '\f220';
