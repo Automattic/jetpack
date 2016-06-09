@@ -271,12 +271,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon-text .sd-content li.share-tumblr a:before {
 	content: '\f607';
 }
-.sd-social-icon .sd-content ul li.share-stumbleupon a:before,
-.sd-social-text .sd-content ul li.share-stumbleupon a:before,
-.sd-content ul li.share-stumbleupon div.option.option-smart-off a:before,
-.sd-social-icon-text .sd-content li.share-stumbleupon a:before {
-	content: '\f223';
-}
+
 .sd-social-icon .sd-content ul li.share-pocket a:before,
 .sd-social-text .sd-content ul li.share-pocket a:before,
 .sd-content ul li.share-pocket div.option.option-smart-off a:before,
@@ -409,7 +404,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 	vertical-align: top !important;
 }
 
-.stumbleupon_button iframe, .reddit_button iframe {
+.reddit_button iframe {
 	margin-top: 1px;
 }
 
@@ -591,11 +586,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-facebook a.sd-button {
 	background: #3b5998;
-	color: #fff !important;
-}
-
-.sd-social-icon .sd-content ul li[class*='share-'].share-stumbleupon a.sd-button {
-	background: #ea4b24;
 	color: #fff !important;
 }
 
