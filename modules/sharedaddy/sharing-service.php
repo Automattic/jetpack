@@ -55,7 +55,7 @@ class Sharing_Service {
 			'tumblr'            => 'Share_Tumblr',
 			'pinterest'         => 'Share_Pinterest',
 			'pocket'            => 'Share_Pocket',
-			'telegram'		    => 'Share_Telegram',
+			'telegram'          => 'Share_Telegram',
 			'jetpack-whatsapp'  => 'Jetpack_Share_WhatsApp',
 			'skype'             => 'Share_Skype',
 		);
