@@ -84,6 +84,7 @@ Bug Fixes:
 * Contact Form: avoid PHP notices that may appear in specific cases when submitting a contact form.
 * Manage: use Jetpack native function to get available updates.
 * Open Graph: do not add Open Graph Meta Tags when the SEO Framework plugin is already active.
+* Open Graph: grab images from Slideshows.
 * Sharing: fix sharing count when using unofficial buttons.
 * Sitemaps: avoid any errors when special characters are used in the sitemap stylesheet.
 * Spelling and Grammar: fix mismatching HTML tags.

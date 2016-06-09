@@ -41,6 +41,7 @@
 ### Open Graph
 
 - Do not add Jetpack Open Graph Meta Tags when [the SEO Framework plugin](https://wordpress.org/plugins/autodescription/) is already active.
+- Grab images from Slideshows. To test this, enable the Shortcodes module on your site, and insert a slideshow into a new post. The images from the slideshow should appear in the Open Graph Image Meta tags.
 
 ### Protect
 
