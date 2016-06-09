@@ -1505,22 +1505,29 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( $field_ids['extra'] ) {
 			// array indexed by field label (not field id)
 			$extra_fields = get_post_meta( $feedback_id, '_feedback_extra_fields', true );
-			$extra_field_keys = array_keys( $extra_fields );
 
-			$i = 0;
-			foreach ( $field_ids['extra'] as $field_id ) {
-				$field = $form->fields[$field_id];
-				$field_index = array_search( $field_id, $field_ids['all'] );
+			/**
+			 * Only get data for the compiled form if `$extra_fields` is a valid and non-empty array.
+			 */
+			if ( is_array( $extra_fields ) && ! empty( $extra_fields ) ) {
 
-				$label = $field->get_attribute( 'label' );
+				$extra_field_keys = array_keys( $extra_fields );
 
-				$compiled_form[ $field_index ] = sprintf(
-					'<b>%1$s:</b> %2$s<br /><br />',
-					wp_kses( $label, array() ),
-					nl2br( wp_kses( $extra_fields[$extra_field_keys[$i]], array() ) )
-				);
+				$i = 0;
+				foreach ( $field_ids['extra'] as $field_id ) {
+					$field       = $form->fields[ $field_id ];
+					$field_index = array_search( $field_id, $field_ids['all'] );
 
-				$i++;
+					$label = $field->get_attribute( 'label' );
+
+					$compiled_form[ $field_index ] = sprintf(
+						'<b>%1$s:</b> %2$s<br /><br />',
+						wp_kses( $label, array() ),
+						nl2br( wp_kses( $extra_fields[ $extra_field_keys[ $i ] ], array() ) )
+					);
+
+					$i++;
+				}
 			}
 		}
 
