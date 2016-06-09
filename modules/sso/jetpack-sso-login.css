@@ -138,10 +138,6 @@
 	.jetpack-sso.button {
 		line-height: 22px;
 	}
-
-	.jetpack-sso.button .genericon-wordpress {
-		top: -2px;
-	}
 }
 
 #jetpack-sso-wrap__user img {
