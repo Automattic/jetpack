@@ -1621,7 +1621,7 @@ class Share_Telegram extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		return $this->get_link( get_permalink( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram' );
+		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram' );
 	}
 
 	function display_footer() {
