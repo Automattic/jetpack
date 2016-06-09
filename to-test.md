@@ -4,6 +4,10 @@
 
 - When using the Comments module on a site where the language is set to anything other than English, make sure the comment form uses the right language.
 
+### Contact Form
+
+- We fixed PHP notices that appeared in error logs and in the form success message in some very specific situations, in combination with other plugins. To test, try creating a new form with multiple fields, then fill in the form as a visitor, and make sure it doesn't create any PHP notice on the page or in your logs.
+
 ### Custom CSS
 
 - Properly handle slashes and quotes when saving Custom CSS. To make sure the module doesn't strip away or incorrectly replace slashes or quotes, try the following:

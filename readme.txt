@@ -81,6 +81,7 @@ Bug Fixes:
 
 * Comments: fixes an issue where the comment form language was always set in English, instead of the language used on the site.
 * Custom CSS: properly handle slashes and quotes when saving Custom CSS.
+* Contact Form: avoid PHP notices that may appear in specific cases when submitting a contact form.
 * Manage: use Jetpack native function to get available updates.
 * Open Graph: do not add Open Graph Meta Tags when the SEO Framework plugin is already active.
 * Sharing: fix sharing count when using unofficial buttons.
