@@ -1083,8 +1083,8 @@ jQuery(document).ready(function($) {
 			desc  = gallery.jp_carousel('parseTitleDesc', data.desc)  || '';
 
 			if ( title.length || desc.length ) {
-				// $('<div />').text(sometext).html() is a trick to go to HTML to plain text (including HTML entities decode, etc)
-				if ( $('<div />').text(title).html() === $('<div />').text(desc).html() ) {
+				// Convert from HTML to plain text (including HTML entities decode, etc)
+				if ( $('<div />').html( title ).text() === $('<div />').html( desc ).text() ) {
 					title = '';
 				}
 
