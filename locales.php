@@ -1,4 +1,9 @@
 <?php
+
+if ( class_exists( 'GP_Locale' ) ) {
+	return;
+}
+
 class GP_Locale {
 	public $english_name;
 	public $native_name;
