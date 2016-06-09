@@ -404,13 +404,14 @@ class Jetpack_Portfolio {
 		) );
 
 		if ( isset( $options[0]['title'] ) && true === $options[0]['title'] ) {
-			$wp_customize->add_setting( 'jetpack_portfolio[page-title]', array(
+			$wp_customize->add_setting( 'jetpack_portfolio_title', array(
 				'default'              => esc_html__( 'Projects', 'jetpack' ),
+				'type'                 => 'option',
 				'sanitize_callback'    => 'sanitize_text_field',
 				'sanitize_js_callback' => 'sanitize_text_field',
 			) );
 
-			$wp_customize->add_control( 'jetpack_portfolio[page-title]', array(
+			$wp_customize->add_control( 'jetpack_portfolio_title', array(
 				'section'              => 'jetpack_portfolio',
 				'label'                => esc_html__( 'Portfolio Archive Title', 'jetpack' ),
 				'type'                 => 'text',
@@ -418,13 +419,14 @@ class Jetpack_Portfolio {
 		}
 
 		if ( isset( $options[0]['content'] ) && true === $options[0]['content'] ) {
-			$wp_customize->add_setting( 'jetpack_portfolio[page-content]', array(
+			$wp_customize->add_setting( 'jetpack_portfolio_content', array(
 				'default'              => '',
+				'type'                 => 'option',
 				'sanitize_callback'    => 'wp_kses_post',
 				'sanitize_js_callback' => 'wp_kses_post',
 			) );
 
-			$wp_customize->add_control( 'jetpack_portfolio[page-content]', array(
+			$wp_customize->add_control( 'jetpack_portfolio_content', array(
 				'section'              => 'jetpack_portfolio',
 				'label'                => esc_html__( 'Portfolio Archive Content', 'jetpack' ),
 				'type'                 => 'textarea',
@@ -432,14 +434,15 @@ class Jetpack_Portfolio {
 		}
 
 		if ( isset( $options[0]['featured-image'] ) && true === $options[0]['featured-image'] ) {
-			$wp_customize->add_setting( 'jetpack_portfolio[featured-image]', array(
+			$wp_customize->add_setting( 'jetpack_portfolio_featured_image', array(
 				'default'              => '',
+				'type'                 => 'option',
 				'sanitize_callback'    => 'attachment_url_to_postid',
 				'sanitize_js_callback' => 'attachment_url_to_postid',
 				'theme_supports'       => 'post-thumbnails',
 			) );
 
-			$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'jetpack_portfolio[featured-image]', array(
+			$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'jetpack_portfolio_featured_image', array(
 				'section'              => 'jetpack_portfolio',
 				'label'                => esc_html__( 'Portfolio Archive Featured Image', 'jetpack' ),
 			) ) );
