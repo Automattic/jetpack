@@ -10,3 +10,4 @@ function jetpack_register_social_logos() {
 		wp_register_style( 'social-logos', plugins_url( 'social-logos/social-logos.css', __FILE__ ), false, '1' );
 	}
 }
+
