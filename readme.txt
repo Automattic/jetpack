@@ -73,13 +73,31 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 4. Publicize.
 5. Related Posts.
 
-== Upgrade Notice ==
-= 4.0.3 =
-Jetpack 4.0.3 fixes a critical security issue. Please upgrade immediately.
-
 == Changelog ==
+
+= 4.0.4 =
+
+Bug Fixes:
+
+* Comments: fixes an issue where the comment form language was always set in English, instead of the language used on the site.
+* Custom CSS: properly handle slashes and quotes when saving Custom CSS.
+* Manage: use Jetpack native function to get available updates.
+* Open Graph: do not add Open Graph Meta Tags when the SEO Framework plugin is already active.
+* Sharing: fix sharing count when using unofficial buttons.
+* Sitemaps: avoid any errors when special characters are used in the sitemap stylesheet.
+* Spelling and Grammar: fix mismatching HTML tags.
+* Support: enable the in-dashboard contact form again, to allow everyone to contact the support team without leaving their site.
+* Widgets: fix JavaScript errors in the customizer.
+
+Enhancements:
+
+* Connection Process: improvements to the connection process when linking a Jetpack site to WordPress.com.
+* Protect: add a new filter, `jetpack_protect_connect_timeout`, to allow customization of the Protect timeout.
+* Staging Sites: add constant for sites hosted with Kinsta.
+
 = 4.0.3 =
 Release date: May 26th, 2016
+Release Post: http://wp.me/p1moTy-3hm
 
 * Important security update. Please upgrade immediately.
 
