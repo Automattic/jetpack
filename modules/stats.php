@@ -181,7 +181,8 @@ function stats_footer() {
 function stats_get_options() {
 	$options = get_option( 'stats_options' );
 
-	if ( !isset( $options['version'] ) || $options['version'] < STATS_VERSION )
+	if ( ( !isset( $options['version'] ) || $options['version'] < STATS_VERSION ) &&
+	 	( is_admin() || defined( 'DOING_CRON' ) && DOING_CRON ) )
 		$options = stats_upgrade_options( $options );
 
 	return $options;
