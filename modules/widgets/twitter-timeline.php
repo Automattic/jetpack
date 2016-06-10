@@ -222,7 +222,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			echo wp_kses_post(
 				sprintf(
 					__( 'You need to <a href="%1$s" target="_blank">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget\'s config page) in the field below. <a href="%2$s" target="_blank">Read more</a>.', 'jetpack' ),
-					'https://twitter.com/settings/widgets/new/user',
+					'https://twitter.com/settings/widgets/new',
 					'http://support.wordpress.com/widgets/twitter-timeline-widget/'
 				)
 			);
