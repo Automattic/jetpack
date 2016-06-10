@@ -137,7 +137,29 @@ function JetpackLikesMessageListener( event ) {
 		$container.find( '.likes-text span' ).text( event.total );
 
 		jQuery.each( event.likers, function( i, liker ) {
-			$list.append( '<li class="' + liker.css_class + '"><a href="' + liker.profile_URL + '" class="wpl-liker" rel="nofollow" target="_parent"><img src="' + liker.avatar_URL + '" alt="' + liker.name + '" width="30" height="30" style="padding-right: 3px;" /></a></li>');
+			var element = jQuery( '<li><a><img /></a></li>' );
+			element.addClass( liker.css_class );
+
+			element.find( 'a' ).
+				attr({
+					href: liker.profile_URL,
+					rel: 'nofollow',
+					target: '_parent'
+				}).
+				addClass( 'wpl-liker' );
+
+			element.find( 'img' ).
+				attr({
+					src: liker.avatar_URL,
+					alt: liker.name
+				}).
+				css({
+					width: '30px',
+					height: '30px',
+					paddingRight: '3px'
+				});
+
+			$list.append( element );
 		} );
 
 		offset = jQuery( '[name=\'' + event.parent + '\']' ).offset();
