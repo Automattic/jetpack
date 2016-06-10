@@ -182,7 +182,12 @@ class Jetpack_SSO {
 			return;
 		}
 
-		wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
+		if ( is_rtl() ) {
+			wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login-rtl.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
+		} else {
+			wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
+		}
+
 		wp_enqueue_script( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
 	}
 
@@ -838,9 +843,10 @@ class Jetpack_SSO {
 			: 'jetpack-sso button';
 
 		return sprintf(
-			'<a rel="nofollow" href="%1$s" class="%2$s">%3$s</a>',
+			'<a rel="nofollow" href="%1$s" class="%2$s"><span>%3$s %4$s</span></a>',
 			esc_url( $url ),
 			$classes,
+			'<span class="genericon genericon-wordpress"></span>',
 			esc_html__( 'Log in with WordPress.com', 'jetpack' )
 		);
 	}
