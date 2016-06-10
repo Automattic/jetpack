@@ -1,5 +1,7 @@
 <?php
 
+if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
+
 /**
  * A collection of helper functions used in the SSO module.
  *
@@ -106,3 +108,5 @@ class Jetpack_SSO_Helpers {
 		return (bool) apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false );
 	}
 }
+
+endif;
