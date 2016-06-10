@@ -75,6 +75,9 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
  *
  * The new style is now:
  * [dailymotion id=x8oma9 title=2 user=3 video=4]
+ *
+ * Supported parameters for player customization: weight, height
+ *
  * @todo: Update code to sniff for iframe embeds and convert those to shortcodes.
  *
  * @param array $atts
@@ -104,13 +107,23 @@ function dailymotion_shortcode( $atts ) {
 		return '<!--Dailymotion error: bad or missing ID-->';
 	}
 
-	if ( ! empty( $content_width ) ) {
-		$width = min( 425, intval( $content_width ) );
-	} else {
-		$width = 425;
+	//set width and height using provided parameters if any
+	$width = ( isset($atts['width']) ? abs( intval( $atts['width'] ) ) : 0 );
+	$height = ( isset($atts['height']) ? abs( intval( $atts['height'] ) ) : 0 ) ;
+
+	if ( ! $width && ! $height) {
+		if ( ! empty( $content_width ) ) {
+			$width = min( 425, intval( $content_width ) );
+		} else {
+			$width = 425;
+		}
+		$height = ( 425 == $width ) ? 334 : ( $width / 425 ) * 334;
+	} elseif ( ! $height ) {
+		$height = ( 425 == $width ) ? 334 : ( $width / 425 ) * 334;
+	} elseif ( ! $width ) {
+		$width = ( $height / 334 ) * 425;
 	}
 
-	$height = ( 425 == $width ) ? 334 : ( $width / 425 ) * 334;
 	$id     = urlencode( $id );
 
 	if ( preg_match( '/^[A-Za-z0-9]+$/', $id ) ) {
