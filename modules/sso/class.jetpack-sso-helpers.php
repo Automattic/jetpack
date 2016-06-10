@@ -1,11 +1,15 @@
 <?php
 
+if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
+
+/**
+ * A collection of helper functions used in the SSO module.
+ *
+ * @since 4.1.0
+ */
 class Jetpack_SSO_Helpers {
 	/**
 	 * Determine if the login form should be hidden or not
-	 *
-	 * Method is private only because it is only used in this class so far.
-	 * Feel free to change it later
 	 *
 	 * @return bool
 	 **/
@@ -22,6 +26,12 @@ class Jetpack_SSO_Helpers {
 		return (bool) apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form', false ) );
 	}
 
+	/**
+	 * Returns a boolean value for whether logging in by matching the WordPress.com user email to a
+	 * Jetpack site user's email is allowed.
+	 *
+	 * @return bool
+	 */
 	static function match_by_email() {
 		$match_by_email = ( 1 == get_option( 'jetpack_sso_match_by_email', true ) ) ? true: false;
 		$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : $match_by_email;
@@ -38,6 +48,12 @@ class Jetpack_SSO_Helpers {
 		return (bool) apply_filters( 'jetpack_sso_match_by_email', $match_by_email );
 	}
 
+	/**
+	 * Returns a boolean for whether users are allowed to register on the Jetpack site with SSO,
+	 * even though the site disallows normal registrations.
+	 *
+	 * @return bool
+	 */
 	static function new_user_override() {
 		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
 
@@ -73,6 +89,12 @@ class Jetpack_SSO_Helpers {
 		return (bool) apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step', false ) );
 	}
 
+	/**
+	 * Returns a boolean for whether a user that is attempting to log in will be automatically
+	 * redirected to WordPress.com to begin the SSO flow.
+	 *
+	 * @return bool
+	 */
 	static function bypass_login_forward_wpcom() {
 		/**
 		 * Redirect the site's log in form to WordPress.com's log in form.
@@ -86,3 +108,5 @@ class Jetpack_SSO_Helpers {
 		return (bool) apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false );
 	}
 }
+
+endif;
