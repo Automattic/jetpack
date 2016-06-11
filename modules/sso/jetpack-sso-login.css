@@ -4,6 +4,15 @@
 	padding-bottom: 92px;
 }
 
+.message {
+	margin-top: 20px;
+}
+
+#login .message:first-child,
+#login h1 + .message {
+	margin-top: 0;
+}
+
 .jetpack-sso-repositioned #loginform {
 	padding-bottom: 26px;
 }
