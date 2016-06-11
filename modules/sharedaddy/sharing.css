@@ -77,7 +77,6 @@ body.highlander-dark h3.sd-title:before {
 .sd-social-official .sd-content>ul>li .digg_button >a {		/* official Digg button no longer works, needs cleaning */
 	text-decoration: none !important;
 	display: inline-block;
-	margin: 0 5px 5px 0;
 	font-size: 12px;
 	font-family: "Open Sans", sans-serif;
 	font-weight: normal;
@@ -182,7 +181,7 @@ body.highlander-dark h3.sd-title:before {
 }
 
 .sd-content ul li {
-	margin: 0 !important;
+	margin: 0 5px 5px 0;
 	padding: 0;
 }
 
