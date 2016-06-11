@@ -39,8 +39,8 @@ jQuery( document ).ready( function( $ ) {
 
 	toggleSSO.on( 'click', function( e ) {
 		e.preventDefault();
-		body.toggleClass( 'jetpack-sso-body' );
-		if ( ! body.hasClass( 'jetpack-sso-body' ) ) {
+		body.toggleClass( 'jetpack-sso-form-display' );
+		if ( ! body.hasClass( 'jetpack-sso-form-display' ) ) {
 			userLogin.focus();
 		}
 	} );

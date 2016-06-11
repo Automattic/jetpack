@@ -222,7 +222,7 @@ class Jetpack_SSO {
 			return $classes;
 		}
 
-		$classes[] = 'jetpack-sso-body';
+		$classes[] = 'jetpack-sso-form-display';
 		return $classes;
 	}
 

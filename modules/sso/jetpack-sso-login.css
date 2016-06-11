@@ -28,8 +28,8 @@
 	display: none;
 }
 
-.jetpack-sso-body #jetpack-sso-wrap__action,
-.jetpack-sso-body #jetpack-sso-wrap__user {
+.jetpack-sso-form-display #jetpack-sso-wrap__action,
+.jetpack-sso-form-display #jetpack-sso-wrap__user {
 	display: block;
 }
 
@@ -51,7 +51,7 @@
 	margin-right: 0;
 }
 
-.jetpack-sso-body #jetpack-sso-wrap {
+.jetpack-sso-form-display #jetpack-sso-wrap {
 	position: relative;
 		bottom: auto;
 	padding: 0;
@@ -76,26 +76,26 @@
 	display: none;
 }
 
-.jetpack-sso-body #jetpack-sso-wrap .jetpack-sso-toggle.wpcom {
+.jetpack-sso-form-display #jetpack-sso-wrap .jetpack-sso-toggle.wpcom {
 	display: block;
 }
 
 
-.jetpack-sso-body #jetpack-sso-wrap .jetpack-sso-toggle.default {
+.jetpack-sso-form-display #jetpack-sso-wrap .jetpack-sso-toggle.default {
 	display: none;
 }
 
 
-.jetpack-sso-body #loginform > p,
-.jetpack-sso-body #loginform > div {
+.jetpack-sso-form-display #loginform > p,
+.jetpack-sso-form-display #loginform > div {
 	display: none;
 }
 
-.jetpack-sso-body #loginform #jetpack-sso-wrap {
+.jetpack-sso-form-display #loginform #jetpack-sso-wrap {
 	display: block;
 }
 
-.jetpack-sso-body #loginform {
+.jetpack-sso-form-display #loginform {
 	padding: 26px 24px;
 }
 
@@ -170,10 +170,10 @@
 	margin-bottom: 16px;
 }
 
-.jetpack-sso-body #nav {
+.jetpack-sso-form-display #nav {
 	display: none;
 }
 
-.jetpack-sso-body #backtoblog {
+.jetpack-sso-form-display #backtoblog {
 	margin: 24px 0 0;
 }
