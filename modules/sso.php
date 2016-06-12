@@ -217,6 +217,9 @@ class Jetpack_SSO {
 			return $classes;
 		}
 
+		//Always add the jetpack-sso class so that we can add SSO specific styling even when the SSO form isn't being displayed.
+		$classes[] = 'jetpack-sso';
+
 		// If jetpack-sso-default-form, show the default login form.
 		if ( isset( $_GET['jetpack-sso-default-form'] ) && 1 == $_GET['jetpack-sso-default-form'] ) {
 			return $classes;
