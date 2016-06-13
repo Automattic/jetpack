@@ -54,6 +54,7 @@
 
 ### Photon
 
+- Auto-generate additional `srcset` options. To test, check the `srcset` values for each one of your post images after enabling Photon.
 - Avoid PHP notice when Photon arguments are provided as a string, and not as an array. To test, use the `jetpack_photon_pre_args` filter to change the Photon parameters used for images on your site, and make sure it doesn't generate PHP notices:
 
 ```php
