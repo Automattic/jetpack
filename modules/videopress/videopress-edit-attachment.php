@@ -146,7 +146,7 @@ class VideoPress_Edit_Attachment {
 		unset( $fields['url'] );
 		unset( $fields['post_content'] );
 
-		if ( 'done' === $info->fmts_ogg ) {
+		if ( isset( $info->files_status['std']['ogg'] ) && 'done' ===  $info->files_status['std']['ogg'] ) {
 			$v_name  = preg_replace( '/\.\w+/', '', basename( $info->path ) );
 			$video_name = $v_name . '_fmt1.ogv';
 			$ogg_url  = video_cdn_file_url( $info->guid, $video_name );
@@ -196,10 +196,10 @@ class VideoPress_Edit_Attachment {
 		$info = (object) $meta['videopress'];
 
 		$formats = array(
-			'fmt_std'  => 'Standard',
-			'fmt_dvd'  => 'DVD',
-			'fmts_ogg' => 'Ogg Vorbis',
-			'fmt_hd'   => 'High Definition',
+			'Standard' => isset( $info->files_status ) ? $info->files_status['std']['mp4'] : null,
+			'Ogg Vorbis' => isset( $info->files_status ) ? $info->files_status['std']['ogg'] : null,
+			'DVD' => isset( $info->files_status ) ? $info->files_status['dvd'] : null,
+			'HD' => isset( $info->files_status ) ? $info->files_status['hd'] : null,
 		);
 
 		$embed = "[wpvideo {$info->guid}]";
@@ -207,19 +207,21 @@ class VideoPress_Edit_Attachment {
 		$shortcode = '<input type="text" id="plugin-embed" readonly="readonly" style="width:180px;" value="' . esc_attr($embed) . '" onclick="this.focus();this.select();" />';
 
 		$trans_status = '';
-		foreach ( $formats as $format => $name ) {
-			$trans_status .= '<strong>' . $name . ':</strong> ' . ( 'done' === $info->$format  ? 'Done' : 'Processing' ) . '<br>';
+		foreach ( $formats as $name => $status) {
+			$trans_status .= '<strong>' . $name . ':</strong> ' . ( 'done' === $status  ? 'Done' : 'Processing' ) . '<br>';
 		}
 
 		$nonce = wp_create_nonce( 'videopress-update-transcoding-status' );
 
 		$url = 'empty';
-		if ( isset( $info->url ) ) {
+		if ( ! empty( $info->url ) ) {
 			$url = "<a href=\"{$info->url}\">{$info->url}</a>";
 		}
 
+
+
 		$poster = 'empty';
-		if ( isset( $info->poster ) ) {
+		if ( ! empty( $info->poster ) ) {
 			$poster = "<img src=\"{$info->poster}\" width=\"175px\">";
 		}
 
