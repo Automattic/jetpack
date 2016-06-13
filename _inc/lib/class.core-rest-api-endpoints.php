@@ -908,7 +908,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			} else {
 				$result['failed_modules'][] = $module_slug;
 			}
-			Jetpack::state( 'message', 'no_message' );
 		}
 
 		// Set the default sharing buttons and set to display on posts if none have been set.
