@@ -52,6 +52,7 @@ function jeherve_custom_protect_timeout() {
 }
 add_filter( 'jetpack_protect_connect_timeout', 'jeherve_custom_protect_timeout' );
 ```
+- We fixed an issue where the Protect math form didn't show up on frontend login forms. To check this, install a plugin that includes a frontend log in form, like bbPress.
 
 ### Spelling and Grammar
 

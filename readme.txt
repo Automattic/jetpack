@@ -79,12 +79,13 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 Bug Fixes:
 
-* Comments: fixes an issue where the comment form language was always set in English, instead of the language used on the site.
+* Comments: fix an issue where the comment form language was always set in English, instead of the language used on the site.
 * Custom CSS: properly handle slashes and quotes when saving Custom CSS.
 * Contact Form: avoid PHP notices that may appear in specific cases when submitting a contact form.
 * Manage: use Jetpack native function to get available updates.
 * Open Graph: do not add Open Graph Meta Tags when the SEO Framework plugin is already active.
 * Open Graph: grab images from Slideshows.
+* Protect: fix an issue where the Protect math form didn't show up on frontend login forms.
 * Sharing: fix sharing count when using unofficial buttons.
 * Sitemaps: avoid any errors when special characters are used in the sitemap stylesheet.
 * Spelling and Grammar: fix mismatching HTML tags.
