@@ -87,6 +87,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'page_on_front',
 		'page_for_posts',
 		'headstart',
+		'headstart_is_fresh',
 		'ak_vp_bundle_enabled',
 		'seo_meta_description',
 		'verification_services_codes',
@@ -428,6 +429,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'headstart' :
 					$options[ $key ] = $site->is_headstart();
+					break;
+				case 'headstart_is_fresh' :
+					$options[ $key ] = $site->is_headstart_fresh();
 					break;
 				case 'ak_vp_bundle_enabled' :
 					$options[ $key ] = $site->get_ak_vp_bundle_enabled();
