@@ -86,6 +86,7 @@ Bug Fixes:
 * Manage: use Jetpack native function to get available updates.
 * Open Graph: do not add Open Graph Meta Tags when the SEO Framework plugin is already active.
 * Open Graph: grab images from Slideshows.
+* Open Graph: make sure Open Graph Meta tags are set properly regardless of Static Front Page settings.
 * Photon: avoid PHP notice when Photon arguments are provided as a string, and not as an array.
 * Protect: fix an issue where the Protect math form didn't show up on frontend login forms.
 * Sharing: fix sharing count when using unofficial buttons.
