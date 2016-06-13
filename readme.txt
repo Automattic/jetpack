@@ -83,12 +83,14 @@ Bug Fixes:
 * Comments: fix an issue where the comment form language was always set in English, instead of the language used on the site.
 * Custom CSS: properly handle slashes and quotes when saving Custom CSS.
 * Contact Form: avoid PHP notices that may appear in specific cases when submitting a contact form.
+* Internationalization: avoid Fatal Errors when both Jetpack and GlotPress are active.
 * Manage: use Jetpack native function to get available updates.
 * Open Graph: do not add Open Graph Meta Tags when the SEO Framework plugin is already active.
 * Open Graph: grab images from Slideshows.
 * Open Graph: make sure Open Graph Meta tags are set properly regardless of Static Front Page settings.
 * Photon: avoid PHP notice when Photon arguments are provided as a string, and not as an array.
 * Protect: fix an issue where the Protect math form didn't show up on frontend login forms.
+* Related Posts: avoid notices in WooCommerce setup screen.
 * Sharing: fix sharing count when using unofficial buttons.
 * Sitemaps: avoid any errors when special characters are used in the sitemap stylesheet.
 * Spelling and Grammar: fix mismatching HTML tags.
@@ -98,6 +100,7 @@ Bug Fixes:
 Enhancements:
 
 * Connection Process: improvements to the connection process when linking a Jetpack site to WordPress.com.
+* Photon: auto-generate additional srcset options, to improve responsive image support.
 * Protect: add a new filter, `jetpack_protect_connect_timeout`, to allow customization of the Protect timeout.
 * Staging Sites: add constant for sites hosted with Kinsta.
 
