@@ -1,5 +1,9 @@
 ## 4.0.4
 
+### Carousel
+
+- Ampersands in image titles and image descriptions should be displayed properly in the Carousel view. To test this, try inserting Ampersands in your gallery image titles and descriptions.
+
 ### Comments
 
 - When using the Comments module on a site where the language is set to anything other than English, make sure the comment form uses the right language.
