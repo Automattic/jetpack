@@ -85,7 +85,42 @@ class VideoPress_Edit_Attachment {
 			$values['display_embed'] = 'on' === $display_embed  ? 1 : 0;
 		}
 
+		$args = array(
+			'method'  => 'POST',
+		);
+
+		$endpoint = "videos/{$meta['videopress']['guid']}";
+		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args, $values );
+
+		if ( is_wp_error( $result ) ) {
+			$post['errors']['videopress']['errors'][] = __( 'There was an issue saving your updates to the VideoPress service. Please try again later.' );
+			return $post;
+		}
+
+		$response = json_decode( $result['body'], true );
+
+		if ( 'true' !== $response ) {
+			return $post;
+		}
+
 		return $post;
+	}
+
+
+	/**
+	 * Get the upload api path.
+	 *
+	 * @param string $guid
+	 * @return string
+	 */
+	public function make_video_api_path( $guid ) {
+		return sprintf(
+			'%s://%s/rest/v%s/videos/%s',
+			'https',
+			'public-api.wordpress.com', //JETPACK__WPCOM_JSON_API_HOST,
+			Jetpack_Client::WPCOM_JSON_API_VERSION,
+			$guid
+		);
 	}
 
 
@@ -176,17 +211,45 @@ class VideoPress_Edit_Attachment {
 			$trans_status .= '<strong>' . $name . ':</strong> ' . ( 'done' === $info->$format  ? 'Done' : 'Processing' ) . '<br>';
 		}
 
+		$nonce = wp_create_nonce( 'videopress-update-transcoding-status' );
+
+		$url = 'empty';
+		if ( isset( $info->url ) ) {
+			$url = "<a href=\"{$info->url}\">{$info->url}</a>";
+		}
+
+		$poster = 'empty';
+		if ( isset( $info->poster ) ) {
+			$poster = "<img src=\"{$info->poster}\" width=\"175px\">";
+		}
+
 		$html = <<< HTML
-<dl>
-<dt>Shortcode:</dt>
-<dd>{$shortcode}</dd>
-<dt>Url:</dt>
-<dd><a href="{$info->url}">{$info->url}</a></dd>
-<dt>Poster:</dt>
-<dd><img src="{$info->poster}" width="175px"></dd>
-<dt>Transcoding Status:</dt>
-<dd>{$trans_status}</dd>
-</dl>
+
+<div class="misc-pub-section misc-pub-shortcode">Shortcode:</div>
+<strong>{$shortcode}</strong>
+<div class="misc-pub-section misc-pub-url">Url:</div>
+<strong>{$url}</strong>
+<div class="misc-pub-section misc-pub-poster">Poster:</div>
+<strong>{$poster}</strong>
+<div class="misc-pub-section misc-pub-status">Status (<a href="javascript:;" id="videopress-update-transcoding-status">update</a>):</div>
+<strong id="videopress-transcoding-status">{$trans_status}</strong>
+
+
+<script>
+	jQuery( function($) {
+		$( '#videopress-update-transcoding-status' ).on( "click", function() {
+			jQuery.ajax( {
+				type: 'post',
+				url: 'admin-ajax.php',
+				data: { 
+					action: 'videopress-update-transcoding-status',
+					post_id: '{$post_id}',
+					_ajax_nonce: '{$nonce}' 
+				}
+			});
+		} );
+	} );
+</script>
 HTML;
 
 		echo $html;

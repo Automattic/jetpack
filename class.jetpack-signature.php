@@ -77,6 +77,18 @@ class Jetpack_Signature {
 			return new Jetpack_Error( 'token_mismatch', 'Incorrect token' );
 		}
 
+		// Convert the $_POST to the body, if the body was empty. This is how arrays are hashed
+		// and encoded on the Jetpack side.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( is_null( $body ) && is_array( $_POST ) && count( $_POST ) > 0 ) {
+				$body = $_POST;
+			}
+		}
+
+		if ( is_array( $body ) ) {
+			$body = json_encode( $body );
+		}
+
 		$required_parameters = array( 'token', 'timestamp', 'nonce', 'method', 'url' );
 		if ( !is_null( $body ) ) {
 			$required_parameters[] = 'body_hash';
