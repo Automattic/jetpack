@@ -47,6 +47,17 @@
 - Do not add Jetpack Open Graph Meta Tags when [the SEO Framework plugin](https://wordpress.org/plugins/autodescription/) is already active.
 - Grab images from Slideshows. To test this, enable the Shortcodes module on your site, and insert a slideshow into a new post. The images from the slideshow should appear in the Open Graph Image Meta tags.
 
+### Photon
+
+- Avoid PHP notice when Photon arguments are provided as a string, and not as an array. To test, use the `jetpack_photon_pre_args` filter to change the Photon parameters used for images on your site, and make sure it doesn't generate PHP notices:
+
+```php
+function jeherve_testing_things_photon() {
+        return 'resize=500,500&filter=grayscale';
+}
+add_filter( 'jetpack_photon_pre_args', 'jeherve_testing_things_photon' );
+```
+
 ### Protect
 
 - New filter: `jetpack_protect_connect_timeout`. You can use it to control the maximum timeout in waiting for a response from Protect servers. Here is how you could use it:
