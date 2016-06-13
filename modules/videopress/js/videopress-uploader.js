@@ -7,15 +7,40 @@ window.wp = window.wp || {};
 			media = wp.media;
 
 		$.extend( Uploader.prototype, {
+
+			/**
+			 * Custom error callback.
+			 *
+			 * Add a new error to the errors collection, so other modules can track
+			 * and display errors. @see wp.Uploader.errors.
+			 *
+			 * @param  {string}        message
+			 * @param  {object}        data
+			 * @param  {plupload.File} file     File that was uploaded.
+			 */
+			error: function( message, data, file ) {
+				if ( file.attachment ) {
+					file.attachment.destroy();
+				}
+
+				var error_msg = {
+					message: message || pluploadL10n.default_error,
+					data:    data,
+					file:    file
+				};
+
+				Uploader.errors.unshift( error_msg );
+			},
+
 			/**
 			 * Initialization routine that allows us to add in more uploader events.
 			 */
 			init: function () {
 				var self = this;
+				self.origOptions = self.origOptions || {};
 
 				this.uploader.bind( 'BeforeUpload', function( up, file ) {
 					if ( typeof file.videopress !== 'undefined' ) {
-						self.origOptions = self.origOptions || {};
 						self.origOptions.url = up.getOption( 'url' );
 						self.origOptions.multipart_params = up.getOption( 'multipart_params' );
 						self.origOptions.file_data_name = up.getOption( 'file_data_name' );
