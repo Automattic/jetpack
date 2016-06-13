@@ -50,6 +50,8 @@ abstract class SAL_Site {
 
 	abstract public function is_redirect();
 
+	abstract public function is_headstart_fresh();
+
 	abstract public function featured_images_enabled();
 
 	abstract public function has_wordads();
