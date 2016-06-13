@@ -63,9 +63,7 @@ abstract class Jetpack_Admin_Page {
 	// Render the page with a common top and bottom part, and page specific
 	// content
 	function render() {
-//		$this->admin_page_top();
 		$this->page_render();
-//		$this->admin_page_bottom();
 	}
 
 	function admin_help() {

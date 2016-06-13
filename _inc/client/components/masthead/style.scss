@@ -1,6 +1,7 @@
 .jp-masthead {
 	background-color: $green-secondary;
 	text-align: center;
+	display: block !important; // Hack for showing what is hidden in _inc/header.php
 
 	@media (max-width: rem( 720px ) ) {
 		padding: 0 rem( 20px );

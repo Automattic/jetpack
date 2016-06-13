@@ -53,36 +53,34 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return $jp_menu_order;
 	}
 
-	// Render the configuration page for the module if it exists and an error
-	// screen if the module is not configurable
-	// @todo remove when real settings are in place
-	function render_nojs_configurable() {
+	function render_old_admin(  ) {
 		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
-		echo '<div class="clouds-sm"></div>';
-		echo '<div class="wrap configure-module">';
-
-		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
-		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
-			Jetpack::admin_screen_configure_module( $module_name );
-		} else {
-			echo '<h2>' . esc_html__( 'Error, bad module.', 'jetpack' ) . '</h2>';
-		}
-
-		echo '</div><!-- /wrap -->';
+		include_once( 'jetpack-admin-unsupported.php' );
+		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
 	}
 
-	function page_render() {
-		// Handle redirects to configuration pages
-		if ( ! empty( $_GET['configure'] ) ) {
-			return $this->render_nojs_configurable();
-		}
-		?>
-		<?php
-			/** This action is already documented in views/admin/admin-page.php */
-			do_action( 'jetpack_notices' );
-		?>
-		<div id="jp-plugin-container"></div>
+	function maybe_render_nojs() { ?>
+		<div id="show-if-no-js" style="display: block;">
+			<div id="hide-for-now" style="display: none;" >
+				<?php $this->render_old_admin(); ?>
+			</div>
+		</div>
+		<script>document.getElementById( 'show-if-no-js' ).style.display='none';</script>
 	<?php }
+
+	function page_render() {
+		if ( wp_version_too_old() || isset( $_GET[ 'configure' ] ) ) {
+			$this->render_old_admin();
+			return;
+		} ?>
+
+		<div id="jp-plugin-container" class="hide-if-no-js"></div>
+
+		<?php $this->maybe_render_nojs();
+
+		/** This action is already documented in views/admin/admin-page.php */
+		do_action( 'jetpack_notices' );
+	}
 
 	function get_i18n_data() {
 		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . '/languages/json/jetpack-' . get_locale() . '.json' );
@@ -113,6 +111,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
+		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
+		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), time() );
+
+		if ( wp_version_too_old() ) {
+			return;
+		}
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
 		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
@@ -161,6 +165,19 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			),
 		) );
 	}
+}
+
+/*
+ * We will render a "basic", non-js page if any of the following:
+ *
+ * - WP version <= 4.4
+ * - JavaScript disabled
+ *
+ * @return bool
+ */
+function wp_version_too_old() {
+	global $wp_version;
+	return version_compare( $wp_version, '4.4-z', '<=' );
 }
 
 function build_initial_stats_shape() {

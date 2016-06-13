@@ -59,7 +59,9 @@
 
 .table-bordered.jetpack-modules {
 	border: none;
+	margin-top: 33px;
 	margin-bottom: 0;
+
 	tr.jetpack-module {
 
 		th {
@@ -218,7 +220,6 @@
 		float: left;
 		margin: 0;
 		padding: 0;
-		width: 63%;
 
 		table {
 			width: 100%;
