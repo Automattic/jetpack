@@ -79,7 +79,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 Bug Fixes:
 
-* Carousel: Make sure special characters like & are properly displayed in image titles and descriptions.
+* Carousel: make sure special characters like & are properly displayed in image titles and descriptions.
+* Carousel: avoid a JavaScript error when visiting a gallery page including a hash in the URL.
 * Comments: fix an issue where the comment form language was always set in English, instead of the language used on the site.
 * Custom CSS: properly handle slashes and quotes when saving Custom CSS.
 * Contact Form: avoid PHP notices that may appear in specific cases when submitting a contact form.

@@ -3,6 +3,10 @@
 ### Carousel
 
 - Ampersands in image titles and image descriptions should be displayed properly in the Carousel view. To test this, try inserting Ampersands in your gallery image titles and descriptions.
+- We fixed a JavaScript error happening when visiting a gallery page including a hash in the URL. To test this scenario, follow these steps:
+	1. Create a gallery in one of your posts.
+	2. Load that post in an incognito window, and add `#test` to the end of the URL.
+	3. No JavaScript error should appear in your browser console.
 
 ### Comments
 
