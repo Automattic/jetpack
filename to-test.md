@@ -46,6 +46,14 @@
     4. Go through the steps to connect your site.
     5. Go back to your site's dashboard, and make sure the Manage module was activated.
 
+### Multisite
+
+- Make sure Jetpack Connection management works in the Jetpack menu in Network Admin. To test this, you'll need a Multisite network. Then, try the following combinations:
+	1. When Jetpack is network activated.
+	2. When Jetpack isn't network activated, and is only activated on a few sites of the network.
+In all cases, the site list in the Network Admin Jetpack Menu should reflect the Jetpack Status of each site of the network.
+
+
 ### Open Graph
 
 - Do not add Jetpack Open Graph Meta Tags when [the SEO Framework plugin](https://wordpress.org/plugins/autodescription/) is already active.

@@ -103,6 +103,7 @@ Bug Fixes:
 Enhancements:
 
 * Connection Process: improvements to the connection process when linking a Jetpack site to WordPress.com.
+* Multisite: improve Jetpack Connection management in Jetpack's Network Admin menu.
 * Photon: auto-generate additional srcset options, to improve responsive image support.
 * Protect: add a new filter, `jetpack_protect_connect_timeout`, to allow customization of the Protect timeout.
 * Staging Sites: add constant for sites hosted with Kinsta.
