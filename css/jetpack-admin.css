@@ -173,7 +173,7 @@ button,
 input,
 select,
 textarea {
-  color: #222;
+  color: #222222;
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.4;
@@ -251,10 +251,12 @@ img {
     -webkit-transform: scale(0.3);
     transform: scale(0.3);
   }
+
   60% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -266,10 +268,12 @@ img {
     -webkit-transform: scale(0.3);
     transform: scale(0.3);
   }
+
   60% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -280,14 +284,17 @@ img {
     -webkit-transform: scale(1);
     transform: scale(1);
   }
+
   20% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   60% {
     -webkit-transform: scale(0.95);
     transform: scale(0.95);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -298,14 +305,17 @@ img {
     -webkit-transform: scale(1);
     transform: scale(1);
   }
+
   20% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   60% {
     -webkit-transform: scale(0.95);
     transform: scale(0.95);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -316,6 +326,7 @@ img {
     -webkit-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
+
   100% {
     -webkit-transform: translate3d(680px, -680px, 0px);
     transform: translate3d(680px, -680px, 0px);
@@ -326,6 +337,7 @@ img {
     -webkit-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
+
   100% {
     -webkit-transform: translate3d(680px, -680px, 0px);
     transform: translate3d(680px, -680px, 0px);
@@ -1834,7 +1846,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   opacity: 0.6;
   position: absolute;
   top: 23px;
-  top: calc( 50% - 22px );
+  top: calc(50% - 22px );
 }
 @media (max-width: 530px) {
   .jetpack-message .squeezer {
@@ -2526,7 +2538,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   font-size: 14px;
 }
 .configure-module p.success, .configure-module p.error {
-  color: #fff;
+  color: white;
   padding: 10px;
 }
 .configure-module p.success {
@@ -2949,8 +2961,8 @@ a.what-is-primary {
 }
 
 .jp-card {
-  background: #fff;
-  border: 1px #D9D9D9 solid;
+  background: white;
+  border: 1px #d9d9d9 solid;
   text-align: center;
   margin-bottom: 2.85714em;
 }
@@ -2969,7 +2981,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
   background: #f4f4f4;
 }
 .feature-container .j-int {
-  background: #fff;
+  background: white;
   padding: 0;
 }
 .feature-container .first-header {
@@ -2977,7 +2989,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 }
 @media (max-width: 900px) {
   .feature-container .first-header {
-    border-bottom: 1px #D9D9D9 solid;
+    border-bottom: 1px #d9d9d9 solid;
     background-image: none;
   }
   .feature-container .first-header .j-header-img {
@@ -2986,7 +2998,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 }
 @media (min-width: 900px) {
   .feature-container .first-header {
-    background: url("../images/connection-landing/stars-right.svg") no-repeat, url("../images/connection-landing/stars-left.svg") no-repeat, #fff;
+    background: url("../images/connection-landing/stars-right.svg") no-repeat, url("../images/connection-landing/stars-left.svg") no-repeat, white;
     background-position: 90% 50%, 10% 50%;
     background-size: 100px, 125px;
   }
@@ -3054,22 +3066,18 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 .three-feature {
   margin: 1.42857em 0;
   padding: 0 1.42857em;
-  display: -webkit-flex;
   display: -moz-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: row;
   -moz-box-orient: horizontal;
   -moz-box-direction: normal;
   -ms-flex-direction: row;
   flex-direction: row;
-  -webkit-flex-wrap: nowrap;
   -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
 }
 @media (max-width: 782px) {
   .three-feature {
-    -webkit-flex-wrap: wrap;
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
   }
@@ -3080,7 +3088,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
   }
 }
 .three-feature .j-col {
-  border: 1px #D9D9D9 solid;
+  border: 1px #d9d9d9 solid;
   text-align: left;
   padding: 0;
   background: #f9f9f9;
@@ -3102,7 +3110,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 }
 @media (max-width: 782px) {
   .three-feature .j-col:nth-of-type(2) {
-    border: 1px #D9D9D9 solid;
+    border: 1px #d9d9d9 solid;
   }
 }
 @media (max-width: 530px) {
@@ -3125,8 +3133,8 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
   }
 }
 .three-feature .feature-img {
-  background: #fff;
-  border-bottom: 1px #D9D9D9 solid;
+  background: white;
+  border-bottom: 1px #d9d9d9 solid;
   text-align: center;
 }
 .three-feature .feature-img img {
@@ -3209,8 +3217,8 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 }
 
 .jump-start-area {
-  background: #fff;
-  border: 1px #D9D9D9 solid;
+  background: white;
+  border: 1px #d9d9d9 solid;
   text-align: center;
   padding: 0 1.42857em;
 }
@@ -3295,7 +3303,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 
 .nux-intro h3 {
   background: #81a844;
-  color: #fff;
+  color: white;
   font-weight: 600;
   padding: .75em;
   margin: 0;
@@ -3726,5 +3734,3 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 .nav-horizontal:after, .features:after, .modules:after, .load-more:after {
   clear: both;
 }
-
-/*# sourceMappingURL=jetpack-admin.css.map */
