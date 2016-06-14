@@ -36,20 +36,29 @@ i18n.setLocale( Initial_State.locale );
 
 const history = syncHistoryWithStore( hashHistory, store );
 
-ReactDOM.render(
-	<div>
-		<Provider store={ store }>
-			<Router history={ history }>
-				<Route path='/' component={ Main } />
-				<Route path='/dashboard' component={ Main } />
-				<Route path='/engagement' component={ Main } />
-				<Route path='/security' component={ Main } />
-				<Route path='/health' component={ Main } />
-				<Route path='/more' component={ Main } />
-				<Route path='/general' component={ Main } />
-			</Router>
-		</Provider>
+render();
 
-	</div>,
-	document.getElementById( 'jp-plugin-container' )
-);
+function render() {
+	const container = document.getElementById( 'jp-plugin-container' );
+
+	if ( container === null ) {
+		return;
+	}
+
+	ReactDOM.render(
+		<div>
+			<Provider store={ store }>
+				<Router history={ history }>
+					<Route path='/' component={ Main } />
+					<Route path='/dashboard' component={ Main } />
+					<Route path='/engagement' component={ Main } />
+					<Route path='/security' component={ Main } />
+					<Route path='/health' component={ Main } />
+					<Route path='/more' component={ Main } />
+					<Route path='/general' component={ Main } />
+				</Router>
+			</Provider>
+		</div>,
+		container
+	);
+}
