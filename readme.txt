@@ -96,6 +96,7 @@ Bug Fixes:
 * Sitemaps: avoid any errors when special characters are used in the sitemap stylesheet.
 * Spelling and Grammar: fix mismatching HTML tags.
 * Support: enable the in-dashboard contact form again, to allow everyone to contact the support team without leaving their site.
+* Twitter Cards: make sure they can be removed with the `jetpack_disable_twitter_cards` filter.
 * Widgets: fix JavaScript errors in the customizer.
 
 Enhancements:

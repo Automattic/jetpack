@@ -51,10 +51,11 @@
 - Do not add Jetpack Open Graph Meta Tags when [the SEO Framework plugin](https://wordpress.org/plugins/autodescription/) is already active.
 - Grab images from Slideshows. To test this, enable the Shortcodes module on your site, and insert a slideshow into a new post. The images from the slideshow should appear in the Open Graph Image Meta tags.
 - Make sure Open Graph Meta tags are set properly regardless of Static Front Page settings. To test, follow these steps:
-    1. Go to Appearance > Customize, and set "Front Page Displays" to a static page and set two pages as the front and the posts pages.
+	1. Go to Appearance > Customize, and set "Front Page Displays" to a static page and set two pages as the front and the posts pages.
 	2. Save your changes.
 	3. Change the Front Page Displays to Latest posts and save. The dropdown for the pages for front and posts remain set, but greyed.
 	4. Visit the home page and check the Open Graph tags. They should match the home page, not the static page that was previously set.
+- Twitter Cards: make sure they can be removed with the `jetpack_disable_twitter_cards` filter. To test this, try activating a plugin like [JM Twitter Cards](https://wordpress.org/plugins/jm-twitter-cards/). Jetpack's Twitter Cards shouldn't be added to posts. If that works, deacctivate the plugin, and then try to add `add_filter( 'jetpack_disable_twitter_cards', '__return_true', 99 );` to a functionality plugin. It should also disable Jetpack's Twitter Cards.
 
 ### Photon
 
