@@ -1,6 +1,9 @@
 /* global tinyMCE, vpEditorView */
 (function( $, wp, vpEditorView ){
 	wp.mce = wp.mce || {};
+	if ( 'undefined' === typeof wp.mce.views ) {
+		return;
+	}
 	wp.mce.videopress_wp_view_renderer = {
 		shortcode_string : 'videopress',
 		shortcode_data : {},
