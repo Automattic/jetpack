@@ -24,6 +24,14 @@
 	text-align: center;
 	color: darken( $gray, 10% );
 
+	&:focus {
+		outline: 0;
+		box-shadow: none;
+
+		.gridicon {
+			color: $blue-wordpress;
+		}
+	}
 	.gridicon {
 		position: relative;
 		top: 1px;
