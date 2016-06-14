@@ -97,6 +97,7 @@ Bug Fixes:
 * Spelling and Grammar: fix mismatching HTML tags.
 * Support: enable the in-dashboard contact form again, to allow everyone to contact the support team without leaving their site.
 * Twitter Cards: make sure they can be removed with the `jetpack_disable_twitter_cards` filter.
+* VideoPress: avoid JavaScript errors in the Post Editor when editing post types that do not support the Core Media editor.
 * Widgets: fix JavaScript errors in the customizer.
 
 Enhancements:

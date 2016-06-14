@@ -99,10 +99,14 @@ add_filter( 'jetpack_protect_connect_timeout', 'jeherve_custom_protect_timeout' 
 
 - You should be able to contact the Jetpack support team right from your dashboard, thanks to a contact form appearing under Jetpack > Debug. The debug link is available at the bottom of each Jetpack menu page.
 
-#### Widgets
+### Widgets
 
 - Fix JavaScript errors in the customizer. To test this change, follow these steps:
     1. Go to Jetpack > Settings, and enable the Extra Sidebar Widgets module.
     2. Go to Appearance > Customize.
     3. Make a few changes to your theme, and then head over to the Widgets section.
     4. Make changes to widget settings, and make sure you don't see any JavaScript error in your browser console.
+
+### VideoPress
+
+- We've added a fix to avoid JavaScript errors in the Post Editor when editing post types that do not support the Core Media editor. To test this, activate a plugin that enables Custom Post Types on your site. A plugin like [CampTix](https://wordpress.org/plugins/camptix/) is a good example. Once you've done so, go to Tickets > Tickets > Add New, and make sure there are no JavaScript errors on the page.
