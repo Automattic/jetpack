@@ -1660,7 +1660,7 @@ class Jetpack {
 		 *
 		 * @param bool true Should Twitter Card Meta tags be disabled. Default to true.
 		 */
-		if ( apply_filters( 'jetpack_disable_twitter_cards', true ) ) {
+		if ( ! apply_filters( 'jetpack_disable_twitter_cards', false ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 		}
 	}
