@@ -18,6 +18,11 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
+
+		if ( ! $post ) {
+			return false;
+		}
+
 		if ( !empty( $post->post_password ) )
 			return $images;
 
@@ -85,6 +90,11 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
+
+		if ( ! $post ) {
+			return;
+		}
+
 		if ( ! empty( $post->post_password ) ) {
 			return $images;
 		}
