@@ -33,4 +33,11 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 		$updates = $this->server_replica_storage->get_callable( 'updates' );
 		$this->assertEquals( Jetpack::get_updates(), $updates );
 	}
+
+	function test_wp_version_is_synced() {
+		global $wp_version;
+		$this->client->do_sync();
+		$synced_value = $this->server_replica_storage->get_callable( 'wp_version' );
+		$this->assertEquals( $synced_value, $wp_version );
+	}
 }
