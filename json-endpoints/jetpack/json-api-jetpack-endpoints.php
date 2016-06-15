@@ -580,11 +580,11 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
 
-// GET /sites/%s/sync-progress
+// GET /sites/%s/sync/status
 new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 	'description'     => 'Status of the current full sync or the previous full sync',
 	'method'          => 'GET',
-	'path'            => '/sites/%s/sync-status',
+	'path'            => '/sites/%s/sync/status',
 	'stat'            => 'sync-status',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
@@ -597,7 +597,7 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'queue'  => '(array) Count of actions that have been added to the queue',
 		'sent'  => '(array) Count of actions that have been sent',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync-status'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
 ) );
 
 

@@ -16,7 +16,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 }
 
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
-	// GET /sites/%s/sync-status
+	// GET /sites/%s/sync/status
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
