@@ -258,6 +258,18 @@ ENDSQL;
 		return $wpdb->get_var( $query );
 	}
 
+	public function options_checksum() {
+		global $wpdb;
+
+		$options_whitelist = "'" . implode( "', '", Jetpack_Sync_Defaults::$default_options_whitelist ) . "'";
+		$query = <<<ENDSQL
+			SELECT CONV(BIT_XOR(CRC32(CONCAT(option_name,option_value))), 10, 16) FROM $wpdb->options WHERE option_name IN ( $options_whitelist ) 
+ENDSQL;
+
+		return $wpdb->get_var( $query );
+	}
+	
+
 	public function update_option( $option, $value ) {
 		return update_option( $option, $value );
 	}
@@ -549,7 +561,8 @@ ENDSQL;
 	public function checksum_all() {
 		return array(
 			'posts'    => $this->posts_checksum(),
-			'comments' => $this->comments_checksum()
+			'comments' => $this->comments_checksum(),
+			'options' => $this->options_checksum(),
 		);
 	}
 
