@@ -88,6 +88,7 @@ Enhancements:
 * Shortcodes: new Recipes shortcodes and options to create more detailed recipes.
 * SSO: redesign and refactor Jetpack's SSO Module.
 * Support: improve self-help tools available in the Jetpack Debug menu.
+* Widgets: refactor the Contact Info Widget.
 
 = 4.0.4 =
 Release date: June 20th, 2016
