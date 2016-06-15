@@ -75,6 +75,20 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.1 =
+
+Bug Fixes:
+
+Enhancements:
+
+* General: clean up and restyle jetpack related banner notices to match Core notification styles.
+* JSON API: updated several API endpoints to match WordPress.com endpoints.
+* Publicize: new `jetpack_publicize_capability` filter to allow user role restriction to be overridden.
+* Shortcodes: new Untappd shortcode.
+* Shortcodes: new Recipes shortcodes and options to create more detailed recipes.
+* SSO: redesign and refactor Jetpack's SSO Module.
+* Support: improve self-help tools available in the Jetpack Debug menu.
+
 = 4.0.4 =
 Release date: June 20th, 2016
 Release Post: http://wp.me/p1moTy-3eT
