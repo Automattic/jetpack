@@ -24,3 +24,7 @@
 ### Support
 
 - We've improved the self-help tools available in the Jetpack Debug menu. To test, you can go to the Jetpack Menu in your dashboard, scroll down, click on "Debug", and make sure there are no errors on the page or in your logs. You should also be able to use the Contact Form to send debug information to the Jetpack Support team.
+
+### Widgets
+
+- We've refactored the Contact Info Widget to improve performance. To test, try adding and editing options of a Contact Info Widget.
