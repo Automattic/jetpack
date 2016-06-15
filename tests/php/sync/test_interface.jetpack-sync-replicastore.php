@@ -64,6 +64,10 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	function test_all_checksums_match() {
 		$post = self::$factory->post( 5 );
 		$comment = self::$factory->comment( 3, $post->ID );
+		$option_name  = 'blogdescription';
+		$option_value = rand();
+
+		update_option( $option_name, $option_value );
 
 		// create an instance of each type of replicastore
 		$all_replicastores = array();
@@ -81,17 +85,24 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		foreach( $all_replicastores as $replicastore ) {
 			$replicastore->upsert_post( $post );
 			$replicastore->upsert_comment( $comment );
+			$replicastore->update_option( $option_name, $option_value );
 		}
+
+		// just check the option we updated in the replicastores
+		$default_options_whitelist_original = Jetpack_Sync_Defaults::$default_options_whitelist;
+		Jetpack_Sync_Defaults::$default_options_whitelist = array( 'blogdescription' );
 
 		// ensure the checksums are the same
 		$checksums = array_map( array( $this, 'get_all_checksums' ), $all_replicastores );
+		// set the class property back to the original value;
+		Jetpack_Sync_Defaults::$default_options_whitelist = $default_options_whitelist_original;
 
 		$labelled_checksums = array_combine( array_map( 'get_class', $all_replicastores ), $checksums );
 
 		// find unique checksums - if all checksums are the same, there should be only one element
 		$unique_checksums_count = count( array_unique( array_map( 'serialize', $checksums ) ) );
 
-		$this->assertEquals( 1, $unique_checksums_count, "Checksums not unique: ".print_r( $labelled_checksums, 1 ) );
+		$this->assertEquals( 1, $unique_checksums_count, 'Checksums not unique: ' . print_r( $labelled_checksums, 1 ) );
 	}
 
 	function get_all_checksums( $replicastore ) {
