@@ -76,8 +76,10 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
  * The new style is now:
  * [dailymotion id=x8oma9 title=2 user=3 video=4]
  *
- * Supported parameters for player customization: weight, height
- *
+ * Supported parameters for player customization: weight, height,
+ * autoplay, endscreen-enable, mute, sharing-enabled, start, subtitles-default,
+ * ui-highlight, ui-logo, ui-start-screen-info, ui-theme
+ * see https://developer.dailymotion.com/player#player-parameters
  * @todo: Update code to sniff for iframe embeds and convert those to shortcodes.
  *
  * @param array $atts
@@ -107,9 +109,9 @@ function dailymotion_shortcode( $atts ) {
 		return '<!--Dailymotion error: bad or missing ID-->';
 	}
 
-	//set width and height using provided parameters if any
-	$width = ( isset($atts['width']) ? abs( intval( $atts['width'] ) ) : 0 );
-	$height = ( isset($atts['height']) ? abs( intval( $atts['height'] ) ) : 0 ) ;
+	/*set width and height using provided parameters if any */
+	$width = isset($atts['width']) ? abs( $atts['width'] ) : 0 ;
+	$height = isset($atts['height']) ? abs( $atts['height'] ) : 0 ;
 
 	if ( ! $width && ! $height) {
 		if ( ! empty( $content_width ) ) {
@@ -117,17 +119,51 @@ function dailymotion_shortcode( $atts ) {
 		} else {
 			$width = 425;
 		}
-		$height = ( 425 == $width ) ? 334 : ( $width / 425 ) * 334;
+		$height = $width / 425 * 334;
 	} elseif ( ! $height ) {
-		$height = ( 425 == $width ) ? 334 : ( $width / 425 ) * 334;
+		$height = $width / 425 * 334;
 	} elseif ( ! $width ) {
-		$width = ( $height / 334 ) * 425;
+		$width = $height / 334 * 425;
 	}
 
-	$id     = urlencode( $id );
+	/* set player parameter if provided */
+	$player_params = "?";
+
+	if ( isset( $atts['autoplay'] ) && '1' === $atts['autoplay'] ) {
+		$player_params .= "autoplay=1&";
+	}
+	if ( isset( $atts['endscreen-enable'] ) && '0' === $atts['endscreen-enable'] ) {
+		$player_params .= "endscreen-enable=0&";
+	}
+	if ( isset( $atts['mute'] ) && '1' === $atts['mute'] ) {
+		$player_params .= "mute=1&";
+	}
+	if ( isset( $atts['sharing-enable'] ) && '0' === $atts['sharing-enable'] ) {
+		$player_params .= "sharing-enable=0&";
+	}
+	if ( isset( $atts['start'] ) ) {
+		$player_params .= "start=". abs( intval( $atts['start'] ) ) . "&";
+	}
+	if ( isset( $atts['subtitles-default'] ) ) {
+		$player_params .= "subtitles-default=" . $atts['subtitles-default'] . "&";
+	}
+	if ( isset( $atts['ui-highlight'] ) ) {
+		$player_params .= "ui-highlight=" . $atts['ui-highlight'] . "&";
+	}
+	if ( isset( $atts['ui-logo'] ) && '0' === $atts['ui-logo'] ) {
+		$player_params .= "ui-logo=0&";
+	}
+	if ( isset( $atts['ui-start-screen-info'] ) && '0' === $atts['ui-start-screen-info'] ) {
+		$player_params .= "ui-start-screen-info=0&";
+	}
+	if ( isset( $atts['ui-theme'] ) && in_array( strtolower( $atts['ui-theme'] ), array( 'dark', 'light' ) ) ) {
+		$player_params .= "ui-theme=" . $atts['ui-theme'] . "&";
+	}
+
+	$id = urlencode( $id );
 
 	if ( preg_match( '/^[A-Za-z0-9]+$/', $id ) ) {
-		$output = '<iframe width="' . $width . '" height="' . $height . '" src="' . esc_url( '//www.dailymotion.com/embed/video/' . $id ) . '" frameborder="0"></iframe>';
+		$output = '<iframe width="' . $width . '" height="' . $height . '" src="' . esc_url( '//www.dailymotion.com/embed/video/' . $id . $player_params) . '" frameborder="0"></iframe>';
 		$after  = '';
 
 		if ( array_key_exists( 'video', $atts ) && $video = preg_replace( '/[^-a-z0-9_]/i', '', $atts['video'] ) && array_key_exists( 'title', $atts ) && $title = wp_kses( $atts['title'], array() ) ) {
