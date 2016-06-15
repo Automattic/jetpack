@@ -151,6 +151,8 @@ class Jetpack_Sync_Client {
 		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
 
+		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array( $this, 'filter_update_keys' ), 10, 2 );
+
 		// multi site network options
 		if ( $this->is_multisite ) {
 			add_action( 'add_site_option', $handler, 10, 2 );
@@ -179,6 +181,17 @@ class Jetpack_Sync_Client {
 		 * Sync all pending actions with server
 		 */
 		add_action( 'jetpack_sync_actions', array( $this, 'do_sync' ) );
+	}
+
+	// removes unnecessary keys from synced updates data
+	function filter_update_keys( $args ) {
+		$updates = $args[0];
+
+		if ( isset( $updates->no_update ) ) {
+			unset( $updates->no_update );
+		}
+
+		return $args;
 	}
 
 	// TODO: Refactor to use one set whitelist function, with one is_whitelisted.
@@ -305,6 +318,9 @@ class Jetpack_Sync_Client {
 		) {
 			return;
 		}
+
+		// run data to enqueue through a filter
+		apply_filters( "jetpack_sync_before_enqueue_$current_filter", $args );
 
 		// if we add any items to the queue, we should 
 		// try to ensure that our script can't be killed before

@@ -17,6 +17,10 @@ class WP_Test_Jetpack_New_Sync_Updates extends WP_Test_Jetpack_New_Sync_Base {
 		wp_update_plugins();
 		$this->client->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
+
+		$this->assertFalse( isset( $updates->no_update ) );
+		$this->assertTrue( isset( $updates->response ) );
+
 		$this->assertTrue( is_int( $updates->last_checked ) );
 	}
 
