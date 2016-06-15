@@ -176,7 +176,6 @@ class Jetpack_Sync_Client {
 			add_action( 'jetpack_full_sync_network_options', $handler );
 		}
 
-
 		// Module Activation
 		add_action( 'jetpack_activate_module', $handler );
 		add_action( 'jetpack_deactivate_module', $handler );
