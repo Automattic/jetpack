@@ -326,7 +326,7 @@ class Jetpack_Sync_Client {
 		 *
 		 * @param array The action parameters
 		 */
-		apply_filters( "jetpack_sync_before_enqueue_$current_filter", $args );
+		$args = apply_filters( "jetpack_sync_before_enqueue_$current_filter", $args );
 
 		// if we add any items to the queue, we should 
 		// try to ensure that our script can't be killed before
