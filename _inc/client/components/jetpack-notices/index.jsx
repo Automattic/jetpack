@@ -19,6 +19,10 @@ import {
 	dismissJetpackNotice
 } from 'state/jetpack-notices';
 
+/**
+ * Welcome Notice for 1st time connections.
+ * Decided not to show this.  See https://github.com/Automattic/jetpack/issues/4082
+ */
 export const WelcomeNotice = React.createClass( {
 	displayName: 'WelcomeNotice',
 	getInitialState: function() {
@@ -42,7 +46,7 @@ export const WelcomeNotice = React.createClass( {
 	getWelcomeMessageText: function() {
 		if ( this.props.jumpstarted ) {
 			return(
-				__( '(NEED BETTER TEXT) Great choice! By Jumpstarting your site, you have unlocked even more power of wordpress.com! {{a}}Learn more{{/a}}', {
+				__( 'Great choice! By Jumpstarting your site, you have unlocked even more power of wordpress.com! {{a}}Learn more{{/a}}', {
 					components: {
 						a: <a href={ 'https://jetpack.com/support/' } target="_blank" />
 					}
@@ -210,11 +214,6 @@ export const ActionNotices = React.createClass( {
 						</SimpleNotice>
 					</div>
 				);
-
-			case 'new_connection_jumpstart' :
-				return <WelcomeNotice jumpstarted={ true } />;
-			case 'new_connection_no_jumpstart' :
-				return <WelcomeNotice jumpstarted={ false } />;
 
 			default:
 				return false;
