@@ -14,7 +14,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	abstract public function get_jetpack_version();
 
-	abstract protected function get_updates();
+	abstract public function get_updates();
 
 	function before_render() {
 	}
