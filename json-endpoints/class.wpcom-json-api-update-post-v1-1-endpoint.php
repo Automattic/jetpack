@@ -36,6 +36,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			remove_action( 'save_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ), 100, 2 );
 			add_action( 'rest_api_inserted_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ) );
+
+			if ( $this->should_load_theme_functions( $post_id ) ) {
+				$this->load_theme_functions();				
+			}
 		}
 
 
@@ -155,26 +159,50 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			unset( $input['parent'] );
 		}
 
-		$tax_input = array();
+		$input['terms'] = (array) $input['terms'];
 
-		foreach ( array( 'categories' => 'category', 'tags' => 'post_tag' ) as $key => $taxonomy ) {
-			if ( ! isset( $input[ $key ] ) ) {
+		// Convert comma-separated terms to array before attempting to
+		// merge with hardcoded taxonomies
+		foreach ( $input['terms'] as $taxonomy => $terms ) {
+			if ( is_string( $terms ) ) {
+				$input['terms'][ $taxonomy ] = explode( ',', $terms );
+			} else if ( ! is_array( $terms ) ) {
+				$input['terms'][ $taxonomy ] = array();
+			}
+		}
+
+		// For each hard-coded taxonomy, merge into terms object
+		foreach ( array( 'categories' => 'category', 'tags' => 'post_tag' ) as $taxonomy_key => $taxonomy ) {
+			if ( ! isset( $input[ $taxonomy_key ] ) ) {
 				continue;
 			}
 
-			$tax_input[ $taxonomy ] = array();
-
-			$is_hierarchical = is_taxonomy_hierarchical( $taxonomy );
-
-			if ( is_array( $input[$key] ) ) {
-				$terms = $input[$key];
-			} else {
-				$terms = explode( ',', $input[$key] );
+			if ( ! isset( $input['terms'][ $taxonomy ] ) ) {
+				$input['terms'][ $taxonomy ] = array();
 			}
+
+			$terms = $input[ $taxonomy_key ];
+			if ( is_string( $terms ) ) {
+				$terms = explode( ',', $terms );
+			} else if ( ! is_array( $terms ) ) {
+				continue;
+			}
+
+			$input['terms'][ $taxonomy ] = array_merge(
+				$input['terms'][ $taxonomy ],
+				$terms
+			);
+		}
+
+		$tax_input = array();
+
+		foreach ( $input['terms'] as $taxonomy => $terms ) {
+			$tax_input[ $taxonomy ] = array();
+			$is_hierarchical = is_taxonomy_hierarchical( $taxonomy );
 
 			foreach ( $terms as $term ) {
 				/**
-				 * `curl --data 'category[]=123'` should be interpreted as a category ID,
+				 * `curl --data 'terms[category][]=123'` should be interpreted as a category ID,
 				 * not a category whose name is '123'.
 				 *
 				 * Consequence: To add a category/tag whose name is '123', the client must
@@ -196,7 +224,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					$tax = get_taxonomy( $taxonomy );
 
 					// see https://core.trac.wordpress.org/ticket/26409
-					if ( 'category' === $taxonomy && ! current_user_can( $tax->cap->edit_terms ) ) {
+					if ( $is_hierarchical && ! current_user_can( $tax->cap->edit_terms ) ) {
 						continue;
 					} else if ( ! current_user_can( $tax->cap->assign_terms ) ) {
 						continue;
@@ -207,10 +235,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 				if ( ! is_wp_error( $term_info ) ) {
 					if ( $is_hierarchical ) {
-						// Categories must be added by ID
+						// Hierarchical terms must be added by ID
 						$tax_input[$taxonomy][] = (int) $term_info['term_id'];
 					} else {
-						// Tags must be added by name
+						// Non-hierarchical terms must be added by name
 						if ( is_int( $term ) ) {
 							$term = get_term( $term, $taxonomy );
 							$tax_input[$taxonomy][] = $term->name;
@@ -222,11 +250,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
-		if ( isset( $input['categories'] ) && empty( $tax_input['category'] ) && 'revision' !== $post_type->name ) {
+		if ( isset( $input['terms']['category'] ) && empty( $tax_input['category'] ) && 'revision' !== $post_type->name ) {
 			$tax_input['category'][] = get_option( 'default_category' );
 		}
 
-		unset( $input['tags'], $input['categories'] );
+		unset( $input['terms'], $input['tags'], $input['categories'] );
 
 		$insert = array();
 
@@ -730,5 +758,16 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return new WP_Error( 'invalid_author', 'Invalid author provided' );
 
 		return $_user->ID;
+	}
+
+	protected function should_load_theme_functions( $post_id = null ) {
+		if ( empty( $post_id ) ) {
+			$input = $this->input( true );
+			$type = $input['type'];
+		} else {
+			$type = get_post_type( $post_id );
+		}
+
+		return ! empty( $type ) && ! in_array( $type, array( 'post', 'page', 'revision' ) );
 	}
 }

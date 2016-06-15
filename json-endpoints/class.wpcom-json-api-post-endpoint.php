@@ -663,7 +663,11 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'invalid_post', 'Invalid post', 400 );
 		}
 
-		$posts = get_posts( array( 'name' => $name ) );
+		$posts = get_posts( array(
+			'name' => $name,
+			'numberposts' => 1,
+			'post_type' => $this->_get_whitelisted_post_types(),
+		) );
 
 		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {
 			$page = get_page_by_path( $name );
