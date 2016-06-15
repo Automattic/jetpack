@@ -355,7 +355,6 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
 		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
 		
-		delete_site_transient( 'update_plugins' );
 		$this->server_replica_storage->reset();
 
 		$this->assertNull( $this->server_replica_storage->get_updates( 'plugins' ) );
@@ -365,7 +364,6 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
-
 		$this->assertNotNull( $updates );
 		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds"), 'Last checked is less then 2 seconds: ' . $updates->last_checked . ' - lest then 10 sec:' . strtotime( "-10 seconds" ) );
 	}
@@ -382,7 +380,6 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		// we need to do this because there's a check for elapsed time since last update
 		// in the wp_update_themes() function		
-		delete_site_transient( 'update_themes' );
 		$this->server_replica_storage->reset();
 
 		$this->assertNull( $this->server_replica_storage->get_updates( 'themes' ) );
@@ -408,7 +405,6 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		// we need to do this because there's a check for elapsed time since last update
 		// in the wp_update_core() function		
-		delete_site_transient( 'update_core' );
 		$this->server_replica_storage->reset();
 
 		$this->assertNull( $this->server_replica_storage->get_updates( 'core' ) );
@@ -464,54 +460,113 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->full_sync_end_checksum = $checksum;
 	}
 
-	function test_full_sync_sets_status() {
+	function create_dummy_data_and_empty_the_queue() {
 
-		$this->transients = array();
-
-		// this is a bit of a hack... relies too much on internals
-		add_action( 'setted_transient', array( $this, 'set_transients' ), 10, 3 );
-
-		$this->assertFalse( isset( $this->transients['jetpack_full_sync_progress'] ) );
-
-		$this->full_sync->start();
-		$this->assertEquals( array( 'phase' => 'queuing finished' ), $this->transients['jetpack_full_sync_progress'] );
-
-		foreach( Jetpack_Sync_Full::$modules as $data_name ) {
-			if ( ! ( $data_name == 'network_options' && ! is_multisite() ) ) {
-				$this->assertEquals( 100, $this->transients['jetpack_full_sync_progress_'.$data_name]['progress'] );
-			}
+		// lets create a bunch of posts
+		for ( $i = 0; $i < 20; $i += 1 ) {
+			$post = $this->factory->post->create();
 		}
+		// lets create a bunch of comments
+		$this->factory->comment->create_post_comments( $post, 11 );
 
-		$this->client->do_sync();
-		$this->assertEquals( array( 'phase' => 'sending finished' ), $this->transients['jetpack_full_sync_progress'] );
+		// reset the data before the full sync
+		$this->client->reset_data();
 
-		$finished_status = array(
-			'phase' => 'sending finished',
-			'wp_version' => array( 'progress' => 100 ),
-			'constants' => array( 'progress' => 100 ),
-			'functions' => array( 'progress' => 100 ),
-			'options' => array( 'progress' => 100 ),
-			'posts' => array( 'progress' => 100 ),
-			'comments' => array( 'progress' => 100 ),
-			'themes' => array( 'progress' => 100 ),
-		   	'updates' => array( 'progress' => 100 ),
-			'network_options' => false,
-			'users' => array( 'progress' => 100 ),
-			'terms' => array( 'progress' => 100 ),
-		);
-
-		if ( is_multisite() ) {
-			$finished_status['network_options'] = array( 'progress' => 100 );
-		}
-
-		$this->assertEquals( $finished_status, $this->full_sync->get_complete_status() );
 	}
 
-	function set_transients( $transient, $value, $expiration ) {
-		$transient = str_replace( '_transient_', '', $transient );
-		if ( preg_match( '/^jetpack_full_sync_progress.*$/', $transient ) ) {
-			$this->transients[ $transient ] = $value;
+	function test_full_sync_status_should_be_not_started_after_reset() {
+		$this->create_dummy_data_and_empty_the_queue();
+
+		$full_sync_status = $this->full_sync->get_status();
+		$this->assertEquals(
+			$full_sync_status,
+			array(
+				'started' => null,
+				'queue_finished' => null,
+				'sent_started' => null,
+				'finished' => null,
+				'sent' => array(),
+				'queue' => array(),
+			)
+		);
+	}
+
+	function test_full_sync_status_after_start() {
+		$this->create_dummy_data_and_empty_the_queue();
+
+		$this->full_sync->start();
+
+		$full_sync_status = $this->full_sync->get_status();
+
+		$should_be_status = array(
+			'queue' => array(
+				'constants'       => 1,
+				'functions'       => 1,
+				'options'         => 1,
+				'posts'           => 2,
+				'comments'        => 2,
+				'themes'          => 1,
+				'updates'         => 1,
+				'users'           => 1,
+				'terms'           => 1
+			),
+		);
+		if ( is_multisite() ) {
+			$should_be_status['queue']['network_options'] = 1;
 		}
+
+		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
+		$this->assertInternalType( 'int', $full_sync_status['started'] );
+		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
+		$this->assertNull( $full_sync_status['sent_started'] );
+		$this->assertNull( $full_sync_status['finished'] );
+		$this->assertInternalType( 'array', $full_sync_status['sent'] );
+	}
+
+	function test_full_sync_status_after_end() {
+		$this->create_dummy_data_and_empty_the_queue();
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$full_sync_status = $this->full_sync->get_status();
+
+		$should_be_status = array(
+			'sent' => array(
+				'constants'       => 1,
+				'functions'       => 1,
+				'options'         => 1,
+				'posts'           => 2,
+				'comments'        => 2,
+				'themes'          => 1,
+				'updates'         => 1,
+				'users'           => 1,
+				'terms'           => 1
+			),
+			'queue' => array(
+				'constants'       => 1,
+				'functions'       => 1,
+				'options'         => 1,
+				'posts'           => 2,
+				'comments'        => 2,
+				'themes'          => 1,
+				'updates'         => 1,
+				'users'           => 1,
+				'terms'           => 1
+			)
+		);
+		if ( is_multisite() ) {
+			$should_be_status['queue']['network_options'] = 1;
+			$should_be_status['sent']['network_options'] = 1;
+		}
+
+		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
+		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
+		$this->assertInternalType( 'int', $full_sync_status['started'] );
+		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
+		$this->assertInternalType( 'int', $full_sync_status['sent_started'] );
+		$this->assertInternalType( 'int', $full_sync_status['finished'] );
+
 	}
 
 	function upgrade_terms_to_pass_test( $term ) {

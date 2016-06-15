@@ -119,7 +119,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	function full_sync_status() {
 		$client = Jetpack_Sync_Client::getInstance();
 
-		return $client->get_full_sync_client()->get_complete_status();
+		return $client->get_full_sync_client()->get_status();
 	}
 
 	function dashboard_ui() {

@@ -176,16 +176,32 @@ class Jetpack_Sync_Server_Replicator {
 					$this->store->update_site_option( $option, $value );
 				}
 				break;
+			case 'jetpack_full_sync_constants':
+				foreach( $args as $name => $value ) {
+					$this->store->set_constant( $name, $value );
+				}
+				break;
+			case 'jetpack_full_sync_callables':
+				foreach( $args as $name => $value ) {
+					$this->store->set_callable( $name, $value );
+				}
+				break;
 			case 'jetpack_full_sync_users':
 				foreach( $args as $user ) {
 					$this->store->upsert_user( $user );
 				}
 				break;
-			case 'jetpack_full_sync_terms': {
+			case 'jetpack_full_sync_terms':
 				foreach( $args as $term_object ) {
 					$this->store->update_term( $term_object );
 				}
-			}
+				break;
+			case 'jetpack_full_sync_updates':
+				foreach ($args as $update_name => $update_value ) {
+					$this->store->set_updates( $update_name, $update_value );
+				}
+				break;
+
 			// terms
 			case 'jetpack_sync_save_term':
 				list( $term_object ) = $args;
