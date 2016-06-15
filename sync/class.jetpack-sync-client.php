@@ -319,7 +319,13 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
-		// run data to enqueue through a filter
+		/**
+		 * Modify the data within an action before it is enqueued locally.
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param array The action parameters
+		 */
 		apply_filters( "jetpack_sync_before_enqueue_$current_filter", $args );
 
 		// if we add any items to the queue, we should 
