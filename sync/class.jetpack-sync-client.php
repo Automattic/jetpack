@@ -147,9 +147,13 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
 
 		// themes
-		add_action( 'set_site_transient_update_plugins', $handler, 10, 1 );
-		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
-		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
+		add_action( 'set_site_transient_update_plugins', array( $this, 'extract_update_response' ), 10, 3 );
+		add_action( 'set_site_transient_update_themes', array( $this, 'extract_update_response' ), 10, 3 );
+		add_action( 'set_site_transient_update_core', array( $this, 'extract_update_response' ), 10, 3 );
+
+		add_action( 'jetpack_sync_update_plugins', $handler );
+		add_action( 'jetpack_sync_update_themes', $handler );
+		add_action( 'jetpack_sync_update_core', $handler );
 
 		// multi site network options
 		if ( $this->is_multisite ) {
@@ -620,6 +624,12 @@ class Jetpack_Sync_Client {
 		}
 
 		return $comment;
+	}
+
+	function extract_update_response( $value, $expires, $name ) {
+		$response = property_exists( $value, 'response' ) ? $value->response : array();
+		// e.g. jetpack_sync_update_plugins
+		do_action( "jetpack_sync_$name", $response );
 	}
 
 	private function schedule_sync( $when ) {
