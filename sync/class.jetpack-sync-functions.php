@@ -67,4 +67,9 @@ class Jetpack_Sync_Functions {
 
 		return 0;
 	}
+
+	public static function wp_version() {
+		global $wp_version;
+		return $wp_version;
+	}
 }

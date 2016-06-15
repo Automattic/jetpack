@@ -8,7 +8,6 @@ require_once dirname( __FILE__ ) . '/../../../../sync/interface.jetpack-sync-rep
  */
 class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
-	private $wp_version;
 	private $posts;
 	private $post_status;
 	private $comments;
@@ -30,7 +29,6 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function reset() {
-		$wp_version = null;
 		$this->posts = array();
 		$this->comments = array();
 		$this->options = array();
@@ -53,13 +51,6 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		// noop right now
 	}
 
-	function get_wp_version() {
-		return $this->wp_version;
-	}
-	
-	function set_wp_version( $version ) {
-		$this->wp_version = $version;
-	}
 
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
