@@ -68,10 +68,16 @@ class WPCOM_JSON_API_Links {
 	}
 
 	function get_taxonomy_link( $blog_id, $taxonomy_id, $taxonomy_type, $path = '' ) {
-		if ( 'category' === $taxonomy_type )
-			return $this->get_link( '/sites/%d/categories/slug:%s', $blog_id, $taxonomy_id, $path );
-		else
-			return $this->get_link( '/sites/%d/tags/slug:%s', $blog_id, $taxonomy_id, $path );
+		switch ( $taxonomy_type ) {
+			case 'category':
+				return $this->get_link( '/sites/%d/categories/slug:%s', $blog_id, $taxonomy_id, $path );
+
+			case 'post_tag':
+				return $this->get_link( '/sites/%d/tags/slug:%s', $blog_id, $taxonomy_id, $path );
+
+			default:
+				return $this->get_link( '/sites/%d/taxonomies/%s/terms/slug:%s', $blog_id, $taxonomy_type, $taxonomy_id, $path );
+		}
 	}
 
 	function get_media_link( $blog_id, $media_id, $path = '' ) {
