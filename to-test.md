@@ -20,6 +20,7 @@
 
 - New Untappd shortcode. To test: Shortcodes enabled, test `[untappd-menu location="65" menu="3355a50d-600d-4956-9491-dd0ac2582053"]`
 - Recipes: new shortcodes and options to create more detailed recipes. To test, you can follow the instructions in [this support document](https://en.support.wordpress.com/recipes/).
+- VideoPress: use HTML5 videos when using the `freedom` shortcode parameter. To test, try using the `force_flash` and `freedom` parameters when inserting VideoPress shortcodes, and check that the video is displayed according to your settings.
 
 ### Support
 
