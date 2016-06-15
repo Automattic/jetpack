@@ -118,7 +118,6 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 
 	function full_sync_status() {
 		$client = Jetpack_Sync_Client::getInstance();
-
 		return $client->get_full_sync_client()->get_status();
 	}
 
@@ -146,16 +145,20 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	function js_progress_template() { ?>
 		<script type="text/html" id="tmpl-sync-progress">
 			<div>
-				Sync Status: {{ data.phase }}
+				Sync started: {{ data.started }} <br />
+
+				Queing Duration: {{ data.queue_finished - data.started }}  <br />
+				Finished: {{ data.finished }}
+				Total Duration: {{ data.finished - data.started }}
 			</div>
 			<div>
-				<p>Posts: {{ data.posts && data.posts.progress }} %</p>
-				<p>Comments: {{ data.comments && data.comments.progress }} %</p>
-				<p>Terms: {{ data.terms && data.terms.progress }} %</p>
-				<p>Users: {{ data.users && data.users.progress }} %</p>
-				<p>Functions: {{ data.functions && data.functions.progress }} %</p>
-				<p>Constants: {{ data.constants && data.constants.progress }} %</p>
-				<p>Options: {{ data.options && data.options.progress }} %</p>
+				<p>Posts: {{ data.queue && data.sent.posts }} / {{ data.queue && data.queue.posts }} </p>
+				<p>Comments: {{ data.queue && data.sent.comments }} /  {{ data.queue && data.queue.comments }}</p>
+				<p>Terms: {{ data.queue && data.sent.terms }} / {{ data.queue && data.queue.terms }}</p>
+				<p>Users: {{ data.queue && data.sent.users }} / {{ data.queue && data.queue.users }}</p>
+				<p>Functions: {{ data.queue && data.sent.functions }} / {{ data.queue && data.queue.functions }}</p>
+				<p>Constants: {{ data.queue && data.sent.constants }} / {{ data.queue && data.queue.constants }}</p>
+				<p>Options: {{ data.queue && data.sent.options }} / {{ data.queue && data.queue.options }}</p>
 			</div>
 		</script>
 		<?php

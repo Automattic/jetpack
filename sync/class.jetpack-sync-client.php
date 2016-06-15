@@ -377,7 +377,7 @@ class Jetpack_Sync_Client {
 		 * @param object the theme support hash
 		 */
 		do_action( 'jetpack_sync_current_theme_support', $theme_support );
-		return 1;
+		return 1; // The number of actions enqueued
 	}
 
 	function send_wp_version( $update, $meta_data ) {
@@ -678,7 +678,7 @@ class Jetpack_Sync_Client {
 		 * @param boolean Whether to expand constants (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_constants', true );
-		return 1;
+		return 1; // The number of actions enqueued
 	}
 
 	function force_sync_options() {
@@ -690,7 +690,7 @@ class Jetpack_Sync_Client {
 		 * @param boolean Whether to expand options (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_options', true );
-		return 1;
+		return 1; // The number of actions enqueued
 	}
 
 	function force_sync_network_options() {
@@ -702,7 +702,7 @@ class Jetpack_Sync_Client {
 		 * @param boolean Whether to expand options (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_network_options', true );
-		return 1;
+		return 1; // The number of actions enqueued
 	}
 
 	public function full_sync_callables() {
@@ -714,7 +714,7 @@ class Jetpack_Sync_Client {
 		 * @param boolean Whether to expand callables (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_callables', true );
-		return 1;
+		return 1; // The number of actions enqueued
 	}
 
 	public function full_sync_updates() {
@@ -726,7 +726,7 @@ class Jetpack_Sync_Client {
 		 * @param boolean Whether to expand callables (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_updates', true );
-		return 1;
+		return 1; // The number of actions enqueued
 	}
 
 	private function maybe_sync_constants() {
@@ -762,7 +762,7 @@ class Jetpack_Sync_Client {
 
 		update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, $constants_checksums );
 	}
-	// public so that we don't have to store an optio for each constant
+	// public so that we don't have to store an option for each constant
 	function get_all_constants() {
 		return array_combine(
 			$this->constants_whitelist,
@@ -942,8 +942,8 @@ class Jetpack_Sync_Client {
 
 	function reset_data() {
 		$this->reset_sync_queue();
-		// Lets delete all the other fun stuff like transints.
 
+		// Lets delete all the other fun stuff like transient and option.
 		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
 		delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME );
 
