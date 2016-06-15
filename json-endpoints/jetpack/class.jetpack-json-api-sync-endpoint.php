@@ -15,8 +15,18 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	}
 }
 
+class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
+	// GET /sites/%s/sync-status
+	protected $needed_capabilities = 'manage_options';
+
+	protected function result() {
+		$client = Jetpack_Sync_Client::getInstance();
+		return $client->get_full_sync_client()->get_status();
+	}
+}
+
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
-	// POST /sites/%s/cached-data-check
+	// GET /sites/%s/cached-data-check
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
