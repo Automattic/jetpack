@@ -89,6 +89,7 @@ Enhancements:
 * SSO: redesign and refactor Jetpack's SSO Module.
 * Support: improve self-help tools available in the Jetpack Debug menu.
 * Widgets: refactor the Contact Info Widget.
+* VideoPress: use HTML5 videos when using the `freedom` shortcode parameter.
 
 = 4.0.4 =
 Release date: June 20th, 2016
