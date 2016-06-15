@@ -28,10 +28,6 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.testAPIUserCode'   => array( $this, 'test_api_user_code' ),
 				'jetpack.featuresAvailable' => array( $this, 'features_available' ),
 				'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
-				'jetpack.getPost'           => array( $this, 'get_post' ),
-				'jetpack.getPosts'          => array( $this, 'get_posts' ),
-				'jetpack.getComment'        => array( $this, 'get_comment' ),
-				'jetpack.getComments'       => array( $this, 'get_comments' ),
 				'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
 				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
 			) );
@@ -357,54 +353,6 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		return $modules;
-	}
-
-	function get_post( $id ) {
-		if ( !$id = (int) $id ) {
-			return false;
-		}
-
-		$jetpack = Jetpack::init();
-
-		$post = $jetpack->sync->get_post( $id );
-		return $post;
-	}
-
-	function get_posts( $args ) {
-		list( $post_ids ) = $args;
-		$post_ids = array_map( 'intval', (array) $post_ids );
-		$jp = Jetpack::init();
-		$sync_data = $jp->sync->get_content( array( 'posts' => $post_ids ) );
-
-		return $sync_data;
-	}
-
-	function get_comment( $id ) {
-		if ( !$id = (int) $id ) {
-			return false;
-		}
-
-		$jetpack = Jetpack::init();
-
-		$comment = $jetpack->sync->get_comment( $id );
-		if ( !is_array( $comment ) )
-			return false;
-
-		$post = $jetpack->sync->get_post( $comment['comment_post_ID'] );
-		if ( !$post ) {
-			return false;
-		}
-
-		return $comment;
-	}
-
-	function get_comments( $args ) {
-		list( $comment_ids ) = $args;
-		$comment_ids = array_map( 'intval', (array) $comment_ids );
-		$jp = Jetpack::init();
-		$sync_data = $jp->sync->get_content( array( 'comments' => $comment_ids ) );
-
-		return $sync_data;
 	}
 
 	function update_attachment_parent( $args ) {
