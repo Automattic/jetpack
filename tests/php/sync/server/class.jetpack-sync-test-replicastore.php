@@ -165,7 +165,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	private function option_checksum( $carry, $option_name ) {
-		return $carry ^ isset( $this->options[ $option_name ] ) ? sprintf( '%u', crc32( $option_name . $this->options[ $option_name ] ) ) + 0 : 0;
+		return $carry ^ ( array_key_exists( $option_name, $this->options ) ? ( sprintf( '%u', crc32( $option_name . $this->options[ $option_name ] ) ) + 0 ) : 0 );
 	}
 
 	// theme functions
