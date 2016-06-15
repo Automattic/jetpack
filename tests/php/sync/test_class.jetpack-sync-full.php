@@ -52,7 +52,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 
 		global $wp_version;
-		$this->assertEquals( $wp_version, $this->server_replica_storage->get_wp_version() );
+		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
 	}
 
 	function test_full_sync_sends_all_posts_except_revisions() {
