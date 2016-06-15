@@ -131,6 +131,7 @@ class Jetpack_Sync_Defaults {
 		'is_multi_site'                   => 'is_multisite',
 		'main_network_site'               => 'network_site_url',
 		'single_user_site'                => array( 'Jetpack', 'is_single_user_site' ),
+		'updates'                         => array( 'Jetpack', 'get_updates' ),
 		'has_file_system_write_access'    => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
 		'is_version_controlled'           => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
 		'taxonomies'                      => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),

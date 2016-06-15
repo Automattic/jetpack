@@ -27,4 +27,10 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
 		$this->assertEquals( jetpack_foo_is_callable(), 'bar' );
 	}
+
+	public function test_sync_jetpack_updates() {
+		$this->client->do_sync();
+		$updates = $this->server_replica_storage->get_callable( 'updates' );
+		$this->assertEquals( Jetpack::get_updates(), $updates );
+	}
 }
