@@ -151,6 +151,8 @@ class Jetpack_Sync_Client {
 		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
 
+		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array( $this, 'filter_update_keys' ), 10, 2 );
+
 		// multi site network options
 		if ( $this->is_multisite ) {
 			add_action( 'add_site_option', $handler, 10, 2 );
@@ -179,6 +181,17 @@ class Jetpack_Sync_Client {
 		 * Sync all pending actions with server
 		 */
 		add_action( 'jetpack_sync_actions', array( $this, 'do_sync' ) );
+	}
+
+	// removes unnecessary keys from synced updates data
+	function filter_update_keys( $args ) {
+		$updates = $args[0];
+
+		if ( isset( $updates->no_update ) ) {
+			unset( $updates->no_update );
+		}
+
+		return $args;
 	}
 
 	// TODO: Refactor to use one set whitelist function, with one is_whitelisted.
@@ -306,6 +319,15 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
+		/**
+		 * Modify the data within an action before it is enqueued locally.
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param array The action parameters
+		 */
+		$args = apply_filters( "jetpack_sync_before_enqueue_$current_filter", $args );
+
 		// if we add any items to the queue, we should 
 		// try to ensure that our script can't be killed before
 		// they are sent
@@ -338,7 +360,7 @@ class Jetpack_Sync_Client {
 		 * Fires when the client needs to sync theme support info
 		 * Only sends theme support attributes whitelisted in Jetpack_Sync_Defaults::$default_theme_support_whitelist
 		 *
-		 * @since 4.1.0
+		 * @since 4.2.0
 		 *
 		 * @param object the theme support hash
 		 */
@@ -352,7 +374,7 @@ class Jetpack_Sync_Client {
 			/**
 			 * Fires when the client needs to sync WordPress version
 			 *
-			 * @since 4.1.0
+			 * @since 4.2.0
 			 *
 			 * @param string The WordPress version number
 			 */
@@ -370,7 +392,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Fires when the client needs to sync a new term
 		 *
-		 * @since 4.1.0
+		 * @since 4.2.0
 		 *
 		 * @param object the Term object
 		 */
@@ -383,7 +405,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Fires when the client needs to sync an attachment for a post
 		 *
-		 * @since 4.1.0
+		 * @since 4.2.0
 		 *
 		 * @param int The attachment ID
 		 * @param object The attachment
@@ -411,7 +433,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Fires when the client needs to sync an updated user
 		 *
-		 * @since 4.1.0
+		 * @since 4.2.0
 		 *
 		 * @param object The WP_User object
 		 */
@@ -424,7 +446,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Fires when the client needs to sync an updated user
 		 *
-		 * @since 4.1.0
+		 * @since 4.2.0
 		 *
 		 * @param object The WP_User object
 		 */
@@ -437,7 +459,7 @@ class Jetpack_Sync_Client {
 			/**
 			 * Fires when the client needs to sync an updated user
 			 *
-			 * @since 4.1.0
+			 * @since 4.2.0
 			 *
 			 * @param object The WP_User object
 			 */
@@ -507,7 +529,7 @@ class Jetpack_Sync_Client {
 			 * For example, during full sync this expands Post ID's into full Post objects,
 			 * so that we don't have to serialize the whole object into the queue.
 			 *
-			 * @since 4.1.0
+			 * @since 4.2.0
 			 *
 			 * @param array The action parameters
 			 */
@@ -528,7 +550,7 @@ class Jetpack_Sync_Client {
 		 * Return false or WP_Error to abort the sync (e.g. if there's an error)
 		 * The items will be automatically re-sent later
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 *
 		 * @param array $data The action buffer
 		 */
@@ -639,7 +661,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Tells the client to sync all options to the server
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 *
 		 * @param boolean Whether to expand options (should always be true)
 		 */
@@ -650,7 +672,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Tells the client to sync all network options to the server
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 *
 		 * @param boolean Whether to expand options (should always be true)
 		 */
@@ -678,7 +700,7 @@ class Jetpack_Sync_Client {
 				/**
 				 * Tells the client to sync a constant to the server
 				 *
-				 * @since 4.1
+				 * @since 4.2.0
 				 *
 				 * @param string The name of the constant
 				 * @param mixed The value of the constant
@@ -733,7 +755,7 @@ class Jetpack_Sync_Client {
 				/**
 				 * Tells the client to sync a callable (aka function) to the server
 				 *
-				 * @since 4.1
+				 * @since 4.2.0
 				 *
 				 * @param string The name of the callable
 				 * @param mixed The value of the callable
