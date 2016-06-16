@@ -65,10 +65,20 @@ class Jetpack_Client {
 		if ( is_null( $body ) ) {
 			$body_hash = '';
 		} else {
-			if ( !is_string( $body ) ) {
+			// Allow arrays to be used in passing data.
+			$body_to_hash = $body;
+			if ( is_array( $body ) ) {
+
+				// We cast this to a new variable, because the array form of $body needs to be
+				// maintained so it can be passed into the request later on in the code.
+				$body_to_hash = json_encode( self::_stringify_data( $body ) );
+			}
+
+			if ( !is_string( $body_to_hash ) ) {
 				return new Jetpack_Error( 'invalid_body', 'Body is malformed.' );
 			}
-			$body_hash = jetpack_sha1_base64( $body );
+
+			$body_hash = jetpack_sha1_base64( $body_to_hash );
 		}
 
 		$auth = array(
@@ -285,4 +295,36 @@ class Jetpack_Client {
 		return Jetpack_Client::remote_request( $validated_args, $body );
 	}
 
+	/**
+	 * Takes an array or similar structure and recursively turns all values into strings. This is used to
+	 * make sure that body hashes are made ith the string version, which is what will be seen after a
+	 * server pulls up the data in the $_POST array.
+	 *
+	 * @param array|mixed $data
+	 *
+	 * @return array|string
+	 */
+	public static function _stringify_data( $data ) {
+
+		// Booleans are special, lets just makes them and explicit 1/0 instead of the 0 being an empty string.
+		if ( is_bool( $data ) ) {
+			return $data ? "1" : "0";
+		}
+
+		// Cast objects into arrays.
+		if ( is_object( $data ) ) {
+			$data = (array) $data;
+		}
+
+		// Non arrays at this point should be just converted to strings.
+		if ( ! is_array( $data ) ) {
+			return (string)$data;
+		}
+
+		foreach ( $data as $key => &$value ) {
+			$value = self::_stringify_data( $value );
+		}
+
+		return $data;
+	}
 }
