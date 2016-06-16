@@ -79,6 +79,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 Bug Fixes:
 
+* Sitemaps: avoid PHP notices when a post includes a slideshow.
+
 Enhancements:
 
 * General: clean up and restyle jetpack related banner notices to match Core notification styles.
