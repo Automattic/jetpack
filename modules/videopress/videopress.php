@@ -57,6 +57,7 @@ class Jetpack_VideoPress {
 
 		if ( $this->can( 'upload_videos' ) && $options['blog_id'] ) {
 			add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
+			add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
 		}
 
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
@@ -64,19 +65,41 @@ class Jetpack_VideoPress {
 		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
 	}
 
+	/**
+	 * Ajax method that is used by the VideoPress uploader to get a token to upload a file to the wpcom api.
+	 *
+	 * @return void
+	 */
 	function wp_ajax_videopress_get_upload_token() {
-		if ( ! $this->can( 'upload_videos' ) )
-			return wp_send_json_error();
+		if ( ! $this->can( 'upload_videos' ) ) {
+			wp_send_json_error();
+			return;
+		}
 
-		$result = $this->query( 'jetpack.vpGetUploadToken' );
-		if ( is_wp_error( $result ) )
-			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+		$options = $this->get_options();
 
-		$response = $result;
-		if ( empty( $response['videopress_blog_id'] ) || empty( $response['videopress_token'] ) || empty( $response[ 'videopress_action_url' ] ) )
-			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+		$args = array(
+			'method'  => 'POST',
+		);
 
-		return wp_send_json_success( $response );
+		$endpoint = "sites/{$options['id']}/media/token";
+		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ), 'result' => $result ) );
+			return;
+		}
+
+		$response = json_decode( $result['body'], true );
+
+		if ( empty( $response['upload_blog_id'] ) || empty( $response['upload_token'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ), 'result' => $result ) );
+			return;
+		}
+
+		$response['upload_action_url'] = self::make_media_upload_path( $response['upload_blog_id'] );
+
+		wp_send_json_success( $response );
 	}
 
 	/**
@@ -104,6 +127,10 @@ class Jetpack_VideoPress {
 		}
 
 		$options = array_merge( $defaults, $options );
+
+		// Add in the site id to the VideoPress options. Added at the bottom the ensure this cannot be overridden.
+		$options['id'] = Jetpack_Options::get_option( 'id' );
+
 		return $options;
 	}
 
@@ -578,6 +605,7 @@ class Jetpack_VideoPress {
 		if ( did_action( 'videopress_enqueue_admin_scripts' ) )
 			return;
 
+		wp_enqueue_script( 'videopress-uploader', plugins_url( 'js/videopress-uploader.js', __FILE__) , array( 'jquery', 'wp-plupload' ), $this->version );
 		wp_enqueue_script( 'videopress-admin', plugins_url( 'js/videopress-admin.js', __FILE__ ), array( 'jquery', 'media-views', 'media-models' ), $this->version );
 		wp_enqueue_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
 
@@ -935,6 +963,30 @@ class Jetpack_VideoPress {
 		}
 
 		return $url;
+  }
+
+	/**
+	 * Get the upload api path.
+	 *
+	 * @param int $blog_id The id of the blog we're uploading to.
+	 * @return string
+	 */
+	protected function make_media_upload_path( $blog_id ) {
+		return sprintf(
+			'%s://%s/rest/v%s/videos/%s/new',
+			'https',
+			JETPACK__WPCOM_JSON_API_HOST,
+			Jetpack_Client::WPCOM_JSON_API_VERSION,
+			$blog_id
+		);
+	}
+
+	/**
+	 * Modify the default plupload config to turn on videopress specific filters.
+	 */
+	public function videopress_pluploder_config( $config ) {
+		$config['filters']['videopress_check_uploads'] = 1;
+		return $config;
 	}
 }
 
