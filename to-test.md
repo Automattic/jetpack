@@ -22,6 +22,10 @@
 - Recipes: new shortcodes and options to create more detailed recipes. To test, you can follow the instructions in [this support document](https://en.support.wordpress.com/recipes/).
 - VideoPress: use HTML5 videos when using the `freedom` shortcode parameter. To test, try using the `force_flash` and `freedom` parameters when inserting VideoPress shortcodes, and check that the video is displayed according to your settings.
 
+### Sitemaps
+
+- We made some changes to avoid PHP notices when one of your posts included a slideshow. To test, you can follow the instructions [here](https://github.com/Automattic/jetpack/pull/4068).
+
 ### Support
 
 - We've improved the self-help tools available in the Jetpack Debug menu. To test, you can go to the Jetpack Menu in your dashboard, scroll down, click on "Debug", and make sure there are no errors on the page or in your logs. You should also be able to use the Contact Form to send debug information to the Jetpack Support team.
