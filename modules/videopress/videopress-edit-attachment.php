@@ -208,22 +208,24 @@ class VideoPress_Edit_Attachment {
 			return;
 		}
 
-		$info = (object) $meta['videopress'];
+		$info = (object)$meta['videopress'];
+
+		$status = videopress_get_transcoding_status( $post_id );
 
 		$formats = array(
-			'Standard' => isset( $info->files_status ) ? $info->files_status['std']['mp4'] : null,
-			'Ogg Vorbis' => isset( $info->files_status ) ? $info->files_status['std']['ogg'] : null,
-			'DVD' => isset( $info->files_status ) ? $info->files_status['dvd'] : null,
-			'HD' => isset( $info->files_status ) ? $info->files_status['hd'] : null,
+			'std_mp4' => 'Standard MP4',
+			'std_ogg' => 'OGG Vorbis',
+			'dvd'     => 'DVD',
+			'hd'      => 'High Definition',
 		);
 
 		$embed = "[wpvideo {$info->guid}]";
 
-		$shortcode = '<input type="text" id="plugin-embed" readonly="readonly" style="width:180px;" value="' . esc_attr($embed) . '" onclick="this.focus();this.select();" />';
+		$shortcode = '<input type="text" id="plugin-embed" readonly="readonly" style="width:180px;" value="' . esc_attr( $embed ) . '" onclick="this.focus();this.select();" />';
 
 		$trans_status = '';
-		foreach ( $formats as $name => $status) {
-			$trans_status .= '<strong>' . $name . ':</strong> ' . ( 'done' === $status  ? 'Done' : 'Processing' ) . '<br>';
+		foreach ( $formats as $status_key => $name ) {
+			$trans_status .= '<strong>' . $name . ':</strong> ' . ( 'done' === $status[ $status_key ]  ? 'Done' : 'Processing' ) . '<br>';
 		}
 
 		$nonce = wp_create_nonce( 'videopress-update-transcoding-status' );

@@ -238,9 +238,12 @@ function videopress_get_transcoding_status( $post_id ) {
 
 	$info = (object) $meta['videopress'];
 
-	// Turn the transcoding statuses into an array.
-
-	$status = array();
+	$status = array(
+		'std_mp4' => isset( $info->files_status ) ? $info->files_status['std']['mp4'] : null,
+		'std_ogg' => isset( $info->files_status ) ? $info->files_status['std']['ogg'] : null,
+		'dvd'     => isset( $info->files_status ) ? $info->files_status['dvd'] : null,
+		'hd'      => isset( $info->files_status ) ? $info->files_status['hd'] : null,
+	);
 
 	return $status;
 }
