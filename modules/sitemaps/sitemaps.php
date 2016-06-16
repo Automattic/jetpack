@@ -171,7 +171,7 @@ function jetpack_sitemap_namespaces() {
 function jetpack_sitemap_initstr( $charset ) {
 	global $wp_rewrite;
 	// URL to XSLT
-	if ( $wp_rewrite->using_index_permalinks() ){
+	if ( $wp_rewrite->using_index_permalinks() ) {
 		$xsl = home_url( '/index.php/sitemap.xsl' );
 	} else if ( $wp_rewrite->using_permalinks() ) {
 		$xsl = home_url( '/sitemap.xsl' );
@@ -614,7 +614,7 @@ function jetpack_print_news_sitemap() {
 function jetpack_sitemap_uri() {
 	global $wp_rewrite;
 
-	if ( $wp_rewrite->using_index_permalinks() ){
+	if ( $wp_rewrite->using_index_permalinks() ) {
 		$sitemap_url = home_url( '/index.php/sitemap.xml' );
 	} else if ( $wp_rewrite->using_permalinks() ) {
 		$sitemap_url = home_url( '/sitemap.xml' );
@@ -642,7 +642,7 @@ function jetpack_sitemap_uri() {
 function jetpack_news_sitemap_uri() {
 	global $wp_rewrite;
 
-	if ( $wp_rewrite->using_index_permalinks() ){
+	if ( $wp_rewrite->using_index_permalinks() ) {
 		$news_sitemap_url = home_url( '/index.php/news-sitemap.xml' );
 	} else if ( $wp_rewrite->using_permalinks() ) {
 		$news_sitemap_url = home_url( '/news-sitemap.xml' );
