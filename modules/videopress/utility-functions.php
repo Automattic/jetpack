@@ -99,6 +99,7 @@ function videopress_get_attachment_id_by_url( $url ) {
 		}
 
 	}
+
 	return false;
 }
 
@@ -201,4 +202,22 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		}
 	}
 	WP_CLI::add_command( 'videopress', 'VideoPress_CLI' );
+}
+
+/**
+ * Return an absolute URI for a given filename and guid on the CDN.
+ * No check is performed to ensure the guid exists or the file is present. Simple centralized string builder.
+ *
+ * @param string $guid     VideoPress identifier
+ * @param string $filename name of file associated with the guid (video file name or thumbnail file name)
+ *
+ * @return string Absolute URL of VideoPress file for the given guid.
+ */
+function video_cdn_file_url( $guid, $filename ) {
+	if ( is_ssl() ) {
+		return "https://videos.files.wordpress.com/{$guid}/{$filename}";
+
+	} else {
+		return "http://videos.videopress.com/{$guid}/{$filename}";
+	}
 }
