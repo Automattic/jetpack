@@ -85,6 +85,22 @@
 	}
 }
 
+.jp-dash-item__disabled {
+	opacity: .5;
+	position: relative;
+
+	&::before {
+		content: "";
+		width: 100%;
+		height: 100%;
+		display: block;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 1;
+	}
+}
+
 .jp-dash-item__recently-activated .dops-card:last-of-type {
 	padding: 0;
 }

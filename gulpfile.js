@@ -26,8 +26,14 @@ var language_packs = require( './language-packs.js' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
-		if ( err ) {
-			throw new gutil.PluginError( 'webpack', err );
+
+		// Webpack doesn't populate err in case the build fails
+		// @see https://github.com/webpack/webpack/issues/708
+		if ( stats.compilation.errors && stats.compilation.errors.length ) {
+			if ( done ) {
+				done( new gutil.PluginError( 'webpack', stats.compilation.errors[0] ) );
+				return; // Otherwise gulp complains about done called twice
+			}
 		}
 
 		gutil.log( 'Building JS…', stats.toString( {
@@ -111,7 +117,9 @@ gulp.task( 'react:watch', function() {
 	webpack( config ).watch( 100, onBuild() );
 } );
 
-/* (Pre-4.1) Admin CSS to be minified, autoprefixed, rtl */
+// Admin CSS to be minified, autoprefixed, rtl
+//
+// Note: Once the Jetpack React UI lands, many of these will likely be able to be removed.
 var admincss = [
 	'modules/after-the-deadline/atd.css',
 	'modules/after-the-deadline/tinymce/css/content.css',
@@ -129,7 +137,8 @@ var admincss = [
 	'modules/sharedaddy/admin-sharing.css',
 	'modules/videopress/videopress-admin.css',
 	'modules/widget-visibility/widget-conditions/widget-conditions.css',
-	'modules/widgets/gallery/css/admin.css'
+	'modules/widgets/gallery/css/admin.css',
+	'modules/sso/jetpack-sso-login.css' // Displayed when logging into the site.
 ];
 
 /* Front-end CSS to be concatenated */

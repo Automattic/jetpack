@@ -21,11 +21,18 @@ class Jetpack_Sync_Actions {
 
 	static function send_data( $data ) {
 		Jetpack::load_xml_rpc_client();
-		$rpc    = new Jetpack_IXR_Client( array(
+
+		// add an extra parameter to the URL so we can tell it's a sync action
+		$url = add_query_arg( 'sync', '1', Jetpack::xmlrpc_api_url() );
+
+		$rpc = new Jetpack_IXR_Client( array(
+			'url'     => $url,
 			'user_id' => get_current_user_id(),
 			'timeout' => 30
 		) );
+
 		$result = $rpc->query( 'jetpack.syncActions', $data );
+
 		if ( ! $result ) {
 			return $rpc->get_jetpack_error();
 		}
@@ -34,9 +41,9 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function schedule_full_sync() {
-		wp_schedule_single_event( strftime( '+1 second' ), 'jetpack_sync_full' );
+		wp_schedule_single_event( time() + 1, 'jetpack_sync_full' );
 	}
 
 }
-
-Jetpack_Sync_Actions::init();
+// Allow other plugins to add filters before we initalize the actions.
+add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 11, 0 );

@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -18,6 +19,7 @@ import {
 	fetchProtectCount,
 	getProtectCount as _getProtectCount
 } from 'state/at-a-glance';
+import { isDevMode } from 'state/connection';
 
 const DashProtect = React.createClass( {
 	getContent: function() {
@@ -29,7 +31,7 @@ const DashProtect = React.createClass( {
 					<DashItem label="Protect" status="is-working" className="jp-dash-item__recently-activated">
 						<div className="jp-dash-item__recently-activated-lower">
 							<QueryProtectCount />
-							<p className="jp-dash-item__description">Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon!</p>
+							<p className="jp-dash-item__description">{ __( 'Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon!' ) }</p>
 						</div>
 					</DashItem>
 				);
@@ -37,15 +39,21 @@ const DashProtect = React.createClass( {
 			return(
 				<DashItem label="Protect" status="is-working">
 					<h2 className="jp-dash-item__count">{ protectCount }</h2>
-					<p className="jp-dash-item__description">Total malicious attacks blocked on your site.</p>
+					<p className="jp-dash-item__description">{ __( 'Total malicious attacks blocked on your site.' ) }</p>
 				</DashItem>
 			);
 		}
 
 		return(
 			<DashItem label="Protect" className="jp-dash-item__is-inactive">
-				<p className="jp-dash-item__description"><a href="javascript:void(0)" onClick={ this.props.activateProtect }>Activate Protect</a> to keep your
-site protected from malicious attacks.</p>
+				<p className="jp-dash-item__description">{
+					isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
+					__( '{{a}}Activate Protect{{/a}} to keep your site protected from malicious attacks.', {
+						components: {
+							a: <a href="javascript:void(0)" onClick={ this.props.activateProtect } />
+						}
+					} )
+				}</p>
 			</DashItem>
 		);
 	},

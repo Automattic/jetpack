@@ -7,14 +7,8 @@
 class Jetpack_Sync_Functions {
 
 	public static function get_modules() {
-		$modules        = array();
-		$active_modules = Jetpack::get_active_modules();
-		foreach ( Jetpack::get_available_modules() as $available_module ) {
-			$modules[ $available_module ] = in_array( $available_module, $active_modules );
-		}
-		$modules['vaultpress'] = class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' );
-
-		return $modules;
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
+		return Jetpack_Admin::init()->get_modules();
 	}
 
 	public static function get_taxonomies() {
@@ -72,5 +66,10 @@ class Jetpack_Sync_Functions {
 		}
 
 		return 0;
+	}
+
+	public static function wp_version() {
+		global $wp_version;
+		return $wp_version;
 	}
 }

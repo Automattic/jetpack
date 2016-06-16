@@ -17,6 +17,7 @@ import {
 	isModuleActivated as _isModuleActivated,
 	activateModule
 } from 'state/modules';
+import { isDevMode } from 'state/connection';
 
 const DashPluginUpdates = React.createClass( {
 	activateAndRedirect: function( e ) {
@@ -59,6 +60,7 @@ const DashPluginUpdates = React.createClass( {
 						</strong>
 						<br/>
 						{
+							isDevMode( this.props ) ? '' :
 							manageActive ?
 								__( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } ):
 								__( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="#" /> } } )

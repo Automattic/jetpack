@@ -74,6 +74,46 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+
+= 4.0.4 =
+
+Bug Fixes:
+
+* Carousel: make sure special characters like & are properly displayed in image titles and descriptions.
+* Carousel: avoid a JavaScript error when visiting a gallery page including a hash in the URL.
+* Comments: fix an issue where the comment form language was always set in English, instead of the language used on the site.
+* Custom CSS: properly handle slashes and quotes when saving Custom CSS.
+* Contact Form: avoid PHP notices that may appear in specific cases when submitting a contact form.
+* Internationalization: avoid Fatal Errors when both Jetpack and GlotPress are active.
+* Manage: use Jetpack native function to get available updates.
+* Open Graph: do not add Open Graph Meta Tags when the SEO Framework plugin is already active.
+* Open Graph: grab images from Slideshows.
+* Open Graph: make sure Open Graph Meta tags are set properly regardless of Static Front Page settings.
+* Photon: avoid PHP notice when Photon arguments are provided as a string, and not as an array.
+* Protect: fix an issue where the Protect math form didn't show up on frontend login forms.
+* Related Posts: avoid notices in WooCommerce setup screen.
+* Sharing: fix sharing count when using unofficial buttons.
+* Sitemaps: avoid any errors when special characters are used in the sitemap stylesheet.
+* Spelling and Grammar: fix mismatching HTML tags.
+* Support: enable the in-dashboard contact form again, to allow everyone to contact the support team without leaving their site.
+* Twitter Cards: make sure they can be removed with the `jetpack_disable_twitter_cards` filter.
+* VideoPress: avoid JavaScript errors in the Post Editor when editing post types that do not support the Core Media editor.
+* Widgets: fix JavaScript errors in the customizer.
+
+Enhancements:
+
+* Connection Process: improvements to the connection process when linking a Jetpack site to WordPress.com.
+* Multisite: improve Jetpack Connection management in Jetpack's Network Admin menu.
+* Photon: auto-generate additional srcset options, to improve responsive image support.
+* Protect: add a new filter, `jetpack_protect_connect_timeout`, to allow customization of the Protect timeout.
+* Staging Sites: add constant for sites hosted with Kinsta.
+
+= 4.0.3 =
+Release date: May 26th, 2016
+Release Post: http://wp.me/p1moTy-3hm
+
+* Important security update. Please upgrade immediately.
+
 = 4.0.2 =
 Release date: April 21st, 2016
 

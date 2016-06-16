@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -28,7 +27,7 @@ export default connect(
 	( state ) => {
 		return {
 			isFetchingSiteData: isFetchingSiteData( state ),
-			siteData: fetchSiteData( state )
+			siteData: fetchSiteData()
 		};
 	},
 	( dispatch ) => {

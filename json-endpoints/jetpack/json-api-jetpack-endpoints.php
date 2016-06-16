@@ -580,7 +580,28 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
 
-// POST /sites/%s/cached-data-check
+// GET /sites/%s/sync/status
+new Jetpack_JSON_API_Sync_Status_Endpoint( array(
+	'description'     => 'Status of the current full sync or the previous full sync',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/sync/status',
+	'stat'            => 'sync-status',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'started' => '(int|null) The unix timestamp when the last sync started',
+		'queue_finished' => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
+		'sent_started' => '(int|null) The unix timestamp when the last sent process started',
+		'finished' => '(int|null) The unix timestamp when the last sync finished',
+		'queue'  => '(array) Count of actions that have been added to the queue',
+		'sent'  => '(array) Count of actions that have been sent',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
+) );
+
+
+// GET /sites/%s/cached-data-check
 new Jetpack_JSON_API_Sync_Check_Endpoint( array(
 	'description'     => 'Check that cacheable data on the site is in sync with wordpress.com',
 	'group'           => '__do_not_document',
@@ -595,6 +616,42 @@ new Jetpack_JSON_API_Sync_Check_Endpoint( array(
 		'comments' => '(string) Comments checksum',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/cached-data-check'
+) );
+
+$sync_settings_response = array(
+	'dequeue_max_bytes' => '(int|bool=false) Maximum bytes to read from queue in a single request',
+	'sync_wait_time'    => '(int|bool=false) Minimum time between requests in seconds',
+	'upload_max_bytes'  => '(int|bool=false) Maximum bytes to send in a single request',
+	'upload_max_rows'   => '(int|bool=false) Maximum rows to send in a single request',
+);
+
+// GET /sites/%s/sync/settings
+new Jetpack_JSON_API_Sync_Get_Settings_Endpoint( array(
+	'description'     => 'Update sync settings',
+	'method'          => 'GET',
+	'group'           => '__do_not_document',
+	'path'            => '/sites/%s/sync/settings',
+	'stat'            => 'write-sync-settings',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => $sync_settings_response,
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/settings'
+) );
+
+// POST /sites/%s/sync/settings
+new Jetpack_JSON_API_Sync_Modify_Settings_Endpoint( array(
+	'description'     => 'Update sync settings',
+	'method'          => 'POST',
+	'group'           => '__do_not_document',
+	'path'            => '/sites/%s/sync/settings',
+	'stat'            => 'write-sync-settings',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => $sync_settings_response,
+	'response_format' => $sync_settings_response,
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/settings'
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );
