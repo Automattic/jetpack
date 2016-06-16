@@ -224,32 +224,52 @@ class VideoPress_Edit_Attachment {
 		$shortcode = '<input type="text" id="plugin-embed" readonly="readonly" style="width:180px;" value="' . esc_attr( $embed ) . '" onclick="this.focus();this.select();" />';
 
 		$trans_status = '';
+		$all_trans_done = true;
 		foreach ( $formats as $status_key => $name ) {
-			$trans_status .= '<strong>' . $name . ":</strong> <span id=\"status_$status_key\">" . ( 'DONE' === $status[ $status_key ]  ? 'Done' : 'Processing' ) . '</span><br>';
+			if ( 'DONE' !== $status[ $status_key ] ) {
+				$all_trans_done = false;
+			}
+
+			$trans_status .= '- <strong>' . $name . ":</strong> <span id=\"status_$status_key\">" . ( 'DONE' === $status[ $status_key ]  ? 'Done' : 'Processing' ) . '</span><br>';
 		}
 
 		$nonce = wp_create_nonce( 'videopress-update-transcoding-status' );
 
 		$url = 'empty';
-		if ( ! empty( $info->url ) ) {
-			$url = "<a href=\"{$info->url}\">{$info->url}</a>";
+		if ( ! empty( $info->guid ) ) {
+			$url = videopress_get_url( $info->guid );
+			$url = "<a href=\"{$url}\">{$url}</a>";
 		}
 
-		$poster = 'empty';
+		$poster = '<em>Still Processing</em>';
 		if ( ! empty( $info->poster ) ) {
-			$poster = "<img src=\"{$info->poster}\" width=\"175px\">";
+			$poster = "<br><img src=\"{$info->poster}\" width=\"175px\">";
+		}
+
+		$status_update = '';
+		if ( ! $all_trans_done ) {
+			$status_update = ' (<a href="javascript:;" id="videopress-update-transcoding-status">update</a>)';
 		}
 
 		$html = <<< HTML
 
-<div class="misc-pub-section misc-pub-shortcode">Shortcode:</div>
-<strong>{$shortcode}</strong>
-<div class="misc-pub-section misc-pub-url">Url:</div>
-<strong>{$url}</strong>
-<div class="misc-pub-section misc-pub-poster">Poster:</div>
-<strong>{$poster}</strong>
-<div class="misc-pub-section misc-pub-status">Status (<a href="javascript:;" id="videopress-update-transcoding-status">update</a>):</div>
-<div id="videopress-transcoding-status">{$trans_status}</div>
+<div class="misc-pub-section misc-pub-shortcode">
+	<strong>Shortcode</strong><br>
+	{$shortcode}
+</div> 
+<div class="misc-pub-section misc-pub-url">
+	<strong>Url</strong>
+	{$url}
+</div> 
+<div class="misc-pub-section misc-pub-poster">
+	<strong>Poster</strong>
+	{$poster}
+</div>
+<div class="misc-pub-section misc-pub-status">
+	<strong>Transcoding Status$status_update:</strong>
+	<div id="videopress-transcoding-status">{$trans_status}</div>
+</div>
+
 
 
 <script>
