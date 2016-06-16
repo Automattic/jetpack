@@ -855,7 +855,7 @@ class Jetpack_VideoPress {
 
 		$post_id = (int)$_POST['post_id'];
 
-		if ( ! $this->update_video_status( $post_id ) ) {
+		if ( ! $this->update_video_meta_date( $post_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'That post does not have a VideoPress video associated to it..', 'jetpack' ) ) );
 			return;
 		}
@@ -869,7 +869,7 @@ class Jetpack_VideoPress {
 	 * @param int $post_id
 	 * @return bool
 	 */
-	public function update_video_status( $post_id ) {
+	public function update_video_meta_date( $post_id ) {
 
         $meta = wp_get_attachment_metadata( $post_id );
 
@@ -883,7 +883,7 @@ class Jetpack_VideoPress {
         $result = wp_remote_get( $this->make_video_get_path( $info->guid ) );
 
         if ( is_wp_error( $result ) ) {
-			return true;
+			return false;
         }
 
         $response = json_decode( $result['body'], true );
