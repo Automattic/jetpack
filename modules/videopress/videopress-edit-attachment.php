@@ -218,8 +218,6 @@ class VideoPress_Edit_Attachment {
 			$url = "<a href=\"{$info->url}\">{$info->url}</a>";
 		}
 
-
-
 		$poster = 'empty';
 		if ( ! empty( $info->poster ) ) {
 			$poster = "<img src=\"{$info->poster}\" width=\"175px\">";
