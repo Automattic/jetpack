@@ -164,7 +164,7 @@ class VideoPress_Edit_Attachment {
 		if ( isset( $info->files_status['std']['ogg'] ) && 'done' ===  $info->files_status['std']['ogg'] ) {
 			$v_name  = preg_replace( '/\.\w+/', '', basename( $info->path ) );
 			$video_name = $v_name . '_fmt1.ogv';
-			$ogg_url  = video_cdn_file_url( $info->guid, $video_name );
+			$ogg_url  = videopress_cdn_file_url( $info->guid, $video_name );
 
 			$fields['video-ogg'] = array(
 				'label' => __('Ogg File URL'),

@@ -213,7 +213,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
  *
  * @return string Absolute URL of VideoPress file for the given guid.
  */
-function video_cdn_file_url( $guid, $filename ) {
+function videopress_cdn_file_url( $guid, $filename ) {
 	if ( is_ssl() ) {
 		return "https://videos.files.wordpress.com/{$guid}/{$filename}";
 
@@ -221,3 +221,27 @@ function video_cdn_file_url( $guid, $filename ) {
 		return "http://videos.videopress.com/{$guid}/{$filename}";
 	}
 }
+
+/**
+ * Get an array of the transcoding status for the given video post.
+ *
+ * @param int $post_id
+ * @return array|bool Returns an array of statuses if this is a VideoPress post, otherwise it returns false.
+ */
+function videopress_get_transcoding_status( $post_id ) {
+	$meta = wp_get_attachment_metadata( $post_id );
+
+	// If this has not been processed by videopress, we can skip the rest.
+	if ( !$meta || ! isset( $meta['videopress'] ) ) {
+		return false;
+	}
+
+	$info = (object) $meta['videopress'];
+
+	// Turn the transcoding statuses into an array.
+
+	$status = array();
+
+	return $status;
+}
+
