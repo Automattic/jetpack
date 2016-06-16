@@ -215,8 +215,8 @@ class VideoPress_Edit_Attachment {
 		$formats = array(
 			'std_mp4' => 'Standard MP4',
 			'std_ogg' => 'OGG Vorbis',
-			'dvd'     => 'DVD',
-			'hd'      => 'High Definition',
+			'dvd_mp4' => 'DVD',
+			'hd_mp4'  => 'High Definition',
 		);
 
 		$embed = "[wpvideo {$info->guid}]";
@@ -225,7 +225,7 @@ class VideoPress_Edit_Attachment {
 
 		$trans_status = '';
 		foreach ( $formats as $status_key => $name ) {
-			$trans_status .= '<strong>' . $name . ':</strong> ' . ( 'done' === $status[ $status_key ]  ? 'Done' : 'Processing' ) . '<br>';
+			$trans_status .= '<strong>' . $name . ":</strong> <span id=\"status_$status_key\">" . ( 'DONE' === $status[ $status_key ]  ? 'Done' : 'Processing' ) . '</span><br>';
 		}
 
 		$nonce = wp_create_nonce( 'videopress-update-transcoding-status' );
@@ -249,7 +249,7 @@ class VideoPress_Edit_Attachment {
 <div class="misc-pub-section misc-pub-poster">Poster:</div>
 <strong>{$poster}</strong>
 <div class="misc-pub-section misc-pub-status">Status (<a href="javascript:;" id="videopress-update-transcoding-status">update</a>):</div>
-<strong id="videopress-transcoding-status">{$trans_status}</strong>
+<div id="videopress-transcoding-status">{$trans_status}</div>
 
 
 <script>
@@ -262,6 +262,15 @@ class VideoPress_Edit_Attachment {
 					action: 'videopress-update-transcoding-status',
 					post_id: '{$post_id}',
 					_ajax_nonce: '{$nonce}' 
+				},
+				complete: function( response ) {
+					if ( 200 === response.status ) {
+						var statuses = response.responseJSON.data.status;
+
+						for (var key in statuses) {
+							$('#status_' + key).text( 'DONE' === statuses[key] ? 'Done' : 'Processing' );
+						}
+					}
 				}
 			});
 		} );
