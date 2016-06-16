@@ -152,7 +152,7 @@ function videopress_override_media_templates(){
 	<script>
 		(function( media ){
 			// This handles the media library modal attachment details display.
-			if ( typeof media.view.Attachment.Details.TwoColumn !== 'undefined' ) {
+			if ( 'undefined' !== typeof media.view.Attachment.Details.TwoColumn ) {
 				var TwoColumn   = media.view.Attachment.Details.TwoColumn,
 					old_render  = TwoColumn.prototype.render,
 					vp_template = wp.template('videopress_iframe_vnext');
@@ -175,7 +175,7 @@ function videopress_override_media_templates(){
 			} else { /* console.log( 'media.view.Attachment.Details.TwoColumn undefined' ); */ }
 
 			// This handles the recreating of the core video shortcode when editing the mce embed.
-			if ( typeof media.video !== 'undefined' ) {
+			if ( 'undefined' !== typeof media.video ) {
 				media.video.defaults.videopress_guid = '';
 
 				// For some reason, even though we're not currently changing anything, the following proxy
