@@ -194,6 +194,7 @@ class Jetpack {
 		                                                         // 2 Click Social Media Buttons
 		'add-link-to-facebook/add-link-to-facebook.php',         // Add Link to Facebook
 		'add-meta-tags/add-meta-tags.php',                       // Add Meta Tags
+		'autodescription/autodescription.php',                   // The SEO Framework
 		'easy-facebook-share-thumbnails/esft.php',               // Easy Facebook Share Thumbnail
 		'facebook/facebook.php',                                 // Facebook (official plugin)
 		'facebook-awd/AWD_facebook.php',                         // Facebook AWD All in one
@@ -363,10 +364,6 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		/**
-		 * Trigger a wp_version sync when updating WP versions
-		 **/
-		add_action( 'upgrader_process_complete', array( 'Jetpack', 'update_get_wp_version' ), 10, 2 );
 
 		/*
 		 * Load things that should only be in Network Admin.
@@ -1086,29 +1083,7 @@ class Jetpack {
 	public static function featured_images_enabled() {
 		return current_theme_supports( 'post-thumbnails' ) ? '1' : '0';
 	}
-
-	/*
-	 * Sync back wp_version
-	 */
-	public static function get_wp_version() {
-		global $wp_version;
-		return $wp_version;
-	}
-
-	/**
-	 * Keeps wp_version in sync with .com when WordPress core updates
-	 **/
-	public static function update_get_wp_version( $update, $meta_data ) {
-		if ( 'update' === $meta_data['action'] && 'core' === $meta_data['type'] ) {
-			/** This action is documented in wp-includes/option.php */
-			/**
-			 * This triggers the sync for the jetpack version
-			 * See Jetpack_Sync options method for more info.
-			 */
-			do_action( 'add_option_jetpack_wp_version', 'jetpack_wp_version', (string) Jetpack::get_wp_version() );
-		}
-	}
-
+	
 	/**
 	 * jetpack_updates is saved in the following schema:
 	 *
@@ -1659,7 +1634,7 @@ class Jetpack {
 		 *
 		 * @param bool true Should Twitter Card Meta tags be disabled. Default to true.
 		 */
-		if ( apply_filters( 'jetpack_disable_twitter_cards', true ) ) {
+		if ( ! apply_filters( 'jetpack_disable_twitter_cards', false ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 		}
 	}
@@ -2571,8 +2546,6 @@ class Jetpack {
 		$active[] = $module;
 		Jetpack_Options::update_option( 'active_modules', array_unique( $active ) );
 		Jetpack::state( 'error', false ); // the override
-		Jetpack::state( 'message', 'module_activated' );
-		Jetpack::state( 'module', $module );
 		ob_end_clean();
 		Jetpack::catch_errors( false );
 
@@ -5619,7 +5592,7 @@ p {
 		 * @param array $known_staging {
 		 *     An array of arrays that each are used to check if the current site is staging.
 		 *     @type array $urls      URLs of staging sites in regex to check against site_url.
-		 *     @type array $cosntants PHP constants of known staging/developement environments.
+		 *     @type array $constants PHP constants of known staging/developement environments.
 		 *  }
 		 */
 		$known_staging = apply_filters( 'jetpack_known_staging', $known_staging );

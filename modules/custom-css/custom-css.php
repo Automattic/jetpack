@@ -108,7 +108,7 @@ class Jetpack_Custom_CSS {
 			check_admin_referer( 'safecss' );
 
 			$save_result = self::save( array(
-				'css' => $_POST['safecss'],
+				'css' => stripslashes( $_POST['safecss'] ),
 				'is_preview' => isset( $_POST['action'] ) && $_POST['action'] == 'preview',
 				'preprocessor' => isset( $_POST['custom_css_preprocessor'] ) ? $_POST['custom_css_preprocessor'] : '',
 				'add_to_existing' => isset( $_POST['add_to_existing'] ) ? $_POST['add_to_existing'] == 'true' : true,
@@ -214,6 +214,8 @@ class Jetpack_Custom_CSS {
 		$css = $orig = $args['css'];
 
 		$css = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $prev = $css );
+		// prevent content: '\3434' from turning into '\\3434'
+		$css = str_replace( array( '\'\\\\', '"\\\\' ), array( '\'\\', '"\\' ), $css );
 
 		if ( $css != $prev )
 			$warnings[] = 'preg_replace found stuff';
@@ -429,11 +431,11 @@ class Jetpack_Custom_CSS {
 				return false;
 
 			$post = array();
-			$post['post_content'] = $css;
+			$post['post_content'] = wp_slash( $css );
 			$post['post_title'] = 'safecss';
 			$post['post_status'] = 'publish';
 			$post['post_type'] = 'safecss';
-			$post['post_content_filtered'] = $compressed_css;
+			$post['post_content_filtered'] = wp_slash( $compressed_css );
 
 			// Set excerpt to current theme, for display in revisions list
 			if ( function_exists( 'wp_get_theme' ) ) {
@@ -471,6 +473,8 @@ class Jetpack_Custom_CSS {
 
 		// Do not update post if we are only saving a preview
 		if ( false === $is_preview ) {
+			$safecss_post['post_content'] = wp_slash( $safecss_post['post_content'] );
+			$safecss_post['post_content_filtered'] = wp_slash( $safecss_post['post_content_filtered'] );
 			$post_id = wp_update_post( $safecss_post );
 			wp_cache_set( 'custom_css_post_id', $post_id );
 			return $post_id;

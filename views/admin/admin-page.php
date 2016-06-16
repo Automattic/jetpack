@@ -185,7 +185,6 @@
 			<?php
 				// Get a list of Jetpack Happiness Engineers.
 				$jetpack_hes = array(
-					'724cd8eaaa1ef46e4c38c4213ee1d8b7',
 					'623f42e878dbd146ddb30ebfafa1375b',
 					'561be467af56cefa58e02782b7ac7510',
 					'd8ad409290a6ae7b60f128a0b9a0c1c5',
@@ -195,10 +194,16 @@
 					'9d4b77080c699629e846d3637b3a661c',
 					'4626de7797aada973c1fb22dfe0e5109',
 					'190cf13c9cd358521085af13615382d5',
-					'0d6982875acab8158ccc8b77aa67251a',
 					'f7006d10e9f7dd7bea89a001a2a2fd59',
 					'16acbc88e7aa65104ed289d736cb9698',
 					'4d5ad4219c6f676ea1e7d40d2e8860e8',
+					'e301f7d01b09e7578fdfc1b1ec1bc08d',
+					'42f4c73f5337486e199f6e3b3910f168',
+					'e7b26de48e76498cff880abca1eed8da',
+					'764fb02aaae2ff64c0625c763d82b74e',
+					'4988305772319fb9bc8fce0a7acb3aa1',
+					'5d8695c4b81592f1255721d2644627ca',
+					'0e2249a7de3404bc6d5207a45e911187',
 				);
 
 				// Get a fallback profile image.

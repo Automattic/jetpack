@@ -17,6 +17,10 @@ class WP_Test_Jetpack_New_Sync_Updates extends WP_Test_Jetpack_New_Sync_Base {
 		wp_update_plugins();
 		$this->client->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
+
+		$this->assertFalse( isset( $updates->no_update ) );
+		$this->assertTrue( isset( $updates->response ) );
+
 		$this->assertTrue( is_int( $updates->last_checked ) );
 	}
 
@@ -35,14 +39,14 @@ class WP_Test_Jetpack_New_Sync_Updates extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_sync_wp_version() {
-		$this->assertEquals( null, $this->server_replica_storage->get_wp_version() );
-
-		do_action( 'upgrader_process_complete', null, array( 'action' => 'update', 'type' => 'core' ) );
-
-		$this->client->do_sync();
-
 		global $wp_version;
-		$this->assertEquals( $wp_version, $this->server_replica_storage->get_wp_version() );
+		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
+
+		// Lets pretend that we updated the wp_version to bar.
+		$wp_version = 'bar';
+		do_action( 'upgrader_process_complete', null, array( 'action' => 'update', 'type' => 'core' ) );
+		$this->client->do_sync();
+		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
 	}
 
 }

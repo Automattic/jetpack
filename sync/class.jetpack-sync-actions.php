@@ -52,7 +52,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function schedule_full_sync() {
-		wp_schedule_single_event( strftime( '+1 second' ), 'jetpack_sync_full' );
+		wp_schedule_single_event( time() + 1, 'jetpack_sync_full' );
 	}
 
 }

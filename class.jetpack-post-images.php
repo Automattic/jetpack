@@ -18,11 +18,17 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
-		if ( !empty( $post->post_password ) )
+
+		if ( ! $post ) {
 			return $images;
+		}
+
+		if ( ! empty( $post->post_password ) ) {
+			return $images;
+		}
 
 		if ( false === has_shortcode( $post->post_content, 'slideshow' ) ) {
-			return false; // no slideshow - bail
+			return $images; // no slideshow - bail
 		}
 
 		$permalink = get_permalink( $post->ID );
@@ -40,11 +46,11 @@ class Jetpack_PostImages {
 
 		foreach ( $slideshow_matches as $slideshow_match ) {
 			$slideshow = do_shortcode_tag( $slideshow_match );
-			if ( false === $pos = stripos( $slideshow, 'slideShow.images' ) ) // must be something wrong - or we changed the output format in which case none of the following will work
+			if ( false === $pos = stripos( $slideshow, 'jetpack-slideshow' ) ) // must be something wrong - or we changed the output format in which case none of the following will work
 				continue;
 			$start = strpos( $slideshow, '[', $pos );
 			$end = strpos( $slideshow, ']', $start );
-			$post_images = json_decode( str_replace( "'", '"', substr( $slideshow, $start, $end - $start + 1 ) ) ); // parse via JSON
+			$post_images = json_decode( wp_specialchars_decode( str_replace( "'", '"', substr( $slideshow, $start, $end - $start + 1 ) ), ENT_QUOTES ) ); // parse via JSON
 			foreach ( $post_images as $post_image ) {
 				if ( !$post_image_id = absint( $post_image->id ) )
 					continue;
@@ -85,25 +91,49 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
+
+		if ( ! $post ) {
+			return $images;
+		}
+
 		if ( ! empty( $post->post_password ) ) {
 			return $images;
 		}
 
 		$permalink = get_permalink( $post->ID );
 
-		$gallery_images = get_post_galleries_images( $post->ID, false );
+		$galleries = get_post_galleries( $post->ID, false );
 
-		foreach ( $gallery_images as $galleries ) {
-			foreach ( $galleries as $src ) {
-				list( $raw_src ) = explode( '?', $src ); // pull off any Query string (?w=250)
-				$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
-				$raw_src = esc_url_raw( $raw_src ); // clean it
-				$images[] = array(
-					'type'  => 'image',
-					'from'  => 'gallery',
-					'src'   => $raw_src,
-					'href'  => $permalink,
-				);
+		foreach ( $galleries as $gallery ) {
+			if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] && ! empty( $gallery['ids'] ) ) {
+				$image_ids = explode( ',', $gallery['ids'] );
+				$image_size = isset( $gallery['size'] ) ? $gallery['size'] : 'thumbnail';
+				foreach ( $image_ids as $image_id ) {
+					$image = wp_get_attachment_image_src( $image_id, $image_size );
+					if ( ! empty( $image[0] ) ) {
+						list( $raw_src ) = explode( '?', $image[0] ); // pull off any Query string (?w=250)
+						$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
+						$raw_src = esc_url_raw( $raw_src ); // clean it
+						$images[] = array(
+							'type'  => 'image',
+							'from'  => 'gallery',
+							'src'   => $raw_src,
+							'href'  => $permalink,
+						);
+					}
+				}
+			} elseif ( ! empty( $gallery['src'] ) ) {
+				foreach ( $gallery['src'] as $src ) {
+					list( $raw_src ) = explode( '?', $src ); // pull off any Query string (?w=250)
+					$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
+					$raw_src = esc_url_raw( $raw_src ); // clean it
+					$images[] = array(
+						'type'  => 'image',
+						'from'  => 'gallery',
+						'src'   => $raw_src,
+						'href'  => $permalink,
+					);
+				}
 			}
 		}
 
@@ -118,8 +148,10 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
-		if ( !empty( $post->post_password ) )
+
+		if ( ! empty( $post->post_password ) ) {
 			return $images;
+		}
 
 		$post_images = get_posts( array(
 			'post_parent' => $post_id,   // Must be children of post
@@ -128,8 +160,9 @@ class Jetpack_PostImages {
 			'post_mime_type' => 'image', // Must be images
 		) );
 
-		if ( !$post_images )
-			return false;
+		if ( ! $post_images ) {
+			return $images;
+		}
 
 		$permalink = get_permalink( $post_id );
 
@@ -190,11 +223,14 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
-		if ( !empty( $post->post_password ) )
-			return $images;
 
-		if ( !function_exists( 'get_post_thumbnail_id' ) )
+		if ( ! empty( $post->post_password ) ) {
 			return $images;
+		}
+
+		if ( ! function_exists( 'get_post_thumbnail_id' ) ) {
+			return $images;
+		}
 
 		$thumb = get_post_thumbnail_id( $post_id );
 
@@ -268,16 +304,19 @@ class Jetpack_PostImages {
 
 		if ( is_numeric( $html_or_id ) ) {
 			$post = get_post( $html_or_id );
-			if ( empty( $post ) || !empty( $post->post_password ) )
+
+			if ( empty( $post ) || ! empty( $post->post_password ) ) {
 				return $images;
+			}
 
 			$html = $post->post_content; // DO NOT apply the_content filters here, it will cause loops
 		} else {
 			$html = $html_or_id;
 		}
 
-		if ( !$html )
+		if ( ! $html ) {
 			return $images;
+		}
 
 		preg_match_all( '!<img.*src=[\'"]([^"]+)[\'"].*/?>!iUs', $html, $matches );
 		if ( !empty( $matches[1] ) ) {

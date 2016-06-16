@@ -151,6 +151,8 @@ class Jetpack_Sync_Client {
 		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
 
+		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array( $this, 'filter_update_keys' ), 10, 2 );
+
 		// multi site network options
 		if ( $this->is_multisite ) {
 			add_action( 'add_site_option', $handler, 10, 2 );
@@ -164,6 +166,10 @@ class Jetpack_Sync_Client {
 		add_action( 'jetpack_full_sync_options', $handler );
 		add_action( 'jetpack_full_sync_posts', $handler ); // also sends post meta
 		add_action( 'jetpack_full_sync_comments', $handler ); // also send comments meta
+		add_action( 'jetpack_full_sync_constants', $handler );
+		add_action( 'jetpack_full_sync_callables', $handler );
+		add_action( 'jetpack_full_sync_updates', $handler );
+
 		add_action( 'jetpack_full_sync_users', $handler );
 		add_action( 'jetpack_full_sync_terms', $handler, 10, 2 );
 		if ( is_multisite() ) {
@@ -181,6 +187,17 @@ class Jetpack_Sync_Client {
 		add_action( 'jetpack_sync_actions', array( $this, 'do_sync' ) );
 	}
 
+	// removes unnecessary keys from synced updates data
+	function filter_update_keys( $args ) {
+		$updates = $args[0];
+
+		if ( isset( $updates->no_update ) ) {
+			unset( $updates->no_update );
+		}
+
+		return $args;
+	}
+
 	// TODO: Refactor to use one set whitelist function, with one is_whitelisted.
 	function set_options_whitelist( $options ) {
 		$this->options_whitelist = $options;
@@ -194,16 +211,24 @@ class Jetpack_Sync_Client {
 		$this->constants_whitelist = $constants;
 	}
 
-	function get_callable_whitelist() {
-		return $this->callable_whitelist;
+	function get_constants_whitelist() {
+		return $this->constants_whitelist;
 	}
 
 	function set_callable_whitelist( $callables ) {
 		$this->callable_whitelist = $callables;
 	}
 
+	function get_callable_whitelist() {
+		return $this->callable_whitelist;
+	}
+
 	function set_network_options_whitelist( $options ) {
 		$this->network_options_whitelist = $options;
+	}
+
+	function get_network_options_whitelist() {
+		return $this->network_options_whitelist;
 	}
 
 	function set_dequeue_max_bytes( $size ) {
@@ -306,6 +331,15 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
+		/**
+		 * Modify the data within an action before it is enqueued locally.
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param array The action parameters
+		 */
+		$args = apply_filters( "jetpack_sync_before_enqueue_$current_filter", $args );
+
 		// if we add any items to the queue, we should 
 		// try to ensure that our script can't be killed before
 		// they are sent
@@ -338,25 +372,17 @@ class Jetpack_Sync_Client {
 		 * Fires when the client needs to sync theme support info
 		 * Only sends theme support attributes whitelisted in Jetpack_Sync_Defaults::$default_theme_support_whitelist
 		 *
-		 * @since 4.1.0
+		 * @since 4.2.0
 		 *
 		 * @param object the theme support hash
 		 */
 		do_action( 'jetpack_sync_current_theme_support', $theme_support );
+		return 1; // The number of actions enqueued
 	}
 
 	function send_wp_version( $update, $meta_data ) {
 		if ( 'update' === $meta_data['action'] && 'core' === $meta_data['type'] ) {
-			global $wp_version;
-
-			/**
-			 * Fires when the client needs to sync WordPress version
-			 *
-			 * @since 4.1.0
-			 *
-			 * @param string The WordPress version number
-			 */
-			do_action( 'jetpack_sync_wp_version', $wp_version );
+			$this->force_sync_callables();
 		}
 	}
 
@@ -370,7 +396,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Fires when the client needs to sync a new term
 		 *
-		 * @since 4.1.0
+		 * @since 4.2.0
 		 *
 		 * @param object the Term object
 		 */
@@ -383,7 +409,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Fires when the client needs to sync an attachment for a post
 		 *
-		 * @since 4.1.0
+		 * @since 4.2.0
 		 *
 		 * @param int The attachment ID
 		 * @param object The attachment
@@ -411,7 +437,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Fires when the client needs to sync an updated user
 		 *
-		 * @since 4.1.0
+		 * @since 4.2.0
 		 *
 		 * @param object The WP_User object
 		 */
@@ -424,7 +450,7 @@ class Jetpack_Sync_Client {
 		/**
 		 * Fires when the client needs to sync an updated user
 		 *
-		 * @since 4.1.0
+		 * @since 4.2.0
 		 *
 		 * @param object The WP_User object
 		 */
@@ -437,7 +463,7 @@ class Jetpack_Sync_Client {
 			/**
 			 * Fires when the client needs to sync an updated user
 			 *
-			 * @since 4.1.0
+			 * @since 4.2.0
 			 *
 			 * @param object The WP_User object
 			 */
@@ -497,23 +523,23 @@ class Jetpack_Sync_Client {
 
 		$upload_size   = 0;
 		$items_to_send = array();
-
+		$actions_to_send = array();
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
 		foreach ( $buffer->get_items() as $key => $item ) {
-
 			/**
 			 * Modify the data within an action before it is serialized and sent to the server
 			 * For example, during full sync this expands Post ID's into full Post objects,
 			 * so that we don't have to serialize the whole object into the queue.
 			 *
-			 * @since 4.1.0
+			 * @since 4.2.0
 			 *
 			 * @param array The action parameters
 			 */
 			$item[1] = apply_filters( "jetpack_sync_before_send_" . $item[0], $item[1] );
 
 			$encoded_item = $this->codec->encode( $item );
+
 			$upload_size += strlen( $encoded_item );
 
 			if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
@@ -521,14 +547,24 @@ class Jetpack_Sync_Client {
 			}
 
 			$items_to_send[ $key ] = $encoded_item;
+			$actions_to_send[] = $item[0];
 		}
+		/**
+		 * Allows us to keep track of all the actions that have been sent.
+		 * Allows us to calculate the progress of specific actions.
+		 *
+		 * @since 4.1
+		 *
+		 * @param array $actions_to_send The actions that we are about to send.
+		 */
+		do_action( 'jetpack_sync_actions_to_send', $actions_to_send );
 
 		/**
 		 * Fires when data is ready to send to the server.
 		 * Return false or WP_Error to abort the sync (e.g. if there's an error)
 		 * The items will be automatically re-sent later
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 *
 		 * @param array $data The action buffer
 		 */
@@ -627,34 +663,70 @@ class Jetpack_Sync_Client {
 	}
 
 	function force_sync_constants() {
-		foreach ( $this->constants_whitelist as $name ) {
-			delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME . "_$name" );
-		}
-
+		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
 		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
 		$this->maybe_sync_constants();
+
+	}
+
+	function full_sync_constants() {
+		/**
+		 * Tells the client to sync all constants to the server
+		 *
+		 * @since 4.1
+		 *
+		 * @param boolean Whether to expand constants (should always be true)
+		 */
+		do_action( 'jetpack_full_sync_constants', true );
+		return 1; // The number of actions enqueued
 	}
 
 	function force_sync_options() {
 		/**
 		 * Tells the client to sync all options to the server
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 *
 		 * @param boolean Whether to expand options (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_options', true );
+		return 1; // The number of actions enqueued
 	}
 
 	function force_sync_network_options() {
 		/**
 		 * Tells the client to sync all network options to the server
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 *
 		 * @param boolean Whether to expand options (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_network_options', true );
+		return 1; // The number of actions enqueued
+	}
+
+	public function full_sync_callables() {
+		/**
+		 * Tells the client to sync all callables to the server
+		 *
+		 * @since 4.1
+		 *
+		 * @param boolean Whether to expand callables (should always be true)
+		 */
+		do_action( 'jetpack_full_sync_callables', true );
+		return 1; // The number of actions enqueued
+	}
+
+	public function full_sync_updates() {
+		/**
+		 * Tells the client to sync all updates to the server
+		 *
+		 * @since 4.1
+		 *
+		 * @param boolean Whether to expand callables (should always be true)
+		 */
+		do_action( 'jetpack_full_sync_updates', true );
+		return 1; // The number of actions enqueued
 	}
 
 	private function maybe_sync_constants() {
@@ -668,28 +740,30 @@ class Jetpack_Sync_Client {
 		}
 
 		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
-
+		$constants_checksums = get_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, array() );
 		// only send the constants that have changed
 		foreach ( $constants as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
 
 			// explicitly not using Identical comparison as get_option returns a string
-			if ( $checksum != get_option( self::CONSTANTS_CHECKSUM_OPTION_NAME . "_$name" ) ) {
+			if ( ! $this->still_valid_checksum( $constants_checksums, $name, $checksum ) ) {
 				/**
 				 * Tells the client to sync a constant to the server
 				 *
-				 * @since 4.1
+				 * @since 4.2.0
 				 *
 				 * @param string The name of the constant
 				 * @param mixed The value of the constant
 				 */
 				do_action( 'jetpack_sync_constant', $name, $value );
-				update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME . "_$name", $checksum );
+				$constants_checksums[ $name ] = $checksum;
 			}
 		}
-	}
 
-	private function get_all_constants() {
+		update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, $constants_checksums );
+	}
+	// public so that we don't have to store an option for each constant
+	function get_all_constants() {
 		return array_combine(
 			$this->constants_whitelist,
 			array_map( array( $this, 'get_constant' ), $this->constants_whitelist )
@@ -704,11 +778,16 @@ class Jetpack_Sync_Client {
 		return null;
 	}
 
-	public function force_sync_callables() {
-		foreach ( $this->callable_whitelist as $name => $config ) {
-			delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME . "_$name" );
-		}
+	public function get_all_updates() {
+		return array(
+			'core' => get_site_transient( 'update_core' ),
+			'plugins' => get_site_transient( 'update_plugins' ),
+			'themes' => get_site_transient( 'update_themes' ),
+		);
+	}
 
+	public function force_sync_callables() {
+		delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME );
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->maybe_sync_callables();
 	}
@@ -725,26 +804,36 @@ class Jetpack_Sync_Client {
 
 		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
 
+		$callable_checksums = get_option( self::CALLABLES_CHECKSUM_OPTION_NAME , array() );
+
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
 			// explicitly not using Identical comparison as get_option returns a string
-			if ( $checksum != get_option( self::CALLABLES_CHECKSUM_OPTION_NAME . "_$name" ) ) {
+			if ( ! $this->still_valid_checksum( $callable_checksums, $name, $checksum ) ) {
 				/**
 				 * Tells the client to sync a callable (aka function) to the server
 				 *
-				 * @since 4.1
+				 * @since 4.2.0
 				 *
 				 * @param string The name of the callable
 				 * @param mixed The value of the callable
 				 */
 				do_action( 'jetpack_sync_callable', $name, $value );
-				update_option( self::CALLABLES_CHECKSUM_OPTION_NAME . "_$name", $checksum );
+				$callable_checksums[ $name ] = $checksum;
 			}
 		}
+		update_option( self::CALLABLES_CHECKSUM_OPTION_NAME , $callable_checksums );
 	}
 
-	private function get_all_callables() {
+	private function still_valid_checksum( $sums_to_check, $name, $new_sum ) {
+		if ( isset( $sums_to_check[ $name ] ) && $sums_to_check[ $name ] === $new_sum ) {
+			return true;
+		}
+		return false;
+	}
+
+	public function get_all_callables() {
 		return array_combine(
 			array_keys( $this->callable_whitelist ),
 			array_map( array( $this, 'get_callable' ), array_values( $this->callable_whitelist ) )
@@ -853,5 +942,12 @@ class Jetpack_Sync_Client {
 
 	function reset_data() {
 		$this->reset_sync_queue();
+
+		// Lets delete all the other fun stuff like transient and option.
+		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
+		delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME );
+
+		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
 	}
 }

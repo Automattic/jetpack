@@ -51,7 +51,7 @@ class Jetpack_Protect_Module {
 		add_action( 'jetpack_deactivate_module_protect', array ( $this, 'on_deactivation' ) );
 		add_action( 'init', array ( $this, 'maybe_get_protect_key' ) );
 		add_action( 'jetpack_modules_loaded', array ( $this, 'modules_loaded' ) );
-		add_action( 'login_head', array ( $this, 'check_use_math' ) );
+		add_action( 'init', array ( $this, 'check_use_math' ) );
 		add_filter( 'authenticate', array ( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login', array ( $this, 'log_successful_login' ), 10, 2 );
 		add_action( 'wp_login_failed', array ( $this, 'log_failed_attempt' ) );
@@ -174,7 +174,7 @@ class Jetpack_Protect_Module {
 				<p><?php printf( __( 'Thanks for activating Protect! To start protecting your site, please network activate Jetpack on your Multisite installation and activate Protect on your primary site. Due to the way logins are handled on WordPress Multisite, Jetpack must be network-enabled in order for Protect to work properly. <a href="%s" target="_blank">Learn More</a>', 'jetpack' ), 'http://jetpack.com/support/multisite-protect' ); ?></p>
 			</div>
 			<div class="jp-banner__action-container is-opt-in">
-				<a href="<?php echo network_admin_url( 'plugins.php' ); ?>" class="jp-banner__button"
+				<a href="<?php echo esc_url( network_admin_url( 'plugins.php' ) ); ?>" class="jp-banner__button"
 				   id="wpcom-connect"><?php _e( 'View Network Admin', 'jetpack' ); ?></a>
 			</div>
 		</div>
@@ -666,11 +666,23 @@ class Jetpack_Protect_Module {
 			$request['multisite'] = get_blog_count();
 		}
 
+
+		/**
+		 * Filter controls maximum timeout in waiting for reponse from Protect servers.
+		 *
+		 * @module protect
+		 *
+		 * @since 4.0.4
+		 *
+		 * @param int $timeout Max time (in seconds) to wait for a response.
+		 */
+		$timeout = apply_filters( 'jetpack_protect_connect_timeout', 30 );
+
 		$args = array (
 			'body'        => $request,
 			'user-agent'  => $user_agent,
 			'httpversion' => '1.0',
-			'timeout'     => 15
+			'timeout'     => absint( $timeout )
 		);
 
 		$response_json           = wp_remote_post( $this->get_api_host(), $args );
