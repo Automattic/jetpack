@@ -912,9 +912,10 @@ class Jetpack_SSO {
 	function build_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
 		$defaults = array(
-			'action'    => 'jetpack-sso',
-			'site_id'   => Jetpack_Options::get_option( 'id' ),
-			'sso_nonce' => $sso_nonce,
+			'action'       => 'jetpack-sso',
+			'site_id'      => Jetpack_Options::get_option( 'id' ),
+			'sso_nonce'    => $sso_nonce,
+			'calypso_auth' => '1',
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -943,11 +944,12 @@ class Jetpack_SSO {
 		}
 
 		$defaults = array(
-			'action'      => 'jetpack-sso',
-			'site_id'     => Jetpack_Options::get_option( 'id' ),
-			'sso_nonce'   => $sso_nonce,
-			'reauth'      => '1',
-			'redirect_to' => urlencode( $redirect ),
+			'action'       => 'jetpack-sso',
+			'site_id'      => Jetpack_Options::get_option( 'id' ),
+			'sso_nonce'    => $sso_nonce,
+			'reauth'       => '1',
+			'redirect_to'  => urlencode( $redirect ),
+			'calypso_auth' => '1',
 		);
 
 		$args = wp_parse_args( $args, $defaults );
