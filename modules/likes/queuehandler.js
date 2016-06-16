@@ -58,7 +58,7 @@ function JetpackLikesBatchHandler() {
 }
 
 function JetpackLikesMessageListener( event, message ) {
-	var allowedOrigin;
+	var allowedOrigin, $container, $list, offset, rowLength, height, scrollbarWidth;
 
 	if ( 'undefined' === typeof event.event ) {
 		return;
@@ -135,9 +135,8 @@ function JetpackLikesMessageListener( event, message ) {
 	}
 
 	if ( 'showOtherGravatars' === event.event ) {
-		var $container = jQuery( '#likes-other-gravatars' ),
-			$list = $container.find( 'ul' ),
-			offset, rowLength, height, scrollbarWidth;
+		$container = jQuery( '#likes-other-gravatars' );
+		$list = $container.find( 'ul' );
 
 		$container.hide();
 		$list.html( '' );
