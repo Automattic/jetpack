@@ -50,30 +50,234 @@ class Jetpack_VideoPress {
 			add_action( 'wp_ajax_save-attachment', array( $this, 'wp_ajax_save_attachment' ), -1 );
 			add_action( 'wp_ajax_save-attachment-compat', array( $this, 'wp_ajax_save_attachment' ), -1 );
 			add_action( 'wp_ajax_delete-post', array( $this, 'wp_ajax_delete_post' ), -1 );
+			add_action( 'wp_ajax_videopress-update-transcoding-status', array( $this, 'wp_ajax_update_transcoding_status' ), -1 );
 
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		}
 
 		if ( $this->can( 'upload_videos' ) && $options['blog_id'] ) {
 			add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
+			add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
 		}
 
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
+		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
+		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
 	}
 
+	/**
+	 * @param string $url
+	 * @param int $post_id
+	 *
+	 * @return mixed
+	 */
+	public function update_attachment_url_for_videopress( $url, $post_id ) {
+
+		$post = get_post( $post_id );
+
+		if ( $post->post_mime_type === 'video/videopress' ) {
+			$meta = wp_get_attachment_metadata( $post->ID );
+
+			if ( isset( $meta['original']['url'] ) ) {
+				$url = $meta['original']['url'];
+			}
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Adds additional methods the WordPress xmlrpc API for handling VideoPress specific features
+	 *
+	 * @param array $methods
+	 * @return array
+	 **/
+	public function xmlrpc_methods( $methods ) {
+		$methods['jetpack.createMediaItem'] = array( $this, 'xmlrpc_create_media_item' );
+		$methods['jetpack.updateVideoPressInfo'] = array( $this, 'xmlrpc_update_videopress_info' );
+
+		return $methods;
+	}
+
+	/**
+	 * @param array $vp_info
+	 *
+	 * @return array|bool
+	 */
+	public function xmlrpc_update_videopress_info( $vp_info ) {
+
+		$errors = null;
+		foreach ( $vp_info as $vp_item ) {
+			$id = $vp_item['post_id'];
+			$guid = $vp_item['guid'];
+
+			$post = get_post( $id );
+
+			if ( ! $post ) {
+				$errors[] = array(
+					'id' => $id,
+					'error' => 'Post not found',
+				);
+
+				continue;
+			}
+
+			$post->guid = $vp_item['original'];
+			$post->file = $vp_item['original'];
+
+			wp_update_post( $post );
+
+			$meta = wp_get_attachment_metadata( $post->ID );
+			$meta['original']['url'] = $vp_item['original'];
+			$meta['videopress'] = $vp_item;
+			$meta['videopress']['url'] = 'https://videopress.com/v/' . $guid;
+
+			wp_update_attachment_metadata( $post->ID, $meta );
+		}
+
+		if ( count( $errors ) > 0 ) {
+			return array( 'errors' => $errors );
+
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * @param array $media
+	 *
+	 * @return array
+	 */
+	public function xmlrpc_create_media_item( $media ) {
+		$created_items = array();
+
+		foreach ( $media as $media_item ) {
+			$post = array(
+				'post_type'   => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title' => sanitize_title( basename( $media_item['url'] ) ),
+				'post_content' => '',
+			);
+
+			$media_id = wp_insert_post( $post );
+
+			wp_update_attachment_metadata( $media_id, array(
+				'original' => array(
+					'url' => $media_item['url'],
+					'file' => $media_item['file'],
+					'mime_type' => $media_item['type'],
+				),
+			) );
+
+			$created_items[] = array(
+				'id' => $media_id,
+				'post' => get_post( $media_id ),
+			);
+		}
+
+		return array( 'media' => $created_items );
+	}
+
+	/**
+	 * @return null
+	 */
 	function wp_ajax_videopress_get_upload_token() {
-		if ( ! $this->can( 'upload_videos' ) )
+		if ( ! $this->can( 'upload_videos' ) ) {
 			return wp_send_json_error();
+		}
 
-		$result = $this->query( 'jetpack.vpGetUploadToken' );
-		if ( is_wp_error( $result ) )
-			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+		$options = $this->get_options();
 
-		$response = $result;
-		if ( empty( $response['videopress_blog_id'] ) || empty( $response['videopress_token'] ) || empty( $response[ 'videopress_action_url' ] ) )
-			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+		$args = array(
+			'method'  => 'POST',
+		);
+
+		$endpoint = "sites/{$options['id']}/media/token";
+		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args );
+
+		if ( is_wp_error( $result ) ) {
+			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ), 'result' => $result ) );
+		}
+
+		$response = json_decode( $result['body'], true );
+
+		if ( empty( $response['upload_blog_id'] ) || empty( $response['upload_token'] ) ) {
+			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ), 'result' => $result ) );
+		}
+
+		$response['upload_action_url'] = self::make_media_upload_path( $response['upload_blog_id'] );
 
 		return wp_send_json_success( $response );
+	}
+
+	/**
+	 * Get the upload api path.
+	 *
+	 * @param $blog_id
+	 * @return string
+	 */
+	function make_media_upload_path( $blog_id ) {
+		return sprintf(
+			'%s://%s/rest/v%s/videos/%s/new',
+			'https',
+			'public-api.wordpress.com', //JETPACK__WPCOM_JSON_API_HOST,
+			Jetpack_Client::WPCOM_JSON_API_VERSION,
+			$blog_id
+		);
+	}
+
+	/**
+	 * Get the video update path
+	 *
+	 * @param string $guid
+	 * @return string
+	 */
+	function make_video_get_path( $guid ) {
+		return sprintf(
+			'%s://%s/rest/v%s/videos/%s',
+			'https',
+			'public-api.wordpress.com', //JETPACK__WPCOM_JSON_API_HOST,
+			Jetpack_Client::WPCOM_JSON_API_VERSION,
+			$guid
+		);
+	}
+
+	/**
+	 * Modify the default plupload config to turn on videopress specific filters.
+	 */
+	function videopress_pluploder_config( $config ) {
+		$config['filters']['videopress_check_uploads'] = 1;
+		return $config;
+	}
+
+	public function wp_ajax_update_transcoding_status() {
+		return $this->update_transcoding_status();
+	}
+
+	public function update_transcoding_status() {
+		if ( ! isset( $_POST['post_id'] ) ) {
+			return wp_send_json_error( array( 'message' => __( 'A valid post_id is required.', 'jetpack' ) ) );
+		}
+
+		$post_id = $_POST['post_id'];
+		$meta = wp_get_attachment_metadata( $post_id );
+
+		// If this has not been processed by videopress, we can skip the rest.
+		if ( ! isset( $meta['videopress'] ) ) {
+			return wp_send_json_error( array( 'message' => __( 'That post does not have a VideoPress video associated to it..', 'jetpack' ) ) );
+		}
+
+		$info = (object) $meta['videopress'];
+
+		$result = wp_remote_get( $this->make_video_get_path( $info->guid ) );
+
+		if ( is_wp_error( $result ) ) {
+			var_dump($result);
+			return wp_send_json_error( array( 'message' => __( 'Could not update the VideoPress video status. Please try again later.', 'jetpack' ) ) );
+		}
+
+		$response = json_decode( $result['body'], true );
+		var_dump($response);
 	}
 
 	/**
@@ -101,6 +305,8 @@ class Jetpack_VideoPress {
 		}
 
 		$options = array_merge( $defaults, $options );
+		$options['id'] = Jetpack_Options::get_option( 'id' );
+
 		return $options;
 	}
 
@@ -575,6 +781,7 @@ class Jetpack_VideoPress {
 		if ( did_action( 'videopress_enqueue_admin_scripts' ) )
 			return;
 
+		wp_enqueue_script( 'videopress-uploader', plugins_url( 'js/videopress-uploader.js', __FILE__) , array( 'jquery', 'wp-plupload' ), $this->version );
 		wp_enqueue_script( 'videopress-admin', plugins_url( 'js/videopress-admin.js', __FILE__ ), array( 'jquery', 'media-views', 'media-models' ), $this->version );
 		wp_enqueue_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
 

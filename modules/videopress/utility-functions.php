@@ -97,3 +97,68 @@ function videopress_get_attachment_id_by_url( $url ) {
 	}
 	return false;
 }
+
+/**
+ * Return an absolute URI for a given filename and guid on the CDN.
+ * No check is performed to ensure the guid exists or the file is present. Simple centralized string builder.
+ *
+ * @param string $guid VideoPress identifier
+ * @param string $filename name of file associated with the guid (video file name or thumbnail file name)
+ * @return string Absolute URL of VideoPress file for the given guid.
+ */
+function video_cdn_file_url( $guid, $filename ) {
+	if ( is_ssl() ) {
+		return "https://videos.files.wordpress.com/{$guid}/{$filename}";
+
+	} else {
+		return "http://videos.videopress.com/{$guid}/{$filename}";
+	}
+}
+
+
+/**
+ * Wrapper function to extract the status of a particular clip from the database row.
+ *
+ * @param array $info single row from the videos table
+ * @param string $format named video format
+ * @return string format status string, or empty string if no match
+ */
+function videopress_format_status( $info, $format ){
+
+	if ( empty( $info ) || empty( $format ) || ! videopress_is_valid_format($format) ) {
+		return '';
+	}
+
+	if ( $format == 'fmt_std'  || $format == 'fmt_dvd' || $format == 'fmt_hd' ) {
+		return $info->$format;
+
+	} elseif ( $format == 'fmt1_ogg' ) {
+		if ( empty( $info->fmts_ogg ) ) {
+			return '';
+		}
+
+		$r = preg_match( '/fmt1_ogg:([\w-]+);/', $info->fmts_ogg, $m );
+		if ( $r === 0 || $r === false ) {
+			return '';
+		} else {
+			return $m[1];
+		}
+	}
+}
+
+
+/**
+ * Defines valid named format types
+ *
+ * @param string $format named video format checked against master list
+ * @return bool true if given named format is valid, else false
+ **/
+function videopress_is_valid_format($format) {
+	static $valid_formats = array( 'fmt_std', 'fmt_dvd', 'fmt_hd', 'fmt1_ogg' );
+	if ( !empty( $format ) && in_array( $format, $valid_formats ) ) {
+		return true;
+
+	} else {
+		return false;
+	}
+}
