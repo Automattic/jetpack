@@ -776,10 +776,17 @@ class Jetpack_VideoPress {
 
 			wp_update_post( $post );
 
+			// Update the vp guid and set it to a dirrect meta property.
+			update_post_meta( $id, 'videopress_guid', $guid );
+
 			$meta = wp_get_attachment_metadata( $post->ID );
+			$meta['width'] = $vp_item['width'];
+			$meta['height'] = $vp_item['height'];
 			$meta['original']['url'] = $vp_item['original'];
 			$meta['videopress'] = $vp_item;
 			$meta['videopress']['url'] = 'https://videopress.com/v/' . $guid;
+
+			// TODO: Add poster updating.
 
 			wp_update_attachment_metadata( $post->ID, $meta );
 		}
