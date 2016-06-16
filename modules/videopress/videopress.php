@@ -60,6 +60,7 @@ class Jetpack_VideoPress {
 
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
+		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
 	}
 
 	function wp_ajax_videopress_get_upload_token() {
@@ -839,6 +840,32 @@ class Jetpack_VideoPress {
 		}
 
 		return array( 'media' => $created_items );
+	}
+
+	/**
+	 * An override for the attachment url, which returns back the WPCOM videopress original url,
+	 * if it is set to the the objects metadata. this allows us to show the original uploaded
+	 * file on the WPCOM architecture, instead of the locally uplodaded file,
+	 * which doeasn't exist.
+	 *
+	 * @param string $url
+	 * @param int $post_id
+	 *
+	 * @return mixed
+	 */
+	public function update_attachment_url_for_videopress( $url, $post_id ) {
+
+		$post = get_post( $post_id );
+
+		if ( $post->post_mime_type === 'video/videopress' ) {
+			$meta = wp_get_attachment_metadata( $post->ID );
+
+			if ( isset( $meta['original']['url'] ) ) {
+				$url = $meta['original']['url'];
+			}
+		}
+
+		return $url;
 	}
 }
 
