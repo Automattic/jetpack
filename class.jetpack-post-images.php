@@ -20,14 +20,15 @@ class Jetpack_PostImages {
 		$post = get_post( $post_id );
 
 		if ( ! $post ) {
-			return false;
+			return $images;
 		}
 
-		if ( !empty( $post->post_password ) )
+		if ( ! empty( $post->post_password ) ) {
 			return $images;
+		}
 
 		if ( false === has_shortcode( $post->post_content, 'slideshow' ) ) {
-			return false; // no slideshow - bail
+			return $images; // no slideshow - bail
 		}
 
 		$permalink = get_permalink( $post->ID );
@@ -92,7 +93,7 @@ class Jetpack_PostImages {
 		$post = get_post( $post_id );
 
 		if ( ! $post ) {
-			return;
+			return $images;
 		}
 
 		if ( ! empty( $post->post_password ) ) {
@@ -147,8 +148,10 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
-		if ( !empty( $post->post_password ) )
+
+		if ( ! empty( $post->post_password ) ) {
 			return $images;
+		}
 
 		$post_images = get_posts( array(
 			'post_parent' => $post_id,   // Must be children of post
@@ -157,8 +160,9 @@ class Jetpack_PostImages {
 			'post_mime_type' => 'image', // Must be images
 		) );
 
-		if ( !$post_images )
-			return false;
+		if ( ! $post_images ) {
+			return $images;
+		}
 
 		$permalink = get_permalink( $post_id );
 
@@ -219,11 +223,14 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
-		if ( !empty( $post->post_password ) )
-			return $images;
 
-		if ( !function_exists( 'get_post_thumbnail_id' ) )
+		if ( ! empty( $post->post_password ) ) {
 			return $images;
+		}
+
+		if ( ! function_exists( 'get_post_thumbnail_id' ) ) {
+			return $images;
+		}
 
 		$thumb = get_post_thumbnail_id( $post_id );
 
@@ -297,16 +304,19 @@ class Jetpack_PostImages {
 
 		if ( is_numeric( $html_or_id ) ) {
 			$post = get_post( $html_or_id );
-			if ( empty( $post ) || !empty( $post->post_password ) )
+
+			if ( empty( $post ) || ! empty( $post->post_password ) ) {
 				return $images;
+			}
 
 			$html = $post->post_content; // DO NOT apply the_content filters here, it will cause loops
 		} else {
 			$html = $html_or_id;
 		}
 
-		if ( !$html )
+		if ( ! $html ) {
 			return $images;
+		}
 
 		preg_match_all( '!<img.*src=[\'"]([^"]+)[\'"].*/?>!iUs', $html, $matches );
 		if ( !empty( $matches[1] ) ) {
