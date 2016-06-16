@@ -25,6 +25,7 @@
 ### Sitemaps
 
 - We made some changes to avoid PHP notices when one of your posts included a slideshow. To test, you can follow the instructions [here](https://github.com/Automattic/jetpack/pull/4068).
+- Sitemaps also support permalinks using `index.php` now. You can follow the instructions [here](https://github.com/Automattic/jetpack/pull/4093) for your tests.
 
 ### Support
 
