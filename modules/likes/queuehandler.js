@@ -57,8 +57,16 @@ function JetpackLikesBatchHandler() {
 	}
 }
 
-function JetpackLikesMessageListener( event ) {
+function JetpackLikesMessageListener( event, message ) {
+	var allowedOrigin;
+
 	if ( 'undefined' === typeof event.event ) {
+		return;
+	}
+
+	// We only allow messages from one origin
+	allowedOrigin = window.location.protocol + '//widgets.wp.com';
+	if ( allowedOrigin !== message.origin ) {
 		return;
 	}
 
@@ -188,7 +196,7 @@ function JetpackLikesMessageListener( event ) {
 	}
 }
 
-pm.bind( 'likesMessage', function(e) { JetpackLikesMessageListener(e); } );
+pm.bind( 'likesMessage', JetpackLikesMessageListener );
 
 jQuery( document ).click( function( e ) {
 	var $container = jQuery( '#likes-other-gravatars' );
