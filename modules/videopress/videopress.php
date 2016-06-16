@@ -50,6 +50,7 @@ class Jetpack_VideoPress {
 			add_action( 'wp_ajax_save-attachment', array( $this, 'wp_ajax_save_attachment' ), -1 );
 			add_action( 'wp_ajax_save-attachment-compat', array( $this, 'wp_ajax_save_attachment' ), -1 );
 			add_action( 'wp_ajax_delete-post', array( $this, 'wp_ajax_delete_post' ), -1 );
+			add_action( 'wp_ajax_videopress-update-transcoding-status', array( $this, 'wp_ajax_update_transcoding_status' ), -1 );
 
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		}
@@ -816,29 +817,96 @@ class Jetpack_VideoPress {
 
 		foreach ( $media as $media_item ) {
 			$post = array(
-				'post_type'   => 'attachment',
+				'post_type'      => 'attachment',
 				'post_mime_type' => 'video/videopress',
-				'post_title' => sanitize_title( basename( $media_item['url'] ) ),
-				'post_content' => '',
+				'post_title'     => sanitize_title( basename( $media_item[ 'url' ] ) ),
+				'post_content'   => '',
 			);
 
 			$media_id = wp_insert_post( $post );
 
 			wp_update_attachment_metadata( $media_id, array(
 				'original' => array(
-					'url' => $media_item['url'],
-					'file' => $media_item['file'],
-					'mime_type' => $media_item['type'],
+					'url'       => $media_item[ 'url' ],
+					'file'      => $media_item[ 'file' ],
+					'mime_type' => $media_item[ 'type' ],
 				),
 			) );
 
 			$created_items[] = array(
-				'id' => $media_id,
+				'id'   => $media_id,
 				'post' => get_post( $media_id ),
 			);
 		}
 
 		return array( 'media' => $created_items );
+	}
+
+	/**
+	 * Ajax action to update the video transcoding status from the WPCOM API.
+	 *
+	 * @return void
+	 */
+	public function wp_ajax_update_transcoding_status() {
+		if ( ! isset( $_POST['post_id'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'A valid post_id is required.', 'jetpack' ) ) );
+			return;
+		}
+
+		$post_id = (int)$_POST['post_id'];
+
+		if ( ! $this->update_video_status( $post_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'That post does not have a VideoPress video associated to it..', 'jetpack' ) ) );
+			return;
+		}
+
+		wp_send_json_success( array( 'message' => __( 'Status updated', 'jetpack' ), 'status' => videopress_get_transcoding_status( $post_id ) ) );
+	}
+
+	/**
+	 * Update the meta information  status for the given video post.
+	 *
+	 * @param int $post_id
+	 * @return bool
+	 */
+	public function update_video_status( $post_id ) {
+
+        $meta = wp_get_attachment_metadata( $post_id );
+
+        // If this has not been processed by VideoPress, we can skip the rest.
+        if ( ! $meta || ! isset( $meta['videopress'] ) ) {
+	        return false;
+        }
+
+        $info = (object) $meta['videopress'];
+
+        $result = wp_remote_get( $this->make_video_get_path( $info->guid ) );
+
+        if ( is_wp_error( $result ) ) {
+			return true;
+        }
+
+        $response = json_decode( $result['body'], true );
+
+		// TODO: save the new video status to the meta information.
+
+		return true;
+	}
+
+	/**
+	 * Get the video update path
+	 *
+	 * @param string $guid
+	 * @return string
+	 */
+	function make_video_get_path( $guid ) {
+		return sprintf(
+			'%s://%s/rest/v%s/videos/%s',
+			'https',
+			JETPACK__WPCOM_JSON_API_HOST,
+			Jetpack_Client::WPCOM_JSON_API_VERSION,
+			$guid
+		);
 	}
 }
 
