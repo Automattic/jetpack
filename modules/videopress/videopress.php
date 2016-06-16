@@ -59,6 +59,7 @@ class Jetpack_VideoPress {
 		}
 
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
+		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 	}
 
 	function wp_ajax_videopress_get_upload_token() {
@@ -731,6 +732,16 @@ class Jetpack_VideoPress {
 		return $options;
 	}
 
+	/**
+	 * Adds additional methods the WordPress xmlrpc API for handling VideoPress specific features
+	 *
+	 * @param array $methods
+	 * @return array
+	 */
+	public function xmlrpc_methods( $methods ) {
+
+		return $methods;
+	}
 }
 
 // Initialize the module.
