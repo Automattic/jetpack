@@ -67,6 +67,66 @@ function jetpack_load_shortcodes() {
 	}
 }
 
+/**
+ * Runs preg_replace so that replacements don't happen within open tags.  
+ * Parameters are the same as preg_replace, with an added optional search param for improved performance
+ *
+ * @param String $pattern
+ * @param String $replacement
+ * @param String $content
+ * @param String $search
+ * @return String $content
+ */
+function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $search = null ) {
+	if( ! function_exists( 'wp_html_split' ) ) {
+		return $content;
+	}
+
+	if ( $search && false === strpos( $content, $search ) ) {
+		return $content;
+	}
+	
+	$textarr = wp_html_split( $content );
+	unset( $content );
+	foreach( $textarr as &$element ) {
+	    if ( '' === $element || '<' === $element{0} )
+	        continue;
+	    $element = preg_replace( $pattern, $replacement, $element );
+	}
+	
+	return join( $textarr );
+}
+
+/**
+ * Runs preg_replace_callback so that replacements don't happen within open tags.  
+ * Parameters are the same as preg_replace, with an added optional search param for improved performance
+ *
+ * @param String $pattern
+ * @param String $replacement
+ * @param String $content
+ * @param String $search
+ * @return String $content
+ */
+function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $content, $search = null ) {
+	if( ! function_exists( 'wp_html_split' ) ) {
+		return $content;
+	}
+
+	if ( $search && false === strpos( $content, $search ) ) {
+		return $content;
+	}
+	
+	$textarr = wp_html_split( $content );
+	unset( $content );
+	foreach( $textarr as &$element ) {
+	    if ( '' === $element || '<' === $element{0} )
+	        continue;
+	    $element = preg_replace_callback( $pattern, $callback, $element );
+	}
+	
+	return join( $textarr );
+}
+
 global $wp_version;
 
 if ( version_compare( $wp_version, '3.6-z', '>=' ) ) {

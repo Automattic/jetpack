@@ -43,13 +43,12 @@ function jetpack_require_lib_dir() {
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
-// @todo: Only include things like class.jetpack-sync.php if we're connected.
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-sync.php'          );
+require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-actions.php' );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
@@ -75,10 +74,13 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php'       );
 }
 
+require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php' );
+
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
 add_action( 'init', array( 'Jetpack', 'init' ) );
+add_action( 'plugins_loaded', array( 'Jetpack', 'plugin_textdomain' ), 99 );
 add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
 add_filter( 'is_jetpack_site', '__return_true' );

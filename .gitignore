@@ -1,7 +1,20 @@
-.DS_Store
-/vendor/
+## FOLDERS
 /.sass-cache/
 /node_modules
+/vendor/
+/wpcom-test-backup/
+
+
+## FILES
+.DS_Store
 languages/messages.pot
 .idea
-/wpcom-test-backup/
+npm-debug.log
+tests/php/files/jetpack-150x150.jpg
+
+## Things we will need in release branches
+/_inc/build
+/modules/**/*.min.css
+/modules/**/*-rtl.css
+/css
+_inc/jetpack-strings.php

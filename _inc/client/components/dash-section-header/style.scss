@@ -1,0 +1,44 @@
+.jp-dash-section-header {
+	display: flex;
+	flex-wrap: wrap;
+	margin: rem( 40px ) 0 rem( 8px );
+
+	@include breakpoint( "<660px" ) {
+		margin-bottom: rem( 24px );
+	}
+}
+
+.jp-dash-section-header__label {
+	display: inline-block;
+	flex: 1;
+	margin-top: 0;
+	margin-bottom: 0;
+	font-size: rem( 20px );
+	font-weight: 400;
+	white-space: nowrap;
+}
+
+.jp-dash-section-header__settings {
+	display: inline-block;
+	min-width: 44px;
+	text-align: center;
+	color: darken( $gray, 10% );
+
+	.gridicon {
+		position: relative;
+		top: 1px;
+	}
+}
+
+.jp-dash-section-header__external-link {
+	align-self: center;
+	font-style: italic;
+
+	@include breakpoint( "<660px" ) {
+		margin-top: rem( 4px );
+	}
+}
+
+.jp-dash-section-header__children {
+	align-self: center;
+}

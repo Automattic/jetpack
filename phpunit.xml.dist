@@ -27,6 +27,9 @@
 		<testsuite name="infinite-scroll">
 			<directory prefix="test_" suffix=".php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
+		<testsuite name="publicize">
+			<directory prefix="test_" suffix=".php">tests/php/modules/publicize</directory>
+		</testsuite>
 		<testsuite name="sharedaddy">
 			<directory prefix="test_" suffix=".php">tests/php/modules/sharedaddy</directory>
 		</testsuite>
@@ -38,6 +41,11 @@
 		</testsuite>
 		<testsuite name="widgets">
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
+		</testsuite>
+		<testsuite name="sync">
+			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
+			<exclude>tests/php/sync/test_interface.jetpack-sync-replicastore.php</exclude>
+			<file phpVersion="5.3.0" phpVersionOperator=">=">tests/php/sync/test_interface.jetpack-sync-replicastore.php</file>
 		</testsuite>
 	</testsuites>
 	<groups>

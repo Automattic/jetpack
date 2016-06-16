@@ -1,0 +1,33 @@
+// ==========================================================================
+// Global Shared Jetpack Styles
+// ==========================================================================
+
+// Utilities
+// TODO Extract into other files
+
+.jp-hidden-on-mobile {
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+
+// General Elements
+
+.jetpack-pagestyles #wpcontent {
+	padding-left: 0;
+}
+
+.jetpack-pagestyles #wpbody-content {
+	background-color: $gray-light;
+}
+
+.jp-lower {
+	margin: 0 auto;
+	text-align: left;
+	max-width: rem( 720px );
+	padding: rem( 20px );
+}
+
+#contextual-help-link-wrap {
+	display: none;
+}

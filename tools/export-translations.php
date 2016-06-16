@@ -1,16 +1,12 @@
 <?php
 
 /*
- * Exports translations from http://translate.wordpress.com/api/projects/jetpack
+ * Exports translations from http://translate.wordpress.org/api/projects/jetpack
  *
  * php export-translations.php DIRECTORY SOURCE_URL
  */
 
 require dirname( dirname( __FILE__ ) ) . '/locales.php';
-
-$language_packs = array(
-	'ar', 'de', 'en-au', 'en-ca', 'eo', 'es', 'fi', 'fr', 'he', 'id', 'it', 'ja', 'ko', 'nl', 'pt-br', 'ro', 'ru', 'sq', 'sv', 'tr', 'zh-cn', 'zh-tw'
-);
 
 /**
  * Terminates script.  Prints help and message to STDERR
@@ -84,28 +80,23 @@ $source_url = apize_url( rtrim( $argv[2], '/' ) );
 $source     = file_get_contents( $source_url );
 
 $available_sets = json_decode( $source )->translation_sets;
-
 // Maps source locale slugs to current Jetpack locales
-$map = $language_pack = array();
+$map = array();
 foreach ( $available_sets as $set ) {
 	$s = strtolower( str_replace( '-', '_', $set->locale ) );
-
 
 	if ( GP_Locales::exists( $set->locale ) ) {
 		$locale = GP_Locales::by_slug( $set->locale );
 
-		if ( in_array( $set->locale, $language_packs ) ) {
-			$language_pack[$set->locale] = $locale->wp_locale;
-			continue;
-		}
 		$map[$set->locale] = $locale->wp_locale;
 		continue;
 	}
 
-	echo "ERROR\n";
+	echo "ERROR: not found locale {$set->locale}\n";
 
 	// source's 'ja' matches Jetpack's 'ja'
 	if ( isset( $current_sets[$s] ) ) {
+		echo "Found current set: $s\n";
 		$map[$set->locale] = $current_sets[$s];
 		unset( $current_sets[$s] );
 		continue;
@@ -114,9 +105,10 @@ foreach ( $available_sets as $set ) {
 	// source's 'it' matches Jetpack's 'it_IT'
 	foreach ( array_keys( $current_sets ) as $c ) {
 		if ( 0 === strpos( $c, $s ) ) {
+			echo "Found partial matched set: $s";
 			$map[$set->locale] = $current_sets[$c];
 			unset( $current_sets[$c] );
-			continue 2;
+			continue;
 		}
 	}
 
@@ -126,12 +118,7 @@ foreach ( $available_sets as $set ) {
 
 // Get all the PO files
 foreach ( $available_sets as $id => $set ) {
-	if ( empty( $language_pack[$set->locale] ) ) {
-		echo "SKIPPING {$set->locale} (language pack)\n";
-		continue;
-	}
-
-	if ( empty( $map[$set->locale] ) ) {
+	if ( ! isset ( $map[$set->locale] ) ) {
 		echo "UNKNOWN LOCALE: {$set->locale}\n";
 		continue;
 	}
@@ -172,7 +159,8 @@ foreach( glob( "{$temp_file_path}/*.po" ) as $output_po ) {
 
 	echo "NOW: $now/$now_total, CURRENT: $current/$current_total\n";
 
-	if ( $now < $current - 1 ) { // some off-by-one error?
+	// Ignoring files that add no changes or that have less than 50% translated
+	if ( $translated / $now_total < 0.5 || $now < $current - 1 ) { // some off-by-one error?
 		echo "IGNORING $file\n";
 		exec( sprintf( 'rm %s', $output_mo ) );
 		exec( sprintf( 'rm %s', $output_po ) );
@@ -183,19 +171,5 @@ foreach( glob( "{$temp_file_path}/*.po" ) as $output_po ) {
 	}
 
 	echo "\n";
-}
-
-// Delete language pack files from the languages directory
-foreach( $language_pack as $locale ) {
-	$file = 'jetpack-' . $locale;
-	echo "DELETING $file.[mp]o\n";
-	echo $po_file = "{$jetpack_directory}/languages/{$file}.po";
-	if ( file_exists( $po_file ) ) {
-		unlink( $po_file );
-	}
-	echo $mo_file = "{$jetpack_directory}/languages/{$file}.mo";
-	if ( file_exists( $mo_file ) ) {
-		unlink( $mo_file );
-	}
 }
 

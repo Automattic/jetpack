@@ -7,10 +7,21 @@
         <testsuite>
             <directory prefix="test_" suffix=".php">php</directory>
         </testsuite>
+        <testsuite name="sync">
+            <directory prefix="test_" suffix=".php">php/sync</directory>
+        </testsuite>
     </testsuites>
     <groups>
         <exclude>
             <group>external-http</group>
         </exclude>
     </groups>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="false">
+            <directory suffix=".php">.</directory>
+            <exclude>
+                <directory suffix=".php">tests</directory>
+            </exclude>
+        </whitelist>
+    </filter>
 </phpunit>

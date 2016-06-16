@@ -1,5 +1,5 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chaselivingston, chellycat, christinepollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, HypertextRanch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, michael-arestad, migueluy, mikeyarce, mjangda, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 4.0
 Requires at least: 4.4
@@ -83,6 +83,7 @@ Bug Fix:
 
 = 4.0 =
 Release date: April 20th, 2016
+Release Post: http://wp.me/p1moTy-3dL
 
 Performance Enhancements:
 
@@ -113,11 +114,13 @@ Bug Fixes:
 
 = 3.9.6 =
 Release date: March 31st, 2016
+Release Post: http://wp.me/p1moTy-3bz
 
 Bug fix: Shortcodes: fixed incorrect Vimeo embed logic.
 
 = 3.9.5 =
-Release date:
+Release date: March 31st, 2016
+Release Post: http://wp.me/p1moTy-3bz
 
 This release features several WordPress 4.5 compatibility changes that make several Jetpack features work properly in the Customizer view. Big thanks to @westonruter for contributing the code!
 
@@ -131,6 +134,7 @@ Other enhancements and bug fixes:
 
 = 3.9.4 =
 Release date: March 10th, 2016
+Release post: http://wp.me/p1moTy-396
 
 Bug fix: Shortcodes: Addresses an issue with embedded Vimeo content
 
@@ -220,6 +224,7 @@ Bug Fixes:
 
 = 3.9 =
 Release date: Jan 20th, 2016
+Release Post: http://wp.me/p1moTy-29R
 
 Featured:
 
@@ -365,11 +370,13 @@ Bug fixes:
 
 = 3.7.2 =
 Release date: September 29th, 2015
+Release Post: http://wp.me/p1moTy-1LB
 
 * Bug Fix: REST API: Fixed an error when saving drafts and publishing posts
 
 = 3.7.1 =
 Release date: September 28th, 2015
+Release Post: http://wp.me/p1moTy-1LB
 
 * Enhancement: General: Added inline documentation for various filters and functions
 * Enhancement: General: Added custom capabilities for module management on multi-site installs
@@ -396,6 +403,7 @@ Release date: September 28th, 2015
 
 = 3.7.0 =
 Release date: September 9th, 2015
+Release Post: http://wp.me/p1moTy-1JB
 
 Feature Enhancements:
 

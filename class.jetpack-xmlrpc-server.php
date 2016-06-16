@@ -75,7 +75,27 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	function authorize_xmlrpc_methods() {
-		return array( 'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ) );
+		return array(
+			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+			'jetpack.activateManage'    => array( $this, 'activate_manage' ),
+		);
+	}
+
+	function activate_manage( $request ) {
+		foreach( array( 'secret', 'state' ) as $required ) {
+			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
+				return $this->error( new Jetpack_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ) );
+			}
+		}
+		$verified = $this->verify_action( array( 'activate_manage', $request['secret'], $request['state'] ) );
+		if ( is_a( $verified, 'IXR_Error' ) ) {
+			return $verified;
+		}
+		$activated = Jetpack::activate_module( 'manage', false, false );
+		if ( false === $activated || ! Jetpack::is_module_active( 'manage' ) ) {
+			return $this->error( new Jetpack_Error( 'activation_error', 'There was an error while activating the module.', 500 ) );
+		}
+		return 'active';
 	}
 
 	function remote_authorize( $request ) {
@@ -107,8 +127,14 @@ class Jetpack_XMLRPC_Server {
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result );
 		}
-		
-		return $result;
+		// Creates a new secret, allowing someone to activate the manage module for up to 1 day after authorization.
+		$secrets = Jetpack::init()->generate_secrets( 'activate_manage', DAY_IN_SECONDS );
+		@list( $secret ) = explode( ':', $secrets );
+		$response = array(
+			'result' => $result,
+			'activate_manage' => $secret,
+		);
+		return $response;
 	}
 
 	/**
