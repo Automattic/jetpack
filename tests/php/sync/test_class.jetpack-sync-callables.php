@@ -61,6 +61,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 			'sso_match_by_email'              => Jetpack_SSO_Helpers::match_by_email(),
 			'sso_new_user_override'           => Jetpack_SSO_Helpers::new_user_override(),
 			'sso_bypass_default_login_form'   => Jetpack_SSO_Helpers::bypass_login_forward_wpcom(),
+			'wp_version'                      => Jetpack_Sync_Functions::wp_version(),
 		);
 
 		$this->client->do_sync();
@@ -85,5 +86,5 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 	function assertCallableIsSynced( $name, $value ) {
 		$this->assertEquals( $value, $this->server_replica_storage->get_callable( $name ), 'Function '. $name .' did\'t have the extected value of ' . json_encode( $value ) );
 	}
-	
+
 }
