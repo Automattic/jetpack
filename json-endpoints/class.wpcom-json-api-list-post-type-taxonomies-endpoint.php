@@ -28,9 +28,10 @@ class WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint extends WPCOM_JSON_API_E
 			$this->load_theme_functions();
 		}
 
-		// API localization occurs after the initial taxonomies have been
-		// registered, so re-register if localizing response
+		/** This filter is documented in jetpack/json-endpoints/class.wpcom-json-api-list-post-types-endpoint.php */
 		if ( apply_filters( 'rest_api_localize_response', false ) ) {
+			// API localization occurs after the initial taxonomies have been
+			// registered, so re-register if localizing response
 			create_initial_taxonomies();
 		}
 
