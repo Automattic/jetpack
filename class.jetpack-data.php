@@ -64,7 +64,7 @@ class Jetpack_Data {
 		 *
 		 * @param bool If the check should be skipped. Default false.
 		 */
-		if ( apply_filters( 'jetpack_skip_usuable_domain_check', false ) ){
+		if ( apply_filters( 'jetpack_skip_usuable_domain_check', false ) ) {
 			return true;
 		}
 
