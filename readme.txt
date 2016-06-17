@@ -86,6 +86,7 @@ Enhancements:
 
 * General: clean up and restyle jetpack related banner notices to match Core notification styles.
 * General: support both 80 and 443 in connections to WordPress.com.
+* Infinite Scroll: improve wording in Infinite Scroll settings.
 * JSON API: updated several API endpoints to match WordPress.com endpoints.
 * Publicize: new `jetpack_publicize_capability` filter to allow user role restriction to be overridden.
 * Shortcodes: new Untappd shortcode.
