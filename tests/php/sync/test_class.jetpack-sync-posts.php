@@ -289,6 +289,18 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( trim( $post_on_server->post_content_filtered ),  'bar' );
 	}
 
+	function test_sync_post_filtered_excerpt_was_filtered() {
+		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
+		$this->post->post_excerpt = "[foo]";
+
+		wp_update_post( $this->post );
+		$this->client->do_sync();
+
+		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( $post_on_server->post_excerpt, '[foo]' );
+		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ),  'bar' );
+	}	
+
 	function test_sync_changed_post_password() {
 		// Don't set the password if there is non.
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
