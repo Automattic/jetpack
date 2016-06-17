@@ -203,11 +203,11 @@ abstract class SAL_Post {
 	}
 
 	protected function get_site_link() {
-		return $this->links->get_site_link( $this->site->blog_id );
+		return $this->links->get_site_link( $this->site->get_id() );
 	}
 
 	protected function get_post_link( $path = null ) {
-		return $this->links->get_post_link( $this->site->blog_id, $this->post->ID, $path );
+		return $this->links->get_post_link( $this->site->get_id(), $this->post->ID, $path );
 	}
 
 	public function get_publicize_urls() {
@@ -377,7 +377,7 @@ abstract class SAL_Post {
 			return (object) array(
 				'ID'   => (int) $parent->ID,
 				'type' => (string) $parent->post_type,
-				'link' => (string) $this->links->get_post_link( $this->site->blog_id, $parent->ID ),
+				'link' => (string) $this->links->get_post_link( $this->site->get_id(), $parent->ID ),
 				'title' => $parent_title,
 			);
 		} else {
@@ -539,9 +539,9 @@ abstract class SAL_Post {
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->links->get_taxonomy_link( $this->site->blog_id, $taxonomy->slug, $taxonomy_type ),
-				'help' => (string) $this->links->get_taxonomy_link( $this->site->blog_id, $taxonomy->slug, $taxonomy_type, 'help' ),
-				'site' => (string) $this->links->get_site_link( $this->site->blog_id ),
+				'self' => (string) $this->links->get_taxonomy_link( $this->site->get_id(), $taxonomy->slug, $taxonomy_type ),
+				'help' => (string) $this->links->get_taxonomy_link( $this->site->get_id(), $taxonomy->slug, $taxonomy_type, 'help' ),
+				'site' => (string) $this->links->get_site_link( $this->site->get_id() ),
 			),
 		);
 
@@ -626,7 +626,7 @@ abstract class SAL_Post {
 
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
-				$info = video_get_info_by_blogpostid( $this->site->blog_id, $media_id );
+				$info = video_get_info_by_blogpostid( $this->site->get_id(), $media_id );
 
 				// Thumbnails
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
@@ -652,9 +652,9 @@ abstract class SAL_Post {
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->links->get_media_link( $this->site->blog_id, $media_id ),
-				'help' => (string) $this->links->get_media_link( $this->site->blog_id, $media_id, 'help' ),
-				'site' => (string) $this->links->get_site_link( $this->site->blog_id ),
+				'self' => (string) $this->links->get_media_link( $this->site->get_id(), $media_id ),
+				'help' => (string) $this->links->get_media_link( $this->site->get_id(), $media_id, 'help' ),
+				'site' => (string) $this->links->get_site_link( $this->site->get_id() ),
 			),
 		);
 
@@ -666,7 +666,7 @@ abstract class SAL_Post {
 		}
 
 		if ( $media_item->post_parent > 0 ) {
-			$response['meta']->links->parent = (string) $this->links->get_post_link( $this->site->blog_id, $media_item->post_parent );
+			$response['meta']->links->parent = (string) $this->links->get_post_link( $this->site->get_id(), $media_item->post_parent );
 		}
 
 		return (object) $response;
