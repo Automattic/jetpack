@@ -51,7 +51,7 @@ class Jetpack_Sync_Actions {
 
 		$rpc = new Jetpack_IXR_Client( array(
 			'url'     => $url,
-			'user_id' => get_current_user_id(),
+			'user_id' => JETPACK_MASTER_USER,
 			'timeout' => 30
 		) );
 
