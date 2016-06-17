@@ -217,8 +217,8 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 	protected function assertUsersEqual( $user1, $user2 ) {
 		// order-independent comparison
-		$user1_array = $user1->to_array();
-		$user2_array = $user2->to_array();
+		$user1_array = get_object_vars( $user1->data );
+		$user2_array = get_object_vars( $user2->data );
 
 		// we don't compare passwords because we don't sync them!
 		unset( $user1_array['user_pass'] );
