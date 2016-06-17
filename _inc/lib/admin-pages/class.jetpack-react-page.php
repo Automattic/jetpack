@@ -9,10 +9,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$title = _x( 'Jetpack', 'The menu item label', 'jetpack' );
 
 		// Add the main admin Jetpack menu
-		add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
-
-		// also create the submenu
-		return add_submenu_page( 'jetpack', $title, __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack' );
+		return add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
 	}
 
 	function add_page_actions( $hook ) {
@@ -37,6 +34,18 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
 
 //		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
+	}
+
+	function jetpack_add_dashboard_sub_nav_item() {
+		global $submenu;
+		$permalink = Jetpack::admin_url( 'page=jetpack#/dashboard' );
+		$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', $permalink );
+	}
+
+	function jetpack_add_settings_sub_nav_item() {
+		global $submenu;
+		$permalink = Jetpack::admin_url( 'page=jetpack#/general' );
+		$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', $permalink );
 	}
 
 	function jetpack_menu_order( $menu_order ) {

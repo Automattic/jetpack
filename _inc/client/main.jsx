@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import assign from 'lodash/assign';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -82,6 +83,8 @@ const Main = React.createClass( {
 				pageComponent = <AtAGlance { ...this.props } />;
 		}
 
+		wpNavMenuClassChange();
+
 		return (
 			<div>
 				<Navigation { ...this.props } />
@@ -118,3 +121,42 @@ export default connect(
 	},
 	dispatch => bindActionCreators( { setInitialState }, dispatch )
 )( Main );
+
+/**
+ * Hack for changing the sub-nav menu core classes for 'settings' and 'dashboard'
+ */
+function wpNavMenuClassChange() {
+	let hash = window.location.hash;
+	const settingRoutes = [
+		'#/settings',
+		'#/general',
+		'#/engagement',
+		'#/security',
+		'#/appearance',
+		'#/writing'
+	],
+	dashboardRoutes = [
+		'#/',
+		'#/dashboard',
+		'#/apps',
+		'#/professional'
+	];
+
+	// Clear currents
+	jQuery( '.current' ).each( function( i, obj ) {
+		jQuery( obj ).removeClass( 'current' );
+	} );
+
+	hash = hash.split( '?' )[0];
+	if ( includes( dashboardRoutes, hash ) ) {
+		let subNavItem = jQuery( '#toplevel_page_jetpack' ).find( 'li' ).filter( function( index ) {
+			return index === 1;
+		} );
+		subNavItem[0].classList.add( 'current' );
+	} else if ( includes( settingRoutes, hash ) ) {
+		let subNavItem = jQuery( '#toplevel_page_jetpack' ).find( 'li' ).filter( function( index ) {
+			return index === 2;
+		} );
+		subNavItem[0].classList.add( 'current' );
+	}
+}
