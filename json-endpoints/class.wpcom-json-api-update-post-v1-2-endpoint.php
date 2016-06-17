@@ -135,7 +135,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		foreach ( array( '', '_by_id' ) as $term_key_suffix ) {
 			$term_input_key = 'terms' . $term_key_suffix;
-			$input[ $term_input_key ] = (array) $input[ $term_input_key ];
+			if ( isset( $input[ $term_input_key ] ) ) {
+				$input[ $term_input_key ] = (array) $input[ $term_input_key ];
+			} else {
+				$input[ $term_input_key ] = array();
+			}
 
 			// Convert comma-separated terms to array before attempting to
 			// merge with hardcoded taxonomies
