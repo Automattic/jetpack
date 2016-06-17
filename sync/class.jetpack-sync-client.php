@@ -615,6 +615,7 @@ class Jetpack_Sync_Client {
 		}
 		/** This filter is already documented in core. wp-includes/post-template.php */
 		$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
+		$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
 		$post->permalink               = get_permalink( $post->ID );
 		$post->shortlink               = wp_get_shortlink( $post->ID );
 		
