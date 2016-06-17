@@ -12,7 +12,20 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @param bool should we load sync code for this request
 		 */
-		if ( ! apply_filters( 'jetpack_sync_should_load', $_SERVER['REQUEST_METHOD'] === 'POST' || current_user_can( 'manage_options' ) || is_admin() || defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) ) {
+		if ( ! apply_filters( 'jetpack_sync_should_load', 
+			(
+				$_SERVER['REQUEST_METHOD'] === 'POST' 
+			|| 
+				current_user_can( 'manage_options' ) 
+			|| 
+				is_admin() 
+			||
+				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+			)
+		&&
+			!( Jetpack::is_development_mode() || Jetpack::is_staging_site() )
+		
+		) ) {
 			return;
 		}
 		
@@ -38,7 +51,7 @@ class Jetpack_Sync_Actions {
 
 		$rpc = new Jetpack_IXR_Client( array(
 			'url'     => $url,
-			'user_id' => get_current_user_id(),
+			'user_id' => JETPACK_MASTER_USER,
 			'timeout' => 30
 		) );
 
