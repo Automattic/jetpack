@@ -97,3 +97,104 @@ function videopress_get_attachment_id_by_url( $url ) {
 	}
 	return false;
 }
+
+/**
+ * Similar to `media_sideload_image` -- but returns an ID.
+ *
+ * @param $url
+ * @param $attachment_id
+ *
+ * @return int|mixed|object|WP_Error
+ */
+function videopress_download_poster_image( $url, $attachment_id ) {
+	// Set variables for storage, fix file filename for query strings.
+	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
+	if ( ! $matches ) {
+		return new WP_Error( 'image_sideload_failed', __( 'Invalid image URL' ) );
+	}
+
+	$file_array = array();
+	$file_array['name']     = basename( $matches[0] );
+	$file_array['tmp_name'] = download_url( $url );
+
+	// If error storing temporarily, return the error.
+	if ( is_wp_error( $file_array['tmp_name'] ) ) {
+		return $file_array['tmp_name'];
+	}
+
+	// Do the validation and storage stuff.
+	$thumbnail_id = media_handle_sideload( $file_array, $attachment_id, null );
+
+	// Flag it as poster image, so we can exclude it from display.
+	update_post_meta( $thumbnail_id, 'videopress_poster_image', 1 );
+
+	return $thumbnail_id;
+}
+
+/**
+ * Creates a local media library item of a remote VideoPress video.
+ *
+ * @param $guid
+ * @param int $parent_id
+ *
+ * @return int|object
+ */
+function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 ) {
+	$vp_data = videopress_get_video_details( $guid );
+	if ( ! $vp_data || is_wp_error( $vp_data ) ) {
+		return $vp_data;
+	}
+
+	$args = array(
+		'post_date'      => $vp_data->upload_date,
+		'post_title'     => wp_kses( $vp_data->title, array() ),
+		'post_content'   => wp_kses( $vp_data->description, array() ),
+		'post_mime_type' => 'video/videopress',
+		'guid'           => sprintf( 'https://videopress.com/v/%s', $guid ),
+	);
+
+	$attachment_id = wp_insert_attachment( $args, null, $parent_id );
+
+	if ( ! is_wp_error( $attachment_id ) ) {
+		update_post_meta( $attachment_id, 'videopress_guid', $guid );
+		wp_update_attachment_metadata( $attachment_id, array(
+			'width'  => $vp_data->width,
+			'height' => $vp_data->height,
+		) );
+
+		$thumbnail_id = videopress_download_poster_image( $vp_data->poster, $attachment_id );
+		update_post_meta( $attachment_id, '_thumbnail_id', $thumbnail_id );
+	}
+
+	return $attachment_id;
+}
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	/**
+	 * Manage and import VideoPress videos.
+	 */
+	class VideoPress_CLI extends WP_CLI_Command {
+		/**
+		 * Import a VideoPress Video
+		 *
+		 * ## OPTIONS
+		 *
+		 * <guid>: Import the video with the specified guid
+		 *
+		 * ## EXAMPLES
+		 *
+		 * wp videopress import kUJmAcSf
+		 *
+		 */
+		public function import( $args ) {
+			$guid = $args[0];
+			$attachment_id = create_local_media_library_for_videopress_guid( $guid );
+			if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
+				WP_CLI::success( sprintf( __( 'The video has been imported as Attachment ID %d', 'jetpack' ), $attachment_id ) );
+			} else {
+				WP_CLI::error( __( 'An error has been encountered.', 'jetpack' ) );
+			}
+		}
+	}
+	WP_CLI::add_command( 'videopress', 'VideoPress_CLI' );
+}
