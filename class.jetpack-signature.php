@@ -1,5 +1,8 @@
 <?php
 
+// These constants can be set in wp-config.php to ensure sites behind proxies will still work.
+// Setting these constants, though, is *not* the preferred method. It's better to configure
+// the proxy to send the X-Forwarded-Port header.
 defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) or define( 'JETPACK_SIGNATURE__HTTP_PORT' , 80  );
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) or define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' )  or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
@@ -32,10 +35,26 @@ class Jetpack_Signature {
 			}
 		}
 
+		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
+
 		if ( is_ssl() ) {
-			$port = JETPACK_SIGNATURE__HTTPS_PORT == $_SERVER['SERVER_PORT'] ? '' : $_SERVER['SERVER_PORT'];
+			// 443: Standard Port
+			// 80: Assume we're behind a proxy without X-Forwarded-Port. Hardcoding "80" here means most sites
+			//     with SSL termination proxies (self-served, Cloudflare, etc.) don't need to fiddle with
+			//     the JETPACK_SIGNATURE__HTTPS_PORT constant. The code also implies we can't talk to a
+			//     site at https://example.com:80/ (which would be a strange configuration).
+			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the backend webserver's port
+			//                                if the site is behind a proxy running on port 443 without
+			//                                X-Forwarded-Port and the backend's port is *not* 80. It's better,
+			//                                though, to configure the proxy to send X-Forwarded-Port.
+			$port = in_array( $host_port, array( 443, 80, JETPACK_SIGNATURE__HTTPS_PORT ) ) ? '' : $host_port;
 		} else {
-			$port = JETPACK_SIGNATURE__HTTP_PORT  == $_SERVER['SERVER_PORT'] ? '' : $_SERVER['SERVER_PORT'];
+			// 80: Standard Port
+			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the backend webserver's port
+			//                                if the site is behind a proxy running on port 80 without
+			//                                X-Forwarded-Port. It's better, though, to configure the proxy to
+			//                                send X-Forwarded-Port.
+			$port = in_array( $host_port, array( 80, JETPACK_SIGNATURE__HTTP_PORT ) ) ? '' : $host_port;
 		}
 
 		$url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
