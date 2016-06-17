@@ -52,6 +52,8 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 			'main_network_site'               => network_site_url(),
 			'single_user_site'                => Jetpack::is_single_user_site(),
 			'updates'                         => Jetpack::get_updates(),
+			'home_url'                        => home_url(),
+			'site_url'                        => site_url(),
 			'has_file_system_write_access'    => Jetpack_Sync_Functions::file_system_write_access(),
 			'is_version_controlled'           => Jetpack_Sync_Functions::is_version_controlled(),
 			'taxonomies'                      => Jetpack_Sync_Functions::get_taxonomies(),
