@@ -12,10 +12,10 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @param bool should we load sync code for this request
 		 */
-		if ( ! apply_filters( 'jetpack_sync_should_load', $_SERVER['REQUEST_METHOD'] === 'POST' || current_user_can( 'manage_options' ) || is_admin() ) ) {
+		if ( ! apply_filters( 'jetpack_sync_should_load', $_SERVER['REQUEST_METHOD'] === 'POST' || current_user_can( 'manage_options' ) || is_admin() || defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) ) {
 			return;
 		}
-
+		
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-client.php';
 
 		self::$client = Jetpack_Sync_Client::getInstance();
