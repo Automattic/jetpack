@@ -172,21 +172,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @dataProvider store_provider
-	 * @requires PHP 5.3
-	 */
-	function test_replica_doesnt_checksum_post_revisions( $store ) {
-		// just add some data
-		$store->upsert_post( self::$factory->post( 5 ) );
-
-		$before_checksum = $store->posts_checksum();
-
-		$store->upsert_post( self::$factory->post( 6, array( 'post_type' => 'revision' ) ) );
-
-		$this->assertEquals( $before_checksum, $store->posts_checksum() );
-	}
-
-	/**
 	 * Comments
 	 *
 	 * @dataProvider store_provider
