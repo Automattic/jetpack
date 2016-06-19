@@ -86,7 +86,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function assertCallableIsSynced( $name, $value ) {
-		$this->assertEquals( $value, $this->server_replica_storage->get_callable( $name ), 'Function '. $name .' did\'t have the extected value of ' . json_encode( $value ) );
+		$this->assertEquals( $value, $this->server_replica_storage->get_callable( $name ), 'Function '. $name .' didn\'t have the expected value of ' . json_encode( $value ) );
 	}
 
 }
