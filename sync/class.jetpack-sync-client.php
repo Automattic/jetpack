@@ -540,17 +540,8 @@ class Jetpack_Sync_Client {
 			}
 
 			$items_to_send[ $key ] = $encoded_item;
-			$actions_to_send[] = $item[0];
+			$actions_to_send[ $key ] = $item[0];
 		}
-		/**
-		 * Allows us to keep track of all the actions that have been sent.
-		 * Allows us to calculate the progress of specific actions.
-		 *
-		 * @since 4.1
-		 *
-		 * @param array $actions_to_send The actions that we are about to send.
-		 */
-		do_action( 'jetpack_sync_actions_to_send', $actions_to_send );
 
 		/**
 		 * Fires when data is ready to send to the server.
@@ -575,15 +566,23 @@ class Jetpack_Sync_Client {
 			// try again in 1 minute
 			$this->schedule_sync( "+1 minute" );
 		} else {
-
-			// scan the sent data to see if a full sync started or finished
-			if ( $this->buffer_includes_action( $buffer, 'jetpack_full_sync_start' ) ) {
-				$this->full_sync_client->set_status_sending_started();
+			$processed_actions = array();
+			foreach( $result as $result_id ) {
+				if ( isset( $actions_to_send[ $result_id ] ) ) {
+					$processed_actions[] =  $actions_to_send[ $result_id ];
+				}
 			}
 
-			if ( $this->buffer_includes_action( $buffer, 'jetpack_full_sync_end' ) ) {
-				$this->full_sync_client->set_status_sending_finished();
-			}
+			/**
+			 * Allows us to keep track of all the actions that have been sent.
+			 * Allows us to calculate the progress of specific actions.
+			 *
+			 * @since 4.2.0
+			 *
+			 * @param array $processed_actions The actions that we send successfully.
+			 */
+			do_action( 'jetpack_sync_processed_actions', $processed_actions );
+
 
 			$this->sync_queue->close( $buffer, $result );
 			// check if there are any more events in the buffer
@@ -593,6 +592,7 @@ class Jetpack_Sync_Client {
 			}
 		}
 	}
+
 
 	private function buffer_includes_action( $buffer, $action_name ) {
 		foreach ( $buffer->get_items() as $item ) {
@@ -765,11 +765,9 @@ class Jetpack_Sync_Client {
 	}
 
 	private function get_constant( $constant ) {
-		if ( defined( $constant ) ) {
-			return constant( $constant );
-		}
-
-		return null;
+		return ( defined( $constant ) ) ?
+			constant( $constant ) 
+			: null;
 	}
 
 	public function get_all_updates() {
