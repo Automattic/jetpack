@@ -55,29 +55,6 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
 	}
 
-	function test_full_sync_sends_all_posts_except_revisions() {
-
-		register_post_type( 'random_post_type', array() );
-
-		for( $i = 0; $i < 10; $i += 1 ) {
-			$this->factory->post->create();
-		}
-
-		$this->factory->post->create( array( 'post_type' => 'revision' ) );
-		$post_id = $this->factory->post->create( array( 'post_type' => 'random_post_type' ) );
-
-		// simulate emptying the server storage
-		$this->server_replica_storage->reset();
-		$this->client->reset_data();
-
-		$this->full_sync->start();
-		$this->client->do_sync();
-
-		$posts = $this->server_replica_storage->get_posts();
-
-		$this->assertEquals( 11, count( $posts ) );
-	}
-
 	function test_sync_post_filtered_content_was_filtered_when_syncing_all() {
 		$post_id    = $this->factory->post->create();
 		$post = get_post( $post_id );
