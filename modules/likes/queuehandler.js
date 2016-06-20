@@ -144,7 +144,14 @@ function JetpackLikesMessageListener( event, message ) {
 		$container.find( '.likes-text span' ).text( event.total );
 
 		jQuery.each( event.likers, function( i, liker ) {
-			var element = jQuery( '<li><a><img /></a></li>' );
+			var element;
+
+			if ( 'http' !== liker.profile_URL.substr( 0, 4 ) ) {
+				// We only display gravatars with http or https schema
+				return;
+			}
+
+			element = jQuery( '<li><a><img /></a></li>' );
 			element.addClass( liker.css_class );
 
 			element.find( 'a' ).
