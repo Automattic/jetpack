@@ -76,37 +76,46 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 == Changelog ==
 
 = 4.0.4 =
+Release date: June 20th, 2016
+Release Post: http://wp.me/p1moTy-3eT
+
+Security:
+* Post By Email: Added an additional layer of security to prevent unauthorized changes to Post By Email settings.
+* Likes: Fixed an XSS vulnerability in the Likes module.
+* REST API/Contact Form:  We've eliminated unauthenticated access to Feedback posts.
+
+Feature Improvements:
+* Customizing Protect: We've increased Protect’s response time and added a new filter, `jetpack_protect_connect_timeout`, reducing the likelihood of seeing the fall back form.
+* Connection Process: Your site url and icon are displayed on the Jetpack connection screens to help improve communication.
+* Jetpack for Multisite: It’s now easier to manage your Jetpack connections on the network admin screen.
+* Photon Responsive Image Improvements: We’re now auto-generating new scrset options, improving how images served from Photon are handled.
+* Developing on Kinsta: A new constant has been added to improve developing with Jetpack on a staging environment hosted with Kinsta.
+
+Jetpack UI Improvements:
+* Better Access to Our Support Team: We wanted to make it easier for you to get help so we added a contact form in the admin that links directly to our Jetpack Support Team.
+
+Improved Compatibility:
+* We’ve stopped adding Open Graph Meta tags if you’re using the SEO Framework plugin.
+* Having both GlotPress and Jetpack active at the same time was causing errors, we’ve eliminated them.
 
 Bug Fixes:
-
-* Carousel: make sure special characters like & are properly displayed in image titles and descriptions.
-* Carousel: avoid a JavaScript error when visiting a gallery page including a hash in the URL.
-* Comments: fix an issue where the comment form language was always set in English, instead of the language used on the site.
-* Custom CSS: properly handle slashes and quotes when saving Custom CSS.
-* Contact Form: avoid PHP notices that may appear in specific cases when submitting a contact form.
-* Internationalization: avoid Fatal Errors when both Jetpack and GlotPress are active.
-* Manage: use Jetpack native function to get available updates.
-* Open Graph: do not add Open Graph Meta Tags when the SEO Framework plugin is already active.
-* Open Graph: grab images from Slideshows.
-* Open Graph: make sure Open Graph Meta tags are set properly regardless of Static Front Page settings.
-* Photon: avoid PHP notice when Photon arguments are provided as a string, and not as an array.
-* Protect: fix an issue where the Protect math form didn't show up on frontend login forms.
-* Related Posts: avoid notices in WooCommerce setup screen.
-* Sharing: fix sharing count when using unofficial buttons.
-* Sitemaps: avoid any errors when special characters are used in the sitemap stylesheet.
-* Spelling and Grammar: fix mismatching HTML tags.
-* Support: enable the in-dashboard contact form again, to allow everyone to contact the support team without leaving their site.
-* Twitter Cards: make sure they can be removed with the `jetpack_disable_twitter_cards` filter.
-* VideoPress: avoid JavaScript errors in the Post Editor when editing post types that do not support the Core Media editor.
-* Widgets: fix JavaScript errors in the customizer.
-
-Enhancements:
-
-* Connection Process: improvements to the connection process when linking a Jetpack site to WordPress.com.
-* Multisite: improve Jetpack Connection management in Jetpack's Network Admin menu.
-* Photon: auto-generate additional srcset options, to improve responsive image support.
-* Protect: add a new filter, `jetpack_protect_connect_timeout`, to allow customization of the Protect timeout.
-* Staging Sites: add constant for sites hosted with Kinsta.
+* Fixed the handling of special characters like ampersands in Carousel Titles and Descriptions.
+* When visitors tried to view a Carousel image with a hash in the URL, a JavaScript error would occur; we’ve fixed that.
+* Jetpack Comment form fields now use the default language you’ve set for WordPress, previously the verbiage was always in English.
+* Custom CSS wasn’t handling slashes and quotes properly; we’ve squashed that bug.
+* There were some rare cases where PHP notices were popping up when a Contact Form was submitted. These instances have been identified and eliminated.
+* We’ve replaced a bit of code with a Jetpack native function to fix a bug that was breaking things during an API request for available updates.
+* We accidentally removed the ability for Open Graph to select images from slideshows, it’s up and running again.
+* There was an issue where Open Graph meta tags weren’t being set when your homepage is a “Static Front Page”, it’s working again.
+* In rare cases when developers were customizing Photon they were seeing a PHP notice when arguments were passed as a string rather than an array. This has been fixed.
+* We’ve fixed an issue where Protect’s backup math form wasn’t showing on custom frontend login forms.
+* When setting up WooCommerce you might have seen a Related Posts notice which didn’t belong. We’ve eliminated them.
+* If you’ve been using our sharing tool with unofficial sharing buttons you might have noticed your sharing numbers were missing. They’re now back.
+* In unique situations where special characters were used in sitemap stylesheets an error would occur; that has been remedied.
+* We’ve fixed a problem with mismatching HTML tags in our Spelling and Grammar feature.
+* We’ve ensured that the `jetpack_disable_twitter_cards` filter actually removes Twitter cards.
+* We’ve fixed some JavaScript errors that would crop up if you were editing a custom-post-type post that didn’t support the core media editor — say that 10 times fast.
+* We had some JavaScript errors when you were using the customizer to modify widgets. They are no longer with us.
 
 = 4.0.3 =
 Release date: May 26th, 2016
