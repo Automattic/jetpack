@@ -64,14 +64,19 @@ class Jetpack_Client {
 		// Kind of annoying.  Maybe refactor Jetpack_Signature to handle body-hashing
 		if ( is_null( $body ) ) {
 			$body_hash = '';
+
 		} else {
 			// Allow arrays to be used in passing data.
 			$body_to_hash = $body;
-			if ( is_array( $body ) ) {
 
+			if ( is_array( $body ) ) {
 				// We cast this to a new variable, because the array form of $body needs to be
 				// maintained so it can be passed into the request later on in the code.
-				$body_to_hash = json_encode( self::_stringify_data( $body ) );
+				if ( count( $body ) > 0 ) {
+					$body_to_hash = json_encode( self::_stringify_data( $body ) );
+				} else {
+					$body_to_hash = '';
+				}
 			}
 
 			if ( !is_string( $body_to_hash ) ) {
