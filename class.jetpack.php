@@ -536,8 +536,13 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack-sync-reindex-trigger', array( $this, 'sync_reindex_trigger' ) );
 		add_action( 'wp_ajax_jetpack-sync-reindex-status', array( $this, 'sync_reindex_status' ) );
 
+		// returns HTTPS support status
+		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
+
 		// Jump Start AJAX callback function
 		add_action( 'wp_ajax_jetpack_jumpstart_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
+
+		// If any module option is updated before Jump Start is dismissed, hide Jump Start.
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
 		// Identity Crisis AJAX callback function
@@ -4887,6 +4892,15 @@ p {
 		exit;
 	}
 
+	function ajax_recheck_ssl() {
+		check_ajax_referer( 'recheck-ssl', 'ajax-nonce' );
+		$result = Jetpack::permit_ssl( true );
+		wp_send_json( array(
+			'enabled' => $result,
+			'message' => get_transient( 'jetpack_https_test_message' )
+		) );
+	}
+
 /* Client API */
 
 	/**
@@ -4973,6 +4987,8 @@ p {
 	public function alert_auto_ssl_fail() {
 		if ( ! current_user_can( 'manage_options' ) )
 			return;
+
+		$ajax_nonce = wp_create_nonce( 'recheck-ssl' );
 		?>
 
 		<div id="jetpack-ssl-warning" class="error jp-identity-crisis">
@@ -5001,7 +5017,8 @@ p {
 					$this.html( <?php echo json_encode( __( 'Checking', 'jetpack' ) ); ?> );
 					$( '#jetpack-recheck-ssl-output' ).html( '' );
 					e.preventDefault();
-					$.post( '/wp-json/jetpack/v4/recheck-ssl' )
+					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': '<?php echo $ajax_nonce; ?>' };
+					$.post( ajaxurl, data )
 					  .done( function( response ) {
 					  	if ( response.enabled ) {
 					  		$( '#jetpack-ssl-warning' ).hide();
