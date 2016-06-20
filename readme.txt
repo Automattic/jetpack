@@ -80,11 +80,13 @@ Release date: June 20th, 2016
 Release Post: http://wp.me/p1moTy-3eT
 
 Security:
+
 * Post By Email: Added an additional layer of security to prevent unauthorized changes to Post By Email settings.
 * Likes: Fixed an XSS vulnerability in the Likes module.
 * REST API/Contact Form:  We've eliminated unauthenticated access to Feedback posts.
 
 Feature Improvements:
+
 * Customizing Protect: We've increased Protect’s response time and added a new filter, `jetpack_protect_connect_timeout`, reducing the likelihood of seeing the fall back form.
 * Connection Process: Your site url and icon are displayed on the Jetpack connection screens to help improve communication.
 * Jetpack for Multisite: It’s now easier to manage your Jetpack connections on the network admin screen.
@@ -92,13 +94,16 @@ Feature Improvements:
 * Developing on Kinsta: A new constant has been added to improve developing with Jetpack on a staging environment hosted with Kinsta.
 
 Jetpack UI Improvements:
+
 * Better Access to Our Support Team: We wanted to make it easier for you to get help so we added a contact form in the admin that links directly to our Jetpack Support Team.
 
 Improved Compatibility:
+
 * We’ve stopped adding Open Graph Meta tags if you’re using the SEO Framework plugin.
 * Having both GlotPress and Jetpack active at the same time was causing errors, we’ve eliminated them.
 
 Bug Fixes:
+
 * Fixed the handling of special characters like ampersands in Carousel Titles and Descriptions.
 * When visitors tried to view a Carousel image with a hash in the URL, a JavaScript error would occur; we’ve fixed that.
 * Jetpack Comment form fields now use the default language you’ve set for WordPress, previously the verbiage was always in English.
