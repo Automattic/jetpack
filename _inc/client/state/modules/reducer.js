@@ -22,16 +22,12 @@ import {
 	JETPACK_MODULE_UPDATE_OPTION,
 	JETPACK_MODULE_UPDATE_OPTION_FAIL,
 	JETPACK_MODULE_UPDATE_OPTION_SUCCESS
-
 } from 'state/action-types';
 
-export const initialItemsState = typeof window !== 'undefined' && typeof window.Initial_State === 'object' ?
-	window.Initial_State.getModules :
-	{};
-
-export const items = ( state = initialItemsState, action ) => {
+export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
+			return assign( {}, action.initialState.getModules );
 		case JETPACK_MODULES_LIST_RECEIVE:
 			return assign( {}, state, action.modules );
 		case JETPACK_MODULE_ACTIVATE_SUCCESS:

@@ -6,7 +6,6 @@ import {
 	initialRequestsState
 } from '../reducer';
 
-
 describe( 'items reducer', () => {
 	it( 'state should default to empty object', () => {
 		const state = itemsReducer( undefined, {} );
@@ -75,6 +74,20 @@ describe( 'items reducer', () => {
 			let stateOut = itemsReducer( stateIn, action );
 
 			expect( stateOut[ action.module ].options[ action.optionName ].current_value ).to.equal( action.optionValue );
+		} );
+	} );
+
+	describe( '#initialState', () => {
+		it( 'should replace .items with the initial state\'s modules list', () => {
+			const stateIn = {}
+			const action = {
+				type: 'JETPACK_SET_INITIAL_STATE',
+				initialState: {
+					getModules: modules
+				}
+			};
+			let stateOut = itemsReducer( stateIn, action );
+			expect( stateOut ).to.eql( action.initialState.getModules );
 		} );
 	} );
 } );
