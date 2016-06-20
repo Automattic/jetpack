@@ -82,7 +82,9 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 
 	function ajax_reset_queue() {
 		Jetpack_Sync_Client::getInstance()->reset_sync_queue();
+		delete_option( Jetpack_Sync_Full::$status_option );
 		echo json_encode( array( 'success' => true ) );
+
 		exit;
 	}
 
@@ -160,6 +162,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 				<p>Functions: {{ data.queue && data.sent.functions }} / {{ data.queue && data.queue.functions }}</p>
 				<p>Constants: {{ data.queue && data.sent.constants }} / {{ data.queue && data.queue.constants }}</p>
 				<p>Options: {{ data.queue && data.sent.options }} / {{ data.queue && data.queue.options }}</p>
+				<p>Updates: {{ data.queue && data.sent.updates }} / {{ data.queue && data.queue.updates }}</p>
 			</div>
 		</script>
 		<?php
