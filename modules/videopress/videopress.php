@@ -855,10 +855,8 @@ class Jetpack_VideoPress {
 	 */
 	public function update_attachment_url_for_videopress( $url, $post_id ) {
 
-		$post = get_post( $post_id );
-
-		if ( $post->post_mime_type === 'video/videopress' ) {
-			$meta = wp_get_attachment_metadata( $post->ID );
+		if ( get_post_mime_type( $post_id ) === 'video/videopress' ) {
+			$meta = wp_get_attachment_metadata( $post_id );
 
 			if ( isset( $meta['original']['url'] ) ) {
 				$url = $meta['original']['url'];
