@@ -569,6 +569,66 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 	}
 
+	function test_full_sync_status_with_a_small_queue() {
+
+		$this->client->set_dequeue_max_bytes( 1500 ); // process 0.0015MB of items at a time\
+		
+		$this->create_dummy_data_and_empty_the_queue();
+
+		$this->full_sync->start();
+
+		$this->client->do_sync();
+		$full_sync_status = $this->full_sync->get_status();
+		$this->assertNull( $full_sync_status['finished'] );
+
+		$this->client->do_sync();
+		$full_sync_status = $this->full_sync->get_status();
+		$this->assertNull( $full_sync_status['finished'] );
+
+		$this->client->do_sync();
+
+		$full_sync_status = $this->full_sync->get_status();
+
+		$should_be_status = array(
+			'sent' => array(
+				'constants'       => 1,
+				'functions'       => 1,
+				'options'         => 1,
+				'posts'           => 2,
+				'comments'        => 2,
+				'themes'          => 1,
+				'updates'         => 1,
+				'users'           => 1,
+				'terms'           => 1
+			),
+			'queue' => array(
+				'constants'       => 1,
+				'functions'       => 1,
+				'options'         => 1,
+				'posts'           => 2,
+				'comments'        => 2,
+				'themes'          => 1,
+				'updates'         => 1,
+				'users'           => 1,
+				'terms'           => 1
+			)
+		);
+		if ( is_multisite() ) {
+			$should_be_status['queue']['network_options'] = 1;
+			$should_be_status['sent']['network_options'] = 1;
+		}
+
+		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
+		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
+		$this->assertInternalType( 'int', $full_sync_status['started'] );
+		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
+		$this->assertInternalType( 'int', $full_sync_status['sent_started'] );
+		$this->assertInternalType( 'int', $full_sync_status['finished'] );
+
+		// Reset all the defaults
+		$this->setSyncClientDefaults();
+	}
+
 	function upgrade_terms_to_pass_test( $term ) {
 		global $wp_version;
 		if ( version_compare( $wp_version, '4.4', '<' ) ) {
