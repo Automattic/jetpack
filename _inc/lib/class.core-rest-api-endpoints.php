@@ -81,11 +81,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 		) );
 
-		register_rest_route( 'jetpack/v4', '/recheck-ssl', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::recheck_ssl',
-		) );
-
 		// Get current site data
 		register_rest_route( 'jetpack/v4', '/site', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -458,14 +453,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),
 				),
 			)
-		);
-	}
-
-	public static function recheck_ssl() {
-		$result = Jetpack::permit_ssl( true );
-		return array(
-			'enabled' => $result,
-			'message' => get_transient( 'jetpack_https_test_message' )
 		);
 	}
 
