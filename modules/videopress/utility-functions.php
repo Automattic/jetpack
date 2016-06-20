@@ -250,7 +250,7 @@ function videopress_get_transcoding_status( $post_id ) {
  *
  * @return string
  */
-function videopress_get_url( $guid ) {
+function videopress_build_url( $guid ) {
 	return 'https://videopress.com/v/' . $guid;
 }
 
