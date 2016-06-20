@@ -880,7 +880,7 @@ class Jetpack_VideoPress {
 			'%s://%s/rest/v%s/videos/%s/new',
 			'https',
 			JETPACK__WPCOM_JSON_API_HOST,
-			Jetpack_Client::WPCOM_JSON_API_VERSION,
+			'1.1',
 			$blog_id
 		);
 	}
