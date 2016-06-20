@@ -84,14 +84,14 @@ class Jetpack_VideoPress {
 		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args );
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ), 'result' => $result ) );
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
 			return;
 		}
 
 		$response = json_decode( $result['body'], true );
 
 		if ( empty( $response['upload_blog_id'] ) || empty( $response['upload_token'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ), 'result' => $result ) );
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
 			return;
 		}
 
