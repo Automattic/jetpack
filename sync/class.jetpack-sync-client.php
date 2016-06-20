@@ -593,17 +593,6 @@ class Jetpack_Sync_Client {
 		}
 	}
 
-
-	private function buffer_includes_action( $buffer, $action_name ) {
-		foreach ( $buffer->get_items() as $item ) {
-			if ( $item[0] === $action_name ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	function expand_wp_insert_post( $args ) {
 		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2] );
 	}
