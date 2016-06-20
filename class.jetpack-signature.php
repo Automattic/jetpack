@@ -107,7 +107,12 @@ class Jetpack_Signature {
 
 		// If we got an array at this point, let's encode it, so we can see what it looks like as a string.
 		if ( is_array( $body ) ) {
-			$body = json_encode( $body );
+			if ( count( $body ) > 0 ) {
+				$body = json_encode( $body );
+
+			} else {
+				$body = '';
+			}
 		}
 
 		$required_parameters = array( 'token', 'timestamp', 'nonce', 'method', 'url' );
@@ -128,7 +133,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		if ( is_null( $body ) ) {
+		if ( empty( $body ) ) {
 			if ( $body_hash ) {
 				return new Jetpack_Error( 'invalid_body_hash', 'The body hash does not match.' );
 			}
