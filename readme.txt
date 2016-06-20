@@ -3,7 +3,7 @@ Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, an
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 4.0.3
 Requires at least: 4.4
-Tested up to: 4.5
+Tested up to: 4.5.2
 
 Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
 
