@@ -66,7 +66,7 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 			'siteurl' => 'http://test.com',
 			'blogdescription' => 'banana',
 			'blog_charset' => 'stuffs',
-			'permalink_structure' => 'stuffs',
+			'permalink_structure' => '%postname%',
 			'category_base' => 'orange',
 			'tag_base' => 'apple',
 			'comment_moderation' => true,
