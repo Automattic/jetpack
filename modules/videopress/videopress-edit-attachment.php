@@ -237,7 +237,7 @@ class VideoPress_Edit_Attachment {
 
 		$url = 'empty';
 		if ( ! empty( $info->guid ) ) {
-			$url = videopress_get_url( $info->guid );
+			$url = videopress_build_url( $info->guid );
 			$url = "<a href=\"{$url}\">{$url}</a>";
 		}
 
