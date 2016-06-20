@@ -8,6 +8,7 @@
 
 - We cleaned up and restyled jetpack related banner notices to match Core notification styles.
 - We've improved our connection process. Previously, you sometimes had to specify a port number for your site when using HTTPS, otherwise Jetpack wasn't properly connected to WordPress.com. From now on, Jetpack will take care of that for you. To test, you can try removing `_SERVER['SERVER_PORT'] = 443;` from a site that uses HTTPS with CloudFlare, for example. When removing this, you should still be able to use features relying on the WordPress.com connection, like [the Post Editor on WordPress.com](https://wordpress.com/post/).
+- We fixed Fatal Errors occuring when Jetpack was activated alongside other plugins using an old `Bitly` class, such as old versions of the official Bitly plugin. To test this, try using Jetpack alongside an old version of that plugin.
 
 ### JSON API
 

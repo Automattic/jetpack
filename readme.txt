@@ -79,6 +79,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 Bug Fixes:
 
+* Compatibility: avoid issues with Open Graph Meta Tags when using an old version of the Bitly plugin.
 * Sitemaps: avoid PHP notices when a post includes a slideshow.
 * Sitemaps: avoid errors if your permalink structure uses `index.php`
 
