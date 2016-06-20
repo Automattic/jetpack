@@ -868,7 +868,7 @@ class Jetpack_SSO {
 		$args = wp_parse_args( $args, $defaults );
 
 		if ( ! empty( $_GET['redirect_to'] ) ) {
-			$args['redirect_to'] = esc_url_raw( $_GET['redirect_to'] );
+			$args['redirect_to'] = urlencode( esc_url_raw( $_GET['redirect_to'] ) );
 		}
 
 		return add_query_arg( $args, wp_login_url() );
