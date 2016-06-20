@@ -214,12 +214,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
  * @return string Absolute URL of VideoPress file for the given guid.
  */
 function videopress_cdn_file_url( $guid, $filename ) {
-	if ( is_ssl() ) {
-		return "https://videos.files.wordpress.com/{$guid}/{$filename}";
-
-	} else {
-		return "http://videos.videopress.com/{$guid}/{$filename}";
-	}
+	return "https://videos.files.wordpress.com/{$guid}/{$filename}";
 }
 
 /**
