@@ -31,6 +31,10 @@ foreach ( $GLOBALS['csstidy']['all_properties'] as $property => $levels ) {
 	}
 }
 
+// Add `display` to the list of properties that can be used multiple times in a single selector
+$GLOBALS['csstidy']['multiple_properties'][] = 'display';
+
+// Allow vendor prefixes for any property that is allowed to be used multiple times inside a single selector
 foreach ( $GLOBALS['csstidy']['multiple_properties'] as $property ) {
 	if ( '-' != $property[0] ) {
 		$GLOBALS['csstidy']['multiple_properties'][] = '-o-' . $property;
