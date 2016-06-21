@@ -10,11 +10,23 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	abstract protected function get_theme_support( $feature_name );
 
-	abstract protected function get_mock_option( $name );
-
 	abstract protected function get_jetpack_version();
 
 	abstract protected function get_updates();
+
+	abstract protected function main_network_site();
+
+	abstract protected function wp_version();
+
+	abstract protected function max_upload_size();
+
+	abstract protected function is_main_network();
+
+	abstract protected function is_multi_site();
+
+	abstract protected function is_version_controlled();
+
+	abstract protected function file_system_write_access();
 
 	function before_render() {
 	}
@@ -35,9 +47,10 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	}
 
 	function after_render_options( &$options ) {
+
 		$options['jetpack_version'] = $this->get_jetpack_version();
 
-		if ( $main_network_site = $this->get_mock_option( 'main_network_site' ) ) {
+		if ( $main_network_site = $this->main_network_site() ) {
 			$options['main_network_site'] = (string) rtrim( $main_network_site, '/' );
 		}
 
@@ -45,22 +58,22 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 			$options['active_modules'] = (array) array_values( $active_modules );
 		}
 
-		$options['software_version'] = (string) $this->get_mock_option( 'wp_version' );
-		$options['max_upload_size']  = $this->get_mock_option( 'max_upload_size', false );
+		$options['software_version'] = (string) $this->wp_version();
+		$options['max_upload_size']  = $this->max_upload_size();
 
 		// Sites have to prove that they are not main_network site.
 		// If the sync happends right then we should be able to see that we are not dealing with a network site
-		$options['is_multi_network'] = (bool) $this->get_mock_option( 'is_main_network', true );
-		$options['is_multi_site']    = (bool) $this->get_mock_option( 'is_multi_site', true );
+		$options['is_multi_network'] = (bool) $this->is_main_network();
+		$options['is_multi_site']    = (bool) $this->is_multi_site();
 
 		$file_mod_disabled_reasons = array_keys( array_filter( array(
 			'automatic_updater_disabled'      => (bool) $this->get_constant( 'AUTOMATIC_UPDATER_DISABLED' ),
 			// WP AUTO UPDATE CORE defaults to minor, '1' if true and '0' if set to false.
-			'wp_auto_update_core_disabled'    => ! ( (bool) $this->get_constant( 'WP_AUTO_UPDATE_CORE' ) ),
-			'is_version_controlled'           => (bool) $this->get_mock_option( 'is_version_controlled' ),
+			'wp_auto_update_core_disabled'    => ! ( (bool)  $this->get_constant( 'WP_AUTO_UPDATE_CORE' ) ),
+			'is_version_controlled'           => (bool) $this->is_version_controlled(),
 			// By default we assume that site does have system write access if the value is not set yet.
-			'has_no_file_system_write_access' => ! (bool) ( $this->get_mock_option( 'has_file_system_write_access' ) ),
-			'disallow_file_mods'              => (bool) $this->get_constant( 'DISALLOW_FILE_MODS' ),
+			'has_no_file_system_write_access' => ! (bool) $this->file_system_write_access(),
+			'disallow_file_mods'              => (bool)  $this->get_constant( 'DISALLOW_FILE_MODS' ),
 		) ) );
 
 		$options['file_mod_disabled'] = empty( $file_mod_disabled_reasons ) ? false : $file_mod_disabled_reasons;
@@ -79,11 +92,11 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	}
 
 	function is_multisite() {
-		return (bool) $this->get_mock_option( 'is_multi_site' );
+		return (bool) is_multisite();
 	}
 
 	function is_single_user_site() {
-		return (bool) $this->get_mock_option( 'single_user_site' );
+		return (bool) Jetpack::is_single_user_site();
 	}
 
 	function featured_images_enabled() {
