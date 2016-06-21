@@ -6,15 +6,40 @@ require_once dirname( __FILE__ ) . '/class.json-api-post-jetpack.php';
 // this code runs on Jetpack (.org) sites
 class Jetpack_Site extends Abstract_Jetpack_Site {
 
-	protected function get_mock_option( $name ) {
-		return get_option( 'jetpack_'.$name );
-	}
-
 	protected function get_constant( $name ) {
 		if ( defined( $name) ) {
 			return constant( $name );
 		}
 		return null;
+	}
+
+	protected function main_network_site() {
+		return network_site_url();
+	}
+
+	protected function wp_version() {
+		global $wp_version;
+		return $wp_version;
+	}
+
+	protected function max_upload_size() {
+		return wp_max_upload_size();
+	}
+
+	protected function is_main_network() {
+		return Jetpack::is_multi_network();
+	}
+
+	protected function is_multi_site() {
+		return is_multisite();
+	}
+
+	protected function is_version_controlled() {
+		return Jetpack_Sync_Functions::is_version_controlled();
+	}
+
+	protected function file_system_write_access() {
+		return Jetpack_Sync_Functions::file_system_write_access();
 	}
 
 	protected function current_theme_supports( $feature_name ) {
