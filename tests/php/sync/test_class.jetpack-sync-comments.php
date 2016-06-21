@@ -112,8 +112,8 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 		$comment = $insert_comment_event->args[1];
 
 		$this->assertEquals( $this->comment->comment_ID, $comment->comment_ID );
-		$this->assertEquals( $this->comment->comment_date, $comment->comment_date );
-		$this->assertEquals( $this->comment->comment_date_gmt, $comment->comment_date_gmt );
+		$this->assertTrue( strtotime( $this->comment->comment_date ) <= strtotime( $comment->comment_date ) );
+		$this->assertTrue( strtotime( $this->comment->comment_date_gmt ) <= strtotime( $comment->comment_date_gmt ) );
 		$this->assertEquals( 'jetpack_sync_blocked', $comment->comment_approved );
 		$this->assertFalse( isset( $comment->comment_content ) );
 

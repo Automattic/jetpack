@@ -358,8 +358,8 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		// Instead of sending all the data we just send the post_id so that we can remove it on our end.
 
 		$this->assertEquals( $this->post->ID, $post->ID );
-		$this->assertEquals( $this->post->post_modified, $post->post_modified, 'post modied' );
-		$this->assertEquals( $this->post->post_modified_gmt, $post->post_modified_gmt );
+		$this->assertTrue( strtotime( $this->post->post_modified ) <= strtotime( $post->post_modified ) );
+		$this->assertTrue( strtotime( $this->post->post_modified_gmt ) <= strtotime( $post->post_modified_gmt ) );
 		$this->assertEquals( 'jetpack_sync_blocked', $post->post_status );
 		$this->assertFalse( isset( $post->post_content ) );
 		$this->assertFalse( isset( $post->post_excerpt ) );
