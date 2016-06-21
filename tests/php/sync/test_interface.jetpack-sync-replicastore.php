@@ -198,10 +198,11 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		unset($comment->comment_date_gmt);
 		unset($retrieved_comment->comment_date);
 		unset($retrieved_comment->comment_date_gmt);
-	
+
 		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
 			$this->markTestIncomplete("The WP replicastore doesn't support setting comments post_fields");
 		}
+
 		$this->assertEquals( $comment, $retrieved_comment );
 	}
 
@@ -560,7 +561,26 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$store->upsert_user( $user );
 
 		$this->assertNotNull( $store->get_user( 12 ) );
-		$this->assertEquals( $user, $store->get_user( 12 ) );
+
+		// delete stuff that shouldn't be included because we don't sync that data
+		unset( $user->data->user_activation_key );
+
+		$stored_user = $store->get_user( 12 );
+
+		if ( $store instanceof Jetpack_Sync_WPCOM_Shadow_Replicastore ) {
+			$this->assertEquals( $user->ID, $stored_user->external_user_id );
+			$this->assertFalse( isset( $user->data->user_activation_key ) );
+		} else {
+			$this->assertEquals( $user->ID, $stored_user->ID );
+		}
+
+		$this->assertEquals( $user->data->user_login,      $stored_user->data->user_login );
+		$this->assertEquals( $user->data->user_nicename,   $stored_user->data->user_nicename );
+		$this->assertEquals( $user->data->user_email,      $stored_user->data->user_email );
+		$this->assertEquals( $user->data->user_url,        $stored_user->data->user_url );
+		$this->assertEquals( $user->data->user_registered, $stored_user->data->user_registered );
+		$this->assertEquals( $user->data->user_status,     $stored_user->data->user_status );
+		$this->assertEquals( $user->data->display_name,    $stored_user->data->display_name );
 
 		$store->delete_user( 12 );
 
