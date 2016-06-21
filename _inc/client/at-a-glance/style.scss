@@ -1,4 +1,4 @@
-// This document contains styles that influence the styles of Stats & At a Glance, overall. 
+// This document contains styles that influence the styles of Stats & At a Glance, overall.
 // For more precise styles, dig into the styles of each component. ie. dash-item
 
 .jp-at-a-glance__stats-card {
@@ -114,7 +114,7 @@
 	@include breakpoint( ">660px" ) {
 		text-align: right;
 		flex-basis: 70%;
-	} 
+	}
 
 	@include breakpoint( "<660px" ) {
 		text-align: center;
@@ -141,6 +141,10 @@
 	margin-top: 0;
 	margin-bottom: 0;
 	margin-left: rem( 16px );
+
+	&:focus {
+		outline: 0;
+	}
 }
 
 .jp-at-a-glance__stats-view-link,
@@ -152,6 +156,11 @@
 		font-weight: 600;
 		text-decoration: none;
 	}
+}
+
+.jp-at-a-glance__stats-view-link:focus {
+	outline: 0;
+	box-shadow: none;
 }
 
 // heavy flexbox nesting below, careful! – @jeffgolenski
@@ -167,7 +176,7 @@
 .jp-at-a-glance__right {
 	@include breakpoint( ">660px" ) {
 		flex-basis: 50%;
-	} 
+	}
 }
 
 .jp-at-a-glance__left {
