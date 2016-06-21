@@ -144,14 +144,15 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			case 'jetpack_full_sync_posts':
-				foreach( $args['posts'] as $post ) {
+				list( $posts, $post_metas, $terms ) = $args;
+				foreach( $posts as $post ) {
 					$this->store->upsert_post( $post, true ); // upsert silently
 				}
-				foreach ( $args['post_metas'] as $meta ) {
+				foreach ( $post_metas as $meta ) {
 					$this->store->upsert_metadata( 'post', $meta->post_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
 				}
 			
-				foreach ( $args['terms'] as $term_object ) {
+				foreach ( $terms as $term_object ) {
 					$term = $this->store->get_term( false, $term_object->term_taxonomy_id, 'term_taxonomy_id' );
 					if ( isset( $term->taxonomy ) ) {
 						$this->store->update_object_terms( $term_object->object_id, $term->taxonomy, array( $term->term_id ), true );
@@ -159,10 +160,12 @@ class Jetpack_Sync_Server_Replicator {
 				}
 				break;
 			case 'jetpack_full_sync_comments':
-				foreach( $args['comments'] as $comment ) {
+				list( $comments, $comment_metas ) = $args;
+
+				foreach( $comments as $comment ) {
 					$this->store->upsert_comment( $comment );
 				}
-				foreach ( $args['comment_metas'] as $meta ) {
+				foreach ( $comment_metas as $meta ) {
 					$this->store->upsert_metadata( 'comment', $meta->comment_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
 				}
 				break;

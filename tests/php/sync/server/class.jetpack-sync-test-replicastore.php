@@ -82,7 +82,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function upsert_post( $post, $silent = false ) {
-		$this->posts[ $post->ID ] = $post;
+		$this->posts[ $post->ID ] = $this->cast_to_post( $post );
 	}
 
 	function delete_post( $post_id ) {
@@ -164,11 +164,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	// theme functions
 	function set_theme_support( $theme_support ) {
-		$this->theme_support = $theme_support;
+		$this->theme_support = (object) $theme_support;
 	}
 
 	function current_theme_supports( $feature ) {
-		return isset( $this->theme_support[ $feature ] );
+		return isset( $this->theme_support->{ $feature } );
 	}
 
 	// meta
@@ -412,7 +412,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	function update_object_terms( $object_id, $taxonomy, $term_ids, $append ) {
 		if ( $append ) {
 			$previous_array = isset( $this->object_terms[ $taxonomy ] )
-			                 && isset( $this->object_terms[ $taxonomy ][ $object_id ] )
+							 && isset( $this->object_terms[ $taxonomy ][ $object_id ] )
 				? $this->object_terms[ $taxonomy ][ $object_id ] : array();
 			$this->object_terms[ $taxonomy ][ $object_id ] = array_merge ( $previous_array , $term_ids );
 		} else {
@@ -455,5 +455,39 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			'comments' => $this->comments_checksum()
 		);
 	}
+
+	function cast_to_post( $object ) {
+		if ( isset( $object->extra ) )
+			$object->extra = (array) $object->extra;
+		$post = new WP_Post( $object );
+		return $post;
+	}
+
+	// /**
+	//  * recast stdClass object to an object with type
+	//  *
+	//  * @param string $className
+	//  * @param stdClass $object
+	//  * @throws InvalidArgumentException
+	//  * @return mixed new, typed object
+	//  */
+	// private function recast( $className, stdClass &$object )
+	// {
+	// 	if ( ! class_exists( $className) ) {
+	// 		throw new InvalidArgumentException( sprintf( 'Nonexistant class %s.', $className ) );
+	// 	}
+
+	// 	$constructor_args = 
+
+	// 	$new = new $className();
+
+	// 	foreach( $object as $property => &$value ) {
+	// 		$new->$property = &$value;
+	// 		unset( $object->$property );
+	// 	}
+	// 	unset( $value );
+	// 	$object = (unset) $object;
+	// 	return $new;
+	// }
 
 }

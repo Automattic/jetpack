@@ -191,7 +191,7 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function assertOptionIsSynced( $option_name, $value ) {
-		$this->assertEquals( $value, $this->server_replica_storage->get_option( $option_name ), 'Option '. $option_name .' did\'t have the extected value of ' . json_encode( $value ) );
+		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option '. $option_name .' did\'t have the extected value of ' . json_encode( $value ) );
 	}
 
 	function add_fiter_on_init() {

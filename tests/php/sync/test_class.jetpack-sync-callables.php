@@ -31,7 +31,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_sync_jetpack_updates() {
 		$this->client->do_sync();
 		$updates = $this->server_replica_storage->get_callable( 'updates' );
-		$this->assertEquals( Jetpack::get_updates(), $updates );
+		$this->assertEqualsObject( Jetpack::get_updates(), $updates );
 	}
 
 
@@ -86,7 +86,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function assertCallableIsSynced( $name, $value ) {
-		$this->assertEquals( $value, $this->server_replica_storage->get_callable( $name ), 'Function '. $name .' didn\'t have the expected value of ' . json_encode( $value ) );
+		$this->assertEqualsObject( $value, $this->server_replica_storage->get_callable( $name ), 'Function '. $name .' didn\'t have the expected value of ' . json_encode( $value ) );
 	}
 
 }

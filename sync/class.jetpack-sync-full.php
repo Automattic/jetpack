@@ -209,9 +209,9 @@ class Jetpack_Sync_Full {
 		$posts = array_map( array( $this->get_client(), 'filter_post_content_and_add_links' ), $posts );
 
 		return array(
-			'posts'      => $posts,
-			'post_metas' => $this->get_metadata( $post_ids, 'post' ),
-			'terms'      => $this->get_term_relationships( $post_ids )
+			$posts,
+			$this->get_metadata( $post_ids, 'post' ),
+			$this->get_term_relationships( $post_ids )
 		);
 	}
 
@@ -228,11 +228,10 @@ class Jetpack_Sync_Full {
 			'include_unapproved' => true,
 			'comment__in'        => $comment_ids,
 		) );
-		$comments = array_map( array( $this->get_client(), 'filter_comment_and_add_hc_meta' ), $comments );
 
 		return array(
-			'comments'      => $comments,
-			'comment_metas' => $this->get_metadata( $comment_ids, 'comment' ),
+			$comments,
+			$this->get_metadata( $comment_ids, 'comment' ),
 		);
 	}
 

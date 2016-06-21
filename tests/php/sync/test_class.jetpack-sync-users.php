@@ -21,7 +21,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		// make sure that we don't have a password
 		unset( $user->data->user_pass );
 		$this->assertFalse(  isset( $server_user->data->user_pass ) );
-		$this->assertEquals( $user, $server_user );
+		$this->assertEqualsObject( $user, $server_user );
 	}
 
 	public function test_update_user_url_is_synced() {
@@ -211,7 +211,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertEqualsObject( $client_user, $server_user );
 
 	}
 
