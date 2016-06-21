@@ -340,6 +340,40 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
 	}
 
+	function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
+
+		add_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
+
+		$this->server_replica_storage->reset();
+		$this->post->post_content = "foo bar";
+		wp_update_post( $this->post );
+
+		$this->client->do_sync();
+
+		remove_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
+		
+		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$post = $insert_post_event->args[1];
+		// Instead of sending all the data we just send the post_id so that we can remove it on our end.
+
+		$this->assertEquals( $this->post->ID, $post->ID );
+		$this->assertEquals( $this->post->post_modified, $post->post_modified, 'post modied' );
+		$this->assertEquals( $this->post->post_modified_gmt, $post->post_modified_gmt );
+		$this->assertEquals( 'jetpack_sync_blocked', $post->post_status );
+		$this->assertFalse( isset( $post->post_content ) );
+		$this->assertFalse( isset( $post->post_excerpt ) );
+
+		// Since the filter is not there any more the sync should happen as expected.
+		$this->post->post_content = "foo bar";
+
+		wp_update_post( $this->post );
+		$this->client->do_sync();
+		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
+		// no we sync the content and it looks like what we expect to be.
+		$this->assertEquals( $this->post->post_content, $synced_post->post_content );
+	}
+
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment = get_post( $attachment_id );

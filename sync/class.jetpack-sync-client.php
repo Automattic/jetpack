@@ -591,6 +591,30 @@ class Jetpack_Sync_Client {
 
 	// Expands wp_insert_post to include filtered content
 	function filter_post_content_and_add_links( $post ) {
+
+		/**
+		 * Filters whether to prevent sending post data to .com
+		 *
+		 * Passing true to the filter will prevent the post data from being sent
+		 * to the WordPress.com.
+		 * Instead we pass data that will still enable us to do a checksum against the
+		 * Jetpacks data but will prevent us from displaying the data on in the API as well as
+		 * other services.
+		 * @since 4.2.0
+		 *
+		 * @param boolean false prevent post data from bing sycned to WordPress.com
+		 * @param mixed $post WP_POST object
+		 */
+		if ( apply_filters( 'jetpack_sync_prevent_sending_post_data', false, $post ) ) {
+			// We only send the bare necessery object to be able to create a checksum.
+			$blocked_post = new stdClass();
+			$blocked_post->ID = $post->ID;
+			$blocked_post->post_modified = $post->post_modified;
+			$blocked_post->post_modified_gmt = $post->post_modified_gmt;
+			$blocked_post->post_status = 'jetpack_sync_blocked';
+			return $blocked_post;
+		}
+
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
@@ -602,6 +626,52 @@ class Jetpack_Sync_Client {
 		$post->dont_email_post_to_subs = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
 
 		return $post;
+	}
+
+
+	function expand_wp_comment_status_change( $args ) {
+		return array( $args[0], $this->filter_comment_and_add_hc_meta( $args[1] ) );
+	}
+
+	function expand_wp_insert_comment( $args ) {
+		return array( $args[0], $this->filter_comment_and_add_hc_meta( $args[1] ) );
+	}
+
+	function filter_comment_and_add_hc_meta( $comment ) {
+		/**
+		 * Filters whether to prevent sending comment data to .com
+		 *
+		 * Passing true to the filter will prevent the comment data from being sent
+		 * to the WordPress.com.
+		 * Instead we pass data that will still enable us to do a checksum against the
+		 * Jetpacks data but will prevent us from displaying the data on in the API as well as
+		 * other services.
+		 * @since 4.2.0
+		 *
+		 * @param boolean false prevent post data from bing sycned to WordPress.com
+		 * @param mixed $comment WP_COMMENT object
+		 */
+		if ( apply_filters( 'jetpack_sync_prevent_sending_comment_data', false, $comment ) ) {
+			$blocked_comment = new stdClass();
+			$blocked_comment->comment_ID = $comment->comment_ID;
+			$blocked_comment->comment_date = $comment->comment_date;
+			$blocked_comment->comment_date_gmt = $comment->comment_date_gmt;
+			$blocked_comment->comment_approved = 'jetpack_sync_blocked';
+			return $blocked_comment;
+		}
+		
+		// add meta-property with Highlander Comment meta, which we 
+		// we need to process synchronously on .com
+		$hc_post_as = get_comment_meta( $comment->comment_ID, 'hc_post_as', true );
+		if ( 'wordpress' === $hc_post_as ) {
+			$meta = array();
+			$meta['hc_post_as']         = $hc_post_as;
+			$meta['hc_wpcom_id_sig']    = get_comment_meta( $comment->comment_ID, 'hc_wpcom_id_sig', true );
+			$meta['hc_foreign_user_id'] = get_comment_meta( $comment->comment_ID, 'hc_foreign_user_id', true );
+			$comment->meta = $meta;	
+		}
+
+		return $comment;
 	}
 
 	private function schedule_sync( $when ) {
