@@ -25,7 +25,7 @@ class Jetpack_Sync_Functions {
 
 	/**
 	 * Finds out if a site is using a version control system.
-	 * @return string ( '1' | '0' )
+	 * @return bool
 	 **/
 	public static function is_version_controlled() {
 
@@ -33,18 +33,12 @@ class Jetpack_Sync_Functions {
 			require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 		}
 		$updater               = new WP_Automatic_Updater();
-		$is_version_controlled = strval( $updater->is_vcs_checkout( $context = ABSPATH ) );
-		// transients should not be empty
-		if ( empty( $is_version_controlled ) ) {
-			$is_version_controlled = '0';
-		}
-
-		return $is_version_controlled;
+		return (bool) strval( $updater->is_vcs_checkout( $context = ABSPATH ) );
 	}
 
 	/**
 	 * Returns true if the site has file write access false otherwise.
-	 * @return string ( '1' | '0' )
+	 * @return bool
 	 **/
 	public static function file_system_write_access() {
 		if ( ! function_exists( 'get_filesystem_method' ) ) {
@@ -55,16 +49,16 @@ class Jetpack_Sync_Functions {
 
 		$filesystem_method = get_filesystem_method();
 		if ( $filesystem_method === 'direct' ) {
-			return '1';
+			return true;
 		}
 
 		ob_start();
 		$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
 		ob_end_clean();
 		if ( $filesystem_credentials_are_stored ) {
-			return '1';
+			return true;
 		}
 
-		return '0';
+		return false;
 	}
 }
