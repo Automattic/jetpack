@@ -4,6 +4,10 @@
 
 - **We've completely redesigned and refactored Jetpack's [SSO Module](https://jetpack.com/support/sso/).** It would be great if you could use the module as much as possible, with different users, in different browsers, and different roles on your site. The additional options mentioned at the bottom of [this page](https://jetpack.com/support/sso/) should still work.
 
+### Custom CSS
+
+- It is now possible to use multiple `display` properties in Custom CSS. You can follow the instructions [here](https://github.com/Automattic/jetpack/issues/4176) to test.
+
 ### General
 
 - We cleaned up and restyled jetpack related banner notices to match Core notification styles.
@@ -26,7 +30,7 @@
 - Recipes: new shortcodes and options to create more detailed recipes. To test, you can follow the instructions in [this support document](https://en.support.wordpress.com/recipes/).
 - VideoPress: use HTML5 videos when using the `freedom` shortcode parameter. To test, try using the `force_flash` and `freedom` parameters when inserting VideoPress shortcodes, and check that the video is displayed according to your settings.
 - VideoPress: we've made some changes to the shortcode modal, available when inserting and editing a VideoPress video in the Visual Editor. To test, you can play with shortcode options for a video you've inserted by clicking on the little Pencil icon appearing above the video.
- 
+
 ### Sitemaps
 
 - We made some changes to avoid PHP notices when one of your posts included a slideshow. To test, you can follow the instructions [here](https://github.com/Automattic/jetpack/pull/4068).
