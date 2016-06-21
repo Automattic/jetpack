@@ -889,10 +889,15 @@ class Jetpack_VideoPress {
 	 * Modify the default plupload config to turn on videopress specific filters.
 	 */
 	public function videopress_pluploder_config( $config ) {
-		// We're going to make our own max file size filter that respects videopress.
-		unset($config['filters']['max_file_size']);
 
-		$config['filters']['videopress_check_uploads'] = 1;
+		if ( ! isset( $config['filters']['max_file_size'] ) ) {
+			$config['filters']['max_file_size'] = wp_max_upload_size() . 'b';
+		}
+
+		$config['filters']['videopress_check_uploads'] = $config['filters']['max_file_size'];
+
+		// We're doing our own check in the videopress_check_uploads filter.
+		unset($config['filters']['max_file_size']);
 
 		return $config;
 	}

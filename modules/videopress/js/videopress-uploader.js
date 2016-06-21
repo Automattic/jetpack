@@ -206,7 +206,7 @@ window.wp = window.wp || {};
 		 * Adds a filter that checks all files to see if they are videopress files and if they are
 		 * it will download extra metadata for them.
 		 */
-		plupload.addFileFilter( 'videopress_check_uploads', function( check, file, cb ) {
+		plupload.addFileFilter( 'videopress_check_uploads', function( maxSize, file, cb ) {
 			var mimeParts = file.type.split('/');
 			var self = this;
 
