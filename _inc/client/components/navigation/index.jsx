@@ -2,19 +2,13 @@
  * External dependencies
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import SectionNav from 'components/section-nav';
 import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
-import i18n, { translate as __ } from 'i18n-calypso';
+import { translate as __ } from 'i18n-calypso';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
-
-/**
- * Internal dependencies
- */
-import QueryModules from 'components/data/query-modules';
 
 const Navigation = React.createClass( {
 	demoSearch: function( keywords ) {
@@ -24,7 +18,6 @@ const Navigation = React.createClass( {
 	render: function() {
 		return (
 			<div className='dops-navigation'>
-				<QueryModules />
 				<SectionNav>
 					<NavTabs>
 						<NavItem
