@@ -93,6 +93,40 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'trash' ) );
 	}
 
+	function test_sync_comment_jetpack_sync_prevent_sending_comment_data_filter() {
+		add_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
+
+		$this->server_replica_storage->reset();
+		$this->comment->comment_content = "foo bar baz";
+
+		wp_update_comment( (array) $this->comment );
+
+		$this->client->do_sync();
+
+		remove_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
+
+		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' )  );
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'jetpack_sync_blocked' )  );
+
+		$insert_comment_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_' );
+		$comment = $insert_comment_event->args[1];
+
+		$this->assertEquals( $this->comment->comment_ID, $comment->comment_ID );
+		$this->assertEquals( $this->comment->comment_date, $comment->comment_date );
+		$this->assertEquals( $this->comment->comment_date_gmt, $comment->comment_date_gmt );
+		$this->assertEquals( 'jetpack_sync_blocked', $comment->comment_approved );
+		$this->assertFalse( isset( $comment->comment_content ) );
+
+		// Since the filter is not there any more the sync should happen as expected.
+		$this->comment->comment_content = "foo bar baz";
+		wp_update_comment( (array) $this->comment );
+		$this->client->do_sync();
+
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' )  );
+		$synced_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
+		$this->assertEquals( $this->comment->comment_content, $synced_comment->comment_content );
+	}
+
 	public function test_wp_spam_comment() {
 		wp_spam_comment( $this->comment->comment_ID );
 
