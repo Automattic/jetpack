@@ -6,7 +6,7 @@ class Jetpack_Debugger {
 
 	private static function is_jetpack_support_open() {
 		try {
-			$url = add_query_arg( 'ver', JETPACK__VERSION, 'http://jetpack.com/is-support-open' );
+			$url = add_query_arg( 'ver', JETPACK__VERSION, 'https://jetpack.com/is-support-open' );
 			$response = wp_remote_request( $url );
 			if ( is_wp_error( $response ) ) {
 				return false;
