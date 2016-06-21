@@ -92,6 +92,7 @@ Enhancements:
 * General: support both 80 and 443 in connections to WordPress.com.
 * General: better connection process for sites where SSL isn't available.
 * General: add a Jetpack icon next to connected users in the Users menu.
+* General: don't try to photonize images while in dev mode
 * Infinite Scroll: improve wording in Infinite Scroll settings.
 * Infinite Scroll: introduce methods to pause and resume infinite scrolling.
 * JSON API: update several API endpoints to match WordPress.com endpoints.
