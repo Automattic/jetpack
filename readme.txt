@@ -81,6 +81,7 @@ Bug Fixes:
 
 * Comments: improve the way avatars are displayed in comments, to better match the method used to log in.
 * Compatibility: avoid issues with Open Graph Meta Tags when using an old version of the Bitly plugin.
+* General: discontinue use of deprecated "size()" calls in jQuery
 * Sitemaps: avoid PHP notices when a post includes a slideshow.
 * Sitemaps: avoid errors if your permalink structure uses `index.php`
 
