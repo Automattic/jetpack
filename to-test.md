@@ -32,6 +32,11 @@
 
 - We've added a new filter, `jetpack_publicize_capability`, allowing you to give Publicize capabilities to more users. You can read more about it [here](https://github.com/Automattic/jetpack/pull/3740).
 
+### Sharing
+
+- Make sure your sharing buttons display as expected
+- Add Telegram and WhatsApp buttons and make sure they operate properly
+
 ### Shortcodes
 
 - New Untappd shortcode. To test: Shortcodes enabled, test `[untappd-menu location="65" menu="3355a50d-600d-4956-9491-dd0ac2582053"]`
