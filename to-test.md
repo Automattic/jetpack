@@ -16,6 +16,7 @@
 ### Custom CSS
 
 - It is now possible to use multiple `display` properties in Custom CSS. You can follow the instructions [here](https://github.com/Automattic/jetpack/issues/4176) to test.
+- We fixed a memory issue with Custom CSS on sites with a very large amount of CSS revisions. To test this, try saving new CSS changes a few times on your site, and make sure you can still access those changes thanks to the Revisions links below the Save button in the Custom CSS editor.
 
 ### General
 
