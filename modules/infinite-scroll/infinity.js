@@ -629,6 +629,20 @@ Scroller.prototype.updateURL = function( page ) {
 }
 
 /**
+ * Pause scrolling.
+ */
+Scroller.prototype.pause = function() {
+	this.disabled = true;
+};
+
+/**
+ * Resume scrolling.
+ */
+Scroller.prototype.resume = function() {
+	this.disabled = false;
+};
+
+/**
  * Ready, set, go!
  */
 $( document ).ready( function() {

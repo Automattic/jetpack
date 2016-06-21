@@ -784,6 +784,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			'private' => 'Privately publish the post.',
 			'draft'   => 'Save the post as a draft.',
 			'pending' => 'Mark the post as pending editorial approval.',
+			'trash'   => 'Set the post as trashed.',
 		),
 		'sticky'    => array(
 			'false'   => 'Post is not marked as sticky.',
@@ -851,6 +852,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			'draft'   => 'Save the post as a draft.',
 			'future'  => 'Schedule the post (alias for publish; you must also set a future date).',
 			'pending' => 'Mark the post as pending editorial approval.',
+			'trash'   => 'Set the post as trashed.',
 		),
 		'sticky'    => array(
 			'false'   => 'Post is not marked as sticky.',
@@ -918,6 +920,7 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 			'draft'   => 'Save the post as a draft.',
 			'future'  => 'Schedule the post (alias for publish; you must also set a future date).',
 			'pending' => 'Mark the post as pending editorial approval.',
+			'trash'   => 'Set the post as trashed.',
 		),
 		'sticky'    => array(
 			'false'   => 'Post is not marked as sticky.',

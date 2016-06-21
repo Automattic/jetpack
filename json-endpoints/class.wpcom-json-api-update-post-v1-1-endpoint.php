@@ -99,6 +99,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
 
+			if ( isset( $input['status'] ) && 'trash' === $input['status'] && ! current_user_can( 'delete_post', $post_id ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot delete post', 403 );
+			}
+
 			// 'future' is an alias for 'publish' for now
 			if ( isset( $input['status'] ) && 'future' === $input['status'] ) {
 				$input['status'] = 'publish';
