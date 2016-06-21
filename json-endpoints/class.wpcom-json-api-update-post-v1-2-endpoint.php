@@ -562,6 +562,13 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 				$meta = (object) $meta;
 
+				// Custom meta description can only be set on sites that have a business subscription.
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					if ( 'advanced_seo_description' == $meta->key and ! WPCOM_Store::has_business_plan() ) {
+						return new WP_Error( 'unauthorized', __( 'Advanced SEO can only be set on sites that have a business plan.' ), 403 );
+					}
+				}
+
 				$existing_meta_item = new stdClass;
 
 				if ( empty( $meta->operation ) )
