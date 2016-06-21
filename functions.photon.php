@@ -12,6 +12,21 @@
 function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	$image_url = trim( $image_url );
 
+	if ( class_exists( 'Jetpack') ) {
+		/**
+		 * Disables Photon URL processing for local development
+	 	 *
+	 	 * @module photon
+	 	 *
+	 	 * @since 4.1.0
+	 	 *
+	 	 * @param bool false Result of Jetpack::is_development_mode.
+	 	 */
+		if ( true === apply_filters( 'jetpack_photon_development_mode', Jetpack::is_development_mode() ) ) {
+			return $image_url;
+		}
+	}
+
 	/**
 	 * Allow specific image URls to avoid going through Photon.
 	 *
