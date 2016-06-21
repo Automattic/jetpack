@@ -109,6 +109,7 @@ class Grunion_Contact_Form_Plugin {
 		if ( is_admin() ) {
 			add_action( 'admin_init',            array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
+			add_action( 'current_screen', array( $this, 'unread_count' ) );
 		}
 
 		// custom post type we'll use to keep copies of the feedback items
@@ -188,6 +189,29 @@ class Grunion_Contact_Form_Plugin {
 	function allow_feedback_rest_api_type( $post_types ) {
 		$post_types[] = 'feedback';
 		return $post_types;
+	}
+
+	/**
+	 * Display the count of new feedback entries received. It's reset when user visits the Feedback screen.
+	 *
+	 * @since 4.1.0
+	 */
+	function unread_count( $screen ) {
+		if ( isset( $screen->post_type ) && 'feedback' == $screen->post_type ) {
+			update_option( 'feedback_unread_count', 0 );
+		} else {
+			global $menu;
+			foreach ( $menu as $index => $menu_item ) {
+				if ( 'edit.php?post_type=feedback' == $menu_item[2] ) {
+					$unread = get_option( 'feedback_unread_count', 0 );
+					if ( $unread > 0 ) {
+						$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . "</span></span>" : '';
+						$menu[ $index ][0] .= $unread_count;
+					}
+					break;
+				}
+			}
+		}
 	}
 
 	/**
@@ -1962,6 +1986,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10, 2 );
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
+
+		// Increase count of unread feedback.
+		$unread = get_option( 'feedback_unread_count', 0 ) + 1;
+		update_option( 'feedback_unread_count', $unread );
 
 		if ( defined( 'AKISMET_VERSION' ) ) {
 			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
