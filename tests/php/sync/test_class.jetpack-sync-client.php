@@ -75,6 +75,17 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 	}
 
+	// asserts that two objects are the same if they're both "objectified",
+	// i.e. json_encoded and then json_decoded
+	// this is useful because we json encode everything sent to the server
+	protected function assertEqualsObject( $object_1, $object_2 ) {
+		$this->assertEquals( $this->objectify( $object_1 ), $this->objectify( $object_2 ) );
+	}
+
+	protected function objectify( $instance ) {
+		return json_decode( json_encode( $instance ) );
+	}
+
 	function serverReceive( $data ) {
 		return $this->server->receive( $data );
 	}

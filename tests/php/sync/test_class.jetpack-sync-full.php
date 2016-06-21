@@ -91,28 +91,6 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 11, count( $comments ) );
 	}
 
-	function test_full_sync_expands_comment_meta() {
-		$post_id = $this->factory->post->create();
-		list( $comment_ID ) = $this->factory->comment->create_post_comments( $post_id );
-
-		add_comment_meta( $comment_ID, 'hc_post_as', 'wordpress', true );
-		add_comment_meta( $comment_ID, 'hc_wpcom_id_sig', 'abcd1234', true );
-		add_comment_meta( $comment_ID, 'hc_foreign_user_id', 55, true );
-
-		$this->server_replica_storage->reset();
-		$this->client->reset_data();
-
-		$this->full_sync->start();
-		$this->client->do_sync();
-
-		$comments = $this->server_replica_storage->get_comments();
-		$comment = $comments[0];
-		$this->assertObjectHasAttribute( 'meta', $comment );
-		$this->assertEquals( 'wordpress', $comment->meta['hc_post_as'] );
-		$this->assertEquals( 'abcd1234', $comment->meta['hc_wpcom_id_sig'] );
-		$this->assertEquals( 55, $comment->meta['hc_foreign_user_id'] );
-	}
-
 	function test_full_sync_sends_all_terms() {
 
 		for( $i = 0; $i < 11; $i += 1 ) {
@@ -268,7 +246,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 		$terms = get_the_terms( $post_id, 'post_tag' );
 
-		$this->assertEquals( $terms, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Initial sync doesn\'t work' );
+		$this->assertEqualsObject( $terms, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Initial sync doesn\'t work' );
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
@@ -277,7 +255,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 
 		$terms = array_map( array( $this, 'upgrade_terms_to_pass_test' ), $terms );
-		$this->assertEquals( $terms, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Full sync doesn\'t work' );
+		$this->assertEqualsObject( $terms, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Full sync doesn\'t work' );
 	}
 
 	function test_full_sync_sends_all_comment_meta() {

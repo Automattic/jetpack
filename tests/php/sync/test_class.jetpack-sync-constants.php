@@ -17,8 +17,8 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->client->set_constants_whitelist( array( 'TEST_FOO' ) );
 
-		define( 'TEST_FOO', microtime(true) );
-		define( 'TEST_BAR', microtime(true) );
+		define( 'TEST_FOO', sprintf( "%.8f", microtime(true) ) );
+		define( 'TEST_BAR', sprintf( "%.8f", microtime(true) ) );
 
 		$this->client->do_sync();
 

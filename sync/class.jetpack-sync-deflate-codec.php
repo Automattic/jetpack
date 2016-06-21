@@ -9,10 +9,10 @@ require_once dirname( __FILE__ ) . '/interface.jetpack-sync-codec.php';
  */
 class Jetpack_Sync_Deflate_Codec implements iJetpack_Sync_Codec {
 	public function encode( $object ) {
-		return base64_encode( gzdeflate( serialize( $object ) ) );
+		return base64_encode( gzdeflate( json_encode( $object ) ) );
 	}
 
 	public function decode( $input ) {
-		return unserialize( gzinflate( base64_decode( $input ) ) );
+		return json_decode( gzinflate( base64_decode( $input ) ) );
 	}
 }
