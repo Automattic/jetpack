@@ -89,6 +89,7 @@ Enhancements:
 * General: clean up and restyle jetpack related banner notices to match Core notification styles.
 * General: support both 80 and 443 in connections to WordPress.com.
 * General: better connection process for sites where SSL isn't available.
+* General: add a Jetpack icon next to connected users in the Users menu.
 * Infinite Scroll: improve wording in Infinite Scroll settings.
 * JSON API: update several API endpoints to match WordPress.com endpoints.
 * JSON API: add support for custom taxonomies to the JSON API.
