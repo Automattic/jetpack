@@ -57,3 +57,4 @@
 
 - We've refactored the Contact Info Widget to improve performance. To test, try adding and editing options of a Contact Info Widget.
 - We now use Photon to resize images in the Gallery Widget, thus improving performance of that widget. To test it, add a Gallery widget to your sidebar, set it to use Tiles, and make sure the images are displayed properly and use Photon (i.e. use the `i*.wpcom` domain).
+- You can now set the top posts widget to look at traffic for more than the last 10 days. Try cranking up that setting and make sure nothing breaks.
