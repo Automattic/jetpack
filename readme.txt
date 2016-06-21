@@ -85,6 +85,7 @@ Bug Fixes:
 
 Enhancements:
 
+* Custom CSS: allow multiple `display` properties.
 * General: clean up and restyle jetpack related banner notices to match Core notification styles.
 * General: support both 80 and 443 in connections to WordPress.com.
 * General: better connection process for sites where SSL isn't available.
