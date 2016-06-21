@@ -89,4 +89,22 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( $value, $this->server_replica_storage->get_callable( $name ), 'Function '. $name .' didn\'t have the expected value of ' . json_encode( $value ) );
 	}
 
+
+	function test_white_listed_callables_doesnt_get_synced_twice() {
+		delete_transient( $this->client::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( $this->client::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->client->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
+		$this->client->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$this->assertEquals( 'bar', $synced_value );
+
+		$this->server_replica_storage->reset();
+
+		delete_transient( $this->client::CALLABLES_AWAIT_TRANSIENT_NAME );
+		$this->client->do_sync();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+	}
+
 }
