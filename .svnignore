@@ -18,3 +18,4 @@ modules/shortcodes/upcoming-events.php
 modules/widgets/upcoming-events.php
 to-test.md
 .editorconfig
+.codeclimate.yml
