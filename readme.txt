@@ -108,7 +108,8 @@ Enhancements:
 * Support: improve self-help tools available in the Jetpack Debug menu.
 * Widgets: refactor the Contact Info Widget.
 * Widgets: use Photon to resize images in the Gallery Widget.
-# VideoPress: several enhancements to the VideoPress Shortcode modal.
+* Widgets: allow top posts widget to look back more than 10 days
+* VideoPress: several enhancements to the VideoPress Shortcode modal.
 * VideoPress: use HTML5 videos when using the `freedom` shortcode parameter.
 
 = 4.0.4 =
