@@ -42,7 +42,7 @@ function jetpack_breadcrumbs() {
 			$breadcrumb = jetpack_get_term_parents( $current->parent, $taxonomy );
 		}
 
-		$breadcrumb .= '<span class="current-category">' . esc_html( $current->name ) . '</span>';
+		$breadcrumb .= '<span class="current-category" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><span itemprop="name">' . esc_html( $current->name ) . '</span></span>';
 	}
 
 	$home = '<span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="' . esc_url( home_url( '/' ) ) . '" class="home-link" itemprop="item" rel="home"><span itemprop="name">' . esc_html__( 'Home', 'jetpack' ) . '</span></a></span>';
