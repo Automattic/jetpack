@@ -77,4 +77,3 @@ function jetpack_get_term_parents( $term, $taxonomy, $visited = array() ) {
 
 	return $chain;
 }
->>>>>>> Add breadcrumb support for any hierarchical post type or any hierarchical taxonomy.
