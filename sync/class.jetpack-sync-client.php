@@ -298,10 +298,6 @@ class Jetpack_Sync_Client {
 		$current_filter = current_filter();
 		$args           = func_get_args();
 
-		if ( $current_filter === 'wp_insert_post' && $args[1]->post_type === 'revision' ) {
-			return;
-		}
-
 		if ( in_array( $current_filter, array( 'deleted_option', 'added_option', 'updated_option' ) )
 		     &&
 		     ! $this->is_whitelisted_option( $args[0] )
