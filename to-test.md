@@ -11,6 +11,7 @@
 ### Contact Form
 
 - We've changed the way that contact forms are titled- please use the forms and make sure that responses show up correctly in your wp-admin
+- We've added an unread count to the feedback menu item in your wp-admin/ -- keep in mind that this resets to 0 when you view the page. Test it out, make sure it works!
 
 ### Custom CSS
 
