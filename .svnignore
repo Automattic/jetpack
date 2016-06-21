@@ -21,3 +21,4 @@ to-test.md
 _inc/client
 _inc/build/admin.js.map
 _inc/build/dops-style.css.map
+.codeclimate.yml
