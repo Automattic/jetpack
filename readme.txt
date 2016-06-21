@@ -99,6 +99,7 @@ Enhancements:
 * SSO: redesign and refactor Jetpack's SSO Module.
 * Support: improve self-help tools available in the Jetpack Debug menu.
 * Widgets: refactor the Contact Info Widget.
+* Widgets: use Photon to resize images in the Gallery Widget.
 # VideoPress: several enhancements to the VideoPress Shortcode modal.
 * VideoPress: use HTML5 videos when using the `freedom` shortcode parameter.
 
