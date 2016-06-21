@@ -29,18 +29,18 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function reset() {
-		$this->posts = array();
-		$this->comments = array();
-		$this->options = array();
-		$this->theme_support = array();
-		$this->meta = array();
-		$this->constants = array();
-		$this->updates = array();
-		$this->callable = array();
-		$this->network_options = array();
-		$this->terms = array();
-		$this->object_terms = array();
-		$this->users = array();
+		$this->posts           = array();
+        $this->comments        = array();
+        $this->options         = array();
+        $this->theme_support   = array();
+        $this->meta            = array();
+        $this->constants       = array();
+        $this->updates         = array();
+        $this->callable        = array();
+        $this->network_options = array();
+        $this->terms           = array();
+        $this->object_terms    = array();
+        $this->users           = array();
 	}
 
 	function full_sync_start() {
@@ -66,7 +66,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	private function post_checksum( $carry, $post ) {
-		return $carry ^ sprintf( '%u', crc32( $post->ID.$post->post_modified ) )+0;
+		return $carry ^ sprintf( '%u', crc32( $post->ID . $post->post_modified ) ) + 0;
 	}
 
 	function filter_post_status( $post ) {
@@ -103,7 +103,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	private function comment_checksum( $carry, $comment ) {
-		return $carry ^ sprintf( '%u', crc32( $comment->comment_ID.$comment->comment_content ) )+0;
+		return $carry ^ sprintf( '%u', crc32( $comment->comment_ID . $comment->comment_content ) ) + 0;
 	}
 
 	function filter_comment_status( $comment ) {
@@ -182,10 +182,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 		if ( count( $meta_entries ) === 0 ) {
 			// match return signature of WP code
-			if ($single)
+			if ($single) {
 				return '';
-			else
+			} else {
 				return array();
+			}
 		}
 
 		$meta_values = array_map( array( $this, 'get_meta_valued' ), $meta_entries );
@@ -441,7 +442,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function checksum_all() {
 		return array(
-			'posts' => $this->posts_checksum(),
+			'posts'    => $this->posts_checksum(),
 			'comments' => $this->comments_checksum()
 		);
 	}
