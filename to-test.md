@@ -8,6 +8,10 @@
 
 - We've improved the way comment avatars were stored and displayed. To test, try leaving comments while logged in, logged out, from Twitter, Facebook, Google+, or WordPress.com, and make sure all avatars are always displayed properly.
 
+### Contact Form
+
+- We've changed the way that contact forms are titled- please use the forms and make sure that responses show up correctly in your wp-admin
+
 ### Custom CSS
 
 - It is now possible to use multiple `display` properties in Custom CSS. You can follow the instructions [here](https://github.com/Automattic/jetpack/issues/4176) to test.
