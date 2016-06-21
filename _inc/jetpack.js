@@ -18,7 +18,7 @@ jetpack = {
 	didDebug: false,
 
 	init: function() {
-		jetpack.numModules = jQuery( 'div.jetpack-module' ).not( '.placeholder' ).size();
+		jetpack.numModules = jQuery( 'div.jetpack-module' ).not( '.placeholder' ).length;
 		jetpack.container = jQuery( 'div.module-container' );
 
 		jetpack.level_modules();

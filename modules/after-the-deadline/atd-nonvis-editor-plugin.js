@@ -111,7 +111,7 @@ function AtD_check(button) {
 		AtD_qtbutton = button;
 	}
 
-	if ( !jQuery('#content').size() ) {
+	if ( !jQuery('#content').length ) {
 		if ( 'undefined' !== typeof callback ) {
 			callback( 0 );
 		}
