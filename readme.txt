@@ -93,8 +93,10 @@ Enhancements:
 * General: better connection process for sites where SSL isn't available.
 * General: add a Jetpack icon next to connected users in the Users menu.
 * Infinite Scroll: improve wording in Infinite Scroll settings.
+* Infinite Scroll: introduce methods to pause and resume infinite scrolling.
 * JSON API: update several API endpoints to match WordPress.com endpoints.
 * JSON API: add support for custom taxonomies to the JSON API.
+* JSON API: enable trash as valid status for the post update endpoint.
 * Publicize: new `jetpack_publicize_capability` filter to allow user role restriction to be overridden.
 * Shortcodes: new Untappd shortcode.
 * Shortcodes: new Recipes shortcodes and options to create more detailed recipes.
