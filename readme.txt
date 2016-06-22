@@ -85,6 +85,7 @@ Bug Fixes:
 * General: discontinue use of deprecated "size()" calls in jQuery
 * Sitemaps: avoid PHP notices when a post includes a slideshow.
 * Sitemaps: avoid errors if your permalink structure uses `index.php`
+* Tiled Galleries: avoid JavaScript Errors when viewing galleries.
 
 Enhancements:
 
