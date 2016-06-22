@@ -49,4 +49,20 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 			$this->assertEquals( null, $this->server_replica_storage->get_constant( $constant ) );
 		}
 	}
+
+	function test_white_listed_constant_doesnt_get_synced_twice() {
+		$this->client->set_constants_whitelist( array( 'TEST_ABC' ) );
+		define( 'TEST_ABC', microtime(true) );
+		$this->client->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_constant( 'TEST_ABC' );
+		$this->assertEquals( TEST_ABC, $synced_value );
+
+		$this->server_replica_storage->reset();
+		
+		delete_transient( Jetpack_Sync_Client::CONSTANTS_AWAIT_TRANSIENT_NAME );
+		$this->client->do_sync();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_constant( 'TEST_ABC' ) );
+	}
 }
