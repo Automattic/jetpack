@@ -3592,9 +3592,14 @@ p {
 				wp_redirect( $connect_url );
 				exit;
 			} else {
-				Jetpack::state( 'message', 'already_authorized' );
-				wp_safe_redirect( Jetpack::admin_url() );
-				exit;
+				if ( ! isset( $_GET['calypso_env'] ) ) {
+					Jetpack::state( 'message', 'already_authorized' );
+					wp_safe_redirect( Jetpack::admin_url() );
+				} else {
+					$connect_url = $this->build_connect_url( true, false, 'iframe' );
+					$connect_url .= '&already_authorized=true';
+					wp_redirect( $connect_url );
+				}
 			}
 		}
 
