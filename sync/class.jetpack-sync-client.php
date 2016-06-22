@@ -1,5 +1,5 @@
 <?php
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
@@ -546,11 +546,9 @@ class Jetpack_Sync_Client {
 		 *
 		 * @param array $data The action buffer
 		 */
-		$result = apply_filters( 'jetpack_sync_client_send_data', $items_to_send );
+		$result = apply_filters( 'jetpack_sync_client_send_data', $items_to_send, $this->codec->name() );
 
 		if ( ! $result || is_wp_error( $result ) ) {
-			// error_log("There was an error sending data:");
-			// error_log(print_r($result, 1));
 			$result = $this->sync_queue->checkin( $buffer );
 
 			if ( is_wp_error( $result ) ) {
@@ -870,7 +868,7 @@ class Jetpack_Sync_Client {
 		$this->set_sync_wait_time( $settings['sync_wait_time'] );
 
 		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
-		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
+		$this->codec                     = new Jetpack_Sync_JSON_Deflate_Codec();
 		$this->constants_whitelist       = Jetpack_Sync_Defaults::$default_constants_whitelist;
 		$this->update_options_whitelist();
 		$this->network_options_whitelist = Jetpack_Sync_Defaults::$default_network_options_whitelist;
