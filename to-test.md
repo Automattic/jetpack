@@ -45,6 +45,7 @@
 - Recipes: new shortcodes and options to create more detailed recipes. To test, you can follow the instructions in [this support document](https://en.support.wordpress.com/recipes/).
 - VideoPress: use HTML5 videos when using the `freedom` shortcode parameter. To test, try using the `force_flash` and `freedom` parameters when inserting VideoPress shortcodes, and check that the video is displayed according to your settings.
 - VideoPress: we've made some changes to the shortcode modal, available when inserting and editing a VideoPress video in the Visual Editor. To test, you can play with shortcode options for a video you've inserted by clicking on the little Pencil icon appearing above the video.
+- Audio: we have completely removed the Audio shortcode, as audio players have been part of WordPress Core for some time, and we didn't include our shortcode for all versions of WordPress above 3.6. To test, try [inserting Audio shortcodes](https://codex.wordpress.org/Audio_Shortcode) into your posts, and make sure no error appears.
 
 ### Sitemaps
 
