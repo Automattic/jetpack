@@ -24,7 +24,6 @@ class Jetpack_Media_Meta_Extractor {
 		'hulu',
 		'ted',
 		'wpvideo',
-		'audio',
 	);
 
 	/**
