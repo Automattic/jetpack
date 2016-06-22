@@ -155,6 +155,8 @@ class Jetpack_Sync_Client {
 		add_action( 'upgrader_process_complete', $handler, 10, 2 );
 		add_filter( 'jetpack_sync_before_send_upgrader_process_complete', array( $this, 'expand_upgrader_process_complete' ) );
 		add_action( 'deleted_plugin', $handler, 10, 2 );
+		add_action( 'activated_plugin', $handler, 10, 2 );
+		add_action( 'deactivated_plugin', $handler, 10, 2 );
 
 
 		// multi site network options
@@ -301,7 +303,6 @@ class Jetpack_Sync_Client {
 		
 		$current_filter = current_filter();
 		$args           = func_get_args();
-
 		if ( in_array( $current_filter, array( 'deleted_option', 'added_option', 'updated_option' ) )
 		     &&
 		     ! $this->is_whitelisted_option( $args[0] )
