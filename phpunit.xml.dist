@@ -52,10 +52,14 @@
 		<testsuite name="sync">
 			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
 		</testsuite>
+		<testsuite name="uninstall">
+			<directory prefix="test_" suffix=".php">tests/php/uninstall</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
 			<group>external-http</group>
+			<group>uninstall</group>
 		</exclude>
 	</groups>
 	<filter>
