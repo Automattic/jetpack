@@ -76,7 +76,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 * @param array $instance Saved values from database.
 	 */
 	public function widget( $args, $instance ) {
-		$instance['lang']  = substr( strtoupper( get_locale() ), 0, 2 );
+		$instance['lang'] = substr( strtoupper( get_locale() ), 0, 2 );
 
 		echo $args['before_widget'];
 
@@ -85,26 +85,28 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
 		}
 
-		$data_attribs = array( 'theme', 'link-color', 'border-color', 'chrome', 'tweet-limit' );
-		$attribs      = array( 'width', 'height', 'lang' );
-
 		// Start tag output
+		// This tag is transformed into the widget markup by Twitter's
+		// widgets.js code
 		echo '<a class="twitter-timeline"';
 
+		$data_attribs = array(
+			'width',
+			'height',
+			'theme',
+			'link-color',
+			'border-color',
+			'tweet-limit',
+			'lang'
+		);
 		foreach ( $data_attribs as $att ) {
-			if ( ! empty( $instance[ $att ] ) ) {
-				if ( is_array( $instance[ $att ] ) ) {
-					echo ' data-' . esc_attr( $att ) . '="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
-				} else {
-					echo ' data-' . esc_attr( $att ) . '="' . esc_attr( $instance[ $att ] ) . '"';
-				}
+			if ( ! empty( $instance[ $att ] ) && ! is_array( $instance[ $att ] ) ) {
+				echo ' data-' . esc_attr( $att ) . '="' . esc_attr( $instance[ $att ] ) . '"';
 			}
 		}
 
-		foreach ( $attribs as $att ) {
-			if ( ! empty( $instance[ $att ] ) ) {
-				echo ' ' . esc_attr( $att ) . '="' . esc_attr( $instance[ $att ] ) . '"';
-			}
+		if ( ! empty( $instance['chrome'] ) && is_array( $instance['chrome'] ) ) {
+			echo ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
 		}
 
 		switch ( $instance['type'] ) {
@@ -117,6 +119,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				break;
 		}
 
+		// End tag output
 		echo '>';
 
 		$timeline_placeholder = __( 'My Tweets', 'jetpack' );
