@@ -4,10 +4,15 @@ require_once dirname( __FILE__ ) . '/interface.jetpack-sync-codec.php';
 
 /**
  * An implementation of iJetpack_Sync_Codec that uses gzip's DEFLATE
- * algorithm to compress objects serialized using PHP's default
- * serializer
+ * algorithm to compress objects serialized using json_encode
  */
-class Jetpack_Sync_Deflate_Codec implements iJetpack_Sync_Codec {
+class Jetpack_Sync_JSON_Deflate_Codec implements iJetpack_Sync_Codec {
+	const CODEC_NAME = "deflate-json";
+
+	public function name() {
+		return self::CODEC_NAME;
+	}
+	
 	public function encode( $object ) {
 		return base64_encode( gzdeflate( $this->json_serialize( $object ) ) );
 	}
