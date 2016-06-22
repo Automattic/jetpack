@@ -31,7 +31,7 @@ jQuery( function( $ ) {
 
 	setupContactMaps();
 
-	if ( wp && wp.customize && wp.customizerHasPartialWidgetRefresh() ) {
+	if ( 'undefined' !== typeof wp && wp.customize && wp.customize.selectiveRefresh ) {
 		wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
 			if ( wp.isJetpackWidgetPlaced( placement, 'widget_contact_info' ) ) {
 				setupContactMaps( placement.container );
