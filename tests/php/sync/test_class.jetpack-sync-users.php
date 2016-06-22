@@ -211,8 +211,14 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEqualsObject( $client_user, $server_user );
 
+		$this->assertEqualsObject( $client_user, $server_user );
+	}
+
+	public function test_sync_allowed_file_type() {
+		$user_file_mine_types = get_allowed_mime_types( $this->user_id );
+		$server_user_file_mime_types = $this->server_replica_storage->get_allowed_mime_types( $this->user_id );
+		$this->assertEquals( $user_file_mine_types, $server_user_file_mime_types );
 	}
 
 	protected function assertUsersEqual( $user1, $user2 ) {

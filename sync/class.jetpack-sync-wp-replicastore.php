@@ -551,6 +551,10 @@ ENDSQL;
 		// TODO: Implement upsert_plugins() method.
 	}
 
+	public function get_allowed_mime_types( $user_id ) {
+		
+	}
+
 	public function checksum_all() {
 		return array(
 			'posts'    => $this->posts_checksum(),

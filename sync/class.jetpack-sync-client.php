@@ -472,7 +472,7 @@ class Jetpack_Sync_Client {
 
 	public function sanitize_user( $user ) {
 		unset( $user->data->user_pass );
-
+		$user->allowed_mime_types = get_allowed_mime_types( $user );
 		return $user;
 	}
 
