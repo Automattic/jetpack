@@ -161,7 +161,9 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 			'jetpack_sso_require_two_step'=> 'pineapple',
 			'jetpack_relatedposts'=> 'pineapple',
 			'verification_services_codes'=> 'pineapple',
-			'users_can_register' => '1'
+			'users_can_register' => '1',
+			'active_plugins' => array( 'pineapple' ),
+			'uninstall_plugins' => 'banana'
 		);
 		
 		$theme_mod_key = 'theme_mods_' . get_option( 'stylesheet' );
