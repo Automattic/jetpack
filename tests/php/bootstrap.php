@@ -31,14 +31,28 @@ require $test_root . '/includes/functions.php';
 function _manually_load_plugin() {
 	require dirname( __FILE__ ) . '/../../jetpack.php';
 }
-tests_add_filter( 'plugins_loaded', '_manually_load_plugin' );
+
+// If we are running the uninstall tests don't load jepack.
+if ( ! ( in_running_uninstall_group() ) ) {
+	tests_add_filter( 'plugins_loaded', '_manually_load_plugin' );
+}
+
+
 
 require $test_root . '/includes/bootstrap.php';
 
+
 // Load the shortcodes module to test properly.
-if ( ! function_exists( 'shortcode_new_to_old_params' ) ) {
+if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {
 	require dirname( __FILE__ ) . '/../../modules/shortcodes.php';
+
 }
+
 
 // Load attachment helper methods.
 require dirname( __FILE__ ) . '/attachment_test_case.php';
+
+function in_running_uninstall_group() {
+	global  $argv;
+	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
+}
