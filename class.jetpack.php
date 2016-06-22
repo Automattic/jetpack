@@ -4609,15 +4609,16 @@ p {
 			    'admin.php?page=jetpack-settings' ), $url );
 			}
 		} else {
-			require_once JETPACK__GLOTPRESS_LOCALES_PATH;
+			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
+				$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+			}
+
 			$role = $this->translate_current_user_to_role();
 			$signed_role = $this->sign_role( $role );
 
 			$user = wp_get_current_user();
 
 			$redirect = $redirect ? esc_url_raw( $redirect ) : esc_url_raw( menu_page_url( 'jetpack', false ) );
-
-			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
 
 			if( isset( $_REQUEST['is_multisite'] ) ) {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
