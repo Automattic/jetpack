@@ -75,6 +75,47 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.1 =
+
+Bug Fixes:
+
+* Comments: improve the way avatars are displayed in comments, to better match the method used to log in.
+* Compatibility: avoid issues with Open Graph Meta Tags when using an old version of the Bitly plugin.
+* Custom CSS: avoid memory issues when making a very large amount of CSS changes on your site.
+* General: discontinue use of deprecated "size()" calls in jQuery
+* Sitemaps: avoid PHP notices when a post includes a slideshow.
+* Sitemaps: avoid errors if your permalink structure uses `index.php`
+* Tiled Galleries: avoid JavaScript Errors when viewing galleries.
+
+Enhancements:
+
+* Contact Form: improve naming convention for feedback posts
+* Contact Form: add unread contact count to sidebar
+* Custom CSS: allow multiple `display` properties.
+* General: clean up and restyle jetpack related banner notices to match Core notification styles.
+* General: support both 80 and 443 in connections to WordPress.com.
+* General: better connection process for sites where SSL isn't available.
+* General: add a Jetpack icon next to connected users in the Users menu.
+* General: don't try to photonize images while in dev mode
+* General: Improve sync, remove mock options
+* Infinite Scroll: improve wording in Infinite Scroll settings.
+* Infinite Scroll: introduce methods to pause and resume infinite scrolling.
+* JSON API: update several API endpoints to match WordPress.com endpoints.
+* JSON API: add support for custom taxonomies to the JSON API.
+* JSON API: enable trash as valid status for the post update endpoint.
+* Publicize: new `jetpack_publicize_capability` filter to allow user role restriction to be overridden.
+* Sharing: swap out image icons for an icon font, add telegram and whatsapp buttons
+* Shortcodes: new Untappd shortcode.
+* Shortcodes: new Recipes shortcodes and options to create more detailed recipes.
+* Shortcodes: remove all traces of the Jetpack Audio shortcode.
+* SSO: redesign and refactor Jetpack's SSO Module.
+* Support: improve self-help tools available in the Jetpack Debug menu.
+* Widgets: refactor the Contact Info Widget.
+* Widgets: use Photon to resize images in the Gallery Widget.
+* Widgets: allow top posts widget to look back more than 10 days
+* VideoPress: several enhancements to the VideoPress Shortcode modal.
+* VideoPress: use HTML5 videos when using the `freedom` shortcode parameter.
+
 = 4.0.4 =
 Release date: June 20th, 2016
 Release Post: http://wp.me/p1moTy-3eT
