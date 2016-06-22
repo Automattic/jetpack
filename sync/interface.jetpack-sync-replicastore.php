@@ -52,7 +52,7 @@ interface iJetpack_Sync_Replicastore {
 	// options
 	public function update_option( $option, $value );
 
-	public function get_option( $option, $default );
+	public function get_option( $option, $default = false );
 
 	public function delete_option( $option );
 
