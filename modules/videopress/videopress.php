@@ -877,10 +877,8 @@ class Jetpack_VideoPress {
 	 */
 	protected function make_media_upload_path( $blog_id ) {
 		return sprintf(
-			'%s://%s/rest/v%s/videos/%s/new',
-			'https',
+			'https://%s/rest/v1.1/sites/%s/videos/new',
 			JETPACK__WPCOM_JSON_API_HOST,
-			'1.1',
 			$blog_id
 		);
 	}
