@@ -101,7 +101,7 @@ li.service span:before {
 	color: #555;
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
-	font: normal 16px/1 'Noticons', 'Genericons';
+	font: normal 18px/1 'social-logos';
 	vertical-align: top;
 	position: relative;
 	top: 1px;
@@ -134,9 +134,6 @@ li.service.share-tumblr span:before {
 li.service.share-pocket span:before {
 	content: '\f224';
 }
-li.service.share-skype span:before {
-	content: '\f220';
-}
 li.service.share-pinterest span:before {
 	content: '\f209';
 }
@@ -144,12 +141,20 @@ li.service.share-google-plus-1 span:before {
 	content: '\f218';
 }
 li.service.share-facebook span:before {
-	content: '\f204';
+	content: '\f203';
 }
 li.service.share-press-this span:before {	/* Fixme: remove this button in favor of reblog */
 	content: '\f205';
 }
-
+li.service.share-telegram span:before {
+	content: '\f606';
+}
+li.service.share-jetpack-whatsapp span:before {
+	content: '\f608';
+}
+li.service.share-skype span:before {
+	content: '\f220';
+}
 
 /**
  * Preview section
@@ -311,8 +316,7 @@ body.settings_page_sharing .advanced input[type=submit] {
 	background: url(images/linkedin-smart.png) no-repeat top center;
 	background-size: 99px 18px;
 	width:99px;
-	height:18px;
-	margin-top: 1px;
+	height:20px;
 }
 
 .preview-google-plus-1 .option-smart-on {
@@ -349,7 +353,49 @@ body.settings_page_sharing .advanced input[type=submit] {
 	width: 60px;
 	height: 20px;
 }
+@media
+(-webkit-min-device-pixel-ratio: 1.25),
+(min-resolution: 120dpi) {
+	.preview-digg .option-smart-on {
+		background-image: url(images/smart-digg@2x.png);
+	}
 
+	.preview-reddit .option-smart-on {
+		background-image: url(images/smart-reddit@2x.png);
+	}
+
+	.preview-facebook .option-smart-on {
+		background-image: url(images/smart-like@2x.png);
+	}
+
+	.preview-twitter .option-smart-on {
+		background-image: url(images/smart-twitter@2x.png?1);
+	}
+
+	.preview-linkedin .option-smart-on {
+		background-image: url(images/linkedin-smart@2x.png);
+	}
+
+	.preview-google-plus-1 .option-smart-on {
+		background-image: url(images/smart-googleplus1@2x.png);
+	}
+
+	.preview-tumblr .option-smart-on {
+		background-image: url(images/smart-tumblr@2x.png);
+	}
+
+	.preview-pinterest .option-smart-on {
+		background-image: url(images/smart-pinterest@2x.png);
+	}
+
+	.preview-pocket .option-smart-on {
+		background-image: url(images/smart-pocket@2x.png);
+	}
+
+	.preview-skype .option-smart-on {
+		background-image: url(images/smart-skype@2x.png);
+	}
+}
 
 /**
  * Overflow sharing dialog
