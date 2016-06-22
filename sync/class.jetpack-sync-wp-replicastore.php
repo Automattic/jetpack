@@ -261,7 +261,7 @@ ENDSQL;
 		return update_option( $option, $value );
 	}
 
-	public function get_option( $option, $default ) {
+	public function get_option( $option, $default = false ) {
 		return get_option( $option, $default );
 	}
 

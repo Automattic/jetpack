@@ -238,9 +238,10 @@ class Jetpack_Sync_Server_Replicator {
 
 			// plugins
 			case 'upgrader_process_complete':
-				list( $process, $data ) = $args;
-				if ( $process['type'] == 'plugin' ) {
-					$this->store->upsert_plugins( $data );
+				$process = $args[ 0 ];
+				if ( is_array( $process ) && $process['type'] == 'plugin' ) {
+					$plugin_data = $args[1];
+					$this->store->upsert_plugins( $plugin_data );
 				}
 				break;
 			case 'deleted_plugin':
