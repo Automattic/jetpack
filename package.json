@@ -62,7 +62,6 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-util": "^3.0.6",
     "i18n-calypso": "github:automattic/i18n-calypso",
-    "isomorphic-fetch": "^2.2.1",
     "jshint": "2.9.1",
     "jshint-stylish": "~2.1.0",
     "lodash": "^4.9.0",
@@ -87,7 +86,8 @@
     "sinon-qunit": "~2.0.0",
     "style-loader": "0.13",
     "webpack": "1.12.9",
-    "webpack-dev-server": "1.14.0"
+    "webpack-dev-server": "1.14.0",
+    "whatwg-fetch": "^1.0.0"
   },
   "engines": {
     "node": ">=0.8"
