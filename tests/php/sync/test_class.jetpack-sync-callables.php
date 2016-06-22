@@ -91,8 +91,8 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 
 
 	function test_white_listed_callables_doesnt_get_synced_twice() {
-		delete_transient( $this->client::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( $this->client::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Jetpack_Sync_Client::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Client::CALLABLES_CHECKSUM_OPTION_NAME );
 		$this->client->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 		$this->client->do_sync();
 
@@ -101,7 +101,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->server_replica_storage->reset();
 
-		delete_transient( $this->client::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Jetpack_Sync_Client::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->client->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
