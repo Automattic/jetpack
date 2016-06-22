@@ -107,6 +107,7 @@ Enhancements:
 * Sharing: swap out image icons for an icon font, add telegram and whatsapp buttons
 * Shortcodes: new Untappd shortcode.
 * Shortcodes: new Recipes shortcodes and options to create more detailed recipes.
+* Shortcodes: remove all traces of the Jetpack Audio shortcode.
 * SSO: redesign and refactor Jetpack's SSO Module.
 * Support: improve self-help tools available in the Jetpack Debug menu.
 * Widgets: refactor the Contact Info Widget.
