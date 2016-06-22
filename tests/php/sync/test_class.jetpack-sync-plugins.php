@@ -106,6 +106,28 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 
 	}
 
+	function test_plugin_activation_action_is_synced() {
+		activate_plugin( 'hello.php' );
+		$this->client->do_sync();
+
+		$activated_plugin = $this->server_event_storage->get_most_recent_event( 'activated_plugin' );
+
+		$this->assertTrue( isset( $activated_plugin->args ) );
+		$this->assertEquals( 'hello.php', $activated_plugin->args[0] );
+		$this->assertFalse( $activated_plugin->args[1] );
+	}
+
+	function test_plugin_deactivation_action_is_synced() {
+		activate_plugin( 'hello.php' );
+		deactivate_plugins( 'hello.php' );
+		$this->client->do_sync();
+
+		$deactivated_plugin = $this->server_event_storage->get_most_recent_event( 'deactivated_plugin' );
+		$this->assertTrue( isset( $deactivated_plugin->args ) );
+		$this->assertEquals( 'hello.php', $deactivated_plugin->args[0] );
+		$this->assertFalse( $deactivated_plugin->args[1] );
+	}
+
 	function remove_plugin() {
 		delete_plugins( array( 'wp-super-cache/wp-cache.php' ) );
 		wp_cache_delete( 'plugins', 'plugins' );
