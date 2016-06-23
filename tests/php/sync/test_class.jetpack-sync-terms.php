@@ -35,7 +35,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_insert_term_is_synced() {
 		$terms = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
-		$this->assertEquals( $terms, $server_terms );
+		$this->assertEqualsObject( $terms, $server_terms );
 	}
 
 	public function test_update_term_is_synced() {
@@ -48,7 +48,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 
 		$terms = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
-		$this->assertEquals( $terms, $server_terms );
+		$this->assertEqualsObject( $terms, $server_terms );
 	}
 
 	public function test_delete_term_is_synced() {
@@ -67,7 +67,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 
 		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
-		$this->assertEquals( $object_terms, $server_object_terms );
+		$this->assertEqualsObject( $object_terms, $server_object_terms );
 	}
 
 	public function test_added_terms_to_post_is_synced_appended() {
@@ -81,7 +81,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 		$server_object_terms = array_reverse( $server_object_terms );
-		$this->assertEquals( $object_terms, $server_object_terms );
+		$this->assertEqualsObject( $object_terms, $server_object_terms );
 	}
 
 	public function test_deleted_terms_to_post_is_synced() {
@@ -99,7 +99,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 		$server_object_terms = array_reverse( $server_object_terms );
 
-		$this->assertEquals( $object_terms, $server_object_terms );
+		$this->assertEqualsObject( $object_terms, $server_object_terms );
 	}
 
 	public function test_delete_object_term_relationships() {

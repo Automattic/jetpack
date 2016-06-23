@@ -75,6 +75,17 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 	}
 
+	// asserts that two objects are the same if they're both "objectified",
+	// i.e. json_encoded and then json_decoded
+	// this is useful because we json encode everything sent to the server
+	protected function assertEqualsObject( $object_1, $object_2 ) {
+		$this->assertEquals( $this->objectify( $object_1 ), $this->objectify( $object_2 ) );
+	}
+
+	protected function objectify( $instance ) {
+		return json_decode( json_encode( $instance ) );
+	}
+
 	function serverReceive( $data ) {
 		return $this->server->receive( $data );
 	}
@@ -87,14 +98,16 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 	protected $action_ran;
 	protected $encoded_data;
 
-	function test_add_post_fires_sync_data_action_on_do_sync() {
+	function test_add_post_fires_sync_data_action_with_codec_on_do_sync() {
 		$this->action_ran = false;
+		$this->action_codec = null;
 
-		add_filter( 'jetpack_sync_client_send_data', array( $this, 'action_ran' ) );
+		add_filter( 'jetpack_sync_client_send_data', array( $this, 'action_ran' ), 10, 2 );
 
 		$this->client->do_sync();
 
 		$this->assertEquals( true, $this->action_ran );
+		$this->assertEquals( 'deflate-json', $this->action_codec );
 	}
 
 	function test_clear_actions_on_client() {
@@ -367,8 +380,9 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertTrue( $event->timestamp < microtime(true) );
 	}
 
-	function action_ran( $data ) {
+	function action_ran( $data, $codec ) {
 		$this->action_ran = true;
+		$this->action_codec = $codec;
 		return $data;
 	}
 
