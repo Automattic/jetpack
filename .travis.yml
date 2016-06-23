@@ -42,6 +42,8 @@ matrix:
   - php: "5.2"
     env: WP_VERSION=master
   - php: "5.2"
+    env: WP_VERSION=master WP_TRAVIS="phpunit --group=uninstall --testsuite=uninstall"
+  - php: "5.2"
     env: WP_VERSION=4.4
   - php: "5.2"
     env: WP_VERSION=4.5
@@ -63,6 +65,7 @@ matrix:
     env: WP_VERSION=4.5
   - php: "7.0"
     env: WP_VERSION=master
+
   allow_failures:
   - php: "hhvm"
   - php: "nightly"

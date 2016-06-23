@@ -887,11 +887,31 @@ class Jetpack_Sync_Client {
 	function reset_data() {
 		$this->reset_sync_queue();
 
-		// Lets delete all the other fun stuff like transient and option.
+
 		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
 		delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME );
 
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
+
+		delete_option( self::SYNC_THROTTLE_OPTION_NAME );
+		delete_option( self::LAST_SYNC_TIME_OPTION_NAME );
+
+		$valid_settings  = self::$valid_settings;
+		$settings_prefix =  self::SETTINGS_OPTION_PREFIX;
+		foreach ( $valid_settings as $option => $value ) {
+			delete_option( $settings_prefix . $option );
+		}
+	}
+
+	function uninstall() {
+		// Lets delete all the other fun stuff like transient and option and the sync queue
+		$this->reset_data();
+
+		// delete the full sync status
+		delete_option( 'jetpack_full_sync_status' );
+
+		// clear the sync cron.
+		wp_clear_scheduled_hook( 'jetpack_sync_actions' );
 	}
 }
