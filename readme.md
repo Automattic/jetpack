@@ -14,6 +14,18 @@ To install the Jetpack plugin on your site, [follow the instructions on this pag
 
 Do you need help installing Jetpack, or do you have questions about one of the Jetpack modules? You can [search through our documentation here](http://jetpack.com/support/). If you don't find the answers you're looking for, you can [send us an email](http://jetpack.com/contact-support/) or [start a new thread in the WordPress.org support forums](https://wordpress.org/support/plugin/jetpack#postform).
 
+## Installation from  git repo
+
+The `jetpack-built` branch of this repo contains an stable version with every JS and CSS file pre-built.
+
+CD into your Plugins directory
+
+```
+$ git clone git@github.com:Automattic/jetpack.git
+$ cd jetpack
+$ git checkout jetpack-built
+```
+
 ## Contribute
 
 Developers of all levels can help — whether you can barely recognize a filter (or don’t know what that means) or you’ve already authored your own plugins, there are ways for you to pitch in. Blast off:
@@ -60,6 +72,26 @@ Known Issues:
 #### Development build
 
 Running `npm run watch` instead of `npm run build` will build all the code and continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly. Before running `npm run watch` you may need to `npm install` the npm dependencies first.
+
+Clone this repository inside your Plugins directory.
+
+```
+$ git clone git@github.com:Automattic/jetpack.git
+$ cd jetpack
+$ npm install
+$ npm run watch
+```
+
+#### Unit-testing the JS Admin Page
+
+You can run [Mocha](https://mochajs.org/) based tests for the Admin Page source code with `npm run test-client`
+
+Standing on your jetpack directory, run
+
+```
+$ npm install
+$ npm run test-client
+```
 
 ## Monitor our activity on this repository
 
