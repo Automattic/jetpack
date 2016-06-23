@@ -116,7 +116,6 @@ interface iJetpack_Sync_Replicastore {
 
 	// plugins
 	public function get_plugins();
-	public function get_active_plugins();
 	public function upsert_plugins( $plugins );
 
 	// full checksum

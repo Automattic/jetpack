@@ -702,8 +702,27 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 0, $terms[0]->count );
 	}
 
-	public function store_provider( $name ) {
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_replica_update_plugins( $store ) {
 
+		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
+			$this->markTestIncomplete( "The WP replicastore doesn't support setting plugins" );
+		}
+
+		$this->assertNull( $store->get_plugins() );
+
+		$plugins = self::$factory->plugins();
+
+		$store->upsert_plugins( $plugins );
+
+		$this->assertNotNull( $store->get_plugins() );
+		$this->assertEquals( $plugins, $store->get_plugins() );
+	}
+
+	public function store_provider( $name ) {
 		if ( !self::$all_replicastores ) {
 			// detect classes that implement iJetpack_Sync_Replicastore
 			self::$all_replicastores = array();

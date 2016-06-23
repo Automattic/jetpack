@@ -448,15 +448,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	function upsert_plugins( $plugins ) {
 		$this->plugins = $plugins;
 	}
-
-	function get_active_plugins() {
-		return $this->options['active_plugins'];
-	}
-
-	function get_uninstallable_plugins() {
-		return $this->options['active_plugins'];
-	}
-
+	
 	function checksum_all() {
 		return array(
 			'posts' => $this->posts_checksum(),

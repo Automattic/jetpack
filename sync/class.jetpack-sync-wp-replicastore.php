@@ -7,6 +7,7 @@ require_once 'interface.jetpack-sync-replicastore.php';
  * This is useful to compare values in the local WP DB to values in the synced replica store
  */
 class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
+	
 
 	public function reset() {
 		global $wpdb;
@@ -544,10 +545,6 @@ ENDSQL;
 	// plugins
 	public function get_plugins() {
 		// TODO: Implement get_plugins() method.
-	}
-
-	public function get_active_plugins() {
-		// TODO: Implement get_active_plugins() method.
 	}
 
 	public function upsert_plugins( $plugins ) {
