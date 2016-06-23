@@ -135,6 +135,8 @@ class Jetpack_Sync_Client {
 		add_action( 'profile_update', array( $this, 'save_user_handler' ), 10, 2 );
 		add_action( 'jetpack_sync_save_user', $handler, 10, 2 );
 		add_action( 'deleted_user', $handler, 10, 2 );
+		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ), 10, 2 );
+
 
 		// user roles
 		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
@@ -301,7 +303,6 @@ class Jetpack_Sync_Client {
 	}
 
 	function action_handler() {
-		
 		$current_filter = current_filter();
 		$args           = func_get_args();
 		if ( in_array( $current_filter, array( 'deleted_option', 'added_option', 'updated_option' ) )
@@ -432,7 +433,6 @@ class Jetpack_Sync_Client {
 				return;
 			}
 		}
-
 		/**
 		 * Fires when the client needs to sync an updated user
 		 *
@@ -472,10 +472,23 @@ class Jetpack_Sync_Client {
 
 	public function sanitize_user( $user ) {
 		unset( $user->data->user_pass );
+		return $user;
+	}
+
+	public function sanitize_user_and_expand( $user ) {
+		$user = $this->sanitize_user( $user );
+		return $this->add_to_user( $user );
+	}
+
+	public function add_to_user( $user ) {
 		$user->allowed_mime_types = get_allowed_mime_types( $user );
 		return $user;
 	}
 
+	public function expand_user( $args ) {
+		list( $user ) = $args;
+		return array( $this->add_to_user( $user ) );
+	}
 
 	function do_sync() {
 		// don't sync if importing
