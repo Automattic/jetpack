@@ -22,7 +22,8 @@ var webpackConfig = {
 	// Entry points point to the javascript module that is used to generate the script file.
 	// The key is used as the name of the script.
 	entry: {
-		admin: './_inc/client/admin.js'
+		admin: './_inc/client/admin.js',
+		static: './_inc/client/static.jsx'
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),

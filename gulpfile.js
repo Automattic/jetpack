@@ -3,22 +3,21 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	check = require( 'gulp-check' ),
 	cleanCSS = require( 'gulp-clean-css' ),
 	concat = require( 'gulp-concat' ),
-	del = require('del'),
-	spawn = require('child_process').spawn,
+	del = require( 'del' ),
+	spawn = require( 'child_process' ).spawn,
 	gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
 	glotpress = require( 'glotpress-js' ),
+	jsdom = require( 'jsdom' ),
 	jshint = require( 'gulp-jshint' ),
-	path = require( 'path' ),
 	phplint = require( 'gulp-phplint' ),
 	phpunit = require( 'gulp-phpunit' ),
-	po2json = require('gulp-po2json'),
+	po2json = require( 'gulp-po2json' ),
 	qunit = require( 'gulp-qunit' ),
 	rename = require( 'gulp-rename' ),
 	rtlcss = require( 'gulp-rtlcss' ),
 	sass = require( 'gulp-sass' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
-	stylish = require( 'jshint-stylish'),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
 
@@ -26,7 +25,6 @@ var language_packs = require( './language-packs.js' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
-
 		// Webpack doesn't populate err in case the build fails
 		// @see https://github.com/webpack/webpack/issues/708
 		if ( stats.compilation.errors && stats.compilation.errors.length ) {
@@ -50,7 +48,7 @@ function onBuild( done ) {
 			source: false,
 			errorDetails: true,
 			children: false
-		} ), "\nJS finished at", Date.now() );
+		} ), '\nJS finished at', Date.now() );
 
 		if ( done ) {
 			done();
@@ -96,17 +94,6 @@ gulp.task( 'react:build', function( done ) {
 	process.env.NODE_ENV = 'production';
 
 	var config = getWebpackConfig();
-	config.plugins = config.plugins.concat(
-		new webpack.optimize.DedupePlugin(),
-		new webpack.optimize.UglifyJsPlugin( {
-			compress: {
-				warnings: false
-			}
-		} )
-	);
-
-	config.devtool = 'source-map';
-	config.debug = false;
 
 	webpack( config ).run( onBuild( done ) );
 } );
@@ -117,9 +104,36 @@ gulp.task( 'react:watch', function() {
 	webpack( config ).watch( 100, onBuild() );
 } );
 
+gulp.task( 'react:static', function() {
+	jsdom.env( '', function( err, window ) {
+		global.window = window;
+		global.document = window.document;
+		global.navigator = window.navigator;
+
+		window.Initial_State = {
+			userData: {},
+			dismissedNotices: [],
+			connectionStatus: {
+				devMode: {
+					isActive: true
+				}
+			},
+			userData: {
+				currentUser: {
+					permissions: {}
+				}
+			}
+		};
+
+		require( './_inc/build/static.js' );
+	} );
+} );
+
 // Admin CSS to be minified, autoprefixed, rtl
 //
 // Note: Once the Jetpack React UI lands, many of these will likely be able to be removed.
+
+/* (Pre-4.1) Admin CSS to be minified, autoprefixed, rtl */
 var admincss = [
 	'modules/after-the-deadline/atd.css',
 	'modules/after-the-deadline/tinymce/css/content.css',
