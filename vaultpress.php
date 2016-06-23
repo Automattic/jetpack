@@ -1073,10 +1073,10 @@ class VaultPress {
 	// Update local cache of VP plan settings, based on a ping or connection test result
 	function update_plan_settings( $message ) {
 		if ( array_key_exists( 'do_backups', $message ) )	
-			$this->update_option( 'do_not_backup', ( false === $message['do_backups'] ) || ( '' === $message['do_backups'] ) );
+			$this->update_option( 'do_not_backup', ( false === $message['do_backups'] ) || ( '0' === $message['do_backups'] ) );
 			
 		if ( array_key_exists( 'do_backup_pings', $message ) )
-			$this->update_option( 'do_not_send_backup_pings', ( false === $message['do_backup_pings'] ) || ( '' === $message['do_backup_pings'] ) );
+			$this->update_option( 'do_not_send_backup_pings', ( false === $message['do_backup_pings'] ) || ( '0' === $message['do_backup_pings'] ) );
 	}
 
 	function check_connection( $force_check = false ) {
