@@ -84,6 +84,8 @@ class Jetpack_Sync_Client {
 		add_action( 'trashed_comment', $handler, 10 );
 		add_action( 'spammed_comment', $handler, 10 );
 
+		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
+
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
 		// so this saves us a DB read for every comment event
@@ -91,6 +93,7 @@ class Jetpack_Sync_Client {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_action( $comment_action_name, $handler, 10, 2 );
+				add_filter( 'jetpack_sync_before_send_' . $comment_action_name, array( $this, 'expand_wp_insert_comment' ) );
 			}
 		}
 

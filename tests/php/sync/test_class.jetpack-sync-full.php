@@ -538,7 +538,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		remove_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
 
 		$this->assertEquals( 3, $this->server_replica_storage->comment_count( 'jetpack_sync_blocked' ) );
-		$blocked_post = $this->server_replica_storage->get_post( $post_id);
+		$blocked_post = $this->server_replica_storage->get_post( $post_id );
 		$this->assertEquals( 'jetpack_sync_blocked', $blocked_post->post_status );
 	}
 
