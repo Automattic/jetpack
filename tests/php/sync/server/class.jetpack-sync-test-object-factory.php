@@ -111,6 +111,35 @@ class JetpackSyncTestObjectFactory {
 		return new WP_User( $user );
 	}
 
+	function plugins() {
+		return array(
+			'polldaddy/polldaddy.php' => array(
+				'Name' => 'Polldaddy Polls & Ratings',
+				'PluginURI' => 'http://wordpress.org/extend/plugins/polldaddy/',
+                'Version' => '2.0.31',
+                'Description' => 'Create and manage Polldaddy polls and ratings in WordPress',
+				'Author' => 'Automattic, Inc.',
+                'TextDomain' => 'polldaddy',
+                'Title' => 'Polldaddy Polls & Ratings',
+				'Network' => false,
+				'AuthorName' => 'Automattic, Inc.'
+            ),
+			'vaultpress/vaultpress.php' => array(
+				'Name' => 'VaultPress',
+				'PluginURI' => 'http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0',
+				'Version' => '1.8.2',
+                'Description' => 'Protect your content, themes, plugins, and settings with...',
+				'Author' => 'Automattic',
+				'AuthorURI' => 'http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0',
+                'TextDomain' => 'vaultpress',
+				'DomainPath' => '/languages/',
+				'Network' => false,
+                'Title' => 'VaultPress',
+				'AuthorName' => 'Automattic'
+			)
+		);
+	}
+
 	function term( $id, $props = array() ) {
 		$term = (object) array_merge(
 			self::$default_term_props,
