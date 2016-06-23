@@ -56,7 +56,7 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_constant( 'TEST_ABC' );
-		$this->assertEquals( TEST_ABC, $synced_value );
+		$this->assertEquals( sprintf("%.4f", TEST_ABC), sprintf("%.4f", $synced_value ) );
 
 		$this->server_replica_storage->reset();
 		
