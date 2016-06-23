@@ -353,7 +353,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		remove_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
 		
-		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
+		$this->assertEquals( 2, $this->server_replica_storage->post_count() ); // the post and its revision
 		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 		$post = $insert_post_event->args[1];
 		// Instead of sending all the data we just send the post_id so that we can remove it on our end.
