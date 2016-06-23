@@ -590,6 +590,23 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_replica_get_allowed_mime_types( $store ) {
+		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
+			$this->markTestIncomplete("The WP replicastore doesn't support setting users");
+		}
+
+		$this->assertNull( $store->get_user( 12 ) );
+
+		$user = self::$factory->user( 12, 'example_user' );
+		$user_allowed_mime_types = $user->data->allowed_mime_types;
+		$store->upsert_user( $user );
+		$this->assertEquals( $user_allowed_mime_types, $store->get_allowed_mime_types( 12 ) );
+	}
+
+	/**
 	 * Terms
 	 */
 
