@@ -46,7 +46,7 @@ class Jetpack_Sync_Actions {
 	static function send_data( $data, $codec_name ) {
 		Jetpack::load_xml_rpc_client();
 
-		add_query_arg( array(
+		$url = add_query_arg( array(
 			'sync' => '1', // add an extra parameter to the URL so we can tell it's a sync action
 			'codec' => $codec_name, // send the name of the codec used to encode the data
 		), Jetpack::xmlrpc_api_url() );
