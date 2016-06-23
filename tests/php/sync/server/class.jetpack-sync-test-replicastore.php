@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../../sync/interface.jetpack-sync-replicastore.php';
-
 /**
  * A simple in-memory implementation of iJetpack_Sync_Replicastore
  * used for development and testing
@@ -30,27 +28,26 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function reset() {
 		$this->posts           = array();
-        $this->comments        = array();
-        $this->options         = array();
-        $this->theme_support   = array();
-        $this->meta            = array();
-        $this->constants       = array();
-        $this->updates         = array();
-        $this->callable        = array();
-        $this->network_options = array();
-        $this->terms           = array();
-        $this->object_terms    = array();
-        $this->users           = array();
+		$this->comments        = array();
+		$this->options         = array();
+		$this->theme_support   = array();
+		$this->meta            = array();
+		$this->constants       = array();
+		$this->updates         = array();
+		$this->callable        = array();
+		$this->network_options = array();
+		$this->terms           = array();
+		$this->object_terms    = array();
+		$this->users           = array();
 	}
 
 	function full_sync_start() {
 		$this->reset();
 	}
-	
+
 	function full_sync_end( $checksum ) {
 		// noop right now
 	}
-
 
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
@@ -58,6 +55,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function get_posts( $status = null ) {
 		$this->post_status = $status;
+
 		return array_filter( array_values( $this->posts ), array( $this, 'filter_post_status' ) );
 	}
 
@@ -71,13 +69,13 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function filter_post_status( $post ) {
 		$matched_status = ! in_array( $post->post_status, array( 'inherit' ) )
-						  && ( $this->post_status ? $post->post_status === $this->post_status : true );
+		                  && ( $this->post_status ? $post->post_status === $this->post_status : true );
 
 		return $matched_status;
 	}
 
 	function get_post( $id ) {
-		return isset( $this->posts[ $id ] ) ? $this->posts[ $id ] : false ;
+		return isset( $this->posts[ $id ] ) ? $this->posts[ $id ] : false;
 	}
 
 	function upsert_post( $post, $silent = false ) {
@@ -94,6 +92,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function get_comments( $status = null ) {
 		$this->comment_status = $status;
+
 		// valid statuses: 'hold', 'approve', 'spam', or 'trash'.
 		return array_filter( array_values( $this->comments ), array( $this, 'filter_comment_status' ) );
 	}
@@ -127,12 +126,13 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function get_comment( $id ) {
 		if ( isset( $this->comments[ $id ] ) ) {
-			return $this->comments[ $id ];	
+			return $this->comments[ $id ];
 		}
-		return false;		
+
+		return false;
 	}
 
-	function upsert_comment( $comment ) {
+	function upsert_comment( $comment, $silent = false ) {
 		$this->comments[ $comment->comment_ID ] = $comment;
 	}
 
@@ -173,16 +173,16 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	// meta
 	public function get_metadata( $type, $object_id, $meta_key = '', $single = false ) {
 
-		$object_id = absint( $object_id );
-		$this->meta_filter['type'] = $type;
+		$object_id                      = absint( $object_id );
+		$this->meta_filter['type']      = $type;
 		$this->meta_filter['object_id'] = $object_id;
-		$this->meta_filter['meta_key'] = $meta_key;
+		$this->meta_filter['meta_key']  = $meta_key;
 
 		$meta_entries = array_values( array_filter( $this->meta, array( $this, 'find_meta' ) ) );
 
 		if ( count( $meta_entries ) === 0 ) {
 			// match return signature of WP code
-			if ($single) {
+			if ( $single ) {
 				return '';
 			} else {
 				return array();
@@ -203,8 +203,9 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$match = ( $this->meta_filter['type'] === $meta->type && $this->meta_filter['object_id'] === $meta->object_id );
 
 		// match key if given
-		if ( $match && $this->meta_filter['meta_key'] )
+		if ( $match && $this->meta_filter['meta_key'] ) {
 			$match = ( $meta->meta_key === $this->meta_filter['meta_key'] );
+		}
 
 		return $match;
 	}
@@ -214,12 +215,12 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function upsert_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id ) {
-		$this->meta[ $meta_id ] = (object) array( 
-			'meta_id'   => $meta_id,
-			'type'      => $type,
-			'object_id' => absint( $object_id ),
-			'meta_key'  => $meta_key,
-			'meta_value'  => $meta_value,
+		$this->meta[ $meta_id ] = (object) array(
+			'meta_id'    => $meta_id,
+			'type'       => $type,
+			'object_id'  => absint( $object_id ),
+			'meta_key'   => $meta_key,
+			'meta_value' => $meta_value,
 		);
 	}
 
@@ -234,6 +235,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		if ( ! isset( $this->constants[ $constant ] ) ) {
 			return null;
 		}
+
 		return $this->constants[ $constant ];
 	}
 
@@ -246,6 +248,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		if ( ! isset( $this->updates[ $type ] ) ) {
 			return null;
 		}
+
 		return $this->updates[ $type ];
 	}
 
@@ -254,11 +257,12 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	// updates
-	public function get_callable( $name ) {
-		if ( ! isset( $this->callable[ $name ] ) ) {
+	public function get_callable( $function ) {
+		if ( ! isset( $this->callable[ $function ] ) ) {
 			return null;
 		}
-		return $this->callable[ $name ];
+
+		return $this->callable[ $function ];
 	}
 
 	public function set_callable( $name, $value ) {
@@ -286,15 +290,15 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function get_term( $taxonomy, $term_id, $term_key = 'term_id' ) {
 		if ( ! $taxonomy && $term_key === 'term_taxonomy_id' ) {
-			foreach(  $this->terms as $tax => $terms_array ) {
-				 $term = $this->get_term( $tax, $term_id, 'term_taxonomy_id' );
-				 if( $term ) {
+			foreach ( $this->terms as $tax => $terms_array ) {
+				$term = $this->get_term( $tax, $term_id, 'term_taxonomy_id' );
+				if ( $term ) {
 					return $term;
 				}
 			}
 		}
-		if ( !  isset( $this->terms[ $taxonomy ] ) ) {
-			return null;
+		if ( ! isset( $this->terms[ $taxonomy ] ) ) {
+			return array();
 		}
 		foreach ( $this->terms[ $taxonomy ] as $term_object ) {
 			switch ( $term_key ) {
@@ -302,7 +306,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 					$term = ( $term_id == $term_object->term_id ) ? $term_object : null;
 					break;
 				case 'term_taxonomy_id':
-					$term =( $term_id == $term_object->term_taxonomy_id ) ? $term_object : null;
+					$term = ( $term_id == $term_object->term_taxonomy_id ) ? $term_object : null;
 					break;
 				case 'slug':
 					$term = ( $term_id === $term_object->slug ) ? $term_object : null;
@@ -313,37 +317,39 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				return $term;
 			}
 		}
-		return null;
+
+		return array();
 	}
 
 	function get_the_terms( $object_id, $taxonomy ) {
 		$terms = array();
-		if ( !isset( $this->object_terms[ $taxonomy ] ) ) {
+		if ( ! isset( $this->object_terms[ $taxonomy ] ) ) {
 			return false;
 		}
-		foreach( $this->object_terms[ $taxonomy ][ $object_id ] as $term_id ) {
+		foreach ( $this->object_terms[ $taxonomy ][ $object_id ] as $term_id ) {
 			$term_key = is_numeric( $term_id ) ? 'term_id' : 'slug';
-			$terms[] = $this->get_term( $taxonomy, $term_id, $term_key );
+			$terms[]  = $this->get_term( $taxonomy, $term_id, $term_key );
 		}
+
 		return $terms;
 	}
 
 	function update_term( $term_object ) {
 		$taxonomy = $term_object->taxonomy;
-		
+
 		if ( ! isset( $this->terms[ $taxonomy ] ) ) {
 			// empty 
-			$this->terms[ $taxonomy ] = array();
+			$this->terms[ $taxonomy ]   = array();
 			$this->terms[ $taxonomy ][] = $term_object;
 		}
-		$terms = array();
+		$terms  = array();
 		$action = 'none';
 
 		// Note: array_map might be better for this but didn't want to write a callback
 		foreach ( $this->terms[ $taxonomy ] as $saved_term_object ) {
 			if ( $saved_term_object->term_id === $term_object->term_id ) {
 				$terms[] = $term_object;
-				$action = 'updated';
+				$action  = 'updated';
 			} else {
 				$terms[] = $saved_term_object;
 			}
@@ -356,13 +362,13 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	private function update_term_count( $taxonomy, $term_id ) {
-		$term_key = is_numeric($term_id) ? 'term_id' : 'slug';
+		$term_key    = is_numeric( $term_id ) ? 'term_id' : 'slug';
 		$term_object = $this->get_term( $taxonomy, $term_id, $term_key );
-		$count = 0;
+		$count       = 0;
 		foreach ( $this->object_terms[ $taxonomy ] as $object_id => $term_ids ) {
-			foreach( $term_ids as $saved_term_id ) {
+			foreach ( $term_ids as $saved_term_id ) {
 				if ( $saved_term_id === $term_id ) {
-					$count++;
+					$count ++;
 				}
 			}
 		}
@@ -379,7 +385,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			$this->terms[ $taxonomy ] = array();
 		}
 		$terms = array();
-		
+
 		// Note: array_map might be better for this but didn't want to write a callback
 		foreach ( $this->terms[ $taxonomy ] as $saved_term_object ) {
 			if ( $saved_term_object->term_id !== $term_id ) {
@@ -394,13 +400,13 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function delete_object_terms( $object_id, $tt_ids ) {
 		$saved_data = array();
-		foreach( $this->object_terms as $taxonomy => $taxonomy_object_terms ) {
+		foreach ( $this->object_terms as $taxonomy => $taxonomy_object_terms ) {
 			foreach ( $taxonomy_object_terms as $saved_object_id => $term_ids ) {
-				foreach( $term_ids as $saved_term_id ) {
+				foreach ( $term_ids as $saved_term_id ) {
 					$term = $this->get_term( $taxonomy, $saved_term_id, 'term_id' );
 					if ( isset( $term->term_taxonomy_id ) && ! in_array( $term->term_taxonomy_id, $tt_ids ) && $object_id === $saved_object_id ) {
 						$saved_data[ $taxonomy ] [ $saved_object_id ][] = $saved_term_id;
-					} else if( isset( $term->term_taxonomy_id ) && in_array( $term->term_taxonomy_id, $tt_ids ) && $object_id === $saved_object_id ) {
+					} else if ( isset( $term->term_taxonomy_id ) && in_array( $term->term_taxonomy_id, $tt_ids ) && $object_id === $saved_object_id ) {
 						$this->update_term_count( $taxonomy, $term->term_id );
 					}
 				}
@@ -411,10 +417,10 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function update_object_terms( $object_id, $taxonomy, $term_ids, $append ) {
 		if ( $append ) {
-			$previous_array = isset( $this->object_terms[ $taxonomy ] )
-							 && isset( $this->object_terms[ $taxonomy ][ $object_id ] )
+			$previous_array                                = isset( $this->object_terms[ $taxonomy ] )
+			                                                 && isset( $this->object_terms[ $taxonomy ][ $object_id ] )
 				? $this->object_terms[ $taxonomy ][ $object_id ] : array();
-			$this->object_terms[ $taxonomy ][ $object_id ] = array_merge ( $previous_array , $term_ids );
+			$this->object_terms[ $taxonomy ][ $object_id ] = array_merge( $previous_array, $term_ids );
 		} else {
 			$this->object_terms[ $taxonomy ][ $object_id ] = $term_ids;
 		}
@@ -425,13 +431,13 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function user_count() {
-		return count( $this->users );	
+		return count( $this->users );
 	}
 
 	function get_user( $user_id ) {
 		return isset( $this->users[ $user_id ] ) ? $this->users[ $user_id ] : null;
 	}
-	
+
 	function upsert_user( $user ) {
 		$this->users[ $user->ID ] = $user;
 	}
@@ -448,9 +454,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function cast_to_post( $object ) {
-		if ( isset( $object->extra ) )
+		if ( isset( $object->extra ) ) {
 			$object->extra = (array) $object->extra;
+		}
 		$post = new WP_Post( $object );
 		return $post;
 	}
+
 }

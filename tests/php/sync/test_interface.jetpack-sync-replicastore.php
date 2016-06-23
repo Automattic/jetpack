@@ -431,7 +431,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$store->upsert_metadata( 'post', 1, 'colors', $meta_array, 3 );
 
 		$color_meta = $store->get_metadata( 'post', 1, 'colors' );
-		
+
 		$this->assertTrue( $this->arrays_are_similar( $meta_array, $color_meta[0] ) );
 	}
 
@@ -611,7 +611,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 			)
 		); 
 
-		$this->assertNull( $store->get_term( $term_object->taxonomy, $term_object->term_id ) );
+		$this->assertEmpty( $store->get_term( $term_object->taxonomy, $term_object->term_id ) );
 
 		$store->update_term( $term_object );
 
@@ -642,7 +642,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$store->delete_term( $term_object->term_id, $taxonomy );
 
-		$this->assertNull( $store->get_term( $term_object->taxonomy, $term_object->term_id ) );
+		$this->assertEmpty( $store->get_term( $term_object->taxonomy, $term_object->term_id ) );
 	}
 
 	/**
