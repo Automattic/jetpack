@@ -238,6 +238,22 @@ class Jetpack_Sync_Server_Replicator {
 				list( $user_id, $reassign ) = $args;
 				$this->store->delete_user( $user_id );
 				break;
+
+			// plugins
+			case 'upgrader_process_complete':
+				$process = $args[ 0 ];
+				if ( is_array( $process ) && $process['type'] == 'plugin' ) {
+					$plugin_data = $args[1];
+					$this->store->upsert_plugins( $plugin_data );
+				}
+				break;
+			case 'deleted_plugin':
+				list( $plugin_file, $deleted ) = $args;
+				if ( $deleted ) {
+					$plugins = $this->store->get_plugins();
+					unset( $plugins[ $plugin_file ] );
+					$this->store->upsert_plugins( $plugins );
+				}
 		}
 	}
 }

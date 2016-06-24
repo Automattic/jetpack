@@ -138,18 +138,24 @@ class Jetpack_Sync_Client {
 		add_action( 'set_user_role', array( $this, 'save_user_role_handler' ), 10, 3 );
 		add_action( 'remove_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
 
-
 		// user capabilities
 		add_action( 'added_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
 		add_action( 'updated_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
 		add_action( 'deleted_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
 
-		// themes
+		// updates
 		add_action( 'set_site_transient_update_plugins', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
-
 		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array( $this, 'filter_update_keys' ), 10, 2 );
+
+		// plugins
+		add_action( 'upgrader_process_complete', $handler, 10, 2 );
+		add_filter( 'jetpack_sync_before_send_upgrader_process_complete', array( $this, 'expand_upgrader_process_complete' ) );
+		add_action( 'deleted_plugin', $handler, 10, 2 );
+		add_action( 'activated_plugin', $handler, 10, 2 );
+		add_action( 'deactivated_plugin', $handler, 10, 2 );
+
 
 		// multi site network options
 		if ( $this->is_multisite ) {
@@ -295,7 +301,6 @@ class Jetpack_Sync_Client {
 		
 		$current_filter = current_filter();
 		$args           = func_get_args();
-
 		if ( in_array( $current_filter, array( 'deleted_option', 'added_option', 'updated_option' ) )
 		     &&
 		     ! $this->is_whitelisted_option( $args[0] )
@@ -308,6 +313,10 @@ class Jetpack_Sync_Client {
 		     ! $this->is_whitelisted_network_option( $args[0] )
 		) {
 			return;
+		}
+		
+		if ( $current_filter == 'upgrader_process_complete' ) {
+			array_shift( $args );
 		}
 
 		// don't sync private meta
@@ -587,6 +596,14 @@ class Jetpack_Sync_Client {
 
 	function expand_wp_insert_post( $args ) {
 		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2] );
+	}
+
+	function expand_upgrader_process_complete( $args ) {
+		list( $process ) = $args;
+		if ( isset( $process['type'] ) && $process['type'] === 'plugin' ) {
+			return array( $process, get_plugins() );
+		}
+		return $args;
 	}
 
 	// Expands wp_insert_post to include filtered content

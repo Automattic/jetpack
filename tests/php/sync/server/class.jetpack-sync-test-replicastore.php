@@ -21,6 +21,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	private $terms;
 	private $object_terms;
 	private $users;
+	private $plugins;
 
 	function __construct() {
 		$this->reset();
@@ -148,8 +149,8 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		unset( $this->comments[ $comment_id ] );
 	}
 
-	function get_option( $option ) {
-		return isset( $this->options[ $option ] ) ? $this->options[ $option ] : false;
+	function get_option( $option, $default = false ) {
+		return isset( $this->options[ $option ] ) ? $this->options[ $option ] : $default;
 	}
 
 	function update_option( $option, $value ) {
@@ -446,6 +447,15 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		unset( $this->users[ $user_id ] );
 	}
 
+	// plugins
+	function get_plugins() {
+		return $this->plugins;
+	}
+	
+	function upsert_plugins( $plugins ) {
+		$this->plugins = $plugins;
+	}
+	
 	function checksum_all() {
 		return array(
 			'posts'    => $this->posts_checksum(),

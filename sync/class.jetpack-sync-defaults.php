@@ -108,6 +108,8 @@ class Jetpack_Sync_Defaults {
 		'jetpack_relatedposts',
 		'verification_services_codes',
 		'users_can_register',
+		'active_plugins',
+		'uninstall_plugins',
 	);
 
 	static $default_constants_whitelist = array(
@@ -143,7 +145,7 @@ class Jetpack_Sync_Defaults {
 		'sso_match_by_email'              => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
 		'sso_new_user_override'           => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
 		'sso_bypass_default_login_form'   => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
-		'wp_version'                   => array( 'Jetpack_Sync_Functions', 'wp_version' ),
+		'wp_version'                      => array( 'Jetpack_Sync_Functions', 'wp_version' ),
 	);
 
 	static $blacklisted_post_types = array(
@@ -201,7 +203,7 @@ class Jetpack_Sync_Defaults {
 		return false;
 	}
 
-	static $default_network_options_whitelist = array( 'site_name', 'jetpack_protect_key', 'jetpack_protect_global_whitelist' );
+	static $default_network_options_whitelist = array( 'site_name', 'jetpack_protect_key', 'jetpack_protect_global_whitelist', 'active_sitewide_plugins' );
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
