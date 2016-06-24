@@ -224,29 +224,56 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	// to test run phpunit -c tests/php.multisite.xml --filter test_does_not_sync_non_site_users_in_multisite
-	public function test_does_not_sync_non_site_users_in_multisite() {
+	public function test_deletes_users_removed_from_multisite() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 		
-		$other_blog_admin_id = $this->factory->user->create();
+		// $other_blog_admin_id = $this->factory->user->create();
+
+		$original_blog_id = get_current_blog_id();
 
 		// NOTE this is necessary because WPMU causes certain assumptions about transients
 		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6
 		global $wpdb;
 
 		$suppress = $wpdb->suppress_errors();
-		$other_blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $other_blog_admin_id );
+		$other_blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $this->user_id );
 		$wpdb->suppress_errors( $suppress );
 
-		switch_to_blog( $other_blog_id );
 		$other_blog_user_id = $this->factory->user->create();
 		add_user_to_blog( $other_blog_id, $other_blog_user_id, 'administrator' );
-		restore_current_blog();
+		remove_user_from_blog( $other_blog_user_id, $original_blog_id );
 
 		$this->client->do_sync();
 
 		$this->assertNull( $this->server_replica_storage->get_user( $other_blog_user_id ) );
+	}
+
+	public function test_syncs_users_added_to_multisite() {
+		global $wpdb;
+
+		$original_blog_id = get_current_blog_id();
+
+		// create a different blog
+		$suppress = $wpdb->suppress_errors();
+		$other_blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $this->user_id );
+		$wpdb->suppress_errors( $suppress );
+
+		// create a user from within that blog (won't be synced)
+		switch_to_blog( $other_blog_id );
+		$mu_blog_user_id = $this->factory->user->create();
+		restore_current_blog();
+
+		$this->client->do_sync();
+
+		$this->assertNull( $this->server_replica_storage->get_user( (int) $mu_blog_user_id ) );
+
+		add_user_to_blog( $original_blog_id, $mu_blog_user_id, 'administrator' );
+
+		$this->client->do_sync();
+
+		$this->assertNotNull( $this->server_replica_storage->get_user( (int) $mu_blog_user_id ) );
 	}
 
 	protected function assertUsersEqual( $user1, $user2 ) {
