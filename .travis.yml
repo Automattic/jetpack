@@ -65,6 +65,13 @@ matrix:
     env: WP_VERSION=4.5
   - php: "7.0"
     env: WP_VERSION=master
+  - php: "5.2"
+    env: WP_VERSION=4.4 WP_TRAVIS="phpunit -c tests/php.multisite.xml"
+  - php: "5.2"
+    env: WP_VERSION=4.5 WP_TRAVIS="phpunit -c tests/php.multisite.xml"
+  - php: "5.2"
+    env: WP_VERSION=master WP_TRAVIS="phpunit -c tests/php.multisite.xml"
+
 
   allow_failures:
   - php: "hhvm"
