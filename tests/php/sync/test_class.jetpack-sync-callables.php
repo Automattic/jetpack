@@ -25,7 +25,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
-		$this->assertEquals( jetpack_foo_is_callable(), 'bar' );
+		$this->assertEquals( jetpack_foo_is_callable(), $synced_value );
 	}
 
 	public function test_sync_jetpack_updates() {
@@ -65,6 +65,15 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 			'sso_bypass_default_login_form'   => Jetpack_SSO_Helpers::bypass_login_forward_wpcom(),
 			'wp_version'                      => Jetpack_Sync_Functions::wp_version(),
 		);
+
+		if ( is_multisite() ) {
+			$callables[ 'network_name' ] = Jetpack::network_name();
+			$callables[ 'network_allow_new_registrations' ] = Jetpack::network_allow_new_registrations();
+			$callables[ 'network_add_new_users' ] = Jetpack::network_add_new_users();
+			$callables[ 'network_site_upload_space' ] = Jetpack::network_site_upload_space();
+			$callables[ 'network_upload_file_types' ] = Jetpack::network_upload_file_types();
+			$callables[ 'network_enable_administration_menus' ] = Jetpack::network_enable_administration_menus();
+		}
 
 		$this->client->do_sync();
 
