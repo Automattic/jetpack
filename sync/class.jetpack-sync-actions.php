@@ -1,5 +1,10 @@
 <?php
 
+function jetpack_send_db_checksum() {
+	$sync_client = Jetpack_Sync_Client::getInstance();
+	$sync_client->send_checksum();
+}
+
 class Jetpack_Sync_Actions {
 	static $client = null;
 
@@ -41,6 +46,11 @@ class Jetpack_Sync_Actions {
 
 		// On jetpack registration
 		add_action( 'jetpack_site_registered', array( __CLASS__, 'schedule_full_sync' ) );
+
+		// Schedule a job to send DB checksums once an hour
+		if (! wp_next_scheduled ( 'jetpack_send_db_checksum' )) {
+			wp_schedule_event( time(), 'hourly', 'jetpack_send_db_checksum' );
+		}
 	}
 
 	static function send_data( $data, $codec_name ) {

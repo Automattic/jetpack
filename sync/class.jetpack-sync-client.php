@@ -189,6 +189,9 @@ class Jetpack_Sync_Client {
 		add_action( 'jetpack_activate_module', $handler );
 		add_action( 'jetpack_deactivate_module', $handler );
 
+		// Send periodic checksum
+		add_action( 'jetpack_sync_checksum', $handler );
+
 		/**
 		 * Sync all pending actions with server
 		 */
@@ -698,6 +701,12 @@ class Jetpack_Sync_Client {
 
 	private function schedule_sync( $when ) {
 		wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
+	}
+
+	function send_checksum() {
+		require_once 'class.jetpack-sync-wp-replicastore.php';
+		$store = new Jetpack_Sync_WP_Replicastore();
+		do_action( 'jetpack_sync_checksum', $store->checksum_all() );
 	}
 
 	function force_sync_constants() {
