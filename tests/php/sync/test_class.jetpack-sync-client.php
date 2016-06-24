@@ -321,6 +321,15 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 5, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 	}
 
+	function test_enqueue_db_checksum() {
+		$this->client->send_checksum();
+		$this->client->do_sync();
+
+		$checksum_event = $this->server_event_storage->get_most_recent_event( 'sync_checksum' );
+
+		$this->assertNotNull( $checksum_event );
+	}
+
 	function test_never_queues_if_development() {
 		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
 		
