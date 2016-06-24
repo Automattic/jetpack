@@ -45,7 +45,7 @@ class WP_Test_Jetpack_Heartbeat extends WP_UnitTestCase {
 		// checksum from our database
 		$store = new Jetpack_Sync_WP_Replicastore();
 		$this->assertArrayHasKey( $prefix . 'sync-checksum', $result );
-		$this->assertEquals( $result["{$prefix}sync-checksum"], $store->checksum_all() );
+		$this->assertEquals( $result["{$prefix}sync-checksum"], json_encode( $store->checksum_all() ) );
 	}
 
 	/**
