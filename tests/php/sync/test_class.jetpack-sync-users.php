@@ -21,6 +21,10 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		// make sure that we don't have a password
 		unset( $user->data->user_pass );
 		$this->assertFalse(  isset( $server_user->data->user_pass ) );
+
+		// The regular user object doesn't have allowed_mime_types
+		unset( $server_user->data->allowed_mime_types );
+
 		$this->assertEqualsObject( $user, $server_user );
 	}
 

@@ -445,8 +445,15 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 	
 	function upsert_user( $user ) {
-		$this->allowed_mime_types[ $user->ID ] = $user->allowed_mime_types;
-		unset( $user->allowed_mime_types );
+		if ( isset( $user->allowed_mime_types ) ) {
+			$this->allowed_mime_types[ $user->ID ] = $user->allowed_mime_types;
+			unset( $user->allowed_mime_types );
+		}
+		// when doing a full sync
+		if ( isset( $user->data->allowed_mime_types ) ) {
+			$this->allowed_mime_types[ $user->ID ] = $user->data->allowed_mime_types;
+			unset( $user->data->allowed_mime_types );
+		}
 		$this->users[ $user->ID ] = $user;
 	}
 
