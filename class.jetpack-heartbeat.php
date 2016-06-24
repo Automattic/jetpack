@@ -141,7 +141,7 @@ class Jetpack_Heartbeat {
 
 		require_once dirname(__FILE__).'/sync/class.jetpack-sync-wp-replicastore.php';
 		$store = new Jetpack_Sync_WP_Replicastore();
-		$return["{$prefix}sync-checksum"] = $store->checksum_all();
+		$return["{$prefix}sync-checksum"] = json_encode( $store->checksum_all() );
 
 		return $return;
 	}
