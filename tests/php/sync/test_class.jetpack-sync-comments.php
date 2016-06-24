@@ -93,28 +93,6 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'trash' ) );
 	}
 
-	public function test_sends_highlander_comment_meta_with_comment() {
-		$wpcom_user_id = 101;
-		$sig = 'abcd1234';
-		$comment_ID = $this->comment->comment_ID;
-
-		add_comment_meta( $comment_ID, 'hc_post_as', 'wordpress', true );
-		add_comment_meta( $comment_ID, 'hc_wpcom_id_sig', $sig, true );
-		add_comment_meta( $comment_ID, 'hc_foreign_user_id', $wpcom_user_id, true );
-		// re-save the comment
-		wp_set_comment_status( $comment_ID, 'hold' );
-
-		$this->client->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event();
-
-		$synced_comment = $event->args[1];
-		$this->assertObjectHasAttribute( 'meta', $synced_comment );
-		$this->assertEquals( 'wordpress', $synced_comment->meta['hc_post_as'] );
-		$this->assertEquals( 'abcd1234', $synced_comment->meta['hc_wpcom_id_sig'] );
-		$this->assertEquals( 101, $synced_comment->meta['hc_foreign_user_id'] );
-	}
-
 	function test_sync_comment_jetpack_sync_prevent_sending_comment_data_filter() {
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
 
