@@ -523,6 +523,24 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertInternalType( 'int', $full_sync_status['finished'] );
 
 	}
+	
+	function test_full_sync_respects_post_and_comment_filters() {
+		add_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
+		add_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
+
+		$post_id = $this->factory->post->create();
+		$this->factory->comment->create_post_comments( $post_id, 3 );
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		remove_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
+		remove_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
+
+		$this->assertEquals( 3, $this->server_replica_storage->comment_count( 'jetpack_sync_blocked' ) );
+		$blocked_post = $this->server_replica_storage->get_post( $post_id );
+		$this->assertEquals( 'jetpack_sync_blocked', $blocked_post->post_status );
+	}
 
 	function test_full_sync_status_with_a_small_queue() {
 

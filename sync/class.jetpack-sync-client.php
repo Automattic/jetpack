@@ -84,6 +84,8 @@ class Jetpack_Sync_Client {
 		add_action( 'trashed_comment', $handler, 10 );
 		add_action( 'spammed_comment', $handler, 10 );
 
+		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
+
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
 		// so this saves us a DB read for every comment event
@@ -91,6 +93,7 @@ class Jetpack_Sync_Client {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_action( $comment_action_name, $handler, 10, 2 );
+				add_filter( 'jetpack_sync_before_send_' . $comment_action_name, array( $this, 'expand_wp_insert_comment' ) );
 			}
 		}
 
@@ -608,6 +611,30 @@ class Jetpack_Sync_Client {
 
 	// Expands wp_insert_post to include filtered content
 	function filter_post_content_and_add_links( $post ) {
+
+		/**
+		 * Filters whether to prevent sending post data to .com
+		 *
+		 * Passing true to the filter will prevent the post data from being sent
+		 * to the WordPress.com.
+		 * Instead we pass data that will still enable us to do a checksum against the
+		 * Jetpacks data but will prevent us from displaying the data on in the API as well as
+		 * other services.
+		 * @since 4.2.0
+		 *
+		 * @param boolean false prevent post data from bing sycned to WordPress.com
+		 * @param mixed $post WP_POST object
+		 */
+		if ( apply_filters( 'jetpack_sync_prevent_sending_post_data', false, $post ) ) {
+			// We only send the bare necessery object to be able to create a checksum.
+			$blocked_post = new stdClass();
+			$blocked_post->ID = $post->ID;
+			$blocked_post->post_modified = $post->post_modified;
+			$blocked_post->post_modified_gmt = $post->post_modified_gmt;
+			$blocked_post->post_status = 'jetpack_sync_blocked';
+			return $blocked_post;
+		}
+
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
@@ -619,6 +646,41 @@ class Jetpack_Sync_Client {
 		$post->dont_email_post_to_subs = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
 
 		return $post;
+	}
+
+
+	function expand_wp_comment_status_change( $args ) {
+		return array( $args[0], $this->filter_comment( $args[1] ) );
+	}
+
+	function expand_wp_insert_comment( $args ) {
+		return array( $args[0], $this->filter_comment( $args[1] ) );
+	}
+
+	function filter_comment( $comment ) {
+		/**
+		 * Filters whether to prevent sending comment data to .com
+		 *
+		 * Passing true to the filter will prevent the comment data from being sent
+		 * to the WordPress.com.
+		 * Instead we pass data that will still enable us to do a checksum against the
+		 * Jetpacks data but will prevent us from displaying the data on in the API as well as
+		 * other services.
+		 * @since 4.2.0
+		 *
+		 * @param boolean false prevent post data from bing sycned to WordPress.com
+		 * @param mixed $comment WP_COMMENT object
+		 */
+		if ( apply_filters( 'jetpack_sync_prevent_sending_comment_data', false, $comment ) ) {
+			$blocked_comment = new stdClass();
+			$blocked_comment->comment_ID = $comment->comment_ID;
+			$blocked_comment->comment_date = $comment->comment_date;
+			$blocked_comment->comment_date_gmt = $comment->comment_date_gmt;
+			$blocked_comment->comment_approved = 'jetpack_sync_blocked';
+			return $blocked_comment;
+		}
+
+		return $comment;
 	}
 
 	private function schedule_sync( $when ) {
