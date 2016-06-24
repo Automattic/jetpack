@@ -267,13 +267,13 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->client->do_sync();
 
-		$this->assertNull( $this->server_replica_storage->get_user( (int) $mu_blog_user_id ) );
+		$this->assertNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
 
 		add_user_to_blog( $original_blog_id, $mu_blog_user_id, 'administrator' );
 
 		$this->client->do_sync();
 
-		$this->assertNotNull( $this->server_replica_storage->get_user( (int) $mu_blog_user_id ) );
+		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
 	}
 
 	protected function assertUsersEqual( $user1, $user2 ) {
