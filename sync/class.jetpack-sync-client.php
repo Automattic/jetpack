@@ -650,14 +650,14 @@ class Jetpack_Sync_Client {
 
 
 	function expand_wp_comment_status_change( $args ) {
-		return array( $args[0], $this->filter_comment_and_add_hc_meta( $args[1] ) );
+		return array( $args[0], $this->filter_comment( $args[1] ) );
 	}
 
 	function expand_wp_insert_comment( $args ) {
-		return array( $args[0], $this->filter_comment_and_add_hc_meta( $args[1] ) );
+		return array( $args[0], $this->filter_comment( $args[1] ) );
 	}
 
-	function filter_comment_and_add_hc_meta( $comment ) {
+	function filter_comment( $comment ) {
 		/**
 		 * Filters whether to prevent sending comment data to .com
 		 *
@@ -678,17 +678,6 @@ class Jetpack_Sync_Client {
 			$blocked_comment->comment_date_gmt = $comment->comment_date_gmt;
 			$blocked_comment->comment_approved = 'jetpack_sync_blocked';
 			return $blocked_comment;
-		}
-		
-		// add meta-property with Highlander Comment meta, which we 
-		// we need to process synchronously on .com
-		$hc_post_as = get_comment_meta( $comment->comment_ID, 'hc_post_as', true );
-		if ( 'wordpress' === $hc_post_as ) {
-			$meta = array();
-			$meta['hc_post_as']         = $hc_post_as;
-			$meta['hc_wpcom_id_sig']    = get_comment_meta( $comment->comment_ID, 'hc_wpcom_id_sig', true );
-			$meta['hc_foreign_user_id'] = get_comment_meta( $comment->comment_ID, 'hc_foreign_user_id', true );
-			$comment->meta = $meta;	
 		}
 
 		return $comment;
