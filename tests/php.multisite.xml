@@ -1,6 +1,7 @@
 <phpunit bootstrap="php/bootstrap.php" backupGlobals="false" colors="true">
     <php>
-      <const name="WP_TESTS_MULTISITE" value="1" />
+        <const name="WP_TESTS_MULTISITE" value="1" />
+        <const name="PHPUNIT_JETPACK_TESTSUITE" value="true"/>
     </php>
     <testsuites>
         <!-- Default test suite to run all tests -->
@@ -14,6 +15,7 @@
     <groups>
         <exclude>
             <group>external-http</group>
+            <group>uninstall</group>
         </exclude>
     </groups>
     <filter>
