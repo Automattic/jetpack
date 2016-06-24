@@ -21,7 +21,8 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
 
-var language_packs = require( './language-packs.js' );
+var admincss, frontendcss,
+	language_packs = require( './language-packs.js' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -91,20 +92,21 @@ gulp.task( 'sass:watch', function() {
 } );
 
 gulp.task( 'react:build', function( done ) {
-	process.env.NODE_ENV = 'production';
-
 	var config = getWebpackConfig();
-	config.plugins = config.plugins.concat(
-		new webpack.optimize.DedupePlugin(),
-		new webpack.optimize.UglifyJsPlugin( {
-			compress: {
-				warnings: false
-			}
-		} )
-	);
 
-	config.devtool = 'source-map';
-	config.debug = false;
+	if ( 'production' === process.env.NODE_ENV ) {
+		config.plugins = config.plugins.concat(
+			new webpack.optimize.DedupePlugin(),
+			new webpack.optimize.UglifyJsPlugin( {
+				compress: {
+					warnings: false
+				}
+			} )
+		);
+
+		config.devtool = 'source-map';
+		config.debug = false;
+	}
 
 	webpack( config ).run( onBuild( done ) );
 } );
@@ -151,7 +153,7 @@ gulp.task( 'react:static', [ 'react:build' ], function() {
 // Note: Once the Jetpack React UI lands, many of these will likely be able to be removed.
 
 /* (Pre-4.1) Admin CSS to be minified, autoprefixed, rtl */
-var admincss = [
+admincss = [
 	'modules/after-the-deadline/atd.css',
 	'modules/after-the-deadline/tinymce/css/content.css',
 	'modules/contact-form/css/menu-alter.css',
@@ -173,7 +175,7 @@ var admincss = [
 ];
 
 /* Front-end CSS to be concatenated */
-var frontendcss = [
+frontendcss = [
 	'modules/carousel/jetpack-carousel.css',
 	'modules/contact-form/css/grunion.css',
 	'modules/infinite-scroll/infinity.css',
@@ -204,12 +206,12 @@ gulp.task( 'admincss', function() {
 		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
 		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
 		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( banner( '/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n') )
+		.pipe( banner( '/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n' ) )
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {
 			console.log( 'Admin modules CSS finished.' );
 		} );
-});
+} );
 
 // Admin RTL CSS for modules.  Auto-prefix, RTL, Minify, RTL the minimized version.
 gulp.task( 'admincss:rtl', function() {
@@ -233,40 +235,40 @@ gulp.task( 'frontendcss', function() {
 		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
 		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
 		.pipe( concat( 'jetpack.css' ) )
-		.pipe( banner( '/*!\n'+
-			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n'+
+		.pipe( banner( '/*!\n' +
+			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
 			'*/\n'
 		) )
 		.pipe( gulp.dest( 'css' ) )
 		.on( 'end', function() {
 			console.log( 'Front end modules CSS finished.' );
 		} );
-});
+} );
 
 /*
 	Sass!
  */
 gulp.task( 'old-sass', function() {
-		return gulp.src( 'scss/**/*.scss' )
-			.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
-			.pipe( banner( '/*!\n'+
-				'* Do not modify this file directly.  It is compiled SASS code.\n'+
-				'*/\n'
-			) )
-			.pipe( autoprefixer() )
-			// Build *.css & sourcemaps
-			.pipe( sourcemaps.init() )
-			.pipe( sourcemaps.write( './' ) )
-			.pipe( rename( { dirname: 'css' } ) )
-			.pipe( gulp.dest( './' ) )
-			// Build *.min.css & sourcemaps
-			.pipe( cleanCSS( { compatibility: 'ie8' } ) )
-			.pipe( rename( { suffix: '.min' } ) )
-			.pipe( gulp.dest( './' ) )
-			.pipe( sourcemaps.write( '.' ) )
-			.on( 'end', function() {
-				console.log( 'Global admin CSS finished.' );
-			} );
+	return gulp.src( 'scss/**/*.scss' )
+		.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
+		.pipe( banner( '/*!\n' +
+			'* Do not modify this file directly.  It is compiled SASS code.\n' +
+			'*/\n'
+		) )
+		.pipe( autoprefixer() )
+		// Build *.css & sourcemaps
+		.pipe( sourcemaps.init() )
+		.pipe( sourcemaps.write( './' ) )
+		.pipe( rename( { dirname: 'css' } ) )
+		.pipe( gulp.dest( './' ) )
+		// Build *.min.css & sourcemaps
+		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( rename( { suffix: '.min' } ) )
+		.pipe( gulp.dest( './' ) )
+		.pipe( sourcemaps.write( '.' ) )
+		.on( 'end', function() {
+			console.log( 'Global admin CSS finished.' );
+		} );
 } );
 
 /*
@@ -275,8 +277,8 @@ gulp.task( 'old-sass', function() {
 gulp.task( 'old-sass:rtl', function() {
 	return gulp.src( 'scss/*.scss' )
 		.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
-		.pipe( banner( '/*!\n'+
-			'* Do not modify this file directly.  It is compiled SASS code.\n'+
+		.pipe( banner( '/*!\n' +
+			'* Do not modify this file directly.  It is compiled SASS code.\n' +
 			'*/\n'
 		) )
 		.pipe( autoprefixer() )
@@ -342,8 +344,8 @@ gulp.task( 'js:hint', function() {
 		'!modules/**/*.min.js'
 	] )
 		.pipe( jshint( '.jshintrc' ) )
-		.pipe( jshint.reporter('jshint-stylish') )
-		.pipe( jshint.reporter('fail') );
+		.pipe( jshint.reporter( 'jshint-stylish' ) )
+		.pipe( jshint.reporter( 'fail' ) );
 } );
 
 /*
@@ -352,13 +354,13 @@ gulp.task( 'js:hint', function() {
 gulp.task( 'js:qunit', function() {
 	return gulp.src( 'tests/qunit/**/*.html' )
 		.pipe( qunit() );
-});
+} );
 
 /*
 	I18n land
 */
 
-gulp.task( 'languages:get', function ( callback ) {
+gulp.task( 'languages:get', function( callback ) {
 	var process = spawn(
 		'php',
 		[
@@ -368,13 +370,13 @@ gulp.task( 'languages:get', function ( callback ) {
 		]
 	);
 
-	process.stderr.on( 'data', function ( data ) {
+	process.stderr.on( 'data', function( data ) {
 		gutil.log( data.toString() );
 	} );
-	process.stdout.on( 'data', function ( data ) {
+	process.stdout.on( 'data', function( data ) {
 		gutil.log( data.toString() );
 	} );
-	process.on( 'exit', function ( code ) {
+	process.on( 'exit', function( code ) {
 		if ( 0 !== code ) {
 			gutil.log( 'Failed getting languages: process exited with code ', code );
 		}
@@ -382,15 +384,15 @@ gulp.task( 'languages:get', function ( callback ) {
 	} );
 } );
 
-gulp.task( 'languages:build', [ 'languages:get' ], function ( ) {
-	return gulp.src(['languages/*.po'])
-		.pipe(po2json())
-		.pipe(gulp.dest('languages/json/'));
+gulp.task( 'languages:build', [ 'languages:get' ], function( ) {
+	return gulp.src( [ 'languages/*.po' ] )
+		.pipe( po2json() )
+		.pipe( gulp.dest( 'languages/json/' ) );
 } );
 
-gulp.task( 'languages:cleanup', [ 'languages:build' ], function () {
+gulp.task( 'languages:cleanup', [ 'languages:build' ], function() {
 	return del(
-		language_packs.map( function ( item ) {
+		language_packs.map( function( item ) {
 			var locale = item.split( '-' );
 
 			if ( locale.length > 1 ) {
@@ -416,14 +418,27 @@ gulp.task( 'languages:extract', [ 'react:build' ], function( callback ) {
 } );
 
 // Default task
-gulp.task( 'default', ['react:static', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint'] );
-gulp.task( 'watch',   ['react:watch', 'sass:watch', 'old-styles:watch'] );
+gulp.task(
+	'default',
+	['react:static', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint']
+);
+gulp.task(
+	'watch',
+	['react:watch', 'sass:watch', 'old-styles:watch']
+);
 
-gulp.task( 'jshint',       ['js:hint'] );
-gulp.task( 'php',          ['php:lint', 'php:unit'] );
+gulp.task( 'jshint', ['js:hint'] );
+gulp.task( 'php', ['php:lint', 'php:unit'] );
 gulp.task( 'checkstrings', ['check:DIR'] );
-gulp.task( 'old-styles',   ['frontendcss', 'admincss', 'admincss:rtl', 'old-sass', 'old-sass:rtl'] );
-gulp.task( 'languages',    ['languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ] );
+
+gulp.task(
+	'old-styles',
+	['frontendcss', 'admincss', 'admincss:rtl', 'old-sass', 'old-sass:rtl']
+);
+gulp.task(
+	'languages',
+	['languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
+);
 
 // travis CI tasks.
 gulp.task( 'travis:js', ['js:hint', 'js:qunit'] );
