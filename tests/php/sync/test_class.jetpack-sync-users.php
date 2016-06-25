@@ -251,6 +251,10 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_syncs_users_added_to_multisite() {
 		global $wpdb;
 
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Run it in multi site mode' );
+		}
+
 		$original_blog_id = get_current_blog_id();
 
 		// create a different blog
