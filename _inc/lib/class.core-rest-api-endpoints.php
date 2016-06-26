@@ -1966,7 +1966,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharing/sharing-service.php' ) ) {
+		if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
 		}
 		$sharer = new Sharing_Service();
@@ -2003,7 +2003,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharing/sharing-service.php' ) ) {
+		if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
 		}
 
@@ -2031,7 +2031,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( "%s must be a string prefixed with 'custom-' and followed by a numeric ID.", 'jetpack' ), $param ) );
 		}
 
-		if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharing/sharing-service.php' ) ) {
+		if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
 		}
 		$sharer = new Sharing_Service();
@@ -2168,7 +2168,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'sharedaddy':
 				// It's local, but it must be broken apart since it's saved as an array.
-				if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharing/sharing-service.php' ) ) {
+				if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
 					break;
 				}
 				$sharer = new Sharing_Service();
