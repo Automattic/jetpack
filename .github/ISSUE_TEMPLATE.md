@@ -1,10 +1,10 @@
 <!-- Thanks for contributing to Jetpack! Pick a clear title ("Sharing: add new Facebook button") and proceed. -->
 
+#### Steps to reproduce the issue
+
 #### What I expected
 
 #### What happened instead
-
-#### Steps to reproduce the issue
 
 <!--
 PLEASE NOTE
