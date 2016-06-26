@@ -13,7 +13,7 @@
 /**
  * We won't have any videos less than sixty pixels wide. That would be silly.
  */
-define( 'VIDEOPRESS_MIN_WIDTH', 60 );
+defined( 'VIDEOPRESS_MIN_WIDTH' ) or define( 'VIDEOPRESS_MIN_WIDTH', 60 );
 
 include_once dirname( __FILE__ ) . '/videopress/utility-functions.php';
 include_once dirname( __FILE__ ) . '/videopress/shortcode.php';
