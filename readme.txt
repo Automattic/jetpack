@@ -83,6 +83,7 @@ Bug Fixes:
 * Compatibility: avoid issues with Open Graph Meta Tags when using an old version of the Bitly plugin.
 * Custom CSS: avoid memory issues when making a very large amount of CSS changes on your site.
 * General: discontinue use of deprecated "size()" calls in jQuery
+* Manage: fix a PHP Notice when updating a plugin from the WordPress.com plugin management interface.
 * Sitemaps: avoid PHP notices when a post includes a slideshow.
 * Sitemaps: avoid errors if your permalink structure uses `index.php`
 * Tiled Galleries: avoid JavaScript Errors when viewing galleries.
