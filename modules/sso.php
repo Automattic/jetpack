@@ -313,7 +313,7 @@ class Jetpack_SSO {
 	 * @since 2.9
 	 **/
 	public function render_match_by_email() {
-		$match_by_email = 1 == $this->match_by_email();
+		$match_by_email = 1 == Jetpack_SSO_Helpers::match_by_email();
 		$disabled = $match_by_email ? ' disabled="disabled"' : '';
 		echo '<label>';
 		echo '<input type="checkbox" name="jetpack_sso_match_by_email"' . checked( $match_by_email, true, false ) . "$disabled>";
