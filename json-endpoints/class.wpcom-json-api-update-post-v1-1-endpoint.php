@@ -163,7 +163,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			unset( $input['parent'] );
 		}
 
-		$input['terms'] = (array) $input['terms'];
+		$input['terms'] = isset( $input['terms'] ) ? (array) $input['terms'] : array();
 
 		// Convert comma-separated terms to array before attempting to
 		// merge with hardcoded taxonomies
