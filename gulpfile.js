@@ -433,11 +433,11 @@ gulp.task( 'checkstrings', ['check:DIR'] );
 
 gulp.task(
 	'old-styles',
-	['frontendcss', 'admincss', 'admincss:rtl', 'old-sass', 'old-sass:rtl']
+	[ 'frontendcss', 'admincss', 'admincss:rtl', 'old-sass', 'old-sass:rtl' ]
 );
 gulp.task(
 	'languages',
-	['languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
+	[ 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
 );
 
 // travis CI tasks.
