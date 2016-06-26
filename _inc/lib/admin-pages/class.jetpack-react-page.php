@@ -44,7 +44,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function jetpack_add_settings_sub_nav_item() {
 		global $submenu;
-		$permalink = Jetpack::admin_url( 'page=jetpack#/general' );
+		$permalink = Jetpack::admin_url( 'page=jetpack#/settings' );
 		$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', $permalink );
 	}
 
