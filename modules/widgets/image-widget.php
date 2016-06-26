@@ -70,7 +70,10 @@ class Jetpack_Image_Widget extends WP_Widget {
 
 		if ( '' != $instance['img_url'] ) {
 
-			$output = '<img src="' . esc_attr( $instance['img_url'] ) .'" ';
+			$output = '<img src="' . esc_url( jetpack_photon_url( $instance['img_url'], array(
+					'w' => $instance['img_width'],
+					'h' => $instance['img_height'],
+				) ) ) . '" ';
 
 			if ( '' != $instance['alt_text'] ) {
 				$output .= 'alt="' . esc_attr( $instance['alt_text'] ) .'" ';
@@ -89,10 +92,10 @@ class Jetpack_Image_Widget extends WP_Widget {
 			}
 			$output .= '/>';
 			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) ) {
-				$output = '<a target="_blank" href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
+				$output = '<a target="_blank" href="' . esc_url( $instance['link'] ) . '">' . $output . '</a>';
 			}
 			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) ) {
-				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
+				$output = '<a href="' . esc_url( $instance['link'] ) . '">' . $output . '</a>';
 			}
 			if ( '' != $instance['caption'] ) {
 				/** This filter is documented in core/src/wp-includes/default-widgets.php */
