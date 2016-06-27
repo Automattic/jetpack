@@ -147,14 +147,14 @@
 					?>
 					<?php if ( current_user_can( 'jetpack_manage_modules' ) && $data['is_user_connected'] && ! Jetpack::is_development_mode() ) : ?>
 					<div id="manage-row" class="j-row goto <?php echo ( $manage_active ) ? 'activated' : ''; ?>">
-						<div class="feat j-col j-lrg-7 j-md-8 j-sm-7">
+						<div class="feat j-col <?php echo ( $manage_active ) ? '' : 'j-lrg-7 j-md-8 j-sm-7'; ?>">
 							<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jpnux' ); ?>" class="button button-primary manage-cta-active" target="_blank" style="display: <?php echo ( $manage_active ) ? 'inline-block' : 'none'; ?>;" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 							<label for="active-manage" class="button button-primary form-toggle manage-cta-inactive" style="display: <?php echo ( $manage_active ) ? 'none' : 'inline-block'; ?>" title="<?php esc_attr_e( 'Activate free WordPress.com features', 'jetpack' ); ?>"><?php _e( 'Activate features', 'jetpack' ); ?></label>
 						</div>
+						<?php if ( ! $manage_active ) : ?>
 						<div class="act j-col j-lrg-5 j-md-4 j-sm-5">
 							<div class="module-action">
 								<span>
-								<?php $manage_active = Jetpack::is_module_active( 'manage' ); ?>
 								<input class="is-compact form-toggle" type="checkbox" id="active-manage" <?php echo ( $manage_active ) ? 'checked' : ''; ?> />
 									<label class="form-toggle__label" for="active-manage">
 										<img class="module-spinner-manage" style="display: none;" width="16" height="16" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
@@ -166,6 +166,7 @@
 								</span>
 							</div>
 						</div>
+						<?php endif; ?>
 					</div><?php // j-row ?>
 					<?php endif; ?>
 
