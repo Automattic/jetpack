@@ -22,6 +22,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	private $object_terms;
 	private $users;
 	private $plugins;
+	private $allowed_mime_types;
 
 	function __construct() {
 		$this->reset();
@@ -439,7 +440,20 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return isset( $this->users[ $user_id ] ) ? $this->users[ $user_id ] : null;
 	}
 
+	function get_allowed_mime_types( $user_id ) {
+		return isset( $this->allowed_mime_types[ $user_id ] ) ? $this->allowed_mime_types[ $user_id ] : null;
+	}
+	
 	function upsert_user( $user ) {
+		if ( isset( $user->allowed_mime_types ) ) {
+			$this->allowed_mime_types[ $user->ID ] = $user->allowed_mime_types;
+			unset( $user->allowed_mime_types );
+		}
+		// when doing a full sync
+		if ( isset( $user->data->allowed_mime_types ) ) {
+			$this->allowed_mime_types[ $user->ID ] = $user->data->allowed_mime_types;
+			unset( $user->data->allowed_mime_types );
+		}
 		$this->users[ $user->ID ] = $user;
 	}
 

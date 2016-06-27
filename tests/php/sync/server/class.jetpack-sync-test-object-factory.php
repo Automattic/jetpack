@@ -105,6 +105,7 @@ class JetpackSyncTestObjectFactory {
 				'user_email'      => "$username@example.com",
 				'user_registered' => $now,
 				'display_name'    => $username,
+				'allowed_mime_types' => array( 'jpg|jpeg|jpe' => 'image/jpeg', 'gif' => 'image/gif' )
 			)
 		);
 

@@ -286,7 +286,7 @@ class Jetpack_Sync_Full {
 
 	public function expand_users( $args ) {
 		$user_ids = $args[0];
-		return array_map( array( $this->get_client(), 'sanitize_user' ), get_users( array( 'include' => $user_ids ) ) );
+		return array_map( array( $this->get_client(), 'sanitize_user_and_expand' ), get_users( array( 'include' => $user_ids ) ) );
 	}
 
 	public function expand_network_options( $args ) {
