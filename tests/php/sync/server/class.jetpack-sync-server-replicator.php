@@ -238,6 +238,10 @@ class Jetpack_Sync_Server_Replicator {
 				list( $user_id, $reassign ) = $args;
 				$this->store->delete_user( $user_id );
 				break;
+			case 'remove_user_from_blog':
+				list( $user_id, $blog_id ) = $args;
+				$this->store->delete_user( $user_id );
+				break;
 
 			// plugins
 			case 'deleted_plugin':

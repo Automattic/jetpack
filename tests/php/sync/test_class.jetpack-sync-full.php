@@ -131,6 +131,47 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertFalse( isset( $user->data->user_pass ) );
 	}
 
+	// phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_only_current_blog_users_in_multisite
+	function test_full_sync_sends_only_current_blog_users_in_multisite() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Run it in multi site mode' );
+		}
+
+		$original_blog_id = get_current_blog_id();
+
+		$user_id = $this->factory->user->create();
+
+		// NOTE this is necessary because WPMU causes certain assumptions about transients
+		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6
+		global $wpdb;
+
+		$suppress = $wpdb->suppress_errors();
+		$other_blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $this->user_id );
+		$wpdb->suppress_errors( $suppress );
+
+		// let's create some users on the other blog
+		switch_to_blog( $other_blog_id );
+		$mu_blog_user_id = $this->factory->user->create();
+		$added_mu_blog_user_id = $this->factory->user->create();
+		restore_current_blog();
+
+		// add one of the users to our current blog
+		add_user_to_blog( $original_blog_id, $added_mu_blog_user_id, 'administrator' );
+
+		// reset the storage, check value, and do full sync - storage should be set!
+		$this->server_replica_storage->reset();
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		// admin user, our current-blog-created user and our "added" user
+		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
+
+		$this->assertNotNull( $this->server_replica_storage->get_user( $user_id ) );
+		$this->assertNotNull( $this->server_replica_storage->get_user( $added_mu_blog_user_id ) );
+		$this->assertNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
+	}
+
 	function test_full_sync_sends_all_constants() {
 		define( 'TEST_SYNC_ALL_CONSTANTS', 'foo' );
 		
@@ -303,6 +344,10 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_full_sync_sends_plugin_updates() {
 
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with multisite mode' );
+		}
+
 		wp_update_plugins();
 
 		$this->client->do_sync();
@@ -325,6 +370,10 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_full_sync_sends_theme_updates() {
+
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with multisite mode' );
+		}
 
 		wp_update_themes();
 
@@ -350,6 +399,10 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_full_sync_sends_core_updates() {
+
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with multisite mode' );
+		}
 
 		_maybe_update_core();
 

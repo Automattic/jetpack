@@ -131,10 +131,12 @@ class Jetpack_Sync_Client {
 		// users
 		add_action( 'user_register', array( $this, 'save_user_handler' ) );
 		add_action( 'profile_update', array( $this, 'save_user_handler' ), 10, 2 );
+		add_action( 'add_user_to_blog', array( $this, 'save_user_handler' ) );
 		add_action( 'jetpack_sync_save_user', $handler, 10, 2 );
+
 		add_action( 'deleted_user', $handler, 10, 2 );
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ), 10, 2 );
-
+		add_action( 'remove_user_from_blog', $handler, 10, 2 );
 
 		// user roles
 		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
@@ -287,6 +289,10 @@ class Jetpack_Sync_Client {
 		$this->codec = $codec;
 	}
 
+	function get_codec() {
+		return $this->codec;
+	}
+
 	function set_full_sync_client( $full_sync_client ) {
 		if ( $this->full_sync_client ) {
 			remove_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
@@ -420,6 +426,12 @@ class Jetpack_Sync_Client {
 	}
 
 	function save_user_handler( $user_id, $old_user_data = null ) {
+
+		// ensure we only sync users who are members of the current blog
+		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
+			return;
+		}
+
 		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
 
 		// Older versions of WP don't pass the old_user_data in ->data
@@ -459,6 +471,16 @@ class Jetpack_Sync_Client {
 	}
 
 	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
+
+		// if a user is currently being removed as a member of this blog, we don't fire the event
+		if ( current_filter() === 'deleted_user_meta' 
+		&&
+			preg_match( '/capabilities|user_level/', $meta_key )
+		&& 
+			! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
+			return;
+		}
+
 		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
 		if ( $meta_key === $user->cap_key ) {
 			/**
