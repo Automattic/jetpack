@@ -617,7 +617,7 @@ class Jetpack_Sync_Client {
 	function expand_upgrader_process_complete( $args ) {
 		list( $process ) = $args;
 		if ( isset( $process['type'] ) && $process['type'] === 'plugin' ) {
-			return array( $process, get_plugins() );
+			return array( $process, apply_filters( 'all_plugins', get_plugins() ) );
 		}
 		return $args;
 	}

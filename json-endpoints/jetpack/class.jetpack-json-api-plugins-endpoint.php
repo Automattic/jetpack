@@ -120,7 +120,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	protected function get_plugins() {
 		$plugins = array();
-		$installed_plugins = get_plugins();
+		$installed_plugins = apply_filters( 'all_plugins', get_plugins() );
 		foreach( $this->plugins as $plugin ) {
 			if ( ! isset( $installed_plugins[ $plugin ] ) )
 				continue;
