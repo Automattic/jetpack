@@ -64,6 +64,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 			'sso_new_user_override'           => Jetpack_SSO_Helpers::new_user_override(),
 			'sso_bypass_default_login_form'   => Jetpack_SSO_Helpers::bypass_login_forward_wpcom(),
 			'wp_version'                      => Jetpack_Sync_Functions::wp_version(),
+			'get_plugins'                      => Jetpack_Sync_Functions::get_plugins(),
 		);
 
 		if ( is_multisite() ) {

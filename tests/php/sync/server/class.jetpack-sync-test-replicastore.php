@@ -21,7 +21,6 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	private $terms;
 	private $object_terms;
 	private $users;
-	private $plugins;
 	private $allowed_mime_types;
 
 	function __construct() {
@@ -461,15 +460,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		unset( $this->users[ $user_id ] );
 	}
 
-	// plugins
-	function get_plugins() {
-		return $this->plugins;
-	}
-	
-	function upsert_plugins( $plugins ) {
-		$this->plugins = $plugins;
-	}
-	
+
 	function checksum_all() {
 		return array(
 			'posts'    => $this->posts_checksum(),
