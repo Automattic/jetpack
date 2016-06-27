@@ -48,7 +48,7 @@ class Jetpack_Sync_Actions {
 		add_action( 'jetpack_site_registered', array( __CLASS__, 'schedule_full_sync' ) );
 
 		// Schedule a job to send DB checksums once an hour
-		if (! wp_next_scheduled ( 'jetpack_send_db_checksum' )) {
+		if ( ! wp_next_scheduled ( 'jetpack_send_db_checksum' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_send_db_checksum' );
 		}
 	}
