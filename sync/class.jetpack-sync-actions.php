@@ -28,6 +28,8 @@ class Jetpack_Sync_Actions {
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
 			)
 		&&
+			( Jetpack::is_active() || defined( 'PHPUNIT_JETPACK_TESTSUITE' ) )
+		&&
 			!( Jetpack::is_development_mode() || Jetpack::is_staging_site() )
 		
 		) ) {
