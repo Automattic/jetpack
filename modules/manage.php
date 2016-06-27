@@ -7,9 +7,9 @@
  * Recommendation Order: 3
  * First Introduced: 3.4
  * Requires Connection: Yes
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Centralized Management, Recommended
- * Feature: Recommended, Jumpstart
+ * Feature: Recommended
  * Additional Search Queries: manage, management, remote
  */
 
