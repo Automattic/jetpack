@@ -10,6 +10,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		Jetpack::init();
 		/** This action is documented in class.jetpack-sync-client.php */
 		Jetpack_Sync_Actions::schedule_full_sync();
+		spawn_cron();
 
 		return array( 'scheduled' => true );
 	}
