@@ -733,12 +733,16 @@ class Jetpack_Photon {
 	 * Filters an array of image `sizes` values, using $content_width instead of image's full size.
 	 *
 	 * @since 4.0.4
+	 * @since 4.1.0 Returns early for images not within the_content.
 	 * @param array $sizes An array of media query breakpoints.
 	 * @param array $size  Width and height of the image
 	 * @uses Jetpack::get_content_width
 	 * @return array An array of media query breakpoints.
 	 */
 	public function filter_sizes( $sizes, $size ) {
+		if ( ! doing_filter( 'the_content' ) ){
+			return $sizes;
+		}
 		$content_width = Jetpack::get_content_width();
 		if ( ! $content_width ) {
 			$content_width = 1000;
