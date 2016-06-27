@@ -14,6 +14,10 @@ class WP_Test_Jetpack_New_Sync_Updates extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_update_plugins_is_synced() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with multisite mode' );
+		}
+		
 		wp_update_plugins();
 		$this->client->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
@@ -25,6 +29,10 @@ class WP_Test_Jetpack_New_Sync_Updates extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_sync_update_themes() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with multisite mode' );
+		}
+
 		wp_update_themes();
 		$this->client->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
@@ -32,6 +40,10 @@ class WP_Test_Jetpack_New_Sync_Updates extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_sync_maybe_update_core() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with multisite mode' );
+		}
+
 		_maybe_update_core();
 		$this->client->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'core' );
