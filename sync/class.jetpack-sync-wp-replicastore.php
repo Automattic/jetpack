@@ -541,15 +541,6 @@ ENDSQL;
 	public function delete_user( $user_id ) {
 		$this->invalid_call();
 	}
-	
-	// plugins
-	public function get_plugins() {
-		// TODO: Implement get_plugins() method.
-	}
-
-	public function upsert_plugins( $plugins ) {
-		// TODO: Implement upsert_plugins() method.
-	}
 
 	public function get_allowed_mime_types( $user_id ) {
 		

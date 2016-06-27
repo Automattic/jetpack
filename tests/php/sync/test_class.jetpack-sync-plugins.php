@@ -8,7 +8,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-
 	}
 
 	public function tearDown() {
@@ -20,7 +19,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 		$this->install_wp_super_cache();
 		$this->client->do_sync();
 
-		$plugins = $this->server_replica_storage->get_plugins();
+		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$this->assertEquals( get_plugins(), $plugins );
 		$this->assertTrue( isset( $plugins['wp-super-cache/wp-cache.php'] ) );
 		// gets called via callable.
@@ -30,7 +29,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 		// Remove plugin
 		$this->remove_plugin();
 		$this->client->do_sync();
-		$plugins = $this->server_replica_storage->get_plugins();
+		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$this->assertEquals( get_plugins(), $plugins );
 		$this->assertFalse( isset( $plugins['wp-super-cache/wp-cache.php'] ) );
 
@@ -102,7 +101,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 			wp_die( $api );
 		}
 		$upgrader = new Plugin_Upgrader( new Plugin_Installer_Skin( compact('title', 'url', 'nonce', 'plugin', 'api') ) );
-		$upgrader->install($api->download_link);
+		$upgrader->install( $api->download_link );
 
 	}
 
@@ -128,9 +127,31 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertFalse( $deactivated_plugin->args[1] );
 	}
 
+	function test_all_plugins_filter_is_respected() {
+		$plugins = get_plugins();
+
+		if ( ! isset( $plugins[ 'hello.php' ] ) ) {
+			$this->markTestSkipped( 'Plugin hello dolly is not available' );
+		}
+		add_filter( 'all_plugins', array( $this, 'remove_hello_dolly' ) );
+		$this->client->do_sync();
+
+		remove_filter( 'all_plugins', array( $this, 'remove_hello_dolly' ) );
+
+		$synced_plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
+		$not_synced = array_diff_key( $plugins, $synced_plugins );
+
+		$this->assertTrue( isset( $not_synced[ 'hello.php' ] ) );
+	}
+
 	function remove_plugin() {
 		delete_plugins( array( 'wp-super-cache/wp-cache.php' ) );
 		wp_cache_delete( 'plugins', 'plugins' );
+	}
+
+	function remove_hello_dolly( $plugins ) {
+		unset( $plugins[ 'hello.php' ] );
+		return $plugins;
 	}
 
 }
