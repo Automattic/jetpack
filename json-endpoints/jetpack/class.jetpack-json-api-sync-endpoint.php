@@ -22,7 +22,10 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected function result() {
 		$client = Jetpack_Sync_Client::getInstance();
-		return $client->get_full_sync_client()->get_status();
+		return array_merge(
+			$client->get_full_sync_client()->get_status(),
+			array( 'is_scheduled' => (bool) wp_next_scheduled( 'jetpack_sync_full' ) )
+		);
 	}
 }
 
