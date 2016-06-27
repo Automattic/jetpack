@@ -107,9 +107,7 @@ class Jetpack_Sync_Client {
 		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 
-		// wordpress version
-		add_action( 'upgrader_process_complete', array( $this, 'send_wp_version' ), 10, 2 );
-		add_action( 'jetpack_sync_wp_version', $handler );
+
 
 		// themes
 		add_action( 'switch_theme', array( $this, 'send_theme_info' ) );
@@ -154,9 +152,10 @@ class Jetpack_Sync_Client {
 		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
 		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array( $this, 'filter_update_keys' ), 10, 2 );
 
-		// plugins
-		add_action( 'upgrader_process_complete', $handler, 10, 2 );
-		add_filter( 'jetpack_sync_before_send_upgrader_process_complete', array( $this, 'expand_upgrader_process_complete' ) );
+		// get_plugins and wp_version
+		// gets fired when new code gets installed, updates etc.
+		add_action( 'upgrader_process_complete', array( $this, 'force_sync_callables' ) );
+
 		add_action( 'deleted_plugin', $handler, 10, 2 );
 		add_action( 'activated_plugin', $handler, 10, 2 );
 		add_action( 'deactivated_plugin', $handler, 10, 2 );
@@ -612,14 +611,6 @@ class Jetpack_Sync_Client {
 
 	function expand_wp_insert_post( $args ) {
 		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2] );
-	}
-
-	function expand_upgrader_process_complete( $args ) {
-		list( $process ) = $args;
-		if ( isset( $process['type'] ) && $process['type'] === 'plugin' ) {
-			return array( $process, apply_filters( 'all_plugins', get_plugins() ) );
-		}
-		return $args;
 	}
 
 	// Expands wp_insert_post to include filtered content
