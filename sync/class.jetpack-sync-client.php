@@ -1014,5 +1014,8 @@ class Jetpack_Sync_Client {
 
 		// clear the sync cron.
 		wp_clear_scheduled_hook( 'jetpack_sync_actions' );
+
+		// clear the checksum cron
+		wp_clear_scheduled_hook( 'jetpack_send_db_checksum' );
 	}
 }
