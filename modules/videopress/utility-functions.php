@@ -2,7 +2,7 @@
 /**
  * We won't have any videos less than sixty pixels wide. That would be silly.
  */
-define( 'VIDEOPRESS_MIN_WIDTH', 60 );
+defined( 'VIDEOPRESS_MIN_WIDTH' ) or define( 'VIDEOPRESS_MIN_WIDTH', 60 );
 
 /**
  * Validate user-supplied guid values against expected inputs
