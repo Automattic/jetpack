@@ -189,6 +189,9 @@ class Jetpack_Sync_Client {
 		add_action( 'jetpack_activate_module', $handler );
 		add_action( 'jetpack_deactivate_module', $handler );
 
+		// Send periodic checksum
+		add_action( 'jetpack_sync_checksum', $handler );
+
 		/**
 		 * Sync all pending actions with server
 		 */
@@ -700,6 +703,12 @@ class Jetpack_Sync_Client {
 		wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
 	}
 
+	function send_checksum() {
+		require_once 'class.jetpack-sync-wp-replicastore.php';
+		$store = new Jetpack_Sync_WP_Replicastore();
+		do_action( 'jetpack_sync_checksum', $store->checksum_all() );
+	}
+
 	function force_sync_constants() {
 		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
 		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
@@ -1005,5 +1014,8 @@ class Jetpack_Sync_Client {
 
 		// clear the sync cron.
 		wp_clear_scheduled_hook( 'jetpack_sync_actions' );
+
+		// clear the checksum cron
+		wp_clear_scheduled_hook( 'jetpack_send_db_checksum' );
 	}
 }
