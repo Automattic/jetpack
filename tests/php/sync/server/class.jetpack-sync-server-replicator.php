@@ -240,19 +240,12 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// plugins
-			case 'upgrader_process_complete':
-				$process = $args[ 0 ];
-				if ( is_array( $process ) && $process['type'] == 'plugin' ) {
-					$plugin_data = $args[1];
-					$this->store->upsert_plugins( $plugin_data );
-				}
-				break;
 			case 'deleted_plugin':
 				list( $plugin_file, $deleted ) = $args;
 				if ( $deleted ) {
-					$plugins = $this->store->get_plugins();
+					$plugins = $this->store->get_callable( 'get_plugins' );
 					unset( $plugins[ $plugin_file ] );
-					$this->store->upsert_plugins( $plugins );
+					$this->store->set_callable( 'get_plugins',$plugins );
 				}
 		}
 	}
