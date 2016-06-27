@@ -287,6 +287,10 @@ class Jetpack_Sync_Client {
 		$this->codec = $codec;
 	}
 
+	function get_codec() {
+		return $this->codec;
+	}
+
 	function set_full_sync_client( $full_sync_client ) {
 		if ( $this->full_sync_client ) {
 			remove_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
