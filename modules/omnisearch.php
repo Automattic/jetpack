@@ -8,7 +8,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Developers
- * Feature: Developer
+ * Feature: General
  * Additional Search Queries: search
  */
 

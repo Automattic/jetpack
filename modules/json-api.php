@@ -7,6 +7,6 @@
  * Requires Connection: Yes
  * Auto Activate: Public
  * Module Tags: Writing, Developers
- * Feature: Developer
+ * Feature: General
  * Additional Search Queries: api, rest, develop, developers, json, klout, oauth
  */
