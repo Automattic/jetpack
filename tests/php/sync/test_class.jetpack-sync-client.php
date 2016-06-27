@@ -83,7 +83,8 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	}
 
 	protected function objectify( $instance ) {
-		return json_decode( json_encode( $instance ) );
+		$codec = $this->client->get_codec();
+		return $codec->decode( $codec->encode( $instance ) );
 	}
 
 	function serverReceive( $data ) {
