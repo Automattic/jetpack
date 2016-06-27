@@ -62,6 +62,10 @@ class Jetpack_Sync_Functions {
 		return false;
 	}
 
+	public static function get_plugins() {
+		return apply_filters( 'all_plugins', get_plugins() );
+	}
+
 	public static function wp_version() {
 		global $wp_version;
 		return $wp_version;
