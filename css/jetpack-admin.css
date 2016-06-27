@@ -3470,9 +3470,10 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 .nux-intro .wpcom .goto .feat {
   position: absolute;
   top: 50%;
-  -ms-transform: translate(0, -50%);
-  -webkit-transform: translate(0, -50%);
-  transform: translate(0, -50%);
+  right: 50%;
+  -ms-transform: translate(50%, -50%);
+  -webkit-transform: translate(50%, -50%);
+  transform: translate(50%, -50%);
 }
 .nux-intro .nux-foot .j-col {
   padding: 1em;
@@ -3668,9 +3669,6 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
     border-top: 1px #f9f9f9 solid;
     position: relative;
     top: -1px;
-  }
-  .nux-intro .wpcom .goto .feat a {
-    float: left;
   }
 
   .nux-foot .j-col {
