@@ -66,11 +66,11 @@ matrix:
   - php: "7.0"
     env: WP_VERSION=master
   - php: "5.3"
-    env: WP_VERSION=4.4 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
+    env: WP_VERSION=4.4 WP_MULTISITE=1 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
   - php: "5.3"
-    env: WP_VERSION=4.5 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
+    env: WP_VERSION=4.5 WP_MULTISITE=1 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
   - php: "5.3"
-    env: WP_VERSION=master WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
+    env: WP_VERSION=master WP_MULTISITE=1 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
 
 
   allow_failures:
