@@ -107,6 +107,7 @@ Enhancements:
 * JSON API: update several API endpoints to match WordPress.com endpoints.
 * JSON API: add support for custom taxonomies to the JSON API.
 * JSON API: enable trash as valid status for the post update endpoint.
+* Manage: change the connection process to help more people use Manage as they connect Jetpack to WordPress.com.
 * Publicize: new `jetpack_publicize_capability` filter to allow user role restriction to be overridden.
 * Sharing: swap out image icons for an icon font, add telegram and whatsapp buttons
 * Shortcodes: new Untappd shortcode.
