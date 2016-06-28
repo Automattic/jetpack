@@ -81,6 +81,7 @@ Bug Fixes:
 
 * Comments: improve the way avatars are displayed in comments, to better match the method used to log in.
 * Compatibility: avoid issues with Open Graph Meta Tags when using an old version of the Bitly plugin.
+* Custom Content Types: avoid PHP notices when no labels or sections are defined.
 * Custom CSS: avoid memory issues when making a very large amount of CSS changes on your site.
 * General: discontinue use of deprecated "size()" calls in jQuery.
 * General: avoid timing attacks when comparing strings.

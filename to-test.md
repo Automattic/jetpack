@@ -20,6 +20,7 @@
 ### Custom Content Types
 
 - We've added Portfolio options to the Customizer. To test this, enable a theme like [Illustratr](https://wordpress.org/themes/illustratr/) that supports Portfolios, and then head over to the Customizer to change some options.
+- We fixed some issues with the Restaurant Menus Post Type. To test this, you can follow the instructions [here](https://github.com/Automattic/jetpack/issues/3407#issue-133327324) when using a theme that supports Jetpack's Restaurant Menus, like [Auberge](https://wordpress.org/themes/auberge/).
 
 ### Custom CSS
 
