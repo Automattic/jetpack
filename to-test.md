@@ -17,6 +17,10 @@
 - We've changed the way that contact forms are titled- please use the forms and make sure that responses show up correctly in your wp-admin
 - We've added an unread count to the feedback menu item in your wp-admin/ -- keep in mind that this resets to 0 when you view the page. Test it out, make sure it works!
 
+### Custom Content Types
+
+- We've added Portfolio options to the Customizer. To test this, enable a theme like [Illustratr](https://wordpress.org/themes/illustratr/) that supports Portfolios, and then head over to the Customizer to change some options.
+
 ### Custom CSS
 
 - It is now possible to use multiple `display` properties in Custom CSS. You can follow the instructions [here](https://github.com/Automattic/jetpack/issues/4176) to test.
