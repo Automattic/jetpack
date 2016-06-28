@@ -854,12 +854,8 @@ class Jetpack_Sync_Client {
 		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
 			return;
 		}
-		// get_all_callables should run as the master user always.
-		$current_user_id = get_current_user_id();
-		wp_set_current_user( Jetpack_Options::get_option( 'master_user' ) );
 		$callables = $this->get_all_callables();
-		wp_set_current_user( $current_user_id );
-
+		
 		if ( empty( $callables ) ) {
 			return;
 		}
@@ -898,10 +894,15 @@ class Jetpack_Sync_Client {
 	}
 
 	public function get_all_callables() {
-		return array_combine(
+		// get_all_callables should run as the master user always.
+		$current_user_id = get_current_user_id();
+		wp_set_current_user( Jetpack_Options::get_option( 'master_user' ) );
+		$callables = array_combine(
 			array_keys( $this->callable_whitelist ),
 			array_map( array( $this, 'get_callable' ), array_values( $this->callable_whitelist ) )
 		);
+		wp_set_current_user( $current_user_id );
+		return $callables;
 	}
 
 	private function get_callable( $callable ) {
