@@ -57,6 +57,7 @@ class Jetpack_Portfolio {
 		add_filter( 'post_updated_messages',                                           array( $this, 'updated_messages'   ) );
 		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE),       array( $this, 'edit_admin_columns' ) );
 		add_filter( sprintf( 'manage_%s_posts_custom_column', self::CUSTOM_POST_TYPE), array( $this, 'image_column'       ), 10, 2 );
+		add_action( 'customize_register',                                              array( $this, 'customize_register' ) );
 
 		add_image_size( 'jetpack-portfolio-admin-thumb', 50, 50, true );
 		add_action( 'admin_enqueue_scripts',                                           array( $this, 'enqueue_admin_styles'  ) );
@@ -383,6 +384,68 @@ class Jetpack_Portfolio {
 
 		if ( 'edit.php' == $hook && self::CUSTOM_POST_TYPE == $screen->post_type && current_theme_supports( 'post-thumbnails' ) ) {
 			wp_add_inline_style( 'wp-admin', '.manage-column.column-thumbnail { width: 50px; } @media screen and (max-width: 360px) { .column-thumbnail{ display:none; } }' );
+		}
+	}
+
+	/**
+	 * Adds portfolio section to the Customizer.
+	 */
+	function customize_register( $wp_customize ) {
+		$options = get_theme_support( self::CUSTOM_POST_TYPE );
+
+		if ( ( ! isset( $options[0]['title'] ) || true !== $options[0]['title'] ) && ( ! isset( $options[0]['content'] ) || true !== $options[0]['content'] ) && ( ! isset( $options[0]['featured-image'] ) || true !== $options[0]['featured-image'] ) ) {
+			return;
+		}
+
+		$wp_customize->add_section( 'jetpack_portfolio', array(
+			'title'                    => esc_html__( 'Portfolio', 'jetpack' ),
+			'theme_supports'           => self::CUSTOM_POST_TYPE,
+			'priority'                 => 130,
+		) );
+
+		if ( isset( $options[0]['title'] ) && true === $options[0]['title'] ) {
+			$wp_customize->add_setting( 'jetpack_portfolio_title', array(
+				'default'              => esc_html__( 'Projects', 'jetpack' ),
+				'type'                 => 'option',
+				'sanitize_callback'    => 'sanitize_text_field',
+				'sanitize_js_callback' => 'sanitize_text_field',
+			) );
+
+			$wp_customize->add_control( 'jetpack_portfolio_title', array(
+				'section'              => 'jetpack_portfolio',
+				'label'                => esc_html__( 'Portfolio Archive Title', 'jetpack' ),
+				'type'                 => 'text',
+			) );
+		}
+
+		if ( isset( $options[0]['content'] ) && true === $options[0]['content'] ) {
+			$wp_customize->add_setting( 'jetpack_portfolio_content', array(
+				'default'              => '',
+				'type'                 => 'option',
+				'sanitize_callback'    => 'wp_kses_post',
+				'sanitize_js_callback' => 'wp_kses_post',
+			) );
+
+			$wp_customize->add_control( 'jetpack_portfolio_content', array(
+				'section'              => 'jetpack_portfolio',
+				'label'                => esc_html__( 'Portfolio Archive Content', 'jetpack' ),
+				'type'                 => 'textarea',
+			) );
+		}
+
+		if ( isset( $options[0]['featured-image'] ) && true === $options[0]['featured-image'] ) {
+			$wp_customize->add_setting( 'jetpack_portfolio_featured_image', array(
+				'default'              => '',
+				'type'                 => 'option',
+				'sanitize_callback'    => 'attachment_url_to_postid',
+				'sanitize_js_callback' => 'attachment_url_to_postid',
+				'theme_supports'       => 'post-thumbnails',
+			) );
+
+			$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'jetpack_portfolio_featured_image', array(
+				'section'              => 'jetpack_portfolio',
+				'label'                => esc_html__( 'Portfolio Archive Featured Image', 'jetpack' ),
+			) ) );
 		}
 	}
 
