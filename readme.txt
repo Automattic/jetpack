@@ -84,6 +84,7 @@ Bug Fixes:
 * Custom CSS: avoid memory issues when making a very large amount of CSS changes on your site.
 * General: discontinue use of deprecated "size()" calls in jQuery.
 * General: avoid timing attacks when comparing strings.
+* General: improve compatibility with other plugins or sites using the `JETPACK__GLOTPRESS_LOCALES_PATH` constant.
 * Manage: fix a PHP Notice when updating a plugin from the WordPress.com plugin management interface.
 * Sitemaps: avoid PHP notices when a post includes a slideshow.
 * Sitemaps: avoid errors if your permalink structure uses `index.php`.
