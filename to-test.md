@@ -4,6 +4,10 @@
 
 - **We've completely redesigned and refactored Jetpack's [SSO Module](https://jetpack.com/support/sso/).** It would be great if you could use the module as much as possible, with different users, in different browsers, and different roles on your site. The additional options mentioned at the bottom of [this page](https://jetpack.com/support/sso/) should still work.
 
+### Carousel
+
+- Carousel now uses smaller images in the Carousel view when the full-size image is very large. To test this, try creating new galleries with different image sizes (small, medium, large, and very large), and make sure all images are displayed properly in the Carousel view.
+
 ### Comments
 
 - We've improved the way comment avatars were stored and displayed. To test, try leaving comments while logged in, logged out, from Twitter, Facebook, Google+, or WordPress.com, and make sure all avatars are always displayed properly.
