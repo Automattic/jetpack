@@ -109,7 +109,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			echo ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
 		}
 
-		switch ( $instance['type'] ) {
+		$type = ( isset( $instance['type'] ) ? $instance['type'] : '' );
+		switch ( $type ) {
 			case 'profile':
 				echo ' href="https://twitter.com/' . esc_attr( $instance['widget-id'] ) . '"';
 				break;
