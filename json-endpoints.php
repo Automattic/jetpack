@@ -214,7 +214,8 @@ new WPCOM_JSON_API_List_Page_Templates_Endpoint( array(
 	),
 	'response_format' => array(
 		'templates' => '(array) A list of supported page templates. Contains label and file.',
-	)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/33534099/page-templates'
 ) );
 
 new WPCOM_JSON_API_List_Post_Types_Endpoint( array (
@@ -235,7 +236,8 @@ new WPCOM_JSON_API_List_Post_Types_Endpoint( array (
 	'response_format' => array(
 		'found'      => '(int) The number of post types found',
 		'post_types' => '(array) A list of available post types',
-	)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/33534099/post-types'
 ) );
 
 new WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint( array (
@@ -251,7 +253,8 @@ new WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint( array (
 	'response_format' => array(
 		'found'      => '(int) The number of taxonomies found',
 		'taxonomies' => '(array:taxonomy) A list of available taxonomies',
-	)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/33534099/post-types/post/taxonomies'
 ) );
 
 /*
@@ -2252,7 +2255,12 @@ new WPCOM_JSON_API_Update_User_Endpoint( array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
-	)
+	),
+
+	'example_response' => '
+	{
+		"success": true
+	}'
 ) );
 
 new WPCOM_JSON_API_List_Invites_Endpoint( array(
@@ -2307,7 +2315,7 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 	),
 	'example_response'     => '{
 		"ID": 18342963,
-		"login": "binarysmash"
+		"login": "binarysmash",
 		"email": false,
 		"name": "binarysmash",
 		"URL": "http:\/\/binarysmash.wordpress.com",
@@ -2336,7 +2344,7 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 	),
 	'example_response'     => '{
 		"ID": 18342963,
-		"login": "binarysmash"
+		"login": "binarysmash",
 		"email": false,
 		"name": "binarysmash",
 		"URL": "http:\/\/binarysmash.wordpress.com",
@@ -2375,7 +2383,7 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 	),
 	'example_response'     => '{
 		"ID": 18342963,
-		"login": "binarysmash"
+		"login": "binarysmash",
 		"email": false,
 		"name": "binarysmash",
 		"URL": "http:\/\/binarysmash.wordpress.com",
@@ -2647,19 +2655,29 @@ new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint( array(
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
-	'example_response' => '{
-	"found": 1,
-	"sharing_buttons": [
-		{
-			"ID": "facebook",
-			"name": "Facebook"
-			"shortname": "facebook",
-			"custom": false,
-			"enabled": true,
-			"visibility": "visible",
-			"genericon": "\\f203"
-		}
-	]
+	'example_response' => '
+{
+    "found": 2,
+    "sharing_buttons": [
+        {
+            "ID": "twitter",
+            "name": "Twitter",
+            "shortname": "twitter",
+            "custom": false,
+            "enabled": true,
+            "visibility": "visible",
+            "genericon": "\\f202"
+        },
+        {
+            "ID": "facebook",
+            "name": "Facebook",
+            "shortname": "facebook",
+            "custom": false,
+            "enabled": true,
+            "visibility": "visible",
+            "genericon": "\\f203"
+        }
+    ]
 }'
 ) );
 
@@ -2690,7 +2708,7 @@ new WPCOM_JSON_API_Get_Sharing_Button_Endpoint( array(
 	),
 	'example_response' => '{
 	"ID": "facebook",
-	"name": "Facebook"
+	"name": "Facebook",
 	"shortname": "facebook",
 	"custom": false,
 	"enabled": true,
@@ -2733,13 +2751,13 @@ new WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint( array(
 	"success": true,
 	"updated": [
 		{
-			"ID": "facebook"
-			"name": "Facebook"
-			"shortname": "facebook"
-			"custom": false
+			"ID": "facebook",
+			"name": "Facebook",
+			"shortname": "facebook",
+			"custom": false,
 			"enabled": true,
 			"visibility": "hidden",
-			"genericon": "\f204"
+			"genericon": "\\f204"
 		}
 	]
 }'
@@ -2787,8 +2805,8 @@ new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
 	),
 	'example_response' => '{
 	"ID": "custom-123456789",
-	"name": "Custom"
-	"shortname": "ustom",
+	"name": "Custom",
+	"shortname": "custom",
 	"url": "https://www.wordpress.com/%post_name%",
 	"icon": "https://en.wordpress.com/i/stats-icon.gif",
 	"custom": true,
@@ -2836,8 +2854,8 @@ new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
 	),
 	'example_response' => '{
 	"ID": "custom-123456789",
-	"name": "Custom"
-	"shortname": "ustom",
+	"name": "Custom",
+	"shortname": "custom",
 	"custom": true,
 	"enabled": false,
 	"icon": "https://en.wordpress.com/i/stats-icon.gif",
@@ -3076,11 +3094,11 @@ new WPCOM_JSON_API_Menus_Update_Menu_Endpoint( array (
 	'response_format' => array(
 		'menu' => '(object) Updated menu object',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/347757165',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/510604099',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 		'body' => array(
-			'name' => 'Menu 1'
+			'name' => 'Test Menu'
 		),
 	),
 ) );
@@ -3129,7 +3147,7 @@ new WPCOM_JSON_API_Menus_Get_Menu_Endpoint( array (
 			but they can also contain other items objects - this nesting represents parents
 			and child items in the item tree.'
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/347757165',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/510604099',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
