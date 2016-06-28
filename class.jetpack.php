@@ -1616,6 +1616,7 @@ class Jetpack {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
+		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		$all_plugins    = apply_filters( 'all_plugins', get_plugins() );
 		$active_plugins = Jetpack::get_active_plugins();
 

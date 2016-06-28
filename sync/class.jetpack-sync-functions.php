@@ -63,6 +63,7 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function get_plugins() {
+		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		return apply_filters( 'all_plugins', get_plugins() );
 	}
 
