@@ -63,6 +63,9 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function get_plugins() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
 		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		return apply_filters( 'all_plugins', get_plugins() );
 	}
