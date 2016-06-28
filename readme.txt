@@ -117,6 +117,7 @@ Enhancements:
 * Widgets: refactor the Contact Info Widget.
 * Widgets: use Photon to resize images in the Gallery Widget.
 * Widgets: allow top posts widget to look back more than 10 days
+* Widgets: improve the Twitter Timeline Widget to support new Twitter Profile Widget type.
 * VideoPress: several enhancements to the VideoPress Shortcode modal.
 * VideoPress: use HTML5 videos when using the `freedom` shortcode parameter.
 

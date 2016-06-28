@@ -69,3 +69,9 @@
 - We've refactored the Contact Info Widget to improve performance. To test, try adding and editing options of a Contact Info Widget.
 - We now use Photon to resize images in the Gallery Widget, thus improving performance of that widget. To test it, add a Gallery widget to your sidebar, set it to use Tiles, and make sure the images are displayed properly and use Photon (i.e. use the `i*.wpcom` domain).
 - You can now set the top posts widget to look at traffic for more than the last 10 days. Try cranking up that setting and make sure nothing breaks.
+- Twitter now supports several types of Widgets. We've made some changes to our Twitter Timeline Widget to accept one more widget type, in addition to the old and soon to be deprecated Twittter IDs. To test, try the following:
+ 	1. Go to [https://twitter.com/settings/widgets](https://twitter.com/settings/widgets)
+	2. Pick an existing Widget, edit it, and copy the Widget ID.
+	3. Back in your dashboard, create a new Twitter Timeline Widget with that Widget ID. It should work.
+	4. Drag another Twitter Timeline Widget to the sidebar, and select the 'Profile' Widget type.
+	5. Try entering a Twitter username, and see if that works properly.
