@@ -62,6 +62,32 @@ class Jetpack_Sync_Functions {
 		return false;
 	}
 
+	public static function home_url() {
+		return self::preserve_scheme( 'home', home_url() );
+	}
+
+	public static function site_url() {
+		return self::preserve_scheme( 'siteurl', site_url() );
+	}
+
+	public static function main_network_site_url() {
+		return self::preserve_scheme( 'siteurl', network_site_url() );
+	}
+
+	public static function preserve_scheme( $option, $current_url ) {
+		$option_url = get_option( $option );
+		if ( $option_url === $current_url ) {
+			return $current_url;
+		}
+		$parsed_option_url = parse_url( $option_url );
+		$parsed_current_url = parse_url( $current_url );
+		if ( $parsed_current_url[ 'host' ] === $parsed_option_url[ 'host' ] ) {
+			return set_url_scheme( $current_url,  $parsed_option_url['scheme'] );
+		}
+
+		return $current_url;
+	}
+
 	public static function get_plugins() {
 		return apply_filters( 'all_plugins', get_plugins() );
 	}
