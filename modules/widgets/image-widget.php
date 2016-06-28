@@ -140,10 +140,33 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$instance['img_title']         = strip_tags( $new_instance['img_title'] );
 		$instance['caption']           = wp_kses( stripslashes($new_instance['caption'] ), $allowed_caption_html );
 		$instance['align']             = $new_instance['align'];
-		$instance['img_width']         = absint( $new_instance['img_width'] );
-		$instance['img_height']        = absint( $new_instance['img_height'] );
 		$instance['link']              = esc_url( $new_instance['link'], null, 'display' );
 		$instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
+
+		$new_img_width  = absint( $new_instance['img_width'] );
+		$new_img_height = absint( $new_instance['img_height'] );
+
+		if ( ! empty( $instance['img_url'] ) && '' == $new_img_width && '' == $new_img_height ) {
+			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
+			$tmp_file = download_url( $instance['img_url'], 10 );
+			if ( ! is_wp_error( $tmp_file ) ) {
+				$size = getimagesize( $tmp_file );
+
+				$width = $size[0];
+				$instance['img_width'] = absint( $width );
+
+				$height = $size[1];
+				$instance['img_height'] = absint( $height );
+
+				unlink( $tmp_file );
+			} else {
+				$instance['img_width']  = $new_img_width;
+				$instance['img_height'] = $new_img_height;
+			}
+		} else {
+			$instance['img_width']  = $new_img_width;
+			$instance['img_height'] = $new_img_height;
+		}
 
 		return $instance;
 	}
@@ -168,30 +191,6 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$img_width         = esc_attr( $instance['img_width'] );
 		$img_height        = esc_attr( $instance['img_height'] );
 		$link_target_blank = checked( $instance['link_target_blank'], true, false );
-
-		if ( !empty( $instance['img_url'] ) ) {
-			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
-			$tmp_file = download_url( $instance['img_url'], 10 );
-			if ( ! is_wp_error( $tmp_file ) ) {
-				$size = getimagesize( $tmp_file );
-
-				if ( '' == $instance['img_width'] ) {
-					$width = $size[0];
-					$img_width = $width;
-				} else {
-					$img_width = absint( $instance['img_width'] );
-				}
-
-				if ( '' == $instance['img_height'] ) {
-					$height = $size[1];
-					$img_height = $height;
-				} else {
-					$img_height = absint( $instance['img_height'] );
-				}
-
-				unlink( $tmp_file );
-			}
-		}
 
 		$link = esc_url( $instance['link'], null, 'display' );
 
