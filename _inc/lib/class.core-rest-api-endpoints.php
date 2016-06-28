@@ -2501,7 +2501,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
-
+		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		$plugins = apply_filters( 'all_plugins', get_plugins() );
 
 		if ( is_array( $plugins ) && ! empty( $plugins ) ) {
