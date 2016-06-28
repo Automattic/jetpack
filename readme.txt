@@ -90,6 +90,7 @@ Bug Fixes:
 * Sitemaps: avoid PHP notices when a post includes a slideshow.
 * Sitemaps: avoid errors if your permalink structure uses `index.php`.
 * Tiled Galleries: avoid JavaScript Errors when viewing galleries.
+* Widgets: save image dimensions properly when an image is added to a new widget.
 
 Enhancements:
 
