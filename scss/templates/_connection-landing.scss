@@ -375,6 +375,15 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 		transform: translate(0,-50%);
 }
 
+@mixin verthorzalign { // center this div in both axis
+	position: absolute;
+	top: 50%;
+	right: 50%;
+	-ms-transform: translate(50%,-50%);
+	-webkit-transform: translate(50%,-50%);
+	transform: translate(50%,-50%);
+}
+
 .nux-intro {
 
 	h3 {
@@ -573,7 +582,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 				padding-bottom: 5px;
 			}
 			.feat {
-				@include vertalign;
+				@include verthorzalign;
 			}
 		} // go-to
 	}
@@ -789,11 +798,6 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 					border-top: 1px $clouds solid;
 					position: relative; // hides border of 2nd to last j-row
 					top: -1px;
-				}
-			}
-			.goto {
-				.feat a {
-					float: left;
 				}
 			}
 		}

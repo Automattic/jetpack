@@ -2589,6 +2589,9 @@ class Jetpack {
 				$modules[ $index ]['short_description'] = $i18n_module['description'];
 			}
 		}
+		if ( Jetpack::is_module_active( 'manage' ) ) {
+			unset( $modules['manage'] );
+		}
 		return $modules;
 	}
 
