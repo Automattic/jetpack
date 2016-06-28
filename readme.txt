@@ -86,6 +86,7 @@ Bug Fixes:
 * General: avoid timing attacks when comparing strings.
 * General: improve compatibility with other plugins or sites using the `JETPACK__GLOTPRESS_LOCALES_PATH` constant.
 * Manage: fix a PHP Notice when updating a plugin from the WordPress.com plugin management interface.
+* Photon: return the original size for images inserted outside of the post content.
 * Sitemaps: avoid PHP notices when a post includes a slideshow.
 * Sitemaps: avoid errors if your permalink structure uses `index.php`.
 * Tiled Galleries: avoid JavaScript Errors when viewing galleries.

@@ -38,6 +38,10 @@
 - We updated several API endpoints to match WordPress.com endpoints, with a focus on SAL (Site Abstraction Layer). To test, you can try using several features from the WordPress.com desktop apps or from WordPress.com to manage your Jetpack site, and make sure everything works properly. You should be able to change site settings, publish and update posts and pages, update plugins, customize your theme...
 - We added support for custom taxonomies, to prepare for the upcoming custom post types features in Calypso. You can follow the instructions [here](https://github.com/Automattic/jetpack/pull/4128) to test things.
 
+### Photon
+
+- Starting in 4.0.4, we modified image sizes to match a theme's `$content_width` value. Unfortunately that's not always desired when a theme inserts images outside of the post content. To test our fix, you can follow the instructions [here](https://github.com/Automattic/jetpack/pull/4226#issuecomment-228783037).
+
 ### Publicize
 
 - We've added a new filter, `jetpack_publicize_capability`, allowing you to give Publicize capabilities to more users. You can read more about it [here](https://github.com/Automattic/jetpack/pull/3740).
