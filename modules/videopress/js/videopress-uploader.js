@@ -6,6 +6,20 @@ window.wp = window.wp || {};
 		var Uploader = wp.Uploader,
 			media = wp.media;
 
+		var error = function( message, data, file ) {
+			if ( file.attachment ) {
+				file.attachment.destroy();
+			}
+
+			var error_msg = {
+				message: message || pluploadL10n.default_error,
+				data:    data,
+				file:    file
+			};
+
+			Uploader.errors.unshift( error_msg );
+		};
+
 		$.extend( Uploader.prototype, {
 
 			/**
@@ -18,19 +32,7 @@ window.wp = window.wp || {};
 			 * @param  {object}        data
 			 * @param  {plupload.File} file     File that was uploaded.
 			 */
-			error: function( message, data, file ) {
-				if ( file.attachment ) {
-					file.attachment.destroy();
-				}
 
-				var error_msg = {
-					message: message || pluploadL10n.default_error,
-					data:    data,
-					file:    file
-				};
-
-				Uploader.errors.unshift( error_msg );
-			},
 
 			/**
 			 * Initialization routine that allows us to add in more uploader events.
