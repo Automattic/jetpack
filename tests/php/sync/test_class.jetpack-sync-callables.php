@@ -93,11 +93,11 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 			'wp_max_upload_size'              => wp_max_upload_size(),
 			'is_main_network'                 => Jetpack::is_multi_network(),
 			'is_multi_site'                   => is_multisite(),
-			'main_network_site'               => network_site_url(),
+			'main_network_site'               => Jetpack_Sync_Functions::main_network_site_url(),
 			'single_user_site'                => Jetpack::is_single_user_site(),
 			'updates'                         => Jetpack::get_updates(),
-			'home_url'                        => home_url(),
-			'site_url'                        => site_url(),
+			'home_url'                        => Jetpack_Sync_Functions::home_url(),
+			'site_url'                        => Jetpack_Sync_Functions::site_url(),
 			'has_file_system_write_access'    => Jetpack_Sync_Functions::file_system_write_access(),
 			'is_version_controlled'           => Jetpack_Sync_Functions::is_version_controlled(),
 			'taxonomies'                      => Jetpack_Sync_Functions::get_taxonomies(),
@@ -149,7 +149,6 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_callable( $name ), 'Function '. $name .' didn\'t have the expected value of ' . json_encode( $value ) );
 	}
 
-
 	function test_white_listed_callables_doesnt_get_synced_twice() {
 		delete_transient( Jetpack_Sync_Client::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_option( Jetpack_Sync_Client::CALLABLES_CHECKSUM_OPTION_NAME );
@@ -165,6 +164,45 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+	}
+
+	function test_scheme_switching_does_not_cause_sync() {
+		$this->setSyncClientDefaults();
+		delete_transient( Jetpack_Sync_Client::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Client::CALLABLES_CHECKSUM_OPTION_NAME );
+		$_SERVER['HTTPS'] = 'off';
+		$home_url = home_url();
+		$this->client->do_sync();
+
+		$this->assertEquals( $home_url, $this->server_replica_storage->get_callable( 'home_url' ) );
+
+		// this sets is_ssl() to return true.
+		$_SERVER['HTTPS'] = 'on';
+		delete_transient( Jetpack_Sync_Client::CALLABLES_AWAIT_TRANSIENT_NAME );
+		$this->client->do_sync();
+
+		unset( $_SERVER['HTTPS'] );
+		$this->assertEquals( $home_url, $this->server_replica_storage->get_callable( 'home_url' ) );
+	}
+
+	function test_preserve_schema() {
+		update_option( 'banana', 'http://example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://example.com' ), 'http://example.com' );
+		
+		// the same host so lets preseve the scheme
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.com' ), 'http://example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.com/blog' ), 'http://example.com/blog' );
+		
+		// lets change the scheme to https
+		update_option( 'banana', 'https://example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://example.com' ), 'https://example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://example.com/blog' ), 'https://example.com/blog' );
+		
+		// a different host lets preseve the scheme from the host
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://site.com' ), 'http://site.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://site.com' ), 'https://site.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://site.com/blog' ), 'https://site.com/blog' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.org' ), 'https://example.org' );
 	}
 
 }
