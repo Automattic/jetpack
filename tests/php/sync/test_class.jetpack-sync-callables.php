@@ -185,7 +185,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( $home_url, $this->server_replica_storage->get_callable( 'home_url' ) );
 	}
 
-	function test_preserve_schema() {
+	function test_preserve_scheme() {
 		update_option( 'banana', 'http://example.com' );
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://example.com' ), 'http://example.com' );
 		
