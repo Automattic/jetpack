@@ -29,11 +29,55 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_sync_jetpack_updates() {
-		$this->client->do_sync();
-		$updates = $this->server_replica_storage->get_callable( 'updates' );
-		$this->assertEqualsObject( Jetpack::get_updates(), $updates );
-	}
+		$current_user = wp_get_current_user();
 
+		$admin_id = $this->factory->user->create( array(
+			'role' => 'administrator',
+		) );
+		
+		if ( is_multisite() ) {
+			$admin_user = get_user_by( 'id', $admin_id );
+			$site_admins = get_site_option( 'site_admins' );
+			
+			// Make the new admin_user super admin to that the test passes
+			update_site_option( 'site_admins', array( $admin_user->user_login ) );
+		}
+
+		$current_master_user = Jetpack_Options::get_option( 'master_user' );
+		Jetpack_Options::update_option( 'master_user', $admin_id );
+		wp_set_current_user( $admin_id );
+		
+		// fake updates
+		$plugin_option = new stdClass;
+		$plugin_option->last_checked = time();
+		$plugin_option->response = array( 'apple', 'shoe' ); // this should set the total to 2
+		$plugin_option->translations = array();
+		$plugin_option->no_update = array();
+
+		set_site_transient( 'update_plugins', $plugin_option );
+		$updates = Jetpack::get_updates();
+
+		// set a role that doesn't have the privlages
+		$subscriber_id = $this->factory->user->create( array(
+			'role' => 'subscriber',
+		) );
+		wp_set_current_user( $subscriber_id );
+
+		$this->client->do_sync();
+		$server_updates = $this->server_replica_storage->get_callable( 'updates' );
+
+		// reset things
+		wp_set_current_user( $current_user->ID );
+		delete_transient( 'update_plugins' );
+		Jetpack_Options::update_option( 'master_user', $current_master_user );
+
+		if ( is_multisite() ) {
+			update_site_option( 'site_admins', $site_admins );
+		}
+
+		$this->assertEqualsObject( $updates, $server_updates );
+		$this->assertEquals( 2, $server_updates['total'] );
+	}
 
 	function test_wp_version_is_synced() {
 		global $wp_version;
