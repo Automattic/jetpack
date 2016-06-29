@@ -107,6 +107,31 @@ class Jetpack_SSO_Helpers {
 		 */
 		return (bool) apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false );
 	}
+
+	/**
+	 * Returns a boolean for whether the SSO login form should be displayed as the default
+	 * when both the default and SSO login form allowed.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return bool
+	 */
+	static function show_sso_login() {
+		if ( self::should_hide_login_form() ) {
+			return true;
+		}
+
+		/**
+		 * Display the SSO login form as the default when both the default and SSO login forms are enabled.
+		 *
+		 * @module sso
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param bool true Should the SSO login form be displayed by default when the default login form is also enabled?
+		 */
+		return (bool) apply_filters( 'jetpack_sso_default_to_sso_login', true );
+	}
 }
 
 endif;
