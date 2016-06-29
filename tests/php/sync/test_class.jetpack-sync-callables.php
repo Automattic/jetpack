@@ -34,6 +34,14 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 		$admin_id = $this->factory->user->create( array(
 			'role' => 'administrator',
 		) );
+		
+		if ( is_multisite() ) {
+			$admin_user = get_user_by( 'id', $admin_id );
+			$site_admins = get_site_option( 'site_admins' );
+			
+			// Make the new admin_user super admin to that the test passes
+			update_site_option( 'site_admins', array( $admin_user->user_login ) );
+		}
 
 		$current_master_user = Jetpack_Options::get_option( 'master_user' );
 		Jetpack_Options::update_option( 'master_user', $admin_id );
@@ -62,6 +70,10 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 		wp_set_current_user( $current_user->ID );
 		delete_transient( 'update_plugins' );
 		Jetpack_Options::update_option( 'master_user', $current_master_user );
+
+		if ( is_multisite() ) {
+			update_site_option( 'site_admins', $site_admins );
+		}
 
 		$this->assertEqualsObject( $updates, $server_updates );
 		$this->assertEquals( 2, $server_updates['total'] );
