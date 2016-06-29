@@ -800,13 +800,12 @@ class Jetpack_Sync_Client {
 		}
 
 		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
-		$constants_checksums = get_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, array() );
-		// only send the constants that have changed
+		$constants_checksums = (array) get_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, array() );
+
 		foreach ( $constants as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
-
 			// explicitly not using Identical comparison as get_option returns a string
-			if ( ! $this->still_valid_checksum( $constants_checksums, $name, $checksum ) ) {
+			if ( ! $this->still_valid_checksum( $constants_checksums, $name, $checksum )  && ! is_null( $value ) ) {
 				/**
 				 * Tells the client to sync a constant to the server
 				 *
@@ -817,9 +816,10 @@ class Jetpack_Sync_Client {
 				 */
 				do_action( 'jetpack_sync_constant', $name, $value );
 				$constants_checksums[ $name ] = $checksum;
+			} else {
+				$constants_checksums[ $name ] = $checksum;
 			}
 		}
-
 		update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, $constants_checksums );
 	}
 	// public so that we don't have to store an option for each constant
@@ -862,13 +862,13 @@ class Jetpack_Sync_Client {
 
 		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
 
-		$callable_checksums = get_option( self::CALLABLES_CHECKSUM_OPTION_NAME , array() );
+		$callable_checksums = (array) get_option( self::CALLABLES_CHECKSUM_OPTION_NAME , array() );
 
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
 			// explicitly not using Identical comparison as get_option returns a string
-			if ( ! $this->still_valid_checksum( $callable_checksums, $name, $checksum ) ) {
+			if ( ! $this->still_valid_checksum( $callable_checksums, $name, $checksum ) && ! is_null( $value ) ) {
 				/**
 				 * Tells the client to sync a callable (aka function) to the server
 				 *
@@ -878,6 +878,8 @@ class Jetpack_Sync_Client {
 				 * @param mixed The value of the callable
 				 */
 				do_action( 'jetpack_sync_callable', $name, $value );
+				$callable_checksums[ $name ] = $checksum;
+			} else {
 				$callable_checksums[ $name ] = $checksum;
 			}
 		}
