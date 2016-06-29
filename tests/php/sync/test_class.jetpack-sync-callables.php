@@ -22,66 +22,22 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->client->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
 		$this->assertEquals( jetpack_foo_is_callable(), $synced_value );
 	}
 
 	public function test_sync_jetpack_updates() {
-		$current_user = wp_get_current_user();
-
-		$admin_id = $this->factory->user->create( array(
-			'role' => 'administrator',
-		) );
-		
-		if ( is_multisite() ) {
-			$admin_user = get_user_by( 'id', $admin_id );
-			$site_admins = get_site_option( 'site_admins' );
-			
-			// Make the new admin_user super admin to that the test passes
-			update_site_option( 'site_admins', array( $admin_user->user_login ) );
-		}
-
-		$current_master_user = Jetpack_Options::get_option( 'master_user' );
-		Jetpack_Options::update_option( 'master_user', $admin_id );
-		wp_set_current_user( $admin_id );
-		
-		// fake updates
-		$plugin_option = new stdClass;
-		$plugin_option->last_checked = time();
-		$plugin_option->response = array( 'apple', 'shoe' ); // this should set the total to 2
-		$plugin_option->translations = array();
-		$plugin_option->no_update = array();
-
-		set_site_transient( 'update_plugins', $plugin_option );
-		$updates = Jetpack::get_updates();
-
-		// set a role that doesn't have the privlages
-		$subscriber_id = $this->factory->user->create( array(
-			'role' => 'subscriber',
-		) );
-		wp_set_current_user( $subscriber_id );
-
-		$this->client->do_sync();
-		$server_updates = $this->server_replica_storage->get_callable( 'updates' );
-
-		// reset things
-		wp_set_current_user( $current_user->ID );
-		delete_transient( 'update_plugins' );
-		Jetpack_Options::update_option( 'master_user', $current_master_user );
-
-		if ( is_multisite() ) {
-			update_site_option( 'site_admins', $site_admins );
-		}
-
-		$this->assertEqualsObject( $updates, $server_updates );
-		$this->assertEquals( 2, $server_updates['total'] );
+		$this->sender->do_sync();
+		$updates = $this->server_replica_storage->get_callable( 'updates' );
+		$this->assertEqualsObject( Jetpack::get_updates(), $updates );
 	}
+
 
 	function test_wp_version_is_synced() {
 		global $wp_version;
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		$synced_value = $this->server_replica_storage->get_callable( 'wp_version' );
 		$this->assertEquals( $synced_value, $wp_version );
 	}
@@ -120,7 +76,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 			$callables[ 'network_enable_administration_menus' ] = Jetpack::network_enable_administration_menus();
 		}
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		foreach( $callables as $name => $value ) {
 			// TODO: figure out why _sometimes_ the 'support' value of 
@@ -150,18 +106,18 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_white_listed_callables_doesnt_get_synced_twice() {
-		delete_transient( Jetpack_Sync_Client::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Client::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 		$this->client->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
 		$this->assertEquals( 'bar', $synced_value );
 
 		$this->server_replica_storage->reset();
 
-		delete_transient( Jetpack_Sync_Client::CALLABLES_AWAIT_TRANSIENT_NAME );
-		$this->client->do_sync();
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 	}

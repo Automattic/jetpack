@@ -29,7 +29,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 		$this->post_id    = $this->factory->post->create();
 		$this->term_object = wp_insert_term( 'dog', $this->taxonomy );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 	}
 
 	public function test_insert_term_is_synced() {
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 			'slug' => 'non-categorise'
 		);
 		wp_update_term( $this->term_object['term_id'], $this->taxonomy, $args );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$terms = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
@@ -53,7 +53,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function test_delete_term_is_synced() {
 		wp_delete_term( $this->term_object['term_id'], $this->taxonomy );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$terms = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
@@ -63,7 +63,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_added_terms_to_post_is_synced() {
 		$anther_term = wp_insert_term( 'mouse', $this->taxonomy );
 		wp_set_post_terms( $this->post_id, array( $anther_term['term_id'] ), $this->taxonomy, false );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
@@ -76,7 +76,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 
 		$anther_term_2 = wp_insert_term( 'cat', $this->taxonomy );
 		wp_set_post_terms( $this->post_id, array( $anther_term_2['term_id'] ), $this->taxonomy, true );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
@@ -92,7 +92,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 		wp_set_post_terms( $this->post_id, array( $anther_term_2['term_id'] ), $this->taxonomy, true );
 
 		wp_remove_object_terms( $this->post_id, array( $anther_term_2['term_id'] ), $this->taxonomy );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
 
@@ -111,7 +111,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_object_term_relationships( $this->post_id, array( $this->taxonomy ) );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
 
