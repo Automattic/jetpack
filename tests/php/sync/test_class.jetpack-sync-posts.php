@@ -1,5 +1,4 @@
 <?php
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-client.php';
 
 /**
  * Testing CRUD on Posts
@@ -15,7 +14,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$post_id    = $this->factory->post->create();
 		$this->post = get_post( $post_id );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 	}
 
 	public function test_add_post_syncs_event() {
@@ -24,14 +23,20 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->assertEquals( 'wp_insert_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
-		$this->post = $this->client->filter_post_content_and_add_links( $this->post );
+
+		$post_sync_module = new Jetpack_Sync_Module_Posts();
+
+		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEqualsObject( $this->post, $event->args[1] );
 	}
 
 	public function test_add_post_syncs_post_data() {
 		// post stored by server should equal post in client
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
-		$this->post = $this->client->filter_post_content_and_add_links( $this->post );
+
+		$post_sync_module = new Jetpack_Sync_Module_Posts();
+
+		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
 	}
 
@@ -40,7 +45,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_post( $this->post->ID );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'trash' ) );
@@ -51,7 +56,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_post( $this->post->ID, true );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		// there should be no posts at all
 		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
@@ -60,7 +65,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_delete_post_syncs_event() {
 		wp_delete_post( $this->post->ID, true );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
 
 		$this->assertEquals( 'deleted_post', $event->action );
@@ -72,7 +77,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "foo bar", $remote_post->post_content );
@@ -84,7 +89,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->post->post_type = 'page';
 		$this->post_id         = wp_insert_post( $this->post );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( 'page', $remote_post->post_type );
@@ -99,14 +104,14 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 			'post_status' => 'draft',
 		) );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( 'draft', $remote_post->post_status );
 
 		wp_publish_post( $this->post->ID );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( 'publish', $remote_post->post_status );
@@ -132,7 +137,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		// Insert the attachment.
 		$attach_id = wp_insert_attachment( $attachment, $filename, $this->post->ID );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertAttachmentSynced( $attach_id );
 		// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
@@ -146,7 +151,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$meta_attachment_metadata = $this->server_replica_storage->get_metadata( 'post', $attach_id, '_wp_attachment_metadata', true );
 		$this->assertEqualsObject( get_post_meta( $attach_id, '_wp_attachment_metadata', true ), $meta_attachment_metadata );
@@ -176,7 +181,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		// Insert the attachment.
 		$attach_id = wp_insert_attachment( $attachment, $filename, $this->post->ID );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertAttachmentSynced( $attach_id );
 
@@ -193,7 +198,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		$attach_id = wp_insert_attachment( $attachment, $filename, $this->post->ID );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$remote_attachment = $this->server_replica_storage->get_post( $attach_id );
 		$attachment = get_post( $attach_id );
@@ -224,14 +229,14 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		// Insert the attachment.
 		$attach_id = wp_insert_attachment( $attachment, $filename_copy, $this->post->ID );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertAttachmentSynced( $attach_id );
 
 		// Update attachment
 		wp_delete_attachment( $attach_id );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$remote_attachment = $this->server_replica_storage->get_post( $attach_id );
 		$attachment = get_post( $attach_id );
@@ -262,14 +267,14 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		// Insert the attachment.
 		$attach_id = wp_insert_attachment( $attachment, $filename_copy, $this->post->ID );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertAttachmentSynced( $attach_id );
 
 		// Update attachment
 		wp_delete_attachment( $attach_id, true );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$remote_attachment = $this->server_replica_storage->get_post( $attach_id );
 		$attachment = get_post( $attach_id );
@@ -282,7 +287,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->post->post_content = "[foo]";
 
 		wp_update_post( $this->post );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( $post_on_server->post_content, '[foo]' );
@@ -294,7 +299,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->post->post_excerpt = "[foo]";
 
 		wp_update_post( $this->post );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( $post_on_server->post_excerpt, '[foo]' );
@@ -308,7 +313,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->post->post_password = 'bob';
 		wp_update_post( $this->post );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		// Change the password from the original
@@ -333,7 +338,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$post_id = $this->factory->post->create();
 		add_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
 
@@ -349,7 +354,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->post->post_content = "foo bar";
 		wp_update_post( $this->post );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		remove_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
 		
@@ -369,7 +374,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->post->post_content = "foo bar";
 
 		wp_update_post( $this->post );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 		// no we sync the content and it looks like what we expect to be.
 		$this->assertEquals( $this->post->post_content, $synced_post->post_content );

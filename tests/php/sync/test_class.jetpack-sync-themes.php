@@ -13,7 +13,7 @@ class WP_Test_Jetpack_New_Sync_Themes extends WP_Test_Jetpack_New_Sync_Base {
 
 		switch_theme( $this->theme );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 	}
 
 	public function test_changed_theme_is_synced() {

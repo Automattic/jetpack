@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * simple wrapper that allows enumerating cached static instances
+ * of sync modules
+ */
+
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-posts.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-constants.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-callables.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-options.php';
+
+
+class Jetpack_Sync_Modules {
+	private static $sync_modules = array(
+		'Jetpack_Sync_Module_Posts',
+		'Jetpack_Sync_Module_Constants',
+		'Jetpack_Sync_Module_Callables',
+		'Jetpack_Sync_Module_Options'
+	);
+
+	private static $initialized_modules = null;
+
+	public static function get_modules() {
+		if ( self::$initialized_modules === null ) {
+			self::$initialized_modules = self::initialize_modules();
+		}
+		
+		return self::$initialized_modules;
+	}
+
+	public static function get_module( $module_name ) {
+		foreach( self::get_modules() as $module ) {
+			if ( $module->name() === $module_name ) {
+				return $module;
+			}
+		}
+
+		return false;
+	}
+
+	static function initialize_modules() {
+		/**
+		 * Filters the list of class names of sync modules.
+		 * If you add to this list, make sure any classes implement the
+		 * Jetpack_Sync_Module interface.
+		 *
+		 * @since 4.2
+		 */
+		$modules = apply_filters( 'jetpack_sync_modules', self::$sync_modules );
+		return array_map( array( 'Jetpack_Sync_Modules', 'initialize_module' ), $modules );
+	}
+
+	static function initialize_module( $module_name ) {
+		$module = new $module_name;
+		$module->set_defaults();
+		return $module;
+	}
+}

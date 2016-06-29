@@ -81,7 +81,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function ajax_reset_queue() {
-		Jetpack_Sync_Client::getInstance()->reset_sync_queue();
+		Jetpack_Sync_Sender::getInstance()->reset_sync_queue();
 		delete_option( Jetpack_Sync_Full::$status_option );
 		echo json_encode( array( 'success' => true ) );
 
@@ -89,13 +89,13 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function ajax_unlock_queue() {
-		Jetpack_Sync_Client::getInstance()->get_sync_queue()->force_checkin();
+		Jetpack_Sync_Sender::getInstance()->get_sync_queue()->force_checkin();
 		echo json_encode( array( 'success' => true ) );
 		exit;
 	}
 
 	function ajax_begin_full_sync() {
-		Jetpack_Sync_Client::getInstance()->get_full_sync_client()->start();
+		Jetpack_Sync_Sender::getInstance()->get_full_sync_client()->start();
 		$this->ajax_full_sync_status();
 	}
 
@@ -110,7 +110,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function queue_status() {
-		$client = Jetpack_Sync_Client::getInstance();
+		$client = Jetpack_Sync_Sender::getInstance();
 		$queue  = $client->get_sync_queue();
 
 		return array(
@@ -120,7 +120,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function full_sync_status() {
-		$client = Jetpack_Sync_Client::getInstance();
+		$client = Jetpack_Sync_Sender::getInstance();
 		return $client->get_full_sync_client()->get_status();
 	}
 

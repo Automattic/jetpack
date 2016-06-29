@@ -5,15 +5,18 @@
  */
 class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 	protected $post;
+	protected $options_module;
 
 	public function setUp() {
 		parent::setUp();
 
-		$this->client->set_options_whitelist( array( 'test_option' ) );
+		$this->options_module = Jetpack_Sync_Modules::get_module( "options" );
+
+		$this->options_module->set_options_whitelist( array( 'test_option' ) );
 
 		add_option( 'test_option', 'foo' );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 	}
 
 	public function test_added_option_is_synced() {
@@ -23,30 +26,30 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function test_updated_option_is_synced() {
 		update_option( 'test_option', 'bar' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		$synced_option_value = $this->server_replica_storage->get_option( 'test_option' );
 		$this->assertEquals( 'bar', $synced_option_value );
 	}
 
 	public function test_deleted_option_is_synced() {
 		delete_option( 'test_option' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		$synced_option_value = $this->server_replica_storage->get_option( 'test_option' );
 		$this->assertEquals( false, $synced_option_value );
 	}
 
 	public function test_don_t_sync_option_if_not_on_whitelist() {
 		add_option( 'don_t_sync_test_option', 'foo' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		$synced_option_value = $this->server_replica_storage->get_option( 'don_t_sync_test_option' );
 		$this->assertEquals( false, $synced_option_value );
 	}
 	
 	public function test_sync_options_that_use_filter() {
 		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
-		$this->client->update_options_whitelist();
+		$this->options_module->update_options_whitelist();
 		update_option( 'foo_option_bar', '123' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertEquals( '123', $this->server_replica_storage->get_option( 'foo_option_bar' ) );
 	}
@@ -169,14 +172,14 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 		$theme_mod_key = 'theme_mods_' . get_option( 'stylesheet' );
 		$options[ $theme_mod_key ] = 'pineapple';
 
-		$whitelist = $this->client->get_options_whitelist();
+		$whitelist = $this->options_module->get_options_whitelist();
 
 		// update all the opyions.
 		foreach( $options as $option_name => $value) {
 			update_option( $option_name, $value );
 		}
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		foreach( $options as $option_name => $value ) {
 			$this->assertOptionIsSynced( $option_name, $value );

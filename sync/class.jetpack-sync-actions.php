@@ -1,12 +1,12 @@
 <?php
 
 function jetpack_send_db_checksum() {
-	$sync_client = Jetpack_Sync_Client::getInstance();
-	$sync_client->send_checksum();
+	$sync_sender = Jetpack_Sync_Sender::getInstance();
+	$sync_sender->send_checksum();
 }
 
 class Jetpack_Sync_Actions {
-	static $client = null;
+	static $sender = null;
 
 	static function init() {
 		/**
@@ -36,15 +36,15 @@ class Jetpack_Sync_Actions {
 			return;
 		}
 		
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-client.php';
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-sender.php';
 
-		self::$client = Jetpack_Sync_Client::getInstance();
+		self::$sender = Jetpack_Sync_Sender::getInstance();
 
 		// bind the do_sync process to shutdown
-		add_action( 'shutdown', array( self::$client, 'do_sync' ) );
+		add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 
 		// bind the sending process
-		add_filter( 'jetpack_sync_client_send_data', array( __CLASS__, 'send_data' ), 10, 2 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 2 );
 
 		// On jetpack registration
 		add_action( 'jetpack_site_registered', array( __CLASS__, 'schedule_full_sync' ) );

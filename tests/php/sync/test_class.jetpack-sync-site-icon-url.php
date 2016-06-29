@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Sync_Site_Icon_Url extends WP_Test_Jetpack_New_Sync_Base {
 			// wp 4.3 or less
 			Jetpack_Options::update_option( 'site_icon_url', 'http://foo.com/icon.gif' );
 		}
-		$this->client->do_sync();
+		$this->sender->do_sync();
 	}
 
 
@@ -39,7 +39,7 @@ class WP_Test_Jetpack_Sync_Site_Icon_Url extends WP_Test_Jetpack_New_Sync_Base {
 			// wp 4.3 or less
 			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		$this->assertEmpty( $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
 		$this->assertEquals( Jetpack_Options::get_option( 'site_icon_url' ), $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
 	}
@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Sync_Site_Icon_Url extends WP_Test_Jetpack_New_Sync_Base {
 			// wp 4.3 or less
 			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		$this->assertEmpty( $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
 		$this->assertEquals( Jetpack_Options::get_option( 'site_icon_url' ), $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
 	}
