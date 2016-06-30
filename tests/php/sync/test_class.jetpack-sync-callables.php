@@ -127,18 +127,18 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_scheme_switching_does_not_cause_sync() {
 		$this->setSyncClientDefaults();
-		delete_transient( Jetpack_Sync_Client::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Client::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 		$_SERVER['HTTPS'] = 'off';
 		$home_url = home_url();
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertEquals( $home_url, $this->server_replica_storage->get_callable( 'home_url' ) );
 
 		// this sets is_ssl() to return true.
 		$_SERVER['HTTPS'] = 'on';
-		delete_transient( Jetpack_Sync_Client::CALLABLES_AWAIT_TRANSIENT_NAME );
-		$this->client->do_sync();
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		$this->sender->do_sync();
 
 		unset( $_SERVER['HTTPS'] );
 		$this->assertEquals( $home_url, $this->server_replica_storage->get_callable( 'home_url' ) );
@@ -163,5 +163,4 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://site.com/blog' ), 'https://site.com/blog' );
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.org' ), 'https://example.org' );
 	}
-
 }
