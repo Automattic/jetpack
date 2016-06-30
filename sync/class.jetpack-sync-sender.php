@@ -5,6 +5,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 /** 
  * This class grabs pending actions from the queue and sends them
@@ -13,9 +14,6 @@ class Jetpack_Sync_Sender {
 
 	const SYNC_THROTTLE_OPTION_NAME = 'jetpack_sync_min_wait';
 	const LAST_SYNC_TIME_OPTION_NAME = 'jetpack_last_sync_time';
-	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
-	
-	private static $valid_settings = array( 'dequeue_max_bytes' => true, 'upload_max_bytes' => true, 'upload_max_rows' => true, 'sync_wait_time' => true );
 
 	private $dequeue_max_bytes;
 	private $upload_max_bytes;
@@ -243,34 +241,17 @@ class Jetpack_Sync_Sender {
 		add_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
 	}
 
-	function get_settings() {
-		$settings = array();
-		foreach( array_keys( self::$valid_settings ) as $setting ) {
-			$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
-			$settings[ $setting ] = (int) get_option( self::SETTINGS_OPTION_PREFIX.$setting, Jetpack_Sync_Defaults::$$default_name );
-		}
-		return $settings;
-	}
-
-	function update_settings( $new_settings ) {
-		$validated_settings = array_intersect_key( $new_settings, self::$valid_settings );
-		foreach( $validated_settings as $setting => $value ) {
-			update_option( self::SETTINGS_OPTION_PREFIX.$setting, $value, true );
-		}
-	}
-
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
 		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
+		$this->codec = new Jetpack_Sync_JSON_Deflate_Codec();
 
 		// saved settings
-		$settings = $this->get_settings();
+		$settings = Jetpack_Sync_Settings::get_settings();
 		$this->set_dequeue_max_bytes( $settings['dequeue_max_bytes'] );
 		$this->set_upload_max_bytes( $settings['upload_max_bytes'] );
 		$this->set_upload_max_rows( $settings['upload_max_rows'] );
 		$this->set_sync_wait_time( $settings['sync_wait_time'] );
-
-		$this->codec = new Jetpack_Sync_JSON_Deflate_Codec();
 	}
 
 	function reset_data() {
@@ -283,11 +264,7 @@ class Jetpack_Sync_Sender {
 		delete_option( self::SYNC_THROTTLE_OPTION_NAME );
 		delete_option( self::LAST_SYNC_TIME_OPTION_NAME );
 
-		$valid_settings  = self::$valid_settings;
-		$settings_prefix =  self::SETTINGS_OPTION_PREFIX;
-		foreach ( $valid_settings as $option => $value ) {
-			delete_option( $settings_prefix . $option );
-		}
+		Jetpack_Sync_Settings::reset_data();
 	}
 
 	function uninstall() {
