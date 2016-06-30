@@ -9,7 +9,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
  */
 class Jetpack_Sync_Listener {
 	const QUEUE_SIZE_CHECK_TRANSIENT = "jetpack_sync_last_checked_queue_size";
-	const QUEUE_SIZE_CHECK_TIMEOUT = 60*5; // 5 minutes
+	const QUEUE_SIZE_CHECK_TIMEOUT = 300; // 5 minutes
 
 	private $sync_queue;
 	private $sync_queue_limit;
