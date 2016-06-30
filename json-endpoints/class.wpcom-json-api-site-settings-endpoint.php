@@ -240,7 +240,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return (array)
 	 */
 	public function update_settings() {
-
+		
 		// $this->input() retrieves posted arguments whitelisted and casted to the $request_format
 		// specs that get passed in when this class is instantiated
 		/**
@@ -420,6 +420,23 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					update_option( 'seo_meta_description', $value );
 					break;
 
+				case 'advanced_seo_title_formats':
+					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+						if ( ! WPCOM_Store::has_business_plan() ) {
+							return new WP_Error( 'unauthorized', __( 'Advanced SEO can only be set on sites that have a business plan.' ), 403 );
+						}
+
+						if ( ! self::are_valid_title_formats( $value ) ) {
+							return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.' ), 400 );
+						}
+
+						if ( update_option( $key, $value ) ) {
+							$updated[ $key ] = $value;
+						}
+					}
+
+					break;
+
 				case 'verification_services_codes':
 					$verification_codes = jetpack_verification_validate( $value );
 					update_option( 'verification_services_codes', $verification_codes );
@@ -494,4 +511,50 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		);
 
 	}
+
+	/**
+	 * Checks if a given formats conform to predefined SEO title templates.
+	 *
+	 * We are first checking if the correct title format type is passed. Every type
+	 * must be one of: front_page, posts, pages, groups or archives.
+	 * After that, we are verifying that the corresponding template for that type
+	 * is formatted correctly and that it contains only allowed chips.
+	 * (e.g. "%site_title% - arbitrary text - %post_title%")
+	 *
+	 * @param array $title_formats Template of SEO title to check.
+	 *
+	 * @return bool True if the formats are valid, false otherwise.
+	 */
+	public static function are_valid_title_formats( $title_formats ) {
+		// Defines which tokens/chips we want to allow for each type.
+		$allowed_tokens = array(
+			'front_page' => [ '%site_name%', '%tagline%' ],
+			'posts'      => [ '%site_name%', '%tagline%', '%post_title%' ],
+			'pages'      => [ '%site_name%', '%tagline%', '%page_title%' ],
+			'groups'     => [ '%site_name%', '%tagline%', '%group_title%' ],
+			'archives'   => [ '%site_name%', '%tagline%', '%date%' ],
+		);
+
+		$token_pattern = '/(%[a-zA-Z_]+%)/';
+
+		foreach ( $title_formats as $type => $format ) {
+			// Bail if title format type is not one of: posts, pages, front_page...
+			if ( ! in_array( $type, array_keys( $allowed_tokens ) ) ) {
+				return false;
+			}
+
+			$matches = [ ];
+			preg_match_all( $token_pattern, $format, $matches );
+
+			// Make sure that only allowed tokens are used for this type.
+			foreach ( $matches[1] as $token ) {
+				if ( ! in_array( $token, $allowed_tokens[ $type ] ) ) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
 }
