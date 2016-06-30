@@ -51,12 +51,20 @@ class Jetpack_Sync_Listener {
 		add_action( 'jetpack_sync_checksum', $handler );
 	}
 
+	function get_sync_queue() {
+		return $this->sync_queue;
+	}
+
 	function set_queue_limit( $limit ) {
 		$this->sync_queue_limit = $limit;
 	}
 
 	function get_queue_limit() {
 		return $this->sync_queue_limit;
+	}
+
+	function force_recheck_queue_limit() {
+		delete_transient( self::QUEUE_SIZE_CHECK_TRANSIENT );
 	}
 
 	function is_over_queue_limit() {
@@ -67,7 +75,7 @@ class Jetpack_Sync_Listener {
 			set_transient( self::QUEUE_SIZE_CHECK_TRANSIENT, $queue_size, self::QUEUE_SIZE_CHECK_TIMEOUT );
 		}
 
-		return false;
+		return ( $queue_size + 1 ) > $this->sync_queue_limit;
 	}
 
 	function action_handler() {
@@ -95,7 +103,6 @@ class Jetpack_Sync_Listener {
 		// periodically check the size of the queue, and disable adding to it if 
 		// it exceeds some limit
 		if ( $this->is_over_queue_limit() ) {
-			// 
 			return;
 		}
 
