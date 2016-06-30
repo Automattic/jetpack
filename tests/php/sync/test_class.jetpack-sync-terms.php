@@ -8,10 +8,13 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 	protected $post_id;
 	protected $term_object;
 	protected $taxonomy;
+	protected $terms_module;
 
 	public function setUp() {
 		parent::setUp();
 		$this->sender->reset_data();
+
+		$this->terms_module = Jetpack_Sync_Modules::get_module( "terms" );
 
 		$this->taxonomy = 'genre';
 		register_taxonomy(
@@ -23,13 +26,18 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 				'hierarchical' => true,
 			)
 		);
-		$this->listener->set_taxonomy_whitelist( array( $this->taxonomy ) );
+		$this->terms_module->set_taxonomy_whitelist( array( $this->taxonomy ) );
 
 		// create a post
 		$this->post_id    = $this->factory->post->create();
 		$this->term_object = wp_insert_term( 'dog', $this->taxonomy );
 
 		$this->sender->do_sync();
+	}
+
+	public function tearDown() {
+		parent::tearDown();
+		$this->terms_module->set_defaults();
 	}
 
 	public function test_insert_term_is_synced() {
