@@ -24,7 +24,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 'wp_insert_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 
-		$post_sync_module = new Jetpack_Sync_Module_Posts();
+		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEqualsObject( $this->post, $event->args[1] );
@@ -34,7 +34,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		// post stored by server should equal post in client
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
 
-		$post_sync_module = new Jetpack_Sync_Module_Posts();
+		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );

@@ -13,14 +13,17 @@ function jetpack_foo_is_callable() {
  */
 class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 	protected $post;
+	protected $callable_module;
 
 	public function setUp() {
 		parent::setUp();
+
+		$this->callable_module = Jetpack_Sync_Modules::get_module( "callables" );
 	}
 
 	function test_white_listed_function_is_synced() {
 
-		$this->client->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
+		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 
 		$this->sender->do_sync();
 
@@ -88,7 +91,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 			$this->assertCallableIsSynced( $name, $value );
 		}
 
-		$whitelist_keys = array_keys( $this->client->get_callable_whitelist() );
+		$whitelist_keys = array_keys( $this->callable_module->get_callable_whitelist() );
 		$callables_keys = array_keys( $callables );
 		
 		// Are we testing all the callables in the defaults?
@@ -108,7 +111,7 @@ class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
 	function test_white_listed_callables_doesnt_get_synced_twice() {
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
-		$this->client->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
+		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 		$this->sender->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );

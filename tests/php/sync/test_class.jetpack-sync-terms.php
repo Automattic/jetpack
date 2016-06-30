@@ -11,7 +11,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$this->client->reset_data();
+		$this->sender->reset_data();
 
 		$this->taxonomy = 'genre';
 		register_taxonomy(
@@ -23,7 +23,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 				'hierarchical' => true,
 			)
 		);
-		$this->client->set_taxonomy_whitelist( array( $this->taxonomy ) );
+		$this->listener->set_taxonomy_whitelist( array( $this->taxonomy ) );
 
 		// create a post
 		$this->post_id    = $this->factory->post->create();
