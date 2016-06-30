@@ -46,7 +46,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_full_sync_sends_wp_version() {
 		$this->server_replica_storage->reset();
-		$this->client->reset_data();
+		$this->sender->reset_data();
 
 		$this->full_sync->start();
 		$this->sender->do_sync();
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$post->post_content = "[foo]";
 		wp_update_post( $post );
 		$this->server_replica_storage->reset();
-		$this->client->reset_data();
+		$this->sender->reset_data();
 
 		$this->full_sync->start();
 		$this->sender->do_sync();
@@ -82,7 +82,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	
 		// simulate emptying the server storage
 		$this->server_replica_storage->reset();
-		$this->client->reset_data();
+		$this->sender->reset_data();
 
 		$this->full_sync->start();
 		$this->sender->do_sync();
@@ -99,7 +99,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		// simulate emptying the server storage
 		$this->server_replica_storage->reset();
-		$this->client->reset_data();
+		$this->sender->reset_data();
 
 		$this->full_sync->start();
 		$this->sender->do_sync();
@@ -115,7 +115,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		// simulate emptying the server storage
 		$this->server_replica_storage->reset();
-		$this->client->reset_data();
+		$this->sender->reset_data();
 
 		$this->full_sync->start();
 		$this->sender->do_sync();
@@ -175,7 +175,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	function test_full_sync_sends_all_constants() {
 		define( 'TEST_SYNC_ALL_CONSTANTS', 'foo' );
 		
-		$this->client->set_constants_whitelist( array( 'TEST_SYNC_ALL_CONSTANTS' ) );
+		Jetpack_Sync_Modules::get_module( "constants" )->set_constants_whitelist( array( 'TEST_SYNC_ALL_CONSTANTS' ) );
 		$this->sender->do_sync();
 
 		// reset the storage, check value, and do full sync - storage should be set!
@@ -190,7 +190,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_functions() {
-		$this->client->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+		Jetpack_Sync_Modules::get_module( "callables" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 		$this->sender->do_sync();
 
 		// reset the storage, check value, and do full sync - storage should be set!
@@ -205,7 +205,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_options() {
-		$this->client->set_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
+		Jetpack_Sync_Modules::get_module( "options" )->set_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
 		update_option( 'my_option', 'foo' );
 		update_option( 'my_prefix_value', 'bar' );
 		update_option( 'my_non_synced_option', 'baz');
@@ -236,7 +236,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 
-		$this->client->set_network_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
+		Jetpack_Sync_Modules::get_module( "options" )->set_network_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
 		update_site_option( 'my_option', 'foo' );
 		update_site_option( 'my_prefix_value', 'bar' );
 		update_site_option( 'my_non_synced_option', 'baz');
@@ -479,7 +479,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->factory->comment->create_post_comments( $post, 11 );
 
 		// reset the data before the full sync
-		$this->client->reset_data();
+		$this->sender->reset_data();
 
 	}
 
@@ -598,7 +598,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_full_sync_status_with_a_small_queue() {
 
-		$this->client->set_dequeue_max_bytes( 1500 ); // process 0.0015MB of items at a time\
+		$this->sender->set_dequeue_max_bytes( 1500 ); // process 0.0015MB of items at a time\
 		
 		$this->create_dummy_data_and_empty_the_queue();
 

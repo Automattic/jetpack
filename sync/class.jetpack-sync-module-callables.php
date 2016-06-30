@@ -62,7 +62,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		return call_user_func( $callable );
 	}
 
-	public function full_sync_callables() {
+	public function full_sync() {
 		/**
 		 * Tells the client to sync all callables to the server
 		 *
