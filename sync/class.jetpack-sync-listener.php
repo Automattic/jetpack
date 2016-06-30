@@ -51,7 +51,6 @@ class Jetpack_Sync_Listener {
 		 * The only exceptions are actions which need additional processing.
 		 */
 
-
 		// attachments
 		add_action( 'edit_attachment', array( $this, 'send_attachment_info' ) );
 		// Once we don't have to support 4.3 we can start using add_action( 'attachment_updated', $handler, 10, 3 ); instead
@@ -158,15 +157,7 @@ class Jetpack_Sync_Listener {
 	function set_taxonomy_whitelist( $taxonomies ) {
 		$this->taxonomy_whitelist = $taxonomies;
 	}
-
-	function set_codec( iJetpack_Sync_Codec $codec ) {
-		$this->codec = $codec;
-	}
-
-	function get_codec() {
-		return $this->codec;
-	}
-
+	
 	function set_full_sync_client( $full_sync_client ) {
 		if ( $this->full_sync_client ) {
 			remove_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
