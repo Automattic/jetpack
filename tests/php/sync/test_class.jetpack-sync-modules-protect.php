@@ -3,7 +3,11 @@
 /**
  * Test pluggable functionality for bruteprotect
  */
-class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_New_Sync_Base {
+
+require_once dirname( __FILE__ ) . '/../../../modules/protect.php';
+
+class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
+
 	function test_sends_failed_login_message() {
 
 		Jetpack_Protect_Module::instance()->log_failed_attempt();
