@@ -6,8 +6,7 @@ require dirname( __FILE__ ) . '/../modules/protect.php';
  * logs bruteprotect failed logins via sync
  */
 class Jetpack_Sync_Module_Protect extends Jetpack_Sync_Module {
-	private $taxonomy_whitelist;
-	
+
 	function name() {
 		return "protect";
 	}
