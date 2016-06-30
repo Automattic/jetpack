@@ -7,23 +7,29 @@
 
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-posts.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-comments.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-constants.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-callables.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-options.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-updates.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-users.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-themes.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-attachments.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-meta.php';
 
 class Jetpack_Sync_Modules {
 
 	private static $default_sync_modules = array(
 		'Jetpack_Sync_Module_Posts',
+		'Jetpack_Sync_Module_Comments',
 		'Jetpack_Sync_Module_Constants',
 		'Jetpack_Sync_Module_Callables',
 		'Jetpack_Sync_Module_Options',
 		'Jetpack_Sync_Module_Updates',
 		'Jetpack_Sync_Module_Users',
-		'Jetpack_Sync_Module_Themes'
+		'Jetpack_Sync_Module_Themes',
+		'Jetpack_Sync_Module_Attachments',
+		'Jetpack_Sync_Module_Meta'
 	);
 
 	private static $initialized_modules = null;

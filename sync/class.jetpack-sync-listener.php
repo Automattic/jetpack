@@ -16,7 +16,6 @@ class Jetpack_Sync_Listener {
 
 	private $sync_queue;
 	private $full_sync_client;
-	private $meta_types = array( 'post', 'comment' );
 	private $taxonomy_whitelist;
 	private $is_multisite;
 
@@ -51,38 +50,6 @@ class Jetpack_Sync_Listener {
 		 * The only exceptions are actions which need additional processing.
 		 */
 
-		// attachments
-		add_action( 'edit_attachment', array( $this, 'send_attachment_info' ) );
-		// Once we don't have to support 4.3 we can start using add_action( 'attachment_updated', $handler, 10, 3 ); instead
-		add_action( 'add_attachment', array( $this, 'send_attachment_info' ) );
-		add_action( 'jetpack_sync_save_add_attachment', $handler, 10, 2 );
-
-		// comments
-		add_action( 'wp_insert_comment', $handler, 10, 2 );
-		add_action( 'deleted_comment', $handler, 10 );
-		add_action( 'trashed_comment', $handler, 10 );
-		add_action( 'spammed_comment', $handler, 10 );
-
-		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
-
-		// even though it's messy, we implement these hooks because
-		// the edit_comment hook doesn't include the data
-		// so this saves us a DB read for every comment event
-		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
-			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
-				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
-				add_action( $comment_action_name, $handler, 10, 2 );
-				add_filter( 'jetpack_sync_before_send_' . $comment_action_name, array( $this, 'expand_wp_insert_comment' ) );
-			}
-		}
-
-		// post-meta, and in the future - other meta?
-		foreach ( $this->meta_types as $meta_type ) {
-			add_action( "added_{$meta_type}_meta", $handler, 10, 4 );
-			add_action( "updated_{$meta_type}_meta", $handler, 10, 4 );
-			add_action( "deleted_{$meta_type}_meta", $handler, 10, 4 );
-		}
-
 		// terms
 		add_action( 'created_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
@@ -99,7 +66,6 @@ class Jetpack_Sync_Listener {
 		// synthetic actions for full sync
 		add_action( 'jetpack_full_sync_start', $handler );
 		add_action( 'jetpack_full_sync_end', $handler );
-		add_action( 'jetpack_full_sync_comments', $handler ); // also send comments meta
 		add_action( 'jetpack_full_sync_terms', $handler, 10, 2 );
 		
 		// Module Activation
@@ -137,14 +103,6 @@ class Jetpack_Sync_Listener {
 
 		if ( $current_filter == 'upgrader_process_complete' ) {
 			array_shift( $args );
-		}
-
-		// don't sync private meta
-		if ( preg_match( '/^(added|updated|deleted)_.*_meta$/', $current_filter )
-		     && $args[2][0] === '_'
-		     && ! in_array( $args[2], Jetpack_Sync_Defaults::$default_whitelist_meta_keys )
-		) {
-			return;
 		}
 
 		/**
@@ -191,54 +149,6 @@ class Jetpack_Sync_Listener {
 		 * @param object the Term object
 		 */
 		do_action( 'jetpack_sync_save_term', $term_object );
-	}
-
-	function send_attachment_info( $attachment_id ) {
-		$attachment = get_post( $attachment_id );
-
-		/**
-		 * Fires when the client needs to sync an attachment for a post
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param int The attachment ID
-		 * @param object The attachment
-		 */
-		do_action( 'jetpack_sync_save_add_attachment', $attachment_id, $attachment );
-	}
-
-	function expand_wp_comment_status_change( $args ) {
-		return array( $args[0], $this->filter_comment( $args[1] ) );
-	}
-
-	function expand_wp_insert_comment( $args ) {
-		return array( $args[0], $this->filter_comment( $args[1] ) );
-	}
-
-	function filter_comment( $comment ) {
-		/**
-		 * Filters whether to prevent sending comment data to .com
-		 *
-		 * Passing true to the filter will prevent the comment data from being sent
-		 * to the WordPress.com.
-		 * Instead we pass data that will still enable us to do a checksum against the
-		 * Jetpacks data but will prevent us from displaying the data on in the API as well as
-		 * other services.
-		 * @since 4.2.0
-		 *
-		 * @param boolean false prevent post data from bing sycned to WordPress.com
-		 * @param mixed $comment WP_COMMENT object
-		 */
-		if ( apply_filters( 'jetpack_sync_prevent_sending_comment_data', false, $comment ) ) {
-			$blocked_comment = new stdClass();
-			$blocked_comment->comment_ID = $comment->comment_ID;
-			$blocked_comment->comment_date = $comment->comment_date;
-			$blocked_comment->comment_date_gmt = $comment->comment_date_gmt;
-			$blocked_comment->comment_approved = 'jetpack_sync_blocked';
-			return $blocked_comment;
-		}
-
-		return $comment;
 	}
 
 	function set_defaults() {
