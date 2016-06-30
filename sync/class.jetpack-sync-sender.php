@@ -3,7 +3,7 @@
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-codec.php';
-
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
 
 /** 
@@ -21,6 +21,7 @@ class Jetpack_Sync_Sender {
 	private $upload_max_bytes;
 	private $upload_max_rows;
 	private $sync_queue;
+	private $full_sync_client;
 	private $codec;
 
 	// singleton functions
@@ -229,6 +230,19 @@ class Jetpack_Sync_Sender {
 		return $this->full_sync_client;
 	}
 
+	function set_full_sync_client( $full_sync_client ) {
+		if ( $this->full_sync_client ) {
+			remove_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
+		}
+
+		$this->full_sync_client = $full_sync_client;
+
+		/**
+		 * Sync all objects in the database with the server
+		 */
+		add_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
+	}
+
 	function get_settings() {
 		$settings = array();
 		foreach( array_keys( self::$valid_settings ) as $setting ) {
@@ -247,6 +261,7 @@ class Jetpack_Sync_Sender {
 
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
+		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
 
 		// saved settings
 		$settings = $this->get_settings();

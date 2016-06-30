@@ -2,7 +2,6 @@
 
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
@@ -11,7 +10,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
  * This class monitors actions and logs them to the queue to be sent
  */
 class Jetpack_Sync_Listener {
-	
+
 	private $sync_queue;
 
 	// singleton functions
