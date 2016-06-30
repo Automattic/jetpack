@@ -251,7 +251,7 @@ class Jetpack_Sync_Sender {
 		$this->set_upload_max_rows( $settings['upload_max_rows'] );
 		$this->set_sync_wait_time( $settings['sync_wait_time'] );
 
-		$this->codec                     = new Jetpack_Sync_JSON_Deflate_Codec();
+		$this->codec = new Jetpack_Sync_JSON_Deflate_Codec();
 	}
 
 	function reset_data() {

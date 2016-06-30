@@ -33,4 +33,8 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_sync_save_term', $term_object );
 	}
+
+	function set_defaults() {
+		$this->taxonomy_whitelist = Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
+	}
 }

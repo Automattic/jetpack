@@ -44,13 +44,6 @@ class Jetpack_Sync_Listener {
 			$module->init_listeners( $handler );
 		}
 
-		/**
-		 * Most of the following hooks are sent to the same $handler
-		 * for immediate serialization and queuing be sent to the server.
-		 * The only exceptions are actions which need additional processing.
-		 */
-
-
 		// synthetic actions for full sync
 		add_action( 'jetpack_full_sync_start', $handler );
 		add_action( 'jetpack_full_sync_end', $handler );
@@ -123,9 +116,6 @@ class Jetpack_Sync_Listener {
 
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
-
 		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
-		$this->taxonomy_whitelist        = Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
-		$this->is_multisite              = is_multisite();
 	}
 }
