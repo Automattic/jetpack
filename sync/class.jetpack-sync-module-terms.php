@@ -1,6 +1,8 @@
 <?php
 
 class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
+	private $taxonomy_whitelist;
+	
 	function name() {
 		return "terms";
 	}
@@ -32,6 +34,10 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		 * @param object the Term object
 		 */
 		do_action( 'jetpack_sync_save_term', $term_object );
+	}
+
+	function set_taxonomy_whitelist( $taxonomies ) {
+		$this->taxonomy_whitelist = $taxonomies;
 	}
 
 	function set_defaults() {
