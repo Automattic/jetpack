@@ -225,6 +225,10 @@ class Jetpack_Sync_Sender {
 		return update_option( self::LAST_SYNC_TIME_OPTION_NAME, microtime( true ), true );
 	}
 
+	function get_full_sync_client() {
+		return $this->full_sync_client;
+	}
+
 	function get_settings() {
 		$settings = array();
 		foreach( array_keys( self::$valid_settings ) as $setting ) {

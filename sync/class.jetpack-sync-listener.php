@@ -12,12 +12,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
  */
 class Jetpack_Sync_Listener {
 	
-	private static $valid_settings = array( 'dequeue_max_bytes' => true, 'upload_max_bytes' => true, 'upload_max_rows' => true, 'sync_wait_time' => true );
-
 	private $sync_queue;
-	private $full_sync_client;
-	private $taxonomy_whitelist;
-	private $is_multisite;
 
 	// singleton functions
 	private static $instance;
@@ -54,27 +49,6 @@ class Jetpack_Sync_Listener {
 
 		// Send periodic checksum
 		add_action( 'jetpack_sync_checksum', $handler );
-	}
-
-	function set_taxonomy_whitelist( $taxonomies ) {
-		$this->taxonomy_whitelist = $taxonomies;
-	}
-
-	function set_full_sync_client( $full_sync_client ) {
-		if ( $this->full_sync_client ) {
-			remove_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
-		}
-
-		$this->full_sync_client = $full_sync_client;
-
-		/**
-		 * Sync all objects in the database with the server
-		 */
-		add_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
-	}
-
-	function get_full_sync_client() {
-		return $this->full_sync_client;
 	}
 
 	function action_handler() {
@@ -116,6 +90,5 @@ class Jetpack_Sync_Listener {
 
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
-		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
 	}
 }
