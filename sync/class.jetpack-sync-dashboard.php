@@ -1,7 +1,7 @@
 <?php
 
 require_once( jetpack_require_lib_dir() . '/admin-pages/class.jetpack-admin-page.php' );
-require_once( JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-client.php' );
+require_once( JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-sender.php' );
 
 class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	protected $dont_show_if_not_active = false; // TODO: Update to true
