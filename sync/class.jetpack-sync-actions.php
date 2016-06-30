@@ -10,6 +10,15 @@ class Jetpack_Sync_Actions {
 	static $listener = null;
 
 	static function init() {
+		/**
+		 * Fires on every request before default loading sync listener code.
+		 * Return false to not load sync listener code that monitors common
+		 * WP actions to be serialized
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param bool should we load sync listener code for this request
+		 */
 		if ( apply_filters( 'jetpack_sync_listener_should_load', 
 				( 
 					$_SERVER['REQUEST_METHOD'] !== 'GET' 
@@ -22,12 +31,13 @@ class Jetpack_Sync_Actions {
 		}
 
 		/**
-		 * Fires on every request before default loading sync code.
-		 * Return false to not load sync code and hook sync actions.
+		 * Fires on every request before default loading sync sender code.
+		 * Return false to not load sync sender code that serializes pending
+		 * data and sends it to WPCOM for processing.
 		 *
 		 * @since 4.2.0
 		 *
-		 * @param bool should we load sync code for this request
+		 * @param bool should we load sync sender code for this request
 		 */
 		if ( ! apply_filters( 'jetpack_sync_sender_should_load', 
 			(
