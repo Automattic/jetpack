@@ -9,7 +9,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	public function set_defaults() {}
 
 	public function init_listeners( $callable ) {
-		error_log("listening for wp_insert_post");
 		add_action( 'wp_insert_post', $callable, 10, 3 );
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
