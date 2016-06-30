@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) .  '/class.jetpack-sync-functions.php';
+
 class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	const CALLABLES_CHECKSUM_OPTION_NAME = 'jetpack_callables_sync_checksum';
 	const CALLABLES_AWAIT_TRANSIENT_NAME = 'jetpack_sync_callables_await';
