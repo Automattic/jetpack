@@ -59,6 +59,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
 		$this->sender->set_sync_wait_time(0); // disable rate limiting
 	}
+	
 	public function test_pass() {
 		// so that we don't have a failing test
 		$this->assertTrue( true );
