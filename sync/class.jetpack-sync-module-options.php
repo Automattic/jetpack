@@ -62,21 +62,20 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand options (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_options', true );
-		$enqueued = 1;
-
-		if ( is_multisite() ) {
-			/**
-			 * Tells the client to sync all network options to the server
-			 *
-			 * @since 4.2.0
-			 *
-			 * @param boolean Whether to expand options (should always be true)
-			 */
-			do_action( 'jetpack_full_sync_network_options', true );
-			$enqueued += 1;	
-		}
 		
-		return $enqueued; // The number of actions enqueued
+		return 1; // The number of actions enqueued
+	}
+
+	function full_sync_network() {
+		/**
+		 * Tells the client to sync all network options to the server
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param boolean Whether to expand options (should always be true)
+		 */
+		do_action( 'jetpack_full_sync_network_options', true );
+		return 1; // The number of actions enqueued
 	}
 
 	// Is public so that we don't have to store so much data all the options twice.
@@ -142,7 +141,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 	}
 
 	function is_whitelisted_network_option( $option ) {
-		return $this->is_multisite && in_array( $option, $this->network_options_whitelist );
+		return is_multisite() && in_array( $option, $this->network_options_whitelist );
 	}
 
 	function jetpack_sync_core_icon() {
