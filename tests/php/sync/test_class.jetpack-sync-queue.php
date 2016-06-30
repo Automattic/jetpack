@@ -4,7 +4,7 @@ $sync_dir = dirname( __FILE__ ) . '/../../../sync/';
 
 require_once $sync_dir . 'class.jetpack-sync-queue.php';
 
-class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
+class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	private $queue;
 

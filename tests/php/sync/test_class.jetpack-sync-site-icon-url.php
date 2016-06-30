@@ -3,7 +3,7 @@
 /**
  * Testing Crud Site icon
  */
-class WP_Test_Jetpack_Sync_Site_Icon_Url extends WP_Test_Jetpack_New_Sync_Base {
+class WP_Test_Jetpack_Sync_Site_Icon_Url extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 
 	public function setUp() {

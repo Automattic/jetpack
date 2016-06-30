@@ -4,7 +4,7 @@
 /**
  * Testing CRUD on Users
  */
-class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
+class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	protected $user_id;
 
 	public function setUp() {
