@@ -83,6 +83,9 @@ class Jetpack_Sync_Full {
 		$this->enqueue_all_constants();
 		$this->enqueue_all_functions();
 		$this->enqueue_all_options();
+		if ( is_multisite() ) {
+			$this->enqueue_all_network_options();
+		}
 		$this->enqueue_all_terms();
 		$this->enqueue_all_theme_info();
 		$this->enqueue_all_users();
@@ -126,6 +129,11 @@ class Jetpack_Sync_Full {
 	private function enqueue_all_options() {
 		$total = Jetpack_Sync_Modules::get_module( "options" )->full_sync();
 		$this->update_queue_progress( 'options', $total );
+	}
+
+	private function enqueue_all_network_options() {
+		$total = Jetpack_Sync_Modules::get_module( "options" )->full_sync_network();
+		$this->update_queue_progress( 'network_options', $total );
 	}
 
 	private function enqueue_all_terms() {
