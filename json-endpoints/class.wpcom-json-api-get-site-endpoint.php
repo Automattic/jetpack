@@ -90,6 +90,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'headstart_is_fresh',
 		'ak_vp_bundle_enabled',
 		'seo_meta_description',
+		'advanced_seo_title_formats',
 		'verification_services_codes',
 	);
 
@@ -438,6 +439,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'seo_meta_description' :
 					$options[ $key ] = $site->get_seo_meta_description();
+					break;
+				case 'advanced_seo_title_formats':
+					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+						if ( WPCOM_Store::has_business_plan() ) {
+							$options[ $key ] = $site->get_advanced_seo_title_formats();
+						}
+					}
 					break;
 				case 'verification_services_codes' :
 					$options[ $key ] = $site->get_verification_services_codes();
