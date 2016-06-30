@@ -42,8 +42,13 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 * Enqueue scripts and styles.
 		 */
 		public function enqueue_scripts() {
+<<<<<<< 20eb8211fd6bb54b73723dd3cc301c0582fca2b5
 			wp_enqueue_style( 'contact-info-map-css', plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20150127 );
+=======
+			wp_enqueue_style( 'contact-info-map-css', plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20160623 );
+>>>>>>> Contact Info Widget: Restore enqueue function
 		}
+
 
 		/**
 		 * Return an associative array of default values
@@ -278,6 +283,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 * @return string HTML of the map
 		 */
 		function build_map( $address ) {
+			$this->enqueue_scripts();
 			$src = add_query_arg( 'q', urlencode( $address ), 'https://www.google.com/maps/embed/v1/place' );
 			/**
 			 * Set a Google Maps API Key.
