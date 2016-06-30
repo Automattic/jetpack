@@ -10,6 +10,17 @@ class Jetpack_Sync_Actions {
 	static $listener = null;
 
 	static function init() {
+		if ( apply_filters( 'jetpack_sync_listener_should_load', 
+				( 
+					$_SERVER['REQUEST_METHOD'] !== 'GET' 
+				||
+					defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+				) 
+			) ) {
+			require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
+			self::$listener = Jetpack_Sync_Listener::getInstance();
+		}
+
 		/**
 		 * Fires on every request before default loading sync code.
 		 * Return false to not load sync code and hook sync actions.
@@ -18,7 +29,7 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @param bool should we load sync code for this request
 		 */
-		if ( ! apply_filters( 'jetpack_sync_should_load', 
+		if ( ! apply_filters( 'jetpack_sync_sender_should_load', 
 			(
 				$_SERVER['REQUEST_METHOD'] === 'POST' 
 			|| 
@@ -38,10 +49,7 @@ class Jetpack_Sync_Actions {
 		}
 		
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-sender.php';
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
-
 		self::$sender = Jetpack_Sync_Sender::getInstance();
-		self::$listener = Jetpack_Sync_Listener::getInstance();
 
 		// bind the do_sync process to shutdown
 		add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
