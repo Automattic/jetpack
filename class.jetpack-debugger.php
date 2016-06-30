@@ -1,6 +1,5 @@
 <?php
 require_once( dirname( __FILE__ ) . '/sync/class.jetpack-sync-dashboard.php' );
-require_once( dirname( __FILE__ ) . '/sync/class.jetpack-sync-reindex.php' );
 
 class Jetpack_Debugger {
 
@@ -204,11 +203,6 @@ class Jetpack_Debugger {
 					<hr />
 					<div id="connected-user-details">
 						<p><?php printf( __( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ), esc_html( Jetpack::get_master_user_email() ) ); ?></p>
-					</div>
-					<hr />
-					<div id="sync-related-posts">
-						<p><?php echo esc_html__( 'Some features of Jetpack use the WordPress.com infrastructure and require that your public content be mirrored there. If you see intermittent issues only affecting certain posts, please try requesting a reindex of your posts.', 'jetpack' ); ?></p>
-						<?php echo Jetpack_Sync_Reindex::reindex_ui(); ?>
 					</div>
 				<?php endif; ?>
 			</div>
