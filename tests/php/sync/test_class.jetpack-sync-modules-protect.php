@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * Test pluggable functionality for bruteprotect
+ */
+class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_New_Sync_Base {
+	function test_sends_failed_login_message() {
+
+		Jetpack_Protect_Module::instance()->log_failed_attempt();
+		
+		$this->sender->do_sync();
+
+		$action = $this->server_event_storage->get_most_recent_event( 'jpp_log_failed_attempt' );
+
+		$this->assertEquals( '127.0.0.1', $action->args[0] );
+	}
+}
+
