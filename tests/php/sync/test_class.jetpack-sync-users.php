@@ -12,7 +12,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		// create a user
 		$this->user_id = $this->factory->user->create();
-		$this->client->do_sync();
+		$this->sender->do_sync();
 	}
 
 	public function test_insert_user_is_synced() {
@@ -36,7 +36,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 			'user_url' => $new_url
 		) );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$this->assertEquals( $new_url, $server_user->data->user_url );
@@ -50,7 +50,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 			'ID' => $this->user_id,
 			'user_pass' => $new_password
 		) );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		// Don't sync the password changes since we don't track password
 		$events = $this->server_event_storage->get_all_events();
@@ -60,15 +60,15 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_delete_user_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		// make sure user exists in replica
 		$this->assertUsersEqual( $user, $this->server_replica_storage->get_user( $this->user_id ) );
 
 		wp_delete_user( $this->user_id );
 
-		$this->client->do_sync();
-		$this->client->do_sync();
+		$this->sender->do_sync();
+		$this->sender->do_sync();
 		
 		$this->assertNull( $this->server_replica_storage->get_user( $this->user_id ) );
 	}
@@ -76,8 +76,8 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_delete_user_reassign_is_synced() {
 		$reassign = $this->factory->user->create();
 		wp_delete_user( $this->user_id, $reassign );
-		$this->client->do_sync();
-		// $this->client->do_sync();
+		$this->sender->do_sync();
+		// $this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'deleted_user' );
 		$this->assertEquals( 'deleted_user', $event->action );
@@ -91,7 +91,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		$user = get_user_by( 'id', $this->user_id );
 		$user->add_role( 'author' );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
@@ -103,7 +103,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		$user = get_user_by( 'id', $this->user_id );
 		$user->set_role( 'author' );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 
 		$client_user = get_user_by( 'id', $this->user_id );
@@ -114,7 +114,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_user_remove_role_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
 		$user->add_role( 'author' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
@@ -123,7 +123,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		// lets now remove role
 		$user->remove_role( 'author' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 
@@ -136,7 +136,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_user_add_capability_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
 		$user->add_cap( 'do_stuff', true );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
@@ -145,7 +145,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		// lets now remove role
 		$user->remove_role( 'author' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 
@@ -157,7 +157,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_user_update_capability_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
 		$user->add_cap( 'do_stuff', true );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
@@ -166,7 +166,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		// lets update the capability
 		$user->add_cap( 'do_stuff', false );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 
@@ -178,7 +178,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_user_remove_capability_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
 		$user->add_cap( 'do_stuff', true );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
@@ -187,7 +187,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		// lets update the capability
 		$user->remove_cap( 'do_stuff' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 
@@ -199,7 +199,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_user_remove_all_capability_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
 		$user->add_cap( 'do_stuff', true );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
@@ -209,7 +209,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		// lets update the capability
 		$user->remove_all_caps();
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
@@ -242,7 +242,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		add_user_to_blog( $other_blog_id, $other_blog_user_id, 'administrator' );
 		remove_user_from_blog( $other_blog_user_id, $original_blog_id );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertNull( $this->server_replica_storage->get_user( $other_blog_user_id ) );
 	}
@@ -266,13 +266,13 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		$mu_blog_user_id = $this->factory->user->create();
 		restore_current_blog();
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
 
 		add_user_to_blog( $original_blog_id, $mu_blog_user_id, 'administrator' );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
 	}

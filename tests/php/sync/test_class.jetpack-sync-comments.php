@@ -16,7 +16,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->comment = get_comment( $comment_ids[0] );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 	}
 
 	public function test_add_comment_syncs_event() {
@@ -40,7 +40,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_update_comment( (array) $this->comment );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
 
@@ -51,7 +51,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		wp_delete_comment( $this->comment->comment_ID );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'trash' ) );
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_comment( $this->comment->comment_ID, true );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		// there should be no comments at all
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
@@ -71,7 +71,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_wp_trash_comment() {
 		wp_trash_comment( $this->comment->comment_ID );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'trash' ) );
@@ -80,14 +80,14 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_wp_untrash_comment() {
 		wp_trash_comment( $this->comment->comment_ID );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'trash' ) );
 
 		wp_untrash_comment( $this->comment->comment_ID );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'trash' ) );
@@ -101,7 +101,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_update_comment( (array) $this->comment );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		remove_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
 
@@ -120,7 +120,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 		// Since the filter is not there any more the sync should happen as expected.
 		$this->comment->comment_content = "foo bar baz";
 		wp_update_comment( (array) $this->comment );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' )  );
 		$synced_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
@@ -130,7 +130,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_wp_spam_comment() {
 		wp_spam_comment( $this->comment->comment_ID );
 
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'spam' ) );

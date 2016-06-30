@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_installing_and_removing_plugin_is_synced() {
 		$this->remove_plugin(); // make sure that we start with no plugin.
 		$this->install_wp_super_cache();
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$this->assertEquals( get_plugins(), $plugins );
@@ -28,7 +28,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 
 		// Remove plugin
 		$this->remove_plugin();
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$this->assertEquals( get_plugins(), $plugins );
 		$this->assertFalse( isset( $plugins['wp-super-cache/wp-cache.php'] ) );
@@ -37,14 +37,14 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function test_activate_and_deactivating_plugin_is_synced() {
 		activate_plugin( 'hello.php' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 		
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins  );
 		$this->assertTrue( in_array( 'hello.php', $active_plugins ) );
 		
 		deactivate_plugins( 'hello.php' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins  );
@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		$autoupdate_plugins = array_unique( array_merge( $autoupdate_plugins, array( 'hello' ) ) );
 		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$set_autoupdate_plugin =  $this->server_replica_storage->get_option( 'jetpack_autoupdate_plugins', array() );
 
@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		$autoupdate_plugins = array_diff( $autoupdate_plugins, array( 'hello' ) );
 		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$set_autoupdate_plugin =  $this->server_replica_storage->get_option( 'jetpack_autoupdate_plugins' );
 		$this->assertEquals( Jetpack_Options::get_option( 'autoupdate_plugins', array() ), $set_autoupdate_plugin );
@@ -107,7 +107,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_plugin_activation_action_is_synced() {
 		activate_plugin( 'hello.php' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$activated_plugin = $this->server_event_storage->get_most_recent_event( 'activated_plugin' );
 
@@ -119,7 +119,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 	function test_plugin_deactivation_action_is_synced() {
 		activate_plugin( 'hello.php' );
 		deactivate_plugins( 'hello.php' );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		$deactivated_plugin = $this->server_event_storage->get_most_recent_event( 'deactivated_plugin' );
 		$this->assertTrue( isset( $deactivated_plugin->args ) );
@@ -134,7 +134,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_New_Sync_Base {
 			$this->markTestSkipped( 'Plugin hello dolly is not available' );
 		}
 		add_filter( 'all_plugins', array( $this, 'remove_hello_dolly' ) );
-		$this->client->do_sync();
+		$this->sender->do_sync();
 
 		remove_filter( 'all_plugins', array( $this, 'remove_hello_dolly' ) );
 

@@ -9,7 +9,7 @@
  * - we fire an action called jetpack_full_sync_start so that WPCOM can erase the contents of the cached database
  * - for each object type, we obtain a full list of object IDs to sync via a single API call (hoping that since they're ints, they can all fit in RAM)
  * - we load the full objects for those IDs in chunks of Jetpack_Sync_Full::ARRAY_CHUNK_SIZE (to reduce the number of MySQL calls)
- * - we fire a trigger for the entire array which the Jetpack_Sync_Client then serializes and queues.
+ * - we fire a trigger for the entire array which the Jetpack_Sync_Sender then serializes and queues.
  */
 
 require_once 'class.jetpack-sync-wp-replicastore.php';
@@ -34,7 +34,7 @@ class Jetpack_Sync_Full {
 
 	// singleton functions
 	private static $instance;
-	private $client;
+	private $sender;
 
 	public static function getInstance() {
 		if ( null === self::$instance ) {
@@ -83,11 +83,9 @@ class Jetpack_Sync_Full {
 		$this->enqueue_all_constants();
 		$this->enqueue_all_functions();
 		$this->enqueue_all_options();
-
 		if ( is_multisite() ) {
 			$this->enqueue_all_network_options();
 		}
-
 		$this->enqueue_all_terms();
 		$this->enqueue_all_theme_info();
 		$this->enqueue_all_users();
@@ -110,31 +108,31 @@ class Jetpack_Sync_Full {
 		return false;
 	}
 
-	private function get_client() {
-		if ( ! $this->client ) {
-			$this->client = Jetpack_Sync_Client::getInstance();
+	private function get_sender() {
+		if ( ! $this->sender ) {
+			$this->sender = Jetpack_Sync_Sender::getInstance();
 		}
 
-		return $this->client;
+		return $this->sender;
 	}
 
 	private function enqueue_all_constants() {
-		$total = $this->get_client()->full_sync_constants();
+		$total = Jetpack_Sync_Modules::get_module( "constants" )->full_sync();
 		$this->update_queue_progress( 'constants', $total );
 	}
 
 	private function enqueue_all_functions() {
-		$total = $this->get_client()->full_sync_callables();
+		$total = Jetpack_Sync_Modules::get_module( "callables" )->full_sync();
 		$this->update_queue_progress( 'functions', $total );
 	}
 
 	private function enqueue_all_options() {
-		$total = $this->get_client()->force_sync_options();
+		$total = Jetpack_Sync_Modules::get_module( "options" )->full_sync();
 		$this->update_queue_progress( 'options', $total );
 	}
 
 	private function enqueue_all_network_options() {
-		$total = $this->get_client()->force_sync_network_options();
+		$total = Jetpack_Sync_Modules::get_module( "options" )->full_sync_network();
 		$this->update_queue_progress( 'network_options', $total );
 	}
 
@@ -206,7 +204,7 @@ class Jetpack_Sync_Full {
 		$post_ids = $args[0];
 
 		$posts = array_map( array( 'WP_Post', 'get_instance' ), $post_ids );
-		$posts = array_map( array( $this->get_client(), 'filter_post_content_and_add_links' ), $posts );
+		$posts = array_map( array( Jetpack_Sync_Modules::get_module( "posts" ), 'filter_post_content_and_add_links' ), $posts );
 
 		return array(
 			$posts,
@@ -258,7 +256,7 @@ class Jetpack_Sync_Full {
 
 	public function expand_options( $args ) {
 		if ( $args[0] ) {
-			return $this->get_client()->get_all_options();
+			return Jetpack_Sync_Modules::get_module( "options" )->get_all_options();
 		}
 
 		return $args;
@@ -266,14 +264,14 @@ class Jetpack_Sync_Full {
 
 	public function expand_constants( $args ) {
 		if ( $args[0] ) {
-			return $this->get_client()->get_all_constants();
+			return Jetpack_Sync_Modules::get_module( "constants" )->get_all_constants();
 		}
 		return $args;
 	}
 
 	public function expand_callables( $args ) {
 		if ( $args[0] ) {
-			return $this->get_client()->get_all_callables();
+			return Jetpack_Sync_Modules::get_module( "callables" )->get_all_callables();
 		}
 		return $args;
 	}
@@ -286,12 +284,12 @@ class Jetpack_Sync_Full {
 
 	public function expand_users( $args ) {
 		$user_ids = $args[0];
-		return array_map( array( $this->get_client(), 'sanitize_user_and_expand' ), get_users( array( 'include' => $user_ids ) ) );
+		return array_map( array( Jetpack_Sync_Modules::get_module( "users" ), 'sanitize_user_and_expand' ), get_users( array( 'include' => $user_ids ) ) );
 	}
 
 	public function expand_network_options( $args ) {
 		if ( $args[0] ) {
-			return $this->get_client()->get_all_network_options();
+			return Jetpack_Sync_Modules::get_module( "options" )->get_all_network_options();
 		}
 
 		return $args;
@@ -316,20 +314,20 @@ class Jetpack_Sync_Full {
 
 	// TODO:
 	private function enqueue_all_theme_info() {
-		$total = $this->get_client()->send_theme_info();
+		$total = Jetpack_Sync_Modules::get_module( "themes" )->send_theme_info();
 		$this->update_queue_progress( 'themes', $total );
 	}
 
 	private function enqueue_all_updates() {
 
 		// check for updates
-		$total = $this->get_client()->full_sync_updates();
+		$total = Jetpack_Sync_Modules::get_module( "updates" )->full_sync();
 		$this->update_queue_progress( 'updates', $total );
 	}
 
 	public function expand_updates( $args ) {
 		if ( $args[0] ) {
-			return $this->get_client()->get_all_updates();
+			return Jetpack_Sync_Modules::get_module( "updates" )->get_all_updates();
 		}
 
 		return $args;

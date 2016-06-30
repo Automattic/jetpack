@@ -8,7 +8,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected function result() {
 		Jetpack::init();
-		/** This action is documented in class.jetpack-sync-client.php */
+		/** This action is documented in class.jetpack-sync-sender.php */
 		Jetpack_Sync_Actions::schedule_full_sync();
 		spawn_cron();
 
@@ -21,9 +21,9 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
-		$client = Jetpack_Sync_Client::getInstance();
+		$sender = Jetpack_Sync_Sender::getInstance();
 		return array_merge(
-			$client->get_full_sync_client()->get_status(),
+			$sender->get_full_sync_client()->get_status(),
 			array( 'is_scheduled' => (bool) wp_next_scheduled( 'jetpack_sync_full' ) )
 		);
 	}
@@ -37,8 +37,8 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		Jetpack::init();
 
-		$client = Jetpack_Sync_Client::getInstance();
-		$sync_queue = $client->get_sync_queue();
+		$sender = Jetpack_Sync_Sender::getInstance();
+		$sync_queue = $sender->get_sync_queue();
 
 		// lock sending from the queue while we compare checksums with the server
 		$result = $sync_queue->lock( 30 ); // tries to acquire the lock for up to 30 seconds
@@ -71,8 +71,8 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_En
 	protected function result() {
 		$args = $this->input();
 
-		$client = Jetpack_Sync_Client::getInstance();
-		$sync_settings = $client->get_settings();
+		$sender = Jetpack_Sync_Sender::getInstance();
+		$sync_settings = $sender->get_settings();
 
 		foreach( $args as $key => $value ) {
 			if ( $value !== false ) {
@@ -83,10 +83,10 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_En
 			}
 		}
 
-		$client->update_settings( $sync_settings );
+		$sender->update_settings( $sync_settings );
 
 		// re-fetch so we see what's really being stored
-		return $client->get_settings();
+		return $sender->get_settings();
 	}
 }
 
@@ -95,7 +95,7 @@ class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Endpo
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
-		$client = Jetpack_Sync_Client::getInstance();
-		return $client->get_settings();
+		$sender = Jetpack_Sync_Sender::getInstance();
+		return $sender->get_settings();
 	}
 }

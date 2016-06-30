@@ -28,5 +28,5 @@ delete_option( 'jetpack_auto_installed' );
 delete_transient( 'jetpack_register'    );
 
 // Jetpack Sync
-require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-client.php';
-Jetpack_Sync_Client::getInstance()->uninstall();
+require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
+Jetpack_Sync_Sender::getInstance()->uninstall();

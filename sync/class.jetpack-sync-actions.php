@@ -1,23 +1,45 @@
 <?php
 
 function jetpack_send_db_checksum() {
-	$sync_client = Jetpack_Sync_Client::getInstance();
-	$sync_client->send_checksum();
+	$sync_sender = Jetpack_Sync_Sender::getInstance();
+	$sync_sender->send_checksum();
 }
 
 class Jetpack_Sync_Actions {
-	static $client = null;
+	static $sender = null;
+	static $listener = null;
 
 	static function init() {
 		/**
-		 * Fires on every request before default loading sync code.
-		 * Return false to not load sync code and hook sync actions.
+		 * Fires on every request before default loading sync listener code.
+		 * Return false to not load sync listener code that monitors common
+		 * WP actions to be serialized
 		 *
 		 * @since 4.2.0
 		 *
-		 * @param bool should we load sync code for this request
+		 * @param bool should we load sync listener code for this request
 		 */
-		if ( ! apply_filters( 'jetpack_sync_should_load', 
+		if ( apply_filters( 'jetpack_sync_listener_should_load', 
+				( 
+					$_SERVER['REQUEST_METHOD'] !== 'GET' 
+				||
+					defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+				) 
+			) ) {
+			require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
+			self::$listener = Jetpack_Sync_Listener::getInstance();
+		}
+
+		/**
+		 * Fires on every request before default loading sync sender code.
+		 * Return false to not load sync sender code that serializes pending
+		 * data and sends it to WPCOM for processing.
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param bool should we load sync sender code for this request
+		 */
+		if ( ! apply_filters( 'jetpack_sync_sender_should_load', 
 			(
 				$_SERVER['REQUEST_METHOD'] === 'POST' 
 			|| 
@@ -36,15 +58,14 @@ class Jetpack_Sync_Actions {
 			return;
 		}
 		
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-client.php';
-
-		self::$client = Jetpack_Sync_Client::getInstance();
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-sender.php';
+		self::$sender = Jetpack_Sync_Sender::getInstance();
 
 		// bind the do_sync process to shutdown
-		add_action( 'shutdown', array( self::$client, 'do_sync' ) );
+		add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 
 		// bind the sending process
-		add_filter( 'jetpack_sync_client_send_data', array( __CLASS__, 'send_data' ), 10, 2 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 2 );
 
 		// On jetpack registration
 		add_action( 'jetpack_site_registered', array( __CLASS__, 'schedule_full_sync' ) );

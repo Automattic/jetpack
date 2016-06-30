@@ -2817,7 +2817,7 @@ p {
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 		
 		// Delete all the sync related data. Since it could be taking up space.
-		Jetpack_Sync_Client::getInstance()->uninstall();
+		Jetpack_Sync_Sender::getInstance()->uninstall();
 
 		// Disable the Heartbeat cron
 		Jetpack_Heartbeat::init()->deactivate();
