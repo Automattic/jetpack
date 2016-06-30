@@ -110,8 +110,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function queue_status() {
-		$client = Jetpack_Sync_Sender::getInstance();
-		$queue  = $client->get_sync_queue();
+		$queue = Jetpack_Sync_Sender::getInstance()->get_sync_queue();
 
 		return array(
 			'size' => $queue->size(),
@@ -120,8 +119,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function full_sync_status() {
-		$client = Jetpack_Sync_Sender::getInstance();
-		return $client->get_full_sync_client()->get_status();
+		return Jetpack_Sync_Sender::getInstance()->get_full_sync_client()->get_status();
 	}
 
 	function dashboard_ui() {
