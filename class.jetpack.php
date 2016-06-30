@@ -438,9 +438,6 @@ class Jetpack {
 		// Filter the dashboard meta box order to swap the new one in in place of the old one.
 		add_filter( 'get_user_option_meta-box-order_dashboard', array( $this, 'get_user_option_meta_box_order_dashboard' ) );
 
-		add_action( 'wp_ajax_jetpack-sync-reindex-trigger', array( $this, 'sync_reindex_trigger' ) );
-		add_action( 'wp_ajax_jetpack-sync-reindex-status', array( $this, 'sync_reindex_status' ) );
-
 		// returns HTTPS support status
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
@@ -4310,24 +4307,6 @@ p {
 			return 0;
 
 		return ( $a['sort'] < $b['sort'] ) ? -1 : 1;
-	}
-
-	function sync_reindex_trigger() {
-		if ( $this->current_user_is_connection_owner() && current_user_can( 'manage_options' ) ) {
-			echo json_encode( $this->sync->reindex_trigger() );
-		} else {
-			echo '{"status":"ERROR"}';
-		}
-		exit;
-	}
-
-	function sync_reindex_status(){
-		if ( $this->current_user_is_connection_owner() && current_user_can( 'manage_options' ) ) {
-			echo json_encode( $this->sync->reindex_status() );
-		} else {
-			echo '{"status":"ERROR"}';
-		}
-		exit;
 	}
 
 	function ajax_recheck_ssl() {
