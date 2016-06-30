@@ -2544,6 +2544,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'jetpack_portfolio'            => '(bool) Whether portfolio custom post type is enabled for the site',
 		'jetpack_portfolio_posts_per_page' => '(int) Number of portfolio projects to show per page',
 		'seo_meta_description' 		   => '(string) The seo meta description for the site.',
+		'advanced_seo_title_formats'   => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 		'markdown_supported'            => '(bool) Whether markdown is supported for this site',
 		'wpcom_publish_posts_with_markdown' => '(bool) Whether markdown is enabled for posts',
@@ -2620,6 +2621,7 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'timezone_string'              => '(string) PHP-compatible timezone string like \'UTC-5\'',
 		'gmt_offset'                   => '(int) Site offset from UTC in hours',
 		'seo_meta_description' 		   => '(string) The seo meta description for the site.',
+		'advanced_seo_title_formats'   => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 	),
 
