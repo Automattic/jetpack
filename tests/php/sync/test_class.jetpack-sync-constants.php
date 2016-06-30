@@ -3,11 +3,14 @@
 /**
  * Testing CRUD on Constants
  */
-class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
+class WP_Test_Jetpack_New_Sync_Constants extends WP_Test_Jetpack_New_Sync_Base {
 	protected $post_id;
+	protected $constants_module;
 
 	public function setUp() {
 		parent::setUp();
+
+		$this->constant_module = Jetpack_Sync_Modules::get_module( "constants" );
 	}
 
 	// TODO:
@@ -15,7 +18,7 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 	// Add tests that prove that we know constants change
 	function test_white_listed_constant_is_synced() {
 
-		$this->client->set_constants_whitelist( array( 'TEST_FOO' ) );
+		$this->constant_module->set_constants_whitelist( array( 'TEST_FOO' ) );
 
 		define( 'TEST_FOO', sprintf( "%.8f", microtime(true) ) );
 		define( 'TEST_BAR', sprintf( "%.8f", microtime(true) ) );
@@ -30,7 +33,7 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_does_not_fire_if_constants_havent_changed() {
-		$this->client->set_defaults(); // use the default constants
+		$this->constant_module->set_defaults(); // use the default constants
 		$this->sender->do_sync();
 
 		foreach( Jetpack_Sync_Defaults::$default_constants_whitelist as $constant ) {
@@ -51,7 +54,7 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_white_listed_constant_doesnt_get_synced_twice() {
-		$this->client->set_constants_whitelist( array( 'TEST_ABC' ) );
+		$this->constant_module->set_constants_whitelist( array( 'TEST_ABC' ) );
 		define( 'TEST_ABC', microtime(true) );
 		$this->sender->do_sync();
 

@@ -6,12 +6,15 @@
  */
 class WP_Test_Jetpack_New_Sync_Network_Options extends WP_Test_Jetpack_New_Sync_Base {
 	protected $post;
+	protected $options_module;
 
 	public function setUp() {
 
 		parent::setUp();
 
-		$this->client->set_network_options_whitelist( array( 'test_network_option' ) );
+		$this->options_module = Jetpack_Sync_Modules::get_module( "options" );
+
+		$this->options_module->set_network_options_whitelist( array( 'test_network_option' ) );
 		add_site_option( 'test_network_option', 'foo' );
 		$this->sender->do_sync();
 	}
