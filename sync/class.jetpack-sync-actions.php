@@ -7,6 +7,7 @@ function jetpack_send_db_checksum() {
 
 class Jetpack_Sync_Actions {
 	static $sender = null;
+	static $listener = null;
 
 	static function init() {
 		/**
@@ -37,8 +38,10 @@ class Jetpack_Sync_Actions {
 		}
 		
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-sender.php';
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 
 		self::$sender = Jetpack_Sync_Sender::getInstance();
+		self::$listener = Jetpack_Sync_Listener::getInstance();
 
 		// bind the do_sync process to shutdown
 		add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
