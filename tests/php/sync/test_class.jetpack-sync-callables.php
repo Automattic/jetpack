@@ -2,7 +2,7 @@
 
 require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-functions.php';
 
-require_once 'test_class.jetpack-sync-client.php';
+require_once 'test_class.jetpack-sync-base.php';
 
 function jetpack_foo_is_callable() {
 	return 'bar';
