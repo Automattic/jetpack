@@ -51,7 +51,9 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 	}
 
 	// TODO: force sync for whole module as interface method?
-	function force_sync_options() {
+	function full_sync() {
+		
+
 		/**
 		 * Tells the client to sync all options to the server
 		 *
@@ -60,19 +62,21 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand options (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_options', true );
-		return 1; // The number of actions enqueued
-	}
+		$enqueued = 1;
 
-	function force_sync_network_options() {
-		/**
-		 * Tells the client to sync all network options to the server
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param boolean Whether to expand options (should always be true)
-		 */
-		do_action( 'jetpack_full_sync_network_options', true );
-		return 1; // The number of actions enqueued
+		if ( is_multisite() ) {
+			/**
+			 * Tells the client to sync all network options to the server
+			 *
+			 * @since 4.2.0
+			 *
+			 * @param boolean Whether to expand options (should always be true)
+			 */
+			do_action( 'jetpack_full_sync_network_options', true );
+			$enqueued += 1;	
+		}
+		
+		return $enqueued; // The number of actions enqueued
 	}
 
 	// Is public so that we don't have to store so much data all the options twice.

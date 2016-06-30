@@ -25,6 +25,11 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_constants' ) );
 	}
 
+	public function reset_data() {
+		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
+		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
+	}
+
 	function set_constants_whitelist( $constants ) {
 		$this->constants_whitelist = $constants;
 	}
@@ -39,7 +44,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		$this->maybe_sync_constants();
 	}
 
-	function full_sync_constants() {
+	function full_sync() {
 		/**
 		 * Tells the client to sync all constants to the server
 		 *

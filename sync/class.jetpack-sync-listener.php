@@ -76,10 +76,6 @@ class Jetpack_Sync_Listener {
 			}
 		}
 
-		// themes
-		add_action( 'switch_theme', array( $this, 'send_theme_info' ) );
-		add_action( 'jetpack_sync_current_theme_support', $handler, 10 ); // custom hook, see meta-hooks below
-
 		// post-meta, and in the future - other meta?
 		foreach ( $this->meta_types as $meta_type ) {
 			add_action( "added_{$meta_type}_meta", $handler, 10, 4 );
@@ -95,32 +91,6 @@ class Jetpack_Sync_Listener {
 		add_action( 'set_object_terms', $handler, 10, 6 );
 		add_action( 'deleted_term_relationships', $handler, 10, 2 );
 
-		// users
-		add_action( 'user_register', array( $this, 'save_user_handler' ) );
-		add_action( 'profile_update', array( $this, 'save_user_handler' ), 10, 2 );
-		add_action( 'add_user_to_blog', array( $this, 'save_user_handler' ) );
-		add_action( 'jetpack_sync_save_user', $handler, 10, 2 );
-
-		add_action( 'deleted_user', $handler, 10, 2 );
-		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ), 10, 2 );
-		add_action( 'remove_user_from_blog', $handler, 10, 2 );
-
-		// user roles
-		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
-		add_action( 'set_user_role', array( $this, 'save_user_role_handler' ), 10, 3 );
-		add_action( 'remove_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
-
-		// user capabilities
-		add_action( 'added_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
-		add_action( 'updated_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
-		add_action( 'deleted_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
-
-		// updates
-		add_action( 'set_site_transient_update_plugins', $handler, 10, 1 );
-		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
-		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
-		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array( $this, 'filter_update_keys' ), 10, 2 );
-
 		add_action( 'deleted_plugin', $handler, 10, 2 );
 		add_action( 'activated_plugin', $handler, 10, 2 );
 		add_action( 'deactivated_plugin', $handler, 10, 2 );
@@ -130,9 +100,6 @@ class Jetpack_Sync_Listener {
 		add_action( 'jetpack_full_sync_start', $handler );
 		add_action( 'jetpack_full_sync_end', $handler );
 		add_action( 'jetpack_full_sync_comments', $handler ); // also send comments meta
-		add_action( 'jetpack_full_sync_updates', $handler );
-
-		add_action( 'jetpack_full_sync_users', $handler );
 		add_action( 'jetpack_full_sync_terms', $handler, 10, 2 );
 		
 		// Module Activation
@@ -143,21 +110,10 @@ class Jetpack_Sync_Listener {
 		add_action( 'jetpack_sync_checksum', $handler );
 	}
 
-	// removes unnecessary keys from synced updates data
-	function filter_update_keys( $args ) {
-		$updates = $args[0];
-
-		if ( isset( $updates->no_update ) ) {
-			unset( $updates->no_update );
-		}
-
-		return $args;
-	}
-
 	function set_taxonomy_whitelist( $taxonomies ) {
 		$this->taxonomy_whitelist = $taxonomies;
 	}
-	
+
 	function set_full_sync_client( $full_sync_client ) {
 		if ( $this->full_sync_client ) {
 			remove_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
@@ -220,31 +176,6 @@ class Jetpack_Sync_Listener {
 		) );
 	}
 
-	function send_theme_info() {
-		global $_wp_theme_features;
-
-		$theme_support = array();
-
-		foreach ( Jetpack_Sync_Defaults::$default_theme_support_whitelist as $theme_feature ) {
-			$has_support = current_theme_supports( $theme_feature );
-			if ( $has_support ) {
-				$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
-			}
-
-		}
-
-		/**
-		 * Fires when the client needs to sync theme support info
-		 * Only sends theme support attributes whitelisted in Jetpack_Sync_Defaults::$default_theme_support_whitelist
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param object the theme support hash
-		 */
-		do_action( 'jetpack_sync_current_theme_support', $theme_support );
-		return 1; // The number of actions enqueued
-	}
-
 	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
 		if ( class_exists( 'WP_Term' ) ) {
 			$term_object = WP_Term::get_instance( $term_id, $taxonomy );
@@ -275,96 +206,6 @@ class Jetpack_Sync_Listener {
 		 */
 		do_action( 'jetpack_sync_save_add_attachment', $attachment_id, $attachment );
 	}
-
-	function save_user_handler( $user_id, $old_user_data = null ) {
-
-		// ensure we only sync users who are members of the current blog
-		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
-			return;
-		}
-
-		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
-
-		// Older versions of WP don't pass the old_user_data in ->data
-		if ( isset( $old_user_data->data ) ) {
-			$old_user = $old_user_data->data;
-		} else {
-			$old_user = $old_user_data;
-		}
-
-		if ( $old_user !== null ) {
-			unset( $old_user->user_pass );
-			if ( serialize( $old_user ) === serialize( $user->data ) ) {
-				return;
-			}
-		}
-		/**
-		 * Fires when the client needs to sync an updated user
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param object The WP_User object
-		 */
-		do_action( 'jetpack_sync_save_user', $user );
-	}
-
-	function save_user_role_handler( $user_id, $role, $old_roles = null ) {
-		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
-
-		/**
-		 * Fires when the client needs to sync an updated user
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param object The WP_User object
-		 */
-		do_action( 'jetpack_sync_save_user', $user );
-	}
-
-	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
-
-		// if a user is currently being removed as a member of this blog, we don't fire the event
-		if ( current_filter() === 'deleted_user_meta' 
-		&&
-			preg_match( '/capabilities|user_level/', $meta_key )
-		&& 
-			! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
-			return;
-		}
-
-		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
-		if ( $meta_key === $user->cap_key ) {
-			/**
-			 * Fires when the client needs to sync an updated user
-			 *
-			 * @since 4.2.0
-			 *
-			 * @param object The WP_User object
-			 */
-			do_action( 'jetpack_sync_save_user', $user );
-		}
-	}
-
-	public function sanitize_user( $user ) {
-		unset( $user->data->user_pass );
-		return $user;
-	}
-
-	public function sanitize_user_and_expand( $user ) {
-		$user = $this->sanitize_user( $user );
-		return $this->add_to_user( $user );
-	}
-
-	public function add_to_user( $user ) {
-		$user->allowed_mime_types = get_allowed_mime_types( $user );
-		return $user;
-	}
-
-	public function expand_user( $args ) {
-		list( $user ) = $args;
-		return array( $this->add_to_user( $user ) );
-	}
-
 
 	function expand_wp_comment_status_change( $args ) {
 		return array( $args[0], $this->filter_comment( $args[1] ) );
@@ -398,26 +239,6 @@ class Jetpack_Sync_Listener {
 		}
 
 		return $comment;
-	}
-
-	public function full_sync_updates() {
-		/**
-		 * Tells the client to sync all updates to the server
-		 *
-		 * @since 4.1
-		 *
-		 * @param boolean Whether to expand updates (should always be true)
-		 */
-		do_action( 'jetpack_full_sync_updates', true );
-		return 1; // The number of actions enqueued
-	}
-
-	public function get_all_updates() {
-		return array(
-			'core' => get_site_transient( 'update_core' ),
-			'plugins' => get_site_transient( 'update_plugins' ),
-			'themes' => get_site_transient( 'update_themes' ),
-		);
 	}
 
 	function set_defaults() {

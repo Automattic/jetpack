@@ -10,14 +10,20 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-posts.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-constants.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-callables.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-options.php';
-
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-updates.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-users.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-themes.php';
 
 class Jetpack_Sync_Modules {
-	private static $sync_modules = array(
+
+	private static $default_sync_modules = array(
 		'Jetpack_Sync_Module_Posts',
 		'Jetpack_Sync_Module_Constants',
 		'Jetpack_Sync_Module_Callables',
-		'Jetpack_Sync_Module_Options'
+		'Jetpack_Sync_Module_Options',
+		'Jetpack_Sync_Module_Updates',
+		'Jetpack_Sync_Module_Users',
+		'Jetpack_Sync_Module_Themes'
 	);
 
 	private static $initialized_modules = null;
@@ -48,7 +54,7 @@ class Jetpack_Sync_Modules {
 		 *
 		 * @since 4.2
 		 */
-		$modules = apply_filters( 'jetpack_sync_modules', self::$sync_modules );
+		$modules = apply_filters( 'jetpack_sync_modules', self::$default_sync_modules );
 		return array_map( array( 'Jetpack_Sync_Modules', 'initialize_module' ), $modules );
 	}
 
