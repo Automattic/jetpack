@@ -601,6 +601,13 @@ class Jetpack_SSO {
 		$wpcom_nonce   = sanitize_key( $_GET['sso_nonce'] );
 		$wpcom_user_id = (int) $_GET['user_id'];
 
+		// If another plugin hooked into the login process and returned us here, let's bypass everything.
+		// See https://github.com/Automattic/jetpack/issues/2836
+		if ( is_user_logged_in() ) {
+			$user = wp_get_current_user();
+			$this->sso_redirect( $user );
+		}
+
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
@@ -763,49 +770,7 @@ class Jetpack_SSO {
 			do_action( 'wp_login', $user->user_login, $user );
 
 			wp_set_current_user( $user->ID );
-
-			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( $_REQUEST['redirect_to'] ) : '';
-			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
-
-			// If we have a saved redirect to request in a cookie
-			if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
-				// Set that as the requested redirect to
-				$redirect_to = $_request_redirect_to = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
-				// And then purge it
-				setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
-			}
-
-			$is_user_connected = Jetpack::is_user_connected( $user->ID );
-			JetpackTracking::record_user_event( 'sso_user_logged_in', array(
-				'user_found_with' => $user_found_with,
-				'user_connected'  => (bool) $is_user_connected,
-				'user_role'       => Jetpack::init()->translate_current_user_to_role()
-			) );
-
-			if ( ! $is_user_connected ) {
-				$calypso_env = ! empty( $_GET['calypso_env'] )
-					? sanitize_key( $_GET['calypso_env'] )
-					: '';
-
-				wp_safe_redirect(
-					add_query_arg(
-						array(
-							'redirect_to'               => $redirect_to,
-							'request_redirect_to'       => $_request_redirect_to,
-							'calypso_env'               => $calypso_env,
-							'jetpack-sso-auth-redirect' => '1',
-						),
-						admin_url()
-					)
-				);
-				exit;
-			}
-
-			wp_safe_redirect(
-				/** This filter is documented in core/src/wp-login.php */
-				apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user )
-			);
-			exit;
+			$this->sso_redirect( $user );
 		}
 
 		JetpackTracking::record_user_event( 'sso_login_failed', array(
@@ -816,6 +781,55 @@ class Jetpack_SSO {
 		/** This filter is documented in core/src/wp-includes/pluggable.php */
 		do_action( 'wp_login_failed', $user_data->login );
 		add_filter( 'login_message', array( $this, 'cant_find_user' ) );
+	}
+
+	static function sso_redirect( $user = null ) {
+		if ( ! $user ) {
+			return;
+		}
+
+		$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+		$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
+
+		// If we have a saved redirect to request in a cookie
+		if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
+			// Set that as the requested redirect to
+			$redirect_to = $_request_redirect_to = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
+			// And then purge it
+			setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		}
+
+		$is_user_connected = Jetpack::is_user_connected( $user->ID );
+		JetpackTracking::record_user_event( 'sso_user_logged_in', array(
+			'user_found_with' => $user_found_with,
+			'user_connected'  => (bool) $is_user_connected,
+			'user_role'       => Jetpack::init()->translate_current_user_to_role()
+			) );
+
+		if ( ! $is_user_connected ) {
+			$calypso_env = ! empty( $_GET['calypso_env'] )
+			? sanitize_key( $_GET['calypso_env'] )
+			: '';
+
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'redirect_to'               => $redirect_to,
+						'request_redirect_to'       => $_request_redirect_to,
+						'calypso_env'               => $calypso_env,
+						'jetpack-sso-auth-redirect' => '1',
+						),
+					admin_url()
+					)
+				);
+			exit;
+		}
+
+		wp_safe_redirect(
+			/** This filter is documented in core/src/wp-login.php */
+			apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user )
+			);
+		exit;
 	}
 
 	static function profile_page_url() {
