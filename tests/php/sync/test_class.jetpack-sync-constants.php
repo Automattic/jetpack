@@ -3,7 +3,7 @@
 /**
  * Testing CRUD on Constants
  */
-class WP_Test_Jetpack_New_Sync_Constants extends WP_Test_Jetpack_New_Sync_Base {
+class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
 	protected $constants_module;
 

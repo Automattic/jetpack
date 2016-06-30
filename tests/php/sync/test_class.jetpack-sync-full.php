@@ -7,7 +7,7 @@ function jetpack_foo_full_sync_callable() {
 	return 'the value';
 }
 
-class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
+class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $transients;
 	private $full_sync;
 	private $start_sent;

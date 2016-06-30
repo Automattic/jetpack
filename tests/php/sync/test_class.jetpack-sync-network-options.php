@@ -2,9 +2,9 @@
 
 /**
  * Testing CRUD on Network Options
- * use phpunit --testsuite sync  -c tests/php.multisite.xml --filter WP_Test_Jetpack_New_Sync_Network_Options
+ * use phpunit --testsuite sync  -c tests/php.multisite.xml --filter WP_Test_Jetpack_Sync_Network_Options
  */
-class WP_Test_Jetpack_New_Sync_Network_Options extends WP_Test_Jetpack_New_Sync_Base {
+class WP_Test_Jetpack_Sync_Network_Options extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 	protected $options_module;
 
