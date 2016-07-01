@@ -12,8 +12,6 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		add_action( 'trashed_comment', $callable, 10 );
 		add_action( 'spammed_comment', $callable, 10 );
 
-		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
-
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
 		// so this saves us a DB read for every comment event
@@ -21,12 +19,22 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_action( $comment_action_name, $callable, 10, 2 );
-				add_filter( 'jetpack_sync_before_send_' . $comment_action_name, array( $this, 'expand_wp_insert_comment' ) );
 			}
 		}
 
 		// full sync
 		add_action( 'jetpack_full_sync_comments', $callable ); // also send comments meta
+	}
+
+	public function init_before_send() {
+		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
+
+		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
+			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
+				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
+				add_filter( 'jetpack_sync_before_send_' . $comment_action_name, array( $this, 'expand_wp_insert_comment' ) );
+			}
+		}
 	}
 
 	function expand_wp_comment_status_change( $args ) {
