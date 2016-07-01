@@ -105,14 +105,15 @@ Enhancements:
 * General: support both 80 and 443 in connections to WordPress.com.
 * General: better connection process for sites where SSL isn't available.
 * General: add a Jetpack icon next to connected users in the Users menu.
-* General: don't try to photonize images while in dev mode
-* General: Improve sync, remove mock options
+* General: don't try to photonize images while in dev mode.
+* General: Improve sync, remove mock options.
 * Infinite Scroll: improve wording in Infinite Scroll settings.
 * Infinite Scroll: introduce methods to pause and resume infinite scrolling.
 * JSON API: update several API endpoints to match WordPress.com endpoints.
 * JSON API: add support for custom taxonomies to the JSON API.
 * JSON API: enable trash as valid status for the post update endpoint.
 * Manage: change the connection process to help more people use Manage as they connect Jetpack to WordPress.com.
+* Performance: decrease number of queries run on the frontend by properly saving Jetpack's version in the database.
 * Publicize: new `jetpack_publicize_capability` filter to allow user role restriction to be overridden.
 * Sharing: swap out image icons for an icon font, add telegram and whatsapp buttons
 * Shortcodes: new Untappd shortcode.
