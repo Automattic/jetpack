@@ -5,7 +5,7 @@
  *
  * @param string $kind Category of mobile device to check for.
  *                         Either: any, dumb, smart.
- * @param bool $return_matched_agent Boolean indicating if the UA should be returned
+ * @param bool   $return_matched_agent Boolean indicating if the UA should be returned
  *
  * @return bool|string Boolean indicating if current UA matches $kind. If
  *                              $return_matched_agent is true, returns the UA string
@@ -21,10 +21,12 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	 * Passing a truthy value to the filter will short-circuit determining the
 	 * mobile type, returning the passed value instead.
 	 *
+	 * @since  4.2.0
+	 *
 	 * @param bool|string $matches Boolean if current UA matches $kind or not. If
 	 *                             $return_matched_agent is true, should return the UA string
-	 * @param string $kind Category of mobile device being checked
-	 * @param bool $return_matched_agent Boolean indicating if the UA should be returned
+	 * @param string      $kind Category of mobile device being checked
+	 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
 	 */
 	$pre = apply_filters( 'pre_jetpack_is_mobile', null, $kind, $return_matched_agent );
 
@@ -99,10 +101,12 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	/**
 	 * Filter the value of jetpack_is_mobile
 	 *
+	 * @since  4.2.0
+	 *
 	 * @param bool|string $matches Boolean if current UA matches $kind or not. If
 	 *                             $return_matched_agent is true, should return the UA string
-	 * @param string $kind Category of mobile device being checked
-	 * @param bool $return_matched_agent Boolean indicating if the UA should be returned
+	 * @param string      $kind Category of mobile device being checked
+	 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
 	 */
 	$value = apply_filters( 'jetpack_is_mobile', $value, $kind, $return_matched_agent );
 
