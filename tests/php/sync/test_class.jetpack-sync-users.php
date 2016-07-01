@@ -277,6 +277,52 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
 	}
 
+	public function test_syncs_user_authentication_attempts() {
+		$user_id = $this->factory->user->create( array( 'user_login' => 'foobar' ) );
+
+		// TODO: ideally we would do wp_signon to trigger this event, but it tries to send headers and 
+		// causes an error.
+
+		// wp_set_password( 'pw', $user_id );
+		// $result = wp_signon( array( 'user_login' => 'foobar', 'user_password' => 'pw', 'remember' => false ) );
+		// error_log(print_r($result, 1));
+
+		do_action( 'wp_login', 'foobar', get_user_by( 'ID', $user_id ) );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_login' );
+		$this->assertEquals( 'foobar', $event->args[0] );
+		$this->assertEquals( $user_id, $event->args[1]->ID );
+
+		do_action( 'wp_login_failed', 'foobar' );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_login_failed' );
+		$this->assertEquals( 'foobar', $event->args[0] );
+	}
+
+	public function test_syncs_user_logout_event() {
+		$user_id = $this->factory->user->create( array( 'user_login' => 'foobar' ) );
+
+		// TODO: ideally we would do wp_logout to trigger this event, but it tries to send headers and 
+		// causes an error.
+
+		// wp_set_password( 'pw', $user_id );
+		// $user = wp_authenticate( 'foobar', 'pw' );
+		// $this->assertFalse( is_wp_error( $user ) );
+		// wp_logout();
+
+		wp_set_current_user( $user_id );
+		do_action( 'wp_logout' );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_logout' );
+		$this->assertEquals( 'foobar', $event->args[0] );
+	}
+
 	protected function assertUsersEqual( $user1, $user2 ) {
 		// order-independent comparison
 		$user1_array = get_object_vars( $user1->data );
