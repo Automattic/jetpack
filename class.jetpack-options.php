@@ -120,6 +120,24 @@ class Jetpack_Options {
 		return $default;
 	}
 
+	/**
+	 * Returns the requested option, and ensures it's autoloaded in the future.
+	 * This does _not_ adjust the prefix in any way (does not prefix jetpack_%)
+	 *
+	 * @param string $name Option name
+	 * @param mixed $default (optional)
+	 */
+	public static function get_option_and_ensure_autoload( $name, $default ) {
+		$value = get_option( $name );
+		
+		if ( $value === false ) {
+			update_option( $name, $default, null, true );
+			$value = $default;
+		}
+
+		return $value;
+	}
+
 	private static function update_grouped_option( $group, $name, $value ) {
 		$options = get_option( self::$grouped_options[ $group ] );
 		if ( ! is_array( $options ) ) {
