@@ -42,7 +42,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 * Enqueue scripts and styles.
 		 */
 		public function enqueue_scripts() {
-			$google_url = 'https://maps.googleapis.com/maps/api/js?sensor=false';
+			$google_url = 'https://maps.googleapis.com/maps/api/js';
 			/**
 			 * Set a Google Maps API Key.
 			 *
