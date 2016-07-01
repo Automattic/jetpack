@@ -173,9 +173,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * Comments
-	 *
-	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 
 	/**
