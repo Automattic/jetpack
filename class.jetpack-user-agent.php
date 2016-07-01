@@ -1,47 +1,53 @@
 <?php
 
 function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
-	static $kinds = array( 'smart' => false, 'dumb' => false, 'any' => false );
-	static $first_run = true;
+	static $kinds         = array( 'smart' => false, 'dumb' => false, 'any' => false );
+	static $first_run     = true;
 	static $matched_agent = '';
 
 	$ua_info = new Jetpack_User_Agent_Info();
 
-	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) )
+	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) ) {
 		return false;
+	}
 
 	// Remove Samsung Galaxy tablets (SCH-I800) from being mobile devices
-	if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ) , 'sch-i800') )
+	if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ) , 'sch-i800') ) {
 		return false;
+	}
 
-	if( $ua_info->is_android_tablet() &&  $ua_info->is_kindle_touch() === false )
+	if( $ua_info->is_android_tablet() &&  $ua_info->is_kindle_touch() === false ) {
 		return false;
+	}
 
-	if( $ua_info->is_blackberry_tablet() )
+	if( $ua_info->is_blackberry_tablet() ) {
 		return false;
+	}
 
 	if ( $first_run ) {
 		$first_run = false;
 
 		//checks for iPhoneTier devices & RichCSS devices
 		if ( $ua_info->isTierIphone() || $ua_info->isTierRichCSS() ) {
-			 $kinds['smart'] = true;
-		     $matched_agent = $ua_info->matched_agent;
+			$kinds['smart'] = true;
+			$matched_agent  = $ua_info->matched_agent;
 		}
 
-		if ( !$kinds['smart'] ) {
+		if ( ! $kinds['smart'] ) {
 			// if smart, we are not dumb so no need to check
 			$dumb_agents = $ua_info->dumb_agents;
-			$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+			$agent       = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+
 			foreach ( $dumb_agents as $dumb_agent ) {
 				if ( false !== strpos( $agent, $dumb_agent ) ) {
 					$kinds['dumb'] = true;
 					$matched_agent = $dumb_agent;
+
 					break;
 				}
 			}
 
-			if ( !$kinds['dumb'] ) {
+			if ( ! $kinds['dumb'] ) {
 				if ( isset( $_SERVER['HTTP_X_WAP_PROFILE'] ) ) {
 					$kinds['dumb'] = true;
 					$matched_agent = 'http_x_wap_profile';
@@ -52,8 +58,10 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 			}
 		}
 
-		if ( $kinds['dumb'] || $kinds['smart'] )
+		if ( $kinds['dumb'] || $kinds['smart'] ) {
 			$kinds['any'] = true;
+		}
+	}
 	}
 
 	if ( $return_matched_agent )
