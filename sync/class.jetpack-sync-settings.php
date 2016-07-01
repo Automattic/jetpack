@@ -21,13 +21,22 @@ class Jetpack_Sync_Settings {
 		return $settings;
 	}
 
+	// Fetches the setting. It saves it if the setting doesn't exist, so that it gets
+	// autoloaded on page load rather than re-queried every time.
 	static function get_setting( $setting ) {
 		if ( ! isset( self::$valid_settings[ $setting ] ) ) {
 			return false;
 		}
 
-		$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
-		return (int) get_option( self::SETTINGS_OPTION_PREFIX.$setting, Jetpack_Sync_Defaults::$$default_name );
+		$value = get_option( self::SETTINGS_OPTION_PREFIX.$setting );
+
+		if ( $value === false ) {
+			$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
+			$value = Jetpack_Sync_Defaults::$$default_name;
+			update_option( self::SETTINGS_OPTION_PREFIX.$setting, $value, null, true );
+		}
+
+		return $value;
 	}
 
 	static function update_settings( $new_settings ) {
