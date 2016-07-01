@@ -80,7 +80,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		if ( $instance['title'] ) {
+		if ( isset( $instance['title'] ) ) {
 			/** This filter is documented in core/src/wp-includes/default-widgets.php */
 			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
 		}
@@ -109,14 +109,15 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			echo ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
 		}
 
-		$type = ( isset( $instance['type'] ) ? $instance['type'] : '' );
+		$type      = ( isset( $instance['type'] ) ? $instance['type'] : '' );
+		$widget_id = ( isset( $instance['widget-id'] ) ? $instance['widget-id'] : '' );
 		switch ( $type ) {
 			case 'profile':
-				echo ' href="https://twitter.com/' . esc_attr( $instance['widget-id'] ) . '"';
+				echo ' href="https://twitter.com/' . esc_attr( $widget_id ) . '"';
 				break;
 			case 'widget-id':
 			default:
-				echo ' data-widget-id="' . esc_attr( $instance['widget-id'] ) . '"';
+				echo ' data-widget-id="' . esc_attr( $widget_id ) . '"';
 				break;
 		}
 
