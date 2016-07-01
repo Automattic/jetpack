@@ -42,8 +42,22 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 * Enqueue scripts and styles.
 		 */
 		public function enqueue_scripts() {
+			$google_url = 'https://maps.googleapis.com/maps/api/js';
+			/**
+			 * Set a Google Maps API Key.
+			 *
+			 * @since 4.1.0
+			 *
+			 * @param string $key Google Maps API Key
+			 */
+			$key = apply_filters( 'jetpack_google_maps_api_key', null );
+
+			if ( ! empty( $key ) ) {
+					$google_url = add_query_arg( 'key', $key, $google_url );
+				}
+
 			wp_enqueue_script( 'jquery' );
-			wp_enqueue_script( 'google-maps', 'https://maps.googleapis.com/maps/api/js?sensor=false' );
+			wp_enqueue_script( 'google-maps', esc_url( $google_url, null, null ) );
 			wp_enqueue_script( 'contact-info-map-js', plugins_url( 'contact-info/contact-info-map.js', __FILE__ ), array( 'jquery', 'google-maps' ), 20150127 );
 			wp_enqueue_style( 'contact-info-map-css', plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20150127 );
 		}
@@ -171,7 +185,13 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				// Get the lat/lon of the user specified address.
 				$address = $this->urlencode_address( $instance['address'] );
 				$path    = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
-				$json    = wp_remote_retrieve_body( wp_remote_get( $path ) );
+				/** This action is documented in modules/widgets/contact-info.php */
+				$key = apply_filters( 'jetpack_google_maps_api_key', null );
+
+				if ( ! empty( $key ) ) {
+					$path = add_query_arg( 'key', $key, $path );
+				}
+				$json    = wp_remote_retrieve_body( wp_remote_get( esc_url( $path, null, null ) ) );
 
 				if ( ! $json ) {
 					// The read failed :(
