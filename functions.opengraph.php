@@ -55,7 +55,7 @@ function jetpack_og_tags() {
 	$description_length = 197;
 
 	if ( is_home() || is_front_page() ) {
-		$site_type              = get_option( 'open_graph_protocol_site_type' );
+		$site_type              = Jetpack_Options::get_option_and_ensure_autoload( 'open_graph_protocol_site_type', '' );
 		$tags['og:type']        = ! empty( $site_type ) ? $site_type : 'website';
 		$tags['og:title']       = get_bloginfo( 'name' );
 		$tags['og:description'] = get_bloginfo( 'description' );
