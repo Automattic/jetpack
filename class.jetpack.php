@@ -279,13 +279,6 @@ class Jetpack {
 	public $stats = array();
 
 	/**
-	 * Allows us to build a temporary security report
-	 *
-	 * @var array
-	 */
-	static $security_report = array();
-
-	/**
 	 * Jetpack_Sync object
 	 */
 	public $sync;
@@ -311,7 +304,6 @@ class Jetpack {
 			self::$instance = new Jetpack;
 
 			self::$instance->plugin_upgrade();
-
 		}
 
 		return self::$instance;
@@ -1637,53 +1629,6 @@ class Jetpack {
 		}
 	}
 
-
-
-
-	/*
-	 *
-	 * Jetpack Security Reports
-	 *
-	 * Allowed types: login_form, backup, file_scanning, spam
-	 *
-	 * Args for login_form and spam: 'blocked'=>(int)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
-	 *
-	 * Args for backup and file_scanning: 'last'=>(timestamp)(optional), 'next'=>(timestamp)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
-	 *
-	 *
-	 * Example code to submit a security report:
-	 *
-	 *  function akismet_submit_jetpack_security_report() {
-	 *  	Jetpack::submit_security_report( 'spam', __FILE__, $args = array( 'blocked' => 138284, status => 'ok' ) );
-	 *  }
-	 *  add_action( 'jetpack_security_report', 'akismet_submit_jetpack_security_report' );
-	 *
-	 */
-
-
-	/**
-	 * Calls for security report submissions.
-	 *
-	 * @return null
-	 */
-	public static function perform_security_reporting() {
-		$no_check_needed = get_site_transient( 'security_report_performed_recently' );
-
-		if ( $no_check_needed ) {
-			return;
-		}
-
-		/**
-		 * Fires before a security report is created.
-		 *
-		 * @since 3.4.0
-		 */
-		do_action( 'jetpack_security_report' );
-
-		Jetpack_Options::update_option( 'security_report', self::$security_report );
-		set_site_transient( 'security_report_performed_recently', 1, 15 * MINUTE_IN_SECONDS );
-	}
-
 	/**
 	 * Allows plugins to submit security reports.
  	 *
@@ -1692,78 +1637,8 @@ class Jetpack {
 	 * @param array   $args         See definitions above
 	 */
 	public static function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {
-
-		if( !doing_action( 'jetpack_security_report' ) ) {
-			return new WP_Error( 'not_collecting_report', 'Not currently collecting security reports.  Please use the jetpack_security_report hook.' );
-		}
-
-		if( !is_string( $type ) || !is_string( $plugin_file ) ) {
-			return new WP_Error( 'invalid_security_report', 'Invalid Security Report' );
-		}
-
-		if( !function_exists( 'get_plugin_data' ) ) {
-			include( ABSPATH . 'wp-admin/includes/plugin.php' );
-		}
-
-		//Get rid of any non-allowed args
-		$args = array_intersect_key( $args, array_flip( array( 'blocked', 'last', 'next', 'status', 'message' ) ) );
-
-		$plugin = get_plugin_data( $plugin_file );
-
-		if ( !$plugin['Name'] ) {
-			return new WP_Error( 'security_report_missing_plugin_name', 'Invalid Plugin File Provided' );
-		}
-
-		// Sanitize everything to make sure we're not syncing something wonky
-		$type = sanitize_key( $type );
-
-		$args['plugin'] = $plugin;
-
-		// Cast blocked, last and next as integers.
-		// Last and next should be in unix timestamp format
-		if ( isset( $args['blocked'] ) ) {
-			$args['blocked'] = (int) $args['blocked'];
-		}
-		if ( isset( $args['last'] ) ) {
-			$args['last'] = (int) $args['last'];
-		}
-		if ( isset( $args['next'] ) ) {
-			$args['next'] = (int) $args['next'];
-		}
-		if ( !in_array( $args['status'], array( 'ok', 'warning', 'error' ) ) ) {
-			$args['status'] = 'ok';
-		}
-		if ( isset( $args['message'] ) ) {
-
-			if( $args['status'] == 'ok' ) {
-				unset( $args['message'] );
-			}
-
-			$allowed_html = array(
-			    'a' => array(
-			        'href' => array(),
-			        'title' => array()
-			    ),
-			    'em' => array(),
-			    'strong' => array(),
-			);
-
-			$args['message'] = wp_kses( $args['message'], $allowed_html );
-		}
-
-		$plugin_name = $plugin[ 'Name' ];
-
-		self::$security_report[ $type ][ $plugin_name ] = $args;
+		_deprecated_function( __FUNCTION__, 'always', 'Security reports feature has been removed' );
 	}
-
-	/**
-	 * Collects a new report if needed, then returns it.
-	 */
-	public function get_security_report() {
-		self::perform_security_reporting();
-		return Jetpack_Options::get_option( 'security_report' );
-	}
-
 
 /* Jetpack Options API */
 
