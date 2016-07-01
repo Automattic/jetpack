@@ -653,7 +653,7 @@ class Jetpack_SSO {
 			JetpackTracking::record_user_event( 'sso_login_failed', array(
 				'error_message' => 'error_msg_enable_two_step'
 			) );
-			
+
 			/** This filter is documented in core/src/wp-includes/pluggable.php */
 			do_action( 'wp_login_failed', $user_data->login );
 			add_filter( 'login_message', array( $this, 'error_msg_enable_two_step' ) );
@@ -1044,7 +1044,6 @@ class Jetpack_SSO {
 	 * Builds the translation ready string that is to be used when the site hides the default login form.
 	 *
 	 * @since 4.1.0
-	 * 
 	 * @return string
 	 */
 	public function get_sso_required_message() {
@@ -1068,7 +1067,7 @@ class Jetpack_SSO {
 	 *
 	 * @since 2.7
 	 * @param string $message
-	 * 
+	 *
 	 * @return string
 	 **/
 	public function msg_login_by_jetpack( $message ) {

@@ -115,7 +115,7 @@ class Jetpack_Monitor {
 	 * Checks the status of notifications for current Jetpack site user.
 	 *
 	 * @since 2.8
-	 * @since 4.1 New parameter $die_on_error.
+	 * @since 4.1.0 New parameter $die_on_error.
 	 *
 	 * @param bool $die_on_error Whether to issue a wp_die when an error occurs or return a WP_Error object.
 	 *
