@@ -67,7 +67,7 @@ function jetpack_og_tags() {
 			$tags['og:url'] = home_url( '/' );
 
 		// Associate a blog's root path with one or more Facebook accounts
-		$facebook_admins = get_option( 'facebook_admins' );
+		$facebook_admins = Jetpack_Options::get_option_and_ensure_autoload( 'facebook_admins', array() );
 		if ( ! empty( $facebook_admins ) )
 			$tags['fb:admins'] = $facebook_admins;
 
