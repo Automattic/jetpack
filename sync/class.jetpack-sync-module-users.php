@@ -13,7 +13,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_save_user', $callable, 10, 2 );
 
 		add_action( 'deleted_user', $callable, 10, 2 );
-		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ), 10, 2 );
 		add_action( 'remove_user_from_blog', $callable, 10, 2 );
 
 		// user roles
@@ -26,8 +25,18 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'updated_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
 		add_action( 'deleted_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
 
+		// user authentication
+		add_action( 'wp_login', $callable, 10, 2 );
+		add_action( 'wp_login_failed', $callable, 10, 2 );
+		add_action( 'wp_logout', $callable, 10, 0 );
+
 		// full sync
 		add_action( 'jetpack_full_sync_users', $callable );
+	}
+
+	public function init_before_send() {
+		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ) );
+		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
 	}
 
 	public function sanitize_user_and_expand( $user ) {
@@ -48,6 +57,12 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function expand_user( $args ) {
 		list( $user ) = $args;
 		return array( $this->add_to_user( $user ) );
+	}
+
+	public function expand_logout_username( $args, $user_id ) {
+		$username = get_userdata( $user_id )->user_login;
+		$args[] = $username;
+		return $args;
 	}
 
 	function save_user_handler( $user_id, $old_user_data = null ) {
