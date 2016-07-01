@@ -92,6 +92,7 @@ Bug Fixes:
 * Sitemaps: avoid errors if your permalink structure uses `index.php`.
 * Tiled Galleries: avoid JavaScript Errors when viewing galleries.
 * Widgets: save image dimensions properly when an image is added to a new widget.
+* Widgets: update Contact Info Widget to allow site owners to set up a Google Maps API key.
 
 Enhancements:
 

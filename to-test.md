@@ -79,6 +79,14 @@
 - We now use Photon to resize images in the Gallery Widget, thus improving performance of that widget. To test it, add a Gallery widget to your sidebar, set it to use Tiles, and make sure the images are displayed properly and use Photon (i.e. use the `i*.wpcom` domain).
 - You can now set the top posts widget to look at traffic for more than the last 10 days. Try cranking up that setting and make sure nothing breaks.
 - Image Widget: Image dimensions are now saved properly when you first add an image URL to the Image Widget. To test the fix, you can follow the instructions [here](https://github.com/Automattic/jetpack/issues/4218).
+- Contact Info Widget: Google Maps [made some changes to their API a few days ago](https://developers.google.com/maps/documentation/javascript/get-api-key). As a result, domains that weren't using the API before June 22, 1016, will need an API key to display the map included in the Contact Info Widget. To test this change, you can add the following to a functionality plugin on your site, and make sure the map is displayed properly.
+```php
+function jeherve_google_maps_key() {
+	// Grab your own Google Maps API Key here: https://developers.google.com/maps/documentation/javascript/get-api-key
+        return 'xxxx';
+}
+  //add_filter( 'jetpack_google_maps_api_key', 'jehegoogle_maps_key';
+```
 - Twitter now supports several types of Widgets. We've made some changes to our Twitter Timeline Widget to accept one more widget type, in addition to the old and soon to be deprecated Twittter IDs. To test, try the following:
  	1. Go to [https://twitter.com/settings/widgets](https://twitter.com/settings/widgets)
 	2. Pick an existing Widget, edit it, and copy the Widget ID.
