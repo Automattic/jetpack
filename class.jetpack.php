@@ -346,6 +346,8 @@ class Jetpack {
 				 * @since 3.3.0
 				 */
 				do_action( 'jetpack_sync_all_registered_options' );
+
+				Jetpack::maybe_set_version_option();
 			}
 		}
 	}
