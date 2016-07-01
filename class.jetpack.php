@@ -5435,13 +5435,13 @@ p {
 	 * Written so that we don't have re-check $key and $value params every time
 	 * we want to check if this site is whitelisted, for example in footer.php
 	 *
-	 * @return bool True = already whitelsisted False = not whitelisted
+	 * @return bool True = already whitelisted False = not whitelisted
 	 */
 	public static function is_staging_site() {
 		$is_staging = false;
 
 		$current_whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist' );
-		if ( $current_whitelist ) {
+		if ( $current_whitelist && ! get_transient( 'jetpack_checked_is_staging' ) ) {
 			$options_to_check  = Jetpack::identity_crisis_options_to_check();
 			$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
 
@@ -5451,6 +5451,8 @@ p {
 					break;
 				}
 			}
+			// set a flag so we don't check again for an hour
+			set_transient( 'jetpack_checked_is_staging', 1, HOUR_IN_SECONDS );
 		}
 		$known_staging = array(
 			'urls' => array(
