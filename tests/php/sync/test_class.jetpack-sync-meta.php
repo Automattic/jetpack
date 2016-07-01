@@ -3,7 +3,7 @@
 /**
  * Testing CRUD on Meta
  */
-class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
+class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
 
 	public function setUp() {

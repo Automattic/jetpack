@@ -3,7 +3,7 @@
 /**
  * Testing CRUD on Options
  */
-class WP_Test_Jetpack_New_Sync_Themes extends WP_Test_Jetpack_New_Sync_Base {
+class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	protected $theme;
 
 	public function setUp() {

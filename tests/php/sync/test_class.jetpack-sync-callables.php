@@ -2,7 +2,7 @@
 
 require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-functions.php';
 
-require_once 'test_class.jetpack-sync-client.php';
+require_once 'test_class.jetpack-sync-base.php';
 
 function jetpack_foo_is_callable() {
 	return 'bar';
@@ -11,7 +11,7 @@ function jetpack_foo_is_callable() {
 /**
  * Testing Functions
  */
-class WP_Test_Jetpack_New_Sync_Functions extends WP_Test_Jetpack_New_Sync_Base {
+class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 	protected $callable_module;
 
