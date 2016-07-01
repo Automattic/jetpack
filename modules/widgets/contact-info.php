@@ -57,7 +57,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				}
 
 			wp_enqueue_script( 'jquery' );
-			wp_enqueue_script( 'google-maps', esc_url( $google_url ) );
+			wp_enqueue_script( 'google-maps', esc_url( $google_url, null, null ) );
 			wp_enqueue_script( 'contact-info-map-js', plugins_url( 'contact-info/contact-info-map.js', __FILE__ ), array( 'jquery', 'google-maps' ), 20150127 );
 			wp_enqueue_style( 'contact-info-map-css', plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20150127 );
 		}
@@ -191,7 +191,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				if ( ! empty( $key ) {
 					$path = add_query_arg( 'key', $key, $path );
 				}
-				$json    = wp_remote_retrieve_body( wp_remote_get( esc_url( $path ) ) );
+				$json    = wp_remote_retrieve_body( wp_remote_get( esc_url( $path, null, null ) ) );
 
 				if ( ! $json ) {
 					// The read failed :(
