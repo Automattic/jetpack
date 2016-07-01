@@ -213,7 +213,7 @@ class Jetpack_Sync_Sender {
 	}
 
 	function get_sync_wait_time() {
-		return get_option( self::SYNC_THROTTLE_OPTION_NAME );
+		return (int) get_option( self::SYNC_THROTTLE_OPTION_NAME );
 	}
 
 	private function get_last_sync_time() {
