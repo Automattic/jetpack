@@ -721,7 +721,7 @@ class Jetpack_Custom_CSS {
 		$option = Jetpack_Custom_CSS::is_preview() ? 'safecss_preview' : 'safecss';
 
 		if ( 'safecss' == $option ) {
-			if ( get_option( 'safecss_revision_migrated' ) ) {
+			if ( Jetpack_Options::get_option_and_ensure_autoload( 'safecss_revision_migrated', '0' ) ) {
 				$safecss_post = Jetpack_Custom_CSS::get_post();
 
 				if ( ! empty( $safecss_post['post_content'] ) ) {
@@ -737,7 +737,7 @@ class Jetpack_Custom_CSS {
 
 			// Fix for un-migrated Custom CSS
 			if ( empty( $safecss_post ) ) {
-				$_css = get_option( 'safecss' );
+				$_css = Jetpack_Options::get_option_and_ensure_autoload( 'safecss', '' );
 				if ( !empty( $_css ) ) {
 					$css = $_css;
 				}
