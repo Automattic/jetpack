@@ -3,9 +3,6 @@
 /**
  * Determine if the current User Agent matches the passed $kind
  *
- * Passing a truthy value to the filter will short-circuit determining the
- * mobile type, returning the passed value instead.
- *
  * @param string $kind Category of mobile device to check for.
  *                         Either: any, dumb, smart.
  * @param bool $return_matched_agent Boolean indicating if the UA should be returned
