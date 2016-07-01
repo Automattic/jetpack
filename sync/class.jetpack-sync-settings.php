@@ -36,7 +36,7 @@ class Jetpack_Sync_Settings {
 			update_option( self::SETTINGS_OPTION_PREFIX.$setting, $value, null, true );
 		}
 
-		return $value;
+		return (int) $value;
 	}
 
 	static function update_settings( $new_settings ) {
