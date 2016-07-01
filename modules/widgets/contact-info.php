@@ -42,11 +42,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 * Enqueue scripts and styles.
 		 */
 		public function enqueue_scripts() {
-<<<<<<< 20eb8211fd6bb54b73723dd3cc301c0582fca2b5
-			wp_enqueue_style( 'contact-info-map-css', plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20150127 );
-=======
 			wp_enqueue_style( 'contact-info-map-css', plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20160623 );
->>>>>>> Contact Info Widget: Restore enqueue function
 		}
 
 
@@ -99,7 +95,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				$showmap = $instance['showmap'];
 
-				if ( $showmap && $this->has_good_map( $instance ) ) {
+				/** This action is documented in modules/widgets/contact-info.php */
+				if ( $showmap && $this->has_good_map( $instance ) && apply_filters( 'jetpack_google_maps_api_key', null ) ) {
 					echo $this->build_map( $instance['address'] );
 				}
 
