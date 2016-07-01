@@ -292,7 +292,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			 *
 			 * @param string $key Google Maps API Key
 			 */
-			$key = apply_filters( 'jetpack_google_maps_api_key', constant( 'GOOGLE_MAPS_API_BROWSER_KEY' ) );
+			$key = apply_filters( 'jetpack_google_maps_api_key', null );
 			if ( ! empty( $key ) ) {
 				$src = add_query_arg( 'key', $key, $src );
 			}
