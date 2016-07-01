@@ -231,7 +231,7 @@ EOT;
 	 */
 	public function get_options() {
 		if ( null === $this->_options ) {
-			$this->_options = Jetpack_Options::get_option( 'relatedposts' );
+			$this->_options = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_relatedposts', array() );
 			if ( ! is_array( $this->_options ) )
 				$this->_options = array();
 			if ( ! isset( $this->_options['enabled'] ) )
