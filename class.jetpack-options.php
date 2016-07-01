@@ -23,7 +23,6 @@ class Jetpack_Options {
 				'wpcc_options',
 				'relatedposts',
 				'file_data',
-				'security_report',
 				'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
 				'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
 				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
@@ -63,7 +62,6 @@ class Jetpack_Options {
 			'identity_crisis_whitelist',    // (array)  An array of options, each having an array of the values whitelisted for it.
 			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
-			'last_security_report',         // (int)    The timestamp of the last security report that was run.
 			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
 			'hide_jitm'                     // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
 		);
