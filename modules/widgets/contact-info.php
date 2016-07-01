@@ -188,7 +188,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				/** This action is documented in modules/widgets/contact-info.php */
 				$key = apply_filters( 'jetpack_google_maps_api_key', null );
 
-				if ( ! empty( $key ) {
+				if ( ! empty( $key ) ) {
 					$path = add_query_arg( 'key', $key, $path );
 				}
 				$json    = wp_remote_retrieve_body( wp_remote_get( esc_url( $path, null, null ) ) );
