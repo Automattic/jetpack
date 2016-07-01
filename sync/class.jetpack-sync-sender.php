@@ -109,7 +109,7 @@ class Jetpack_Sync_Sender {
 			 *
 			 * @param array The action parameters
 			 */
-			$item[1] = apply_filters( "jetpack_sync_before_send_" . $item[0], $item[1] );
+			$item[1] = apply_filters( "jetpack_sync_before_send_" . $item[0], $item[1], $item[2] );
 
 			$encoded_item = $this->codec->encode( $item );
 
