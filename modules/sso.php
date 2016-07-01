@@ -36,29 +36,6 @@ class Jetpack_SSO {
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
-
-		if ( Jetpack_SSO_Helpers::should_hide_login_form() ) {
-			/**
-			 * Since the default authenticate filters fire at priority 20 for checking username and password,
-			 * let's fire at priority 30. wp_authenticate_spam_check is fired at priority 99, but since we return a
-			 * WP_Error in disable_default_login_form, then we won't trigger spam processing logic.
-			 */
-			add_filter( 'authenticate', array( $this, 'disable_default_login_form' ), 30 );
-
-			/**
-			 * Filter the display of the disclaimer message appearing when default WordPress login form is disabled.
-			 *
-			 * @module sso
-			 *
-			 * @since 2.8.0
-			 *
-			 * @param bool true Should the disclaimer be displayed. Default to true.
-			 */
-			$display_sso_disclaimer = apply_filters( 'jetpack_sso_display_disclaimer', true );
-			if ( $display_sso_disclaimer ) {
-				add_filter( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
-			}
-		}
 	}
 
 	/**
@@ -367,6 +344,29 @@ class Jetpack_SSO {
 
 	function login_init() {
 		global $action;
+
+		if ( Jetpack_SSO_Helpers::should_hide_login_form() ) {
+			/**
+			 * Since the default authenticate filters fire at priority 20 for checking username and password,
+			 * let's fire at priority 30. wp_authenticate_spam_check is fired at priority 99, but since we return a
+			 * WP_Error in disable_default_login_form, then we won't trigger spam processing logic.
+			 */
+			add_filter( 'authenticate', array( $this, 'disable_default_login_form' ), 30 );
+
+			/**
+			 * Filter the display of the disclaimer message appearing when default WordPress login form is disabled.
+			 *
+			 * @module sso
+			 *
+			 * @since 2.8.0
+			 *
+			 * @param bool true Should the disclaimer be displayed. Default to true.
+			 */
+			$display_sso_disclaimer = apply_filters( 'jetpack_sso_display_disclaimer', true );
+			if ( $display_sso_disclaimer ) {
+				add_filter( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
+			}
+		}
 
 		/**
 		 * If the user is attempting to logout AND the auto-forward to WordPress.com
