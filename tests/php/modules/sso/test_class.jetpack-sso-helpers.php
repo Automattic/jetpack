@@ -78,4 +78,24 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertFalse( Jetpack_SSO_Helpers::bypass_login_forward_wpcom() );
 		remove_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_false' );
 	}
+	
+	function test_sso_helpers_require_two_step_disabled() {
+		add_filter( 'jetpack_sso_require_two_step', '__return_true' );
+		$this->assertTrue( Jetpack_SSO_Helpers::is_require_two_step_checkbox_disabled() );
+		remove_filter( 'jetpack_sso_require_two_step', '__return_true' );
+	}
+	
+	function test_sso_helpers_require_two_step_enabled() {
+		$this->assertFalse( Jetpack_SSO_Helpers::is_require_two_step_checkbox_disabled() );
+	}
+	
+	function test_sso_helpers_match_by_email_disabled() {
+		add_filter( 'jetpack_sso_match_by_email', '__return_true' );
+		$this->assertTrue( Jetpack_SSO_Helpers::is_match_by_email_checkbox_disabled() );
+		remove_filter( 'jetpack_sso_match_by_email', '__return_true' );
+	}
+
+	function test_sso_helpers_match_by_email_enabled() {
+		$this->assertFalse( Jetpack_SSO_Helpers::is_match_by_email_checkbox_disabled() );
+	}
 }
