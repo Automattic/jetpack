@@ -140,6 +140,20 @@ class Jetpack_Custom_CSS {
 			ob_start( array( 'Jetpack_Custom_CSS', 'buffer' ) );
 	}
 
+	public static function set_default_options() {
+		if ( false === get_option( 'safecss_add', false ) ) {
+			update_option( 'safecss_add', 'yes' );
+		}
+
+		if ( false === get_option( 'safecss_revision_migrated', false ) ) {
+			update_option( 'safecss_revision_migrated', 0 );
+		}
+
+		if ( false === get_option( 'safecss', false ) ) {
+			update_option( 'safecss', '' );
+		}
+	}
+
 	/**
 	 * Save new custom CSS. This should be the entry point for any third-party code using Jetpack_Custom_CSS
 	 * to save CSS.
@@ -1856,6 +1870,8 @@ if ( ! function_exists( 'safecss_filter_attr' ) ) {
 	}
 }
 
+add_action( 'jetpack_activate_module_custom-css', array( 'Jetpack_Custom_CSS', 'set_default_options' ) );
+add_action( 'jetpack_update_default_options_module_custom-css', array( 'Jetpack_Custom_CSS', 'set_default_options' ) );
 add_action( 'init', array( 'Jetpack_Custom_CSS', 'init' ) );
 
 include dirname( __FILE__ ) . '/custom-css/preprocessors.php';

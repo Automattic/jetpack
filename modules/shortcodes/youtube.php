@@ -363,7 +363,7 @@ add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
  *
  * @param int get_option('embed_autourls') Option to automatically embed all plain text URLs.
  */
-if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls') ) ) {
+if ( apply_filters( 'jetpack_comments_allow_oembed', true ) ) {
 	// We attach wp_kses_post to comment_text in default-filters.php with priority of 10 anyway, so the iframe gets filtered out.
 	if ( ! is_admin() ) {
 		// Higher priority because we need it before auto-link and autop get to it

@@ -192,9 +192,8 @@ class Jetpack_Portfolio {
 	 * On plugin/theme activation, check if current theme supports CPT
 	 */
 	static function activation_post_type_support() {
-		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
-			update_option( self::OPTION_NAME, '1' );
-		}
+		$option_value = current_theme_supports( self::CUSTOM_POST_TYPE ) ? '1' : '0';
+		update_option( self::OPTION_NAME, $option_value );
 	}
 
 	/**
@@ -846,3 +845,4 @@ add_action( 'init', array( 'Jetpack_Portfolio', 'init' ) );
 // Check on plugin activation if theme supports CPT
 register_activation_hook( __FILE__,                         array( 'Jetpack_Portfolio', 'activation_post_type_support' ) );
 add_action( 'jetpack_activate_module_custom-content-types', array( 'Jetpack_Portfolio', 'activation_post_type_support' ) );
+add_action( 'jetpack_update_default_options_module_custom-content-types', array( 'Jetpack_Portfolio', 'activation_post_type_support' ) );
