@@ -16,7 +16,7 @@
 function jetpack_load_minileven() {
 	include dirname( __FILE__ ) . "/minileven/minileven.php";
 
-	if ( get_option( 'wp_mobile_app_promos' ) != '1' )
+	if ( Jetpack_Options::get_option_and_ensure_autoload( 'wp_mobile_app_promos', '0' ) != '1' )
 		remove_action( 'wp_mobile_theme_footer', 'jetpack_mobile_app_promo' );
 }
 
