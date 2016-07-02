@@ -132,6 +132,28 @@ class Jetpack_SSO_Helpers {
 		 */
 		return (bool) apply_filters( 'jetpack_sso_default_to_sso_login', true );
 	}
+
+	/**
+	 * Returns a boolean for whether the two step required checkbox, displayed on the Jetpack admin page, should be disabled.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return bool
+	 */
+	static function is_require_two_step_checkbox_disabled() {
+		return (bool) has_filter( 'jetpack_sso_require_two_step' );
+	}
+
+	/**
+	 * Returns a boolean for whether the match by email checkbox, displayed on the Jetpack admin page, should be disabled.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return bool
+	 */
+	static function is_match_by_email_checkbox_disabled() {
+		return defined( 'WPCC_MATCH_BY_EMAIL' ) || has_filter( 'jetpack_sso_match_by_email' );
+	}
 }
 
 endif;
