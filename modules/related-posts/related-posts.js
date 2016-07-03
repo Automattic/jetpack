@@ -176,19 +176,30 @@
 	$( function() {
 		jprp.cleanupTrackedUrl();
 
-		$.getJSON( jprp.getEndpointURL(), function( response ) {
+		var endpointURL = jprp.getEndpointURL();
+
+		// If we're in Customizer, write the correct URL.
+		if ( wp && wp.customize ) {
+			endpointURL = decodeURIComponent( endpointURL.split( '?url=' )[1] ).replace( '&relatedposts=', '?relatedposts=' )
+		}
+
+		$.getJSON( endpointURL, function( response ) {
 			if ( 0 === response.items.length || 0 === $( '#jp-relatedposts' ).length ) {
 				return;
 			}
 
 			jprp.response = response;
 
-			var html = '';
-			if ( !response.show_thumbnails ) {
-				html = jprp.generateMinimalHtml( response.items );
+			var html,
+				showThumbnails;
+
+			if ( wp && wp.customize ) {
+				showThumbnails = wp.customize.instance( 'jetpack_relatedposts[show_thumbnails]' ).get();
 			} else {
-				html = jprp.generateVisualHtml( response.items );
+				showThumbnails = response.show_thumbnails;
 			}
+
+			html = ! showThumbnails ? jprp.generateMinimalHtml( response.items ) : jprp.generateVisualHtml( response.items );
 
 			$( '#jp-relatedposts' ).append( html );
 			jprp.setVisualExcerptHeights();

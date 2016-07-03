@@ -34,7 +34,6 @@ class Jetpack_RelatedPosts_Module {
 	 * Register actions and filters
 	 *
 	 * @uses add_action, add_filter
-	 * @return null
 	 */
 	private function __construct() {
 		add_action( 'jetpack_module_loaded_related-posts', array( $this, 'action_on_load' ) );
@@ -55,6 +54,9 @@ class Jetpack_RelatedPosts_Module {
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'module_configuration_load' ) );
 		}
+
+		// Load Customizer controls.
+		require_once 'related-posts/class.related-posts-customize.php';
 	}
 
 	/**
