@@ -122,11 +122,7 @@ class Jetpack_Client_Server {
 		} else {
 			Jetpack::activate_default_modules( false, false, array(), $redirect_on_activation_error );
 		}
-
-		// Sync all registers options and constants
-		/** This action is documented in class.jetpack.php */
-		do_action( 'jetpack_sync_all_registered_options' );
-
+		
 		// Start nonce cleaner
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
