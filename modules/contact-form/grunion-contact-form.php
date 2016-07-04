@@ -1983,7 +1983,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		) );
 
 		// once insert has finished we don't need this filter any more
-		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10, 2 );
+		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
