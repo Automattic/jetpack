@@ -50,7 +50,8 @@ var admincss = [
 	'modules/sharedaddy/admin-sharing',
 	'modules/videopress/videopress-admin',
 	'modules/widget-visibility/widget-conditions/widget-conditions',
-	'modules/widgets/gallery/css/admin'
+	'modules/widgets/gallery/css/admin',
+	'modules/sso/jetpack-sso-login'
 ];
 
 /* Front-end CSS to be concatenated */
