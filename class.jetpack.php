@@ -317,8 +317,6 @@ class Jetpack {
 
 			self::$instance->plugin_upgrade();
 
-			add_action( 'init', array( __CLASS__, 'perform_security_reporting' ) );
-
 		}
 
 		return self::$instance;
