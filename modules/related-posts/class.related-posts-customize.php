@@ -115,6 +115,22 @@ class Jetpack_Related_Posts_Customize {
 				'setting_type' => 'option',
 				'transport'    => 'refresh',
 			),
+			'show_date' => array(
+				'label'        => esc_html__( 'Show date', 'jetpack' ),
+				'description'  => esc_html__( 'Display date when entry was published.', 'jetpack' ),
+				'control_type' => 'checkbox',
+				'default'      => 1,
+				'setting_type' => 'option',
+				'transport'    => 'refresh',
+			),
+			'show_context' => array(
+				'label'        => esc_html__( 'Show context', 'jetpack' ),
+				'description'  => esc_html__( "Display entry's category or tag.", 'jetpack' ),
+				'control_type' => 'checkbox',
+				'default'      => 1,
+				'setting_type' => 'option',
+				'transport'    => 'refresh',
+			),
 		)
 		);
 	}

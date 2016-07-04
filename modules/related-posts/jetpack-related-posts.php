@@ -240,6 +240,12 @@ EOT;
 				$this->_options['show_headline'] = true;
 			if ( ! isset( $this->_options['show_thumbnails'] ) )
 				$this->_options['show_thumbnails'] = false;
+			if ( ! isset( $this->_options['show_date'] ) ) {
+				$this->_options['show_date'] = true;
+			}
+			if ( ! isset( $this->_options['show_context'] ) ) {
+				$this->_options['show_context'] = true;
+			}
 			if ( empty( $this->_options['size'] ) || (int)$this->_options['size'] < 1 )
 				$this->_options['size'] = 3;
 
@@ -275,6 +281,8 @@ EOT;
 			$current['enabled'] = true;
 			$current['show_headline'] = ( isset( $input['show_headline'] ) && '1' == $input['show_headline'] );
 			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' == $input['show_thumbnails'] );
+			$current['show_date'] = ( isset( $input['show_date'] ) && '1' == $input['show_date'] );
+			$current['show_context'] = ( isset( $input['show_context'] ) && '1' == $input['show_context'] );
 		} else {
 			$current['enabled'] = false;
 		}
@@ -304,6 +312,12 @@ EOT;
 	<li>
 		<label><input name="jetpack_relatedposts[show_thumbnails]" type="checkbox" value="1" %s /> %s</label>
 	</li>
+	<li>
+		<label><input name="jetpack_relatedposts[show_date]" type="checkbox" value="1" %s /> %s</label>
+	</li>
+	<li>
+		<label><input name="jetpack_relatedposts[show_context]" type="checkbox" value="1" %s /> %s</label>
+	</li>
 </ul>
 <div id='settings-reading-relatedposts-preview'>
 	%s
@@ -316,6 +330,10 @@ EOT;
 			esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
 			checked( $options['show_thumbnails'], true, false ),
 			esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
+			checked( $options['show_date'], true, false ),
+			esc_html__( 'Show entry date', 'jetpack' ),
+			checked( $options['show_context'], true, false ),
+			esc_html__( "Show context (category or tag)", 'jetpack' ),
 			esc_html__( 'Preview:', 'jetpack' )
 		);
 
@@ -379,7 +397,7 @@ EOT;
 <div class="jp-relatedposts-items jp-relatedposts-items-visual">
 	<div class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Big iPhone/iPad Update Now Available</a>
@@ -389,7 +407,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post1 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>The WordPress for Android App Gets a Big Facelift</a>
@@ -399,7 +417,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post2 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Upgrade Focus: VideoPress For Weddings</a>
@@ -476,9 +494,18 @@ EOT;
 			} else {
 				html += '$related_without_images';
 			}
-			$( '#settings-reading-relatedposts-preview .jp-relatedposts' )
-				.html( html )
-				.show();
+			$( '#settings-reading-relatedposts-preview .jp-relatedposts' ).html( html );
+			if ( $( 'input[name="jetpack_relatedposts[show_date]"]:checked' ).length ) {
+				$( '.jp-relatedposts-post-title' ).each( function() {
+					$( this ).after( $( '<span>August 8, 2005</span>' ) );
+				} );
+			}
+			if ( $( 'input[name="jetpack_relatedposts[show_context]"]:checked' ).length ) {
+				$( '.jp-relatedposts-post-context' ).show();
+			} else {
+				$( '.jp-relatedposts-post-context' ).hide();
+			}
+			$( '#settings-reading-relatedposts-preview .jp-relatedposts' ).show();
 		};
 
 		// Update on load
@@ -751,6 +778,8 @@ EOT;
 		$response = array(
 			'version' => self::VERSION,
 			'show_thumbnails' => (bool) $options['show_thumbnails'],
+			'show_date' => (bool) $options['show_date'],
+			'show_context' => (bool) $options['show_context'],
 			'items' => array(),
 		);
 

@@ -63,7 +63,7 @@
 			];
 		},
 
-		generateMinimalHtml: function( posts ) {
+		generateMinimalHtml: function( posts, options ) {
 			var self = this;
 			var html = '';
 
@@ -77,14 +77,18 @@
 
 				html += '<p class="' + classes + '" data-post-id="' + post.id + '" data-post-format="' + post.format + '">';
 				html += '<span class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</span>';
-				html += '<span class="jp-relatedposts-post-date">' + post.date + '</span>';
-				html += '<span class="jp-relatedposts-post-context">' + post.context + '</span>';
+				if ( options.showDate ) {
+					html += '<span class="jp-relatedposts-post-date">' + post.date + '</span>';
+				}
+				if ( options.showContext ) {
+					html += '<span class="jp-relatedposts-post-context">' + post.context + '</span>';
+				}
 				html += '</p>';
 			} );
 			return '<div class="jp-relatedposts-items jp-relatedposts-items-minimal">' + html + '</div>';
 		},
 
-		generateVisualHtml: function( posts ) {
+		generateVisualHtml: function( posts, options ) {
 			var self = this;
 			var html = '';
 
@@ -111,8 +115,12 @@
 				}
 				html += '<' + related_posts_js_options.post_heading + ' class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</' + related_posts_js_options.post_heading + '>';
 				html += '<p class="jp-relatedposts-post-excerpt">' + $( '<p>' ).text( post.excerpt ).html() + '</p>';
-				html += '<p class="jp-relatedposts-post-date">' + post.date + '</p>';
-				html += '<p class="jp-relatedposts-post-context">' + post.context + '</p>';
+				if ( options.showDate ) {
+					html += '<p class="jp-relatedposts-post-date">' + post.date + '</p>';
+				}
+				if ( options.showContext ) {
+					html += '<p class="jp-relatedposts-post-context">' + post.context + '</p>';
+				}
 				html += '</div>';
 			} );
 			return '<div class="jp-relatedposts-items jp-relatedposts-items-visual">' + html + '</div>';
@@ -176,34 +184,43 @@
 	$( function() {
 		jprp.cleanupTrackedUrl();
 
-		var endpointURL = jprp.getEndpointURL();
+		var endpointURL = jprp.getEndpointURL(),
+			$relatedPosts = $( '#jp-relatedposts' );
 
 		// If we're in Customizer, write the correct URL.
 		if ( wp && wp.customize ) {
-			endpointURL = decodeURIComponent( endpointURL.split( '?url=' )[1] ).replace( '&relatedposts=', '?relatedposts=' )
+			endpointURL = decodeURIComponent( endpointURL.split( '?url=' )[1] ).replace( '&relatedposts=', '?relatedposts=' );
 		}
 
 		$.getJSON( endpointURL, function( response ) {
-			if ( 0 === response.items.length || 0 === $( '#jp-relatedposts' ).length ) {
+			if ( 0 === response.items.length || 0 === $relatedPosts.length ) {
 				return;
 			}
 
 			jprp.response = response;
 
 			var html,
-				showThumbnails;
+				showThumbnails,
+				options = {};
 
 			if ( wp && wp.customize ) {
 				showThumbnails = wp.customize.instance( 'jetpack_relatedposts[show_thumbnails]' ).get();
+				options.showDate = wp.customize.instance( 'jetpack_relatedposts[show_date]' ).get();
+				options.showContext = wp.customize.instance( 'jetpack_relatedposts[show_context]' ).get();
 			} else {
 				showThumbnails = response.show_thumbnails;
+				options.showDate = response.show_date;
+				options.showContext = response.show_context;
 			}
 
-			html = ! showThumbnails ? jprp.generateMinimalHtml( response.items ) : jprp.generateVisualHtml( response.items );
+			html = ! showThumbnails ? jprp.generateMinimalHtml( response.items, options ) : jprp.generateVisualHtml( response.items, options );
 
-			$( '#jp-relatedposts' ).append( html );
+			$relatedPosts.append( html );
 			jprp.setVisualExcerptHeights();
-			$( '#jp-relatedposts' ).show();
+			if ( options.showDate ) {
+				$relatedPosts.find( '.jp-relatedposts-post-date' ).show();
+			}
+			$relatedPosts.show();
 
 			$( '#jp-relatedposts a.jp-relatedposts-post-a' ).click(function() {
 				this.href = jprp.getTrackedUrl( this );
