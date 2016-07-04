@@ -977,51 +977,15 @@ class Jetpack {
 	 * @return null
 	 */
 	function update_jetpack_main_network_site_option() {
-		// do_action( 'add_option_$option', '$option', '$value-of-the-option' );
-		/**
-		 * Fires when the site URL is updated.
-		 * Determines if the site is the main site of a Mulitiste network.
-		 *
-		 * @since 3.3.0
-		 *
-		 * @param string jetpack_main_network_site.
-		 * @param string network_site_url() Site URL for the "main" site of the current Multisite network.
-		 */
-		do_action( 'add_option_jetpack_main_network_site', 'jetpack_main_network_site', network_site_url() );
-		/**
-		 * Fires when the site URL is updated.
-		 * Determines if the is part of a multi network.
-		 *
-		 * @since 3.3.0
-		 *
-		 * @param string jetpack_is_main_network.
-		 * @param bool Jetpack::is_multi_network() Is the site part of a multi network.
-		 */
-		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
-		/**
-		 * Fires when the site URL is updated.
-		 * Determines if the site is part of a multisite network.
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param string jetpack_is_multi_site.
-		 * @param bool is_multisite() Is the site part of a mutlisite network.
-		 */
-		do_action( 'add_option_jetpack_is_multi_site', 'jetpack_is_multi_site', (string) (bool) is_multisite() );
+		_deprecated_function( __METHOD__, 'jetpack-4.2' );
 	}
 	/**
 	 * Triggered after a user updates the network settings via Network Settings Admin Page
 	 *
 	 */
 	function update_jetpack_network_settings() {
+		_deprecated_function( __METHOD__, 'jetpack-4.2' );
 		// Only sync this info for the main network site.
-		do_action( 'add_option_jetpack_network_name', 'jetpack_network_name', Jetpack::network_name() );
-		do_action( 'add_option_jetpack_network_allow_new_registrations', 'jetpack_network_allow_new_registrations', Jetpack::network_allow_new_registrations() );
-		do_action( 'add_option_jetpack_network_add_new_users', 'jetpack_network_add_new_users', Jetpack::network_add_new_users() );
-		do_action( 'add_option_jetpack_network_site_upload_space', 'jetpack_network_site_upload_space', Jetpack::network_site_upload_space() );
-		do_action( 'add_option_jetpack_network_upload_file_types', 'jetpack_network_upload_file_types', Jetpack::network_upload_file_types() );
-		do_action( 'add_option_jetpack_network_enable_administration_menus', 'jetpack_network_enable_administration_menus', Jetpack::network_enable_administration_menus() );
-
 	}
 
 	/**
@@ -1030,7 +994,6 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function is_single_user_site() {
-
 		$user_query = new WP_User_Query( array(
 			'blog_id' => get_current_blog_id(),
 			'fields'  => 'ID',
@@ -1069,7 +1032,7 @@ class Jetpack {
 	 * @return string ( '1' | '0' )
 	 **/
 	public static function is_version_controlled() {
-		_deprecated_function( 'Jetpack::is_version_controlled', '4.1', 'Jetpack_Sync_Functions::is_version_controlled' );
+		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Jetpack_Sync_Functions::is_version_controlled' );
 		return (string) (int) Jetpack_Sync_Functions::is_version_controlled();
 	}
 
@@ -1078,6 +1041,7 @@ class Jetpack {
 	 * @return string ( '1' | '0' )
 	 */
 	public static function featured_images_enabled() {
+		_deprecated_function( __METHOD__, 'jetpack-4.2' );
 		return current_theme_supports( 'post-thumbnails' ) ? '1' : '0';
 	}
 	
@@ -1122,40 +1086,12 @@ class Jetpack {
 	}
 
 	public static function refresh_update_data() {
-		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
-			/**
-			 * Fires whenever the amount of updates needed for a site changes.
-			 * Syncs an array that includes the number of theme, plugin, and core updates available, as well as the latest core version available.
-			 *
-			 * @since 3.7.0
-			 *
-			 * @param string jetpack_updates
-			 * @param array Update counts calculated by Jetpack::get_updates
-			 */
-			do_action( 'add_option_jetpack_updates', 'jetpack_updates', Jetpack::get_updates() );
-		}
-		/**
-		 * Fires whenever the amount of updates needed for a site changes.
-		 * Syncs an array of core, theme, and plugin data, and which of each is out of date
-		 *
-		 * @since 3.7.0
-		 *
-		 * @param string jetpack_update_details
-		 * @param array Update details calculated by Jetpack::get_update_details
-		 */
-		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', Jetpack::get_update_details() );
+		_deprecated_function( __METHOD__, 'jetpack-4.2' );
+
 	}
 
 	public static function refresh_theme_data() {
-		/**
-		 * Fires whenever a theme change is made.
-		 *
-		 * @since 3.8.1
-		 *
-		 * @param string featured_images_enabled
-		 * @param boolean Whether featured images are enabled or not
-		 */
-		do_action( 'add_option_jetpack_featured_images_enabled', 'jetpack_featured_images_enabled', Jetpack::featured_images_enabled() );
+		_deprecated_function( __METHOD__, 'jetpack-4.2' );
 	}
 
 	/**
