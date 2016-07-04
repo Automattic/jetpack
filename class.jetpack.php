@@ -333,13 +333,6 @@ class Jetpack {
 				}
 
 				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
-				/**
-				 * Fires when synchronizing all registered options and constants.
-				 *
-				 * @since 3.3.0
-				 */
-				do_action( 'jetpack_sync_all_registered_options' );
-
 				Jetpack::maybe_set_version_option();
 			}
 		}
