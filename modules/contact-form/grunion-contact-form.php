@@ -1987,9 +1987,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
-		// Increase count of unread feedback.
-		$unread = get_option( 'feedback_unread_count', 0 ) + 1;
-		update_option( 'feedback_unread_count', $unread );
+		if ( 'publish' == $feedback_status ) {
+			// Increase count of unread feedback.
+			$unread = get_option( 'feedback_unread_count', 0 ) + 1;
+			update_option( 'feedback_unread_count', $unread );
+		}
 
 		if ( defined( 'AKISMET_VERSION' ) ) {
 			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
