@@ -32,5 +32,5 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'stuff', $event->args[0] );
 		$this->assertEquals( 1, count( $events ) );
 	}
-	
+
 }

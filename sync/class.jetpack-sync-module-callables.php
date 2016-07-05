@@ -87,7 +87,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			return;
 		}
 		$callables = $this->get_all_callables();
-		
+
 		if ( empty( $callables ) ) {
 			return;
 		}

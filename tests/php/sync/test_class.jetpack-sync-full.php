@@ -16,7 +16,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function setUp() {
 		parent::setUp();
-		$this->full_sync = Jetpack_Sync_Full::getInstance(); 
+		$this->full_sync = Jetpack_Sync_Full::getInstance();
 	}
 
 	function test_enqueues_sync_start_action() {
@@ -79,7 +79,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_sends_all_comments() {
 		$post = $this->factory->post->create();
 		$this->factory->comment->create_post_comments( $post, 11 );
-	
+
 		// simulate emptying the server storage
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
@@ -174,7 +174,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_sends_all_constants() {
 		define( 'TEST_SYNC_ALL_CONSTANTS', 'foo' );
-		
+
 		Jetpack_Sync_Modules::get_module( "constants" )->set_constants_whitelist( array( 'TEST_SYNC_ALL_CONSTANTS' ) );
 		$this->sender->do_sync();
 
@@ -355,7 +355,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// check that an update just finished
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
 		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
-		
+
 		$this->server_replica_storage->reset();
 
 		$this->assertNull( $this->server_replica_storage->get_updates( 'plugins' ) );
@@ -384,7 +384,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
 
 		// we need to do this because there's a check for elapsed time since last update
-		// in the wp_update_themes() function		
+		// in the wp_update_themes() function
 		$this->server_replica_storage->reset();
 
 		$this->assertNull( $this->server_replica_storage->get_updates( 'themes' ) );
@@ -413,7 +413,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
 
 		// we need to do this because there's a check for elapsed time since last update
-		// in the wp_update_core() function		
+		// in the wp_update_core() function
 		$this->server_replica_storage->reset();
 
 		$this->assertNull( $this->server_replica_storage->get_updates( 'core' ) );
@@ -577,7 +577,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertInternalType( 'int', $full_sync_status['finished'] );
 
 	}
-	
+
 	function test_full_sync_respects_post_and_comment_filters() {
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
 		add_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
@@ -599,7 +599,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_status_with_a_small_queue() {
 
 		$this->sender->set_dequeue_max_bytes( 1500 ); // process 0.0015MB of items at a time\
-		
+
 		$this->create_dummy_data_and_empty_the_queue();
 
 		$this->full_sync->start();

@@ -7,7 +7,7 @@ require_once 'interface.jetpack-sync-replicastore.php';
  * This is useful to compare values in the local WP DB to values in the synced replica store
  */
 class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
-	
+
 
 	public function reset() {
 		global $wpdb;
@@ -129,7 +129,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
 
 		$query = <<<ENDSQL
-			SELECT CONV(BIT_XOR(CRC32(CONCAT(ID,post_modified))), 10, 16) 
+			SELECT CONV(BIT_XOR(CRC32(CONCAT(ID,post_modified))), 10, 16)
 				FROM $wpdb->posts
 				WHERE $post_type_sql
 ENDSQL;
@@ -543,7 +543,7 @@ ENDSQL;
 	}
 
 	public function get_allowed_mime_types( $user_id ) {
-		
+
 	}
 
 	public function checksum_all() {

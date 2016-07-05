@@ -1,7 +1,7 @@
 <?php
 
 class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
-	
+
 	public function name() {
 		return "comments";
 	}

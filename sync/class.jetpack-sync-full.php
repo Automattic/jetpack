@@ -332,7 +332,7 @@ class Jetpack_Sync_Full {
 
 		return $args;
 	}
-	
+
 	function update_sent_progress_action( $actions_sent ) {
 		$modules_count = array();
 		$status = $this->get_status();
@@ -360,7 +360,7 @@ class Jetpack_Sync_Full {
 			$this->set_status_sending_finished();
 			$status['finished'] = time();
 		}
-		
+
 		$this->update_status( $status );
 	}
 
@@ -442,7 +442,7 @@ class Jetpack_Sync_Full {
 		 */
 		do_action( 'jetpack_full_sync_end_sent' );
 	}
-	
+
 	private $initial_status = array(
 		'started' => null,
 		'queue_finished' => null,
@@ -487,5 +487,5 @@ class Jetpack_Sync_Full {
 			return $data;
 		}
 	}
-	
+
 }

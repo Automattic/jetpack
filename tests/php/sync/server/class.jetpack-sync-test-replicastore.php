@@ -339,7 +339,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$taxonomy = $term_object->taxonomy;
 
 		if ( ! isset( $this->terms[ $taxonomy ] ) ) {
-			// empty 
+			// empty
 			$this->terms[ $taxonomy ]   = array();
 			$this->terms[ $taxonomy ][] = $term_object;
 		}
@@ -442,7 +442,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	function get_allowed_mime_types( $user_id ) {
 		return isset( $this->allowed_mime_types[ $user_id ] ) ? $this->allowed_mime_types[ $user_id ] : null;
 	}
-	
+
 	function upsert_user( $user ) {
 		if ( isset( $user->allowed_mime_types ) ) {
 			$this->allowed_mime_types[ $user->ID ] = $user->allowed_mime_types;

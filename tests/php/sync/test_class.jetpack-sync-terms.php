@@ -124,7 +124,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
 
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
-		
+
 		$this->assertEquals( $object_terms, $server_object_terms );
 	}
 

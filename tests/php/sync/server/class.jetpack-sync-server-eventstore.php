@@ -33,7 +33,7 @@ class Jetpack_Sync_Server_Eventstore {
 		if( count( $events_list ) > 0 ) {
 			return $events_list[ count( $events_list ) - 1 ];
 		}
-		
+
 		return false;
 	}
 

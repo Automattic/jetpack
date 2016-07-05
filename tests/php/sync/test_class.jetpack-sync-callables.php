@@ -82,7 +82,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		foreach( $callables as $name => $value ) {
-			// TODO: figure out why _sometimes_ the 'support' value of 
+			// TODO: figure out why _sometimes_ the 'support' value of
 			// the post_types value is being removed from the output
 			if ( $name === 'post_types' ) {
 				continue;
@@ -93,7 +93,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$whitelist_keys = array_keys( $this->callable_module->get_callable_whitelist() );
 		$callables_keys = array_keys( $callables );
-		
+
 		// Are we testing all the callables in the defaults?
 		$whitelist_and_callable_keys_difference = array_diff( $whitelist_keys, $callables_keys );
 		$this->assertTrue( empty( $whitelist_and_callable_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_callable_keys_difference, 1 )  );
@@ -147,16 +147,16 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	function test_preserve_scheme() {
 		update_option( 'banana', 'http://example.com' );
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://example.com' ), 'http://example.com' );
-		
+
 		// the same host so lets preseve the scheme
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.com' ), 'http://example.com' );
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.com/blog' ), 'http://example.com/blog' );
-		
+
 		// lets change the scheme to https
 		update_option( 'banana', 'https://example.com' );
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://example.com' ), 'https://example.com' );
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://example.com/blog' ), 'https://example.com/blog' );
-		
+
 		// a different host lets preseve the scheme from the host
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://site.com' ), 'http://site.com' );
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://site.com' ), 'https://site.com' );
