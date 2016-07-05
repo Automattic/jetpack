@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( sprintf("%.2f", TEST_ABC), sprintf("%.2f", $synced_value ) );
 
 		$this->server_replica_storage->reset();
-		
+
 		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 

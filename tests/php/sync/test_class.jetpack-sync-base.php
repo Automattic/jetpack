@@ -2,7 +2,7 @@
 
 $sync_dir = dirname( __FILE__ ) . '/../../../sync/';
 $sync_server_dir = dirname( __FILE__ ) . '/server/';
-	
+
 require_once $sync_dir . 'class.jetpack-sync-server.php';
 require_once $sync_dir . 'class.jetpack-sync-listener.php';
 require_once $sync_dir . 'class.jetpack-sync-sender.php';
@@ -15,7 +15,7 @@ require_once $sync_server_dir . 'class.jetpack-sync-server-eventstore.php';
 /*
  * Base class for Sync tests - establishes connection between local
  * Jetpack_Sync_Sender and dummy server implementation,
- * and registers a Replicastore and Eventstore implementation to 
+ * and registers a Replicastore and Eventstore implementation to
  * process events.
  */
 
@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
 		$this->sender->set_sync_wait_time(0); // disable rate limiting
 	}
-	
+
 	public function test_pass() {
 		// so that we don't have a failing test
 		$this->assertTrue( true );
@@ -96,7 +96,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 }
 
 class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
-	
+
 	function test_sending_empties_queue() {
 		$this->factory->post->create();
 		$this->assertNotEmpty( $this->sender->get_sync_queue()->get_all() );

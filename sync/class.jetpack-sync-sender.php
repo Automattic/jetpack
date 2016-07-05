@@ -7,7 +7,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
-/** 
+/**
  * This class grabs pending actions from the queue and sends them
  */
 class Jetpack_Sync_Sender {
@@ -261,7 +261,7 @@ class Jetpack_Sync_Sender {
 		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->reset_data();
 		}
-		
+
 		delete_option( self::SYNC_THROTTLE_OPTION_NAME );
 		delete_option( self::LAST_SYNC_TIME_OPTION_NAME );
 

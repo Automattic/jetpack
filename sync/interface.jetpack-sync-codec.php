@@ -6,7 +6,7 @@
  **/
 interface iJetpack_Sync_Codec {
 	// we send this with the payload so we can select the appropriate decoder at the other end
-	public function name(); 
+	public function name();
 
 	public function encode( $object );
 

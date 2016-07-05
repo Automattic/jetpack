@@ -44,7 +44,7 @@ class Jetpack_Sync_Modules {
 		if ( self::$initialized_modules === null ) {
 			self::$initialized_modules = self::initialize_modules();
 		}
-		
+
 		return self::$initialized_modules;
 	}
 

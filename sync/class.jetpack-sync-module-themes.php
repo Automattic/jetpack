@@ -1,6 +1,6 @@
 <?php
 
-class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module { 
+class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	function name() {
 		return "themes";
 	}

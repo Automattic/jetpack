@@ -38,11 +38,11 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	public function test_activate_and_deactivating_plugin_is_synced() {
 		activate_plugin( 'hello.php' );
 		$this->sender->do_sync();
-		
+
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins  );
 		$this->assertTrue( in_array( 'hello.php', $active_plugins ) );
-		
+
 		deactivate_plugins( 'hello.php' );
 		$this->sender->do_sync();
 
@@ -50,7 +50,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins  );
 		$this->assertFalse( in_array( 'hello.php', $active_plugins ) );
 	}
-	
+
 	public function test_autoupdate_enabled_and_disabled_is_synced() {
 		// enable autoupdates
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );

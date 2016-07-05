@@ -28,7 +28,7 @@ class WP_Test_Jetpack_Sync_Site_Icon_Url extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_site_icon_delete_is_synced_using_jetpack_function() {
 		global $wp_version;
-		
+
 		// verify that we started with an icon.
 		$this->assertEquals( 'http://foo.com/icon.gif', $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
 

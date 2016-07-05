@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
-		
+
 		wp_update_plugins();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );

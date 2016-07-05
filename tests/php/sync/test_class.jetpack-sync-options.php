@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$synced_option_value = $this->server_replica_storage->get_option( 'don_t_sync_test_option' );
 		$this->assertEquals( false, $synced_option_value );
 	}
-	
+
 	public function test_sync_options_that_use_filter() {
 		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
 		$this->options_module->update_options_whitelist();
@@ -168,7 +168,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'active_plugins' => array( 'pineapple' ),
 			'uninstall_plugins' => 'banana'
 		);
-		
+
 		$theme_mod_key = 'theme_mods_' . get_option( 'stylesheet' );
 		$options[ $theme_mod_key ] = 'pineapple';
 
@@ -188,7 +188,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$whitelist_and_option_keys_difference = array_diff( $whitelist, $option_keys );
 		// Are we testing all the options
 		$unique_whitelist = array_unique( $whitelist );
-		
+
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: '. print_r( array_diff_key( $whitelist , array_unique( $whitelist ) ) ,1 ) );
 		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 )  );
 	}

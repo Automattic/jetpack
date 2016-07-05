@@ -4,7 +4,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
 
-/** 
+/**
  * This class monitors actions and logs them to the queue to be sent
  */
 class Jetpack_Sync_Listener {
@@ -42,7 +42,7 @@ class Jetpack_Sync_Listener {
 		// synthetic actions for full sync
 		add_action( 'jetpack_full_sync_start', $handler );
 		add_action( 'jetpack_full_sync_end', $handler );
-		
+
 		// Module Activation
 		add_action( 'jetpack_activate_module', $handler );
 		add_action( 'jetpack_deactivate_module', $handler );
@@ -100,13 +100,13 @@ class Jetpack_Sync_Listener {
 			return;
 		}
 
-		// periodically check the size of the queue, and disable adding to it if 
+		// periodically check the size of the queue, and disable adding to it if
 		// it exceeds some limit
 		if ( $this->is_over_queue_limit() ) {
 			return;
 		}
 
-		// if we add any items to the queue, we should 
+		// if we add any items to the queue, we should
 		// try to ensure that our script can't be killed before
 		// they are sent
 		if ( function_exists( 'ignore_user_abort' ) ) {

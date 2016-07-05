@@ -100,7 +100,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 
 	private function get_constant( $constant ) {
 		return ( defined( $constant ) ) ?
-			constant( $constant ) 
+			constant( $constant )
 			: null;
 	}
 }

@@ -26,11 +26,11 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	public function test_added_multiple_post_meta_is_synced() {
 		add_post_meta( $this->post_id, 'test_meta_key_array', 'foo' );
 		add_post_meta( $this->post_id, 'test_meta_key_array', 'bar' );
-		
+
 		$this->sender->do_sync();
 
 		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_key_array' );
-		
+
 		$this->assertEquals( array( 'foo', 'bar' ), $meta_key_array );
 	}
 

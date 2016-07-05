@@ -19,12 +19,12 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @param bool should we load sync listener code for this request
 		 */
-		if ( apply_filters( 'jetpack_sync_listener_should_load', 
-				( 
-					$_SERVER['REQUEST_METHOD'] !== 'GET' 
+		if ( apply_filters( 'jetpack_sync_listener_should_load',
+				(
+					$_SERVER['REQUEST_METHOD'] !== 'GET'
 				||
 					defined( 'PHPUNIT_JETPACK_TESTSUITE' )
-				) 
+				)
 			) ) {
 			require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 			self::$listener = Jetpack_Sync_Listener::getInstance();
@@ -39,13 +39,13 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @param bool should we load sync sender code for this request
 		 */
-		if ( ! apply_filters( 'jetpack_sync_sender_should_load', 
+		if ( ! apply_filters( 'jetpack_sync_sender_should_load',
 			(
-				$_SERVER['REQUEST_METHOD'] === 'POST' 
-			|| 
-				current_user_can( 'manage_options' ) 
-			|| 
-				is_admin() 
+				$_SERVER['REQUEST_METHOD'] === 'POST'
+			||
+				current_user_can( 'manage_options' )
+			||
+				is_admin()
 			||
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
 			)
@@ -53,11 +53,11 @@ class Jetpack_Sync_Actions {
 			( Jetpack::is_active() || defined( 'PHPUNIT_JETPACK_TESTSUITE' ) )
 		&&
 			!( Jetpack::is_development_mode() || Jetpack::is_staging_site() )
-		
+
 		) ) {
 			return;
 		}
-		
+
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-sender.php';
 		self::$sender = Jetpack_Sync_Sender::getInstance();
 

@@ -75,7 +75,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$this->assertTrue( is_wp_error( $second_buffer ) );
 		$this->assertEquals( 'unclosed_buffer', $second_buffer->get_error_code() );
 
-		// checkin returns the buffer to the queue - you would call this if you 
+		// checkin returns the buffer to the queue - you would call this if you
 		// had an error, e.g. an error POST-ing to WPCOM
 		$this->queue->checkin( $buffer );
 
@@ -109,7 +109,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout_with_memory_limit( 500000 );
 
-		$this->assertEquals( 500, count( $buffer->get_items() ) );	
+		$this->assertEquals( 500, count( $buffer->get_items() ) );
 	}
 
 	function test_checkout_with_memory_limit_can_also_specify_rows() {
@@ -122,7 +122,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout_with_memory_limit( 1000, 50 );
 
-		$this->assertEquals( 50, count( $buffer->get_items() ) );		
+		$this->assertEquals( 50, count( $buffer->get_items() ) );
 	}
 
 	function test_checkout_of_item_larger_than_memory_fetches_it_solo() {
@@ -157,7 +157,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$other_queue = new Jetpack_Sync_Queue( $this->queue->id, 2 );
 
 		$this->queue->add_all( array(1, 2, 3, 4, 5) );
-		
+
 		$buffer = $this->queue->checkout( 2 );
 
 		$this->assertEquals( array(1, 2), $buffer->get_item_values() );
@@ -226,7 +226,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	function test_reset_removes_all_items() {
 		$this->queue->add( 'foo' );
 		$this->assertEquals( 1, $this->queue->size() );
-		
+
 		$this->queue->reset();
 
 		$this->assertEquals( 0, $this->queue->size() );
@@ -265,13 +265,13 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		// add a whole bunch of posts
 		for( $i = 0; $i < $iterations; $i+=1 ) {
 			$start_create_post_time = microtime(true);
-			
+
 			$post_id = $this->factory->post->create();
-			
+
 			$start_add_queue_time = microtime(true);
-			
+
 			$this->queue->add( $post_id );
-			
+
 			$end_time = microtime(true);
 
 			$post_create_time += $start_add_queue_time - $start_create_post_time;
