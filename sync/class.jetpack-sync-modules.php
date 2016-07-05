@@ -64,7 +64,7 @@ class Jetpack_Sync_Modules {
 		 * If you add to this list, make sure any classes implement the
 		 * Jetpack_Sync_Module interface.
 		 *
-		 * @since 4.2
+		 * @since 4.2.0
 		 */
 		$modules = apply_filters( 'jetpack_sync_modules', self::$default_sync_modules );
 		return array_map( array( 'Jetpack_Sync_Modules', 'initialize_module' ), $modules );

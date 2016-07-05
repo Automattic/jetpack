@@ -48,7 +48,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		/**
 		 * Tells the client to sync all constants to the server
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 *
 		 * @param boolean Whether to expand constants (should always be true)
 		 */

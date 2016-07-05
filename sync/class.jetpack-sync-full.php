@@ -75,7 +75,7 @@ class Jetpack_Sync_Full {
 		 * and sent to the server so that it can clear the replica storage,
 		 * and/or reset other data.
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_start' );
 		$this->set_status_queuing_started();
@@ -188,7 +188,7 @@ class Jetpack_Sync_Full {
 			 	 * Fires with a chunk of object IDs during full sync.
 			 	 * These are expanded to full objects before upload
 			 	 *
-			 	 * @since 4.1
+			 	 * @since 4.2.0
 			 	 */
 				do_action( $action_name, $chunk );
 				$chunk_count++;
@@ -426,7 +426,7 @@ class Jetpack_Sync_Full {
 		 * Fires when the full_sync_start action is actually transmitted.
 		 * This is useful for telling the user the status of full synchronization.
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 */
 
 		do_action( 'jetpack_full_sync_start_sent' );
@@ -438,7 +438,7 @@ class Jetpack_Sync_Full {
 		 * Fires when the full_sync_end action is actually transmitted.
 		 * This is useful for telling the user the status of full synchronization.
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_end_sent' );
 	}

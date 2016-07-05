@@ -49,7 +49,7 @@ class Jetpack_Sync_Server {
 			/**
 			 * Fires when the server receives two concurrent requests from the same blog
 			 *
-			 * @since 4.1
+			 * @since 4.2.0
 			 *
 			 * @param token The token object of the misbehaving site
 			 */
@@ -63,7 +63,7 @@ class Jetpack_Sync_Server {
 		/**
 		 * Fires when an array of actions are received from a remote Jetpack site
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 *
 		 * @param array Array of actions received from the remote site
 		 */
@@ -75,7 +75,7 @@ class Jetpack_Sync_Server {
 			/**
 			 * Fires when an action is received from a remote Jetpack site
 			 *
-			 * @since 4.1
+			 * @since 4.2.0
 			 *
 			 * @param string $action_name The name of the action executed on the remote site
 			 * @param array $args The arguments passed to the action
@@ -88,7 +88,7 @@ class Jetpack_Sync_Server {
 			/**
 			 * Fires when an action is received from a remote Jetpack site
 			 *
-			 * @since 4.1
+			 * @since 4.2.0
 			 *
 			 * @param array $args The arguments passed to the action
 			 * @param int $user_id The external_user_id who did the action
