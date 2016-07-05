@@ -75,7 +75,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 4.2 = 
+= 4.2 =
 
 Bug Fixes:
 
@@ -83,6 +83,7 @@ Bug Fixes:
 
 Enhancements:
 
+* General: we've completely refactored the way information was synchronized between your site and WordPress.com, thus ensuring every module uses information that's up to date.
 
 = 4.1 =
 
