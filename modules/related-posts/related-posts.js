@@ -181,15 +181,23 @@
 		}
 	};
 
-	$( function() {
+	function startRelatedPosts() {
 		jprp.cleanupTrackedUrl();
 
 		var endpointURL = jprp.getEndpointURL(),
 			$relatedPosts = $( '#jp-relatedposts' );
 
 		// If we're in Customizer, write the correct URL.
-		if ( wp && wp.customize ) {
-			endpointURL = decodeURIComponent( endpointURL.split( '?url=' )[1] ).replace( '&relatedposts=', '?relatedposts=' );
+		if ( 'undefined' !== typeof wp && wp.customize ) {
+			if ( -1 !== endpointURL.indexOf( '?url=' ) ) {
+				endpointURL = decodeURIComponent( endpointURL.split( '?url=' )[1] ).replace( '&relatedposts=', '?relatedposts=' );
+			} else {
+				if ( wp.customize.settings && wp.customize.settings.url && wp.customize.settings.url.self ) {
+					var currentURL = document.createElement( 'a' );
+					currentURL.href = document.location.href;
+					endpointURL = endpointURL.replace( currentURL.pathname, wp.customize.settings.url.self ).replace( '&relatedposts=', '?relatedposts=' );
+				}
+			}
 		}
 
 		$.getJSON( endpointURL, function( response ) {
@@ -203,7 +211,7 @@
 				showThumbnails,
 				options = {};
 
-			if ( wp && wp.customize ) {
+			if ( 'undefined' !== typeof wp && wp.customize ) {
 				showThumbnails = wp.customize.instance( 'jetpack_relatedposts[show_thumbnails]' ).get();
 				options.showDate = wp.customize.instance( 'jetpack_relatedposts[show_date]' ).get();
 				options.showContext = wp.customize.instance( 'jetpack_relatedposts[show_context]' ).get();
@@ -226,5 +234,12 @@
 				this.href = jprp.getTrackedUrl( this );
 			});
 		} );
-	} );
+	}
+
+	if ( 'undefined' !== typeof wp && wp.customize ) {
+		wp.customize.bind( 'preview-ready', startRelatedPosts );
+	} else {
+		$( startRelatedPosts );
+	}
+
 })(jQuery);
