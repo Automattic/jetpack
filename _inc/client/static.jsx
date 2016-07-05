@@ -11,11 +11,10 @@ import { Provider } from 'react-redux';
 import store from 'state/redux-store';
 import StaticMain from 'static-main';
 
-export const html = Server.renderToStaticMarkup(
-	<div>
-		<Provider store={ store }>
-			  <StaticMain />
-		</Provider>
-
-	</div>
-);
+window.staticHtml = Server.renderToStaticMarkup(
+		<div>
+			<Provider store={ store }>
+				  <StaticMain />
+			</Provider>
+		</div>
+	);
