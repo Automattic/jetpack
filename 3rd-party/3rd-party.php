@@ -10,3 +10,4 @@ require_once( JETPACK__PLUGIN_DIR . '3rd-party/wpml.php' );
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/bitly.php' );
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/bbpress.php' );
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/woocommerce.php' );
+require_once( JETPACK__PLUGIN_DIR . '3rd-party/vaultpress.php' );
