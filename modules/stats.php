@@ -277,7 +277,7 @@ function stats_admin_menu() {
 		}
 	}
 
-	$hook = add_submenu_page( 'jetpack', __( 'Site Stats', 'jetpack' ), __( 'Site Stats', 'jetpack' ), 'view_stats', 'stats', 'stats_reports_page' );
+	$hook = add_submenu_page( null, __( 'Site Stats', 'jetpack' ), __( 'Site Stats', 'jetpack' ), 'view_stats', 'stats', 'stats_reports_page' );
 	add_action( "load-$hook", 'stats_reports_load' );
 }
 
