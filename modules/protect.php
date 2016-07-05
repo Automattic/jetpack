@@ -540,13 +540,10 @@ class Jetpack_Protect_Module {
 	 * Checks if the protect API call has failed, and if so initiates the math captcha fallback.
 	 */
 	public function check_use_math() {
-		global $pagenow;
-		if ( isset( $pagenow ) && 'wp-login.php' == $pagenow ) {
-			$use_math = $this->get_transient( 'brute_use_math' );
-			if ( $use_math ) {
-				include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-				new Jetpack_Protect_Math_Authenticate;
-			}
+		$use_math = $this->get_transient( 'brute_use_math' );
+		if ( $use_math ) {
+			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate;
 		}
 	}
 
