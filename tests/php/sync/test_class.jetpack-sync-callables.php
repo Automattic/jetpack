@@ -109,6 +109,35 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_callable( $name ), 'Function '. $name .' didn\'t have the expected value of ' . json_encode( $value ) );
 	}
 
+	function test_white_listed_callables_have_REST_API_REQUEST_true() {
+		// this hack is necessary because so many filters we want to sync return early if
+		// REST_API_REQUEST is false or not defined.
+
+		// sync existing constants
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+
+		add_filter( 'rest_api_allowed_post_types', array( $this, 'conditionally_add_post_type' ) );
+
+		// force re-sync of callables despite wait time not having passed
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
+		$synced_post_types = $event->args[1];
+
+		$this->assertTrue( in_array( 'my_new_post_type', $synced_post_types ) );
+	}
+
+	// designed to work much the same as other allowed-post-type filters
+	function conditionally_add_post_type( $allowed_post_types ) {
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
+			return $allowed_post_types;
+
+		$allowed_post_types[] = 'my_new_post_type';
+		return $allowed_post_types;
+	} 
+
 	function test_white_listed_callables_doesnt_get_synced_twice() {
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
