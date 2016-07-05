@@ -86,6 +86,11 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
 			return;
 		}
+
+		if ( ! defined( 'REST_API_REQUEST' ) ) {
+			define( 'REST_API_REQUEST', true );
+		}
+
 		$callables = $this->get_all_callables();
 
 		if ( empty( $callables ) ) {
