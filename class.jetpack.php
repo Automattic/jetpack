@@ -1566,7 +1566,7 @@ class Jetpack {
 	 * @param array   $args         See definitions above
 	 */
 	public static function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-4.2', 'Security reports feature has been removed' );
+		_deprecated_function( __FUNCTION__, 'jetpack-4.2', null );
 	}
 
 /* Jetpack Options API */
