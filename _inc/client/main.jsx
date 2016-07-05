@@ -23,7 +23,7 @@ import Engagement from 'engagement/index.jsx';
 import Security from 'security/index.jsx';
 import Appearance from 'appearance/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
-import More from 'more/index.jsx';
+import Writing from 'writing/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
@@ -93,7 +93,7 @@ const Main = React.createClass( {
 				break;
 			case '/writing':
 				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <More { ...this.props } />;
+				pageComponent = <Writing { ...this.props } />;
 				break;
 
 			default:
