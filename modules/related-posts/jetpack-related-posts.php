@@ -143,6 +143,27 @@ class Jetpack_RelatedPosts {
 	}
 
 	/**
+	 * Render insertion point.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @return string
+	 */
+	public function get_headline() {
+		$options = $this->get_options();
+
+		if ( $options['show_headline'] ) {
+			$headline = sprintf(
+				'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
+				esc_html__( 'Related', 'jetpack' )
+			);
+		} else {
+			$headline = '';
+		}
+		return $headline;
+	}
+
+	/**
 	 * Adds a target to the post content to load related posts into if a shortcode for it did not already exist.
 	 *
 	 * @filter the_content
@@ -183,18 +204,6 @@ class Jetpack_RelatedPosts {
 			return '';
 		}
 
-		$options = $this->get_options();
-
-		if ( $options['show_headline'] ) {
-			$headline = sprintf(
-				/** This filter is already documented in modules/sharedaddy/sharing-service.php */
-				apply_filters( 'jetpack_sharing_headline_html', '<h3 class="jp-relatedposts-headline"><em>%s</em></h3>', esc_html__( 'Related', 'jetpack' ), 'related-posts' ),
-				esc_html__( 'Related', 'jetpack' )
-			);
-		} else {
-			$headline = '';
-		}
-
 		/**
 		 * Filter the Related Posts headline.
 		 *
@@ -204,7 +213,7 @@ class Jetpack_RelatedPosts {
 		 *
 		 * @param string $headline Related Posts heading.
 		 */
-		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $headline );
+		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $this->get_headline() );
 
 		if ( $this->_previous_post_id ) {
 			$exclude = "data-exclude='{$this->_previous_post_id}'";
@@ -1297,8 +1306,9 @@ EOT;
 	 * @return null
 	 */
 	protected function _enqueue_assets( $script, $style ) {
+		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array( 'jquery' );
 		if ( $script ) {
-			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), $dependencies, self::VERSION );
 			$related_posts_js_options = array(
 				/**
 				 * Filter each Related Post Heading structure.

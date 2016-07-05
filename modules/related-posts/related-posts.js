@@ -181,6 +181,9 @@
 		}
 	};
 
+	/**
+	 * Initialize Related Posts.
+	 */
 	function startRelatedPosts() {
 		jprp.cleanupTrackedUrl();
 
@@ -236,10 +239,19 @@
 		} );
 	}
 
-	if ( 'undefined' !== typeof wp && wp.customize ) {
-		wp.customize.bind( 'preview-ready', startRelatedPosts );
-	} else {
-		$( startRelatedPosts );
-	}
+	$( function() {
+		if ( 'undefined' !== typeof wp && wp.customize ) {
+			if ( wp.customize.selectiveRefresh ) {
+				wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
+					if ( 'jetpack_relatedposts' === placement.partial.id ) {
+						startRelatedPosts();
+					}
+				} );
+			}
+			wp.customize.bind( 'preview-ready', startRelatedPosts );
+		} else {
+			startRelatedPosts();
+		}
+	} );
 
 })(jQuery);

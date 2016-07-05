@@ -47,7 +47,10 @@ class Jetpack_Related_Posts_Customize {
 			)
 		);
 
-		foreach ( $this->get_options() as $key => $field ) {
+		$selective_options = array();
+
+		foreach ( $this->get_options( $wp_customize ) as $key => $field ) {
+			$selective_options[] = "$this->prefix[$key]";
 			$wp_customize->add_setting( "$this->prefix[$key]",
 				array(
 					'default' 	 => isset( $field['default'] ) ? $field['default'] : '',
@@ -78,6 +81,26 @@ class Jetpack_Related_Posts_Customize {
 					break;
 			}
 		}
+
+		// If selective refresh is available, implement it.
+		if ( isset( $wp_customize->selective_refresh ) ) {
+			$wp_customize->selective_refresh->add_partial( "$this->prefix", array(
+				'selector'            => '.jp-relatedposts',
+				'settings'            => $selective_options,
+				'render_callback'     => __CLASS__ . '::render_callback',
+				'container_inclusive' => false,
+			) );
+		}
+
+	}
+
+	/**
+	 * Callback that outputs the headline based on user choice.
+	 *
+	 * @since 4.2.0
+	 */
+	public static function render_callback() {
+		echo Jetpack_RelatedPosts::init()->get_headline();
 	}
 
 	/**
@@ -96,7 +119,8 @@ class Jetpack_Related_Posts_Customize {
 	 *
 	 * @since 4.2.0
 	 */
-	function get_options() {
+	function get_options( $wp_customize ) {
+		$transport = isset( $wp_customize->selective_refresh ) ? 'postMessage' : 'refresh';
 		return apply_filters(
 			'jetpack_related_posts_customize_options', array(
 			'show_headline'   => array(
@@ -105,7 +129,7 @@ class Jetpack_Related_Posts_Customize {
 				'control_type' => 'checkbox',
 				'default'      => 1,
 				'setting_type' => 'option',
-				'transport'    => 'refresh',
+				'transport'    => $transport,
 			),
 			'show_thumbnails' => array(
 				'label'        => esc_html__( 'Show thumbnails', 'jetpack' ),
@@ -113,7 +137,7 @@ class Jetpack_Related_Posts_Customize {
 				'control_type' => 'checkbox',
 				'default'      => 1,
 				'setting_type' => 'option',
-				'transport'    => 'refresh',
+				'transport'    => $transport,
 			),
 			'show_date' => array(
 				'label'        => esc_html__( 'Show date', 'jetpack' ),
@@ -121,7 +145,7 @@ class Jetpack_Related_Posts_Customize {
 				'control_type' => 'checkbox',
 				'default'      => 1,
 				'setting_type' => 'option',
-				'transport'    => 'refresh',
+				'transport'    => $transport,
 			),
 			'show_context' => array(
 				'label'        => esc_html__( 'Show context', 'jetpack' ),
@@ -129,7 +153,7 @@ class Jetpack_Related_Posts_Customize {
 				'control_type' => 'checkbox',
 				'default'      => 1,
 				'setting_type' => 'option',
-				'transport'    => 'refresh',
+				'transport'    => $transport,
 			),
 		)
 		);
