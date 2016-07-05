@@ -12,7 +12,6 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import ConnectionSettings from './connection-settings';
-import SitePlan from './site-plan';
 import { disconnectSite } from 'state/connection';
 import { isDevMode } from 'state/connection';
 import {
@@ -48,31 +47,24 @@ const GeneralSettings = React.createClass( {
 				<a href={ this.props.getModule( module_slug ).learn_more_button } target="_blank">{ __( 'Learn More' ) }</a>
 			</FoldableCard>;
 
+		const maybeShowManage = this.props.isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' );
+
 		return(
 			<div>
-				{ moduleCard( 'manage' ) }
-				{ moduleCard( 'notes' ) }
 				<FoldableCard
-					header={ __( 'Jetpack Add-ons' ) }
-					subheader={ __( 'Manage your Jetpack account and premium add-ons.' ) }
-					clickableHeaderText={ true }
-					disabled={ isDevMode( this.props ) }
-				>
-					<SitePlan { ...this.props } />
-				</FoldableCard>
-				<FoldableCard
-					header="Jetpack Connection Settings"
-					subheader="Manage your connected user accounts or disconnect."
+					header={ __( 'Connection Settings' ) }
+					subheader={ __( 'Manage your connected user accounts or disconnect.' ) }
 					clickableHeaderText={ true }
 					disabled={ isDevMode( this.props ) }
 				>
 					<ConnectionSettings { ...this.props } />
 				</FoldableCard>
-				{ moduleCard( 'omnisearch', false ) }
+				{ maybeShowManage }
+				{ moduleCard( 'notes' ) }
 				{ moduleCard( 'json-api' ) }
 				<FoldableCard
-					header="Miscellaneous Settings"
-					subheader="Manage Snow and other fun things for your site."
+					header={ __( 'Miscellaneous Settings' ) }
+					subheader={ __( 'Manage Snow and other fun things for your site.' ) }
 					clickableHeaderText={ true }
 				>
 					<Settings />
