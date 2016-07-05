@@ -28,6 +28,11 @@ class Jetpack_Sync_Functions {
 		return apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'revision' ) );
 	}
 
+	public static function rest_api_allowed_public_metadata() {
+		/** This filter is documented in json-endpoints/class.wpcom-json-api-post-endpoint.php */
+		return apply_filters( 'rest_api_allowed_public_metadata', array() );
+	}
+
 	/**
 	 * Finds out if a site is using a version control system.
 	 * @return bool
