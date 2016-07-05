@@ -5,7 +5,7 @@
  */
 add_action( 'init', 'jetpack_vaultpress_sync_options' );
 function jetpack_vaultpress_sync_options() {
-	if ( !class_exists( 'VaultPress' ) ) {
+	if ( ! class_exists( 'VaultPress' ) ) {
 		return;
 	}
 	$vaultpress = VaultPress::init();
