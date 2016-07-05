@@ -61,6 +61,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'is_version_controlled'           => Jetpack_Sync_Functions::is_version_controlled(),
 			'taxonomies'                      => Jetpack_Sync_Functions::get_taxonomies(),
 			'post_types'                      => Jetpack_Sync_Functions::get_post_types(),
+			'rest_api_allowed_post_types'     => Jetpack_Sync_Functions::rest_api_allowed_post_types(),
 			'sso_is_two_step_required'        => Jetpack_SSO_Helpers::is_two_step_required(),
 			'sso_should_hide_login_form'      => Jetpack_SSO_Helpers::should_hide_login_form(),
 			'sso_match_by_email'              => Jetpack_SSO_Helpers::match_by_email(),
