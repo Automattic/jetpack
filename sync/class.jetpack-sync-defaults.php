@@ -140,6 +140,7 @@ class Jetpack_Sync_Defaults {
 		'is_version_controlled'           => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
 		'taxonomies'                      => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
 		'post_types'                      => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
+		'rest_api_allowed_post_types'     => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_post_types' ),
 		'sso_is_two_step_required'        => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
 		'sso_should_hide_login_form'      => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
 		'sso_match_by_email'              => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
