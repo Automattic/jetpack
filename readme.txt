@@ -75,6 +75,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.2 = 
+
+Bug Fixes:
+
+* Notifications: avoid PHP notices when moderating comments. #4208
+
+Enhancements:
+
+
 = 4.1 =
 
 Bug Fixes:
