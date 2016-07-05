@@ -68,7 +68,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		/**
 		 * Tells the client to sync all callables to the server
 		 *
-		 * @since 4.2
+		 * @since 4.2.0
 		 *
 		 * @param boolean Whether to expand callables (should always be true)
 		 */
@@ -87,7 +87,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			return;
 		}
 		$callables = $this->get_all_callables();
-		
+
 		if ( empty( $callables ) ) {
 			return;
 		}

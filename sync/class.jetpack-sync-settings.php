@@ -5,10 +5,10 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 class Jetpack_Sync_Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
-	static $valid_settings = array( 
-		'dequeue_max_bytes' => true, 
-		'upload_max_bytes' => true, 
-		'upload_max_rows' => true, 
+	static $valid_settings = array(
+		'dequeue_max_bytes' => true,
+		'upload_max_bytes' => true,
+		'upload_max_rows' => true,
 		'sync_wait_time' => true,
 		'max_queue_size' => true
 	);

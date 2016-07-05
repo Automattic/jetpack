@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( count( $events ) < 20 );
 
 		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
-		
+
 		// we're making some assumptions here about how fast the test will run...
 		$this->assertTrue( $timestamp >= time()+59 );
 		$this->assertTrue( $timestamp <= time()+61 );
@@ -163,7 +163,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $pre_sync_queue_size, $queue->size() );
 
 		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
-		
+
 		// we're making some assumptions here about how fast the test will run...
 		$this->assertTrue( $timestamp >= time()+59 );
 		$this->assertTrue( $timestamp <= time()+61 );
@@ -173,7 +173,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// so we take multiple syncs to upload
-		$this->sender->set_upload_max_rows( 2 ); 
+		$this->sender->set_upload_max_rows( 2 );
 
 		// make the sync listener listen for a new action
 		add_action( 'my_action', array( $this->listener, 'action_handler' ) );

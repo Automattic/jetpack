@@ -163,7 +163,7 @@ class Jetpack_Sync_Queue {
 	// this checks out rows until it either empties the queue or hits a certain memory limit
 	// it loads the sizes from the DB first so that it doesn't accidentally
 	// load more data into memory than it needs to.
-	// The only way it will load more items than $max_size is if a single queue item 
+	// The only way it will load more items than $max_size is if a single queue item
 	// exceeds the memory limit, but in that case it will send that item by itself.
 	function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
 		if ( $this->get_checkout_id() ) {
@@ -321,7 +321,7 @@ class Jetpack_Sync_Queue {
 
 	private function get_next_data_row_option_name() {
 		// this option is specifically chosen to, as much as possible, preserve time order
-		// and minimise the possibility of collisions between multiple processes working 
+		// and minimise the possibility of collisions between multiple processes working
 		// at the same time
 		// TODO: confirm we only need to support PHP 5.05+ (otherwise we'll need to emulate microtime as float, and avoid PHP_INT_MAX)
 		// @see: http://php.net/manual/en/function.microtime.php

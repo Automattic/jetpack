@@ -100,7 +100,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function ajax_cancel_full_sync() {
-		// TODO	
+		// TODO
 	}
 
 	function ajax_full_sync_status() {

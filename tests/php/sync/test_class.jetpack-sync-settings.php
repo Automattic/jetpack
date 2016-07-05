@@ -5,7 +5,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		$settings = Jetpack_Sync_Settings::get_settings();
 
 		foreach( array( 'dequeue_max_bytes', 'sync_wait_time', 'upload_max_bytes', 'upload_max_rows', 'max_queue_size' ) as $key ) {
-			$this->assertTrue( isset( $settings[ $key ] ) );	
+			$this->assertTrue( isset( $settings[ $key ] ) );
 		}
 
 		$settings[ 'dequeue_max_bytes' ] = 50;

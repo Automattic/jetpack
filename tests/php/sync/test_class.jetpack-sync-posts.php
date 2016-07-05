@@ -304,7 +304,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( $post_on_server->post_excerpt, '[foo]' );
 		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ),  'bar' );
-	}	
+	}
 
 	function test_sync_changed_post_password() {
 		// Don't set the password if there is non.
@@ -357,7 +357,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		remove_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
-		
+
 		$this->assertEquals( 2, $this->server_replica_storage->post_count() ); // the post and its revision
 		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 		$post = $insert_post_event->args[1];

@@ -69,7 +69,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 		$this->sender->do_sync();
-		
+
 		$this->assertNull( $this->server_replica_storage->get_user( $this->user_id ) );
 	}
 
@@ -92,7 +92,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$user->add_role( 'author' );
 
 		$this->sender->do_sync();
-		
+
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
@@ -280,7 +280,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_syncs_user_authentication_attempts() {
 		$user_id = $this->factory->user->create( array( 'user_login' => 'foobar' ) );
 
-		// TODO: ideally we would do wp_signon to trigger this event, but it tries to send headers and 
+		// TODO: ideally we would do wp_signon to trigger this event, but it tries to send headers and
 		// causes an error.
 
 		// wp_set_password( 'pw', $user_id );
@@ -306,7 +306,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_syncs_user_logout_event() {
 		$user_id = $this->factory->user->create( array( 'user_login' => 'foobar' ) );
 
-		// TODO: ideally we would do wp_logout to trigger this event, but it tries to send headers and 
+		// TODO: ideally we would do wp_logout to trigger this event, but it tries to send headers and
 		// causes an error.
 
 		// wp_set_password( 'pw', $user_id );
@@ -335,4 +335,3 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( array_diff( $user1_array, $user2_array ) == array_diff( $user2_array, $user1_array ) );
 	}
 }
-

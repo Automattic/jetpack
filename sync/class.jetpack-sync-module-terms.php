@@ -2,7 +2,7 @@
 
 class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 	private $taxonomy_whitelist;
-	
+
 	function name() {
 		return "terms";
 	}

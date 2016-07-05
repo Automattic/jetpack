@@ -14,7 +14,7 @@ class Jetpack_Sync_Server_Replicator {
 	function init() {
 		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 5, 5 );
 	}
-	
+
 	function handle_remote_action( $action_name, $args, $user_id, $timestamp, $token ) {
 
 		switch ( $action_name ) {
@@ -27,7 +27,7 @@ class Jetpack_Sync_Server_Replicator {
 				list( $post_id ) = $args;
 				$this->store->delete_post( $post_id );
 				break;
-			
+
 			// attachments
 			case 'attachment_updated':
 				list( $post_ID, $post, $post_before ) = $args;
@@ -37,7 +37,7 @@ class Jetpack_Sync_Server_Replicator {
 				list( $attachment_ID, $attachment ) = $args;
 				$this->store->upsert_post( $attachment );
 				break;
-				
+
 			// comments
 			case 'wp_insert_comment':
 			case ( preg_match( '/^comment_[^_]*_[^_]*$/', $action_name ) ? true : false ):
@@ -70,8 +70,8 @@ class Jetpack_Sync_Server_Replicator {
 				list( $option ) = $args;
 				$this->store->delete_option( $option );
 				break;
-			
-			// themes				
+
+			// themes
 			case 'jetpack_sync_current_theme_support':
 				list( $theme_options ) = $args;
 				$this->store->set_theme_support( $theme_options );
@@ -151,7 +151,7 @@ class Jetpack_Sync_Server_Replicator {
 				foreach ( $post_metas as $meta ) {
 					$this->store->upsert_metadata( 'post', $meta->post_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
 				}
-			
+
 				foreach ( $terms as $term_object ) {
 					$term = $this->store->get_term( false, $term_object->term_taxonomy_id, 'term_taxonomy_id' );
 					if ( isset( $term->taxonomy ) ) {
@@ -228,7 +228,7 @@ class Jetpack_Sync_Server_Replicator {
 				list( $object_id, $tt_ids ) = $args;
 				$this->store->delete_object_terms( $object_id, $tt_ids );
 				break;
-			
+
 			// users
 			case 'jetpack_sync_save_user':
 				list( $user ) = $args;
