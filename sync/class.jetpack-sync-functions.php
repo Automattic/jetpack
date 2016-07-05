@@ -23,6 +23,10 @@ class Jetpack_Sync_Functions {
 		return $wp_post_types;
 	}
 
+	public static function rest_api_allowed_post_types() {
+		return apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'revision' ) );
+	}
+
 	/**
 	 * Finds out if a site is using a version control system.
 	 * @return bool
