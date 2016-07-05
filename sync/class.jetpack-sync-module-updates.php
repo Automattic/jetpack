@@ -20,7 +20,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		/**
 		 * Tells the client to sync all updates to the server
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 *
 		 * @param boolean Whether to expand updates (should always be true)
 		 */
