@@ -491,7 +491,7 @@ class Jetpack {
 		}
 
 	}
-	
+
 	function jetpack_admin_ajax_tracks_callback() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
@@ -868,7 +868,7 @@ class Jetpack {
 		jetpack_register_genericons();
 
 		/**
-		 * Register the social logos 
+		 * Register the social logos
 		 */
 		require_once( JETPACK__PLUGIN_DIR . '_inc/social-logos.php' );
 		jetpack_register_social_logos();
@@ -1132,7 +1132,7 @@ class Jetpack {
 		_deprecated_function( __METHOD__, 'jetpack-4.2' );
 		return current_theme_supports( 'post-thumbnails' ) ? '1' : '0';
 	}
-	
+
 	/**
 	 * jetpack_updates is saved in the following schema:
 	 *
@@ -2686,7 +2686,7 @@ p {
 		}
 
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
-		
+
 		// Delete all the sync related data. Since it could be taking up space.
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 		Jetpack_Sync_Sender::getInstance()->uninstall();
@@ -4206,7 +4206,7 @@ p {
 
 			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
 			@list( $secret ) = explode( ':', $secrets );
-			
+
 			$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
 				? get_site_icon_url()
 				: false;
@@ -4580,7 +4580,7 @@ p {
 					<span id="jetpack-recheck-ssl-output"><?php echo get_transient( 'jetpack_https_test_message' ); ?></span>
 				</p>
 				<p>
-					<?php printf( __( 'For more help, try our <a href="%1$s">connection debugger</a> or <a href="%2$s" target="_blank">troubleshooting tips</a>.', 'jetpack' ), 
+					<?php printf( __( 'For more help, try our <a href="%1$s">connection debugger</a> or <a href="%2$s" target="_blank">troubleshooting tips</a>.', 'jetpack' ),
 							esc_url( Jetpack::admin_url( array( 'page' => 'jetpack-debugger' )  ) ),
 							esc_url( 'https://jetpack.com/support/getting-started-with-jetpack/troubleshooting-tips/' ) ); ?>
 				</p>
@@ -6005,12 +6005,25 @@ p {
 		 * If there is no replacement us null for replacement_name
 		 */
 		$deprecated_list = array(
-			'jetpack_bail_on_shortcode'                => 'jetpack_shortcodes_to_include',
-			'wpl_sharing_2014_1'                       => null,
-			'jetpack-tools-to-include'                 => 'jetpack_tools_to_include',
-			'jetpack_identity_crisis_options_to_check' => null,
-			'audio_player_default_colors'              => null,
-			'update_option_jetpack_single_user_site'   => null,
+			'jetpack_bail_on_shortcode'                              => 'jetpack_shortcodes_to_include',
+			'wpl_sharing_2014_1'                                     => null,
+			'jetpack-tools-to-include'                               => 'jetpack_tools_to_include',
+			'jetpack_identity_crisis_options_to_check'               => null,
+			'update_option_jetpack_single_user_site'                 => null,
+			'audio_player_default_colors'                            => null,
+			'add_option_jetpack_featured_images_enabled'             => null,
+			'add_option_jetpack_update_details'                      => null,
+			'add_option_jetpack_updates'                             => null,
+			'add_option_jetpack_network_name'                        => null,
+			'add_option_jetpack_network_allow_new_registrations'     => null,
+			'add_option_jetpack_network_add_new_users'               => null,
+			'add_option_jetpack_network_site_upload_space'           => null,
+			'add_option_jetpack_network_upload_file_types'           => null,
+			'add_option_jetpack_network_enable_administration_menus' => null,
+			'add_option_jetpack_is_multi_site'                       => null,
+			'add_option_jetpack_is_main_network'                     => null,
+			'add_option_jetpack_main_network_site'                   => null,
+			'jetpack_sync_all_registered_options'                    => null,
 		);
 
 		// This is a silly loop depth. Better way?
