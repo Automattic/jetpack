@@ -47,7 +47,7 @@ class Jetpack_Testimonial {
 		// Check on theme switch if theme supports CPT and setting is disabled
 		add_action( 'after_switch_theme', array( $this, 'activation_post_type_support' ) );
 
-		$setting = get_option( self::OPTION_NAME, '0' );
+		$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
 
 		// Bail early if Testimonial option is not set and the theme doesn't declare support
 		if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {

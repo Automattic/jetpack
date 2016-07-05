@@ -49,7 +49,6 @@ class Jetpack_Protect_Module {
 	private function __construct() {
 		add_action( 'jetpack_activate_module_protect', array ( $this, 'on_activation' ) );
 		add_action( 'jetpack_deactivate_module_protect', array ( $this, 'on_deactivation' ) );
-		add_action( 'init', array ( $this, 'maybe_get_protect_key' ) );
 		add_action( 'jetpack_modules_loaded', array ( $this, 'modules_loaded' ) );
 		add_action( 'init', array ( $this, 'check_use_math' ) );
 		add_filter( 'authenticate', array ( $this, 'check_preauth' ), 10, 3 );
@@ -91,9 +90,12 @@ class Jetpack_Protect_Module {
 
 	public function maybe_get_protect_key() {
 		if ( get_site_option( 'jetpack_protect_activating', false ) && ! get_site_option( 'jetpack_protect_key', false ) ) {
-			$this->get_protect_key();
+			$key = $this->get_protect_key();
 			delete_site_option( 'jetpack_protect_activating' );
+			return $key;
 		}
+
+		return get_site_option( 'jetpack_protect_key' );
 	}
 
 	/**
@@ -649,7 +651,7 @@ class Jetpack_Protect_Module {
 	function protect_call( $action = 'check_ip', $request = array () ) {
 		global $wp_version, $wpdb, $current_user;
 
-		$api_key = get_site_option( 'jetpack_protect_key' );
+		$api_key = $this->maybe_get_protect_key();
 
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' );
 

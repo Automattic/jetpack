@@ -181,7 +181,7 @@ function grofiles_attach_cards() {
 	}
 
 	// Is the display of Gravatar Hovercards disabled?
-	if ( 'disabled' == get_option( 'gravatar_disable_hovercards' ) ) {
+	if ( 'disabled' == Jetpack_Options::get_option_and_ensure_autoload( 'gravatar_disable_hovercards', '0' ) ) {
 		return;
 	}
 

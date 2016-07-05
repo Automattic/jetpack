@@ -35,7 +35,7 @@ class Jetpack_Portfolio {
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start',                                                    array( $this, 'register_post_types' ) );
 
-		$setting = get_option( self::OPTION_NAME, '0' );
+		$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
 
 		// Bail early if Portfolio option is not set and the theme doesn't declare support
 		if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {

@@ -31,7 +31,7 @@ function jetpack_verification_options_init() {
 add_action( 'admin_init', 'jetpack_verification_options_init' );
 
 function jetpack_verification_print_meta() {
-	$verification_services_codes = get_option( 'verification_services_codes' );
+	$verification_services_codes =  Jetpack_Options::get_option_and_ensure_autoload( 'verification_services_codes', '0' );
 	if ( is_array( $verification_services_codes ) ) {
 		$ver_output = "<!-- Jetpack Site Verification Tags -->\n";
 		foreach ( jetpack_verification_services() as $name => $service ) {

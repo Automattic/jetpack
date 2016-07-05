@@ -18,6 +18,7 @@ class Jetpack_Sync_Sender {
 	private $dequeue_max_bytes;
 	private $upload_max_bytes;
 	private $upload_max_rows;
+	private $sync_wait_time;
 	private $sync_queue;
 	private $full_sync_client;
 	private $codec;
@@ -209,11 +210,11 @@ class Jetpack_Sync_Sender {
 
 	// in seconds
 	function set_sync_wait_time( $seconds ) {
-		update_option( self::SYNC_THROTTLE_OPTION_NAME, $seconds, true );
+		$this->sync_wait_time = $seconds;
 	}
 
 	function get_sync_wait_time() {
-		return (int) get_option( self::SYNC_THROTTLE_OPTION_NAME );
+		return $this->sync_wait_time;
 	}
 
 	private function get_last_sync_time() {
