@@ -21,7 +21,7 @@ import { setInitialState } from 'state/initial-state';
 import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
 import Security from 'security/index.jsx';
-import Health from 'site-health/index.jsx';
+import Appearance from 'appearance/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import More from 'more/index.jsx';
 import Footer from 'components/footer';
@@ -89,7 +89,7 @@ const Main = React.createClass( {
 				break;
 			case '/appearance':
 				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Health { ...this.props } />;
+				pageComponent = <Appearance { ...this.props } />;
 				break;
 			case '/writing':
 				navComponent = <NavigationSettings { ...this.props } />;
