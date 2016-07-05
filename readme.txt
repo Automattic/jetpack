@@ -84,6 +84,7 @@ Bug Fixes:
 Enhancements:
 
 * General: we've completely refactored the way information was synchronized between your site and WordPress.com, thus ensuring every module uses information that's up to date.
+* Performance: we've reduced the number of queries typically run on both the front end and the dashboard, to improve overall performance. #4281
 
 = 4.1 =
 
