@@ -12,8 +12,7 @@ class Jetpack_Client_Server {
 	function client_authorize() {
 		$data              = stripslashes_deep( $_GET );
 		$data['auth_type'] = 'client';
-		$jetpack           = $this->get_jetpack();
-		$role              = $jetpack->translate_current_user_to_role();
+		$role              = Jetpack::translate_current_user_to_role();
 		$redirect          = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
 		$this->check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
@@ -58,14 +57,13 @@ class Jetpack_Client_Server {
 		$jetpack_unique_connection['connected'] += 1;
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 
-		$jetpack = $this->get_jetpack();
-		$role = $jetpack->translate_current_user_to_role();
+		$role = Jetpack::translate_current_user_to_role();
 
 		if ( ! $role ) {
 			return new Jetpack_Error( 'no_role', 'Invalid request.', 400 );
 		}
 
-		$cap = $jetpack->translate_role_to_cap( $role );
+		$cap = Jetpack::translate_role_to_cap( $role );
 		if ( ! $cap ) {
 			return new Jetpack_Error( 'no_cap', 'Invalid request.', 400 );
 		}
@@ -154,8 +152,7 @@ class Jetpack_Client_Server {
 	 * @return object|WP_Error
 	 */
 	function get_token( $data ) {
-		$jetpack = $this->get_jetpack();
-		$role = $jetpack->translate_current_user_to_role();
+		$role = Jetpack::translate_current_user_to_role();
 
 		if ( ! $role ) {
 			return new Jetpack_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
@@ -232,11 +229,11 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'scope', 'Malformed Scope', $code );
 		}
 
-		if ( $jetpack->sign_role( $role ) !== $json->scope ) {
+		if ( Jetpack::sign_role( $role ) !== $json->scope ) {
 			return new Jetpack_Error( 'scope', 'Invalid Scope', $code );
 		}
 
-		if ( ! $cap = $jetpack->translate_role_to_cap( $role ) ) {
+		if ( ! $cap = Jetpack::translate_role_to_cap( $role ) ) {
 			return new Jetpack_Error( 'scope', 'No Cap', $code );
 		}
 

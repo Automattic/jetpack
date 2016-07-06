@@ -71,7 +71,7 @@ class Jetpack {
 		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
 	);
 
-	public $capability_translations = array(
+	static $capability_translations = array(
 		'administrator' => 'manage_options',
 		'editor'        => 'edit_others_posts',
 		'author'        => 'publish_posts',
@@ -4178,8 +4178,8 @@ p {
 		return $url;
 	}
 
-	function translate_current_user_to_role() {
-		foreach ( $this->capability_translations as $role => $cap ) {
+	static function translate_current_user_to_role() {
+		foreach ( static::$capability_translations as $role => $cap ) {
 			if ( current_user_can( $role ) || current_user_can( $cap ) ) {
 				return $role;
 			}
@@ -4188,15 +4188,15 @@ p {
 		return false;
 	}
 
-	function translate_role_to_cap( $role ) {
-		if ( ! isset( $this->capability_translations[$role] ) ) {
+	static function translate_role_to_cap( $role ) {
+		if ( ! isset( static::$capability_translations[$role] ) ) {
 			return false;
 		}
 
-		return $this->capability_translations[$role];
+		return static::$capability_translations[$role];
 	}
 
-	function sign_role( $role ) {
+	static function sign_role( $role ) {
 		if ( ! $user_id = (int) get_current_user_id() ) {
 			return false;
 		}
@@ -4234,8 +4234,8 @@ p {
 				$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
 			}
 
-			$role = $this->translate_current_user_to_role();
-			$signed_role = $this->sign_role( $role );
+			$role = self::translate_current_user_to_role();
+			$signed_role = self::sign_role( $role );
 
 			$user = wp_get_current_user();
 
