@@ -311,7 +311,7 @@ class WPCom_Markdown {
 	 * @return boolean
 	 */
 	public function is_posting_enabled() {
-		return (bool) get_option( self::POST_OPTION, '' );
+		return (bool) Jetpack_Options::get_option_and_ensure_autoload( self::POST_OPTION, '' );
 	}
 
 	/**
