@@ -795,7 +795,7 @@ class Jetpack_SSO {
 			JetpackTracking::record_user_event( 'sso_user_logged_in', array(
 				'user_found_with' => $user_found_with,
 				'user_connected'  => (bool) $is_user_connected,
-				'user_role'       => Jetpack::init()->translate_current_user_to_role()
+				'user_role'       => Jetpack::translate_current_user_to_role()
 			) );
 
 			if ( ! $is_user_connected ) {
