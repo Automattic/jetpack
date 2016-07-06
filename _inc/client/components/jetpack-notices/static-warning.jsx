@@ -23,9 +23,11 @@ export const StaticWarning = React.createClass( {
 	render() {
 		return (
 			<SimpleNotice showDismiss={ false } status="is-warning">
-				#HEADER_TEXT#
-				<br />
-				#TEXT#
+				<div>
+					#HEADER_TEXT#
+					<br />
+					#TEXT#
+				</div>
 			</SimpleNotice>
 		);
 	}

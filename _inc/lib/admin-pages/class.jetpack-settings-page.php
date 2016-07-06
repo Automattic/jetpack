@@ -47,8 +47,9 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 		ob_start();
 
-		/** This action is already documented in views/admin/admin-page.php */
-		do_action( 'jetpack_notices' );
+		?>
+		<div class="jp-lower">
+		<?php
 
 		if ( $this->is_wp_version_too_old() ) {
 			echo $version_notice;
@@ -78,7 +79,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			</div><!-- /.frame -->
 			<div class="frame bottom">
 				<div class="wrap">
-					<div class="manage-right">
+					<div class="manage-right" style="display: none;">
 						<div class="bumper">
 							<form class="navbar-form" role="search">
 								<input type="hidden" name="page" value="jetpack_modules" />
@@ -100,7 +101,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 							</form>
 						</div>
 					</div>
-					<div class="manage-left">
+					<div class="manage-left" style="width: 100%;">
 						<form class="jetpack-modules-list-table-form" onsubmit="return false;">
 						<table class="<?php echo implode( ' ', $list_table->get_table_classes() ); ?>">
 							<tbody id="the-list">
@@ -112,6 +113,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 				</div><!-- /.wrap -->
 			</div><!-- /.frame -->
 		</div><!-- /.content -->
+		</div><!-- /.jp-lower -->
 		<?php
 
 		$page_content = ob_get_contents();

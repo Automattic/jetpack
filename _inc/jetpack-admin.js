@@ -28,6 +28,9 @@
 				$body.removeClass('jp-frame-top-fixed');
 			}
 		});
+
+		$( '.manage-left', jpBottomFrame ).css( 'width', '' );
+		$( '.manage-right', jpBottomFrame ).show();
 	}
 
 	function initEvents() {
