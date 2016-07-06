@@ -1020,24 +1020,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		// Get parameters to update the module.
-		$param = $data->get_json_params();
+		$params = $data->get_json_params();
 
 		// Exit if no parameters were passed.
-		if ( ! is_array( $param ) ) {
-			return new WP_Error( 'missing_option', esc_html__( 'Missing option.', 'jetpack' ), array( 'status' => 404 ) );
+		if ( ! is_array( $params ) ) {
+			return new WP_Error( 'missing_options', esc_html__( 'Missing options.', 'jetpack' ), array( 'status' => 404 ) );
 		}
-
-		// Get option name and value.
-		$option = key( $param );
-		$value  = current( $param );
 
 		// Get available module options.
-		$options = self::get_module_available_options();
+		$options = self::get_module_available_options( $data['slug'] );
 
-		// If option is invalid, don't go any further.
-		if ( ! in_array( $option, array_keys( $options ) ) ) {
-			return new WP_Error( 'invalid_param', esc_html(	sprintf( __( 'The option %s is invalid for this module.', 'jetpack' ), $option ) ), array( 'status' => 404 ) );
-		}
+		// Options that are invalid or failed to update.
+		$invalid = array();
+		$not_updated = array();
 
 		// Used if response is successful. The message can be overwritten and additional data can be added here.
 		$response = array(
@@ -1045,196 +1040,241 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'message' => esc_html__( 'The requested Jetpack module was updated.', 'jetpack' ),
 		);
 
-		// Used if there was an error. Can be overwritten with specific error messages.
-		/* Translators: the variable is a module option name. */
-		$error = sprintf( __( 'The option %s was not updated.', 'jetpack' ), $option );
+		foreach ( $params as $option => $value ) {
+			// If option is invalid, don't go any further.
+			if ( ! in_array( $option, array_keys( $options ) ) ) {
+				$invalid[] = $option;
+				continue;
+			}
 
-		// Set to true if the option update was successful.
-		$updated = false;
+			// Used if there was an error. Can be overwritten with specific error messages.
+			$error = '';
 
-		// Properly cast value based on its type defined in endpoint accepted args.
-		$value = self::cast_value( $value, $options[ $option ] );
+			// Set to true if the option update was successful.
+			$updated = false;
 
-		switch ( $option ) {
-			case 'monitor_receive_notifications':
-				$monitor = new Jetpack_Monitor();
+			// Properly cast value based on its type defined in endpoint accepted args.
+			$value = self::cast_value( $value, $options[ $option ] );
 
-				// If we got true as response, consider it done.
-				$updated = true === $monitor->update_option_receive_jetpack_monitor_notification( $value );
-				break;
+			switch ( $option ) {
+				case 'monitor_receive_notifications':
+					$monitor = new Jetpack_Monitor();
 
-			case 'post_by_email_address':
-				if ( 'create' == $value ) {
-					$result = self::_process_post_by_email(
-						'jetpack.createPostByEmailAddress',
-						esc_html__( 'Unable to create the Post by Email address. Please try again later.', 'jetpack' )
-					);
-				} elseif ( 'regenerate' == $value ) {
-					$result = self::_process_post_by_email(
-						'jetpack.regeneratePostByEmailAddress',
-						esc_html__( 'Unable to regenerate the Post by Email address. Please try again later.', 'jetpack' )
-					);
-				} elseif ( 'delete' == $value ) {
-					$result = self::_process_post_by_email(
-						'jetpack.deletePostByEmailAddress',
-						esc_html__( 'Unable to delete the Post by Email address. Please try again later.', 'jetpack' )
-					);
-				} else {
-					$result = false;
-				}
+					// If we got true as response, consider it done.
+					$updated = true === $monitor->update_option_receive_jetpack_monitor_notification( $value );
+					break;
 
-				// If we got an email address (create or regenerate) or 1 (delete), consider it done.
-				if ( preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
-					$response[ $option ] = $result;
-					$updated = true;
-				} elseif ( 1 == $result ) {
-					$updated = true;
-				} elseif ( is_array( $result ) && isset( $result['message'] ) ) {
-					$error = $result['message'];
-				}
-				break;
+				case 'post_by_email_address':
+					if ( 'create' == $value ) {
+						$result = self::_process_post_by_email(
+							'jetpack.createPostByEmailAddress',
+							esc_html__( 'Unable to create the Post by Email address. Please try again later.', 'jetpack' )
+						);
+					} elseif ( 'regenerate' == $value ) {
+						$result = self::_process_post_by_email(
+							'jetpack.regeneratePostByEmailAddress',
+							esc_html__( 'Unable to regenerate the Post by Email address. Please try again later.', 'jetpack' )
+						);
+					} elseif ( 'delete' == $value ) {
+						$result = self::_process_post_by_email(
+							'jetpack.deletePostByEmailAddress',
+							esc_html__( 'Unable to delete the Post by Email address. Please try again later.', 'jetpack' )
+						);
+					} else {
+						$result = false;
+					}
 
-			case 'jetpack_protect_key':
-				$protect = Jetpack_Protect_Module::instance();
-				if ( 'create' == $value ) {
-					$result = $protect->get_protect_key();
-				} else {
-					$result = false;
-				}
+					// If we got an email address (create or regenerate) or 1 (delete), consider it done.
+					if ( preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
+						$response[ $option ] = $result;
+						$updated = true;
+					} elseif ( 1 == $result ) {
+						$updated = true;
+					} elseif ( is_array( $result ) && isset( $result['message'] ) ) {
+						$error = $result['message'];
+					}
+					break;
 
-				// If we got one of Protect keys, consider it done.
-				if ( preg_match( '/[a-z0-9]{40,}/i', $result ) ) {
-					$response[ $option ] = $result;
-					$updated = true;
-				}
-				break;
+				case 'jetpack_protect_key':
+					$protect = Jetpack_Protect_Module::instance();
+					if ( 'create' == $value ) {
+						$result = $protect->get_protect_key();
+					} else {
+						$result = false;
+					}
 
-			case 'jetpack_protect_global_whitelist':
-				$updated = jetpack_protect_save_whitelist( explode( PHP_EOL, str_replace( ' ', '', $value ) ) );
-				if ( is_wp_error( $updated ) ) {
-					$error = $updated->get_error_message();
-				}
-				break;
+					// If we got one of Protect keys, consider it done.
+					if ( preg_match( '/[a-z0-9]{40,}/i', $result ) ) {
+						$response[ $option ] = $result;
+						$updated = true;
+					}
+					break;
 
-			case 'show_headline':
-			case 'show_thumbnails':
-				$grouped_options = $grouped_options_current = Jetpack_Options::get_option( 'relatedposts' );
-				$grouped_options[ $option ] = $value;
+				case 'jetpack_protect_global_whitelist':
+					$updated = jetpack_protect_save_whitelist( explode( PHP_EOL, str_replace( ' ', '', $value ) ) );
+					if ( is_wp_error( $updated ) ) {
+						$error = $updated->get_error_message();
+					}
+					break;
 
-				// If option value was the same, consider it done.
-				$updated = $grouped_options_current != $grouped_options ? Jetpack_Options::update_option( 'relatedposts', $grouped_options ) : true;
-				break;
+				case 'show_headline':
+				case 'show_thumbnails':
+					$grouped_options = $grouped_options_current = Jetpack_Options::get_option( 'relatedposts' );
+					$grouped_options[ $option ] = $value;
 
-			case 'google':
-			case 'bing':
-			case 'pinterest':
-				$grouped_options = $grouped_options_current = get_option( 'verification_services_codes' );
-				$grouped_options[ $option ] = $value;
+					// If option value was the same, consider it done.
+					$updated = $grouped_options_current != $grouped_options ? Jetpack_Options::update_option( 'relatedposts', $grouped_options ) : true;
+					break;
 
-				// If option value was the same, consider it done.
-				$updated = $grouped_options_current != $grouped_options ? update_option( 'verification_services_codes', $grouped_options ) : true;
-				break;
+				case 'google':
+				case 'bing':
+				case 'pinterest':
+					$grouped_options = $grouped_options_current = get_option( 'verification_services_codes' );
+					$grouped_options[ $option ] = $value;
 
-			case 'sharing_services':
-				$sharer = new Sharing_Service();
+					// If option value was the same, consider it done.
+					$updated = $grouped_options_current != $grouped_options ? update_option( 'verification_services_codes', $grouped_options ) : true;
+					break;
 
-				// If option value was the same, consider it done.
-				$updated = $value != $sharer->get_blog_services() ? $sharer->set_blog_services( $value['visible'], $value['hidden'] ) : true;
-				break;
+				case 'sharing_services':
+					$sharer = new Sharing_Service();
 
-			case 'button_style':
-			case 'sharing_label':
-			case 'show':
-				$sharer = new Sharing_Service();
-				$grouped_options = $sharer->get_global_options();
-				$grouped_options[ $option ] = $value;
-				$updated = $sharer->set_global_options( $grouped_options );
-				break;
+					// If option value was the same, consider it done.
+					$updated = $value != $sharer->get_blog_services() ? $sharer->set_blog_services( $value['visible'], $value['hidden'] ) : true;
+					break;
 
-			case 'custom':
-				$sharer = new Sharing_Service();
-				$updated = $sharer->new_service( stripslashes( $value['sharing_name'] ), stripslashes( $value['sharing_url'] ), stripslashes( $value['sharing_icon'] ) );
+				case 'button_style':
+				case 'sharing_label':
+				case 'show':
+					$sharer = new Sharing_Service();
+					$grouped_options = $sharer->get_global_options();
+					$grouped_options[ $option ] = $value;
+					$updated = $sharer->set_global_options( $grouped_options );
+					break;
 
-				// Return new custom service
-				$response[ $option ] = $updated;
-				break;
+				case 'custom':
+					$sharer = new Sharing_Service();
+					$updated = $sharer->new_service( stripslashes( $value['sharing_name'] ), stripslashes( $value['sharing_url'] ), stripslashes( $value['sharing_icon'] ) );
 
-			case 'sharing_delete_service':
-				$sharer = new Sharing_Service();
-				$updated = $sharer->delete_service( $value );
-				break;
+					// Return new custom service
+					$response[ $option ] = $updated;
+					break;
 
-			case 'jetpack-twitter-cards-site-tag':
-				$value = trim( ltrim( strip_tags( $value ), '@' ) );
-				$updated = get_option( $option ) !== $value ? update_option( $option, $value ) : true;
-				break;
+				case 'sharing_delete_service':
+					$sharer = new Sharing_Service();
+					$updated = $sharer->delete_service( $value );
+					break;
 
-			case 'onpublish':
-			case 'onupdate':
-			case 'Bias Language':
-			case 'Cliches':
-			case 'Complex Expression':
-			case 'Diacritical Marks':
-			case 'Double Negative':
-			case 'Hidden Verbs':
-			case 'Jargon Language':
-			case 'Passive voice':
-			case 'Phrases to Avoid':
-			case 'Redundant Expression':
-			case 'guess_lang':
-				if ( in_array( $option, array( 'onpublish', 'onupdate' ) ) ) {
-					$atd_option = 'AtD_check_when';
-				} elseif ( 'guess_lang' == $option ) {
-					$atd_option = 'AtD_guess_lang';
-					$option = 'true';
-				} else {
-					$atd_option = 'AtD_options';
-				}
-				$user_id = get_current_user_id();
-				$grouped_options_current = AtD_get_options( $user_id, $atd_option );
-				unset( $grouped_options_current['name'] );
-				$grouped_options = $grouped_options_current;
-				if ( $value && ! isset( $grouped_options [ $option ] ) ) {
-					$grouped_options [ $option ] = $value;
-				} elseif ( ! $value && isset( $grouped_options [ $option ] ) ) {
-					unset( $grouped_options [ $option ] );
-				}
-				// If option value was the same, consider it done, otherwise try to update it.
-				$options_to_save = implode( ',', array_keys( $grouped_options ) );
-				$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $options_to_save ) : true;
-				break;
+				case 'jetpack-twitter-cards-site-tag':
+					$value = trim( ltrim( strip_tags( $value ), '@' ) );
+					$updated = get_option( $option ) !== $value ? update_option( $option, $value ) : true;
+					break;
 
-			case 'ignored_phrases':
-			case 'unignore_phrase':
-				$user_id = get_current_user_id();
-				$atd_option = 'AtD_ignored_phrases';
-				$grouped_options = $grouped_options_current = explode( ',', AtD_get_setting( $user_id, $atd_option ) );
-				if ( 'ignored_phrases' == $option ) {
-					$grouped_options[] = $value;
-				} else {
-					$index = array_search( $value, $grouped_options );
-					if ( false !== $index ) {
-						unset( $grouped_options[ $index ] );
-						$grouped_options = array_values( $grouped_options );
+				case 'onpublish':
+				case 'onupdate':
+				case 'Bias Language':
+				case 'Cliches':
+				case 'Complex Expression':
+				case 'Diacritical Marks':
+				case 'Double Negative':
+				case 'Hidden Verbs':
+				case 'Jargon Language':
+				case 'Passive voice':
+				case 'Phrases to Avoid':
+				case 'Redundant Expression':
+				case 'guess_lang':
+					if ( in_array( $option, array( 'onpublish', 'onupdate' ) ) ) {
+						$atd_option = 'AtD_check_when';
+					} elseif ( 'guess_lang' == $option ) {
+						$atd_option = 'AtD_guess_lang';
+						$option = 'true';
+					} else {
+						$atd_option = 'AtD_options';
+					}
+					$user_id = get_current_user_id();
+					$grouped_options_current = AtD_get_options( $user_id, $atd_option );
+					unset( $grouped_options_current['name'] );
+					$grouped_options = $grouped_options_current;
+					if ( $value && ! isset( $grouped_options [ $option ] ) ) {
+						$grouped_options [ $option ] = $value;
+					} elseif ( ! $value && isset( $grouped_options [ $option ] ) ) {
+						unset( $grouped_options [ $option ] );
+					}
+					// If option value was the same, consider it done, otherwise try to update it.
+					$options_to_save = implode( ',', array_keys( $grouped_options ) );
+					$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $options_to_save ) : true;
+					break;
+
+				case 'ignored_phrases':
+				case 'unignore_phrase':
+					$user_id = get_current_user_id();
+					$atd_option = 'AtD_ignored_phrases';
+					$grouped_options = $grouped_options_current = explode( ',', AtD_get_setting( $user_id, $atd_option ) );
+					if ( 'ignored_phrases' == $option ) {
+						$grouped_options[] = $value;
+					} else {
+						$index = array_search( $value, $grouped_options );
+						if ( false !== $index ) {
+							unset( $grouped_options[ $index ] );
+							$grouped_options = array_values( $grouped_options );
+						}
+					}
+					$ignored_phrases = implode( ',', array_filter( array_map( 'strip_tags', $grouped_options ) ) );
+					$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $ignored_phrases ) : true;
+					break;
+
+				default:
+					// If option value was the same, consider it done.
+					$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
+					break;
+			}
+
+			// The option was not updated.
+			if ( ! $updated ) {
+				$not_updated[ $option ] = $error;
+			}
+		}
+
+		if ( empty( $invalid ) && empty( $not_updated ) ) {
+			// The option was updated.
+			return rest_ensure_response( $response );
+		} else {
+			$invalid_count = count( $invalid );
+			$not_updated_count = count( $not_updated );
+			$error = '';
+			if ( $invalid_count > 0 ) {
+				$error = sprintf(
+					/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
+					_n( 'Invalid option for this module: %s.', 'Invalid options for this module: %s.', $invalid_count, 'jetpack' ),
+					join( ', ', $invalid )
+				);
+			}
+			if ( $not_updated_count > 0 ) {
+				$not_updated_messages = array();
+				foreach ( $not_updated as $not_updated_option => $not_updated_message ) {
+					if ( ! empty( $not_updated_message ) ) {
+						$not_updated_messages[] = sprintf(
+							/* Translators: the first variable is a module option name. The second is the error message . */
+							__( 'Extra info for %1$s: %2$s', 'jetpack' ),
+							$not_updated_option, $not_updated_message );
 					}
 				}
-				$ignored_phrases = implode( ',', array_filter( array_map( 'strip_tags', $grouped_options ) ) );
-				$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $ignored_phrases ) : true;
-				break;
+				if ( ! empty( $error ) ) {
+					$error .= ' ';
+				}
+				$error .= sprintf(
+					/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
+					_n( 'Option not updated: %s.', 'Options not updated: %s.', $not_updated_count, 'jetpack' ),
+					join( ', ', array_keys( $not_updated ) ) );
+				if ( ! empty( $not_updated_messages ) ) {
+					$error .= ' ' . join( '. ', $not_updated_messages );
+				}
 
-			default:
-				// If option value was the same, consider it done.
-				$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
-				break;
+			}
+			// There was an error because some options were updated but others were invalid or failed to update.
+			return new WP_Error( 'some_updated', esc_html( $error ), array( 'status' => 400 ) );
 		}
 
-		// The option was not updated.
-		if ( ! $updated ) {
-			return new WP_Error( 'module_option_not_updated', esc_html( $error ), array( 'status' => 400 ) );
-		}
-
-		// The option was updated.
-		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -1831,7 +1871,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool
 	 */
 	public static function validate_boolean( $value, $request, $param ) {
-		if ( ! is_bool( $value ) && ! in_array( $value, array( 0, 1 ) ) ) {
+		if ( ! is_bool( $value ) && ! ( ( ctype_digit( $value ) || is_numeric( $value ) ) && in_array( $value, array( 0, 1 ) ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be true, false, 0 or 1.', 'jetpack' ), $param ) );
 		}
 		return true;
