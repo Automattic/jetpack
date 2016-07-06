@@ -144,8 +144,28 @@ abstract class SAL_Site {
 		return $post;
 	}
 
+	public function current_user_can_access_post_type( $post_type, $context ) {
+		$post_type_object = $this->get_post_type_object( $post_type );
+		if ( ! $post_type_object ) {
+			return false;
+		}
+
+		switch( $context ) {
+			case 'edit':
+				return current_user_can( $post_type_object->cap->edit_posts );
+			case 'display':
+				return $post_type_object->public || current_user_can( $post_type_object->cap->read_private_posts );
+			default:
+				return false;
+		}
+	}
+
+	protected function get_post_type_object( $post_type ) {
+		return get_post_type_object( $post_type );
+	}
+
 	// copied from class.json-api-endpoints.php
-	private function is_post_type_allowed( $post_type ) {
+	public function is_post_type_allowed( $post_type ) {
 		// if the post type is empty, that's fine, WordPress will default to post
 		if ( empty( $post_type ) )
 			return true;
@@ -155,7 +175,7 @@ abstract class SAL_Site {
 			return true;
 
 		// check for allowed types
-		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) )
+		if ( in_array( $post_type, $this->get_whitelisted_post_types() ) )
 			return true;
 
 		return false;
@@ -167,7 +187,7 @@ abstract class SAL_Site {
 	 *
 	 * @return array Whitelisted post types.
 	 */
-	private function _get_whitelisted_post_types() {
+	protected function get_whitelisted_post_types() {
 		$allowed_types = array( 'post', 'page', 'revision' );
 
 		/**
@@ -260,7 +280,7 @@ abstract class SAL_Site {
 		$posts = get_posts( array(
 			'name' => $name,
 			'numberposts' => 1,
-			'post_type' => $this->_get_whitelisted_post_types(),
+			'post_type' => $this->get_whitelisted_post_types(),
 		) );
 
 		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {
