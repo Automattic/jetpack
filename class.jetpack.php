@@ -1173,6 +1173,7 @@ class Jetpack {
 		if ( ! $user_id ) {
 			return false;
 		}
+		
 		return (bool) Jetpack_Data::get_access_token( $user_id );
 	}
 
@@ -1244,47 +1245,8 @@ class Jetpack {
 	 * Synchronize connected user role changes
 	 */
 	function user_role_change( $user_id ) {
-		if ( Jetpack::is_active() && Jetpack::is_user_connected( $user_id ) ) {
-			$current_user_id = get_current_user_id();
-			wp_set_current_user( $user_id );
-			$role = $this->translate_current_user_to_role();
-			$signed_role = $this->sign_role( $role );
-			wp_set_current_user( $current_user_id );
-
-			$master_token   = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
-			$master_user_id = absint( $master_token->external_user_id );
-
-			if ( ! $master_user_id )
-				return; // this shouldn't happen
-
-			Jetpack::xmlrpc_async_call( 'jetpack.updateRole', $user_id, $signed_role );
-			//@todo retry on failure
-
-			//try to choose a new master if we're demoting the current one
-			if ( $user_id == $master_user_id && 'administrator' != $role ) {
-				$query = new WP_User_Query(
-					array(
-						'fields'  => array( 'id' ),
-						'role'    => 'administrator',
-						'orderby' => 'id',
-						'exclude' => array( $master_user_id ),
-					)
-				);
-				$new_master = false;
-				foreach ( $query->results as $result ) {
-					$uid = absint( $result->id );
-					if ( $uid && Jetpack::is_user_connected( $uid ) ) {
-						$new_master = $uid;
-						break;
-					}
-				}
-
-				if ( $new_master ) {
-					Jetpack_Options::update_option( 'master_user', $new_master );
-				}
-				// else disconnect..?
-			}
-		}
+		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Jetpack_Sync_Users::user_role_change()' );
+		Jetpack_Sync_Users::user_role_change( $user_id );
 	}
 
 	/**
@@ -2860,9 +2822,6 @@ p {
 		if ( Jetpack::is_active() || Jetpack::is_development_mode() ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
-
-			// Kick off synchronization of user role when it changes
-			add_action( 'set_user_role', array( $this, 'user_role_change' ) );
 		}
 
 		// Jetpack Manage Activation Screen from .com

@@ -74,6 +74,10 @@ class Jetpack_Sync_Actions {
 		if ( ! wp_next_scheduled ( 'jetpack_send_db_checksum' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_send_db_checksum' );
 		}
+
+		// Sync Master User Role Changes
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
+
 	}
 
 	static function send_data( $data, $codec_name ) {

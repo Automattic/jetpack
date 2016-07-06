@@ -323,6 +323,34 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foobar', $event->args[0] );
 	}
 
+	public function test_maybe_demote_master_user_method() {
+		// set up
+		$current_master_id = $this->factory->user->create( array( 'user_login' => 'current_master' ) );
+		$new_master_id = $this->factory->user->create( array( 'user_login' => 'new_master' ) );
+
+		$current_master = get_user_by( 'id', $current_master_id );
+		$current_master->set_role( 'author' );
+
+		$new_master = get_user_by( 'id', $new_master_id );
+		$new_master->set_role( 'administrator' );
+		Jetpack_Options::update_option( 'master_user', $current_master_id );
+		Jetpack_Options::update_option( 'user_tokens', array( $current_master_id => 'apple.a.' . $current_master_id, $new_master_id => 'kiwi.a.' . $new_master_id ) );
+		
+		// maybe
+		Jetpack_Sync_Users::maybe_demote_master_user( $current_master_id, $current_master_id );
+		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ) );
+
+		// don't demote user that if the user is still an admin.
+		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id, $new_master_id );
+		$this->assertEquals( 'administrator',$new_master->roles[0] );
+		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote the master user if the user is still an admin' );
+
+		$new_master->set_role( 'author' );
+		// don't demote user if the user one the only admin that is connected.
+		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id, $new_master_id );
+		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote user if the user is the only connected user.' );
+	}
+
 	protected function assertUsersEqual( $user1, $user2 ) {
 		// order-independent comparison
 		$user1_array = get_object_vars( $user1->data );
@@ -334,4 +362,5 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( array_diff( $user1_array, $user2_array ) == array_diff( $user2_array, $user1_array ) );
 	}
+
 }
