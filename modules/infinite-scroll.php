@@ -171,7 +171,7 @@ class Jetpack_Infinite_Scroll_Extras {
 		}
 
 		// Check if Google Analytics tracking is requested
-		$settings['google_analytics'] = (bool) get_option( $this->option_name_google_analytics );
+		$settings['google_analytics'] = (bool) Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
 
 		return $settings;
 	}
