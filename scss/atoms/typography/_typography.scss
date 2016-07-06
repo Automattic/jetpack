@@ -6,34 +6,6 @@
 	"variables",
 	"functions";
 
-body,
-button,
-input,
-select,
-textarea {
-	color: map-get($root-font, color);
-	font-family: $sans;
-	font-size: map-get($root-font, font-size);
-	line-height: map-get($root-font, line-height);
-	-webkit-font-smoothing: antialiased;
-}
-
-
-// ==========================================================================
-// Headings
-// ==========================================================================
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	color: #222;
-	clear: both;
-}
-
-
 // ==========================================================================
 // Links
 // ==========================================================================
