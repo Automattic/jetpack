@@ -76,16 +76,17 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 == Changelog ==
 
 = 4.1 =
-Release date: July 6th, 2016
-Release Post: http://wp.me/p1moTy-3jd
 
-Performance Enhancements:
+* Release date: July 6th, 2016
+* Release Post: http://wp.me/p1moTy-3jd
+
+**Performance Enhancements:**
 
 * Carousel no longer loads full-size images in the previous and next previews, increasing the speed and performance of slideshows.
 * We’ve improved Jetpack’s performance by making calls to the database more efficient; essentially, Jetpack is doing less on each page load, making things faster.
 * We’ve improved Photon dev mode, eliminating unnecessary attempts to sync images.
 
-Exciting Feature and UI Improvements:
+**Exciting Feature and UI Improvements:**
 
 * A new look: SSO, redesigned and refactored, provides a new and improved experience.
 * Tracking made simple: quickly view the number of unread feedback submissions in your sidebar.
@@ -96,13 +97,13 @@ Exciting Feature and UI Improvements:
 * Recipes, revamped: we’ve added new recipe shortcodes and options to create more detailed recipes.
 * Improved Gallery Widgets now use Photon to resize and serve images.
 
-Security:
+**Security:**
 
 * We’re continuing our efforts to harden Jetpack security by implementing the `hash_equals()` function in an effort to avoid timing attacks when comparing strings.
 * We’ve made it easier to use SSL connections on ports `80` and `443`, improving our ability to communicate with an increased number of secure websites.
 * You will now receive a warning for any failed attempts when connecting your website via SSL.
 
-Slightly Less Exciting Feature Improvements:
+**Slightly Less Exciting Feature Improvements:**
 
 * Updated the Infinite Scroll settings verbiage, which was a bit confusing.
 * Removed Jetpack Audio Shortcode, which is no longer in use.
@@ -119,12 +120,12 @@ Slightly Less Exciting Feature Improvements:
 * Updated the naming convention for feedback posts.
 * Updated several JSON API endpoints to match WordPress.com endpoints, added support for custom taxonomies, and enabled trash as a valid status for the post update endpoint.
 
-Improved Compatibility:
+**Improved Compatibility:**
 
 * A community member found and fixed a compatibility issue with our Open Graph Meta Tags and Bitly’s older plugin -- we now check to make sure we don’t create conflicts.
 * We’ve fixed a rare scenario where an error would occur when other plugins or sites were using the `JETPACK__GLOTPRESS_LOCALES_PATH` constant.
 
-Bug Fixes:
+**Bug Fixes:**
 
 * Comment avatars are now retrieved in a manner more consistent with the login avatar, improving consistency and eliminating the possibility of a future bug.
 * We eliminated PHP notices that were appearing when Custom Content Types were defined without labels or sections.
