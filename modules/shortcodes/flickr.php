@@ -102,7 +102,6 @@ function flickr_shortcode_handler( $atts ) {
 			'w'         => 400,
 			'h'         => 300,
 			'secret'    => 0,
-			'size'      => 0,
 		), $atts, 'flickr'
 	);
 
