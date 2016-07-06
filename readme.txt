@@ -88,7 +88,7 @@ Enhancements:
 
 = 4.1 =
 Release date: July 6th, 2016
-Release Post: 
+Release Post: http://wp.me/p1moTy-3jd
 
 Performance Enhancements:
 
