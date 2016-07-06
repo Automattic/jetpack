@@ -129,7 +129,6 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		if ( isset( $this->comments[ $id ] ) ) {
 			return $this->comments[ $id ];
 		}
-
 		return false;
 	}
 
@@ -161,6 +160,13 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->options[ $option ] = false;
 	}
 
+	function options_checksum() {
+		return strtoupper( dechex( array_reduce( Jetpack_Sync_Defaults::$default_options_whitelist, array( $this, 'option_checksum' ), 0 ) ) );
+	}
+
+	private function option_checksum( $carry, $option_name ) {
+		return $carry ^ ( array_key_exists( $option_name, $this->options ) ? ( sprintf( '%u', crc32( $option_name . $this->options[ $option_name ] ) ) + 0 ) : 0 );
+	}
 
 	// theme functions
 	function set_theme_support( $theme_support ) {
@@ -217,11 +223,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	public function upsert_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id ) {
 		$this->meta[ $meta_id ] = (object) array(
-			'meta_id'    => $meta_id,
-			'type'       => $type,
-			'object_id'  => absint( $object_id ),
-			'meta_key'   => $meta_key,
-			'meta_value' => $meta_value,
+			'meta_id'   => $meta_id,
+			'type'      => $type,
+			'object_id' => absint( $object_id ),
+			'meta_key'  => $meta_key,
+			'meta_value'  => $meta_value,
 		);
 	}
 
@@ -463,8 +469,9 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function checksum_all() {
 		return array(
-			'posts'    => $this->posts_checksum(),
-			'comments' => $this->comments_checksum()
+			'posts' => $this->posts_checksum(),
+			'comments' => $this->comments_checksum(),
+			'options' => $this->options_checksum(),
 		);
 	}
 
