@@ -105,7 +105,7 @@ gulp.task( 'react:watch', function() {
 	webpack( config ).watch( 100, onBuild() );
 } );
 
-gulp.task( 'react:static', function() {
+gulp.task( 'react:static', [ 'react:build' ], function() {
 	jsdom.env( '', function( err, window ) {
 		global.window = window;
 		global.document = window.document;
@@ -402,7 +402,7 @@ gulp.task( 'languages:extract', [ 'react:build' ], function( callback ) {
 } );
 
 // Default task
-gulp.task( 'default', ['react:build', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint'] );
+gulp.task( 'default', ['react:static', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint'] );
 gulp.task( 'watch',   ['react:watch', 'sass:watch', 'old-styles:watch'] );
 
 gulp.task( 'jshint',       ['js:hint'] );
