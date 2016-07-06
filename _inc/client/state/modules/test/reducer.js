@@ -66,14 +66,16 @@ describe( 'items reducer', () => {
 		it( 'should update a module\'s option', () => {
 			const stateIn = modules;
 			const action = {
-				type: 'JETPACK_MODULE_UPDATE_OPTION_SUCCESS',
+				type: 'JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS',
 				module: 'module-b',
-				optionName: 'c',
-				optionValue: 30
+				newOptionValues: {
+					c: 30
+				}
 			};
 			let stateOut = itemsReducer( stateIn, action );
-
-			expect( stateOut[ action.module ].options[ action.optionName ].current_value ).to.equal( action.optionValue );
+			Object.keys( action.newOptionValues ).forEach( key => {
+				expect( stateOut[ action.module ].options[ key ].current_value ).to.equal( action.newOptionValues[ key ] );
+			} );
 		} );
 	} );
 
@@ -164,34 +166,46 @@ describe( 'requests reducer', () => {
 		it( 'should set updatingOption[ module_slug ][ option_name ] to true when updating a module\'s option', () => {
 			const stateIn = {}
 			const action = {
-				type: 'JETPACK_MODULE_UPDATE_OPTION',
+				type: 'JETPACK_MODULE_UPDATE_OPTIONS',
 				module: 'module_slug',
-				option_name: 'option_name'
+				newOptionValues: {
+					option_name: 'option_name'
+				}
 			};
 			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.updatingOption[ action.module ][ action.option_name] ).to.be.true;
+			Object.keys( action.newOptionValues ).forEach( key => {
+				expect( stateOut.updatingOption[ action.module ][ key] ).to.be.true;
+			} );
 		} );
 
 		it( 'should set updatingOption[ module_slug ][ option_name ] to false when a module\'s option has been updated', () => {
 			const stateIn = {}
 			const action = {
-				type: 'JETPACK_MODULE_UPDATE_OPTION_SUCCESS',
+				type: 'JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS',
 				module: 'module_slug',
-				option_name: 'option_name'
+				newOptionValues: {
+					option_name: 'option_value'
+				}
 			};
 			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.updatingOption[ action.module ][ action.option_name] ).to.be.false;
+			Object.keys( action.newOptionValues ).forEach( key => {
+				expect( stateOut.updatingOption[ action.module ][ key ] ).to.be.false;
+			} );
 		} );
 
 		it( 'should set updatingOption[ module_slug ][ option_name ] to false when updating a module\'s option fails', () => {
 			const stateIn = {}
 			const action = {
-				type: 'JETPACK_MODULE_UPDATE_OPTION_FAIL',
+				type: 'JETPACK_MODULE_UPDATE_OPTIONS_FAIL',
 				module: 'module_slug',
-				option_name: 'option_name'
+				newOptionValues: {
+					option_name: 'option_name'
+				}
 			};
 			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.updatingOption[ action.module ][ action.option_name] ).to.be.false;
+			Object.keys( action.newOptionValues ).forEach( key => {
+				expect( stateOut.updatingOption[ action.module ][ key ] ).to.be.false;
+			} );
 		} );
 	} );
 } );
