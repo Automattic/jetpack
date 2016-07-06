@@ -19,8 +19,9 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	// actions to activate/deactivate and configure modules
 	function page_render() {
 		$list_table = new Jetpack_Modules_List_Table;
+		$static_html = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
+		ob_start();
 		?>
-		<div class="clouds-sm"></div>
 		<?php /** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' ) ?>
 
@@ -99,10 +100,21 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			</div><!-- /.frame -->
 		</div><!-- /.content -->
 		<?php
+
+		$page_content = ob_get_contents();
+		ob_end_clean();
+
+		echo str_replace(
+		     '<div id="jetpack-static-container"></div>',
+		     $page_content,
+		     $static_html
+		);
 	}
 
 	// Javascript logic specific to the list table
 	function page_admin_scripts() {
 		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
+		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
+		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), time() );
 	}
 }

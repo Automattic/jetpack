@@ -4,7 +4,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	cleanCSS = require( 'gulp-clean-css' ),
 	concat = require( 'gulp-concat' ),
 	del = require( 'del' ),
-	spawn = require( 'child_process' ).spawn,
+	fs = require( 'fs' ),
 	gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
 	glotpress = require( 'glotpress-js' ),
@@ -17,6 +17,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	rename = require( 'gulp-rename' ),
 	rtlcss = require( 'gulp-rtlcss' ),
 	sass = require( 'gulp-sass' ),
+	spawn = require( 'child_process' ).spawn,
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
@@ -126,6 +127,8 @@ gulp.task( 'react:static', function() {
 		};
 
 		require( './_inc/build/static.js' );
+
+		fs.writeFile( './_inc/build/static.html', window.staticHtml );
 	} );
 } );
 

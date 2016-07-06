@@ -21,6 +21,7 @@ const StaticMain = React.createClass( {
 		return (
 			<div>
 				<Masthead { ...this.props } />
+				<div id="jetpack-static-container"></div>
 				<Footer { ...this.props } />
 			</div>
 		);
