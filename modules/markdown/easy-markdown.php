@@ -319,7 +319,7 @@ class WPCom_Markdown {
 	 * @return boolean
 	 */
 	public function is_commenting_enabled() {
-		return (bool) get_option( self::COMMENT_OPTION, '' );
+		return (bool) Jetpack_Options::get_option_and_ensure_autoload( self::COMMENT_OPTION, '' );
 	}
 
 	/**
