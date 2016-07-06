@@ -15,9 +15,11 @@ import QueryUserConnectionData from 'components/data/query-user-connection';
 import { setInitialState } from 'state/initial-state';
 
 import Navigation from 'components/navigation';
+import NavigationSettings from 'components/navigation-settings';
 import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
+import Writing from 'writing/index.jsx';
 
 const NonAdminViewConnected = React.createClass( {
 	componentWillMount: function() {
@@ -29,25 +31,38 @@ const NonAdminViewConnected = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
-		let pageComponent;
+		let pageComponent,
+			navComponent = <Navigation { ...this.props } />;
 		switch ( route ) {
 			case '/dashboard':
 				pageComponent = <AtAGlance { ...this.props } />;
 				break;
-			case '/engagement':
-				pageComponent = <Engagement { ...this.props } />;
+			case '/settings':
+				navComponent = <NavigationSettings { ...this.props } />;
+				pageComponent = <GeneralSettings { ...this.props } />;
 				break;
 			case '/general':
+				navComponent = <NavigationSettings { ...this.props } />;
 				pageComponent = <GeneralSettings { ...this.props } />;
+				break;
+			case '/engagement':
+				navComponent = <NavigationSettings { ...this.props } />;
+				pageComponent = <Engagement { ...this.props } />;
+				break;
+			case '/writing':
+				navComponent = <NavigationSettings { ...this.props } />;
+				pageComponent = <Writing { ...this.props } />;
 				break;
 
 			default:
 				pageComponent = <AtAGlance { ...this.props } />;
 		}
 
+		window.wpNavMenuClassChange();
+
 		return (
 			<div>
-				<Navigation { ...this.props } />
+				{ navComponent }
 				{ pageComponent }
 			</div>
 		);

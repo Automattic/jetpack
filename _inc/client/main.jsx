@@ -100,7 +100,7 @@ const Main = React.createClass( {
 				pageComponent = <AtAGlance { ...this.props } />;
 		}
 
-		wpNavMenuClassChange();
+		window.wpNavMenuClassChange();
 
 		return (
 			<div>
@@ -142,7 +142,7 @@ export default connect(
 /**
  * Hack for changing the sub-nav menu core classes for 'settings' and 'dashboard'
  */
-function wpNavMenuClassChange() {
+window.wpNavMenuClassChange = function() {
 	let hash = window.location.hash;
 	const settingRoutes = [
 		'#/settings',
@@ -176,4 +176,4 @@ function wpNavMenuClassChange() {
 		} );
 		subNavItem[0].classList.add( 'current' );
 	}
-}
+};
