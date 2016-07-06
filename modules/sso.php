@@ -1167,7 +1167,7 @@ class Jetpack_SSO {
 			'jetpack_sso_wpcom_gravatar_' . COOKIEHASH,
 			get_avatar_url(
 				$user_data->email,
-				array( 'size' => 72, 'default' => 'mystery' )
+				array( 'size' => 144, 'default' => 'mystery' )
 			),
 			time() + WEEK_IN_SECONDS,
 			COOKIEPATH,
