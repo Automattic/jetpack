@@ -522,7 +522,7 @@ class Jetpack_Custom_CSS {
 						return (bool) ( $custom_css_add === 'no' );
 				}
 
-				return (bool) ( get_option( 'safecss_add' ) == 'no' );
+				return (bool) ( Jetpack_Options::get_option_and_ensure_autoload( 'safecss_add', '' ) == 'no' );
 			}
 		}
 	}
