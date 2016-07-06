@@ -212,7 +212,7 @@ class The_Neverending_Home_Page {
 			// Ensure that IS is enabled and no footer widgets exist if the IS type isn't already "click".
 			if ( 'click' != $settings['type'] ) {
 				// Check the setting status
-				$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
+				$disabled = '' === Jetpack_Options::get_option_and_ensure_autoload( self::$option_name_enabled, '' ) ? true : false;
 
 				// Footer content or Reading option check
 				if ( $settings['footer_widgets'] || $disabled )
@@ -403,7 +403,7 @@ class The_Neverending_Home_Page {
 	 */
 	function body_class( $classes ) {
 		// Do not add infinity-scroll class if disabled through the Reading page
-		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
+		$disabled = '' === Jetpack_Options::get_option_and_ensure_autoload( self::$option_name_enabled, '' ) ? true : false;
 		if ( ! $disabled || 'click' == self::get_settings()->type ) {
 			$classes[] = 'infinite-scroll';
 
