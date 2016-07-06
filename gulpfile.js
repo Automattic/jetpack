@@ -116,7 +116,7 @@ gulp.task( 'react:static', [ 'react:build' ], function() {
 			dismissedNotices: [],
 			connectionStatus: {
 				devMode: {
-					isActive: true
+					isActive: false
 				}
 			},
 			userData: {
