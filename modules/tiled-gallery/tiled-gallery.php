@@ -20,7 +20,7 @@ class Jetpack_Tiled_Gallery {
 
 	public function tiles_enabled() {
 		// Check the setting status
-		return '' != get_option( 'tiled_galleries' );
+		return '' != Jetpack_Options::get_option_and_ensure_autoload( 'tiled_galleries', '' );
 	}
 
 	public function set_atts( $atts ) {
