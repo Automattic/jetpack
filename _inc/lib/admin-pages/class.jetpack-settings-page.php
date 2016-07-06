@@ -20,28 +20,41 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	function page_render() {
 		$list_table = new Jetpack_Modules_List_Table;
 		$static_html = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
+		$noscript_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
+		$version_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
+
+		$noscript_notice = str_replace(
+			'#HEADER_TEXT#',
+			esc_html( __( 'You have JavaScript disabled', 'jetpack' ) ),
+			$noscript_notice
+		);
+		$noscript_notice = str_replace(
+			'#TEXT#',
+			esc_html( __( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ) ),
+			$noscript_notice
+		);
+
+		$version_notice = str_replace(
+			'#HEADER_TEXT#',
+			esc_html( __( 'You are using an outdated version of WordPress', 'jetpack' ) ),
+			$version_notice
+		);
+		$version_notice = str_replace(
+			'#TEXT#',
+			esc_html( __( "Update WordPress to unlock Jetpack's full potential!", 'jetpack' ) ),
+			$version_notice
+		);
+
 		ob_start();
+
+		/** This action is already documented in views/admin/admin-page.php */
+		do_action( 'jetpack_notices' );
+
+		if ( $this->is_wp_version_too_old() ) {
+			echo $version_notice;
+		}
+		echo $noscript_notice;
 		?>
-		<?php /** This action is already documented in views/admin/admin-page.php */
-		do_action( 'jetpack_notices' ) ?>
-
-		<?php if ( $this->is_wp_version_too_old() ): ?>
-			<div id="message" class="jetpack-message jetpack-err">
-				<div class="squeezer">
-					<h2><?php esc_html_e( 'You are using an outdated version of WordPress', 'jetpack' ); ?></h2>
-					<p><?php esc_html_e( "Update WordPress to unlock Jetpack's full potential!", 'jetpack' ); ?></p>
-				</div>
-			</div>
-		<?php endif; ?>
-
-		<noscript>
-			<div id="message" class="jetpack-message jetpack-err">
-				<div class="squeezer">
-					<h2><?php esc_html_e( 'You have JavaScript disabled', 'jetpack' ); ?></h2>
-					<p><?php esc_html_e( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ); ?></p>
-				</div>
-			</div>
-		</noscript>
 
 		<div class="page-content configure">
 			<div class="frame top hide-if-no-js">

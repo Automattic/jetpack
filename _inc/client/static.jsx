@@ -10,6 +10,7 @@ import { Provider } from 'react-redux';
  */
 import store from 'state/redux-store';
 import StaticMain from 'static-main';
+import StaticWarning from 'components/jetpack-notices/static-warning';
 
 window.staticHtml = Server.renderToStaticMarkup(
 		<div>
@@ -17,4 +18,18 @@ window.staticHtml = Server.renderToStaticMarkup(
 				  <StaticMain />
 			</Provider>
 		</div>
+	);
+
+window.noscriptNotice = Server.renderToStaticMarkup(
+		<Provider store={ store }>
+			<noscript>
+				<StaticWarning />
+			</noscript>
+		</Provider>
+	);
+
+window.versionNotice = Server.renderToStaticMarkup(
+		<Provider store={ store }>
+			<StaticWarning />
+		</Provider>
 	);
