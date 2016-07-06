@@ -19,6 +19,7 @@
 
 .jetpack-pagestyles #wpbody-content {
 	background-color: $gray-light;
+	line-height: 1.4; // fixes core bug that sets an em unit on body
 }
 
 .jp-lower {
