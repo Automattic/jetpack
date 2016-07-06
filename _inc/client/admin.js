@@ -51,11 +51,14 @@ function render() {
 				<Router history={ history }>
 					<Route path='/' component={ Main } />
 					<Route path='/dashboard' component={ Main } />
+					<Route path='/apps' component={ Main } />
+					<Route path='/professional' component={ Main } />
+					<Route path='/settings' component={ Main } />
+					<Route path='/general' component={ Main } />
 					<Route path='/engagement' component={ Main } />
 					<Route path='/security' component={ Main } />
-					<Route path='/health' component={ Main } />
-					<Route path='/more' component={ Main } />
-					<Route path='/general' component={ Main } />
+					<Route path='/appearance' component={ Main } />
+					<Route path='/writing' component={ Main } />
 				</Router>
 			</Provider>
 		</div>,

@@ -5,16 +5,11 @@ import React from 'react';
 import SectionNav from 'components/section-nav';
 import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
-import Search from 'components/search';
 import { translate as __ } from 'i18n-calypso';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
 const Navigation = React.createClass( {
-	demoSearch: function( keywords ) {
-		console.log( 'Section Nav Search (keywords):', keywords );
-	},
-
 	render: function() {
 		return (
 			<div className='dops-navigation'>
@@ -26,39 +21,16 @@ const Navigation = React.createClass( {
 							{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 						</NavItem>
 						<NavItem
-							path="#engagement"
-							selected={ this.props.route.path === '/engagement' }>
-							{ __( 'Engagement', { context: 'Navigation item.' } ) }
+							path="#apps"
+							selected={ this.props.route.path === '/apps' }>
+							{ __( 'Apps', { context: 'Navigation item.' } ) }
 						</NavItem>
 						<NavItem
-							path="#security"
-							selected={ this.props.route.path === '/security' }>
-							{ __( 'Security', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#health"
-							selected={ this.props.route.path === '/health' }>Site
-							{ __( 'Health', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#more"
-							selected={ this.props.route.path === '/more' }>
-							{ __( 'More', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#general"
-							selected={ this.props.route.path === '/general' }>
-							{ __( 'General', { context: 'Navigation item.' } ) }
+							path="#professional"
+							selected={ this.props.route.path === '/professional' }>
+							{ __( 'Professional', { context: 'Navigation item.' } ) }
 						</NavItem>
 					</NavTabs>
-
-					<Search
-						pinned={ true }
-						placeholder="Search doesn't work yet, but you can still write stuff to the console. "
-						analyticsGroup="Pages"
-						delaySearch={ true }
-						onSearch={ this.demoSearch }
-					/>
 				</SectionNav>
 			</div>
 		)

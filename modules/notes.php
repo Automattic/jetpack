@@ -7,7 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Other
- * Feature: Engagement
+ * Feature: General
  * Additional Search Queries: notification, notifications, toolbar, adminbar, push, comments
  */
 

@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Centralized Management, Recommended
- * Feature: Health, Jumpstart
+ * Feature: General, Jumpstart
  * Additional Search Queries: manage, management, remote
  */
 add_action( 'customize_register', 'add_wpcom_to_allowed_redirect_hosts' );
