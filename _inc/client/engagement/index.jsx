@@ -32,19 +32,27 @@ export const Page = ( props ) => {
 	 * Array of modules that directly map to a card for rendering
 	 * @type {Array}
 	 */
-	let cards = [
-		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
-		[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description, getModule( 'sharedaddy' ).learn_more_button ],
-		[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
-		[ 'related-posts', getModule( 'related-posts' ).name, getModule( 'related-posts' ).description, getModule( 'related-posts' ).learn_more_button ],
-		[ 'comments', getModule( 'comments' ).name, getModule( 'comments' ).description, getModule( 'comments' ).learn_more_button ],
-		[ 'likes', getModule( 'likes' ).name, getModule( 'likes' ).description, getModule( 'likes' ).learn_more_button ],
-		[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description, getModule( 'subscriptions' ).learn_more_button ],
-		[ 'gravatar-hovercards', getModule( 'gravatar-hovercards' ).name, getModule( 'gravatar-hovercards' ).description, getModule( 'gravatar-hovercards' ).learn_more_button ],
-		[ 'sitemaps', getModule( 'sitemaps' ).name, getModule( 'sitemaps' ).description, getModule( 'sitemaps' ).learn_more_button ],
-		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description, getModule( 'enhanced-distribution' ).learn_more_button ],
-		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
-	].map( ( element ) => {
+	let cards;
+	if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
+		cards = [
+			[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
+			[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description, getModule( 'sharedaddy' ).learn_more_button ],
+			[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
+			[ 'related-posts', getModule( 'related-posts' ).name, getModule( 'related-posts' ).description, getModule( 'related-posts' ).learn_more_button ],
+			[ 'comments', getModule( 'comments' ).name, getModule( 'comments' ).description, getModule( 'comments' ).learn_more_button ],
+			[ 'likes', getModule( 'likes' ).name, getModule( 'likes' ).description, getModule( 'likes' ).learn_more_button ],
+			[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description, getModule( 'subscriptions' ).learn_more_button ],
+			[ 'gravatar-hovercards', getModule( 'gravatar-hovercards' ).name, getModule( 'gravatar-hovercards' ).description, getModule( 'gravatar-hovercards' ).learn_more_button ],
+			[ 'sitemaps', getModule( 'sitemaps' ).name, getModule( 'sitemaps' ).description, getModule( 'sitemaps' ).learn_more_button ],
+			[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description, getModule( 'enhanced-distribution' ).learn_more_button ],
+			[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
+		];
+	} else {
+		cards = [
+			[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
+		];
+	}
+	cards = cards .map( ( element ) => {
 		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
 			toggle = (
 				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
@@ -56,11 +64,11 @@ export const Page = ( props ) => {
 
 		return (
 			<FoldableCard className={ customClasses } key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
-				header={ element[1] }
-				subheader={ element[2] }
-				summary={ toggle }
-				expandedSummary={ toggle }
-				clickableHeaderText={ true }
+						  header={ element[1] }
+						  subheader={ element[2] }
+						  summary={ toggle }
+						  expandedSummary={ toggle }
+						  clickableHeaderText={ true }
 			>
 				{ isModuleActivated( element[0] ) ?
 					<EngagementModulesSettings module={ getModule( element[0] ) } /> :
@@ -78,7 +86,7 @@ export const Page = ( props ) => {
 			{ cards }
 		</div>
 	);
-}
+};
 
 function renderLongDescription( module ) {
 	// Rationale behind returning an object and not just the string
@@ -91,7 +99,7 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) =>
-				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
+			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name )
 		};
 	},

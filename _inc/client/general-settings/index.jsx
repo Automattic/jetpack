@@ -49,28 +49,43 @@ const GeneralSettings = React.createClass( {
 
 		const maybeShowManage = this.props.isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' );
 
-		return(
-			<div>
-				<FoldableCard
-					header={ __( 'Connection Settings' ) }
-					subheader={ __( 'Manage your connected user accounts or disconnect.' ) }
-					clickableHeaderText={ true }
-					disabled={ isDevMode( this.props ) }
-				>
-					<ConnectionSettings { ...this.props } />
-				</FoldableCard>
-				{ maybeShowManage }
-				{ moduleCard( 'notes' ) }
-				{ moduleCard( 'json-api' ) }
-				<FoldableCard
-					header={ __( 'Miscellaneous Settings' ) }
-					subheader={ __( 'Manage Snow and other fun things for your site.' ) }
-					clickableHeaderText={ true }
-				>
-					<Settings />
-				</FoldableCard>
-			</div>
-		)
+		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
+			return(
+				<div>
+					<FoldableCard
+						header={ __( 'Connection Settings' ) }
+						subheader={ __( 'Manage your connected user accounts or disconnect.' ) }
+						clickableHeaderText={ true }
+						disabled={ isDevMode( this.props ) }
+					>
+						<ConnectionSettings { ...this.props } />
+					</FoldableCard>
+					{ maybeShowManage }
+					{ moduleCard( 'notes' ) }
+					{ moduleCard( 'json-api' ) }
+					<FoldableCard
+						header={ __( 'Miscellaneous Settings' ) }
+						subheader={ __( 'Manage Snow and other fun things for your site.' ) }
+						clickableHeaderText={ true }
+					>
+						<Settings />
+					</FoldableCard>
+				</div>
+			);
+		} else {
+			return(
+				<div>
+					<FoldableCard
+						header={ __( 'Connection Settings' ) }
+						subheader={ __( 'Manage your connected user accounts or disconnect.' ) }
+						clickableHeaderText={ true }
+						disabled={ isDevMode( this.props ) }
+					>
+						<ConnectionSettings { ...this.props } />
+					</FoldableCard>
+				</div>
+			);
+		}
 	}
 } );
 
@@ -86,7 +101,7 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isTogglingModule: ( module_name ) =>
-				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name )
+			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name )
 		};
 	},
 	( dispatch ) => {
