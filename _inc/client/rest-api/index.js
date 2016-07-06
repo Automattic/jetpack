@@ -2,7 +2,7 @@
  * External dependencies
  */
 require( 'es6-promise' ).polyfill();
-import fetch from 'whatwg-fetch';
+import 'whatwg-fetch';
 
 const restApi = {
 	fetchSiteConnectionStatus: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/connection-status`, {
