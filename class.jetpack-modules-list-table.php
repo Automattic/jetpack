@@ -267,7 +267,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 	function column_name( $item ) {
 		$actions = array(
-			'info' => sprintf( '<a href="%s">%s</a>', esc_url( '#' ), esc_html__( 'Module Info', 'jetpack' ) ),
+			'info' => sprintf( '<a href="%s">%s</a>', esc_url( '#' ), esc_html__( 'Feature Info', 'jetpack' ) ),
 		);
 
 		if ( ! empty( $item['configurable'] ) ) {
