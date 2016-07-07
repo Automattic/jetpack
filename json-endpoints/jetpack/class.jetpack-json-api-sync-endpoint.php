@@ -21,9 +21,9 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
-		$sender = Jetpack_Sync_Sender::getInstance();
+		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
 		return array_merge(
-			$sender->get_full_sync_client()->get_status(),
+			$sync_module->get_status(),
 			array( 'is_scheduled' => (bool) wp_next_scheduled( 'jetpack_sync_full' ) )
 		);
 	}
