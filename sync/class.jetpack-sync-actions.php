@@ -23,6 +23,8 @@ class Jetpack_Sync_Actions {
 				(
 					$_SERVER['REQUEST_METHOD'] !== 'GET'
 				||
+					defined( 'DOING_AJAX' ) && DOING_AJAX
+				||
 					defined( 'PHPUNIT_JETPACK_TESTSUITE' )
 				)
 			) ) {
