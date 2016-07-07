@@ -91,17 +91,31 @@ export default ( props ) => {
 			</div>
 		);
 	} else {
-		return (
-			<div>
-				<DashStats { ...props } />
+		let stats = '';
+		if ( window.Initial_State.userData.currentUser.permissions.view_stats ) {
+			stats = <DashStats { ...props } />;
+		}
 
-				{
-					// Site Security
+		let protect = '';
+		protect = <DashProtect { ...props } />;
 
-					securityHeader
-				}
-				<DashProtect { ...props } />
-			</div>
-		);
+		let nonAdminAAG = '';
+		if ( '' !== stats || '' !== protect ) {
+			nonAdminAAG = (
+				<div>
+					{
+						stats +
+
+						// Site Security
+
+						securityHeader +
+
+						protect
+					}
+				</div>
+			);
+		}
+
+		return nonAdminAAG;
 	}
 };
