@@ -187,7 +187,7 @@ abstract class SAL_Site {
 	 *
 	 * @return array Whitelisted post types.
 	 */
-	protected function get_whitelisted_post_types() {
+	public function get_whitelisted_post_types() {
 		$allowed_types = array( 'post', 'page', 'revision' );
 
 		/**
