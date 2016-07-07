@@ -64,7 +64,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	function start() {
 		if( ! $this->should_start_full_sync() ) {
-			return;
+			return false;
 		}
 		/**
 		 * Fires when a full sync begins. This action is serialized
@@ -93,6 +93,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 		do_action( 'jetpack_full_sync_end', $store->checksum_all() );
+		return true;
 	}
 
 	private function should_start_full_sync() {
