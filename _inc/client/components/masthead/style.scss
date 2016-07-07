@@ -1,5 +1,6 @@
 .jp-masthead {
 	background-color: $white;
+	border-bottom: 1px lighten( $gray, 30% ) solid;
 	text-align: center;
 
 	@media (max-width: rem( 720px ) ) {
@@ -8,7 +9,7 @@
 }
 
 .jp-masthead__inside-container {
-	// background: transparent url('../../images/jp-4/mast-bg.svg') no-repeat 100%;
+	background: transparent url('../../images/jp-4/mast-bg.svg') no-repeat 140%;
 	background-size: 648px 125px;
 	padding: rem( 4px ) 0;
 	margin: 0 auto;
@@ -53,14 +54,17 @@
 
 .jp-masthead__link {
 	font-style: normal;
-	color: $green-secondary;
+	color: $blue-wordpress;
 	padding: rem( 10px );
 	display: inline-block;
 
-	&:visited,
+	&:visited {
+		color: $blue-wordpress;
+	}
+
 	&:active,
 	&:hover {
-		color: $green-secondary;
+		color: $blue-medium;
 	}
 
 	&:hover {
