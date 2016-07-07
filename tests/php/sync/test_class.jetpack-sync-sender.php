@@ -242,6 +242,26 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $user_id, $event->user_id );
 	}
 
+	function test_adds_sent_time_to_action() {
+		$beginning_of_test = microtime(true);
+
+		$this->factory->post->create();
+
+		$before_sync = microtime(true);
+
+		$this->sender->do_sync();
+
+		$after_sync = microtime(true);
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+
+		$this->assertTrue( $event->sent_timestamp > $beginning_of_test );
+		$this->assertTrue( $event->sent_timestamp > $before_sync );
+		$this->assertTrue( $event->sent_timestamp < $after_sync );
+		$this->assertTrue( $event->sent_timestamp < microtime(true) );
+
+	}
+
 	function action_ran( $data, $codec ) {
 		$this->action_ran = true;
 		$this->action_codec = $codec;

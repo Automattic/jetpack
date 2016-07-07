@@ -70,7 +70,7 @@ class Jetpack_Sync_Server {
 		do_action( "jetpack_sync_remote_actions", $events, $token );
 
 		foreach ( $events as $key => $event ) {
-			list( $action_name, $args, $user_id, $timestamp ) = $event;
+			list( $action_name, $args, $user_id, $timestamp, $sent_timestamp ) = $event;
 
 			/**
 			 * Fires when an action is received from a remote Jetpack site
@@ -83,7 +83,7 @@ class Jetpack_Sync_Server {
 			 * @param double $timestamp Timestamp (in seconds) when the action occurred
 			 * @param array $token The auth token used to invoke the API
 			 */
-			do_action( 'jetpack_sync_remote_action', $action_name, $args, $user_id, $timestamp, $token );
+			do_action( 'jetpack_sync_remote_action', $action_name, $args, $user_id, $timestamp, $token, $sent_timestamp );
 
 			/**
 			 * Fires when an action is received from a remote Jetpack site
@@ -95,7 +95,7 @@ class Jetpack_Sync_Server {
 			 * @param double $timestamp Timestamp (in seconds) when the action occurred
 			 * @param array $token The auth token used to invoke the API
 			 */
-			do_action( 'jetpack_sync_' . $action_name, $args, $user_id, $timestamp, $token );
+			do_action( 'jetpack_sync_' . $action_name, $args, $user_id, $timestamp, $token, $sent_timestamp );
 
 			$events_processed[] = $key;
 
