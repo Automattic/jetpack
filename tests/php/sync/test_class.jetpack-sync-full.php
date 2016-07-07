@@ -1,8 +1,5 @@
 <?php
 
-$sync_dir = dirname( __FILE__ ) . '/../../../sync/';
-require_once $sync_dir . 'class.jetpack-sync-full.php';
-
 function jetpack_foo_full_sync_callable() {
 	return 'the value';
 }
@@ -16,7 +13,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function setUp() {
 		parent::setUp();
-		$this->full_sync = Jetpack_Sync_Full::getInstance();
+		$this->full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
 	}
 
 	function test_enqueues_sync_start_action() {
