@@ -53,7 +53,7 @@ function render() {
 					<Route path='/dashboard' component={ Main } />
 					<Route path='/apps' component={ Main } />
 					<Route path='/professional' component={ Main } />
-					<Route path='/settings' component={ Main } />
+					<Redirect from="/settings" to="general" />
 					<Route path='/general' component={ Main } />
 					<Route path='/engagement' component={ Main } />
 					<Route path='/security' component={ Main } />

@@ -63,17 +63,19 @@ const NavigationSettings = React.createClass( {
 	},
 
 	render: function() {
-		let tabs = [];
+		let tabs = [], key = 0;
 
 		forEach( this.props.navTabs, function( tab, index ) {
 			tabs.push( (
 				<NavItem
+					key={ key }
 					path={ tab.path }
 					selected={ this.isSelected( tab.route ) }
 				>
 					{ tab.name }
 				</NavItem>
 			) );
+			key++;
 		}.bind( this ) );
 
 		return (
