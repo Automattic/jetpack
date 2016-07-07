@@ -1,13 +1,10 @@
 <?php
 
-require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-wp-replicastore.php';
-
 class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	// POST /sites/%s/sync
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
-		Jetpack::init();
 		/** This action is documented in class.jetpack-sync-sender.php */
 		Jetpack_Sync_Actions::schedule_full_sync();
 		spawn_cron();
@@ -21,6 +18,8 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
+		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-modules.php';
+
 		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
 		return array_merge(
 			$sync_module->get_status(),
@@ -34,8 +33,7 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
-
-		Jetpack::init();
+		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-sender.php';
 
 		$sender = Jetpack_Sync_Sender::getInstance();
 		$sync_queue = $sender->get_sync_queue();
@@ -52,6 +50,8 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 			$sync_queue->unlock();
 			return $result;
 		}
+
+		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-wp-replicastore.php';
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -71,8 +71,9 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_En
 	protected function result() {
 		$args = $this->input();
 
-		$sender = Jetpack_Sync_Sender::getInstance();
-		$sync_settings = $sender->get_settings();
+		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-settings.php';
+
+		$sync_settings = Jetpack_Sync_Settings::get_settings();
 
 		foreach( $args as $key => $value ) {
 			if ( $value !== false ) {
@@ -83,7 +84,7 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_En
 			}
 		}
 
-		$sender->update_settings( $sync_settings );
+		Jetpack_Sync_Settings::update_settings( $sync_settings );
 
 		// re-fetch so we see what's really being stored
 		return $sender->get_settings();
@@ -95,7 +96,7 @@ class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Endpo
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
-		$sender = Jetpack_Sync_Sender::getInstance();
-		return $sender->get_settings();
+		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-settings.php';
+		return Jetpack_Sync_Settings::get_settings();
 	}
 }
