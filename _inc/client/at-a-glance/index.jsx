@@ -24,7 +24,6 @@ import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 const AtAGlance = React.createClass( {
 	render() {
-		let props = this.props;
 		let securityHeader =
 				<DashSectionHeader
 				label={ __( 'Site Security' ) }
@@ -44,7 +43,7 @@ const AtAGlance = React.createClass( {
 		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
 			return (
 				<div>
-					<DashStats { ...props } />
+					<DashStats { ...this.props } />
 
 					{
 						// Site Security
@@ -53,11 +52,11 @@ const AtAGlance = React.createClass( {
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashProtect { ...props } />
+							<DashProtect { ...this.props } />
 						</div>
 						<div className="jp-at-a-glance__right">
-							<DashScan { ...props } />
-							<DashMonitor { ...props } />
+							<DashScan { ...this.props } />
+							<DashMonitor { ...this.props } />
 						</div>
 					</div>
 
@@ -68,11 +67,11 @@ const AtAGlance = React.createClass( {
 					}
 					<div className="jp-at-a-glance__item-grid">
 							<div className="jp-at-a-glance__left">
-								<DashAkismet { ...props } />
+								<DashAkismet { ...this.props } />
 							</div>
 							<div className="jp-at-a-glance__right">
-								<DashBackups { ...props } />
-								<DashPluginUpdates { ...props } />
+								<DashBackups { ...this.props } />
+								<DashPluginUpdates { ...this.props } />
 							</div>
 					</div>
 
@@ -83,42 +82,38 @@ const AtAGlance = React.createClass( {
 					}
 					<div className="jp-at-a-glance__item-grid">
 							<div className="jp-at-a-glance__left">
-								<DashPhoton { ...props } />
+								<DashPhoton { ...this.props } />
 							</div>
 							<div className="jp-at-a-glance__right">
-								<DashSiteVerify { ...props } />
+								<DashSiteVerify { ...this.props } />
 							</div>
 					</div>
 
-					<FeedbackDashRequest { ...props } />
+					<FeedbackDashRequest { ...this.props } />
 				</div>
 			);
 		} else {
 			let stats = '';
 			if ( window.Initial_State.userData.currentUser.permissions.view_stats ) {
-				stats = <DashStats { ...props } />;
+				stats = <DashStats { ...this.props } />;
 			}
 
 			let protect = '';
 			if ( this.props.isModuleActivated( 'protect' ) ) {
-				protect = <DashProtect { ...props } />;
+				protect = <DashProtect { ...this.props } />;
 			}
 
 			let nonAdminAAG = '';
 			if ( '' !== stats || '' !== protect ) {
 				nonAdminAAG = (
 					<div>
-						{
-							stats
-						}
+						{ stats	}
 						{
 							// Site Security
 
 							securityHeader
 						}
-						{
-							protect
-						}
+						{ protect }
 					</div>
 				);
 			}

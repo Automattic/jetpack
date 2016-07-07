@@ -13,7 +13,7 @@ import ConnectButton from 'components/connect-button';
 import { isCurrentUserLinked as _isCurrentUserLinked } from 'state/connection';
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import { setInitialState } from 'state/initial-state';
-
+import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import AtAGlance from 'at-a-glance/index.jsx';
@@ -35,7 +35,9 @@ const NonAdminViewConnected = React.createClass( {
 			navComponent = <Navigation { ...this.props } />;
 		switch ( route ) {
 			case '/dashboard':
-				pageComponent = <AtAGlance { ...this.props } />;
+				if ( window.Initial_State.userData.currentUser.permissions.view_stats || this.props.isModuleActivated( 'protect' ) ) {
+					pageComponent = <AtAGlance { ...this.props } />;
+				}
 				break;
 			case '/apps':
 				pageComponent = 'this will be the APPS page';
@@ -79,4 +81,10 @@ const NonAdminViewConnected = React.createClass( {
 
 } );
 
-export default NonAdminViewConnected;
+export default connect(
+	( state ) => {
+		return {
+			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
+		};
+	}
+)( NonAdminViewConnected );
