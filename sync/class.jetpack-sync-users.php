@@ -9,7 +9,7 @@ class Jetpack_Sync_Users {
 	static $user_roles = array();
 
 	static function init() {
-		if ( Jetpack::is_active() || Jetpack::is_development_mode() ) {
+		if ( Jetpack::is_active() ) {
 			// Kick off synchronization of user role when it changes
 			add_action( 'set_user_role', array( __CLASS__, 'user_role_change' ) );
 		}
@@ -77,5 +77,4 @@ class Jetpack_Sync_Users {
 		}
 	}
 }
-
-add_action( 'admin_init', array( 'Jetpack_Sync_Users', 'init' ) );
+Jetpack_Sync_Users::init();
