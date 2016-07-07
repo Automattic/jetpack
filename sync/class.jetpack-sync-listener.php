@@ -39,10 +39,6 @@ class Jetpack_Sync_Listener {
 			$module->init_listeners( $handler );
 		}
 
-		// synthetic actions for full sync
-		add_action( 'jetpack_full_sync_start', $handler );
-		add_action( 'jetpack_full_sync_end', $handler );
-
 		// Module Activation
 		add_action( 'jetpack_activate_module', $handler );
 		add_action( 'jetpack_deactivate_module', $handler );

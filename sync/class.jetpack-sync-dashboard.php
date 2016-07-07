@@ -95,7 +95,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function ajax_begin_full_sync() {
-		Jetpack_Sync_Sender::getInstance()->get_full_sync_client()->start();
+		Jetpack_Sync_Modules::get_module( 'full-sync' )->start();
 		$this->ajax_full_sync_status();
 	}
 
@@ -119,7 +119,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function full_sync_status() {
-		return Jetpack_Sync_Sender::getInstance()->get_full_sync_client()->get_status();
+		return Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
 	}
 
 	function dashboard_ui() {

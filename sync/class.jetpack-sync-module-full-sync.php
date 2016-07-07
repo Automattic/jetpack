@@ -14,7 +14,7 @@
 
 require_once 'class.jetpack-sync-wp-replicastore.php';
 
-class Jetpack_Sync_Full {
+class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	const ARRAY_CHUNK_SIZE = 10;
 	static $status_option = 'jetpack_full_sync_status';
 	static $transient_timeout = 3600; // an hour
@@ -32,23 +32,19 @@ class Jetpack_Sync_Full {
 		'network_options',
 	);
 
-	// singleton functions
-	private static $instance;
 	private $sender;
 
-	public static function getInstance() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
+	public function name() {
+		return 'full-sync';
 	}
 
-	protected function __construct() {
-		$this->init();
+	function init_listeners( $callable ) {
+		// synthetic actions for full sync
+		add_action( 'jetpack_full_sync_start', $callable );
+		add_action( 'jetpack_full_sync_end', $callable );
 	}
 
-	function init() {
+	function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_options', array( $this, 'expand_options' ) );
@@ -60,15 +56,15 @@ class Jetpack_Sync_Full {
 			$this,
 			'expand_network_options'
 		) );
-
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_terms', array( $this, 'expand_term_ids' ) );
 
+		// this is triggered after actions have been processed on the server
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'update_sent_progress_action' ) );
 	}
 
 	function start() {
 		if( ! $this->should_start_full_sync() ) {
-			return;
+			return false;
 		}
 		/**
 		 * Fires when a full sync begins. This action is serialized
@@ -97,6 +93,7 @@ class Jetpack_Sync_Full {
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 		do_action( 'jetpack_full_sync_end', $store->checksum_all() );
+		return true;
 	}
 
 	private function should_start_full_sync() {
