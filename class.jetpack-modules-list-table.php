@@ -150,6 +150,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				continue;
 			}
 			$key           = sanitize_title( $title );
+			if ( 'centralized-management' === $key && Jetpack::is_module_active( 'manage' ) ) {
+				continue;
+			}
 			$display_title = esc_html( wptexturize( $title ) );
 			$url           = esc_url( add_query_arg( 'module_tag', urlencode( $title ) ) );
 			$current       = '';
