@@ -32,6 +32,9 @@ class Jetpack_Sync_Actions {
 			self::$listener = Jetpack_Sync_Listener::getInstance();
 		}
 
+		// Sync connected user role changes to .com
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
+
 		/**
 		 * Fires on every request before default loading sync sender code.
 		 * Return false to not load sync sender code that serializes pending
@@ -76,9 +79,6 @@ class Jetpack_Sync_Actions {
 		if ( ! wp_next_scheduled ( 'jetpack_send_db_checksum' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_send_db_checksum' );
 		}
-
-		// Sync Master User Role Changes
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
 
 	}
 
