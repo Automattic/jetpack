@@ -8,11 +8,11 @@ class Jetpack_Sync_Server_Eventstore {
 	private $action_name = null;
 
 	function init() {
-		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 10, 5 );
+		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 10, 6 );
 	}
 
-	function handle_remote_action( $action_name, $args, $user_id, $timestamp, $token ) {
-		$this->events[] = (object) array( 'action' => $action_name, 'args' => $args, 'user_id' => $user_id, 'timestamp' => $timestamp );
+	function handle_remote_action( $action_name, $args, $user_id, $timestamp, $sent_timestamp, $token ) {
+		$this->events[] = (object) array( 'action' => $action_name, 'args' => $args, 'user_id' => $user_id, 'timestamp' => $timestamp, 'sent_timestamp' => $sent_timestamp );
 	}
 
 	function get_all_events( $action_name = null ) {

@@ -2,18 +2,25 @@
 
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $action_ran;
+	protected $action_codec;
+	protected $action_timestamp;
 	protected $encoded_data;
 
-	function test_add_post_fires_sync_data_action_with_codec_on_do_sync() {
+	function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
+		$start_test_timestamp = microtime( true );
 		$this->action_ran = false;
 		$this->action_codec = null;
+		$this->action_timestamp = null;
 
-		add_filter( 'jetpack_sync_send_data', array( $this, 'action_ran' ), 10, 2 );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'action_ran' ), 10, 3 );
 
 		$this->sender->do_sync();
 
 		$this->assertEquals( true, $this->action_ran );
 		$this->assertEquals( 'deflate-json', $this->action_codec );
+		$this->assertNotNull( $this->action_timestamp );
+		$this->assertTrue( $this->action_timestamp > $start_test_timestamp );
+		$this->assertTrue( $this->action_timestamp < microtime( true ) );
 	}
 
 	function test_queues_cron_job_if_queue_exceeds_max_buffer() {
@@ -242,9 +249,30 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $user_id, $event->user_id );
 	}
 
-	function action_ran( $data, $codec ) {
+	function test_adds_sent_time_to_action() {
+		$beginning_of_test = microtime(true);
+
+		$this->factory->post->create();
+
+		$before_sync = microtime(true);
+
+		$this->sender->do_sync();
+
+		$after_sync = microtime(true);
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+
+		$this->assertTrue( $event->sent_timestamp > $beginning_of_test );
+		$this->assertTrue( $event->sent_timestamp > $before_sync );
+		$this->assertTrue( $event->sent_timestamp < $after_sync );
+		$this->assertTrue( $event->sent_timestamp < microtime(true) );
+
+	}
+
+	function action_ran( $data, $codec, $sent_timestamp ) {
 		$this->action_ran = true;
 		$this->action_codec = $codec;
+		$this->action_timestamp = $sent_timestamp;
 		return $data;
 	}
 

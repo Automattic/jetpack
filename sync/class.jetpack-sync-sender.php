@@ -97,6 +97,7 @@ class Jetpack_Sync_Sender {
 		$upload_size   = 0;
 		$items_to_send = array();
 		$actions_to_send = array();
+		
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
 		foreach ( $buffer->get_items() as $key => $item ) {
@@ -132,7 +133,7 @@ class Jetpack_Sync_Sender {
 		 *
 		 * @param array $data The action buffer
 		 */
-		$result = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name() );
+		$result = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ) );
 
 		if ( ! $result || is_wp_error( $result ) ) {
 			$result = $this->sync_queue->checkin( $buffer );

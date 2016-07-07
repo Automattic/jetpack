@@ -67,7 +67,7 @@ class Jetpack_Sync_Actions {
 		add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 
 		// bind the sending process
-		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 2 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 3 );
 
 		// On jetpack registration
 		add_action( 'jetpack_site_registered', array( __CLASS__, 'schedule_full_sync' ) );
@@ -78,12 +78,13 @@ class Jetpack_Sync_Actions {
 		}
 	}
 
-	static function send_data( $data, $codec_name ) {
+	static function send_data( $data, $codec_name, $sent_timestamp ) {
 		Jetpack::load_xml_rpc_client();
 
 		$url = add_query_arg( array(
 			'sync' => '1', // add an extra parameter to the URL so we can tell it's a sync action
 			'codec' => $codec_name, // send the name of the codec used to encode the data
+			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
 		), Jetpack::xmlrpc_api_url() );
 
 		$rpc = new Jetpack_IXR_Client( array(
