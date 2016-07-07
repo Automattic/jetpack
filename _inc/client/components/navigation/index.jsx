@@ -40,6 +40,11 @@ const Navigation = React.createClass( {
 						selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
+					<NavItem
+						path="#apps"
+						selected={ this.props.route.path === '/apps' }>
+						{ __( 'Apps', { context: 'Navigation item.' } ) }
+					</NavItem>
 				</NavTabs>
 			);
 		}

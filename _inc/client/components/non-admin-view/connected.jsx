@@ -37,6 +37,9 @@ const NonAdminViewConnected = React.createClass( {
 			case '/dashboard':
 				pageComponent = <AtAGlance { ...this.props } />;
 				break;
+			case '/apps':
+				pageComponent = 'this will be the APPS page';
+				break;
 			case '/settings':
 				navComponent = <NavigationSettings { ...this.props } />;
 				pageComponent = <GeneralSettings { ...this.props } />;
