@@ -18,7 +18,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
-import { MoreModulesSettings } from 'components/module-settings/modules-per-tab-page';
+import { WritingModulesSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
@@ -65,9 +65,9 @@ export const Page = ( props ) => {
 		} else {
 			if ( adminAndNonAdmin ) {
 				toggle = <ModuleToggle slug={ element[0] }
-									   activated={ isModuleActivated( element[0] ) }
-									   toggling={ isTogglingModule( element[0] ) }
-									   toggleModule={ toggleModule } />;
+					activated={ isModuleActivated( element[0] ) }
+					toggling={ isTogglingModule( element[0] ) }
+					toggleModule={ toggleModule } />;
 			}
 		}
 
@@ -85,7 +85,7 @@ export const Page = ( props ) => {
 				disabled={ ! adminAndNonAdmin }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<MoreModulesSettings module={ getModule( element[0] ) } /> :
+					<WritingModulesSettings module={ getModule( element[0] ) } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}

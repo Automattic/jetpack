@@ -37,6 +37,8 @@ export const EngagementModulesSettings = React.createClass( {
 				return ( <SubscriptionsSettings module={ module } { ...this.props } /> );
 			case 'sharedaddy':
 				return ( <SharedaddySettings module={ module } { ...this.props } /> );
+			case 'gravatar-hovercards':
+				return( <GravatarHovercardsSettings module={ module } { ...this.props } /> );
 			case 'likes':
 			case 'notifications':
 			case 'enhanced-distribution':
@@ -75,20 +77,37 @@ export const SecurityModulesSettings = React.createClass( {
 	}
 } );
 
-export const MoreModulesSettings = React.createClass( {
+export const AppearanceModulesSettings = React.createClass( {
 	render() {
 		let { module } = this.props;
 		switch ( module.module ) {
+			case 'tiled-gallery':
+				return( <TiledGallerySettings module={ module } { ...this.props } /> );
 			case 'minileven':
 				return( <MinilevenSettings module={ module } { ...this.props } /> );
 			case 'carousel':
 				return( <CarouselSettings module={ module } { ...this.props } /> );
 			case 'infinite-scroll':
 				return( <InfiniteScrollSettings module={ module } { ...this.props } /> );
-			case 'gravatar-hovercards':
-				return( <GravatarHovercardsSettings module={ module } { ...this.props } /> );
-			case 'tiled-gallery':
-				return( <TiledGallerySettings module={ module } { ...this.props } /> );
+			case 'photon':
+			case 'widget-visibility':
+				return <span>{ __( 'This module has no configuration options' ) } </span>;
+			case 'custom-css':
+			case 'widgets':
+			default:
+				return (
+					<div>
+						<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
+					</div>
+				);
+		}
+	}
+} );
+
+export const WritingModulesSettings = React.createClass( {
+	render() {
+		let { module } = this.props;
+		switch ( module.module ) {
 			case 'post-by-email':
 				return( <PostByEmailSettings module={ module } { ...this.props } /> );
 			case 'custom-content-types':
@@ -98,15 +117,9 @@ export const MoreModulesSettings = React.createClass( {
 			case 'contact-form':
 			case 'latex':
 			case 'markdown':
-			case 'photon':
-			case 'widget-visibility':
 			case 'shortlinks':
 			case 'shortcodes':
-			case 'json-api':
-			case 'omnisearch':
 				return <span>{ __( 'This module has no configuration options' ) } </span>;
-			case 'custom-css':
-			case 'widgets':
 			default:
 				return (
 					<div>

@@ -18,6 +18,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
+import { AppearanceModulesSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
@@ -54,7 +55,8 @@ export const Page = ( props ) => {
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
 			>
-				{ isModuleActivated( element[0] ) ? renderSettings( element[0], props ) :
+				{ isModuleActivated( element[0] ) ?
+					<AppearanceModulesSettings module={ getModule( element[0] ) } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -74,17 +76,6 @@ function renderLongDescription( module ) {
 	// Rationale behind returning an object and not just the string
 	// https://facebook.github.io/react/tips/dangerously-set-inner-html.html
 	return { __html: module.long_description };
-}
-
-function renderSettings( module, props ) {
-	switch ( module ) {
-		default:
-			return (
-				<div>
-					<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
-				</div>
-			);
-	}
 }
 
 export default connect(
