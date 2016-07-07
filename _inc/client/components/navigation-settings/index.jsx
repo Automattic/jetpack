@@ -8,16 +8,11 @@ import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
 import { translate as __ } from 'i18n-calypso';
 import forEach from 'lodash/forEach';
+import find from 'lodash/find';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
 const NavigationSettings = React.createClass( {
-	getInitialState: function() {
-		return {
-			navTabsSelectedIndex: 0
-		};
-	},
-
 	getDefaultProps: function () {
 		return {
 			navTabs: [
@@ -55,19 +50,12 @@ const NavigationSettings = React.createClass( {
 	},
 
 	getSelectedText: function() {
-		var selected = this.state[ 'navTabsSelectedIndex' ],
-			text = this.props[ 'navTabs' ][ selected ];
+		var path = this.props.route.path;
+		var text = find( this.props[ 'navTabs' ], function( tab ) {
+			return tab.route === path;
+		} );
 
 		return 'object' === typeof text ? text.name : text;
-	},
-
-	handleNavItemClick: function( index ) {
-		return function() {
-			var stateUpdate = {};
-
-			stateUpdate[ 'navTabsSelectedIndex' ] = index;
-			this.setState( stateUpdate );
-		};
 	},
 
 	isSelected: function( route ) {
@@ -75,8 +63,6 @@ const NavigationSettings = React.createClass( {
 	},
 
 	render: function() {
-		console.log( this.getSelectedText() );
-
 		let tabs = [];
 
 		forEach( this.props.navTabs, function( tab, index ) {
@@ -84,7 +70,6 @@ const NavigationSettings = React.createClass( {
 				<NavItem
 					path={ tab.path }
 					selected={ this.isSelected( tab.route ) }
-					onClick={ this.handleNavItemClick( index ).bind( this ) }
 				>
 					{ tab.name }
 				</NavItem>
