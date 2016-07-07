@@ -82,12 +82,12 @@ export const Page = ( props ) => {
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
-				disabled={ ! adminAndNonAdmin }
-			>
-				{ isModuleActivated( element[0] ) ?
-					<EngagementModulesSettings module={ getModule( element[0] ) } /> :
-					// Render the long_description if module is deactivated
-					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
+				disabled={ ! adminAndNonAdmin } >
+				{
+					isModuleActivated( element[0] ) ?
+						<EngagementModulesSettings module={ getModule( element[0] ) } /> :
+						// Render the long_description if module is deactivated
+						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<p>
 					<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>

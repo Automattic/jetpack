@@ -76,14 +76,15 @@ export const Page = ( props ) => {
 		}
 
 		return (
-			<FoldableCard className={ customClasses } key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
+			<FoldableCard
+				className={ customClasses }
+				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 				header={ element[1] }
 				subheader={ element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
-				disabled={ ! adminAndNonAdmin }
-			>
+				disabled={ ! adminAndNonAdmin } >
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
 					<WritingModulesSettings module={ getModule( element[0] ) } /> :
 					// Render the long_description if module is deactivated
