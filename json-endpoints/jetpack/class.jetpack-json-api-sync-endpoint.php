@@ -87,7 +87,7 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_En
 		Jetpack_Sync_Settings::update_settings( $sync_settings );
 
 		// re-fetch so we see what's really being stored
-		return $sender->get_settings();
+		return Jetpack_Sync_Settings::get_settings();
 	}
 }
 
