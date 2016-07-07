@@ -103,7 +103,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
 					</th>
 					<td class='name column-name'>
-						<span class='info'><a href="#">{{{ item.name }}}</a></span>
+						<span class='info'><a href="{{{item.learn_more_button}}}" target="blank">{{{ item.name }}}</a></span>
 						<div class="row-actions">
 						<# if ( item.configurable ) { #>
 							<span class='configure'>{{{ item.configurable }}}</span>
@@ -267,7 +267,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 	function column_name( $item ) {
 		$actions = array(
-			'info' => sprintf( '<a href="%s">%s</a>', esc_url( '#' ), esc_html__( 'Feature Info', 'jetpack' ) ),
+			'info' => sprintf( '<a href="%s" target="blank">%s</a>', esc_url( $item['learn_more_button'] ), esc_html__( 'Feature Info', 'jetpack' ) ),
 		);
 
 		if ( ! empty( $item['configurable'] ) ) {
