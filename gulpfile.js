@@ -95,6 +95,17 @@ gulp.task( 'react:build', function( done ) {
 	process.env.NODE_ENV = 'production';
 
 	var config = getWebpackConfig();
+	config.plugins = config.plugins.concat(
+		new webpack.optimize.DedupePlugin(),
+		new webpack.optimize.UglifyJsPlugin( {
+			compress: {
+				warnings: false
+			}
+		} )
+	);
+
+	config.devtool = 'source-map';
+	config.debug = false;
 
 	webpack( config ).run( onBuild( done ) );
 } );
