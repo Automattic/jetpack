@@ -11,7 +11,9 @@
 	position: relative;
 	padding: em(10px, 13px) em(19px, 13px);
 	color: #efefef;
-	font: 800 0.9285714286em/1 'Open Sans', Helvetica, sans-serif; // 13/14
+	font-weight: bold;
+	font-size: 0.9285714286em; // 13/14
+	line-height: 1;
 	text-shadow: 0 1px 1px rgba(0,0,0,.2);
 	background: #6f7476;
 	border-radius: 3px;
@@ -55,7 +57,7 @@
 	position: relative;
 	padding: em(18px, 28px) em(50px, 46px) em(15px, 28px);
 	color: #fff;
-	font: 400 20px/1 "proxima-nova", 'Open Sans', Helvetica, sans-serif; // 28/14
+	font: 400 20px/1 "proxima-nova", Helvetica, sans-serif; // 28/14
 	background: #518d2a;
 	z-index: 3;
 	border-radius: 6px;

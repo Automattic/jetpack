@@ -328,7 +328,6 @@ class Jetpack_Debugger {
 				background-color: #eaf3fa;
 				border-radius: 5px;
 				font-size: 15px;
-				font-family: "Open Sans", "Helvetica Neue", sans-serif;
 			}
 
 			form#contactme label.h {
