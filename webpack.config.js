@@ -96,7 +96,7 @@ var webpackConfig = {
 				NODE_ENV: JSON.stringify( NODE_ENV )
 			}
 		}),
-		new ExtractTextPlugin( 'dops-style.css' )
+		new ExtractTextPlugin( '[name].dops-style.css' )
 	]
 };
 

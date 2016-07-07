@@ -156,7 +156,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
-		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
+		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
 		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), time() );
 
 		$localeSlug = explode( '_', get_locale() );
