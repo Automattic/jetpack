@@ -28,7 +28,7 @@ export const Page = ( props ) => {
 		isTogglingModule,
 		getModule
 	} = props;
-	let nonAdmin = ! window.Initial_State.userData.currentUser.permissions.manage_modules;
+	let isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
 	/**
 	 * Array of modules that directly map to a card for rendering
 	 * @type {Array}
@@ -43,18 +43,33 @@ export const Page = ( props ) => {
 		[ 'post-by-email', getModule( 'post-by-email' ).name, getModule( 'post-by-email' ).description, getModule( 'post-by-email' ).learn_more_button ],
 		[ 'latex', getModule( 'latex' ).name, getModule( 'latex' ).description, getModule( 'latex' ).learn_more_button ],
 		[ 'custom-content-types', getModule( 'custom-content-types' ).name, getModule( 'custom-content-types' ).description, getModule( 'custom-content-types' ).learn_more_button ]
-	].map( ( element, i ) => {
+	],
+		nonAdminAvailable = [ 'after-the-deadline', 'post-by-email' ];
+	// Put modules available to non-admin user at the top of the list.
+	if ( ! isAdmin ) {
+		let cardsCopy = cards.slice();
+		cardsCopy.reverse().forEach( ( element ) => {
+			if ( nonAdminAvailable.includes( element[0] ) ) {
+				cards.unshift( element );
+			}
+		} );
+		cards = cards.filter( ( element, index ) => cards.indexOf( element ) === index );
+	}
+	cards = cards.map( ( element, i ) => {
 		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
-			notInNonAdmin = ! ( nonAdmin && ( 'after-the-deadline' === element[0] || 'post-by-email' === element[0] ) ),
-			toggle = (
-				notInNonAdmin ? '' :
-					unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
-						<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
-									  toggling={ isTogglingModule( element[0] ) }
-									  toggleModule={ toggleModule }
-						/>
-			),
-			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
+			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
+			toggle = '',
+			adminAndNonAdmin = isAdmin || nonAdminAvailable.includes( element[0] );
+		if ( unavailableInDevMode ) {
+			toggle = __( 'Unavailable in Dev Mode' );
+		} else {
+			if ( adminAndNonAdmin ) {
+				toggle = <ModuleToggle slug={ element[0] }
+									   activated={ isModuleActivated( element[0] ) }
+									   toggling={ isTogglingModule( element[0] ) }
+									   toggleModule={ toggleModule } />;
+			}
+		}
 
 		if ( 1 === element.length ) {
 			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
@@ -67,7 +82,7 @@ export const Page = ( props ) => {
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
-				disabled={ notInNonAdmin }
+				disabled={ ! adminAndNonAdmin }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
 					<MoreModulesSettings module={ getModule( element[0] ) } /> :
