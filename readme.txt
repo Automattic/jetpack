@@ -75,6 +75,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.1.1 =
+
+* Release date: July 7th, 2016
+
+**Bug Fixes:**
+
+* Publicize: fix an issue where Publicize wasn't triggered when publishing new posts.
+* SSO: Use high-resolution Gravatar images on the log-in form, even on Retina devices.
+
 = 4.1 =
 
 * Release date: July 6th, 2016
