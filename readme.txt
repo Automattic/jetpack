@@ -92,8 +92,8 @@ Enhancements:
 
 **Bug Fixes:**
 
-* Publicize: fix an issue where Publicize wasn't triggered when publishing new posts.
-* SSO: Use high-resolution Gravatar images on the log-in form, even on Retina devices.
+* SSO: Use high-resolution Gravatar images on the log-in form on Retina devices.
+* Publicize: improve reliability of Publicize when publishing new posts.
 
 = 4.1 =
 
