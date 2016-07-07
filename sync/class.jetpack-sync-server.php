@@ -39,7 +39,7 @@ class Jetpack_Sync_Server {
 		delete_site_transient( $this->get_concurrent_request_transient_name( $blog_id ) );
 	}
 
-	function receive( $data, $token = null ) {
+	function receive( $data, $token = null, $sent_timestamp = null ) {
 		$start_time = microtime( true );
 		if ( ! is_array( $data ) ) {
 			return new WP_Error( 'action_decoder_error', 'Events must be an array' );
@@ -70,7 +70,7 @@ class Jetpack_Sync_Server {
 		do_action( "jetpack_sync_remote_actions", $events, $token );
 
 		foreach ( $events as $key => $event ) {
-			list( $action_name, $args, $user_id, $timestamp, $sent_timestamp ) = $event;
+			list( $action_name, $args, $user_id, $timestamp ) = $event;
 
 			/**
 			 * Fires when an action is received from a remote Jetpack site
