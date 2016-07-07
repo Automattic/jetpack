@@ -29,6 +29,7 @@
 			}
 		});
 
+		$( 'table.jetpack-modules', jpBottomFrame ).addClass( 'with-transparency' );
 		$( '.manage-left', jpBottomFrame ).css( 'width', '' );
 		$( '.manage-right', jpBottomFrame ).show();
 	}
