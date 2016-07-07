@@ -26,6 +26,7 @@ import { ModuleToggle } from 'components/module-toggle';
 
 const GeneralSettings = React.createClass( {
 	render() {
+		let nonAdmin = ! window.Initial_State.userData.currentUser.permissions.manage_modules;
 		const toggle = ( module_name ) =>
 			<ModuleToggle
 				slug={ module_name }
@@ -39,9 +40,9 @@ const GeneralSettings = React.createClass( {
 				header={ this.props.getModule( module_slug ).name }
 				subheader={ this.props.getModule( module_slug ).description }
 				clickableHeaderText={ true }
-				disabled={ ( isDevMode( this.props ) && requires_connection ) }
-				summary={ toggle( module_slug ) }
-				expandedSummary={ toggle( module_slug ) }
+				disabled={ ( isDevMode( this.props ) && requires_connection ) || nonAdmin }
+				summary={ nonAdmin ? '' : toggle( module_slug ) }
+				expandedSummary={ nonAdmin ? '' : toggle( module_slug ) }
 			>
 				<div dangerouslySetInnerHTML={ renderLongDescription( this.props.getModule( module_slug ) ) } />
 				<a href={ this.props.getModule( module_slug ).learn_more_button } target="_blank">{ __( 'Learn More' ) }</a>
@@ -49,43 +50,29 @@ const GeneralSettings = React.createClass( {
 
 		const maybeShowManage = this.props.isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' );
 
-		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
-			return(
-				<div>
-					<FoldableCard
-						header={ __( 'Connection Settings' ) }
-						subheader={ __( 'Manage your connected user accounts or disconnect.' ) }
-						clickableHeaderText={ true }
-						disabled={ isDevMode( this.props ) }
-					>
-						<ConnectionSettings { ...this.props } />
-					</FoldableCard>
-					{ maybeShowManage }
-					{ moduleCard( 'notes' ) }
-					{ moduleCard( 'json-api' ) }
-					<FoldableCard
-						header={ __( 'Miscellaneous Settings' ) }
-						subheader={ __( 'Manage Snow and other fun things for your site.' ) }
-						clickableHeaderText={ true }
-					>
-						<Settings />
-					</FoldableCard>
-				</div>
-			);
-		} else {
-			return(
-				<div>
-					<FoldableCard
-						header={ __( 'Connection Settings' ) }
-						subheader={ __( 'Manage your connected user accounts or disconnect.' ) }
-						clickableHeaderText={ true }
-						disabled={ isDevMode( this.props ) }
-					>
-						<ConnectionSettings { ...this.props } />
-					</FoldableCard>
-				</div>
-			);
-		}
+		return(
+			<div>
+				<FoldableCard
+					header={ __( 'Connection Settings' ) }
+					subheader={ __( 'Manage your connected user accounts or disconnect.' ) }
+					clickableHeaderText={ true }
+					disabled={ isDevMode( this.props ) }
+				>
+					<ConnectionSettings { ...this.props } />
+				</FoldableCard>
+				{ maybeShowManage }
+				{ moduleCard( 'notes' ) }
+				{ moduleCard( 'json-api' ) }
+				<FoldableCard
+					header={ __( 'Miscellaneous Settings' ) }
+					subheader={ __( 'Manage Snow and other fun things for your site.' ) }
+					clickableHeaderText={ true }
+					disabled={ nonAdmin }
+				>
+					<Settings />
+				</FoldableCard>
+			</div>
+		);
 	}
 } );
 
