@@ -65,7 +65,7 @@ class Jetpack_Sync_Actions {
 		add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 
 		// bind the sending process
-		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 2 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 3 );
 
 		// On jetpack registration
 		add_action( 'jetpack_site_registered', array( __CLASS__, 'schedule_full_sync' ) );
