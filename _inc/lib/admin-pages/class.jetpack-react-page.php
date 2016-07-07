@@ -11,13 +11,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function get_page_hook() {
 		$title = _x( 'Jetpack', 'The menu item label', 'jetpack' );
 
-		$this->fallback_page->get_page_hook();
-
 		// Add the main admin Jetpack menu
-		add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
-
-		// also create the submenu
-		return add_submenu_page( 'jetpack', $title, __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack' );
+		return add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
 	}
 
 	function add_page_actions( $hook ) {
