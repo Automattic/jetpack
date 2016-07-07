@@ -86,6 +86,15 @@ Enhancements:
 * General: we've completely refactored the way information was synchronized between your site and WordPress.com, thus ensuring every module uses information that's up to date.
 * Performance: we've reduced the number of queries typically run on both the front end and the dashboard, to improve overall performance. #4281
 
+= 4.1.1 =
+
+* Release date: July 7th, 2016
+
+**Bug Fixes:**
+
+* Publicize: fix an issue where Publicize wasn't triggered when publishing new posts.
+* SSO: Use high-resolution Gravatar images on the log-in form, even on Retina devices.
+
 = 4.1 =
 
 * Release date: July 6th, 2016
