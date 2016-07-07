@@ -47,9 +47,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 		ob_start();
 
-		?>
-		<div class="jp-lower">
-		<?php
+		$this->admin_page_top();
 
 		if ( $this->is_wp_version_too_old() ) {
 			echo $version_notice;
@@ -113,8 +111,9 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 				</div><!-- /.wrap -->
 			</div><!-- /.frame -->
 		</div><!-- /.content -->
-		</div><!-- /.jp-lower -->
 		<?php
+
+		$this->admin_page_bottom();
 
 		$page_content = ob_get_contents();
 		ob_end_clean();
