@@ -4138,7 +4138,7 @@ p {
 	}
 
 	static function translate_current_user_to_role() {
-		foreach ( static::$capability_translations as $role => $cap ) {
+		foreach ( self::$capability_translations as $role => $cap ) {
 			if ( current_user_can( $role ) || current_user_can( $cap ) ) {
 				return $role;
 			}
@@ -4148,11 +4148,11 @@ p {
 	}
 
 	static function translate_role_to_cap( $role ) {
-		if ( ! isset( static::$capability_translations[$role] ) ) {
+		if ( ! isset( self::$capability_translations[$role] ) ) {
 			return false;
 		}
 
-		return static::$capability_translations[$role];
+		return self::$capability_translations[$role];
 	}
 
 	static function sign_role( $role ) {
