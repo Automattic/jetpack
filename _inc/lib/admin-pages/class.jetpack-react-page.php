@@ -38,7 +38,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function jetpack_add_dashboard_sub_nav_item() {
 		global $submenu;
-		$permalink = Jetpack::admin_url( 'page=jetpack#/dashboard' );
+		if ( current_user_can( 'jetpack_manage_modules' ) || ( Jetpack::is_module_active( 'protect' ) || current_user_can( 'view_stats' ) ) ) {
+			$permalink = Jetpack::admin_url( 'page=jetpack#/dashboard' );
+		} else {
+			$permalink = Jetpack::admin_url( 'page=jetpack#/apps' );
+		}
 		$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', $permalink );
 	}
 
