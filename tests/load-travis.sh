@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$WP_TRAVISCI" != "phpunit" ]; then
+if [ "$WP_TRAVISCI" == "npm run test-client" ]; then
 	gem install sass
 	gem install compass
 	source ~/.nvm/nvm.sh
@@ -9,4 +9,8 @@ if [ "$WP_TRAVISCI" != "phpunit" ]; then
 	npm install -g npm
 	npm install -g gulp-cli
 	npm install
+fi
+
+if [ "$WP_TRAVISCI" == "gulp travis:js" ]; then
+	npm install -g gulp-cli
 fi
