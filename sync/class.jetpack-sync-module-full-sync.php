@@ -98,19 +98,21 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->update_queue_progress( 'network_options', $total );
 	}
 
-	function update_sent_progress_action( $actions_sent ) {
+	function update_sent_progress_action( $actions ) {
+		$action_names = array_map( 'reset', $actions );
+
 		$modules_count = array();
 		$status = $this->get_status();
 		if ( is_null( $status['started'] ) || $status['finished'] ) {
 			return;
 		}
 
-		if ( in_array( 'jetpack_full_sync_start', $actions_sent ) ) {
+		if ( in_array( 'jetpack_full_sync_start', $action_names ) ) {
 			$this->set_status_sending_started();
 			$status['sent_started'] = time();
 		}
 
-		foreach( $actions_sent as $action ) {
+		foreach( $action_names as $action ) {
 			$module_key = $this->action_to_modules( $action );
 			if ( $module_key ) {
 				$modules_count[ $module_key ] = isset( $modules_count[ $module_key ] ) ?  $modules_count[ $module_key ] + 1 : 1;
@@ -121,7 +123,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			$status[ 'sent' ][ $module ] = $this->update_sent_progress( $module, $count );
 		}
 
-		if ( in_array( 'jetpack_full_sync_end', $actions_sent ) ) {
+		if ( in_array( 'jetpack_full_sync_end', $action_names ) ) {
 			$this->set_status_sending_finished();
 			$status['finished'] = time();
 		}

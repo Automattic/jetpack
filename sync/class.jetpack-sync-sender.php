@@ -96,11 +96,11 @@ class Jetpack_Sync_Sender {
 
 		$upload_size   = 0;
 		$items_to_send = array();
-		$actions_to_send = array();
-		
+		$items = $buffer->get_items();
+
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
-		foreach ( $buffer->get_items() as $key => $item ) {
+		foreach ( $items as $key => $item ) {
 			/**
 			 * Modify the data within an action before it is serialized and sent to the server
 			 * For example, during full sync this expands Post ID's into full Post objects,
@@ -121,7 +121,6 @@ class Jetpack_Sync_Sender {
 			}
 
 			$items_to_send[ $key ] = $encoded_item;
-			$actions_to_send[ $key ] = $item[0];
 		}
 
 		/**
@@ -133,24 +132,19 @@ class Jetpack_Sync_Sender {
 		 *
 		 * @param array $data The action buffer
 		 */
-		$result = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ) );
+		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ) );
 
-		if ( ! $result || is_wp_error( $result ) ) {
-			$result = $this->sync_queue->checkin( $buffer );
+		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {
+			$processed_item_ids = $this->sync_queue->checkin( $buffer );
 
-			if ( is_wp_error( $result ) ) {
-				error_log( "Error checking in buffer: " . $result->get_error_message() );
+			if ( is_wp_error( $processed_item_ids ) ) {
+				error_log( "Error checking in buffer: " . $processed_item_ids->get_error_message() );
 				$this->sync_queue->force_checkin();
 			}
 			// try again in 1 minute
 			$this->schedule_sync( "+1 minute" );
 		} else {
-			$processed_actions = array();
-			foreach( $result as $result_id ) {
-				if ( isset( $actions_to_send[ $result_id ] ) ) {
-					$processed_actions[] =  $actions_to_send[ $result_id ];
-				}
-			}
+			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
 
 			/**
 			 * Allows us to keep track of all the actions that have been sent.
@@ -160,10 +154,9 @@ class Jetpack_Sync_Sender {
 			 *
 			 * @param array $processed_actions The actions that we send successfully.
 			 */
-			do_action( 'jetpack_sync_processed_actions', $processed_actions );
+			do_action( 'jetpack_sync_processed_actions', $processed_items );
 
-
-			$this->sync_queue->close( $buffer, $result );
+			$this->sync_queue->close( $buffer, $processed_item_ids );
 			// check if there are any more events in the buffer
 			// if so, schedule a cron job to happen soon
 			if ( $this->sync_queue->has_any_items() ) {
