@@ -2,7 +2,7 @@
 
 class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	function name() {
-		return "updates";
+		return 'updates';
 	}
 
 	public function init_listeners( $callable ) {
@@ -16,7 +16,12 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array( $this, 'filter_update_keys' ), 10, 2 );
 	}
 
-	public function full_sync() {
+	public function init_before_send() {
+		// full sync
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_updates', array( $this, 'expand_updates' ) );
+	}
+
+	public function enqueue_full_sync_actions() {
 		/**
 		 * Tells the client to sync all updates to the server
 		 *
@@ -42,6 +47,14 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 		if ( isset( $updates->no_update ) ) {
 			unset( $updates->no_update );
+		}
+
+		return $args;
+	}
+
+	public function expand_updates( $args ) {
+		if ( $args[0] ) {
+			return $this->get_all_updates();
 		}
 
 		return $args;

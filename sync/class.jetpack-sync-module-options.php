@@ -5,7 +5,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 	private $network_options_whitelist;
 
 	public function name() {
-		return "options";
+		return 'options';
 	}
 
 	public function init_listeners( $callable ) {
@@ -43,6 +43,15 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_enqueue_update_site_option', $whitelist_network_option_handler );
 	}
 
+	public function init_before_send() {
+		// full sync
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_options', array( $this, 'expand_options' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_network_options', array(
+			$this,
+			'expand_network_options'
+		) );
+	}
+
 	public function set_defaults() {
 		$this->update_options_whitelist();
 		$this->network_options_whitelist = Jetpack_Sync_Defaults::$default_network_options_whitelist;
@@ -50,10 +59,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		$this->options_whitelist[] = 'theme_mods_' . get_option( 'stylesheet' );
 	}
 
-	// TODO: force sync for whole module as interface method?
-	function full_sync() {
-
-
+	function enqueue_full_sync_actions() {
 		/**
 		 * Tells the client to sync all options to the server
 		 *
@@ -62,10 +68,10 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand options (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_options', true );
-
 		return 1; // The number of actions enqueued
 	}
 
+	// TODO
 	function full_sync_network() {
 		/**
 		 * Tells the client to sync all network options to the server
@@ -159,5 +165,21 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		} else if ( empty( $url ) ) {
 			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
+	}
+
+	public function expand_options( $args ) {
+		if ( $args[0] ) {
+			return $this->get_all_options();
+		}
+
+		return $args;
+	}
+
+	public function expand_network_options( $args ) {
+		if ( $args[0] ) {
+			return $this->get_all_network_options();
+		}
+
+		return $args;
 	}
 }

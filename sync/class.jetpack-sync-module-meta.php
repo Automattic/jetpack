@@ -4,7 +4,7 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	private $meta_types = array( 'post', 'comment' );
 
 	public function name() {
-		return "meta";
+		return 'meta';
 	}
 
 	public function init_listeners( $callable ) {
