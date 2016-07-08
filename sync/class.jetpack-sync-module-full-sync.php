@@ -69,14 +69,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		return false;
 	}
 
-	private function get_sender() {
-		if ( ! $this->sender ) {
-			$this->sender = Jetpack_Sync_Sender::getInstance();
-		}
-
-		return $this->sender;
-	}
-
 	function update_sent_progress_action( $actions ) {
 		// quick way to map to first items with an array of arrays
 		$actions_with_counts = array_count_values( array_map( 'reset', $actions ) );
@@ -87,7 +79,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		if ( isset( $actions_with_counts[ 'jetpack_full_sync_start' ] ) ) {
-			$this->set_status_sending_started();
 			$status['sent_started'] = time();
 		}
 
@@ -105,7 +96,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		if ( isset( $actions_with_counts[ 'jetpack_full_sync_end' ] ) ) {
-			$this->set_status_sending_finished();
 			$status['finished'] = time();
 		}
 
@@ -122,29 +112,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->update_status( array( 'queue_finished' => time() ) );
 	}
 
-	// these are called by the Sync Client when it sees that the full sync start/end actions have actually been transmitted
-	public function set_status_sending_started() {
-		/**
-		 * Fires when the full_sync_start action is actually transmitted.
-		 * This is useful for telling the user the status of full synchronization.
-		 *
-		 * @since 4.2.0
-		 */
-
-		do_action( 'jetpack_full_sync_start_sent' );
-
-	}
-
-	public function set_status_sending_finished() {
-		/**
-		 * Fires when the full_sync_end action is actually transmitted.
-		 * This is useful for telling the user the status of full synchronization.
-		 *
-		 * @since 4.2.0
-		 */
-		do_action( 'jetpack_full_sync_end_sent' );
-	}
-
 	private $initial_status = array(
 		'started' => null,
 		'queue_finished' => null,
@@ -158,7 +125,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		return get_option( self::$status_option, $this->initial_status );
 	}
 
-
 	public function update_status( $status ) {
 		return update_option(
 			self::$status_option,
@@ -169,14 +135,4 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	private function clear_status() {
 		delete_option( self::$status_option );
 	}
-
-	public function update_sent_progress( $module, $data ) {
-		$status = $this->get_status();
-		if ( isset( $status['sent'][ $module ] ) )  {
-			return $data + $status['sent'][ $module ];
-		} else {
-			return $data;
-		}
-	}
-
 }

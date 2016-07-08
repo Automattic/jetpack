@@ -424,31 +424,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
 	}
 
-	function test_full_sync_fires_events_on_send_start_and_end() {
-		$this->start_sent = false;
-		add_action( 'jetpack_full_sync_start_sent', array( $this, 'set_start_sent_true' ) );
-
-		$this->end_sent = false;
-		add_action( 'jetpack_full_sync_end_sent', array( $this, 'set_end_sent_false' ) );
-
-		$this->full_sync->start();
-
-		$this->assertFalse( $this->start_sent );
-		$this->assertFalse( $this->end_sent );
-
-		$this->sender->do_sync();
-
-		$this->assertTrue( $this->start_sent );
-		$this->assertTrue( $this->end_sent );
-	}
-
-	function set_start_sent_true() {
-		$this->start_sent  = true;
-	}
-	function set_end_sent_false() {
-		$this->end_sent  = true;
-	}
-
 	function test_full_sync_end_sends_checksums() {
 		add_action( 'jetpack_full_sync_end', array( $this, 'record_full_sync_end_checksum' ), 10, 1 );
 
