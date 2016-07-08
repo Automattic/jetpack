@@ -327,3 +327,27 @@ function jetpack_dailymotion_embed_reversal( $content ) {
 }
 
 add_filter( 'pre_kses', 'jetpack_dailymotion_embed_reversal' );
+
+/**
+ * DailyMotion Widget Shortcode
+ *
+ * Example:
+ * [dailymotion-widget id=XYZ]
+ *
+ * @param array $atts
+ * @return string html
+ */
+function dailymotion_widget_shortcode( $atts ) {
+	if ( isset( $atts['id'] ) ) {
+		$id = $atts['id'];
+	} else {
+		return '<!--Dailymotion error: bad or missing ID-->';
+	}
+
+	$output="<div class='dailymotion-widget' data-placement='" . $id . "'></div>";
+	$output .= '<script>(function(w,d,s,u,n,e,c){w.PXLObject = n; w[n] = w[n] || function(){(w[n].q = w[n].q || []).push(arguments);};w[n].l = 1 * new Date();e = d.createElement(s); e.async = 1; e.src = u;c = d.getElementsByTagName(s)[0]; c.parentNode.insertBefore(e,c);})(window, document, "script", "//api.dmcdn.net/pxl/client.js", "pxl");</script>';
+
+	return $output;
+}
+
+add_shortcode( 'dailymotion-widget', 'dailymotion_widget_shortcode' );
