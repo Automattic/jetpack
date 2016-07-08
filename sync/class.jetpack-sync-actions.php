@@ -18,6 +18,7 @@ class Jetpack_Sync_Actions {
 		// cron hooks
 		add_action( 'jetpack_sync_send_db_checksum', array( __CLASS__, 'send_db_checksum' ) );
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ) );
+		add_action( 'jetpack_sync_send_pending_data', array( __CLASS__, 'do_send_pending_data' ) );
 
 		$prevent_sync_loading = 
 				( !Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() ) 
@@ -118,11 +119,19 @@ class Jetpack_Sync_Actions {
 	static function do_full_sync() {
 		self::initialize_listener();
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->start();
+		self::do_send_pending_data(); // try to send at least some of the data
+	}
+
+	static function do_send_pending_data() {
+		self::initialize_sender();
+		self::$sender->do_sync();
 	}
 
 	static function send_db_checksum() {
+		self::initialize_listener();
 		self::initialize_sender();
 		self::$sender->send_checksum();
+		self::$sender->do_sync();
 	}
 
 	static function initialize_listener() {
