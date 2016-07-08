@@ -71,7 +71,7 @@ class Jetpack {
 		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
 	);
 
-	public $capability_translations = array(
+	static $capability_translations = array(
 		'administrator' => 'manage_options',
 		'editor'        => 'edit_others_posts',
 		'author'        => 'publish_posts',
@@ -1173,6 +1173,7 @@ class Jetpack {
 		if ( ! $user_id ) {
 			return false;
 		}
+		
 		return (bool) Jetpack_Data::get_access_token( $user_id );
 	}
 
@@ -1244,47 +1245,8 @@ class Jetpack {
 	 * Synchronize connected user role changes
 	 */
 	function user_role_change( $user_id ) {
-		if ( Jetpack::is_active() && Jetpack::is_user_connected( $user_id ) ) {
-			$current_user_id = get_current_user_id();
-			wp_set_current_user( $user_id );
-			$role = $this->translate_current_user_to_role();
-			$signed_role = $this->sign_role( $role );
-			wp_set_current_user( $current_user_id );
-
-			$master_token   = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
-			$master_user_id = absint( $master_token->external_user_id );
-
-			if ( ! $master_user_id )
-				return; // this shouldn't happen
-
-			Jetpack::xmlrpc_async_call( 'jetpack.updateRole', $user_id, $signed_role );
-			//@todo retry on failure
-
-			//try to choose a new master if we're demoting the current one
-			if ( $user_id == $master_user_id && 'administrator' != $role ) {
-				$query = new WP_User_Query(
-					array(
-						'fields'  => array( 'id' ),
-						'role'    => 'administrator',
-						'orderby' => 'id',
-						'exclude' => array( $master_user_id ),
-					)
-				);
-				$new_master = false;
-				foreach ( $query->results as $result ) {
-					$uid = absint( $result->id );
-					if ( $uid && Jetpack::is_user_connected( $uid ) ) {
-						$new_master = $uid;
-						break;
-					}
-				}
-
-				if ( $new_master ) {
-					Jetpack_Options::update_option( 'master_user', $new_master );
-				}
-				// else disconnect..?
-			}
-		}
+		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Jetpack_Sync_Users::user_role_change()' );
+		Jetpack_Sync_Users::user_role_change( $user_id );
 	}
 
 	/**
@@ -2861,9 +2823,6 @@ p {
 		if ( Jetpack::is_active() || Jetpack::is_development_mode() ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
-
-			// Kick off synchronization of user role when it changes
-			add_action( 'set_user_role', array( $this, 'user_role_change' ) );
 		}
 
 		// Jetpack Manage Activation Screen from .com
@@ -3774,8 +3733,8 @@ p {
 		return $url;
 	}
 
-	function translate_current_user_to_role() {
-		foreach ( $this->capability_translations as $role => $cap ) {
+	static function translate_current_user_to_role() {
+		foreach ( self::$capability_translations as $role => $cap ) {
 			if ( current_user_can( $role ) || current_user_can( $cap ) ) {
 				return $role;
 			}
@@ -3784,15 +3743,15 @@ p {
 		return false;
 	}
 
-	function translate_role_to_cap( $role ) {
-		if ( ! isset( $this->capability_translations[$role] ) ) {
+	static function translate_role_to_cap( $role ) {
+		if ( ! isset( self::$capability_translations[$role] ) ) {
 			return false;
 		}
 
-		return $this->capability_translations[$role];
+		return self::$capability_translations[$role];
 	}
 
-	function sign_role( $role ) {
+	static function sign_role( $role ) {
 		if ( ! $user_id = (int) get_current_user_id() ) {
 			return false;
 		}
@@ -3830,8 +3789,8 @@ p {
 				$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
 			}
 
-			$role = $this->translate_current_user_to_role();
-			$signed_role = $this->sign_role( $role );
+			$role = self::translate_current_user_to_role();
+			$signed_role = self::sign_role( $role );
 
 			$user = wp_get_current_user();
 
