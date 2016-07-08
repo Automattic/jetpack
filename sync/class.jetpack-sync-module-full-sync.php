@@ -15,8 +15,7 @@
 require_once 'class.jetpack-sync-wp-replicastore.php';
 
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
-	static $status_option = 'jetpack_full_sync_status';
-	static $transient_timeout = 3600; // an hour
+	const STATUS_OPTION = 'jetpack_full_sync_status';
 
 	private $sender;
 
@@ -129,17 +128,17 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	);
 
 	public function get_status() {
-		return get_option( self::$status_option, $this->initial_status );
+		return get_option( self::STATUS_OPTION, $this->initial_status );
 	}
 
 	public function update_status( $status ) {
 		return update_option(
-			self::$status_option,
+			self::STATUS_OPTION,
 			array_merge( $this->get_status(), $status )
 		);
 	}
 
 	private function clear_status() {
-		delete_option( self::$status_option );
+		delete_option( self::STATUS_OPTION );
 	}
 }
