@@ -2,7 +2,7 @@
 ( function( window, $, items, models, views, i18n, modalinfo, nonces ) {
 	'use strict';
 
-	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $the_search, $jp_frame, $bulk_button, originPoint;
+	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $the_search, $jp_frame, $bulk_button;
 
 	$the_table   = $( '.wp-list-table.jetpack-modules' );
 	$the_filters = $( '.navbar-form' );
