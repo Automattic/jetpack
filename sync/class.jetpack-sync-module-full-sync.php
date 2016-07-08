@@ -41,8 +41,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 		/**
 		 * Fires when a full sync begins. This action is serialized
-		 * and sent to the server so that it can clear the replica storage,
-		 * and/or reset other data.
+		 * and sent to the server so that it knows a full sync is coming.
 		 *
 		 * @since 4.2.0
 		 */
@@ -56,6 +55,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->set_status_queuing_finished();
 
 		$store = new Jetpack_Sync_WP_Replicastore();
+
+		/**
+		 * Fires when a full sync ends. This action is serialized
+		 * and sent to the server with checksums so that we can confirm the
+		 * sync was successful.
+		 *
+		 * @since 4.2.0
+		 */
 		do_action( 'jetpack_full_sync_end', $store->checksum_all() );
 		return true;
 	}
