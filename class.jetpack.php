@@ -2491,7 +2491,7 @@ class Jetpack {
 		/**
 		 * Fired after a module has been deactivated.
 		 *
-		 * @since 4.1
+		 * @since 4.2.0
 		 *
 		 * @param string $module Module slug.
 		 * @param boolean $success whether the module was deactivated.
