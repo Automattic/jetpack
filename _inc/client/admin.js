@@ -49,16 +49,16 @@ function render() {
 		<div>
 			<Provider store={ store }>
 				<Router history={ history }>
-					<Route path='/' component={ Main } />
-					<Route path='/dashboard' component={ Main } />
-					<Route path='/apps' component={ Main } />
-					<Route path='/professional' component={ Main } />
-					<Route path='/settings' component={ Main } />
-					<Route path='/general' component={ Main } />
-					<Route path='/engagement' component={ Main } />
-					<Route path='/security' component={ Main } />
-					<Route path='/appearance' component={ Main } />
-					<Route path='/writing' component={ Main } />
+					<Route path='/' name={ i18n.translate( 'At A Glance', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/dashboard' name={ i18n.translate( 'At A Glance' ) } component={ Main } />
+					<Route path='/apps' name={ i18n.translate( 'Apps', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/professional' name={ i18n.translate( 'Professional', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/settings' name={ i18n.translate( 'General', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/general' name={ i18n.translate( 'General', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/engagement' name={ i18n.translate( 'Engagement', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/security' name={ i18n.translate( 'Security', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/appearance' name={ i18n.translate( 'Appearance', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/writing' name={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) } component={ Main } />
 				</Router>
 			</Provider>
 		</div>,

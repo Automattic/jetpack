@@ -18,8 +18,8 @@ const NavigationSettings = React.createClass( {
 	render: function() {
 		return (
 			<div className='dops-navigation'>
-				<SectionNav>
-					<NavTabs>
+				<SectionNav selectedText={ this.props.route.name }>
+					<NavTabs selectedText={ this.props.route.name }>
 						<NavItem
 							path="#general"
 							selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
