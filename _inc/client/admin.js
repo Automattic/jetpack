@@ -4,7 +4,7 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Route, Router, hashHistory } from 'react-router';
+import { Route, Router, hashHistory, Redirect } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 
 /**
@@ -49,11 +49,11 @@ function render() {
 		<div>
 			<Provider store={ store }>
 				<Router history={ history }>
-					<Route path='/' component={ Main } />
+					<Redirect from="/" to="dashboard" />
 					<Route path='/dashboard' component={ Main } />
 					<Route path='/apps' component={ Main } />
 					<Route path='/professional' component={ Main } />
-					<Route path='/settings' component={ Main } />
+					<Redirect from="/settings" to="general" />
 					<Route path='/general' component={ Main } />
 					<Route path='/engagement' component={ Main } />
 					<Route path='/security' component={ Main } />
