@@ -2284,7 +2284,7 @@ JS;
 	 * This should only be run when the option is updated from the Jetpack/WP.com
 	 * API call, and only if the new key is different than the old key.
 	 *
-	 * @param mixed $old_value The old option value.
+	 * @param mixed $old_value The old option value, or the option name (if add_option).
 	 * @param mixed $value     The new option value.
 	 */
 	function updated_auto_register_option( $old_value, $value ) {
@@ -2293,8 +2293,45 @@ JS;
 			return;
 		}
 
-		$this->register( $value );
-		delete_option( $this->auto_register_option );
+		remove_action( "update_option_{$this->auto_register_option}", array( $this, 'updated_auto_register_option' ) );
+
+		$defaults = array(
+			'key'    => false,
+			'action' => 'register', // or `response`
+			'status' => 'working',
+			'error'  => false,
+		);
+
+		// `wp_parse_args` uses arrays, might as well be explicit about it.
+		$registration = (array) json_decode( $value );
+		$registration = wp_parse_args( $registration, $defaults );
+
+		// If we have a working connection, don't update the key.
+		if ( $this->check_connection( true ) ) {
+			$registration['action'] = 'response';
+			$registration['error'] = 'VaultPress is already registered on this site.';
+			update_option( $this->auto_register_option, json_encode( $registration ) );
+			return;
+		}
+
+		if ( ! $registration['key'] ) {
+			return;
+		}
+
+		$registration['action'] = 'response';
+
+		$response = $this->register( $registration['key'] );
+		if ( is_wp_error( $response ) ) {
+			$registration['status'] = 'broken';
+			$registration['error'] = $response->get_error_message();
+		} else if ( $this->get_option( 'connection_error_code' ) ) {
+			$registration['status'] = 'broken';
+			$registration['error'] = $this->get_option( 'connection_error_message' );
+		} else {
+			$registration['error'] = false;
+		}
+
+		update_option( $this->auto_register_option, json_encode( $registration ) );
 	}
 
 	function add_global_actions_and_filters() {
