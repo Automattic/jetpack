@@ -15,17 +15,20 @@ class Jetpack_Sync_Actions {
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
 
+		// Sync connected user role changes to .com
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
+
+		// everything below this point should only happen if we're a valid sync site
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
 		// cron hooks
 		add_action( 'jetpack_sync_send_db_checksum', array( __CLASS__, 'send_db_checksum' ) );
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ) );
 		add_action( 'jetpack_sync_send_pending_data', array( __CLASS__, 'do_send_pending_data' ) );
 
-		$prevent_sync_loading = 
-				( !Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() ) 
-			&& 
-				!defined( 'PHPUNIT_JETPACK_TESTSUITE' );
-
-		if ( ! $prevent_sync_loading && ! wp_next_scheduled ( 'jetpack_sync_send_db_checksum' ) ) {
+		if ( ! wp_next_scheduled ( 'jetpack_sync_send_db_checksum' ) ) {
 			// Schedule a job to send DB checksums once an hour
 			wp_schedule_event( time(), 'hourly', 'jetpack_sync_send_db_checksum' );
 		}
@@ -42,7 +45,7 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @param bool should we load sync listener code for this request
 		 */
-		if ( !$prevent_sync_loading && apply_filters( 'jetpack_sync_listener_should_load',
+		if ( apply_filters( 'jetpack_sync_listener_should_load',
 				(
 					$_SERVER['REQUEST_METHOD'] !== 'GET'
 				||
@@ -53,9 +56,6 @@ class Jetpack_Sync_Actions {
 			) ) {
 			self::initialize_listener();
 		}
-
-		// Sync connected user role changes to .com
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
 
 		/**
 		 * Fires on every request before default loading sync sender code.
@@ -69,7 +69,7 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @param bool should we load sync sender code for this request
 		 */
-		if ( !$prevent_sync_loading && apply_filters( 'jetpack_sync_sender_should_load',
+		if ( apply_filters( 'jetpack_sync_sender_should_load',
 			(
 				$_SERVER['REQUEST_METHOD'] === 'POST'
 			||
@@ -84,6 +84,11 @@ class Jetpack_Sync_Actions {
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 		}
 
+	}
+
+	static function sync_allowed() {
+		return ( Jetpack::is_active() && !( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
+			|| defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp ) {
@@ -115,6 +120,10 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function do_full_sync() {
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
 		self::initialize_listener();
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->start();
 		self::do_send_pending_data(); // try to send at least some of the data
