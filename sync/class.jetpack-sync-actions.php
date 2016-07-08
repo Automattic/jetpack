@@ -26,8 +26,10 @@ class Jetpack_Sync_Actions {
 					defined( 'DOING_AJAX' ) && DOING_AJAX
 				||
 					defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+				||
+					is_admin()
 				)
-			) ) {
+		) ) {
 			require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 			self::$listener = Jetpack_Sync_Listener::getInstance();
 		}
