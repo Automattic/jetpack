@@ -22,7 +22,9 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	}
 
 	function filter_meta( $args ) {
-		if ( $args[2][0] === '_' && ! in_array( $args[2], Jetpack_Sync_Defaults::$default_whitelist_meta_keys ) ) {
+		if ( $args[2][0] === '_' &&
+		     ! in_array( $args[2], Jetpack_Sync_Defaults::$default_whitelist_meta_keys ) &&
+		     ! wp_startswith( $args[2], '_wpas_skip_') ) {
 			return false;
 		}
 
