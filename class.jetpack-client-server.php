@@ -28,6 +28,15 @@ class Jetpack_Client_Server {
 			$this->wp_safe_redirect( Jetpack::admin_url() );
 		}
 
+		/**
+		 * Fires after the Jetpack client is authorized to communicate with WordPress.com.
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param int Jetpack Blog ID.
+		 */
+		do_action( 'jetpack_client_authorized', Jetpack_Options::get_option( 'id' ) );
+
 		$this->do_exit();
 	}
 
