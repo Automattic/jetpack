@@ -8,7 +8,6 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
 	glotpress = require( 'glotpress-js' ),
-	jsdom = require( 'jsdom' ),
 	jshint = require( 'gulp-jshint' ),
 	phplint = require( 'gulp-phplint' ),
 	phpunit = require( 'gulp-phpunit' ),
@@ -117,6 +116,8 @@ gulp.task( 'react:watch', function() {
 } );
 
 gulp.task( 'react:static', [ 'react:build' ], function() {
+	var jsdom = require( 'jsdom' );
+
 	jsdom.env( '', function( err, window ) {
 		global.window = window;
 		global.document = window.document;
