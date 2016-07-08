@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="204px" height="404px" viewBox="0 0 204 404" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.8.3 (29802) - http://www.bohemiancoding.com/sketch -->
+    <title>iPhone</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M101.0835,398.092 C94.456,398.092 89.0835,392.7195 89.0835,386.092 C89.0835,379.4645 94.456,374.092 101.0835,374.092 C107.7105,374.092 113.0835,379.4645 113.0835,386.092 C113.0835,392.7195 107.7105,398.092 101.0835,398.092 L101.0835,398.092 Z" id="path-1"></path>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="24" height="24" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="iPhone" transform="translate(-2.000000, -10.000000)">
+            <g id="Contents" transform="translate(7.000000, 41.000000)">
+                <g id="Calypso">
+                    <polygon id="BG" fill="#FFFFFF" points="2 7 192 7 192 345 2 345"></polygon>
+                    <rect id="masterbar" fill="#0087BE" x="0" y="0" width="194" height="43"></rect>
+                    <g id="Text" stroke-width="1" transform="translate(26.000000, 63.000000)" fill="#87A6BC">
+                        <rect id="Rectangle-6" x="0" y="0" width="60" height="10"></rect>
+                        <rect id="Rectangle-6-Copy" x="70" y="0" width="20" height="10"></rect>
+                        <rect id="Rectangle-6-Copy" x="100" y="0" width="30" height="10"></rect>
+                        <rect id="Rectangle-6-Copy" x="0" y="20" width="30" height="10"></rect>
+                        <rect id="Rectangle-6-Copy" x="40" y="20" width="80" height="10"></rect>
+                        <rect id="Rectangle-6-Copy" x="0" y="40" width="40" height="10"></rect>
+                        <rect id="Rectangle-6-Copy" x="50" y="40" width="50" height="10"></rect>
+                        <rect id="Rectangle-6-Copy" x="110" y="40" width="20" height="10"></rect>
+                        <rect id="Rectangle-6-Copy" x="0" y="60" width="20" height="10"></rect>
+                        <rect id="Rectangle-6-Copy" x="30" y="60" width="50" height="10"></rect>
+                    </g>
+                </g>
+                <g id="Keyboard" transform="translate(4.000000, 228.000000)">
+                    <rect id="keyboard" fill="#A8BECE" x="0" y="0" width="186" height="113"></rect>
+                    <rect id="space" fill="#FFFFFF" x="58" y="80" width="70" height="20" rx="4"></rect>
+                    <g id="bottom-row" transform="translate(33.000000, 55.000000)" fill="#FFFFFF">
+                        <rect id="Rectangle-17-Copy" x="0" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy" x="25" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-2" x="50" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-3" x="75" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-4" x="100" y="0" width="20" height="20" rx="4"></rect>
+                    </g>
+                    <g id="middle-row" transform="translate(21.000000, 30.000000)" fill="#FFFFFF">
+                        <rect id="Rectangle-17-Copy" x="0" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy" x="25" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-2" x="50" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-3" x="75" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-4" x="100" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-5" x="125" y="0" width="20" height="20" rx="4"></rect>
+                    </g>
+                    <g id="top-row" transform="translate(8.000000, 5.000000)" fill="#FFFFFF">
+                        <rect id="Rectangle-17-Copy" x="0" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy" x="25" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-2" x="50" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-3" x="75" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-4" x="100" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-5" x="125" y="0" width="20" height="20" rx="4"></rect>
+                        <rect id="Rectangle-17-Copy-5" x="150" y="0" width="20" height="20" rx="4"></rect>
+                    </g>
+                </g>
+            </g>
+            <g transform="translate(2.000000, 10.000000)">
+                <path d="M176,0 L28,0 C12.6,0 0,12.6 0,28 L0,376 C0,391.4 12.6,404 28,404 L176,404 C191.4,404 204,391.4 204,376 L204,28 C204,12.6 191.4,0 176,0 Z M12,38 L192,38 L192,364 L12,364 L12,38 Z" id="Combined-Shape" fill="#F3F6F8"></path>
+                <use id="home-button" stroke="#4F748E" mask="url(#mask-2)" stroke-width="4" xlink:href="#path-1"></use>
+                <path d="M86,14 L118,14 C119.1045,14 120,14.8955 120,16 C120,17.1045 119.1045,18 118,18 L86,18 C84.8955,18 84,17.1045 84,16 C84,14.8955 84.8955,14 86,14 L86,14 Z" id="mic" fill="#4F748E"></path>
+            </g>
+        </g>
+    </g>
+</svg>

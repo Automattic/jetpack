@@ -35,7 +35,7 @@
 
 // Styles for Apps and Plans tabs
 .jp-jetpack-landing__container {
-	background-color: #fff;
+	background: #2f4452 url( '../../images/jp-4/particles_bg-white.png' );
 	color: #6b8699;
 	overflow: hidden;
 
@@ -65,13 +65,13 @@
 }
 
 .jp-jetpack-landing__header {
-	background: #2f4452 url('../../images/jp-4/long-clouds.svg') 50% 100% no-repeat;
-	padding: 2% 5%;
-	min-height: 350px;
+	background: transparent url('../../images/jp-4/white-clouds.svg') 50% 100% no-repeat;
+	padding: 2% 0;
+	min-height: 400px;
 
 	h1, h2 {
 		color: #eee;
-		font-weight: 300;
+		font-weight: 400;
 	}
 
 	.jp-jetpack-landing__title, .jp-jetpack-landing__description {
@@ -79,16 +79,22 @@
 	}
 
 	.jp-jetpack-landing__img-text {
-		margin-top: 50px;
 		background-color: transparent;
+	}
+
+	.jp-jetpack-landing__column + .jp-jetpack-landing__column {
+		width: 50%;
+		padding: 5% 0;
 	}
 }
 
 .jp-jetpack-landing__img-text {
-	clear: both;
+	background-color: #fff;
+	overflow: hidden;
+	padding-bottom: 5px;
 
 	.jp-jetpack-landing__column {
-		padding: 10% 4%;
+		padding: 5% 4%;
 		width: 42%;
 		float: left;
 	}
@@ -96,8 +102,8 @@
 
 .jp-jetpack-landing__footer {
 	clear: both;
-	background: #2f4452 url('../../images/jp-4/long-clouds.svg') 50% 100% no-repeat;
-	padding: 2% 5% 5%;
+	background: #2f4452 url('../../images/jp-4/white-clouds-reverse.svg') 50% 0 no-repeat;
+	padding: 5% 4%;
 
 	h1, h2, h3 {
 		color: #eee;
@@ -111,5 +117,36 @@
 	.jp-jetpack-landing__img-text {
 		margin-top: 50px;
 		background-color: transparent;
+	}
+}
+
+.jp-jetpack-landing__plans {
+	.jp-jetpack-landing__header {
+		.dops-button {
+			margin-right: 10px;
+		}
+		img {
+			width: 100%;
+		}
+	}
+
+	.jp-jetpack-landing__plan-features {
+		padding: 1% 4% 5%;
+		background-color: #fff;
+	}
+
+	.jp-jetpack-landing__plan-card {
+		padding: 5% 4% 1%;
+		background-color: #fff;
+
+		img {
+			float: left;
+			width: 15%;
+			margin-right: 20px;
+		}
+
+		img + h3 {
+			margin-top: 0;
+		}
 	}
 }
