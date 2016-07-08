@@ -142,6 +142,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->users, 'ID', null );
 	}
 
+	function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_users' );
+	}
+
 	public function expand_users( $args ) {
 		$user_ids = $args[0];
 		return array_map( array( $this, 'sanitize_user_and_expand' ), get_users( array( 'include' => $user_ids ) ) );

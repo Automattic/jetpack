@@ -31,6 +31,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $post_type_sql );
 	}
 
+	function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_posts' );
+	}
+
 	/**
 	 * Process content before send
 	 */

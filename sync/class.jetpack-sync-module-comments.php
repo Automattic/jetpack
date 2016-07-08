@@ -45,6 +45,14 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_comments', $wpdb->comments, 'comment_ID', null );
 	}
 
+	public function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_comments' );
+	}
+
+	public function count_full_sync_actions( $action_names ) {
+		return $this->count_actions( $action_names, array( 'jetpack_full_sync_comments' ) );
+	}
+
 	function expand_wp_comment_status_change( $args ) {
 		return array( $args[0], $this->filter_comment( $args[1] ) );
 	}

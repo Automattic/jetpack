@@ -79,6 +79,10 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		return 1; // The number of actions enqueued
 	}
 
+	public function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_callables' );
+	}
+
 	public function force_sync_callables() {
 		delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME );
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );

@@ -59,6 +59,10 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		return 1;
 	}
 
+	function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_constants' );
+	}
+
 	function maybe_sync_constants() {
 		if ( get_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME ) ) {
 			return;

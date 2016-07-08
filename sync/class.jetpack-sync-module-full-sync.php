@@ -17,19 +17,6 @@ require_once 'class.jetpack-sync-wp-replicastore.php';
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	static $status_option = 'jetpack_full_sync_status';
 	static $transient_timeout = 3600; // an hour
-	static $modules = array(
-		'wp_version',
-		'constants',
-		'functions',
-		'options',
-		'posts',
-		'comments',
-		'themes',
-		'updates',
-		'users',
-		'terms',
-		'network_options',
-	);
 
 	private $sender;
 
@@ -99,82 +86,38 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function update_sent_progress_action( $actions ) {
-		$action_names = array_map( 'reset', $actions );
+		// quick way to map to first items with an array of arrays
+		$actions_with_counts = array_count_values( array_map( 'reset', $actions ) );
 
-		$modules_count = array();
 		$status = $this->get_status();
 		if ( is_null( $status['started'] ) || $status['finished'] ) {
 			return;
 		}
 
-		if ( in_array( 'jetpack_full_sync_start', $action_names ) ) {
+		if ( isset( $actions_with_counts[ 'jetpack_full_sync_start' ] ) ) {
 			$this->set_status_sending_started();
 			$status['sent_started'] = time();
 		}
 
-		foreach( $action_names as $action ) {
-			$module_key = $this->action_to_modules( $action );
-			if ( $module_key ) {
-				$modules_count[ $module_key ] = isset( $modules_count[ $module_key ] ) ?  $modules_count[ $module_key ] + 1 : 1;
+		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
+			$module_name = $module->name();
+			$module_actions = $module->get_full_sync_actions();
+			foreach( $module_actions as $module_action ) {
+				if ( isset( $actions_with_counts[ $module_action ] ) ) {
+					if ( ! isset( $status[ 'sent' ][ $module_name ] ) ) {
+						$status['sent'][ $module_name ] = 0;	
+					}
+					$status['sent'][ $module_name ] += $actions_with_counts[ $module_action ];	
+				}
 			}
 		}
 
-		foreach( $modules_count as $module => $count ) {
-			$status[ 'sent' ][ $module ] = $this->update_sent_progress( $module, $count );
-		}
-
-		if ( in_array( 'jetpack_full_sync_end', $action_names ) ) {
+		if ( isset( $actions_with_counts[ 'jetpack_full_sync_end' ] ) ) {
 			$this->set_status_sending_finished();
 			$status['finished'] = time();
 		}
 
 		$this->update_status( $status );
-	}
-
-	function action_to_modules( $action ) {
-		switch( $action ) {
-			case 'jetpack_full_sync_constants':
-				return 'constants';
-				break;
-
-			case 'jetpack_full_sync_callables':
-				return 'functions';
-				break;
-
-			case 'jetpack_full_sync_options':
-				return 'options';
-				break;
-
-			case 'jetpack_full_sync_network_options':
-				return 'network_options';
-				break;
-
-			case 'jetpack_full_sync_terms':
-				return 'terms';
-				break;
-
-			case 'jetpack_sync_current_theme_support':
-				return 'themes';
-				break;
-
-			case 'jetpack_full_sync_users':
-				return 'users';
-				break;
-
-			case 'jetpack_full_sync_posts':
-				return 'posts';
-				break;
-
-			case 'jetpack_full_sync_comments':
-				return 'comments';
-				break;
-
-			case 'jetpack_full_sync_updates':
-				return 'updates';
-				break;
-
-		}
-		return null;
 	}
 
 	private function set_status_queuing_started() {

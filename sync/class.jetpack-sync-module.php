@@ -18,6 +18,14 @@ abstract class Jetpack_Sync_Module {
 		// in subclasses, return the number of items enqueued
 		return 0;
 	}
+	
+	public function get_full_sync_actions() {
+		return array();
+	}
+
+	protected function count_actions( $action_names, $actions_to_count ) {
+		return count( array_intersect( $action_names, $actions_to_count ) );
+	}
 
 	final public function full_sync() {
 		$items_enqueued = $this->enqueue_full_sync_actions();

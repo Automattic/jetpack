@@ -45,6 +45,10 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		return $total_chunks_counter;
 	}
 
+	function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_terms' );
+	}
+
 	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
 		if ( class_exists( 'WP_Term' ) ) {
 			$term_object = WP_Term::get_instance( $term_id, $taxonomy );
