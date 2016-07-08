@@ -168,10 +168,23 @@ class Jetpack_Sync_Defaults {
 		'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
+	
 
 	static $default_whitelist_meta_keys = array(
 		'_wp_attachment_metadata',
 		'_thumbnail_id',
+		'_wpas_mess',
+		'_wpas_skip_',
+		'_g_feedback_shortcode',
+		'_feedback_extra_fields',
+		'_feedback_akismet_values',
+		'_publicize_facebook_user',
+		'_wp_attachment_image_alt',
+		'_jetpack_post_thumbnail',
+		'_thumbnail_id',
+		'_wp_attachment_metadata',
+		'_wp_page_template',
+		'_publicize_twitter_user'
 	);
 
 	// TODO: move this to server? - these are theme support values
@@ -202,7 +215,7 @@ class Jetpack_Sync_Defaults {
 				return true;
 			}
 		}
-
+		
 		return false;
 	}
 
