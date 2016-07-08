@@ -24,6 +24,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $start_event !== false );
 	}
 
+	// this only applies to the test replicastore - in production we overlay data
 	function test_sync_start_resets_storage() {
 		$this->factory->post->create();
 		$this->sender->do_sync();
@@ -39,6 +40,25 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
+	}
+
+	function test_sync_wont_start_twice() {
+		$this->started_sync_count = 0;
+
+		add_action( 'jetpack_full_sync_start', array( $this, 'count_full_sync_start' ) );
+
+		$this->full_sync->start();
+
+		$this->assertEquals( 1, $this->started_sync_count );
+
+		// trying to start again shouldn't enqueue twice
+		$this->full_sync->start();
+
+		$this->assertEquals( 1, $this->started_sync_count );
+	}
+
+	function count_full_sync_start() {
+		$this->started_sync_count += 1;
 	}
 
 	function test_full_sync_sends_wp_version() {
