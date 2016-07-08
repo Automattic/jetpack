@@ -233,7 +233,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 
-		Jetpack_Sync_Modules::get_module( "options" )->set_network_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
+		Jetpack_Sync_Modules::get_module( "network_options" )->set_network_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
 		update_site_option( 'my_option', 'foo' );
 		update_site_option( 'my_prefix_value', 'bar' );
 		update_site_option( 'my_non_synced_option', 'baz');

@@ -52,9 +52,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->full_sync();
 		}
-		if ( is_multisite() ) {
-			$this->enqueue_all_network_options();
-		}
 
 		$this->set_status_queuing_finished();
 
@@ -78,11 +75,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		return $this->sender;
-	}
-
-	private function enqueue_all_network_options() {
-		$total = Jetpack_Sync_Modules::get_module( "options" )->full_sync_network();
-		$this->update_queue_progress( 'network_options', $total );
 	}
 
 	function update_sent_progress_action( $actions ) {
