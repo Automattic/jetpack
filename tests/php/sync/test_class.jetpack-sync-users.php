@@ -52,7 +52,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		) );
 		$this->sender->do_sync();
 
-		// Don't sync the password changes since we don't track password
+		// Don't sync the password changes since we don't track passwords
 		$events = $this->server_event_storage->get_all_events();
 		$this->assertEmpty( $events );
 	}
@@ -292,11 +292,13 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_login' );
+		
+		$user_data_sent_to_server = $event->args[1];
 		$this->assertEquals( 'foobar', $event->args[0] );
-		$this->assertEquals( $user_id, $event->args[1]->ID );
-
+		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
+		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
+		
 		do_action( 'wp_login_failed', 'foobar' );
-
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_login_failed' );
