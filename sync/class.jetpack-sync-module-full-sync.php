@@ -162,7 +162,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		);
 	}
 
-	private function clear_status() {
+	public function clear_status() {
 		delete_option( self::STATUS_OPTION );
 	}
 }
