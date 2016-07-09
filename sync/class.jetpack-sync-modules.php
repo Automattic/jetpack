@@ -11,6 +11,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-comments.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-constants.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-callables.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-options.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-network-options.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-updates.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-users.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-themes.php';
@@ -24,17 +25,18 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-full-sync.php';
 class Jetpack_Sync_Modules {
 
 	private static $default_sync_modules = array(
-		'Jetpack_Sync_Module_Posts',
-		'Jetpack_Sync_Module_Comments',
 		'Jetpack_Sync_Module_Constants',
 		'Jetpack_Sync_Module_Callables',
 		'Jetpack_Sync_Module_Options',
-		'Jetpack_Sync_Module_Updates',
-		'Jetpack_Sync_Module_Users',
+		'Jetpack_Sync_Module_Network_Options',
+		'Jetpack_Sync_Module_Terms',
 		'Jetpack_Sync_Module_Themes',
+		'Jetpack_Sync_Module_Users',
+		'Jetpack_Sync_Module_Posts',
+		'Jetpack_Sync_Module_Comments',
+		'Jetpack_Sync_Module_Updates',
 		'Jetpack_Sync_Module_Attachments',
 		'Jetpack_Sync_Module_Meta',
-		'Jetpack_Sync_Module_Terms',
 		'Jetpack_Sync_Module_Plugins',
 		'Jetpack_Sync_Module_Protect',
 		'Jetpack_Sync_Module_Full_Sync'

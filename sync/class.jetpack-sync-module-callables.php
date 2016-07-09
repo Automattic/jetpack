@@ -9,7 +9,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	private $callable_whitelist;
 
 	public function name() {
-		return "callables";
+		return 'functions';
 	}
 
 	public function set_defaults() {
@@ -33,6 +33,9 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function init_before_send() {
 		add_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_callables' ) );
+
+		// full sync
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_callables', array( $this, 'expand_callables' ) );
 	}
 
 	public function reset_data() {
@@ -64,7 +67,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		return call_user_func( $callable );
 	}
 
-	public function full_sync() {
+	public function enqueue_full_sync_actions() {
 		/**
 		 * Tells the client to sync all callables to the server
 		 *
@@ -74,6 +77,10 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_full_sync_callables', true );
 		return 1; // The number of actions enqueued
+	}
+
+	public function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_callables' );
 	}
 
 	public function force_sync_callables() {
@@ -117,5 +124,12 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			}
 		}
 		update_option( self::CALLABLES_CHECKSUM_OPTION_NAME , $callable_checksums );
+	}
+
+	public function expand_callables( $args ) {
+		if ( $args[0] ) {
+			return $this->get_all_callables();
+		}
+		return $args;
 	}
 }

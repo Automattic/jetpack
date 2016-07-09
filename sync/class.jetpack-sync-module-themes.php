@@ -2,15 +2,15 @@
 
 class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	function name() {
-		return "themes";
+		return 'themes';
 	}
 
 	public function init_listeners( $handler ) {
-		add_action( 'switch_theme', array( $this, 'send_theme_info' ) );
+		add_action( 'switch_theme', array( $this, 'enqueue_full_sync_actions' ) );
 		add_action( 'jetpack_sync_current_theme_support', $handler, 10 );
 	}
 
-	function send_theme_info() {
+	function enqueue_full_sync_actions() {
 		global $_wp_theme_features;
 
 		$theme_support = array();
@@ -33,5 +33,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_sync_current_theme_support', $theme_support );
 		return 1; // The number of actions enqueued
+	}
+
+	function get_full_sync_actions() {
+		return array( 'jetpack_sync_current_theme_support' );
 	}
 }

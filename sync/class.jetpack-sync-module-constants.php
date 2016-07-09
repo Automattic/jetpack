@@ -5,7 +5,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 	const CONSTANTS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_constants_await';
 
 	public function name() {
-		return "constants";
+		return 'constants';
 	}
 
 	private $constants_whitelist;
@@ -23,6 +23,9 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 
 	public function init_before_send() {
 		add_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_constants' ) );
+
+		// full sync
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_constants', array( $this, 'expand_constants' ) );
 	}
 
 	public function reset_data() {
@@ -44,7 +47,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		$this->maybe_sync_constants();
 	}
 
-	function full_sync() {
+	function enqueue_full_sync_actions() {
 		/**
 		 * Tells the client to sync all constants to the server
 		 *
@@ -53,7 +56,11 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand constants (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_constants', true );
-		return 1; // The number of actions enqueued
+		return 1;
+	}
+
+	function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_constants' );
 	}
 
 	function maybe_sync_constants() {
@@ -102,5 +109,12 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		return ( defined( $constant ) ) ?
 			constant( $constant )
 			: null;
+	}
+
+	public function expand_constants( $args ) {
+		if ( $args[0] ) {
+			return $this->get_all_constants();
+		}
+		return $args;
 	}
 }

@@ -6,7 +6,7 @@
 class Jetpack_Sync_Module_Protect extends Jetpack_Sync_Module {
 
 	function name() {
-		return "protect";
+		return 'protect';
 	}
 
 	function init_listeners( $callback ) {

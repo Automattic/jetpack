@@ -18,7 +18,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 
-		$this->callable_module = Jetpack_Sync_Modules::get_module( "callables" );
+		$this->callable_module = Jetpack_Sync_Modules::get_module( "functions" );
 	}
 
 	function test_white_listed_function_is_synced() {
