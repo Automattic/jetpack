@@ -3,7 +3,7 @@
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function name() {
-		return "posts";
+		return 'posts';
 	}
 
 	public function set_defaults() {}
@@ -19,6 +19,20 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_wp_insert_post', array( $this, 'expand_wp_insert_post' ) );
+
+		// full sync
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
+	}
+
+	public function enqueue_full_sync_actions() {
+		global $wpdb;
+
+		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
+		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $post_type_sql );
+	}
+
+	function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_posts' );
 	}
 
 	/**
@@ -66,5 +80,18 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$post->dont_email_post_to_subs = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
 
 		return $post;
+	}
+
+	public function expand_post_ids( $args ) {
+		$post_ids = $args[0];
+
+		$posts = array_map( array( 'WP_Post', 'get_instance' ), $post_ids );
+		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
+
+		return array(
+			$posts,
+			$this->get_metadata( $post_ids, 'post' ),
+			$this->get_term_relationships( $post_ids )
+		);
 	}
 }

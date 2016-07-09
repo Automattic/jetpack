@@ -2,7 +2,7 @@
 
 class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	function name() {
-		return "users";
+		return 'users';
 	}
 
 	public function init_listeners( $callable ) {
@@ -37,6 +37,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ) );
 		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
+
+		// full sync
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'expand_users' ) );
 	}
 
 	public function sanitize_user_and_expand( $user ) {
@@ -132,5 +135,19 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			 */
 			do_action( 'jetpack_sync_save_user', $user );
 		}
+	}
+
+	public function enqueue_full_sync_actions() {
+		global $wpdb;
+		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->users, 'ID', null );
+	}
+
+	function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_users' );
+	}
+
+	public function expand_users( $args ) {
+		$user_ids = $args[0];
+		return array_map( array( $this, 'sanitize_user_and_expand' ), get_users( array( 'include' => $user_ids ) ) );
 	}
 }

@@ -3,7 +3,7 @@
 class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 	public function name() {
-		return "comments";
+		return 'comments';
 	}
 
 	public function init_listeners( $callable ) {
@@ -35,6 +35,22 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 				add_filter( 'jetpack_sync_before_send_' . $comment_action_name, array( $this, 'expand_wp_insert_comment' ) );
 			}
 		}
+
+		// full sync
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
+	}
+
+	public function enqueue_full_sync_actions() {
+		global $wpdb;
+		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_comments', $wpdb->comments, 'comment_ID', null );
+	}
+
+	public function get_full_sync_actions() {
+		return array( 'jetpack_full_sync_comments' );
+	}
+
+	public function count_full_sync_actions( $action_names ) {
+		return $this->count_actions( $action_names, array( 'jetpack_full_sync_comments' ) );
 	}
 
 	function expand_wp_comment_status_change( $args ) {
@@ -69,5 +85,18 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		}
 
 		return $comment;
+	}
+
+	public function expand_comment_ids( $args ) {
+		$comment_ids = $args[0];
+		$comments    = get_comments( array(
+			'include_unapproved' => true,
+			'comment__in'        => $comment_ids,
+		) );
+
+		return array(
+			$comments,
+			$this->get_metadata( $comment_ids, 'comment' ),
+		);
 	}
 }

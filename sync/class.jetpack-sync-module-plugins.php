@@ -3,7 +3,7 @@
 class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 	public function name() {
-		return "plugins";
+		return 'plugins';
 	}
 
 	public function init_listeners( $callable ) {

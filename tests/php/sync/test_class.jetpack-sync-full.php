@@ -24,6 +24,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $start_event !== false );
 	}
 
+	// this only applies to the test replicastore - in production we overlay data
 	function test_sync_start_resets_storage() {
 		$this->factory->post->create();
 		$this->sender->do_sync();
@@ -39,6 +40,25 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
+	}
+
+	function test_sync_wont_start_twice() {
+		$this->started_sync_count = 0;
+
+		add_action( 'jetpack_full_sync_start', array( $this, 'count_full_sync_start' ) );
+
+		$this->full_sync->start();
+
+		$this->assertEquals( 1, $this->started_sync_count );
+
+		// trying to start again shouldn't enqueue twice
+		$this->full_sync->start();
+
+		$this->assertEquals( 1, $this->started_sync_count );
+	}
+
+	function count_full_sync_start() {
+		$this->started_sync_count += 1;
 	}
 
 	function test_full_sync_sends_wp_version() {
@@ -187,7 +207,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_functions() {
-		Jetpack_Sync_Modules::get_module( "callables" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+		Jetpack_Sync_Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 		$this->sender->do_sync();
 
 		// reset the storage, check value, and do full sync - storage should be set!
@@ -233,7 +253,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 
-		Jetpack_Sync_Modules::get_module( "options" )->set_network_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
+		Jetpack_Sync_Modules::get_module( "network_options" )->set_network_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
 		update_site_option( 'my_option', 'foo' );
 		update_site_option( 'my_prefix_value', 'bar' );
 		update_site_option( 'my_non_synced_option', 'baz');
@@ -422,31 +442,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$updates = $this->server_replica_storage->get_updates( 'core' );
 		$this->assertNotNull( $updates );
 		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
-	}
-
-	function test_full_sync_fires_events_on_send_start_and_end() {
-		$this->start_sent = false;
-		add_action( 'jetpack_full_sync_start_sent', array( $this, 'set_start_sent_true' ) );
-
-		$this->end_sent = false;
-		add_action( 'jetpack_full_sync_end_sent', array( $this, 'set_end_sent_false' ) );
-
-		$this->full_sync->start();
-
-		$this->assertFalse( $this->start_sent );
-		$this->assertFalse( $this->end_sent );
-
-		$this->sender->do_sync();
-
-		$this->assertTrue( $this->start_sent );
-		$this->assertTrue( $this->end_sent );
-	}
-
-	function set_start_sent_true() {
-		$this->start_sent  = true;
-	}
-	function set_end_sent_false() {
-		$this->end_sent  = true;
 	}
 
 	function test_full_sync_end_sends_checksums() {
