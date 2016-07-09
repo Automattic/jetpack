@@ -27,13 +27,6 @@ abstract class Jetpack_Sync_Module {
 		return count( array_intersect( $action_names, $actions_to_count ) );
 	}
 
-	final public function full_sync() {
-		$items_enqueued = $this->enqueue_full_sync_actions();
-		if ( $items_enqueued !== 0 ) {
-			$this->update_queue_progress( $this->name(), $items_enqueued );	
-		}
-	}
-
 	protected function get_check_sum( $values ) {
 		return crc32( json_encode( $values ) );
 	}
@@ -43,18 +36,6 @@ abstract class Jetpack_Sync_Module {
 			return true;
 		}
 		return false;
-	}
-
-	public function update_queue_progress( $module, $data ) {
-		$full_sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-		$status = $full_sync_module->get_status();
-		if ( isset( $status['queue'][ $module ] ) )  {
-			$status['queue'][ $module ] = $data + $status['queue'][ $module ];
-		} else {
-			$status['queue'][ $module ] = $data;
-		}
-
-		return $full_sync_module->update_status( $status );
 	}
 
 	protected function enqueue_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql ) {
