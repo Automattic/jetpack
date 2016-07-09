@@ -36,6 +36,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ) );
+		add_filter( 'jetpack_sync_before_send_wp_login', array( $this, 'expand_login_username' ), 10, 2 );
 		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
 
 		// full sync
@@ -62,10 +63,17 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		return array( $this->add_to_user( $user ) );
 	}
 
+	public function expand_login_username( $args ) {
+		list( $login, $user ) = $args;
+		$user = $this->sanitize_user( $user );
+		return array( $login ,$user );
+	}
+
 	public function expand_logout_username( $args, $user_id ) {
-		$username = get_userdata( $user_id )->user_login;
-		$args[] = $username;
-		return $args;
+		$user = get_userdata( $user_id );
+		$user = $this->sanitize_user( $user );
+		$login = $user->data->user_login;
+		return array( $login, $user );
 	}
 
 	function save_user_handler( $user_id, $old_user_data = null ) {
