@@ -8,7 +8,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
  * This class monitors actions and logs them to the queue to be sent
  */
 class Jetpack_Sync_Listener {
-	const QUEUE_STATE_CHECK_TRANSIENT = "jetpack_sync_last_checked_queue_state";
+	const QUEUE_STATE_CHECK_TRANSIENT = 'jetpack_sync_last_checked_queue_state';
 	const QUEUE_STATE_CHECK_TIMEOUT = 300; // 5 minutes
 
 	private $sync_queue;
@@ -69,24 +69,24 @@ class Jetpack_Sync_Listener {
 	}
 
 	function force_recheck_queue_limit() {
-		error_log("deleting transient ".self::QUEUE_STATE_CHECK_TRANSIENT);
 		delete_transient( self::QUEUE_STATE_CHECK_TRANSIENT );
 	}
 
+	// prevent adding items to the queue if it hasn't sent an item for 15 mins
+	// AND the queue is over 1000 items long (by default)
 	function can_add_to_queue() {
 		$queue_state = get_transient( self::QUEUE_STATE_CHECK_TRANSIENT );
 
 		if ( $queue_state === false ) {
-			$queue_size = $this->sync_queue->size();
-			$queue_age = $this->sync_queue->lag();
-			set_transient( self::QUEUE_STATE_CHECK_TRANSIENT, array( $queue_size, $queue_age ), self::QUEUE_STATE_CHECK_TIMEOUT );
-		} else {
-			list( $queue_size, $queue_age ) = $queue_state;
+			$queue_state = array( $this->sync_queue->size(), $this->sync_queue->lag() );
+			set_transient( self::QUEUE_STATE_CHECK_TRANSIENT, $queue_state, self::QUEUE_STATE_CHECK_TIMEOUT );
 		}
 
-		return ( $queue_age > $this->sync_queue_lag_limit ) 
-			&& 
-				( ( $queue_size + 1 ) > $this->sync_queue_size_limit );
+		list( $queue_size, $queue_age ) = $queue_state;
+
+		return 	( $queue_age < $this->sync_queue_lag_limit ) 
+			|| 
+				( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
 	}
 
 	function action_handler() {
@@ -113,7 +113,7 @@ class Jetpack_Sync_Listener {
 
 		// periodically check the size of the queue, and disable adding to it if
 		// it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped)
-		if ( $this->can_add_to_queue() ) {
+		if ( ! $this->can_add_to_queue() ) {
 			return;
 		}
 
