@@ -48,7 +48,18 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->set_status_queuing_started();
 
 		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module->full_sync();
+			$items_enqueued = $module->enqueue_full_sync_actions();
+			$module_name = $module->name();
+			if ( $items_enqueued !== 0 ) {
+				$status = $this->get_status();
+
+				if ( ! isset( $status['queue'][ $module_name ] ) ) {
+					$status['queue'][ $module_name ] = 0;	
+				}
+
+				$status['queue'][ $module_name ] += $items_enqueued;
+			}
+			$this->update_status( $status );
 		}
 
 		$this->set_status_queuing_finished();
