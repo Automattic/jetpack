@@ -574,6 +574,10 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
+	'request_format' => array(
+		'force'   => '(bool=false) Force a full sync by clearing the full sync lock',
+		'clear'   => '(bool=false) Clear the sync queue before full-syncing'
+	),
 	'response_format' => array(
 		'scheduled' => '(bool) Whether or not the synchronisation was scheduled'
 	),

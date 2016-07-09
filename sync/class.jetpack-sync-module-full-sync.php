@@ -16,6 +16,7 @@ require_once 'class.jetpack-sync-wp-replicastore.php';
 
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	const STATUS_OPTION = 'jetpack_full_sync_status';
+	const FULL_SYNC_TIMEOUT = 3600;
 
 	private $sender;
 
@@ -38,6 +39,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		if( ! $this->should_start_full_sync() ) {
 			return false;
 		}
+
+		// ensure listener is loaded so we can guarantee full sync actions are enqueued
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
+		Jetpack_Sync_Listener::getInstance();
+
 		/**
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.
@@ -48,7 +54,18 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->set_status_queuing_started();
 
 		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module->full_sync();
+			$items_enqueued = $module->enqueue_full_sync_actions();
+			$module_name = $module->name();
+			if ( $items_enqueued !== 0 ) {
+				$status = $this->get_status();
+
+				if ( ! isset( $status['queue'][ $module_name ] ) ) {
+					$status['queue'][ $module_name ] = 0;	
+				}
+
+				$status['queue'][ $module_name ] += $items_enqueued;
+			}
+			$this->update_status( $status );
 		}
 
 		$this->set_status_queuing_finished();
@@ -68,10 +85,17 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	private function should_start_full_sync() {
 		$status = $this->get_status();
+		
 		// We should try sync if we haven't started it yet or if we have finished it.
 		if( is_null( $status['started'] ) || is_integer( $status['finished'] ) ) {
 			return true;
 		}
+
+		// allow enqueing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
+		if ( intval( $status['started'] ) + self::FULL_SYNC_TIMEOUT < time() ) {
+			return true;
+		}
+
 		return false;
 	}
 
@@ -138,7 +162,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		);
 	}
 
-	private function clear_status() {
+	public function clear_status() {
 		delete_option( self::STATUS_OPTION );
 	}
 }
