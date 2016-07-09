@@ -226,6 +226,7 @@ class Jetpack_Sync_Defaults {
 	static $default_upload_max_rows = 500;
 	static $default_sync_wait_time = 10; // seconds, between syncs
 	static $default_max_queue_size = 1000;
+	static $default_max_queue_lag = 900; // 15 minutes
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
 }
