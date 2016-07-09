@@ -78,10 +78,6 @@ class Jetpack_Sync_Listener {
 		$current_filter = current_filter();
 		$args           = func_get_args();
 
-		if ( $current_filter === 'upgrader_process_complete' ) {
-			array_shift( $args );
-		}
-
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
 		 *

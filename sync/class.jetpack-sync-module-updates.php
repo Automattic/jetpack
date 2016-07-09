@@ -14,6 +14,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		add_action( 'jetpack_full_sync_updates', $callable );
 
 		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array( $this, 'filter_update_keys' ), 10, 2 );
+		add_filter( 'jetpack_sync_before_enqueue_upgrader_process_complete', array( $this, 'filter_upgrader_process_complete' ), 10, 2 );
 	}
 
 	public function init_before_send() {
@@ -53,6 +54,11 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			unset( $updates->no_update );
 		}
 
+		return $args;
+	}
+
+	function filter_upgrader_process_complete( $args ) {
+		array_shift( $args );
 		return $args;
 	}
 
