@@ -10,7 +10,8 @@ class Jetpack_Sync_Settings {
 		'upload_max_bytes' => true,
 		'upload_max_rows' => true,
 		'sync_wait_time' => true,
-		'max_queue_size' => true
+		'max_queue_size' => true,
+		'max_queue_lag' => true,
 	);
 
 	static function get_settings() {
