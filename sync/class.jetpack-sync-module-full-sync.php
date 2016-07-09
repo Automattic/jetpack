@@ -16,6 +16,7 @@ require_once 'class.jetpack-sync-wp-replicastore.php';
 
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	const STATUS_OPTION = 'jetpack_full_sync_status';
+	const FULL_SYNC_TIMEOUT = 3600;
 
 	private $sender;
 
@@ -84,10 +85,17 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	private function should_start_full_sync() {
 		$status = $this->get_status();
+		
 		// We should try sync if we haven't started it yet or if we have finished it.
 		if( is_null( $status['started'] ) || is_integer( $status['finished'] ) ) {
 			return true;
 		}
+
+		// allow enqueing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
+		if ( intval( $status['started'] ) + self::FULL_SYNC_TIMEOUT < time() ) {
+			return true;
+		}
+
 		return false;
 	}
 
