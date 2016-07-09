@@ -38,6 +38,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		if( ! $this->should_start_full_sync() ) {
 			return false;
 		}
+
+		// ensure listener is loaded so we can guarantee full sync actions are enqueued
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
+		Jetpack_Sync_Listener::getInstance();
+
 		/**
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.
