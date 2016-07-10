@@ -6,7 +6,7 @@ jQuery( document ).ready( function( $ ) {
 		userLogin = $( '#user_login' ),
 		ssoWrap   = $( '#jetpack-sso-wrap' ),
 		loginForm = $( '#loginform' ),
-		overflow  = $( '<div style="overflow: auto;"></div>' );
+		overflow  = $( '<div class="jetpack-sso-clear"></div>' );
 
 	// The overflow div is a poor man's clearfloat. We reposition the remember me
 	// checkbox and the submit button within that to clear the float on the
