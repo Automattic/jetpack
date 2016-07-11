@@ -241,12 +241,15 @@ class csstidy {
 	 * @var string
 	 */
 	public $tokens_list = "";
+	function csstidy() {
+		$this->__construct();
+	}
 	/**
 	 * Loads standard template and sets default settings
 	 * @access private
 	 * @version 1.3
 	 */
-	function csstidy() {
+	function __construct() {
 		$this->settings['remove_bslash'] = true;
 		$this->settings['compress_colors'] = true;
 		$this->settings['compress_font-weight'] = true;
