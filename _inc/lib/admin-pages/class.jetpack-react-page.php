@@ -3,7 +3,10 @@ include_once( 'class.jetpack-admin-page.php' );
 
 // Builds the landing page and its menu
 class Jetpack_React_Page extends Jetpack_Admin_Page {
+
 	protected $dont_show_if_not_active = false;
+
+	protected $is_redirecting = false;
 
 	function get_page_hook() {
 		$title = _x( 'Jetpack', 'The menu item label', 'jetpack' );
@@ -34,6 +37,20 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
 
 //		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
+
+		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] || ! empty( $_GET['configure'] ) ) {
+			return; // No need to handle the fallback redirection if we are not on the Jetpack page
+		}
+
+		// Adding a redirect meta tag for older WordPress versions
+		if ( $this->is_wp_version_too_old() ) {
+			$this->is_redirecting = true;
+			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
+		}
+
+		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have
+		// JavaScript disabled
+		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 	}
 
 	function jetpack_add_dashboard_sub_nav_item() {
@@ -50,6 +67,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		global $submenu;
 		$permalink = Jetpack::admin_url( 'page=jetpack#/settings' );
 		$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', $permalink );
+	}
+
+	function add_fallback_head_meta() {
+		echo '<meta http-equiv="refresh" content="0; url=?page=jetpack_modules">';
+	}
+
+	function add_noscript_head_meta() {
+		echo '<noscript>';
+		$this->add_fallback_head_meta();
+		echo '</noscript>';
 	}
 
 	function jetpack_menu_order( $menu_order ) {
@@ -69,12 +96,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	// Render the configuration page for the module if it exists and an error
 	// screen if the module is not configurable
 	// @todo remove when real settings are in place
-	function render_nojs_configurable() {
+	function render_nojs_configurable( $module_name ) {
+		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
+
 		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
 		echo '<div class="clouds-sm"></div>';
 		echo '<div class="wrap configure-module">';
 
-		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
 		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
 			Jetpack::admin_screen_configure_module( $module_name );
 		} else {
@@ -87,7 +115,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function page_render() {
 		// Handle redirects to configuration pages
 		if ( ! empty( $_GET['configure'] ) ) {
-			return $this->render_nojs_configurable();
+			return $this->render_nojs_configurable( $_GET['configure'] );
 		}
 		?>
 		<?php
@@ -126,9 +154,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
+		if ( $this->is_redirecting ) {
+			return; // No need for scripts on a fallback page
+		}
+
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
-		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
+		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
 		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), time() );
 
 		$localeSlug = explode( '_', get_locale() );

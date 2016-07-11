@@ -73,9 +73,6 @@
 			.genericon {
 				display: inline-block;
 			}
-			td .row-actions span a {
-				opacity: 1;
-			}
 		}
 		&.active {
 			th,
@@ -93,13 +90,9 @@
 			}
 		}
 		&.unavailable {
-			opacity: 0.3;
 			input {
 				display: none;
 			}
-		}
-		&#vaultpress {
-			opacity: 1;
 		}
 		&.deprecated {
 			span {
@@ -132,12 +125,6 @@
 
 				span {
 					margin-left: 5px;
-					a {
-						opacity: 0;
-						&:focus {
-							opacity: 1;
-						}
-					}
 				}
 
 				@media (max-width: 530px) {
@@ -149,6 +136,26 @@
 					visibility: visible;
 				};
 
+			}
+		}
+	}
+	&.with-transparency tr.jetpack-module {
+
+		&:hover {
+			td .row-actions span a {
+				opacity: 1;
+			}
+		}
+		&.unavailable {
+			opacity: 0.3;
+		}
+		&#vaultpress {
+			opacity: 1;
+		}
+		td .row-actions span a {
+			opacity: 0;
+			&:focus {
+				opacity: 1;
 			}
 		}
 	}
