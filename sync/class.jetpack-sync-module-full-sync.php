@@ -35,7 +35,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'update_sent_progress_action' ) );
 	}
 
-	function start() {
+	function start( $modules = null ) {
 		if( ! $this->should_start_full_sync() ) {
 			return false;
 		}
@@ -54,8 +54,12 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->set_status_queuing_started();
 
 		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$items_enqueued = $module->enqueue_full_sync_actions();
 			$module_name = $module->name();
+			if ( is_array( $modules ) && ! isset( $modules[ $module_name ] ) ) {
+				continue;
+			}
+
+			$items_enqueued = $module->enqueue_full_sync_actions();
 			if ( $items_enqueued !== 0 ) {
 				$status = $this->get_status();
 
