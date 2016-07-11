@@ -67,6 +67,9 @@ before_script:
     - phpenv config-rm xdebug.ini
     - source ~/.nvm/nvm.sh && nvm install 5
     - export PLUGIN_SLUG=$(basename $(pwd))
+    - source ~/.nvm/nvm.sh
+    - nvm install 6
+    - nvm use 6
     - ./tests/prepare-wordpress.sh
     - mysql -e "set global wait_timeout = 3600;"
 
