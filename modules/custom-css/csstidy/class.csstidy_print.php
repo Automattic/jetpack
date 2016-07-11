@@ -60,13 +60,16 @@ class csstidy_print {
 	 */
 	public $output_css_plain = '';
 
+	function csstidy_print(&$css) {
+		$this->__construct($css);
+	}
 	/**
 	 * Constructor
 	 * @param array $css contains the class csstidy
 	 * @access private
 	 * @version 1.0
 	 */
-	function csstidy_print(&$css) {
+	function __construct(&$css) {
 		$this->parser = & $css;
 		$this->css = & $css->css;
 		$this->template = & $css->template;
