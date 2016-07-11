@@ -5,11 +5,11 @@
  * enqueuing an outbound action for every single object
  * that we care about.
  *
- * This class contains a few non-obvious optimisations that should be explained:
+ * This class, and its related class Jetpack_Sync_Module, contain a few non-obvious optimisations that should be explained:
  * - we fire an action called jetpack_full_sync_start so that WPCOM can erase the contents of the cached database
- * - for each object type, we obtain a full list of object IDs to sync via a single API call (hoping that since they're ints, they can all fit in RAM)
- * - we load the full objects for those IDs in chunks of Jetpack_Sync_Full::ARRAY_CHUNK_SIZE (to reduce the number of MySQL calls)
- * - we fire a trigger for the entire array which the Jetpack_Sync_Sender then serializes and queues.
+ * - for each object type, we page through the object IDs and enqueue them by firing some monitored actions
+ * - we load the full objects for those IDs in chunks of Jetpack_Sync_Module::ARRAY_CHUNK_SIZE (to reduce the number of MySQL calls)
+ * - we fire a trigger for the entire array which the Jetpack_Sync_Listener then serializes and queues.
  */
 
 require_once 'class.jetpack-sync-wp-replicastore.php';
