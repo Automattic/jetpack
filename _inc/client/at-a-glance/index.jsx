@@ -26,18 +26,21 @@ const AtAGlance = React.createClass( {
 	render() {
 		let securityHeader =
 				<DashSectionHeader
-				label={ __( 'Site Security' ) }
-				settingsPath="#security"
-				externalLink={ __( 'Manage Security on WordPress.com' ) }
-				externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } />,
+					label={ __( 'Site Security' ) }
+					settingsPath="#security"
+					externalLink={ __( 'Manage Security on WordPress.com' ) }
+					externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl }
+				/>,
 			healthHeader =
 				<DashSectionHeader
 					label={ __( 'Site Health' ) }
-					settingsPath="#health" />,
+					settingsPath="#health"
+				/>,
 			trafficHeader =
 				<DashSectionHeader
 					label={ __( 'Traffic Tools' ) }
-					settingsPath="#engagement" />;
+					settingsPath="#engagement"
+				/>;
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
@@ -47,7 +50,6 @@ const AtAGlance = React.createClass( {
 
 					{
 						// Site Security
-
 						securityHeader
 					}
 					<div className="jp-at-a-glance__item-grid">
@@ -62,17 +64,16 @@ const AtAGlance = React.createClass( {
 
 					{
 						// Site Health
-
 						healthHeader
 					}
 					<div className="jp-at-a-glance__item-grid">
-							<div className="jp-at-a-glance__left">
-								<DashAkismet { ...this.props } />
-							</div>
-							<div className="jp-at-a-glance__right">
-								<DashBackups { ...this.props } />
-								<DashPluginUpdates { ...this.props } />
-							</div>
+						<div className="jp-at-a-glance__left">
+							<DashAkismet { ...this.props } />
+						</div>
+						<div className="jp-at-a-glance__right">
+							<DashBackups { ...this.props } />
+							<DashPluginUpdates { ...this.props } />
+						</div>
 					</div>
 
 					{
@@ -81,12 +82,12 @@ const AtAGlance = React.createClass( {
 						trafficHeader
 					}
 					<div className="jp-at-a-glance__item-grid">
-							<div className="jp-at-a-glance__left">
-								<DashPhoton { ...this.props } />
-							</div>
-							<div className="jp-at-a-glance__right">
-								<DashSiteVerify { ...this.props } />
-							</div>
+						<div className="jp-at-a-glance__left">
+							<DashPhoton { ...this.props } />
+						</div>
+						<div className="jp-at-a-glance__right">
+							<DashSiteVerify { ...this.props } />
+						</div>
 					</div>
 
 					<FeedbackDashRequest { ...this.props } />
@@ -110,7 +111,6 @@ const AtAGlance = React.createClass( {
 						{ stats	}
 						{
 							// Site Security
-
 							securityHeader
 						}
 						{ protect }

@@ -67,20 +67,22 @@ export const Page = ( props ) => {
 		} else {
 			if ( adminAndNonAdmin ) {
 				toggle = <ModuleToggle slug={ element[0] }
-									   activated={ isModuleActivated( element[0] ) }
-									   toggling={ isTogglingModule( element[0] ) }
-									   toggleModule={ toggleModule } />;
+							activated={ isModuleActivated( element[0] ) }
+							toggling={ isTogglingModule( element[0] ) }
+							toggleModule={ toggleModule } />;
 			}
 		}
 
 		return (
-			<FoldableCard className={ customClasses } key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
-						  header={ element[1] }
-						  subheader={ element[2] }
-						  summary={ toggle }
-						  expandedSummary={ toggle }
-						  clickableHeaderText={ true }
-						  disabled={ ! adminAndNonAdmin }
+			<FoldableCard
+				className={ customClasses }
+				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
+				header={ element[1] }
+				subheader={ element[2] }
+				summary={ toggle }
+				expandedSummary={ toggle }
+				clickableHeaderText={ true }
+				disabled={ ! adminAndNonAdmin }
 			>
 				{ isModuleActivated( element[0] ) ?
 					<EngagementModulesSettings module={ getModule( element[0] ) } /> :
@@ -110,8 +112,7 @@ export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isTogglingModule: ( module_name ) =>
-			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
+			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name )
 		};
 	},
