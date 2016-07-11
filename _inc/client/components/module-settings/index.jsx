@@ -68,6 +68,7 @@ export let SubscriptionsSettings = React.createClass( {
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
+				<h3>Can readers subscribe to your posts, comments or both?</h3>
 				<FormFieldset>
 					<ModuleSettingCheckbox
 						name={ "stb_enabled" }
@@ -99,7 +100,14 @@ export let StatsSettings = React.createClass( {
 						label={ __( 'Put a chart showing 48 hours of views in the admin bar' ) } />
 				</FormFieldset>
 				<FormFieldset>
-					<FormLegend>{ __( 'Registered Users' ) }</FormLegend>
+					<FormLegend>{ __( 'Smiley' ) }</FormLegend>
+					<ModuleSettingCheckbox
+						name={ 'option_name' }
+						{ ...this.props }
+						label={ __( 'Hide the stats smiley face image' ) } />
+				</FormFieldset>
+				<FormFieldset>
+					<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
 					<ModuleSettingCheckbox
 						name={ 'option_name' }
 						{ ...this.props }
@@ -122,14 +130,7 @@ export let StatsSettings = React.createClass( {
 						label={ __( 'Subscriber' ) } />
 				</FormFieldset>
 				<FormFieldset>
-					<FormLegend>{ __( 'Smiley' ) }</FormLegend>
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Hide the stats smiley face image' ) } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend>{ __( 'Report Visibility' ) }</FormLegend>
+					<FormLegend>{ __( 'Report Visibility: Select the roles that will be able to view stats reports' ) }</FormLegend>
 					<ModuleSettingCheckbox
 						name={ 'option_name' }
 						{ ...this.props }
@@ -211,13 +212,13 @@ export let SingleSignOnSettings = React.createClass( {
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
 					<ModuleSettingCheckbox
-						name={ 'jetpack_sso_require_two_step' }
-						{ ...this.props }
-						label={ __( 'Require Two-Step Authentication' ) } />
-					<ModuleSettingCheckbox
 						name={ 'jetpack_sso_match_by_email' }
 						{ ...this.props }
 						label={ __( 'Match By Email' ) } />
+					<ModuleSettingCheckbox
+						name={ 'jetpack_sso_require_two_step' }
+						{ ...this.props }
+						label={ __( 'Require Two-Step Authentication' ) } />
 				</FormFieldset>
 				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
@@ -324,6 +325,7 @@ export let TiledGallerySettings = React.createClass( {
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
+				<h3>Excerpts</h3>
 				<FormFieldset>
 					<ModuleSettingCheckbox
 						name={ 'tiled_galleries' }
@@ -384,7 +386,7 @@ export let AfterTheDeadlineSettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<FormLegend> { __( 'Proofreading' ) } </FormLegend>
+					<FormLegend> { __( 'Automatic proofread content when ' ) } </FormLegend>
 					<ModuleSettingCheckbox
 						name={ 'onpublish' }
 						{ ...this.props }
@@ -395,7 +397,7 @@ export let AfterTheDeadlineSettings = React.createClass( {
 						label={ __( 'A post or page is updated' ) } />
 				</FormFieldset>
 				<FormFieldset>
-					<FormLegend> { __( 'English Options' ) } </FormLegend>
+					<FormLegend> { __( 'English Options: Enable proofreading for the following grammar and style rules' ) } </FormLegend>
 					<ModuleSettingCheckbox
 						name={ 'Bias Language' }
 						{ ...this.props }
@@ -438,8 +440,12 @@ export let AfterTheDeadlineSettings = React.createClass( {
 						label={ __( 'Redundant Expression' ) } />
 				</FormFieldset>
 				<FormFieldset>
-					<FormLegend> { __( 'Language' ) } </FormLegend>
-					<ModuleOptionBoolean option_name={ 'guess_lang' }
+					<FormLegend> { __( 'Language: The proofreader supports English, French, ' +
+						'German, Portuguese and Spanish. Your user interface language (see above) ' +
+						'is the default proofreading language.' ) }
+					</FormLegend>
+					<ModuleSettingCheckbox
+						name={ 'guess_lang' }
 						{ ...this.props }
 						label={ __( 'Use automatically detected language to proofread posts and pages' ) } />
 				</FormFieldset>

@@ -8,6 +8,7 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import {
+	StatsSettings,
 	RelatedPostsSettings,
 	SubscriptionsSettings,
 	SharedaddySettings,
@@ -29,8 +30,8 @@ export const EngagementModulesSettings = React.createClass( {
 		let { module } = this.props;
 
 		switch ( module.module ) {
-			// case 'stats':
-				// return( <StatsSettings module={ module } { ...this.props } /> );
+			case 'stats':
+				return( <StatsSettings module={ module } { ...this.props } /> );
 			case 'related-posts':
 				return ( <RelatedPostsSettings module={ module } { ...this.props } /> );
 			case 'subscriptions':
