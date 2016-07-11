@@ -85,6 +85,8 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-customcss.php' 
 // v1.2
 // **********
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-2-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-v1-2-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-v1-2-endpoint.php' );
 
 // Jetpack Only Endpoints
 $json_jetpack_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/jetpack/';
@@ -114,6 +116,27 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'response_format' => WPCOM_JSON_API_GET_Site_Endpoint::$site_format,
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/',
+) );
+
+new WPCOM_JSON_API_GET_Site_V1_2_Endpoint( array(
+	'description' => 'Get information about a site.',
+	'group'	      => 'sites',
+	'stat'        => 'sites:X',
+	'allowed_if_flagged' => true,
+	'method'      => 'GET',
+	'min_version' => '1.2',
+	'path'        => '/sites/%s',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+	),
+
+	'response_format' => WPCOM_JSON_API_GET_Site_V1_2_Endpoint::$site_format,
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/',
 ) );
 
 new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
@@ -2385,6 +2408,26 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
 ) );
 
+new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
+	'description' => 'Get detailed settings information about a site.',
+	'group'	      => '__do_not_document',
+	'stat'        => 'sites:X',
+	'min_version'   => '1.2',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/settings',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+	),
+
+	'response_format' => WPCOM_JSON_API_Site_Settings_Endpoint::$site_format,
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/settings?pretty=1',
+) );
+
 new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 	'description' => 'Update settings for a site.',
 	'group'       => '__do_not_document',
@@ -2451,6 +2494,80 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
+) );
+
+new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
+	'description' => 'Update settings for a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'sites:X',
+	'min_version'   => '1.2',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/settings',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'request_format'  => array(
+		'blogname'                     => '(string) Blog name',
+		'blogdescription'              => '(string) Blog description',
+		'default_pingback_flag'        => '(bool) Notify blogs linked from article?',
+		'default_ping_status'          => '(bool) Allow link notifications from other blogs?',
+		'default_comment_status'       => '(bool) Allow comments on new articles?',
+		'blog_public'                  => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
+		'jetpack_sync_non_public_post_stati' => '(bool) allow sync of post and pages with non-public posts stati',
+		'jetpack_relatedposts_enabled' => '(bool) Enable related posts?',
+		'jetpack_relatedposts_show_headline' => '(bool) Show headline in related posts?',
+		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
+		'jetpack_protect_whitelist'    => '(array) List of IP addresses to whitelist',
+		'infinite_scroll'              => '(bool) Support infinite scroll of posts?',
+		'default_category'             => '(int) Default post category',
+		'default_post_format'          => '(string) Default post format',
+		'require_name_email'           => '(bool) Require comment authors to fill out name and email?',
+		'comment_registration'         => '(bool) Require users to be registered and logged in to comment?',
+		'close_comments_for_old_posts' => '(bool) Automatically close comments on old posts?',
+		'close_comments_days_old'      => '(int) Age at which to close comments',
+		'thread_comments'              => '(bool) Enable threaded comments?',
+		'thread_comments_depth'        => '(int) Depth to thread comments',
+		'page_comments'                => '(bool) Break comments into pages?',
+		'comments_per_page'            => '(int) Number of comments to display per page',
+		'default_comments_page'        => '(string) newest|oldest Which page of comments to display first',
+		'comment_order'                => '(string) asc|desc Order to display comments within page',
+		'comments_notify'              => '(bool) Email me when someone comments?',
+		'moderation_notify'            => '(bool) Email me when a comment is helf for moderation?',
+		'social_notifications_like'    => '(bool) Email me when someone likes my post?',
+		'social_notifications_reblog'  => '(bool) Email me when someone reblogs my post?',
+		'social_notifications_subscribe' => '(bool) Email me when someone follows my blog?',
+		'comment_moderation'           => '(bool) Moderate comments for manual approval?',
+		'comment_whitelist'            => '(bool) Moderate comments unless author has a previously-approved comment?',
+		'comment_max_links'            => '(int) Moderate comments that contain X or more links',
+		'moderation_keys'              => '(string) Words or phrases that trigger comment moderation, one per line',
+		'blacklist_keys'               => '(string) Words or phrases that mark comment spam, one per line',
+		'lang_id'                      => '(int) ID for language blog is written in',
+		'locale'                       => '(string) locale code for language blog is written in',
+		'wga'                          => '(array) Google Analytics Settings',
+		'disabled_likes'               => '(bool) Are likes globally disabled (they can still be turned on per post)?',
+		'disabled_reblogs'             => '(bool) Are reblogs disabled on posts?',
+		'jetpack_comment_likes_enabled' => '(bool) Are comment likes enabled for all comments?',
+		'sharing_button_style'         => '(string) Style to use for sharing buttons (icon-text, icon, text, or official)',
+		'sharing_label'                => '(string) Label to use for sharing buttons, e.g. "Share this:"',
+		'sharing_show'                 => '(string|array:string) Post type or array of types where sharing buttons are to be displayed',
+		'sharing_open_links'           => '(string) Link target for sharing buttons (same or new)',
+		'twitter_via'                  => '(string) Twitter username to include in tweets when people share using the Twitter button',
+		'jetpack-twitter-cards-site-tag' => '(string) The Twitter username of the owner of the site\'s domain.',
+		'eventbrite_api_token'         => '(int) The Keyring token ID for an Eventbrite token to associate with the site',
+		'holidaysnow'                  => '(bool) Enable snowfall on frontend of site?',
+		'timezone_string'              => '(string) PHP-compatible timezone string like \'UTC-5\'',
+		'gmt_offset'                   => '(int) Site offset from UTC in hours',
+		'seo_meta_description' 		   => '(string) The seo meta description for the site.',
+		'advanced_seo_title_formats'   => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
+		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
+	),
+
+	'response_format' => array(
+		'updated' => '(array)'
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/settings?pretty=1',
 ) );
 
 /**
