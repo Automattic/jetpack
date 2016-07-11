@@ -16,36 +16,62 @@ const NavigationSettings = React.createClass( {
 	},
 
 	render: function() {
+		let navItems;
+		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
+			navItems = (
+				<NavTabs selectedText={ this.props.route.name }>
+					<NavItem
+						path="#general"
+						selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
+						{ __( 'General', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#engagement"
+						selected={ this.props.route.path === '/engagement' }>
+						{ __( 'Engagement', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#security"
+						selected={ this.props.route.path === '/security' }>
+						{ __( 'Security', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#appearance"
+						selected={ this.props.route.path === '/appearance' }>
+						{ __( 'Appearance', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#writing"
+						selected={ this.props.route.path === '/writing' }>
+						{ __( 'Writing', { context: 'Navigation item.' } ) }
+					</NavItem>
+				</NavTabs>
+			);
+		} else {
+			navItems = (
+				<NavTabs selectedText={ this.props.route.name }>
+					<NavItem
+						path="#general"
+						selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
+						{ __( 'General', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#engagement"
+						selected={ this.props.route.path === '/engagement' }>
+						{ __( 'Engagement', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#writing"
+						selected={ this.props.route.path === '/writing' }>
+						{ __( 'Writing', { context: 'Navigation item.' } ) }
+					</NavItem>
+				</NavTabs>
+			);
+		}
 		return (
 			<div className='dops-navigation'>
 				<SectionNav selectedText={ this.props.route.name }>
-					<NavTabs selectedText={ this.props.route.name }>
-						<NavItem
-							path="#general"
-							selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
-							{ __( 'General', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#engagement"
-							selected={ this.props.route.path === '/engagement' }>
-							{ __( 'Engagement', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#security"
-							selected={ this.props.route.path === '/security' }>
-							{ __( 'Security', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#appearance"
-							selected={ this.props.route.path === '/appearance' }>
-							{ __( 'Appearance', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#writing"
-							selected={ this.props.route.path === '/writing' }>
-							{ __( 'Writing', { context: 'Navigation item.' } ) }
-						</NavItem>
-					</NavTabs>
+					{ navItems }
 
 					<Search
 						pinned={ true }

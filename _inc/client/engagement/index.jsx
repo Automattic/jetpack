@@ -28,6 +28,7 @@ export const Page = ( props ) => {
 		isTogglingModule,
 		getModule
 	} = props;
+	let isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
 	/**
 	 * Array of modules that directly map to a card for rendering
 	 * @type {Array}
@@ -44,23 +45,44 @@ export const Page = ( props ) => {
 		[ 'sitemaps', getModule( 'sitemaps' ).name, getModule( 'sitemaps' ).description, getModule( 'sitemaps' ).learn_more_button ],
 		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description, getModule( 'enhanced-distribution' ).learn_more_button ],
 		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
-	].map( ( element ) => {
+	],
+		nonAdminAvailable = [ 'publicize' ];
+	// Put modules available to non-admin user at the top of the list.
+	if ( ! isAdmin ) {
+		let cardsCopy = cards.slice();
+		cardsCopy.reverse().forEach( ( element ) => {
+			if ( nonAdminAvailable.includes( element[0] ) ) {
+				cards.unshift( element );
+			}
+		} );
+		cards = cards.filter( ( element, index ) => cards.indexOf( element ) === index );
+	}
+	cards = cards.map( ( element ) => {
 		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
-			toggle = (
-				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
-					<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
-								  toggling={ isTogglingModule( element[0] ) }
-								  toggleModule={ toggleModule } />
-			),
-			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
+			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
+			toggle = '',
+			adminAndNonAdmin = isAdmin || nonAdminAvailable.includes( element[0] );
+		if ( unavailableInDevMode ) {
+			toggle = __( 'Unavailable in Dev Mode' );
+		} else {
+			if ( adminAndNonAdmin ) {
+				toggle = <ModuleToggle slug={ element[0] }
+							activated={ isModuleActivated( element[0] ) }
+							toggling={ isTogglingModule( element[0] ) }
+							toggleModule={ toggleModule } />;
+			}
+		}
 
 		return (
-			<FoldableCard className={ customClasses } key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
+			<FoldableCard
+				className={ customClasses }
+				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 				header={ element[1] }
 				subheader={ element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
+				disabled={ ! adminAndNonAdmin }
 			>
 				{ isModuleActivated( element[0] ) ?
 					<EngagementModulesSettings module={ getModule( element[0] ) } /> :
@@ -78,7 +100,7 @@ export const Page = ( props ) => {
 			{ cards }
 		</div>
 	);
-}
+};
 
 function renderLongDescription( module ) {
 	// Rationale behind returning an object and not just the string
@@ -90,8 +112,7 @@ export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isTogglingModule: ( module_name ) =>
-				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
+			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name )
 		};
 	},
