@@ -55,7 +55,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
-			if ( is_array( $modules ) && ! isset( $modules[ $module_name ] ) ) {
+			if ( is_array( $modules ) && ! in_array( $module_name, $modules ) ) {
 				continue;
 			}
 
