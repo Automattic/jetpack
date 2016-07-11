@@ -13,6 +13,12 @@
  * [organization].cartodb.com/u/[username]/viz/[map-id]/public_map
  * [organization].cartodb.com/u/[username]/viz/[map-id]/embed_map
  * [organization].cartodb.com/u/[username]/viz/[map-id]/map
+ * [username].carto.com/viz/[map-id]/public_map
+ * [username].carto.com/viz/[map-id]/embed_map
+ * [username].carto.com/viz/[map-id]/map
+ * [organization].carto.com/u/[username]/viz/[map-id]/public_map
+ * [organization].carto.com/u/[username]/viz/[map-id]/embed_map
+ * [organization].carto.com/u/[username]/viz/[map-id]/map
 */
 
-wp_oembed_add_provider( '#https?://(?:www\.)?[^/^\.]+\.cartodb\.com/\S+#i', 'https://services.cartodb.com/oembed', true );
+wp_oembed_add_provider( '#https?://(?:www\.)?[^/^\.]+\.carto(db)?\.com/\S+#i', 'https://services.cartodb.com/oembed', true );
