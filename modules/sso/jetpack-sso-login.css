@@ -177,3 +177,9 @@
 .jetpack-sso-form-display #backtoblog {
 	margin: 24px 0 0;
 }
+
+.jetpack-sso-clear:after {
+	content: "";
+	display: table;
+	clear: both;
+}
