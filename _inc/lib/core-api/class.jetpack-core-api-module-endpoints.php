@@ -18,7 +18,7 @@ class Jetpack_Core_API_Module_Activate_Endpoint
 		return new WP_Error(
 			'rest_cannot_publish',
 			__( 'This module requires your site to be set to publicly accessible.' ),
-			array( 'status' => 404 ) );;
+			array( 'status' => 404 ) );
 	}
 
 	public function can_write() {
