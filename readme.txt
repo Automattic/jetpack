@@ -80,6 +80,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 Bug Fixes:
 
 * Notifications: avoid PHP notices when moderating comments. #4208
+* Shortcodes: we updated the Cartodb shortcode to match the new product name, Carto. #4351
 
 Enhancements:
 
