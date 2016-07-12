@@ -329,6 +329,9 @@ class Jetpack {
 					Jetpack_Options::update_option( 'active_modules', $modules );
 				}
 
+				// Reset cached module data
+				Jetpack_Options::delete_option( 'file_data' );
+
 				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
 				Jetpack::maybe_set_version_option();
 			}
@@ -2109,23 +2112,14 @@ class Jetpack {
 	public static function get_file_data( $file, $headers ) {
 		//Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated
 		$file_name = basename( $file );
-		$file_data_option = Jetpack_Options::get_option( 'file_data', array() );
-		$key              = md5( $file_name . serialize( $headers ) );
-		$refresh_cache    = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
+		$file_data = Jetpack_Options::get_option( 'file_data', array() );
 
-		// If we don't need to refresh the cache, and already have the value, short-circuit!
-		if ( ! $refresh_cache && isset( $file_data_option[ JETPACK__VERSION ][ $key ] ) ) {
-			return $file_data_option[ JETPACK__VERSION ][ $key ];
+		if ( ! array_key_exists( $file_name, $file_data ) ) {
+			$file_data[ $file_name ] = get_file_data( $file, $headers );
+			Jetpack_Options::update_option( 'file_data', $file_data );
 		}
 
-		$data = get_file_data( $file, $headers );
-
-		// Strip out any old Jetpack versions that are cluttering the option.
-		$file_data_option = array_intersect_key( (array) $file_data_option, array( JETPACK__VERSION => null ) );
-		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
-		Jetpack_Options::update_option( 'file_data', $file_data_option );
-
-		return $data;
+		return $file_data[ $file_name ];
 	}
 
 	/**
