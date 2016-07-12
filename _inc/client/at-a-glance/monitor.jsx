@@ -27,7 +27,11 @@ const DashMonitor = React.createClass( {
 
 			if ( lastDowntime === 'N/A' ) {
 				return(
-					<DashItem label={ labelName } status="is-working">
+					<DashItem
+						label={ labelName }
+						module="monitor"
+						status="is-working"
+					>
 						<QueryLastDownTime />
 						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 					</DashItem>
@@ -35,7 +39,11 @@ const DashMonitor = React.createClass( {
 			}
 
 			return(
-				<DashItem label={ labelName } status="is-working">
+				<DashItem
+					label={ labelName }
+					module="monitor"
+					status="is-working"
+				>
 					<p className="jp-dash-item__description">{ __( 'Monitor is on and is watching your site.' ) }</p>
 					<p className="jp-dash-item__description">
 						{
@@ -51,7 +59,11 @@ const DashMonitor = React.createClass( {
 		}
 
 		return(
-			<DashItem label={ labelName } className="jp-dash-item__is-inactive">
+			<DashItem
+				label={ labelName }
+				module="monitor"
+				className="jp-dash-item__is-inactive"
+			>
 				<p className="jp-dash-item__description">
 					{
 						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :

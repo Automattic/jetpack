@@ -28,7 +28,12 @@ const DashProtect = React.createClass( {
 
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
 				return(
-					<DashItem label="Protect" status="is-working" className="jp-dash-item__recently-activated">
+					<DashItem
+						label="Protect"
+						module="protect"
+						status="is-working"
+						className="jp-dash-item__recently-activated"
+					>
 						<div className="jp-dash-item__recently-activated-lower">
 							<QueryProtectCount />
 							<p className="jp-dash-item__description">{ __( 'Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon!' ) }</p>
@@ -37,7 +42,11 @@ const DashProtect = React.createClass( {
 				);
 			}
 			return(
-				<DashItem label="Protect" status="is-working">
+				<DashItem
+					label="Protect"
+					module="protect"
+					status="is-working"
+				>
 					<h2 className="jp-dash-item__count">{ protectCount }</h2>
 					<p className="jp-dash-item__description">{ __( 'Total malicious attacks blocked on your site.' ) }</p>
 				</DashItem>
@@ -45,7 +54,11 @@ const DashProtect = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Protect" className="jp-dash-item__is-inactive">
+			<DashItem
+				label="Protect"
+				module="protect"
+				className="jp-dash-item__is-inactive"
+			>
 				<p className="jp-dash-item__description">{
 					isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
 					__( '{{a}}Activate Protect{{/a}} to keep your site protected from malicious attacks.', {
