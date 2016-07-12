@@ -692,6 +692,14 @@ jQuery(document).ready(function($) {
 				caption.fadeOut( 'fast' ).empty();
 			}
 
+			// Record pageview in WP Stats, for each new image loaded full-screen.
+			if ( jetpackCarouselStrings.stats ) {
+				new Image().src = document.location.protocol +
+					'//pixel.wp.com/g.gif?' +
+					jetpackCarouselStrings.stats +
+					'&post=' + encodeURIComponent( attachmentId ) +
+					'&rand=' + Math.random();
+			}
 
 			// Load the images for the next and previous slides.
 			$( next ).add( previous ).each( function() {
