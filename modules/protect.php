@@ -50,7 +50,7 @@ class Jetpack_Protect_Module {
 		add_action( 'jetpack_activate_module_protect', array ( $this, 'on_activation' ) );
 		add_action( 'jetpack_deactivate_module_protect', array ( $this, 'on_deactivation' ) );
 		add_action( 'jetpack_modules_loaded', array ( $this, 'modules_loaded' ) );
-		add_action( 'init', array ( $this, 'check_use_math' ) );
+		add_action( 'login_init', array ( $this, 'check_use_math' ) );
 		add_filter( 'authenticate', array ( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login', array ( $this, 'log_successful_login' ), 10, 2 );
 		add_action( 'wp_login_failed', array ( $this, 'log_failed_attempt' ) );
