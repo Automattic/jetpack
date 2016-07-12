@@ -169,6 +169,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://www.example.com', true ), 'https://example.com' );
 		// other subdomains are preserved
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://foo.example.com', true ), 'https://foo.example.com' );
+
+		// if original domain is www, prefer that
+		update_option( 'banana', 'https://www.example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.com', true ), 'https://www.example.com' );
 	}
 
 	function test_subdomain_switching_to_www_does_not_cause_sync() {

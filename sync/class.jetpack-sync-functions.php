@@ -101,7 +101,7 @@ class Jetpack_Sync_Functions {
 			}
 			if ( $option_url[ 'host' ] === "www.{$url[ 'host' ]}" ) {
 				// add www if present in option URL
-				$option_url[ 'host' ] = $url[ 'host' ];	
+				$url[ 'host' ] = $option_url[ 'host' ];	
 			}
 		}
 
