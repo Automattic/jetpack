@@ -15,23 +15,25 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	static $first_run     = true;
 	static $matched_agent = '';
 
-	/**
-	 * Filter the value of jetpack_is_mobile before it is calculated.
-	 *
-	 * Passing a truthy value to the filter will short-circuit determining the
-	 * mobile type, returning the passed value instead.
-	 *
-	 * @since  4.2.0
-	 *
-	 * @param bool|string $matches Boolean if current UA matches $kind or not. If
-	 *                             $return_matched_agent is true, should return the UA string
-	 * @param string      $kind Category of mobile device being checked
-	 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
-	 */
-	$pre = apply_filters( 'pre_jetpack_is_mobile', null, $kind, $return_matched_agent );
+	if ( function_exists( 'apply_filters' ) ) {
+		/**
+		 * Filter the value of jetpack_is_mobile before it is calculated.
+		 *
+		 * Passing a truthy value to the filter will short-circuit determining the
+		 * mobile type, returning the passed value instead.
+		 *
+		 * @since  4.2.0
+		 *
+		 * @param bool|string $matches Boolean if current UA matches $kind or not. If
+		 *                             $return_matched_agent is true, should return the UA string
+		 * @param string      $kind Category of mobile device being checked
+		 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
+		 */
+		$pre = apply_filters( 'pre_jetpack_is_mobile', null, $kind, $return_matched_agent );
 
-	if ( null !== $pre ) {
-		return $pre;
+		if ( null !== $pre ) {
+			return $pre;
+		}
 	}
 
 	$ua_info = new Jetpack_User_Agent_Info();
@@ -98,17 +100,19 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 		$value = $matched_agent;
 	}
 
-	/**
-	 * Filter the value of jetpack_is_mobile
-	 *
-	 * @since  4.2.0
-	 *
-	 * @param bool|string $matches Boolean if current UA matches $kind or not. If
-	 *                             $return_matched_agent is true, should return the UA string
-	 * @param string      $kind Category of mobile device being checked
-	 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
-	 */
-	$value = apply_filters( 'jetpack_is_mobile', $value, $kind, $return_matched_agent );
+	if ( function_exists( 'apply_filters' ) ) {
+		/**
+		 * Filter the value of jetpack_is_mobile
+		 *
+		 * @since  4.2.0
+		 *
+		 * @param bool|string $matches Boolean if current UA matches $kind or not. If
+		 *                             $return_matched_agent is true, should return the UA string
+		 * @param string      $kind Category of mobile device being checked
+		 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
+		 */
+		$value = apply_filters( 'jetpack_is_mobile', $value, $kind, $return_matched_agent );
+	}
 
 	return $value;
 }
