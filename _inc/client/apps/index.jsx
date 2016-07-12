@@ -6,6 +6,11 @@ import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 
+/**
+ * Internal dependencies
+ */
+import { imagePath } from 'constants';
+
 const Apps = ( props ) => {
 	return (
 		<div>
@@ -25,14 +30,14 @@ const Apps = ( props ) => {
 							<p>{ __( "All the WordPress apps are built for spped. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around." ) }</p>
 						</div>
 						<div className="jp-jetpack-landing__column">
-							laptop image
+							<img src={ imagePath + '/apps/laptop-90deg-themes.png' } />
 						</div>
 					</div>
 				</div>
 
 				<div className="jp-jetpack-landing__img-text">
 					<div className="jp-jetpack-landing__column">
-						secure and manage image
+						<img src={ imagePath + '/apps/manage2x' } />
 					</div>
 					<div className="jp-jetpack-landing__column">
 						<h2>{ __( 'Secure & Manage' ) }</h2>
@@ -52,13 +57,13 @@ const Apps = ( props ) => {
 						</Button>
 					</div>
 					<div className="jp-jetpack-landing__column">
-						writing image
+						<img src={ imagePath + '/apps/editor2x' } />
 					</div>
 				</div>
 
 				<div className="jp-jetpack-landing__img-text">
 					<div className="jp-jetpack-landing__column">
-						connect visitors image
+						<img src={ imagePath + '/apps/stats2x' } />
 					</div>
 					<div className="jp-jetpack-landing__column">
 						<h2>{ __( 'Connect with your Visitors' ) }</h2>
@@ -78,7 +83,7 @@ const Apps = ( props ) => {
 						</Button>
 					</div>
 					<div className="jp-jetpack-landing__column">
-						connect community image
+						<img src={ imagePath + '/apps/community2x' } />
 					</div>
 				</div>
 
@@ -90,6 +95,16 @@ const Apps = ( props ) => {
 					<p className="jp-jetpack-landing__description">
 						{ __( 'Get WordPress apps for any screen.' ) }
 					</p>
+
+					<table>
+						<tbody>
+							<tr>
+								<td width="18%"><img src={ imagePath + '/apps/Nexus5X.svg' } /></td>
+								<td width="64%"><img src={ imagePath + '/apps/MacBook.svg' } /></td>
+								<td width="18%"><img src={ imagePath + '/apps/iphone.svg' } /></td>
+							</tr>
+						</tbody>
+					</table>
 
 					<div className="jp-jetpack-landing__img-text">
 						<h3>{ __( 'In your Pocket' ) }</h3>

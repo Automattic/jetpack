@@ -15,8 +15,6 @@ const PlanBody = React.createClass( {
 	render() {
 		let planCard = '';
 		switch ( this.props.plan ) {
-
-			case 'dev':
 			case 'jetpack_premium':
 			case 'jetpack_premium_monthly':
 				planCard = (

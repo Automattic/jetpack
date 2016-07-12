@@ -62,20 +62,28 @@
 			height: 32px;
 		}
 	}
+
+	img {
+		max-width: 100%;
+	}
+
+	.jp-jetpack-landing__title, .jp-jetpack-landing__description {
+		text-align: center;
+	}
+
+	.jp-jetpack-landing__description {
+		font-size: 1.15em;
+	}
 }
 
 .jp-jetpack-landing__header {
 	background: transparent url('../../images/jp-4/white-clouds.svg') 50% 100% no-repeat;
-	padding: 2% 0;
+	padding: 4% 0;
 	min-height: 400px;
 
 	h1, h2 {
 		color: #eee;
 		font-weight: 400;
-	}
-
-	.jp-jetpack-landing__title, .jp-jetpack-landing__description {
-		text-align: center;
 	}
 
 	.jp-jetpack-landing__img-text {
@@ -90,11 +98,12 @@
 
 .jp-jetpack-landing__img-text {
 	background-color: #fff;
-	overflow: hidden;
-	padding-bottom: 5px;
+	display: inline-block;
+	vertical-align: top;
+	width: 100%;
 
 	.jp-jetpack-landing__column {
-		padding: 5% 4%;
+		padding: 40px 4% 20px;
 		width: 42%;
 		float: left;
 	}
@@ -108,15 +117,23 @@
 	h1, h2, h3 {
 		color: #eee;
 		font-weight: 300;
-	}
-
-	.jp-jetpack-landing__title, .jp-jetpack-landing__description {
-		text-align: center;
+		margin: 40px 0 0;
 	}
 
 	.jp-jetpack-landing__img-text {
-		margin-top: 50px;
 		background-color: transparent;
+	}
+
+	td {
+		vertical-align: baseline;
+	}
+}
+
+.jp-jetpack-landing__apps {
+	.jp-jetpack-landing__header {
+		img {
+			max-width: 120%;
+		}
 	}
 }
 
@@ -124,9 +141,6 @@
 	.jp-jetpack-landing__header {
 		.dops-button {
 			margin-right: 10px;
-		}
-		img {
-			width: 100%;
 		}
 	}
 
