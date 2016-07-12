@@ -2486,7 +2486,13 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'twitter_via'                  => '(string) Twitter username to include in tweets when people share using the Twitter button',
 		'jetpack-twitter-cards-site-tag' => '(string) The Twitter username of the owner of the site\'s domain.',
 		'eventbrite_api_token'         => '(int) The Keyring token ID for an Eventbrite token to associate with the site',
-		'holidaysnow'                  => '(bool) Enable snowfall on frontend of site?'
+		'holidaysnow'                  => '(bool) Enable snowfall on frontend of site?',
+		'timezone_string'              => '(string) PHP-compatible timezone string like \'UTC-5\'',
+		'gmt_offset'                   => '(int) Site offset from UTC in hours',
+		'jetpack_testimonial'          => '(bool) Whether testimonial custom post type is enabled for the site',
+		'jetpack_testimonial_posts_per_page' => '(int) Number of testimonials to show per page',
+		'jetpack_portfolio'            => '(bool) Whether portfolio custom post type is enabled for the site',
+		'jetpack_portfolio_posts_per_page' => '(int) Number of portfolio projects to show per page',
 	),
 
 	'response_format' => array(
