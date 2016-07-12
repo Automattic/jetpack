@@ -606,13 +606,13 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 ) );
 
 
-// GET /sites/%s/cached-data-check
+// GET /sites/%s/data-checksums
 new Jetpack_JSON_API_Sync_Check_Endpoint( array(
 	'description'     => 'Check that cacheable data on the site is in sync with wordpress.com',
 	'group'           => '__do_not_document',
 	'method'          => 'GET',
-	'path'            => '/sites/%s/cached-data-check',
-	'stat'            => 'cached-data-check',
+	'path'            => '/sites/%s/data-checksums',
+	'stat'            => 'data-checksums',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
@@ -620,7 +620,29 @@ new Jetpack_JSON_API_Sync_Check_Endpoint( array(
 		'posts' => '(string) Posts checksum',
 		'comments' => '(string) Comments checksum',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/cached-data-check'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/data-checksums'
+) );
+
+// GET /sites/%s/data-histogram
+new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
+	'description'     => 'Get a histogram of checksums for certain synced data',
+	'group'           => '__do_not_document',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/data-histogram',
+	'stat'            => 'data-histogram',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'query_parameters' => array(
+		'object_type' => '(string=posts) The type of object to checksum - posts, comments or options',
+		'buckets' => '(int=10) The number of buckets for the checksums',
+		'start_id' => '(int=0) Starting ID for the range',
+		'end_id' => '(int=null) Ending ID for the range'
+	),
+	'response_format' => array(
+		'histogram' => '(array) Associative array of histograms by ID range, e.g. "500-999" => "abcd1234"'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/data-histogram'
 ) );
 
 $sync_settings_response = array(

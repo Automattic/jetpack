@@ -89,6 +89,45 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 	}
 }
 
+// GET /sites/%s/data-histogram
+class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Endpoint {
+	// GET /sites/%s/cached-data-check
+	protected $needed_capabilities = 'manage_options';
+
+	protected function result() {
+		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-sender.php';
+
+		$sender = Jetpack_Sync_Sender::getInstance();
+		$sync_queue = $sender->get_sync_queue();
+
+		// lock sending from the queue while we compare checksums with the server
+		$result = $sync_queue->lock( 30 ); // tries to acquire the lock for up to 30 seconds
+
+		if ( !$result ) {
+			$sync_queue->unlock();
+			return new WP_Error( 'unknown_error', 'Unknown error trying to lock the sync queue' );
+		}
+
+		if ( is_wp_error( $result ) ) {
+			$sync_queue->unlock();
+			return $result;
+		}
+
+		$args = $this->query_args();
+
+		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-wp-replicastore.php';
+
+		$store = new Jetpack_Sync_WP_Replicastore();
+
+		$result = $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'] );
+
+		$sync_queue->unlock();
+
+		return $result;
+
+	}
+}
+
 class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Endpoint {
 	// POST /sites/%s/sync/settings
 	protected $needed_capabilities = 'manage_options';

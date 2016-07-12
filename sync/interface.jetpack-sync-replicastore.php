@@ -119,4 +119,7 @@ interface iJetpack_Sync_Replicastore {
 
 	// full checksum
 	public function checksum_all();
+
+	// histogram
+	public function checksum_histogram( $object_type, $buckets, $start_id, $end_id );
 }

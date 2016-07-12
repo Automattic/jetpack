@@ -475,6 +475,10 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		);
 	}
 
+	function checksum_histogram( $object_type, $buckets, $start_id, $end_id ) {
+		return null;
+	}
+
 	function cast_to_post( $object ) {
 		if ( isset( $object->extra ) ) {
 			$object->extra = (array) $object->extra;

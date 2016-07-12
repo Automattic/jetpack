@@ -566,6 +566,10 @@ ENDSQL;
 		);
 	}
 
+	function checksum_histogram( $object_type, $buckets, $start_id, $end_id ) {
+		return null;
+	}
+
 	private function invalid_call() {
 		$backtrace = debug_backtrace();
 		$caller    = $backtrace[1]['function'];

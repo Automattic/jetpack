@@ -110,6 +110,23 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * Histograms
+	 **/
+
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_checksum_histogram( $store ) {
+
+		$post = self::$factory->post( 5 );
+
+		$histogram = $store->checksum_histogram( 'posts', 10, 0, 0 );
+
+		error_log(print_r($histogram, 1));
+	}
+
+	/**
 	 * Posts
 	 */
 
