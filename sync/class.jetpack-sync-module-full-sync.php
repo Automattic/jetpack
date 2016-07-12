@@ -5,11 +5,11 @@
  * enqueuing an outbound action for every single object
  * that we care about.
  *
- * This class contains a few non-obvious optimisations that should be explained:
+ * This class, and its related class Jetpack_Sync_Module, contain a few non-obvious optimisations that should be explained:
  * - we fire an action called jetpack_full_sync_start so that WPCOM can erase the contents of the cached database
- * - for each object type, we obtain a full list of object IDs to sync via a single API call (hoping that since they're ints, they can all fit in RAM)
- * - we load the full objects for those IDs in chunks of Jetpack_Sync_Full::ARRAY_CHUNK_SIZE (to reduce the number of MySQL calls)
- * - we fire a trigger for the entire array which the Jetpack_Sync_Sender then serializes and queues.
+ * - for each object type, we page through the object IDs and enqueue them by firing some monitored actions
+ * - we load the full objects for those IDs in chunks of Jetpack_Sync_Module::ARRAY_CHUNK_SIZE (to reduce the number of MySQL calls)
+ * - we fire a trigger for the entire array which the Jetpack_Sync_Listener then serializes and queues.
  */
 
 require_once 'class.jetpack-sync-wp-replicastore.php';
@@ -35,7 +35,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'update_sent_progress_action' ) );
 	}
 
-	function start() {
+	function start( $modules = null ) {
 		if( ! $this->should_start_full_sync() ) {
 			return false;
 		}
@@ -54,8 +54,12 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->set_status_queuing_started();
 
 		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$items_enqueued = $module->enqueue_full_sync_actions();
 			$module_name = $module->name();
+			if ( is_array( $modules ) && ! in_array( $module_name, $modules ) ) {
+				continue;
+			}
+
+			$items_enqueued = $module->enqueue_full_sync_actions();
 			if ( $items_enqueued !== 0 ) {
 				$status = $this->get_status();
 

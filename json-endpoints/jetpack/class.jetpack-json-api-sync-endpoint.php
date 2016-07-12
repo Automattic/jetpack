@@ -7,6 +7,8 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected function result() {
 		$args = $this->input();
 
+		$modules = null;
+
 		if ( isset( $args['clear'] ) && $args['clear'] ) {
 			// clear sync queue
 			require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-sender.php';
@@ -24,8 +26,12 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 			$sync_module->clear_status();
 		}
 
+		if ( isset( $args['modules'] ) && !empty( $args['modules'] ) ) {
+			$modules = array_map('trim', explode( ',', $args['modules'] ) );
+		}
+
 		/** This action is documented in class.jetpack-sync-sender.php */
-		Jetpack_Sync_Actions::schedule_full_sync();
+		Jetpack_Sync_Actions::schedule_full_sync( $modules );
 		spawn_cron();
 
 		return array( 'scheduled' => true );
