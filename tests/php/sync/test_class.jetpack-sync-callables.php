@@ -164,5 +164,42 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://site.com' ), 'https://site.com' );
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://site.com/blog' ), 'https://site.com/blog' );
 		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.org' ), 'https://example.org' );
+
+		// adding www subdomain reverts to original domain
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://www.example.com', true ), 'https://example.com' );
+		// other subdomains are preserved
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://foo.example.com', true ), 'https://foo.example.com' );
+
+		// if original domain is www, prefer that
+		update_option( 'banana', 'https://www.example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.com', true ), 'https://www.example.com' );
+	}
+
+	function test_subdomain_switching_to_www_does_not_cause_sync() {
+		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of 
+		// switching back and forth, so we force the domain to be the one in the siteurl option
+		$this->setSyncClientDefaults();
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+
+		$original_site_url = site_url();
+
+		// sync original value
+		$this->sender->do_sync();
+
+		$this->assertEquals( $original_site_url, $this->server_replica_storage->get_callable( 'site_url' ) );
+
+		add_filter( 'site_url', array( $this, 'add_www_subdomain_to_siteurl' ) );
+
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->sender->do_sync();
+
+		$this->assertEquals( $original_site_url, $this->server_replica_storage->get_callable( 'site_url' ) );
+	}
+
+	function add_www_subdomain_to_siteurl( $url ) {
+		$parsed_url = parse_url( $url );
+		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
 	}
 }
