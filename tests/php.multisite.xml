@@ -38,6 +38,9 @@
         <testsuite name="publicize">
             <directory prefix="test_" suffix=".php">php/modules/publicize</directory>
         </testsuite>
+        <testsuite name="subscriptions">
+            <directory prefix="test_" suffix=".php">tests/php/modules/subscriptions</directory>
+        </testsuite>
         <testsuite name="sharedaddy">
             <directory prefix="test_" suffix=".php">php/modules/sharedaddy</directory>
         </testsuite>

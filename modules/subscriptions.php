@@ -171,7 +171,7 @@ class Jetpack_Subscriptions {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-
+		$email_subscribers = true;
 		/**
 		 * Array of categories that will never trigger subscription emails.
 		 *
@@ -184,12 +184,11 @@ class Jetpack_Subscriptions {
 		 * @param array $args Array of category slugs or ID's.
 		 */
 		$excluded_categories = apply_filters( 'jetpack_subscriptions_exclude_these_categories', array() );
-
 		// Never email posts from these categories
 		if ( ! empty( $excluded_categories ) && in_category( $excluded_categories, $post->ID ) ) {
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+			$email_subscribers = false;
 		}
-
 		/**
 		 * ONLY send subscription emails for these categories
 		 *
@@ -206,14 +205,44 @@ class Jetpack_Subscriptions {
 		// Only emails posts from these categories
 		if ( ! empty( $only_these_categories ) && ! in_category( $only_these_categories, $post->ID ) ) {
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+			$email_subscribers = false;
 		}
-
+		
 		// Email the post, depending on the checkbox option
 		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
 			if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
 				update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
+				$email_subscribers = ! (bool) $_POST['_jetpack_dont_email_post_to_subs'];
 			}
 		}
+
+		if ( $email_subscribers ) {
+			add_action( 'wp_insert_post', array( $this, 'fire_jetpack_email_subscribers_sync' ), 12, 2 );
+		} else {
+			// remove action if we are not sending the email.
+			remove_action( 'wp_insert_post', array( $this, 'fire_jetpack_email_subscribers_sync' ), 12, 2 );
+		}
+	}
+
+	function fire_jetpack_email_subscribers_sync( $post_id, $post ) {
+		if ( get_post_meta( $post_id, '_jetpack_sent_email_subscribers_action' ) ) {
+			return;
+		}
+		// Don't try to email empty post.
+		if ( empty( $post->post_content ) ) {
+			return;
+		}
+		if( ! $this->post_is_public( $post ) ) {
+			return;
+		}
+		if( ! $post->post_type == 'post' ) {
+			return;
+		}
+		if ( get_post_meta( $post->ID, '_jetpack_dont_email_post_to_sub' ) ) {
+			return;
+		}
+		do_action( 'jetpack_email_subscribers', $post_id );
+		update_post_meta( $post_id, '_jetpack_sent_email_subscribers_action', true );
 	}
 
 	/**
@@ -298,7 +327,6 @@ class Jetpack_Subscriptions {
 	 */
 	function subscriptions_settings_section() {
 	?>
-
 		<p id="jetpack-subscriptions-settings"><?php _e( 'Change whether your visitors can subscribe to your posts or comments or both.', 'jetpack' ); ?></p>
 
 	<?php
