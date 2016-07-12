@@ -31,15 +31,9 @@ const AtAGlance = React.createClass( {
 					externalLink={ __( 'Manage Security on WordPress.com' ) }
 					externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl }
 				/>,
-			healthHeader =
+			performanceHeader =
 				<DashSectionHeader
-					label={ __( 'Site Health' ) }
-					settingsPath="#health"
-				/>,
-			trafficHeader =
-				<DashSectionHeader
-					label={ __( 'Traffic Tools' ) }
-					settingsPath="#engagement"
+					label={ __( 'Performance' ) }
 				/>;
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
@@ -58,35 +52,32 @@ const AtAGlance = React.createClass( {
 						</div>
 						<div className="jp-at-a-glance__right">
 							<DashScan { ...this.props } />
+						</div>
+					</div>
+					<div className="jp-at-a-glance__item-grid">
+						<div className="jp-at-a-glance__left">
+							<DashBackups { ...this.props } />
+						</div>
+						<div className="jp-at-a-glance__right">
 							<DashMonitor { ...this.props } />
 						</div>
 					</div>
-
-					{
-						// Site Health
-						healthHeader
-					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
 							<DashAkismet { ...this.props } />
 						</div>
 						<div className="jp-at-a-glance__right">
-							<DashBackups { ...this.props } />
 							<DashPluginUpdates { ...this.props } />
 						</div>
 					</div>
 
 					{
-						// Traffic Tools
-
-						trafficHeader
+						// Performance
+						performanceHeader
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
 							<DashPhoton { ...this.props } />
-						</div>
-						<div className="jp-at-a-glance__right">
-							<DashSiteVerify { ...this.props } />
 						</div>
 					</div>
 
