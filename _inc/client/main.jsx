@@ -120,7 +120,7 @@ const Main = React.createClass( {
 						<JetpackNotices { ...this.props } />
 						{ this.renderMainContent( this.props.route.path ) }
 						{
-							this.props.getJumpStartStatus || [ '/apps', '/professional' ].includes( this.props.route.path ) ?
+							this.props.getJumpStartStatus || '/apps' === this.props.route.path ?
 							null :
 							<SupportCard { ...this.props } />
 						}

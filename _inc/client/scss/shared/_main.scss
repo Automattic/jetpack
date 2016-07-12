@@ -39,6 +39,10 @@
 	color: #6b8699;
 	overflow: hidden;
 
+	.dops-button {
+		margin-right: 10px;
+	}
+
 	.button-app {
 		height: 42px;
 		font-weight: bold;
@@ -49,7 +53,6 @@
 		box-shadow: 0 3px #0087be;
 		text-transform: uppercase;
 		border: 0;
-		margin-right: 10px;
 
 		svg {
 			display: inline-block;
@@ -138,15 +141,13 @@
 }
 
 .jp-jetpack-landing__plans {
-	.jp-jetpack-landing__header {
-		.dops-button {
-			margin-right: 10px;
-		}
-	}
-
 	.jp-jetpack-landing__plan-features {
 		padding: 1% 4% 5%;
 		background-color: #fff;
+
+		h3 {
+			margin-bottom: 0;
+		}
 	}
 
 	.jp-jetpack-landing__plan-card {

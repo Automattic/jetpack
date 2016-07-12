@@ -17,18 +17,11 @@ const PlanBody = React.createClass( {
 		switch ( this.props.plan ) {
 			case 'jetpack_premium':
 			case 'jetpack_premium_monthly':
-				planCard = (
-					<div className="jp-jetpack-landing__plan-features">
-						<div className="jp-jetpack-landing__plan-features-card">
-							<h3>{ __( 'Jetpack Anti-spam' ) }</h3>
-							<p>{ __( 'Bulletproof spam filtering help maintain peace of mind while you build and grow your site.' ) }</p>
-						</div>
-
-						<div className="jp-jetpack-landing__plan-features-card">
-							<h3>{ __( 'Jetpack Security Scanning & Backups' ) }</h3>
-							<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place.' ) }</p>
-						</div>
-
+			case 'jetpack_business':
+			case 'jetpack_business_monthly':
+				let needMore = '';
+				if ( [ 'jetpack_premium', 'jetpack_premium_monthly' ].includes( this.props.plan ) ) {
+					needMore = (
 						<div className="jp-jetpack-landing__plan-features-card">
 							<h3>{ __( 'Need more?' ) }</h3>
 							<p>{ __( 'Jetpack Professional offers more features.' ) }</p>
@@ -41,23 +34,26 @@ const PlanBody = React.createClass( {
 								</Button>
 							</p>
 						</div>
-					</div>
-				);
-				break;
-
-			case 'jetpack_business':
-			case 'jetpack_business_monthly':
+					)
+				}
 				planCard = (
 					<div className="jp-jetpack-landing__plan-features">
 						<div className="jp-jetpack-landing__plan-features-card">
 							<h3>{ __( 'Jetpack Anti-spam' ) }</h3>
 							<p>{ __( 'Bulletproof spam filtering help maintain peace of mind while you build and grow your site.' ) }</p>
+							<Button href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } className="is-primary">
+								{ __( 'View your spam stats' ) }
+							</Button>
 						</div>
 
 						<div className="jp-jetpack-landing__plan-features-card">
 							<h3>{ __( 'Jetpack Security Scanning & Backups' ) }</h3>
 							<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place.' ) }</p>
+							<Button href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } className="is-primary">
+								{ __( 'View your security dashboard' ) }
+							</Button>
 						</div>
+						{ needMore }
 					</div>
 				);
 				break;
