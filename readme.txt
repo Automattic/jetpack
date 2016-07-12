@@ -81,6 +81,7 @@ Bug Fixes:
 
 * Notifications: avoid PHP notices when moderating comments. #4208
 * Shortcodes: we updated the Cartodb shortcode to match the new product name, Carto. #4351
+* Theme Tools: avoid warnings when Tonesque processes a file which claims to be one filetype, but are actually another. #3741
 
 Enhancements:
 
