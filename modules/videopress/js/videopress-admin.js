@@ -465,7 +465,7 @@
 	var VideoPressModal = new VideoPressModalView();
 
 	// Configuration screen behavior
-	$(document).on( 'ready', function() {
+	$(document).ready( function() {
 		var $form = $( '#videopress-settings' );
 
 		// Not on a configuration screen

@@ -129,7 +129,7 @@ var updateLinkedInCount = function( data ) {
 	} );
 
 	$body = $( document.body ).on( 'post-load', WPCOMSharing_do );
-	$( document ).on( 'ready', function() {
+	$( document ).ready( function() {
 		$sharing_email = $( '#sharing_email' );
 		$body.append( $sharing_email );
 		WPCOMSharing_do();
