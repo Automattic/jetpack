@@ -25,7 +25,7 @@ class Jetpack_Sync_Actions {
 
 		// cron hooks
 		add_action( 'jetpack_sync_send_db_checksum', array( __CLASS__, 'send_db_checksum' ) );
-		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ) );
+		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
 		add_action( 'jetpack_sync_send_pending_data', array( __CLASS__, 'do_send_pending_data' ) );
 
 		if ( ! wp_next_scheduled ( 'jetpack_sync_send_db_checksum' ) ) {
@@ -115,17 +115,17 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
-	static function schedule_full_sync() {
-		wp_schedule_single_event( time() + 1, 'jetpack_sync_full' );
+	static function schedule_full_sync( $modules = null ) {
+		wp_schedule_single_event( time() + 1, 'jetpack_sync_full', array( $modules ) );
 	}
 
-	static function do_full_sync() {
+	static function do_full_sync( $modules = null ) {
 		if ( ! self::sync_allowed() ) {
 			return;
 		}
 
 		self::initialize_listener();
-		Jetpack_Sync_Modules::get_module( 'full-sync' )->start();
+		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
 		self::do_send_pending_data(); // try to send at least some of the data
 	}
 

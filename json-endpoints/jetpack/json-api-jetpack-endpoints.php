@@ -576,7 +576,8 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	),
 	'request_format' => array(
 		'force'   => '(bool=false) Force a full sync by clearing the full sync lock',
-		'clear'   => '(bool=false) Clear the sync queue before full-syncing'
+		'clear'   => '(bool=false) Clear the sync queue before full-syncing',
+		'modules' => '(string) Comma-delimited set of sync modules to use (default: all of them)'
 	),
 	'response_format' => array(
 		'scheduled' => '(bool) Whether or not the synchronisation was scheduled'

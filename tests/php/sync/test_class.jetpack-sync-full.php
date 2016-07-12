@@ -78,6 +78,28 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->started_sync_count += 1;
 	}
 
+	function test_full_sync_can_select_modules() {
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
+		$this->factory->post->create();
+
+		$this->full_sync->start( array( 'options' ) );
+
+		$this->sender->do_sync();
+
+		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
+
+		$options_full_sync_actions = Jetpack_Sync_Modules::get_module( 'options' )->get_full_sync_actions();
+		$options_event = $this->server_event_storage->get_most_recent_event( $options_full_sync_actions[0] );
+
+		$posts_full_sync_actions = Jetpack_Sync_Modules::get_module( 'posts' )->get_full_sync_actions();
+		$posts_event = $this->server_event_storage->get_most_recent_event( $posts_full_sync_actions[0] );
+
+		$this->assertTrue( $start_event !== false );
+		$this->assertTrue( $options_event !== false );
+		$this->assertTrue( $posts_event === false );
+	}
+
 	function test_full_sync_sends_wp_version() {
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
