@@ -166,6 +166,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$localeSlug = explode( '_', get_locale() );
 		$localeSlug = $localeSlug[0];
 
+		// Collecting roles that can view site stats
+		$can_view_stats = array();
+		$roles = get_editable_roles();
+		foreach( stats_get_option( 'roles' ) as $role ) {
+			$can_view_stats[ $role ] = translate_user_role( $roles[ $role ]['name'] );
+		}
+
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
@@ -189,7 +196,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
 			'adminUrl' => esc_url( admin_url() ),
-			'statsData' => build_initial_stats_shape(),
+			'stats' => array(
+				'data' => build_initial_stats_shape(),
+				'canView' => $can_view_stats,
+			),
 			'settingNames' => array(
 				'jetpack_holiday_snow_enabled' => function_exists( 'jetpack_holiday_snow_option_name' ) ? jetpack_holiday_snow_option_name() : false,
 			),
