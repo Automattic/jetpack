@@ -71,14 +71,14 @@ const restApi = {
 			'X-WP-Nonce': window.Initial_State.WP_API_nonce
 		}
 	} ),
-	updateModuleOption: ( slug, updatedOption ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/${ slug }/update`, {
+	updateModuleOptions: ( slug, newOptionValues ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/${ slug }/update`, {
 		method: 'put',
 		credentials: 'same-origin',
 		headers: {
 			'X-WP-Nonce': window.Initial_State.WP_API_nonce,
 			'Content-type': 'application/json'
 		},
-		body: JSON.stringify( updatedOption )
+		body: JSON.stringify( newOptionValues )
 	} )
 		.then( checkStatus ).then( response => response.json() ),
 	getProtectCount: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/protect/count/get`, {
