@@ -18,8 +18,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	const STATUS_OPTION = 'jetpack_full_sync_status';
 	const FULL_SYNC_TIMEOUT = 3600;
 
-	private $sender;
-
 	public function name() {
 		return 'full-sync';
 	}
