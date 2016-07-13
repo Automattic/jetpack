@@ -14,8 +14,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 			require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-sender.php';
 
 			$sender = Jetpack_Sync_Sender::getInstance();
-			$sync_queue = $sender->get_sync_queue();
-			$sync_queue->reset();
+			$sender->reset_sync_queue();
 		}
 
 		if ( isset( $args['force'] ) && $args['force'] ) {
