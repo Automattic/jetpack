@@ -266,7 +266,18 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $event->sent_timestamp > $before_sync );
 		$this->assertTrue( $event->sent_timestamp < $after_sync );
 		$this->assertTrue( $event->sent_timestamp < microtime(true) );
+	}
 
+	function test_reset_queue_also_resets_full_sync_lock() {
+		$full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$full_sync->start();
+		$status = $full_sync->get_status();
+		$this->assertNotNull( $status['started'] );
+
+		$this->sender->reset_sync_queue();
+
+		$status = $full_sync->get_status();
+		$this->assertNull( $status['started'] );
 	}
 
 	function action_ran( $data, $codec, $sent_timestamp ) {

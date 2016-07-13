@@ -184,6 +184,7 @@ class Jetpack_Sync_Sender {
 	}
 
 	function reset_sync_queue() {
+		Jetpack_Sync_Modules::get_module( 'full-sync' )->clear_status();
 		$this->sync_queue->reset();
 	}
 
