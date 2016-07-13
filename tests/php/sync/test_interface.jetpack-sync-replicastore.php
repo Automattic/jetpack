@@ -119,11 +119,25 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_checksum_histogram( $store ) {
 
-		$post = self::$factory->post( 5 );
+		for ( $i = 0; $i < 20; $i += 1 ) {
+			$post = self::$factory->post( $i, array( 'post_content' => "Test post $i" ) );
+			$store->upsert_post( $post );
+
+			$comment = self::$factory->comment( $i, $i, array( 'comment_content' => "Test comment $i" ) );
+			$store->upsert_comment( $comment );
+		}
 
 		$histogram = $store->checksum_histogram( 'posts', 10, 0, 0 );
 
 		error_log(print_r($histogram, 1));
+		$this->assertEquals( 10, count( $histogram ) );
+
+		// histogram with one bucket should equal checksum of corresponding object type
+		$histogram = $store->checksum_histogram( 'posts', 1, 0, 0 );
+		$this->assertEquals( $store->posts_checksum(), $histogram['0-19'] );
+
+		$histogram = $store->checksum_histogram( 'comments', 1, 0, 0 );
+		$this->assertEquals( $store->comments_checksum(), $histogram['0-19'] );
 	}
 
 	/**
