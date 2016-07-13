@@ -81,11 +81,14 @@ Bug Fixes:
 
 * Infinite Scroll: do not load theme compatibility stylesheets on the default theme's singular views. #4236
 * Notifications: avoid PHP notices when moderating comments. #4208
+* Sharing: we fixed inconsistent horizontal spacing between the buttons when using the official buttons. #4317
 * Shortcodes: we updated the Cartodb shortcode to match the new product name, Carto. #4351
+* Sitemaps: we fixed some PHP warnings in the sitemaps' stylesheets. #4362
 * Theme Tools: avoid warnings when Tonesque processes a file which claims to be one filetype, but are actually another. #3741
 
 Enhancements:
 
+* Carousel: each Carousel view is now tracked in Stats. #3638
 * General: we've completely refactored the way information was synchronized between your site and WordPress.com, thus ensuring every module uses information that's up to date.
 * Performance: we've reduced the number of queries typically run on both the front end and the dashboard, to improve overall performance. #4281
 * Performance: we've improved the way Jetpack queried for information about module data, to execute less queries to get Jetpack options. #4315
