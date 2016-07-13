@@ -37,7 +37,11 @@ const DashPluginUpdates = React.createClass( {
 
 		if ( 'N/A' === pluginUpdates ) {
 			return(
-				<DashItem label={ labelName } status="is-working">
+				<DashItem
+					label={ labelName }
+					module="manage"
+					status="is-working"
+				>
 					<QueryPluginUpdates />
 					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 				</DashItem>
@@ -46,7 +50,11 @@ const DashPluginUpdates = React.createClass( {
 
 		if ( 'updates-available' === pluginUpdates.code ) {
 			return(
-				<DashItem label={ labelName } status="is-warning">
+				<DashItem
+					label={ labelName }
+					module="manage"
+					status="is-warning"
+				>
 					<p className="jp-dash-item__description">
 						<strong>
 							{
@@ -71,7 +79,11 @@ const DashPluginUpdates = React.createClass( {
 		}
 
 		return(
-			<DashItem label={ labelName } status="is-working">
+			<DashItem
+				label={ labelName }
+				module="manage"
+				status="is-working"
+			>
 				<p className="jp-dash-item__description">
 					{ __( 'All plugins are up-to-date. Keep up the good work!' ) }
 				</p>

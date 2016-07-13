@@ -4,6 +4,8 @@
 import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
+import SimpleNotice from 'components/notice';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -95,14 +97,28 @@ const DashItem = React.createClass( {
 				    compact={ true }
 				/>
 			);
+
+			if ( 'manage' === this.props.module && 'is-warning' === this.props.status ) {
+				let text = __( 'Updates Needed' );
+				toggle = (
+					<SimpleNotice
+						showDismiss={ false }
+						status={ this.props.status }
+					    isCompact={ true }
+					>
+						{ text }
+					</SimpleNotice>
+				);
+			}
 		}
+
 
 		return (
 
 			<div className={ classes }>
 				<SectionHeader
 					label={ this.props.label }
-					className={ this.props.status }>
+				>
 					{ toggle }
 				</SectionHeader>
 				<Card href={ this.props.href }>
