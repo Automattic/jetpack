@@ -110,8 +110,8 @@ function dailymotion_shortcode( $atts ) {
 	}
 
 	/*set width and height using provided parameters if any */
-	$width  = isset( $atts['width'] )  ? abs( $atts['width'] )  : 0 ;
-	$height = isset( $atts['height'] ) ? abs( $atts['height'] ) : 0 ;
+	$width  = isset( $atts['width'] )  ? intval( $atts['width'] )  : 0 ;
+	$height = isset( $atts['height'] ) ? intval( $atts['height'] ) : 0 ;
 
 	if ( ! $width && ! $height ) {
 		if ( ! empty( $content_width ) ) {
