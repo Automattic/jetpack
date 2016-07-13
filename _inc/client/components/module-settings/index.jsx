@@ -12,16 +12,13 @@ import {
 	FormFieldset,
 	FormLegend,
 	FormTextarea,
+	FormTextInput,
 	FormLabel,
 	FormButton
 } from 'components/forms';
 
 import {
-	ModuleOptionEnum,
-	ModuleOptionTextInput
-} from './throwme';
-
-import {
+	ModuleSettingRadios,
 	ModuleSettingCheckbox
 } from 'components/module-settings/form-components';
 
@@ -241,7 +238,10 @@ export let CarouselSettings = React.createClass( {
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend> { __( 'Background Color' ) }</FormLegend>
-					<ModuleOptionEnum option_name={ 'carousel_background_color' } { ...this.props } />
+					<ModuleSettingRadios
+						name={ 'carousel_background_color' }
+						{ ...this.props }
+						validValues={ this.props.validValues( 'carousel_background_color' ) } />
 				</FormFieldset>
 				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
@@ -280,13 +280,17 @@ export let MinilevenSettings = React.createClass( {
 				<span>{ '(These options currently do not work)' } </span>
 				<FormFieldset>
 					<FormLegend> { __( 'Excerpts' ) } </FormLegend>
-					<ModuleOptionEnum option_name={ 'wp_mobile_excerpt' }
-						{ ...this.props } />
+						<ModuleSettingRadios
+							name={ 'wp_mobile_excerpt' }
+							{ ...this.props }
+							validValues={ this.props.validValues( 'wp_mobile_excerpt' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend> { __( 'Featured Images' ) } </FormLegend>
-					<ModuleOptionEnum option_name={ 'wp_mobile_featured_images' }
-						{ ...this.props } />
+						<ModuleSettingRadios
+							name={ 'wp_mobile_featured_images' }
+							{ ...this.props }
+							validValues={ this.props.validValues( 'wp_mobile_featured_images' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend> { __( 'Mobile Promos' ) } </FormLegend>
@@ -310,8 +314,10 @@ export let GravatarHovercardsSettings = React.createClass( {
 				<FormFieldset>
 					<FormLegend>{ __( 'View people\'s profiles when you mouse over their Gravatars' ) }</FormLegend>
 					<span> { '(Currently does not work)' } </span>
-					<ModuleOptionEnum option_name={ 'gravatar_disable_hovercards' }
-						{ ...this.props } />
+					<ModuleSettingRadios
+						name={ 'gravatar_disable_hovercards' }
+						{ ...this.props }
+						validValues={ this.props.validValues( 'gravatar_disable_hovercards' ) } />
 				</FormFieldset>
 				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
@@ -341,17 +347,24 @@ export let TiledGallerySettings = React.createClass( {
 TiledGallerySettings = ModuleSettingsForm( TiledGallerySettings );
 
 export let PostByEmailSettings = React.createClass( {
+	regeneratePostByEmailAddress() {
+		this.props.regeneratePostByEmailAddress();
+	},
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<span> { '(Currently does not work)' } </span>
-					<ModuleOptionTextInput option_name={ 'post_by_email_address' }
-						{ ...this.props }
-						label={ __( 'Email Address' ) } />
-					<FormButton>{ __( 'Regenerate address' ) }</FormButton>
+					<FormLabel>
+						<span> { __( 'Email Address' ) } </span>
+						<FormTextInput
+							value={ this.props.getOptionValue( 'post_by_email_address' ) }
+							readOnly="readonly" />
+						<Button
+							onClick={ this.regeneratePostByEmailAddress } >
+							{ __( 'Regenerate address' ) }
+						</Button>
+					</FormLabel>
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -448,13 +461,6 @@ export let AfterTheDeadlineSettings = React.createClass( {
 						name={ 'guess_lang' }
 						{ ...this.props }
 						label={ __( 'Use automatically detected language to proofread posts and pages' ) } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend> { __( 'Ignored Phrases' ) } </FormLegend>
-						<span> { '(Currently does not work)' } </span>
-						<ModuleOptionTextInput option_name={ 'ignored_phrases' }
-							{ ...this.props }
-							label={ __( 'New phrase' ) } />
 				</FormFieldset>
 				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>

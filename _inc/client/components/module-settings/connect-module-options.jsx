@@ -10,7 +10,8 @@ import {
 	updateModuleOptions,
 	getModuleOption,
 	getModuleOptionValidValues,
-	isUpdatingModuleOption
+	isUpdatingModuleOption,
+	regeneratePostByEmailAddress
 } from 'state/modules';
 
 /**
@@ -24,7 +25,7 @@ export function connectModuleOptions( Component ) {
 	return connect(
 		( state, ownProps ) => {
 			return {
-				validValues: getModuleOptionValidValues( state, ownProps.module.module, ownProps.option_name ),
+				validValues: ( option_name ) => getModuleOptionValidValues( state, ownProps.module.module, option_name ),
 				currentValue: getModuleOption( state, ownProps.module.module, ownProps.option_name ),
 				getOptionCurrentValue: ( module_name, option_name ) => getModuleOption( state, module_name, option_name ),
 				enabled: getModuleOption( state, ownProps.module.module, ownProps.option_name ),
@@ -39,6 +40,9 @@ export function connectModuleOptions( Component ) {
 			},
 			updateOptions: ( newOptions ) => {
 				return dispatch( updateModuleOptions( ownProps.module.module, newOptions ) );
+			},
+			regeneratePostByEmailAddress: () => {
+				return dispatch( regeneratePostByEmailAddress() );
 			}
 		} )
 	)( Component );
