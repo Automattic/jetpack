@@ -136,7 +136,7 @@ function dailymotion_shortcode( $atts ) {
 
 	if ( ! $width && ! $height ) {
 		if ( ! empty( $content_width ) ) {
-			$width = min( 425, intval( $content_width ) );
+			$width = absint( $content_width );
 		} else {
 			$width = 425;
 		}
