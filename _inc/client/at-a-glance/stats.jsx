@@ -255,7 +255,6 @@ const DashStatsBottom = React.createClass( {
 					<p>{ __( 'Need to see more stats, likes, followers, subscribers, and more?' ) }</p>
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
-					{ __( '{{button}}View old stats{{/button}}', { components: { button: <Button href="?page=stats" /> } } ) }
 					{ __( '{{button}}View enhanced stats on WordPress.com{{/button}}', {
 						components: { button: <Button className="is-primary" href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl } /> }
 					} ) }
