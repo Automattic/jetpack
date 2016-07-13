@@ -79,6 +79,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 Bug Fixes:
 
+* Infinite Scroll: do not load theme compatibility stylesheets on the default theme's singular views. #4236
 * Notifications: avoid PHP notices when moderating comments. #4208
 * Shortcodes: we updated the Cartodb shortcode to match the new product name, Carto. #4351
 * Theme Tools: avoid warnings when Tonesque processes a file which claims to be one filetype, but are actually another. #3741
