@@ -90,6 +90,27 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
 function dailymotion_shortcode( $atts ) {
 	global $content_width;
 
+	$atts = shortcode_atts(
+		array(
+			'id'                   => '', // string
+			'width'                => '', // int
+			'height'               => '', // int
+			'title'                => '', // string
+			'user'                 => '', // string
+			'video'                => '', // string
+			'autoplay'             => 0,  // int
+			'endscreen-enable'     => 1,  // int
+			'mute'                 => 0,  // int
+			'sharing-enable'       => 1,  // int
+			'start'                => '', // int
+			'subtitles-default'    => '', // string
+			'ui-highlight'         => '', // string
+			'ui-logo'              => 1,  // int
+			'ui-start-screen-info' => 0,  // int
+			'ui-theme'             => '', // string
+		), $atts, 'dailymotion'
+	);
+
 	if ( isset( $atts[0] ) ) {
 		$id = ltrim( $atts[0], '=' );
 		$atts['id'] = $id;
