@@ -440,7 +440,7 @@ class Jetpack_Debugger {
 				if ( validation_error ) {
 					return false;
 				}
-				message.val( message.val() + "\r\n\r\n----------------------------------------------\r\n\r\nDEBUG INFO:\r\n" + $('#debug_info').val()  );
+				message.val( message.val() + "\r\n\r\n----------------------------------------------\r\n\r\nDEBUG INFO:\r\n" + $('#debug_form_info').val()  );
 				return true;
 	    	});
 
