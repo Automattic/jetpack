@@ -37,7 +37,7 @@ const DashStats = React.createClass( {
 
 	statsChart: function( unit ) {
 		let s = [];
-		forEach( window.Initial_State.statsData[unit].data, function( v ) {
+		forEach( window.Initial_State.stats.data[unit].data, function( v ) {
 			let date = v[0];
 			let chartLabel = '';
 			let tooltipLabel = '';
@@ -79,7 +79,7 @@ const DashStats = React.createClass( {
 	 * @returns {object|bool}
 	 */
 	statsErrors() {
-		let checkStats = window.Initial_State.statsData.general;
+		let checkStats = window.Initial_State.stats.data.general;
 		if ( 'object' === typeof checkStats.errors ) {
 			return checkStats.errors;
 		}
@@ -197,7 +197,7 @@ const DashStats = React.createClass( {
 
 const DashStatsBottom = React.createClass( {
 	statsBottom: function() {
-		const generalStats = ( getSiteConnectionStatus( this.props ) === 'dev' ) ? demoStatsBottom : window.Initial_State.statsData.general.stats;
+		const generalStats = ( getSiteConnectionStatus( this.props ) === 'dev' ) ? demoStatsBottom : window.Initial_State.stats.data.general.stats;
 		return [
 			{
 				viewsToday: generalStats.views_today,
