@@ -1,7 +1,7 @@
 <?php
 
+// POST /sites/%s/sync
 class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
-	// POST /sites/%s/sync
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
@@ -11,7 +11,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		if ( isset( $args['clear'] ) && $args['clear'] ) {
 			// clear sync queue
-			require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-sender.php';
+			require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
 
 			$sender = Jetpack_Sync_Sender::getInstance();
 			$sync_queue = $sender->get_sync_queue();
@@ -20,7 +20,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		if ( isset( $args['force'] ) && $args['force'] ) {
 			// reset full sync lock
-			require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-modules.php';
+			require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-modules.php';
 
 			$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
 			$sync_module->clear_status();
@@ -38,12 +38,12 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	}
 }
 
+// GET /sites/%s/sync/status
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
-	// GET /sites/%s/sync/status
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
-		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-modules.php';
+		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-modules.php';
 
 		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
 		return array_merge(
@@ -53,12 +53,12 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
 	}
 }
 
+// GET /sites/%s/data-check
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
-	// GET /sites/%s/cached-data-check
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
-		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-sender.php';
+		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
 
 		$sender = Jetpack_Sync_Sender::getInstance();
 		$sync_queue = $sender->get_sync_queue();
@@ -76,7 +76,7 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 			return $result;
 		}
 
-		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-wp-replicastore.php';
+		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-wp-replicastore.php';
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -91,11 +91,10 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 // GET /sites/%s/data-histogram
 class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Endpoint {
-	// GET /sites/%s/cached-data-check
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
-		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-sender.php';
+		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
 
 		$sender = Jetpack_Sync_Sender::getInstance();
 		$sync_queue = $sender->get_sync_queue();
@@ -115,7 +114,7 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Endpoint
 
 		$args = $this->query_args();
 
-		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-wp-replicastore.php';
+		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-wp-replicastore.php';
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -128,14 +127,14 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Endpoint
 	}
 }
 
+// POST /sites/%s/sync/settings
 class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Endpoint {
-	// POST /sites/%s/sync/settings
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
 		$args = $this->input();
 
-		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-settings.php';
+		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-settings.php';
 
 		$sync_settings = Jetpack_Sync_Settings::get_settings();
 
@@ -155,12 +154,12 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_En
 	}
 }
 
+// GET /sites/%s/sync/settings
 class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Endpoint {
-	// GET /sites/%s/sync/settings
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
-		require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-settings.php';
+		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-settings.php';
 		return Jetpack_Sync_Settings::get_settings();
 	}
 }
