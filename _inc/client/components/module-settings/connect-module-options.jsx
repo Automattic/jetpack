@@ -10,7 +10,8 @@ import {
 	updateModuleOptions,
 	getModuleOption,
 	getModuleOptionValidValues,
-	isUpdatingModuleOption
+	isUpdatingModuleOption,
+	regeneratePostByEmailAddress
 } from 'state/modules';
 
 /**
@@ -39,6 +40,9 @@ export function connectModuleOptions( Component ) {
 			},
 			updateOptions: ( newOptions ) => {
 				return dispatch( updateModuleOptions( ownProps.module.module, newOptions ) );
+			},
+			regeneratePostByEmailAddress: () => {
+				return dispatch( regeneratePostByEmailAddress() );
 			}
 		} )
 	)( Component );

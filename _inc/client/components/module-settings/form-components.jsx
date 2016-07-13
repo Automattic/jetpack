@@ -9,7 +9,8 @@ import React from 'react';
  import {
 	FormLabel,
 	FormCheckbox,
-	FormRadio
+	FormRadio,
+	FormTextInput
  } from 'components/forms';
 
 export const ModuleSettingCheckbox = React.createClass( {
@@ -42,7 +43,7 @@ export const ModuleSettingRadios = React.createClass( {
 							name={ props.name }
 							checked= { key === props.getOptionValue( props.name ) }
 							value={ key }
-							disabled={ this.props.isUpdating( props.name ) }
+							disabled={ props.isUpdating( props.name ) }
 							onChange= { props.onOptionChange } />
 						<span>{ ( validValues[ key ] ) }</span>
 					</FormLabel>
@@ -52,3 +53,4 @@ export const ModuleSettingRadios = React.createClass( {
 		);
 	}
 } );
+

@@ -27,7 +27,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 			if ( event.target.type === 'radio' ) {
 				optionValue = event.target.value;
 			}
-			
+
 			const newOptions = {
 				...this.state.options,
 				[ optionName ]: optionValue
@@ -37,7 +37,6 @@ export function ModuleSettingsForm( InnerComponent ) {
 		},
 		onSubmit( event ) {
 			event.preventDefault();
-			console.log( this.state.options );
 			this.props.updateOptions( this.state.options );
 		},
 		getOptionValue( optionName ) {

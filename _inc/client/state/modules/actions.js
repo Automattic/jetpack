@@ -132,3 +132,36 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 		} );
 	}
 }
+
+export const regeneratePostByEmailAddress = () => {
+	const slug = 'post-by-email';
+	const payload = {
+		post_by_email_address: 'regenerate'
+	};
+	return ( dispatch ) => {
+		dispatch( {
+			type: JETPACK_MODULE_UPDATE_OPTIONS,
+			module: slug,
+			newOptionValues: payload
+		} );
+		return restApi.updateModuleOptions( slug, payload ).then( success => {
+			const newOptionValues = {
+				post_by_email_address: success.post_by_email_address
+			};
+			dispatch( {
+				type: JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
+				module: slug,
+				newOptionValues,
+				success: success
+			} );
+		} )['catch']( error => {
+			dispatch( {
+				type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
+				module: slug,
+				success: false,
+				error: error,
+				newOptionValues: payload
+			} );
+		} );
+	}
+}

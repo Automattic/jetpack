@@ -12,13 +12,10 @@ import {
 	FormFieldset,
 	FormLegend,
 	FormTextarea,
+	FormTextInput,
 	FormLabel,
 	FormButton
 } from 'components/forms';
-
-import {
-	ModuleOptionTextInput
-} from './throwme';
 
 import {
 	ModuleSettingRadios,
@@ -350,17 +347,24 @@ export let TiledGallerySettings = React.createClass( {
 TiledGallerySettings = ModuleSettingsForm( TiledGallerySettings );
 
 export let PostByEmailSettings = React.createClass( {
+	regeneratePostByEmailAddress() {
+		this.props.regeneratePostByEmailAddress();
+	},
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<span> { '(Currently does not work)' } </span>
-					<ModuleOptionTextInput option_name={ 'post_by_email_address' }
-						{ ...this.props }
-						label={ __( 'Email Address' ) } />
-					<FormButton>{ __( 'Regenerate address' ) }</FormButton>
+					<FormLabel>
+						<span> { __( 'Email Address' ) } </span>
+						<FormTextInput
+							value={ this.props.getOptionValue( 'post_by_email_address' ) }
+							readOnly="readonly" />
+						<Button
+							onClick={ this.regeneratePostByEmailAddress } >
+							{ __( 'Regenerate address' ) }
+						</Button>
+					</FormLabel>
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -457,13 +461,6 @@ export let AfterTheDeadlineSettings = React.createClass( {
 						name={ 'guess_lang' }
 						{ ...this.props }
 						label={ __( 'Use automatically detected language to proofread posts and pages' ) } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend> { __( 'Ignored Phrases' ) } </FormLegend>
-						<span> { '(Currently does not work)' } </span>
-						<ModuleOptionTextInput option_name={ 'ignored_phrases' }
-							{ ...this.props }
-							label={ __( 'New phrase' ) } />
 				</FormFieldset>
 				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
