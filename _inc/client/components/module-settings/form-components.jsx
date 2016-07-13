@@ -8,7 +8,8 @@ import React from 'react';
  */
  import {
 	FormLabel,
-	FormCheckbox
+	FormCheckbox,
+	FormRadio
  } from 'components/forms';
 
 export const ModuleSettingCheckbox = React.createClass( {
@@ -36,13 +37,13 @@ export const ModuleSettingRadios = React.createClass( {
 			<div>
 				{
 				Object.keys( validValues ).map( ( key ) => (
-					<FormLabel key={ `option-${props.option_name}-${key}` } >
+					<FormLabel key={ `option-${ props.option_name }-${key}` } >
 						<FormRadio
-							name={ props.option_name }
-							checked= { key === props.currentValue }
+							name={ props.name }
+							checked= { key === props.getOptionValue( props.name ) }
 							value={ key }
-							disabled={ this.isUpdating() }
-							onChange= { this.updateOption} />
+							disabled={ this.props.isUpdating( props.name ) }
+							onChange= { props.onOptionChange } />
 						<span>{ ( validValues[ key ] ) }</span>
 					</FormLabel>
 				) )

@@ -17,10 +17,17 @@ export function ModuleSettingsForm( InnerComponent ) {
 		},
 		onOptionChange( event ) {
 			const optionName = event.target.name;
+			let optionValue;
 			// Get the option value from the `checked` property if present.
-			const optionValue = typeof event.target.checked !== 'undefined'
-				? event.target.checked
-				: event.target.value;
+			if ( event.target.type === 'checkbox' ) {
+				optionValue = typeof event.target.checked !== 'undefined'
+					? event.target.checked
+					: event.target.value;
+			}
+			if ( event.target.type === 'radio' ) {
+				optionValue = event.target.value;
+			}
+			
 			const newOptions = {
 				...this.state.options,
 				[ optionName ]: optionValue

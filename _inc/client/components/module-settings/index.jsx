@@ -17,11 +17,11 @@ import {
 } from 'components/forms';
 
 import {
-	ModuleOptionEnum,
 	ModuleOptionTextInput
 } from './throwme';
 
 import {
+	ModuleSettingRadios,
 	ModuleSettingCheckbox
 } from 'components/module-settings/form-components';
 
@@ -241,7 +241,10 @@ export let CarouselSettings = React.createClass( {
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend> { __( 'Background Color' ) }</FormLegend>
-					<ModuleOptionEnum option_name={ 'carousel_background_color' } { ...this.props } />
+					<ModuleSettingRadios
+						name={ 'carousel_background_color' }
+						{ ...this.props }
+						validValues={ this.props.validValues( 'carousel_background_color' ) } />
 				</FormFieldset>
 				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
@@ -280,13 +283,17 @@ export let MinilevenSettings = React.createClass( {
 				<span>{ '(These options currently do not work)' } </span>
 				<FormFieldset>
 					<FormLegend> { __( 'Excerpts' ) } </FormLegend>
-					<ModuleOptionEnum option_name={ 'wp_mobile_excerpt' }
-						{ ...this.props } />
+						<ModuleSettingRadios
+							name={ 'wp_mobile_excerpt' }
+							{ ...this.props }
+							validValues={ this.props.validValues( 'wp_mobile_excerpt' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend> { __( 'Featured Images' ) } </FormLegend>
-					<ModuleOptionEnum option_name={ 'wp_mobile_featured_images' }
-						{ ...this.props } />
+						<ModuleSettingRadios
+							name={ 'wp_mobile_featured_images' }
+							{ ...this.props }
+							validValues={ this.props.validValues( 'wp_mobile_featured_images' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend> { __( 'Mobile Promos' ) } </FormLegend>
@@ -310,8 +317,10 @@ export let GravatarHovercardsSettings = React.createClass( {
 				<FormFieldset>
 					<FormLegend>{ __( 'View people\'s profiles when you mouse over their Gravatars' ) }</FormLegend>
 					<span> { '(Currently does not work)' } </span>
-					<ModuleOptionEnum option_name={ 'gravatar_disable_hovercards' }
-						{ ...this.props } />
+					<ModuleSettingRadios
+						name={ 'gravatar_disable_hovercards' }
+						{ ...this.props }
+						validValues={ this.props.validValues( 'gravatar_disable_hovercards' ) } />
 				</FormFieldset>
 				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
