@@ -167,10 +167,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$localeSlug = $localeSlug[0];
 
 		// Collecting roles that can view site stats
-		$can_view_stats = array();
-		$roles = get_editable_roles();
-		foreach( stats_get_option( 'roles' ) as $role ) {
-			$can_view_stats[ $role ] = translate_user_role( $roles[ $role ]['name'] );
+		$stats_roles = array();
+		$enabled_roles = stats_get_option( 'roles' );
+		foreach( get_editable_roles() as $slug => $role ) {
+			$stats_roles[ $slug ] = array(
+				'name' => translate_user_role( $role['name'] ),
+				'canView' => in_array( $slug, $enabled_roles, true ),
+			);
 		}
 
 		// Add objects to be passed to the initial state of the app
@@ -198,7 +201,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'adminUrl' => esc_url( admin_url() ),
 			'stats' => array(
 				'data' => build_initial_stats_shape(),
-				'canView' => $can_view_stats,
+				'roles' => $stats_roles,
 			),
 			'settingNames' => array(
 				'jetpack_holiday_snow_enabled' => function_exists( 'jetpack_holiday_snow_option_name' ) ? jetpack_holiday_snow_option_name() : false,
