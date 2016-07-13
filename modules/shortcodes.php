@@ -39,12 +39,12 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 }
 
 function jetpack_load_shortcodes() {
-	global $wp_version;
-
 	$shortcode_includes = array();
 
 	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/shortcodes' ) as $file ) {
-		$shortcode_includes[] = $file;
+		$filename = substr( basename( $file ), 0, -4 );
+
+		$shortcode_includes[ $filename ] = $file;
 	}
 
 /**
@@ -53,6 +53,7 @@ function jetpack_load_shortcodes() {
  * @module shortcodes
  *
  * @since 2.2.1
+ * @since 4.2.0 Added filename without extension as array key.
  *
  * @param array $shortcode_includes An array of which shortcodes to include.
  */
