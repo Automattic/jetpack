@@ -35,6 +35,9 @@ class Jetpack_Portfolio {
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start',                                                    array( $this, 'register_post_types' ) );
 
+		// Add to REST API post type whitelist
+		add_filter( 'rest_api_allowed_post_types',                                     array( $this, 'allow_portfolio_rest_api_type' ) );
+
 		$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
 
 		// Bail early if Portfolio option is not set and the theme doesn't declare support
@@ -465,6 +468,15 @@ class Jetpack_Portfolio {
 	 * Add CPT to Dotcom sitemap
 	 */
 	function add_to_sitemap( $post_types ) {
+		$post_types[] = self::CUSTOM_POST_TYPE;
+
+		return $post_types;
+	}
+
+	/**
+	 * Add to REST API post type whitelist
+	 */
+	function allow_portfolio_rest_api_type( $post_types ) {
 		$post_types[] = self::CUSTOM_POST_TYPE;
 
 		return $post_types;
