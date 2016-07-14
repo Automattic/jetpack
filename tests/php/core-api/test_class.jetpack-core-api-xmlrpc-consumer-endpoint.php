@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint extends WP_UnitTestCase 
 	 * @author zinigor
 	 * @covers Jetpack_Core_XMLRPC_Consumer_Endpoint
 	 * @requires PHP 5.2
-	 * @dataProvider _true_false_provider
+	 * @dataProvider true_false_provider
 	 */
 	public function test_Jetpack_Core_API_XMLRPC_Consumer_Endpoint_privacy_check( $query_success, $result ) {
 		Jetpack::load_xml_rpc_client();
@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint extends WP_UnitTestCase 
 		$this->assertEquals( $result, $endpoint->process( null ) );
 	}
 
-	public function _true_false_provider() {
+	public function true_false_provider() {
 		return array(
 			array( true, true ),
 			array( true, false ),
