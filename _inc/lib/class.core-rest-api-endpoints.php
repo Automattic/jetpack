@@ -1467,7 +1467,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'type'               => 'string',
 						'default'            => 'enabled',
 						// Not visible. This is used as the checkbox value.
-						'enum'				 => array( 'enabled', 'disabled' ),
+						'enum'				 => array(
+							'enabled' => esc_html__( 'Enabled', 'jetpack' ),
+							'disabled' => esc_html__( 'Disabled', 'jetpack' ),
+						),
 						'validate_callback'  => __CLASS__ . '::validate_list_item',
 					),
 				);

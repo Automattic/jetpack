@@ -313,7 +313,6 @@ export let GravatarHovercardsSettings = React.createClass( {
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
 					<FormLegend>{ __( 'View people\'s profiles when you mouse over their Gravatars' ) }</FormLegend>
-					<span> { '(Currently does not work)' } </span>
 					<ModuleSettingRadios
 						name={ 'gravatar_disable_hovercards' }
 						{ ...this.props }
