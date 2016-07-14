@@ -1,4 +1,4 @@
-/* globals plupload, error, pluploadL10n, JSON */
+/* globals plupload, pluploadL10n, JSON */
 window.wp = window.wp || {};
 
 ( function( wp, $ ) {
