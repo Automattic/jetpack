@@ -49,6 +49,7 @@ window.wp = window.wp || {};
 
 						up.setOption( 'file_data_name', 'media[]' );
 						up.setOption( 'url', file.videopress.upload_action_url );
+						up.setOption( 'multipart_params', { 'media_ids[]': file.videopress.upload_media_id } );
 						up.setOption( 'headers', {
 							Authorization: 'X_UPLOAD_TOKEN token="' + file.videopress.upload_token + '" blog_id="' + file.videopress.upload_blog_id + '"'
 						});
@@ -213,7 +214,7 @@ window.wp = window.wp || {};
 			var self = this;
 
 			if ( mimeParts[0] === 'video' ) {
-				media.ajax( 'videopress-get-upload-token', { async: false } ).done( function ( response ) {
+				media.ajax( 'videopress-get-upload-token', { async: false, data: { filename: file.name } } ).done( function ( response ) {
 					file.videopress = response;
 					cb( true );
 
