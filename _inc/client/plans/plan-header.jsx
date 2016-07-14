@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 
@@ -78,7 +77,6 @@ const PlanHeader = React.createClass( {
 				break;
 
 			case 'dev':
-			default:
 				planCard = (
 					<div className="jp-jetpack-landing__plan-card">
 						<img src={ imagePath + '/plans/free-plan-icon.jpg' } />

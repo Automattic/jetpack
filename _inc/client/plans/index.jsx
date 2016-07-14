@@ -16,21 +16,18 @@ import {
 } from 'state/site';
 import QuerySite from 'components/data/query-site';
 import { getSiteConnectionStatus } from 'state/connection';
-import QueryConnectionStatus from 'components/data/query-connection-status';
 
 import PlanHeader from './plan-header';
 import PlanBody from './plan-body';
 
 export const Plans = React.createClass( {
 	render() {
-		let sitePlan = '',
-			sitePlanName = '';
+		let sitePlan = '';
 
 		if ( 'dev' === this.props.getSiteConnectionStatus( this.props ) ) {
 			sitePlan = 'dev';
-			sitePlanName = __( 'No plan available since site runs in development mode.' );
 		} else if ( this.props.isFetchingSiteData ) {
-			sitePlanName = __( 'Loading plan data...' );
+			// do nothing
 		} else {
 			// Plan is jetpack_free, jetpack_premium, jetpack_premium_monthly, jetpack_business, jetpack_business_monthly
 			sitePlan = this.props.getSitePlan();
@@ -38,16 +35,10 @@ export const Plans = React.createClass( {
 		}
 		return (
 			<div>
-				<QueryConnectionStatus />
 				<QuerySite />
 				<div className="jp-jetpack-landing__plans jp-jetpack-landing__container">
-					{
-						<PlanHeader plan={ sitePlan } />
-					}
-
-					{
-						<PlanBody plan={ sitePlan } />
-					}
+					<PlanHeader plan={ sitePlan } />
+					<PlanBody plan={ sitePlan } />
 				</div>
 			</div>
 		);
