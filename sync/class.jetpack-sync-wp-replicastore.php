@@ -40,7 +40,12 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function post_count( $status = null ) {
-		return count( $this->get_posts( $status ) );
+		$count = wp_count_posts();
+		if ( $status != null ) {
+			return $count->{$status};
+		} else {
+			return array_sum( array_values( get_object_vars( $count ) ) );
+		}
 	}
 
 	public function get_posts( $status = null ) {
