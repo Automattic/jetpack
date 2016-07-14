@@ -14,7 +14,7 @@
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '4.4' );
 
-define( 'JETPACK__VERSION',            '4.2.0-beta1' );
+define( 'JETPACK__VERSION',            '4.2-beta1' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
