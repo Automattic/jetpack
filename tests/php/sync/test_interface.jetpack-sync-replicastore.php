@@ -162,9 +162,20 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		}
 
-		$histogram = $store->checksum_histogram( 'posts', 10, 0, 0 );
+		foreach( array( 'posts', 'comments' ) as $object_type ) {
+			$histogram = $store->checksum_histogram( $object_type, 10, 0, 0 );
+			$this->assertEquals( 10, count( $histogram ) );
 
-		$this->assertEquals( 10, count( $histogram ) );
+			// histogram bucket should equal entire histogram of just the ID range for that bucket
+			foreach( $histogram as $range => $checksum ) {
+				list( $min_id, $max_id ) = explode( '-', $range );
+
+				$range_histogram = $store->checksum_histogram( $object_type, 1, intval( $min_id ), intval( $max_id ) );
+				$range_checksum = array_pop( $range_histogram );
+				
+				$this->assertEquals( $checksum, $range_checksum );
+			}
+		}
 
 		// histogram with one bucket should equal checksum of corresponding object type
 		$histogram = $store->checksum_histogram( 'posts', 1, 0, 0 );

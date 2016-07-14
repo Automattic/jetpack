@@ -39,17 +39,26 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		// noop right now
 	}
 
-	public function post_count( $status = null ) {
+	public function post_count( $status = null, $min_id = null, $max_id = null ) {
 		global $wpdb;
 
+		$where = "";
+
 		if ( $status ) {
-			return $wpdb->get_var( $wpdb->prepare(
-				"SELECT COUNT(*) FROM $wpdb->posts WHERE post_status = %s",
-				$status
-			) );
+			$where = "post_status = '" . esc_sql( $status ) . "'";
 		} else {
-			return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts" );
+			$where = "1=1";
 		}
+
+		if ( $min_id != null ) {
+			$where .= " AND ID >= " . intval( $min_id );
+		}
+
+		if ( $max_id != null ) {
+			$where .= " AND ID <= " . intval( $max_id );
+		}
+
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE $where" );
 	}
 
 	public function get_posts( $status = null ) {
@@ -156,19 +165,26 @@ ENDSQL;
 		return $wpdb->get_var( $query );
 	}
 
-	public function comment_count( $status = null ) {
+	public function comment_count( $status = null, $min_id = null, $max_id = null ) {
 		global $wpdb;
 
 		$comment_approved = $this->comment_status_to_approval_value( $status );
 
 		if ( $comment_approved !== false ) {
-			return $wpdb->get_var( $wpdb->prepare(
-				"SELECT COUNT(*) FROM $wpdb->comments WHERE comment_approved = %s",
-				$comment_approved
-			) );
+			$where = "comment_approved = '" . esc_sql( $comment_approved ) . "'";
 		} else {
-			return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments" );
+			$where = "1=1";
 		}
+
+		if ( $min_id != null ) {
+			$where .= " AND comment_ID >= " . intval( $min_id );
+		}
+
+		if ( $max_id != null ) {
+			$where .= " AND comment_ID <= " . intval( $max_id );
+		}	
+	
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments WHERE $where" );
 	}
 
 	private function comment_status_to_approval_value( $status ) {
@@ -585,18 +601,20 @@ ENDSQL;
 		);
 	}
 
-	function checksum_histogram( $object_type, $buckets, $start_id, $end_id ) {
+	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null ) {
 		global $wpdb;
+
+		$wpdb->queries = array();
 
 		switch( $object_type ) {
 			case "posts":
-				$object_count = $this->post_count();
+				$object_count = $this->post_count( null, $start_id, $end_id );
 				$object_table = $wpdb->posts;
 				$id_field = 'ID';
 				$checksum_method = array( $this, 'posts_checksum' );
 				break;
 			case "comments":
-				$object_count = $this->comment_count();
+				$object_count = $this->comment_count( null, $start_id, $end_id );
 				$object_table = $wpdb->comments;
 				$id_field = 'comment_ID';
 				$checksum_method = array( $this, 'comments_checksum' );
@@ -609,9 +627,19 @@ ENDSQL;
 		$query_offset = 0;
 		$histogram = array();
 
+		$where = "1=1";
+
+		if ( $start_id ) {
+			$where .= " AND $id_field >= " . intval( $start_id );
+		}
+
+		if ( $end_id ) {
+			$where .= " AND $id_field <= " . intval( $end_id );
+		}
+
 		do {
 			list( $first_id, $last_id ) = $wpdb->get_row( 
-				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table ORDER BY $id_field ASC LIMIT $query_offset, $bucket_size ) as ids", 
+				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table WHERE $where ORDER BY $id_field ASC LIMIT $query_offset, $bucket_size ) as ids", 
 				ARRAY_N 
 			);
 

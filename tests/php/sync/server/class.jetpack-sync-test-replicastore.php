@@ -50,14 +50,22 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		// noop right now
 	}
 
-	function post_count( $status = null ) {
-		return count( $this->get_posts( $status ) );
+	function post_count( $status = null, $min_id = null, $max_id = null ) {
+		return count( $this->get_posts( $status, $min_id, $max_id ) );
 	}
 
-	function get_posts( $status = null ) {
+	function get_posts( $status = null, $min_id = null, $max_id = null  ) {
 		$this->post_status = $status;
 
-		return array_filter( array_values( $this->posts ), array( $this, 'filter_post_status' ) );
+		$posts = array_filter( array_values( $this->posts ), array( $this, 'filter_post_status' ) );
+
+		foreach( $posts as $i => $post ) {
+			if ( ( $min_id && $post->ID < $min_id ) || ( $max_id && $post->ID > $max_id ) ) {
+				unset( $posts[$i] );
+			}
+		}
+
+		return array_values($posts);
 	}
 
 	function posts_checksum() {
@@ -87,15 +95,23 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		unset( $this->posts[ $post_id ] );
 	}
 
-	function comment_count( $status = null ) {
-		return count( $this->get_comments( $status ) );
+	function comment_count( $status = null, $min_id = null, $max_id = null ) {
+		return count( $this->get_comments( $status, $min_id, $max_id ) );
 	}
 
-	function get_comments( $status = null ) {
+	function get_comments( $status = null, $min_id = null, $max_id = null ) {
 		$this->comment_status = $status;
 
 		// valid statuses: 'hold', 'approve', 'spam', or 'trash'.
-		return array_filter( array_values( $this->comments ), array( $this, 'filter_comment_status' ) );
+		$comments = array_filter( array_values( $this->comments ), array( $this, 'filter_comment_status' ) );
+
+		foreach( $comments as $i => $comment ) {
+			if ( $min_id && $comment->comment_ID < $min_id || $max_id && $comment->comment_ID > $max_id ) {
+				unset( $comments[$i] );
+			}
+		}
+
+		return array_values($comments);
 	}
 
 	function comments_checksum() {
@@ -475,18 +491,20 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		);
 	}
 
-	function checksum_histogram( $object_type, $buckets, $start_id, $end_id ) {
+	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null) {
 		// divide all IDs into the number of buckets
-		// if ( $object_type === 'posts' ) {}
-
 		switch( $object_type ) {
 			case "posts":
-				$values = $this->posts;
+				$posts = $this->get_posts( null, $start_id, $end_id );
+				$post_ids = array_map(create_function('$o', 'return $o->ID;'), $posts);
+				$values = array_combine( $post_ids, $posts );
 				$get_function = 'get_post';
 				$checksum_function = 'post_checksum';
 				break;
 			case "comments":
-				$values = $this->comments;
+				$comments = $this->get_comments( null, $start_id, $end_id );
+				$comment_ids = array_map(create_function('$o', 'return $o->comment_ID;'), $comments);
+				$values = array_combine( $comment_ids, $comments );
 				$get_function = 'get_comment';
 				$checksum_function = 'comment_checksum';
 				break;
@@ -511,8 +529,8 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				$key = "{$ids[0]}-{$last_id}";
 			}
 
-			$posts = array_map( array( $this, $get_function ), $ids );
-			$value = $this->calculate_checksum( $posts, $checksum_function );
+			$objects = array_map( array( $this, $get_function ), $ids );
+			$value = $this->calculate_checksum( $objects, $checksum_function );
 			$histogram[ $key ] = $value;
 		}
 
