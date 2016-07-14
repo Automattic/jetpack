@@ -189,6 +189,10 @@
 			} else {
 				html = jprp.generateVisualHtml( response.items );
 			}
+			
+			if ( 0 === html.length ) {
+				return;
+			}
 
 			$( '#jp-relatedposts' ).append( html );
 			jprp.setVisualExcerptHeights();
