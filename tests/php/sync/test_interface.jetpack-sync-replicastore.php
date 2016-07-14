@@ -129,7 +129,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		for ( $i = 1; $i <= 20; $i += 1 ) {
 			do {
 				$post_id = rand(1, 1000000);
-			} while( ! in_array( $post_id, $generated_post_ids ) );
+			} while ( in_array( $post_id, $generated_post_ids ) );
 
 			$generated_post_ids[] = $post_id;
 
@@ -145,7 +145,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 			do {
 				$comment_id = rand(1, 1000000);
-			} while( ! in_array( $post_id, $generated_comment_ids ) );
+			} while ( in_array( $post_id, $generated_comment_ids ) );
 
 			$generated_comment_ids[] = $comment_id;
 
