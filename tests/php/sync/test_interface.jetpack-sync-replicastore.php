@@ -119,25 +119,59 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_checksum_histogram( $store ) {
 
-		for ( $i = 0; $i < 20; $i += 1 ) {
-			$post = self::$factory->post( $i, array( 'post_content' => "Test post $i" ) );
-			$store->upsert_post( $post );
+		$min_post_id = 1000000;
+		$max_post_id = 1;
+		$min_comment_id = 1000000;
+		$max_comment_id = 1;
+		$generated_post_ids = array();
+		$generated_comment_ids = array();
 
-			$comment = self::$factory->comment( $i, $i, array( 'comment_content' => "Test comment $i" ) );
+		for ( $i = 1; $i <= 20; $i += 1 ) {
+			do {
+				$post_id = rand(1, 1000000);
+			} while( ! in_array( $post_id, $generated_post_ids ) );
+
+			$generated_post_ids[] = $post_id;
+
+			$post = self::$factory->post( $post_id, array( 'post_content' => "Test post $i" ) );
+			$store->upsert_post( $post );
+			if ( $min_post_id > $post_id ) {
+				$min_post_id = $post_id;
+			}
+
+			if ( $max_post_id < $post_id ) {
+				$max_post_id = $post_id;
+			}
+
+			do {
+				$comment_id = rand(1, 1000000);
+			} while( ! in_array( $post_id, $generated_comment_ids ) );
+
+			$generated_comment_ids[] = $comment_id;
+
+			$comment = self::$factory->comment( $comment_id, $post_id, array( 'comment_content' => "Test comment $i" ) );
 			$store->upsert_comment( $comment );
+
+			if ( $min_comment_id > $comment_id ) {
+				$min_comment_id = $comment_id;
+			}
+
+			if ( $max_comment_id < $comment_id ) {
+				$max_comment_id = $comment_id;
+			}
+
 		}
 
 		$histogram = $store->checksum_histogram( 'posts', 10, 0, 0 );
 
-		error_log(print_r($histogram, 1));
 		$this->assertEquals( 10, count( $histogram ) );
 
 		// histogram with one bucket should equal checksum of corresponding object type
 		$histogram = $store->checksum_histogram( 'posts', 1, 0, 0 );
-		$this->assertEquals( $store->posts_checksum(), $histogram['0-19'] );
+		$this->assertEquals( $store->posts_checksum(), $histogram["$min_post_id-$max_post_id"] );
 
 		$histogram = $store->checksum_histogram( 'comments', 1, 0, 0 );
-		$this->assertEquals( $store->comments_checksum(), $histogram['0-19'] );
+		$this->assertEquals( $store->comments_checksum(), $histogram["$min_comment_id-$max_comment_id"] );
 	}
 
 	/**

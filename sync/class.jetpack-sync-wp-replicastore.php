@@ -44,7 +44,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function get_posts( $status = null ) {
-		$args = array( 'orderby' => 'ID' );
+		$args = array( 'orderby' => 'ID', 'posts_per_page' => -1 );
 
 		if ( $status ) {
 			$args['post_status'] = $status;
@@ -123,15 +123,25 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		wp_delete_post( $post_id, true );
 	}
 
-	public function posts_checksum() {
+	public function posts_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
 
-		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
+		$where_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
+
+		if ( $min_id !== null ) {
+			$min_id = intval( $min_id );
+			$where_sql .= " AND ID >= $min_id";
+		}
+
+		if ( $max_id !== null ) {
+			$max_id = intval( $max_id );
+			$where_sql .= " AND ID <= $max_id";
+		}
 
 		$query = <<<ENDSQL
 			SELECT CONV(BIT_XOR(CRC32(CONCAT(ID,post_modified))), 10, 16)
 				FROM $wpdb->posts
-				WHERE $post_type_sql
+				WHERE $where_sql
 ENDSQL;
 
 		return $wpdb->get_var( $query );
@@ -567,7 +577,50 @@ ENDSQL;
 	}
 
 	function checksum_histogram( $object_type, $buckets, $start_id, $end_id ) {
-		return null;
+		global $wpdb;
+
+		switch( $object_type ) {
+			case "posts":
+				$object_count = $this->post_count();
+				$object_table = $wpdb->posts;
+				$id_field = 'ID';
+				$checksum_method = array( $this, 'posts_checksum' );
+				break;
+			case "comments":
+				$object_count = $this->comment_count();
+				$object_table = $wpdb->comments;
+				$id_field = 'comment_ID';
+				$checksum_method = array( $this, 'comments_checksum' );
+				break;
+			default:
+				return false;
+		}
+
+		$bucket_size = intval( ceil( $object_count / $buckets ) );
+		$query_offset = 0;
+		$histogram = array();
+
+		do {
+			list( $first_id, $last_id ) = $wpdb->get_row( 
+				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table ORDER BY $id_field ASC LIMIT $query_offset, $bucket_size ) as ids", 
+				ARRAY_N 
+			);
+
+			// get the checksum value
+			$value = call_user_func( $checksum_method, $first_id, $last_id );
+
+			if ( $first_id === null || $last_id === null ) {
+				break;
+			} elseif ( $first_id === $last_id ) {
+				$histogram[$first_id] = $value;
+			} else {
+				$histogram["{$first_id}-{$last_id}"] = $value;
+			}
+
+			$query_offset += $bucket_size;
+		} while ( true );
+
+		return $histogram;
 	}
 
 	private function invalid_call() {
