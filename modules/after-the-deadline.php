@@ -130,7 +130,7 @@ function register_AtD_button( $buttons ) {
 function add_AtD_tinymce_plugin( $plugin_array ) {
 	$plugin = ATD_TINYMCE_4 ? 'plugin' : 'editor_plugin';
 
-	$plugin_array['AtD'] = plugins_url( 'after-the-deadline/tinymce/' . $plugin . '.js?v=' . ATD_VERSION, __FILE__ );
+	$plugin_array['AtD'] = plugins_url( 'after-the-deadline/tinymce/' . $plugin . '.js', __FILE__ ) . '?v=' . ATD_VERSION;
 	return $plugin_array;
 }
 
