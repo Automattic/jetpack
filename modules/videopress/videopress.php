@@ -95,7 +95,10 @@ class Jetpack_VideoPress {
 			return;
 		}
 
+		$title = sanitize_title( basename( $_POST['filename'] ) );
+
 		$response['upload_action_url'] = self::make_media_upload_path( $response['upload_blog_id'] );
+		$response['upload_media_id'] = $this->create_new_media_item( $title );
 
 		wp_send_json_success( $response );
 	}
@@ -843,20 +846,12 @@ class Jetpack_VideoPress {
 		$created_items = array();
 
 		foreach ( $media as $media_item ) {
-			$post = array(
-				'post_type'      => 'attachment',
-				'post_mime_type' => 'video/videopress',
-				'post_title'     => sanitize_title( basename( $media_item[ 'url' ] ) ),
-				'post_content'   => '',
-			);
 
-			$media_id = wp_insert_post( $post );
+			$media_id = $this->create_new_media_item( sanitize_title( basename( $media_item[ 'url' ] ) ) );
 
 			wp_update_attachment_metadata( $media_id, array(
 				'original' => array(
-					'url'       => $media_item[ 'url' ],
-					'file'      => $media_item[ 'file' ],
-					'mime_type' => $media_item[ 'type' ],
+					'url' => $media_item['url'],
 				),
 			) );
 
@@ -869,6 +864,22 @@ class Jetpack_VideoPress {
 		return array( 'media' => $created_items );
 	}
 
+	/**
+	 * @param string $title
+	 * @return int|WP_Error
+	 */
+	public function create_new_media_item( $title ) {
+		$post = array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'video/videopress',
+			'post_title'     => $title,
+			'post_content'   => '',
+		);
+
+		$media_id = wp_insert_post( $post );
+
+		return $media_id;
+	}
 	/**
 	 * Get the upload api path.
 	 *
