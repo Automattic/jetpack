@@ -1235,6 +1235,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $ignored_phrases ) : true;
 					break;
 
+				case 'wp_mobile_featured_image':
+				case 'wp_mobile_excerpt':
+					$value = ( 'enabled' === $value ) ? 1 : 0;
+					// break intentionally omitted
 				default:
 					// If option value was the same, consider it done.
 					$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
@@ -1534,20 +1538,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'wp_mobile_excerpt' => array(
 						'description'        => esc_html__( 'Excerpts', 'jetpack' ),
 						'type'               => 'string',
-						'default'            => '0',
+						'default'            => 'disabled',
 						'enum'				 => array(
-							'1'  => esc_html__( 'Enable excerpts on front page and on archive pages', 'jetpack' ),
-							'0' => esc_html__( 'Show full posts on front page and on archive pages', 'jetpack' ),
+							'enabled'  => esc_html__( 'Enable excerpts on front page and on archive pages', 'jetpack' ),
+							'disabled' => esc_html__( 'Show full posts on front page and on archive pages', 'jetpack' ),
 						),
 						'validate_callback'  => __CLASS__ . '::validate_list_item',
 					),
 					'wp_mobile_featured_images' => array(
 						'description'        => esc_html__( 'Featured Images', 'jetpack' ),
 						'type'               => 'string',
-						'default'            => '0',
+						'default'            => 'disabled',
 						'enum'				 => array(
-							'0'  => esc_html__( 'Hide all featured images', 'jetpack' ),
-							'1' => esc_html__( 'Display featured images', 'jetpack' ),
+							'enabled' => esc_html__( 'Display featured images', 'jetpack' ),
+							'disabled'  => esc_html__( 'Hide all featured images', 'jetpack' ),
 						),
 						'validate_callback'  => __CLASS__ . '::validate_list_item',
 					),
@@ -2253,6 +2257,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options['guess_lang']['current_value'] = self::cast_value( isset( $atd_options['true'] ), $options[ 'guess_lang' ] );
 				$options['ignored_phrases']['current_value'] = AtD_get_setting( get_current_user_id(), 'AtD_ignored_phrases' );
 				unset( $options['unignore_phrase'] );
+				break;
+
+			case 'minileven':
+				$options['wp_mobile_excerpt']['current_value'] =
+					1 === $options['wp_mobile_excerpt']['current_value'] ?
+					'enabled' : 'disabled';
+
+				$options['wp_mobile_featured_images']['current_value'] =
+					1 === $options['wp_mobile_featured_images']['current_value'] ?
+					'enabled' : 'disabled';
 				break;
 		}
 
