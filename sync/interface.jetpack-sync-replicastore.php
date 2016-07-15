@@ -121,5 +121,5 @@ interface iJetpack_Sync_Replicastore {
 	public function checksum_all();
 
 	// histogram
-	public function checksum_histogram( $object_type, $buckets, $start_id, $end_id );
+	public function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null );
 }
