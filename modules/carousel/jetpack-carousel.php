@@ -82,7 +82,7 @@ class Jetpack_Carousel {
 		 *
 		 * @since 1.6.0
 		 *
-		 * @param bool false Should Carousel be disabled? Default to fase.
+		 * @param bool false Should Carousel be disabled? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_maybe_disable', false );
 	}
