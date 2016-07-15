@@ -2261,11 +2261,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'minileven':
 				$options['wp_mobile_excerpt']['current_value'] =
-					1 === $options['wp_mobile_excerpt']['current_value'] ?
+					1 === intval( $options['wp_mobile_excerpt']['current_value'] ) ?
 					'enabled' : 'disabled';
 
 				$options['wp_mobile_featured_images']['current_value'] =
-					1 === $options['wp_mobile_featured_images']['current_value'] ?
+					1 === intval( $options['wp_mobile_featured_images']['current_value'] ) ?
 					'enabled' : 'disabled';
 				break;
 		}
