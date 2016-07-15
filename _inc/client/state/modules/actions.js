@@ -109,7 +109,7 @@ export const activateModule = ( slug ) => {
 			dispatch( removeNotice( `module-${ slug }` ) );
 			dispatch( createNotice(
 				'is-error',
-				__( '%(slug)s failed to activate.  Error: %(error)d', {
+				__( '%(slug)s failed to activate. %(error)s', {
 					args: {
 						slug: getModule( getState(), slug ).name,
 						error: error
