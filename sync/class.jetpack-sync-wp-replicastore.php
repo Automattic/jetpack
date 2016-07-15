@@ -286,8 +286,22 @@ ENDSQL;
 	public function comments_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
 
+		$where_sql = "1=1";
+
+		if ( $min_id !== null ) {
+			$min_id = intval( $min_id );
+			$where_sql .= " AND comment_ID >= $min_id";
+		}
+
+		if ( $max_id !== null ) {
+			$max_id = intval( $max_id );
+			$where_sql .= " AND comment_ID <= $max_id";
+		}
+
 		$query = <<<ENDSQL
-			SELECT CONV(BIT_XOR(CRC32(CONCAT(comment_ID,comment_content))), 10, 16) FROM $wpdb->comments
+			SELECT CONV(BIT_XOR(CRC32(CONCAT(comment_ID,comment_content))), 10, 16) 
+			  FROM $wpdb->comments
+			  WHERE $where_sql
 ENDSQL;
 
 		return $wpdb->get_var( $query );
