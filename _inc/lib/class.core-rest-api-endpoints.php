@@ -1235,9 +1235,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $ignored_phrases ) : true;
 					break;
 
-				case 'wp_mobile_featured_image':
+				case 'wp_mobile_featured_images':
 				case 'wp_mobile_excerpt':
-					$value = ( 'enabled' === $value ) ? 1 : 0;
+					$value = ( 'enabled' === $value ) ? '1' : '0';
 					// break intentionally omitted
 				default:
 					// If option value was the same, consider it done.
