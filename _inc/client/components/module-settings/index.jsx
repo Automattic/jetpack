@@ -189,11 +189,6 @@ export let MonitorSettings = React.createClass( {
 						name={ 'monitor_receive_notifications' }
 						{ ...this.props }
 						label={ __( 'Receive Monitor Email Notifications' ) } />
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Emails will be sent to admin address' ) +
-						' (Currently does not work)' } />
 				</FormFieldset>
 				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
