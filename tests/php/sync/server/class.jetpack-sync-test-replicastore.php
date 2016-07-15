@@ -54,7 +54,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return count( $this->get_posts( $status, $min_id, $max_id ) );
 	}
 
-	function get_posts( $status = null, $min_id = null, $max_id = null  ) {
+	function get_posts( $status = null, $min_id = null, $max_id = null ) {
 		$this->post_status = $status;
 
 		$posts = array_filter( array_values( $this->posts ), array( $this, 'filter_post_status' ) );
@@ -68,7 +68,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return array_values($posts);
 	}
 
-	function posts_checksum() {
+	function posts_checksum( $min_id = null, $max_id = null ) {
 		return $this->calculate_checksum( $this->posts, 'post_checksum' );
 	}
 
@@ -114,7 +114,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return array_values($comments);
 	}
 
-	function comments_checksum() {
+	function comments_checksum( $min_id = null, $max_id = null ) {
 		return $this->calculate_checksum( $this->comments, 'comment_checksum' );
 	}
 

@@ -61,7 +61,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE $where" );
 	}
 
-	public function get_posts( $status = null ) {
+	public function get_posts( $status = null, $min_id = null, $max_id = null ) {
 		$args = array( 'orderby' => 'ID', 'posts_per_page' => -1 );
 
 		if ( $status ) {
@@ -206,7 +206,7 @@ ENDSQL;
 		}
 	}
 
-	public function get_comments( $status = null ) {
+	public function get_comments( $status = null, $min_id = null, $max_id = null ) {
 		$args = array( 'orderby' => 'ID', 'status' => 'all' );
 
 		if ( $status ) {
@@ -283,7 +283,7 @@ ENDSQL;
 		wp_spam_comment( $comment_id );
 	}
 
-	public function comments_checksum() {
+	public function comments_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
 
 		$query = <<<ENDSQL
