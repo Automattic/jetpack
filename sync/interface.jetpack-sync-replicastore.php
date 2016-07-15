@@ -20,9 +20,9 @@ interface iJetpack_Sync_Replicastore {
 	public function full_sync_end( $checksum );
 
 	// posts
-	public function post_count( $status = null );
+	public function post_count( $status = null, $min_id = null, $max_id = null );
 
-	public function get_posts( $status = null );
+	public function get_posts( $status = null, $min_id = null, $max_id = null );
 
 	public function get_post( $id );
 
@@ -30,12 +30,12 @@ interface iJetpack_Sync_Replicastore {
 
 	public function delete_post( $post_id );
 
-	public function posts_checksum();
+	public function posts_checksum( $min_id = null, $max_id = null );
 
 	// comments
-	public function comment_count( $status = null );
+	public function comment_count( $status = null, $min_id = null, $max_id = null );
 
-	public function get_comments( $status = null );
+	public function get_comments( $status = null, $min_id = null, $max_id = null );
 
 	public function get_comment( $id );
 
@@ -47,7 +47,7 @@ interface iJetpack_Sync_Replicastore {
 
 	public function delete_comment( $comment_id );
 
-	public function comments_checksum();
+	public function comments_checksum( $min_id = null, $max_id = null );
 
 	// options
 	public function update_option( $option, $value );
@@ -119,4 +119,7 @@ interface iJetpack_Sync_Replicastore {
 
 	// full checksum
 	public function checksum_all();
+
+	// histogram
+	public function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null );
 }

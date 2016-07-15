@@ -63,11 +63,11 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_all_checksums_match() {
 		$post = self::$factory->post( 5 );
+		$second_post = self::$factory->post( 10 );
 		$comment = self::$factory->comment( 3, $post->ID );
+		$second_comment = self::$factory->comment( 6, $second_post->ID );
 		$option_name  = 'blogdescription';
 		$option_value = rand();
-
-		update_option( $option_name, $option_value );
 
 		// create an instance of each type of replicastore
 		$all_replicastores = array();
@@ -84,7 +84,9 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// insert the same data into all of them
 		foreach( $all_replicastores as $replicastore ) {
 			$replicastore->upsert_post( $post );
+			$replicastore->upsert_post( $second_post );
 			$replicastore->upsert_comment( $comment );
+			$replicastore->upsert_comment( $second_comment );
 			$replicastore->update_option( $option_name, $option_value );
 		}
 
@@ -97,16 +99,140 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// set the class property back to the original value;
 		Jetpack_Sync_Defaults::$default_options_whitelist = $default_options_whitelist_original;
 
+		// for helpful debug output in case they don't match
 		$labelled_checksums = array_combine( array_map( 'get_class', $all_replicastores ), $checksums );
 
 		// find unique checksums - if all checksums are the same, there should be only one element
 		$unique_checksums_count = count( array_unique( array_map( 'serialize', $checksums ) ) );
 
-		$this->assertEquals( 1, $unique_checksums_count, 'Checksums not unique: ' . print_r( $labelled_checksums, 1 ) );
+		$this->assertEquals( 1, $unique_checksums_count, 'Checksums do not match: ' . print_r( $labelled_checksums, 1 ) );
+
+		// compare post histograms
+		$histograms = array_map( array( $this, 'get_all_post_histograms' ), $all_replicastores );
+		$labelled_histograms = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
+		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
+		$this->assertEquals( 1, $unique_histograms_count, 'Post histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
+
+		// compare comment histograms
+		$histograms = array_map( array( $this, 'get_all_comment_histograms' ), $all_replicastores );
+		$labelled_histograms = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
+		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
+		$this->assertEquals( 1, $unique_histograms_count, 'Comment histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 	}
 
 	function get_all_checksums( $replicastore ) {
 		return $replicastore->checksum_all();
+	}
+
+	function get_all_post_histograms( $replicastore ) {
+		return $replicastore->checksum_histogram( 'posts', 10 );
+	}
+
+	function get_all_comment_histograms( $replicastore ) {
+		return $replicastore->checksum_histogram( 'comments', 10 );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_checksum_with_id_range( $store ) { 
+		$post = self::$factory->post( 5 );
+		$second_post = self::$factory->post( 10 );
+		$comment = self::$factory->comment( 3, $post->ID );
+		$second_comment = self::$factory->comment( 6, $second_post->ID );
+
+		$store->upsert_post( $post );
+		$store->upsert_post( $second_post );
+		$store->upsert_comment( $comment );
+		$store->upsert_comment( $second_comment );
+
+		// test posts checksum with ID range
+		$histogram = $store->checksum_histogram( 'posts', 2 );
+		$this->assertEquals( $store->posts_checksum( 0, 5 ), $histogram['5'] );
+		$this->assertEquals( $store->posts_checksum( 6, 10 ), $histogram['10'] );
+
+		// test comments checksum with ID range
+		$histogram = $store->checksum_histogram( 'comments', 2 );
+		$this->assertEquals( $store->comments_checksum( 0, 5 ), $histogram['3'] );
+		$this->assertEquals( $store->comments_checksum( 6, 10 ), $histogram['6'] );
+	}
+
+
+	/**
+	 * Histograms
+	 **/
+
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_checksum_histogram( $store ) {
+
+		$min_post_id = 1000000;
+		$max_post_id = 1;
+		$min_comment_id = 1000000;
+		$max_comment_id = 1;
+		$generated_post_ids = array();
+		$generated_comment_ids = array();
+
+		for ( $i = 1; $i <= 20; $i += 1 ) {
+			do {
+				$post_id = rand(1, 1000000);
+			} while ( in_array( $post_id, $generated_post_ids ) );
+
+			$generated_post_ids[] = $post_id;
+
+			$post = self::$factory->post( $post_id, array( 'post_content' => "Test post $i" ) );
+			$store->upsert_post( $post );
+			if ( $min_post_id > $post_id ) {
+				$min_post_id = $post_id;
+			}
+
+			if ( $max_post_id < $post_id ) {
+				$max_post_id = $post_id;
+			}
+
+			do {
+				$comment_id = rand(1, 1000000);
+			} while ( in_array( $post_id, $generated_comment_ids ) );
+
+			$generated_comment_ids[] = $comment_id;
+
+			$comment = self::$factory->comment( $comment_id, $post_id, array( 'comment_content' => "Test comment $i" ) );
+			$store->upsert_comment( $comment );
+
+			if ( $min_comment_id > $comment_id ) {
+				$min_comment_id = $comment_id;
+			}
+
+			if ( $max_comment_id < $comment_id ) {
+				$max_comment_id = $comment_id;
+			}
+
+		}
+
+		foreach( array( 'posts', 'comments' ) as $object_type ) {
+			$histogram = $store->checksum_histogram( $object_type, 10, 0, 0 );
+			$this->assertEquals( 10, count( $histogram ) );
+
+			// histogram bucket should equal entire histogram of just the ID range for that bucket
+			foreach( $histogram as $range => $checksum ) {
+				list( $min_id, $max_id ) = explode( '-', $range );
+
+				$range_histogram = $store->checksum_histogram( $object_type, 1, intval( $min_id ), intval( $max_id ) );
+				$range_checksum = array_pop( $range_histogram );
+				
+				$this->assertEquals( $checksum, $range_checksum );
+			}
+		}
+
+		// histogram with one bucket should equal checksum of corresponding object type
+		$histogram = $store->checksum_histogram( 'posts', 1, 0, 0 );
+		$this->assertEquals( $store->posts_checksum(), $histogram["$min_post_id-$max_post_id"] );
+
+		$histogram = $store->checksum_histogram( 'comments', 1, 0, 0 );
+		$this->assertEquals( $store->comments_checksum(), $histogram["$min_comment_id-$max_comment_id"] );
 	}
 
 	/**
