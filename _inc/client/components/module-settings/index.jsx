@@ -272,7 +272,6 @@ export let MinilevenSettings = React.createClass( {
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
-				<span>{ '(These options currently do not work)' } </span>
 				<FormFieldset>
 					<FormLegend> { __( 'Excerpts' ) } </FormLegend>
 						<ModuleSettingRadios
