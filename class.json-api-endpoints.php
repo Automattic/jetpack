@@ -1450,6 +1450,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 		// add inc/wpcom.php and/or includes/wpcom.php
 		wpcom_load_theme_compat_file();
 
+		// Enable including additional directories or files in actions to be copied
+		$copy_dirs = apply_filters( 'restapi_theme_action_copy_dirs', $copy_dirs );
+
 		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
 		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', $copy_dirs );
 
