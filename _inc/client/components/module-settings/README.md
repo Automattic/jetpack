@@ -1,6 +1,6 @@
 ## connectModuleOptions
 
-High order component that connects to Jetpack modules'options
+A High Order Component that connects to Jetpack modules'options
 redux state selectors and action creators.
 
 **Arguments**
@@ -34,3 +34,4 @@ _Basically useful for using in composition with the connectModuleOptions HOC._
 * getOptionCurrentValue()
 * props.module
 * props.updateOptions
+
