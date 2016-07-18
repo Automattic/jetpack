@@ -36,7 +36,7 @@ class Jetpack_Sync_Listener {
 
 		$handler = array( $this, 'action_handler' );
 
-		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->init_listeners( $handler );
 		}
 
@@ -84,9 +84,9 @@ class Jetpack_Sync_Listener {
 
 		list( $queue_size, $queue_age ) = $queue_state;
 
-		return 	( $queue_age < $this->sync_queue_lag_limit ) 
-			|| 
-				( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
+		return ( $queue_age < $this->sync_queue_lag_limit )
+		       ||
+		       ( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
 	}
 
 	function action_handler() {

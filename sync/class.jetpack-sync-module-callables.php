@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) .  '/class.jetpack-sync-functions.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
 
 class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	const CALLABLES_CHECKSUM_OPTION_NAME = 'jetpack_callables_sync_checksum';
@@ -60,6 +60,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			array_map( array( $this, 'get_callable' ), array_values( $this->callable_whitelist ) )
 		);
 		wp_set_current_user( $current_user_id );
+
 		return $callables;
 	}
 
@@ -76,6 +77,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand callables (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_callables', true );
+
 		return 1; // The number of actions enqueued
 	}
 
@@ -102,7 +104,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
 
-		$callable_checksums = (array) get_option( self::CALLABLES_CHECKSUM_OPTION_NAME , array() );
+		$callable_checksums = (array) get_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
 
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
@@ -123,13 +125,14 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 				$callable_checksums[ $name ] = $checksum;
 			}
 		}
-		update_option( self::CALLABLES_CHECKSUM_OPTION_NAME , $callable_checksums );
+		update_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
 	}
 
 	public function expand_callables( $args ) {
 		if ( $args[0] ) {
 			return $this->get_all_callables();
 		}
+
 		return $args;
 	}
 }

@@ -33,7 +33,7 @@ class Jetpack_Sync_Users {
 
 		$current_user_id = get_current_user_id();
 		wp_set_current_user( $user_id );
-		$role        = Jetpack::translate_current_user_to_role();
+		$role = Jetpack::translate_current_user_to_role();
 		wp_set_current_user( $current_user_id );
 		$user_roles[ $user_id ] = $role;
 
@@ -51,7 +51,7 @@ class Jetpack_Sync_Users {
 
 	static function maybe_demote_master_user( $user_id ) {
 		$master_user_id = Jetpack_Options::get_option( 'master_user' );
-		$role = self::get_role( $user_id );
+		$role           = self::get_role( $user_id );
 		if ( $user_id == $master_user_id && 'administrator' != $role ) {
 			$query      = new WP_User_Query(
 				array(
@@ -77,4 +77,5 @@ class Jetpack_Sync_Users {
 		}
 	}
 }
+
 Jetpack_Sync_Users::init();

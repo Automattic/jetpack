@@ -23,16 +23,17 @@ class Jetpack_Sync_Server {
 
 	function attempt_request_lock( $blog_id, $expiry = self::BLOG_LOCK_TRANSIENT_EXPIRY ) {
 		$transient_name = $this->get_concurrent_request_transient_name( $blog_id );
-		$locked_time = get_site_transient( $transient_name );
+		$locked_time    = get_site_transient( $transient_name );
 		if ( $locked_time ) {
 			return false;
 		}
-		set_site_transient( $transient_name, microtime(true), $expiry );
+		set_site_transient( $transient_name, microtime( true ), $expiry );
+
 		return true;
 	}
 
 	private function get_concurrent_request_transient_name( $blog_id ) {
-		return self::BLOG_LOCK_TRANSIENT_PREFIX.$blog_id;
+		return self::BLOG_LOCK_TRANSIENT_PREFIX . $blog_id;
 	}
 
 	function remove_request_lock( $blog_id ) {
@@ -54,10 +55,11 @@ class Jetpack_Sync_Server {
 			 * @param token The token object of the misbehaving site
 			 */
 			do_action( "jetpack_sync_multi_request_fail", $token );
+
 			return new WP_Error( 'concurrent_request_error', 'There is another request running for the same blog ID' );
 		}
 
-		$events = wp_unslash( array_map( array( $this->codec, 'decode' ), $data ) );
+		$events           = wp_unslash( array_map( array( $this->codec, 'decode' ), $data ) );
 		$events_processed = array();
 
 		/**

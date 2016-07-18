@@ -6,7 +6,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return 'posts';
 	}
 
-	public function set_defaults() {}
+	public function set_defaults() {
+	}
 
 	public function init_listeners( $callable ) {
 		add_action( 'wp_insert_post', $callable, 10, 3 );
@@ -28,6 +29,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		global $wpdb;
 
 		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
+
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $post_type_sql );
 	}
 
@@ -62,11 +64,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 */
 		if ( apply_filters( 'jetpack_sync_prevent_sending_post_data', false, $post ) ) {
 			// We only send the bare necessery object to be able to create a checksum.
-			$blocked_post = new stdClass();
-			$blocked_post->ID = $post->ID;
-			$blocked_post->post_modified = $post->post_modified;
+			$blocked_post                    = new stdClass();
+			$blocked_post->ID                = $post->ID;
+			$blocked_post->post_modified     = $post->post_modified;
 			$blocked_post->post_modified_gmt = $post->post_modified_gmt;
-			$blocked_post->post_status = 'jetpack_sync_blocked';
+			$blocked_post->post_status       = 'jetpack_sync_blocked';
+
 			return $blocked_post;
 		}
 

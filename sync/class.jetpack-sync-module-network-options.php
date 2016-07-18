@@ -55,6 +55,7 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand options (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_network_options', true );
+
 		return 1; // The number of actions enqueued
 	}
 

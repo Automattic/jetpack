@@ -47,6 +47,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand options (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_options', true );
+
 		return 1; // The number of actions enqueued
 	}
 

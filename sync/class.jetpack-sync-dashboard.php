@@ -146,15 +146,15 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	function js_progress_template() { ?>
 		<script type="text/html" id="tmpl-sync-progress">
 			<div>
-				Sync started: {{ data.started }} <br />
+				Sync started: {{ data.started }} <br/>
 
-				Queing Duration: {{ data.queue_finished - data.started }}  <br />
+				Queing Duration: {{ data.queue_finished - data.started }} <br/>
 				Finished: {{ data.finished }}
 				Total Duration: {{ data.finished - data.started }}
 			</div>
 			<div>
 				<p>Posts: {{ data.queue && data.sent.posts }} / {{ data.queue && data.queue.posts }} </p>
-				<p>Comments: {{ data.queue && data.sent.comments }} /  {{ data.queue && data.queue.comments }}</p>
+				<p>Comments: {{ data.queue && data.sent.comments }} / {{ data.queue && data.queue.comments }}</p>
 				<p>Terms: {{ data.queue && data.sent.terms }} / {{ data.queue && data.queue.terms }}</p>
 				<p>Users: {{ data.queue && data.sent.users }} / {{ data.queue && data.queue.users }}</p>
 				<p>Functions: {{ data.queue && data.sent.functions }} / {{ data.queue && data.queue.functions }}</p>

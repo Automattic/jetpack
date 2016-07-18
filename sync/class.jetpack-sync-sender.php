@@ -41,7 +41,7 @@ class Jetpack_Sync_Sender {
 
 	private function init() {
 
-		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->init_before_send();
 		}
 
@@ -96,7 +96,7 @@ class Jetpack_Sync_Sender {
 
 		$upload_size   = 0;
 		$items_to_send = array();
-		$items = $buffer->get_items();
+		$items         = $buffer->get_items();
 
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
@@ -221,7 +221,7 @@ class Jetpack_Sync_Sender {
 
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
-		$this->codec = new Jetpack_Sync_JSON_Deflate_Codec();
+		$this->codec      = new Jetpack_Sync_JSON_Deflate_Codec();
 
 		// saved settings
 		$settings = Jetpack_Sync_Settings::get_settings();
@@ -234,7 +234,7 @@ class Jetpack_Sync_Sender {
 	function reset_data() {
 		$this->reset_sync_queue();
 
-		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->reset_data();
 		}
 
