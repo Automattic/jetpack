@@ -59,16 +59,18 @@ export let RelatedPostsSettings = React.createClass( {
 
 		return (
 			<div className="related-posts-settings_preview_container">
-				<h3>Related</h3>
+				{
+					show_headline ?
+						<h3>Related</h3> :
+						''
+				}
 				{
 					previews.map( ( preview, i ) => (
 						<span key={ `preview_${ i }` } className="related-posts-settings_preview_image_container" >
 							{
 								show_thumbnails ? <img src={ preview.url } /> : ''
 							}
-							{
-								show_headline ? <span><a href="#/engagement"> { preview.text } </a></span> : ''
-							}
+							<span><a href="#/engagement"> { preview.text } </a></span>
 						</span>
 					) )
 				}
