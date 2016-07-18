@@ -177,14 +177,17 @@ function youtube_id( $url ) {
 	$input_w = ( isset( $qargs['w'] ) && intval( $qargs['w'] ) ) ? intval( $qargs['w'] ) : 0;
 	$input_h = ( isset( $qargs['h'] ) && intval( $qargs['h'] ) ) ? intval( $qargs['h'] ) : 0;
 
+	 // Get default width from the old, now deprecated embed_size_w option.
 	$default_width = get_option('embed_size_w');
 
+	// Overwrite with $content_width if we have that value.
+	if ( ! empty( $content_width ) ) {
+		$default_width = $content_width;
+	}
+
+	// If we don't know those 2 values use a hardcoded width.h
 	if ( empty( $default_width ) ) {
-		if ( ! empty( $content_width ) ) {
-			$default_width = $content_width;
-		} else {
-			$default_width = 640;
-		}
+		$default_width = 640;
 	}
 
 	if ( $input_w > 0 && $input_h > 0 ) {
