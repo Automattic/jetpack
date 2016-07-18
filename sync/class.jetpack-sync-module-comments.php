@@ -32,7 +32,10 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
-				add_filter( 'jetpack_sync_before_send_' . $comment_action_name, array( $this, 'expand_wp_insert_comment' ) );
+				add_filter( 'jetpack_sync_before_send_' . $comment_action_name, array(
+					$this,
+					'expand_wp_insert_comment'
+				) );
 			}
 		}
 
@@ -42,6 +45,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 	public function enqueue_full_sync_actions() {
 		global $wpdb;
+
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_comments', $wpdb->comments, 'comment_ID', null );
 	}
 
@@ -76,11 +80,12 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		 * @param mixed $comment WP_COMMENT object
 		 */
 		if ( apply_filters( 'jetpack_sync_prevent_sending_comment_data', false, $comment ) ) {
-			$blocked_comment = new stdClass();
-			$blocked_comment->comment_ID = $comment->comment_ID;
-			$blocked_comment->comment_date = $comment->comment_date;
+			$blocked_comment                   = new stdClass();
+			$blocked_comment->comment_ID       = $comment->comment_ID;
+			$blocked_comment->comment_date     = $comment->comment_date;
 			$blocked_comment->comment_date_gmt = $comment->comment_date_gmt;
 			$blocked_comment->comment_approved = 'jetpack_sync_blocked';
+
 			return $blocked_comment;
 		}
 

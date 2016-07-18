@@ -45,34 +45,40 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function sanitize_user_and_expand( $user ) {
 		$user = $this->sanitize_user( $user );
+
 		return $this->add_to_user( $user );
 	}
 
 	public function sanitize_user( $user ) {
 		unset( $user->data->user_pass );
+
 		return $user;
 	}
 
 	public function add_to_user( $user ) {
 		$user->allowed_mime_types = get_allowed_mime_types( $user );
+
 		return $user;
 	}
 
 	public function expand_user( $args ) {
 		list( $user ) = $args;
+
 		return array( $this->add_to_user( $user ) );
 	}
 
 	public function expand_login_username( $args ) {
 		list( $login, $user ) = $args;
 		$user = $this->sanitize_user( $user );
-		return array( $login ,$user );
+
+		return array( $login, $user );
 	}
 
 	public function expand_logout_username( $args, $user_id ) {
-		$user = get_userdata( $user_id );
-		$user = $this->sanitize_user( $user );
+		$user  = get_userdata( $user_id );
+		$user  = $this->sanitize_user( $user );
 		$login = $user->data->user_login;
+
 		return array( $login, $user );
 	}
 
@@ -125,10 +131,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		// if a user is currently being removed as a member of this blog, we don't fire the event
 		if ( current_filter() === 'deleted_user_meta'
-		&&
-			preg_match( '/capabilities|user_level/', $meta_key )
-		&&
-			! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
+		     &&
+		     preg_match( '/capabilities|user_level/', $meta_key )
+		     &&
+		     ! is_user_member_of_blog( $user_id, get_current_blog_id() )
+		) {
 			return;
 		}
 
@@ -147,6 +154,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function enqueue_full_sync_actions() {
 		global $wpdb;
+
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->users, 'ID', null );
 	}
 
@@ -156,6 +164,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function expand_users( $args ) {
 		$user_ids = $args[0];
+
 		return array_map( array( $this, 'sanitize_user_and_expand' ), get_users( array( 'include' => $user_ids ) ) );
 	}
 }

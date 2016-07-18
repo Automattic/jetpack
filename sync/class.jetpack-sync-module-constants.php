@@ -11,7 +11,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 	private $constants_whitelist;
 
 	public function set_defaults() {
-		$this->constants_whitelist       = Jetpack_Sync_Defaults::$default_constants_whitelist;
+		$this->constants_whitelist = Jetpack_Sync_Defaults::$default_constants_whitelist;
 	}
 
 	public function init_listeners( $callable ) {
@@ -56,6 +56,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand constants (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_constants', true );
+
 		return 1;
 	}
 
@@ -79,7 +80,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		foreach ( $constants as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
 			// explicitly not using Identical comparison as get_option returns a string
-			if ( ! $this->still_valid_checksum( $constants_checksums, $name, $checksum )  && ! is_null( $value ) ) {
+			if ( ! $this->still_valid_checksum( $constants_checksums, $name, $checksum ) && ! is_null( $value ) ) {
 				/**
 				 * Tells the client to sync a constant to the server
 				 *
@@ -115,6 +116,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		if ( $args[0] ) {
 			return $this->get_all_constants();
 		}
+
 		return $args;
 	}
 }

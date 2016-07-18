@@ -11,7 +11,7 @@ class Jetpack_Sync_Actions {
 	static $listener = null;
 
 	static function init() {
-		
+
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
 
@@ -28,7 +28,7 @@ class Jetpack_Sync_Actions {
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
 		add_action( 'jetpack_sync_send_pending_data', array( __CLASS__, 'do_send_pending_data' ) );
 
-		if ( ! wp_next_scheduled ( 'jetpack_sync_send_db_checksum' ) ) {
+		if ( ! wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			// Schedule a job to send DB checksums once an hour
 			wp_schedule_event( time(), 'hourly', 'jetpack_sync_send_db_checksum' );
 		}
@@ -37,8 +37,8 @@ class Jetpack_Sync_Actions {
 		 * Fires on every request before default loading sync listener code.
 		 * Return false to not load sync listener code that monitors common
 		 * WP actions to be serialized.
-		 * 
-		 * By default this returns true for non-GET-requests, or requests where the 
+		 *
+		 * By default this returns true for non-GET-requests, or requests where the
 		 * user is logged-in.
 		 *
 		 * @since 4.2.0
@@ -46,14 +46,14 @@ class Jetpack_Sync_Actions {
 		 * @param bool should we load sync listener code for this request
 		 */
 		if ( apply_filters( 'jetpack_sync_listener_should_load',
-				(
-					$_SERVER['REQUEST_METHOD'] !== 'GET'
+			(
+				$_SERVER['REQUEST_METHOD'] !== 'GET'
 				||
-					is_user_logged_in()
+				is_user_logged_in()
 				||
-					defined( 'PHPUNIT_JETPACK_TESTSUITE' )
-				)
-			) ) {
+				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+			)
+		) ) {
 			self::initialize_listener();
 		}
 
@@ -72,14 +72,14 @@ class Jetpack_Sync_Actions {
 		if ( apply_filters( 'jetpack_sync_sender_should_load',
 			(
 				$_SERVER['REQUEST_METHOD'] === 'POST'
-			||
+				||
 				current_user_can( 'manage_options' )
-			||
+				||
 				is_admin()
-			||
+				||
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
 			)
-			) ) {
+		) ) {
 			self::initialize_sender();
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 		}
@@ -87,16 +87,16 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function sync_allowed() {
-		return ( Jetpack::is_active() && !( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
-			|| defined( 'PHPUNIT_JETPACK_TESTSUITE' );
+		return ( Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
+		       || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp ) {
 		Jetpack::load_xml_rpc_client();
 
 		$url = add_query_arg( array(
-			'sync' => '1', // add an extra parameter to the URL so we can tell it's a sync action
-			'codec' => $codec_name, // send the name of the codec used to encode the data
+			'sync'      => '1', // add an extra parameter to the URL so we can tell it's a sync action
+			'codec'     => $codec_name, // send the name of the codec used to encode the data
 			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
 		), Jetpack::xmlrpc_api_url() );
 
@@ -149,7 +149,7 @@ class Jetpack_Sync_Actions {
 	static function initialize_sender() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-sender.php';
 		self::$sender = Jetpack_Sync_Sender::getInstance();
-		
+
 		// bind the sending process
 		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 3 );
 	}
