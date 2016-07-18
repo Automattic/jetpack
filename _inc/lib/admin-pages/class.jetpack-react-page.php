@@ -168,7 +168,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Collecting roles that can view site stats
 		$stats_roles = array();
-		$enabled_roles = stats_get_option( 'roles' );
+		$enabled_roles = function_exists( 'stats_get_option' ) ? stats_get_option( 'roles' ) : array( 'administrator' );
 		foreach( get_editable_roles() as $slug => $role ) {
 			$stats_roles[ $slug ] = array(
 				'name' => translate_user_role( $role['name'] ),
