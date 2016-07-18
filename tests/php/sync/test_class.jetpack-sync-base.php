@@ -1,6 +1,6 @@
 <?php
 
-$sync_dir = dirname( __FILE__ ) . '/../../../sync/';
+$sync_dir        = dirname( __FILE__ ) . '/../../../sync/';
 $sync_server_dir = dirname( __FILE__ ) . '/server/';
 
 require_once $sync_dir . 'class.jetpack-sync-server.php';
@@ -32,16 +32,16 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->listener = Jetpack_Sync_Listener::getInstance();
-		$this->sender = Jetpack_Sync_Sender::getInstance();
+		$this->sender   = Jetpack_Sync_Sender::getInstance();
 
 		$this->setSyncClientDefaults();
 
-		$server = new Jetpack_Sync_Server();
+		$server       = new Jetpack_Sync_Server();
 		$this->server = $server;
 
 		// bind the sender to the server
 		remove_all_filters( 'jetpack_sync_send_data' );
-		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceive' ), 10 , 3 );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceive' ), 10, 3 );
 
 		// bind the two storage systems to the server events
 		$this->server_replica_storage = new Jetpack_Sync_Test_Replicastore();
@@ -54,11 +54,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	public function setSyncClientDefaults() {
 		$this->sender->set_defaults();
-		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->set_defaults();
 		}
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
-		$this->sender->set_sync_wait_time(0); // disable rate limiting
+		$this->sender->set_sync_wait_time( 0 ); // disable rate limiting
 	}
 
 	public function test_pass() {
@@ -73,7 +73,10 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		// Also pass the posts though the same filter other wise they woun't match any more.
 		$posts_sync_module = new Jetpack_Sync_Module_Posts();
 
-		$local_posts = array_map( array( $posts_sync_module, 'filter_post_content_and_add_links' ), $local->get_posts() );
+		$local_posts = array_map( array(
+			$posts_sync_module,
+			'filter_post_content_and_add_links'
+		), $local->get_posts() );
 		$this->assertEquals( $local_posts, $remote->get_posts() );
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
 
@@ -88,6 +91,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	protected function objectify( $instance ) {
 		$codec = $this->sender->get_codec();
+
 		return $codec->decode( $codec->encode( $instance ) );
 	}
 

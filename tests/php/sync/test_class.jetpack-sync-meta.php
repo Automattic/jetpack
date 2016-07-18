@@ -10,7 +10,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		parent::setUp();
 
 		// create a post
-		$this->post_id    = $this->factory->post->create();
+		$this->post_id = $this->factory->post->create();
 		add_post_meta( $this->post_id, 'test_meta_key', 'foo' );
 		$this->sender->do_sync();
 	}

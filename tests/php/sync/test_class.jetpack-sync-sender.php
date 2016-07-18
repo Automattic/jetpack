@@ -7,9 +7,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $encoded_data;
 
 	function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
-		$start_test_timestamp = microtime( true );
-		$this->action_ran = false;
-		$this->action_codec = null;
+		$start_test_timestamp   = microtime( true );
+		$this->action_ran       = false;
+		$this->action_codec     = null;
 		$this->action_timestamp = null;
 
 		add_filter( 'jetpack_sync_send_data', array( $this, 'action_ran' ), 10, 3 );
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	function test_queues_cron_job_if_queue_exceeds_max_buffer() {
 		$this->sender->set_dequeue_max_bytes( 500 ); // bytes
 
-		for ( $i = 0; $i < 20; $i+= 1) {
+		for ( $i = 0; $i < 20; $i += 1 ) {
 			$this->factory->post->create();
 		}
 
@@ -38,8 +38,8 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
 
 		// we're making some assumptions here about how fast the test will run...
-		$this->assertTrue( $timestamp >= time()+59 );
-		$this->assertTrue( $timestamp <= time()+61 );
+		$this->assertTrue( $timestamp >= time() + 59 );
+		$this->assertTrue( $timestamp <= time() + 61 );
 	}
 
 	function test_queue_limits_upload_bytes() {
@@ -52,7 +52,10 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		add_action( 'my_expanding_action', array( $this->listener, 'action_handler' ) );
 
 		// expand these events to a much larger size
-		add_filter( "jetpack_sync_before_send_my_expanding_action", array( $this, 'expand_small_action_to_large_size' ) );
+		add_filter( "jetpack_sync_before_send_my_expanding_action", array(
+			$this,
+			'expand_small_action_to_large_size'
+		) );
 
 		// now let's trigger our action a few times
 		do_action( 'my_expanding_action', 'x' );
@@ -116,7 +119,10 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		add_action( 'my_expanding_action', array( $this->listener, 'action_handler' ) );
 
 		// expand these events to a much larger size
-		add_filter( "jetpack_sync_before_send_my_expanding_action", array( $this, 'expand_small_action_to_large_size' ) );
+		add_filter( "jetpack_sync_before_send_my_expanding_action", array(
+			$this,
+			'expand_small_action_to_large_size'
+		) );
 
 		// now let's trigger our action a few times
 		do_action( 'my_expanding_action', 'x' );
@@ -139,12 +145,13 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	// expand the input to 2000 random chars
 	function expand_small_action_to_large_size( $args ) {
 		// we generate a random string so it's hard to compress (i.e. doesn't shrink when gzencoded)
-		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		$charactersLength = strlen($characters);
-		$randomString = '';
-		for ($i = 0; $i < 2000; $i++) {
-			$randomString .= $characters[rand(0, $charactersLength - 1)];
+		$characters       = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$charactersLength = strlen( $characters );
+		$randomString     = '';
+		for ( $i = 0; $i < 2000; $i ++ ) {
+			$randomString .= $characters[ rand( 0, $charactersLength - 1 ) ];
 		}
+
 		return $randomString;
 	}
 
@@ -153,7 +160,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * it interfering with other tests. That's also why we have to reconnect the DB
 	 */
 	function test_queues_cron_job_if_is_importing() {
-		$this->markTestIncomplete("This works but I haven't found a way to undefine the WP_IMPORTING constant when I'm done :(");
+		$this->markTestIncomplete( "This works but I haven't found a way to undefine the WP_IMPORTING constant when I'm done :(" );
 
 		$queue = $this->sender->get_sync_queue();
 
@@ -172,8 +179,8 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
 
 		// we're making some assumptions here about how fast the test will run...
-		$this->assertTrue( $timestamp >= time()+59 );
-		$this->assertTrue( $timestamp <= time()+61 );
+		$this->assertTrue( $timestamp >= time() + 59 );
+		$this->assertTrue( $timestamp <= time() + 61 );
 	}
 
 	function test_rate_limit_how_often_sync_runs_with_option() {
@@ -226,7 +233,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_adds_timestamp_to_action() {
-		$beginning_of_test = microtime(true);
+		$beginning_of_test = microtime( true );
 
 		$this->factory->post->create();
 		$this->sender->do_sync();
@@ -234,7 +241,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 
 		$this->assertTrue( $event->timestamp > $beginning_of_test );
-		$this->assertTrue( $event->timestamp < microtime(true) );
+		$this->assertTrue( $event->timestamp < microtime( true ) );
 	}
 
 	function test_adds_user_id_to_action() {
@@ -250,22 +257,22 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_adds_sent_time_to_action() {
-		$beginning_of_test = microtime(true);
+		$beginning_of_test = microtime( true );
 
 		$this->factory->post->create();
 
-		$before_sync = microtime(true);
+		$before_sync = microtime( true );
 
 		$this->sender->do_sync();
 
-		$after_sync = microtime(true);
+		$after_sync = microtime( true );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 
 		$this->assertTrue( $event->sent_timestamp > $beginning_of_test );
 		$this->assertTrue( $event->sent_timestamp > $before_sync );
 		$this->assertTrue( $event->sent_timestamp < $after_sync );
-		$this->assertTrue( $event->sent_timestamp < microtime(true) );
+		$this->assertTrue( $event->sent_timestamp < microtime( true ) );
 	}
 
 	function test_reset_queue_also_resets_full_sync_lock() {
@@ -281,14 +288,16 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function action_ran( $data, $codec, $sent_timestamp ) {
-		$this->action_ran = true;
-		$this->action_codec = $codec;
+		$this->action_ran       = true;
+		$this->action_codec     = $codec;
 		$this->action_timestamp = $sent_timestamp;
+
 		return $data;
 	}
 
 	function set_encoded_data( $data ) {
 		$this->encoded_data = $data;
+
 		return $data;
 	}
 }

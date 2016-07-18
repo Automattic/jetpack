@@ -12,6 +12,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
  *
  * @requires PHP 5.3
  */
+
 class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	/** @var JetpackSyncTestObjectFactory $factory */
 	static $factory;
@@ -21,7 +22,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 
-		self::$token   = (object) array(
+		self::$token = (object) array(
 			'blog_id'          => 101881278, //newsite16.goldsounds.com
 			'user_id'          => 282285,   //goldsounds
 			'external_user_id' => 2,
@@ -62,17 +63,17 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @requires PHP 5.3
 	 */
 	function test_all_checksums_match() {
-		$post = self::$factory->post( 5 );
-		$second_post = self::$factory->post( 10 );
-		$comment = self::$factory->comment( 3, $post->ID );
+		$post           = self::$factory->post( 5 );
+		$second_post    = self::$factory->post( 10 );
+		$comment        = self::$factory->comment( 3, $post->ID );
 		$second_comment = self::$factory->comment( 6, $second_post->ID );
-		$option_name  = 'blogdescription';
-		$option_value = rand();
+		$option_name    = 'blogdescription';
+		$option_value   = rand();
 
 		// create an instance of each type of replicastore
 		$all_replicastores = array();
-		foreach (get_declared_classes() as $className) {
-			if (in_array('iJetpack_Sync_Replicastore', class_implements($className))) {
+		foreach ( get_declared_classes() as $className ) {
+			if ( in_array( 'iJetpack_Sync_Replicastore', class_implements( $className ) ) ) {
 				if ( method_exists( $className, 'getInstance' ) ) {
 					$all_replicastores[] = call_user_func( array( $className, 'getInstance' ) );
 				} else {
@@ -82,7 +83,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		}
 
 		// insert the same data into all of them
-		foreach( $all_replicastores as $replicastore ) {
+		foreach ( $all_replicastores as $replicastore ) {
 			$replicastore->upsert_post( $post );
 			$replicastore->upsert_post( $second_post );
 			$replicastore->upsert_comment( $comment );
@@ -91,7 +92,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		}
 
 		// just check the option we updated in the replicastores
-		$default_options_whitelist_original = Jetpack_Sync_Defaults::$default_options_whitelist;
+		$default_options_whitelist_original               = Jetpack_Sync_Defaults::$default_options_whitelist;
 		Jetpack_Sync_Defaults::$default_options_whitelist = array( 'blogdescription' );
 
 		// ensure the checksums are the same
@@ -108,14 +109,14 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 1, $unique_checksums_count, 'Checksums do not match: ' . print_r( $labelled_checksums, 1 ) );
 
 		// compare post histograms
-		$histograms = array_map( array( $this, 'get_all_post_histograms' ), $all_replicastores );
-		$labelled_histograms = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
+		$histograms              = array_map( array( $this, 'get_all_post_histograms' ), $all_replicastores );
+		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
 		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
 		$this->assertEquals( 1, $unique_histograms_count, 'Post histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 
 		// compare comment histograms
-		$histograms = array_map( array( $this, 'get_all_comment_histograms' ), $all_replicastores );
-		$labelled_histograms = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
+		$histograms              = array_map( array( $this, 'get_all_comment_histograms' ), $all_replicastores );
+		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
 		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
 		$this->assertEquals( 1, $unique_histograms_count, 'Comment histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 	}
@@ -136,10 +137,10 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_checksum_with_id_range( $store ) { 
-		$post = self::$factory->post( 5 );
-		$second_post = self::$factory->post( 10 );
-		$comment = self::$factory->comment( 3, $post->ID );
+	function test_checksum_with_id_range( $store ) {
+		$post           = self::$factory->post( 5 );
+		$second_post    = self::$factory->post( 10 );
+		$comment        = self::$factory->comment( 3, $post->ID );
 		$second_comment = self::$factory->comment( 6, $second_post->ID );
 
 		$store->upsert_post( $post );
@@ -169,16 +170,16 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_checksum_histogram( $store ) {
 
-		$min_post_id = 1000000;
-		$max_post_id = 1;
-		$min_comment_id = 1000000;
-		$max_comment_id = 1;
-		$generated_post_ids = array();
+		$min_post_id           = 1000000;
+		$max_post_id           = 1;
+		$min_comment_id        = 1000000;
+		$max_comment_id        = 1;
+		$generated_post_ids    = array();
 		$generated_comment_ids = array();
 
 		for ( $i = 1; $i <= 20; $i += 1 ) {
 			do {
-				$post_id = rand(1, 1000000);
+				$post_id = rand( 1, 1000000 );
 			} while ( in_array( $post_id, $generated_post_ids ) );
 
 			$generated_post_ids[] = $post_id;
@@ -194,7 +195,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 			}
 
 			do {
-				$comment_id = rand(1, 1000000);
+				$comment_id = rand( 1, 1000000 );
 			} while ( in_array( $post_id, $generated_comment_ids ) );
 
 			$generated_comment_ids[] = $comment_id;
@@ -212,17 +213,17 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		}
 
-		foreach( array( 'posts', 'comments' ) as $object_type ) {
+		foreach ( array( 'posts', 'comments' ) as $object_type ) {
 			$histogram = $store->checksum_histogram( $object_type, 10, 0, 0 );
 			$this->assertEquals( 10, count( $histogram ) );
 
 			// histogram bucket should equal entire histogram of just the ID range for that bucket
-			foreach( $histogram as $range => $checksum ) {
+			foreach ( $histogram as $range => $checksum ) {
 				list( $min_id, $max_id ) = explode( '-', $range );
 
 				$range_histogram = $store->checksum_histogram( $object_type, 1, intval( $min_id ), intval( $max_id ) );
-				$range_checksum = array_pop( $range_histogram );
-				
+				$range_checksum  = array_pop( $range_histogram );
+
 				$this->assertEquals( $checksum, $range_checksum );
 			}
 		}
@@ -253,8 +254,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$retrieved_post = $store->get_post( $post->ID );
 
 		// author is modified on save by the wpcom shadow replicastore
-		unset($post->post_author);
-		unset($retrieved_post->post_author);
+		unset( $post->post_author );
+		unset( $retrieved_post->post_author );
 
 		$this->assertEquals( $post, $retrieved_post );
 
@@ -328,13 +329,13 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$retrieved_comment = $store->get_comment( $comment->comment_ID );
 
 		// insane hack because sometimes MySQL retrurns dates that are off by a second or so. WTF?
-		unset($comment->comment_date);
-		unset($comment->comment_date_gmt);
-		unset($retrieved_comment->comment_date);
-		unset($retrieved_comment->comment_date_gmt);
+		unset( $comment->comment_date );
+		unset( $comment->comment_date_gmt );
+		unset( $retrieved_comment->comment_date );
+		unset( $retrieved_comment->comment_date_gmt );
 
 		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
-			$this->markTestIncomplete("The WP replicastore doesn't support setting comments post_fields");
+			$this->markTestIncomplete( "The WP replicastore doesn't support setting comments post_fields" );
 		}
 
 		$this->assertEquals( $comment, $retrieved_comment );
@@ -411,7 +412,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	function test_replica_set_theme_support( $store ) {
 
 		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
-			$this->markTestIncomplete("The WP replicastore doesn't support setting theme options directly");
+			$this->markTestIncomplete( "The WP replicastore doesn't support setting theme options directly" );
 		}
 
 		$theme_features = array(
@@ -577,20 +578,22 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 *
 	 * @param array $a
 	 * @param array $b
+	 *
 	 * @return bool
 	 */
-	function arrays_are_similar($a, $b) {
+	function arrays_are_similar( $a, $b ) {
 		// if the indexes don't match, return immediately
-		if (count(array_diff_assoc($a, $b))) {
+		if ( count( array_diff_assoc( $a, $b ) ) ) {
 			return false;
 		}
 		// we know that the indexes, but maybe not values, match.
 		// compare the values between the two arrays
-		foreach($a as $k => $v) {
-			if ($v !== $b[$k]) {
+		foreach ( $a as $k => $v ) {
+			if ( $v !== $b[ $k ] ) {
 				return false;
 			}
 		}
+
 		// we have identical indexes, and no unequal values
 		return true;
 	}
@@ -604,11 +607,11 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @requires PHP 5.3
 	 */
 	function test_replica_set_constant( $store ) {
-		$this->assertNull( $store->get_constant('FOO') );
+		$this->assertNull( $store->get_constant( 'FOO' ) );
 
 		$store->set_constant( 'FOO', array( 'foo' => 'bar' ) );
 
-		$this->assertEquals( array( 'foo' => 'bar' ), $store->get_constant('FOO') );
+		$this->assertEquals( array( 'foo' => 'bar' ), $store->get_constant( 'FOO' ) );
 	}
 
 	/**
@@ -637,7 +640,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_replica_set_callables( $store ) {
 		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
-			$this->markTestIncomplete("The WP replicastore doesn't support setting callables directly");
+			$this->markTestIncomplete( "The WP replicastore doesn't support setting callables directly" );
 		}
 
 		$this->assertNull( $store->get_callable( 'is_main_network' ) );
@@ -687,7 +690,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_replica_update_users( $store ) {
 		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
-			$this->markTestIncomplete("The WP replicastore doesn't support setting users");
+			$this->markTestIncomplete( "The WP replicastore doesn't support setting users" );
 		}
 
 		$this->assertNull( $store->get_user( 12 ) );
@@ -710,13 +713,13 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 			$this->assertEquals( $user->ID, $stored_user->ID );
 		}
 
-		$this->assertEquals( $user->data->user_login,      $stored_user->data->user_login );
-		$this->assertEquals( $user->data->user_nicename,   $stored_user->data->user_nicename );
-		$this->assertEquals( $user->data->user_email,      $stored_user->data->user_email );
-		$this->assertEquals( $user->data->user_url,        $stored_user->data->user_url );
+		$this->assertEquals( $user->data->user_login, $stored_user->data->user_login );
+		$this->assertEquals( $user->data->user_nicename, $stored_user->data->user_nicename );
+		$this->assertEquals( $user->data->user_email, $stored_user->data->user_email );
+		$this->assertEquals( $user->data->user_url, $stored_user->data->user_url );
 		$this->assertEquals( $user->data->user_registered, $stored_user->data->user_registered );
-		$this->assertEquals( $user->data->user_status,     $stored_user->data->user_status );
-		$this->assertEquals( $user->data->display_name,    $stored_user->data->display_name );
+		$this->assertEquals( $user->data->user_status, $stored_user->data->user_status );
+		$this->assertEquals( $user->data->display_name, $stored_user->data->display_name );
 
 		$store->delete_user( 12 );
 
@@ -729,12 +732,12 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_replica_get_allowed_mime_types( $store ) {
 		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
-			$this->markTestIncomplete("The WP replicastore doesn't support setting users");
+			$this->markTestIncomplete( "The WP replicastore doesn't support setting users" );
 		}
 
 		$this->assertNull( $store->get_user( 12 ) );
 
-		$user = self::$factory->user( 12, 'example_user' );
+		$user                    = self::$factory->user( 12, 'example_user' );
 		$user_allowed_mime_types = $user->data->allowed_mime_types;
 		$store->upsert_user( $user );
 		$this->assertEquals( $user_allowed_mime_types, $store->get_allowed_mime_types( 12 ) );
@@ -755,10 +758,10 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$term_object = self::$factory->term( 22,
 			array(
-				'name' => 'Female',
-				'slug' => 'female',
+				'name'             => 'Female',
+				'slug'             => 'female',
 				'term_taxonomy_id' => 22,
-				'taxonomy' => $taxonomy,
+				'taxonomy'         => $taxonomy,
 			)
 		);
 
@@ -768,7 +771,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$term = $store->get_term( $term_object->taxonomy, $term_object->term_id );
 
-		$this->assertEquals( (array)$term_object, (array)$term );
+		$this->assertEquals( (array) $term_object, (array) $term );
 	}
 
 	/**
@@ -782,10 +785,10 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$term_object = self::$factory->term( 22,
 			array(
-				'name' => 'Female',
-				'slug' => 'female',
+				'name'             => 'Female',
+				'slug'             => 'female',
 				'term_taxonomy_id' => 22,
-				'taxonomy' => $taxonomy,
+				'taxonomy'         => $taxonomy,
 			)
 		);
 
@@ -806,10 +809,10 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$term_object = self::$factory->term( 22,
 			array(
-				'name' => 'Female',
-				'slug' => 'female',
+				'name'             => 'Female',
+				'slug'             => 'female',
 				'term_taxonomy_id' => 22,
-				'taxonomy' => $taxonomy,
+				'taxonomy'         => $taxonomy,
 			)
 		);
 
@@ -821,8 +824,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$store->update_object_terms( $replica_post->ID, $taxonomy, array( 22 ), true );
 
-		$terms = get_the_terms( $replica_post->ID, $taxonomy );
-		$replicator_terms = $store->get_the_terms(  $replica_post->ID, $taxonomy  );
+		$terms            = get_the_terms( $replica_post->ID, $taxonomy );
+		$replicator_terms = $store->get_the_terms( $replica_post->ID, $taxonomy );
 
 		$this->assertEquals( 1, $terms[0]->count );
 		$this->assertEquals( 22, $terms[0]->term_id );
@@ -837,23 +840,23 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @requires PHP 5.3
 	 */
 	function test_replica_delete_post_terms( $store ) {
-		$this->markTestIncomplete('contains SQL');
+		$this->markTestIncomplete( 'contains SQL' );
 		global $wpdb;
 		$taxonomy = 'test_shadow_taxonomy_term';
 
 		$this->ensure_synced_taxonomy( $store, $taxonomy );
 
 		$term_object = (object) array(
-			'term_id' => 22,
-			'name' => 'Female',
-			'slug' => 'female',
-			'term_group' => 0,
+			'term_id'          => 22,
+			'name'             => 'Female',
+			'slug'             => 'female',
+			'term_group'       => 0,
 			'term_taxonomy_id' => 22,
-			'taxonomy' => $taxonomy,
-			'description' => '',
-			'parent' => 0,
-			'count' => 0,
-			'filter' => 'raw',
+			'taxonomy'         => $taxonomy,
+			'description'      => '',
+			'parent'           => 0,
+			'count'            => 0,
+			'filter'           => 'raw',
 		);
 
 		$store->update_term( $term_object );
@@ -869,19 +872,19 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$store->delete_object_terms( $replica_post->ID, array( 22 ) );
 
-		$this->assertEquals( null, $wpdb->get_row( "SELECT * FROM $wpdb->term_relationships WHERE object_id = 5 ") );
+		$this->assertEquals( null, $wpdb->get_row( "SELECT * FROM $wpdb->term_relationships WHERE object_id = 5 " ) );
 
 		$terms = get_the_terms( $replica_post->ID, $taxonomy );
 		$this->assertEquals( 0, $terms[0]->count );
 	}
 
 	public function store_provider( $name ) {
-		if ( !self::$all_replicastores ) {
+		if ( ! self::$all_replicastores ) {
 			// detect classes that implement iJetpack_Sync_Replicastore
 			self::$all_replicastores = array();
 
-			foreach (get_declared_classes() as $className) {
-				if (in_array('iJetpack_Sync_Replicastore', class_implements($className))) {
+			foreach ( get_declared_classes() as $className ) {
+				if ( in_array( 'iJetpack_Sync_Replicastore', class_implements( $className ) ) ) {
 					self::$all_replicastores[] = $className;
 				}
 			}
@@ -907,8 +910,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 			$slug,
 			$type,
 			array(
-				'label' => __( $slug ),
-				'rewrite' => array( 'slug' => $slug ),
+				'label'        => __( $slug ),
+				'rewrite'      => array( 'slug' => $slug ),
 				'hierarchical' => true,
 			)
 		);
