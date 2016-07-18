@@ -44,7 +44,11 @@ const DashScan = React.createClass( {
 			const threats = this.props.getScanThreats();
 			if ( threats !== 0 ) {
 				return(
-					<DashItem label={ labelName } status="is-error">
+					<DashItem
+						label={ labelName }
+						status="is-error"
+						pro={ true }
+					>
 						<h3>{
 							__(
 								'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
@@ -67,7 +71,11 @@ const DashScan = React.createClass( {
 			// All good
 			if ( vpData.code === 'success' ) {
 				return(
-					<DashItem label={ labelName } status="is-working">
+					<DashItem
+						label={ labelName }
+						status="is-working"
+						pro={ true }
+					>
 						<h3>{ __( "No threats found, you're good to go!" ) }</h3>
 					</DashItem>
 				);
@@ -75,7 +83,12 @@ const DashScan = React.createClass( {
 		}
 
 		return(
-			<DashItem label={ labelName } className="jp-dash-item__is-inactive" status="is-premium-inactive">
+			<DashItem
+				label={ labelName }
+				className="jp-dash-item__is-inactive"
+				status="is-premium-inactive"
+				pro={ true }
+			>
 				<p className="jp-dash-item__description">
 					{
 						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :

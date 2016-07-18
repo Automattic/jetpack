@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
+import Button from 'components/button';
 
 /**
  * Internal dependencies
@@ -73,7 +74,7 @@ const DashItem = React.createClass( {
 	},
 
 	render() {
-		let icon, toggle;
+		let icon, toggle, proButton = '';
 
 		const classes = classNames(
 			this.props.className,
@@ -112,12 +113,18 @@ const DashItem = React.createClass( {
 			}
 		}
 
+		if ( this.props.pro ) {
+			proButton =
+				<Button compact={ true }>Pro</Button>
+			;
+		}
 
 		return (
 
 			<div className={ classes }>
 				<SectionHeader
 					label={ this.props.label }
+					cardBadge={ proButton }
 				>
 					{ toggle }
 				</SectionHeader>
