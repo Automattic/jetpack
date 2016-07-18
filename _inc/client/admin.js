@@ -59,6 +59,7 @@ function render() {
 					<Route path='/security' name={ i18n.translate( 'Security', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/appearance' name={ i18n.translate( 'Appearance', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/writing' name={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path="*" />
 				</Router>
 			</Provider>
 		</div>,
