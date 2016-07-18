@@ -50,7 +50,7 @@ abstract class Jetpack_Sync_Module {
 		global $wpdb;
 
 		if ( ! $where_sql ) {
-			$where_sql = "1 = 1";
+			$where_sql = '1 = 1';
 		}
 
 		$items_per_page = 500;

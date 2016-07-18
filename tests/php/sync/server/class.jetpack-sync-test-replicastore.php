@@ -125,13 +125,13 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	function filter_comment_status( $comment ) {
 		switch ( $this->comment_status ) {
 			case 'approve':
-				return $comment->comment_approved === "1";
+				return '1' === $comment->comment_approved;
 			case 'hold':
-				return $comment->comment_approved === "0";
+				return '0' === $comment->comment_approved;
 			case 'spam':
-				return $comment->comment_approved === 'spam';
+				return 'spam' === $comment->comment_approved;
 			case 'trash':
-				return $comment->comment_approved === 'trash';
+				return 'trash' === $comment->comment_approved;
 			case 'any':
 				return true;
 			case 'all':
@@ -313,7 +313,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function get_term( $taxonomy, $term_id, $term_key = 'term_id' ) {
-		if ( ! $taxonomy && $term_key === 'term_taxonomy_id' ) {
+		if ( ! $taxonomy && 'term_taxonomy_id' === $term_key ) {
 			foreach ( $this->terms as $tax => $terms_array ) {
 				$term = $this->get_term( $tax, $term_id, 'term_taxonomy_id' );
 				if ( $term ) {
@@ -337,7 +337,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 					break;
 			}
 
-			if ( $term ) {
+			if ( ! empty( $term ) ) {
 				return $term;
 			}
 		}
@@ -378,7 +378,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				$terms[] = $saved_term_object;
 			}
 		}
-		if ( $action !== 'updated' ) {
+		if ( 'updated' !== $action ) {
 			// we should add the tem since we didn't update it.
 			$terms[] = $term_object;
 		}
@@ -495,7 +495,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null ) {
 		// divide all IDs into the number of buckets
 		switch ( $object_type ) {
-			case "posts":
+			case 'posts':
 				$posts    = $this->get_posts( null, $start_id, $end_id );
 				$post_ids = array_map( create_function( '$o', 'return $o->ID;' ), $posts );
 				// $id_field = 'ID';
@@ -503,7 +503,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				$get_function      = 'get_post';
 				$checksum_function = 'post_checksum';
 				break;
-			case "comments":
+			case 'comments':
 				$comments    = $this->get_comments( null, $start_id, $end_id );
 				$comment_ids = array_map( create_function( '$o', 'return $o->comment_ID;' ), $comments );
 				// $id_field = 'comment_ID';

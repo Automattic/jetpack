@@ -34,7 +34,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_filter( 'jetpack_sync_before_send_' . $comment_action_name, array(
 					$this,
-					'expand_wp_insert_comment'
+					'expand_wp_insert_comment',
 				) );
 			}
 		}

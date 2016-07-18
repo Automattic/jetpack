@@ -40,7 +40,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// ensure listener is loaded so we can guarantee full sync actions are enqueued
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
-		Jetpack_Sync_Listener::getInstance();
+		Jetpack_Sync_Listener::get_instance();
 
 		/**
 		 * Fires when a full sync begins. This action is serialized

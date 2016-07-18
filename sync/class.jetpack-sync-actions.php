@@ -47,7 +47,7 @@ class Jetpack_Sync_Actions {
 		 */
 		if ( apply_filters( 'jetpack_sync_listener_should_load',
 			(
-				$_SERVER['REQUEST_METHOD'] !== 'GET'
+				'GET' !== $_SERVER['REQUEST_METHOD']
 				||
 				is_user_logged_in()
 				||
@@ -143,12 +143,12 @@ class Jetpack_Sync_Actions {
 
 	static function initialize_listener() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
-		self::$listener = Jetpack_Sync_Listener::getInstance();
+		self::$listener = Jetpack_Sync_Listener::get_instance();
 	}
 
 	static function initialize_sender() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-sender.php';
-		self::$sender = Jetpack_Sync_Sender::getInstance();
+		self::$sender = Jetpack_Sync_Sender::get_instance();
 
 		// bind the sending process
 		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 3 );

@@ -18,7 +18,7 @@ class Jetpack_Sync_Listener {
 	// singleton functions
 	private static $instance;
 
-	public static function getInstance() {
+	public static function get_instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
