@@ -71,7 +71,7 @@ export const WelcomeNotice = React.createClass( {
 			<div>
 				<SimpleNotice
 					status="is-info"
-					onClick={ this.dismissWelcomeNotice }
+					onDismissClick={ this.dismissWelcomeNotice }
 				>
 					{ this.getWelcomeMessageText() }
 				</SimpleNotice>
