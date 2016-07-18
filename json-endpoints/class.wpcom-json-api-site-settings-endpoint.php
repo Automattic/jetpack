@@ -432,8 +432,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.' ), 400 );
 						}
 
-						if ( update_option( $key, $value ) ) {
-							$updated[ $key ] = $value;
+						// Empty string signals that custom title shouldn't be used
+						$empty_formats = array(
+							'front_page' => '',
+							'posts'      => '',
+							'pages'      => '',
+							'groups'     => '',
+							'archives'   => '',
+						);
+
+						$previous_formats = get_option( 'advanced_seo_title_formats', array() );
+
+						$new_formats = array_merge( $empty_formats, $previous_formats, $value );
+						$new_formats = array_map( 'esc_html', $new_formats );
+
+						if ( update_option( 'advanced_seo_title_formats', $new_formats ) ) {
+							$updated[ $key ] = $new_formats;
 						}
 					}
 
