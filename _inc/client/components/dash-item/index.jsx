@@ -30,6 +30,7 @@ const DashItem = React.createClass( {
 	propTypes: {
 		label: React.PropTypes.string,
 		status: React.PropTypes.string,
+		statusText: React.PropTypes.string,
 		disabled: React.PropTypes.bool,
 		module: React.PropTypes.string,
 		pro: React.PropTypes.bool
@@ -43,50 +44,59 @@ const DashItem = React.createClass( {
 		};
 	},
 
-	getIcon() {
-		let icon;
+	proCardStatus() {
+		let status;
 
 		switch ( this.props.status ) {
-			case 'is-info':
-				icon = 'info';
+			case 'pro-uninstalled':
+				status = <Button
+					compact={ true }
+					primary={ true }
+					href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl }
+				>
+					{ __( 'Upgrade' ) }
+				</Button>;
 				break;
-			case 'is-success':
-				icon = 'checkmark';
+			case 'pro-inactive':
+				status = <Button
+					compact={ true }
+				    primary={ true }
+					href="https://wordpress.com/plugins/"
+				>
+					{ __( 'Activate' ) }
+				</Button>;
 				break;
 			case 'is-error':
-				icon = 'notice';
+				status = 'notice';
 				break;
 			case 'is-warning':
-				icon = 'notice';
+				status = <SimpleNotice
+					showDismiss={ false }
+					status={ this.props.status }
+					isCompact={ true }
+				>
+					{ this.props.statusText }
+				</SimpleNotice>;
 				break;
 			case 'is-working':
-				icon = 'checkmark';
-				break;
-			case 'is-premium-inactive':
-				icon = 'lock';
+				status = __( 'Active' );
 				break;
 			default:
-				icon = 'info';
+				status = '';
 				break;
 		}
 
-		return icon;
+		return status;
 	},
 
 	render() {
-		let icon, toggle, proButton = '';
+		let toggle, proButton = '';
 
 		const classes = classNames(
 			this.props.className,
 			'jp-dash-item',
 			this.props.disabled ? 'jp-dash-item__disabled' : ''
 		);
-
-		if ( this.props.status ) {
-			icon = (
-				<Gridicon icon={ this.props.icon || this.getIcon() } size={ 24 } />
-			);
-		}
 
 		if ( '' !== this.props.module ) {
 			toggle = (
@@ -117,6 +127,8 @@ const DashItem = React.createClass( {
 			proButton =
 				<Button compact={ true }>Pro</Button>
 			;
+
+			toggle = this.proCardStatus();
 		}
 
 		return (
