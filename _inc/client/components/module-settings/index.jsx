@@ -4,10 +4,13 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
  */
+import './style.scss';
+
 import {
 	FormFieldset,
 	FormLegend,
@@ -40,6 +43,40 @@ export let SharedaddySettings = React.createClass( {
 SharedaddySettings = ModuleSettingsForm( SharedaddySettings );
 
 export let RelatedPostsSettings = React.createClass( {
+	renderPreviews() {
+		const show_headline = this.props.getOptionValue( 'show_headline' );
+		const show_thumbnails = this.props.getOptionValue( 'show_thumbnails' );
+		const previews = [ {
+			url: 'https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&h=200&crop=1',
+			text: __( 'Big iPhone/iPad Update Now Available' )
+		}, {
+			url: 'https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&h=200&crop=1',
+			text: __( 'The WordPress for Android App Gets a Big Facelift' )
+		}, {
+			url: 'https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&h=200&crop=1',
+			text: __( 'Upgrade Focus: VideoPress For Weddings' )
+		} ];
+
+		return (
+			<div className="related-posts-settings_preview_container">
+				{
+					show_headline ?
+						<h3>{ __( 'Related' ) }</h3> :
+						''
+				}
+				{
+					previews.map( ( preview, i ) => (
+						<span key={ `preview_${ i }` } className="related-posts-settings_preview_image_container" >
+							{
+								show_thumbnails ? <img src={ preview.url } /> : ''
+							}
+							<span><a href="#/engagement"> { preview.text } </a></span>
+						</span>
+					) )
+				}
+			</div>
+		);
+	},
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
@@ -52,6 +89,10 @@ export let RelatedPostsSettings = React.createClass( {
 						name={ 'show_thumbnails' }
 						label={ __( 'Use a large and visually striking layout' ) }
 						{ ...this.props } />
+					<h3>{ __( 'Preview' ) }</h3>
+					<Card>
+						{ this.renderPreviews() }
+					</Card>
 					<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 				</FormFieldset>
 			</form>
