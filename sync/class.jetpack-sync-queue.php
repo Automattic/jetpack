@@ -73,7 +73,7 @@ class Jetpack_Sync_Queue {
 
 		$rows_added = $wpdb->query( $query . join( ',', $rows ) );
 
-		if ( $rows_added !== count( $items ) ) {
+		if ( count( $items ) === $rows_added ) {
 			return new WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
 	}
@@ -88,7 +88,7 @@ class Jetpack_Sync_Queue {
 		return array();
 	}
 
-	// lag is the difference in time between the age of the oldest item 
+	// lag is the difference in time between the age of the oldest item
 	// (aka first or frontmost item) and the current time
 	function lag() {
 		global $wpdb;
@@ -134,7 +134,7 @@ class Jetpack_Sync_Queue {
 			"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )", "jpsq_{$this->id}-%"
 		) );
 
-		return ( $value === "1" );
+		return ( $value === '1' );
 	}
 
 	function checkout( $buffer_size ) {

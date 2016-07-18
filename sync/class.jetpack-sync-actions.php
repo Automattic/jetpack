@@ -71,7 +71,7 @@ class Jetpack_Sync_Actions {
 		 */
 		if ( apply_filters( 'jetpack_sync_sender_should_load',
 			(
-				$_SERVER['REQUEST_METHOD'] === 'POST'
+				'POST' === $_SERVER['REQUEST_METHOD']
 				||
 				current_user_can( 'manage_options' )
 				||
@@ -103,7 +103,7 @@ class Jetpack_Sync_Actions {
 		$rpc = new Jetpack_IXR_Client( array(
 			'url'     => $url,
 			'user_id' => JETPACK_MASTER_USER,
-			'timeout' => 30
+			'timeout' => 30,
 		) );
 
 		$result = $rpc->query( 'jetpack.syncActions', $data );

@@ -124,7 +124,7 @@ class Jetpack_Sync_Defaults {
 		'WP_AUTO_UPDATE_CORE',
 		'WP_HTTP_BLOCK_EXTERNAL',
 		'WP_ACCESSIBLE_HOSTS',
-		'JETPACK__VERSION'
+		'JETPACK__VERSION',
 	);
 
 	static $default_callable_whitelist = array(
@@ -184,7 +184,7 @@ class Jetpack_Sync_Defaults {
 		'_thumbnail_id',
 		'_wp_attachment_metadata',
 		'_wp_page_template',
-		'_publicize_twitter_user'
+		'_publicize_twitter_user',
 	);
 
 	// TODO: move this to server? - these are theme support values
@@ -223,7 +223,7 @@ class Jetpack_Sync_Defaults {
 		'site_name',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
-		'active_sitewide_plugins'
+		'active_sitewide_plugins',
 	);
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB

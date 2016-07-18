@@ -95,7 +95,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return array(
 			$posts,
 			$this->get_metadata( $post_ids, 'post' ),
-			$this->get_term_relationships( $post_ids )
+			$this->get_term_relationships( $post_ids ),
 		);
 	}
 }
