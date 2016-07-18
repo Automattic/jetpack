@@ -34,7 +34,7 @@ class Jetpack_Sync_Settings {
 		if ( $value === false ) {
 			$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
 			$value = Jetpack_Sync_Defaults::$$default_name;
-			update_option( self::SETTINGS_OPTION_PREFIX.$setting, $value, null, true );
+			update_option( self::SETTINGS_OPTION_PREFIX.$setting, $value, true );
 		}
 
 		return (int) $value;
