@@ -34,7 +34,7 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_network_options', array(
 			$this,
-			'expand_network_options'
+			'expand_network_options',
 		) );
 	}
 
@@ -55,6 +55,7 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand options (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_network_options', true );
+
 		return 1; // The number of actions enqueued
 	}
 

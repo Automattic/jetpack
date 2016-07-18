@@ -16,11 +16,11 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_insert_user_is_synced() {
-		$user = get_user_by( 'id', $this->user_id );
+		$user        = get_user_by( 'id', $this->user_id );
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		// make sure that we don't have a password
 		unset( $user->data->user_pass );
-		$this->assertFalse(  isset( $server_user->data->user_pass ) );
+		$this->assertFalse( isset( $server_user->data->user_pass ) );
 
 		// The regular user object doesn't have allowed_mime_types
 		unset( $server_user->data->allowed_mime_types );
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$new_url = 'http://jetpack.com';
 
 		wp_update_user( array(
-			'ID' => $this->user_id,
+			'ID'       => $this->user_id,
 			'user_url' => $new_url
 		) );
 
@@ -47,7 +47,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$new_password = 'New PassWord';
 
 		wp_update_user( array(
-			'ID' => $this->user_id,
+			'ID'        => $this->user_id,
 			'user_pass' => $new_password
 		) );
 		$this->sender->do_sync();
@@ -217,6 +217,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertUsersEqual( $client_user, $server_user );
 	}
+
 	public function test_sync_allowed_file_type() {
 		$server_user_file_mime_types = $this->server_replica_storage->get_allowed_mime_types( $this->user_id );
 		$this->assertEquals( get_allowed_mime_types( $this->user_id ), $server_user_file_mime_types );
@@ -234,7 +235,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6
 		global $wpdb;
 
-		$suppress = $wpdb->suppress_errors();
+		$suppress      = $wpdb->suppress_errors();
 		$other_blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $this->user_id );
 		$wpdb->suppress_errors( $suppress );
 
@@ -257,7 +258,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$original_blog_id = get_current_blog_id();
 
 		// create a different blog
-		$suppress = $wpdb->suppress_errors();
+		$suppress      = $wpdb->suppress_errors();
 		$other_blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $this->user_id );
 		$wpdb->suppress_errors( $suppress );
 
@@ -291,7 +292,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'wp_login' );
+		$event                    = $this->server_event_storage->get_most_recent_event( 'wp_login' );
 		$user_data_sent_to_server = $event->args[1];
 		$this->assertEquals( 'foobar', $event->args[0] );
 		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
@@ -330,7 +331,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_maybe_demote_master_user_method() {
 		// set up
 		$current_master_id = $this->factory->user->create( array( 'user_login' => 'current_master' ) );
-		$new_master_id = $this->factory->user->create( array( 'user_login' => 'new_master' ) );
+		$new_master_id     = $this->factory->user->create( array( 'user_login' => 'new_master' ) );
 
 		$current_master = get_user_by( 'id', $current_master_id );
 		$current_master->set_role( 'author' );
@@ -338,20 +339,23 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$new_master = get_user_by( 'id', $new_master_id );
 		$new_master->set_role( 'administrator' );
 		Jetpack_Options::update_option( 'master_user', $current_master_id );
-		Jetpack_Options::update_option( 'user_tokens', array( $current_master_id => 'apple.a.' . $current_master_id, $new_master_id => 'kiwi.a.' . $new_master_id ) );
-		
+		Jetpack_Options::update_option( 'user_tokens', array(
+			$current_master_id => 'apple.a.' . $current_master_id,
+			$new_master_id     => 'kiwi.a.' . $new_master_id
+		) );
+
 		// maybe
-		Jetpack_Sync_Users::maybe_demote_master_user( $current_master_id, $current_master_id );
+		Jetpack_Sync_Users::maybe_demote_master_user( $current_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ) );
 
 		// don't demote user that if the user is still an admin.
-		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id, $new_master_id );
-		$this->assertEquals( 'administrator',$new_master->roles[0] );
+		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id );
+		$this->assertEquals( 'administrator', $new_master->roles[0] );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote the master user if the user is still an admin' );
 
 		$new_master->set_role( 'author' );
 		// don't demote user if the user one the only admin that is connected.
-		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id, $new_master_id );
+		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote user if the user is the only connected user.' );
 	}
 

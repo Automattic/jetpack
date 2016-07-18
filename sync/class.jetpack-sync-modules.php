@@ -39,13 +39,13 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Meta',
 		'Jetpack_Sync_Module_Plugins',
 		'Jetpack_Sync_Module_Protect',
-		'Jetpack_Sync_Module_Full_Sync'
+		'Jetpack_Sync_Module_Full_Sync',
 	);
 
 	private static $initialized_modules = null;
 
 	public static function get_modules() {
-		if ( self::$initialized_modules === null ) {
+		if ( null === self::$initialized_modules ) {
 			self::$initialized_modules = self::initialize_modules();
 		}
 
@@ -53,7 +53,7 @@ class Jetpack_Sync_Modules {
 	}
 
 	public static function get_module( $module_name ) {
-		foreach( self::get_modules() as $module ) {
+		foreach ( self::get_modules() as $module ) {
 			if ( $module->name() === $module_name ) {
 				return $module;
 			}
@@ -71,12 +71,14 @@ class Jetpack_Sync_Modules {
 		 * @since 4.2.0
 		 */
 		$modules = apply_filters( 'jetpack_sync_modules', self::$default_sync_modules );
+
 		return array_map( array( 'Jetpack_Sync_Modules', 'initialize_module' ), $modules );
 	}
 
 	static function initialize_module( $module_name ) {
 		$module = new $module_name;
 		$module->set_defaults();
+
 		return $module;
 	}
 }

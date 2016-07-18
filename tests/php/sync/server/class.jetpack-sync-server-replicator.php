@@ -12,7 +12,7 @@ class Jetpack_Sync_Server_Replicator {
 	}
 
 	function init() {
-		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 5, 6 );
+		add_action( 'jetpack_sync_remote_action', array( $this, 'handle_remote_action' ), 5, 6 );
 	}
 
 	function handle_remote_action( $action_name, $args, $user_id, $timestamp, $sent_timestamp, $token ) {
@@ -30,11 +30,11 @@ class Jetpack_Sync_Server_Replicator {
 
 			// attachments
 			case 'attachment_updated':
-				list( $post_ID, $post, $post_before ) = $args;
+				list( $post_id, $post, $post_before ) = $args;
 				$this->store->upsert_post( $post );
 				break;
 			case 'jetpack_sync_save_add_attachment':
-				list( $attachment_ID, $attachment ) = $args;
+				list( $attachment_id, $attachment ) = $args;
 				$this->store->upsert_post( $attachment );
 				break;
 
@@ -145,7 +145,7 @@ class Jetpack_Sync_Server_Replicator {
 
 			case 'jetpack_full_sync_posts':
 				list( $posts, $post_metas, $terms ) = $args;
-				foreach( $posts as $post ) {
+				foreach ( $posts as $post ) {
 					$this->store->upsert_post( $post, true ); // upsert silently
 				}
 				foreach ( $post_metas as $meta ) {
@@ -162,7 +162,7 @@ class Jetpack_Sync_Server_Replicator {
 			case 'jetpack_full_sync_comments':
 				list( $comments, $comment_metas ) = $args;
 
-				foreach( $comments as $comment ) {
+				foreach ( $comments as $comment ) {
 					$this->store->upsert_comment( $comment );
 				}
 				foreach ( $comment_metas as $meta ) {
@@ -170,37 +170,37 @@ class Jetpack_Sync_Server_Replicator {
 				}
 				break;
 			case 'jetpack_full_sync_options':
-				foreach( $args as $option => $value ) {
+				foreach ( $args as $option => $value ) {
 					$this->store->update_option( $option, $value );
 				}
 				break;
 			case 'jetpack_full_sync_network_options':
-				foreach( $args as $option => $value ) {
+				foreach ( $args as $option => $value ) {
 					$this->store->update_site_option( $option, $value );
 				}
 				break;
 			case 'jetpack_full_sync_constants':
-				foreach( $args as $name => $value ) {
+				foreach ( $args as $name => $value ) {
 					$this->store->set_constant( $name, $value );
 				}
 				break;
 			case 'jetpack_full_sync_callables':
-				foreach( $args as $name => $value ) {
+				foreach ( $args as $name => $value ) {
 					$this->store->set_callable( $name, $value );
 				}
 				break;
 			case 'jetpack_full_sync_users':
-				foreach( $args as $user ) {
+				foreach ( $args as $user ) {
 					$this->store->upsert_user( $user );
 				}
 				break;
 			case 'jetpack_full_sync_terms':
-				foreach( $args as $term_object ) {
+				foreach ( $args as $term_object ) {
 					$this->store->update_term( $term_object );
 				}
 				break;
 			case 'jetpack_full_sync_updates':
-				foreach ($args as $update_name => $update_value ) {
+				foreach ( $args as $update_name => $update_value ) {
 					$this->store->set_updates( $update_name, $update_value );
 				}
 				break;
@@ -212,7 +212,7 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			case 'delete_term':
-				list( $term_id, $tt_id, $taxonomy, $deleted_term_or_error  ) = $args;
+				list( $term_id, $tt_id, $taxonomy, $deleted_term_or_error ) = $args;
 				$this->store->delete_term( $term_id, $taxonomy );
 				break;
 
@@ -249,7 +249,7 @@ class Jetpack_Sync_Server_Replicator {
 				if ( $deleted ) {
 					$plugins = $this->store->get_callable( 'get_plugins' );
 					unset( $plugins[ $plugin_file ] );
-					$this->store->set_callable( 'get_plugins',$plugins );
+					$this->store->set_callable( 'get_plugins', $plugins );
 				}
 		}
 	}

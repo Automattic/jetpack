@@ -7,7 +7,7 @@ require_once dirname( __FILE__ ) . '/interface.jetpack-sync-codec.php';
  * algorithm to compress objects serialized using json_encode
  */
 class Jetpack_Sync_JSON_Deflate_Codec implements iJetpack_Sync_Codec {
-	const CODEC_NAME = "deflate-json";
+	const CODEC_NAME = 'deflate-json';
 
 	public function name() {
 		return self::CODEC_NAME;
@@ -30,20 +30,21 @@ class Jetpack_Sync_JSON_Deflate_Codec implements iJetpack_Sync_Codec {
 		return $this->json_unwrap( json_decode( $str ) );
 	}
 
-	private function json_wrap( $any, $skipAssoc = false ) {
-		if ( !$skipAssoc && is_array( $any ) && is_string( key( $any ) ) ) {
-			return (object) array( "_PHP_ASSOC" => $this->json_wrap( $any, true ) );
+	private function json_wrap( $any, $skip_assoc = false ) {
+		if ( ! $skip_assoc && is_array( $any ) && is_string( key( $any ) ) ) {
+			return (object) array( '_PHP_ASSOC' => $this->json_wrap( $any, true ) );
 		}
 		if ( is_array( $any ) || is_object( $any ) ) {
 			foreach ( $any as &$v ) {
 				$v = $this->json_wrap( $v );
 			}
 		}
+
 		return $any;
 	}
 
-	private function json_unwrap( $any, $skipAssoc = false ) {
-		if ( !$skipAssoc && is_object( $any ) && isset( $any->_PHP_ASSOC ) && count( (array) $any ) == 1 ) {
+	private function json_unwrap( $any, $skip_assoc = false ) {
+		if ( ! $skip_assoc && is_object( $any ) && isset( $any->_PHP_ASSOC ) && count( (array) $any ) == 1 ) {
 			return (array) $this->json_unwrap( $any->_PHP_ASSOC );
 		}
 		if ( is_array( $any ) || is_object( $any ) ) {
@@ -51,6 +52,7 @@ class Jetpack_Sync_JSON_Deflate_Codec implements iJetpack_Sync_Codec {
 				$v = $this->json_unwrap( $v );
 			}
 		}
+
 		return $any;
 	}
 }

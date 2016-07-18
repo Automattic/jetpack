@@ -42,20 +42,20 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function post_count( $status = null, $min_id = null, $max_id = null ) {
 		global $wpdb;
 
-		$where = "";
+		$where = '';
 
 		if ( $status ) {
 			$where = "post_status = '" . esc_sql( $status ) . "'";
 		} else {
-			$where = "1=1";
+			$where = '1=1';
 		}
 
-		if ( $min_id != null ) {
-			$where .= " AND ID >= " . intval( $min_id );
+		if ( null != $min_id ) {
+			$where .= ' AND ID >= ' . intval( $min_id );
 		}
 
-		if ( $max_id != null ) {
-			$where .= " AND ID <= " . intval( $max_id );
+		if ( null != $max_id ) {
+			$where .= ' AND ID <= ' . intval( $max_id );
 		}
 
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE $where" );
@@ -173,26 +173,26 @@ ENDSQL;
 		if ( $comment_approved !== false ) {
 			$where = "comment_approved = '" . esc_sql( $comment_approved ) . "'";
 		} else {
-			$where = "1=1";
+			$where = '1=1';
 		}
 
 		if ( $min_id != null ) {
-			$where .= " AND comment_ID >= " . intval( $min_id );
+			$where .= ' AND comment_ID >= ' . intval( $min_id );
 		}
 
 		if ( $max_id != null ) {
-			$where .= " AND comment_ID <= " . intval( $max_id );
-		}	
-	
+			$where .= ' AND comment_ID <= ' . intval( $max_id );
+		}
+
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments WHERE $where" );
 	}
 
 	private function comment_status_to_approval_value( $status ) {
 		switch ( $status ) {
 			case 'approve':
-				return "1";
+				return '1';
 			case 'hold':
-				return "0";
+				return '0';
 			case 'spam':
 				return 'spam';
 			case 'trash':
@@ -246,7 +246,7 @@ ENDSQL;
 			'comment_agent',
 			'comment_type',
 			'comment_parent',
-			'user_id'
+			'user_id',
 		);
 
 		foreach ( $comment as $key => $value ) {
@@ -286,7 +286,7 @@ ENDSQL;
 	public function comments_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
 
-		$where_sql = "1=1";
+		$where_sql = '1=1';
 
 		if ( $min_id !== null ) {
 			$min_id = intval( $min_id );
@@ -311,13 +311,13 @@ ENDSQL;
 		global $wpdb;
 
 		$options_whitelist = "'" . implode( "', '", Jetpack_Sync_Defaults::$default_options_whitelist ) . "'";
-		$query = <<<ENDSQL
+		$query             = <<<ENDSQL
 			SELECT CONV(BIT_XOR(CRC32(CONCAT(option_name,option_value))), 10, 16) FROM $wpdb->options WHERE option_name IN ( $options_whitelist ) 
 ENDSQL;
 
 		return $wpdb->get_var( $query );
 	}
-	
+
 
 	public function update_option( $option, $value ) {
 		return update_option( $option, $value );
@@ -370,15 +370,17 @@ ENDSQL;
 		) );
 
 		if ( $exists ) {
-			$wpdb->update( $table, array( 'meta_key'   => $meta_key,
-			                              'meta_value' => serialize( $meta_value )
+			$wpdb->update( $table, array(
+				'meta_key'   => $meta_key,
+				'meta_value' => serialize( $meta_value ),
 			), array( 'meta_id' => $meta_id ) );
 		} else {
 			$object_id_field = $type . '_id';
-			$wpdb->insert( $table, array( 'meta_id'        => $meta_id,
-			                              $object_id_field => $object_id,
-			                              'meta_key'       => $meta_key,
-			                              'meta_value'     => serialize( $meta_value )
+			$wpdb->insert( $table, array(
+				'meta_id'        => $meta_id,
+				$object_id_field => $object_id,
+				'meta_key'       => $meta_key,
+				'meta_value'     => serialize( $meta_value ),
 			) );
 		}
 
@@ -529,8 +531,6 @@ ENDSQL;
 			$wpdb->insert( $wpdb->terms, $term );
 			$wpdb->insert( $wpdb->term_taxonomy, $term_taxonomy );
 
-//			clean_term_cache( $term_object->term_id, $taxonomy );
-
 			return true;
 		}
 
@@ -611,7 +611,7 @@ ENDSQL;
 		return array(
 			'posts'    => $this->posts_checksum(),
 			'comments' => $this->comments_checksum(),
-			'options' => $this->options_checksum(),
+			'options'  => $this->options_checksum(),
 		);
 	}
 
@@ -620,28 +620,28 @@ ENDSQL;
 
 		$wpdb->queries = array();
 
-		switch( $object_type ) {
-			case "posts":
-				$object_count = $this->post_count( null, $start_id, $end_id );
-				$object_table = $wpdb->posts;
-				$id_field = 'ID';
+		switch ( $object_type ) {
+			case 'posts':
+				$object_count    = $this->post_count( null, $start_id, $end_id );
+				$object_table    = $wpdb->posts;
+				$id_field        = 'ID';
 				$checksum_method = array( $this, 'posts_checksum' );
 				break;
-			case "comments":
-				$object_count = $this->comment_count( null, $start_id, $end_id );
-				$object_table = $wpdb->comments;
-				$id_field = 'comment_ID';
+			case 'comments':
+				$object_count    = $this->comment_count( null, $start_id, $end_id );
+				$object_table    = $wpdb->comments;
+				$id_field        = 'comment_ID';
 				$checksum_method = array( $this, 'comments_checksum' );
 				break;
 			default:
 				return false;
 		}
 
-		$bucket_size = intval( ceil( $object_count / $buckets ) );
+		$bucket_size  = intval( ceil( $object_count / $buckets ) );
 		$query_offset = 0;
-		$histogram = array();
+		$histogram    = array();
 
-		$where = "1=1";
+		$where = '1=1';
 
 		if ( $start_id ) {
 			$where .= " AND $id_field >= " . intval( $start_id );
@@ -652,9 +652,9 @@ ENDSQL;
 		}
 
 		do {
-			list( $first_id, $last_id ) = $wpdb->get_row( 
-				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table WHERE $where ORDER BY $id_field ASC LIMIT $query_offset, $bucket_size ) as ids", 
-				ARRAY_N 
+			list( $first_id, $last_id ) = $wpdb->get_row(
+				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table WHERE $where ORDER BY $id_field ASC LIMIT $query_offset, $bucket_size ) as ids",
+				ARRAY_N
 			);
 
 			// get the checksum value
@@ -663,9 +663,9 @@ ENDSQL;
 			if ( $first_id === null || $last_id === null ) {
 				break;
 			} elseif ( $first_id === $last_id ) {
-				$histogram[$first_id] = $value;
+				$histogram[ $first_id ] = $value;
 			} else {
-				$histogram["{$first_id}-{$last_id}"] = $value;
+				$histogram[ "{$first_id}-{$last_id}" ] = $value;
 			}
 
 			$query_offset += $bucket_size;

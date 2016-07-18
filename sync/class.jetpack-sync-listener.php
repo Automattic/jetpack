@@ -18,7 +18,7 @@ class Jetpack_Sync_Listener {
 	// singleton functions
 	private static $instance;
 
-	public static function getInstance() {
+	public static function get_instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
@@ -36,7 +36,7 @@ class Jetpack_Sync_Listener {
 
 		$handler = array( $this, 'action_handler' );
 
-		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->init_listeners( $handler );
 		}
 
@@ -77,16 +77,16 @@ class Jetpack_Sync_Listener {
 	function can_add_to_queue() {
 		$queue_state = get_transient( self::QUEUE_STATE_CHECK_TRANSIENT );
 
-		if ( $queue_state === false ) {
+		if ( false === $queue_state ) {
 			$queue_state = array( $this->sync_queue->size(), $this->sync_queue->lag() );
 			set_transient( self::QUEUE_STATE_CHECK_TRANSIENT, $queue_state, self::QUEUE_STATE_CHECK_TIMEOUT );
 		}
 
 		list( $queue_size, $queue_age ) = $queue_state;
 
-		return 	( $queue_age < $this->sync_queue_lag_limit ) 
-			|| 
-				( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
+		return ( $queue_age < $this->sync_queue_lag_limit )
+		       ||
+		       ( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
 	}
 
 	function action_handler() {
@@ -124,7 +124,7 @@ class Jetpack_Sync_Listener {
 			$current_filter,
 			$args,
 			get_current_user_id(),
-			microtime( true )
+			microtime( true ),
 		) );
 	}
 

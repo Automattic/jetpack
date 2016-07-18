@@ -27,7 +27,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 	function enqueue_full_sync_actions() {
 		global $wpdb;
 
-		$taxonomies = get_taxonomies();
+		$taxonomies           = get_taxonomies();
 		$total_chunks_counter = 0;
 		foreach ( $taxonomies as $taxonomy ) {
 			// I hope this is never bigger than RAM...
@@ -38,7 +38,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 			// Send each chunk as an array of objects
 			foreach ( $chunked_term_ids as $chunk ) {
 				do_action( 'jetpack_full_sync_terms', $chunk, $taxonomy );
-				$total_chunks_counter++;
+				$total_chunks_counter ++;
 			}
 		}
 
@@ -83,12 +83,12 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 			$terms = get_terms( array(
 				'taxonomy'   => $taxonomy,
 				'hide_empty' => false,
-				'include'    => $term_ids
+				'include'    => $term_ids,
 			) );
 		} else {
 			$terms = get_terms( $taxonomy, array(
 				'hide_empty' => false,
-				'include'    => $term_ids
+				'include'    => $term_ids,
 			) );
 		}
 

@@ -8,11 +8,17 @@ class Jetpack_Sync_Server_Eventstore {
 	private $action_name = null;
 
 	function init() {
-		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 10, 6 );
+		add_action( 'jetpack_sync_remote_action', array( $this, 'handle_remote_action' ), 10, 6 );
 	}
 
-	function handle_remote_action( $action_name, $args, $user_id, $timestamp, $sent_timestamp, $token ) {
-		$this->events[] = (object) array( 'action' => $action_name, 'args' => $args, 'user_id' => $user_id, 'timestamp' => $timestamp, 'sent_timestamp' => $sent_timestamp );
+	function handle_remote_action( $action_name, $args, $user_id, $timestamp, $sent_timestamp ) {
+		$this->events[] = (object) array(
+			'action'         => $action_name,
+			'args'           => $args,
+			'user_id'        => $user_id,
+			'timestamp'      => $timestamp,
+			'sent_timestamp' => $sent_timestamp,
+		);
 	}
 
 	function get_all_events( $action_name = null ) {
@@ -20,6 +26,7 @@ class Jetpack_Sync_Server_Eventstore {
 		if ( $this->action_name ) {
 			return array_values( array_filter( $this->events, array( $this, 'filter_actions' ) ) );
 		}
+
 		return $this->events;
 	}
 
@@ -30,7 +37,7 @@ class Jetpack_Sync_Server_Eventstore {
 	function get_most_recent_event( $action_name = null ) {
 		$events_list = $this->get_all_events( $action_name );
 
-		if( count( $events_list ) > 0 ) {
+		if ( count( $events_list ) > 0 ) {
 			return $events_list[ count( $events_list ) - 1 ];
 		}
 

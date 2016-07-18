@@ -20,7 +20,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			if ( $has_support ) {
 				$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
 			}
-
 		}
 
 		/**
@@ -32,6 +31,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		 * @param object the theme support hash
 		 */
 		do_action( 'jetpack_sync_current_theme_support', $theme_support );
+
 		return 1; // The number of actions enqueued
 	}
 

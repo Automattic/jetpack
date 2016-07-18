@@ -5,10 +5,8 @@ function jetpack_foo_full_sync_callable() {
 }
 
 class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
-	private $transients;
 	private $full_sync;
-	private $start_sent;
-	private $end_sent;
+
 	private $full_sync_end_checksum;
 
 	function setUp() {
@@ -68,7 +66,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// fake the last sync being over an hour ago
 		$this->full_sync->update_status( array( 'started' => ( time() - 3700 ) ) );
-		
+
 		$this->full_sync->start();
 
 		$this->assertEquals( 2, $this->started_sync_count );
@@ -90,10 +88,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
 
 		$options_full_sync_actions = Jetpack_Sync_Modules::get_module( 'options' )->get_full_sync_actions();
-		$options_event = $this->server_event_storage->get_most_recent_event( $options_full_sync_actions[0] );
+		$options_event             = $this->server_event_storage->get_most_recent_event( $options_full_sync_actions[0] );
 
 		$posts_full_sync_actions = Jetpack_Sync_Modules::get_module( 'posts' )->get_full_sync_actions();
-		$posts_event = $this->server_event_storage->get_most_recent_event( $posts_full_sync_actions[0] );
+		$posts_event             = $this->server_event_storage->get_most_recent_event( $posts_full_sync_actions[0] );
 
 		$this->assertTrue( $start_event !== false );
 		$this->assertTrue( $options_event !== false );
@@ -112,8 +110,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filtered_content_was_filtered_when_syncing_all() {
-		$post_id    = $this->factory->post->create();
-		$post = get_post( $post_id );
+		$post_id = $this->factory->post->create();
+		$post    = get_post( $post_id );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$post->post_content = "[foo]";
 		wp_update_post( $post );
@@ -125,7 +123,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $post->ID );
 		$this->assertEquals( $post_on_server->post_content, '[foo]' );
-		$this->assertEquals( trim( $post_on_server->post_content_filtered ),  'bar' );
+		$this->assertEquals( trim( $post_on_server->post_content_filtered ), 'bar' );
 	}
 
 	function foo_shortcode() {
@@ -149,8 +147,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_sends_all_terms() {
 
-		for( $i = 0; $i < 11; $i += 1 ) {
-			wp_insert_term( 'term'.$i, 'post_tag' );
+		for ( $i = 0; $i < 11; $i += 1 ) {
+			wp_insert_term( 'term' . $i, 'post_tag' );
 		}
 
 		// simulate emptying the server storage
@@ -165,7 +163,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_users() {
-		for( $i = 0; $i < 10; $i += 1 ) {
+		for ( $i = 0; $i < 10; $i += 1 ) {
 			$user_id = $this->factory->user->create();
 		}
 
@@ -201,13 +199,13 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6
 		global $wpdb;
 
-		$suppress = $wpdb->suppress_errors();
+		$suppress      = $wpdb->suppress_errors();
 		$other_blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $this->user_id );
 		$wpdb->suppress_errors( $suppress );
 
 		// let's create some users on the other blog
 		switch_to_blog( $other_blog_id );
-		$mu_blog_user_id = $this->factory->user->create();
+		$mu_blog_user_id       = $this->factory->user->create();
 		$added_mu_blog_user_id = $this->factory->user->create();
 		restore_current_blog();
 
@@ -264,7 +262,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Sync_Modules::get_module( "options" )->set_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
 		update_option( 'my_option', 'foo' );
 		update_option( 'my_prefix_value', 'bar' );
-		update_option( 'my_non_synced_option', 'baz');
+		update_option( 'my_non_synced_option', 'baz' );
 
 		$this->sender->do_sync();
 
@@ -286,21 +284,25 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
 	}
+
 	// to test run phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_all_network_options
 	function test_full_sync_sends_all_network_options() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 
-		Jetpack_Sync_Modules::get_module( "network_options" )->set_network_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
+		Jetpack_Sync_Modules::get_module( "network_options" )->set_network_options_whitelist( array(
+			'my_option',
+			'my_prefix_value'
+		) );
 		update_site_option( 'my_option', 'foo' );
 		update_site_option( 'my_prefix_value', 'bar' );
-		update_site_option( 'my_non_synced_option', 'baz');
+		update_site_option( 'my_non_synced_option', 'baz' );
 
 		$this->sender->do_sync();
 
 		// confirm sync worked as expected
-		$this->assertEquals( 'foo', $this->server_replica_storage->get_site_option( 'my_option' ) ,'' );
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_site_option( 'my_option' ), '' );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_site_option( 'my_prefix_value' ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_site_option( 'my_non_synced_option' ) );
 
@@ -313,7 +315,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start();
 		$this->sender->do_sync();
 
-		$this->assertEquals( 'foo', $this->server_replica_storage->get_site_option( 'my_option' ) , 'Network options not synced during full sync');
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_site_option( 'my_option' ), 'Network options not synced during full sync' );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_site_option( 'my_prefix_value' ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_site_option( 'my_non_synced_option' ) );
 	}
@@ -348,7 +350,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' , 'Not empty') );
+		$this->assertEquals( null, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag', 'Not empty' ) );
 		$this->full_sync->start();
 		$this->sender->do_sync();
 
@@ -357,9 +359,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_comment_meta() {
-		$post_id = $this->factory->post->create();
+		$post_id     = $this->factory->post->create();
 		$comment_ids = $this->factory->comment->create_post_comments( $post_id );
-		$comment_id = $comment_ids[0];
+		$comment_id  = $comment_ids[0];
 		add_comment_meta( $comment_id, 'test_meta_key', 'foo' );
 
 		$this->sender->do_sync();
@@ -395,7 +397,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertEquals( 'twentyfourteen', $this->server_replica_storage->get_option( 'stylesheet' ) );
-		$this->assertEquals( get_option( 'theme_mods_twentyfourteen' ),  $this->server_replica_storage->get_option( 'theme_mods_twentyfourteen' ) );
+		$this->assertEquals( get_option( 'theme_mods_twentyfourteen' ), $this->server_replica_storage->get_option( 'theme_mods_twentyfourteen' ) );
 	}
 
 	function test_full_sync_sends_plugin_updates() {
@@ -410,7 +412,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// check that an update just finished
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
-		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
+		$this->assertTrue( $updates->last_checked > strtotime( "-10 seconds" ) );
 
 		$this->server_replica_storage->reset();
 
@@ -422,7 +424,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
 		$this->assertNotNull( $updates );
-		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds"), 'Last checked is less then 2 seconds: ' . $updates->last_checked . ' - lest then 10 sec:' . strtotime( "-10 seconds" ) );
+		$this->assertTrue( $updates->last_checked > strtotime( "-10 seconds" ), 'Last checked is less then 2 seconds: ' . $updates->last_checked . ' - lest then 10 sec:' . strtotime( "-10 seconds" ) );
 	}
 
 	function test_full_sync_sends_theme_updates() {
@@ -437,7 +439,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// check that an update just finished
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
-		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+		$this->assertTrue( $updates->last_checked > strtotime( "-2 seconds" ) );
 
 		// we need to do this because there's a check for elapsed time since last update
 		// in the wp_update_themes() function
@@ -451,7 +453,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
 		$this->assertNotNull( $updates );
-		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
+		$this->assertTrue( $updates->last_checked > strtotime( "-10 seconds" ) );
 	}
 
 	function test_full_sync_sends_core_updates() {
@@ -466,7 +468,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// check that an update just finished
 		$updates = $this->server_replica_storage->get_updates( 'core' );
-		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
+		$this->assertTrue( $updates->last_checked > strtotime( "-10 seconds" ) );
 
 		// we need to do this because there's a check for elapsed time since last update
 		// in the wp_update_core() function
@@ -480,7 +482,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$updates = $this->server_replica_storage->get_updates( 'core' );
 		$this->assertNotNull( $updates );
-		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
+		$this->assertTrue( $updates->last_checked > strtotime( "-10 seconds" ) );
 	}
 
 	function test_full_sync_end_sends_checksums() {
@@ -521,12 +523,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals(
 			$full_sync_status,
 			array(
-				'started' => null,
+				'started'        => null,
 				'queue_finished' => null,
-				'sent_started' => null,
-				'finished' => null,
-				'sent' => array(),
-				'queue' => array(),
+				'sent_started'   => null,
+				'finished'       => null,
+				'sent'           => array(),
+				'queue'          => array(),
 			)
 		);
 	}
@@ -540,15 +542,15 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$should_be_status = array(
 			'queue' => array(
-				'constants'       => 1,
-				'functions'       => 1,
-				'options'         => 1,
-				'posts'           => 2,
-				'comments'        => 2,
-				'themes'          => 1,
-				'updates'         => 1,
-				'users'           => 1,
-				'terms'           => 1
+				'constants' => 1,
+				'functions' => 1,
+				'options'   => 1,
+				'posts'     => 2,
+				'comments'  => 2,
+				'themes'    => 1,
+				'updates'   => 1,
+				'users'     => 1,
+				'terms'     => 1
 			),
 		);
 		if ( is_multisite() ) {
@@ -572,32 +574,32 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$full_sync_status = $this->full_sync->get_status();
 
 		$should_be_status = array(
-			'sent' => array(
-				'constants'       => 1,
-				'functions'       => 1,
-				'options'         => 1,
-				'posts'           => 2,
-				'comments'        => 2,
-				'themes'          => 1,
-				'updates'         => 1,
-				'users'           => 1,
-				'terms'           => 1
+			'sent'  => array(
+				'constants' => 1,
+				'functions' => 1,
+				'options'   => 1,
+				'posts'     => 2,
+				'comments'  => 2,
+				'themes'    => 1,
+				'updates'   => 1,
+				'users'     => 1,
+				'terms'     => 1
 			),
 			'queue' => array(
-				'constants'       => 1,
-				'functions'       => 1,
-				'options'         => 1,
-				'posts'           => 2,
-				'comments'        => 2,
-				'themes'          => 1,
-				'updates'         => 1,
-				'users'           => 1,
-				'terms'           => 1
+				'constants' => 1,
+				'functions' => 1,
+				'options'   => 1,
+				'posts'     => 2,
+				'comments'  => 2,
+				'themes'    => 1,
+				'updates'   => 1,
+				'users'     => 1,
+				'terms'     => 1
 			)
 		);
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
-			$should_be_status['sent']['network_options'] = 1;
+			$should_be_status['sent']['network_options']  = 1;
 		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
@@ -648,32 +650,32 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$full_sync_status = $this->full_sync->get_status();
 
 		$should_be_status = array(
-			'sent' => array(
-				'constants'       => 1,
-				'functions'       => 1,
-				'options'         => 1,
-				'posts'           => 2,
-				'comments'        => 2,
-				'themes'          => 1,
-				'updates'         => 1,
-				'users'           => 1,
-				'terms'           => 1
+			'sent'  => array(
+				'constants' => 1,
+				'functions' => 1,
+				'options'   => 1,
+				'posts'     => 2,
+				'comments'  => 2,
+				'themes'    => 1,
+				'updates'   => 1,
+				'users'     => 1,
+				'terms'     => 1
 			),
 			'queue' => array(
-				'constants'       => 1,
-				'functions'       => 1,
-				'options'         => 1,
-				'posts'           => 2,
-				'comments'        => 2,
-				'themes'          => 1,
-				'updates'         => 1,
-				'users'           => 1,
-				'terms'           => 1
+				'constants' => 1,
+				'functions' => 1,
+				'options'   => 1,
+				'posts'     => 2,
+				'comments'  => 2,
+				'themes'    => 1,
+				'updates'   => 1,
+				'users'     => 1,
+				'terms'     => 1
 			)
 		);
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
-			$should_be_status['sent']['network_options'] = 1;
+			$should_be_status['sent']['network_options']  = 1;
 		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
@@ -692,6 +694,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		if ( version_compare( $wp_version, '4.4', '<' ) ) {
 			unset( $term->filter );
 		}
+
 		return $term;
 	}
 }

@@ -19,7 +19,7 @@ class JetpackSyncTestObjectFactory {
 		'pinged'                => '',
 		'post_parent'           => 0,
 		'menu_order'            => 0,
-		'guid'                  => ''
+		'guid'                  => '',
 	);
 
 	static $default_comment_props = array(
@@ -43,11 +43,11 @@ class JetpackSyncTestObjectFactory {
 	);
 
 	static $default_term_props = array(
-		'term_group' => 0,
+		'term_group'  => 0,
 		'description' => '',
-		'parent' => 0,
-		'count' => 0,
-		'filter' => 'raw',
+		'parent'      => 0,
+		'count'       => 0,
+		'filter'      => 'raw',
 	);
 
 	function post( $id, $props = array() ) {
@@ -63,7 +63,7 @@ class JetpackSyncTestObjectFactory {
 				'post_date'         => $now,
 				'post_date_gmt'     => $now_gmt,
 				'post_modified'     => $now,
-				'post_modified_gmt' => $now_gmt
+				'post_modified_gmt' => $now_gmt,
 			)
 		);
 
@@ -99,13 +99,13 @@ class JetpackSyncTestObjectFactory {
 			self::$default_user_props,
 			$props,
 			array(
-				'ID'              => $id,
-				'user_login'      => $username,
-				'user_nicename'   => $username,
-				'user_email'      => "$username@example.com",
-				'user_registered' => $now,
-				'display_name'    => $username,
-				'allowed_mime_types' => array( 'jpg|jpeg|jpe' => 'image/jpeg', 'gif' => 'image/gif' )
+				'ID'                 => $id,
+				'user_login'         => $username,
+				'user_nicename'      => $username,
+				'user_email'         => "$username@example.com",
+				'user_registered'    => $now,
+				'display_name'       => $username,
+				'allowed_mime_types' => array( 'jpg|jpeg|jpe' => 'image/jpeg', 'gif' => 'image/gif' ),
 			)
 		);
 
@@ -114,30 +114,30 @@ class JetpackSyncTestObjectFactory {
 
 	function plugins() {
 		return array(
-			'polldaddy/polldaddy.php' => array(
-				'Name' => 'Polldaddy Polls & Ratings',
-				'PluginURI' => 'http://wordpress.org/extend/plugins/polldaddy/',
-                'Version' => '2.0.31',
-                'Description' => 'Create and manage Polldaddy polls and ratings in WordPress',
-				'Author' => 'Automattic, Inc.',
-                'TextDomain' => 'polldaddy',
-                'Title' => 'Polldaddy Polls & Ratings',
-				'Network' => false,
-				'AuthorName' => 'Automattic, Inc.'
-            ),
+			'polldaddy/polldaddy.php'   => array(
+				'Name'        => 'Polldaddy Polls & Ratings',
+				'PluginURI'   => 'http://wordpress.org/extend/plugins/polldaddy/',
+				'Version'     => '2.0.31',
+				'Description' => 'Create and manage Polldaddy polls and ratings in WordPress',
+				'Author'      => 'Automattic, Inc.',
+				'TextDomain'  => 'polldaddy',
+				'Title'       => 'Polldaddy Polls & Ratings',
+				'Network'     => false,
+				'AuthorName'  => 'Automattic, Inc.',
+			),
 			'vaultpress/vaultpress.php' => array(
-				'Name' => 'VaultPress',
-				'PluginURI' => 'http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0',
-				'Version' => '1.8.2',
-                'Description' => 'Protect your content, themes, plugins, and settings with...',
-				'Author' => 'Automattic',
-				'AuthorURI' => 'http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0',
-                'TextDomain' => 'vaultpress',
-				'DomainPath' => '/languages/',
-				'Network' => false,
-                'Title' => 'VaultPress',
-				'AuthorName' => 'Automattic'
-			)
+				'Name'        => 'VaultPress',
+				'PluginURI'   => 'http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0',
+				'Version'     => '1.8.2',
+				'Description' => 'Protect your content, themes, plugins, and settings with...',
+				'Author'      => 'Automattic',
+				'AuthorURI'   => 'http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0',
+				'TextDomain'  => 'vaultpress',
+				'DomainPath'  => '/languages/',
+				'Network'     => false,
+				'Title'       => 'VaultPress',
+				'AuthorName'  => 'Automattic',
+			),
 		);
 	}
 
@@ -146,7 +146,7 @@ class JetpackSyncTestObjectFactory {
 			self::$default_term_props,
 			$props,
 			array(
-				'term_id' => $id
+				'term_id' => $id,
 			)
 		);
 

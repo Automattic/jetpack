@@ -19,13 +19,12 @@ class Jetpack_Sync_Sender {
 	private $upload_max_rows;
 	private $sync_wait_time;
 	private $sync_queue;
-	private $full_sync_client;
 	private $codec;
 
 	// singleton functions
 	private static $instance;
 
-	public static function getInstance() {
+	public static function get_instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
@@ -41,7 +40,7 @@ class Jetpack_Sync_Sender {
 
 	private function init() {
 
-		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->init_before_send();
 		}
 
@@ -54,7 +53,7 @@ class Jetpack_Sync_Sender {
 	public function do_sync() {
 		// don't sync if importing
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
-			$this->schedule_sync( "+1 minute" );
+			$this->schedule_sync( '+1 minute' );
 
 			return false;
 		}
@@ -96,7 +95,7 @@ class Jetpack_Sync_Sender {
 
 		$upload_size   = 0;
 		$items_to_send = array();
-		$items = $buffer->get_items();
+		$items         = $buffer->get_items();
 
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
@@ -110,7 +109,7 @@ class Jetpack_Sync_Sender {
 			 *
 			 * @param array The action parameters
 			 */
-			$item[1] = apply_filters( "jetpack_sync_before_send_" . $item[0], $item[1], $item[2] );
+			$item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
 
 			$encoded_item = $this->codec->encode( $item );
 
@@ -138,11 +137,11 @@ class Jetpack_Sync_Sender {
 			$processed_item_ids = $this->sync_queue->checkin( $buffer );
 
 			if ( is_wp_error( $processed_item_ids ) ) {
-				error_log( "Error checking in buffer: " . $processed_item_ids->get_error_message() );
+				error_log( 'Error checking in buffer: ' . $processed_item_ids->get_error_message() );
 				$this->sync_queue->force_checkin();
 			}
 			// try again in 1 minute
-			$this->schedule_sync( "+1 minute" );
+			$this->schedule_sync( '+1 minute' );
 		} else {
 			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
 
@@ -160,7 +159,7 @@ class Jetpack_Sync_Sender {
 			// check if there are any more events in the buffer
 			// if so, schedule a cron job to happen soon
 			if ( $this->sync_queue->has_any_items() ) {
-				$this->schedule_sync( "+1 minute" );
+				$this->schedule_sync( '+1 minute' );
 			}
 		}
 	}
@@ -221,7 +220,7 @@ class Jetpack_Sync_Sender {
 
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
-		$this->codec = new Jetpack_Sync_JSON_Deflate_Codec();
+		$this->codec      = new Jetpack_Sync_JSON_Deflate_Codec();
 
 		// saved settings
 		$settings = Jetpack_Sync_Settings::get_settings();
@@ -234,7 +233,7 @@ class Jetpack_Sync_Sender {
 	function reset_data() {
 		$this->reset_sync_queue();
 
-		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->reset_data();
 		}
 

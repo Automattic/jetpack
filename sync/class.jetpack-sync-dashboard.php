@@ -14,7 +14,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	function get_page_hook() {
 		return add_submenu_page( null, __( 'Jetpack Sync Status', 'jetpack' ), '', 'manage_options', 'jetpack-sync', array(
 			$this,
-			'render'
+			'render',
 		) );
 	}
 
@@ -55,7 +55,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 		wp_localize_script( 'jetpack_sync_reindex_control', 'sync_dashboard', array(
 			'possible_status'  => $strings,
 			'queue_status'     => $initial_queue_status,
-			'full_sync_status' => $initial_full_sync_status
+			'full_sync_status' => $initial_full_sync_status,
 		) );
 	}
 
@@ -81,7 +81,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function ajax_reset_queue() {
-		Jetpack_Sync_Sender::getInstance()->reset_sync_queue();
+		Jetpack_Sync_Sender::get_instance()->reset_sync_queue();
 		delete_option( Jetpack_Sync_Full::$status_option );
 		echo json_encode( array( 'success' => true ) );
 
@@ -89,7 +89,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function ajax_unlock_queue() {
-		Jetpack_Sync_Sender::getInstance()->get_sync_queue()->force_checkin();
+		Jetpack_Sync_Sender::get_instance()->get_sync_queue()->force_checkin();
 		echo json_encode( array( 'success' => true ) );
 		exit;
 	}
@@ -110,11 +110,11 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function queue_status() {
-		$queue = Jetpack_Sync_Sender::getInstance()->get_sync_queue();
+		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
 
 		return array(
 			'size' => $queue->size(),
-			'lag'  => $queue->lag()
+			'lag'  => $queue->lag(),
 		);
 	}
 
@@ -143,18 +143,19 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 		<?php
 	}
 
-	function js_progress_template() { ?>
+	function js_progress_template() {
+		?>
 		<script type="text/html" id="tmpl-sync-progress">
 			<div>
-				Sync started: {{ data.started }} <br />
+				Sync started: {{ data.started }} <br/>
 
-				Queing Duration: {{ data.queue_finished - data.started }}  <br />
+				Queuing Duration: {{ data.queue_finished - data.started }} <br/>
 				Finished: {{ data.finished }}
 				Total Duration: {{ data.finished - data.started }}
 			</div>
 			<div>
 				<p>Posts: {{ data.queue && data.sent.posts }} / {{ data.queue && data.queue.posts }} </p>
-				<p>Comments: {{ data.queue && data.sent.comments }} /  {{ data.queue && data.queue.comments }}</p>
+				<p>Comments: {{ data.queue && data.sent.comments }} / {{ data.queue && data.queue.comments }}</p>
 				<p>Terms: {{ data.queue && data.sent.terms }} / {{ data.queue && data.queue.terms }}</p>
 				<p>Users: {{ data.queue && data.sent.users }} / {{ data.queue && data.queue.users }}</p>
 				<p>Functions: {{ data.queue && data.sent.functions }} / {{ data.queue && data.queue.functions }}</p>

@@ -40,14 +40,14 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
-		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins  );
+		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
 		$this->assertTrue( in_array( 'hello.php', $active_plugins ) );
 
 		deactivate_plugins( 'hello.php' );
 		$this->sender->do_sync();
 
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
-		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins  );
+		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
 		$this->assertFalse( in_array( 'hello.php', $active_plugins ) );
 	}
 
@@ -58,7 +58,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
 		$this->sender->do_sync();
 
-		$set_autoupdate_plugin =  $this->server_replica_storage->get_option( 'jetpack_autoupdate_plugins', array() );
+		$set_autoupdate_plugin = $this->server_replica_storage->get_option( 'jetpack_autoupdate_plugins', array() );
 
 		$this->assertEquals( Jetpack_Options::get_option( 'autoupdate_plugins', array() ), $set_autoupdate_plugin );
 		$this->assertTrue( in_array( 'hello', $set_autoupdate_plugin ) );
@@ -69,7 +69,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
 		$this->sender->do_sync();
 
-		$set_autoupdate_plugin =  $this->server_replica_storage->get_option( 'jetpack_autoupdate_plugins' );
+		$set_autoupdate_plugin = $this->server_replica_storage->get_option( 'jetpack_autoupdate_plugins' );
 		$this->assertEquals( Jetpack_Options::get_option( 'autoupdate_plugins', array() ), $set_autoupdate_plugin );
 		$this->assertFalse( in_array( 'hello', $set_autoupdate_plugin ) );
 	}
@@ -80,27 +80,27 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 
 		// code from wp-admin/update.php
 		$api = plugins_api( 'plugin_information', array(
-			'slug' => 'wp-super-cache',
+			'slug'   => 'wp-super-cache',
 			'fields' => array(
 				'short_description' => false,
-				'sections' => false,
-				'requires' => false,
-				'rating' => false,
-				'ratings' => false,
-				'downloaded' => false,
-				'last_updated' => false,
-				'added' => false,
-				'tags' => false,
-				'compatibility' => false,
-				'homepage' => false,
-				'donate_link' => false,
+				'sections'          => false,
+				'requires'          => false,
+				'rating'            => false,
+				'ratings'           => false,
+				'downloaded'        => false,
+				'last_updated'      => false,
+				'added'             => false,
+				'tags'              => false,
+				'compatibility'     => false,
+				'homepage'          => false,
+				'donate_link'       => false,
 			),
 		) );
 
 		if ( is_wp_error( $api ) ) {
 			wp_die( $api );
 		}
-		$upgrader = new Plugin_Upgrader( new Plugin_Installer_Skin( compact('title', 'url', 'nonce', 'plugin', 'api') ) );
+		$upgrader = new Plugin_Upgrader( new Plugin_Installer_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ) );
 		$upgrader->install( $api->download_link );
 
 	}
@@ -130,7 +130,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	function test_all_plugins_filter_is_respected() {
 		$plugins = get_plugins();
 
-		if ( ! isset( $plugins[ 'hello.php' ] ) ) {
+		if ( ! isset( $plugins['hello.php'] ) ) {
 			$this->markTestSkipped( 'Plugin hello dolly is not available' );
 		}
 		add_filter( 'all_plugins', array( $this, 'remove_hello_dolly' ) );
@@ -139,9 +139,9 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'all_plugins', array( $this, 'remove_hello_dolly' ) );
 
 		$synced_plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
-		$not_synced = array_diff_key( $plugins, $synced_plugins );
+		$not_synced     = array_diff_key( $plugins, $synced_plugins );
 
-		$this->assertTrue( isset( $not_synced[ 'hello.php' ] ) );
+		$this->assertTrue( isset( $not_synced['hello.php'] ) );
 	}
 
 	function remove_plugin() {
@@ -150,7 +150,8 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function remove_hello_dolly( $plugins ) {
-		unset( $plugins[ 'hello.php' ] );
+		unset( $plugins['hello.php'] );
+
 		return $plugins;
 	}
 

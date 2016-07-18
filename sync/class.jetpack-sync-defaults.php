@@ -124,31 +124,31 @@ class Jetpack_Sync_Defaults {
 		'WP_AUTO_UPDATE_CORE',
 		'WP_HTTP_BLOCK_EXTERNAL',
 		'WP_ACCESSIBLE_HOSTS',
-		'JETPACK__VERSION'
+		'JETPACK__VERSION',
 	);
 
 	static $default_callable_whitelist = array(
-		'wp_max_upload_size'              => 'wp_max_upload_size',
-		'is_main_network'                 => array( 'Jetpack', 'is_multi_network' ),
-		'is_multi_site'                   => 'is_multisite',
-		'main_network_site'               => array( 'Jetpack_Sync_Functions', 'main_network_site_url' ),
-		'site_url'                        => array( 'Jetpack_Sync_Functions', 'site_url' ),
-		'home_url'                        => array( 'Jetpack_Sync_Functions', 'home_url' ),
-		'single_user_site'                => array( 'Jetpack', 'is_single_user_site' ),
-		'updates'                         => array( 'Jetpack', 'get_updates' ),
-		'has_file_system_write_access'    => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
-		'is_version_controlled'           => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
-		'taxonomies'                      => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
-		'post_types'                      => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
-		'rest_api_allowed_post_types'     => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_post_types' ),
-		'rest_api_allowed_public_metadata'=> array( 'Jetpack_Sync_Functions', 'rest_api_allowed_public_metadata' ),
-		'sso_is_two_step_required'        => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
-		'sso_should_hide_login_form'      => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
-		'sso_match_by_email'              => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
-		'sso_new_user_override'           => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
-		'sso_bypass_default_login_form'   => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
-		'wp_version'                      => array( 'Jetpack_Sync_Functions', 'wp_version' ),
-		'get_plugins'                     => array( 'Jetpack_Sync_Functions', 'get_plugins' ),
+		'wp_max_upload_size'               => 'wp_max_upload_size',
+		'is_main_network'                  => array( 'Jetpack', 'is_multi_network' ),
+		'is_multi_site'                    => 'is_multisite',
+		'main_network_site'                => array( 'Jetpack_Sync_Functions', 'main_network_site_url' ),
+		'site_url'                         => array( 'Jetpack_Sync_Functions', 'site_url' ),
+		'home_url'                         => array( 'Jetpack_Sync_Functions', 'home_url' ),
+		'single_user_site'                 => array( 'Jetpack', 'is_single_user_site' ),
+		'updates'                          => array( 'Jetpack', 'get_updates' ),
+		'has_file_system_write_access'     => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
+		'is_version_controlled'            => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
+		'taxonomies'                       => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
+		'post_types'                       => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
+		'rest_api_allowed_post_types'      => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_post_types' ),
+		'rest_api_allowed_public_metadata' => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_public_metadata' ),
+		'sso_is_two_step_required'         => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
+		'sso_should_hide_login_form'       => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
+		'sso_match_by_email'               => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
+		'sso_new_user_override'            => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
+		'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
+		'wp_version'                       => array( 'Jetpack_Sync_Functions', 'wp_version' ),
+		'get_plugins'                      => array( 'Jetpack_Sync_Functions', 'get_plugins' ),
 	);
 
 	static $blacklisted_post_types = array(
@@ -168,7 +168,7 @@ class Jetpack_Sync_Defaults {
 		'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
-	
+
 
 	static $default_whitelist_meta_keys = array(
 		'_wp_attachment_metadata',
@@ -184,7 +184,7 @@ class Jetpack_Sync_Defaults {
 		'_thumbnail_id',
 		'_wp_attachment_metadata',
 		'_wp_page_template',
-		'_publicize_twitter_user'
+		'_publicize_twitter_user',
 	);
 
 	// TODO: move this to server? - these are theme support values
@@ -215,11 +215,16 @@ class Jetpack_Sync_Defaults {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
-	static $default_network_options_whitelist = array( 'site_name', 'jetpack_protect_key', 'jetpack_protect_global_whitelist', 'active_sitewide_plugins' );
+	static $default_network_options_whitelist = array(
+		'site_name',
+		'jetpack_protect_key',
+		'jetpack_protect_global_whitelist',
+		'active_sitewide_plugins',
+	);
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization

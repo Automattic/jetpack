@@ -192,7 +192,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 			'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
 			'post_content'   => 'foo',
 			'post_status'    => 'inherit',
-			'ID' => $attach_id,
+			'ID'             => $attach_id,
 
 		);
 
@@ -201,14 +201,14 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$remote_attachment = $this->server_replica_storage->get_post( $attach_id );
-		$attachment = get_post( $attach_id );
+		$attachment        = get_post( $attach_id );
 
-		$this->assertEquals( $attachment,  $remote_attachment );
+		$this->assertEquals( $attachment, $remote_attachment );
 
 	}
 
 	public function test_sync_attachment_delete_is_synced() {
-		$filename = dirname( __FILE__ ) . '/../files/jetpack.jpg';
+		$filename      = dirname( __FILE__ ) . '/../files/jetpack.jpg';
 		$filename_copy = dirname( __FILE__ ) . '/../files/jetpack-copy.jpg';
 		@copy( $filename, $filename_copy );
 
@@ -239,14 +239,14 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$remote_attachment = $this->server_replica_storage->get_post( $attach_id );
-		$attachment = get_post( $attach_id );
+		$attachment        = get_post( $attach_id );
 
-		$this->assertEquals( $attachment,  $remote_attachment );
+		$this->assertEquals( $attachment, $remote_attachment );
 
 	}
 
 	public function test_sync_attachment_force_delete_is_synced() {
-		$filename = dirname( __FILE__ ) . '/../files/jetpack.jpg';
+		$filename      = dirname( __FILE__ ) . '/../files/jetpack.jpg';
 		$filename_copy = dirname( __FILE__ ) . '/../files/jetpack-copy.jpg';
 		@copy( $filename, $filename_copy );
 
@@ -277,9 +277,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$remote_attachment = $this->server_replica_storage->get_post( $attach_id );
-		$attachment = get_post( $attach_id );
+		$attachment        = get_post( $attach_id );
 
-		$this->assertEquals( $attachment,  $remote_attachment );
+		$this->assertEquals( $attachment, $remote_attachment );
 	}
 
 	function test_sync_post_filtered_content_was_filtered() {
@@ -291,7 +291,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( $post_on_server->post_content, '[foo]' );
-		$this->assertEquals( trim( $post_on_server->post_content_filtered ),  'bar' );
+		$this->assertEquals( trim( $post_on_server->post_content_filtered ), 'bar' );
 	}
 
 	function test_sync_post_filtered_excerpt_was_filtered() {
@@ -303,7 +303,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( $post_on_server->post_excerpt, '[foo]' );
-		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ),  'bar' );
+		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ), 'bar' );
 	}
 
 	function test_sync_changed_post_password() {
@@ -325,7 +325,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sync_post_includes_permalink_and_shortlink() {
 		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
-		$post = $insert_post_event->args[1];
+		$post              = $insert_post_event->args[1];
 
 		$this->assertObjectHasAttribute( 'permalink', $post );
 		$this->assertObjectHasAttribute( 'shortlink', $post );
@@ -360,7 +360,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 2, $this->server_replica_storage->post_count() ); // the post and its revision
 		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
-		$post = $insert_post_event->args[1];
+		$post              = $insert_post_event->args[1];
 		// Instead of sending all the data we just send the post_id so that we can remove it on our end.
 
 		$this->assertEquals( $this->post->ID, $post->ID );
@@ -382,7 +382,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
-		$attachment = get_post( $attachment_id );
+		$attachment        = get_post( $attachment_id );
 		$this->assertEquals( $attachment, $remote_attachment );
 	}
 

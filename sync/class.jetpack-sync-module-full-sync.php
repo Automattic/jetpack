@@ -34,13 +34,13 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function start( $modules = null ) {
-		if( ! $this->should_start_full_sync() ) {
+		if ( ! $this->should_start_full_sync() ) {
 			return false;
 		}
 
 		// ensure listener is loaded so we can guarantee full sync actions are enqueued
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
-		Jetpack_Sync_Listener::getInstance();
+		Jetpack_Sync_Listener::get_instance();
 
 		/**
 		 * Fires when a full sync begins. This action is serialized
@@ -51,23 +51,23 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_start' );
 		$this->set_status_queuing_started();
 
-		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
 			if ( is_array( $modules ) && ! in_array( $module_name, $modules ) ) {
 				continue;
 			}
 
 			$items_enqueued = $module->enqueue_full_sync_actions();
-			if ( $items_enqueued !== 0 ) {
+			if ( 0 !== $items_enqueued ) {
 				$status = $this->get_status();
 
 				if ( ! isset( $status['queue'][ $module_name ] ) ) {
-					$status['queue'][ $module_name ] = 0;	
+					$status['queue'][ $module_name ] = 0;
 				}
 
 				$status['queue'][ $module_name ] += $items_enqueued;
+				$this->update_status( $status );
 			}
-			$this->update_status( $status );
 		}
 
 		$this->set_status_queuing_finished();
@@ -82,18 +82,19 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_end', $store->checksum_all() );
+
 		return true;
 	}
 
 	private function should_start_full_sync() {
 		$status = $this->get_status();
-		
+
 		// We should try sync if we haven't started it yet or if we have finished it.
-		if( is_null( $status['started'] ) || is_integer( $status['finished'] ) ) {
+		if ( is_null( $status['started'] ) || is_integer( $status['finished'] ) ) {
 			return true;
 		}
 
-		// allow enqueing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
+		// allow enqueuing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
 		if ( intval( $status['started'] ) + self::FULL_SYNC_TIMEOUT < time() ) {
 			return true;
 		}
@@ -110,24 +111,24 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( isset( $actions_with_counts[ 'jetpack_full_sync_start' ] ) ) {
+		if ( isset( $actions_with_counts['jetpack_full_sync_start'] ) ) {
 			$status['sent_started'] = time();
 		}
 
-		foreach( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module_name = $module->name();
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			$module_name    = $module->name();
 			$module_actions = $module->get_full_sync_actions();
-			foreach( $module_actions as $module_action ) {
+			foreach ( $module_actions as $module_action ) {
 				if ( isset( $actions_with_counts[ $module_action ] ) ) {
-					if ( ! isset( $status[ 'sent' ][ $module_name ] ) ) {
-						$status['sent'][ $module_name ] = 0;	
+					if ( ! isset( $status['sent'][ $module_name ] ) ) {
+						$status['sent'][ $module_name ] = 0;
 					}
-					$status['sent'][ $module_name ] += $actions_with_counts[ $module_action ];	
+					$status['sent'][ $module_name ] += $actions_with_counts[ $module_action ];
 				}
 			}
 		}
 
-		if ( isset( $actions_with_counts[ 'jetpack_full_sync_end' ] ) ) {
+		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
 			$status['finished'] = time();
 		}
 
@@ -135,8 +136,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	private function set_status_queuing_started() {
-		$status = $this->initial_status;
-		$status[ 'started' ] = time();
+		$status            = $this->initial_status;
+		$status['started'] = time();
 		$this->update_status( $status );
 	}
 
@@ -145,12 +146,12 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	private $initial_status = array(
-		'started' => null,
+		'started'        => null,
 		'queue_finished' => null,
-		'sent_started' => null,
-		'finished' => null,
-		'sent' => array(),
-		'queue' => array(),
+		'sent_started'   => null,
+		'finished'       => null,
+		'sent'           => array(),
+		'queue'          => array(),
 	);
 
 	public function get_status() {
