@@ -14,7 +14,8 @@ class Jetpack_Sync_Actions {
 
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
-
+		add_action( 'updating_jetpack_version', array( __CLASS__, 'schedule_full_sync' ) );
+		
 		// Sync connected user role changes to .com
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
 
@@ -117,6 +118,7 @@ class Jetpack_Sync_Actions {
 
 	static function schedule_full_sync( $modules = null ) {
 		wp_schedule_single_event( time() + 1, 'jetpack_sync_full', array( $modules ) );
+		spawn_cron();
 	}
 
 	static function do_full_sync( $modules = null ) {
