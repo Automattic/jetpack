@@ -173,15 +173,15 @@ ENDSQL;
 		if ( $comment_approved !== false ) {
 			$where = "comment_approved = '" . esc_sql( $comment_approved ) . "'";
 		} else {
-			$where = "1=1";
+			$where = '1=1';
 		}
 
 		if ( $min_id != null ) {
-			$where .= " AND comment_ID >= " . intval( $min_id );
+			$where .= ' AND comment_ID >= ' . intval( $min_id );
 		}
 
 		if ( $max_id != null ) {
-			$where .= " AND comment_ID <= " . intval( $max_id );
+			$where .= ' AND comment_ID <= ' . intval( $max_id );
 		}
 
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments WHERE $where" );
@@ -190,9 +190,9 @@ ENDSQL;
 	private function comment_status_to_approval_value( $status ) {
 		switch ( $status ) {
 			case 'approve':
-				return "1";
+				return '1';
 			case 'hold':
-				return "0";
+				return '0';
 			case 'spam':
 				return 'spam';
 			case 'trash':
@@ -246,7 +246,7 @@ ENDSQL;
 			'comment_agent',
 			'comment_type',
 			'comment_parent',
-			'user_id'
+			'user_id',
 		);
 
 		foreach ( $comment as $key => $value ) {
@@ -286,7 +286,7 @@ ENDSQL;
 	public function comments_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
 
-		$where_sql = "1=1";
+		$where_sql = '1=1';
 
 		if ( $min_id !== null ) {
 			$min_id = intval( $min_id );
@@ -372,7 +372,7 @@ ENDSQL;
 		if ( $exists ) {
 			$wpdb->update( $table, array(
 				'meta_key'   => $meta_key,
-				'meta_value' => serialize( $meta_value )
+				'meta_value' => serialize( $meta_value ),
 			), array( 'meta_id' => $meta_id ) );
 		} else {
 			$object_id_field = $type . '_id';
@@ -380,7 +380,7 @@ ENDSQL;
 				'meta_id'        => $meta_id,
 				$object_id_field => $object_id,
 				'meta_key'       => $meta_key,
-				'meta_value'     => serialize( $meta_value )
+				'meta_value'     => serialize( $meta_value ),
 			) );
 		}
 
@@ -531,8 +531,6 @@ ENDSQL;
 			$wpdb->insert( $wpdb->terms, $term );
 			$wpdb->insert( $wpdb->term_taxonomy, $term_taxonomy );
 
-//			clean_term_cache( $term_object->term_id, $taxonomy );
-
 			return true;
 		}
 
@@ -623,13 +621,13 @@ ENDSQL;
 		$wpdb->queries = array();
 
 		switch ( $object_type ) {
-			case "posts":
+			case 'posts':
 				$object_count    = $this->post_count( null, $start_id, $end_id );
 				$object_table    = $wpdb->posts;
 				$id_field        = 'ID';
 				$checksum_method = array( $this, 'posts_checksum' );
 				break;
-			case "comments":
+			case 'comments':
 				$object_count    = $this->comment_count( null, $start_id, $end_id );
 				$object_table    = $wpdb->comments;
 				$id_field        = 'comment_ID';
@@ -643,7 +641,7 @@ ENDSQL;
 		$query_offset = 0;
 		$histogram    = array();
 
-		$where = "1=1";
+		$where = '1=1';
 
 		if ( $start_id ) {
 			$where .= " AND $id_field >= " . intval( $start_id );
@@ -667,7 +665,7 @@ ENDSQL;
 			} elseif ( $first_id === $last_id ) {
 				$histogram[ $first_id ] = $value;
 			} else {
-				$histogram["{$first_id}-{$last_id}"] = $value;
+				$histogram[ "{$first_id}-{$last_id}" ] = $value;
 			}
 
 			$query_offset += $bucket_size;

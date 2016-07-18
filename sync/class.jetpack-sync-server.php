@@ -69,7 +69,7 @@ class Jetpack_Sync_Server {
 		 *
 		 * @param array Array of actions received from the remote site
 		 */
-		do_action( "jetpack_sync_remote_actions", $events, $token );
+		do_action( 'jetpack_sync_remote_actions', $events, $token );
 
 		foreach ( $events as $key => $event ) {
 			list( $action_name, $args, $user_id, $timestamp ) = $event;

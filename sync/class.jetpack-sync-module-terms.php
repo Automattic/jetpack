@@ -83,12 +83,12 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 			$terms = get_terms( array(
 				'taxonomy'   => $taxonomy,
 				'hide_empty' => false,
-				'include'    => $term_ids
+				'include'    => $term_ids,
 			) );
 		} else {
 			$terms = get_terms( $taxonomy, array(
 				'hide_empty' => false,
-				'include'    => $term_ids
+				'include'    => $term_ids,
 			) );
 		}
 

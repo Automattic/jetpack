@@ -55,7 +55,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 		wp_localize_script( 'jetpack_sync_reindex_control', 'sync_dashboard', array(
 			'possible_status'  => $strings,
 			'queue_status'     => $initial_queue_status,
-			'full_sync_status' => $initial_full_sync_status
+			'full_sync_status' => $initial_full_sync_status,
 		) );
 	}
 
@@ -114,7 +114,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 
 		return array(
 			'size' => $queue->size(),
-			'lag'  => $queue->lag()
+			'lag'  => $queue->lag(),
 		);
 	}
 
@@ -143,7 +143,8 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 		<?php
 	}
 
-	function js_progress_template() { ?>
+	function js_progress_template() {
+		?>
 		<script type="text/html" id="tmpl-sync-progress">
 			<div>
 				Sync started: {{ data.started }} <br/>

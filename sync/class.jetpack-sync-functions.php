@@ -60,7 +60,7 @@ class Jetpack_Sync_Functions {
 		require_once( ABSPATH . 'wp-admin/includes/template.php' );
 
 		$filesystem_method = get_filesystem_method();
-		if ( $filesystem_method === 'direct' ) {
+		if ( 'direct' === $filesystem_method  ) {
 			return true;
 		}
 

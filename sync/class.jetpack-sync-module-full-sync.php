@@ -58,7 +58,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			}
 
 			$items_enqueued = $module->enqueue_full_sync_actions();
-			if ( $items_enqueued !== 0 ) {
+			if ( 0 !== $items_enqueued ) {
 				$status = $this->get_status();
 
 				if ( ! isset( $status['queue'][ $module_name ] ) ) {
