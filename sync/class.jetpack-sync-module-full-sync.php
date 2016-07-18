@@ -94,7 +94,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			return true;
 		}
 
-		// allow enqueing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
+		// allow enqueuing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
 		if ( intval( $status['started'] ) + self::FULL_SYNC_TIMEOUT < time() ) {
 			return true;
 		}

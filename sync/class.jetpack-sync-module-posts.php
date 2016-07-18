@@ -59,11 +59,11 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * other services.
 		 * @since 4.2.0
 		 *
-		 * @param boolean false prevent post data from bing sycned to WordPress.com
+		 * @param boolean false prevent post data from bing synced to WordPress.com
 		 * @param mixed $post WP_POST object
 		 */
 		if ( apply_filters( 'jetpack_sync_prevent_sending_post_data', false, $post ) ) {
-			// We only send the bare necessery object to be able to create a checksum.
+			// We only send the bare necessary object to be able to create a checksum.
 			$blocked_post                    = new stdClass();
 			$blocked_post->ID                = $post->ID;
 			$blocked_post->post_modified     = $post->post_modified;
