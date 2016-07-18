@@ -2,7 +2,8 @@
  * External dependencies
  */
 import React from 'react';
-
+import concat from 'lodash/concat';
+import without from 'lodash/without';
 /**
  * Internal dependencies
  */
@@ -54,3 +55,34 @@ export const ModuleSettingRadios = React.createClass( {
 	}
 } );
 
+export const ModuleSettingMultipleSelectCheckboxes = React.createClass( {
+	onOptionChange( event ) {
+		const justUpdated = event.target.value;
+		const currentValue = this.props.getOptionValue( this.props.name );
+		const newValue = currentValue.indexOf( justUpdated ) === -1 ?
+			concat( currentValue, justUpdated ) :
+			without( currentValue, justUpdated );
+		this.props.updateFormStateOptionValue( this.props.name, newValue );
+	},
+	render() {
+		let props = this.props;
+		let validValues = this.props.validValues;
+		return (
+			<div>
+				{
+				Object.keys( validValues ).map( ( key ) => (
+					<FormLabel key={ `option-${ props.option_name }-${key}` } >
+						<FormCheckbox
+							name={ props.name }
+							checked= { props.getOptionValue( props.name ).indexOf( key ) !== -1 }
+							value={ key }
+							disabled={ props.isUpdating( props.name ) }
+							onChange= { this.onOptionChange } />
+						<span>{ ( validValues[ key ].name ) }</span>
+					</FormLabel>
+				) )
+				}
+			</div>
+		);
+	}
+} );

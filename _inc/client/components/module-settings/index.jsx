@@ -22,7 +22,8 @@ import {
 
 import {
 	ModuleSettingRadios,
-	ModuleSettingCheckbox
+	ModuleSettingCheckbox,
+	ModuleSettingMultipleSelectCheckboxes
 } from 'components/module-settings/form-components';
 
 import { ModuleSettingsForm } from 'components/module-settings/module-settings-form';
@@ -133,62 +134,30 @@ export let StatsSettings = React.createClass( {
 				<FormFieldset>
 					<FormLegend>{ __( 'Admin Bar' ) }</FormLegend>
 					<ModuleSettingCheckbox
-						name={ 'option_name' }
+						name={ 'admin_bar' }
 						{ ...this.props }
 						label={ __( 'Put a chart showing 48 hours of views in the admin bar' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend>{ __( 'Smiley' ) }</FormLegend>
 					<ModuleSettingCheckbox
-						name={ 'option_name' }
+						name={ 'hide_smile' }
 						{ ...this.props }
 						label={ __( 'Hide the stats smiley face image' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
+					<ModuleSettingMultipleSelectCheckboxes
+						name={ 'count_roles' }
 						{ ...this.props }
-						label={ __( 'Administrator' ) } />
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Editor' ) } />
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Author' ) } />
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Contributor' ) } />
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Subscriber' ) } />
+						validValues={ this.props.getSiteRoles() } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend>{ __( 'Report Visibility: Select the roles that will be able to view stats reports' ) }</FormLegend>
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Administrator' ) } />
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Editor' ) } />
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Author' ) } />
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Contributor' ) } />
-					<ModuleSettingCheckbox
-						name={ 'option_name' }
-						{ ...this.props }
-						label={ __( 'Subscriber' ) } />
+						<ModuleSettingMultipleSelectCheckboxes
+							name={ 'roles' }
+							{ ...this.props }
+							validValues={ this.props.getSiteRoles() } />
 				</FormFieldset>
 				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
