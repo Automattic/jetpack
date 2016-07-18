@@ -105,11 +105,11 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		remove_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
 
-		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' )  );
-		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'jetpack_sync_blocked' )  );
+		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'jetpack_sync_blocked' ) );
 
 		$insert_comment_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_' );
-		$comment = $insert_comment_event->args[1];
+		$comment              = $insert_comment_event->args[1];
 
 		$this->assertEquals( $this->comment->comment_ID, $comment->comment_ID );
 		$this->assertTrue( strtotime( $this->comment->comment_date ) <= strtotime( $comment->comment_date ) );
@@ -122,7 +122,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		wp_update_comment( (array) $this->comment );
 		$this->sender->do_sync();
 
-		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' )  );
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		$synced_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
 		$this->assertEquals( $this->comment->comment_content, $synced_comment->comment_content );
 	}

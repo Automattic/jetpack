@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( 0, $this->queue->size() );
 		$this->queue->add( 'foo' );
 
-		$queue =  $wpdb->get_row( "SELECT * FROM $wpdb->options WHERE option_name LIKE 'jpsq_my_queue%'" );
+		$queue = $wpdb->get_row( "SELECT * FROM $wpdb->options WHERE option_name LIKE 'jpsq_my_queue%'" );
 
 		$this->assertEquals( 'no', $queue->autoload );
 	}
@@ -55,9 +55,9 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		// lag is the difference in time between the age of the oldest item and the current time
 		$this->queue->reset();
 		$this->queue->add( 'foo' );
-		sleep(3);
+		sleep( 3 );
 		$this->queue->add( 'bar' );
-		sleep(3);
+		sleep( 3 );
 		$this->assertEquals( 6, intval( $this->queue->lag() ) );
 	}
 
@@ -89,12 +89,12 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		// this could be a better way to tune dequeuing than # of queue items,
 		// since sometimes posts can be really large
 
-		$large_string = str_repeat( 'x', 500 ); // 500 bytes
-		$large_string_memory = strlen(serialize($large_string)); // 509 bytes
+		$large_string        = str_repeat( 'x', 500 ); // 500 bytes
+		$large_string_memory = strlen( serialize( $large_string ) ); // 509 bytes
 
 		$this->queue->add_all( array( $large_string, $large_string, $large_string ) );
 
-		$buffer = $this->queue->checkout_with_memory_limit( 2*$large_string_memory );
+		$buffer = $this->queue->checkout_with_memory_limit( 2 * $large_string_memory );
 
 		$this->assertEquals( 2, count( $buffer->get_items() ) );
 	}
@@ -144,7 +144,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$buffer = $this->queue->checkout_with_memory_limit( 10 ); // way smaller
 
 		// shouldn't be false or null or anything else falsy
-		$this->assertTrue( !!$buffer );
+		$this->assertTrue( ! ! $buffer );
 
 		$buffer_items = $buffer->get_item_values();
 
@@ -156,11 +156,11 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	function test_checkout_enforced_across_multiple_instances() {
 		$other_queue = new Jetpack_Sync_Queue( $this->queue->id, 2 );
 
-		$this->queue->add_all( array(1, 2, 3, 4, 5) );
+		$this->queue->add_all( array( 1, 2, 3, 4, 5 ) );
 
 		$buffer = $this->queue->checkout( 2 );
 
-		$this->assertEquals( array(1, 2), $buffer->get_item_values() );
+		$this->assertEquals( array( 1, 2 ), $buffer->get_item_values() );
 
 		$other_buffer = $other_queue->checkout( 2 );
 
@@ -169,7 +169,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_checkin_non_checked_out_buffer_raises_error() {
-		$buffer = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
+		$buffer   = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
 		$response = $this->queue->checkin( $buffer );
 
 		$this->assertEquals( 'buffer_not_checked_out', $response->get_error_code() );
@@ -177,7 +177,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	function test_checkin_wrong_buffer_raises_error() {
 		$this->queue->add_all( array( 1, 2, 3, 4 ) );
-		$buffer = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
+		$buffer       = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
 		$other_buffer = $this->queue->checkout( 5 );
 
 		$response = $this->queue->checkin( $buffer );
@@ -187,7 +187,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	function test_checkout_fetches_queue_of_set_size() {
 
-		$this->queue->add_all( array(1, 2, 3, 4, 5) );
+		$this->queue->add_all( array( 1, 2, 3, 4, 5 ) );
 
 		$this->assertEquals( 5, $this->queue->size() );
 
@@ -195,26 +195,26 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_close_buffer_removes_items() {
-		$this->queue->add_all( array(1, 2, 3, 4, 5) );
+		$this->queue->add_all( array( 1, 2, 3, 4, 5 ) );
 		$buffer = $this->queue->checkout( 2 );
 
-		$this->assertEquals( array(1, 2), $buffer->get_item_values() );
+		$this->assertEquals( array( 1, 2 ), $buffer->get_item_values() );
 
 		$this->queue->close( $buffer );
 
 		// $this->assertEquals( array(3, 4, 5), $this->queue->flush_all() );
 
 		$buffer = $this->queue->checkout( 2 );
-		$this->assertEquals( array(3, 4), $buffer->get_item_values() );
+		$this->assertEquals( array( 3, 4 ), $buffer->get_item_values() );
 		$this->queue->close( $buffer );
 
 		$buffer = $this->queue->checkout( 2 );
-		$this->assertEquals( array(5), $buffer->get_item_values() );
+		$this->assertEquals( array( 5 ), $buffer->get_item_values() );
 		$this->queue->close( $buffer );
 	}
 
 	function test_close_buffer_can_remove_first_n_items() {
-		$this->queue->add_all( array(1, 2, 3, 4, 5) );
+		$this->queue->add_all( array( 1, 2, 3, 4, 5 ) );
 		$buffer = $this->queue->checkout( 4 );
 
 		$two_items = array_slice( $buffer->get_item_ids(), 0, 2 );
@@ -233,7 +233,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_checkout_returns_false_if_checkout_zero_items() {
-		$this->queue->add_all( array(1, 2, 3) );
+		$this->queue->add_all( array( 1, 2, 3 ) );
 
 		$buffer = $this->queue->checkout( 2 );
 		$this->assertNotEquals( false, $buffer );
@@ -256,48 +256,48 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	function test_benchmark() {
 		$this->markTestIncomplete( "We don't want to run this every time" );
-		$iterations = 100;
+		$iterations  = 100;
 		$buffer_size = 10;
 
-		$queue_add_time = (double) 0;
+		$queue_add_time   = (double) 0;
 		$post_create_time = (double) 0;
 
 		// add a whole bunch of posts
-		for( $i = 0; $i < $iterations; $i+=1 ) {
-			$start_create_post_time = microtime(true);
+		for ( $i = 0; $i < $iterations; $i += 1 ) {
+			$start_create_post_time = microtime( true );
 
 			$post_id = $this->factory->post->create();
 
-			$start_add_queue_time = microtime(true);
+			$start_add_queue_time = microtime( true );
 
 			$this->queue->add( $post_id );
 
-			$end_time = microtime(true);
+			$end_time = microtime( true );
 
 			$post_create_time += $start_add_queue_time - $start_create_post_time;
 			$queue_add_time += $end_time - $start_add_queue_time;
 		}
 
-		error_log("Post create time: ".($post_create_time/$iterations)." ($post_create_time seconds)");
-		error_log("Queue add time: ".($queue_add_time/$iterations)." ($queue_add_time seconds)");
+		error_log( "Post create time: " . ( $post_create_time / $iterations ) . " ($post_create_time seconds)" );
+		error_log( "Queue add time: " . ( $queue_add_time / $iterations ) . " ($queue_add_time seconds)" );
 
 		// pop off 10 at a time
-		$pop_buffer_time = (double) 0;
+		$pop_buffer_time   = (double) 0;
 		$close_buffer_time = (double) 0;
-		$num_iterations = 0;
-		for( $i = 0; $i < $iterations/$buffer_size; $i+=1 ) {
-			$start_pop_buffer_time = microtime(true);
-			$buffer = $this->queue->checkout( $buffer_size );
-			$start_close_buffer_time = microtime(true);
+		$num_iterations    = 0;
+		for ( $i = 0; $i < $iterations / $buffer_size; $i += 1 ) {
+			$start_pop_buffer_time   = microtime( true );
+			$buffer                  = $this->queue->checkout( $buffer_size );
+			$start_close_buffer_time = microtime( true );
 			$this->queue->close( $buffer );
-			$end_time = microtime(true);
+			$end_time = microtime( true );
 
 			$pop_buffer_time += $start_close_buffer_time - $start_pop_buffer_time;
 			$close_buffer_time += $end_time - $start_close_buffer_time;
-			$num_iterations+=1;
+			$num_iterations += 1;
 		}
 
-		error_log("Pop buffer time: ".($pop_buffer_time/$num_iterations)." ($pop_buffer_time seconds)");
-		error_log("Close buffer time: ".($close_buffer_time/$num_iterations)." ($close_buffer_time seconds)");
+		error_log( "Pop buffer time: " . ( $pop_buffer_time / $num_iterations ) . " ($pop_buffer_time seconds)" );
+		error_log( "Close buffer time: " . ( $close_buffer_time / $num_iterations ) . " ($close_buffer_time seconds)" );
 	}
 }

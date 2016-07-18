@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_activate_module' );
-		$event = $events[0];
+		$event  = $events[0];
 
 		$this->assertEquals( 'jetpack_activate_module', $event->action );
 		$this->assertEquals( 'stuff', $event->args[0] );

@@ -18,6 +18,7 @@ class WP_Test_Jetpack_Sync_Network_Options extends WP_Test_Jetpack_Sync_Base {
 		add_site_option( 'test_network_option', 'foo' );
 		$this->sender->do_sync();
 	}
+
 	public function tearDown() {
 		parent::tearDown();
 	}

@@ -21,15 +21,15 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 			$this->taxonomy,
 			'post',
 			array(
-				'label' => __( 'Genre' ),
-				'rewrite' => array( 'slug' => $this->taxonomy ),
+				'label'        => __( 'Genre' ),
+				'rewrite'      => array( 'slug' => $this->taxonomy ),
 				'hierarchical' => true,
 			)
 		);
 		$this->terms_module->set_taxonomy_whitelist( array( $this->taxonomy ) );
 
 		// create a post
-		$this->post_id    = $this->factory->post->create();
+		$this->post_id     = $this->factory->post->create();
 		$this->term_object = wp_insert_term( 'dog', $this->taxonomy );
 
 		$this->sender->do_sync();
@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_insert_term_is_synced() {
-		$terms = $this->get_terms();
+		$terms        = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
 		$this->assertEqualsObject( $terms, $server_terms );
 	}
@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		wp_update_term( $this->term_object['term_id'], $this->taxonomy, $args );
 		$this->sender->do_sync();
 
-		$terms = $this->get_terms();
+		$terms        = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
 		$this->assertEqualsObject( $terms, $server_terms );
 	}
@@ -63,17 +63,17 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		wp_delete_term( $this->term_object['term_id'], $this->taxonomy );
 		$this->sender->do_sync();
 
-		$terms = $this->get_terms();
+		$terms        = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
-		$this->assertEquals( $terms, $server_terms );
-;	}
+		$this->assertEquals( $terms, $server_terms );;
+	}
 
 	public function test_added_terms_to_post_is_synced() {
 		$anther_term = wp_insert_term( 'mouse', $this->taxonomy );
 		wp_set_post_terms( $this->post_id, array( $anther_term['term_id'] ), $this->taxonomy, false );
 		$this->sender->do_sync();
 
-		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
+		$object_terms        = get_the_terms( $this->post_id, $this->taxonomy );
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 		$this->assertEqualsObject( $object_terms, $server_object_terms );
 	}
@@ -86,7 +86,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		wp_set_post_terms( $this->post_id, array( $anther_term_2['term_id'] ), $this->taxonomy, true );
 		$this->sender->do_sync();
 
-		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
+		$object_terms        = get_the_terms( $this->post_id, $this->taxonomy );
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 		$server_object_terms = array_reverse( $server_object_terms );
 		$this->assertEqualsObject( $object_terms, $server_object_terms );
@@ -102,7 +102,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		wp_remove_object_terms( $this->post_id, array( $anther_term_2['term_id'] ), $this->taxonomy );
 		$this->sender->do_sync();
 
-		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
+		$object_terms = get_the_terms( $this->post_id, $this->taxonomy );
 
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 		$server_object_terms = array_reverse( $server_object_terms );
@@ -121,7 +121,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
+		$object_terms = get_the_terms( $this->post_id, $this->taxonomy );
 
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 
@@ -132,14 +132,14 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		global $wp_version;
 		if ( version_compare( $wp_version, '4.5', '>=' ) ) {
 			return get_terms( array(
-				'taxonomy' => $this->taxonomy,
+				'taxonomy'   => $this->taxonomy,
 				'hide_empty' => false,
 			) );
 
 		} else {
-			return array_map( array($this, 'upgrade_terms_to_pass_test'), get_terms( $this->taxonomy, array(
-				'hide_empty' => false,
-			) )
+			return array_map( array( $this, 'upgrade_terms_to_pass_test' ), get_terms( $this->taxonomy, array(
+					'hide_empty' => false,
+				) )
 			);
 
 		}
@@ -147,6 +147,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 
 	function upgrade_terms_to_pass_test( $term ) {
 		$term->filter = 'raw';
+
 		return $term;
 	}
 

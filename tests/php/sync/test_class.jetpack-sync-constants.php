@@ -20,8 +20,8 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 
 		$this->constant_module->set_constants_whitelist( array( 'TEST_FOO' ) );
 
-		define( 'TEST_FOO', sprintf( "%.8f", microtime(true) ) );
-		define( 'TEST_BAR', sprintf( "%.8f", microtime(true) ) );
+		define( 'TEST_FOO', sprintf( "%.8f", microtime( true ) ) );
+		define( 'TEST_BAR', sprintf( "%.8f", microtime( true ) ) );
 
 		$this->sender->do_sync();
 
@@ -36,30 +36,30 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 		$this->constant_module->set_defaults(); // use the default constants
 		$this->sender->do_sync();
 
-		foreach( Jetpack_Sync_Defaults::$default_constants_whitelist as $constant ) {
+		foreach ( Jetpack_Sync_Defaults::$default_constants_whitelist as $constant ) {
 			try {
 				$value = constant( $constant );
 				$this->assertEquals( $value, $this->server_replica_storage->get_constant( $constant ) );
-			} catch( Exception $e ) {
-				$this->markTestSkipped( $constant . ' not defined.');
+			} catch ( Exception $e ) {
+				$this->markTestSkipped( $constant . ' not defined.' );
 			}
 		}
 
 		$this->server_replica_storage->reset();
 		$this->sender->do_sync();
 
-		foreach( Jetpack_Sync_Defaults::$default_constants_whitelist as $constant ) {
+		foreach ( Jetpack_Sync_Defaults::$default_constants_whitelist as $constant ) {
 			$this->assertEquals( null, $this->server_replica_storage->get_constant( $constant ) );
 		}
 	}
 
 	function test_white_listed_constant_doesnt_get_synced_twice() {
 		$this->constant_module->set_constants_whitelist( array( 'TEST_ABC' ) );
-		define( 'TEST_ABC', microtime(true) );
+		define( 'TEST_ABC', microtime( true ) );
 		$this->sender->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_constant( 'TEST_ABC' );
-		$this->assertEquals( sprintf("%.2f", TEST_ABC), sprintf("%.2f", $synced_value ) );
+		$this->assertEquals( sprintf( "%.2f", TEST_ABC ), sprintf( "%.2f", $synced_value ) );
 
 		$this->server_replica_storage->reset();
 
