@@ -19,7 +19,6 @@ class Jetpack_Sync_Sender {
 	private $upload_max_rows;
 	private $sync_wait_time;
 	private $sync_queue;
-	private $full_sync_client;
 	private $codec;
 
 	// singleton functions
