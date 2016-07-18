@@ -21,13 +21,13 @@ const Apps = ( props ) => {
 					</h2>
 
 					<p className="jp-jetpack-landing__description">
-						{ __( 'Some secondary headline here for consistency.' ) }
+						{ __( 'Manage all your sites from a single dashboard.' ) }
 					</p>
 
 					<div className="jp-jetpack-landing__img-text">
 						<div className="jp-jetpack-landing__column">
 							<h2>{ __( 'Feel the performance' ) }</h2>
-							<p>{ __( "All the WordPress apps are built for spped. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around." ) }</p>
+							<p>{ __( "All the WordPress apps are built for speed. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around." ) }</p>
 						</div>
 						<div className="jp-jetpack-landing__column">
 							<img src={ imagePath + '/apps/laptop-90deg-themes.png' } />
@@ -37,7 +37,7 @@ const Apps = ( props ) => {
 
 				<div className="jp-jetpack-landing__img-text">
 					<div className="jp-jetpack-landing__column">
-						<img src={ imagePath + '/apps/manage2x' } />
+						<img src={ imagePath + '/apps/manage2x.png' } />
 					</div>
 					<div className="jp-jetpack-landing__column">
 						<h2>{ __( 'Secure & Manage' ) }</h2>
@@ -57,13 +57,13 @@ const Apps = ( props ) => {
 						</Button>
 					</div>
 					<div className="jp-jetpack-landing__column">
-						<img src={ imagePath + '/apps/editor2x' } />
+						<img src={ imagePath + '/apps/editor2x.png' } />
 					</div>
 				</div>
 
 				<div className="jp-jetpack-landing__img-text">
 					<div className="jp-jetpack-landing__column">
-						<img src={ imagePath + '/apps/stats2x' } />
+						<img src={ imagePath + '/apps/stats2x.png' } />
 					</div>
 					<div className="jp-jetpack-landing__column">
 						<h2>{ __( 'Connect with your Visitors' ) }</h2>
@@ -83,12 +83,12 @@ const Apps = ( props ) => {
 						</Button>
 					</div>
 					<div className="jp-jetpack-landing__column">
-						<img src={ imagePath + '/apps/community2x' } />
+						<img src={ imagePath + '/apps/community2x.png' } />
 					</div>
 				</div>
 
 				<div className="jp-jetpack-landing__footer">
-					<h2 className="jp-jetpack-landing__title" title="Inspiration strikes any time, anywhere.">
+					<h2 className="jp-jetpack-landing__title">
 						{ __( 'Inspiration strikes any time, anywhere.' ) }
 					</h2>
 
