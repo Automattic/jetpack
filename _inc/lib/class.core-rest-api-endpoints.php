@@ -15,6 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Load WP_Error for error messages.
 require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
+// Register endpoints when WP REST API is initialized.
+add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
+
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
  *
@@ -22,30 +25,15 @@ require_once ABSPATH . '/wp-includes/class-wp-error.php';
  */
 class Jetpack_Core_Json_Api_Endpoints {
 
+	/**
+	 * @var string Generic error message when user is not allowed to perform an action.
+	 */
 	public static $user_permissions_error_msg;
 
 	/**
-	 * WordPress REST API is only available starting with version 4.4, so we don't do anything
-	 * if the current installation is older than that.
+	 * @var array Roles that can access Stats once they're granted access.
 	 */
-	public static function init() {
-		global $wp_version;
-		if ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) ) {
-
-			return;
-		}
-
-		// Register endpoints when WP REST API is initialized.
-		add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
-	}
-
-	function __construct() {
-		self::$user_permissions_error_msg = esc_html__(
-			'You do not have the correct user permissions to perform this action.
-			Please contact your site admin if you think this is a mistake.',
-			'jetpack'
-		);
-	}
+	public static $stats_roles;
 
 	/**
 	 * Declare the Jetpack REST API endpoints.
@@ -53,6 +41,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @since 4.1.0
 	 */
 	public static function register_endpoints() {
+		self::$user_permissions_error_msg = esc_html__(
+			'You do not have the correct user permissions to perform this action.
+			Please contact your site admin if you think this is a mistake.',
+			'jetpack'
+		);
+
+		self::$stats_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
+
 		// Get current connection status of Jetpack
 		register_rest_route( 'jetpack/v4', '/connection-status', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -1235,6 +1231,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $ignored_phrases ) : true;
 					break;
 
+				case 'admin_bar':
+				case 'roles':
+				case 'count_roles':
+				case 'blog_id':
+				case 'do_not_track':
+				case 'hide_smile':
+				case 'version':
+					$grouped_options = $grouped_options_current = get_option( 'stats_options' );
+					$grouped_options[ $option ] = $value;
+
+					// If option value was the same, consider it done.
+					$updated = $grouped_options_current != $grouped_options ? update_option( 'stats_options', $grouped_options ) : true;
+					break;
+
 				case 'wp_mobile_featured_images':
 				case 'wp_mobile_excerpt':
 					$value = ( 'enabled' === $value ) ? '1' : '0';
@@ -1873,6 +1883,64 @@ class Jetpack_Core_Json_Api_Endpoints {
 					),
 				);
 				break;
+
+			// Stats
+			/*
+				Example:
+				'admin_bar' => true
+				'roles' => array ( 'administrator', 'editor' )
+				'count_roles' => array ( 'editor' )
+				'blog_id' => false
+				'do_not_track' => true
+				'hide_smile' => true
+				'version' => '9'
+			*/
+			case 'stats':
+				$options = array(
+					'admin_bar' => array(
+						'description'        => esc_html__( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 1,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'roles' => array(
+						'description'       => esc_html__( 'Select the roles that will be able to view stats reports.', 'jetpack' ),
+						'type'              => 'array',
+						'default'           => array( 'administrator' ),
+						'validate_callback' => __CLASS__ . '::validate_stats_roles',
+					),
+					'count_roles' => array(
+						'description'       => esc_html__( 'Count the page views of registered users who are logged in.', 'jetpack' ),
+						'type'              => 'array',
+						'default'           => array( 'administrator' ),
+						'validate_callback' => __CLASS__ . '::validate_stats_roles',
+					),
+					'blog_id' => array(
+						'description'        => esc_html__( 'Blog ID.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'do_not_track' => array(
+						'description'        => esc_html__( 'Do not track.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 1,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'hide_smile' => array(
+						'description'        => esc_html__( 'Hide the stats smiley face image.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 1,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'version' => array(
+						'description'        => esc_html__( 'Version.', 'jetpack' ),
+						'type'               => 'integer',
+						'default'            => 9,
+						'validate_callback'  => __CLASS__ . '::validate_posint',
+					),
+				);
+				break;
 		}
 
 		return $options;
@@ -1981,6 +2049,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function validate_alphanum( $value = '', $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/[a-z0-9]+/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is among the roles allowed for Stats.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string|bool $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_stats_roles( $value, $request, $param ) {
+		if ( ! array_intersect( self::$stats_roles, $value ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be %s.', 'jetpack' ), $param, join( ', ', self::$stats_roles ) ) );
 		}
 		return true;
 	}
@@ -2267,6 +2353,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options['wp_mobile_featured_images']['current_value'] =
 					1 === intval( $options['wp_mobile_featured_images']['current_value'] ) ?
 					'enabled' : 'disabled';
+				break;
+
+			case 'stats':
+				// It's local, but it must be broken apart since it's saved as an array.
+				if ( ! function_exists( 'stats_get_options' ) ) {
+					@include( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
+				}
+				$options = self::split_options( $options, stats_get_options() );
 				break;
 		}
 
@@ -2655,5 +2749,3 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 } // class end
-
-Jetpack_Core_Json_Api_Endpoints::init();
