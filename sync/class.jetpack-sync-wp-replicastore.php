@@ -62,7 +62,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function get_posts( $status = null, $min_id = null, $max_id = null ) {
-		$args = array( 'orderby' => 'ID', 'posts_per_page' => - 1 );
+		$args = array( 'orderby' => 'ID', 'posts_per_page' => -1 );
 
 		if ( $status ) {
 			$args['post_status'] = $status;
