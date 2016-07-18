@@ -523,7 +523,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 		foreach ( $id_chunks as $ids ) {
 			$first_id      = $ids[0];
-			$last_id_array = array_slice( $ids, - 1 );
+			$last_id_array = array_slice( $ids, -1 );
 			$last_id       = array_pop( $last_id_array );
 
 			if ( count( $ids ) === 1 ) {
