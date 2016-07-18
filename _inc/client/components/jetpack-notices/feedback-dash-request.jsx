@@ -27,7 +27,7 @@ const FeedbackDashRequest = React.createClass( {
 				<SimpleNotice
 					className="jp-dash-item__feedback-request"
 					status="is-basic"
-					onClick={ this.props.dismissNotice }
+					onDismissClick={ this.props.dismissNotice }
 				>
 				{
 					__( 'What would you like to see on your Jetpack Dashboard? {{a}}Let us know!{{/a}}', {

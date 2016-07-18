@@ -220,7 +220,7 @@ const JetpackStateNotices = React.createClass( {
 		return (
 			<SimpleNotice
 				status={ status }
-				onClick={ this.dismissJetpackStateNotice }
+				onDismissClick={ this.dismissJetpackStateNotice }
 			>
 				{ noticeText }
 			</SimpleNotice>
