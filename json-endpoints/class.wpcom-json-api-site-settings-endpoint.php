@@ -417,7 +417,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// The seo meta description should be shorter than 300 characters
 					$value = substr( $value, 0, 300 );
 
-					update_option( 'seo_meta_description', $value );
+					if ( update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
 					break;
 
 				case 'advanced_seo_title_formats':
