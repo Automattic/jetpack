@@ -25,7 +25,7 @@ class WP_Test_Jetpack_Sync_Site_Icon_Url extends WP_Test_Jetpack_Sync_Base {
 		// verify that we started with an icon.
 		$this->assertEquals( 'http://foo.com/icon.gif', $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
 
-		remove_filter( 'get_site_icon_url', array( $this, '_get_site_icon' ), 99, 3 );
+		remove_filter( 'get_site_icon_url', array( $this, '_get_site_icon' ), 99 );
 		delete_option( 'site_icon' );
 		$this->sender->do_sync();
 
@@ -37,7 +37,7 @@ class WP_Test_Jetpack_Sync_Site_Icon_Url extends WP_Test_Jetpack_Sync_Base {
 		// verify that we started with an icon.
 		$this->assertEquals( 'http://foo.com/icon.gif', $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
 
-		remove_filter( 'get_site_icon_url', array( $this, '_get_site_icon' ), 99, 3 );
+		remove_filter( 'get_site_icon_url', array( $this, '_get_site_icon' ), 99 );
 		update_option( 'site_icon', 0 );
 		$this->sender->do_sync();
 

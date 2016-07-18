@@ -5,10 +5,8 @@ function jetpack_foo_full_sync_callable() {
 }
 
 class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
-	private $transients;
 	private $full_sync;
-	private $start_sent;
-	private $end_sent;
+
 	private $full_sync_end_checksum;
 
 	function setUp() {
