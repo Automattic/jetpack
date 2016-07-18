@@ -12,7 +12,7 @@ class Jetpack_Sync_Server_Replicator {
 	}
 
 	function init() {
-		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 5, 6 );
+		add_action( 'jetpack_sync_remote_action', array( $this, 'handle_remote_action' ), 5, 6 );
 	}
 
 	function handle_remote_action( $action_name, $args, $user_id, $timestamp, $sent_timestamp, $token ) {
@@ -30,11 +30,11 @@ class Jetpack_Sync_Server_Replicator {
 
 			// attachments
 			case 'attachment_updated':
-				list( $post_ID, $post, $post_before ) = $args;
+				list( $post_id, $post, $post_before ) = $args;
 				$this->store->upsert_post( $post );
 				break;
 			case 'jetpack_sync_save_add_attachment':
-				list( $attachment_ID, $attachment ) = $args;
+				list( $attachment_id, $attachment ) = $args;
 				$this->store->upsert_post( $attachment );
 				break;
 

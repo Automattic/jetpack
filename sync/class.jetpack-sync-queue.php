@@ -52,7 +52,7 @@ class Jetpack_Sync_Queue {
 				serialize( $item ),
 				'no'
 			) );
-			$added      = ( $rows_added !== 0 );
+			$added      = ( 0 !== $rows_added );
 		}
 	}
 

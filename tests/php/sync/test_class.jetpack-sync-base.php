@@ -31,8 +31,8 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->listener = Jetpack_Sync_Listener::getInstance();
-		$this->sender   = Jetpack_Sync_Sender::getInstance();
+		$this->listener = Jetpack_Sync_Listener::get_instance();
+		$this->sender   = Jetpack_Sync_Sender::get_instance();
 
 		$this->setSyncClientDefaults();
 

@@ -19,7 +19,7 @@ class JetpackSyncTestObjectFactory {
 		'pinged'                => '',
 		'post_parent'           => 0,
 		'menu_order'            => 0,
-		'guid'                  => ''
+		'guid'                  => '',
 	);
 
 	static $default_comment_props = array(
@@ -63,7 +63,7 @@ class JetpackSyncTestObjectFactory {
 				'post_date'         => $now,
 				'post_date_gmt'     => $now_gmt,
 				'post_modified'     => $now,
-				'post_modified_gmt' => $now_gmt
+				'post_modified_gmt' => $now_gmt,
 			)
 		);
 
@@ -105,7 +105,7 @@ class JetpackSyncTestObjectFactory {
 				'user_email'         => "$username@example.com",
 				'user_registered'    => $now,
 				'display_name'       => $username,
-				'allowed_mime_types' => array( 'jpg|jpeg|jpe' => 'image/jpeg', 'gif' => 'image/gif' )
+				'allowed_mime_types' => array( 'jpg|jpeg|jpe' => 'image/jpeg', 'gif' => 'image/gif' ),
 			)
 		);
 
@@ -123,7 +123,7 @@ class JetpackSyncTestObjectFactory {
 				'TextDomain'  => 'polldaddy',
 				'Title'       => 'Polldaddy Polls & Ratings',
 				'Network'     => false,
-				'AuthorName'  => 'Automattic, Inc.'
+				'AuthorName'  => 'Automattic, Inc.',
 			),
 			'vaultpress/vaultpress.php' => array(
 				'Name'        => 'VaultPress',
@@ -136,8 +136,8 @@ class JetpackSyncTestObjectFactory {
 				'DomainPath'  => '/languages/',
 				'Network'     => false,
 				'Title'       => 'VaultPress',
-				'AuthorName'  => 'Automattic'
-			)
+				'AuthorName'  => 'Automattic',
+			),
 		);
 	}
 
@@ -146,7 +146,7 @@ class JetpackSyncTestObjectFactory {
 			self::$default_term_props,
 			$props,
 			array(
-				'term_id' => $id
+				'term_id' => $id,
 			)
 		);
 

@@ -13,7 +13,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 			// clear sync queue
 			require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
 
-			$sender = Jetpack_Sync_Sender::getInstance();
+			$sender = Jetpack_Sync_Sender::get_instance();
 			$sender->reset_sync_queue();
 		}
 
@@ -45,7 +45,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
 		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
 
 		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
-		$queue = Jetpack_Sync_Sender::getInstance()->get_sync_queue();
+		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
 
 		return array_merge(
 			$sync_module->get_status(),
@@ -65,7 +65,7 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected function result() {
 		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
 
-		$sender = Jetpack_Sync_Sender::getInstance();
+		$sender = Jetpack_Sync_Sender::get_instance();
 		$sync_queue = $sender->get_sync_queue();
 
 		// lock sending from the queue while we compare checksums with the server
@@ -101,7 +101,7 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Endpoint
 	protected function result() {
 		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
 
-		$sender = Jetpack_Sync_Sender::getInstance();
+		$sender = Jetpack_Sync_Sender::get_instance();
 		$sync_queue = $sender->get_sync_queue();
 
 		// lock sending from the queue while we compare checksums with the server

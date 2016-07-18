@@ -29,4 +29,4 @@ delete_transient( 'jetpack_register'    );
 
 // Jetpack Sync
 require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-Jetpack_Sync_Sender::getInstance()->uninstall();
+Jetpack_Sync_Sender::get_instance()->uninstall();

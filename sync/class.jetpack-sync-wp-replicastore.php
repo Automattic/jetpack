@@ -42,20 +42,20 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function post_count( $status = null, $min_id = null, $max_id = null ) {
 		global $wpdb;
 
-		$where = "";
+		$where = '';
 
 		if ( $status ) {
 			$where = "post_status = '" . esc_sql( $status ) . "'";
 		} else {
-			$where = "1=1";
+			$where = '1=1';
 		}
 
-		if ( $min_id != null ) {
-			$where .= " AND ID >= " . intval( $min_id );
+		if ( null != $min_id ) {
+			$where .= ' AND ID >= ' . intval( $min_id );
 		}
 
-		if ( $max_id != null ) {
-			$where .= " AND ID <= " . intval( $max_id );
+		if ( null != $max_id ) {
+			$where .= ' AND ID <= ' . intval( $max_id );
 		}
 
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE $where" );

@@ -2,7 +2,7 @@
 
 class Jetpack_Sync_Module_Attachments extends Jetpack_Sync_Module {
 	function name() {
-		return "attachments";
+		return 'attachments';
 	}
 
 	public function init_listeners( $callable ) {

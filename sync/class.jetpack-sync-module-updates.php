@@ -15,11 +15,11 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array(
 			$this,
-			'filter_update_keys'
+			'filter_update_keys',
 		), 10, 2 );
 		add_filter( 'jetpack_sync_before_enqueue_upgrader_process_complete', array(
 			$this,
-			'filter_upgrader_process_complete'
+			'filter_upgrader_process_complete',
 		), 10, 2 );
 	}
 

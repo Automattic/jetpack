@@ -24,7 +24,7 @@ class Jetpack_Sync_Sender {
 	// singleton functions
 	private static $instance;
 
-	public static function getInstance() {
+	public static function get_instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
@@ -53,7 +53,7 @@ class Jetpack_Sync_Sender {
 	public function do_sync() {
 		// don't sync if importing
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
-			$this->schedule_sync( "+1 minute" );
+			$this->schedule_sync( '+1 minute' );
 
 			return false;
 		}
@@ -109,7 +109,7 @@ class Jetpack_Sync_Sender {
 			 *
 			 * @param array The action parameters
 			 */
-			$item[1] = apply_filters( "jetpack_sync_before_send_" . $item[0], $item[1], $item[2] );
+			$item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
 
 			$encoded_item = $this->codec->encode( $item );
 
@@ -137,11 +137,11 @@ class Jetpack_Sync_Sender {
 			$processed_item_ids = $this->sync_queue->checkin( $buffer );
 
 			if ( is_wp_error( $processed_item_ids ) ) {
-				error_log( "Error checking in buffer: " . $processed_item_ids->get_error_message() );
+				error_log( 'Error checking in buffer: ' . $processed_item_ids->get_error_message() );
 				$this->sync_queue->force_checkin();
 			}
 			// try again in 1 minute
-			$this->schedule_sync( "+1 minute" );
+			$this->schedule_sync( '+1 minute' );
 		} else {
 			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
 
@@ -159,7 +159,7 @@ class Jetpack_Sync_Sender {
 			// check if there are any more events in the buffer
 			// if so, schedule a cron job to happen soon
 			if ( $this->sync_queue->has_any_items() ) {
-				$this->schedule_sync( "+1 minute" );
+				$this->schedule_sync( '+1 minute' );
 			}
 		}
 	}

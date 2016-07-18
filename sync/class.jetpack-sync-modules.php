@@ -39,13 +39,13 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Meta',
 		'Jetpack_Sync_Module_Plugins',
 		'Jetpack_Sync_Module_Protect',
-		'Jetpack_Sync_Module_Full_Sync'
+		'Jetpack_Sync_Module_Full_Sync',
 	);
 
 	private static $initialized_modules = null;
 
 	public static function get_modules() {
-		if ( self::$initialized_modules === null ) {
+		if ( null === self::$initialized_modules ) {
 			self::$initialized_modules = self::initialize_modules();
 		}
 

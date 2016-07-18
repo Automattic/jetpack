@@ -14,7 +14,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	function get_page_hook() {
 		return add_submenu_page( null, __( 'Jetpack Sync Status', 'jetpack' ), '', 'manage_options', 'jetpack-sync', array(
 			$this,
-			'render'
+			'render',
 		) );
 	}
 
@@ -81,7 +81,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function ajax_reset_queue() {
-		Jetpack_Sync_Sender::getInstance()->reset_sync_queue();
+		Jetpack_Sync_Sender::get_instance()->reset_sync_queue();
 		delete_option( Jetpack_Sync_Full::$status_option );
 		echo json_encode( array( 'success' => true ) );
 
@@ -89,7 +89,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function ajax_unlock_queue() {
-		Jetpack_Sync_Sender::getInstance()->get_sync_queue()->force_checkin();
+		Jetpack_Sync_Sender::get_instance()->get_sync_queue()->force_checkin();
 		echo json_encode( array( 'success' => true ) );
 		exit;
 	}
@@ -110,7 +110,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	}
 
 	function queue_status() {
-		$queue = Jetpack_Sync_Sender::getInstance()->get_sync_queue();
+		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
 
 		return array(
 			'size' => $queue->size(),

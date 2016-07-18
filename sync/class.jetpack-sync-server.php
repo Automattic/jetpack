@@ -54,7 +54,7 @@ class Jetpack_Sync_Server {
 			 *
 			 * @param token The token object of the misbehaving site
 			 */
-			do_action( "jetpack_sync_multi_request_fail", $token );
+			do_action( 'jetpack_sync_multi_request_fail', $token );
 
 			return new WP_Error( 'concurrent_request_error', 'There is another request running for the same blog ID' );
 		}

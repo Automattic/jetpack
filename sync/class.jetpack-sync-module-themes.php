@@ -20,7 +20,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			if ( $has_support ) {
 				$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
 			}
-
 		}
 
 		/**

@@ -2683,7 +2683,7 @@ p {
 
 		// Delete all the sync related data. Since it could be taking up space.
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-		Jetpack_Sync_Sender::getInstance()->uninstall();
+		Jetpack_Sync_Sender::get_instance()->uninstall();
 
 		// Disable the Heartbeat cron
 		Jetpack_Heartbeat::init()->deactivate();
