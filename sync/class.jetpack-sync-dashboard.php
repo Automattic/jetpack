@@ -148,7 +148,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 			<div>
 				Sync started: {{ data.started }} <br/>
 
-				Queing Duration: {{ data.queue_finished - data.started }} <br/>
+				Queuing Duration: {{ data.queue_finished - data.started }} <br/>
 				Finished: {{ data.finished }}
 				Total Duration: {{ data.finished - data.started }}
 			</div>

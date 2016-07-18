@@ -155,5 +155,5 @@ class Jetpack_Sync_Actions {
 	}
 }
 
-// Allow other plugins to add filters before we initalize the actions.
+// Allow other plugins to add filters before we initialize the actions.
 add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 11, 0 );

@@ -76,7 +76,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		 * other services.
 		 * @since 4.2.0
 		 *
-		 * @param boolean false prevent post data from bing sycned to WordPress.com
+		 * @param boolean false prevent post data from bing synced to WordPress.com
 		 * @param mixed $comment WP_COMMENT object
 		 */
 		if ( apply_filters( 'jetpack_sync_prevent_sending_comment_data', false, $comment ) ) {
