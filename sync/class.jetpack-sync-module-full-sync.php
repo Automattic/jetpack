@@ -66,8 +66,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				}
 
 				$status['queue'][ $module_name ] += $items_enqueued;
+				$this->update_status( $status );
 			}
-			$this->update_status( $status );
 		}
 
 		$this->set_status_queuing_finished();
