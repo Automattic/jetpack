@@ -106,6 +106,7 @@
 									<?php
 									$all_users = get_users();
 
+									$user_options = '';
 									foreach ( $all_users as $user ) {
 										if ( Jetpack::is_user_connected( $user->ID ) && $user->caps['administrator'] ) {
 											if ( $user->ID == Jetpack_Options::get_option( 'master_user' ) ) {
