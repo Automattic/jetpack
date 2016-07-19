@@ -15,6 +15,7 @@ import {
 	activateModule,
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
+import { getSitePlan } from 'state/site';
 import {
 	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
 	getVaultPressData as _getVaultPressData
@@ -23,8 +24,10 @@ import { isDevMode } from 'state/connection';
 
 const DashScan = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Security Scan %(vaultpress)s', { args: { vaultpress: '(VaultPress)' } } );
-		const vpData = this.props.getVaultPressData();
+		const labelName = __( 'Malware Scan' ),
+			hasSitePlan = false !== this.props.getSitePlan(),
+			vpData = this.props.getVaultPressData();
+
 		let vpActive = typeof vpData.data !== 'undefined' && vpData.data.active;
 
 		const ctaLink = vpActive ?
@@ -41,12 +44,13 @@ const DashScan = React.createClass( {
 			}
 
 			// Check for threats
-			const threats = this.props.getScanThreats();
+			const threats = 2;
 			if ( threats !== 0 ) {
 				return(
 					<DashItem
 						label={ labelName }
 						status="is-error"
+						statusText={ __( 'Threats found' ) }
 						pro={ true }
 					>
 						<h3>{
@@ -82,25 +86,47 @@ const DashScan = React.createClass( {
 			}
 		}
 
-		return(
-			<DashItem
-				label={ labelName }
-				className="jp-dash-item__is-inactive"
-				status="is-premium-inactive"
-				pro={ true }
-			>
-				<p className="jp-dash-item__description">
-					{
-						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
-						__( 'To automatically scan your site for malicious threats, please {{a}}upgrade your account{{/a}}', {
-							components: {
-								a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
-							}
-						} )
-					}
-				</p>
-			</DashItem>
-		);
+		if ( hasSitePlan ) {
+			return(
+				<DashItem
+					label={ labelName }
+					className="jp-dash-item__is-inactive"
+					status="pro-inactive"
+					pro={ true }
+				>
+					<p className="jp-dash-item__description">
+						{
+							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
+								__( 'To automatically scan your site for malicious threats, please {{a}}install/activate{{/a}} VaultPress', {
+									components: {
+										a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
+									}
+								} )
+						}
+					</p>
+				</DashItem>
+			);
+		} else {
+			return(
+				<DashItem
+					label={ labelName }
+					className="jp-dash-item__is-inactive"
+					status="pro-inactive"
+					pro={ true }
+				>
+					<p className="jp-dash-item__description">
+						{
+							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
+								__( 'To automatically scan your site for malicious threats, please {{a}}upgrade your account{{/a}}', {
+									components: {
+										a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
+									}
+								} )
+						}
+					</p>
+				</DashItem>
+			);
+		}
 	},
 
 	render: function() {
@@ -119,7 +145,8 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
 			getVaultPressData: () => _getVaultPressData( state ),
-			getScanThreats: () => _getVaultPressScanThreatCount( state )
+			getScanThreats: () => _getVaultPressScanThreatCount( state ),
+			getSitePlan: () => getSitePlan( state )
 		};
 	},
 	( dispatch ) => {

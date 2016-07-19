@@ -67,7 +67,13 @@ const DashItem = React.createClass( {
 				</Button>;
 				break;
 			case 'is-error':
-				status = 'notice';
+				status = <SimpleNotice
+					showDismiss={ false }
+					status={ this.props.status }
+					isCompact={ true }
+				>
+					{ this.props.statusText }
+				</SimpleNotice>;
 				break;
 			case 'is-warning':
 				status = <SimpleNotice
