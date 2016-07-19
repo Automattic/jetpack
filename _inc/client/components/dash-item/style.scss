@@ -13,6 +13,7 @@
 
 .jp-dash-item__count {
 	margin-bottom: 0;
+	color: $blue-medium;
 	letter-spacing: rem( -1px );
 
 	@include breakpoint( ">960px" ) {
