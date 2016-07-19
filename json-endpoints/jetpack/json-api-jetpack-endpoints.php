@@ -637,7 +637,8 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
 		'object_type' => '(string=posts) The type of object to checksum - posts, comments or options',
 		'buckets' => '(int=10) The number of buckets for the checksums',
 		'start_id' => '(int=0) Starting ID for the range',
-		'end_id' => '(int=null) Ending ID for the range'
+		'end_id' => '(int=null) Ending ID for the range',
+		'columns' => '(string) Columns to checksum',
 	),
 	'response_format' => array(
 		'histogram' => '(array) Associative array of histograms by ID range, e.g. "500-999" => "abcd1234"'

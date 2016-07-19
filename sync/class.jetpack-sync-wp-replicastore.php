@@ -626,6 +626,10 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 			// get the checksum value
 			$value = $this->table_checksum( $object_table, $columns, $id_field, '1=1', $first_id, $last_id );
 
+			if ( is_wp_error( $value ) ) {
+				return $value;
+			}
+
 			if ( $first_id === null || $last_id === null ) {
 				break;
 			} elseif ( $first_id === $last_id ) {
@@ -662,7 +666,15 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				WHERE $where_sql
 ENDSQL;
 
-		return $wpdb->get_var( $query );
+
+		$result = $wpdb->get_var( $query );
+
+		if ( $wpdb->last_error ) {
+			return new WP_Error( 'database_error', $wpdb->last_error );
+		}
+
+		return $result;
+
 	}
 
 	private function invalid_call() {
