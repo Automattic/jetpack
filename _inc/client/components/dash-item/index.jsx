@@ -61,7 +61,7 @@ const DashItem = React.createClass( {
 				status = <Button
 					compact={ true }
 				    primary={ true }
-					href="https://wordpress.com/plugins/"
+					href={ 'https://wordpress.com/plugins/' + this.props.module }
 				>
 					{ __( 'Activate' ) }
 				</Button>;
