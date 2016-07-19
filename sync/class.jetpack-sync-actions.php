@@ -14,7 +14,7 @@ class Jetpack_Sync_Actions {
 
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
-		add_action( 'updating_jetpack_version', array( __CLASS__, 'schedule_full_sync' ) );
+		add_action( 'updating_jetpack_version', array( __CLASS__, 'schedule_initial_sync' ) );
 		
 		// Sync connected user role changes to .com
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
@@ -114,6 +114,10 @@ class Jetpack_Sync_Actions {
 		}
 
 		return $rpc->getResponse();
+	}
+
+	static function schedule_initial_sync() {
+		self::schedule_full_sync( array( 'options', 'network_options', 'functions', 'constants' ) );
 	}
 
 	static function schedule_full_sync( $modules = null ) {
