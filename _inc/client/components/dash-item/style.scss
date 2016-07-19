@@ -53,40 +53,22 @@
 		@include long-content-fade( $color : lighten( $gray, 35% ) );
 	}
 
-	&.is-success {
-		background: $alert-green;
-
-		.dops-section-header__label:before {
-			@include long-content-fade( $color : $alert-green );
-		}
-	}
-	&.is-warning {
-		background: $alert-yellow;
-
-		.dops-section-header__label:before {
-			@include long-content-fade( $color : $alert-yellow );
-		}
-	}
-	&.is-error {
-		background: $alert-red;
-
-		.dops-section-header__label:before {
-			@include long-content-fade( $color : $alert-red );
-		}
-	}
-	&.is-info {
-		background: $blue-wordpress;
-
-		.dops-section-header__label:before {
-			@include long-content-fade( $color : $blue-wordpress );
-		}
-	}
 	&.is-working,
 	&.is-premium-inactive {
 		.dops-section-header__actions {
-			color: lighten( $gray, 20% );
+			// color: lighten( $gray, 20% );
+			color: $gray;
 		}
 	}
+}
+
+.jp-dash-item__active-label {
+	display: inline-block;
+	padding: rem( 7px ) 0;
+	color: darken( $gray, 10% );
+	font-size: rem( 11px );
+	font-weight: 500;
+	text-transform: uppercase;
 }
 
 // conditional styles for content when items are inactive
@@ -149,16 +131,4 @@
 .jp-dash-item__recently-activated .jp-dash-item__description {
 	padding: rem( 16px );
 	font-style: italic;
-}
-
-// I apologize for this, but the icons were misbehaving. - MJA
-.jp-dash-item .is-success .dops-section-header__label,
-.jp-dash-item .is-success .dops-section-header__actions,
-.jp-dash-item .is-warning .dops-section-header__label,
-.jp-dash-item .is-warning .dops-section-header__actions,
-.jp-dash-item .is-error .dops-section-header__label,
-.jp-dash-item .is-error .dops-section-header__actions,
-.jp-dash-item .is-info .dops-section-header__label,
-.jp-dash-item .is-info .dops-section-header__actions {
-	color: $white;
 }

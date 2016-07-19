@@ -85,7 +85,7 @@ const DashItem = React.createClass( {
 				</SimpleNotice>;
 				break;
 			case 'is-working':
-				status = __( 'Active' );
+				status = <span className="jp-dash-item__active-label">Active</span>;
 				break;
 			default:
 				status = '';
