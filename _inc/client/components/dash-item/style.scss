@@ -21,6 +21,7 @@
 	margin-bottom: 0;
 	width: 100%;
 	color: $blue-medium;
+	font-weight: 500;
 	font-size: rem( 32px );
 
 	@include breakpoint( "<660px" ) {
