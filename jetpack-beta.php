@@ -4,7 +4,7 @@
 Plugin Name: Jetpack Beta Tester
 Plugin URI: https://github.com/Automattic/jetpack
 Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master-stable branch on GitHub.  DO NOT USE IN PRODUCTION.
-Version: 1.0.3
+Version: 1.0.4
 Author: Automattic
 Author URI: https://jetpack.com/
 License: GPLv2 or later
@@ -32,6 +32,8 @@ define( 'JPBETA__DIR', dirname(__FILE__).'/' );
 //we need jetpack to work!
 if( !file_exists( WP_PLUGIN_DIR . '/jetpack/jetpack.php' ) ) { return; }
 
+
+
 function set_up_auto_updater() {
 
     $forceUpdate = get_option( 'force-jetpack-update' );
@@ -39,6 +41,8 @@ function set_up_auto_updater() {
     if( $forceUpdate != get_current_jetpack_version() ) {
         update_option( 'force-jetpack-update', 'just-updated' );
     }
+	
+	$jetpack_plugin_path = WP_PLUGIN_DIR . '/jetpack/jetpack.php';
 
 	$beta_type = get_option( 'jp_beta_type' );
 
@@ -47,13 +51,18 @@ function set_up_auto_updater() {
 	} else {
 		$json_url = 'http://betadownload.jetpack.me/jetpack-bleeding-edge.json';
 	}
+	
+	if( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+		$json_url = str_replace( '.json', '-pressable.json', $json_url );
+		$jetpack_plugin_path = WP_PLUGIN_DIR . '/jetpack-pressable-beta/jetpack.php';
+	}
 
     do_action( 'add_debug_info', $json_url, 'json_url' );
 
 	require 'plugin-updates/plugin-update-checker.php';
 	$JetpackBeta = PucFactory::buildUpdateChecker(
 	    $json_url,
-	    WP_PLUGIN_DIR . '/jetpack/jetpack.php',
+	    $jetpack_plugin_path,
 	    'jetpack',
 	    '0.01'
 	);
@@ -193,7 +202,7 @@ function jpb_replace_update_message() {
 /*
  * Admin page
  */
-if( is_admin() ) {
+if( is_admin() ) {	
     require JPBETA__DIR . 'jetpack-beta-admin.php';
     $jpbeta_admin = new JP_Beta_Admin();
 }
