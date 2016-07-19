@@ -44,7 +44,7 @@ const DashScan = React.createClass( {
 			}
 
 			// Check for threats
-			const threats = 2;
+			const threats = this.props.getScanThreats();
 			if ( threats !== 0 ) {
 				return(
 					<DashItem
@@ -80,7 +80,9 @@ const DashScan = React.createClass( {
 						status="is-working"
 						pro={ true }
 					>
-						<h3>{ __( "No threats found, you're good to go!" ) }</h3>
+						<p className="jp-dash-item__description">
+							{ __( "No threats found, you're good to go!" ) }
+						</p>
 					</DashItem>
 				);
 			}
@@ -97,7 +99,7 @@ const DashScan = React.createClass( {
 					<p className="jp-dash-item__description">
 						{
 							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
-								__( 'To automatically scan your site for malicious threats, please {{a}}install/activate{{/a}} VaultPress', {
+								__( 'To automatically scan your site for malicious threats, please {{a}}install and activate{{/a}} VaultPress', {
 									components: {
 										a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
 									}

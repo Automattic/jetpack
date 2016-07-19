@@ -43,9 +43,8 @@ const DashBackups = React.createClass( {
 					</DashItem>
 				);
 			}
-			const backupData = vpData.data.backups;
 
-			if ( vpData.code === 'success' && backupData.has_full_backup ) {
+			if ( vpData.code === 'success' ) {
 				return(
 					<DashItem
 						label={ labelName }
@@ -53,25 +52,16 @@ const DashBackups = React.createClass( {
 						className="jp-dash-item__is-active"
 						pro={ true }
 					>
-						<h3>{ __( 'Your site is completely backed up!' ) }</h3>
-						<p className="jp-dash-item__description">{ __( 'Full Backup Status:' ) } { backupData.full_backup_status } </p>
-						<p className="jp-dash-item__description">{ __( 'Last Backup:' ) } { backupData.last_backup } </p>
-					</DashItem>
-				);
-			}
 
-			// All good
-			if ( vpData.code === 'success' && backupData.full_backup_status !== '100% complete' ) {
-				return(
-					<DashItem
-						label={ labelName }
-						status="is-working"
-						className="jp-dash-item__is-active"
-						pro={ true }
-					>
-						<h3>{ __( 'Currently backing up your site.' ) }</h3>
-						<p className="jp-dash-item__description">{ __( 'Full Backup Status:' ) } { backupData.full_backup_status } </p>
-						<p className="jp-dash-item__description">{ __( 'Last Backup:' ) } { backupData.last_backup }</p>
+						<p className="jp-dash-item__description">
+							{ vpData.message }
+							<br/>
+							{ __( '{{a}}View backup details{{/a}}', {
+								components: {
+									a: <a href='https://dashboard.vaultpress.com' target="_blank" />
+								}
+							} ) }
+						</p>
 					</DashItem>
 				);
 			}
