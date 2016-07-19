@@ -13,6 +13,7 @@ import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import { imagePath } from 'constants';
 import { getSiteConnectionStatus, isDevMode } from 'state/connection';
 import { demoStatsData, demoStatsBottom } from 'devmode';
 import {
@@ -131,14 +132,24 @@ const DashStats = React.createClass( {
 		} else {
 			return (
 				<div>
-					{
-						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
-						__( '{{a}}Activate Site Statistics{{/a}} to see detailed stats, likes, followers, subscribers, and more!', {
-							components: {
-								a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />
-							}
-						} )
-					}
+					<img src={ imagePath + 'stats.svg' } width="150" alt={ __( 'Jetpack Stats' ) } className="jp-at-a-glance__stats-icon" />
+					<div>
+						{
+							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
+							__( '{{a}}Activate Site Statistics{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
+								components: {
+									a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />,
+									a1: <a href="https://jetpack.com/support/stats" target="_blank" />
+								}
+							} )
+						}
+					</div>
+					<Button
+						onClick={ this.props.activateStats }
+						primary={ true }
+					>
+						{ __( 'Activate Site Statistics' ) }
+					</Button>
 				</div>
 			);
 		}
