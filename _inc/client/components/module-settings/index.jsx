@@ -155,6 +155,7 @@ export let StatsSettings = React.createClass( {
 				<FormFieldset>
 					<FormLegend>{ __( 'Report Visibility: Select the roles that will be able to view stats reports' ) }</FormLegend>
 						<ModuleSettingMultipleSelectCheckboxes
+							always_checked={ [ 'administrator' ] }
 							name={ 'roles' }
 							{ ...this.props }
 							validValues={ this.props.getSiteRoles() } />
