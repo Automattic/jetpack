@@ -45,6 +45,7 @@ const AtAGlance = React.createClass( {
 					<QuerySitePlugins />
 					<QuerySite />
 					<DashStats { ...this.props } />
+					<FeedbackDashRequest { ...this.props } />
 
 					{
 						// Site Security
@@ -84,8 +85,6 @@ const AtAGlance = React.createClass( {
 							<DashPhoton { ...this.props } />
 						</div>
 					</div>
-
-					<FeedbackDashRequest { ...this.props } />
 				</div>
 			);
 		} else {

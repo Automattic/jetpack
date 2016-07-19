@@ -216,12 +216,3 @@
 	}
 }
 // end flexbox nesting
-
-.jp-dash-item__feedback-request {
-	@include breakpoint( ">660px" ) {
-		margin-bottom: rem( 64px );
-	}
-	@include breakpoint( "<660px" ) {
-		margin-bottom: rem( 24px );
-	}
-}
