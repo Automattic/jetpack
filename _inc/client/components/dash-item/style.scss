@@ -39,6 +39,10 @@
 	background: lighten( $gray, 35% );
 	width: 100%;
 
+	.dops-button {
+		font-style: normal;
+	}
+
 	.dops-section-header__label {
 		color: darken( $gray, 20% );
 	}
