@@ -131,7 +131,12 @@ const DashItem = React.createClass( {
 
 		if ( this.props.pro ) {
 			proButton =
-				<Button compact={ true }>Pro</Button>
+				<Button
+					compact={ true }
+				    href="#professional"
+				>
+					{ __( 'Pro' ) }
+				</Button>
 			;
 
 			toggle = this.proCardStatus();
