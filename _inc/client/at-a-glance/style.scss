@@ -1,5 +1,8 @@
 // This document contains styles that influence the styles of Stats & At a Glance, overall.
 // For more precise styles, dig into the styles of each component. ie. dash-item
+.jp-at-a-glance {
+	margin-bottom: rem( 48px );
+}
 
 .jp-at-a-glance__stats-card {
 	padding: 0;

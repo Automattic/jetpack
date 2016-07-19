@@ -41,7 +41,7 @@ const AtAGlance = React.createClass( {
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
 			return (
-				<div>
+				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
 					<DashStats { ...this.props } />
