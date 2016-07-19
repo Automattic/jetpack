@@ -237,6 +237,26 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_histogram_accepts_columns( $store ) {
+		for ( $i = 1; $i <= 20; $i += 1 ) {
+			$post = self::$factory->post( $i, array( 'post_content' => "Test post $i" ) );
+			$store->upsert_post( $post );
+
+			$comment = self::$factory->comment( $i, $i, array( 'comment_content' => "Test comment $i" ) );
+			$store->upsert_comment( $comment );
+		}
+
+		$histogram = $store->checksum_histogram( 'posts', 20, 0, 0, array( 'post_content' ) );
+
+		$post_checksum = $histogram['1'];
+
+		$this->assertEquals( $post_checksum, strtoupper( dechex( sprintf( '%u', crc32( "Test post 1" ) ) ) ) );
+	}
+
+	/**
 	 * Posts
 	 */
 

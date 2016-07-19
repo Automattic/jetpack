@@ -22,6 +22,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	private $object_terms;
 	private $users;
 	private $allowed_mime_types;
+	private $checksum_fields;
 
 	function __construct() {
 		$this->reset();
@@ -69,11 +70,16 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function posts_checksum( $min_id = null, $max_id = null ) {
-		return $this->calculate_checksum( $this->posts, 'post_checksum', 'ID', $min_id, $max_id );
+		return $this->calculate_checksum( $this->posts, 'ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_post_checksum_columns );
 	}
 
-	private function post_checksum( $carry, $post ) {
-		return $carry ^ sprintf( '%u', crc32( $post->ID . $post->post_modified ) ) + 0;
+	private function reduce_checksum( $carry, $post ) {
+		// append fields
+		$value = '';
+		foreach ( $this->checksum_fields as $field ) {
+			$value .= $post->{$field};
+		}
+		return $carry ^ sprintf( '%u', crc32( $value ) ) + 0;
 	}
 
 	function filter_post_status( $post ) {
@@ -115,11 +121,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function comments_checksum( $min_id = null, $max_id = null ) {
-		return $this->calculate_checksum( $this->comments, 'comment_checksum', 'comment_ID', $min_id, $max_id );
-	}
-
-	private function comment_checksum( $carry, $comment ) {
-		return $carry ^ sprintf( '%u', crc32( $comment->comment_ID . $comment->comment_content ) ) + 0;
+		return $this->calculate_checksum( $this->comments, 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
 	}
 
 	function filter_comment_status( $comment ) {
@@ -178,7 +180,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function options_checksum() {
-		return $this->calculate_checksum( Jetpack_Sync_Defaults::$default_options_whitelist, 'option_checksum' );
+		return strtoupper( dechex( array_reduce( Jetpack_Sync_Defaults::$default_options_whitelist, array( $this, 'option_checksum' ), 0 ) ) );
 	}
 
 	private function option_checksum( $carry, $option_name ) {
@@ -492,24 +494,31 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		);
 	}
 
-	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null ) {
+	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $fields = null ) {
 		// divide all IDs into the number of buckets
 		switch ( $object_type ) {
 			case 'posts':
-				$posts    = $this->get_posts( null, $start_id, $end_id );
-				$post_ids = array_map( create_function( '$o', 'return $o->ID;' ), $posts );
-				// $id_field = 'ID';
-				$values            = array_combine( $post_ids, $posts );
-				$get_function      = 'get_post';
-				$checksum_function = 'post_checksum';
+				$posts         = $this->get_posts( null, $start_id, $end_id );
+				$post_ids      = array_map( create_function( '$o', 'return $o->ID;' ), $posts );
+				$id_field      = 'ID';
+				$values        = array_combine( $post_ids, $posts );
+				$get_function  = 'get_post';
+
+				if ( empty( $fields ) ) {
+					$fields = Jetpack_Sync_Defaults::$default_post_checksum_columns;
+				}
+
 				break;
 			case 'comments':
-				$comments    = $this->get_comments( null, $start_id, $end_id );
-				$comment_ids = array_map( create_function( '$o', 'return $o->comment_ID;' ), $comments );
-				// $id_field = 'comment_ID';
-				$values            = array_combine( $comment_ids, $comments );
-				$get_function      = 'get_comment';
-				$checksum_function = 'comment_checksum';
+				$comments     = $this->get_comments( null, $start_id, $end_id );
+				$comment_ids  = array_map( create_function( '$o', 'return $o->comment_ID;' ), $comments );
+				$id_field     = 'comment_ID';
+				$values       = array_combine( $comment_ids, $comments );
+				$get_function = 'get_comment';
+
+				if ( empty( $fields ) ) {
+					$fields = Jetpack_Sync_Defaults::$default_comment_checksum_columns;
+				}
 				break;
 			default:
 				return false;
@@ -533,7 +542,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			}
 
 			$objects           = array_map( array( $this, $get_function ), $ids );
-			$value             = $this->calculate_checksum( $objects, $checksum_function );
+			$value             = $this->calculate_checksum( $objects, null, null, null, $fields );
 			$histogram[ $key ] = $value;
 		}
 
@@ -549,7 +558,8 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return $post;
 	}
 
-	private function calculate_checksum( $array, $reduce_method, $id_field = null, $min_id = null, $max_id = null ) {
+	private function calculate_checksum( $array, $id_field = null, $min_id = null, $max_id = null, $fields = null ) {
+		$this->checksum_fields = $fields;
 
 		if ( $id_field && ( $min_id || $max_id ) ) {
 			$filtered_array = $array;
@@ -561,6 +571,6 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			$array = $filtered_array;
 		}
 
-		return strtoupper( dechex( array_reduce( $array, array( $this, $reduce_method ), 0 ) ) );
+		return strtoupper( dechex( array_reduce( $array, array( $this, 'reduce_checksum' ), 0 ) ) );
 	}
 }
