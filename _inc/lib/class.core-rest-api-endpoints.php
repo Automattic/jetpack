@@ -1908,6 +1908,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'type'              => 'array',
 						'default'           => array( 'administrator' ),
 						'validate_callback' => __CLASS__ . '::validate_stats_roles',
+						'sanitize_callback' => __CLASS__ . '::sanitize_stats_allowed_roles',
 					),
 					'count_roles' => array(
 						'description'       => esc_html__( 'Count the page views of registered users who are logged in.', 'jetpack' ),
@@ -2223,6 +2224,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a string.', 'jetpack' ), $param ) );
 		}
 		return true;
+	}
+
+	/**
+	 * If for some reason the roles allowed to see Stats are empty (for example, user tampering with checkboxes),
+	 * return an array with only 'administrator' as the allowed role and save it for 'roles' option.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string|bool $value Value to check.
+	 *
+	 * @return bool
+	 */
+	public static function sanitize_stats_allowed_roles( $value ) {
+		if ( empty( $value ) ) {
+			return array( 'administrator' );
+		}
+		return $value;
 	}
 
 	/**
