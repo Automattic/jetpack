@@ -2,6 +2,7 @@
  * External dependencies
  */
 import assign from 'lodash/assign';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -17,3 +18,8 @@ export const initialState = ( state = window.Initial_State, action ) => {
 			return state;
 	}
 };
+
+export function getSiteRoles( state ) {
+	const roles = get( state.jetpack.initialState.stats, 'roles', {} );
+	return roles;
+}

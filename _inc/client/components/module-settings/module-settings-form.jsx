@@ -28,6 +28,9 @@ export function ModuleSettingsForm( InnerComponent ) {
 				optionValue = event.target.value;
 			}
 
+			this.updateFormStateOptionValue( optionName, optionValue );
+		},
+		updateFormStateOptionValue( optionName, optionValue ) {
 			const newOptions = {
 				...this.state.options,
 				[ optionName ]: optionValue
@@ -54,6 +57,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 					getOptionValue={ this.getOptionValue }
 					onSubmit={ this.onSubmit }
 					onOptionChange={ this.onOptionChange }
+					updateFormStateOptionValue={ this.updateFormStateOptionValue }
 					isDirty={ this.isDirty }
 					{ ...this.props } />
 			);
