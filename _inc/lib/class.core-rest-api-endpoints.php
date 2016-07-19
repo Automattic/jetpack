@@ -2065,7 +2065,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool
 	 */
 	public static function validate_stats_roles( $value, $request, $param ) {
-		if ( ! array_intersect( self::$stats_roles, $value ) ) {
+		if ( ! empty( $value ) && ! array_intersect( self::$stats_roles, $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be %s.', 'jetpack' ), $param, join( ', ', self::$stats_roles ) ) );
 		}
 		return true;
