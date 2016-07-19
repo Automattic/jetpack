@@ -27,7 +27,7 @@ import { isDevMode } from 'state/connection';
 
 const DashBackups = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Site Backups %(vaultpress)s', { args: { vaultpress: '(VaultPress)' } } ),
+		const labelName = __( 'Backups', { args: { vaultpress: '(VaultPress)' } } ),
 			hasSitePlan = false !== this.props.getSitePlan();
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {

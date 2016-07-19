@@ -30,7 +30,7 @@ const DashAkismet = React.createClass( {
 	getContent: function() {
 		const akismetData = this.props.getAkismetData();
 		const akismetSettingsUrl = window.Initial_State.adminUrl + 'admin.php?page=akismet-key-config';
-		const labelName = __( 'Anti-spam %(akismet)s', { args: { akismet: '(Akismet)' } } );
+		const labelName = __( 'Anti-spam', { args: { akismet: '(Akismet)' } } );
 
 		if ( akismetData === 'N/A' ) {
 			return(
