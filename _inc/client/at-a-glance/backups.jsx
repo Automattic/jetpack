@@ -15,6 +15,11 @@ import {
 	activateModule,
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
+import { getSitePlan } from 'state/site';
+import {
+	isPluginActive,
+	isPluginInstalled
+} from 'state/site/plugins';
 import {
 	getVaultPressData as _getVaultPressData
 } from 'state/at-a-glance';
@@ -22,7 +27,8 @@ import { isDevMode } from 'state/connection';
 
 const DashBackups = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Site Backups %(vaultpress)s', { args: { vaultpress: '(VaultPress)' } } );
+		const labelName = __( 'Site Backups %(vaultpress)s', { args: { vaultpress: '(VaultPress)' } } ),
+			hasSitePlan = false !== this.props.getSitePlan();
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			const vpData = this.props.getVaultPressData();
@@ -33,11 +39,10 @@ const DashBackups = React.createClass( {
 						label={ labelName }
 						pro={ true }
 					>
-						{ __( 'Loading…' ) }
+						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 					</DashItem>
 				);
 			}
-
 			const backupData = vpData.data.backups;
 
 			if ( vpData.code === 'success' && backupData.has_full_backup ) {
@@ -45,6 +50,7 @@ const DashBackups = React.createClass( {
 					<DashItem
 						label={ labelName }
 						status="is-working"
+						className="jp-dash-item__is-active"
 						pro={ true }
 					>
 						<h3>{ __( 'Your site is completely backed up!' ) }</h3>
@@ -60,6 +66,7 @@ const DashBackups = React.createClass( {
 					<DashItem
 						label={ labelName }
 						status="is-working"
+						className="jp-dash-item__is-active"
 						pro={ true }
 					>
 						<h3>{ __( 'Currently backing up your site.' ) }</h3>
@@ -70,25 +77,47 @@ const DashBackups = React.createClass( {
 			}
 		}
 
-		return(
-			<DashItem
-				label={ labelName }
-				className="jp-dash-item__is-inactive"
-				status="is-premium-inactive"
-				pro={ true }
-			>
-				<p className="jp-dash-item__description">
-					{
-						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
-						__( 'To automatically back up your site, please {{a}}upgrade your account{{/a}}', {
-							components: {
-								a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
-							}
-						} )
-					}
-				</p>
-			</DashItem>
-		);
+		if ( ! hasSitePlan ) {
+			return(
+				<DashItem
+					label={ labelName }
+					className="jp-dash-item__is-inactive"
+					status="pro-inactive"
+					pro={ true }
+				>
+					<p className="jp-dash-item__description">
+						{
+							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
+								__( 'To automatically back up your site, please {{a}}upgrade!{{/a}}', {
+									components: {
+										a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
+									}
+								} )
+						}
+					</p>
+				</DashItem>
+			);
+		} else {
+			return(
+				<DashItem
+					label={ labelName }
+					className="jp-dash-item__is-inactive"
+					status="pro-inactive"
+					pro={ true }
+				>
+					<p className="jp-dash-item__description">
+						{
+							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
+								__( 'To automatically back up your site, please {{a}}install and activate{{/a}} VaultPress', {
+									components: {
+										a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
+									}
+								} )
+						}
+					</p>
+				</DashItem>
+			);
+		}
 	},
 
 	render: function() {
@@ -106,7 +135,10 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
-			getVaultPressData: () => _getVaultPressData( state )
+			getVaultPressData: () => _getVaultPressData( state ),
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
+			getSitePlan: () => getSitePlan( state )
 		};
 	},
 	( dispatch ) => {

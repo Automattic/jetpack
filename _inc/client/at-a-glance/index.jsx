@@ -21,6 +21,8 @@ import DashPhoton from './photon';
 import DashSiteVerify from './site-verification';
 import FeedbackDashRequest from 'components/jetpack-notices/feedback-dash-request';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import QuerySite from 'components/data/query-site';
 
 const AtAGlance = React.createClass( {
 	render() {
@@ -40,6 +42,8 @@ const AtAGlance = React.createClass( {
 		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
 			return (
 				<div>
+					<QuerySitePlugins />
+					<QuerySite />
 					<DashStats { ...this.props } />
 
 					{
