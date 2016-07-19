@@ -55,18 +55,25 @@ const DashPluginUpdates = React.createClass( {
 					module="manage"
 					status="is-warning"
 				>
+					<h2 className="jp-dash-item__count">
+						{
+							__( '%(number)s plugin', '%(number)s plugins', {
+								count: pluginUpdates.count,
+								args: {
+									number: pluginUpdates.count
+								}
+							} )
+						}
+					</h2>
 					<p className="jp-dash-item__description">
-						<strong>
-							{
-								__( '%(number)s plugin needs updating.', '%(number)s plugins need updating.', {
-									count: pluginUpdates.count,
-									args: {
-										number: pluginUpdates.count
-									}
-								} )
-							}
-						</strong>
-						<br/>
+						{
+							__( 'Needs updating. ', 'Need updating. ', {
+								count: pluginUpdates.count,
+								args: {
+									number: pluginUpdates.count
+								}
+							} )
+						}
 						{
 							isDevMode( this.props ) ? '' :
 							manageActive ?
