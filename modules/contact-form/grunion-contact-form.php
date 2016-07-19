@@ -195,20 +195,24 @@ class Grunion_Contact_Form_Plugin {
 	 * Display the count of new feedback entries received. It's reset when user visits the Feedback screen.
 	 *
 	 * @since 4.1.0
+	 *
+	 * @param object $screen Information about the current screen.
 	 */
 	function unread_count( $screen ) {
 		if ( isset( $screen->post_type ) && 'feedback' == $screen->post_type ) {
 			update_option( 'feedback_unread_count', 0 );
 		} else {
 			global $menu;
-			foreach ( $menu as $index => $menu_item ) {
-				if ( 'edit.php?post_type=feedback' == $menu_item[2] ) {
-					$unread = get_option( 'feedback_unread_count', 0 );
-					if ( $unread > 0 ) {
-						$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . "</span></span>" : '';
-						$menu[ $index ][0] .= $unread_count;
+			if ( isset( $menu ) && is_array( $menu ) && ! empty( $menu ) ) {
+				foreach ( $menu as $index => $menu_item ) {
+					if ( 'edit.php?post_type=feedback' == $menu_item[2] ) {
+						$unread = get_option( 'feedback_unread_count', 0 );
+						if ( $unread > 0 ) {
+							$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . "</span></span>" : '';
+							$menu[ $index ][0] .= $unread_count;
+						}
+						break;
 					}
-					break;
 				}
 			}
 		}
