@@ -151,7 +151,7 @@ const DashItem = React.createClass( {
 				>
 					{ toggle }
 				</SectionHeader>
-				<Card href={ this.props.href }>
+				<Card className="jp-dash-item__content" href={ this.props.href }>
 					{ this.props.children }
 				</Card>
 			</div>

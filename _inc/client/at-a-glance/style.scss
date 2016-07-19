@@ -39,7 +39,6 @@
 }
 
 .jp-at-a-glance__stats-summary-today {
-
 	@include breakpoint( "<660px" ) {
 		margin-top: rem( -1px );
 	}
@@ -53,7 +52,6 @@
 
 .jp-at-a-glance__stats-summary-bestday,
 .jp-at-a-glance__stats-summary-alltime {
-
 	@include breakpoint( "<660px" ) {
 		margin-top: rem( 1px );
 	}
@@ -174,45 +172,41 @@
 
 .jp-at-a-glance__left,
 .jp-at-a-glance__right {
+	display: flex;
+
 	@include breakpoint( ">660px" ) {
 		flex-basis: 50%;
+		margin-bottom: rem( 16px );
+	}
+	@include breakpoint( "<660px" ) {
+		margin-bottom: rem( 12px );
+	}
+
+	> div, // Sorry. not sure how to class this. Thanks, React.
+	.jp-dash-item {
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+	}
+	.jp-dash-item {
+		.dops-card {
+			flex-grow: 1;
+		}
+		.dops-card.is-compact {
+			flex-grow: 0;
+		}
+	}
+	.jp-dash-item__content {
+		display: flex;
+		align-items: flex-end;
 	}
 }
 
 .jp-at-a-glance__left {
 	display: flex;
-	flex-direction: row;
 
 	@include breakpoint( ">660px" ) {
-		margin: 0 rem( 16px ) rem( 16px ) 0;
-	}
-	@include breakpoint( "<660px" ) {
-		margin-bottom: rem( 12px );
-	}
-}
-
-.jp-dash-item__interior {
-	display: flex;
-	flex: 1;
-	flex-direction: row;
-	align-items: stretch;
-}
-
-.jp-dash-item__interior .jp-dash-item {
-	display: flex;
-	flex: 1;
-	flex-direction: column;
-}
-
-.jp-dash-item__interior .dops-card {
-	margin: 0;
-
-	&:last-of-type {
-		display: flex;
-		flex: 1;
-		flex-direction: column;
-		justify-content: flex-end;
-		margin-bottom: 0;
+		margin-right: rem( 16px );
 	}
 }
 // end flexbox nesting

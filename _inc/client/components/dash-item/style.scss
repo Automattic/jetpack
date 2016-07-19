@@ -11,8 +11,13 @@
 	}
 }
 
+.jp-dash-item__content {
+	margin: 0;
+}
+
 .jp-dash-item__count {
 	margin-bottom: 0;
+	width: 100%;
 	color: $blue-medium;
 	letter-spacing: rem( -1px );
 
@@ -31,11 +36,13 @@
 
 .jp-dash-item__description {
 	margin: 0;
+	width: 100%;
 	font-size: rem( 14px );
 }
 
 .jp-dash-item .dops-section-header {
 	background: lighten( $gray, 35% );
+	width: 100%;
 
 	.dops-section-header__label:before {
 		@include long-content-fade( $color : lighten( $gray, 35% ) );
