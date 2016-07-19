@@ -426,15 +426,17 @@ class Publicize extends Publicize_Base {
 	function save_publicized( $post_ID, $post, $update ) {
 		// Only do this when a post transitions to being published
 		if ( get_post_meta( $post->ID, $this->PENDING ) ) {
-
-			/**
-			 * Fires when a post is saved that has is marked as pending publicizing
-			 *
-			 * @since 4.1.0
-			 *
-			 * @param int The post ID
-			 */
-			do_action( 'jetpack_publicize_post', $post->ID );
+			$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+			if ( ! empty( $connected_services ) ) {
+				/**
+				 * Fires when a post is saved that has is marked as pending publicizing
+				 *
+				 * @since 4.1.0
+				 *
+				 * @param int The post ID
+				 */
+				do_action( 'jetpack_publicize_post', $post->ID );
+			}
 			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}
