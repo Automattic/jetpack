@@ -44,6 +44,10 @@
 	background: lighten( $gray, 35% );
 	width: 100%;
 
+	.dops-section-header__label {
+		color: darken( $gray, 20% );
+	}
+
 	.dops-section-header__label:before {
 		@include long-content-fade( $color : lighten( $gray, 35% ) );
 	}
