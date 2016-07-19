@@ -237,6 +237,41 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_histogram_accepts_columns( $store ) {
+		for ( $i = 1; $i <= 20; $i += 1 ) {
+			$post = self::$factory->post( $i, array( 'post_content' => "Test post $i" ) );
+			$store->upsert_post( $post );
+
+			$comment = self::$factory->comment( $i, $i, array( 'comment_content' => "Test comment $i" ) );
+			$store->upsert_comment( $comment );
+		}
+
+		$histogram = $store->checksum_histogram( 'posts', 20, 0, 0, array( 'post_content' ) );
+
+		$post_checksum = $histogram['1'];
+
+		$this->assertEquals( $post_checksum, strtoupper( dechex( sprintf( '%u', crc32( "Test post 1" ) ) ) ) );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_histogram_detects_missing_columns( $store ) {
+		if ( $store instanceof Jetpack_Sync_Test_Replicastore ) {
+			$this->markTestIncomplete( "The Test replicastore doesn't support detecting missing columns" );
+		}
+
+		// check what happens when we pass in an invalid column
+		$histogram = $store->checksum_histogram( 'posts', 20, 0, 0, array( 'this_column_doesnt_exist' ) );
+
+		$this->assertTrue( is_wp_error( $histogram ) );
+	}
+
+	/**
 	 * Posts
 	 */
 

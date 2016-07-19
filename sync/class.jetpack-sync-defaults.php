@@ -155,6 +155,21 @@ class Jetpack_Sync_Defaults {
 		'ai1ec_event' // https://irc.automattic.com/chanlog.php?channel=jetpack&day=2014-05-29&sort=asc#m71850
 	);
 
+	static $default_post_checksum_columns = array(
+		'ID',
+		'post_modified',
+	); 
+
+	static $default_comment_checksum_columns = array(
+		'comment_ID',
+		'comment_content',
+	); 
+
+	static $default_option_checksum_columns = array(
+		'option_name',
+		'option_value',
+	);
+
 	// returns escapted SQL that can be injected into a WHERE clause
 	static function get_blacklisted_post_types_sql() {
 		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::$blacklisted_post_types ) ) . '\')';
