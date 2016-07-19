@@ -91,7 +91,6 @@
 
 // conditional styles for content when items are inactive
 .jp-dash-item__is-inactive {
-
 	.dops-section-header .dops-section-header__label:before {
 		@include long-content-fade( $color : $gray-light );
 	}
@@ -101,6 +100,7 @@
 	}
 
 	.jp-dash-item__description {
+		font-style: italic;
 		color: darken( $gray, 20% );
 	}
 }
