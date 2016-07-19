@@ -134,7 +134,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'disabled_reblogs'                     => 'pineapple',
 			'jetpack_comment_likes_enabled'        => 'pineapple',
 			'twitter_via'                          => 'pineapple',
-			'twitter-cards-site-tag'               => 'pineapple',
+			'jetpack-twitter-cards-site-tag'       => 'pineapple',
 			'wpcom_publish_posts_with_markdown'    => 'pineapple',
 			'wpcom_publish_comments_with_markdown' => 'pineapple',
 			'jetpack_activated'                    => 'pineapple',
