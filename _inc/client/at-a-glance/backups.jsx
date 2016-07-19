@@ -27,7 +27,7 @@ import { isDevMode } from 'state/connection';
 
 const DashBackups = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Backups', { args: { vaultpress: '(VaultPress)' } } ),
+		const labelName = __( 'Backups' ),
 			hasSitePlan = false !== this.props.getSitePlan();
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
@@ -35,10 +35,7 @@ const DashBackups = React.createClass( {
 
 			if ( vpData === 'N/A' ) {
 				return(
-					<DashItem
-						label={ labelName }
-						pro={ true }
-					>
+					<DashItem label={ labelName }>
 						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 					</DashItem>
 				);
@@ -112,7 +109,7 @@ const DashBackups = React.createClass( {
 
 	render: function() {
 		return(
-			<div>
+			<div className="jp-dash-item__interior">
 				<QueryVaultPressData />
 				{ this.getContent() }
 			</div>
