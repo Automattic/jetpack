@@ -24,6 +24,8 @@ import Security from 'security/index.jsx';
 import Appearance from 'appearance/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import Writing from 'writing/index.jsx';
+import Apps from 'apps/index.jsx';
+import Plans from 'plans/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
@@ -66,10 +68,10 @@ const Main = React.createClass( {
 				pageComponent = <AtAGlance { ...this.props } />;
 				break;
 			case '/apps':
-				pageComponent = 'this will be the APPS page';
+				pageComponent = <Apps { ...this.props } />;
 				break;
 			case '/professional':
-				pageComponent = 'this will be the PROFESSIONAL page';
+				pageComponent = <Plans { ...this.props } />;
 				break;
 			case '/settings':
 				navComponent = <NavigationSettings { ...this.props } />;
@@ -118,7 +120,7 @@ const Main = React.createClass( {
 						<JetpackNotices { ...this.props } />
 						{ this.renderMainContent( this.props.route.path ) }
 						{
-							this.props.getJumpStartStatus ?
+							this.props.getJumpStartStatus || '/apps' === this.props.route.path ?
 							null :
 							<SupportCard { ...this.props } />
 						}

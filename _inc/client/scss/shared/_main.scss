@@ -32,3 +32,136 @@
 #contextual-help-link-wrap {
 	display: none;
 }
+
+// Styles for Apps and Plans tabs
+.jp-jetpack-landing__container {
+	background: #2f4452 url( '../../images/jp-4/particles_bg-white.png' );
+	color: #6b8699;
+	overflow: hidden;
+
+	.dops-button {
+		margin-right: 10px;
+	}
+
+	.button-app {
+		height: 42px;
+		font-weight: bold;
+		background-color: white;
+		padding: 10px 12px 0 12px;
+		color: #00aadc;
+		text-decoration: none;
+		box-shadow: 0 3px #0087be;
+		text-transform: uppercase;
+		border: 0;
+
+		svg {
+			display: inline-block;
+			fill: currentColor;
+			float: left;
+			margin-top: -5px;
+			margin-left: -6px;
+			margin-right: 2px;
+			width: 32px;
+			height: 32px;
+		}
+	}
+
+	img {
+		max-width: 100%;
+	}
+
+	.jp-jetpack-landing__title, .jp-jetpack-landing__description {
+		text-align: center;
+	}
+
+	.jp-jetpack-landing__description {
+		font-size: 1.15em;
+	}
+}
+
+.jp-jetpack-landing__header {
+	background: transparent url('../../images/jp-4/white-clouds.svg') 50% 100% no-repeat;
+	padding: 4% 0;
+	min-height: 400px;
+
+	h1, h2 {
+		color: #eee;
+		font-weight: 400;
+	}
+
+	.jp-jetpack-landing__img-text {
+		background-color: transparent;
+	}
+
+	.jp-jetpack-landing__column + .jp-jetpack-landing__column {
+		width: 50%;
+		padding: 5% 0;
+	}
+}
+
+.jp-jetpack-landing__img-text {
+	background-color: #fff;
+	display: inline-block;
+	vertical-align: top;
+	width: 100%;
+
+	.jp-jetpack-landing__column {
+		padding: 40px 4% 20px;
+		width: 42%;
+		float: left;
+	}
+}
+
+.jp-jetpack-landing__footer {
+	clear: both;
+	background: #2f4452 url('../../images/jp-4/white-clouds-reverse.svg') 50% 0 no-repeat;
+	padding: 5% 4%;
+
+	h1, h2, h3 {
+		color: #eee;
+		font-weight: 300;
+		margin: 40px 0 0;
+	}
+
+	.jp-jetpack-landing__img-text {
+		background-color: transparent;
+	}
+
+	td {
+		vertical-align: baseline;
+	}
+}
+
+.jp-jetpack-landing__apps {
+	.jp-jetpack-landing__header {
+		img {
+			max-width: 120%;
+		}
+	}
+}
+
+.jp-jetpack-landing__plans {
+	.jp-jetpack-landing__plan-features {
+		padding: 1% 4% 5%;
+		background-color: #fff;
+
+		h3 {
+			margin-bottom: 0;
+		}
+	}
+
+	.jp-jetpack-landing__plan-card {
+		padding: 5% 4% 1%;
+		background-color: #fff;
+
+		img {
+			float: left;
+			width: 15%;
+			margin-right: 20px;
+		}
+
+		img + h3 {
+			margin-top: 0;
+		}
+	}
+}
