@@ -546,7 +546,7 @@ new WPCOM_JSON_API_Get_Post_Endpoint( array(
 		'$post_name' => '(string) The post name (a.k.a. slug)',
 	),
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/name:blogging-and-stuff?pretty=1',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/name:blogging-and-stuff',
 ) );
 
 new WPCOM_JSON_API_Get_Post_Endpoint( array(
@@ -2454,7 +2454,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 
 	'response_format' => WPCOM_JSON_API_Site_Settings_Endpoint::$site_format,
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings',
 ) );
 
 new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
@@ -2474,7 +2474,7 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 
 	'response_format' => WPCOM_JSON_API_Site_Settings_Endpoint::$site_format,
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/settings?pretty=1',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/settings',
 ) );
 
 new WPCOM_JSON_API_Site_Settings_Endpoint( array(
@@ -2555,7 +2555,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'updated' => '(array)'
 	),
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings',
 ) );
 
 new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
@@ -2629,7 +2629,7 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'updated' => '(array)'
 	),
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/settings?pretty=1',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/settings',
 ) );
 
 /**
@@ -2908,13 +2908,12 @@ new WPCOM_JSON_API_Get_CustomCss_Endpoint( array (
 		'add_to_existing' => '(bool) False to skip the existing styles.',
 	),
 	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/12345678/customcss',
-	'example_response' => array(
-		array(
-			'css' => '.stie-title { color: #fff; }',
-			'preprocessor' => 'sass',
-			'add_to_existing' => 'true',
-		)
-	)
+	'example_response' => '
+	{
+		"css": ".site-title { color: #fff; }",
+		"preprocessor": "sass",
+		"add_to_existing": "true"
+	}'
 ) );
 
 new WPCOM_JSON_API_Update_CustomCss_Endpoint( array (
@@ -2945,13 +2944,12 @@ new WPCOM_JSON_API_Update_CustomCss_Endpoint( array (
 			'preprocessor' => 'sass'
 		),
 	),
-	'example_response' => array(
-		array(
-			'css' => '.stie-title { color: #fff; }',
-			'preprocessor' => 'sass',
-			'add_to_existing' => 'true',
-		)
-	)
+	'example_response' => '
+	{
+		"css": ".site-title { color: #fff; }",
+		"preprocessor": "sass",
+		"add_to_existing": "true"
+	}'
 ) );
 
 /**
@@ -2983,12 +2981,11 @@ new WPCOM_JSON_API_Update_Site_Logo_Endpoint( array (
 			'url' => 'https://s.w.org/about/images/logos/codeispoetry-rgb.png',
 		),
 	),
-	'example_response' => array(
-		array(
-			'id' => 12345,
-			'url' => 'https://s.w.org/about/images/logos/codeispoetry-rgb.png',
-		)
-	)
+	'example_response' => '
+	{
+		"id": 12345,
+		"url": "https:\/\/s.w.org\/about\/images\/logos\/codeispoetry-rgb.png"
+	}'
 ) );
 
 new WPCOM_JSON_API_Update_Site_Logo_Endpoint( array (
@@ -3039,13 +3036,7 @@ new WPCOM_JSON_API_Update_Site_Homepage_Endpoint( array (
 			'page_for_posts_id' => 0,
 		),
 	),
-	'example_response' => array(
-		array(
-			'is_page_on_front' => true,
-			'page_on_front_id' => 1,
-			'page_for_posts_id' => 0,
-		)
-	)
+	'example_response' => '{"is_page_on_front":true,"page_on_front_id":1,"page_for_posts_id":0}'
 ) );
 
 /*
