@@ -666,7 +666,6 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				WHERE $where_sql
 ENDSQL;
 
-
 		$result = $wpdb->get_var( $query );
 
 		if ( $wpdb->last_error ) {
