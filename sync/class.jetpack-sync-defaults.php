@@ -161,7 +161,8 @@ class Jetpack_Sync_Defaults {
 	); 
 
 	static $default_comment_checksum_columns = array(
-		'comment_ID'
+		'comment_ID',
+		'comment_content',
 	); 
 
 	static $default_option_checksum_columns = array(
