@@ -64,47 +64,41 @@ const DashBackups = React.createClass( {
 			}
 		}
 
-		if ( ! hasSitePlan ) {
-			return(
-				<DashItem
-					label={ labelName }
-					className="jp-dash-item__is-inactive"
-					status="pro-inactive"
-					pro={ true }
-				>
-					<p className="jp-dash-item__description">
-						{
-							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
-								__( 'To automatically back up your site, please {{a}}upgrade!{{/a}}', {
-									components: {
-										a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
-									}
-								} )
+		const upgradeOrActivateText = () => {
+			if ( hasSitePlan ) {
+				return(
+					__( 'To automatically back up your site, please {{a}}install and activate{{/a}} VaultPress', {
+						components: {
+							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
 						}
-					</p>
-				</DashItem>
-			);
-		} else {
-			return(
-				<DashItem
-					label={ labelName }
-					className="jp-dash-item__is-inactive"
-					status="pro-inactive"
-					pro={ true }
-				>
-					<p className="jp-dash-item__description">
-						{
-							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
-								__( 'To automatically back up your site, please {{a}}install and activate{{/a}} VaultPress', {
-									components: {
-										a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
-									}
-								} )
+					} )
+				);
+			} else {
+				return(
+					__( 'To automatically back up your site, please {{a}}upgrade!{{/a}}', {
+						components: {
+							a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
 						}
-					</p>
-				</DashItem>
-			);
-		}
+					} )
+				);
+			}
+		};
+
+		return(
+			<DashItem
+				label={ labelName }
+				className="jp-dash-item__is-inactive"
+				status="pro-inactive"
+				pro={ true }
+			>
+				<p className="jp-dash-item__description">
+					{
+						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
+							upgradeOrActivateText()
+					}
+				</p>
+			</DashItem>
+		);
 	},
 
 	render: function() {
