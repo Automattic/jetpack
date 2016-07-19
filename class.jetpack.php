@@ -4802,6 +4802,11 @@ p {
 		list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 		if ( JETPACK__VERSION != $version ) {
 			Jetpack_Options::update_option( 'version', JETPACK__VERSION . ':' . time() );
+
+			if ( version_compare( JETPACK__VERSION, $version, '>' ) ) {
+				do_action( 'updating_jetpack_version', JETPACK__VERSION, $version );
+			}
+			
 			return true;
 		}
 		return false;

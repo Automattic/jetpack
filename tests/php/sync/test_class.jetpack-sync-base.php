@@ -117,4 +117,11 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_publicize_post' );
 		$this->assertEquals( $post_id, $event->args[0] );
 	}
+
+	function test_upgrading_sends_options_constants_and_callables() {
+		do_action( 'updating_jetpack_version', '4.1', '4.2' );
+
+		$modules = array( 'options', 'network_options', 'functions', 'constants' );
+		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( $modules ) ) > time()-5 );
+	}
 }

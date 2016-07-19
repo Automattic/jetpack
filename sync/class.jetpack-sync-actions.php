@@ -14,7 +14,7 @@ class Jetpack_Sync_Actions {
 
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
-
+		
 		// Sync connected user role changes to .com
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
 
@@ -115,8 +115,16 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
+	static function schedule_initial_sync() {
+		// we need this function call here because we have to run this function 
+		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
+		wp_functionality_constants();
+		self::schedule_full_sync( array( 'options', 'network_options', 'functions', 'constants' ) );
+	}
+
 	static function schedule_full_sync( $modules = null ) {
 		wp_schedule_single_event( time() + 1, 'jetpack_sync_full', array( $modules ) );
+		spawn_cron();
 	}
 
 	static function do_full_sync( $modules = null ) {
@@ -157,3 +165,5 @@ class Jetpack_Sync_Actions {
 
 // Allow other plugins to add filters before we initialize the actions.
 add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 11, 0 );
+// We need to define this here so that it's hooked before `updating_jetpack_version` is called
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'schedule_initial_sync' ), 10 );
