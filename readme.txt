@@ -90,6 +90,7 @@ Bug Fixes:
 Enhancements:
 
 * Carousel: each Carousel view is now tracked in Stats. #3638
+* Custom Content Types: add the Portfolio Post Type to the WordPress.com REST API whitelist. #4401
 * Custom CSS: we added support for the `font-feature-settings` property in the Custom CSS editor. This will allow you to customize advanced typographic settings like ligatures. #4371
 * General: we've completely refactored the way information was synchronized between your site and WordPress.com, thus ensuring every module uses information that's up to date.
 * Performance: we've reduced the number of queries typically run on both the front end and the dashboard, to improve overall performance. #4281
