@@ -124,7 +124,7 @@ function dailymotion_shortcode( $atts ) {
 		}
 	}
 
-	if ( isset( $atts['id'] ) ) {
+	if ( isset( $atts['id'] ) && ! empty( $atts['id'] ) ) {
 		$id = $atts['id'];
 	} else {
 		return '<!--Dailymotion error: bad or missing ID-->';
