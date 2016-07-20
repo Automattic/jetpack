@@ -206,7 +206,7 @@ function videopress_cleanup_media_library() {
 			$post_time = strtotime( $post->post_date_gmt );
 
 			// If the post is older than 30 minutes, it is safe to delete it.
-			if ( $now - $post_time > 60 * 30 ) {
+			if ( $now - $post_time > MINUTE_IN_SECONDS * 30 ) {
 				// Force delete the attachment, because we don't want it appearing in the trash.
 				wp_delete_attachment( $post->ID, true );
 
@@ -252,6 +252,29 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			$num_cleaned = videopress_cleanup_media_library();
 
 			WP_CLI::success( sprintf( __( 'Cleaned up a total of %d videos.', 'jetpack' ), $num_cleaned ) );
+		}
+
+		public function check_cleanup_cron_status() {
+			$time = wp_next_scheduled( 'videopress_cleanup_media_library' );
+
+			if ( ! $time ) {
+				WP_CLI::success( __( 'The cron is not scheduled to run.', 'jetpack' ) );
+
+			} else {
+				WP_CLI::success( __( sprintf( 'Cron will run at: %s GMT', gmdate( 'Y-m-d H:i:s', $time ) ), 'jetpack' ) );
+			}
+		}
+
+		public function activate_cleanup_cron() {
+			if ( ! Jetpack::is_module_active( 'videopress' ) ) {
+				return false;
+			}
+
+			if ( ! wp_next_scheduled( 'videopress_cleanup_media_library' ) ) {
+				wp_schedule_event( time(), 'minutes_30', 'videopress_cleanup_media_library' );
+			}
+
+			WP_CLI::success( __( 'Scheduled.', 'jetpack' ) );
 		}
 	}
 	WP_CLI::add_command( 'videopress', 'VideoPress_CLI' );
