@@ -1,9 +1,9 @@
 .jp-jetpack-landing__plan-features-card {
-	padding: rem( 16px );
+	padding: rem( 32px );
 	box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
 		0 1px 2px lighten( $gray, 30% );
 	border-radius: 3px;
-	margin-bottom: rem( 16px );
+	margin-bottom: rem( 32px );
 
 	&:last-of-type {
 		margin-bottom: 0;
@@ -15,19 +15,23 @@
 }
 
 .jp-jetpack-landing__plan-features {
-	padding: rem( 32px );
+	padding: rem( 16px );
 }
 
 .jp-jetpack-landing__plan-card {
-	padding: 5% 4% 1%;
+	padding: rem( 32px );
 
-	img {
-		float: left;
-		width: 15%;
-		margin-right: 20px;
+	.jp-jetpack-landing__plan-features-title,
+	.jp-jetpack-landing__plan-features-text {
+		padding-left: rem( 160px );
 	}
 
-	img + h3 {
-		margin-top: 0;
+	.jp-jetpack-landing__plan-features-title {
+		margin-bottom: rem( 16px );
 	}
+}
+
+.jp-jetpack-landing__plan-icon {
+	float: left;
+	width: rem( 120px ); // replace this png with svg
 }
