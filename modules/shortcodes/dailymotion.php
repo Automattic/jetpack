@@ -351,3 +351,38 @@ function dailymotion_widget_shortcode( $atts ) {
 }
 
 add_shortcode( 'dailymotion-widget', 'dailymotion_widget_shortcode' );
+
+/**
+ * Embed Reversal for Dailymotion widget
+ */
+function dailymotion_widget_reversal( $content ) {
+
+	if ( false === stripos( $content, 'dailymotion-widget' ) ) {
+		return $content;
+	}
+
+	/* Sample embed code:
+		<div class="dailymotion-widget" data-placement="XXXXXXXXX"></div><script>(function(w,d,s,u,n,e,c){w.PXLObject = n; w[n] = w[n] || function(){(w[n].q = w[n].q || []).push(arguments);};w[n].l = 1 * new Date();e = d.createElement(s); e.async = 1; e.src = u;c = d.getElementsByTagName(s)[0]; c.parentNode.insertBefore(e,c);})(window, document, "script", "//api.dmcdn.net/pxl/client.js", "pxl");</script>
+	*/
+
+	$regexes = array();
+	$ifr_regexp = '<div class="dailymotion-widget" data-placement="([^"]+)"><\/div><script>.+?<\/script>';
+	$ifr_regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $ifr_regexp, ENT_NOQUOTES ) );
+
+	foreach ( array( 'regexp', 'regexp_ent' ) as $regex ) {
+		if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) ) {
+			continue;
+		}
+
+		foreach ( $matches as $match ) {
+			$id = $match[1];
+
+			$shortcode = '[dailymotion-widget id=' . $id . ']';
+			$content = str_replace( $match[0], $shortcode, $content );
+		}
+	}
+
+	return $content;
+}
+
+add_filter( 'pre_kses', 'dailymotion_widget_reversal' );
