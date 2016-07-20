@@ -822,7 +822,10 @@ class Jetpack_VideoPress {
 			$meta['videopress'] = $vp_item;
 			$meta['videopress']['url'] = 'https://videopress.com/v/' . $guid;
 
-			// TODO: Add poster updating.
+			if ( isset( $vp_item['poster'] ) && ! empty( $vp_item['poster'] ) ) {
+				$thumbnail_id = videopress_download_poster_image( $vp_item['poster'], $id );
+				update_post_meta( $id, '_thumbnail_id', $thumbnail_id );
+			}
 
 			wp_update_attachment_metadata( $post->ID, $meta );
 
