@@ -2419,6 +2419,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|float|int|string
 	 */
 	public static function cast_value( $value, $definition ) {
+		if ( $value === 'NULL' ) {
+			return null;
+		}
+
 		if ( isset( $definition['type'] ) ) {
 			switch ( $definition['type'] ) {
 				case 'boolean':
@@ -2485,6 +2489,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'post-by-email':
 				$post_by_email = new Jetpack_Post_By_Email();
 				$value = $post_by_email->get_post_by_email_address();
+				if ( $value === null ) {
+					$value = 'NULL'; // sentinel value so it actually gets set
+				}
 				break;
 		}
 
