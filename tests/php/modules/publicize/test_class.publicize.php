@@ -17,6 +17,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
+		Jetpack_Options::update_options( array( 'publicize_connections' => array( 'not_empty' ) ) );
+
 		add_action( 'jetpack_publicize_post', array( $this, 'publicized_post' ), 10, 1 );
 	}
 
@@ -26,6 +28,15 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		wp_insert_post( $this->post->to_array() );
 
 		$this->assertPublicized( true, $this->post );
+	}
+
+	public function test_does_not_fire_jetpack_publicize_post_on_save_as_published() {
+		$this->post->post_status = 'publish';
+
+		Jetpack_Options::delete_option( array( 'publicize_connections' ) );
+		wp_insert_post( $this->post->to_array() );
+
+		$this->assertPublicized( false, $this->post );
 	}
 
 	public function test_does_not_fire_jetpack_publicize_post_on_other_status_transitions() {
