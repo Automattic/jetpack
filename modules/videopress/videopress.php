@@ -816,13 +816,16 @@ class Jetpack_VideoPress {
 			update_post_meta( $id, 'videopress_guid', $guid );
 
 			$meta = wp_get_attachment_metadata( $post->ID );
+
+			$current_poster = get_post_meta( $id, '_thumbnail_id' );
+
 			$meta['width'] = $vp_item['width'];
 			$meta['height'] = $vp_item['height'];
 			$meta['original']['url'] = $vp_item['original'];
 			$meta['videopress'] = $vp_item;
 			$meta['videopress']['url'] = 'https://videopress.com/v/' . $guid;
 
-			if ( isset( $vp_item['poster'] ) && ! empty( $vp_item['poster'] ) ) {
+			if ( ! $current_poster && isset( $vp_item['poster'] ) && ! empty( $vp_item['poster'] ) ) {
 				$thumbnail_id = videopress_download_poster_image( $vp_item['poster'], $id );
 				update_post_meta( $id, '_thumbnail_id', $thumbnail_id );
 			}
