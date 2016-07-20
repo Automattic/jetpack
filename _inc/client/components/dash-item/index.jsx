@@ -85,7 +85,7 @@ const DashItem = React.createClass( {
 				</SimpleNotice>;
 				break;
 			case 'is-working':
-				status = <span className="jp-dash-item__active-label">Active</span>;
+				status = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>;
 				break;
 			default:
 				status = '';
@@ -116,14 +116,13 @@ const DashItem = React.createClass( {
 			);
 
 			if ( 'manage' === this.props.module && 'is-warning' === this.props.status ) {
-				let text = __( 'Updates Needed' );
 				toggle = (
 					<SimpleNotice
 						showDismiss={ false }
 						status={ this.props.status }
 					    isCompact={ true }
 					>
-						{ text }
+						{ __( 'Updates Needed' ) }
 					</SimpleNotice>
 				);
 			}
