@@ -90,6 +90,27 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
 function dailymotion_shortcode( $atts ) {
 	global $content_width;
 
+	$atts = shortcode_atts(
+		array(
+			'id'                   => '', // string
+			'width'                => '', // int
+			'height'               => '', // int
+			'title'                => '', // string
+			'user'                 => '', // string
+			'video'                => '', // string
+			'autoplay'             => 0,  // int
+			'endscreen-enable'     => 1,  // int
+			'mute'                 => 0,  // int
+			'sharing-enable'       => 1,  // int
+			'start'                => '', // int
+			'subtitles-default'    => '', // string
+			'ui-highlight'         => '', // string
+			'ui-logo'              => 1,  // int
+			'ui-start-screen-info' => 0,  // int
+			'ui-theme'             => '', // string
+		), $atts, 'dailymotion'
+	);
+
 	if ( isset( $atts[0] ) ) {
 		$id = ltrim( $atts[0], '=' );
 		$atts['id'] = $id;
@@ -98,7 +119,7 @@ function dailymotion_shortcode( $atts ) {
 		$params = shortcode_new_to_old_params( $atts );
 		parse_str( $params, $atts_new );
 
-		foreach( $atts_new as $k => $v ) {
+		foreach ( $atts_new as $k => $v ) {
 			$atts[ $k ] = $v;
 		}
 	}
@@ -110,12 +131,12 @@ function dailymotion_shortcode( $atts ) {
 	}
 
 	/*set width and height using provided parameters if any */
-	$width = isset($atts['width']) ? abs( $atts['width'] ) : 0 ;
-	$height = isset($atts['height']) ? abs( $atts['height'] ) : 0 ;
+	$width  = isset( $atts['width'] )  ? intval( $atts['width'] )  : 0 ;
+	$height = isset( $atts['height'] ) ? intval( $atts['height'] ) : 0 ;
 
-	if ( ! $width && ! $height) {
+	if ( ! $width && ! $height ) {
 		if ( ! empty( $content_width ) ) {
-			$width = min( 425, intval( $content_width ) );
+			$width = absint( $content_width );
 		} else {
 			$width = 425;
 		}
@@ -126,44 +147,57 @@ function dailymotion_shortcode( $atts ) {
 		$width = $height / 334 * 425;
 	}
 
-	/* set player parameter if provided */
-	$player_params = "?";
+	// Video URL
+	$video_url = esc_url( 'https://www.dailymotion.com/embed/video/' . $atts['id'] );
+
+	/**
+	 * Let's add parameters if needed.
+	 *
+	 * @see https://developer.dailymotion.com/player
+	 */
+	$player_params = array();
 
 	if ( isset( $atts['autoplay'] ) && '1' === $atts['autoplay'] ) {
-		$player_params .= "autoplay=1&";
+		$player_params['autoplay'] = '1';
 	}
 	if ( isset( $atts['endscreen-enable'] ) && '0' === $atts['endscreen-enable'] ) {
-		$player_params .= "endscreen-enable=0&";
+		$player_params['endscreen-enable'] = '0';
 	}
 	if ( isset( $atts['mute'] ) && '1' === $atts['mute'] ) {
-		$player_params .= "mute=1&";
+		$player_params['mute'] = '1';
 	}
 	if ( isset( $atts['sharing-enable'] ) && '0' === $atts['sharing-enable'] ) {
-		$player_params .= "sharing-enable=0&";
+		$player_params['sharing-enable'] = '0';
 	}
-	if ( isset( $atts['start'] ) ) {
-		$player_params .= "start=". abs( intval( $atts['start'] ) ) . "&";
+	if ( isset( $atts['start'] ) && ! empty( $atts['start'] ) ) {
+		$player_params['start'] = abs( intval( $atts['start'] ) );
 	}
-	if ( isset( $atts['subtitles-default'] ) ) {
-		$player_params .= "subtitles-default=" . $atts['subtitles-default'] . "&";
+	if ( isset( $atts['subtitles-default'] ) && ! empty( $atts['subtitles-default'] ) ) {
+		$player_params['subtitles-default'] = esc_attr( $atts['subtitles-default'] );
 	}
-	if ( isset( $atts['ui-highlight'] ) ) {
-		$player_params .= "ui-highlight=" . $atts['ui-highlight'] . "&";
+	if ( isset( $atts['ui-highlight'] ) && ! empty( $atts['ui-highlight'] ) ) {
+		$player_params['ui-highlight'] = esc_attr( $atts['ui-highlight'] );
 	}
 	if ( isset( $atts['ui-logo'] ) && '0' === $atts['ui-logo'] ) {
-		$player_params .= "ui-logo=0&";
+		$player_params['ui-logo'] = '0';
 	}
 	if ( isset( $atts['ui-start-screen-info'] ) && '0' === $atts['ui-start-screen-info'] ) {
-		$player_params .= "ui-start-screen-info=0&";
+		$player_params['ui-start-screen-info'] = '0';
 	}
 	if ( isset( $atts['ui-theme'] ) && in_array( strtolower( $atts['ui-theme'] ), array( 'dark', 'light' ) ) ) {
-		$player_params .= "ui-theme=" . $atts['ui-theme'] . "&";
+		$player_params['ui-theme'] = esc_attr( $atts['ui-theme'] );
 	}
+
+	// Add those parameters to the Video URL.
+	$video_url = add_query_arg(
+		$player_params,
+		$video_url
+	);
 
 	$id = urlencode( $id );
 
 	if ( preg_match( '/^[A-Za-z0-9]+$/', $id ) ) {
-		$output = '<iframe width="' . $width . '" height="' . $height . '" src="' . esc_url( '//www.dailymotion.com/embed/video/' . $id . $player_params) . '" frameborder="0"></iframe>';
+		$output = '<iframe width="' . $width . '" height="' . $height . '" src="' . esc_url( $video_url ) . '" frameborder="0"></iframe>';
 		$after  = '';
 
 		if ( array_key_exists( 'video', $atts ) && $video = preg_replace( '/[^-a-z0-9_]/i', '', $atts['video'] ) && array_key_exists( 'title', $atts ) && $title = wp_kses( $atts['title'], array() ) ) {
