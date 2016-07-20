@@ -17,6 +17,7 @@ import { imagePath } from 'constants';
 import { getSiteConnectionStatus, isDevMode } from 'state/connection';
 import { demoStatsData, demoStatsBottom } from 'devmode';
 import {
+	fetchStats,
 	statsSwitchTab,
 	getActiveStatsTab as _getActiveStatsTab
 } from 'state/at-a-glance';
@@ -296,6 +297,9 @@ export default connect(
 			},
 			switchView: ( tab ) => {
 				return dispatch( statsSwitchTab( tab ) );
+			},
+			fetchStats: ( tab ) => {
+				return dispatch( fetchStats() );
 			}
 		};
 	}
