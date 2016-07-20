@@ -119,6 +119,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_upgrading_sends_options_constants_and_callables() {
+		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.1', '4.2' );
 
 		$modules = array( 'options', 'network_options', 'functions', 'constants' );
