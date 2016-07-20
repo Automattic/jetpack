@@ -17,14 +17,14 @@ Do you need help installing Jetpack, or do you have questions about one of the J
 
 ## Installation from  git repo
 
-The `jetpack-built` branch of this repo contains an stable version with every JS and CSS file pre-built.
+The `master-stable` branch of this repo contains an stable version with every JS and CSS file pre-built.
 
 CD into your Plugins directory
 
 ```
 $ git clone git@github.com:Automattic/jetpack.git
 $ cd jetpack
-$ git checkout jetpack-built
+$ git checkout master-stable
 ```
 
 ## Contribute
