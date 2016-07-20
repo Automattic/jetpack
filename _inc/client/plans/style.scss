@@ -1,9 +1,3 @@
-
-.jp-jetpack-landing__plans {
-	box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
-			0 1px 2px lighten( $gray, 30% );
-}
-
 .jp-jetpack-landing__plan-features-card {
 	padding: rem( 16px );
 	box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
@@ -22,12 +16,10 @@
 
 .jp-jetpack-landing__plan-features {
 	padding: rem( 32px );
-	background-color: #fff;
 }
 
 .jp-jetpack-landing__plan-card {
 	padding: 5% 4% 1%;
-	background-color: #fff;
 
 	img {
 		float: left;
