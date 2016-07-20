@@ -278,6 +278,19 @@ function jetpack_pressable_install_notice() {
 	printf( '<div class="%1$s"><h2>%2$s</h2><p>%3$s</p></div>', $class, $message, $button );
 }
 
+function hide_required_jetpack_when_running_beta_on_pressable() {
+	if( !is_plugin_active( 'jetpack-pressable-beta/jetpack.php' ) ) {
+		return;
+	}
+	global $wp_list_table;
+	$plugin_list_table_items = $wp_list_table->items;
+	foreach ( $plugin_list_table_items as $key => $val ) {
+		if (in_array($key, array('jetpack/jetpack.php') )) {
+			unset($wp_list_table->items[$key]);
+		}
+	}
+}
+
 /*
  * Admin page
  */
@@ -285,6 +298,7 @@ if( is_admin() ) {
 	
 	if( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
 		add_action( 'admin_notices', 'jetpack_pressable_install_notice' );
+		add_action( 'pre_current_active_plugins', 'hide_required_jetpack_when_running_beta_on_pressable' );
 	}
 	
 	if( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE && isset( $_GET['jpbetaswap'] ) ) {
