@@ -1,0 +1,31 @@
+/*!
+* Do not modify this file directly.  It is compiled SASS code.
+*/
+.updated.jp-banner {
+  position: relative;
+  padding: 0;
+}
+
+.updated .jp-banner__header {
+  font-size: 18px;
+  font-weight: 400;
+  margin-top: 0;
+}
+
+.updated .jp-banner__button-container {
+  padding: 12px 0 0;
+}
+
+.jp-banner .notice-dismiss {
+  text-decoration: none;
+}
+
+.jp-banner__description {
+  font-size: 14px;
+}
+
+.jp-banner__description-container {
+  padding: 16px;
+}
+
+/*# sourceMappingURL=jetpack-banners-rtl.css.map */
