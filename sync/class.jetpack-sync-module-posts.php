@@ -81,7 +81,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
 		$post->permalink               = get_permalink( $post->ID );
 		$post->shortlink               = wp_get_shortlink( $post->ID );
-		$post->dont_email_post_to_subs = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
+		$post->dont_email_post_to_subs = Jetpack::is_module_active( 'subscriptions' ) ?
+				get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) :
+				true; // Don't email subscription if the subscription module is not active.
 
 		return $post;
 	}
