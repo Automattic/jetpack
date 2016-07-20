@@ -70,8 +70,8 @@ class JP_Beta_Admin {
 	}
 
 	function jpb_updated_success_message() {
-		$url = wp_nonce_url( self_admin_url('update.php?action=upgrade-plugin&plugin=jetpack/jetpack.php'), 'upgrade-plugin_jetpack/jetpack.php' );
-		echo '<div id="message" class="updated below-h2"><p>' . __('Settings Updated!', 'jpbeta') . ' <a href="' . $url . '">' . __('Please click here to update now.', 'jpbeta') . '</a></p></div>';
+		$url = wp_nonce_url( self_admin_url('update.php?action=upgrade-plugin&plugin=' . JETPACK_PLUGIN_ID ), 'upgrade-plugin_' . JETPACK_PLUGIN_ID );
+		echo '<div id="message" class="notice notice-warning below-h2"><p>' . __('Settings Updated!', 'jpbeta') . '<br /><br /> <a href="' . $url . '" class="button button-primary">' . __('Please click here to update now.', 'jpbeta') . '</a></p></div>';
 	}
 
 }

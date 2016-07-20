@@ -1,13 +1,15 @@
 <?php
 
-if ( !class_exists('PluginUpdateCheckerPanel', false) && class_exists('Debug_Bar_Panel', false) ) {
+if ( !class_exists('PluginUpdateCheckerPanel_3_1', false) && class_exists('Debug_Bar_Panel', false) ) {
 
 /**
  * A Debug Bar panel for the plugin update checker.
  */
-class PluginUpdateCheckerPanel extends Debug_Bar_Panel {
-	/** @var PluginUpdateChecker */
+class PluginUpdateCheckerPanel_3_1 extends Debug_Bar_Panel {
+	/** @var PluginUpdateChecker_3_1 */
 	private $updateChecker;
+
+	private $responseBox = '<div class="puc-ajax-response" style="display: none;"></div>';
 
 	public function __construct($updateChecker) {
 		$this->updateChecker = $updateChecker;
@@ -26,8 +28,14 @@ class PluginUpdateCheckerPanel extends Debug_Bar_Panel {
 			esc_attr(wp_create_nonce('puc-ajax'))
 		);
 
-		$responseBox = '<div class="puc-ajax-response" style="display: none;"></div>';
+		$this->displayConfiguration();
+		$this->displayStatus();
+		$this->displayCurrentUpdate();
 
+		echo '</div>';
+	}
+
+	private function displayConfiguration() {
 		echo '<h3>Configuration</h3>';
 		echo '<table class="puc-debug-data">';
 		$this->row('Plugin file', htmlentities($this->updateChecker->pluginFile));
@@ -38,22 +46,23 @@ class PluginUpdateCheckerPanel extends Debug_Bar_Panel {
 		if ( function_exists('get_submit_button') ) {
 			$requestInfoButton = get_submit_button('Request Info', 'secondary', 'puc-request-info-button', false, array('id' => 'puc-request-info-button-' . $this->updateChecker->slug));
 		}
-		$this->row('Metadata URL', htmlentities($this->updateChecker->metadataUrl) . ' ' . $requestInfoButton . $responseBox);
+		$this->row('Metadata URL', htmlentities($this->updateChecker->metadataUrl) . ' ' . $requestInfoButton . $this->responseBox);
 
-		if ( $this->updateChecker->checkPeriod > 0 ) {
-			$this->row('Automatic checks', 'Every ' . $this->updateChecker->checkPeriod . ' hours');
+		$scheduler = $this->updateChecker->scheduler;
+		if ( $scheduler->checkPeriod > 0 ) {
+			$this->row('Automatic checks', 'Every ' . $scheduler->checkPeriod . ' hours');
 		} else {
 			$this->row('Automatic checks', 'Disabled');
 		}
 
-		if ( isset($this->updateChecker->throttleRedundantChecks) ) {
-			if ( $this->updateChecker->throttleRedundantChecks && ($this->updateChecker->checkPeriod > 0) ) {
+		if ( isset($scheduler->throttleRedundantChecks) ) {
+			if ( $scheduler->throttleRedundantChecks && ($scheduler->checkPeriod > 0) ) {
 				$this->row(
 					'Throttling',
 					sprintf(
 						'Enabled. If an update is already available, check for updates every %1$d hours instead of every %2$d hours.',
-						$this->updateChecker->throttledCheckPeriod,
-						$this->updateChecker->checkPeriod
+						$scheduler->throttledCheckPeriod,
+						$scheduler->checkPeriod
 					)
 				);
 			} else {
@@ -61,7 +70,9 @@ class PluginUpdateCheckerPanel extends Debug_Bar_Panel {
 			}
 		}
 		echo '</table>';
+	}
 
+	private function displayStatus() {
 		echo '<h3>Status</h3>';
 		echo '<table class="puc-debug-data">';
 		$state = $this->updateChecker->getUpdateState();
@@ -71,12 +82,12 @@ class PluginUpdateCheckerPanel extends Debug_Bar_Panel {
 		}
 
 		if ( isset($state, $state->lastCheck) ) {
-			$this->row('Last check', $this->formatTimeWithDelta($state->lastCheck) . ' ' . $checkNowButton . $responseBox);
+			$this->row('Last check', $this->formatTimeWithDelta($state->lastCheck) . ' ' . $checkNowButton . $this->responseBox);
 		} else {
 			$this->row('Last check', 'Never');
 		}
 
-		$nextCheck = wp_next_scheduled($this->updateChecker->getCronHookName());
+		$nextCheck = wp_next_scheduled($this->updateChecker->scheduler->getCronHookName());
 		$this->row('Next automatic check', $this->formatTimeWithDelta($nextCheck));
 
 		if ( isset($state, $state->checkedVersion) ) {
@@ -85,7 +96,9 @@ class PluginUpdateCheckerPanel extends Debug_Bar_Panel {
 		}
 		$this->row('Update checker class', htmlentities(get_class($this->updateChecker)));
 		echo '</table>';
+	}
 
+	private function displayCurrentUpdate() {
 		$update = $this->updateChecker->getUpdate();
 		if ( $update !== null ) {
 			echo '<h3>An Update Is Available</h3>';
@@ -98,8 +111,6 @@ class PluginUpdateCheckerPanel extends Debug_Bar_Panel {
 		} else {
 			echo '<h3>No updates currently available</h3>';
 		}
-
-		echo '</div>';
 	}
 
 	private function formatTimeWithDelta($unixTime) {
