@@ -131,25 +131,29 @@ const DashStats = React.createClass( {
 			);
 		} else {
 			return (
-				<div>
-					<img src={ imagePath + 'stats.svg' } width="150" alt={ __( 'Jetpack Stats' ) } className="jp-at-a-glance__stats-icon" />
-					<div>
+				<div className="jp-at-a-glance__stats-inactive">
+					<div className="jp-at-a-glance__stats-inactive-icon">
+						<img src={ imagePath + 'stats.svg' } width="60" height="60" alt={ __( 'Jetpack Stats Icon' ) } className="jp-at-a-glance__stats-icon" />
+					</div>
+					<div className="jp-at-a-glance__stats-inactive-text">
 						{
 							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
 							__( '{{a}}Activate Site Statistics{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
 								components: {
 									a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />,
-									a1: <a href="https://jetpack.com/support/stats" target="_blank" />
+									a1: <a href="https://jetpack.com/support/wordpress-com-stats/" target="_blank" />
 								}
 							} )
 						}
 					</div>
-					<Button
-						onClick={ this.props.activateStats }
-						primary={ true }
-					>
-						{ __( 'Activate Site Statistics' ) }
-					</Button>
+					<div className="jp-at-a-glance__stats-inactive-button">
+						<Button
+							onClick={ this.props.activateStats }
+							primary={ true }
+						>
+							{ __( 'Activate Site Statistics' ) }
+						</Button>
+					</div>
 				</div>
 			);
 		}
