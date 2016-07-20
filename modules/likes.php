@@ -1070,7 +1070,7 @@ class Jetpack_Likes {
 		 *
 		 * @param bool $option Are Likes enabled sitewide.
 		 */
-		return (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+		return (bool) apply_filters( 'wpl_is_enabled_sitewide', ! Jetpack_Options::get_option_and_ensure_autoload( 'disabled_likes', 0 ) );
 	}
 
 	/**
