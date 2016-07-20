@@ -51,7 +51,7 @@ class JP_Beta_Admin {
 		if ( isset( $_POST['jp_beta_recent_save_nonce'] ) && wp_verify_nonce( $_POST['jp_beta_recent_save_nonce'], 'jp_beta_recent_save' ) ) {
 			update_option( 'jp_beta_type', sanitize_text_field( $_POST[ 'version_type' ] ) );
 			
-			if( ! $_POST[ 'auto_update' ] ) {
+			if( ! isset( $_POST[ 'auto_update' ] ) || ! $_POST[ 'auto_update' ] ) {
 				update_option( 'jp_beta_autoupdate', 'no' );
 			} else {
 				update_option( 'jp_beta_autoupdate', 'sure' );
