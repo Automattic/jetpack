@@ -17,10 +17,6 @@ import {
 } from 'state/modules';
 import { getSitePlan } from 'state/site';
 import {
-	isPluginActive,
-	isPluginInstalled
-} from 'state/site/plugins';
-import {
 	getVaultPressData as _getVaultPressData
 } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
@@ -118,8 +114,6 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
 			getVaultPressData: () => _getVaultPressData( state ),
-			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			getSitePlan: () => getSitePlan( state )
 		};
 	},
