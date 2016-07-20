@@ -21,14 +21,22 @@ const DashPhoton = React.createClass( {
 
 		if ( this.props.isModuleActivated( 'photon' ) ) {
 			return(
-				<DashItem label={ labelName } status="is-working">
+				<DashItem
+					label={ labelName }
+					module="photon"
+					status="is-working"
+				>
 					<p className="jp-dash-item__description">{ __( 'Photon is active and currently improving image performance.' ) }</p>
 				</DashItem>
 			);
 		}
 
 		return(
-			<DashItem label={ labelName } className="jp-dash-item__is-inactive">
+			<DashItem
+				label={ labelName }
+				module="photon"
+				className="jp-dash-item__is-inactive"
+			>
 				<p className="jp-dash-item__description">
 					{
 						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :

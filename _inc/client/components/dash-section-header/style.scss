@@ -20,7 +20,7 @@
 
 .jp-dash-section-header__settings {
 	display: inline-block;
-	min-width: 44px;
+	min-width: rem( 40px );
 	text-align: center;
 	color: darken( $gray, 10% );
 

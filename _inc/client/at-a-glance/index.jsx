@@ -21,32 +21,31 @@ import DashPhoton from './photon';
 import DashSiteVerify from './site-verification';
 import FeedbackDashRequest from 'components/jetpack-notices/feedback-dash-request';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import QuerySite from 'components/data/query-site';
 
 const AtAGlance = React.createClass( {
 	render() {
 		let securityHeader =
 				<DashSectionHeader
-					label={ __( 'Site Security' ) }
+					label={ __( 'Security' ) }
 					settingsPath="#security"
 					externalLink={ __( 'Manage Security on WordPress.com' ) }
 					externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl }
 				/>,
-			healthHeader =
+			performanceHeader =
 				<DashSectionHeader
-					label={ __( 'Site Health' ) }
-					settingsPath="#health"
-				/>,
-			trafficHeader =
-				<DashSectionHeader
-					label={ __( 'Traffic Tools' ) }
-					settingsPath="#engagement"
+					label={ __( 'Performance' ) }
 				/>;
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
 			return (
-				<div>
+				<div className="jp-at-a-glance">
+					<QuerySitePlugins />
+					<QuerySite />
 					<DashStats { ...this.props } />
+					<FeedbackDashRequest { ...this.props } />
 
 					{
 						// Site Security
@@ -58,39 +57,34 @@ const AtAGlance = React.createClass( {
 						</div>
 						<div className="jp-at-a-glance__right">
 							<DashScan { ...this.props } />
+						</div>
+					</div>
+					<div className="jp-at-a-glance__item-grid">
+						<div className="jp-at-a-glance__left">
+							<DashBackups { ...this.props } />
+						</div>
+						<div className="jp-at-a-glance__right">
 							<DashMonitor { ...this.props } />
 						</div>
 					</div>
-
-					{
-						// Site Health
-						healthHeader
-					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
 							<DashAkismet { ...this.props } />
 						</div>
 						<div className="jp-at-a-glance__right">
-							<DashBackups { ...this.props } />
 							<DashPluginUpdates { ...this.props } />
 						</div>
 					</div>
 
 					{
-						// Traffic Tools
-
-						trafficHeader
+						// Performance
+						performanceHeader
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
 							<DashPhoton { ...this.props } />
 						</div>
-						<div className="jp-at-a-glance__right">
-							<DashSiteVerify { ...this.props } />
-						</div>
 					</div>
-
-					<FeedbackDashRequest { ...this.props } />
 				</div>
 			);
 		} else {

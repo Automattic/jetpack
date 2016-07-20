@@ -37,7 +37,11 @@ const DashPluginUpdates = React.createClass( {
 
 		if ( 'N/A' === pluginUpdates ) {
 			return(
-				<DashItem label={ labelName } status="is-working">
+				<DashItem
+					label={ labelName }
+					module="manage"
+					status="is-working"
+				>
 					<QueryPluginUpdates />
 					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 				</DashItem>
@@ -46,19 +50,30 @@ const DashPluginUpdates = React.createClass( {
 
 		if ( 'updates-available' === pluginUpdates.code ) {
 			return(
-				<DashItem label={ labelName } status="is-warning">
+				<DashItem
+					label={ labelName }
+					module="manage"
+					status="is-warning"
+				>
+					<h2 className="jp-dash-item__count">
+						{
+							__( '%(number)s plugin', '%(number)s plugins', {
+								count: pluginUpdates.count,
+								args: {
+									number: pluginUpdates.count
+								}
+							} )
+						}
+					</h2>
 					<p className="jp-dash-item__description">
-						<strong>
-							{
-								__( '%(number)s plugin needs updating.', '%(number)s plugins need updating.', {
-									count: pluginUpdates.count,
-									args: {
-										number: pluginUpdates.count
-									}
-								} )
-							}
-						</strong>
-						<br/>
+						{
+							__( 'Needs updating. ', 'Need updating. ', {
+								count: pluginUpdates.count,
+								args: {
+									number: pluginUpdates.count
+								}
+							} )
+						}
 						{
 							isDevMode( this.props ) ? '' :
 							manageActive ?
@@ -71,7 +86,11 @@ const DashPluginUpdates = React.createClass( {
 		}
 
 		return(
-			<DashItem label={ labelName } status="is-working">
+			<DashItem
+				label={ labelName }
+				module="manage"
+				status="is-working"
+			>
 				<p className="jp-dash-item__description">
 					{ __( 'All plugins are up-to-date. Keep up the good work!' ) }
 				</p>

@@ -13,6 +13,7 @@ import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import { imagePath } from 'constants';
 import { getSiteConnectionStatus, isDevMode } from 'state/connection';
 import { demoStatsData, demoStatsBottom } from 'devmode';
 import {
@@ -130,15 +131,29 @@ const DashStats = React.createClass( {
 			);
 		} else {
 			return (
-				<div>
-					{
-						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
-						__( '{{a}}Activate Site Statistics{{/a}} to see detailed stats, likes, followers, subscribers, and more!', {
-							components: {
-								a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />
-							}
-						} )
-					}
+				<div className="jp-at-a-glance__stats-inactive">
+					<div className="jp-at-a-glance__stats-inactive-icon">
+						<img src={ imagePath + 'stats.svg' } width="60" height="60" alt={ __( 'Jetpack Stats Icon' ) } className="jp-at-a-glance__stats-icon" />
+					</div>
+					<div className="jp-at-a-glance__stats-inactive-text">
+						{
+							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
+							__( '{{a}}Activate Site Statistics{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
+								components: {
+									a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />,
+									a1: <a href="https://jetpack.com/support/wordpress-com-stats/" target="_blank" />
+								}
+							} )
+						}
+					</div>
+					<div className="jp-at-a-glance__stats-inactive-button">
+						<Button
+							onClick={ this.props.activateStats }
+							primary={ true }
+						>
+							{ __( 'Activate Site Statistics' ) }
+						</Button>
+					</div>
 				</div>
 			);
 		}
@@ -255,7 +270,6 @@ const DashStatsBottom = React.createClass( {
 					<p>{ __( 'Need to see more stats, likes, followers, subscribers, and more?' ) }</p>
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
-					{ __( '{{button}}View old stats{{/button}}', { components: { button: <Button href="?page=stats" /> } } ) }
 					{ __( '{{button}}View enhanced stats on WordPress.com{{/button}}', {
 						components: { button: <Button className="is-primary" href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl } /> }
 					} ) }

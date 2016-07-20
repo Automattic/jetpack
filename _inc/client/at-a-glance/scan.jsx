@@ -15,6 +15,7 @@ import {
 	activateModule,
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
+import { getSitePlan } from 'state/site';
 import {
 	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
 	getVaultPressData as _getVaultPressData
@@ -23,8 +24,10 @@ import { isDevMode } from 'state/connection';
 
 const DashScan = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Security Scan %(vaultpress)s', { args: { vaultpress: '(VaultPress)' } } );
-		const vpData = this.props.getVaultPressData();
+		const labelName = __( 'Malware Scan' ),
+			hasSitePlan = false !== this.props.getSitePlan(),
+			vpData = this.props.getVaultPressData();
+
 		let vpActive = typeof vpData.data !== 'undefined' && vpData.data.active;
 
 		const ctaLink = vpActive ?
@@ -44,7 +47,12 @@ const DashScan = React.createClass( {
 			const threats = this.props.getScanThreats();
 			if ( threats !== 0 ) {
 				return(
-					<DashItem label={ labelName } status="is-error">
+					<DashItem
+						label={ labelName }
+						status="is-error"
+						statusText={ __( 'Threats found' ) }
+						pro={ true }
+					>
 						<h3>{
 							__(
 								'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
@@ -67,23 +75,51 @@ const DashScan = React.createClass( {
 			// All good
 			if ( vpData.code === 'success' ) {
 				return(
-					<DashItem label={ labelName } status="is-working">
-						<h3>{ __( "No threats found, you're good to go!" ) }</h3>
+					<DashItem
+						label={ labelName }
+						status="is-working"
+						pro={ true }
+					>
+						<p className="jp-dash-item__description">
+							{ __( "No threats found, you're good to go!" ) }
+						</p>
 					</DashItem>
 				);
 			}
 		}
 
+		const upgradeOrActivateText = () => {
+			if ( hasSitePlan ) {
+				return(
+					__( 'To automatically scan your site for malicious threats, please {{a}}install and activate{{/a}} VaultPress', {
+						components: {
+							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
+						}
+					} )
+				);
+			} else {
+				return(
+					__( 'To automatically scan your site for malicious threats, please {{a}}upgrade your account{{/a}}', {
+						components: {
+							a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
+						}
+					} )
+				);
+			}
+		};
+
 		return(
-			<DashItem label={ labelName } className="jp-dash-item__is-inactive" status="is-premium-inactive">
+			<DashItem
+				label={ labelName }
+				module="vaultpress"
+				className="jp-dash-item__is-inactive"
+				status="pro-inactive"
+				pro={ true }
+			>
 				<p className="jp-dash-item__description">
 					{
 						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
-						__( 'To automatically scan your site for malicious threats, please {{a}}upgrade your account{{/a}}', {
-							components: {
-								a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
-							}
-						} )
+							upgradeOrActivateText()
 					}
 				</p>
 			</DashItem>
@@ -106,7 +142,8 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
 			getVaultPressData: () => _getVaultPressData( state ),
-			getScanThreats: () => _getVaultPressScanThreatCount( state )
+			getScanThreats: () => _getVaultPressScanThreatCount( state ),
+			getSitePlan: () => getSitePlan( state )
 		};
 	},
 	( dispatch ) => {
