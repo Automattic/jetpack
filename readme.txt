@@ -84,6 +84,7 @@ Bug Fixes:
 * Notifications: avoid PHP notices when moderating comments. #4208
 * Sharing: we fixed inconsistent horizontal spacing between the buttons when using the official buttons. #4317
 * Shortcodes: we updated the Cartodb shortcode to match the new product name, Carto. #4351
+* Shortcodes: When using the YouTube shortcode, we now use the content width defined by the theme when available, even if an embed size was defined in an old version of WordPress. #4420
 * Sitemaps: we fixed some PHP warnings in the sitemaps' stylesheets. #4362
 * Theme Tools: avoid warnings when Tonesque processes a file which claims to be one filetype, but are actually another. #3741
 
