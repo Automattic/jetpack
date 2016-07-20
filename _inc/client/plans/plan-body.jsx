@@ -61,8 +61,8 @@ const PlanBody = React.createClass( {
 			case 'dev':
 				planCard = (
 					<div className="jp-jetpack-landing__plan-features">
-						<h3>{ __( 'Maximum grade security' ) }</h3>
-						<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place and optimized for WordPress.' ) }</p>
+						<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Maximum grade security' ) }</h3>
+						<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense and brute-force login protection - all in one place and optimized for WordPress.' ) }</p>
 
 						<h3>{ __( 'Lock out the bad guys' ) }</h3>
 						<p>{ __( 'Bulletproof spam filtering protects your brand and your readers, and improves SEO. Brute force login protection helps maintain peace of mind and keeps your backend safe from intruders.' ) }</p>
