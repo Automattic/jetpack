@@ -115,16 +115,21 @@ const DashItem = React.createClass( {
 				/>
 			);
 
-			if ( 'manage' === this.props.module && 'is-warning' === this.props.status ) {
-				toggle = (
-					<SimpleNotice
-						showDismiss={ false }
-						status={ this.props.status }
-					    isCompact={ true }
-					>
-						{ __( 'Updates Needed' ) }
-					</SimpleNotice>
-				);
+			if ( 'manage' === this.props.module ) {
+				if ( 'is-warning' === this.props.status ) {
+					toggle = (
+						<SimpleNotice
+							showDismiss={ false }
+							status={ this.props.status }
+							isCompact={ true }
+						>
+							{ __( 'Updates Needed' ) }
+						</SimpleNotice>
+					);
+				}
+				if ( 'is-working' === this.props.status ) {
+					toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>
+				}
 			}
 		}
 
