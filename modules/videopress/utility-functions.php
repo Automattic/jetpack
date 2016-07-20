@@ -173,6 +173,51 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
 	return $attachment_id;
 }
 
+/**
+ * Helper that will look for VideoPress media items that are more than 30 minutes old,
+ * that have not had anything attached to them by a wpcom upload and deletes the ghost
+ * attachment.
+ *
+ * These happen primarily because of failed upload attempts.
+ *
+ * @return int The number of items that were cleaned up.
+ */
+function videopress_cleanup_media_library() {
+	$query_args = array(
+		'post_type'      => 'attachment',
+		'post_status'    => 'inherit',
+		'post_mime_type' => 'video/videopress',
+		'meta_query'     => array(
+			array(
+				'key'   => 'videopress_status',
+				'value' => 'new',
+			),
+		)
+	);
+
+	$query = new WP_Query( $query_args );
+
+	$cleaned = 0;
+
+	$now = current_time( 'timestamp' );
+
+	if ( $query->have_posts() ) {
+		foreach ( $query->posts as $post ) {
+			$post_time = strtotime( $post->post_date_gmt );
+
+			// If the post is older than 30 minutes, it is safe to delete it.
+			if ( $now - $post_time > 60 * 30 ) {
+				// Force delete the attachment, because we don't want it appearing in the trash.
+				wp_delete_attachment( $post->ID, true );
+
+				$cleaned++;
+			}
+		}
+	}
+
+	return $cleaned;
+}
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	/**
 	 * Manage and import VideoPress videos.
@@ -198,6 +243,15 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			} else {
 				WP_CLI::error( __( 'An error has been encountered.', 'jetpack' ) );
 			}
+		}
+
+		/**
+		 * Calls to the videopress_cleanup_media_library() function directly.
+		 */
+		public function cleanup_videos() {
+			$num_cleaned = videopress_cleanup_media_library();
+
+			WP_CLI::success( sprintf( __( 'Cleaned up a total of %d videos.', 'jetpack' ), $num_cleaned ) );
 		}
 	}
 	WP_CLI::add_command( 'videopress', 'VideoPress_CLI' );
