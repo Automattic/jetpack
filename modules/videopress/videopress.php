@@ -52,6 +52,7 @@ class Jetpack_VideoPress {
 			add_action( 'wp_ajax_delete-post', array( $this, 'wp_ajax_delete_post' ), -1 );
 			add_action( 'wp_ajax_videopress-update-transcoding-status', array( $this, 'wp_ajax_update_transcoding_status' ), -1 );
 
+
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		}
 
@@ -63,6 +64,10 @@ class Jetpack_VideoPress {
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
+
+		// Add media list filters. These help keep bad videopress posts from appearing in the feed.
+		add_filter( 'ajax_query_attachments_args', array( $this, 'ajax_query_attachments_args' ), 10, 1 );
+		add_action( 'pre_get_posts', array( $this, 'media_list_table_query' ) );
 	}
 
 	/**
@@ -822,6 +827,9 @@ class Jetpack_VideoPress {
 			// TODO: Add poster updating.
 
 			wp_update_attachment_metadata( $post->ID, $meta );
+
+			// update the meta to tell us that we're processing or complete
+			update_post_meta( $id, 'videopress_status', $this->is_video_finished_processing( $post->ID ) ? 'complete' : 'processing' );
 		}
 
 		if ( count( $errors ) > 0 ) {
@@ -974,6 +982,8 @@ class Jetpack_VideoPress {
 
 		$media_id = wp_insert_post( $post );
 
+		add_post_meta( $media_id, 'videopress_status', 'new' );
+
 		return $media_id;
 	}
 
@@ -1003,9 +1013,111 @@ class Jetpack_VideoPress {
 		$config['filters']['videopress_check_uploads'] = $config['filters']['max_file_size'];
 
 		// We're doing our own check in the videopress_check_uploads filter.
-		unset($config['filters']['max_file_size']);
+		unset( $config['filters']['max_file_size'] );
 
 		return $config;
+	}
+
+	/**
+	 * Media Grid:
+	 * Filter out any videopress video posters that we've downloaded,
+	 * so that they don't seem to display twice.
+	 *
+	 * @param array $args
+	 * @return array
+	 */
+	public function ajax_query_attachments_args( $args ) {
+
+		$args['meta_query'] = $this->add_status_check_to_meta_query( isset( $args['meta_query'] ) ? $args['meta_query'] : array() );
+
+		return $args;
+	}
+
+	/**
+	 * Media List:
+	 * Do the same as ^^ but for the list view.
+	 *
+	 * @param WP_Query $query
+	 * @return array
+	 */
+	public function media_list_table_query( $query ) {
+		if ( is_admin() && $query->is_main_query() && ( 'upload' === get_current_screen()->id ) ) {
+			$meta_query = $this->add_status_check_to_meta_query( $query->get( 'meta_query' ) );
+
+			$query->set( 'meta_query', $meta_query );
+		}
+	}
+
+	/**
+	 * Add the a videopress_status check to the meta query and if it has a `videopress_status` only include those with
+	 * a status of 'completed' or 'processing'.
+	 *
+	 * @param array $meta_query
+	 *
+	 * @return array
+	 */
+	protected function add_status_check_to_meta_query( $meta_query ) {
+
+		if ( ! is_array( $meta_query ) ) {
+			$meta_query = array();
+		}
+
+		$meta_query[] = array(
+			array(
+				'relation' => 'OR',
+				array(
+					'key'     => 'videopress_status',
+					'value'   => array( 'completed', 'processing' ),
+					'compare' => 'IN',
+				),
+				array(
+					'key'     => 'videopress_status',
+					'compare' => 'NOT EXISTS',
+				),
+			),
+		);
+
+		return $meta_query;
+	}
+
+	/**
+	 * Check to see if a video has completed processing.
+	 *
+	 * @param int $post_id
+	 *
+	 * @return bool
+	 */
+	public function is_video_finished_processing( $post_id ) {
+		$post = get_post( $post_id );
+
+		if ( is_wp_error( $post ) ) {
+			return false;
+		}
+
+		$meta = wp_get_attachment_metadata( $post->ID );
+
+		if ( ! isset( $meta['videopress'] ) || ! is_array( $meta['videopress'] ) ) {
+			return false;
+		}
+
+		// These are explicitly declared to avoid doing unnecessary loops across two levels of arrays.
+		if ( isset( $meta['videopress']['files_status']['hd'] ) && $meta['videopress']['files_status']['hd'] != 'DONE' ) {
+			return false;
+		}
+
+		if ( isset( $meta['videopress']['files_status']['dvd'] ) && $meta['videopress']['files_status']['dvd'] != 'DONE' ) {
+			return false;
+		}
+
+		if ( isset( $meta['videopress']['files_status']['std']['mp4'] ) && $meta['videopress']['files_status']['std']['mp4'] != 'DONE' ) {
+			return false;
+		}
+
+		if ( isset( $meta['videopress']['files_status']['std']['ogg'] ) && $meta['videopress']['files_status']['std']['ogg'] != 'DONE' ) {
+			return false;
+		}
+
+		return true;
 	}
 }
 
