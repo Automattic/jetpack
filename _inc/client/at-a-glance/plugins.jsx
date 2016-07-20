@@ -78,7 +78,7 @@ const DashPluginUpdates = React.createClass( {
 							isDevMode( this.props ) ? '' :
 							manageActive ?
 								__( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } ):
-								__( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="#" /> } } )
+								__( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="javascript:void(0)" /> } } )
 						}
 					</p>
 				</DashItem>
@@ -89,10 +89,14 @@ const DashPluginUpdates = React.createClass( {
 			<DashItem
 				label={ labelName }
 				module="manage"
-				status="is-working"
+				status={ manageActive ? 'is-working' : 'is-inactive' }
 			>
 				<p className="jp-dash-item__description">
-					{ __( 'All plugins are up-to-date. Keep up the good work!' ) }
+					{
+						manageActive ?
+							__( 'All plugins are up-to-date. Keep up the good work!' ) :
+							__( '{{a}}Activate Manage{{/a}} to turn on auto updates and manage your plugins from WordPress.com.', { components: { a: <a onClick={ this.props.activateManage } href="javascript:void(0)" /> } } )
+					}
 				</p>
 			</DashItem>
 		);
