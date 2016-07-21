@@ -16,8 +16,9 @@ import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 import { imagePath } from 'constants';
 import { getSiteConnectionStatus, isDevMode } from 'state/connection';
 import { demoStatsData, demoStatsBottom } from 'devmode';
+import QueryStatsData from 'components/data/query-stats-data';
 import {
-	fetchStats,
+	getStatsData,
 	statsSwitchTab,
 	getActiveStatsTab as _getActiveStatsTab
 } from 'state/at-a-glance';
@@ -196,18 +197,28 @@ const DashStats = React.createClass( {
 	},
 
 	render: function() {
-		return(
+		if ( 'object' !== typeof window.Initial_State.stats.data || 'N/A' === window.Initial_State.stats.data ) {
+			window.Initial_State.stats.data = this.props.getStatsData();
+		}
+		let content = '';
+		if ( 'object' === typeof window.Initial_State.stats.data ) {
+			content = (
+				<div>
+					<DashSectionHeader label={ __( 'Site Statistics' ) }>
+						{ this.maybeShowStatsTabs() }
+					</DashSectionHeader>
+					<Card className={ 'jp-at-a-glance__stats-card ' + ( isDevMode( this.props ) ? 'is-inactive': '' ) }>
+						{ this.renderStatsArea() }
+					</Card>
+				</div>
+			);
+		}
+		return (
 			<div>
-				<DashSectionHeader
-					label="Site Statistics"
-				>
-					{ this.maybeShowStatsTabs() }
-				</DashSectionHeader>
-				<Card className={ 'jp-at-a-glance__stats-card ' + ( isDevMode( this.props ) ? 'is-inactive': '' ) }>
-					{ this.renderStatsArea() }
-				</Card>
+				<QueryStatsData />
+				{ content }
 			</div>
-		)
+		);
 	}
 } );
 
@@ -287,7 +298,8 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isFetchingModules: () => _isFetchingModulesList( state ),
-			activeTab: () => _getActiveStatsTab( state )
+			activeTab: () => _getActiveStatsTab( state ),
+			getStatsData: () => getStatsData( state )
 		};
 	},
 	( dispatch ) => {
@@ -297,9 +309,6 @@ export default connect(
 			},
 			switchView: ( tab ) => {
 				return dispatch( statsSwitchTab( tab ) );
-			},
-			fetchStats: ( tab ) => {
-				return dispatch( fetchStats() );
 			}
 		};
 	}
