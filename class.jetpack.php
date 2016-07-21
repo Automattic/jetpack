@@ -6238,7 +6238,7 @@ p {
 	 */
 	function jetpack_user_col_style() {
 		global $current_screen;
-		if ( 'users' == $current_screen->base ) { ?>
+		if ( ! empty( $current_screen->base ) && 'users' == $current_screen->base ) { ?>
 			<style>
 				.fixed .column-user_jetpack {
 					width: 21px;
