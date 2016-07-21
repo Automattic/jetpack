@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import { translate as __ } from 'i18n-calypso';
+import Button from 'components/button';
 
 /**
  * Internal dependencies
@@ -26,6 +27,8 @@ import {
 	isPluginInstalled
 } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import QuerySite from 'components/data/query-site';
+import { getSitePlan } from 'state/site';
 import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
@@ -33,7 +36,8 @@ export const Page = ( props ) => {
 		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
-		getModule
+		getModule,
+		getSitePlan
 		} = props;
 	var cards = [
 		[ 'scan', __( 'Security Scanning' ), __( 'Automatically scan your site for common threats and attacks.' ) ],
@@ -51,17 +55,45 @@ export const Page = ( props ) => {
 					toggleModule={ toggleModule } />
 			),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
-			isScan = 'scan' === element[0],
-			scanProps = {};
+			isPro = 'scan' === element[0] || 'akismet' === element[0] || 'backups' === element[0],
+			proProps = {};
 
-		if ( isScan ) {
-			toggle = '';
-			scanProps = {
-				module: 'scan',
+		let getProToggle = ( active, installed ) => {
+			let pluginSlug = 'scan' === element[0] || 'backups' === element[0] ?
+				'vaultpress' :
+				'akismet';
+
+			if ( false !== getSitePlan() ) {
+				if ( active && installed ) {
+					return (
+						__('ACTIVE')
+					);
+				} else {
+					return (
+						<Button
+							compact={ true }
+							primary={ true }
+							href={ 'https://wordpress.com/plugins/' + pluginSlug }
+						>
+							{ ! installed ? __( 'Install' ) : __( 'Activate' ) }
+						</Button>
+					);
+				}
+			}
+		};
+
+		if ( isPro ) {
+			proProps = {
+				module: element[0],
 				isFetchingPluginsData: props.isFetchingPluginsData,
-				isVaultPressInstalled: props.isPluginInstalled( 'vaultpress/vaultpress.php' ),
-				isVaultPressActive: props.isPluginActive( 'vaultpress/vaultpress.php' )
+				isProPluginInstalled: 'backups' === element[0] || 'scan' === element[0] ?
+					props.isPluginInstalled( 'vaultpress/vaultpress.php' ) :
+					props.isPluginInstalled( 'akismet/akismet.php' ),
+				isProPluginActive: 'backups' === element[0] || 'scan' === element[0] ?
+					props.isPluginActive( 'vaultpress/vaultpress.php' ) :
+					props.isPluginActive( 'akismet/akismet.php' )
 			};
+			toggle = getProToggle( proProps.isProPluginActive, proProps.isProPluginInstalled );
 		}
 
 		return (
@@ -74,8 +106,8 @@ export const Page = ( props ) => {
 				expandedSummary={ toggle }
 				clickableHeaderText={ true } >
 				{
-					isModuleActivated( element[0] ) || isScan ?
-						<SecurityModulesSettings module={ isScan ? scanProps : getModule( element[ 0 ] ) } /> :
+					isModuleActivated( element[0] ) || isPro ?
+						<SecurityModulesSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -87,6 +119,7 @@ export const Page = ( props ) => {
 
 	return (
 		<div>
+			<QuerySite />
 			<QuerySitePlugins />
 			{ cards }
 		</div>
@@ -108,7 +141,8 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
+			getSitePlan: () => getSitePlan( state )
 		};
 	},
 	( dispatch ) => {
