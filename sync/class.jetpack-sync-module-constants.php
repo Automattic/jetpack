@@ -56,7 +56,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand constants (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_constants', true );
-
+		remove_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_constants' ) );
 		return 1;
 	}
 
