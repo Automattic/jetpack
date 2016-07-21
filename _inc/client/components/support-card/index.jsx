@@ -79,8 +79,8 @@ export default React.createClass( {
 						{ __(
 							'{{hideOnMobile}}Enjoying Jetpack or have feedback?{{/hideOnMobile}} ' +
 							'{{reviewLink}}Leave us a review{{/reviewLink}}{{hideOnMobile}},{{/hideOnMobile}} ' +
-							'{{twitterLink}}follow us on twitter{{/twitterLink}}{{hideOnMobile}}, or{{/hideOnMobile}} ' +
-							'{{facebookLink}}like us on facebook{{/facebookLink}}{{hideOnMobile}}.{{/hideOnMobile}}', {
+							'{{twitterLink}}follow us on Twitter{{/twitterLink}}{{hideOnMobile}}, or{{/hideOnMobile}} ' +
+							'{{facebookLink}}like us on Facebook{{/facebookLink}}{{hideOnMobile}}.{{/hideOnMobile}}', {
 								components: {
 									hideOnMobile: <span className="jp-hidden-on-mobile" />,
 									reviewLink: (
