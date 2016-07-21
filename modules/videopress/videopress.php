@@ -60,17 +60,6 @@ class Jetpack_VideoPress {
 			add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
 		}
 
-		// Activate the cleanup cron if videopress is enabled, jetpack is activated, or jetpack is updated.
-		add_action( 'jetpack_activate_module_videopress', array( $this, 'activate_cleanup_cron' ) );
-		add_action( 'updating_jetpack_version', array( $this, 'activate_cleanup_cron' ) );
-		add_action( 'activated_plugin', array( $this, 'activate_cleanup_cron_on_jetpack_activation' ) );
-
-
-		// Deactivate the cron if either videopress is disabled or Jetpack is disabled.
-		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'deactivate_cleanup_cron_static' ) );
-		register_deactivation_hook( plugin_basename( JETPACK__PLUGIN_FILE ), array( $this, 'deactivate_cleanup_cron_static' ) );
-
-
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
@@ -78,8 +67,7 @@ class Jetpack_VideoPress {
 		add_filter( 'ajax_query_attachments_args', array( $this, 'ajax_query_attachments_args' ), 10, 1 );
 		add_action( 'pre_get_posts', array( $this, 'media_list_table_query' ) );
 
-		add_filter( 'cron_schedules', array( $this, 'add_30_minute_cron_interval' ) );
-
+		VideoPress_Scheduler::init();
 	}
 
 	/**
@@ -1041,68 +1029,6 @@ class Jetpack_VideoPress {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Adds 10 minute running interval to the cron schedules.
-	 *
-	 * @param array $current_schedules Currently defined schedules list.
-	 *
-	 * @return array
-	 */
-	public function add_30_minute_cron_interval( $current_schedules ) {
-		/**
-		 * Only add the 30 minute interval if it wasn't already set.
-		 */
-		if ( ! isset( $current_schedules['minutes_30'] ) ) {
-			$current_schedules['minutes_30'] = array(
-				'interval' => 30 * MINUTE_IN_SECONDS,
-				'display'  => 'Every 30 minutes'
-			);
-		}
-		return $current_schedules;
-	}
-
-	/**
-	 * Activates widget update cron task.
-	 */
-	public function activate_cleanup_cron() {
-
-		if ( ! Jetpack::is_module_active( 'videopress' ) ) {
-			return false;
-		}
-
-		if ( ! wp_next_scheduled( 'videopress_cleanup_media_library' ) ) {
-			wp_schedule_event( time(), 'minutes_30', 'videopress_cleanup_media_library' );
-		}
-	}
-
-	/**
-	 * Only activate the cron if it is Jetpack that was activated.
-	 *
-	 * @param string $plugin_file_name
-	 */
-	public function activate_cleanup_cron_on_jetpack_activation( $plugin_file_name ) {
-		if ( plugin_basename( JETPACK__PLUGIN_FILE ) === $plugin_file_name ) {
-			$this->activate_cleanup_cron();
-		}
-	}
-
-	/**
-	 * Deactivates widget update cron task.
-	 *
-	 * This is a wrapper over the static method as it provides some syntactic sugar.
-	 */
-	public function deactivate_cleanup_cron() {
-		$this->deactivate_cleanup_cron_static();
-	}
-
-	/**
-	 * Deactivates widget update cron task.
-	 */
-	public function deactivate_cleanup_cron_static() {
-		$next_scheduled_time = wp_next_scheduled( 'videopress_cleanup_media_library' );
-		wp_unschedule_event( $next_scheduled_time, 'videopress_cleanup_media_library' );
 	}
 }
 
