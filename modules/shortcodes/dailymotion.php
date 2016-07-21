@@ -201,7 +201,7 @@ function dailymotion_shortcode( $atts ) {
 		}
 
 		if ( array_key_exists( 'user', $atts ) && $user = preg_replace( '/[^-a-z0-9_]/i', '', $atts['user'] ) ) {
-			$output .= '<br /><em>Uploaded by <a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a></em>';
+			$output .= '<br /><em>' . __('Uploaded by') . ' <a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a></em>';
 		}
 	}
 
