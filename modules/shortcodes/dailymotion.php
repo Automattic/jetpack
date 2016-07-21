@@ -199,7 +199,7 @@ function dailymotion_shortcode( $atts ) {
 	$output = '';
 
 	if ( preg_match( '/^[A-Za-z0-9]+$/', $id ) ) {
-		$output .= '<iframe width="' . $width . '" height="' . $height . '" src="' . esc_url( $video_url ) . '" frameborder="0"></iframe>';
+		$output .= '<iframe width="' . esc_attr($width) . '" height="' . esc_attr($height) . '" src="' . esc_url( $video_url ) . '" style="border:0;" allowfullscreen></iframe>';
 
 		if ( array_key_exists( 'video', $atts ) && $video = preg_replace( '/[^-a-z0-9_]/i', '', $atts['video'] ) && array_key_exists( 'title', $atts ) && $title = wp_kses( $atts['title'], array() ) ) {
 			$output .= '<br /><strong><a href="' . esc_url( 'http://www.dailymotion.com/video/' . $video ) . '" target="_blank">' . esc_html( $title ) . '</a></strong>';
@@ -227,13 +227,13 @@ function dailymotion_channel_shortcode( $atts ) {
 
 	switch( $atts['type'] ) {
 		case 'grid':
-			return '<iframe width="300px" height="264px" scrolling="no" frameborder="0" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username . '?type=grid' ) . '"></iframe>';
+			return '<iframe width="300px" height="264px" scrolling="no" style="border:0;" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username . '?type=grid' ) . '"></iframe>';
 			break;
 		case 'carousel':
-			return '<iframe width="300px" height="360px" scrolling="no" frameborder="0" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username . '?type=carousel' ) . '"></iframe>';
+			return '<iframe width="300px" height="360px" scrolling="no" style="border:0;" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username . '?type=carousel' ) . '"></iframe>';
 			break;
 		default:
-			return '<iframe width="300px" height="78px" scrolling="no" frameborder="0" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username ) . '"></iframe>';
+			return '<iframe width="300px" height="78px" scrolling="no" style="border:0;" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username ) . '"></iframe>';
 	}
 }
 
