@@ -44,6 +44,13 @@ class Jetpack_Sync_Sender {
 		}
 	}
 
+	public function next_sync_time() {
+		$sync_wait = $this->get_sync_wait_time();
+                $last_sync = $this->get_last_sync_time();
+		$next_sync_time = ( $last_sync && $sync_wait ) ? $last_sync + $sync_wait : 0;
+		return $next_sync_time;
+	}
+
 	public function do_sync() {
 		// don't sync if importing
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
@@ -51,10 +58,7 @@ class Jetpack_Sync_Sender {
 		}
 
 		// don't sync if we are throttled
-		$sync_wait = $this->get_sync_wait_time();
-		$last_sync = $this->get_last_sync_time();
-
-		if ( $last_sync && $sync_wait && $last_sync + $sync_wait > microtime( true ) ) {
+		if ( $this->next_sync_time() > microtime( true ) ) {
 			return false;
 		}
 
@@ -88,6 +92,9 @@ class Jetpack_Sync_Sender {
 		$upload_size   = 0;
 		$items_to_send = array();
 		$items         = $buffer->get_items();
+
+		// set up current screen to avoid errors rendering content
+		set_current_screen( 'sync' );
 
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/

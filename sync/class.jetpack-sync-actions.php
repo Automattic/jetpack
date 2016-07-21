@@ -164,11 +164,20 @@ class Jetpack_Sync_Actions {
 		self::initialize_sender();
 
 		$start_time = microtime( true );
-
+		
 		do {
-			self::$sender->do_sync();
+			$next_sync_time = self::$sender->next_sync_time();
+			
+			// sleep for up to 10s
+			if ( $next_sync_time ) {
+				$delay = $next_sync_time - time() + 1;
+				if ( 0 < $delay && $delay < 10 ) {
+					sleep( $delay );
+				}
+			}
+			$result = self::$sender->do_sync();
 		} while ( 
-			self::$sender->get_sync_queue()->size() > 0 
+			$result 
 			&& 
 			microtime( true ) - $start_time < 60 
 		);
