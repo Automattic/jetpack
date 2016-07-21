@@ -335,8 +335,10 @@ EXPECTED;
 		add_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
 		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
 
-		Jetpack::update_active_modules( array( 'stats', 'json-api' ) );
 		Jetpack::update_active_modules( array( 'stats' ) );
+		Jetpack::update_active_modules( array( 'stats' ) );
+		Jetpack::update_active_modules( array( 'json-api' ) );
+		Jetpack::update_active_modules( array( 'json-api' ) );
 
 		$this->assertEquals( self::$activated_modules, array( 'stats', 'json-api' ) );
 		$this->assertEquals(  self::$deactivated_modules, array( 'stats' ) );
@@ -352,8 +354,10 @@ EXPECTED;
 
 		Jetpack::update_active_modules( array( 'stats' ) );
 		Jetpack::update_active_modules( array( 'stats' ) );
+		Jetpack::update_active_modules( array( 'json-api' ) );
+		Jetpack::update_active_modules( array( 'json-api' ) );
 
-		$this->assertEquals( self::$activated_modules, array( 'stats', 'json-api' ) );
+		$this->assertEquals( self::$activated_modules, array( 'stats' ) );
 		$this->assertEquals(  self::$deactivated_modules, array( 'stats' ) );
 
 		remove_action( 'jetpack_activate_module_stats', array( __CLASS__, 'track_activated_modules' ) );
