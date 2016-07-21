@@ -302,55 +302,8 @@ class Jetpack {
 	public static function init() {
 		if ( ! self::$instance ) {
 			self::$instance = new Jetpack;
-
-			self::$instance->check_if_plugin_upgrade();
 		}
-
 		return self::$instance;
-	}
-
-	/**
-	 * Must never be called statically
-	 */
-	function check_if_plugin_upgrade() {
-		if ( Jetpack::is_active() ) {
-			$old_version = Jetpack_Options::get_option( 'version' );
-			list( $version ) = explode( ':', $old_version );
-			if ( JETPACK__VERSION != $version ) {
-				Jetpack_Options::update_option( 'version', JETPACK__VERSION . ':' . time() );
-				Jetpack_Options::update_options(
-					array(
-						'version'     => JETPACK__VERSION . ':' . time(),
-						'old_version' => $version,
-					)
-				);
-				do_action( 'updating_jetpack_version', JETPACK__VERSION, $version );
-			}
-		}
-	}
-
-
-	/**
-	 * Runs after bumping version numbers up to a new version
-	 * @param  (string) $version    Version:timestamp
-	 * @param  (string) $old_version Old Version:timestamp or false if not set yet.
-	 * @return null              [description]
-	 */
-	public static function do_version_bump( $new_version, $old_version ) {
-		Jetpack::clear_modules( $new_version, $old_version );
-	}
-
-	public static function clear_modules( $new_version, $old_version ) {
-		if ( did_action( 'init' ) || current_filter() == 'init' ) {
-			if ( ! $old_version ) { // For new sites
-				self::activate_module( 'manage', false, false );
-			}
-			// Check which active modules actually exist and remove others from active_modules list
-			Jetpack_Options::update_option( 'active_modules', array_intersect( Jetpack::get_active_modules(), Jetpack::get_available_modules() ) );
-			self::activate_new_modules();
-		} else if ( ! has_action( 'init' , array( __CLASS__, 'clear_modules' ) ) ) {
-			add_action( 'init', array( __CLASS__, 'clear_modules', $new_version, $old_version ) );
-		}
 	}
 
 	/**
