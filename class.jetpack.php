@@ -355,6 +355,16 @@ class Jetpack {
 				 * @param boolean $success whether the module was activated. @since 4.2
 				 */
 				do_action( 'jetpack_activate_module', $module, $success );
+
+				/**
+				 * Fires when a module is activated.
+				 * The dynamic part of the filter, $module, is the module slug.
+				 *
+				 * @since 1.9.0
+				 *
+				 * @param string $module Module slug.
+				 */
+				do_action( "jetpack_activate_module_$module", $module );
 			}
 
 			$new_deactive_modules = array_diff( $current_modules, $modules );
@@ -368,6 +378,15 @@ class Jetpack {
 				 * @param boolean $success whether the module was deactivated.
 				 */
 				do_action( 'jetpack_deactivate_module', $module, $success );
+				/**
+				 * Fires when a module is deactivated.
+				 * The dynamic part of the filter, $module, is the module slug.
+				 *
+				 * @since 1.9.0
+				 *
+				 * @param string $module Module slug.
+				 */
+				do_action( "jetpack_deactivate_module_$module", $module );
 			}
 		}
 
@@ -483,8 +502,6 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
-
-		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 
 		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
@@ -2337,11 +2354,10 @@ class Jetpack {
 		Jetpack::catch_errors( true );
 		ob_start();
 		require Jetpack::get_module_path( $module );
-		/** This action is documented in class.jetpack.php */
-		do_action( 'jetpack_activate_module', $module );
-		$active[] = $module;
 
+		$active[] = $module;
 		Jetpack::update_active_modules( $active );
+
 		Jetpack::state( 'error', false ); // the override
 		ob_end_clean();
 		Jetpack::catch_errors( false );
@@ -2366,15 +2382,7 @@ class Jetpack {
 	}
 
 	function activate_module_actions( $module ) {
-		/**
-		 * Fires when a module is activated.
-		 * The dynamic part of the filter, $module, is the module slug.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param string $module Module slug.
-		 */
-		do_action( "jetpack_activate_module_$module", $module );
+		_deprecated_function( __METHOD__, 'jeptack-4.2' );
 	}
 
 	public static function deactivate_module( $module ) {
@@ -2391,16 +2399,6 @@ class Jetpack {
 
 		$active = Jetpack::get_active_modules();
 		$new    = array_filter( array_diff( $active, (array) $module ) );
-
-		/**
-		 * Fires when a module is deactivated.
-		 * The dynamic part of the filter, $module, is the module slug.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param string $module Module slug.
-		 */
-		do_action( "jetpack_deactivate_module_$module", $module );
 
 		// A flag for Jump Start so it's not shown again.
 		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
