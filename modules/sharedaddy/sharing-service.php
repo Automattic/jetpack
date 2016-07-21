@@ -189,8 +189,17 @@ class Sharing_Service {
 		}
 
 		// Cleanup after any filters that may have produced duplicate services
-		$enabled['visible'] = array_unique( $enabled['visible'] );
-		$enabled['hidden']  = array_unique( $enabled['hidden'] );
+		if ( is_array( $enabled['visible'] ) ) {
+			$enabled['visible'] = array_unique( $enabled['visible'] );
+		} else {
+			$enabled['visible'] = array();
+		}
+		
+		if ( is_array( $enabled['hidden'] ) ) {
+			$enabled['hidden']  = array_unique( $enabled['hidden'] );
+		} else {
+			$enabled['hidden'] = array();
+		}
 
 		// Form the enabled services
 		$blog = array( 'visible' => array(), 'hidden' => array() );
