@@ -95,7 +95,7 @@ export const DevVersionNotice = React.createClass( {
 			);
 
 			return (
-				<SimpleNotice 
+				<SimpleNotice
 					showDismiss={ false }
 					status="is-basic"
 				>
@@ -123,7 +123,7 @@ export const StagingSiteNotice = React.createClass( {
 			);
 
 			return (
-				<SimpleNotice 
+				<SimpleNotice
 					showDismiss={ false }
 					status="is-basic"
 				>
@@ -154,7 +154,7 @@ export const DevModeNotice = React.createClass( {
 				devModeType += __('your site URL lacking a dot (e.g. http://localhost).');
 			}
 
-			const text = __('Currently in {{a}}Development Mode{{/a}} VIA ' + devModeType + '{{br/}}Some features are disabled.',
+			const text = __('Currently in {{a}}Development Mode{{/a}} Via ' + devModeType + '{{br/}}Some features are disabled.',
 				{
 					components: {
 						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
@@ -164,7 +164,7 @@ export const DevModeNotice = React.createClass( {
 			);
 
 			return (
-				<SimpleNotice 
+				<SimpleNotice
 					showDismiss={ false }
 					status="is-basic"
 				>
