@@ -76,7 +76,7 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
  * The new style is now:
  * [dailymotion id=x8oma9 title=2 user=3 video=4]
  *
- * Supported parameters for player customization: weight, height,
+ * Supported parameters for player customization: width, height,
  * autoplay, endscreen-enable, mute, sharing-enabled, start, subtitles-default,
  * ui-highlight, ui-logo, ui-start-screen-info, ui-theme
  * see https://developer.dailymotion.com/player#player-parameters
@@ -125,7 +125,7 @@ function dailymotion_shortcode( $atts ) {
 	}
 
 	if ( isset( $atts['id'] ) && ! empty( $atts['id'] ) ) {
-		$id = $atts['id'];
+		$id = urlencode( $atts['id'] );
 	} else {
 		return '<!--Dailymotion error: bad or missing ID-->';
 	}
@@ -146,9 +146,6 @@ function dailymotion_shortcode( $atts ) {
 	} elseif ( ! $width ) {
 		$width = $height / 334 * 425;
 	}
-
-	// Video URL
-	$video_url = esc_url( 'https://www.dailymotion.com/embed/video/' . $atts['id'] );
 
 	/**
 	 * Let's add parameters if needed.
@@ -191,10 +188,8 @@ function dailymotion_shortcode( $atts ) {
 	// Add those parameters to the Video URL.
 	$video_url = add_query_arg(
 		$player_params,
-		$video_url
+		'https://www.dailymotion.com/embed/video/' . $id
 	);
-
-	$id = urlencode( $id );
 
 	$output = '';
 
