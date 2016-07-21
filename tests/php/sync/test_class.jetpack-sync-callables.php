@@ -37,7 +37,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 		$this->sender->do_sync();
 
-		$this->assertFalse( empty( get_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME ) ) );
+		$checksum_option = get_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->assertFalse( empty( $checksum_option ) );
+
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
 		$this->assertEquals( jetpack_foo_is_callable(), $synced_value );
 		$jetpack_sync_full_sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_callables' );

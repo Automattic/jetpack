@@ -39,7 +39,8 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertFalse( empty( get_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME ) ) );
+		$checksum_option = get_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->assertFalse( empty( $checksum_option ) );
 
 		$synced_bar_value = $this->server_replica_storage->get_constant( 'TEST_BAR_2' );
 
