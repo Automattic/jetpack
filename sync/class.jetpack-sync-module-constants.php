@@ -31,6 +31,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 	public function reset_data() {
 		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
 		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
+		remove_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_constants' ) );
 	}
 
 	function set_constants_whitelist( $constants ) {

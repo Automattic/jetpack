@@ -41,6 +41,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function reset_data() {
 		delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME );
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
+		remove_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_callables' ) );
 	}
 
 	function set_callable_whitelist( $callables ) {
