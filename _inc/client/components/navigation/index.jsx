@@ -20,7 +20,7 @@ const Navigation = React.createClass( {
 		let navTabs;
 		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
 			navTabs = (
-				<NavTabs>
+				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
 						path="#dashboard"
 						selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
@@ -50,7 +50,7 @@ const Navigation = React.createClass( {
 				);
 			}
 			navTabs = (
-				<NavTabs>
+				<NavTabs selectedText={ this.props.route.name }>
 					{ dashboard }
 					<NavItem
 						path="#apps"
@@ -62,7 +62,7 @@ const Navigation = React.createClass( {
 		}
 		return (
 			<div className='dops-navigation'>
-				<SectionNav>
+				<SectionNav selectedText={ this.props.route.name }>
 					{ navTabs }
 				</SectionNav>
 			</div>
