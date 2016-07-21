@@ -46,7 +46,7 @@ class Jetpack_Sync_Sender {
 
 	public function next_sync_time() {
 		$sync_wait = $this->get_sync_wait_time();
-                $last_sync = $this->get_last_sync_time();
+		$last_sync = $this->get_last_sync_time();
 		$next_sync_time = ( $last_sync && $sync_wait ) ? $last_sync + $sync_wait : 0;
 		return $next_sync_time;
 	}
