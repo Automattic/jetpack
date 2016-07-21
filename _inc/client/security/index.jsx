@@ -28,7 +28,10 @@ import {
 } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
-import { getSitePlan } from 'state/site';
+import {
+	getSitePlan,
+	isFetchingSiteData
+} from 'state/site';
 import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
@@ -37,7 +40,8 @@ export const Page = ( props ) => {
 		isModuleActivated,
 		isTogglingModule,
 		getModule,
-		getSitePlan
+		getSitePlan,
+		isFetchingSiteData
 		} = props;
 	var cards = [
 		[ 'scan', __( 'Security Scanning' ), __( 'Automatically scan your site for common threats and attacks.' ) ],
@@ -66,16 +70,32 @@ export const Page = ( props ) => {
 			if ( false !== getSitePlan() ) {
 				if ( active && installed ) {
 					return (
-						__('ACTIVE')
+						__( 'ACTIVE' )
 					);
 				} else {
 					return (
 						<Button
 							compact={ true }
 							primary={ true }
-							href={ 'https://wordpress.com/plugins/' + pluginSlug }
+							href={ 'https://wordpress.com/plugins/' + pluginSlug + '/' + window.Initial_State.rawUrl }
 						>
 							{ ! installed ? __( 'Install' ) : __( 'Activate' ) }
+						</Button>
+					);
+				}
+			} else {
+				if ( active && installed ) {
+					return (
+						__( 'ACTIVE' )
+					);
+				} else {
+					return (
+						<Button
+							compact={ true }
+							primary={ true }
+							href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl }
+						>
+							{ __( 'Upgrade' ) }
 						</Button>
 					);
 				}
@@ -93,7 +113,7 @@ export const Page = ( props ) => {
 					props.isPluginActive( 'vaultpress/vaultpress.php' ) :
 					props.isPluginActive( 'akismet/akismet.php' )
 			};
-			toggle = getProToggle( proProps.isProPluginActive, proProps.isProPluginInstalled );
+			toggle = ! isFetchingSiteData ? getProToggle( proProps.isProPluginActive, proProps.isProPluginInstalled ) : '';
 		}
 
 		return (
@@ -142,7 +162,8 @@ export default connect(
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
 			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
-			getSitePlan: () => getSitePlan( state )
+			getSitePlan: () => getSitePlan( state ),
+			isFetchingSiteData: isFetchingSiteData( state )
 		};
 	},
 	( dispatch ) => {
