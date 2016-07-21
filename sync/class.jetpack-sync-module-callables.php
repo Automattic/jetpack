@@ -77,6 +77,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand callables (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_callables', true );
+		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
 		remove_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_callables' ) );
 
 		return 1; // The number of actions enqueued

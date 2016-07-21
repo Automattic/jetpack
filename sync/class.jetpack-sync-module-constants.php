@@ -57,6 +57,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_full_sync_constants', true );
 		remove_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_constants' ) );
+		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
 		return 1;
 	}
 
