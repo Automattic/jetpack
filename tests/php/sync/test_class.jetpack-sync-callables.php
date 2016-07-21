@@ -18,7 +18,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 
-		$this->callable_module = Jetpack_Sync_Modules::get_module( "functions" );
+		$this->callable_module = Jetpack_Sync_Modules::get_module( 'functions' );
 	}
 
 	function test_white_listed_function_is_synced() {
@@ -29,6 +29,22 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
 		$this->assertEquals( jetpack_foo_is_callable(), $synced_value );
+	}
+
+	function test_use_full_sync_instead_of_individual_sync_if_we_send_all_data() {
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+
+		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
+		$this->sender->do_sync();
+
+		$this->assertFalse( empty( get_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME ) ) );
+		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$this->assertEquals( jetpack_foo_is_callable(), $synced_value );
+		$jetpack_sync_full_sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_callables' );
+		$jetpack_sync_callable_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
+
+		$this->assertFalse( empty( $jetpack_sync_full_sync_event ) );
+		$this->assertFalse( $jetpack_sync_callable_event );
 	}
 
 	public function test_sync_jetpack_updates() {

@@ -75,13 +75,18 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 			return;
 		}
 
-		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
+
 		$constants_checksums = (array) get_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, array() );
+		if ( empty( $constants_checksums ) ) {
+			$this->enqueue_full_sync_actions();
+			return;
+		}
 
 		foreach ( $constants as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
 			// explicitly not using Identical comparison as get_option returns a string
 			if ( ! $this->still_valid_checksum( $constants_checksums, $name, $checksum ) && ! is_null( $value ) ) {
+
 				/**
 				 * Tells the client to sync a constant to the server
 				 *
@@ -97,6 +102,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 			}
 		}
 		update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, $constants_checksums );
+		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
 	}
 
 	// public so that we don't have to store an option for each constant
@@ -115,7 +121,15 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 
 	public function expand_constants( $args ) {
 		if ( $args[0] ) {
-			return $this->get_all_constants();
+				$constants = $this->get_all_constants();
+
+				// Update the callable checksums on full sync.
+				$constants_checksums = array();
+				foreach ( $constants as $name => $value ) {
+					$constants_checksums[ $name ] = $this->get_check_sum( $value );
+				}
+				update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, $constants_checksums );
+				return $constants;
 		}
 
 		return $args;

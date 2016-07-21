@@ -104,10 +104,11 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			return;
 		}
 
-		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
-
 		$callable_checksums = (array) get_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
-
+		if ( empty( $callable_checksums ) ) {
+			$this->enqueue_full_sync_actions();
+			return;
+		}
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
@@ -128,11 +129,20 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			}
 		}
 		update_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
+		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
 	}
 
 	public function expand_callables( $args ) {
 		if ( $args[0] ) {
-			return $this->get_all_callables();
+			$callables = $this->get_all_callables();
+			// Update the callable checksums on full sync.
+			$callable_checksums = array();
+			foreach ( $callables as $name => $value ) {
+				$callable_checksums[ $name ] = $this->get_check_sum( $value );
+			}
+			update_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
+
+			return $callables;
 		}
 
 		return $args;
