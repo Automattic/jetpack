@@ -330,4 +330,3 @@ function videopress_get_transcoding_status( $post_id ) {
 function videopress_build_url( $guid ) {
 	return 'https://videopress.com/v/' . $guid;
 }
-
