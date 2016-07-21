@@ -58,6 +58,13 @@ class Jetpack_Sync_Sender {
 			return false;
 		}
 
+		// Always run `do_sync` on a different process
+		if ( ! defined( 'DOING_CRON' ) || ! DOING_CRON ) {
+			wp_schedule_single_event( time() + 1, 'jetpack_sync_actions' );
+			spawn_cron();
+			return false;
+		}
+
 		// don't sync if we are throttled
 		$sync_wait = $this->get_sync_wait_time();
 		$last_sync = $this->get_last_sync_time();
