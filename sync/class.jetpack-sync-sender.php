@@ -70,6 +70,7 @@ class Jetpack_Sync_Sender {
 		$last_sync = $this->get_last_sync_time();
 
 		if ( $last_sync && $sync_wait && $last_sync + $sync_wait > microtime( true ) ) {
+			$this->schedule_sync( '+1 minute' );
 			return false;
 		}
 
