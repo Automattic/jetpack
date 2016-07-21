@@ -190,9 +190,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Stats: get stats from WPCOM
 		register_rest_route( 'jetpack/v4', '/module/stats/get', array(
-			'methods'  => WP_REST_Server::READABLE,
+			'methods'  => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::site_get_stats_data',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			'args' => array(
+				'range' => array(
+					'default'           => 'day',
+					'type'              => 'string',
+					'required'          => true,
+					'validate_callback' => __CLASS__ . '::validate_string',
+				),
+			),
 		) );
 
 		// Akismet: get spam count
@@ -2563,16 +2571,34 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
 	 */
 	public static function site_get_stats_data( WP_REST_Request $data ) {
+		// Get parameters to fetch Stats data.
+		$params = $data->get_json_params();
+
+		// If no parameters were passed.
+		$range = is_array( $params ) && isset( $params['range'] )
+				 && in_array( $params['range'], array( 'day', 'week', 'month' ), true ) ? $params['range'] : 'day';
+
 		if ( ! function_exists( 'stats_get_from_restapi' ) ) {
 			require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
 		}
 
-		return rest_ensure_response( array(
+		$response = array(
 			'general' => stats_get_from_restapi(),
-			'day' => stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' ),
-			'week' => stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' ),
-			'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
-		) );
+		);
+
+		switch ( $range ) {
+			case 'day':
+				$response['day'] = stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' );
+				break;
+			case 'week':
+				$response['week'] = stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' );
+				break;
+			case 'month':
+				$response['month'] = stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' );
+				break;
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**

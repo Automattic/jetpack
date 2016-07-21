@@ -3,7 +3,6 @@
  */
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
 /**
  * Internal dependencies
@@ -13,7 +12,7 @@ import { isFetchingStatsData, fetchStatsData } from 'state/at-a-glance';
 class QueryStatsData extends Component {
 	componentWillMount() {
 		if ( ! this.props.fetchingStatsData ) {
-			this.props.fetchStatsData();
+			this.props.fetchStatsData( this.props.range );
 		}
 	}
 
@@ -28,12 +27,14 @@ QueryStatsData.defaultProps = {
 
 export default connect( ( state ) => {
 	return {
-		fetchStatsData: fetchStatsData(),
+		fetchStatsData: ( range ) => fetchStatsData( state, range ),
 		fetchingStatsData: isFetchingStatsData( state )
 	};
 }, ( dispatch ) => {
-	return bindActionCreators( {
-		fetchStatsData
-	}, dispatch );
+	return {
+		fetchStatsData: ( range ) => {
+			return dispatch( fetchStatsData( range ) );
+		}
+	};
 }
 )( QueryStatsData );

@@ -8,6 +8,7 @@ import Chart from 'components/chart';
 import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
 import Button from 'components/button';
+import Spinner from 'components/spinner';
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 
 /**
@@ -20,6 +21,7 @@ import QueryStatsData from 'components/data/query-stats-data';
 import {
 	getStatsData,
 	statsSwitchTab,
+	fetchStatsData,
 	getActiveStatsTab as _getActiveStatsTab
 } from 'state/at-a-glance';
 import {
@@ -39,7 +41,16 @@ const DashStats = React.createClass( {
 	},
 
 	statsChart: function( unit ) {
+		if ( getSiteConnectionStatus( this.props ) === 'dev' ) {
+			return demoStatsData;
+		}
+
 		let s = [];
+
+		if ( 'object' !== typeof window.Initial_State.stats.data[unit] ) {
+			return s;
+		}
+
 		forEach( window.Initial_State.stats.data[unit].data, function( v ) {
 			let date = v[0];
 			let chartLabel = '';
@@ -73,7 +84,7 @@ const DashStats = React.createClass( {
 				}, { label: __( 'Click to view detailed stats.' ) } ]
 			} );
 		} );
-		return ( getSiteConnectionStatus( this.props ) === 'dev' ) ? demoStatsData : s;
+		return s;
 	},
 
 	/**
@@ -82,11 +93,13 @@ const DashStats = React.createClass( {
 	 * @returns {object|bool}
 	 */
 	statsErrors() {
-		let checkStats = window.Initial_State.stats.data.general;
-		if ( 'object' === typeof checkStats.errors ) {
-			return checkStats.errors;
+		if ( 'object' !== typeof window.Initial_State.stats.data.general ) {
+			return false;
 		}
-		return false;
+		if ( 'undefined' === typeof window.Initial_State.stats.data.general.errors ) {
+			return false;
+		}
+		return window.Initial_State.stats.data.general.errors;
 	},
 
 	renderStatsArea: function() {
@@ -117,14 +130,14 @@ const DashStats = React.createClass( {
 					</p>
 				);
 			}
-			const activeTab = this.props.activeTab();
+			let chartData = this.statsChart( this.props.activeTab() );
 			return (
 				<div className="jp-at-a-glance__stats-container">
 					<div className="jp-at-a-glance__stats-chart">
-						<Chart
-							data={ this.statsChart( activeTab ) }
-							barClick={ this.barClick }
-						/>
+						<Chart data={ chartData } barClick={ this.barClick } />
+						{
+							0 < chartData.length ? '': <Spinner />
+						}
 					</div>
 					<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
 						<DashStatsBottom { ...this.props } />
@@ -187,36 +200,35 @@ const DashStats = React.createClass( {
 
 	handleSwitchStatsView: function( view ) {
 		this.props.switchView( view );
+		this.props.fetchStatsData( view );
 	},
 
 	getClass: function( view ) {
-		const activeTab = this.props.activeTab();
-		return activeTab === view ?
+		return this.props.activeTab() === view ?
 			'jp-at-a-glance__stats-view-link is-current' :
 			'jp-at-a-glance__stats-view-link';
 	},
 
 	render: function() {
-		if ( 'object' !== typeof window.Initial_State.stats.data || 'N/A' === window.Initial_State.stats.data ) {
-			window.Initial_State.stats.data = this.props.getStatsData();
-		}
-		let content = '';
-		if ( 'object' === typeof window.Initial_State.stats.data ) {
-			content = (
-				<div>
-					<DashSectionHeader label={ __( 'Site Statistics' ) }>
-						{ this.maybeShowStatsTabs() }
-					</DashSectionHeader>
-					<Card className={ 'jp-at-a-glance__stats-card ' + ( isDevMode( this.props ) ? 'is-inactive': '' ) }>
-						{ this.renderStatsArea() }
-					</Card>
-				</div>
-			);
+		let range = this.props.activeTab();
+		if ( 'object' !== typeof window.Initial_State.stats.data[ range ] || 'N/A' === window.Initial_State.stats.data[ range ] ) {
+			let statsData = this.props.getStatsData();
+			if ( 'object' !== typeof window.Initial_State.stats.data.general ) {
+				window.Initial_State.stats.data = statsData;
+			} else {
+				window.Initial_State.stats.data.general = statsData.general;
+				window.Initial_State.stats.data[ range ] = statsData[ range ];
+			}
 		}
 		return (
 			<div>
-				<QueryStatsData />
-				{ content }
+				<QueryStatsData range={ range } />
+				<DashSectionHeader label={ __( 'Site Statistics' ) }>
+					{ this.maybeShowStatsTabs() }
+				</DashSectionHeader>
+				<Card className={ 'jp-at-a-glance__stats-card ' + ( isDevMode( this.props ) ? 'is-inactive': '' ) }>
+					{ this.renderStatsArea() }
+				</Card>
 			</div>
 		);
 	}
@@ -224,7 +236,20 @@ const DashStats = React.createClass( {
 
 const DashStatsBottom = React.createClass( {
 	statsBottom: function() {
-		const generalStats = ( getSiteConnectionStatus( this.props ) === 'dev' ) ? demoStatsBottom : window.Initial_State.stats.data.general.stats;
+		let generalStats;
+		if ( getSiteConnectionStatus( this.props ) === 'dev' ) {
+			generalStats = demoStatsBottom;
+		} else if ( 'object' === typeof window.Initial_State.stats.data.general ) {
+			generalStats = window.Initial_State.stats.data.general.stats;
+		} else {
+			generalStats = {
+				'views': '-',
+				'comments': '-',
+				'views_today': '-',
+				'views_best_day': '-',
+				'views_best_day_total': '-'
+			}
+		}
 		return [
 			{
 				viewsToday: generalStats.views_today,
@@ -242,7 +267,6 @@ const DashStatsBottom = React.createClass( {
 
 	render: function() {
 		const s = this.statsBottom()[0];
-		const bestDay = s.bestDay.day;
 		return (
 		<div>
 			<div className="jp-at-a-glance__stats-summary">
@@ -254,6 +278,7 @@ const DashStatsBottom = React.createClass( {
 					<p className="jp-at-a-glance__stat-details">{ __( 'Best overall day', { comment: 'Referring to a number of page views' } ) }</p>
 					<h3 className="jp-at-a-glance__stat-number">
 						{
+							'-' === s.bestDay.count ? '-':
 							__( '%(number)s View', '%(number)s Views',
 								{
 									count: s.bestDay.count,
@@ -264,16 +289,28 @@ const DashStatsBottom = React.createClass( {
 							)
 						}
 					</h3>
-					<p className="jp-at-a-glance__stat-details">{ moment( bestDay ).format( 'MMMM Do, YYYY' ) }</p>
+					<p className="jp-at-a-glance__stat-details">
+						{
+							'-' === s.bestDay.day ? '-': moment( s.bestDay.day ).format( 'MMMM Do, YYYY' )
+						}
+					</p>
 				</div>
 				<div className="jp-at-a-glance__stats-summary-alltime">
 					<div className="jp-at-a-glance__stats-alltime-views">
 						<p className="jp-at-a-glance__stat-details">{ __( 'All-time views', { comment: 'Referring to a number of page views' } ) }</p>
-						<h3 className="jp-at-a-glance__stat-number">{ numberFormat( s.allTime.views ) }</h3>
+						<h3 className="jp-at-a-glance__stat-number">
+							{
+								'-' === s.allTime.views ? '-': numberFormat( s.allTime.views )
+							}
+						</h3>
 					</div>
 					<div className="jp-at-a-glance__stats-alltime-comments">
 						<p className="jp-at-a-glance__stat-details">{ __( 'All-time comments', { comment: 'Referring to a number of comments' } ) }</p>
-						<h3 className="jp-at-a-glance__stat-number">{ numberFormat( s.allTime.comments ) }</h3>
+						<h3 className="jp-at-a-glance__stat-number">
+							{
+								'-' === s.allTime.comments ? '-': numberFormat( s.allTime.comments )
+							}
+						</h3>
 					</div>
 				</div>
 			</div>
@@ -309,6 +346,9 @@ export default connect(
 			},
 			switchView: ( tab ) => {
 				return dispatch( statsSwitchTab( tab ) );
+			},
+			fetchStatsData: ( range ) => {
+				return dispatch( fetchStatsData( range ) );
 			}
 		};
 	}

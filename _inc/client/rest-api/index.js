@@ -122,12 +122,16 @@ const restApi = {
 		}
 	} )
 		.then( checkStatus ).then( response => response.json() ),
-	getStatsData: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/stats/get`, {
+	getStatsData: ( range ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/stats/get`, {
+		method: 'put',
 		credentials: 'same-origin',
 		headers: {
 			'X-WP-Nonce': window.Initial_State.WP_API_nonce,
 			'Content-type': 'application/json'
-		}
+		},
+		body: JSON.stringify( {
+			'range': range
+		} )
 	} )
 		.then( checkStatus ).then( response => response.json() ),
 	getPluginUpdates: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/updates/plugins`, {
