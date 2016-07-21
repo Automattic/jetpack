@@ -128,12 +128,6 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 	function test_schedules_regular_sync() {
 		$timestamp = wp_next_scheduled( 'jetpack_sync_cron' );
-		error_log( '$timestamp:' );
-		error_log( $timestamp );
 		$this->assertTrue( $timestamp > time()-5 );
-	}
-
-	function test_do_cron_sync_sends_until_buffer_empty_or_one_min() {
-		// TODO
 	}
 }
