@@ -31,6 +31,7 @@ fi
 echo ""
 
 echo "Building Jetpack"
+npm run distclean
 npm run build
 echo "Done"
 
