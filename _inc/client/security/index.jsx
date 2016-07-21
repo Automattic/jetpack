@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
+import SimpleNotice from 'components/notice';
 
 /**
  * Internal dependencies
@@ -32,7 +33,16 @@ import {
 	getSitePlan,
 	isFetchingSiteData
 } from 'state/site';
+import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import {
+	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
+	getVaultPressData as _getVaultPressData
+} from 'state/at-a-glance';
 import { isUnavailableInDevMode } from 'state/connection';
+import QueryAkismetData from 'components/data/query-akismet-data';
+import {
+	getAkismetData as _getAkismetData
+} from 'state/at-a-glance';
 
 export const Page = ( props ) => {
 	let {
@@ -66,6 +76,37 @@ export const Page = ( props ) => {
 			let pluginSlug = 'scan' === element[0] || 'backups' === element[0] ?
 				'vaultpress' :
 				'akismet';
+
+			let vpData = props.getVaultPressData();
+
+			if ( 'N/A' !== vpData && 'scan' === element[0] ) {
+				if ( 0 !== props.getScanThreats() ) {
+					return(
+						<SimpleNotice
+							showDismiss={ false }
+							status='is-error'
+							isCompact={ true }
+						>
+							{ __( 'Threats found!' ) }
+						</SimpleNotice>
+					);
+				}
+			}
+
+			if ( 'akismet' === element[0] ) {
+				const akismetData = props.getAkismetData();
+				if ( akismetData === 'invalid_key' ) {
+					return(
+						<SimpleNotice
+							showDismiss={ false }
+							status='is-warning'
+							isCompact={ true }
+						>
+							{ __( 'Invalid Key' ) }
+						</SimpleNotice>
+					);
+				}
+			}
 
 			if ( false !== getSitePlan() ) {
 				if ( active && installed ) {
@@ -141,6 +182,8 @@ export const Page = ( props ) => {
 		<div>
 			<QuerySite />
 			<QuerySitePlugins />
+			<QueryVaultPressData />
+			<QueryAkismetData />
 			{ cards }
 		</div>
 	);
@@ -163,7 +206,10 @@ export default connect(
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
 			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			getSitePlan: () => getSitePlan( state ),
-			isFetchingSiteData: isFetchingSiteData( state )
+			isFetchingSiteData: isFetchingSiteData( state ),
+			getScanThreats: () => _getVaultPressScanThreatCount( state ),
+			getVaultPressData: () => _getVaultPressData( state ),
+			getAkismetData: () => _getAkismetData( state ),
 		};
 	},
 	( dispatch ) => {
