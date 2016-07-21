@@ -186,7 +186,9 @@ class Jetpack_Sync_Sender {
 	}
 
 	private function schedule_sync( $when ) {
-		wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
+		if ( ! wp_next_scheduled( 'jetpack_sync_actions' ) ) {
+			wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
+		}
 	}
 
 	function get_sync_queue() {
