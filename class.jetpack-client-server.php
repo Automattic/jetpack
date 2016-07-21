@@ -124,7 +124,7 @@ class Jetpack_Client_Server {
 
 		$redirect_on_activation_error = ( 'client' === $data['auth_type'] ) ? true : false;
 		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
-			Jetpack_Options::delete_option( 'active_modules' );
+			Jetpack::delete_active_modules();
 
 			Jetpack::activate_default_modules( 999, 1, $active_modules, $redirect_on_activation_error );
 		} else {

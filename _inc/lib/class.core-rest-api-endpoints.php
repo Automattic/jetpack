@@ -833,7 +833,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 					// Reset to default modules
 					$default_modules = Jetpack::get_default_modules();
-					Jetpack_Options::update_option( 'active_modules', $default_modules );
+					Jetpack::update_active_modules( $default_modules );
 
 					// Jumpstart option is special
 					Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
@@ -845,8 +845,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 				case 'modules':
 					$default_modules = Jetpack::get_default_modules();
-					Jetpack_Options::update_option( 'active_modules', $default_modules );
-
+					Jetpack::update_active_modules( $default_modules );
 					return rest_ensure_response( array(
 						'code' 	  => 'success',
 						'message' => esc_html__( 'Modules reset to default.', 'jetpack' ),
