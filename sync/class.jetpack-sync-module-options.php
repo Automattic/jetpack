@@ -25,6 +25,8 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_enqueue_deleted_option', $whitelist_option_handler );
 		add_filter( 'jetpack_sync_before_enqueue_added_option', $whitelist_option_handler );
 		add_filter( 'jetpack_sync_before_enqueue_updated_option', $whitelist_option_handler );
+
+		add_action( 'switch_theme', array( $this, 'set_defaults' ) );
 	}
 
 	public function init_before_send() {

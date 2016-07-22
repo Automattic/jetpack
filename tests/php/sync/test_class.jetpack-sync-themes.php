@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$themes      = array( 'twentyten', 'twentyeleven', 'twentytwelve', 'thwentythirteen', 'twentyfourteen' );
+		$themes      = array( 'twentyten', 'twentyeleven', 'twentytwelve', 'twentythirteen', 'twentyfourteen' );
 		$this->theme = $themes[ rand( 0, 4 ) ];
 
 		switch_theme( $this->theme );

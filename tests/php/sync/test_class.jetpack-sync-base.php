@@ -54,9 +54,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	public function setSyncClientDefaults() {
 		$this->sender->set_defaults();
-		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module->set_defaults();
-		}
+		Jetpack_Sync_Modules::set_defaults();
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
 		$this->sender->set_sync_wait_time( 0 ); // disable rate limiting
 	}
