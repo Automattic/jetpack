@@ -57,7 +57,9 @@
 	position: relative;
 	padding: em(18px, 28px) em(50px, 46px) em(15px, 28px);
 	color: #fff;
-	font: 400 20px/1 Helvetica, sans-serif; // 28/14
+	font-weight: 400;
+	font-size: 20px;
+	line-height: 1;
 	background: #518d2a;
 	z-index: 3;
 	border-radius: 6px;
