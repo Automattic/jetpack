@@ -30,7 +30,6 @@ export function connectModuleOptions( Component ) {
 				validValues: ( option_name ) => getModuleOptionValidValues( state, ownProps.module.module, option_name ),
 				getOptionCurrentValue: ( module_name, option_name ) => getModuleOption( state, module_name, option_name ),
 				enabled: getModuleOption( state, ownProps.module.module, ownProps.option_name ),
-				getModuleOption: ( module_slug ) => getModuleOption( state, module_slug, module_name ),
 				getSiteRoles: () => getSiteRoles( state ),
 				isToggling: false,
 				isUpdating: ( option_name ) => isUpdatingModuleOption( state, ownProps.module.module, option_name )
