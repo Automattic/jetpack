@@ -9,6 +9,9 @@ import assign from 'lodash/assign';
  */
 import {
 	STATS_SWITCH_TAB,
+	STATS_DATA_FETCH,
+	STATS_DATA_FETCH_FAIL,
+	STATS_DATA_FETCH_SUCCESS,
 	AKISMET_DATA_FETCH,
 	AKISMET_DATA_FETCH_FAIL,
 	AKISMET_DATA_FETCH_SUCCESS,
@@ -28,6 +31,8 @@ import {
 
 const requests = ( state = {}, action ) => {
 	switch ( action.type ) {
+		case STATS_DATA_FETCH:
+			return assign( {}, state, { fetchingStatsData: true } );
 		case AKISMET_DATA_FETCH:
 			return assign( {}, state, { fetchingAkismetData: true } );
 		case MONITOR_LAST_DOWNTIME_FETCH:
@@ -39,6 +44,8 @@ const requests = ( state = {}, action ) => {
 		case PLUGIN_UPDATES_FETCH:
 			return assign( {}, state, { fetchingPluginUpdates: true } );
 
+		case STATS_DATA_FETCH_FAIL:
+		case STATS_DATA_FETCH_SUCCESS:
 		case AKISMET_DATA_FETCH_FAIL:
 		case AKISMET_DATA_FETCH_SUCCESS:
 		case MONITOR_LAST_DOWNTIME_FETCH_FAIL:
@@ -50,6 +57,7 @@ const requests = ( state = {}, action ) => {
 		case PLUGIN_UPDATES_FETCH_FAIL:
 		case PLUGIN_UPDATES_FETCH_SUCCESS:
 			return assign( {}, state, {
+				fetchingStatsData: false,
 				fetchingAkismetData: false,
 				fetchingMonitorData: false,
 				fetchingVaultPressData: false,
@@ -66,6 +74,15 @@ const activeStatsTab = ( state = 'day', action ) => {
 	switch ( action.type ) {
 		case STATS_SWITCH_TAB:
 			return action.activeStatsTab;
+		default:
+			return state;
+	}
+};
+
+const statsData = ( state = 'N/A', action ) => {
+	switch ( action.type ) {
+		case STATS_DATA_FETCH_SUCCESS:
+			return action.statsData;
 		default:
 			return state;
 	}
@@ -126,6 +143,7 @@ export const dashboard = combineReducers( {
 	protectCount,
 	lastDownTime,
 	vaultPressData,
+	statsData,
 	akismetData,
 	pluginUpdates
 } );
@@ -138,6 +156,26 @@ export const dashboard = combineReducers( {
  */
 export function getActiveStatsTab( state ) {
 	return state.jetpack.dashboard.activeStatsTab;
+}
+
+/**
+ * Returns true if currently requesting Stats data.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean}        Whether Stats data is being requested
+ */
+export function isFetchingStatsData( state ) {
+	return !! state.jetpack.dashboard.requests.fetchingStatsData;
+}
+
+/**
+ * Returns object with Stats data.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Object} 		Stats data.
+ */
+export function getStatsData( state ) {
+	return state.jetpack.dashboard.statsData;
 }
 
 /**

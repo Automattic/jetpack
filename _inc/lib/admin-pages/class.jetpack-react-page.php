@@ -159,9 +159,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 		// Enqueue jp.js and localize it
-		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
-		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
-		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), time() );
+		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
+		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 
 		$localeSlug = explode( '_', get_locale() );
 		$localeSlug = $localeSlug[0];
@@ -200,7 +200,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
 			'adminUrl' => esc_url( admin_url() ),
 			'stats' => array(
-				'data' => build_initial_stats_shape(),
+				// data is populated asynchronously on page load
+				'data'  => false,
 				'roles' => $stats_roles,
 			),
 			'settingNames' => array(
@@ -219,19 +220,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			),
 		) );
 	}
-}
-
-function build_initial_stats_shape() {
-	if ( ! function_exists( 'stats_get_from_restapi' ) ) {
-		require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
-	}
-
-	return array(
-		'general' => stats_get_from_restapi(),
-		'day' => stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' ),
-		'week' => stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' ),
-		'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
-	);
 }
 
 /*

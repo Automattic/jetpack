@@ -188,6 +188,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
+		// Stats: get stats from WPCOM
+		register_rest_route( 'jetpack/v4', '/module/stats/get', array(
+			'methods'  => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::site_get_stats_data',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+		) );
+
 		// Akismet: get spam count
 		register_rest_route( 'jetpack/v4', '/akismet/stats/get', array(
 			'methods'  => WP_REST_Server::READABLE,
@@ -2419,6 +2426,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|float|int|string
 	 */
 	public static function cast_value( $value, $definition ) {
+		if ( $value === 'NULL' ) {
+			return null;
+		}
+
 		if ( isset( $definition['type'] ) ) {
 			switch ( $definition['type'] ) {
 				case 'boolean':
@@ -2485,6 +2496,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'post-by-email':
 				$post_by_email = new Jetpack_Post_By_Email();
 				$value = $post_by_email->get_post_by_email_address();
+				if ( $value === null ) {
+					$value = 'NULL'; // sentinel value so it actually gets set
+				}
 				break;
 		}
 
@@ -2533,6 +2547,32 @@ class Jetpack_Core_Json_Api_Endpoints {
 		} else {
 			return $status->get_error_code();
 		}
+	}
+
+	/**
+	 * Get stats data for this site
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $date Date range to restrict results to.
+	 * }
+	 *
+	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
+	 */
+	public static function site_get_stats_data( WP_REST_Request $data ) {
+		if ( ! function_exists( 'stats_get_from_restapi' ) ) {
+			require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
+		}
+
+		return rest_ensure_response( array(
+			'general' => stats_get_from_restapi(),
+			'day' => stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' ),
+			'week' => stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' ),
+			'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
+		) );
 	}
 
 	/**

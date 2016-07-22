@@ -4,6 +4,9 @@
 import restApi from 'rest-api';
 import {
 	STATS_SWITCH_TAB,
+	STATS_DATA_FETCH,
+	STATS_DATA_FETCH_FAIL,
+	STATS_DATA_FETCH_SUCCESS,
 	AKISMET_DATA_FETCH,
 	AKISMET_DATA_FETCH_FAIL,
 	AKISMET_DATA_FETCH_SUCCESS,
@@ -26,6 +29,25 @@ export const statsSwitchTab = ( tab ) => {
 		dispatch( {
 			type: STATS_SWITCH_TAB,
 			activeStatsTab: tab
+		} );
+	}
+};
+
+export const fetchStatsData = () => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: STATS_DATA_FETCH
+		} );
+		return restApi.getStatsData().then( statsData => {
+			dispatch( {
+				type: STATS_DATA_FETCH_SUCCESS,
+				statsData: statsData
+			} );
+		} )['catch']( error => {
+			dispatch( {
+				type: STATS_DATA_FETCH_FAIL,
+				error: error
+			} );
 		} );
 	}
 }
