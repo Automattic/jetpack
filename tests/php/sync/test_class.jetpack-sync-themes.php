@@ -35,6 +35,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			'site-logo'
 		);
 
+		// this forces theme mods to be saved as an option so that this test is valid
+		set_theme_mod( 'foo', 'bar' );
+		$this->sender->do_sync();
+
 		foreach ( $theme_features as $theme_feature ) {
 			$synced_theme_support_value = $this->server_replica_storage->current_theme_supports( $theme_feature );
 			$this->assertEquals( current_theme_supports( $theme_feature ), $synced_theme_support_value, 'Feature(s) not synced' . $theme_feature );
