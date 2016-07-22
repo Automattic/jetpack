@@ -49,7 +49,7 @@ export const EngagementModulesSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
+						<a href={ module.configure_url }>{ __( 'Settings' ) }</a>
 					</div>
 				);
 		}
@@ -71,7 +71,7 @@ export const SecurityModulesSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
+						<a href={ module.configure_url }>{ __( 'Settings' ) }</a>
 					</div>
 				);
 		}
@@ -98,7 +98,7 @@ export const AppearanceModulesSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
+						<a href={ module.configure_url }>{ __( 'Settings' ) }</a>
 					</div>
 				);
 		}
@@ -124,7 +124,7 @@ export const WritingModulesSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<a href={ module.configure_url }>{ __( 'Link to old settings' ) }</a>
+						<a href={ module.configure_url }>{ __( 'Settings' ) }</a>
 					</div>
 				);
 		}
