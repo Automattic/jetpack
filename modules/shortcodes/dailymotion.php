@@ -194,7 +194,7 @@ function dailymotion_shortcode( $atts ) {
 	$output = '';
 
 	if ( preg_match( '/^[A-Za-z0-9]+$/', $id ) ) {
-		$output .= '<iframe width="' . esc_attr($width) . '" height="' . esc_attr($height) . '" src="' . esc_url( $video_url ) . '" style="border:0;" allowfullscreen></iframe>';
+		$output .= '<iframe width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" src="' . esc_url( $video_url ) . '" style="border:0;" allowfullscreen></iframe>';
 
 		if ( array_key_exists( 'video', $atts ) && $video = preg_replace( '/[^-a-z0-9_]/i', '', $atts['video'] ) && array_key_exists( 'title', $atts ) && $title = wp_kses( $atts['title'], array() ) ) {
 			$output .= '<br /><strong><a href="' . esc_url( 'http://www.dailymotion.com/video/' . $video ) . '" target="_blank">' . esc_html( $title ) . '</a></strong>';
