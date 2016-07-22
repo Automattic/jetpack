@@ -146,14 +146,18 @@ const DashStats = React.createClass( {
 							} )
 						}
 					</div>
-					<div className="jp-at-a-glance__stats-inactive-button">
-						<Button
-							onClick={ this.props.activateStats }
-							primary={ true }
-						>
-							{ __( 'Activate Site Statistics' ) }
-						</Button>
-					</div>
+						{
+							isDevMode( this.props ) ? '' : (
+								<div className="jp-at-a-glance__stats-inactive-button">
+									<Button
+										onClick={ this.props.activateStats }
+										primary={ true }
+									>
+										{ __( 'Activate Site Statistics' ) }
+									</Button>
+								</div>
+							)
+						}
 				</div>
 			);
 		}
