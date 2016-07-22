@@ -23,7 +23,7 @@ export const ModuleSettingCheckbox = React.createClass( {
 					checked={ props.getOptionValue( props.name ) }
 					value={ props.getOptionValue( props.name ) }
 					disabled={ props.isUpdating( props.name ) }
-					onChange= { props.onOptionChange} />
+					onChange= { props.onOptionChange } />
 				<span>{ ( props.label ) }</span>
 			</FormLabel>
 		);
