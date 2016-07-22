@@ -101,6 +101,25 @@ export let RelatedPostsSettings = React.createClass( {
 	}
 } );
 
+export let LikesSettings = React.createClass( {
+	render() {
+		return (
+			<form onSubmit={ this.props.onSubmit } >
+				<FormFieldset>
+					<FormLegend> { __( 'WordPress.com Likes are:' ) }</FormLegend>
+					<ModuleSettingRadios
+						name={ 'wpl_default' }
+						{ ...this.props }
+						validValues={ this.props.validValues( 'wpl_default' ) } />
+				</FormFieldset>
+				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+			</form>
+		)
+	}
+} );
+
+LikesSettings = ModuleSettingsForm( LikesSettings );
+
 RelatedPostsSettings = ModuleSettingsForm( RelatedPostsSettings );
 
 export let CommentsSettings = React.createClass( {
