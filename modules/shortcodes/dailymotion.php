@@ -201,7 +201,8 @@ function dailymotion_shortcode( $atts ) {
 		}
 
 		if ( array_key_exists( 'user', $atts ) && $user = preg_replace( '/[^-a-z0-9_]/i', '', $atts['user'] ) ) {
-			$output .= '<br /><em>' . esc_html__( 'Uploaded by', 'jetpack' ) . ' <a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a></em>';
+			/* translators: %s is a Dailymotion user name */
+			$output .= '<br /><em>' . wp_kses( sprintf( __( 'Uploaded by %s', 'jetpack' ), '<a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a>' ), array( 'a' => array( 'href' => true, 'target' => true ) ) ) . '</em>';			
 		}
 	}
 
