@@ -5361,13 +5361,13 @@ p {
 		}
 		$known_staging = array(
 			'urls' => array(
-				'#\.staging\.wpengine\.com$#i',
+				'#\.staging\.wpengine\.com$#i', // WP Engine
 				),
 			'constants' => array(
-				'IS_WPE_SNAPSHOT',
-				'KINSTA_DEV_ENV',
-				'WPSTAGECOACH_STAGING',
-				'JETPACK_STAGING_MODE',
+				'IS_WPE_SNAPSHOT',      // WP Engine
+				'KINSTA_DEV_ENV',       // Kinsta.com
+				'WPSTAGECOACH_STAGING', // WP Stagecoach
+				'JETPACK_STAGING_MODE', // Generic
 				)
 			);
 		/**
