@@ -34,9 +34,6 @@ export function connectModuleOptions( Component ) {
 			}
 		},
 		( dispatch, ownProps ) => ( {
-			toggleOption: ( option_name, currentValue ) => {
-				return dispatch( updateModuleOption( ownProps.module.module, option_name, ! currentValue ) );
-			},
 			updateOptions: ( newOptions ) => {
 				return dispatch( updateModuleOptions( ownProps.module.module, newOptions ) );
 			},
