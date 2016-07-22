@@ -473,3 +473,21 @@ export let AfterTheDeadlineSettings = React.createClass( {
 } );
 
 AfterTheDeadlineSettings = ModuleSettingsForm( AfterTheDeadlineSettings );
+
+export let MarkdownSettings = React.createClass( {
+	render() {
+		return (
+			<form onSubmit={ this.props.onSubmit } >
+				<FormFieldset>
+					<ModuleSettingCheckbox
+						name={ 'wpcom_publish_comments_with_markdown' }
+						{ ...this.props }
+						label={ __( 'Use Markdown for comments' ) } />
+				</FormFieldset>
+				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+			</form>
+		)
+	}
+} );
+
+MarkdownSettings = ModuleSettingsForm( MarkdownSettings );
