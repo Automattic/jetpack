@@ -65,7 +65,7 @@ const PlanBody = React.createClass( {
 						<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense and brute-force login protection - all in one place and optimized for WordPress.' ) }</p>
 
 						<h3>{ __( 'Lock out the bad guys' ) }</h3>
-						<p>{ __( 'Bulletproof spam filtering protects your brand, your readers, and improves SEO. Brute force login protection helps maintain peace of mind and keeps your backend safe from intruders.' ) }</p>
+						<p>{ __( 'Bulletproof spam filtering protects your brand, your readers, and improves SEO. Brute force login protection helps maintain peace of mind and keeps your back end safe from intruders.' ) }</p>
 
 						<h3>{ __( 'Enjoy priority support' ) }</h3>
 						<p>{ __( 'Need help? A Happiness Engineer can answer questions about your site, your account or how to do about anything.' ) }</p>
