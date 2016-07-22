@@ -52,6 +52,17 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		// theme name and options should be whitelisted as a synced option
 		$this->assertEquals( $this->theme, $this->server_replica_storage->get_option( 'stylesheet' ) );
-		$this->assertEquals( get_option( 'theme_mods_' . $this->theme ), $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
+
+		$local_value = get_option( 'theme_mods_' . $this->theme );
+		$remote_value = $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme );
+		
+		if ( isset( $local_value[0] ) ) {
+			// this is a spurious value that sometimes gets set during tests, and is
+			// actively removed before sending to WPCOM
+			// it appears to be due to a bug which sets array( false ) as the default value for theme_mods
+			unset( $local_value[0] );
+		}
+
+		$this->assertEquals( $local_value, $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
 	}
 }
