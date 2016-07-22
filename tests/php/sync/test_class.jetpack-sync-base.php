@@ -126,6 +126,8 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 	function test_schedules_regular_sync() {
 		$timestamp = wp_next_scheduled( 'jetpack_sync_cron' );
+		error_log("next cron: ".$timestamp);
+		error_log("current time: ".time());
 		// we need to check a while in the past because the task got scheduled at 
 		// the beginning of the entire test run, not at the beginning of this test :)
 		$this->assertTrue( $timestamp > time()-HOUR_IN_SECONDS );
