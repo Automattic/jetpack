@@ -47,9 +47,13 @@ const PlanHeader = React.createClass( {
 				);
 				planCard = (
 					<div className="jp-jetpack-landing__plan-card">
-						<img src={ imagePath + '/plans/free-plan-icon.jpg' } className="jp-jetpack-landing__plan-icon" />
-						<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Your site is on the Free Jetpack Plan' ) }</h3>
-						<p className="jp-jetpack-landing__plan-features-text">{ __( 'Upgrade to Premium or Pro in order to unlock world class security, anti-spam tools, and priority support.' ) }</p>
+						<div className="jp-jetpack-landing__plan-card-img">
+							<img src={ imagePath + '/plans/free-plan-icon.jpg' } className="jp-jetpack-landing__plan-icon" />
+						</div>
+						<div className="jp-jetpack-landing__plan-card-current">
+							<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Your site is on the Free Jetpack Plan' ) }</h3>
+							<p className="jp-jetpack-landing__plan-features-text">{ __( 'Upgrade to Premium or Pro in order to unlock world class security, anti-spam tools, and priority support.' ) }</p>
+						</div>
 					</div>
 				);
 				break;
@@ -58,9 +62,13 @@ const PlanHeader = React.createClass( {
 			case 'jetpack_premium_monthly':
 				planCard = (
 					<div className="jp-jetpack-landing__plan-card">
-						<img src={ imagePath + '/plans/premium-plan-icon.jpg' } className="jp-jetpack-landing__plan-icon" />
-						<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Your site is on the Premium Jetpack Plan' ) }</h3>
-						<p className="jp-jetpack-landing__plan-features-text">{ __( 'Unlock the full potential of your site with the premium features included in your plan.' ) }</p>
+						<div className="jp-jetpack-landing__plan-card-img">
+							<img src={ imagePath + '/plans/premium-plan-icon.jpg' } className="jp-jetpack-landing__plan-icon" />
+						</div>
+						<div className="jp-jetpack-landing__plan-card-current">
+							<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Your site is on the Premium Jetpack Plan' ) }</h3>
+							<p className="jp-jetpack-landing__plan-features-text">{ __( 'Unlock the full potential of your site with the premium features included in your plan.' ) }</p>
+						</div>
 					</div>
 				);
 				break;
@@ -69,9 +77,13 @@ const PlanHeader = React.createClass( {
 			case 'jetpack_business_monthly':
 				planCard = (
 					<div className="jp-jetpack-landing__plan-card">
-						<img src={ imagePath + '/plans/pro-plan-icon.jpg' } className="jp-jetpack-landing__plan-icon" />
-						<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Your site is on the Professional Jetpack Plan' ) }</h3>
-						<p className="jp-jetpack-landing__plan-features-text">{ __( 'Unlock the full potential of your site with the professional features included in your plan.' ) }</p>
+						<div className="jp-jetpack-landing__plan-card-img">
+							<img src={ imagePath + '/plans/pro-plan-icon.jpg' } className="jp-jetpack-landing__plan-icon" />
+						</div>
+						<div className="jp-jetpack-landing__plan-card-current">
+							<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Your site is on the Professional Jetpack Plan' ) }</h3>
+							<p className="jp-jetpack-landing__plan-features-text">{ __( 'Unlock the full potential of your site with the professional features included in your plan.' ) }</p>
+						</div>
 					</div>
 				);
 				break;
@@ -79,9 +91,13 @@ const PlanHeader = React.createClass( {
 			case 'dev':
 				planCard = (
 					<div className="jp-jetpack-landing__plan-card">
-						<img src={ imagePath + '/plans/free-plan-icon.jpg' } className="jp-jetpack-landing__plan-icon" />
-						<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Your site is on Development Mode' ) }</h3>
-						<p className="jp-jetpack-landing__plan-features-text">{ __( 'Once you connect, you can upgrade to Premium or Pro in order to unlock worldclass security, anti-spam tools, and priority support.' ) }</p>
+						<div className="jp-jetpack-landing__plan-card-img">
+							<img src={ imagePath + '/plans/free-plan-icon.jpg' } className="jp-jetpack-landing__plan-icon" />
+						</div>
+						<div className="jp-jetpack-landing__plan-card-current">
+							<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Your site is on Development Mode' ) }</h3>
+							<p className="jp-jetpack-landing__plan-features-text">{ __( 'Once you connect, you can upgrade to Premium or Pro in order to unlock worldclass security, anti-spam tools, and priority support.' ) }</p>
+						</div>
 					</div>
 				);
 				break;

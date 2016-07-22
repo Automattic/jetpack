@@ -33,6 +33,11 @@
 
 .jp-jetpack-landing__plan-card {
 
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+	}
+
 	@include breakpoint( ">480px" ) {
 		padding: rem( 32px );
 	}
@@ -45,12 +50,8 @@
 	.jp-jetpack-landing__plan-features-text {		
 		padding: 0;
 
-		@include breakpoint( ">480px" ) {
-			padding-left: rem( 100px );
-		}
-
 		@include breakpoint( ">660px" ) {
-			padding-left: rem( 160px );
+		padding-left: rem( 32px );
 		}
 	}
 
@@ -59,15 +60,22 @@
 	}
 }
 
-.jp-jetpack-landing__plan-icon {
-	float: left;
-	width: rem( 120px ); // replace this png with svg
+.jp-jetpack-landing__plan-card-img {
 
 	@include breakpoint( "<660px" ) {
-		width: rem( 80px );
+		float: right;
+		margin: 0 0 rem( 32px ) rem( 32px );
 	}
 
 	@include breakpoint( "<480px" ) {
 		display: none;
+	}
+}
+
+.jp-jetpack-landing__plan-icon {
+	width: rem( 120px ); // replace this png with svg
+
+	@include breakpoint( "<660px" ) {
+		width: rem( 100px );
 	}
 }
