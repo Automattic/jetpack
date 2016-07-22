@@ -1010,7 +1010,7 @@ class Jetpack_SSO {
 		$error = sprintf(
 			wp_kses(
 				__(
-					'Two-Step Authentication is required to access this site. Please visit your <a href="%1$s" target="_blank">Security Settings</a> to configure <a href="%2$S" target="_blank">Two-step Authentication</a> for your account.',
+					'Two-Step Authentication is required to access this site. Please visit your <a href="%1$s" target="_blank">Security Settings</a> to configure <a href="%2$s" target="_blank">Two-step Authentication</a> for your account.',
 					'jetpack'
 				),
 				array(  'a' => array( 'href' => array() ) )
