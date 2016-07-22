@@ -1334,7 +1334,7 @@ class Jetpack {
 		if ( ! $user_id ) {
 			return false;
 		}
-		
+
 		return (bool) Jetpack_Data::get_access_token( $user_id );
 	}
 
@@ -6138,7 +6138,7 @@ p {
 	}
 
 	/**
-	 * This methods removes all of the registered css files on the frontend
+	 * This methods removes all of the registered css files on the front end
 	 * from Jetpack in favor of using a single file. In effect "imploding"
 	 * all the files into one file.
 	 *

@@ -105,7 +105,7 @@ class Jetpack_RelatedPosts {
 	}
 
 	/**
-	 * Load related posts assets if it's a elegiable frontend page or execute search and return JSON if it's an endpoint request.
+	 * Load related posts assets if it's a elegiable front end page or execute search and return JSON if it's an endpoint request.
 	 *
 	 * @global $_GET
 	 * @action wp

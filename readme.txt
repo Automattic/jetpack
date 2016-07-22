@@ -218,7 +218,7 @@ Bug Fixes:
 * We accidentally removed the ability for Open Graph to select images from slideshows, it’s up and running again.
 * There was an issue where Open Graph meta tags weren’t being set when your homepage is a “Static Front Page”, it’s working again.
 * In rare cases when developers were customizing Photon they were seeing a PHP notice when arguments were passed as a string rather than an array. This has been fixed.
-* We’ve fixed an issue where Protect’s backup math form wasn’t showing on custom frontend login forms.
+* We’ve fixed an issue where Protect’s backup math form wasn’t showing on custom front end login forms.
 * When setting up WooCommerce you might have seen a Related Posts notice which didn’t belong. We’ve eliminated them.
 * If you’ve been using our sharing tool with unofficial sharing buttons you might have noticed your sharing numbers were missing. They’re now back.
 * In unique situations where special characters were used in sitemap stylesheets an error would occur; that has been remedied.
