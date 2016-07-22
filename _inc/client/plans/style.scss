@@ -1,14 +1,117 @@
-.jp-jetpack-landing__plans {
+.jp-landing__plans.dops-card {
+	padding: 0;
+}
+
+.jp-landing-plans__header {
+	background: $gray-dark url( '../../images/jp-4/particles_bg-white.png' );
+
+	@include breakpoint( ">660px" ) {
+		padding: rem( 32px ) 0 0;
+	}
+
 	@include breakpoint( "<660px" ) {
-		padding: rem( 16px );
+		padding: rem( 32px );
+	}
+
+	.dops-button {
+		margin-right: 10px;
 	}
 }
 
-.jp-jetpack-landing__plan-features-card {
+.jp-landing-plans__header-img-container {
+	margin: rem( 32px ) 0 0;
+	overflow: hidden;
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+		flex-direction: row;
+		align-items: center;
+		background: transparent url('../../images/jp-4/white-clouds.svg') 50% 100% no-repeat;
+		background-size: 110%; // safari bug
+		padding-bottom: rem( 64px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		margin-bottom: 0;
+	}
+}
+
+.jp-landing-plans__header-img {
+	margin: 0 rem( -32px ) 0 rem( 32px );
+	max-width: 100%; // needs proper srcsets
+}
+
+.jp-landing-plans__header-col-left {
+	flex-basis: 60%;
+
+	@include breakpoint( ">660px" ) {
+		padding-left: rem( 32px );
+	}
+}
+
+.jp-landing-plans__header-col-right {
+	flex-basis: 40%;
+
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+
+.jp-landing-plans__header-title, 
+.jp-landing-plans__header-description {
+	line-height: 1.5;
+
+	@include breakpoint( ">660px" ) {
+		text-align: center;
+	}
+}
+
+.jp-landing-plans__header-title,
+.jp-landing-plans__header-subtitle {
+	color: $white;
+	font-weight: 400;
+	margin: 0;
+}
+
+.jp-landing-plans__header-title {
+	font-size: rem( 20px );
+}
+
+.jp-landing-plans__header-description {
+	font-size: rem( 14px );
+	margin: 0;
+}
+
+.jp-landing-plans__header-subtitle {
+	font-size: rem( 16px );
+}
+
+.jp-landing-plans__header-description,
+.jp-landing-plans__header-text {
+	color: lighten($gray, 10%);
+}
+
+.jp-landing-plans__header-text {
+	font-size: rem( 14px );
+}
+
+.jp-landing-plans__header-btn-container {
+	margin: rem( 16px ) 0 0;
+}
+
+.jp-landing__plan-features-card {
 	box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
 		0 1px 2px lighten( $gray, 30% );
 	border-radius: 3px;
-	margin-bottom: rem( 32px );
+
+	@include breakpoint( ">660px" ) {
+		margin-bottom: rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		margin-bottom: rem( 16px );
+	}
 
 	@include breakpoint( ">480px" ) {
 		padding: rem( 32px );
@@ -23,44 +126,52 @@
 	}
 }
 
-.jp-jetpack-landing__plan-features-title {
+.jp-landing__plan-features-title {
 	margin: 0;
 }
 
-.jp-jetpack-landing__plan-features {
-	padding: rem( 16px );
+.jp-landing__plan-features {
+
+	@include breakpoint( ">660px" ) {
+		padding: rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 16px );
+
+	}
 }
 
-.jp-jetpack-landing__plan-card {
+.jp-landing__plan-card {
 
 	@include breakpoint( ">660px" ) {
 		display: flex;
 		flex-wrap: nowrap;
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoint( ">660px" ) {
 		padding: rem( 32px );
 	}
 
-	@include breakpoint( "<480px" ) {
-		padding: rem( 16px );
+	@include breakpoint( "<660px" ) {
+		padding: rem( 32px ) rem( 32px ) rem( 16px );
 	}
 
-	.jp-jetpack-landing__plan-features-title,
-	.jp-jetpack-landing__plan-features-text {		
+	.jp-landing__plan-features-title,
+	.jp-landing__plan-features-text {		
 		padding: 0;
 
 		@include breakpoint( ">660px" ) {
-		padding-left: rem( 32px );
+			padding-left: rem( 32px );
 		}
 	}
 
-	.jp-jetpack-landing__plan-features-title {
+	.jp-landing__plan-features-title {
 		margin-bottom: rem( 16px );
 	}
 }
 
-.jp-jetpack-landing__plan-card-img {
+.jp-landing__plan-card-img {
 
 	@include breakpoint( "<660px" ) {
 		float: right;
@@ -72,7 +183,7 @@
 	}
 }
 
-.jp-jetpack-landing__plan-icon {
+.jp-landing__plan-icon {
 	width: rem( 120px ); // replace this png with svg
 
 	@include breakpoint( "<660px" ) {

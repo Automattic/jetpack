@@ -21,8 +21,8 @@ const PlanBody = React.createClass( {
 				let needMore = '';
 				if ( [ 'jetpack_premium', 'jetpack_premium_monthly' ].includes( this.props.plan ) ) {
 					needMore = (
-						<div className="jp-jetpack-landing__plan-features-card">
-							<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Need more?' ) }</h3>
+						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Need more?' ) }</h3>
 							<p>{ __( 'Jetpack Professional offers more features.' ) }</p>
 							<p>
 								<Button href={ 'https://wordpress.com/plans/compare/' + window.Initial_State.rawUrl }>
@@ -36,17 +36,17 @@ const PlanBody = React.createClass( {
 					)
 				}
 				planCard = (
-					<div className="jp-jetpack-landing__plan-features">
-						<div className="jp-jetpack-landing__plan-features-card">
-							<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Jetpack Anti-spam' ) }</h3>
+					<div className="jp-landing__plan-features">
+						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Jetpack Anti-spam' ) }</h3>
 							<p>{ __( 'Bulletproof spam filtering help maintain peace of mind while you build and grow your site.' ) }</p>
 							<Button href={ window.Initial_State.adminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
 								{ __( 'View your spam stats' ) }
 							</Button>
 						</div>
 
-						<div className="jp-jetpack-landing__plan-features-card">
-							<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Jetpack Security Scanning & Backups' ) }</h3>
+						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Jetpack Security Scanning & Backups' ) }</h3>
 							<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place.' ) }</p>
 							<Button href={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } className="is-primary">
 								{ __( 'View your security dashboard' ) }
@@ -60,18 +60,18 @@ const PlanBody = React.createClass( {
 			case 'jetpack_free':
 			case 'dev':
 				planCard = (
-					<div className="jp-jetpack-landing__plan-features">
-						<div className="jp-jetpack-landing__plan-features-card">
-							<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Maximum grade security' ) }</h3>
+					<div className="jp-landing__plan-features">
+						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Maximum grade security' ) }</h3>
 							<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense and brute-force login protection - all in one place and optimized for WordPress.' ) }</p>
 						</div>
-						<div className="jp-jetpack-landing__plan-features-card">
-							<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Lock out the bad guys' ) }</h3>
+						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Lock out the bad guys' ) }</h3>
 							<p>{ __( 'Bulletproof spam filtering protects your brand, your readers, and improves SEO. Brute force login protection helps maintain peace of mind and keeps your backend safe from intruders.' ) }</p>
 						</div>
 
-						<div className="jp-jetpack-landing__plan-features-card">
-							<h3 className="jp-jetpack-landing__plan-features-title">{ __( 'Enjoy priority support' ) }</h3>
+						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Enjoy priority support' ) }</h3>
 							<p>{ __( 'Need help? A Happiness Engineer can answer questions about your site, your account or how to do about anything.' ) }</p>
 						</div>
 					</div>

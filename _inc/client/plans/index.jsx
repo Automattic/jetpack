@@ -36,7 +36,7 @@ export const Plans = React.createClass( {
 		return (
 			<div>
 				<QuerySite />
-				<div className="jp-jetpack-landing__plans dops-card">
+				<div className="jp-landing__plans dops-card">
 					<PlanHeader plan={ sitePlan } />
 					<PlanBody plan={ sitePlan } />
 				</div>
