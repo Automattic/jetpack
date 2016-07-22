@@ -138,7 +138,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_publish_posts_with_markdown'    => 'pineapple',
 			'wpcom_publish_comments_with_markdown' => 'pineapple',
 			'jetpack_activated'                    => 'pineapple',
-			'jetpack_active_modules'               => 'pineapple',
 			'jetpack_available_modules'            => 'pineapple',
 			'jetpack_autoupdate_plugins'           => 'pineapple',
 			'jetpack_autoupdate_themes'            => 'pineapple',
