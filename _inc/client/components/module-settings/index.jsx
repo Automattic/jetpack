@@ -103,6 +103,35 @@ export let RelatedPostsSettings = React.createClass( {
 
 RelatedPostsSettings = ModuleSettingsForm( RelatedPostsSettings );
 
+export let CommentsSettings = React.createClass( {
+	render() {
+		return (
+			<form onSubmit={ this.props.onSubmit } >
+				<FormFieldset>
+					<FormLegend>{ __( 'Comments headline: A few catchy words to motivate your readers to comment' ) }</FormLegend>
+					<FormLabel>
+						<FormTextInput
+							name={ 'highlander_comment_form_prompt' }
+							value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
+							disabled={ this.props.isUpdating( 'highlander_comment_form_prompt' ) }
+							onChange={ this.props.onOptionChange} />
+					</FormLabel>
+				</FormFieldset>
+				<FormFieldset>
+					<FormLegend>{ __( 'Color Scheme' ) }</FormLegend>
+					<ModuleSettingRadios
+						name={ 'jetpack_comment_form_color_scheme' }
+						{ ...this.props }
+						validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme' ) } />
+					<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				</FormFieldset>
+			</form>
+		)
+	}
+} );
+
+CommentsSettings = ModuleSettingsForm( CommentsSettings );
+
 export let SubscriptionsSettings = React.createClass( {
 	render() {
 		return (

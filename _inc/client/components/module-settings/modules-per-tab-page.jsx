@@ -10,6 +10,7 @@ import { translate as __ } from 'i18n-calypso';
 import {
 	StatsSettings,
 	RelatedPostsSettings,
+	CommentsSettings,
 	SubscriptionsSettings,
 	SharedaddySettings,
 	ProtectSettings,
@@ -34,6 +35,8 @@ export const EngagementModulesSettings = React.createClass( {
 				return( <StatsSettings module={ module } { ...this.props } /> );
 			case 'related-posts':
 				return ( <RelatedPostsSettings module={ module } { ...this.props } /> );
+			case 'comments':
+				return ( <CommentsSettings module={ module } { ...this.props } /> );
 			case 'subscriptions':
 				return ( <SubscriptionsSettings module={ module } { ...this.props } /> );
 			case 'sharedaddy':
