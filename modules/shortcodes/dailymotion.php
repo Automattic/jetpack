@@ -90,6 +90,19 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
 function dailymotion_shortcode( $atts ) {
 	global $content_width;
 
+	if ( isset( $atts[0] ) ) {
+		$id = ltrim( $atts[0], '=' );
+		$atts['id'] = $id;
+
+	} else {
+		$params = shortcode_new_to_old_params( $atts );
+		parse_str( $params, $atts_new );
+
+		foreach ( $atts_new as $k => $v ) {
+			$atts[ $k ] = $v;
+		}
+	}
+
 	$atts = shortcode_atts(
 		array(
 			'id'                   => '', // string
@@ -110,19 +123,6 @@ function dailymotion_shortcode( $atts ) {
 			'ui-theme'             => '', // string
 		), $atts, 'dailymotion'
 	);
-
-	if ( isset( $atts[0] ) ) {
-		$id = ltrim( $atts[0], '=' );
-		$atts['id'] = $id;
-
-	} else {
-		$params = shortcode_new_to_old_params( $atts );
-		parse_str( $params, $atts_new );
-
-		foreach ( $atts_new as $k => $v ) {
-			$atts[ $k ] = $v;
-		}
-	}
 
 	if ( isset( $atts['id'] ) && ! empty( $atts['id'] ) ) {
 		$id = urlencode( $atts['id'] );
