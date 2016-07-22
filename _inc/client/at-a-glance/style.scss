@@ -258,6 +258,10 @@
 
 	@include breakpoint( ">660px" ) {
 		margin-right: rem( 16px );
+
+		&:last-child {
+			flex-basis: calc( 50% - .5rem ); // rem function doesn't work in calc()
+		}
 	}
 }
 // end flexbox nesting
