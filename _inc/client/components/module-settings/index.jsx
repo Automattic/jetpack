@@ -383,6 +383,15 @@ export let PostByEmailSettings = React.createClass( {
 	regeneratePostByEmailAddress() {
 		this.props.regeneratePostByEmailAddress();
 	},
+	address() {
+		const currentValue = this.props.getOptionValue( 'post_by_email_address' )
+		// If the module Post-by-email is enabled BUT it's configured as disabled
+		// Its value is set to false
+		if ( currentValue === false ) {
+			return '';
+		}
+		return currentValue;
+	},
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
@@ -390,7 +399,7 @@ export let PostByEmailSettings = React.createClass( {
 					<FormLabel>
 						<span> { __( 'Email Address' ) } </span>
 						<FormTextInput
-							value={ this.props.getOptionValue( 'post_by_email_address' ) }
+							value={ this.address() }
 							readOnly="readonly" />
 						<Button
 							onClick={ this.regeneratePostByEmailAddress } >

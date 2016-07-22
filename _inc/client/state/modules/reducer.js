@@ -166,7 +166,7 @@ export function isUpdatingModuleOption( state, module_slug, option_name ) {
 }
 
 export function getModuleOption( state, module_slug, option_name ) {
-	return get( state.jetpack.modules.items, [ module_slug, 'options', option_name, 'current_value' ], false );
+	return get( state.jetpack.modules.items, [ module_slug, 'options', option_name, 'current_value' ] );
 }
 
 export function getModuleOptionValidValues( state, module_slug, option_name ) {
