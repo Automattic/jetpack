@@ -115,7 +115,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			<?php
 
 			/**
-			 * Fires when an item is displayed on the frontend.
+			 * Fires when an item is displayed on the front end.
 			 *
 			 * Can be used to track stats about the number of displays for a specific item
 			 *

@@ -1173,7 +1173,7 @@ class Jetpack {
 		if ( ! $user_id ) {
 			return false;
 		}
-		
+
 		return (bool) Jetpack_Data::get_access_token( $user_id );
 	}
 
@@ -1184,14 +1184,24 @@ class Jetpack {
 		if ( ! $user_id ) {
 			$user_id = get_current_user_id();
 		}
+
+		$transient_key = "jetpack_connected_user_data_$user_id";
+
+		if ( $cached_user_data = get_transient( $transient_key ) ) {
+			return $cached_user_data;
+		}
+
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => $user_id,
 		) );
 		$xml->query( 'wpcom.getUser' );
 		if ( ! $xml->isError() ) {
-			return $xml->getResponse();
+			$user_data = $xml->getResponse();
+			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
+			return $user_data;
 		}
+
 		return false;
 	}
 
@@ -5722,7 +5732,7 @@ p {
 	}
 
 	/**
-	 * This methods removes all of the registered css files on the frontend
+	 * This methods removes all of the registered css files on the front end
 	 * from Jetpack in favor of using a single file. In effect "imploding"
 	 * all the files into one file.
 	 *
