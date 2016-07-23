@@ -96,6 +96,7 @@ Enhancements:
 * General: we've completely refactored the way information was synchronized between your site and WordPress.com, thus ensuring every module uses information that's up to date.
 * Performance: we've reduced the number of queries typically run on both the front end and the dashboard, to improve overall performance. #4281, #4316
 * Performance: we've improved the way Jetpack queried for information about module data, to execute less queries to get Jetpack options. #4315
+* Staging: Added WP Stagecoach as a known staging site provider so those staging sites will not impact production sites. #4518
 
 = 4.1.1 =
 
