@@ -53,11 +53,11 @@ abstract class Jetpack_Sync_Module {
 			$where_sql = '1 = 1';
 		}
 
-		$items_per_page = 500;
+		$items_per_page = 1000;
 		$page           = 1;
-		$offset         = ( $page * $items_per_page ) - $items_per_page;
 		$chunk_count    = 0;
-		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} ORDER BY {$id_field} asc LIMIT {$offset}, {$items_per_page}" ) ) {
+		$previous_id    = 0;
+		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} > $previous_id ORDER BY {$id_field} ASC LIMIT {$items_per_page}" ) ) {
 			// Request posts in groups of N for efficiency
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
 
@@ -74,7 +74,7 @@ abstract class Jetpack_Sync_Module {
 			}
 
 			$page += 1;
-			$offset = ( $page * $items_per_page ) - $items_per_page;
+			$previous_id = end( $ids );
 		}
 
 		return $chunk_count;

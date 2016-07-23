@@ -39,30 +39,26 @@ class Jetpack_Sync_Sender {
 	}
 
 	private function init() {
-
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->init_before_send();
 		}
+	}
 
-		/**
-		 * Sync all pending actions with server
-		 */
-		add_action( 'jetpack_sync_actions', array( $this, 'do_sync' ) );
+	public function next_sync_time() {
+		$sync_wait = $this->get_sync_wait_time();
+		$last_sync = $this->get_last_sync_time();
+		$next_sync_time = ( $last_sync && $sync_wait ) ? $last_sync + $sync_wait : 0;
+		return $next_sync_time;
 	}
 
 	public function do_sync() {
 		// don't sync if importing
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
-			$this->schedule_sync( '+1 minute' );
-
 			return false;
 		}
 
 		// don't sync if we are throttled
-		$sync_wait = $this->get_sync_wait_time();
-		$last_sync = $this->get_last_sync_time();
-
-		if ( $last_sync && $sync_wait && $last_sync + $sync_wait > microtime( true ) ) {
+		if ( $this->next_sync_time() > microtime( true ) ) {
 			return false;
 		}
 
@@ -96,6 +92,11 @@ class Jetpack_Sync_Sender {
 		$upload_size   = 0;
 		$items_to_send = array();
 		$items         = $buffer->get_items();
+
+		// set up current screen to avoid errors rendering content
+		require_once(ABSPATH . 'wp-admin/includes/class-wp-screen.php');
+		require_once(ABSPATH . 'wp-admin/includes/screen.php');
+		set_current_screen( 'sync' );
 
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
@@ -140,8 +141,6 @@ class Jetpack_Sync_Sender {
 				error_log( 'Error checking in buffer: ' . $processed_item_ids->get_error_message() );
 				$this->sync_queue->force_checkin();
 			}
-			// try again in 1 minute
-			$this->schedule_sync( '+1 minute' );
 		} else {
 			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
 
@@ -156,16 +155,9 @@ class Jetpack_Sync_Sender {
 			do_action( 'jetpack_sync_processed_actions', $processed_items );
 
 			$this->sync_queue->close( $buffer, $processed_item_ids );
-			// check if there are any more events in the buffer
-			// if so, schedule a cron job to happen soon
-			if ( $this->sync_queue->has_any_items() ) {
-				$this->schedule_sync( '+1 minute' );
-			}
 		}
-	}
-
-	private function schedule_sync( $when ) {
-		wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
+		
+		return true;
 	}
 
 	function get_sync_queue() {
@@ -251,7 +243,7 @@ class Jetpack_Sync_Sender {
 		delete_option( 'jetpack_full_sync_status' );
 
 		// clear the sync cron.
-		wp_clear_scheduled_hook( 'jetpack_sync_actions' );
+		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
 
 		// clear the checksum cron
 		wp_clear_scheduled_hook( 'jetpack_send_db_checksum' );

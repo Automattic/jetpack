@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$themes      = array( 'twentyten', 'twentyeleven', 'twentytwelve', 'thwentythirteen', 'twentyfourteen' );
+		$themes      = array( 'twentyten', 'twentyeleven', 'twentytwelve', 'twentythirteen', 'twentyfourteen' );
 		$this->theme = $themes[ rand( 0, 4 ) ];
 
 		switch_theme( $this->theme );
@@ -35,6 +35,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			'site-logo'
 		);
 
+		// this forces theme mods to be saved as an option so that this test is valid
+		set_theme_mod( 'foo', 'bar' );
+		$this->sender->do_sync();
+
 		foreach ( $theme_features as $theme_feature ) {
 			$synced_theme_support_value = $this->server_replica_storage->current_theme_supports( $theme_feature );
 			$this->assertEquals( current_theme_supports( $theme_feature ), $synced_theme_support_value, 'Feature(s) not synced' . $theme_feature );
@@ -48,6 +52,17 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		// theme name and options should be whitelisted as a synced option
 		$this->assertEquals( $this->theme, $this->server_replica_storage->get_option( 'stylesheet' ) );
-		$this->assertEquals( get_option( 'theme_mods_' . $this->theme ), $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
+
+		$local_value = get_option( 'theme_mods_' . $this->theme );
+		$remote_value = $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme );
+		
+		if ( isset( $local_value[0] ) ) {
+			// this is a spurious value that sometimes gets set during tests, and is
+			// actively removed before sending to WPCOM
+			// it appears to be due to a bug which sets array( false ) as the default value for theme_mods
+			unset( $local_value[0] );
+		}
+
+		$this->assertEquals( $local_value, $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
 	}
 }

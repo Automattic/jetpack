@@ -23,25 +23,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $this->action_timestamp < microtime( true ) );
 	}
 
-	function test_queues_cron_job_if_queue_exceeds_max_buffer() {
-		$this->sender->set_dequeue_max_bytes( 500 ); // bytes
-
-		for ( $i = 0; $i < 20; $i += 1 ) {
-			$this->factory->post->create();
-		}
-
-		$this->sender->do_sync();
-
-		$events = $this->server_event_storage->get_all_events();
-		$this->assertTrue( count( $events ) < 20 );
-
-		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
-
-		// we're making some assumptions here about how fast the test will run...
-		$this->assertTrue( $timestamp >= time() + 59 );
-		$this->assertTrue( $timestamp <= time() + 61 );
-	}
-
 	function test_queue_limits_upload_bytes() {
 		// flush previous stuff in queue
 		$this->sender->do_sync();

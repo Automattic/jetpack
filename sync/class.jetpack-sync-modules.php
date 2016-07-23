@@ -52,6 +52,12 @@ class Jetpack_Sync_Modules {
 		return self::$initialized_modules;
 	}
 
+	public static function set_defaults() {
+		foreach ( self::get_modules() as $module ) {
+			$module->set_defaults();
+		}
+	}
+
 	public static function get_module( $module_name ) {
 		foreach ( self::get_modules() as $module ) {
 			if ( $module->name() === $module_name ) {
