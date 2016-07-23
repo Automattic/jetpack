@@ -58,11 +58,23 @@ class Jetpack_Sync_Sender {
 			return false;
 		}
 
+		// Always run `do_sync` on a different process
+		if ( ! defined( 'DOING_CRON' ) || ! DOING_CRON ) {
+			wp_schedule_single_event( time() + 1, 'jetpack_sync_actions' );
+			spawn_cron();
+			return false;
+		}
+
+		if ( ! isset( $this->keep_alive_until ) ) {
+			$this->keep_alive_until = microtime( true ) + MINUTE_IN_SECONDS;
+		}
+
 		// don't sync if we are throttled
 		$sync_wait = $this->get_sync_wait_time();
 		$last_sync = $this->get_last_sync_time();
 
 		if ( $last_sync && $sync_wait && $last_sync + $sync_wait > microtime( true ) ) {
+			$this->schedule_sync( '+1 minute' );
 			return false;
 		}
 
@@ -87,7 +99,6 @@ class Jetpack_Sync_Sender {
 			// buffer has no items
 			return false;
 		}
-
 		if ( is_wp_error( $buffer ) ) {
 			// another buffer is currently sending
 			return false;
@@ -159,13 +170,25 @@ class Jetpack_Sync_Sender {
 			// check if there are any more events in the buffer
 			// if so, schedule a cron job to happen soon
 			if ( $this->sync_queue->has_any_items() ) {
+				if ( microtime( true ) > $this->keep_alive_until ) {
+					// stop process after 1 minute
+
+					wp_schedule_single_event( time() + 1, 'jetpack_sync_actions' );
+					spawn_cron();
+
+					return false;
+				}
+				$this->do_sync();
+			} else {
 				$this->schedule_sync( '+1 minute' );
 			}
 		}
 	}
 
 	private function schedule_sync( $when ) {
-		wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
+		if ( ! wp_next_scheduled( 'jetpack_sync_actions' ) ) {
+			wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
+		}
 	}
 
 	function get_sync_queue() {
