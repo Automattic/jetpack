@@ -24,7 +24,8 @@ import {
 	TiledGallerySettings,
 	PostByEmailSettings,
 	CustomContentTypesSettings,
-	AfterTheDeadlineSettings
+	AfterTheDeadlineSettings,
+	MarkdownSettings
 } from 'components/module-settings/';
 
 export const EngagementModulesSettings = React.createClass( {
@@ -120,9 +121,10 @@ export const WritingModulesSettings = React.createClass( {
 				return( <CustomContentTypesSettings module={ module } { ...this.props } /> );
 			case 'after-the-deadline':
 				return( <AfterTheDeadlineSettings module={ module } { ...this.props } /> );
+			case 'markdown':
+				return( <MarkdownSettings module={ module } { ...this.props } /> );
 			case 'contact-form':
 			case 'latex':
-			case 'markdown':
 			case 'shortlinks':
 			case 'shortcodes':
 				return <span>{ __( 'This module has no configuration options' ) } </span>;
