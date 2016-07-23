@@ -11,6 +11,7 @@ import {
 	StatsSettings,
 	RelatedPostsSettings,
 	CommentsSettings,
+	LikesSettings,
 	SubscriptionsSettings,
 	SharedaddySettings,
 	ProtectSettings,
@@ -44,6 +45,7 @@ export const EngagementModulesSettings = React.createClass( {
 			case 'gravatar-hovercards':
 				return( <GravatarHovercardsSettings module={ module } { ...this.props } /> );
 			case 'likes':
+				return( <LikesSettings module={ module } { ...this.props } /> );
 			case 'notifications':
 			case 'enhanced-distribution':
 				return <span>{ __( 'This module has no configuration options' ) } </span>;
