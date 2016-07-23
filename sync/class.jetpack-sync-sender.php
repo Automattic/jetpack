@@ -94,6 +94,8 @@ class Jetpack_Sync_Sender {
 		$items         = $buffer->get_items();
 
 		// set up current screen to avoid errors rendering content
+		require_once(ABSPATH . 'wp-admin/includes/class-wp-screen.php');
+		require_once(ABSPATH . 'wp-admin/includes/screen.php');
 		set_current_screen( 'sync' );
 
 		// we estimate the total encoded size as we go by encoding each item individually

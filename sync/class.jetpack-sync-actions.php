@@ -172,7 +172,9 @@ class Jetpack_Sync_Actions {
 			// sleep for up to 10s
 			if ( $next_sync_time ) {
 				$delay = $next_sync_time - time() + 1;
-				if ( 0 < $delay && $delay < 10 ) {
+				if ( $delay > 15 ) {
+					break;
+				} elseif ( $delay > 0 ) {
 					sleep( $delay );
 				}
 			}
