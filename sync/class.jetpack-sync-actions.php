@@ -12,9 +12,12 @@ class Jetpack_Sync_Actions {
 
 	static function init() {
 
+		// Add a custom "every minute" cron schedule
+		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
+
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
-		
+
 		// Sync connected user role changes to .com
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
 
@@ -26,11 +29,17 @@ class Jetpack_Sync_Actions {
 		// cron hooks
 		add_action( 'jetpack_sync_send_db_checksum', array( __CLASS__, 'send_db_checksum' ) );
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
+		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
 		add_action( 'jetpack_sync_send_pending_data', array( __CLASS__, 'do_send_pending_data' ) );
 
 		if ( ! wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			// Schedule a job to send DB checksums once an hour
 			wp_schedule_event( time(), 'hourly', 'jetpack_sync_send_db_checksum' );
+		}
+
+		if ( ! wp_next_scheduled( 'jetpack_sync_cron' ) ) {
+			// Schedule a job to send pending queue items once a minute
+			wp_schedule_event( time(), '1min', 'jetpack_sync_cron' );
 		}
 
 		/**
@@ -88,7 +97,7 @@ class Jetpack_Sync_Actions {
 
 	static function sync_allowed() {
 		return ( Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
-		       || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
+			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp ) {
@@ -135,6 +144,46 @@ class Jetpack_Sync_Actions {
 		self::initialize_listener();
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
 		self::do_send_pending_data(); // try to send at least some of the data
+	}
+
+	static function minute_cron_schedule( $schedules ) {
+		if( ! isset( $schedules["1min"] ) ) {
+			$schedules["1min"] = array(
+				'interval' => 60,
+				'display' => __( 'Every minute' ) 
+			);
+		}
+		return $schedules;
+	}
+
+	// try to send actions for up to a minute
+	static function do_cron_sync() {
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		self::initialize_sender();
+
+		$start_time = microtime( true );
+		
+		do {
+			$next_sync_time = self::$sender->next_sync_time();
+			
+			// sleep for up to 10s
+			if ( $next_sync_time ) {
+				$delay = $next_sync_time - time() + 1;
+				if ( $delay > 15 ) {
+					break;
+				} elseif ( $delay > 0 ) {
+					sleep( $delay );
+				}
+			}
+			$result = self::$sender->do_sync();
+		} while ( 
+			$result 
+			&& 
+			microtime( true ) - $start_time < 60 
+		);
 	}
 
 	static function do_send_pending_data() {

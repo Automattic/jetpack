@@ -82,7 +82,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 
 	function ajax_reset_queue() {
 		Jetpack_Sync_Sender::get_instance()->reset_sync_queue();
-		delete_option( Jetpack_Sync_Full::$status_option );
+		delete_option( Jetpack_Sync_Module_Full_Sync::STATUS_OPTION );
 		echo json_encode( array( 'success' => true ) );
 
 		exit;

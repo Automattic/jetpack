@@ -54,9 +54,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	public function setSyncClientDefaults() {
 		$this->sender->set_defaults();
-		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module->set_defaults();
-		}
+		Jetpack_Sync_Modules::set_defaults();
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
 		$this->sender->set_sync_wait_time( 0 ); // disable rate limiting
 	}
@@ -124,5 +122,14 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		$modules = array( 'options', 'network_options', 'functions', 'constants' );
 		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( $modules ) ) > time()-5 );
+	}
+
+	function test_schedules_regular_sync() {
+		// we need to run this again because cron is cleared between tests
+		Jetpack_Sync_Actions::init(); 
+		$timestamp = wp_next_scheduled( 'jetpack_sync_cron' );
+		// we need to check a while in the past because the task got scheduled at 
+		// the beginning of the entire test run, not at the beginning of this test :)
+		$this->assertTrue( $timestamp > time()-HOUR_IN_SECONDS );
 	}
 }

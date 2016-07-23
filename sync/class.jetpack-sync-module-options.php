@@ -34,8 +34,6 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 
 	public function set_defaults() {
 		$this->update_options_whitelist();
-		// theme mod varies from theme to theme.
-		$this->options_whitelist[] = 'theme_mods_' . get_option( 'stylesheet' );
 	}
 
 	function enqueue_full_sync_actions() {
@@ -62,6 +60,12 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 			$options[ $option ] = get_option( $option );
 		}
 
+		// add theme mods
+		$theme_mods_option = 'theme_mods_'.get_option( 'stylesheet' );
+		$theme_mods_value  = get_option( $theme_mods_option );
+		$this->filter_theme_mods( $theme_mods_value );
+		$options[ $theme_mods_option ] = $theme_mods_value;
+
 		return $options;
 	}
 
@@ -84,11 +88,25 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 			return false;
 		}
 
+		// filter our weird array( false ) value for theme_mods_*
+		if ( 'theme_mods_' === substr( $args[0], 0, 11 ) ) {
+			$this->filter_theme_mods( $args[1] );
+			if ( isset( $args[2] ) ) { 
+				$this->filter_theme_mods( $args[2] );
+			}
+		}
+
 		return $args;
 	}
 
 	function is_whitelisted_option( $option ) {
-		return in_array( $option, $this->options_whitelist );
+		return in_array( $option, $this->options_whitelist ) || 'theme_mods_' === substr( $option, 0, 11 );
+	}
+
+	private function filter_theme_mods( &$value ) {
+		if ( is_array( $value ) && isset( $value[0] ) ) {
+			unset( $value[0] ); 
+		}
 	}
 
 	function jetpack_sync_core_icon() {

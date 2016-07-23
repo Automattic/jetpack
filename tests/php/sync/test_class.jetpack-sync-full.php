@@ -384,6 +384,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEquals( 'twentyfourteen', get_option( 'stylesheet' ) );
 
 		switch_theme( 'twentyfourteen' );
+		set_theme_mod( 'foo', 'bar' );
 		$this->sender->do_sync();
 
 		$this->assertEquals( 'twentyfourteen', $this->server_replica_storage->get_option( 'stylesheet' ) );
@@ -397,7 +398,17 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertEquals( 'twentyfourteen', $this->server_replica_storage->get_option( 'stylesheet' ) );
-		$this->assertEquals( get_option( 'theme_mods_twentyfourteen' ), $this->server_replica_storage->get_option( 'theme_mods_twentyfourteen' ) );
+		$local_option = get_option( 'theme_mods_twentyfourteen' );
+		$remote_option = $this->server_replica_storage->get_option( 'theme_mods_twentyfourteen' );
+		
+		if ( isset( $local_option[0] ) ) {
+			// this is a spurious value that sometimes gets set during tests, and is
+			// actively removed before sending to WPCOM
+			// it appears to be due to a bug which sets array( false ) as the default value for theme_mods
+			unset( $local_option[0] );
+		}
+		
+		$this->assertEquals( $local_option, $remote_option );
 	}
 
 	function test_full_sync_sends_plugin_updates() {
