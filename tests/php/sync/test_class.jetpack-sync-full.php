@@ -678,6 +678,28 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $keep_comment_id, $comments[0]->comment_ID );
 	}
 
+	function test_full_sync_doesnt_send_deleted_users() {
+		$user_counts = count_users();
+		$existing_user_count = $user_counts['total_users'];
+
+		// previously, the behaviour was to send false or throw errors - we
+		// should actively detect false values and remove them
+		$keep_user_id = $this->factory->user->create();
+		$delete_user_id = $this->factory->user->create();
+
+		$this->full_sync->start();
+
+		wp_delete_user( $delete_user_id );
+
+		$this->sender->do_sync();
+
+		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+		$users = $synced_users_event->args;
+
+		$this->assertEquals( $existing_user_count+1, count( $users ) );
+		$this->assertEquals( $keep_user_id, $users[ $existing_user_count ]->ID );
+	}
+
 	function test_full_sync_status_with_a_small_queue() {
 
 		$this->sender->set_dequeue_max_bytes( 1500 ); // process 0.0015MB of items at a time\
