@@ -53,7 +53,7 @@ class Jetpack_Sync_Modules {
 	}
 
 	public static function set_defaults() {
-		foreach( self::get_modules() as $module ) {
+		foreach ( self::get_modules() as $module ) {
 			$module->set_defaults();
 		}
 	}

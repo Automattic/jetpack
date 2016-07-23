@@ -150,7 +150,8 @@ class Jetpack_Sync_Actions {
 		if( ! isset( $schedules["1min"] ) ) {
 			$schedules["1min"] = array(
 				'interval' => 60,
-				'display' => __( 'Every minute' ) );
+				'display' => __( 'Every minute' ) 
+			);
 		}
 		return $schedules;
 	}

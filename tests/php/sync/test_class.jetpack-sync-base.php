@@ -125,6 +125,8 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_schedules_regular_sync() {
+		// we need to run this again because cron is cleared between tests
+		Jetpack_Sync_Actions::init(); 
 		$timestamp = wp_next_scheduled( 'jetpack_sync_cron' );
 		error_log("next cron: ".$timestamp);
 		error_log("current time: ".time());
