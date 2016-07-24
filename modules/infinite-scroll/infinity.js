@@ -252,15 +252,8 @@ Scroller.prototype.refresh = function() {
 				return;
 			}
 
-			// If there are no remaining posts...
-			if ( response.type == 'empty' ) {
-				// Disable the scroller.
-				self.disabled = true;
-				// Update body classes, allowing the footer to return to static positioning
-				self.body.addClass( 'infinity-end' ).removeClass( 'infinity-success' );
-
 			// If we've succeeded...
-			} else if ( response.type == 'success' ) {
+			if ( response.type == 'success' ) {
 				// If additional scripts are required by the incoming set of posts, parse them
 				if ( response.scripts ) {
 					$( response.scripts ).each( function() {
@@ -356,6 +349,9 @@ Scroller.prototype.refresh = function() {
 							self.body.trigger( 'infinite-scroll-posts-more' );
 						}
 					}
+				} else if ( response.lastbatch ) {
+					self.disabled = true;
+					self.body.addClass( 'infinity-end' ).removeClass( 'infinity-success' );
 				}
 
 				// Update currentday to the latest value returned from the server
