@@ -156,20 +156,19 @@ class Jetpack_Sync_Actions {
 		return $schedules;
 	}
 
-	// try to send actions for up to a minute
+	// try to send actions until we run out of things to send,
+	// or have to wait more than 15s before sending again,
+	// or we hit a lock or some other sending issue
 	static function do_cron_sync() {
 		if ( ! self::sync_allowed() ) {
 			return;
 		}
 
 		self::initialize_sender();
-
-		$start_time = microtime( true );
 		
 		do {
 			$next_sync_time = self::$sender->next_sync_time();
 			
-			// sleep for up to 10s
 			if ( $next_sync_time ) {
 				$delay = $next_sync_time - time() + 1;
 				if ( $delay > 15 ) {
@@ -178,12 +177,9 @@ class Jetpack_Sync_Actions {
 					sleep( $delay );
 				}
 			}
+
 			$result = self::$sender->do_sync();
-		} while ( 
-			$result 
-			&& 
-			microtime( true ) - $start_time < 60 
-		);
+		} while ( $result );
 	}
 
 	static function do_send_pending_data() {
