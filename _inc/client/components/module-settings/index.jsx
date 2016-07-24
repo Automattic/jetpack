@@ -101,6 +101,8 @@ export let RelatedPostsSettings = React.createClass( {
 	}
 } );
 
+RelatedPostsSettings = ModuleSettingsForm( RelatedPostsSettings );
+
 export let LikesSettings = React.createClass( {
 	render() {
 		return (
@@ -119,8 +121,6 @@ export let LikesSettings = React.createClass( {
 } );
 
 LikesSettings = ModuleSettingsForm( LikesSettings );
-
-RelatedPostsSettings = ModuleSettingsForm( RelatedPostsSettings );
 
 export let CommentsSettings = React.createClass( {
 	render() {
@@ -378,6 +378,47 @@ export let GravatarHovercardsSettings = React.createClass( {
 } );
 
 GravatarHovercardsSettings = ModuleSettingsForm( GravatarHovercardsSettings );
+
+export let VerificationToolsSettings = React.createClass( {
+	render() {
+		return (
+			<form onSubmit={ this.props.onSubmit } >
+				<FormFieldset>
+					<FormLabel>
+						<span>Google</span>
+						<FormTextInput
+							placeholder='<meta name="google-site-verification" content="1234" />'
+							name={ 'google' }
+							value={ this.props.getOptionValue( 'google' ) }
+							disabled={ this.props.isUpdating( 'google' ) }
+							onChange={ this.props.onOptionChange} />
+					</FormLabel>
+					<FormLabel>
+						<span>Bing</span>
+						<FormTextInput
+							placeholder='<meta name="msvalidate.01" content="1234" />'
+							name={ 'bing' }
+							value={ this.props.getOptionValue( 'bing' ) }
+							disabled={ this.props.isUpdating( 'bing' ) }
+							onChange={ this.props.onOptionChange} />
+					</FormLabel>
+					<FormLabel>
+						<span>Pinterest</span>
+						<FormTextInput
+							placeholder='<meta name="p:domain_verify" content="1234" />'
+							name={ 'pinterest' }
+							value={ this.props.getOptionValue( 'pinterest' ) }
+							disabled={ this.props.isUpdating( 'pinterest' ) }
+							onChange={ this.props.onOptionChange} />
+					</FormLabel>
+					<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				</FormFieldset>
+			</form>
+		)
+	}
+} );
+
+VerificationToolsSettings = ModuleSettingsForm( VerificationToolsSettings );
 
 export let TiledGallerySettings = React.createClass( {
 	render() {
