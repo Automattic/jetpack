@@ -302,42 +302,8 @@ class Jetpack {
 	public static function init() {
 		if ( ! self::$instance ) {
 			self::$instance = new Jetpack;
-
-			self::$instance->plugin_upgrade();
 		}
-
 		return self::$instance;
-	}
-
-	/**
-	 * Must never be called statically
-	 */
-	function plugin_upgrade() {
-		if ( Jetpack::is_active() ) {
-			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
-			if ( JETPACK__VERSION != $version ) {
-
-				// Check which active modules actually exist and remove others from active_modules list
-				$unfiltered_modules = Jetpack::get_active_modules();
-				$modules = array_filter( $unfiltered_modules, array( 'Jetpack', 'is_module' ) );
-				if ( array_diff( $unfiltered_modules, $modules ) ) {
-					Jetpack_Options::update_option( 'active_modules', $modules );
-				}
-
-				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
-				Jetpack::maybe_set_version_option();
-			}
-		}
-	}
-
-	static function activate_manage( ) {
-
-		if ( did_action( 'init' ) || current_filter() == 'init' ) {
-			self::activate_module( 'manage', false, false );
-		} else if ( !  has_action( 'init' , array( __CLASS__, 'activate_manage' ) ) ) {
-			add_action( 'init', array( __CLASS__, 'activate_manage' ) );
-		}
-
 	}
 
 	/**
@@ -1270,12 +1236,6 @@ class Jetpack {
 		}
 
 		$version = Jetpack_Options::get_option( 'version' );
-		if ( ! $version ) {
-			$version = $old_version = JETPACK__VERSION . ':' . time();
-			/** This action is documented in class.jetpack.php */
-			do_action( 'updating_jetpack_version', $version, false );
-			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
-		}
 		list( $version ) = explode( ':', $version );
 
 		$modules = array_filter( Jetpack::get_active_modules(), array( 'Jetpack', 'is_module' ) );
@@ -1676,20 +1636,6 @@ class Jetpack {
 			return;
 		}
 
-		$jetpack_old_version = Jetpack_Options::get_option( 'version' ); // [sic]
-		if ( ! $jetpack_old_version ) {
-			$jetpack_old_version = $version = $old_version = '1.1:' . time();
-			/** This action is documented in class.jetpack.php */
-			do_action( 'updating_jetpack_version', $version, false );
-			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
-		}
-
-		list( $jetpack_version ) = explode( ':', $jetpack_old_version ); // [sic]
-
-		if ( version_compare( JETPACK__VERSION, $jetpack_version, '<=' ) ) {
-			return;
-		}
-
 		$active_modules     = Jetpack::get_active_modules();
 		$reactivate_modules = array();
 		foreach ( $active_modules as $active_module ) {
@@ -1705,16 +1651,6 @@ class Jetpack {
 			$reactivate_modules[] = $active_module;
 			Jetpack::deactivate_module( $active_module );
 		}
-
-		$new_version = JETPACK__VERSION . ':' . time();
-		/** This action is documented in class.jetpack.php */
-		do_action( 'updating_jetpack_version', $new_version, $jetpack_old_version );
-		Jetpack_Options::update_options(
-			array(
-				'version'     => $new_version,
-				'old_version' => $jetpack_old_version,
-			)
-		);
 
 		Jetpack::state( 'message', 'modules_activated' );
 		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules );
@@ -2492,19 +2428,6 @@ p {
 
 		Jetpack::plugin_initialize();
 	}
-	/**
-	 * Runs before bumping version numbers up to a new version
-	 * @param  (string) $version    Version:timestamp
-	 * @param  (string) $old_version Old Version:timestamp or false if not set yet.
-	 * @return null              [description]
-	 */
-	public static function do_version_bump( $version, $old_version ) {
-
-		if ( ! $old_version ) { // For new sites
-			// Setting up jetpack manage
-			Jetpack::activate_manage();
-		}
-	}
 
 	/**
 	 * Sets the internal version number and activation state.
@@ -2513,13 +2436,6 @@ p {
 	public static function plugin_initialize() {
 		if ( ! Jetpack_Options::get_option( 'activated' ) ) {
 			Jetpack_Options::update_option( 'activated', 2 );
-		}
-
-		if ( ! Jetpack_Options::get_option( 'version' ) ) {
-			$version = $old_version = JETPACK__VERSION . ':' . time();
-			/** This action is documented in class.jetpack.php */
-			do_action( 'updating_jetpack_version', $version, false );
-			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 
 		Jetpack::load_modules();
@@ -3395,7 +3311,6 @@ p {
 				}
 				check_admin_referer( 'jetpack-register' );
 				Jetpack::log( 'register' );
-				Jetpack::maybe_set_version_option();
 				$registered = Jetpack::try_registration();
 				if ( is_wp_error( $registered ) ) {
 					$error = $registered->get_error_code();
@@ -4406,26 +4321,6 @@ p {
 		};
 
 		return true;
-	}
-
-	/**
-	 * If the db version is showing something other that what we've got now, bump it to current.
-	 *
-	 * @return bool: True if the option was incorrect and updated, false if nothing happened.
-	 */
-	public static function maybe_set_version_option() {
-		list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
-		if ( JETPACK__VERSION != $version ) {
-			Jetpack_Options::update_option( 'version', JETPACK__VERSION . ':' . time() );
-
-			if ( version_compare( JETPACK__VERSION, $version, '>' ) ) {
-				/** This action is documented in class.jetpack.php */
-				do_action( 'updating_jetpack_version', JETPACK__VERSION, $version );
-			}
-
-			return true;
-		}
-		return false;
 	}
 
 /* Client Server API */
