@@ -1,11 +1,4 @@
-.contact-info-map-canvas {
-	height: 216px;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-}
-
-/* Prevent Google maps controls from being hidden */
-.gmnoprint img {
-  max-width: none !important;
+.contact-map {
+	max-width: 100%;
+	border: 0;
 }
