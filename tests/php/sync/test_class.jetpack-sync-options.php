@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_initalize_Jetpack_Sync_Action_on_init() {
 		// prioroty should be set to 11 so that Plugins by default (10) initialize the whitelist_filter before.
-		$this->assertEquals( 11, has_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ) ) );
+		$this->assertEquals( 90, has_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ) ) );
 	}
 
 	public function test_sync_default_options() {
@@ -138,7 +138,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_publish_posts_with_markdown'    => 'pineapple',
 			'wpcom_publish_comments_with_markdown' => 'pineapple',
 			'jetpack_activated'                    => 'pineapple',
-			'jetpack_active_modules'               => 'pineapple',
 			'jetpack_available_modules'            => 'pineapple',
 			'jetpack_autoupdate_plugins'           => 'pineapple',
 			'jetpack_autoupdate_themes'            => 'pineapple',
