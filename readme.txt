@@ -90,13 +90,17 @@ Bug Fixes:
 
 Enhancements:
 
+* Breadcrumbs: add support for hierarchical post types and taxonomies. #3323
 * Carousel: each Carousel view is now tracked in Stats. #3638
 * Custom Content Types: add the Portfolio Post Type to the WordPress.com REST API whitelist. #4401
 * Custom CSS: we added support for the `font-feature-settings` property in the Custom CSS editor. This will allow you to customize advanced typographic settings like ligatures. #4371
 * General: we've completely refactored the way information was synchronized between your site and WordPress.com, thus ensuring every module uses information that's up to date.
+* Infinite Scroll: improve user experience when there are no more entries to load. #3553
 * Performance: we've reduced the number of queries typically run on both the front end and the dashboard, to improve overall performance. #4281, #4316
 * Performance: we've improved the way Jetpack queried for information about module data, to execute less queries to get Jetpack options. #4315
 * Staging: Added WP Stagecoach as a known staging site provider so those staging sites will not impact production sites. #4518
+* Shortcodes: new parameters for the Dailymotion shortcode. #4103
+* Widgets: do not display any map if no Google Maps API Key is defined. #4242
 
 = 4.1.1 =
 
