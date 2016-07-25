@@ -167,7 +167,7 @@ class Jetpack_Sync_Actions {
 		self::initialize_sender();
 		
 		do {
-			$next_sync_time = self::$sender->next_sync_time();
+			$next_sync_time = self::$sender->get_next_sync_time();
 			
 			if ( $next_sync_time ) {
 				$delay = $next_sync_time - time() + 1;
