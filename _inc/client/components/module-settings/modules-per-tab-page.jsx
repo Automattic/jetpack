@@ -25,7 +25,8 @@ import {
 	PostByEmailSettings,
 	CustomContentTypesSettings,
 	AfterTheDeadlineSettings,
-	MarkdownSettings
+	MarkdownSettings,
+	VerificationToolsSettings,
 } from 'components/module-settings/';
 
 export const EngagementModulesSettings = React.createClass( {
@@ -44,13 +45,14 @@ export const EngagementModulesSettings = React.createClass( {
 			case 'sharedaddy':
 				return ( <SharedaddySettings module={ module } { ...this.props } /> );
 			case 'gravatar-hovercards':
-				return( <GravatarHovercardsSettings module={ module } { ...this.props } /> );
+				return ( <GravatarHovercardsSettings module={ module } { ...this.props } /> );
 			case 'likes':
-				return( <LikesSettings module={ module } { ...this.props } /> );
+				return ( <LikesSettings module={ module } { ...this.props } /> );
+			case 'verification-tools':
+				return ( <VerificationToolsSettings module={ module } { ...this.props } /> );
 			case 'notifications':
 			case 'enhanced-distribution':
 				return <span>{ __( 'This module has no configuration options' ) } </span>;
-			case 'verification-tools':
 			case 'publicize':
 			default:
 				return (

@@ -101,6 +101,8 @@ export let RelatedPostsSettings = React.createClass( {
 	}
 } );
 
+RelatedPostsSettings = ModuleSettingsForm( RelatedPostsSettings );
+
 export let LikesSettings = React.createClass( {
 	render() {
 		return (
@@ -119,8 +121,6 @@ export let LikesSettings = React.createClass( {
 } );
 
 LikesSettings = ModuleSettingsForm( LikesSettings );
-
-RelatedPostsSettings = ModuleSettingsForm( RelatedPostsSettings );
 
 export let CommentsSettings = React.createClass( {
 	render() {
@@ -378,6 +378,86 @@ export let GravatarHovercardsSettings = React.createClass( {
 } );
 
 GravatarHovercardsSettings = ModuleSettingsForm( GravatarHovercardsSettings );
+
+export let VerificationToolsSettings = React.createClass( {
+	render() {
+		return (
+			<form onSubmit={ this.props.onSubmit } >
+				<FormFieldset>
+					<p>
+						{
+							__( 'Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a}}Bing Webmaster Center{{/a}} and {{a}}Pinterest Site Verification{{/a}}.', {
+								components: {
+									a: <a href="https://www.google.com/webmasters/tools/" target="_blank" />,
+									a1: <a href="http://www.bing.com/webmaster/" target="_blank" />,
+									a2: <a href="https://pinterest.com/website/verify/" target="_blank" />
+								}
+							} )
+						}
+					</p>
+
+					<div className="dops-card">
+						<FormLabel>
+							<span>Google</span>
+							<FormTextInput
+								name={ 'google' }
+								value={ this.props.getOptionValue( 'google' ) }
+								className="widefat code"
+								disabled={ this.props.isUpdating( 'google' ) }
+								onChange={ this.props.onOptionChange} />
+						</FormLabel>
+						<p>
+							{ __( 'Example:' ) }
+						</p>
+						<p className="small">
+							&lt;meta name='google-site-verification' content='<strong className="code">dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8</strong>'&gt;
+						</p>
+					</div>
+
+					<div className="dops-card">
+						<FormLabel>
+							<span>Bing</span>
+							<FormTextInput
+								name={ 'bing' }
+								value={ this.props.getOptionValue( 'bing' ) }
+								className="widefat code"
+								disabled={ this.props.isUpdating( 'bing' ) }
+								onChange={ this.props.onOptionChange} />
+						</FormLabel>
+						<p>
+							{ __( 'Example:' ) }
+						</p>
+						<p className="small">
+							&lt;meta name='msvalidate.01' content='<strong>12C1203B5086AECE94EB3A3D9830B2E</strong>'&gt;
+						</p>
+					</div>
+
+					<div className="dops-card">
+						<FormLabel>
+							<span>Pinterest</span>
+							<FormTextInput
+								name={ 'pinterest' }
+								value={ this.props.getOptionValue( 'pinterest' ) }
+								className="widefat code"
+								disabled={ this.props.isUpdating( 'pinterest' ) }
+								onChange={ this.props.onOptionChange} />
+						</FormLabel>
+						<p>
+							{ __( 'Example:' ) }
+						</p>
+						<p className="small">
+							&lt;meta name='p:domain_verify' content='<strong>f100679e6048d45e4a0b0b92dce1efce</strong>'&gt;
+						</p>
+					</div>
+
+					<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				</FormFieldset>
+			</form>
+		)
+	}
+} );
+
+VerificationToolsSettings = ModuleSettingsForm( VerificationToolsSettings );
 
 export let TiledGallerySettings = React.createClass( {
 	render() {

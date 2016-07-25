@@ -1141,7 +1141,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 				case 'show_headline':
 				case 'show_thumbnails':
-					$grouped_options = $grouped_options_current = Jetpack_Options::get_option( 'relatedposts' );
+					$grouped_options = $grouped_options_current = (array) Jetpack_Options::get_option( 'relatedposts' );
 					$grouped_options[ $option ] = $value;
 
 					// If option value was the same, consider it done.
@@ -1151,7 +1151,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				case 'google':
 				case 'bing':
 				case 'pinterest':
-					$grouped_options = $grouped_options_current = get_option( 'verification_services_codes' );
+					$grouped_options = $grouped_options_current = (array) get_option( 'verification_services_codes' );
 					$grouped_options[ $option ] = $value;
 
 					// If option value was the same, consider it done.
@@ -1252,7 +1252,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				case 'do_not_track':
 				case 'hide_smile':
 				case 'version':
-					$grouped_options = $grouped_options_current = get_option( 'stats_options' );
+					$grouped_options = $grouped_options_current = (array) get_option( 'stats_options' );
 					$grouped_options[ $option ] = $value;
 
 					// If option value was the same, consider it done.
