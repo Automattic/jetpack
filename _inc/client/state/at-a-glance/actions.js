@@ -33,12 +33,12 @@ export const statsSwitchTab = ( tab ) => {
 	}
 };
 
-export const fetchStatsData = () => {
+export const fetchStatsData = ( range ) => {
 	return ( dispatch ) => {
 		dispatch( {
 			type: STATS_DATA_FETCH
 		} );
-		return restApi.getStatsData().then( statsData => {
+		return restApi.getStatsData( range ).then( statsData => {
 			dispatch( {
 				type: STATS_DATA_FETCH_SUCCESS,
 				statsData: statsData

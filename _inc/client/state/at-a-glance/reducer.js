@@ -172,7 +172,7 @@ export function isFetchingStatsData( state ) {
  * Returns object with Stats data.
  *
  * @param  {Object}  state  Global state tree
- * @return {Object} 		Stats data.
+ * @return {Object}			Stats data.
  */
 export function getStatsData( state ) {
 	return state.jetpack.dashboard.statsData;

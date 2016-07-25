@@ -55,6 +55,13 @@
 
 .jp-at-a-glance__stats-chart {
 	padding: rem( 16px );
+	position: relative;
+}
+
+.jp-at-a-glance__stats-chart .dops-spinner {
+	position: absolute;
+	top: 50%;
+	left: 50%;
 }
 
 .jp-at-a-glance__stats-bottom {
