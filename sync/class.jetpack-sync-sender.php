@@ -133,17 +133,27 @@ class Jetpack_Sync_Sender {
 		 * @param array $data The action buffer
 		 */
 		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ) );
+		$successfully_processed_items_ids = array();
+		if ( is_array( $processed_item_ids ) && isset( $processed_item_ids['successfully'] ) ) {
+			$successfully_processed_items_ids = $processed_item_ids['successfully'];
+			// Do something with this. Try resending the items again?
+			$items_that_with_errors = $processed_item_ids['errors_thrown'];
 
-		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {
+		}
+
+		if ( ! $processed_item_ids
+		     || is_wp_error( $processed_item_ids )
+		     || empty( $successfully_processed_items_ids ) ) {
+
 			$processed_item_ids = $this->sync_queue->checkin( $buffer );
 
 			if ( is_wp_error( $processed_item_ids ) ) {
 				error_log( 'Error checking in buffer: ' . $processed_item_ids->get_error_message() );
 				$this->sync_queue->force_checkin();
 			}
-		} else {
-			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
 
+		} else {
+			$processed_items = array_intersect_key( $items, array_flip( $successfully_processed_items_ids ) );
 			/**
 			 * Allows us to keep track of all the actions that have been sent.
 			 * Allows us to calculate the progress of specific actions.
@@ -154,7 +164,7 @@ class Jetpack_Sync_Sender {
 			 */
 			do_action( 'jetpack_sync_processed_actions', $processed_items );
 
-			$this->sync_queue->close( $buffer, $processed_item_ids );
+			$this->sync_queue->close( $buffer, $successfully_processed_items_ids );
 		}
 		
 		return true;

@@ -61,6 +61,7 @@ class Jetpack_Sync_Server {
 
 		$events           = wp_unslash( array_map( array( $this->codec, 'decode' ), $data ) );
 		$events_processed = array();
+		$events_errors_thrown = array();
 
 		/**
 		 * Fires when an array of actions are received from a remote Jetpack site
@@ -74,6 +75,11 @@ class Jetpack_Sync_Server {
 		foreach ( $events as $key => $event ) {
 			list( $action_name, $args, $user_id, $timestamp ) = $event;
 
+			$data_successfully_validated = apply_filters( 'jetpack_sync_remote_validate_action', false, $action_name, $args );
+			if ( is_wp_error( $data_successfully_validated ) ) {
+				$events_errors_thrown[] = $data_successfully_validated;
+				continue;
+			}
 			/**
 			 * Fires when an action is received from a remote Jetpack site
 			 *
@@ -112,6 +118,6 @@ class Jetpack_Sync_Server {
 			$this->remove_request_lock( $token->blog_id );
 		}
 
-		return $events_processed;
+		return array( 'successfully' => $events_processed, 'errors_thrown' => $events_errors_thrown );
 	}
 }
