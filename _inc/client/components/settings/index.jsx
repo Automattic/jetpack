@@ -5,7 +5,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { SettingToggle } from 'components/setting-toggle';
-
+import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
@@ -29,7 +29,7 @@ export const Settings = React.createClass( {
 					activated={ this.props.isSettingActivated( window.Initial_State.settingNames.jetpack_holiday_snow_enabled ) }
 					toggleSetting={ this.props.toggleSetting }
 					disabled={ this.props.isFetchingSettingsList }
-				>Show falling snow on my blog until January 4<sup>th</sup>.</SettingToggle>
+				>{ __( 'Show falling snow on my blog from Dec 1st until Jan 4th.' ) }</SettingToggle>
 			</div>
 		);
 	}

@@ -155,7 +155,7 @@ export let SubscriptionsSettings = React.createClass( {
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
-				<h3>Can readers subscribe to your posts, comments or both?</h3>
+				<h3>{ __( 'Can readers subscribe to your posts, comments or both?' ) }</h3>
 				<FormFieldset>
 					<ModuleSettingCheckbox
 						name={ "stb_enabled" }
@@ -383,7 +383,7 @@ export let TiledGallerySettings = React.createClass( {
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
-				<h3>Excerpts</h3>
+				<h3>{ __( 'Excerpts' ) }</h3>
 				<FormFieldset>
 					<ModuleSettingCheckbox
 						name={ 'tiled_galleries' }

@@ -91,7 +91,7 @@ export const Page = ( props ) => {
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<br/>
-				<a href={ element[3] } target="_blank">Learn More</a>
+				<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
 			</FoldableCard>
 		);
 	} );
