@@ -387,7 +387,6 @@ export let VerificationToolsSettings = React.createClass( {
 					<FormLabel>
 						<span>Google</span>
 						<FormTextInput
-							placeholder='<meta name="google-site-verification" content="1234" />'
 							name={ 'google' }
 							value={ this.props.getOptionValue( 'google' ) }
 							disabled={ this.props.isUpdating( 'google' ) }
@@ -396,7 +395,6 @@ export let VerificationToolsSettings = React.createClass( {
 					<FormLabel>
 						<span>Bing</span>
 						<FormTextInput
-							placeholder='<meta name="msvalidate.01" content="1234" />'
 							name={ 'bing' }
 							value={ this.props.getOptionValue( 'bing' ) }
 							disabled={ this.props.isUpdating( 'bing' ) }
@@ -405,7 +403,6 @@ export let VerificationToolsSettings = React.createClass( {
 					<FormLabel>
 						<span>Pinterest</span>
 						<FormTextInput
-							placeholder='<meta name="p:domain_verify" content="1234" />'
 							name={ 'pinterest' }
 							value={ this.props.getOptionValue( 'pinterest' ) }
 							disabled={ this.props.isUpdating( 'pinterest' ) }
