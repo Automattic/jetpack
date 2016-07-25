@@ -1038,6 +1038,15 @@ button.dops-foldable-card__action {
   display: none; }
   .dops-foldable-card.is-expanded .dops-foldable-card__summary_expanded {
     display: inline-block; }
+.dops-chart__empty_notice::before {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
+.dops-chart__empty_notice::before {
+  display: inline-block;
+  font: normal 16px/1 'Dashicons';
+  vertical-align: middle; }
+
 .dops-chart {
   position: relative;
   box-sizing: border-box;
@@ -1276,7 +1285,7 @@ button.dops-foldable-card__action {
       padding: 13px 48px;
       font-size: inherit; }
       .dops-chart__empty_notice::before {
-        content: '\F456';
+        content: '\F348';
         position: absolute;
         top: 23px;
         left: 20px;

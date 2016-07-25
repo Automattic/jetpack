@@ -91,7 +91,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	public function expand_post_ids( $args ) {
 		$post_ids = $args[0];
 
-		$posts = array_map( array( 'WP_Post', 'get_instance' ), $post_ids );
+		$posts = array_filter( array_map( array( 'WP_Post', 'get_instance' ), $post_ids ) );
 		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
 
 		return array(

@@ -42,25 +42,9 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 * Enqueue scripts and styles.
 		 */
 		public function enqueue_scripts() {
-			$google_url = 'https://maps.googleapis.com/maps/api/js';
-			/**
-			 * Set a Google Maps API Key.
-			 *
-			 * @since 4.1.0
-			 *
-			 * @param string $key Google Maps API Key
-			 */
-			$key = apply_filters( 'jetpack_google_maps_api_key', null );
-
-			if ( ! empty( $key ) ) {
-					$google_url = add_query_arg( 'key', $key, $google_url );
-				}
-
-			wp_enqueue_script( 'jquery' );
-			wp_enqueue_script( 'google-maps', esc_url( $google_url, null, null ) );
-			wp_enqueue_script( 'contact-info-map-js', plugins_url( 'contact-info/contact-info-map.js', __FILE__ ), array( 'jquery', 'google-maps' ), 20150127 );
-			wp_enqueue_style( 'contact-info-map-css', plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20150127 );
+			wp_enqueue_style( 'contact-info-map-css', plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20160623 );
 		}
+
 
 		/**
 		 * Return an associative array of default values
@@ -111,12 +95,9 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				$showmap = $instance['showmap'];
 
-				if ( $showmap && $this->has_good_map( $instance ) ) {
-
-					$lat = $instance['lat'];
-					$lon = $instance['lon'];
-
-					echo $this->build_map( $lat, $lon );
+				/** This action is documented in modules/widgets/contact-info.php */
+				if ( $showmap && $this->has_good_map( $instance ) && apply_filters( 'jetpack_google_maps_api_key', null ) ) {
+					echo $this->build_map( $instance['address'] );
 				}
 
 				$map_link = $this->build_map_link( $instance['address'] );
@@ -298,19 +279,22 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 *
 		 * @return string HTML of the map
 		 */
-		function build_map( $lat, $lon ) {
+		function build_map( $address ) {
 			$this->enqueue_scripts();
+			$src = add_query_arg( 'q', urlencode( $address ), 'https://www.google.com/maps/embed/v1/place' );
+			/**
+			 * Set a Google Maps API Key.
+			 *
+			 * @since 4.1.0
+			 *
+			 * @param string $key Google Maps API Key
+			 */
+			$key = apply_filters( 'jetpack_google_maps_api_key', null );
+			if ( ! empty( $key ) ) {
+				$src = add_query_arg( 'key', $key, $src );
+			}
 
-			$lat  = esc_attr( $lat );
-			$lon  = esc_attr( $lon );
-			$html = <<<EOT
-				<div class="contact-map">
-				<input type="hidden" class="contact-info-map-lat" value="$lat" />
-				<input type="hidden" class="contact-info-map-lon" value="$lon" />
-				<div class="contact-info-map-canvas"></div></div>
-EOT;
-
-			return $html;
+			return '<iframe width="600" height="216" frameborder="0" src="' . esc_url( $src ) . '" class="contact-map"></iframe>';
 		}
 
 		/**

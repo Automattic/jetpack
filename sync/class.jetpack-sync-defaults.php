@@ -81,7 +81,6 @@ class Jetpack_Sync_Defaults {
 		'wpcom_publish_posts_with_markdown',
 		'wpcom_publish_comments_with_markdown',
 		'jetpack_activated',
-		'jetpack_active_modules',
 		'jetpack_available_modules',
 		'jetpack_autoupdate_plugins',
 		'jetpack_autoupdate_themes',
@@ -149,6 +148,7 @@ class Jetpack_Sync_Defaults {
 		'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
 		'wp_version'                       => array( 'Jetpack_Sync_Functions', 'wp_version' ),
 		'get_plugins'                      => array( 'Jetpack_Sync_Functions', 'get_plugins' ),
+		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
 	);
 
 	static $blacklisted_post_types = array(
