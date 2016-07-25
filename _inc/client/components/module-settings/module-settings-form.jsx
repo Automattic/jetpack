@@ -32,6 +32,10 @@ export function ModuleSettingsForm( InnerComponent ) {
 				optionValue = event.target.value;
 			}
 
+			if ( event.target.type === 'textarea' ) {
+				optionValue = event.target.value;
+			}
+
 			this.updateFormStateOptionValue( optionName, optionValue );
 		},
 		updateFormStateOptionValue( optionName, optionValue ) {

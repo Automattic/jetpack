@@ -28,19 +28,12 @@ export function connectModuleOptions( Component ) {
 		( state, ownProps ) => {
 			return {
 				validValues: ( option_name ) => getModuleOptionValidValues( state, ownProps.module.module, option_name ),
-				currentValue: getModuleOption( state, ownProps.module.module, ownProps.option_name ),
-				getOptionCurrentValue: ( module_name, option_name ) => getModuleOption( state, module_name, option_name ),
-				enabled: getModuleOption( state, ownProps.module.module, ownProps.option_name ),
-				getModuleOption: ( module_slug ) => getModuleOption( state, module_slug, module_name ),
+				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
 				getSiteRoles: () => getSiteRoles( state ),
-				isToggling: false,
 				isUpdating: ( option_name ) => isUpdatingModuleOption( state, ownProps.module.module, option_name )
 			}
 		},
 		( dispatch, ownProps ) => ( {
-			toggleOption: ( option_name, currentValue ) => {
-				return dispatch( updateModuleOption( ownProps.module.module, option_name, ! currentValue ) );
-			},
 			updateOptions: ( newOptions ) => {
 				return dispatch( updateModuleOptions( ownProps.module.module, newOptions ) );
 			},
