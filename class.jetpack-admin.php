@@ -33,10 +33,6 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class.jetpack-my-jetpack-page' );
 		$this->my_jetpack_page = new Jetpack_My_Jetpack_Page;
 
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-dashboard.php';
-		$this->sync_dashboard = new Jetpack_Sync_Dashboard;
-		$this->sync_dashboard->init();
-		
 		if ( isset( $_POST['jetpack-set-master-user'] ) ) {
 			add_action( 'init', array( $this->my_jetpack_page, 'jetpack_my_jetpack_change_user' ) );
 		}
