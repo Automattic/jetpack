@@ -12,7 +12,8 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Sender {
 
 	const SYNC_THROTTLE_OPTION_NAME = 'jetpack_sync_min_wait';
-	const LAST_SYNC_TIME_OPTION_NAME = 'jetpack_last_sync_time';
+	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
+	const WPCOM_ERROR_SYNC_DELAY = 60;
 
 	private $dequeue_max_bytes;
 	private $upload_max_bytes;
@@ -44,11 +45,12 @@ class Jetpack_Sync_Sender {
 		}
 	}
 
-	public function next_sync_time() {
-		$sync_wait = $this->get_sync_wait_time();
-		$last_sync = $this->get_last_sync_time();
-		$next_sync_time = ( $last_sync && $sync_wait ) ? $last_sync + $sync_wait : 0;
-		return $next_sync_time;
+	public function get_next_sync_time() {
+		return (double) get_option( self::NEXT_SYNC_TIME_OPTION_NAME, 0 );
+	}
+
+	public function set_next_sync_time( $time ) {
+		return update_option( self::NEXT_SYNC_TIME_OPTION_NAME, $time, true );
 	}
 
 	public function do_sync() {
@@ -58,11 +60,9 @@ class Jetpack_Sync_Sender {
 		}
 
 		// don't sync if we are throttled
-		if ( $this->next_sync_time() > microtime( true ) ) {
+		if ( $this->get_next_sync_time() > microtime( true ) ) {
 			return false;
 		}
-
-		$this->set_last_sync_time();
 
 		do_action( 'jetpack_sync_before_send' );
 
@@ -141,7 +141,18 @@ class Jetpack_Sync_Sender {
 				error_log( 'Error checking in buffer: ' . $processed_item_ids->get_error_message() );
 				$this->sync_queue->force_checkin();
 			}
+
+			$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
+			
 		} else {
+
+			// detect if the last item ID was an error
+			$had_wp_error = is_wp_error( end( $processed_item_ids ) );
+
+			if ( $had_wp_error ) {
+				$wp_error = array_pop( $processed_item_ids );
+			}
+
 			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
 
 			/**
@@ -155,6 +166,13 @@ class Jetpack_Sync_Sender {
 			do_action( 'jetpack_sync_processed_actions', $processed_items );
 
 			$this->sync_queue->close( $buffer, $processed_item_ids );
+
+			// detect if the last item ID was an error
+			if ( $had_wp_error ) {
+				$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
+			} else {
+				$this->set_next_sync_time( time() + $this->get_sync_wait_time() );
+			}
 		}
 		
 		return true;
@@ -202,14 +220,6 @@ class Jetpack_Sync_Sender {
 		return $this->sync_wait_time;
 	}
 
-	private function get_last_sync_time() {
-		return (double) get_option( self::LAST_SYNC_TIME_OPTION_NAME );
-	}
-
-	private function set_last_sync_time() {
-		return update_option( self::LAST_SYNC_TIME_OPTION_NAME, microtime( true ), true );
-	}
-
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
 		$this->codec      = new Jetpack_Sync_JSON_Deflate_Codec();
@@ -230,7 +240,7 @@ class Jetpack_Sync_Sender {
 		}
 
 		delete_option( self::SYNC_THROTTLE_OPTION_NAME );
-		delete_option( self::LAST_SYNC_TIME_OPTION_NAME );
+		delete_option( self::NEXT_SYNC_TIME_OPTION_NAME );
 
 		Jetpack_Sync_Settings::reset_data();
 	}
