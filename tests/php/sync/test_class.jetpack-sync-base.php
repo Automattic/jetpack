@@ -12,6 +12,7 @@ require_once $sync_dir . 'class.jetpack-sync-wp-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-eventstore.php';
+require_once $sync_server_dir . 'class.jetpack-sync-data-validator.php';
 
 /*
  * Base class for Sync tests - establishes connection between local
@@ -50,6 +51,9 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
+
+		$this->server_data_validator = new Jetpack_Sync_Data_Validator();
+		$this->server_data_validator->init();
 	}
 
 	public function setSyncClientDefaults() {
