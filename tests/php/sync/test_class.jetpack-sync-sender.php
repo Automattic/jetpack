@@ -268,6 +268,39 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNull( $status['started'] );
 	}
 
+	function test_waits_one_minute_on_server_error_with_last_item() {
+		remove_all_filters( 'jetpack_sync_send_data' );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithTrailingError' ), 10, 3 );
+
+		$this->factory->post->create();
+		$this->sender->do_sync();
+
+		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 55 );
+	}
+
+	function serverReceiveWithTrailingError( $data, $codec, $sent_timestamp ) {
+		$processed_item_ids = $this->server->receive( $data, null, $sent_timestamp );
+
+		// add an error at the end
+		$processed_item_ids[] = new WP_Error( 'an_error', 'An Error Occurred' );		
+
+		return $processed_item_ids;
+	}
+
+	function test_waits_one_minute_on_server_error_with_entire_request() {
+		remove_all_filters( 'jetpack_sync_send_data' );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithError' ), 10, 3 );
+
+		$this->factory->post->create();
+		$this->sender->do_sync();
+
+		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 55 );
+	}
+
+	function serverReceiveWithError( $data, $codec, $sent_timestamp ) {
+		return new WP_Error( 'an_error', 'An Error Occurred' );
+	}
+
 	function action_ran( $data, $codec, $sent_timestamp ) {
 		$this->action_ran       = true;
 		$this->action_codec     = $codec;
