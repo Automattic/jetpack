@@ -65,7 +65,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 1, $this->started_sync_count );
 
 		// fake the last sync being over an hour ago
-		$this->full_sync->update_status( array( 'started' => ( time() - 3700 ) ) );
+		$this->full_sync->update_status( 'started', time() - 3700 );
 
 		$this->full_sync->start();
 
@@ -530,7 +530,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_status_should_be_not_started_after_reset() {
 		$this->create_dummy_data_and_empty_the_queue();
 
-		$full_sync_status = $this->full_sync->get_status();
+		$full_sync_status = $this->full_sync->get_full_status();
 		$this->assertEquals(
 			$full_sync_status,
 			array(
@@ -549,7 +549,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->full_sync->start();
 
-		$full_sync_status = $this->full_sync->get_status();
+		$full_sync_status = $this->full_sync->get_full_status();
 
 		$should_be_status = array(
 			'queue' => array(
@@ -582,7 +582,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start();
 		$this->sender->do_sync();
 
-		$full_sync_status = $this->full_sync->get_status();
+		$full_sync_status = $this->full_sync->get_full_status();
 
 		$should_be_status = array(
 			'sent'  => array(
@@ -709,16 +709,15 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start();
 
 		$this->sender->do_sync();
-		$full_sync_status = $this->full_sync->get_status();
+		$full_sync_status = $this->full_sync->get_full_status();
 		$this->assertNull( $full_sync_status['finished'] );
 
 		$this->sender->do_sync();
-		$full_sync_status = $this->full_sync->get_status();
+		$full_sync_status = $this->full_sync->get_full_status();
 		$this->assertNull( $full_sync_status['finished'] );
 
 		$this->sender->do_sync();
-
-		$full_sync_status = $this->full_sync->get_status();
+		$full_sync_status = $this->full_sync->get_full_status();
 
 		$should_be_status = array(
 			'sent'  => array(
