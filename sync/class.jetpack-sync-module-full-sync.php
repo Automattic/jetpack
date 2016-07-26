@@ -88,9 +88,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		// allow enqueuing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
-		$prefix = self::STATUS_OPTION_PREFIX;
-		$started_at = get_option( "{$prefix}_started", 0 );
-		if ( intval( $started_at ) + self::FULL_SYNC_TIMEOUT < time() ) {
+		$started_at = $this->get_status_option( "started" );
+		if ( $started_at > 0 && $started_at + self::FULL_SYNC_TIMEOUT < time() ) {
 			return true;
 		}
 
@@ -98,7 +97,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function update_sent_progress_action( $actions ) {
-		$prefix = self::STATUS_OPTION_PREFIX;
 
 		// quick way to map to first items with an array of arrays
 		$actions_with_counts = array_count_values( array_map( 'reset', $actions ) );
@@ -132,36 +130,22 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	private function set_status_queuing_started() {
 		$this->clear_status();
-		$prefix = self::STATUS_OPTION_PREFIX;
 		$this->update_status_option( "started", time() );
 	}
 
 	private function set_status_queuing_finished() {
-		$prefix = self::STATUS_OPTION_PREFIX;
 		$this->update_status_option( "queue_finished", time() );
 	}
 
-	private function get_status_option( $option ) {
-		$prefix = self::STATUS_OPTION_PREFIX;
-		$status = get_option( "{$prefix}_{$option}", null );
-		if ( is_null( $status ) ) {
-			return $status;
-		}
-		return intval( $status );
-	}
-
 	private function is_started() {
-		$prefix = self::STATUS_OPTION_PREFIX;
-		return ! is_null( get_option( "{$prefix}_started", null ) );
+		return !! $this->get_status_option( "started" );
 	}
 
 	private function is_finished() {
-		$prefix = self::STATUS_OPTION_PREFIX;
-		return !! get_option( "{$prefix}_finished", null );
+		return !! $this->get_status_option( "finished" );
 	}
 
 	public function get_status() {
-		$prefix = self::STATUS_OPTION_PREFIX;
 		$status = array(
 			'started'        => $this->get_status_option( 'started' ),
 			'queue_finished' => $this->get_status_option( 'queue_finished' ),
@@ -172,14 +156,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		);
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$queued = get_option( "{$prefix}_{$module->name()}_queued", null );
-			$sent = get_option( "{$prefix}_{$module->name()}_sent", null );
+			$queued = $this->get_status_option( "{$module->name()}_queued" );
+			$sent   = $this->get_status_option( "{$module->name()}_sent" );
 
-			if ( ! is_null( $queued ) ) {
+			if ( $queued > 0 ) {
 				$status[ 'queue' ][ $module->name() ] = $queued;
 			}
 			
-			if ( ! is_null( $sent ) ) {
+			if ( $sent > 0 ) {
 				$status[ 'sent' ][ $module->name() ] = $sent;
 			}
 		}
@@ -198,6 +182,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			delete_option( "{$prefix}_{$module->name()}_queued" );
 			delete_option( "{$prefix}_{$module->name()}_sent" );
 		}
+	}
+
+	private function get_status_option( $option ) {
+		$prefix = self::STATUS_OPTION_PREFIX;
+		return intval( get_option( "{$prefix}_{$option}", 0 ) );
 	}
 
 	private function update_status_option( $name, $value ) {
