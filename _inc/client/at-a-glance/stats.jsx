@@ -15,8 +15,7 @@ import { numberFormat, moment, translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import { imagePath } from 'constants';
-import { getSiteConnectionStatus, isDevMode } from 'state/connection';
-import { demoStatsData, demoStatsBottom } from 'devmode';
+import { isDevMode } from 'state/connection';
 import QueryStatsData from 'components/data/query-stats-data';
 import {
 	getStatsData,
@@ -41,10 +40,6 @@ const DashStats = React.createClass( {
 	},
 
 	statsChart: function( unit ) {
-		if ( getSiteConnectionStatus( this.props ) === 'dev' ) {
-			return demoStatsData;
-		}
-
 		let s = [];
 
 		if ( 'object' !== typeof window.Initial_State.stats.data[unit] ) {
@@ -109,15 +104,6 @@ const DashStats = React.createClass( {
 				forEach( statsErrors, function( error ) {
 					console.log( error );
 				} );
-				if ( getSiteConnectionStatus( this.props ) === 'dev' ) {
-					return (
-						<p>
-							{
-								__( 'Error loading stats. See JavaScript console for logs.' )
-							}
-						</p>
-					);
-				}
 				return (
 					<p>
 						{
@@ -241,9 +227,7 @@ const DashStats = React.createClass( {
 const DashStatsBottom = React.createClass( {
 	statsBottom: function() {
 		let generalStats;
-		if ( getSiteConnectionStatus( this.props ) === 'dev' ) {
-			generalStats = demoStatsBottom;
-		} else if ( 'object' === typeof window.Initial_State.stats.data.general ) {
+		if ( 'object' === typeof window.Initial_State.stats.data.general ) {
 			generalStats = window.Initial_State.stats.data.general.stats;
 		} else {
 			generalStats = {
