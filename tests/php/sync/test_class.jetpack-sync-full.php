@@ -572,8 +572,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
-		$this->assertEquals( 0, $full_sync_status['sent_started'] );
-		$this->assertEquals( 0, $full_sync_status['finished'] );
+		$this->assertNull( $full_sync_status['sent_started'] );
+		$this->assertNull( $full_sync_status['finished'] );
 		$this->assertInternalType( 'array', $full_sync_status['sent'] );
 	}
 
@@ -620,7 +620,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
 		$this->assertInternalType( 'int', $full_sync_status['sent_started'] );
 		$this->assertInternalType( 'int', $full_sync_status['finished'] );
-
 	}
 
 	function test_full_sync_respects_post_and_comment_filters() {
