@@ -680,9 +680,9 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$this->assertNull( $store->get_callable( 'is_main_network' ) );
 
-		$store->set_callable( 'is_main_network', 'yes' );
+		$store->set_callable( 'is_main_network', '1' );
 
-		$this->assertEquals( 'yes', $store->get_callable( 'is_main_network' ) );
+		$this->assertEquals( '1', $store->get_callable( 'is_main_network' ) );
 	}
 
 	/**

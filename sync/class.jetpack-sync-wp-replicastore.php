@@ -1,6 +1,7 @@
 <?php
 
-require_once 'interface.jetpack-sync-replicastore.php';
+require_once dirname( __FILE__ ) . '/interface.jetpack-sync-replicastore.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 
 /**
  * An implementation of iJetpack_Sync_Replicastore which returns data stored in a WordPress.org DB.
