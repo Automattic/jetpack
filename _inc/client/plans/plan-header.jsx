@@ -23,13 +23,13 @@ const PlanHeader = React.createClass( {
 						</h2>
 
 						<p className="jp-jetpack-landing__description">
-							{ __( 'Backup, protect, repair and build a better website.' ) }
+							{ __( 'Backup, protect, repair, and build a better website.' ) }
 						</p>
 
 						<div className="jp-jetpack-landing__img-text">
 							<div className="jp-jetpack-landing__column">
 								<h2>{ __( "Threats don't discriminate" ) }</h2>
-								<p>{ __( "Hackers, botnets and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios we'll be here to help you restore your site to its former glory." ) }</p>
+								<p>{ __( "Hackers, botnets, and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios, we'll be here to help you restore your site to its former glory." ) }</p>
 								<p>
 									<Button href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl }>
 										{ __( 'Compare Plans' ) }

@@ -95,7 +95,7 @@ export const DevVersionNotice = React.createClass( {
 			);
 
 			return (
-				<SimpleNotice 
+				<SimpleNotice
 					showDismiss={ false }
 					status="is-basic"
 				>
@@ -123,7 +123,7 @@ export const StagingSiteNotice = React.createClass( {
 			);
 
 			return (
-				<SimpleNotice 
+				<SimpleNotice
 					showDismiss={ false }
 					status="is-basic"
 				>
@@ -143,28 +143,39 @@ export const DevModeNotice = React.createClass( {
 	render() {
 		const devMode = window.Initial_State.connectionStatus.devMode;
 		if ( devMode.isActive ) {
-			let devModeType = '';
 			if (devMode.filter) {
-				devModeType += __('the jetpack_development_mode filter. ');
+				const text = __('Currently in {{a}}Development Mode{{/a}} via the jetpack_development_mode filter.{br/}}Some features are disabled.',
+					{
+						components: {
+							a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+							br: <br />
+						}
+					}
+				);
 			}
 			if (devMode.constant) {
-				devModeType += __('the JETPACK_DEV_DEBUG constant. ');
+				const text = __('Currently in {{a}}Development Mode{{/a}} via the JETPACK_DEV_DEBUG constant.{{br/}}Some features are disabled.',
+					{
+						components: {
+							a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+							br: <br />
+						}
+					}
+				);
 			}
 			if (devMode.url) {
-				devModeType += __('your site URL lacking a dot (e.g. http://localhost).');
+				const text = __('Currently in {{a}}Development Mode{{/a}} because your site URL lacks a dot (e.g. http://localhost).{{br/}}Some features are disabled.',
+					{
+						components: {
+							a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+							br: <br />
+						}
+					}
+				);
 			}
 
-			const text = __('Currently in {{a}}Development Mode{{/a}} VIA ' + devModeType + '{{br/}}Some features are disabled.',
-				{
-					components: {
-						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
-						br: <br />
-					}
-				}
-			);
-
 			return (
-				<SimpleNotice 
+				<SimpleNotice
 					showDismiss={ false }
 					status="is-basic"
 				>
