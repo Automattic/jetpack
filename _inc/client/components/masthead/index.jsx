@@ -35,7 +35,7 @@ const Masthead = React.createClass( {
 							</a>
 						</li>
 						<li className="jp-masthead__link-li">
-							<a href={ 'http://surveys.jetpack.me/research-plugin?rel=' + Initial_State.currentVersion } target="_blank" className="jp-masthead__link">
+							<a href={ 'http://surveys.jetpack.me/research-plugin?rel=' + this.props.jetpack.initialState.currentVersion } target="_blank" className="jp-masthead__link">
 								<span className="dashicons dashicons-admin-comments" title={ __( 'Send us Feedback' ) } />
 								<span>
 									{ __( 'Send us Feedback' ) }
