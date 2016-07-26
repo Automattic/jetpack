@@ -4,21 +4,23 @@
 import React from 'react';
 import concat from 'lodash/concat';
 import without from 'lodash/without';
+
 /**
  * Internal dependencies
  */
- import {
+import {
 	FormLabel,
-	FormCheckbox,
 	FormRadio
- } from 'components/forms';
+} from 'components/forms';
+import Checkbox from 'components/checkbox';
+
 
 export const ModuleSettingCheckbox = React.createClass( {
 	render() {
 		const props = this.props;
 		return (
 			<FormLabel>
-				<FormCheckbox
+				<Checkbox
 					name={ props.name }
 					checked={ !! props.getOptionValue( props.name ) }
 					value={ !! props.getOptionValue( props.name ) }
@@ -87,7 +89,7 @@ export const ModuleSettingMultipleSelectCheckboxes = React.createClass( {
 				{
 				Object.keys( validValues ).map( ( key ) => (
 					<FormLabel key={ `option-${ props.option_name }-${key}` } >
-						<FormCheckbox
+						<Checkbox
 							name={ props.name }
 							checked= { this.shouldBeChecked( key ) }
 							value={ key }
