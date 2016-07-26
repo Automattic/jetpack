@@ -260,12 +260,12 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
 		$full_sync->start();
 		$status = $full_sync->get_status();
-		$this->assertNotNull( $status['started'] );
+		$this->assertTrue( $full_sync->is_started() );
 
 		$this->sender->reset_sync_queue();
 
 		$status = $full_sync->get_status();
-		$this->assertNull( $status['started'] );
+		$this->assertFalse( $full_sync->is_started() );
 	}
 
 	function test_waits_one_minute_on_server_error_with_last_item() {
