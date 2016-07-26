@@ -89,7 +89,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// allow enqueuing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
 		$started_at = $this->get_status_option( "started" );
-		if ( $started_at > 0 && $started_at + self::FULL_SYNC_TIMEOUT < time() ) {
+		if ( $started_at && $started_at + self::FULL_SYNC_TIMEOUT < time() ) {
 			return true;
 		}
 
@@ -159,11 +159,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			$queued = $this->get_status_option( "{$module->name()}_queued" );
 			$sent   = $this->get_status_option( "{$module->name()}_sent" );
 
-			if ( $queued > 0 ) {
+			if ( $queued ) {
 				$status[ 'queue' ][ $module->name() ] = $queued;
 			}
 			
-			if ( $sent > 0 ) {
+			if ( $sent ) {
 				$status[ 'sent' ][ $module->name() ] = $sent;
 			}
 		}
@@ -186,7 +186,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	private function get_status_option( $option ) {
 		$prefix = self::STATUS_OPTION_PREFIX;
-		return intval( get_option( "{$prefix}_{$option}", 0 ) );
+
+		$value = get_option( "{$prefix}_{$option}", null );
+		
+		if ( ! $value ) {
+			return null;
+		}
+
+		return intval( $value );
 	}
 
 	private function update_status_option( $name, $value ) {
