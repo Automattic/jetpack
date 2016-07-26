@@ -47,7 +47,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
 		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
 
 		return array_merge(
-			$sync_module->get_status(),
+			$sync_module->get_full_status(),
 			array( 
 				'is_scheduled' => (bool) wp_next_scheduled( 'jetpack_sync_full' ), 
 				'queue_size' => $queue->size(),

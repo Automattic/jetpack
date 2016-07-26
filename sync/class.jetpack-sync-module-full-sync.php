@@ -17,6 +17,7 @@ require_once 'class.jetpack-sync-wp-replicastore.php';
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	const STATUS_OPTION = 'jetpack_full_sync_status';
 	const FULL_SYNC_TIMEOUT = 3600;
+	private $send_modules = array();
 
 	public function name() {
 		return 'full-sync';
@@ -56,17 +57,13 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			if ( is_array( $modules ) && ! in_array( $module_name, $modules ) ) {
 				continue;
 			}
+			$this->send_modules[] = $module_name;
 
 			$items_enqueued = $module->enqueue_full_sync_actions();
 			if ( 0 !== $items_enqueued ) {
-				$status = $this->get_status();
-
-				if ( ! isset( $status['queue'][ $module_name ] ) ) {
-					$status['queue'][ $module_name ] = 0;
-				}
-
-				$status['queue'][ $module_name ] += $items_enqueued;
-				$this->update_status( $status );
+				$status = $this->get_status( 'queue', 0, $module_name );
+				$status += $items_enqueued;
+				$this->update_status( 'queue', $status, $module_name );
 			}
 		}
 
@@ -87,15 +84,16 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	private function should_start_full_sync() {
-		$status = $this->get_status();
+		$status_started = $this->get_status( 'started', null );
+		$status_finished = $this->get_status( 'finished', null );
 
 		// We should try sync if we haven't started it yet or if we have finished it.
-		if ( is_null( $status['started'] ) || is_integer( $status['finished'] ) ) {
+		if ( is_null( $status_started ) || is_integer( $status_finished ) ) {
 			return true;
 		}
 
 		// allow enqueuing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
-		if ( intval( $status['started'] ) + self::FULL_SYNC_TIMEOUT < time() ) {
+		if ( intval( $status_started ) + self::FULL_SYNC_TIMEOUT < time() ) {
 			return true;
 		}
 
@@ -105,44 +103,51 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	function update_sent_progress_action( $actions ) {
 		// quick way to map to first items with an array of arrays
 		$actions_with_counts = array_count_values( array_map( 'reset', $actions ) );
-
-		$status = $this->get_status();
-		if ( is_null( $status['started'] ) || $status['finished'] ) {
+		$status_started = $this->get_status( 'started', null );
+		$status_finished = $this->get_status( 'finished', null );
+		if ( is_null( $status_started ) || $status_finished ) {
 			return;
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_start'] ) ) {
-			$status['sent_started'] = time();
+			$this->update_status( 'sent_started', time() );
 		}
+
+		$status_sent = array();
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name    = $module->name();
 			$module_actions = $module->get_full_sync_actions();
 			foreach ( $module_actions as $module_action ) {
+				
 				if ( isset( $actions_with_counts[ $module_action ] ) ) {
-					if ( ! isset( $status['sent'][ $module_name ] ) ) {
-						$status['sent'][ $module_name ] = 0;
+					if ( ! isset( $status_sent[ $module_name ] ) ) {
+						$status_sent[ $module_name ] = $this->get_status( 'sent', 0, $module_name );
 					}
-					$status['sent'][ $module_name ] += $actions_with_counts[ $module_action ];
+					$status_sent[ $module_name ] += $actions_with_counts[ $module_action ];
 				}
 			}
+
+		}
+
+		foreach( $status_sent as $sent_module_name => $sent_module_value ) {
+			$this->update_status( 'sent', $sent_module_value, $sent_module_name );
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
-			$status['finished'] = time();
+			$this->update_status( 'finished', time() );
 		}
 
-		$this->update_status( $status );
+
 	}
 
 	private function set_status_queuing_started() {
-		$status            = $this->initial_status;
-		$status['started'] = time();
-		$this->update_status( $status );
+		$this->clear_status();
+		$this->update_status( 'started', time() );
 	}
 
 	private function set_status_queuing_finished() {
-		$this->update_status( array( 'queue_finished' => time() ) );
+		$this->update_status( 'queue_finished', time() );
 	}
 
 	private $initial_status = array(
@@ -154,18 +159,70 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		'queue'          => array(),
 	);
 
-	public function get_status() {
-		return get_option( self::STATUS_OPTION, $this->initial_status );
+	public function get_status( $status_key, $status_default_value, $module_name = null ) {
+		if ( $module_name ) {
+			return get_option( self::STATUS_OPTION . '_' . $status_key . '_' . $module_name, $status_default_value );
+		}
+		return get_option( self::STATUS_OPTION . '_' . $status_key, $status_default_value );
 	}
 
-	public function update_status( $status ) {
-		return update_option(
-			self::STATUS_OPTION,
-			array_merge( $this->get_status(), $status )
-		);
+	public function update_status( $status_key, $status_value, $module_name = null ) {
+		if ( $module_name ) {
+			return $this->update_option( self::STATUS_OPTION . '_' . $status_key . '_' . $module_name, $status_value );
+		}
+		return $this->update_option( self::STATUS_OPTION . '_' . $status_key, $status_value );
 	}
+
+	private function update_option( $option_name, $new_value ) {
+		global $wp_version;
+		if ( version_compare( '4.2.0', $wp_version, '<=' ) ) {
+			return update_option( $option_name, $new_value, false );
+		}
+		if ( get_option( $option_name ) !== false ) {
+			return update_option( $option_name, $new_value );
+		}
+		return add_option( $option_name, $new_value, null, false );
+	}
+
+	public function get_full_status() {
+		$status = array();
+		$module_names = array();
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			$module_names[] = $module->name();
+		}
+		
+		foreach( $this->initial_status as $status_key => $initial_value ) {
+			if ( is_array( $initial_value ) ) {
+				$status[ $status_key ] = array();
+				foreach( $module_names as $module_name ) {
+					$module_status = $this->get_status( $status_key, null, $module_name );
+					if ( null !== $module_status ) {
+						$status[ $status_key ][ $module_name ] = (int) $module_status;
+					}
+				}
+			} else {
+				$status[ $status_key ] = $this->get_status( $status_key, null );
+			}
+		}
+		return $status;
+	}
+
 
 	public function clear_status() {
-		delete_option( self::STATUS_OPTION );
+		$module_names = array();
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			$module_names[] = $module->name();
+		}
+
+		foreach( $this->initial_status as $status_key => $initial_value ) {
+			if ( is_array( $initial_value ) ) {
+				foreach( $module_names as $module_name ) {
+					delete_option( self::STATUS_OPTION . '_' . $status_key . '_' . $module_name );
+				}
+			} else {
+				delete_option( self::STATUS_OPTION . '_' . $status_key );
+			}
+		}
+
 	}
 }
