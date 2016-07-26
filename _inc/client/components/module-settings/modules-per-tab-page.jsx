@@ -28,6 +28,8 @@ import {
 	MarkdownSettings,
 	VerificationToolsSettings,
 } from 'components/module-settings/';
+import Button from 'components/button';
+import Gridicon from 'components/gridicon';
 
 export const EngagementModulesSettings = React.createClass( {
 	render() {
@@ -57,7 +59,7 @@ export const EngagementModulesSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<a href={ module.configure_url }>{ __( 'Settings' ) }</a>
+						<Button compact href={ module.configure_url }>{ __( 'Settings' ) } <Gridicon icon="external" /></Button>
 					</div>
 				);
 		}
