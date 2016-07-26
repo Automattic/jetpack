@@ -297,7 +297,7 @@ class Jetpack_XMLRPC_Server {
 			'code'      => (string) $api_user_code,
 		) ), $jetpack_token->secret );
 
-		if ( $hmac !== $verify ) {
+		if ( ! hash_equals( $hmac, $verify ) ) {
 			return false;
 		}
 
