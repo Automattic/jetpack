@@ -213,8 +213,8 @@ function stats_set_options($options) {
 	update_option( 'stats_options', $options );
 }
 
-function stats_upgrade_options( $options ) {
-	$defaults = array(
+function stats_get_default_options() {
+	return array(
 		'admin_bar'    => true,
 		'roles'        => array( 'administrator' ),
 		'count_roles'  => array(),
@@ -222,6 +222,10 @@ function stats_upgrade_options( $options ) {
 		'do_not_track' => true, // @todo
 		'hide_smile'   => true,
 	);
+}
+
+function stats_upgrade_options( $options ) {
+	$defaults = stats_get_default_options();
 
 	if ( isset( $options['reg_users'] ) ) {
 		if ( ! function_exists( 'get_editable_roles' ) )
