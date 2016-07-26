@@ -65,7 +65,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 1, $this->started_sync_count );
 
 		// fake the last sync being over an hour ago
-		$this->full_sync->update_status( array( 'started' => ( time() - 3700 ) ) );
+		$prefix = Jetpack_Sync_Module_Full_Sync::STATUS_OPTION_PREFIX;
+		update_option( "{$prefix}_started", time() - 3700 );
 
 		$this->full_sync->start();
 
@@ -571,8 +572,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
-		$this->assertNull( $full_sync_status['sent_started'] );
-		$this->assertNull( $full_sync_status['finished'] );
+		$this->assertEquals( 0, $full_sync_status['sent_started'] );
+		$this->assertEquals( 0, $full_sync_status['finished'] );
 		$this->assertInternalType( 'array', $full_sync_status['sent'] );
 	}
 
@@ -710,11 +711,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 		$full_sync_status = $this->full_sync->get_status();
-		$this->assertNull( $full_sync_status['finished'] );
+		$this->assertEquals( 0, $full_sync_status['finished'] );
 
 		$this->sender->do_sync();
 		$full_sync_status = $this->full_sync->get_status();
-		$this->assertNull( $full_sync_status['finished'] );
+		$this->assertEquals( 0, $full_sync_status['finished'] );
 
 		$this->sender->do_sync();
 
