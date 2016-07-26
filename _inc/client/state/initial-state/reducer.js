@@ -38,3 +38,8 @@ export function getSiteAdminUrl( state ) {
 export function isSitePublic( state ) {
 	return get( state.jetpack.initialState, [ 'connectionStatus', 'isPublic' ] );
 }
+
+export function userCanManageModules( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_modules', false );
+}
+
