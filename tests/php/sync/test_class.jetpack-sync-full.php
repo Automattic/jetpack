@@ -500,7 +500,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function create_dummy_data_and_empty_the_queue() {
-
 		// lets create a bunch of posts
 		for ( $i = 0; $i < 20; $i += 1 ) {
 			$post = $this->factory->post->create();
