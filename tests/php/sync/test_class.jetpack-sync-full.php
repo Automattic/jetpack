@@ -620,7 +620,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
 		$this->assertInternalType( 'int', $full_sync_status['sent_started'] );
 		$this->assertInternalType( 'int', $full_sync_status['finished'] );
-
 	}
 
 	function test_full_sync_respects_post_and_comment_filters() {
