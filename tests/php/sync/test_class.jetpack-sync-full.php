@@ -40,21 +40,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
 	}
 
-	function test_full_sync_wont_start_twice() {
-		$this->started_sync_count = 0;
-
-		add_action( 'jetpack_full_sync_start', array( $this, 'count_full_sync_start' ) );
-
-		$this->full_sync->start();
-
-		$this->assertEquals( 1, $this->started_sync_count );
-
-		// trying to start again shouldn't enqueue twice
-		$this->full_sync->start();
-
-		$this->assertEquals( 1, $this->started_sync_count );
-	}
-
 	function test_full_sync_lock_has_one_hour_timeout() {
 		$this->started_sync_count = 0;
 

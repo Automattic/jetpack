@@ -34,10 +34,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function start( $modules = null ) {
-		if ( ! $this->should_start_full_sync() ) {
-			return false;
-		}
-
 		// ensure listener is loaded so we can guarantee full sync actions are enqueued
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 		Jetpack_Sync_Listener::get_instance();
@@ -78,22 +74,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_end', $store->checksum_all() );
 
 		return true;
-	}
-
-	private function should_start_full_sync() {
-
-		// We should try sync if we haven't started it yet or if we have finished it.
-		if ( ! $this->is_started() || $this->is_finished() ) {
-			return true;
-		}
-
-		// allow enqueuing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
-		$started_at = $this->get_status_option( "started" );
-		if ( $started_at && $started_at + self::FULL_SYNC_TIMEOUT < time() ) {
-			return true;
-		}
-
-		return false;
 	}
 
 	function update_sent_progress_action( $actions ) {
