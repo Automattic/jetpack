@@ -1,5 +1,9 @@
 .jp-landing__plans.dops-card {
 	padding: 0;
+
+	.dops-button {
+		margin-right: 10px;
+	}
 }
 
 .jp-landing-plans__header {
@@ -11,10 +15,6 @@
 
 	@include breakpoint( "<660px" ) {
 		padding: rem( 32px );
-	}
-
-	.dops-button {
-		margin-right: 10px;
 	}
 }
 
