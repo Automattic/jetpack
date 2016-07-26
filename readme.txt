@@ -83,6 +83,7 @@ Bug Fixes:
 * General: make sure Debug tests are sent along to the Jetpack support team when using the contact form in the Jetpack Debug menu. #4398
 * Notifications: avoid PHP notices when moderating comments. #4208
 * Publicize: fix PHP notices when publishing posts via Cron. #4524
+* Security: more changes to harden Jetpack security by implementing the `hash_equals()` function in an effort to avoid timing attacks when comparing strings. #4531
 * Sharing: we fixed inconsistent horizontal spacing between the buttons when using the official buttons. #4317
 * Shortcodes: we updated the Cartodb shortcode to match the new product name, Carto. #4351
 * Shortcodes: When using the YouTube shortcode, we now use the content width defined by the theme when available, even if an embed size was defined in an old version of WordPress. #4420
