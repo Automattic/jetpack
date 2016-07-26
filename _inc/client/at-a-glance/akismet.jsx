@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
-import { translate as __ } from 'i18n-calypso';
+import { numberFormat, translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -116,7 +116,7 @@ const DashAkismet = React.createClass( {
 				status="is-working"
 				pro={ true }
 			>
-				<h2 className="jp-dash-item__count">{ akismetData.all.spam }</h2>
+				<h2 className="jp-dash-item__count">{ numberFormat( akismetData.all.spam ) }</h2>
 				<p className="jp-dash-item__description">
 					{
 						__( 'Spam comments blocked.', {
