@@ -21,16 +21,17 @@ import {
 
 const DashAkismet = React.createClass( {
 	activateManageAndRedirect: function( e ) {
+		const props = this.props;
 		e.preventDefault();
 
 		this.props.activateModule( 'manage' )
-			.then( window.location = 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl )
+			.then( window.location = 'https://wordpress.com/plugins/akismet/' + props.siteRawUrl )
 			.catch( console.log( 'Error: unable to activate Manage' ) );
 	},
 
 	getContent: function() {
 		const akismetData = this.props.getAkismetData(),
-			akismetSettingsUrl = window.Initial_State.adminUrl + 'admin.php?page=akismet-key-config',
+			akismetSettingsUrl = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config',
 			labelName = __( 'Spam Protection' ),
 			hasSitePlan = false !== this.props.getSitePlan();
 
@@ -83,7 +84,7 @@ const DashAkismet = React.createClass( {
 						{
 							__( 'For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}.', {
 								components: {
-									a: <a href={ 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl } target="_blank" />
+									a: <a href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl } target="_blank" />
 								}
 							} )
 						}
