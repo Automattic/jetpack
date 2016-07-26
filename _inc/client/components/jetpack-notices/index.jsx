@@ -143,8 +143,9 @@ export const DevModeNotice = React.createClass( {
 	render() {
 		const devMode = window.Initial_State.connectionStatus.devMode;
 		if ( devMode.isActive ) {
-			if (devMode.filter) {
-				const text = __('Currently in {{a}}Development Mode{{/a}} via the jetpack_development_mode filter.{br/}}Some features are disabled.',
+			let text;
+			if ( devMode.filter ) {
+				text = __('Currently in {{a}}Development Mode{{/a}} via the jetpack_development_mode filter.{br/}}Some features are disabled.',
 					{
 						components: {
 							a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
@@ -152,9 +153,8 @@ export const DevModeNotice = React.createClass( {
 						}
 					}
 				);
-			}
-			if (devMode.constant) {
-				const text = __('Currently in {{a}}Development Mode{{/a}} via the JETPACK_DEV_DEBUG constant.{{br/}}Some features are disabled.',
+			} else if ( devMode.constant ) {
+				text = __('Currently in {{a}}Development Mode{{/a}} via the JETPACK_DEV_DEBUG constant.{{br/}}Some features are disabled.',
 					{
 						components: {
 							a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
@@ -162,9 +162,8 @@ export const DevModeNotice = React.createClass( {
 						}
 					}
 				);
-			}
-			if (devMode.url) {
-				const text = __('Currently in {{a}}Development Mode{{/a}} because your site URL lacks a dot (e.g. http://localhost).{{br/}}Some features are disabled.',
+			} else if ( devMode.url ) {
+				text = __('Currently in {{a}}Development Mode{{/a}} because your site URL lacks a dot (e.g. http://localhost).{{br/}}Some features are disabled.',
 					{
 						components: {
 							a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
