@@ -181,8 +181,7 @@ function stats_footer() {
 function stats_get_options() {
 	$options = get_option( 'stats_options' );
 
-	if ( ( ! isset( $options['version'] ) || $options['version'] < STATS_VERSION ) &&
-		( is_admin() || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) ) {
+	if ( ( ! isset( $options['version'] ) || $options['version'] < STATS_VERSION ) ) {
 		$options = stats_upgrade_options( $options );
 	}
 
@@ -247,9 +246,12 @@ function stats_upgrade_options( $options ) {
 
 	$new_options['version'] = STATS_VERSION;
 
-	stats_set_options( $new_options );
+	// Prevent frontend writes, which causes a slam on high traffic sites
+	if ( is_admin() || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
+		stats_set_options( $new_options );
 
-	stats_update_blog();
+		stats_update_blog();
+	}
 
 	return $new_options;
 }
