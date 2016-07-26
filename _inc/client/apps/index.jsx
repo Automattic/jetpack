@@ -46,7 +46,7 @@ const Apps = ( props ) => {
 					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
 						<h3 className="jp-landing__apps-feature-title">{ __( 'Bulk and automatic updates' ) }</h3>
 						<p className="jp-landing__apps-feature-text">{ __( 'Most security flaws are found in outdated plugins. Use our Web and Desktop apps to turn on auto-updates or update plugins manually for all your websites in one convenient place.' ) }</p>
-						<Button href={ 'https://wordpress.com/plugins/' + window.Initial_State.rawUrl }	className="is-primary">
+						<Button href={ 'https://wordpress.com/plugins/' + props.siteRawUrl }	className="is-primary">
 							{ __( 'Manage Plugins' ) }
 						</Button>
 					</div>
@@ -56,7 +56,7 @@ const Apps = ( props ) => {
 					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
 						<h3 className="jp-landing__apps-feature-title">{ __( 'Focus on your Writing' ) }</h3>
 						<p className="jp-landing__apps-feature-text">{ __( 'Our new editor is lightning fast, optimized for writers and eliminates distractions, giving you the ability to focus on your work.' ) }</p>
-						<Button href={ 'https://wordpress.com/post/' + window.Initial_State.rawUrl }	className="is-primary">
+						<Button href={ 'https://wordpress.com/post/' + props.siteRawUrl }	className="is-primary">
 							{ __( 'Try the New Editor' ) }
 						</Button>
 					</div>
@@ -74,7 +74,7 @@ const Apps = ( props ) => {
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
 								<h2>{ __( 'Connect with your Visitors' ) }</h2>
 								<p>{ __( 'Monitor your visitors with advanced stats. Watch for trends, learn what content performs the best and understand your visitors from anywhere in the world.' ) }</p>
-								<Button href={ 'https://wordpress.com/stats/' + window.Initial_State.rawUrl }	className="is-primary">
+								<Button href={ 'https://wordpress.com/stats/' + props.siteRawUrl }	className="is-primary">
 									{ __( 'View Your Stats' ) }
 								</Button>
 							</div>
