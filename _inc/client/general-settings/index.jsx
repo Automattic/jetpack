@@ -5,6 +5,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import FoldableCard from 'components/foldable-card';
+import Button from 'components/button';
+import Gridicon from 'components/gridicon';
 import Settings from 'components/settings';
 import { translate as __ } from 'i18n-calypso';
 
@@ -45,7 +47,9 @@ const GeneralSettings = React.createClass( {
 				expandedSummary={ nonAdmin ? '' : toggle( module_slug ) }
 			>
 				<div dangerouslySetInnerHTML={ renderLongDescription( this.props.getModule( module_slug ) ) } />
-				<a href={ this.props.getModule( module_slug ).learn_more_button } target="_blank">{ __( 'Learn More' ) }</a>
+				<div className="jp-module-settings__read-more">
+					<Button borderless compact href={ this.props.getModule( module_slug ).learn_more_button }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
+				</div>
 			</FoldableCard>;
 
 		const maybeShowManage = this.props.isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' );

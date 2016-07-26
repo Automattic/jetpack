@@ -4,6 +4,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
+import Button from 'components/button';
+import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -87,20 +89,21 @@ export const Page = ( props ) => {
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
-				<p>
-					<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
-					{
-						'subscriptions' === element[0] && isModuleActive ? (
-							<span> | {
-								__( 'View your {{a}}Email Followers{{/a}}', {
-									components: {
-										a: <a href={ 'https://wordpress.com/people/email-followers/' + window.Initial_State.rawUrl } />
-									}
-								} )
-							}</span>
-						) : ''
-					}
-				</p>
+				<div className="jp-module-settings__read-more">
+					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
+				</div>
+				{
+					'subscriptions' === element[0] && isModuleActive ? (
+						<p>
+							{
+							__( 'View your {{a}}Email Followers{{/a}}', {
+								components: {
+									a: <a href={ 'https://wordpress.com/people/email-followers/' + window.Initial_State.rawUrl } />
+								}
+							} )
+						}</p>
+					) : ''
+				}
 			</FoldableCard>
 		);
 	} );
