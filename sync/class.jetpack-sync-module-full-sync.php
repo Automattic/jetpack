@@ -202,6 +202,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	private function update_status_option( $name, $value ) {
 		$prefix = self::STATUS_OPTION_PREFIX;
-		update_option( "{$prefix}_{$name}", $value, false );
+		/**
+		 * Allowing update_option to change autoload status only shipped in WordPress v4.2
+		 * @link https://github.com/WordPress/WordPress/commit/305cf8b95
+		 */
+		if ( version_compare( $GLOBALS['wp_version'], '4.2', '>=' ) ) {
+			update_option( "{$prefix}_{$name}", $value, false );
+		} else {
+			update_option( "{$prefix}_{$name}", $value );
+		}
 	}
 }
