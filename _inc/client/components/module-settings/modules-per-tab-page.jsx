@@ -29,7 +29,6 @@ import {
 	VerificationToolsSettings,
 } from 'components/module-settings/';
 import Button from 'components/button';
-import Gridicon from 'components/gridicon';
 
 export const EngagementModulesSettings = React.createClass( {
 	render() {
@@ -59,7 +58,7 @@ export const EngagementModulesSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<Button compact href={ module.configure_url }>{ __( 'Settings' ) } <Gridicon icon="external" /></Button>
+						<Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
 					</div>
 				);
 		}
