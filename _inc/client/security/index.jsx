@@ -155,6 +155,17 @@ export const Page = ( props ) => {
 					props.isPluginActive( 'akismet/akismet.php' )
 			};
 			toggle = ! isFetchingSiteData ? getProToggle( proProps.isProPluginActive, proProps.isProPluginInstalled ) : '';
+
+			// Add a "pro" button next to the header title
+			element[1] = <span>
+				{ element[1] }
+				<Button
+					compact={ true }
+				    href="#professional"
+				>
+					{ __( 'Pro' ) }
+				</Button>
+			</span>
 		}
 
 		return (
