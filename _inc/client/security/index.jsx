@@ -39,8 +39,8 @@ export const Page = ( props ) => {
 		[ 'scan', __( 'Security Scanning' ), __( 'Automatically scan your site for common threats and attacks.' ) ],
 		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
 		[ 'monitor', getModule( 'monitor' ).name, getModule( 'monitor' ).description, getModule( 'monitor' ).learn_more_button ],
-		[ 'akismet', 'Akismet', __( 'Keep those spammers away!' ) ],
-		[ 'backups', __( 'Site Backups' ), __( 'Keep your site backed up!' ) ],
+		[ 'akismet', 'Akismet', __( 'Keep those spammers away!' ), 'https://akismet.com/jetpack/' ],
+		[ 'backups', __( 'Site Backups' ), __( 'Keep your site backed up!' ), 'https://vaultpress.com/jetpack/' ],
 		[ 'sso', getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
 	].map( ( element ) => {
 		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
