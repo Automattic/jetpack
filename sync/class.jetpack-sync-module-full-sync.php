@@ -137,11 +137,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->update_status_option( "queue_finished", time() );
 	}
 
-	private function is_started() {
+	public function is_started() {
 		return !! $this->get_status_option( "started" );
 	}
 
-	private function is_finished() {
+	public function is_finished() {
 		return !! $this->get_status_option( "finished" );
 	}
 
