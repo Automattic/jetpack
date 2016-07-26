@@ -105,7 +105,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		// quick way to map to first items with an array of arrays
 		$actions_with_counts = array_count_values( array_map( 'reset', $actions ) );
 
-		$status = $this->get_status();
 		if ( ! $this->is_started() || $this->is_finished() ) {
 			return;
 		}
@@ -115,7 +114,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module_name    = $module->name();
 			$module_actions = $module->get_full_sync_actions();
 			$items_sent     = 0;
 			foreach ( $module_actions as $module_action ) {
