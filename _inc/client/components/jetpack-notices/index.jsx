@@ -13,7 +13,8 @@ import JetpackStateNotices from './state-notices';
 import {
 	getJetpackNotices as _getJetpackNotices
 } from 'state/jetpack-notices';
-import { getSiteConnectionStatus as _getSiteConnectionStatus } from 'state/connection';
+import { getSiteConnectionStatus, getSiteDevMode, isStaging } from 'state/connection';
+import { isDevVersion } from 'state/initial-state';
 import {
 	isNoticeDismissed as _isNoticeDismissed,
 	dismissJetpackNotice
@@ -85,7 +86,7 @@ export const DevVersionNotice = React.createClass( {
 	displayName: 'DevVersionNotice',
 
 	render() {
-		if ( window.Initial_State.isDevVersion ) {
+		if ( isDevVersion( this.props ) ) {
 			const text = __( 'You are currently running a development version of Jetpack. {{a}} Submit your feedback {{/a}}',
 				{
 					components: {
@@ -113,7 +114,7 @@ export const StagingSiteNotice = React.createClass( {
 	displayName: 'StagingSiteNotice',
 
 	render() {
-		if ( window.Initial_State.connectionStatus.isStaging ) {
+		if ( isStaging( this.props ) ) {
 			const text = __( 'You are running Jetpack on a {{a}}staging server{{/a}}.',
 				{
 					components: {
@@ -141,8 +142,8 @@ export const DevModeNotice = React.createClass( {
 	displayName: 'DevModeNotice',
 
 	render() {
-		const devMode = window.Initial_State.connectionStatus.devMode;
-		if ( devMode.isActive ) {
+		if ( getSiteConnectionStatus( this.props ) === 'dev' ) {
+			const devMode = getSiteDevMode( this.props );
 			let text;
 			if ( devMode.filter ) {
 				text = __('Currently in {{a}}Development Mode{{/a}} via the jetpack_development_mode filter.{br/}}Some features are disabled.',
