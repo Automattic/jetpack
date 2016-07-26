@@ -15,7 +15,7 @@
 require_once 'class.jetpack-sync-wp-replicastore.php';
 
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
-	const STATUS_OPTION = 'jetpack_full_sync_status';
+	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
 	const FULL_SYNC_TIMEOUT = 3600;
 
 	public function name() {
@@ -51,6 +51,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_start' );
 		$this->set_status_queuing_started();
 
+		$prefix = self::STATUS_OPTION_PREFIX;
+
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
 			if ( is_array( $modules ) && ! in_array( $module_name, $modules ) ) {
@@ -58,15 +60,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			}
 
 			$items_enqueued = $module->enqueue_full_sync_actions();
-			if ( 0 !== $items_enqueued ) {
-				$status = $this->get_status();
-
-				if ( ! isset( $status['queue'][ $module_name ] ) ) {
-					$status['queue'][ $module_name ] = 0;
-				}
-
-				$status['queue'][ $module_name ] += $items_enqueued;
-				$this->update_status( $status );
+			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
+				// TODO: only update this once every N items, then at end - why cause all that DB churn?
+				update_option( "{$prefix}_{$module->name()}_queued", $items_enqueued );
 			}
 		}
 
@@ -87,15 +83,16 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	private function should_start_full_sync() {
-		$status = $this->get_status();
 
 		// We should try sync if we haven't started it yet or if we have finished it.
-		if ( is_null( $status['started'] ) || is_integer( $status['finished'] ) ) {
+		if ( ! $this->is_started() || $this->is_finished() ) {
 			return true;
 		}
 
 		// allow enqueuing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
-		if ( intval( $status['started'] ) + self::FULL_SYNC_TIMEOUT < time() ) {
+		$prefix = self::STATUS_OPTION_PREFIX;
+		$started_at = get_option( "{$prefix}_started", 0 );
+		if ( intval( $started_at ) + self::FULL_SYNC_TIMEOUT < time() ) {
 			return true;
 		}
 
@@ -103,69 +100,98 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function update_sent_progress_action( $actions ) {
+		$prefix = self::STATUS_OPTION_PREFIX;
+
 		// quick way to map to first items with an array of arrays
 		$actions_with_counts = array_count_values( array_map( 'reset', $actions ) );
 
 		$status = $this->get_status();
-		if ( is_null( $status['started'] ) || $status['finished'] ) {
+		if ( ! $this->is_started() || $this->is_finished() ) {
 			return;
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_start'] ) ) {
-			$status['sent_started'] = time();
+			update_option( "{$prefix}_sent_started", time() );
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name    = $module->name();
 			$module_actions = $module->get_full_sync_actions();
+			$items_sent     = 0;
 			foreach ( $module_actions as $module_action ) {
 				if ( isset( $actions_with_counts[ $module_action ] ) ) {
-					if ( ! isset( $status['sent'][ $module_name ] ) ) {
-						$status['sent'][ $module_name ] = 0;
-					}
-					$status['sent'][ $module_name ] += $actions_with_counts[ $module_action ];
+					$items_sent += $actions_with_counts[ $module_action ];
 				}
 			}
+
+			if ( $items_sent > 0 ) {
+				update_option( "{$prefix}_{$module->name()}_sent", $items_sent );
+			}	
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
-			$status['finished'] = time();
+			update_option( "{$prefix}_finished", time() );
 		}
-
-		$this->update_status( $status );
 	}
 
 	private function set_status_queuing_started() {
-		$status            = $this->initial_status;
-		$status['started'] = time();
-		$this->update_status( $status );
+		$this->clear_status();
+		$prefix = self::STATUS_OPTION_PREFIX;
+		update_option( "{$prefix}_started", time() );
 	}
 
 	private function set_status_queuing_finished() {
-		$this->update_status( array( 'queue_finished' => time() ) );
+		$prefix = self::STATUS_OPTION_PREFIX;
+		update_option( "{$prefix}_queue_finished", time() );
 	}
 
-	private $initial_status = array(
-		'started'        => null,
-		'queue_finished' => null,
-		'sent_started'   => null,
-		'finished'       => null,
-		'sent'           => array(),
-		'queue'          => array(),
-	);
+	private function is_started() {
+		$prefix = self::STATUS_OPTION_PREFIX;
+		return ! is_null( get_option( "{$prefix}_started", null ) );
+	}
+
+	private function is_finished() {
+		$prefix = self::STATUS_OPTION_PREFIX;
+		return !! get_option( "{$prefix}_finished", null );
+	}
 
 	public function get_status() {
-		return get_option( self::STATUS_OPTION, $this->initial_status );
-	}
-
-	public function update_status( $status ) {
-		return update_option(
-			self::STATUS_OPTION,
-			array_merge( $this->get_status(), $status )
+		$prefix = self::STATUS_OPTION_PREFIX;
+		$status = array(
+			'started'        => get_option( "{$prefix}_started", null ),
+			'queue_finished' => get_option( "{$prefix}_queue_finished", null ),
+			'sent_started'   => get_option( "{$prefix}_sent_started", null ),
+			'finished'       => get_option( "{$prefix}_finished", null ),
+			'sent'           => array(),
+			'queue'          => array(),
 		);
+
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			$queued = get_option( "{$prefix}_{$module->name()}_queued", null );
+			$sent = get_option( "{$prefix}_{$module->name()}_sent", null );
+
+			if ( ! is_null( $queued ) ) {
+				$status[ 'queue' ][ $module->name() ] = $queued;
+			}
+			
+			if ( ! is_null( $sent ) ) {
+				$status[ 'sent' ][ $module->name() ] = $sent;
+			}
+		}
+
+		return $status;
 	}
 
 	public function clear_status() {
-		delete_option( self::STATUS_OPTION );
+		$prefix = self::STATUS_OPTION_PREFIX;
+		delete_option( "{$prefix}_started" );
+		delete_option( "{$prefix}_queue_finished" );
+		delete_option( "{$prefix}_sent_started" );
+		delete_option( "{$prefix}_finished" );
+
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			delete_option( "{$prefix}_{$module->name()}_queued" );
+			delete_option( "{$prefix}_{$module->name()}_sent" );
+		}
 	}
 }
