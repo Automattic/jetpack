@@ -228,17 +228,22 @@ function stats_upgrade_options( $options ) {
 	$defaults = stats_get_default_options();
 
 	if ( isset( $options['reg_users'] ) ) {
-		if ( ! function_exists( 'get_editable_roles' ) )
+		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/user.php' );
-		if ( $options['reg_users'] )
+		}
+
+		if ( $options['reg_users'] ) {
 			$options['count_roles'] = array_keys( get_editable_roles() );
+		}
+
 		unset( $options['reg_users'] );
 	}
 
-	if ( is_array( $options ) && !empty( $options ) )
+	if ( is_array( $options ) && ! empty( $options ) ) {
 		$new_options = array_merge( $defaults, $options );
-	else
+	} else {
 		$new_options = $defaults;
+	}
 
 	$new_options['version'] = STATS_VERSION;
 
