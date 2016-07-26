@@ -337,7 +337,7 @@ add_filter( 'pre_kses', 'jetpack_dailymotion_embed_reversal' );
  * @param array $atts
  * @return string html
  */
-function dailymotion_widget_shortcode( $atts ) {
+function jetpack_dailymotion_widget_shortcode( $atts ) {
 	if ( isset( $atts['id'] ) ) {
 		$id = $atts['id'];
 	} else {
@@ -350,12 +350,12 @@ function dailymotion_widget_shortcode( $atts ) {
 	return $output;
 }
 
-add_shortcode( 'dailymotion-widget', 'dailymotion_widget_shortcode' );
+add_shortcode( 'dailymotion-widget', 'jetpack_dailymotion_widget_shortcode' );
 
 /**
  * Embed Reversal for Dailymotion widget
  */
-function dailymotion_widget_reversal( $content ) {
+function jetpack_dailymotion_widget_reversal( $content ) {
 
 	if ( false === stripos( $content, 'dailymotion-widget' ) ) {
 		return $content;
@@ -385,4 +385,4 @@ function dailymotion_widget_reversal( $content ) {
 	return $content;
 }
 
-add_filter( 'pre_kses', 'dailymotion_widget_reversal' );
+add_filter( 'pre_kses', 'jetpack_dailymotion_widget_reversal' );
