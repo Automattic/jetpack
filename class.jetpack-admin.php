@@ -42,7 +42,6 @@ class Jetpack_Admin {
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu',            array( $this->settings_page, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu',            array( $this->my_jetpack_page, 'add_actions' ) );
-		add_action( 'jetpack_admin_menu',            array( $this->sync_dashboard, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules
 		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ), 10, 2 );
