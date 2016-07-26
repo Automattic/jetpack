@@ -29,7 +29,7 @@
 		align-items: center;
 		background: transparent url('../../images/jp-4/white-clouds.svg') 50% 100% no-repeat;
 		background-size: 110%; // safari bug
-		padding-bottom: rem( 64px );
+		padding-bottom: rem( 80px );
 	}
 
 	@include breakpoint( "<660px" ) {
@@ -81,10 +81,12 @@
 .jp-landing-plans__header-description {
 	font-size: rem( 14px );
 	margin: 0;
+	padding-bottom: rem( 16px );
 }
 
 .jp-landing-plans__header-subtitle {
 	font-size: rem( 16px );
+	line-height: 1.25;
 }
 
 .jp-landing-plans__header-description,
@@ -94,10 +96,12 @@
 
 .jp-landing-plans__header-text {
 	font-size: rem( 14px );
+	padding: rem( 24px ) 0;
+	margin: 0;
 }
 
 .jp-landing-plans__header-btn-container {
-	margin: rem( 16px ) 0 0;
+	margin: 0;
 }
 
 .jp-landing__plan-features-card {
