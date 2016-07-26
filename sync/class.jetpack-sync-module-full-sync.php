@@ -51,8 +51,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_start' );
 		$this->set_status_queuing_started();
 
-		$prefix = self::STATUS_OPTION_PREFIX;
-
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
 			if ( is_array( $modules ) && ! in_array( $module_name, $modules ) ) {
@@ -62,7 +60,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			$items_enqueued = $module->enqueue_full_sync_actions();
 			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
 				// TODO: only update this once every N items, then at end - why cause all that DB churn?
-				update_option( "{$prefix}_{$module->name()}_queued", $items_enqueued );
+				$this->update_status_option( "{$module->name()}_queued", $items_enqueued );
 			}
 		}
 
@@ -110,7 +108,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_start'] ) ) {
-			update_option( "{$prefix}_sent_started", time() );
+			$this->update_status_option( "sent_started", time() );
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
@@ -123,24 +121,24 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			}
 
 			if ( $items_sent > 0 ) {
-				update_option( "{$prefix}_{$module->name()}_sent", $items_sent );
+				$this->update_status_option( "{$module->name()}_sent", $items_sent );
 			}	
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
-			update_option( "{$prefix}_finished", time() );
+			$this->update_status_option( "finished", time() );
 		}
 	}
 
 	private function set_status_queuing_started() {
 		$this->clear_status();
 		$prefix = self::STATUS_OPTION_PREFIX;
-		update_option( "{$prefix}_started", time() );
+		$this->update_status_option( "started", time() );
 	}
 
 	private function set_status_queuing_finished() {
 		$prefix = self::STATUS_OPTION_PREFIX;
-		update_option( "{$prefix}_queue_finished", time() );
+		$this->update_status_option( "queue_finished", time() );
 	}
 
 	private function get_status_option( $option ) {
@@ -200,5 +198,10 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			delete_option( "{$prefix}_{$module->name()}_queued" );
 			delete_option( "{$prefix}_{$module->name()}_sent" );
 		}
+	}
+
+	private function update_status_option( $name, $value ) {
+		$prefix = self::STATUS_OPTION_PREFIX;
+		update_option( "{$prefix}_{$name}", $value, false );
 	}
 }
