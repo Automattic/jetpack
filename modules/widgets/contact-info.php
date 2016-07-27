@@ -60,6 +60,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'phone'   => _x( '1-202-555-1212', 'Example of a phone number', 'jetpack' ),
 				'hours'   => __( "Lunch: 11am - 2pm \nDinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am", 'jetpack' ),
 				'showmap' => 1,
+				'apikey'  => null,
 				'lat'     => null,
 				'lon'     => null
 			);
@@ -97,7 +98,15 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				/** This action is documented in modules/widgets/contact-info.php */
 				if ( $showmap && $this->has_good_map( $instance ) ) {
-					echo $this->build_map( $instance['address'] );
+					/**
+					 * Set a Google Maps API Key.
+					 *
+					 * @since 4.1.0
+					 *
+					 * @param string $api_key Google Maps API Key
+					 */
+					$api_key = apply_filters( 'jetpack_google_maps_api_key', $instance['apikey'] );
+					echo $this->build_map( $instance['address'], $api_key );
 				}
 
 				$map_link = $this->build_map_link( $instance['address'] );
@@ -154,6 +163,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$instance['address'] = wp_kses( $new_instance['address'], array() );
 			$instance['phone']   = wp_kses( $new_instance['phone'], array() );
 			$instance['hours']   = wp_kses( $new_instance['hours'], array() );
+			$instance['apikey']  = wp_kses( isset( $new_instance['apikey'] ) ? $new_instance['apikey'] : $old_instance['apikey'], array() );
 			$instance['lat']     = isset( $old_instance['lat'] ) ? floatval( $old_instance['lat'] ) : 0;
 			$instance['lon']     = isset( $old_instance['lon'] ) ? floatval( $old_instance['lon'] ) : 0;
 
@@ -167,7 +177,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				$address = $this->urlencode_address( $instance['address'] );
 				$path    = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
 				/** This action is documented in modules/widgets/contact-info.php */
-				$key = apply_filters( 'jetpack_google_maps_api_key', null );
+				$key = apply_filters( 'jetpack_google_maps_api_key', $instance['apikey'] );
 
 				if ( ! empty( $key ) ) {
 					$path = add_query_arg( 'key', $key, $path );
@@ -220,6 +230,12 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 */
 		function form( $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
+			wp_enqueue_script( 'contact-info-admin', plugins_url( 'contact-info/contact-info-admin.js', __FILE__ ), array( 'jquery' ), 20160727 );
+			wp_localize_script( 'contact-info-admin', 'jetpackContactInfoFieldIds', array(
+				'showmap' => $this->get_field_id( 'showmap' ),
+				'apikey' => $this->get_field_id( 'apikey' )
+			) );
+
 			?>
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
@@ -244,6 +260,16 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				}
 				?>
 			</p>
+
+			<p style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>">
+					<?php _e( 'Google Maps API Key', 'jetpack' ); ?>
+					<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'apikey' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['apikey'] ); ?>" />
+					<br />
+					<small><?php printf( wp_kses( __( 'Google now requires an API key to use their maps on your site. <a href="%s">See our documentation</a> for instructions on acquiring a key.' ), array( 'a' => array( 'href' => true ) ) ), 'https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/' ); ?></small>
+				</label>
+			</p>
+
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>"><?php esc_html_e( 'Phone:', 'jetpack' ); ?></label>
 				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'phone' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['phone'] ); ?>" />
@@ -279,19 +305,11 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 *
 		 * @return string HTML of the map
 		 */
-		function build_map( $address ) {
+		function build_map( $address, $api_key = null ) {
 			$this->enqueue_scripts();
 			$src = add_query_arg( 'q', urlencode( $address ), 'https://www.google.com/maps/embed/v1/place' );
-			/**
-			 * Set a Google Maps API Key.
-			 *
-			 * @since 4.1.0
-			 *
-			 * @param string $key Google Maps API Key
-			 */
-			$key = apply_filters( 'jetpack_google_maps_api_key', null );
-			if ( ! empty( $key ) ) {
-				$src = add_query_arg( 'key', $key, $src );
+			if ( ! empty( $api_key ) ) {
+				$src = add_query_arg( 'key', $api_key, $src );
 			}
 
 			return '<iframe width="600" height="216" frameborder="0" src="' . esc_url( $src ) . '" class="contact-map"></iframe>';
