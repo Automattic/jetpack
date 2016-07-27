@@ -100,11 +100,13 @@ class Jetpack_Sync_Listener {
 	}
 
 	function full_sync_action_handler() {
-		$this->enqueue_action( current_filter(), func_get_args(), $this->full_sync_queue );
+		$args           = func_get_args();
+		$this->enqueue_action( current_filter(), $args, $this->full_sync_queue );
 	}
 
 	function action_handler() {
-		$this->enqueue_action( current_filter(), func_get_args(), $this->sync_queue );
+		$args           = func_get_args();
+		$this->enqueue_action( current_filter(), $args, $this->sync_queue );
 	}
 
 	function enqueue_action( $current_filter, $args, $queue ) {
