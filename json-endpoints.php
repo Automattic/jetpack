@@ -1000,7 +1000,7 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Update_Post_Endpoint( array(
-	'description' => 'Delete a post. Note: If the post object is of type post or page and the trash is enabled, this request will send the post to the trash. A second request will permanently delete the post.',
+	'description' => 'Delete a post. Note: If the trash is enabled, this request will send the post to the trash. A second request will permanently delete the post.',
 	'group'       => 'posts',
 	'stat'        => 'posts:1:delete',
 	'new_version' => '1.1',
@@ -1022,7 +1022,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
-	'description' => 'Delete a post. Note: If the post object is of type post or page and the trash is enabled, this request will send the post to the trash. A second request will permanently delete the post.',
+	'description' => 'Delete a post. Note: If the trash is enabled, this request will send the post to the trash. A second request will permanently delete the post.',
 	'group'       => 'posts',
 	'stat'        => 'posts:1:delete',
 	'min_version' => '1.1',
