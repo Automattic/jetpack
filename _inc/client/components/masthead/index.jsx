@@ -27,7 +27,7 @@ const Masthead = React.createClass( {
 
 					<ul className="jp-masthead__links">
 						<li className="jp-masthead__link-li">
-							<a href="http://jetpack.com/support/" target="_blank" className="jp-masthead__link">
+							<a href="https://jetpack.com/support/" target="_blank" className="jp-masthead__link">
 								<span className="dashicons dashicons-editor-help" title={ __( 'Need Help?' ) } />
 								<span>
 									{ __( 'Need Help?' ) }
