@@ -5,12 +5,25 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		return 'themes';
 	}
 
-	public function init_listeners( $handler ) {
-		add_action( 'switch_theme', array( $this, 'enqueue_full_sync_actions' ) );
-		add_action( 'jetpack_sync_current_theme_support', $handler, 10 );
+	public function init_listeners( $callable ) {
+		add_action( 'switch_theme', array( $this, 'sync_theme_support' ) );
+		add_action( 'jetpack_sync_current_theme_support', $callable );
 	}
 
-	function enqueue_full_sync_actions() {
+	// TODO: distinct action for full sync
+	public function init_full_sync_listeners( $callable ) {
+		add_action( 'jetpack_full_sync_themes', $callable );
+	}
+
+	public function sync_theme_support() {
+		$this->enqueue_theme_support_as_action( 'jetpack_sync_current_theme_support' );		
+	}
+
+	public function enqueue_full_sync_actions() {
+		return $this->enqueue_theme_support_as_action( 'jetpack_full_sync_themes' );
+	}
+
+	function enqueue_theme_support_as_action( $action_name ) {
 		global $_wp_theme_features;
 
 		$theme_support = array();
@@ -30,12 +43,12 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		 *
 		 * @param object the theme support hash
 		 */
-		do_action( 'jetpack_sync_current_theme_support', $theme_support );
+		do_action( $action_name, $theme_support );
 
 		return 1; // The number of actions enqueued
 	}
 
 	function get_full_sync_actions() {
-		return array( 'jetpack_sync_current_theme_support' );
+		return array( 'jetpack_full_sync_themes' );
 	}
 }

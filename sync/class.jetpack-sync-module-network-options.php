@@ -17,13 +17,14 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		add_action( 'update_site_option', $callable, 10, 3 );
 		add_action( 'delete_site_option', $callable, 10, 1 );
 
-		// full sync
-		add_action( 'jetpack_full_sync_network_options', $callable );
-
 		$whitelist_network_option_handler = array( $this, 'whitelist_network_options' );
 		add_filter( 'jetpack_sync_before_enqueue_delete_site_option', $whitelist_network_option_handler );
 		add_filter( 'jetpack_sync_before_enqueue_add_site_option', $whitelist_network_option_handler );
 		add_filter( 'jetpack_sync_before_enqueue_update_site_option', $whitelist_network_option_handler );
+	}
+
+	public function init_full_sync_listeners( $callable ) {
+		add_action( 'jetpack_full_sync_network_options', $callable );
 	}
 
 	public function init_before_send() {
