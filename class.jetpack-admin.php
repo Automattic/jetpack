@@ -27,11 +27,6 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class.jetpack-react-page' );
 		$this->jetpack_react = new Jetpack_React_Page;
 
-		// TODO: reactify
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-dashboard.php';
-		$this->sync_dashboard = new Jetpack_Sync_Dashboard;
-		$this->sync_dashboard->init();
-
 		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
 		$this->fallback_page = new Jetpack_Settings_Page;
 
@@ -39,7 +34,6 @@ class Jetpack_Admin {
 		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
-		add_action( 'jetpack_admin_menu',            array( $this->sync_dashboard, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu',            array( $this->fallback_page, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules

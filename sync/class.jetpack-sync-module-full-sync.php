@@ -15,14 +15,14 @@
 require_once 'class.jetpack-sync-wp-replicastore.php';
 
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
-	const STATUS_OPTION = 'jetpack_full_sync_status';
+	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
 	const FULL_SYNC_TIMEOUT = 3600;
 
 	public function name() {
 		return 'full-sync';
 	}
 
-	function init_listeners( $callable ) {
+	function init_full_sync_listeners( $callable ) {
 		// synthetic actions for full sync
 		add_action( 'jetpack_full_sync_start', $callable );
 		add_action( 'jetpack_full_sync_end', $callable );
@@ -58,15 +58,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			}
 
 			$items_enqueued = $module->enqueue_full_sync_actions();
-			if ( 0 !== $items_enqueued ) {
-				$status = $this->get_status();
-
-				if ( ! isset( $status['queue'][ $module_name ] ) ) {
-					$status['queue'][ $module_name ] = 0;
-				}
-
-				$status['queue'][ $module_name ] += $items_enqueued;
-				$this->update_status( $status );
+			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
+				// TODO: only update this once every N items, then at end - why cause all that DB churn?
+				$this->update_status_option( "{$module->name()}_queued", $items_enqueued );
 			}
 		}
 
@@ -87,15 +81,15 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	private function should_start_full_sync() {
-		$status = $this->get_status();
 
 		// We should try sync if we haven't started it yet or if we have finished it.
-		if ( is_null( $status['started'] ) || is_integer( $status['finished'] ) ) {
+		if ( ! $this->is_started() || $this->is_finished() ) {
 			return true;
 		}
 
 		// allow enqueuing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
-		if ( intval( $status['started'] ) + self::FULL_SYNC_TIMEOUT < time() ) {
+		$started_at = $this->get_status_option( "started" );
+		if ( $started_at && $started_at + self::FULL_SYNC_TIMEOUT < time() ) {
 			return true;
 		}
 
@@ -103,69 +97,115 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function update_sent_progress_action( $actions ) {
+
 		// quick way to map to first items with an array of arrays
 		$actions_with_counts = array_count_values( array_map( 'reset', $actions ) );
 
-		$status = $this->get_status();
-		if ( is_null( $status['started'] ) || $status['finished'] ) {
+		if ( ! $this->is_started() || $this->is_finished() ) {
 			return;
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_start'] ) ) {
-			$status['sent_started'] = time();
+			$this->update_status_option( "sent_started", time() );
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module_name    = $module->name();
 			$module_actions = $module->get_full_sync_actions();
+			$items_sent     = 0;
 			foreach ( $module_actions as $module_action ) {
 				if ( isset( $actions_with_counts[ $module_action ] ) ) {
-					if ( ! isset( $status['sent'][ $module_name ] ) ) {
-						$status['sent'][ $module_name ] = 0;
-					}
-					$status['sent'][ $module_name ] += $actions_with_counts[ $module_action ];
+					$items_sent += $actions_with_counts[ $module_action ];
 				}
 			}
+
+			if ( $items_sent > 0 ) {
+				$this->update_status_option( "{$module->name()}_sent", $items_sent );
+			}	
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
-			$status['finished'] = time();
+			$this->update_status_option( "finished", time() );
 		}
-
-		$this->update_status( $status );
 	}
 
 	private function set_status_queuing_started() {
-		$status            = $this->initial_status;
-		$status['started'] = time();
-		$this->update_status( $status );
+		$this->clear_status();
+		$this->update_status_option( "started", time() );
 	}
 
 	private function set_status_queuing_finished() {
-		$this->update_status( array( 'queue_finished' => time() ) );
+		$this->update_status_option( "queue_finished", time() );
 	}
 
-	private $initial_status = array(
-		'started'        => null,
-		'queue_finished' => null,
-		'sent_started'   => null,
-		'finished'       => null,
-		'sent'           => array(),
-		'queue'          => array(),
-	);
+	public function is_started() {
+		return !! $this->get_status_option( "started" );
+	}
+
+	public function is_finished() {
+		return !! $this->get_status_option( "finished" );
+	}
 
 	public function get_status() {
-		return get_option( self::STATUS_OPTION, $this->initial_status );
-	}
-
-	public function update_status( $status ) {
-		return update_option(
-			self::STATUS_OPTION,
-			array_merge( $this->get_status(), $status )
+		$status = array(
+			'started'        => $this->get_status_option( 'started' ),
+			'queue_finished' => $this->get_status_option( 'queue_finished' ),
+			'sent_started'   => $this->get_status_option( 'sent_started' ),
+			'finished'       => $this->get_status_option( 'finished' ),
+			'sent'           => array(),
+			'queue'          => array(),
 		);
+
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			$queued = $this->get_status_option( "{$module->name()}_queued" );
+			$sent   = $this->get_status_option( "{$module->name()}_sent" );
+
+			if ( $queued ) {
+				$status[ 'queue' ][ $module->name() ] = $queued;
+			}
+			
+			if ( $sent ) {
+				$status[ 'sent' ][ $module->name() ] = $sent;
+			}
+		}
+
+		return $status;
 	}
 
 	public function clear_status() {
-		delete_option( self::STATUS_OPTION );
+		$prefix = self::STATUS_OPTION_PREFIX;
+		delete_option( "{$prefix}_started" );
+		delete_option( "{$prefix}_queue_finished" );
+		delete_option( "{$prefix}_sent_started" );
+		delete_option( "{$prefix}_finished" );
+
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			delete_option( "{$prefix}_{$module->name()}_queued" );
+			delete_option( "{$prefix}_{$module->name()}_sent" );
+		}
+	}
+
+	private function get_status_option( $option ) {
+		$prefix = self::STATUS_OPTION_PREFIX;
+
+		$value = get_option( "{$prefix}_{$option}", null );
+		
+		if ( ! $value ) {
+			return null;
+		}
+
+		return intval( $value );
+	}
+
+	private function update_status_option( $name, $value ) {
+		$prefix = self::STATUS_OPTION_PREFIX;
+		/**
+		 * Allowing update_option to change autoload status only shipped in WordPress v4.2
+		 * @link https://github.com/WordPress/WordPress/commit/305cf8b95
+		 */
+		if ( version_compare( $GLOBALS['wp_version'], '4.2', '>=' ) ) {
+			update_option( "{$prefix}_{$name}", $value, false );
+		} else {
+			update_option( "{$prefix}_{$name}", $value );
+		}
 	}
 }

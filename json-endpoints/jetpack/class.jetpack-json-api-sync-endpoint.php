@@ -29,6 +29,11 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 			$modules = array_map('trim', explode( ',', $args['modules'] ) );
 		}
 
+
+		if ( empty( $modules ) ) {
+			$modules = null;
+		}
+
 		Jetpack_Sync_Actions::schedule_full_sync( $modules );
 
 		return array( 'scheduled' => true );

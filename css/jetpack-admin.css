@@ -222,7 +222,9 @@ hr {
   position: relative;
   padding: 0.64286em 1.08696em 0.53571em;
   color: #fff;
-  font: 400 20px/1 "proxima-nova", Helvetica, sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1;
   background: #518d2a;
   z-index: 3;
   border-radius: 6px;
@@ -566,7 +568,8 @@ hr {
   text-align: left;
   margin-top: 0;
   color: #5d6d74;
-  font: 300 32px "proxima-nova", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  line-height: 32px;
   text-shadow: 0 1px 1px #fff;
 }
 
@@ -1974,7 +1977,8 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 }
 
 .jp-content h1 {
-  font: 400 1.75em "proxima-nova",Helvetica,Arial,sans-serif;
+  font-weight: 400;
+  line-height: 1.75em;
   position: relative;
   z-index: 3;
   width: 100%;

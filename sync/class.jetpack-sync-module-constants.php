@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
+
 class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 	const CONSTANTS_CHECKSUM_OPTION_NAME = 'jetpack_constants_sync_checksum';
 	const CONSTANTS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_constants_await';
@@ -16,13 +18,14 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_constant', $callable, 10, 2 );
+	}
 
-		// full sync
+	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_constants', $callable );
 	}
 
 	public function init_before_send() {
-		add_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_constants' ) );
+		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_sync_constants' ) );
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_constants', array( $this, 'expand_constants' ) );

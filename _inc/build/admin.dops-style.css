@@ -1759,5 +1759,57 @@ a.dops-notice__action {
 
 .related-posts-settings_preview_image_container img {
   max-width: 100%; }
+.dops-checkbox.dops-checkbox {
+  display: inline-block;
+  box-sizing: border-box;
+  margin: 2px 0 0;
+  padding: 7px 14px;
+  width: 16px;
+  height: 16px;
+  float: left;
+  outline: 0;
+  padding: 0;
+  box-shadow: none;
+  background-color: white;
+  border: 1px solid #c8d7e1;
+  color: #2e4453;
+  font-size: 16px;
+  line-height: 0;
+  text-align: center;
+  vertical-align: middle;
+  appearance: none;
+  transition: all .15s ease-in-out;
+  clear: none;
+  cursor: pointer; }
+  .dops-checkbox.dops-checkbox:checked:before {
+    content: '\F418';
+    margin: -4px 0 0 -5px;
+    float: left;
+    display: inline-block;
+    vertical-align: middle;
+    width: 16px;
+    font: 400 23px/1 Noticons;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    speak: none;
+    color: #00aadc; }
+  .dops-checkbox.dops-checkbox:disabled:checked:before {
+    color: #a8bece; }
+  .dops-checkbox.dops-checkbox:hover {
+    border-color: #a8bece; }
+  .dops-checkbox.dops-checkbox:focus {
+    border-color: #0087be;
+    outline: none;
+    box-shadow: 0 0 0 2px #78dcfa; }
+  .dops-checkbox.dops-checkbox:disabled {
+    background: #f3f6f8;
+    border-color: #e9eff3;
+    color: #a8bece;
+    opacity: 1; }
+    .dops-checkbox.dops-checkbox:disabled:hover {
+      cursor: default; }
+  .dops-checkbox.dops-checkbox + span {
+    display: block;
+    margin-left: 24px; }
 
 /*# sourceMappingURL=admin.dops-style.css.map*/

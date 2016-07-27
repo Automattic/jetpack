@@ -201,7 +201,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'adminUrl' => esc_url( admin_url() ),
 			'stats' => array(
 				// data is populated asynchronously on page load
-				'data'  => false,
+				'data'  => array(
+					'general' => false,
+					'day'     => false,
+					'week'    => false,
+					'month'   => false,
+				),
 				'roles' => $stats_roles,
 			),
 			'settingNames' => array(

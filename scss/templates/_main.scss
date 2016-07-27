@@ -251,7 +251,8 @@
 		text-align: left;
 		margin-top: 0;
 		color: #5d6d74;
-		font: 300 32px $proxima; // 36/14
+		font-weight: 300;
+		line-height: 32px;
 		text-shadow: 0 1px 1px #fff;
 
 		@include breakpoint(large-phone){
