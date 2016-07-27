@@ -165,7 +165,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				// Get the lat/lon of the user specified address.
 				$address = $this->urlencode_address( $instance['address'] );
-				$path    = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
+				$path    = "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
 				/** This action is documented in modules/widgets/contact-info.php */
 				$key = apply_filters( 'jetpack_google_maps_api_key', null );
 
