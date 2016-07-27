@@ -84,7 +84,8 @@
 	padding-bottom: rem( 16px );
 }
 
-.jp-landing-apps__header-subtitle {
+.jp-landing-apps__header-subtitle,
+.jp-landing__apps-feature-title {
 	font-size: rem( 16px );
 	line-height: 1.25;
 }
@@ -94,91 +95,65 @@
 	color: lighten($gray, 10%);
 }
 
-.jp-landing-apps__header-text {
+.jp-landing-apps__header-text,
+.jp-landing__apps-feature-text {
 	font-size: rem( 14px );
 	padding: rem( 24px ) 0;
 	margin: 0;
 }
 
-// OLD scss - below
+.jp-landing-apps__feature-container {
+	padding: rem( 16px ) 0;
+}
 
-.jp-landing__container {
-	background: #2f4452 url( '../../images/jp-4/particles_bg-white.png' );
-	color: #6b8699;
-	overflow: hidden;
+.jp-landing-apps__feature {
+	padding: rem( 32px );
 
-	.dops-button {
-		margin-right: 10px;
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+		flex-direction: row;
+		align-items: top;
+		padding: rem( 32px ) 0;
+	}
+}
+
+.jp-landing-apps__feature-col {
+
+	@include breakpoint( ">660px" ) {
+		flex-basis: 50%;
 	}
 
-	.button-app {
-		height: 42px;
-		font-weight: bold;
-		background-color: white;
-		padding: 10px 12px 0 12px;
-		color: #00aadc;
-		text-decoration: none;
-		box-shadow: 0 3px #0087be;
-		text-transform: uppercase;
-		border: 0;
-
-		svg {
-			display: inline-block;
-			fill: currentColor;
-			float: left;
-			margin-top: -5px;
-			margin-left: -6px;
-			margin-right: 2px;
-			width: 32px;
-			height: 32px;
+	&.jp-landing-apps__feature-img {
+		@include breakpoint( "<660px" ) {
+			display: none;
 		}
 	}
+}
 
-	img {
-		max-width: 100%;
-	}
+.jp-landing-apps__feature-desc {
 
-	.jp-landing__title, .jp-landing__description {
-		text-align: center;
-	}
+	@include breakpoint( ">660px" ) {
+		
+		&:nth-child(odd){
+			padding: 0 rem( 32px );
+		}
 
-	.jp-landing__description {
-		font-size: 1.15em;
+		&:nth-child(even) {
+			padding: 0 rem( 48px ) 0 rem( 32px );
+		}
 	}
 }
 
-.jp-landing__header {
-	background: transparent url('../../images/jp-4/white-clouds.svg') 50% 100% no-repeat;
-	padding: 4% 0;
-	min-height: 400px;
-
-	h1, h2 {
-		color: #eee;
-		font-weight: 400;
-	}
-
-	.jp-landing__img-text {
-		background-color: transparent;
-	}
-
-	.jp-landing__column + .jp-landing__column {
-		width: 50%;
-		padding: 5% 0;
-	}
+.jp-landing__apps-feature-title {
+	margin: 0;
 }
 
-.jp-landing__img-text {
-	background-color: #fff;
-	display: inline-block;
-	vertical-align: top;
-	width: 100%;
-
-	.jp-landing__column {
-		padding: 40px 4% 20px;
-		width: 42%;
-		float: left;
-	}
+.jp-landing-apps__feature-img img {
+	max-width: 100%;
 }
+
+// OLD scss - below
 
 .jp-landing__footer {
 	clear: both;
