@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_update_user_url_is_synced() {
-		$new_url = 'http://jetpack.com';
+		$new_url = 'https://jetpack.com';
 
 		wp_update_user( array(
 			'ID'       => $this->user_id,
