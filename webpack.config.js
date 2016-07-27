@@ -63,7 +63,8 @@ var webpackConfig = {
 				test: /\.scss$/,
 				loader: ExtractTextPlugin.extract( 'style-loader', 'css!sass' )
 			}
-		]
+		],
+		noParse: /node_modules\/localforage\/dist\/localforage.js/
 	},
 	resolve: {
 		extensions: [ '', '.js', '.jsx' ],
