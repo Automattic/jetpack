@@ -1475,7 +1475,7 @@ Release Post: http://wp.me/p1moTy-lT
 Release Date: December 14, 2012
 Release Post: http://wp.me/p1moTy-lJ
 
-* Enhancement: Infinite Scroll: support [VideoPress](https://wordpress.org/extend/plugins/video/) plugin.
+* Enhancement: Infinite Scroll: support [VideoPress](https://wordpress.org/plugins/video/) plugin.
 * Enhancement: Photon: Apply to all images retrieved from the Media Library.
 * Enhancement: Photon: Retina image support.
 * Enhancement: Custom CSS: Refined editor interface.
@@ -1495,7 +1495,7 @@ Release Post: http://wp.me/p1moTy-lu
 Release Date: November 21, 2012
 Release Post: http://wp.me/p1moTy-lc
 
-* Enhancement: Photon: Support for the [Lazy Load](https://wordpress.org/extend/plugins/lazy-load/) plugin.
+* Enhancement: Photon: Support for the [Lazy Load](https://wordpress.org/plugins/lazy-load/) plugin.
 * Bug Fix: Photon: Fix warped images with un- or under-specified dimensions.
 * Bug Fix: Photon: Fix warped images with pre-photonized URLs; don't try to photonize them twice.
 * Bug Fix: Infinite Scroll: Check a child theme's parent theme for infinite scroll support.
