@@ -19,6 +19,8 @@
  *
  * Scroll down for the new <iframe> embed code handler.
  *
+ * @module shortcodes
+ *
  * @param string $content
  * @return string shortcode
  */
@@ -84,6 +86,8 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
  * ui-highlight, ui-logo, ui-start-screen-info, ui-theme
  * see https://developer.dailymotion.com/player#player-parameters
  * @todo: Update code to sniff for iframe embeds and convert those to shortcodes.
+ *
+ * @module shortcodes
  *
  * @param array $atts
  * @return string html
@@ -221,6 +225,8 @@ add_shortcode( 'dailymotion', 'dailymotion_shortcode' );
  * [dailymotion-channel user=MatthewDominick]
  * [dailymotion-channel user=MatthewDominick type=grid] (supports grid, carousel, badge/default)
  *
+ * @module shortcodes
+ *
  * @param array $atts
  * @return string html
  */
@@ -243,6 +249,8 @@ add_shortcode( 'dailymotion-channel', 'dailymotion_channel_shortcode' );
 
 /**
  * Embed Reversal for Badge/Channel
+ *
+ * @module shortcodes
  *
  * @param string $content
  * @return string shortcode
@@ -296,6 +304,8 @@ add_filter( 'pre_kses', 'dailymotion_channel_reversal' );
  * Converts a generic HTML embed code from Dailymotion into an
  * oEmbeddable URL.
  *
+ * @module shortcodes
+ *
  * @param string $content
  * @return string oEmbeddable URL
  */
@@ -346,6 +356,8 @@ add_filter( 'pre_kses', 'jetpack_dailymotion_embed_reversal' );
  * Example:
  * [dailymotion-widget id=XYZ]
  *
+ * @module shortcodes
+ *
  * @param array $atts
  * @return string html
  */
@@ -366,6 +378,8 @@ add_shortcode( 'dailymotion-widget', 'jetpack_dailymotion_widget_shortcode' );
 
 /**
  * Embed Reversal for Dailymotion widget
+ *
+ * @module shortcodes
  *
  * @param string $content
  * @return string shortcode
