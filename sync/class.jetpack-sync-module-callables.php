@@ -23,9 +23,15 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
 
+		// full sync
+		add_action( 'jetpack_full_sync_callables', $callable );
+
+		// always send change to active modules right away
+		add_action( 'update_option_jetpack_active_modules', array( $this, 'unlock_sync_callable' ) );
+
 		// get_plugins and wp_version
 		// gets fired when new code gets installed, updates etc.
-		add_action( 'upgrader_process_complete', array( $this, 'force_sync_callables' ) );
+		add_action( 'upgrader_process_complete', array( $this, 'unlock_sync_callable' ) );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -92,6 +98,10 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		$this->maybe_sync_callables();
 	}
 
+	public function unlock_sync_callable() {
+		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
+	}
+	
 	public function maybe_sync_callables() {
 		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
 			return;
