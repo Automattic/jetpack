@@ -23,6 +23,26 @@
 	height: auto;
 }
 
+// Hello Dolly positioning overwrite
+.jetpack-pagestyles #dolly {
+	float: none;
+	position: relative;
+	right: 0;
+	left: 0;
+	top: 0;
+	padding: rem( 10px );
+	text-align: right;
+	background: $white;
+	font-size: rem( 12px );
+	font-style: italic;
+	color: $gray;
+	border-bottom: 1px lighten( $gray, 30% ) solid;
+
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+
 // restyled the arrow to match our gray
 .toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu:after {
 	border-right-color: $gray-light;
