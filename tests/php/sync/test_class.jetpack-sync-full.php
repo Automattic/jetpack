@@ -686,7 +686,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_status_with_a_small_queue() {
 
-		$this->sender->set_dequeue_max_bytes( 1500 ); // process 0.0015MB of items at a time\
+		$this->sender->set_dequeue_max_bytes( 700 ); // process 0.0015MB of items at a time\
 
 		$this->create_dummy_data_and_empty_the_queue();
 
