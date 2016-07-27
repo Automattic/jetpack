@@ -21,8 +21,9 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 				add_action( $comment_action_name, $callable, 10, 2 );
 			}
 		}
+	}
 
-		// full sync
+	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_comments', $callable ); // also send comments meta
 	}
 

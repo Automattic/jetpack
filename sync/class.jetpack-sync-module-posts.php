@@ -13,8 +13,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'wp_insert_post', $callable, 10, 3 );
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
+	}
 
-		// full sync
+	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_posts', $callable ); // also sends post meta
 	}
 

@@ -12,6 +12,7 @@ class Jetpack_Sync_Listener {
 	const QUEUE_STATE_CHECK_TIMEOUT = 300; // 5 minutes
 
 	private $sync_queue;
+	private $full_sync_queue;
 	private $sync_queue_size_limit;
 	private $sync_queue_lag_limit;
 
@@ -35,9 +36,11 @@ class Jetpack_Sync_Listener {
 	private function init() {
 
 		$handler = array( $this, 'action_handler' );
+		$full_sync_handler = array( $this, 'full_sync_action_handler' );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->init_listeners( $handler );
+			$module->init_full_sync_listeners( $full_sync_handler );
 		}
 
 		// Module Activation
@@ -50,6 +53,10 @@ class Jetpack_Sync_Listener {
 
 	function get_sync_queue() {
 		return $this->sync_queue;
+	}
+
+	function get_full_sync_queue() {
+		return $this->full_sync_queue;
 	}
 
 	function set_queue_size_limit( $limit ) {
@@ -69,17 +76,20 @@ class Jetpack_Sync_Listener {
 	}
 
 	function force_recheck_queue_limit() {
-		delete_transient( self::QUEUE_STATE_CHECK_TRANSIENT );
+		delete_transient( self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $this->sync_queue->id );
+		delete_transient( self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $this->full_sync_queue->id );
 	}
 
 	// prevent adding items to the queue if it hasn't sent an item for 15 mins
 	// AND the queue is over 1000 items long (by default)
-	function can_add_to_queue() {
-		$queue_state = get_transient( self::QUEUE_STATE_CHECK_TRANSIENT );
+	function can_add_to_queue( $queue ) {
+		$state_transient_name = self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $queue->id;
+
+		$queue_state = get_transient( $state_transient_name );
 
 		if ( false === $queue_state ) {
-			$queue_state = array( $this->sync_queue->size(), $this->sync_queue->lag() );
-			set_transient( self::QUEUE_STATE_CHECK_TRANSIENT, $queue_state, self::QUEUE_STATE_CHECK_TIMEOUT );
+			$queue_state = array( $queue->size(), $queue->lag() );
+			set_transient( $state_transient_name, $queue_state, self::QUEUE_STATE_CHECK_TIMEOUT );
 		}
 
 		list( $queue_size, $queue_age ) = $queue_state;
@@ -89,9 +99,17 @@ class Jetpack_Sync_Listener {
 		       ( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
 	}
 
-	function action_handler() {
-		$current_filter = current_filter();
+	function full_sync_action_handler() {
 		$args           = func_get_args();
+		$this->enqueue_action( current_filter(), $args, $this->full_sync_queue );
+	}
+
+	function action_handler() {
+		$args           = func_get_args();
+		$this->enqueue_action( current_filter(), $args, $this->sync_queue );
+	}
+
+	function enqueue_action( $current_filter, $args, $queue ) {
 
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
@@ -109,7 +127,7 @@ class Jetpack_Sync_Listener {
 
 		// periodically check the size of the queue, and disable adding to it if
 		// it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped)
-		if ( ! $this->can_add_to_queue() ) {
+		if ( ! $this->can_add_to_queue( $queue ) ) {
 			return;
 		}
 
@@ -120,7 +138,7 @@ class Jetpack_Sync_Listener {
 			ignore_user_abort( true );
 		}
 
-		$this->sync_queue->add( array(
+		$queue->add( array(
 			$current_filter,
 			$args,
 			get_current_user_id(),
@@ -130,6 +148,7 @@ class Jetpack_Sync_Listener {
 
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
+		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
 		$this->set_queue_size_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_size' ) );
 		$this->set_queue_lag_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_lag' ) );
 	}

@@ -20,6 +20,7 @@ class Jetpack_Sync_Sender {
 	private $upload_max_rows;
 	private $sync_wait_time;
 	private $sync_queue;
+	private $full_sync_queue;
 	private $codec;
 
 	// singleton functions
@@ -63,10 +64,28 @@ class Jetpack_Sync_Sender {
 		if ( $this->get_next_sync_time() > microtime( true ) ) {
 			return false;
 		}
+		
+		$full_sync_result = $this->do_sync_for_queue( $this->full_sync_queue );
+		$sync_result      = $this->do_sync_for_queue( $this->sync_queue );
 
-		do_action( 'jetpack_sync_before_send' );
+		if ( is_wp_error( $full_sync_result ) || is_wp_error( $sync_result ) ) {
+			$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
+			$full_sync_result = false;
+			$sync_result      = false;
+		} else {
+			$this->set_next_sync_time( time() + $this->get_sync_wait_time() );
+		}
 
-		if ( $this->sync_queue->size() === 0 ) {
+		// we use OR here because if either one returns true then the caller should
+		// be allowed to call do_sync again, as there may be more items
+		return $full_sync_result || $sync_result;
+	}
+
+	public function do_sync_for_queue( $queue ) {
+
+		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
+
+		if ( $queue->size() === 0 ) {
 			return false;
 		}
 
@@ -77,7 +96,7 @@ class Jetpack_Sync_Sender {
 			ignore_user_abort( true );
 		}
 
-		$buffer = $this->sync_queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
+		$buffer = $queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
 
 		if ( ! $buffer ) {
 			// buffer has no items
@@ -135,14 +154,16 @@ class Jetpack_Sync_Sender {
 		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ) );
 
 		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {
-			$processed_item_ids = $this->sync_queue->checkin( $buffer );
+			$checked_in_item_ids = $queue->checkin( $buffer );
 
-			if ( is_wp_error( $processed_item_ids ) ) {
-				error_log( 'Error checking in buffer: ' . $processed_item_ids->get_error_message() );
-				$this->sync_queue->force_checkin();
+			if ( is_wp_error( $checked_in_item_ids ) ) {
+				error_log( 'Error checking in buffer: ' . $checked_in_item_ids->get_error_message() );
+				$queue->force_checkin();
 			}
 
-			$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
+			// returning a WP_Error is a sign to the caller that we should wait a while
+			// before syncing again
+			return new WP_Error( 'server_error' );
 			
 		} else {
 
@@ -165,14 +186,13 @@ class Jetpack_Sync_Sender {
 			 */
 			do_action( 'jetpack_sync_processed_actions', $processed_items );
 
-			$this->sync_queue->close( $buffer, $processed_item_ids );
+			$queue->close( $buffer, $processed_item_ids );
 
-			// detect if the last item ID was an error
+			// returning a WP_Error is a sign to the caller that we should wait a while
+			// before syncing again
 			if ( $had_wp_error ) {
-				$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
-			} else {
-				$this->set_next_sync_time( time() + $this->get_sync_wait_time() );
-			}
+				return $wp_error;
+			} 
 		}
 		
 		return true;
@@ -180,6 +200,10 @@ class Jetpack_Sync_Sender {
 
 	function get_sync_queue() {
 		return $this->sync_queue;
+	}
+
+	function get_full_sync_queue() {
+		return $this->full_sync_queue;
 	}
 
 	function get_codec() {
@@ -195,6 +219,7 @@ class Jetpack_Sync_Sender {
 	function reset_sync_queue() {
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->clear_status();
 		$this->sync_queue->reset();
+		$this->full_sync_queue->reset();
 	}
 
 	function set_dequeue_max_bytes( $size ) {
@@ -222,6 +247,7 @@ class Jetpack_Sync_Sender {
 
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
+		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
 		$this->codec      = new Jetpack_Sync_JSON_Deflate_Codec();
 
 		// saved settings

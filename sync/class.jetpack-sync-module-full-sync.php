@@ -22,7 +22,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		return 'full-sync';
 	}
 
-	function init_listeners( $callable ) {
+	function init_full_sync_listeners( $callable ) {
 		// synthetic actions for full sync
 		add_action( 'jetpack_full_sync_start', $callable );
 		add_action( 'jetpack_full_sync_end', $callable );

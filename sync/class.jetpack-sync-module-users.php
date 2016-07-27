@@ -29,8 +29,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'wp_login', $callable, 10, 2 );
 		add_action( 'wp_login_failed', $callable, 10, 2 );
 		add_action( 'wp_logout', $callable, 10, 0 );
+	}
 
-		// full sync
+	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_users', $callable );
 	}
 
