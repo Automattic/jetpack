@@ -231,10 +231,6 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		function form( $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 			wp_enqueue_script( 'contact-info-admin', plugins_url( 'contact-info/contact-info-admin.js', __FILE__ ), array( 'jquery' ), 20160727 );
-			wp_localize_script( 'contact-info-admin', 'jetpackContactInfoFieldIds', array(
-				'showmap' => $this->get_field_id( 'showmap' ),
-				'apikey' => $this->get_field_id( 'apikey' )
-			) );
 
 			?>
 			<p>
@@ -248,7 +244,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				<?php
 				if ( $this->has_good_map( $instance ) ) {
 					?>
-					<input class="" id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="1" type="checkbox" <?php checked( $instance['showmap'], 1 ); ?> />
+					<input class="jp-contact-info-showmap" id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="1" type="checkbox" <?php checked( $instance['showmap'], 1 ); ?> />
 					<label for="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>"><?php esc_html_e( 'Show map', 'jetpack' ); ?></label>
 					<?php
 				}
@@ -261,7 +257,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				?>
 			</p>
 
-			<p style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
+			<p class="jp-contact-info-apikey" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
 				<label for="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>">
 					<?php _e( 'Google Maps API Key', 'jetpack' ); ?>
 					<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'apikey' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['apikey'] ); ?>" />

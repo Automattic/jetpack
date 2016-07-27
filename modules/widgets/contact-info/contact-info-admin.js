@@ -1,13 +1,8 @@
 (function( $ ) {
-	var fieldIds = window.jetpackContactInfoFieldIds,
-		$apiKeyField = $( document.getElementById( fieldIds.apikey ) ).closest( 'p' ),
-		$showMapInput = $( document.getElementById( fieldIds.showmap ) );
+	$( document ).on( 'change', '.jp-contact-info-showmap', function() {
+		var $checkbox = $( this ),
+			isChecked = $checkbox.is( ':checked' );
 
-	function toggleVisibility() {
-		$apiKeyField.toggle( $showMapInput.is( ':checked' ) );
-	}
-
-	$( document ).ready(function() {
-		$showMapInput.on( 'change', toggleVisibility );
+		$checkbox.closest( '.widget' ).find( '.jp-contact-info-apikey' ).toggle( isChecked );
 	});
 })( window.jQuery );
