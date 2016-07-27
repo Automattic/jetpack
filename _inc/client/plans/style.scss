@@ -166,7 +166,7 @@
 		padding: 0;
 
 		@include breakpoint( ">660px" ) {
-			padding-left: rem( 32px );
+			margin-left: rem( 32px );
 		}
 	}
 
@@ -193,4 +193,23 @@
 	@include breakpoint( "<660px" ) {
 		width: rem( 100px );
 	}
+}
+
+.jp-landing__plan-card-img.is-placeholder {
+	width: rem( 120px );
+	height: rem( 85px );
+
+	& + .jp-landing__plan-card-current {
+		width: 80%;
+	}
+}
+
+.jp-landing__plan-features-title.is-placeholder {
+	height: rem( 24px );
+	max-width: 50%;
+}
+
+.jp-landing__plan-features-text.is-placeholder {
+	height: rem( 44px );
+	max-width: 75%;
 }

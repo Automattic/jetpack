@@ -145,3 +145,12 @@
 		}
 	}
 }
+
+.is-placeholder {
+	animation: pulse-light 0.8s ease-in-out infinite;
+	background: lighten( $gray, 20% );
+}
+
+@keyframes pulse-light {
+	50% { background-color: lighten( $gray, 30% ); }
+}
