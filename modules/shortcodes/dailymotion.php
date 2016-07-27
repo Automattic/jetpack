@@ -18,6 +18,9 @@
  * movie param enforces anti-xss protection
  *
  * Scroll down for the new <iframe> embed code handler.
+ *
+ * @param string $content
+ * @return string shortcode
  */
 
 function dailymotion_embed_to_shortcode( $content ) {
@@ -217,6 +220,9 @@ add_shortcode( 'dailymotion', 'dailymotion_shortcode' );
  * Examples:
  * [dailymotion-channel user=MatthewDominick]
  * [dailymotion-channel user=MatthewDominick type=grid] (supports grid, carousel, badge/default)
+ *
+ * @param array $atts
+ * @return string html
  */
 function dailymotion_channel_shortcode( $atts ) {
 	$username = $atts['user'];
@@ -237,6 +243,9 @@ add_shortcode( 'dailymotion-channel', 'dailymotion_channel_shortcode' );
 
 /**
  * Embed Reversal for Badge/Channel
+ *
+ * @param string $content
+ * @return string shortcode
  */
 function dailymotion_channel_reversal( $content ) {
 	if ( false === stripos( $content, 'dailymotion.com/badge/' ) ) {
@@ -286,6 +295,9 @@ add_filter( 'pre_kses', 'dailymotion_channel_reversal' );
  *
  * Converts a generic HTML embed code from Dailymotion into an
  * oEmbeddable URL.
+ *
+ * @param string $content
+ * @return string oEmbeddable URL
  */
 
 function jetpack_dailymotion_embed_reversal( $content ) {
@@ -354,6 +366,9 @@ add_shortcode( 'dailymotion-widget', 'jetpack_dailymotion_widget_shortcode' );
 
 /**
  * Embed Reversal for Dailymotion widget
+ *
+ * @param string $content
+ * @return string shortcode
  */
 function jetpack_dailymotion_widget_reversal( $content ) {
 
