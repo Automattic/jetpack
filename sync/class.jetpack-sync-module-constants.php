@@ -44,12 +44,6 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		return $this->constants_whitelist;
 	}
 
-	function force_sync_constants() {
-		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
-		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
-		$this->maybe_sync_constants();
-	}
-
 	function enqueue_full_sync_actions() {
 		/**
 		 * Tells the client to sync all constants to the server

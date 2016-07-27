@@ -92,12 +92,6 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		return array( 'jetpack_full_sync_callables' );
 	}
 
-	public function force_sync_callables() {
-		delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME );
-		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
-		$this->maybe_sync_callables();
-	}
-
 	public function unlock_sync_callable() {
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 	}
