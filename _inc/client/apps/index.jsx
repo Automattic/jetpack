@@ -14,23 +14,23 @@ import { imagePath } from 'constants';
 const Apps = ( props ) => {
 	return (
 		<div>
-			<div className="jp-landing__apps jp-landing__container">
-				<div className="jp-landing__header">
-					<h2 className="jp-landing__title">
+			<div className="jp-landing__apps dops-card">
+				<div className="jp-landing-apps__header">
+					<h2 className="jp-landing-apps__header-title">
 						{ __( 'Powerful WordPress.com features on every device.' ) }
 					</h2>
 
-					<p className="jp-landing__description">
+					<p className="jp-landing-apps__header-description">
 						{ __( 'Manage all your sites from a single dashboard.' ) }
 					</p>
 
-					<div className="jp-landing__img-text">
-						<div className="jp-landing__column">
-							<h2>{ __( 'Feel the performance' ) }</h2>
-							<p>{ __( "All the WordPress apps are built for speed. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around." ) }</p>
+					<div className="jp-landing-apps__header-img-container">
+						<div className="jp-landing-apps__header-col-left">
+							<h3 className="jp-landing-apps__header-subtitle">{ __( 'Feel the performance' ) }</h3>
+							<p className="jp-landing-plans__header-text">{ __( "All the WordPress apps are built for speed. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around." ) }</p>
 						</div>
-						<div className="jp-landing__column">
-							<img src={ imagePath + '/apps/laptop-90deg-themes.png' } />
+						<div className="jp-landing-apps__header-col-right">
+							<img src={ imagePath + '/apps/laptop-90deg-themes.png' } className="jp-landing-apps__header-img" />
 						</div>
 					</div>
 				</div>

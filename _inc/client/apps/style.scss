@@ -1,3 +1,107 @@
+.jp-landing__apps.dops-card {
+	padding: 0;
+
+	.dops-button {
+		margin-right: 10px;
+	}
+}
+
+.jp-landing-apps__header {
+	background: $gray-dark url( '../../images/jp-4/particles_bg-white.png' );
+
+	@include breakpoint( ">660px" ) {
+		padding: rem( 32px ) 0 0;
+	}
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 32px );
+	}
+}
+
+.jp-landing-apps__header-img-container {
+	margin: rem( 32px ) 0 0;
+	overflow: hidden;
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+		flex-direction: row;
+		align-items: center;
+		background: transparent url('../../images/jp-4/white-clouds.svg') 50% 100% no-repeat;
+		background-size: 110%; // safari bug
+		padding-bottom: rem( 80px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		margin-bottom: 0;
+	}
+}
+
+.jp-landing-apps__header-img {
+	margin: 0 rem( -64px ) 0 rem( 64px ); // off-canvas effect
+	max-width: 100%; // needs proper srcsets
+}
+
+.jp-landing-apps__header-col-left {
+	flex-basis: 45%;
+
+	@include breakpoint( ">660px" ) {
+		padding-left: rem( 32px );
+	}
+}
+
+.jp-landing-apps__header-col-right {
+	flex-basis: 55%;
+
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+
+.jp-landing-apps__header-title, 
+.jp-landing-apps__header-description {
+	line-height: 1.5;
+
+	@include breakpoint( ">660px" ) {
+		text-align: center;
+	}
+}
+
+.jp-landing-apps__header-title,
+.jp-landing-apps__header-subtitle {
+	color: $white;
+	font-weight: 400;
+	margin: 0;
+}
+
+.jp-landing-apps__header-title {
+	font-size: rem( 20px );
+}
+
+.jp-landing-apps__header-description {
+	font-size: rem( 14px );
+	margin: 0;
+	padding-bottom: rem( 16px );
+}
+
+.jp-landing-apps__header-subtitle {
+	font-size: rem( 16px );
+	line-height: 1.25;
+}
+
+.jp-landing-apps__header-description,
+.jp-landing-apps__header-text {
+	color: lighten($gray, 10%);
+}
+
+.jp-landing-apps__header-text {
+	font-size: rem( 14px );
+	padding: rem( 24px ) 0;
+	margin: 0;
+}
+
+// OLD scss - below
+
 .jp-landing__container {
 	background: #2f4452 url( '../../images/jp-4/particles_bg-white.png' );
 	color: #6b8699;
