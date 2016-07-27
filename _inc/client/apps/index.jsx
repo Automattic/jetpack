@@ -14,32 +14,32 @@ import { imagePath } from 'constants';
 const Apps = ( props ) => {
 	return (
 		<div>
-			<div className="jp-jetpack-landing__apps jp-jetpack-landing__container">
-				<div className="jp-jetpack-landing__header">
-					<h2 className="jp-jetpack-landing__title">
+			<div className="jp-landing__apps jp-landing__container">
+				<div className="jp-landing__header">
+					<h2 className="jp-landing__title">
 						{ __( 'Powerful WordPress.com features on every device.' ) }
 					</h2>
 
-					<p className="jp-jetpack-landing__description">
+					<p className="jp-landing__description">
 						{ __( 'Manage all your sites from a single dashboard.' ) }
 					</p>
 
-					<div className="jp-jetpack-landing__img-text">
-						<div className="jp-jetpack-landing__column">
+					<div className="jp-landing__img-text">
+						<div className="jp-landing__column">
 							<h2>{ __( 'Feel the performance' ) }</h2>
 							<p>{ __( "All the WordPress apps are built for speed. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around." ) }</p>
 						</div>
-						<div className="jp-jetpack-landing__column">
+						<div className="jp-landing__column">
 							<img src={ imagePath + '/apps/laptop-90deg-themes.png' } />
 						</div>
 					</div>
 				</div>
 
-				<div className="jp-jetpack-landing__img-text">
-					<div className="jp-jetpack-landing__column">
+				<div className="jp-landing__img-text">
+					<div className="jp-landing__column">
 						<img src={ imagePath + '/apps/manage2x.png' } />
 					</div>
-					<div className="jp-jetpack-landing__column">
+					<div className="jp-landing__column">
 						<h2>{ __( 'Secure & Manage' ) }</h2>
 						<p>{ __( 'Most security flaws are found in outdated plugins. Use our Web and Desktop apps to turn on auto-updates or update plugins manually for all your websites in one convenient place.' ) }</p>
 						<Button href={ 'https://wordpress.com/plugins/' + window.Initial_State.rawUrl }	className="is-primary">
@@ -48,24 +48,24 @@ const Apps = ( props ) => {
 					</div>
 				</div>
 
-				<div className="jp-jetpack-landing__img-text">
-					<div className="jp-jetpack-landing__column">
+				<div className="jp-landing__img-text">
+					<div className="jp-landing__column">
 						<h2>{ __( 'Focus on your Writing' ) }</h2>
 						<p>{ __( 'Our new editor is lightning fast, optimized for writers and eliminates distractions, giving you the ability to focus on your work.' ) }</p>
 						<Button href={ 'https://wordpress.com/post/' + window.Initial_State.rawUrl }	className="is-primary">
 							{ __( 'Write on WordPress.com' ) }
 						</Button>
 					</div>
-					<div className="jp-jetpack-landing__column">
+					<div className="jp-landing__column">
 						<img src={ imagePath + '/apps/editor2x.png' } />
 					</div>
 				</div>
 
-				<div className="jp-jetpack-landing__img-text">
-					<div className="jp-jetpack-landing__column">
+				<div className="jp-landing__img-text">
+					<div className="jp-landing__column">
 						<img src={ imagePath + '/apps/stats2x.png' } />
 					</div>
-					<div className="jp-jetpack-landing__column">
+					<div className="jp-landing__column">
 						<h2>{ __( 'Connect with your Visitors' ) }</h2>
 						<p>{ __( 'Monitor your visitors with advanced stats. Watch for trends, learn what content performs the best and understand your visitors from anywhere in the world.' ) }</p>
 						<Button href={ 'https://wordpress.com/stats/' + window.Initial_State.rawUrl }	className="is-primary">
@@ -74,25 +74,25 @@ const Apps = ( props ) => {
 					</div>
 				</div>
 
-				<div className="jp-jetpack-landing__img-text">
-					<div className="jp-jetpack-landing__column">
+				<div className="jp-landing__img-text">
+					<div className="jp-landing__column">
 						<h2>{ __( 'Connect with the Community' ) }</h2>
 						<p>{ __( 'The WordPress apps all have impressively fast and full featured readers so you can catch up with your favorite sites and join the conversation anywhere, any time.' ) }</p>
 						<Button href={ 'https://wordpress.com/reader' }	className="is-primary">
 							{ __( 'Browse WordPress.com' ) }
 						</Button>
 					</div>
-					<div className="jp-jetpack-landing__column">
+					<div className="jp-landing__column">
 						<img src={ imagePath + '/apps/community2x.png' } />
 					</div>
 				</div>
 
-				<div className="jp-jetpack-landing__footer">
-					<h2 className="jp-jetpack-landing__title">
+				<div className="jp-landing__footer">
+					<h2 className="jp-landing__title">
 						{ __( 'Inspiration strikes any time, anywhere.' ) }
 					</h2>
 
-					<p className="jp-jetpack-landing__description">
+					<p className="jp-landing__description">
 						{ __( 'Get WordPress apps for any screen.' ) }
 					</p>
 
@@ -106,7 +106,7 @@ const Apps = ( props ) => {
 						</tbody>
 					</table>
 
-					<div className="jp-jetpack-landing__img-text">
+					<div className="jp-landing__img-text">
 						<h3>{ __( 'In your Pocket' ) }</h3>
 						<p>{ __( 'Publish content, track stats, moderate comments and so much more from anywhere in the world. Our mobile apps are open source, free and available to you on Apple or Android devices.' ) }</p>
 						<Button href="http://itunes.apple.com/us/app/wordpress/id335703880?mt=8" title={ __( 'WordPress.com in the App Store' ) } className="button-app button-ios">
