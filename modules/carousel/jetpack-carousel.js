@@ -232,7 +232,7 @@ jQuery(document).ready(function($) {
 
 			container.attr('itemscope', '');
 
-			container.attr('itemtype', 'http://schema.org/ImageGallery');
+			container.attr('itemtype', 'https://schema.org/ImageGallery');
 
 			container.css({
 					'position'   : 'fixed',
@@ -883,7 +883,7 @@ jQuery(document).ready(function($) {
 						.css( 'width', '100%' )
 						.css( 'height', '100%' );
 
-					var slide = $('<div class="jp-carousel-slide" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"></div>')
+					var slide = $('<div class="jp-carousel-slide" itemprop="associatedMedia" itemscope itemtype="https://schema.org/ImageObject"></div>')
 							.hide()
 							.css({
 								//'position' : 'fixed',
