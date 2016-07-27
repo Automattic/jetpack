@@ -23,16 +23,17 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
 
-		// full sync
-		add_action( 'jetpack_full_sync_callables', $callable );
-
 		// get_plugins and wp_version
 		// gets fired when new code gets installed, updates etc.
 		add_action( 'upgrader_process_complete', array( $this, 'force_sync_callables' ) );
 	}
 
+	public function init_full_sync_listeners( $callable ) {
+		add_action( 'jetpack_full_sync_callables', $callable );
+	}
+
 	public function init_before_send() {
-		add_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_callables' ) );
+		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_sync_callables' ) );
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_callables', array( $this, 'expand_callables' ) );

@@ -12,6 +12,10 @@ abstract class Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 	}
 
+	public function init_full_sync_listeners( $callable ) {
+		
+	}
+
 	public function init_before_send() {
 	}
 
