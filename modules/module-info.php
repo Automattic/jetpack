@@ -538,7 +538,7 @@ add_action( 'jetpack_learn_more_button_likes', 'jetpack_likes_more_link' );
 
 function jetpack_likes_more_info() { ?>
 	<div class="jp-info-img">
-		<a href="http://jetpack.com/support/likes/" target="_blank">
+		<a href="https://jetpack.com/support/likes/" target="_blank">
 			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/likes.jpg' ) ?>" alt="<?php esc_attr_e( 'Likes', 'jetpack' ) ?>" width="323" height="69" />
 		</a>
 	</div>
