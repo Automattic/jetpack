@@ -96,7 +96,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				$showmap = $instance['showmap'];
 
 				/** This action is documented in modules/widgets/contact-info.php */
-				if ( $showmap && $this->has_good_map( $instance ) && apply_filters( 'jetpack_google_maps_api_key', null ) ) {
+				if ( $showmap && $this->has_good_map( $instance ) ) {
 					echo $this->build_map( $instance['address'] );
 				}
 
