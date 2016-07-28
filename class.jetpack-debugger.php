@@ -95,12 +95,19 @@ class Jetpack_Debugger {
 		}
 
 		require_once JETPACK__PLUGIN_DIR. 'sync/class.jetpack-sync-sender.php';
+
 		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
 
 		$debug_info .= "\r\n". sprintf( esc_html__( 'Sync Queue size: `%1$s`', 'jetpack' ), $queue->size() );
 		$debug_info .= "\r\n". sprintf( esc_html__( 'Sync Queue lag: `%1$s`', 'jetpack' ), self::seconds_to_time( $queue->lag() ) );
+
+		$full_sync_queue = Jetpack_Sync_Sender::get_instance()->get_full_sync_queue();
+
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Full Sync Queue size: `%1$s`', 'jetpack' ), $full_sync_queue->size() );
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Full Sync Queue lag: `%1$s`', 'jetpack' ), self::seconds_to_time( $full_sync_queue->lag() ) );
+
 		$debug_info .= "\r\n";
-		
+
 		foreach ( array (
 					  'HTTP_HOST',
 					  'SERVER_PORT',
