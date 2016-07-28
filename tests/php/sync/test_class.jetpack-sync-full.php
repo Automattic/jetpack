@@ -732,7 +732,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$should_be_status = array(
 			'sent'  => array(
 				'constants' => 1,
-				'functions' => 2,
+				'functions' => 1,
 				'options'   => 1,
 				'posts'     => 2,
 				'comments'  => 2,

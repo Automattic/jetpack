@@ -23,9 +23,6 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
 
-		// full sync
-		add_action( 'jetpack_full_sync_callables', $callable );
-
 		// always send change to active modules right away
 		add_action( 'update_option_jetpack_active_modules', array( $this, 'unlock_sync_callable' ) );
 
