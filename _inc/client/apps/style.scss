@@ -163,41 +163,35 @@
 
 .jp-landing-apps__btn-container {
 	margin: 0 0 rem( 32px );
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 
-	@include breakpoint( ">660px" ) {
-		display: flex;
+	@include breakpoint( ">480px" ) {
 		flex-wrap: nowrap;
-		flex-direction: row;
-	}
-}
-
-
-// OLD scss - below
-
-.jp-landing__footer {
-	clear: both;
-	background: #2f4452 url('../../images/jp-4/white-clouds-reverse.svg') 50% 0 no-repeat;
-	padding: 5% 4%;
-
-	h1, h2, h3 {
-		color: #eee;
-		font-weight: 300;
-		margin: 40px 0 0;
 	}
 
-	.jp-landing__img-text {
-		background-color: transparent;
+	@include breakpoint( "<480px" ) {
+		flex-wrap: wrap;
 	}
 
-	td {
-		vertical-align: baseline;
-	}
-}
+	.button-app {
+		display: flex;
+		align-items: center;
+		height: rem( 42px );
+		padding-left: rem( 6px );
+		color: $gray-dark;
 
-.jp-landing__apps {
-	.jp-landing__header {
-		img {
-			max-width: 120%;
+
+		@include breakpoint( "<480px" ) {
+			flex-basis: 100%;
+			justify-content: center;
+			margin-bottom: rem( 10px );
+		}
+
+		svg {
+			margin-right: rem( 8px );
+			fill: $gray-dark;
 		}
 	}
 }
