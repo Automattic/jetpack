@@ -106,7 +106,7 @@ class Jetpack_Recipes {
 		global $allowedtags;
 		$allowedtags['li'] = array( 'itemprop' => array () );
 
-		$html = '<div class="hrecipe jetpack-recipe" itemscope itemtype="http://schema.org/Recipe">';
+		$html = '<div class="hrecipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe">';
 
 		// Print the recipe title if exists
 		if ( '' !== $atts['title'] ) {
