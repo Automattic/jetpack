@@ -35,10 +35,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function start( $modules = null ) {
-		// ensure listener is loaded so we can guarantee full sync actions are enqueued
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
-		Jetpack_Sync_Listener::get_instance();
-
 		$was_already_running = $this->is_started() && ! $this->is_finished();
 
 		// remove all evidence of previous full sync items and status
@@ -167,6 +163,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	public function reset_data() {
 		$this->clear_status();
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 		$listener = Jetpack_Sync_Listener::get_instance();
 		$listener->get_full_sync_queue()->reset();
 	}
