@@ -158,11 +158,11 @@
 }
 
 .jp-landing-apps__footer-top {
-	background: transparent url('../../images/jp-4/white-clouds-reverse.svg') 50% 0 no-repeat;
-	background-size: 110%; // safari bug
 
 	@include breakpoint( ">660px" ) {
 		padding: rem( 80px ) rem( 32px ) rem( 32px );
+		background: transparent url('../../images/jp-4/white-clouds-reverse.svg') 50% 0 no-repeat;
+		background-size: 110%; // safari bug
 	}
 
 	@include breakpoint( "<660px" ) {
@@ -172,6 +172,11 @@
 
 .jp-landing-apps__downloads {
 	padding: rem( 32px );
+}
+
+.jp-landing-apps__devices {
+	width: 100%;
+	margin-top: rem( 32px );
 }
 
 .jp-landing-apps__btn-container {
@@ -198,7 +203,6 @@
 		height: rem( 42px );
 		padding-left: rem( 6px );
 		color: $gray-dark;
-
 
 		@include breakpoint( "<480px" ) {
 			flex-basis: 100%;

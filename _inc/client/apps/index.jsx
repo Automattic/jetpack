@@ -99,15 +99,8 @@ const Apps = ( props ) => {
 							{ __( 'Get WordPress apps for any screen.' ) }
 						</p>
 
-						<table>
-							<tbody>
-								<tr>
-									<td width="18%"><img src={ imagePath + '/apps/Nexus5X.svg' } /></td>
-									<td width="64%"><img src={ imagePath + '/apps/MacBook.svg' } /></td>
-									<td width="18%"><img src={ imagePath + '/apps/iphone.svg' } /></td>
-								</tr>
-							</tbody>
-						</table>
+						<img src={ imagePath + '/apps/triple-devices.svg' } className="jp-landing-apps__devices" />
+						
 					</div>
 
 					<div className="jp-landing-apps__downloads">
