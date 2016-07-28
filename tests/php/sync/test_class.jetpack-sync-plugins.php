@@ -15,6 +15,9 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_installing_and_removing_plugin_is_synced() {
+		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
+			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");	
+		}
 		$this->remove_plugin(); // make sure that we start with no plugin.
 		$this->install_wp_super_cache();
 		$this->sender->do_sync();

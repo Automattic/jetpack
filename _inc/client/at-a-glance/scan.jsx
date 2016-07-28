@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
-import { translate as __ } from 'i18n-calypso';
+import { numberFormat, translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -59,7 +59,7 @@ const DashScan = React.createClass( {
 								{
 									count: threats,
 									args: {
-										number: threats
+										number: numberFormat( threats )
 									}
 								} )
 						}</h3>

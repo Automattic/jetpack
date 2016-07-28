@@ -3,6 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import assign from 'lodash/assign';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -212,7 +213,7 @@ export function isDevMode( state ) {
  * @return {boolean} True if site is in staging. False otherwise.
  */
 export function isStaging( state ) {
-	return state.jetpack.connection.status.siteConnected.isStaging;
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'isStaging' ], false );
 }
 
 /**

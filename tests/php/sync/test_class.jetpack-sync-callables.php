@@ -128,6 +128,26 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 	}
 
+	function test_sync_always_sync_changes_to_modules_right_away() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->setSyncClientDefaults();
+		Jetpack::update_active_modules( array( 'stats' ) );
+
+		$this->sender->do_sync();
+		
+		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
+		$this->assertEquals(  array( 'stats' ), $synced_value  );
+
+		$this->server_replica_storage->reset();
+
+		Jetpack::update_active_modules( array( 'json-api' ) );
+		$this->sender->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
+		$this->assertEquals( array( 'json-api' ), $synced_value );
+	}
+
 	function test_scheme_switching_does_not_cause_sync() {
 		$this->setSyncClientDefaults();
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );

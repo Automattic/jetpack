@@ -2,7 +2,7 @@
 
 /*
  * Based on Evolution Twitter Timeline
- * (http://wordpress.org/extend/plugins/evolution-twitter-timeline/)
+ * (https://wordpress.org/extend/plugins/evolution-twitter-timeline/)
  * For details on Twitter Timelines see:
  *  - https://twitter.com/settings/widgets
  *  - https://dev.twitter.com/docs/embedded-timelines

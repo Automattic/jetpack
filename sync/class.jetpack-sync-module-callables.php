@@ -26,13 +26,20 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		// full sync
 		add_action( 'jetpack_full_sync_callables', $callable );
 
+		// always send change to active modules right away
+		add_action( 'update_option_jetpack_active_modules', array( $this, 'unlock_sync_callable' ) );
+
 		// get_plugins and wp_version
 		// gets fired when new code gets installed, updates etc.
-		add_action( 'upgrader_process_complete', array( $this, 'force_sync_callables' ) );
+		add_action( 'upgrader_process_complete', array( $this, 'unlock_sync_callable' ) );
+	}
+
+	public function init_full_sync_listeners( $callable ) {
+		add_action( 'jetpack_full_sync_callables', $callable );
 	}
 
 	public function init_before_send() {
-		add_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_callables' ) );
+		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_sync_callables' ) );
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_callables', array( $this, 'expand_callables' ) );
@@ -85,12 +92,10 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		return array( 'jetpack_full_sync_callables' );
 	}
 
-	public function force_sync_callables() {
-		delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME );
+	public function unlock_sync_callable() {
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
-		$this->maybe_sync_callables();
 	}
-
+	
 	public function maybe_sync_callables() {
 		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
 			return;

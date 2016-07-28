@@ -99,6 +99,19 @@ const PlanHeader = React.createClass( {
 					</div>
 				);
 				break;
+
+			default:
+				planCard = (
+					<div className="jp-landing__plan-card">
+						<div className="jp-landing__plan-card-img is-placeholder">
+						</div>
+						<div className="jp-landing__plan-card-current">
+							<h3 className="jp-landing__plan-features-title is-placeholder"> </h3>
+							<p className="jp-landing__plan-features-text is-placeholder"> </p>
+						</div>
+					</div>
+				);
+				break;
 		}
 		return (
 			<div>
