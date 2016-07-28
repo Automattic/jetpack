@@ -70,7 +70,7 @@ export const Footer = React.createClass( {
 					</li>
 					<li className="jp-footer__link-item">
 						<a
-							href="http://wordpress.com/tos/"
+							href="https://wordpress.com/tos/"
 							target="_blank"
 							title={ __( 'WordPress.com Terms of Service' ) }
 							className="jp-footer__link">
