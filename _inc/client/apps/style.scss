@@ -157,7 +157,20 @@
 	max-width: 100%;
 }
 
-.jp-landing-apps__footer {
+.jp-landing-apps__footer-top {
+	background: transparent url('../../images/jp-4/white-clouds-reverse.svg') 50% 0 no-repeat;
+	background-size: 110%; // safari bug
+
+	@include breakpoint( ">660px" ) {
+		padding: rem( 80px ) rem( 32px ) rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 32px );
+	}
+}
+
+.jp-landing-apps__downloads {
 	padding: rem( 32px );
 }
 
@@ -166,6 +179,10 @@
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+
+	&:last-of-type {
+		margin: 0;
+	}
 
 	@include breakpoint( ">480px" ) {
 		flex-wrap: nowrap;

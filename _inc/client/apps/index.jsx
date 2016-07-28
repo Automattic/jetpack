@@ -90,23 +90,25 @@ const Apps = ( props ) => {
 				</div>
 
 				<div className="jp-landing-apps__footer">
-					<h2 className="jp-landing-apps__title">
-						{ __( 'Inspiration strikes any time, anywhere.' ) }
-					</h2>
+					<div className="jp-landing-apps__footer-top">
+						<h2 className="jp-landing-apps__title">
+							{ __( 'Inspiration strikes any time, anywhere.' ) }
+						</h2>
 
-					<p className="jp-landing-apps__description">
-						{ __( 'Get WordPress apps for any screen.' ) }
-					</p>
+						<p className="jp-landing-apps__description">
+							{ __( 'Get WordPress apps for any screen.' ) }
+						</p>
 
-					<table>
-						<tbody>
-							<tr>
-								<td width="18%"><img src={ imagePath + '/apps/Nexus5X.svg' } /></td>
-								<td width="64%"><img src={ imagePath + '/apps/MacBook.svg' } /></td>
-								<td width="18%"><img src={ imagePath + '/apps/iphone.svg' } /></td>
-							</tr>
-						</tbody>
-					</table>
+						<table>
+							<tbody>
+								<tr>
+									<td width="18%"><img src={ imagePath + '/apps/Nexus5X.svg' } /></td>
+									<td width="64%"><img src={ imagePath + '/apps/MacBook.svg' } /></td>
+									<td width="18%"><img src={ imagePath + '/apps/iphone.svg' } /></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 
 					<div className="jp-landing-apps__downloads">
 						<h3 className="jp-landing-apps__subtitle">{ __( 'In your Pocket' ) }</h3>
