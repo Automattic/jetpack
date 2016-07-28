@@ -31,6 +31,8 @@ function jetpack_matt_random_redirect() {
 	if ( is_author() ) {
 		$random_author_name = get_the_author_meta( 'user_login' );
 		$random_author_query = 'AND user_login = "' . $random_author_name . '"';
+	} else {
+		$random_author_query = '';
 	}
 
 	// Acceptable URL formats: /[...]/?random=[post type], /?random, /&random, /&random=1
@@ -65,7 +67,7 @@ function jetpack_matt_random_redirect() {
 	} else {
 		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_password = '' AND post_status = 'publish' %s ORDER BY RAND() LIMIT 1", $post_type, $random_author_query ) );
 	}
-	
+
 	$permalink = get_permalink( $random_id );
 	wp_safe_redirect( $permalink );
 	exit;
