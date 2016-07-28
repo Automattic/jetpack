@@ -79,6 +79,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 Bug Fixes:
 
+* Compatibility: avoid PHP notices in the Woocommerce plugin wizard screen. #4473
 * Infinite Scroll: do not load theme compatibility stylesheets on the default theme's singular views. #4236
 * General: make sure Debug tests are sent along to the Jetpack support team when using the contact form in the Jetpack Debug menu. #4398
 * Notifications: avoid PHP notices when moderating comments. #4208
