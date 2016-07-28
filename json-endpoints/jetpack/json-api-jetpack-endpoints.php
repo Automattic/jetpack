@@ -575,8 +575,6 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
 	'request_format' => array(
-		'force'   => '(bool=false) Force a full sync by clearing the full sync lock',
-		'clear'   => '(bool=false) Clear the sync queue before full-syncing',
 		'modules' => '(string) Comma-delimited set of sync modules to use (default: all of them)'
 	),
 	'response_format' => array(
