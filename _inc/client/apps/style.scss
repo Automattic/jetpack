@@ -6,8 +6,12 @@
 	}
 }
 
-.jp-landing-apps__header {
+.jp-landing-apps__header,
+.jp-landing-apps__footer {
 	background: $gray-dark url( '../../images/jp-4/particles_bg-white.png' );
+}
+
+.jp-landing-apps__header {
 
 	@include breakpoint( ">660px" ) {
 		padding: rem( 32px ) 0 0;
@@ -58,8 +62,8 @@
 	}
 }
 
-.jp-landing-apps__header-title, 
-.jp-landing-apps__header-description {
+.jp-landing-apps__title, 
+.jp-landing-apps__description {
 	line-height: 1.5;
 
 	@include breakpoint( ">660px" ) {
@@ -67,35 +71,35 @@
 	}
 }
 
-.jp-landing-apps__header-title,
-.jp-landing-apps__header-subtitle {
+.jp-landing-apps__title,
+.jp-landing-apps__subtitle {
 	color: $white;
 	font-weight: 400;
 	margin: 0;
 }
 
-.jp-landing-apps__header-title {
+.jp-landing-apps__title {
 	font-size: rem( 20px );
 }
 
-.jp-landing-apps__header-description {
+.jp-landing-apps__description {
 	font-size: rem( 14px );
 	margin: 0;
 	padding-bottom: rem( 16px );
 }
 
-.jp-landing-apps__header-subtitle,
+.jp-landing-apps__subtitle,
 .jp-landing__apps-feature-title {
 	font-size: rem( 16px );
 	line-height: 1.25;
 }
 
-.jp-landing-apps__header-description,
-.jp-landing-apps__header-text {
+.jp-landing-apps__description,
+.jp-landing-apps__sub-description {
 	color: lighten($gray, 10%);
 }
 
-.jp-landing-apps__header-text,
+.jp-landing-apps__sub-description,
 .jp-landing__apps-feature-text {
 	font-size: rem( 14px );
 	padding: rem( 24px ) 0;
@@ -134,7 +138,7 @@
 .jp-landing-apps__feature-desc {
 
 	@include breakpoint( ">660px" ) {
-		
+
 		&:nth-child(odd){
 			padding: 0 rem( 32px );
 		}
@@ -152,6 +156,21 @@
 .jp-landing-apps__feature-img img {
 	max-width: 100%;
 }
+
+.jp-landing-apps__footer {
+	padding: rem( 32px );
+}
+
+.jp-landing-apps__btn-container {
+	margin: 0 0 rem( 32px );
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+		flex-direction: row;
+	}
+}
+
 
 // OLD scss - below
 
