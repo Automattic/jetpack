@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
-import { translate as __ } from 'i18n-calypso';
+import { numberFormat, translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -47,7 +47,7 @@ const DashProtect = React.createClass( {
 					module="protect"
 					status="is-working"
 				>
-					<h2 className="jp-dash-item__count">{ protectCount }</h2>
+					<h2 className="jp-dash-item__count">{ numberFormat( protectCount ) }</h2>
 					<p className="jp-dash-item__description">{ __( 'Total malicious attacks blocked on your site.' ) }</p>
 				</DashItem>
 			);
