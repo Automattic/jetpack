@@ -46,7 +46,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	function expand_theme_data() {
-		return $this->get_theme_support_info();
+		return array( $this->get_theme_support_info() );
 	}
 
 	private function get_theme_support_info() {

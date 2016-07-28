@@ -395,6 +395,13 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 		
 		$this->assertEquals( $local_option, $remote_option );
+
+		$synced_theme_caps_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_theme_data' );
+		$synced_theme_caps = $synced_theme_caps_event->args[0];
+
+		$this->assertTrue( $synced_theme_caps['post-thumbnails'] );
+
+		$this->assertTrue( $this->server_replica_storage->current_theme_supports( 'post-thumbnails' ) );
 	}
 
 	function test_full_sync_sends_plugin_updates() {
