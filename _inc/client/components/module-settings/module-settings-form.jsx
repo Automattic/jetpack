@@ -79,8 +79,8 @@ export function ModuleSettingsForm( InnerComponent ) {
 					onSubmit={ this.onSubmit }
 					onOptionChange={ this.onOptionChange }
 					updateFormStateOptionValue={ this.updateFormStateOptionValue }
-					isDirty={ this.isDirty }
 					shouldSaveButtonBeDisabled={ this.shouldSaveButtonBeDisabled }
+					isSavingAnyOption={ this.isSavingAnyOption }
 					{ ...this.props } />
 			);
 		}
