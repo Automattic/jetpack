@@ -62,6 +62,14 @@ class Jetpack_Sync_Sender {
 
 		// don't sync if we are throttled
 		if ( $this->get_next_sync_time() > microtime( true ) ) {
+			// even though we shouldn't be syncing untill next time if the queue is really small
+			// lets try any way.
+			if ( $this->sync_queue->size() < 12 ) {
+				$sync_result  = $this->do_sync_for_queue( $this->sync_queue );
+				if ( is_wp_error( $sync_result ) ) {
+					$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
+				}
+			}
 			return false;
 		}
 		

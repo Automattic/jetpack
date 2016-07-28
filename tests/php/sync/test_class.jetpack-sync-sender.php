@@ -164,7 +164,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $timestamp <= time() + 61 );
 	}
 
-	function test_rate_limit_how_often_sync_runs_with_option() {
+	function test_rate_limit_how_often_sync_runs_with_option_large_queue() {
 		$this->sender->do_sync();
 
 		// so we take multiple syncs to upload
@@ -174,6 +174,21 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		add_action( 'my_action', array( $this->listener, 'action_handler' ) );
 
 		// now let's trigger our action a few times
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+
+		do_action( 'my_action' );
 		do_action( 'my_action' );
 		do_action( 'my_action' );
 		do_action( 'my_action' );
@@ -199,7 +214,54 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		sleep( 3 );
 
 		$this->sender->do_sync();
-		$this->assertEquals( 5, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+		$this->assertEquals( 6, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+
+		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
+	}
+
+	function test_rate_limit_how_often_sync_runs_with_option_small() {
+		$this->sender->do_sync();
+
+		// so we take multiple syncs to upload
+		$this->sender->set_upload_max_rows( 2 );
+
+		// make the sync listener listen for a new action
+		add_action( 'my_action', array( $this->listener, 'action_handler' ) );
+
+		// now let's trigger our action a few times
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+
+
+
+		// now let's try to sync and observe the rate limit
+		$this->sender->do_sync();
+
+		$this->sender->set_sync_wait_time( 2 );
+		$this->assertSame( 2, $this->sender->get_sync_wait_time() );
+
+		$this->assertEquals( 2, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+
+		sleep( 3 );
+
+		$this->sender->do_sync();
+		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+
+		$this->sender->do_sync();
+		// since the queue is less then 12 we send it right away..
+		$this->assertEquals( 6, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+
+		sleep( 3 );
+
+		$this->sender->do_sync();
+		$this->assertEquals( 8, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
 		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
 	}
