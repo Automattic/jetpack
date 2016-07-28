@@ -62,6 +62,12 @@ const ConnectButton = React.createClass( {
 		);
 	},
 
+	disconnectSite() {
+		if ( window.confirm( __( 'Do you really want to disconnect your site from WordPress.com?' ) ) ) {
+			this.props.disconnectSite();
+		}
+	},
+
 	renderContent: function() {
 		const fetchingUrl = this.props.fetchingConnectUrl( this.props );
 		const disconnecting = this.props.isDisconnecting( this.props );
@@ -73,7 +79,7 @@ const ConnectButton = React.createClass( {
 		if ( this.props.isSiteConnected( this.props ) ) {
 			return(
 				<Button
-					onClick={ this.props.disconnectSite }
+					onClick={ this.disconnectSite }
 					disabled={ disconnecting }>
 					{ __( 'Disconnect site from WordPress.com ') }
 				</Button>
