@@ -26,6 +26,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		// synthetic actions for full sync
 		add_action( 'jetpack_full_sync_start', $callable );
 		add_action( 'jetpack_full_sync_end', $callable );
+		add_action( 'jetpack_full_sync_cancelled', $callable );
 	}
 
 	function init_before_send() {
@@ -34,9 +35,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function start( $modules = null ) {
-		// ensure listener is loaded so we can guarantee full sync actions are enqueued
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
-		Jetpack_Sync_Listener::get_instance();
+		$was_already_running = $this->is_started() && ! $this->is_finished();
+
+		// remove all evidence of previous full sync items and status
+		$this->reset_data();
+
+		if ( $was_already_running ) {
+			do_action( 'jetpack_full_sync_cancelled' );
+		}
 
 		/**
 		 * Fires when a full sync begins. This action is serialized
@@ -45,7 +51,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_start' );
-		$this->set_status_queuing_started();
+		$this->update_status_option( "started", time() );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
@@ -60,7 +66,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			}
 		}
 
-		$this->set_status_queuing_finished();
+		$this->update_status_option( "queue_finished", time() );
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -108,15 +114,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 	}
 
-	private function set_status_queuing_started() {
-		$this->clear_status();
-		$this->update_status_option( "started", time() );
-	}
-
-	private function set_status_queuing_finished() {
-		$this->update_status_option( "queue_finished", time() );
-	}
-
 	public function is_started() {
 		return !! $this->get_status_option( "started" );
 	}
@@ -162,6 +159,13 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			delete_option( "{$prefix}_{$module->name()}_queued" );
 			delete_option( "{$prefix}_{$module->name()}_sent" );
 		}
+	}
+
+	public function reset_data() {
+		$this->clear_status();
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
+		$listener = Jetpack_Sync_Listener::get_instance();
+		$listener->get_full_sync_queue()->reset();
 	}
 
 	private function get_status_option( $option ) {

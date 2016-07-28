@@ -40,6 +40,24 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
 	}
 
+	function test_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
+		$this->factory->post->create();
+		$this->full_sync->start();
+
+		$initial_full_sync_queue_size = $this->sender->get_full_sync_queue()->size();
+
+		// if we start again, it should reset the queue back to its original state,
+		// plus a "full_sync_cancelled" action
+		$this->full_sync->start();
+
+		$this->assertEquals( $initial_full_sync_queue_size + 1, $this->sender->get_full_sync_queue()->size() );
+		$this->sender->do_sync();
+		
+		$cancelled_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_cancelled' );
+
+		$this->assertTrue( $cancelled_event !== false );
+	}
+
 	function test_full_sync_lock_has_one_hour_timeout() {
 		$this->started_sync_count = 0;
 

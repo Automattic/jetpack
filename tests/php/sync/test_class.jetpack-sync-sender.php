@@ -256,14 +256,14 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $event->sent_timestamp < microtime( true ) );
 	}
 
-	function test_reset_queue_also_resets_full_sync_lock() {
+	function test_reset_module_also_resets_full_sync_lock() {
 		$full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
 		$full_sync->start();
 		$status = $full_sync->get_status();
 		$this->assertTrue( $full_sync->is_started() );
 
-		$this->sender->reset_sync_queue();
-
+		$full_sync->reset_data();
+		
 		$status = $full_sync->get_status();
 		$this->assertFalse( $full_sync->is_started() );
 	}
