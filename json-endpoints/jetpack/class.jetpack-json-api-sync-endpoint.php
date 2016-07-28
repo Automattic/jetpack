@@ -9,26 +9,9 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		$modules = null;
 
-		if ( isset( $args['clear'] ) && $args['clear'] ) {
-			// clear sync queue
-			require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
-
-			$sender = Jetpack_Sync_Sender::get_instance();
-			$sender->reset_sync_queue();
-		}
-
-		if ( isset( $args['force'] ) && $args['force'] ) {
-			// reset full sync lock
-			require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-modules.php';
-
-			$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-			$sync_module->clear_status();
-		}
-
 		if ( isset( $args['modules'] ) && !empty( $args['modules'] ) ) {
 			$modules = array_map('trim', explode( ',', $args['modules'] ) );
 		}
-
 
 		if ( empty( $modules ) ) {
 			$modules = null;

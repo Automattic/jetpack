@@ -32463,6 +32463,10 @@
 	
 	var _lodashAssign2 = _interopRequireDefault(_lodashAssign);
 	
+	var _lodashGet = __webpack_require__(277);
+	
+	var _lodashGet2 = _interopRequireDefault(_lodashGet);
+	
 	/**
 	 * Internal dependencies
 	 */
@@ -32683,7 +32687,7 @@
 	 */
 	
 	function isStaging(state) {
-		return state.jetpack.connection.status.siteConnected.isStaging;
+		return (0, _lodashGet2['default'])(state.jetpack.connection.status, ['siteConnected', 'isStaging'], false);
 	}
 	
 	/**
@@ -63619,6 +63623,12 @@
 			);
 		},
 	
+		disconnectSite: function disconnectSite() {
+			if (window.confirm((0, _i18nCalypso.translate)('Do you really want to disconnect your site from WordPress.com?'))) {
+				this.props.disconnectSite();
+			}
+		},
+	
 		renderContent: function renderContent() {
 			var fetchingUrl = this.props.fetchingConnectUrl(this.props);
 			var disconnecting = this.props.isDisconnecting(this.props);
@@ -63631,7 +63641,7 @@
 				return _react2['default'].createElement(
 					_componentsButton2['default'],
 					{
-						onClick: this.props.disconnectSite,
+						onClick: this.disconnectSite,
 						disabled: disconnecting },
 					(0, _i18nCalypso.translate)('Disconnect site from WordPress.com ')
 				);
@@ -74400,7 +74410,7 @@
 					_react2['default'].createElement(
 						'h2',
 						{ className: 'jp-dash-item__count' },
-						protectCount
+						(0, _i18nCalypso.numberFormat)(protectCount)
 					),
 					_react2['default'].createElement(
 						'p',
@@ -75521,7 +75531,7 @@
 							(0, _i18nCalypso.translate)('Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
 								count: threats,
 								args: {
-									number: threats
+									number: (0, _i18nCalypso.numberFormat)(threats)
 								}
 							})
 						),
@@ -75854,7 +75864,7 @@
 				_react2['default'].createElement(
 					'h2',
 					{ className: 'jp-dash-item__count' },
-					akismetData.all.spam
+					(0, _i18nCalypso.numberFormat)(akismetData.all.spam)
 				),
 				_react2['default'].createElement(
 					'p',
@@ -76953,6 +76963,10 @@
 	
 	var _componentsModuleSettings = __webpack_require__(814);
 	
+	var _componentsButton = __webpack_require__(644);
+	
+	var _componentsButton2 = _interopRequireDefault(_componentsButton);
+	
 	var EngagementModulesSettings = _react2['default'].createClass({
 		displayName: 'EngagementModulesSettings',
 	
@@ -76990,8 +77004,8 @@
 						'div',
 						null,
 						_react2['default'].createElement(
-							'a',
-							{ href: module.configure_url },
+							_componentsButton2['default'],
+							{ compact: true, href: module.configure_url },
 							(0, _i18nCalypso.translate)('Settings')
 						)
 					);
@@ -81116,6 +81130,28 @@
 						)
 					);
 					break;
+	
+				default:
+					planCard = _react2['default'].createElement(
+						'div',
+						{ className: 'jp-landing__plan-card' },
+						_react2['default'].createElement('div', { className: 'jp-landing__plan-card-img is-placeholder' }),
+						_react2['default'].createElement(
+							'div',
+							{ className: 'jp-landing__plan-card-current' },
+							_react2['default'].createElement(
+								'h3',
+								{ className: 'jp-landing__plan-features-title is-placeholder' },
+								' '
+							),
+							_react2['default'].createElement(
+								'p',
+								{ className: 'jp-landing__plan-features-text is-placeholder' },
+								' '
+							)
+						)
+					);
+					break;
 			}
 			return _react2['default'].createElement(
 				'div',
@@ -81299,6 +81335,55 @@
 						)
 					);
 					break;
+	
+				default:
+					planCard = _react2['default'].createElement(
+						'div',
+						{ className: 'jp-landing__plan-features' },
+						_react2['default'].createElement(
+							'div',
+							{ className: 'jp-landing__plan-features-card' },
+							_react2['default'].createElement(
+								'h3',
+								{ className: 'jp-landing__plan-features-title is-placeholder' },
+								' '
+							),
+							_react2['default'].createElement(
+								'p',
+								{ className: 'jp-landing__plan-features-text is-placeholder' },
+								' '
+							)
+						),
+						_react2['default'].createElement(
+							'div',
+							{ className: 'jp-landing__plan-features-card' },
+							_react2['default'].createElement(
+								'h3',
+								{ className: 'jp-landing__plan-features-title is-placeholder' },
+								' '
+							),
+							_react2['default'].createElement(
+								'p',
+								{ className: 'jp-landing__plan-features-text is-placeholder' },
+								' '
+							)
+						),
+						_react2['default'].createElement(
+							'div',
+							{ className: 'jp-landing__plan-features-card' },
+							_react2['default'].createElement(
+								'h3',
+								{ className: 'jp-landing__plan-features-title is-placeholder' },
+								' '
+							),
+							_react2['default'].createElement(
+								'p',
+								{ className: 'jp-landing__plan-features-text is-placeholder' },
+								' '
+							)
+						)
+					);
+					break;
 			}
 			return _react2['default'].createElement(
 				'div',
@@ -81429,7 +81514,7 @@
 						_react2['default'].createElement(
 							'a',
 							{
-								href: 'http://wordpress.com/tos/',
+								href: 'https://wordpress.com/tos/',
 								target: '_blank',
 								title: (0, _i18nCalypso.translate)('WordPress.com Terms of Service'),
 								className: 'jp-footer__link' },

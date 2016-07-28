@@ -26,6 +26,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		// synthetic actions for full sync
 		add_action( 'jetpack_full_sync_start', $callable );
 		add_action( 'jetpack_full_sync_end', $callable );
+		add_action( 'jetpack_full_sync_cancelled', $callable );
 	}
 
 	function init_before_send() {
@@ -34,13 +35,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function start( $modules = null ) {
-		if ( ! $this->should_start_full_sync() ) {
-			return false;
-		}
+		$was_already_running = $this->is_started() && ! $this->is_finished();
 
-		// ensure listener is loaded so we can guarantee full sync actions are enqueued
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
-		Jetpack_Sync_Listener::get_instance();
+		// remove all evidence of previous full sync items and status
+		$this->reset_data();
+
+		if ( $was_already_running ) {
+			do_action( 'jetpack_full_sync_cancelled' );
+		}
 
 		/**
 		 * Fires when a full sync begins. This action is serialized
@@ -49,7 +51,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_start' );
-		$this->set_status_queuing_started();
+		$this->update_status_option( "started", time() );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
@@ -64,7 +66,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			}
 		}
 
-		$this->set_status_queuing_finished();
+		$this->update_status_option( "queue_finished", time() );
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -78,22 +80,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_end', $store->checksum_all() );
 
 		return true;
-	}
-
-	private function should_start_full_sync() {
-
-		// We should try sync if we haven't started it yet or if we have finished it.
-		if ( ! $this->is_started() || $this->is_finished() ) {
-			return true;
-		}
-
-		// allow enqueuing if last full sync was started more than FULL_SYNC_TIMEOUT seconds ago
-		$started_at = $this->get_status_option( "started" );
-		if ( $started_at && $started_at + self::FULL_SYNC_TIMEOUT < time() ) {
-			return true;
-		}
-
-		return false;
 	}
 
 	function update_sent_progress_action( $actions ) {
@@ -110,8 +96,10 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module_actions = $module->get_full_sync_actions();
-			$items_sent     = 0;
+			$module_actions     = $module->get_full_sync_actions();
+			$status_option_name = "{$module->name()}_sent";
+			$items_sent         = $this->get_status_option( $status_option_name, 0 );
+
 			foreach ( $module_actions as $module_action ) {
 				if ( isset( $actions_with_counts[ $module_action ] ) ) {
 					$items_sent += $actions_with_counts[ $module_action ];
@@ -119,22 +107,13 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			}
 
 			if ( $items_sent > 0 ) {
-				$this->update_status_option( "{$module->name()}_sent", $items_sent );
+				$this->update_status_option( $status_option_name, $items_sent );
 			}	
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
 			$this->update_status_option( "finished", time() );
 		}
-	}
-
-	private function set_status_queuing_started() {
-		$this->clear_status();
-		$this->update_status_option( "started", time() );
-	}
-
-	private function set_status_queuing_finished() {
-		$this->update_status_option( "queue_finished", time() );
 	}
 
 	public function is_started() {
@@ -184,13 +163,21 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 	}
 
-	private function get_status_option( $option ) {
+	public function reset_data() {
+		$this->clear_status();
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
+		$listener = Jetpack_Sync_Listener::get_instance();
+		$listener->get_full_sync_queue()->reset();
+	}
+
+	private function get_status_option( $option, $default = null ) {
 		$prefix = self::STATUS_OPTION_PREFIX;
 
-		$value = get_option( "{$prefix}_{$option}", null );
+		$value = get_option( "{$prefix}_{$option}", $default );
 		
 		if ( ! $value ) {
-			return null;
+			// don't cast to int if we didn't find a value - we want to preserve null or false as sentinals
+			return $default;
 		}
 
 		return intval( $value );
@@ -198,14 +185,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	private function update_status_option( $name, $value ) {
 		$prefix = self::STATUS_OPTION_PREFIX;
-		/**
-		 * Allowing update_option to change autoload status only shipped in WordPress v4.2
-		 * @link https://github.com/WordPress/WordPress/commit/305cf8b95
-		 */
-		if ( version_compare( $GLOBALS['wp_version'], '4.2', '>=' ) ) {
-			update_option( "{$prefix}_{$name}", $value, false );
-		} else {
-			update_option( "{$prefix}_{$name}", $value );
-		}
+		update_option( "{$prefix}_{$name}", $value, false );
 	}
 }

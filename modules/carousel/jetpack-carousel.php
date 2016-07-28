@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: Jetpack Carousel
-Plugin URL: http://wordpress.com/
+Plugin URL: https://wordpress.com/
 Description: Transform your standard image galleries into an immersive full-screen experience.
 Version: 0.1
 Author: Automattic

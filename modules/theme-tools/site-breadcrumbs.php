@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Site Breadcrumbs
- * Plugin URI: http://wordpress.com
+ * Plugin URI: https://wordpress.com
  * Description: Quickly add breadcrumbs to the single view of a hierarchical post type or a hierarchical taxonomy.
  * Author: Automattic
  * Version: 1.0
- * Author URI: http://wordpress.com
+ * Author URI: https://wordpress.com
  * License: GPL2 or later
  */
 
@@ -27,10 +27,10 @@ function jetpack_breadcrumbs() {
 		$ancestors = array_reverse( get_post_ancestors( $post_id ) );
 		if ( $ancestors ) {
 			foreach ( $ancestors as $ancestor ) {
-				$breadcrumb .= '<span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="' . esc_url( get_permalink( $ancestor ) ) . '" itemprop="item"><span itemprop="name">' . esc_html( get_the_title( $ancestor ) ) . '</span></a></span>';
+				$breadcrumb .= '<span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a href="' . esc_url( get_permalink( $ancestor ) ) . '" itemprop="item"><span itemprop="name">' . esc_html( get_the_title( $ancestor ) ) . '</span></a></span>';
 			}
 		}
-		$breadcrumb .= '<span class="current-page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><span itemprop="name">' . esc_html( get_the_title( $post_id ) ) . '</span></span>';
+		$breadcrumb .= '<span class="current-page" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><span itemprop="name">' . esc_html( get_the_title( $post_id ) ) . '</span></span>';
 	} elseif ( $is_taxonomy_hierarchical ) {
 		$current = get_term( get_queried_object_id(), $taxonomy );
 
@@ -42,12 +42,12 @@ function jetpack_breadcrumbs() {
 			$breadcrumb = jetpack_get_term_parents( $current->parent, $taxonomy );
 		}
 
-		$breadcrumb .= '<span class="current-category" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><span itemprop="name">' . esc_html( $current->name ) . '</span></span>';
+		$breadcrumb .= '<span class="current-category" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><span itemprop="name">' . esc_html( $current->name ) . '</span></span>';
 	}
 
-	$home = '<span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="' . esc_url( home_url( '/' ) ) . '" class="home-link" itemprop="item" rel="home"><span itemprop="name">' . esc_html__( 'Home', 'jetpack' ) . '</span></a></span>';
+	$home = '<span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a href="' . esc_url( home_url( '/' ) ) . '" class="home-link" itemprop="item" rel="home"><span itemprop="name">' . esc_html__( 'Home', 'jetpack' ) . '</span></a></span>';
 
-	echo '<nav class="entry-breadcrumbs" itemscope itemtype="http://schema.org/BreadcrumbList">' . $home . $breadcrumb . '</nav>';
+	echo '<nav class="entry-breadcrumbs" itemscope itemtype="https://schema.org/BreadcrumbList">' . $home . $breadcrumb . '</nav>';
 }
 
 /**

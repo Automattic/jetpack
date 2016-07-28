@@ -605,7 +605,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		}
 
 		$bucket_size  = intval( ceil( $object_count / $buckets ) );
-		$query_offset = 0;
+		$previous_max_id = 0;
 		$histogram    = array();
 
 		$where = '1=1';
@@ -620,7 +620,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 
 		do {
 			list( $first_id, $last_id ) = $wpdb->get_row(
-				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table WHERE $where ORDER BY $id_field ASC LIMIT $query_offset, $bucket_size ) as ids",
+				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table WHERE $where AND $id_field > $previous_max_id ORDER BY $id_field ASC LIMIT $bucket_size ) as ids",
 				ARRAY_N
 			);
 
@@ -639,7 +639,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				$histogram[ "{$first_id}-{$last_id}" ] = $value;
 			}
 
-			$query_offset += $bucket_size;
+			$previous_max_id = $last_id;
 		} while ( true );
 
 		return $histogram;

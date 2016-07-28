@@ -32421,6 +32421,10 @@
 	
 	var _lodashAssign2 = _interopRequireDefault(_lodashAssign);
 	
+	var _lodashGet = __webpack_require__(277);
+	
+	var _lodashGet2 = _interopRequireDefault(_lodashGet);
+	
 	/**
 	 * Internal dependencies
 	 */
@@ -32641,7 +32645,7 @@
 	 */
 	
 	function isStaging(state) {
-		return state.jetpack.connection.status.siteConnected.isStaging;
+		return (0, _lodashGet2['default'])(state.jetpack.connection.status, ['siteConnected', 'isStaging'], false);
 	}
 	
 	/**
@@ -56772,7 +56776,7 @@
 						_react2['default'].createElement(
 							'a',
 							{
-								href: 'http://wordpress.com/tos/',
+								href: 'https://wordpress.com/tos/',
 								target: '_blank',
 								title: (0, _i18nCalypso.translate)('WordPress.com Terms of Service'),
 								className: 'jp-footer__link' },

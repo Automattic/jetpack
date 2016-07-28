@@ -166,14 +166,7 @@ class Jetpack_Options {
 		 */
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( self::is_valid( $name, 'non_compact' ) ) {
-			/**
-			 * Allowing update_option to change autoload status only shipped in WordPress v4.2
-			 * @link https://github.com/WordPress/WordPress/commit/305cf8b95
-			 */
-			if ( version_compare( $GLOBALS['wp_version'], '4.2', '>=' ) ) {
-				return update_option( "jetpack_$name", $value, $autoload );
-			}
-			return update_option( "jetpack_$name", $value );
+			return update_option( "jetpack_$name", $value, $autoload );
 		}
 
 		foreach ( array_keys( self::$grouped_options ) as $group ) {

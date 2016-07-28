@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: Site Icon
-Plugin URL: http://wordpress.com/
+Plugin URL: https://wordpress.com/
 Description:  Add a site icon for your website.
 Version: 0.1
 Author: Automattic

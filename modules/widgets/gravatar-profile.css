@@ -16,7 +16,7 @@
 			content: "" !important; /* Kubrick :( */
 		}
 		.widget-grofile .grofile-accounts-logo {
-			background-image: url('//0.gravatar.com/images/grav-share-sprite.png');
+			background-image: url('https://secure.gravatar.com/images/grav-share-sprite.png');
 			background-repeat: no-repeat;
 			/*background-position: -16px -16px;*/
 			width: 16px; /* So we don't show the topmost logo */
@@ -40,7 +40,7 @@ only screen and (-o-min-device-pixel-ratio: 3/2),
 only screen and (min--moz-device-pixel-ratio: 1.5),
 only screen and (min-device-pixel-ratio: 1.5) {
 		.widget-grofile .grofile-accounts-logo {
-			background-image: url('//0.gravatar.com/images/grav-share-sprite-2x.png');
+			background-image: url('https://secure.gravatar.com/images/grav-share-sprite-2x.png');
 			background-size: 16px 784px;
 			}
 }
