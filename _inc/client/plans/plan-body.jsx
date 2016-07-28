@@ -48,7 +48,7 @@ const PlanBody = React.createClass( {
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Jetpack Security Scanning & Backups' ) }</h3>
 							<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place.' ) }</p>
-							<Button href={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } className="is-primary">
+							<Button href="https://dashboard.vaultpress.com/" className="is-primary">
 								{ __( 'View your security dashboard' ) }
 							</Button>
 						</div>
