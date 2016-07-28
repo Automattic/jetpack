@@ -413,6 +413,13 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 		
 		$this->assertEquals( $local_option, $remote_option );
+
+		$synced_theme_caps_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_theme_data' );
+		$synced_theme_caps = $synced_theme_caps_event->args[0];
+
+		$this->assertTrue( $synced_theme_caps['post-thumbnails'] );
+
+		$this->assertTrue( $this->server_replica_storage->current_theme_supports( 'post-thumbnails' ) );
 	}
 
 	function test_full_sync_sends_plugin_updates() {
@@ -704,7 +711,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_status_with_a_small_queue() {
 
-		$this->sender->set_dequeue_max_bytes( 1500 ); // process 0.0015MB of items at a time\
+		$this->sender->set_dequeue_max_bytes( 700 ); // process 0.0007MB of items at a time
 
 		$this->create_dummy_data_and_empty_the_queue();
 
