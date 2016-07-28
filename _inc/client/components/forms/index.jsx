@@ -8,6 +8,7 @@ import assign from 'lodash/assign';
 import noop from 'lodash/noop';
 import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
+import { translate as __ } from 'i18n-calypso';
 
 export const FormFieldset = React.createClass( {
 
@@ -143,7 +144,7 @@ export const FormButton = React.createClass( {
 	},
 
 	getDefaultButtonAction: function() {
-		return this.props.isSubmitting ? this.translate( 'Saving…' ) : this.translate( 'Save Settings' );
+		return this.props.isSubmitting ? __( 'Saving…' ) : __( 'Save Settings' );
 	},
 
 	render: function() {
