@@ -48,7 +48,10 @@ export function ModuleSettingsForm( InnerComponent ) {
 		},
 		onSubmit( event ) {
 			event.preventDefault();
-			this.props.updateOptions( this.state.options );
+			this.props.updateOptions( this.state.options )
+				.then( () => {
+					this.setState( { options: {} } )
+				} );
 		},
 		getOptionValue( optionName ) {
 			const currentValue = this.props.getOptionCurrentValue( this.props.module.module, optionName );
@@ -56,8 +59,18 @@ export function ModuleSettingsForm( InnerComponent ) {
 				? this.state.options[ optionName ]
 				: currentValue;
 		},
+		shouldSaveButtonBeDisabled() {
+			let shouldItBeEnabled = false;
+			// Check if the form is not currently dirty
+			shouldItBeEnabled = ! this.isSavingAnyOption() && this.isDirty();
+			return ! shouldItBeEnabled;
+		},
 		isDirty() {
 			return !! Object.keys( this.state.options ).length;
+		},
+		isSavingAnyOption() {
+			// Check if any of the updated options is still saving
+			return Object.keys( this.state.options ).some( option_name => this.props.isUpdating( option_name ) );
 		},
 		render() {
 			return(
@@ -67,6 +80,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 					onOptionChange={ this.onOptionChange }
 					updateFormStateOptionValue={ this.updateFormStateOptionValue }
 					isDirty={ this.isDirty }
+					shouldSaveButtonBeDisabled={ this.shouldSaveButtonBeDisabled }
 					{ ...this.props } />
 			);
 		}

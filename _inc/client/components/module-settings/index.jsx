@@ -35,7 +35,7 @@ export let SharedaddySettings = React.createClass( {
 				<FormFieldset>
 					<ModuleSettingCheckbox name={ 'option_name' } { ...this.props } label={ __( 'Subscriber' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="Submit">{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="Submit">{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -94,7 +94,7 @@ export let RelatedPostsSettings = React.createClass( {
 					<Card>
 						{ this.renderPreviews() }
 					</Card>
-					<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+					<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 				</FormFieldset>
 			</form>
 		);
@@ -114,7 +114,7 @@ export let LikesSettings = React.createClass( {
 						{ ...this.props }
 						validValues={ this.props.validValues( 'wpl_default' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -142,7 +142,7 @@ export let CommentsSettings = React.createClass( {
 						name={ 'jetpack_comment_form_color_scheme' }
 						{ ...this.props }
 						validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme' ) } />
-					<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+					<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 				</FormFieldset>
 			</form>
 		)
@@ -166,8 +166,8 @@ export let SubscriptionsSettings = React.createClass( {
 						{ ...this.props }
 						label={ __( 'Show a "follow comments" option in the comment form.' ) +
 							' (Currently does not work)' } />
-					<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
-					</FormFieldset>
+					<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
+				</FormFieldset>
 			</form>
 		)
 	}
@@ -208,7 +208,7 @@ export let StatsSettings = React.createClass( {
 							{ ...this.props }
 							validValues={ this.props.getSiteRoles() } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		);
 	}
@@ -231,7 +231,7 @@ export let ProtectSettings = React.createClass( {
 							value={ this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local } />
 					</FormLabel>
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -249,7 +249,7 @@ export let MonitorSettings = React.createClass( {
 						{ ...this.props }
 						label={ __( 'Receive Monitor Email Notifications' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -271,7 +271,7 @@ export let SingleSignOnSettings = React.createClass( {
 						{ ...this.props }
 						label={ __( 'Require Two-Step Authentication' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -297,7 +297,7 @@ export let CarouselSettings = React.createClass( {
 						{ ...this.props }
 						validValues={ this.props.validValues( 'carousel_background_color' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -319,7 +319,7 @@ export let InfiniteScrollSettings = React.createClass( {
 						{ ...this.props }
 						label={ __( 'Track each infinite Scroll post load as a page view in Google Analytics' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -352,7 +352,7 @@ export let MinilevenSettings = React.createClass( {
 						{ ...this.props }
 						label={ __( 'Show a promo for the WordPress mobile apps in the footer of the mobile theme' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -371,7 +371,7 @@ export let GravatarHovercardsSettings = React.createClass( {
 						{ ...this.props }
 						validValues={ this.props.validValues( 'gravatar_disable_hovercards' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -450,7 +450,7 @@ export let VerificationToolsSettings = React.createClass( {
 						</p>
 					</div>
 
-					<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+					<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 				</FormFieldset>
 			</form>
 		)
@@ -470,7 +470,7 @@ export let TiledGallerySettings = React.createClass( {
 						{ ...this.props }
 						label={ __( 'Display all your gallery pictures in a cool mosaic' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -527,7 +527,7 @@ export let CustomContentTypesSettings = React.createClass( {
 						{ ...this.props }
 						label={ __( 'Enable Testimonials for this site' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -603,7 +603,7 @@ export let AfterTheDeadlineSettings = React.createClass( {
 						{ ...this.props }
 						label={ __( 'Use automatically detected language to proofread posts and pages' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
@@ -621,7 +621,7 @@ export let MarkdownSettings = React.createClass( {
 						{ ...this.props }
 						label={ __( 'Use Markdown for comments' ) } />
 				</FormFieldset>
-				<Button disabled={ ! this.props.isDirty() } type="submit" >{ __( 'Save' ) }</Button>
+				<Button disabled={ this.props.shouldSaveButtonBeDisabled() } type="submit" >{ __( 'Save' ) }</Button>
 			</form>
 		)
 	}
