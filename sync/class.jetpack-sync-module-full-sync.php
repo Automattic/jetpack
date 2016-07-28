@@ -99,9 +99,10 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			$module_actions = $module->get_full_sync_actions();
 			$items_sent     = 0;
 			foreach ( $module_actions as $module_action ) {
-				if ( isset( $actions_with_counts[ $module_action ] ) ) {
-					$items_sent += $actions_with_counts[ $module_action ];
+				if ( ! isset( $actions_with_counts[ $module_action ] ) ) {
+					$actions_with_counts[ $module_action ] = $this->get_status_option( "{$module->name()}_sent", 0 );
 				}
+				$items_sent += $actions_with_counts[ $module_action ];
 			}
 
 			if ( $items_sent > 0 ) {
@@ -168,10 +169,10 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$listener->get_full_sync_queue()->reset();
 	}
 
-	private function get_status_option( $option ) {
+	private function get_status_option( $option, $default_value = null ) {
 		$prefix = self::STATUS_OPTION_PREFIX;
 
-		$value = get_option( "{$prefix}_{$option}", null );
+		$value = get_option( "{$prefix}_{$option}", $default_value );
 		
 		if ( ! $value ) {
 			return null;
