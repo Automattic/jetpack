@@ -73,6 +73,7 @@ class Jetpack_Sync_Server_Replicator {
 
 			// themes
 			case 'jetpack_sync_current_theme_support':
+			case 'jetpack_full_sync_theme_data':
 				list( $theme_options ) = $args;
 				$this->store->set_theme_support( $theme_options );
 				break;
