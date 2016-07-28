@@ -13,7 +13,7 @@ class Jetpack_Sync_Sender {
 
 	const SYNC_THROTTLE_OPTION_NAME = 'jetpack_sync_min_wait';
 	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
-	const WPCOM_ERROR_SYNC_DELAY = 60;
+	const WPCOM_ERROR_SYNC_DELAY = 300; // 5min
 
 	private $dequeue_max_bytes;
 	private $upload_max_bytes;
@@ -61,10 +61,11 @@ class Jetpack_Sync_Sender {
 		}
 
 		// don't sync if we are throttled
-		if ( $this->get_next_sync_time() > microtime( true ) ) {
-			// even though we shouldn't be syncing untill next time if the queue is really small
+		$next_sync_queue = $this->get_next_sync_time();
+		if ( $next_sync_queue > microtime( true ) ) {
+			// Even though we shouldn't be syncing untill next time if the queue is really small
 			// lets try any way.
-			if ( $this->sync_queue->size() < 12 ) {
+			if ( $this->sync_queue->size() < 12 && $next_sync_queue < $this->get_sync_wait_time() + time() ) {
 				$sync_result  = $this->do_sync_for_queue( $this->sync_queue );
 				if ( is_wp_error( $sync_result ) ) {
 					$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
