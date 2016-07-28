@@ -16,7 +16,7 @@
 			content: "" !important; /* Kubrick :( */
 		}
 		.widget-grofile .grofile-accounts-logo {
-			background-image: url('https://0.gravatar.com/images/grav-share-sprite.png');
+			background-image: url('https://secure.gravatar.com/images/grav-share-sprite.png');
 			background-repeat: no-repeat;
 			/*background-position: -16px -16px;*/
 			width: 16px; /* So we don't show the topmost logo */
