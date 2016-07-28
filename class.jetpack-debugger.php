@@ -18,6 +18,27 @@ class Jetpack_Debugger {
 		}
 	}
 
+	static function seconds_to_time( $seconds ) {
+		$units = array(
+			"week"   => 7*24*3600,
+			"day"    =>   24*3600,
+			"hour"   =>      3600,
+			"minute" =>        60,
+			"second" =>         1,
+		);
+		// specifically handle zero
+		if ( $seconds == 0 ) return "0 seconds";
+		$human_readable = "";
+		foreach ( $units as $name => $divisor ) {
+			if ( $quot = intval( $seconds / $divisor) ) {
+				$human_readable .= "$quot $name";
+				$human_readable .= ( abs( $quot ) > 1 ? "s" : "" ) . ", ";
+				$seconds -= $quot * $divisor;
+			}
+		}
+		return substr( $human_readable, 0, -2 );
+	}
+
 	public static function jetpack_increase_timeout() {
 		return 30; // seconds
 	}
@@ -60,6 +81,26 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
 		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
 
+		$debug_info .= "\r\n";
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
+		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+
+		$debug_info .= "\r\n". esc_html( "Jetpack Sync Full Status: " . print_r( $sync_module->get_status(), 1 ) );
+
+		$next_schedules = wp_next_scheduled( 'jetpack_sync_full' );
+		if( $next_schedules ) {
+			$debug_info .= "\r\n". esc_html( "Next Jetpack Full Sync Schedule: " . date( 'r', $next_schedules ) );
+		} else {
+			$debug_info .= "\r\n". esc_html( "Next Jetpack Full Sync Schedule: Not Schedules" );
+		}
+
+		require_once JETPACK__PLUGIN_DIR. 'sync/class.jetpack-sync-sender.php';
+		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
+
+		$debug_info .= "\r\n". esc_html( "Sync Queue size: " . $queue->size() );
+		$debug_info .= "\r\n". esc_html( "Sync Queue lag: " . self::seconds_to_time( $queue->lag() ) );
+		$debug_info .= "\r\n";
+		
 		foreach ( array (
 					  'HTTP_HOST',
 					  'SERVER_PORT',
