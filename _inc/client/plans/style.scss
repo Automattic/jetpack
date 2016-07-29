@@ -27,9 +27,6 @@
 		flex-wrap: nowrap;
 		flex-direction: row;
 		align-items: center;
-		background: transparent url('../../images/jp-4/white-clouds.svg') 50% 100% no-repeat;
-		background-size: 110%; // safari bug
-		padding-bottom: rem( 80px );
 	}
 
 	@include breakpoint( "<660px" ) {
@@ -38,9 +35,37 @@
 }
 
 .jp-landing-plans__header-img {
-	margin: 0 rem( -32px ) 0 rem( 32px );
 	max-width: 100%; // needs proper srcsets
+
+	@include breakpoint( "<660px" ) {
+		margin-top: rem( 32px );
+	}
+
+	@include breakpoint( ">660px" ) {
+		margin: 0 rem( -32px ) 0 rem( 32px ); // off-canvas effect
+	}
 }
+
+// clouds are a little hacky, but works for IE11 -jg
+.jp-landing-plans__clouds {
+	position: relative;
+	overflow: hidden;
+	padding-top: rem( 80px );
+
+	img {
+		position: absolute;
+		bottom: -2px;
+		left: -5%;
+		right: -5%;
+		height: auto;
+		width: 110%;
+	}
+
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+// end IE11 cloud hack
 
 .jp-landing-plans__header-col-left {
 	flex-basis: 60%;
@@ -52,10 +77,6 @@
 
 .jp-landing-plans__header-col-right {
 	flex-basis: 40%;
-
-	@include breakpoint( "<660px" ) {
-		display: none;
-	}
 }
 
 .jp-landing-plans__header-title, 
