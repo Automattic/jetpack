@@ -31,15 +31,47 @@
 		flex-wrap: nowrap;
 		flex-direction: row;
 		align-items: center;
-		background: transparent url('../../images/jp-4/white-clouds.svg') 50% 100% no-repeat;
-		background-size: 110%; // safari bug
-		padding-bottom: rem( 80px );
 	}
 
 	@include breakpoint( "<660px" ) {
 		margin-bottom: 0;
 	}
 }
+
+// clouds are a little hacky, but works for IE11 -jg
+.jp-landing-apps__clouds {
+	position: relative;
+	overflow: hidden;
+
+	img {
+		position: absolute;
+		left: -5%;
+		right: -5%;
+		height: auto;
+		width: 110%;
+	}
+
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+
+.jp-clouds-top {
+	padding-top: rem( 80px );
+
+	img {
+		bottom: -2px;
+	}
+}
+
+.jp-clouds-bottom {
+	padding-bottom: rem( 80px );
+
+	img {
+		top: -2px;
+	}
+}
+// end IE11 cloud hack
 
 .jp-landing-apps__header-img {
 	max-width: 100%; // needs proper srcsets
@@ -159,9 +191,7 @@
 .jp-landing-apps__footer-top {
 
 	@include breakpoint( ">660px" ) {
-		padding: rem( 80px ) rem( 32px ) rem( 32px );
-		background: transparent url('../../images/jp-4/white-clouds-reverse.svg') 50% 0 no-repeat;
-		background-size: 110%; // safari bug
+		padding: 0 rem( 32px ) rem( 32px );
 	}
 
 	@include breakpoint( "<660px" ) {

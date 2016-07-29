@@ -33,6 +33,9 @@ const Apps = ( props ) => {
 							<img src={ imagePath + '/apps/laptop-90deg-themes.png' } className="jp-landing-apps__header-img" />
 						</div>
 					</div>
+					<div className="jp-landing-apps__clouds jp-clouds-top">
+						<img src={ imagePath + '/white-clouds.svg' } />
+					</div>
 				</div>
 
 				<div className="jp-landing-apps__feature-container">
@@ -90,6 +93,9 @@ const Apps = ( props ) => {
 				</div>
 
 				<div className="jp-landing-apps__footer">
+					<div className="jp-landing-apps__clouds jp-clouds-bottom">
+						<img src={ imagePath + '/white-clouds-reverse.svg' } />
+					</div>
 					<div className="jp-landing-apps__footer-top">
 						<h2 className="jp-landing-apps__title">
 							{ __( 'Inspiration strikes any time, anywhere.' ) }
@@ -100,7 +106,7 @@ const Apps = ( props ) => {
 						</p>
 
 						<img src={ imagePath + '/apps/triple-devices.svg' } className="jp-landing-apps__devices" />
-						
+
 					</div>
 
 					<div className="jp-landing-apps__downloads">
