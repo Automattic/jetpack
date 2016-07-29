@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		// bind the sender to the server
 		remove_all_filters( 'jetpack_sync_send_data' );
-		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceive' ), 10, 3 );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceive' ), 10, 4 );
 
 		// bind the two storage systems to the server events
 		$this->server_replica_storage = new Jetpack_Sync_Test_Replicastore();
@@ -93,8 +93,8 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		return $codec->decode( $codec->encode( $instance ) );
 	}
 
-	function serverReceive( $data, $codec, $sent_timestamp ) {
-		return $this->server->receive( $data, null, $sent_timestamp );
+	function serverReceive( $data, $codec, $sent_timestamp, $queue_id ) {
+		return $this->server->receive( $data, null, $sent_timestamp, $queue_id );
 	}
 }
 
