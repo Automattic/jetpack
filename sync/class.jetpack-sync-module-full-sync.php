@@ -200,7 +200,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			return $default;
 		}
 
-		return intval( $value );
+		return is_numeric( $value ) ? intval( $value ) : $value;
 	}
 
 	private function update_status_option( $name, $value ) {
