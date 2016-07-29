@@ -3,6 +3,7 @@
  */
 require( 'es6-promise' ).polyfill();
 import 'whatwg-fetch';
+import localforage from 'localforage';
 
 const restApi = {
 	fetchSiteConnectionStatus: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/connection-status`, {
@@ -26,7 +27,10 @@ const restApi = {
 			'X-WP-Nonce': window.Initial_State.WP_API_nonce
 		}
 	} )
-		.then( checkStatus ).then( response => response.json() ),
+		.then( checkStatus ).then( response => {
+			localforage.removeItem( 'siteData' );
+			return response.json();
+		} ),
 	fetchConnectUrl: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/connect-url`, {
 		credentials: 'same-origin',
 		headers: {
@@ -168,15 +172,30 @@ const restApi = {
 		}
 	} )
 		.then( checkStatus ).then( response => response.json() ),
-	fetchSiteData: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/site`, {
-		method: 'get',
-		credentials: 'same-origin',
-		headers: {
-			'X-WP-Nonce': window.Initial_State.WP_API_nonce,
-			'Content-type': 'application/json'
-		}
-	} )
-		.then( checkStatus ).then( response => response.json() ),
+	fetchSiteData: () => {
+		return localforage.getItem( 'siteData' ).then( siteData => {
+			if ( 'object' === typeof siteData && 0 < Object.keys( siteData ).length ) {
+				return siteData;
+			}
+			return fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/site`, {
+				method: 'get',
+				credentials: 'same-origin',
+				headers: {
+					'X-WP-Nonce': window.Initial_State.WP_API_nonce,
+					'Content-type': 'application/json'
+				}
+			} )
+				.then( checkStatus ).then( response => {
+					response = response.json();
+					localforage.setItem( 'siteData', response );
+					return response;
+				}
+			);
+		} ).catch( () => {
+			localforage.setItem( 'siteData', {} );
+			return {};
+		} );
+	},
 	dismissJetpackNotice: ( notice ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/notice/${ notice }/dismiss`, {
 		method: 'put',
 		credentials: 'same-origin',
