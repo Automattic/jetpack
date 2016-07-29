@@ -29,15 +29,14 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	public function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
 
-		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
+		$where_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
 
 		// config is a list of post IDs to sync
 		if ( is_array( $config ) ) {
-			$post_ids_sql   = implode( array_map( 'intval', $config ) );
-			$post_type_sql .= " AND ID IN ({$post_ids_sql})";
+			$where_sql   .= ' AND ID IN (' . implode( array_map( 'intval', $config ) ) . ')';
 		}
 
-		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $post_type_sql );
+		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $where_sql );
 	}
 
 	function get_full_sync_actions() {

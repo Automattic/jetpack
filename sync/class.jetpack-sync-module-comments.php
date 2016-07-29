@@ -47,7 +47,14 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 	public function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
 
-		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_comments', $wpdb->comments, 'comment_ID', null );
+		// config is a list of comment IDs to sync
+		if ( is_array( $config ) ) {
+			$where_sql = 'comment_ID IN (' . implode( array_map( 'intval', $config ) ) . ')';
+		} else {
+			$where_sql = null;
+		}
+
+		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_comments', $wpdb->comments, 'comment_ID', $where_sql );
 	}
 
 	public function get_full_sync_actions() {
