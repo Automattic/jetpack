@@ -27,7 +27,10 @@ const restApi = {
 			'X-WP-Nonce': window.Initial_State.WP_API_nonce
 		}
 	} )
-		.then( checkStatus ).then( response => response.json() ),
+		.then( checkStatus ).then( response => {
+			localforage.removeItem( 'siteData' );
+			return response.json();
+		} ),
 	fetchConnectUrl: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/connect-url`, {
 		credentials: 'same-origin',
 		headers: {
