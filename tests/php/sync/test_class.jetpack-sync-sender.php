@@ -185,6 +185,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->sender->set_sync_wait_time( 2 );
+		$this->sender->set_sync_wait_threshold( 0 ); // wait no matter what
 		$this->assertSame( 2, $this->sender->get_sync_wait_time() );
 
 		$this->assertEquals( 2, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
@@ -206,15 +207,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( $this->sender->do_sync() );
 		$this->assertEquals( 6, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
-
-		// now that we're fully synced and not sending data each time, 
-		// the sync wait time shouldn't change between invocations
-		$next_sync_time = $this->sender->get_next_sync_time();
-		
-		sleep( 3 );
-
-		$this->sender->do_sync();
-		$this->assertEquals( $next_sync_time, $this->sender->get_next_sync_time() );
 
 		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
 	}
@@ -314,6 +306,23 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 	function serverReceiveWithError( $data, $codec, $sent_timestamp ) {
 		return new WP_Error( 'an_error', 'An Error Occurred' );
+	}
+
+	function test_delays_next_send_if_exceeded_sync_wait_threshold() {
+		remove_all_filters( 'jetpack_sync_send_data' );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithThreeSecondDelay' ), 10, 3 );
+		$this->sender->set_sync_wait_time( 10 );     // 10 second delay
+		$this->sender->set_sync_wait_threshold( 2 ); // wait no matter what
+
+		$this->factory->post->create();
+		$this->sender->do_sync();
+
+		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 9 );	
+	}
+
+	function serverReceiveWithThreeSecondDelay( $data, $codec, $sent_timestamp ) {
+		sleep( 3 );
+		return array_keys( $data );
 	}
 
 	function action_ran( $data, $codec, $sent_timestamp ) {

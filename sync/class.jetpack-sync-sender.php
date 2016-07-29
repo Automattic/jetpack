@@ -19,6 +19,7 @@ class Jetpack_Sync_Sender {
 	private $upload_max_bytes;
 	private $upload_max_rows;
 	private $sync_wait_time;
+	private $sync_wait_threshold;
 	private $sync_queue;
 	private $full_sync_queue;
 	private $codec;
@@ -64,16 +65,20 @@ class Jetpack_Sync_Sender {
 		if ( $this->get_next_sync_time() > microtime( true ) ) {
 			return false;
 		}
+
+		$start_time = microtime( true );
 		
 		$full_sync_result = $this->do_sync_for_queue( $this->full_sync_queue );
 		$sync_result      = $this->do_sync_for_queue( $this->sync_queue );
+
+		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
 
 		if ( is_wp_error( $full_sync_result ) || is_wp_error( $sync_result ) ) {
 			$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
 			$full_sync_result = false;
 			$sync_result      = false;
-		} elseif ( $full_sync_result || $sync_result ) {
-			// if we actually sent data, wait before sending again
+		} elseif ( $exceeded_sync_wait_threshold ) {
+			// if we actually sent data and it took a while, wait before sending again
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time() );
 		}
 
@@ -162,6 +167,10 @@ class Jetpack_Sync_Sender {
 				$queue->force_checkin();
 			}
 
+			if ( is_wp_error( $processed_item_ids ) ) {
+				return $processed_item_ids;
+			}
+
 			// returning a WP_Error is a sign to the caller that we should wait a while
 			// before syncing again
 			return new WP_Error( 'server_error' );
@@ -244,6 +253,15 @@ class Jetpack_Sync_Sender {
 		return $this->sync_wait_time;
 	}
 
+	// in seconds
+	function set_sync_wait_threshold( $seconds ) {
+		$this->sync_wait_threshold = $seconds;
+	}
+
+	function get_sync_wait_threshold() {
+		return $this->sync_wait_threshold;
+	}
+
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
@@ -255,6 +273,7 @@ class Jetpack_Sync_Sender {
 		$this->set_upload_max_bytes( $settings['upload_max_bytes'] );
 		$this->set_upload_max_rows( $settings['upload_max_rows'] );
 		$this->set_sync_wait_time( $settings['sync_wait_time'] );
+		$this->set_sync_wait_threshold( $settings['sync_wait_threshold'] );
 	}
 
 	function reset_data() {
