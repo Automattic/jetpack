@@ -4,10 +4,10 @@
 var React = require( 'react' ),
 	classnames = require( 'classnames' );
 import classNames from 'classnames';
-import assign from 'lodash/assign';
-import noop from 'lodash/noop';
 import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
+import { translate as __ } from 'i18n-calypso';
+import Button from 'components/button';
 
 export const FormFieldset = React.createClass( {
 
@@ -143,7 +143,7 @@ export const FormButton = React.createClass( {
 	},
 
 	getDefaultButtonAction: function() {
-		return this.props.isSubmitting ? this.translate( 'Saving…' ) : this.translate( 'Save Settings' );
+		return this.props.isSubmitting ? __( 'Saving…' ) : __( 'Save Settings' );
 	},
 
 	render: function() {
@@ -159,47 +159,5 @@ export const FormButton = React.createClass( {
 				{ isEmpty( this.props.children ) ? this.getDefaultButtonAction() : this.props.children }
 			</Button>
 		);
-	}
-} );
-
-export const Button = React.createClass( {
-
-	displayName: 'Button',
-
-	propTypes: {
-		disabled: React.PropTypes.bool,
-		compact: React.PropTypes.bool,
-		primary: React.PropTypes.bool,
-		scary: React.PropTypes.bool,
-		type: React.PropTypes.string,
-		href: React.PropTypes.string,
-		onClick: React.PropTypes.func,
-		borderless: React.PropTypes.bool
-	},
-
-	getDefaultProps() {
-		return {
-			disabled: false,
-			type: 'button',
-			onClick: noop,
-			borderless: false
-		};
-	},
-
-	render() {
-		const element = this.props.href ? 'a' : 'button';
-		const buttonClasses = classNames( {
-			button: true,
-			'is-compact': this.props.compact,
-			'is-primary': this.props.primary,
-			'is-scary': this.props.scary,
-			'is-borderless': this.props.borderless
-		} );
-
-		const props = assign( {}, this.props, {
-			className: classNames( this.props.className, buttonClasses )
-		} );
-
-		return React.createElement( element, props, this.props.children );
 	}
 } );
