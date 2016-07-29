@@ -29,6 +29,11 @@ abstract class Jetpack_Sync_Module {
 		return 0;
 	}
 
+	public function estimate_full_sync_actions( $config ) {
+		// in subclasses, return the number of items yet to be enqueued
+		return 0;
+	}
+
 	public function get_full_sync_actions() {
 		return array();
 	}

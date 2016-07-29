@@ -46,6 +46,20 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		return $total_chunks_counter;
 	}
 
+	function estimate_full_sync_actions( $config ) {
+		// TODO - make this (and method above) more efficient for large numbers of terms or taxonomies
+		global $wpdb;
+
+		$taxonomies           = get_taxonomies();
+		$total_chunks_counter = 0;
+		foreach ( $taxonomies as $taxonomy ) {
+			$total_ids = $wpdb->get_var( $wpdb->prepare( "SELECT count(term_id) FROM $wpdb->term_taxonomy WHERE taxonomy = %s", $taxonomy ) );
+			$total_chunks_counter += (int) ceil( $total_ids / self::ARRAY_CHUNK_SIZE );
+		}
+
+		return $total_chunks_counter;
+	}
+
 	function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_terms' );
 	}

@@ -50,6 +50,10 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		return 1; // The number of actions enqueued
 	}
 
+	public function estimate_full_sync_actions( $config ) {
+		return 1;
+	}
+
 	function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_options' );
 	}
