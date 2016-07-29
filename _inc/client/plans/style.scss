@@ -137,7 +137,7 @@
 .jp-landing__plan-features {
 
 	@include breakpoint( ">660px" ) {
-		padding: rem( 32px );
+		padding: 0 rem( 32px ) rem( 32px );
 	}
 
 	@include breakpoint( "<660px" ) {
