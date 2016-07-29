@@ -672,14 +672,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start( array( 'posts' => array( $non_existent_id ), 'comments' => array( $non_existent_id ), 'users' => array( $non_existent_id ) )  );
 		$this->sender->do_sync();
 
-		$synced_posts_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
-		$this->assertFalse( $synced_posts_event );
-
-		$synced_posts_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
-		$this->assertFalse( $synced_posts_event );
-
-		$synced_posts_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
-		$this->assertFalse( $synced_posts_event );
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' ) );
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' ) );
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' ) );
 	}
 
 	function test_full_sync_can_sync_individual_posts() {
