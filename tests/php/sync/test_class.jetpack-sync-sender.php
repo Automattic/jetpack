@@ -317,6 +317,23 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		return new WP_Error( 'an_error', 'An Error Occurred' );
 	}
 
+	function test_delays_next_send_if_exceeded_sync_wait_threshold() {
+		remove_all_filters( 'jetpack_sync_send_data' );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithThreeSecondDelay' ), 10, 3 );
+		$this->sender->set_sync_wait_time( 10 );     // 10 second delay
+		$this->sender->set_sync_wait_threshold( 2 ); // wait no matter what
+
+		$this->factory->post->create();
+		$this->sender->do_sync();
+
+		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 9 );	
+	}
+
+	function serverReceiveWithThreeSecondDelay( $data, $codec, $sent_timestamp ) {
+		sleep( 3 );
+		return array_keys( $data );
+	}
+
 	function action_ran( $data, $codec, $sent_timestamp ) {
 		$this->action_ran       = true;
 		$this->action_codec     = $codec;
