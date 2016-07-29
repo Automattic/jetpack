@@ -57,6 +57,10 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		return 1;
 	}
 
+	function estimate_full_sync_actions( $config ) {
+		return 1;
+	}
+
 	function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_constants' );
 	}

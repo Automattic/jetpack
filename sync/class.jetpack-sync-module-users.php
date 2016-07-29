@@ -155,15 +155,30 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
+		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->users, 'ID', $this->get_where_sql( $config ) );
+	}
 
-		// config is a list of post IDs to sync
-		if ( is_array( $config ) ) {
-			$where_sql = 'ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
-		} else {
-			$where_sql = null;
+	public function estimate_full_sync_actions( $config ) {
+		global $wpdb;
+
+		$query = "SELECT count(*) FROM $wpdb->users";
+		
+		if ( $where_sql = $this->get_where_sql( $config ) ) {
+			$query .= ' WHERE ' . $where_sql;
 		}
 
-		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->users, 'ID', $where_sql );
+		$count = $wpdb->get_var( $query );
+
+		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
+	}
+
+	private function get_where_sql( $config ) {
+		// config is a list of user IDs to sync
+		if ( is_array( $config ) ) {
+			return 'ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+		}
+
+		return null;
 	}
 
 	function get_full_sync_actions() {

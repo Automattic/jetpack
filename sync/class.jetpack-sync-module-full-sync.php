@@ -58,16 +58,42 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_start' );
 		$this->update_status_option( 'started', time() );
 
+		// configure modules
+		if ( ! is_array( $modules ) ) {
+			$modules = array();
+		}
+
+		// by default, all modules are fully enabled
+		if ( count( $modules ) === 0 ) {
+			$default_module_config = true;
+		} else {
+			$default_module_config = false;
+		}
+
+		// set default configuration, calculate totals, and save configuration if totals > 0
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
-
-			// if we have been passed module configs, use them, otherwise default to syncing everything
-			if ( is_array( $modules ) ) {
-				$module_config = isset( $modules[ $module_name ] ) ? $modules[ $module_name ] : false;	
-			} else {
-				$module_config = true;
+			if ( ! isset( $modules[ $module_name ] ) ) {
+				$modules[ $module_name ] = $default_module_config;
 			}
-			
+
+			// check if this module is enabled
+			if ( ! ( $module_config = $modules[ $module_name ] ) ) {
+				continue;
+			}
+
+			$total_items = $module->estimate_full_sync_actions( $module_config );
+
+			if ( ! is_null( $total_items ) && $total_items > 0 ) {
+				$this->update_status_option( "{$module_name}_total", $total_items );
+				$this->update_status_option( "{$module_name}_config", $module_config );
+			}
+		}
+
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			$module_name   = $module->name();
+			$module_config = $modules[ $module_name ];
+
 			// check if this module is enabled
 			if ( ! $module_config ) {
 				continue;
@@ -76,8 +102,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			$items_enqueued = $module->enqueue_full_sync_actions( $module_config );
 
 			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
-				$this->update_status_option( "{$module->name()}_queued", $items_enqueued );
-				$this->update_status_option( "{$module->name()}_config", $module_config );
+				$this->update_status_option( "{$module_name}_queued", $items_enqueued );
 			}
 		}
 
@@ -148,10 +173,15 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			'sent'           => array(),
 			'queue'          => array(),
 			'config'         => array(),
+			'total'          => array(),
 		);
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$name = $module->name();
+
+			if ( $total = $this->get_status_option( "{$name}_total" ) ) {
+				$status[ 'total' ][ $name ] = $total;
+			}
 
 			if ( $queued = $this->get_status_option( "{$name}_queued" ) ) {
 				$status[ 'queue' ][ $name ] = $queued;
