@@ -572,14 +572,27 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'themes'    => 1,
 				'updates'   => 1,
 				'users'     => 1,
-				'terms'     => 1
+				'terms'     => 1,
 			),
+			'config' => array(
+				'constants' => true,
+				'functions' => true,
+				'options'   => true,
+				'posts'     => true,
+				'comments'  => true,
+				'themes'    => true,
+				'updates'   => true,
+				'users'     => true,
+				'terms'     => true,
+			)
 		);
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
+			$should_be_status['config']['network_options'] = 1;
 		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
+		$this->assertEquals( $full_sync_status['config'], $should_be_status['config'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
 		$this->assertNull( $full_sync_status['sent_started'] );
@@ -663,6 +676,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 1, count( $posts ) );
 		$this->assertEquals( $sync_post_id, $posts[0]->ID );
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_post_id ), $sync_status['config']['posts'] );
 	}
 
 	function test_full_sync_can_sync_individual_comments() {
@@ -678,6 +693,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 1, count( $comments ) );
 		$this->assertEquals( $sync_comment_id, $comments[0]->comment_ID );
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_comment_id ), $sync_status['config']['comments'] );
 	}
 
 	function test_full_sync_can_sync_individual_users() {
@@ -693,6 +710,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 1, count( $users ) );
 		$this->assertEquals( $sync_user_id, $users[0]->ID );
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_user_id ), $sync_status['config']['users'] );
 	}
 
 	function test_full_sync_doesnt_send_deleted_posts() {
