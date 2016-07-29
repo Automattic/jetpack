@@ -1,6 +1,9 @@
 .jp-landing__apps.dops-card {
 	padding: 0;
+}
 
+.jp-landing__apps {
+	
 	.dops-button {
 		margin-right: 10px;
 	}
@@ -224,6 +227,10 @@
 
 	@include breakpoint( "<480px" ) {
 		flex-wrap: wrap;
+
+		.dops-button {
+			margin-right: 0;
+		}
 	}
 }
 
