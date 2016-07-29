@@ -9,8 +9,16 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		$modules = null;
 
+		// convert list of modules in comma-delimited format into an array
+		// of "$modulename => true"
 		if ( isset( $args['modules'] ) && !empty( $args['modules'] ) ) {
-			$modules = array_map('trim', explode( ',', $args['modules'] ) );
+			$modules = array_map( '__return_true', array_flip( array_map('trim', explode( ',', $args['modules'] ) ) ) );
+		}
+
+		foreach ( array( 'posts', 'comments', 'users' ) as $module_name ) {
+			if ( isset( $args[ $module_name ] ) ) {
+				$modules[ $module_name ] = explode( ',', $args[ $module_name ] );
+			}
 		}
 
 		if ( empty( $modules ) ) {
@@ -29,21 +37,21 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected function result() {
 		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-modules.php';
-		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-
 		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
-		$sender = Jetpack_Sync_Sender::get_instance();
-		$queue = $sender->get_sync_queue();
-		$full_queue = $sender->get_full_sync_queue();
+
+		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$sender      = Jetpack_Sync_Sender::get_instance();
+		$queue       = $sender->get_sync_queue();
+		$full_queue  = $sender->get_full_sync_queue();
 
 		return array_merge(
 			$sync_module->get_status(),
 			array(
-				'is_scheduled' => (bool) wp_next_scheduled( 'jetpack_sync_full' ),
-				'queue_size' => $queue->size(),
-				'queue_lag' => $queue->lag(),
+				'is_scheduled'    => (bool) wp_next_scheduled( 'jetpack_sync_full' ),
+				'queue_size'      => $queue->size(),
+				'queue_lag'       => $queue->lag(),
 				'full_queue_size' => $full_queue->size(),
-				'full_queue_lag' => $full_queue->lag()
+				'full_queue_lag'  => $full_queue->lag()
 			)
 		);
 	}
