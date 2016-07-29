@@ -104,7 +104,7 @@ Enhancements:
 * Performance: we've improved the way Jetpack queried for information about module data, to execute less queries to get Jetpack options. #4315
 * Staging: Added WP Stagecoach as a known staging site provider so those staging sites will not impact production sites. #4518
 * Shortcodes: new parameters for the Dailymotion shortcode. #4103
-* Widgets: do not display any map if no Google Maps API Key is defined. #4242
+* Widgets: allow site owners to enter a Google Maps API Key in the Contact Info Widget settings. This is now required by Google if one wants to display a map. More info [here](https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/). #4242 and #4562
 
 = 4.1.1 =
 
