@@ -680,6 +680,21 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $sync_comment_id, $comments[0]->comment_ID );
 	}
 
+	function test_full_sync_can_sync_individual_users() {
+		$sync_user_id = $this->factory->user->create();
+		$no_sync_user_id = $this->factory->user->create();
+
+		$this->full_sync->start( array( 'users' => array( $sync_user_id ) ) );
+		$this->sender->do_sync();
+
+		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+
+		$users = $synced_users_event->args;
+
+		$this->assertEquals( 1, count( $users ) );
+		$this->assertEquals( $sync_user_id, $users[0]->ID );
+	}
+
 	function test_full_sync_doesnt_send_deleted_posts() {
 		// previously, the behaviour was to send false or throw errors - we
 		// should actively detect false values and remove them
