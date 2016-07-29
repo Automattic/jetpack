@@ -663,6 +663,25 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'jetpack_sync_blocked', $blocked_post->post_status );
 	}
 
+	function test_full_sync_do_not_sync_events_if_no_data_to_sync() {
+		$non_existent_id = 123123123123123213;
+		$this->assertTrue( empty( get_post( $non_existent_id ) ) );
+		$this->assertTrue( empty( get_comment( $non_existent_id ) ) );
+		$this->assertTrue( empty( get_user_by( 'id', $non_existent_id ) ) );
+
+		$this->full_sync->start( array( 'posts' => array( $non_existent_id ), 'comments' => array( $non_existent_id ), 'users' => array( $non_existent_id ) )  );
+		$this->sender->do_sync();
+
+		$synced_posts_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
+		$this->assertFalse( $synced_posts_event );
+
+		$synced_posts_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
+		$this->assertFalse( $synced_posts_event );
+
+		$synced_posts_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+		$this->assertFalse( $synced_posts_event );
+	}
+
 	function test_full_sync_can_sync_individual_posts() {
 		$sync_post_id = $this->factory->post->create();
 		$sync_post_id2 = $this->factory->post->create();
