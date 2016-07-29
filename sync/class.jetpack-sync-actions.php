@@ -100,13 +100,14 @@ class Jetpack_Sync_Actions {
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
-	static function send_data( $data, $codec_name, $sent_timestamp ) {
+	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id ) {
 		Jetpack::load_xml_rpc_client();
 
 		$url = add_query_arg( array(
 			'sync'      => '1', // add an extra parameter to the URL so we can tell it's a sync action
 			'codec'     => $codec_name, // send the name of the codec used to encode the data
 			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
+			'queue'     => $queue_id, // sync or full_sync
 		), Jetpack::xmlrpc_api_url() );
 
 		$rpc = new Jetpack_IXR_Client( array(
@@ -204,7 +205,7 @@ class Jetpack_Sync_Actions {
 		self::$sender = Jetpack_Sync_Sender::get_instance();
 
 		// bind the sending process
-		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 3 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 4 );
 	}
 }
 
