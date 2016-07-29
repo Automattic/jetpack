@@ -41,6 +41,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->reset_data();
 
 		if ( $was_already_running ) {
+			/**
+			 * Fires when a full sync is cancelled.
+			 *
+			 * @since 4.2.0
+			 */
 			do_action( 'jetpack_full_sync_cancelled' );
 		}
 
@@ -51,7 +56,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_start' );
-		$this->update_status_option( "started", time() );
+		$this->update_status_option( 'started', time() );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
@@ -66,7 +71,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			}
 		}
 
-		$this->update_status_option( "queue_finished", time() );
+		$this->update_status_option( 'queue_finished', time() );
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -92,7 +97,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_start'] ) ) {
-			$this->update_status_option( "sent_started", time() );
+			$this->update_status_option( 'sent_started', time() );
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
@@ -112,16 +117,16 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
-			$this->update_status_option( "finished", time() );
+			$this->update_status_option( 'finished', time() );
 		}
 	}
 
 	public function is_started() {
-		return !! $this->get_status_option( "started" );
+		return !! $this->get_status_option( 'started' );
 	}
 
 	public function is_finished() {
-		return !! $this->get_status_option( "finished" );
+		return !! $this->get_status_option( 'finished' );
 	}
 
 	public function get_status() {
