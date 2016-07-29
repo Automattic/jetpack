@@ -179,6 +179,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		do_action( 'my_action' );
 		do_action( 'my_action' );
 		do_action( 'my_action' );
+		do_action( 'my_action' );
 
 		// now let's try to sync and observe the rate limit
 		$this->sender->do_sync();
@@ -190,16 +191,30 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		sleep( 3 );
 
-		$this->sender->do_sync();
+		$next_sync_time = $this->sender->get_next_sync_time();
+		$this->assertTrue( $this->sender->do_sync() );
 		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
-		$this->sender->do_sync();
+		// because we synced, next sync time should be further in the future
+		$this->assertTrue( $next_sync_time < $this->sender->get_next_sync_time() );
+
+		// doesn't sync second time
+		$this->assertFalse( $this->sender->do_sync() );
 		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
 		sleep( 3 );
 
+		$this->assertTrue( $this->sender->do_sync() );
+		$this->assertEquals( 6, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+
+		// now that we're fully synced and not sending data each time, 
+		// the sync wait time shouldn't change between invocations
+		$next_sync_time = $this->sender->get_next_sync_time();
+		
+		sleep( 3 );
+
 		$this->sender->do_sync();
-		$this->assertEquals( 5, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+		$this->assertEquals( $next_sync_time, $this->sender->get_next_sync_time() );
 
 		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
 	}
