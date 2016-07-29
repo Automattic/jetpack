@@ -32,14 +32,14 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
 		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
 
 		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
-		$sender = Jetpack_Sync_Sender::get_instance()
+		$sender = Jetpack_Sync_Sender::get_instance();
 		$queue = $sender->get_sync_queue();
 		$full_queue = $sender->get_full_sync_queue();
 
 		return array_merge(
 			$sync_module->get_status(),
-			array( 
-				'is_scheduled' => (bool) wp_next_scheduled( 'jetpack_sync_full' ), 
+			array(
+				'is_scheduled' => (bool) wp_next_scheduled( 'jetpack_sync_full' ),
 				'queue_size' => $queue->size(),
 				'queue_lag' => $queue->lag(),
 				'full_queue_size' => $full_queue->size(),
