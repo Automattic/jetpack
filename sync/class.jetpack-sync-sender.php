@@ -72,7 +72,8 @@ class Jetpack_Sync_Sender {
 			$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
 			$full_sync_result = false;
 			$sync_result      = false;
-		} else {
+		} elseif ( $full_sync_result || $sync_result ) {
+			// if we actually sent data, wait before sending again
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time() );
 		}
 
