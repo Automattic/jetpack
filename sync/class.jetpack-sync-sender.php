@@ -66,12 +66,12 @@ class Jetpack_Sync_Sender {
 			return false;
 		}
 
-		$start_time = time();
+		$start_time = microtime( true );
 		
 		$full_sync_result = $this->do_sync_for_queue( $this->full_sync_queue );
 		$sync_result      = $this->do_sync_for_queue( $this->sync_queue );
 
-		$exceeded_sync_wait_threshold = ( time() - $start_time ) > $this->get_sync_wait_threshold();
+		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
 
 		if ( is_wp_error( $full_sync_result ) || is_wp_error( $sync_result ) ) {
 			$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
