@@ -185,6 +185,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->sender->set_sync_wait_time( 2 );
+		$this->sender->set_sync_wait_threshold( -1 ); // wait no matter what
 		$this->assertSame( 2, $this->sender->get_sync_wait_time() );
 
 		$this->assertEquals( 2, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );

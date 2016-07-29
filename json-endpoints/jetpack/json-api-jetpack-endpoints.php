@@ -645,12 +645,13 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
 ) );
 
 $sync_settings_response = array(
-	'dequeue_max_bytes' => '(int|bool=false) Maximum bytes to read from queue in a single request',
-	'sync_wait_time'    => '(int|bool=false) Minimum time between requests in seconds',
-	'upload_max_bytes'  => '(int|bool=false) Maximum bytes to send in a single request',
-	'upload_max_rows'   => '(int|bool=false) Maximum rows to send in a single request',
-	'max_queue_size'    => '(int|bool=false) Maximum queue size that that the queue is allowed to expand to in DB rows to prevent the DB from filling up. Needs to also meet the max_queue_lag limit.',
-	'max_queue_lag'     => '(int|bool=false) Maximum queue lag in seconds used to prevent the DB from filling up. Needs to also meet the max_queue_size limit.',
+	'dequeue_max_bytes'   => '(int|bool=false) Maximum bytes to read from queue in a single request',
+	'sync_wait_time'      => '(int|bool=false) Wait time between requests in seconds if sync threshold exceeded',
+	'sync_wait_threshold' => '(int|bool=false) If a request to WPCOM exceeds this duration, wait sync_wait_time seconds before sending again',
+	'upload_max_bytes'    => '(int|bool=false) Maximum bytes to send in a single request',
+	'upload_max_rows'     => '(int|bool=false) Maximum rows to send in a single request',
+	'max_queue_size'      => '(int|bool=false) Maximum queue size that that the queue is allowed to expand to in DB rows to prevent the DB from filling up. Needs to also meet the max_queue_lag limit.',
+	'max_queue_lag'       => '(int|bool=false) Maximum queue lag in seconds used to prevent the DB from filling up. Needs to also meet the max_queue_size limit.',
 );
 
 // GET /sites/%s/sync/settings
