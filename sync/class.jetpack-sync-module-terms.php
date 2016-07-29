@@ -25,7 +25,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_terms', array( $this, 'expand_term_ids' ) );
 	}
 
-	function enqueue_full_sync_actions() {
+	function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
 
 		$taxonomies           = get_taxonomies();

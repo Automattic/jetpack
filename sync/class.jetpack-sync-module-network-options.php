@@ -43,7 +43,7 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		$this->network_options_whitelist = Jetpack_Sync_Defaults::$default_network_options_whitelist;
 	}
 
-	function enqueue_full_sync_actions() {
+	function enqueue_full_sync_actions( $config ) {
 		if ( ! is_multisite() ) {
 			return 0;
 		}

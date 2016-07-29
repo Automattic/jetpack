@@ -26,7 +26,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		do_action( 'jetpack_sync_current_theme_support' , $this->get_theme_support_info() );
 	}
 
-	public function enqueue_full_sync_actions() {
+	public function enqueue_full_sync_actions( $config ) {
 		/**
 		 * Tells the client to sync all theme data to the server
 		 *

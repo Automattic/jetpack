@@ -85,7 +85,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->reset_data();
 		$this->factory->post->create();
 
-		$this->full_sync->start( array( 'options' ) );
+		$this->full_sync->start( array( 'options' => true ) );
 
 		$this->sender->do_sync();
 
@@ -550,6 +550,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'finished'       => null,
 				'sent'           => array(),
 				'queue'          => array(),
+				'config'         => array(),
 			)
 		);
 	}
@@ -571,14 +572,27 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'themes'    => 1,
 				'updates'   => 1,
 				'users'     => 1,
-				'terms'     => 1
+				'terms'     => 1,
 			),
+			'config' => array(
+				'constants' => true,
+				'functions' => true,
+				'options'   => true,
+				'posts'     => true,
+				'comments'  => true,
+				'themes'    => true,
+				'updates'   => true,
+				'users'     => true,
+				'terms'     => true,
+			)
 		);
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
+			$should_be_status['config']['network_options'] = 1;
 		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
+		$this->assertEquals( $full_sync_status['config'], $should_be_status['config'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
 		$this->assertNull( $full_sync_status['sent_started'] );
@@ -647,6 +661,83 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 3, $this->server_replica_storage->comment_count( 'jetpack_sync_blocked' ) );
 		$blocked_post = $this->server_replica_storage->get_post( $post_id );
 		$this->assertEquals( 'jetpack_sync_blocked', $blocked_post->post_status );
+	}
+
+	function test_full_sync_do_not_sync_events_if_no_data_to_sync() {
+		$non_existent_id      = 123123123123123213;
+		$non_existent_post    = get_post( $non_existent_id );
+		$non_existent_comment = get_comment( $non_existent_id );
+		$non_existent_user    = get_user_by( 'id', $non_existent_id );
+
+		$this->assertTrue( empty( $non_existent_post ) );
+		$this->assertTrue( empty( $non_existent_comment ) );
+		$this->assertTrue( empty( $non_existent_user ) );
+
+		$this->full_sync->start( array( 'posts' => array( $non_existent_id ), 'comments' => array( $non_existent_id ), 'users' => array( $non_existent_id ) )  );
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' ) );
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' ) );
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' ) );
+	}
+
+	function test_full_sync_can_sync_individual_posts() {
+		$sync_post_id    = $this->factory->post->create();
+		$sync_post_id_2  = $this->factory->post->create();
+		$no_sync_post_id = $this->factory->post->create();
+
+		$this->full_sync->start( array( 'posts' => array( $sync_post_id, $sync_post_id_2 ) ) );
+		$this->sender->do_sync();
+
+		$synced_posts_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
+
+		$posts = $synced_posts_event->args[0];
+
+		$this->assertEquals( 2, count( $posts ) );
+		$this->assertEquals( $sync_post_id, $posts[0]->ID );
+		$this->assertEquals( $sync_post_id_2, $posts[1]->ID );
+
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_post_id, $sync_post_id_2 ), $sync_status['config']['posts'] );
+	}
+
+	function test_full_sync_can_sync_individual_comments() {
+		$post_id = $this->factory->post->create();
+		list( $sync_comment_id, $no_sync_comment_id, $sync_comment_id_2 ) = $this->factory->comment->create_post_comments( $post_id, 3 );
+
+		$this->full_sync->start( array( 'comments' => array( $sync_comment_id, $sync_comment_id_2 ) ) );
+		$this->sender->do_sync();
+
+		$synced_comments_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
+
+		$comments = $synced_comments_event->args[0];
+
+		$this->assertEquals( 2, count( $comments ) );
+		$this->assertEquals( $sync_comment_id, $comments[0]->comment_ID );
+		$this->assertEquals( $sync_comment_id_2, $comments[1]->comment_ID );
+
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_comment_id, $sync_comment_id_2 ), $sync_status['config']['comments'] );
+	}
+
+	function test_full_sync_can_sync_individual_users() {
+		$sync_user_id = $this->factory->user->create();
+		$sync_user_id_2 = $this->factory->user->create();
+		$no_sync_user_id = $this->factory->user->create();
+
+		$this->full_sync->start( array( 'users' => array( $sync_user_id, $sync_user_id_2) ) );
+		$this->sender->do_sync();
+
+		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+
+		$users = $synced_users_event->args;
+
+		$this->assertEquals( 2, count( $users ) );
+		$this->assertEquals( $sync_user_id, $users[0]->ID );
+		$this->assertEquals( $sync_user_id_2, $users[1]->ID );
+
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_user_id, $sync_user_id_2 ), $sync_status['config']['users'] );
 	}
 
 	function test_full_sync_doesnt_send_deleted_posts() {

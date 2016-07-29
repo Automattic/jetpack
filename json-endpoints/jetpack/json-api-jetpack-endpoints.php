@@ -575,7 +575,10 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
 	'request_format' => array(
-		'modules' => '(string) Comma-delimited set of sync modules to use (default: all of them)'
+		'modules'  => '(string) Comma-delimited set of sync modules to use (default: all of them)',
+		'posts'    => '(string) Comma-delimited list of post IDs to sync',
+		'comments' => '(string) Comma-delimited list of comment IDs to sync',
+		'users'    => '(string) Comma-delimited list of user IDs to sync',
 	),
 	'response_format' => array(
 		'scheduled' => '(bool) Whether or not the synchronisation was scheduled'
