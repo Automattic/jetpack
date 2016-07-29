@@ -650,6 +650,21 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'jetpack_sync_blocked', $blocked_post->post_status );
 	}
 
+	function test_full_sync_can_sync_individual_posts() {
+		$sync_post_id = $this->factory->post->create();
+		$no_sync_post_id = $this->factory->post->create();
+
+		$this->full_sync->start( array( 'posts' => array( $sync_post_id ) ) );
+		$this->sender->do_sync();
+
+		$synced_posts_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
+
+		$posts = $synced_posts_event->args[0];
+
+		$this->assertEquals( 1, count( $posts ) );
+		$this->assertEquals( $sync_post_id, $posts[0]->ID );
+	}
+
 	function test_full_sync_doesnt_send_deleted_posts() {
 		// previously, the behaviour was to send false or throw errors - we
 		// should actively detect false values and remove them
