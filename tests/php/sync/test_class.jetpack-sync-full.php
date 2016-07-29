@@ -697,6 +697,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 2, count( $posts ) );
 		$this->assertEquals( $sync_post_id, $posts[0]->ID );
 		$this->assertEquals( $sync_post_id2, $posts[1]->ID );
+
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_user_id ), $sync_status['config']['users'] );
 	}
 
 	function test_full_sync_can_sync_individual_comments() {
@@ -713,8 +716,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 2, count( $comments ) );
 		$this->assertEquals( $sync_comment_id, $comments[0]->comment_ID );
 		$this->assertEquals( $sync_comment_id2, $comments[1]->comment_ID );
+
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_user_id ), $sync_status['config']['users'] );
 	}
-	
+
 	function test_full_sync_can_sync_individual_users() {
 		$sync_user_id = $this->factory->user->create();
 		$sync_user_id2 = $this->factory->user->create();
@@ -730,6 +736,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 2, count( $users ) );
 		$this->assertEquals( $sync_user_id, $users[0]->ID );
 		$this->assertEquals( $sync_user_id2, $users[1]->ID );
+
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_user_id ), $sync_status['config']['users'] );
 	}
 
 	function test_full_sync_doesnt_send_deleted_posts() {
