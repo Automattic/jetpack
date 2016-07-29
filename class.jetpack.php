@@ -3757,7 +3757,7 @@ p {
 		 */
 		$base_url = apply_filters(
 			'jetpack_stats_base_url',
-			set_url_scheme( 'https://pixel.wp.com/g.gif' )
+			'https://pixel.wp.com/g.gif'
 		);
 		$url      = add_query_arg( $args, $base_url );
 		return $url;
