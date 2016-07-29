@@ -41,6 +41,9 @@ const PlanHeader = React.createClass( {
 								<img src={ imagePath + '/plans/admin-lock2x.png' } className="jp-landing-plans__header-img" />
 							</div>
 						</div>
+						<div className="jp-landing-plans__clouds jp-clouds-top">
+							<img src={ imagePath + '/white-clouds.svg' } />
+						</div>
 					</div>
 				);
 				planCard = (
