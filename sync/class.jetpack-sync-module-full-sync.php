@@ -207,6 +207,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		delete_option( "{$prefix}_finished" );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			delete_option( "{$prefix}_{$module->name()}_total" );
 			delete_option( "{$prefix}_{$module->name()}_queued" );
 			delete_option( "{$prefix}_{$module->name()}_sent" );
 			delete_option( "{$prefix}_{$module->name()}_config" );
