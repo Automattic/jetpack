@@ -77,7 +77,7 @@ class Jetpack_Sync_Sender {
 			$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
 			$full_sync_result = false;
 			$sync_result      = false;
-		} elseif ( ( $full_sync_result || $sync_result ) && $exceeded_sync_wait_threshold ) {
+		} elseif ( $exceeded_sync_wait_threshold ) {
 			// if we actually sent data and it took a while, wait before sending again
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time() );
 		}
@@ -165,6 +165,10 @@ class Jetpack_Sync_Sender {
 			if ( is_wp_error( $checked_in_item_ids ) ) {
 				error_log( 'Error checking in buffer: ' . $checked_in_item_ids->get_error_message() );
 				$queue->force_checkin();
+			}
+
+			if ( is_wp_error( $processed_item_ids ) ) {
+				return $processed_item_ids;
 			}
 
 			// returning a WP_Error is a sign to the caller that we should wait a while
