@@ -44,7 +44,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		return $this->constants_whitelist;
 	}
 
-	function enqueue_full_sync_actions() {
+	function enqueue_full_sync_actions( $config ) {
 		/**
 		 * Tells the client to sync all constants to the server
 		 *

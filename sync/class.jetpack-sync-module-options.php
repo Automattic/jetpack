@@ -37,7 +37,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		$this->update_options_whitelist();
 	}
 
-	function enqueue_full_sync_actions() {
+	function enqueue_full_sync_actions( $config ) {
 		/**
 		 * Tells the client to sync all options to the server
 		 *

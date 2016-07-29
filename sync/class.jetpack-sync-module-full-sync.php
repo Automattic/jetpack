@@ -41,6 +41,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->reset_data();
 
 		if ( $was_already_running ) {
+			/**
+			 * Fires when a full sync is cancelled.
+			 *
+			 * @since 4.2.0
+			 */
 			do_action( 'jetpack_full_sync_cancelled' );
 		}
 
@@ -51,22 +56,32 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_start' );
-		$this->update_status_option( "started", time() );
+		$this->update_status_option( 'started', time() );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
-			if ( is_array( $modules ) && ! in_array( $module_name, $modules ) ) {
+
+			// if we have been passed module configs, use them, otherwise default to syncing everything
+			if ( is_array( $modules ) ) {
+				$module_config = isset( $modules[ $module_name ] ) ? $modules[ $module_name ] : false;	
+			} else {
+				$module_config = true;
+			}
+			
+			// check if this module is enabled
+			if ( ! $module_config ) {
 				continue;
 			}
 
-			$items_enqueued = $module->enqueue_full_sync_actions();
+			$items_enqueued = $module->enqueue_full_sync_actions( $module_config );
+
 			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
-				// TODO: only update this once every N items, then at end - why cause all that DB churn?
 				$this->update_status_option( "{$module->name()}_queued", $items_enqueued );
+				$this->update_status_option( "{$module->name()}_config", $module_config );
 			}
 		}
 
-		$this->update_status_option( "queue_finished", time() );
+		$this->update_status_option( 'queue_finished', time() );
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -92,7 +107,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_start'] ) ) {
-			$this->update_status_option( "sent_started", time() );
+			$this->update_status_option( 'sent_started', time() );
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
@@ -112,16 +127,16 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
-			$this->update_status_option( "finished", time() );
+			$this->update_status_option( 'finished', time() );
 		}
 	}
 
 	public function is_started() {
-		return !! $this->get_status_option( "started" );
+		return !! $this->get_status_option( 'started' );
 	}
 
 	public function is_finished() {
-		return !! $this->get_status_option( "finished" );
+		return !! $this->get_status_option( 'finished' );
 	}
 
 	public function get_status() {
@@ -132,18 +147,22 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			'finished'       => $this->get_status_option( 'finished' ),
 			'sent'           => array(),
 			'queue'          => array(),
+			'config'         => array(),
 		);
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$queued = $this->get_status_option( "{$module->name()}_queued" );
-			$sent   = $this->get_status_option( "{$module->name()}_sent" );
+			$name = $module->name();
 
-			if ( $queued ) {
-				$status[ 'queue' ][ $module->name() ] = $queued;
+			if ( $queued = $this->get_status_option( "{$name}_queued" ) ) {
+				$status[ 'queue' ][ $name ] = $queued;
 			}
 			
-			if ( $sent ) {
-				$status[ 'sent' ][ $module->name() ] = $sent;
+			if ( $sent = $this->get_status_option( "{$name}_sent" ) ) {
+				$status[ 'sent' ][ $name ] = $sent;
+			}
+
+			if ( $config = $this->get_status_option( "{$name}_config" ) ) {
+				$status[ 'config' ][ $name ] = $config;
 			}
 		}
 
@@ -160,6 +179,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			delete_option( "{$prefix}_{$module->name()}_queued" );
 			delete_option( "{$prefix}_{$module->name()}_sent" );
+			delete_option( "{$prefix}_{$module->name()}_config" );
 		}
 	}
 
@@ -180,7 +200,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			return $default;
 		}
 
-		return intval( $value );
+		return is_numeric( $value ) ? intval( $value ) : $value;
 	}
 
 	private function update_status_option( $name, $value ) {
