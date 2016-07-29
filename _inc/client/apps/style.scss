@@ -42,8 +42,11 @@
 }
 
 .jp-landing-apps__header-img {
-	margin: 0 rem( -64px ) 0 rem( 64px ); // off-canvas effect
 	max-width: 100%; // needs proper srcsets
+
+	@include breakpoint( ">660px" ) {
+		margin: 0 rem( -64px ) 0 rem( 64px ); // off-canvas effect
+	}
 }
 
 .jp-landing-apps__header-col-left {
@@ -56,10 +59,6 @@
 
 .jp-landing-apps__header-col-right {
 	flex-basis: 55%;
-
-	@include breakpoint( "<660px" ) {
-		display: none;
-	}
 }
 
 .jp-landing-apps__title, 
@@ -139,7 +138,7 @@
 
 	@include breakpoint( ">660px" ) {
 
-		&:nth-child(odd){
+		&:nth-child(odd) {
 			padding: 0 rem( 32px );
 		}
 
@@ -196,23 +195,23 @@
 	@include breakpoint( "<480px" ) {
 		flex-wrap: wrap;
 	}
+}
 
-	.button-app {
-		display: flex;
-		align-items: center;
-		height: rem( 42px );
-		padding-left: rem( 6px );
-		color: $gray-dark;
+.jp-app-button {
+	display: flex;
+	align-items: center;
+	height: rem( 42px );
+	padding-left: rem( 6px );
+	color: $gray-dark;
 
-		@include breakpoint( "<480px" ) {
-			flex-basis: 100%;
-			justify-content: center;
-			margin-bottom: rem( 10px );
-		}
+	@include breakpoint( "<480px" ) {
+		flex-basis: 100%;
+		justify-content: center;
+		margin-bottom: rem( 10px );
+	}
 
-		svg {
-			margin-right: rem( 8px );
-			fill: $gray-dark;
-		}
+	svg {
+		margin-right: rem( 8px );
+		fill: $gray-dark;
 	}
 }
