@@ -37,6 +37,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_theme_data', true );
 		return 1; // The number of actions enqueued
 	}
+
+	public function estimate_full_sync_actions( $config ) {
+		return 1;
+	}
+	
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_theme_data', array( $this, 'expand_theme_data' ) );
 	}
