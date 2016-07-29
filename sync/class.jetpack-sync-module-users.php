@@ -153,7 +153,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 	}
 
-	public function enqueue_full_sync_actions() {
+	public function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
 
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->users, 'ID', null );

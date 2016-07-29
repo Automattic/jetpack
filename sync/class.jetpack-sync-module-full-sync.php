@@ -60,14 +60,24 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
-			if ( is_array( $modules ) && ! in_array( $module_name, $modules ) ) {
+
+			// if we have been passed module configs, use them, otherwise default to syncing everything
+			if ( is_array( $modules ) ) {
+				$module_config = isset( $modules[ $module_name ] ) ? $modules[ $module_name ] : false;	
+			} else {
+				$module_config = true;
+			}
+			
+			// check if this module is enabled
+			if ( ! $module_config ) {
 				continue;
 			}
 
-			$items_enqueued = $module->enqueue_full_sync_actions();
+			$items_enqueued = $module->enqueue_full_sync_actions( $module_config );
+
 			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
-				// TODO: only update this once every N items, then at end - why cause all that DB churn?
 				$this->update_status_option( "{$module->name()}_queued", $items_enqueued );
+				$this->update_status_option( "{$module->name()}_config", $module_config );
 			}
 		}
 
@@ -137,18 +147,22 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			'finished'       => $this->get_status_option( 'finished' ),
 			'sent'           => array(),
 			'queue'          => array(),
+			'config'         => array(),
 		);
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$queued = $this->get_status_option( "{$module->name()}_queued" );
-			$sent   = $this->get_status_option( "{$module->name()}_sent" );
+			$name = $module->name();
 
-			if ( $queued ) {
-				$status[ 'queue' ][ $module->name() ] = $queued;
+			if ( $queued = $this->get_status_option( "{$name}_queued" ) ) {
+				$status[ 'queue' ][ $name ] = $queued;
 			}
 			
-			if ( $sent ) {
-				$status[ 'sent' ][ $module->name() ] = $sent;
+			if ( $sent = $this->get_status_option( "{$name}_sent" ) ) {
+				$status[ 'sent' ][ $name ] = $sent;
+			}
+
+			if ( $config = $this->get_status_option( "{$name}_config" ) ) {
+				$status[ 'config' ][ $name ] = $config;
 			}
 		}
 
@@ -165,6 +179,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			delete_option( "{$prefix}_{$module->name()}_queued" );
 			delete_option( "{$prefix}_{$module->name()}_sent" );
+			delete_option( "{$prefix}_{$module->name()}_config" );
 		}
 	}
 

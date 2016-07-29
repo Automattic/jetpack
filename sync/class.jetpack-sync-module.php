@@ -13,7 +13,6 @@ abstract class Jetpack_Sync_Module {
 	}
 
 	public function init_full_sync_listeners( $callable ) {
-		
 	}
 
 	public function init_before_send() {
@@ -25,7 +24,7 @@ abstract class Jetpack_Sync_Module {
 	public function reset_data() {
 	}
 
-	public function enqueue_full_sync_actions() {
+	public function enqueue_full_sync_actions( $config ) {
 		// in subclasses, return the number of items enqueued
 		return 0;
 	}
@@ -61,7 +60,7 @@ abstract class Jetpack_Sync_Module {
 		$page           = 1;
 		$chunk_count    = 0;
 		$previous_id    = 0;
-		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} > $previous_id ORDER BY {$id_field} ASC LIMIT {$items_per_page}" ) ) {
+		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} > {$previous_id} ORDER BY {$id_field} ASC LIMIT {$items_per_page}" ) ) {
 			// Request posts in groups of N for efficiency
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
 

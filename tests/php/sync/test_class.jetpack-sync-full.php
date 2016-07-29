@@ -85,7 +85,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->reset_data();
 		$this->factory->post->create();
 
-		$this->full_sync->start( array( 'options' ) );
+		$this->full_sync->start( array( 'options' => true ) );
 
 		$this->sender->do_sync();
 
@@ -550,6 +550,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'finished'       => null,
 				'sent'           => array(),
 				'queue'          => array(),
+				'config'         => array(),
 			)
 		);
 	}

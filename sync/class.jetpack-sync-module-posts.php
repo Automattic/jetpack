@@ -26,7 +26,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
 	}
 
-	public function enqueue_full_sync_actions() {
+	public function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
 
 		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
