@@ -90,6 +90,7 @@ Bug Fixes:
 * Shortcodes: When using the YouTube shortcode, we now use the content width defined by the theme when available, even if an embed size was defined in an old version of WordPress. #4420
 * Sitemaps: we fixed some PHP warnings in the sitemaps' stylesheets. #4362
 * Theme Tools: avoid warnings when Tonesque processes a file which claims to be one filetype, but are actually another. #3741
+* Theme Tools: avoid PHP notices when using Random Redirect, and when the author wasn't set. #4584
 
 Enhancements:
 
