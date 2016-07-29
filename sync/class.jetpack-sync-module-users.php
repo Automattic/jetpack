@@ -158,7 +158,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		// config is a list of post IDs to sync
 		if ( is_array( $config ) ) {
-			$where_sql = 'ID IN (' . implode( array_map( 'intval', $config ) ) . ')';
+			$where_sql = 'ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		} else {
 			$where_sql = null;
 		}

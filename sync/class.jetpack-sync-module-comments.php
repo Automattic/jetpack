@@ -49,7 +49,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 		// config is a list of comment IDs to sync
 		if ( is_array( $config ) ) {
-			$where_sql = 'comment_ID IN (' . implode( array_map( 'intval', $config ) ) . ')';
+			$where_sql = 'comment_ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		} else {
 			$where_sql = null;
 		}
