@@ -599,6 +599,10 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'finished' => '(int|null) The unix timestamp when the last sync finished',
 		'queue'  => '(array) Count of actions that have been added to the queue',
 		'sent'  => '(array) Count of actions that have been sent',
+		'queue_size' => '(int) Number of items in the  sync queue',
+		'queue_lag' => '(float) Time delay of the oldest item in the sync queue',
+		'full_queue_size' => '(int) Number of items in the full sync queue',
+		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
 ) );
