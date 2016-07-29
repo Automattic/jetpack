@@ -244,7 +244,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $user_id, $event->user_id );
 	}
 
-	function test_adds_sent_time_to_action() {
+	function test_sends_sent_time_to_server() {
 		$beginning_of_test = microtime( true );
 
 		$this->factory->post->create();
@@ -261,6 +261,25 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $event->sent_timestamp > $before_sync );
 		$this->assertTrue( $event->sent_timestamp < $after_sync );
 		$this->assertTrue( $event->sent_timestamp < microtime( true ) );
+	}
+
+	function test_sends_queue_id_to_server() {
+		add_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
+		add_action( 'my_full_sync_action', array( $this->listener, 'full_sync_action_handler' ) );
+
+		do_action( 'my_incremental_action' );
+		do_action( 'my_full_sync_action' );
+
+		$this->sender->do_sync();
+
+		$incremental_event = $this->server_event_storage->get_most_recent_event( 'my_incremental_action' );
+		$full_sync_event = $this->server_event_storage->get_most_recent_event( 'my_full_sync_action' );
+
+		$this->assertEquals( $incremental_event->queue, $this->listener->get_sync_queue()->id );
+		$this->assertEquals( $full_sync_event->queue, $this->listener->get_full_sync_queue()->id );
+
+		remove_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
+		remove_action( 'my_full_sync_action', array( $this->listener, 'full_sync_action_handler' ) );
 	}
 
 	function test_reset_module_also_resets_full_sync_lock() {
