@@ -607,7 +607,8 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'queue_size' => '(int) Number of items in the  sync queue',
 		'queue_lag' => '(float) Time delay of the oldest item in the sync queue',
 		'full_queue_size' => '(int) Number of items in the full sync queue',
-		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue'
+		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue',
+		'is_scheduled' => '(bool) Is a full sync scheduled via cron?'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
 ) );
