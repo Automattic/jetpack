@@ -603,7 +603,7 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'total'  => '(array) Count of actions that could be sent',
 		'queue'  => '(array) Count of actions that have been added to the queue',
 		'sent'  => '(array) Count of actions that have been sent',
-		'config' => '(array) the confuguration set on the last full sync',
+		'config' => '(array) Configuration of the last full sync',
 		'queue_size' => '(int) Number of items in the  sync queue',
 		'queue_lag' => '(float) Time delay of the oldest item in the sync queue',
 		'full_queue_size' => '(int) Number of items in the full sync queue',
