@@ -31,7 +31,7 @@ const DashAkismet = React.createClass( {
 	getContent: function() {
 		const akismetData = this.props.getAkismetData(),
 			akismetSettingsUrl = window.Initial_State.adminUrl + 'admin.php?page=akismet-key-config',
-			labelName = __( 'Anti-spam', { args: { akismet: '(Akismet)' } }),
+			labelName = __( 'Anti-spam' ),
 			hasSitePlan = false !== this.props.getSitePlan();
 
 		if ( akismetData === 'N/A' ) {
