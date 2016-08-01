@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
+import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -49,7 +50,7 @@ const DashItem = React.createClass( {
 		let status;
 
 		if ( this.props.isFetchingSiteData ) {
-			return '';
+			return <Spinner />;
 		}
 
 		switch ( this.props.status ) {
