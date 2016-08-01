@@ -16,6 +16,7 @@ import {
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
 import { getSitePlan } from 'state/site';
+import { isPluginInstalled } from 'state/site/plugins';
 import {
 	getVaultPressData as _getVaultPressData
 } from 'state/at-a-glance';
@@ -24,7 +25,8 @@ import { isDevMode } from 'state/connection';
 const DashBackups = React.createClass( {
 	getContent: function() {
 		const labelName = __( 'Backups' ),
-			hasSitePlan = false !== this.props.getSitePlan();
+			hasSitePlan = false !== this.props.getSitePlan(),
+			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			const vpData = this.props.getVaultPressData();
@@ -85,7 +87,7 @@ const DashBackups = React.createClass( {
 				label={ labelName }
 				module="vaultpress"
 				className="jp-dash-item__is-inactive"
-				status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
+				status={ hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive' }
 				pro={ true }
 			>
 				<p className="jp-dash-item__description">
@@ -114,7 +116,8 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
 			getVaultPressData: () => _getVaultPressData( state ),
-			getSitePlan: () => getSitePlan( state )
+			getSitePlan: () => getSitePlan( state ),
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
 		};
 	},
 	( dispatch ) => {

@@ -16,6 +16,8 @@ import {
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
 import { getSitePlan } from 'state/site';
+import { SecurityModulesSettings } from 'components/module-settings/modules-per-tab-page';
+import { isPluginInstalled } from 'state/site/plugins';
 import {
 	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
 	getVaultPressData as _getVaultPressData
@@ -26,13 +28,8 @@ const DashScan = React.createClass( {
 	getContent: function() {
 		const labelName = __( 'Malware Scan' ),
 			hasSitePlan = false !== this.props.getSitePlan(),
-			vpData = this.props.getVaultPressData();
-
-		let vpActive = typeof vpData.data !== 'undefined' && vpData.data.active;
-
-		const ctaLink = vpActive ?
-			'https://dashboard.vaultpress.com/' :
-			'https://wordpress.com/plans/' + window.Initial_State.rawUrl;
+			vpData = this.props.getVaultPressData(),
+			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
@@ -64,7 +61,7 @@ const DashScan = React.createClass( {
 								} )
 						}</h3>
 						<p className="jp-dash-item__description">
-							{ __( '{{a}}View details at VaultPress.com{{/a}}', { components: { a: <a href={ ctaLink } /> } } ) }
+							{ __( '{{a}}View details at VaultPress.com{{/a}}', { components: { a: <a href="https://dashboard.vaultpress.com/" /> } } ) }
 							<br/>
 							{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href='https://jetpack.com/support' /> } } ) }
 						</p>
@@ -113,7 +110,7 @@ const DashScan = React.createClass( {
 				label={ labelName }
 				module="vaultpress"
 				className="jp-dash-item__is-inactive"
-				status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
+				status={ hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive' }
 				pro={ true }
 			>
 				<p className="jp-dash-item__description">
@@ -143,7 +140,8 @@ export default connect(
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
 			getVaultPressData: () => _getVaultPressData( state ),
 			getScanThreats: () => _getVaultPressScanThreatCount( state ),
-			getSitePlan: () => getSitePlan( state )
+			getSitePlan: () => getSitePlan( state ),
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
 		};
 	},
 	( dispatch ) => {
