@@ -5,6 +5,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import { translate as __ } from 'i18n-calypso';
+import Button from 'components/button';
+import SimpleNotice from 'components/notice';
 
 /**
  * Internal dependencies
@@ -26,14 +28,30 @@ import {
 	isPluginInstalled
 } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import QuerySite from 'components/data/query-site';
+import {
+	getSitePlan,
+	isFetchingSiteData
+} from 'state/site';
+import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import {
+	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
+	getVaultPressData as _getVaultPressData
+} from 'state/at-a-glance';
 import { isUnavailableInDevMode } from 'state/connection';
+import QueryAkismetData from 'components/data/query-akismet-data';
+import {
+	getAkismetData as _getAkismetData
+} from 'state/at-a-glance';
 
 export const Page = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
-		getModule
+		getModule,
+		getSitePlan,
+		isFetchingSiteData
 		} = props;
 	var cards = [
 		[ 'scan', __( 'Security Scanning' ), __( 'Automatically scan your site for common threats and attacks.' ) ],
@@ -51,17 +69,103 @@ export const Page = ( props ) => {
 					toggleModule={ toggleModule } />
 			),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
-			isScan = 'scan' === element[0],
-			scanProps = {};
+			isPro = 'scan' === element[0] || 'akismet' === element[0] || 'backups' === element[0],
+			proProps = {};
 
-		if ( isScan ) {
-			toggle = '';
-			scanProps = {
-				module: 'scan',
+		let getProToggle = ( active, installed ) => {
+			let pluginSlug = 'scan' === element[0] || 'backups' === element[0] ?
+				'vaultpress' :
+				'akismet';
+
+			let vpData = props.getVaultPressData();
+
+			if ( 'N/A' !== vpData && 'scan' === element[0] ) {
+				if ( 0 !== props.getScanThreats() ) {
+					return(
+						<SimpleNotice
+							showDismiss={ false }
+							status='is-error'
+							isCompact={ true }
+						>
+							{ __( 'Threats found!' ) }
+						</SimpleNotice>
+					);
+				}
+			}
+
+			if ( 'akismet' === element[0] ) {
+				const akismetData = props.getAkismetData();
+				if ( akismetData === 'invalid_key' ) {
+					return(
+						<SimpleNotice
+							showDismiss={ false }
+							status='is-warning'
+							isCompact={ true }
+						>
+							{ __( 'Invalid Key' ) }
+						</SimpleNotice>
+					);
+				}
+			}
+
+			if ( false !== getSitePlan() ) {
+				if ( active && installed ) {
+					return (
+						__( 'ACTIVE' )
+					);
+				} else {
+					return (
+						<Button
+							compact={ true }
+							primary={ true }
+							href={ 'https://wordpress.com/plugins/' + pluginSlug + '/' + window.Initial_State.rawUrl }
+						>
+							{ ! installed ? __( 'Install' ) : __( 'Activate' ) }
+						</Button>
+					);
+				}
+			} else {
+				if ( active && installed ) {
+					return (
+						__( 'ACTIVE' )
+					);
+				} else {
+					return (
+						<Button
+							compact={ true }
+							primary={ true }
+							href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl }
+						>
+							{ __( 'Upgrade' ) }
+						</Button>
+					);
+				}
+			}
+		};
+
+		if ( isPro ) {
+			proProps = {
+				module: element[0],
 				isFetchingPluginsData: props.isFetchingPluginsData,
-				isVaultPressInstalled: props.isPluginInstalled( 'vaultpress/vaultpress.php' ),
-				isVaultPressActive: props.isPluginActive( 'vaultpress/vaultpress.php' )
+				isProPluginInstalled: 'backups' === element[0] || 'scan' === element[0] ?
+					props.isPluginInstalled( 'vaultpress/vaultpress.php' ) :
+					props.isPluginInstalled( 'akismet/akismet.php' ),
+				isProPluginActive: 'backups' === element[0] || 'scan' === element[0] ?
+					props.isPluginActive( 'vaultpress/vaultpress.php' ) :
+					props.isPluginActive( 'akismet/akismet.php' )
 			};
+			toggle = ! isFetchingSiteData ? getProToggle( proProps.isProPluginActive, proProps.isProPluginInstalled ) : '';
+
+			// Add a "pro" button next to the header title
+			element[1] = <span>
+				{ element[1] }
+				<Button
+					compact={ true }
+				    href="#professional"
+				>
+					{ __( 'Pro' ) }
+				</Button>
+			</span>
 		}
 
 		return (
@@ -74,8 +178,8 @@ export const Page = ( props ) => {
 				expandedSummary={ toggle }
 				clickableHeaderText={ true } >
 				{
-					isModuleActivated( element[0] ) || isScan ?
-						<SecurityModulesSettings module={ isScan ? scanProps : getModule( element[ 0 ] ) } /> :
+					isModuleActivated( element[0] ) || isPro ?
+						<SecurityModulesSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -87,7 +191,10 @@ export const Page = ( props ) => {
 
 	return (
 		<div>
+			<QuerySite />
 			<QuerySitePlugins />
+			<QueryVaultPressData />
+			<QueryAkismetData />
 			{ cards }
 		</div>
 	);
@@ -108,7 +215,12 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
+			getSitePlan: () => getSitePlan( state ),
+			isFetchingSiteData: isFetchingSiteData( state ),
+			getScanThreats: () => _getVaultPressScanThreatCount( state ),
+			getVaultPressData: () => _getVaultPressData( state ),
+			getAkismetData: () => _getAkismetData( state ),
 		};
 	},
 	( dispatch ) => {
