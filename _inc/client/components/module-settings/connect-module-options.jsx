@@ -14,7 +14,10 @@ import {
 	regeneratePostByEmailAddress
 } from 'state/modules';
 
-import { getSiteRoles } from 'state/initial-state';
+import {
+	getSiteRoles,
+	getAdminEmailAddress
+} from 'state/initial-state';
 
 /**
  * High order component that connects to Jetpack modules'options
@@ -30,7 +33,8 @@ export function connectModuleOptions( Component ) {
 				validValues: ( option_name ) => getModuleOptionValidValues( state, ownProps.module.module, option_name ),
 				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
 				getSiteRoles: () => getSiteRoles( state ),
-				isUpdating: ( option_name ) => isUpdatingModuleOption( state, ownProps.module.module, option_name )
+				isUpdating: ( option_name ) => isUpdatingModuleOption( state, ownProps.module.module, option_name ),
+				adminEmailAddress: getAdminEmailAddress( state )
 			}
 		},
 		( dispatch, ownProps ) => ( {
