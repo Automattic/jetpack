@@ -2613,6 +2613,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$last_downtime = $monitor->monitor_get_last_downtime();
 			if ( is_wp_error( $last_downtime ) ) {
 				return $last_downtime;
+			} else if ( false === strtotime( $last_downtime ) ) {
+				return rest_ensure_response( array(
+					'code' => 'success',
+					'date' => null,
+				) );
 			} else {
 				return rest_ensure_response( array(
 					'code' => 'success',
@@ -2723,6 +2728,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
 			if ( is_wp_error( $data ) ) {
 				return $data;
+			} else if ( ! $data->backups->last_backup ) {
+				return rest_ensure_response( array(
+					'code'    => 'success',
+					'message' => esc_html__( 'VaultPress is active and will back up your site soon.', 'jetpack' ),
+					'data'    => $data,
+				) );
 			} else {
 				return rest_ensure_response( array(
 					'code'    => 'success',
