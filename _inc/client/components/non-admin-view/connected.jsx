@@ -20,6 +20,7 @@ import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import Writing from 'writing/index.jsx';
+import Apps from 'apps/index.jsx';
 
 const NonAdminViewConnected = React.createClass( {
 	componentWillMount: function() {
@@ -40,7 +41,7 @@ const NonAdminViewConnected = React.createClass( {
 				}
 				break;
 			case '/apps':
-				pageComponent = 'this will be the APPS page';
+				pageComponent = <Apps { ...this.props } />;
 				break;
 			case '/settings':
 				navComponent = <NavigationSettings { ...this.props } />;

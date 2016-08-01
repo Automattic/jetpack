@@ -12,6 +12,7 @@ import { translate as __ } from 'i18n-calypso';
 import { imagePath } from 'constants';
 
 const Apps = ( props ) => {
+	let canViewStats = 'object' === typeof window.Initial_State.userData && window.Initial_State.userData.currentUser && window.Initial_State.userData.currentUser.permissions && window.Initial_State.userData.currentUser.permissions.view_stats;
 	return (
 		<div>
 			<div className="jp-landing__apps dops-card">
@@ -65,49 +66,52 @@ const Apps = ( props ) => {
 						</div>
 					</div>
 
-					<div className="jp-landing-apps__feature">
-						<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-							<img src={ imagePath + '/apps/stats2x.png' } />
+				{
+					canViewStats ? (
+						<div className="jp-jetpack-landing__img-text">
+							<div className="jp-jetpack-landing__column">
+								<img src={ imagePath + '/apps/stats2x.png' } />
+							</div>
+							<div className="jp-jetpack-landing__column">
+								<h2>{ __( 'Connect with your Visitors' ) }</h2>
+								<p>{ __( 'Monitor your visitors with advanced stats. Watch for trends, learn what content performs the best and understand your visitors from anywhere in the world.' ) }</p>
+								<Button href={ 'https://wordpress.com/stats/' + window.Initial_State.rawUrl }	className="is-primary">
+									{ __( 'View Stats on WordPress.com' ) }
+								</Button>
+							</div>
 						</div>
-						<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
-							<h3 className="jp-landing__apps-feature-title">{ __( 'Connect with your Visitors' ) }</h3>
-							<p className="jp-landing__apps-feature-text">{ __( 'Monitor your visitors with advanced stats. Watch for trends, learn what content performs the best and understand your visitors from anywhere in the world.' ) }</p>
-							<Button href={ 'https://wordpress.com/stats/' + window.Initial_State.rawUrl }	className="is-primary">
-								{ __( 'View Stats on WordPress.com' ) }
-							</Button>
-						</div>
-					</div>
+					) : (
+						''
+					)
+				}
 
-					<div className="jp-landing-apps__feature">
-						<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
-							<h3 className="jp-landing__apps-feature-title">{ __( 'Connect with the Community' ) }</h3>
-							<p className="jp-landing__apps-feature-text">{ __( 'The WordPress apps all have impressively fast and full featured readers so you can catch up with your favorite sites and join the conversation anywhere, any time.' ) }</p>
-							<Button href={ 'https://wordpress.com/reader' }	className="is-primary">
-								{ __( 'Browse WordPress.com' ) }
-							</Button>
-						</div>
-						<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-							<img src={ imagePath + '/apps/community2x.png' } />
-						</div>
+				<div className="jp-jetpack-landing__img-text">
+					{
+						canViewStats ? (
+							''
+						) : (
+							<div className="jp-jetpack-landing__column">
+								<img src={ imagePath + '/apps/community2x.png' } />
+							</div>
+						)
+					}
+					<div className="jp-jetpack-landing__column">
+						<h2>{ __( 'Connect with the Community' ) }</h2>
+						<p>{ __( 'The WordPress apps all have impressively fast and full featured readers so you can catch up with your favorite sites and join the conversation anywhere, any time.' ) }</p>
+						<Button href={ 'https://wordpress.com/reader' }	className="is-primary">
+							{ __( 'Browse WordPress.com' ) }
+						</Button>
 					</div>
+					{
+						canViewStats ? (
+							<div className="jp-jetpack-landing__column">
+								<img src={ imagePath + '/apps/community2x.png' } />
+							</div>
+						) : (
+							''
+						)
+					}
 				</div>
-
-				<div className="jp-landing-apps__footer">
-					<div className="jp-landing-apps__clouds jp-clouds-bottom">
-						<img src={ imagePath + '/white-clouds-reverse.svg' } />
-					</div>
-					<div className="jp-landing-apps__footer-top">
-						<h2 className="jp-landing-apps__title">
-							{ __( 'Inspiration strikes any time, anywhere.' ) }
-						</h2>
-
-						<p className="jp-landing-apps__description">
-							{ __( 'Get WordPress apps for any screen.' ) }
-						</p>
-
-						<img src={ imagePath + '/apps/triple-devices.svg' } className="jp-landing-apps__devices" />
-
-					</div>
 
 					<div className="jp-landing-apps__downloads">
 						<h3 className="jp-landing-apps__subtitle">{ __( 'In your Pocket' ) }</h3>
