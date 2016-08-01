@@ -11,9 +11,16 @@ import { translate as __ } from 'i18n-calypso';
  */
 import { getCurrentVersion, isDevVersion } from 'state/initial-state';
 import { resetOptions } from 'state/dev-version';
+import { disconnectSite } from 'state/connection';
 
 export const Footer = React.createClass( {
 	displayName: 'Footer',
+
+	disconnectSite() {
+		if ( window.confirm( __( 'Do you really want to disconnect your site from WordPress.com?' ) ) ) {
+			this.props.disconnectSite();
+		}
+	},
 
 	render() {
 		const classes = classNames(
@@ -46,6 +53,21 @@ export const Footer = React.createClass( {
 							title={ __( "Test your site’s compatibility with Jetpack." ) }
 							className="jp-footer__link">
 							{ __( 'Debug', { context: 'Navigation item. Noun. Links to a debugger tool for Jetpack.' } ) }
+						</a>
+					</li>
+				);
+			}
+		};
+
+		const maybeShowDisconnect = () =>  {
+			if ( window.Initial_State.userData.currentUser.permissions.disconnect ) {
+				return (
+					<li className="jp-footer__link-item">
+						<a
+							onClick={ this.disconnectSite }
+							title={ __( "Disconnect from WordPress.com" ) }
+							className="jp-footer__link">
+							{ __( 'Disconnect Jetpack' ) }
 						</a>
 					</li>
 				);
@@ -88,6 +110,7 @@ export const Footer = React.createClass( {
 					</li>
 					{ maybeShowDebug() }
 					{ maybeShowReset() }
+					{ maybeShowDisconnect() }
 				</ul>
 			</div>
 		);
@@ -100,6 +123,9 @@ export default connect(
 	},
 	( dispatch ) => {
 		return {
+			disconnectSite: () => {
+				return dispatch( disconnectSite() );
+			},
 			resetOptions: () => {
 				return dispatch( resetOptions( 'options' ) );
 			}
