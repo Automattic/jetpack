@@ -13,10 +13,10 @@ import Spinner from 'components/spinner';
  * Internal dependencies
  */
 import Card from 'components/card';
-import Gridicon from 'components/gridicon';
 import SectionHeader from 'components/section-header';
 import { ModuleToggle } from 'components/module-toggle';
 import { isFetchingSiteData } from 'state/site';
+import { isDevMode } from 'state/connection';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -49,6 +49,10 @@ const DashItem = React.createClass( {
 	proCardStatus() {
 		let status;
 
+		if ( this.props.isDevMode ) {
+			return '';
+		}
+
 		if ( this.props.isFetchingSiteData ) {
 			return <Spinner />;
 		}
@@ -75,7 +79,7 @@ const DashItem = React.createClass( {
 			case 'pro-inactive':
 				status = <Button
 					compact={ true }
-				    primary={ true }
+					primary={ true }
 					href={ 'https://wordpress.com/plugins/' + this.props.module + '/' + window.Initial_State.rawUrl }
 				>
 					{ __( 'Activate' ) }
@@ -126,7 +130,7 @@ const DashItem = React.createClass( {
 					activated={ this.props.isModuleActivated( this.props.module ) }
 					toggling={ this.props.isTogglingModule( this.props.module ) }
 					toggleModule={ this.props.toggleModule }
-				    compact={ true }
+					compact={ true }
 				/>
 			);
 
@@ -152,7 +156,7 @@ const DashItem = React.createClass( {
 			proButton =
 				<Button
 					compact={ true }
-				    href="#professional"
+					href="#professional"
 				>
 					{ __( 'Pro' ) }
 				</Button>
@@ -186,7 +190,8 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			isFetchingSiteData: isFetchingSiteData( state )
+			isFetchingSiteData: isFetchingSiteData( state ),
+			isDevMode: isDevMode( state )
 		};
 	},
 	( dispatch ) => {
