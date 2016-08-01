@@ -15,6 +15,11 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	static $first_run     = true;
 	static $matched_agent = '';
 
+	// If an invalid kind is passed in, reset it to default.
+	if ( ! isset( $kinds[ $kind ] ) ) {
+			$kind = 'any';
+	}
+
 	if ( function_exists( 'apply_filters' ) ) {
 		/**
 		 * Filter the value of jetpack_is_mobile before it is calculated.
