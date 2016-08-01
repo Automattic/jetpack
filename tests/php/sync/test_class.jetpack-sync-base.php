@@ -36,8 +36,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$this->setSyncClientDefaults();
 
-		$server       = new Jetpack_Sync_Server();
-		$this->server = $server;
+		$this->server = new Jetpack_Sync_Server();
 
 		// bind the sender to the server
 		remove_all_filters( 'jetpack_sync_send_data' );
