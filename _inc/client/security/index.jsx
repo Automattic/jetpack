@@ -7,7 +7,6 @@ import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 
 /**
