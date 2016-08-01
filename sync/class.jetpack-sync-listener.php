@@ -111,6 +111,10 @@ class Jetpack_Sync_Listener {
 
 	function enqueue_action( $current_filter, $args, $queue ) {
 
+		if ( Jetpack_Sync_Settings::is_importing() ) {
+			return false;
+		}
+
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
 		 *
