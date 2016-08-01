@@ -152,7 +152,7 @@ class Jetpack_Sync_Defaults {
 	);
 
 	static $blacklisted_post_types = array(
-		'ai1ec_event' // https://irc.automattic.com/chanlog.php?channel=jetpack&day=2014-05-29&sort=asc#m71850
+		'ai1ec_event'
 	);
 
 	static $default_post_checksum_columns = array(
