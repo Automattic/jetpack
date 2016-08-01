@@ -91,19 +91,21 @@ export const Page = ( props ) => {
 				}
 				<div className="jp-module-settings__read-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
+					{
+						'subscriptions' === element[0] && isModuleActive ? (
+							<span>
+								<span className="jp-module-settings__more-sep" />
+								<span className="jp-module-settings__more-text">{
+									__( 'View your {{a}}Email Followers{{/a}}', {
+										components: {
+											a: <a href={ 'https://wordpress.com/people/email-followers/' + window.Initial_State.rawUrl } />
+										}
+									} )
+								}</span>
+							</span>
+						) : ''
+					}
 				</div>
-				{
-					'subscriptions' === element[0] && isModuleActive ? (
-						<p>
-							{
-							__( 'View your {{a}}Email Followers{{/a}}', {
-								components: {
-									a: <a href={ 'https://wordpress.com/people/email-followers/' + window.Initial_State.rawUrl } />
-								}
-							} )
-						}</p>
-					) : ''
-				}
 			</FoldableCard>
 		);
 	} );
