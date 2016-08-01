@@ -111,6 +111,9 @@ class Jetpack_Sync_Listener {
 
 	function enqueue_action( $current_filter, $args, $queue, $override_import = false ) {
 		if ( Jetpack_Sync_Settings::is_importing() && ! $override_import ) {
+			if ( ! wp_next_scheduled( 'jetpack_sync_full' ) ) {
+				Jetpack_Sync_Actions::schedule_full_sync();
+			}
 			return;
 		}
 
