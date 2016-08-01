@@ -267,6 +267,19 @@ export let MonitorSettings = React.createClass( {
 						name={ 'monitor_receive_notifications' }
 						{ ...this.props }
 						label={ __( 'Receive Monitor Email Notifications' ) } />
+					<p>
+						<em>{ __( 'Emails will be sent to ' ) + this.props.adminEmailAddress }.</em>
+						<span>
+							&nbsp;
+							{
+								__( '{{a}}Edit{{/a}}', {
+									components: {
+										a: <a href={ 'https://wordpress.com/settings/account/' } />
+									}
+								} )
+							}
+						</span>
+					</p>
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }
