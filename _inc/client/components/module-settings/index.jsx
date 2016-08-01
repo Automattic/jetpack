@@ -8,7 +8,6 @@ import Button from 'components/button';
 /**
  * Internal dependencies
  */
-import './style.scss';
 
 import {
 	FormFieldset,

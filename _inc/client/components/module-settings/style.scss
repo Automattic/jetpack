@@ -1,3 +1,23 @@
+.jp-module-settings__read-more {
+	clear: both;
+	margin-top: rem( 16px );
+
+	.dops-button.is-compact.is-borderless,
+	.jp-module-settings__more-sep,
+	.jp-module-settings__more-text {
+		vertical-align: middle;
+	}
+
+	.jp-module-settings__more-sep {
+		background: #ddd;
+		width: rem( 2px );
+		height: rem( 14px );
+		margin-left: rem( 10px );
+		margin-right: rem( 10px );
+		display: inline-block;
+	}
+}
+
 /**
  * Related Posts Preview styles
  */
