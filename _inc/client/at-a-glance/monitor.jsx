@@ -38,6 +38,22 @@ const DashMonitor = React.createClass( {
 				);
 			}
 
+			const lastDowntimeMessage = () => {
+				if ( null !== lastDowntime.date ) {
+					return (
+						<p className="jp-dash-item__description">
+							{
+								__( 'Last downtime was %(time)s ago.', {
+									args: {
+										time: lastDowntime.date
+									}
+								} )
+							}
+						</p>
+					);
+				}
+			};
+
 			return(
 				<DashItem
 					label={ labelName }
@@ -45,15 +61,7 @@ const DashMonitor = React.createClass( {
 					status="is-working"
 				>
 					<p className="jp-dash-item__description">{ __( 'Monitor is on and is watching your site.' ) }</p>
-					<p className="jp-dash-item__description">
-						{
-							__( 'Last downtime was %(time)s ago.', {
-								args: {
-									time: lastDowntime.date
-								}
-							} )
-						}
-					</p>
+					{ lastDowntimeMessage() }
 				</DashItem>
 			);
 		}
