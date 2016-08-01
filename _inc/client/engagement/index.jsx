@@ -92,6 +92,20 @@ export const Page = ( props ) => {
 				<div className="jp-module-settings__read-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 					{
+						'stats' === element[0] && isModuleActive ? (
+							<span>
+								<span className="jp-module-settings__more-sep" />
+								<span className="jp-module-settings__more-text">{
+									__( 'View {{a}}All Stats{{/a}}', {
+										components: {
+											a: <a href={ window.Initial_State.adminUrl + 'admin.php?page=stats' } />
+										}
+									} )
+								}</span>
+							</span>
+						) : ''
+					}
+					{
 						'subscriptions' === element[0] && isModuleActive ? (
 							<span>
 								<span className="jp-module-settings__more-sep" />
