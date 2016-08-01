@@ -126,7 +126,6 @@ gulp.task( 'react:static', [ 'react:build' ], function() {
 		global.navigator = window.navigator;
 
 		window.Initial_State = {
-			userData: {},
 			dismissedNotices: [],
 			connectionStatus: {
 				devMode: {
