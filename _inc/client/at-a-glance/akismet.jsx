@@ -13,6 +13,7 @@ import QueryAkismetData from 'components/data/query-akismet-data';
 import {
 	getAkismetData as _getAkismetData
 } from 'state/at-a-glance';
+import { getSitePlan } from 'state/site';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule
@@ -28,9 +29,10 @@ const DashAkismet = React.createClass( {
 	},
 
 	getContent: function() {
-		const akismetData = this.props.getAkismetData();
-		const akismetSettingsUrl = window.Initial_State.adminUrl + 'admin.php?page=akismet-key-config';
-		const labelName = __( 'Anti-spam', { args: { akismet: '(Akismet)' } } );
+		const akismetData = this.props.getAkismetData(),
+			akismetSettingsUrl = window.Initial_State.adminUrl + 'admin.php?page=akismet-key-config',
+			labelName = __( 'Anti-spam', { args: { akismet: '(Akismet)' } }),
+			hasSitePlan = false !== this.props.getSitePlan();
 
 		if ( akismetData === 'N/A' ) {
 			return(
@@ -52,7 +54,7 @@ const DashAkismet = React.createClass( {
 					label={ labelName }
 					module="akismet"
 					className="jp-dash-item__is-inactive"
-					status="pro-uninstalled"
+					status={ hasSitePlan ? 'pro-uninstalled' : 'no-pro-uninstalled-or-inactive' }
 					pro={ true }
 				>
 					<p className="jp-dash-item__description">
@@ -69,7 +71,7 @@ const DashAkismet = React.createClass( {
 				<DashItem
 					label={ labelName }
 					module="akismet"
-					status="pro-inactive"
+					status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
 					className="jp-dash-item__is-inactive"
 					pro={ true }
 				>
@@ -149,7 +151,8 @@ export default connect(
 	( state ) => {
 		return {
 			getAkismetData: () => _getAkismetData( state ),
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
+			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
+			getSitePlan: () => getSitePlan( state )
 		};
 	},
 	( dispatch ) => {

@@ -15,6 +15,7 @@ import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 import SectionHeader from 'components/section-header';
 import { ModuleToggle } from 'components/module-toggle';
+import { isFetchingSiteData } from 'state/site';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -47,14 +48,27 @@ const DashItem = React.createClass( {
 	proCardStatus() {
 		let status;
 
+		if ( this.props.isFetchingSiteData ) {
+			return '';
+		}
+
 		switch ( this.props.status ) {
-			case 'pro-uninstalled':
+			case 'no-pro-uninstalled-or-inactive':
 				status = <Button
 					compact={ true }
 					primary={ true }
 					href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl }
 				>
 					{ __( 'Upgrade' ) }
+				</Button>;
+				break;
+			case 'pro-uninstalled':
+				status = <Button
+					compact={ true }
+					primary={ true }
+					href={ 'https://wordpress.com/plugins/' + this.props.module }
+				>
+					{ __( 'Install' ) }
 				</Button>;
 				break;
 			case 'pro-inactive':
@@ -170,7 +184,8 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
-			getModule: ( module_name ) => _getModule( state, module_name )
+			getModule: ( module_name ) => _getModule( state, module_name ),
+			isFetchingSiteData: isFetchingSiteData( state )
 		};
 	},
 	( dispatch ) => {

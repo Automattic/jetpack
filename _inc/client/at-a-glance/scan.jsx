@@ -113,7 +113,7 @@ const DashScan = React.createClass( {
 				label={ labelName }
 				module="vaultpress"
 				className="jp-dash-item__is-inactive"
-				status="pro-inactive"
+				status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
 				pro={ true }
 			>
 				<p className="jp-dash-item__description">
