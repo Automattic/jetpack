@@ -340,9 +340,9 @@ class Jetpack {
 
 	static function update_active_modules( $modules ) {
 		$current_modules = Jetpack_Options::get_option( 'active_modules', array() );
-		
+
 		$success = Jetpack_Options::update_option( 'active_modules', array_unique( $modules ) );
-		
+
 		if ( is_array( $modules ) && is_array( $current_modules ) ) {
 			$new_active_modules = array_diff( $modules, $current_modules );
 			foreach( $new_active_modules as $module ) {
@@ -3757,7 +3757,7 @@ p {
 		 */
 		$base_url = apply_filters(
 			'jetpack_stats_base_url',
-			set_url_scheme( 'http://pixel.wp.com/g.gif' )
+			'https://pixel.wp.com/g.gif'
 		);
 		$url      = add_query_arg( $args, $base_url );
 		return $url;
