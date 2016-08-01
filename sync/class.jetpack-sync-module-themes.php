@@ -26,7 +26,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		do_action( 'jetpack_sync_current_theme_support' , $this->get_theme_support_info() );
 	}
 
-	public function enqueue_full_sync_actions() {
+	public function enqueue_full_sync_actions( $config ) {
 		/**
 		 * Tells the client to sync all theme data to the server
 		 *
@@ -37,6 +37,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_theme_data', true );
 		return 1; // The number of actions enqueued
 	}
+
+	public function estimate_full_sync_actions( $config ) {
+		return 1;
+	}
+	
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_theme_data', array( $this, 'expand_theme_data' ) );
 	}

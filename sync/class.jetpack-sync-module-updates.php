@@ -29,7 +29,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_updates', array( $this, 'expand_updates' ) );
 	}
 
-	public function enqueue_full_sync_actions() {
+	public function enqueue_full_sync_actions( $config ) {
 		/**
 		 * Tells the client to sync all updates to the server
 		 *
@@ -40,6 +40,10 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_updates', true );
 
 		return 1; // The number of actions enqueued
+	}
+
+	public function estimate_full_sync_actions( $config ) {
+		return 1;
 	}
 
 	function get_full_sync_actions() {

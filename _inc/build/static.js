@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -53,7 +53,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _reactDomServer = __webpack_require__(873);
+	var _reactDomServer = __webpack_require__(872);
 	
 	var _reactDomServer2 = _interopRequireDefault(_reactDomServer);
 	
@@ -71,11 +71,11 @@
 	
 	var _stateReduxStore2 = _interopRequireDefault(_stateReduxStore);
 	
-	var _staticMain = __webpack_require__(874);
+	var _staticMain = __webpack_require__(873);
 	
 	var _staticMain2 = _interopRequireDefault(_staticMain);
 	
-	var _componentsJetpackNoticesStaticWarning = __webpack_require__(875);
+	var _componentsJetpackNoticesStaticWarning = __webpack_require__(874);
 	
 	var _componentsJetpackNoticesStaticWarning2 = _interopRequireDefault(_componentsJetpackNoticesStaticWarning);
 	
@@ -105,7 +105,7 @@
 		_react2['default'].createElement(_componentsJetpackNoticesStaticWarning2['default'], null)
 	));
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "static.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "static.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 1 */,
@@ -21771,10 +21771,10 @@
 	  };
 	}
 	
-	var CompiledPatternsCache = {};
+	var CompiledPatternsCache = Object.create(null);
 	
 	function compilePattern(pattern) {
-	  if (!(pattern in CompiledPatternsCache)) CompiledPatternsCache[pattern] = _compilePattern(pattern);
+	  if (!CompiledPatternsCache[pattern]) CompiledPatternsCache[pattern] = _compilePattern(pattern);
 	
 	  return CompiledPatternsCache[pattern];
 	}
@@ -23946,6 +23946,7 @@
 	}
 	
 	//export default useRoutes
+	
 	module.exports = exports['default'];
 
 /***/ },
@@ -26946,7 +26947,7 @@
 /* 247 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -26989,7 +26990,7 @@
 	}
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "redux-store.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "redux-store.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 248 */
@@ -27023,7 +27024,7 @@
 /* 249 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -27078,13 +27079,13 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 250 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -27104,13 +27105,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 251 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -27157,7 +27158,7 @@
 		return roles;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 252 */
@@ -28189,7 +28190,8 @@
 	    toString = __webpack_require__(313);
 	
 	/** Used to match property names within property paths. */
-	var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(\.|\[\])(?:\4|$))/g;
+	var reLeadingDot = /^\./,
+	    rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
 	
 	/** Used to match backslashes in property paths. */
 	var reEscapeChar = /\\(\\)?/g;
@@ -28202,8 +28204,13 @@
 	 * @returns {Array} Returns the property path array.
 	 */
 	var stringToPath = memoize(function(string) {
+	  string = toString(string);
+	
 	  var result = [];
-	  toString(string).replace(rePropName, function(match, number, quote, string) {
+	  if (reLeadingDot.test(string)) {
+	    result.push('');
+	  }
+	  string.replace(rePropName, function(match, number, quote, string) {
 	    result.push(quote ? string.replace(reEscapeChar, '$1') : (number || match));
 	  });
 	  return result;
@@ -29269,7 +29276,7 @@
 /* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -29441,13 +29448,13 @@
 	var JETPACK_PLUGINS_DATA_FETCH_FAIL = 'JETPACK_PLUGINS_DATA_FETCH_FAIL';
 	exports.JETPACK_PLUGINS_DATA_FETCH_FAIL = JETPACK_PLUGINS_DATA_FETCH_FAIL;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "action-types.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "action-types.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -29521,13 +29528,13 @@
 	  return state.jetpack.initialState.isDevVersion;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -29547,13 +29554,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -29884,13 +29891,13 @@
 		return state.jetpack.dashboard.pluginUpdates;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -30039,13 +30046,13 @@
 	};
 	exports.fetchPluginUpdates = fetchPluginUpdates;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 324 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -30335,7 +30342,7 @@
 	}
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 325 */
@@ -31908,7 +31915,7 @@
 /* 331 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -31928,13 +31935,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 332 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -32182,13 +32189,13 @@
 		return (0, _lodashGet2['default'])(state.jetpack.modules.items, [name, 'activated'], false) ? true : false;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 333 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -32358,13 +32365,13 @@
 	};
 	exports.regeneratePostByEmailAddress = regeneratePostByEmailAddress;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 334 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -32384,13 +32391,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 335 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -32672,13 +32679,13 @@
 		return isDevMode(state) && requiresConnection(state, module);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 336 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -32789,13 +32796,13 @@
 	};
 	exports.unlinkUser = unlinkUser;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 337 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -32815,13 +32822,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 338 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -32902,13 +32909,13 @@
 		return state.jetpack.jumpstart.status.isJumpstarting;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -32967,13 +32974,13 @@
 	};
 	exports.jumpStartSkip = jumpStartSkip;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 340 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -32993,13 +33000,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -33146,13 +33153,13 @@
 		return (0, _lodashGet2['default'])(state.jetpack.settings.items, [name], false) ? true : false;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 342 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -33216,13 +33223,13 @@
 	};
 	exports.updateSetting = updateSetting;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 343 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -33242,13 +33249,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 344 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -33348,13 +33355,13 @@
 		return false;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 345 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -33394,13 +33401,13 @@
 	};
 	exports.fetchSiteData = fetchSiteData;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 346 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -33420,13 +33427,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 347 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -33532,13 +33539,13 @@
 		return state.jetpack.pluginsData.items[plugin];
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 348 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -33578,13 +33585,13 @@
 	};
 	exports.fetchPluginsData = fetchPluginsData;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 349 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -33604,13 +33611,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_reducer, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 350 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -33651,13 +33658,13 @@
 	};
 	exports.dismissJetpackNotice = dismissJetpackNotice;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 351 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	
 	/**
@@ -33755,7 +33762,7 @@
 		return (0, _lodashGet2['default'])(state.jetpack.jetpackNotices.dismissed, [notice], false);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 352 */
@@ -54166,7 +54173,7 @@
 /* 493 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -54252,7 +54259,7 @@
 	
 	module.exports = Masthead;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 494 */,
@@ -54542,7 +54549,7 @@
 /* 626 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -56246,7 +56253,7 @@
 	
 	module.exports = Gridicon;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 627 */
@@ -56417,7 +56424,7 @@
 /* 787 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -56579,7 +56586,7 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 788 */
@@ -56660,11 +56667,10 @@
 /* 858 */,
 /* 859 */,
 /* 860 */,
-/* 861 */,
-/* 862 */
+/* 861 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -56695,7 +56701,7 @@
 	
 	var _stateInitialState = __webpack_require__(250);
 	
-	var _stateDevVersion = __webpack_require__(863);
+	var _stateDevVersion = __webpack_require__(862);
 	
 	var Footer = _react2['default'].createClass({
 		displayName: 'Footer',
@@ -56814,13 +56820,13 @@
 		};
 	})(Footer);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 863 */
+/* 862 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -56832,17 +56838,17 @@
 	
 	function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 	
-	var _actions = __webpack_require__(864);
+	var _actions = __webpack_require__(863);
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 864 */
+/* 863 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -56880,20 +56886,20 @@
 	};
 	exports.resetOptions = resetOptions;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
+/* 864 */,
 /* 865 */,
 /* 866 */,
 /* 867 */,
 /* 868 */,
 /* 869 */,
 /* 870 */,
-/* 871 */,
-/* 872 */
+/* 871 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -57135,10 +57141,10 @@
 	exports['default'] = JetpackStateNotices;
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "state-notices.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "state-notices.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 873 */
+/* 872 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57147,10 +57153,10 @@
 
 
 /***/ },
-/* 874 */
+/* 873 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -57181,7 +57187,7 @@
 	
 	var _stateInitialState = __webpack_require__(250);
 	
-	var _componentsFooter = __webpack_require__(862);
+	var _componentsFooter = __webpack_require__(861);
 	
 	var _componentsFooter2 = _interopRequireDefault(_componentsFooter);
 	
@@ -57211,13 +57217,13 @@
 	})(StaticMain);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "static-main.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "static-main.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 875 */
+/* 874 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -57244,7 +57250,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateNotices = __webpack_require__(872);
+	var _stateNotices = __webpack_require__(871);
 	
 	var _stateNotices2 = _interopRequireDefault(_stateNotices);
 	
@@ -57280,7 +57286,7 @@
 		};
 	})(StaticWarning);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/kraft/Dropbox/Code/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "static-warning.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "static-warning.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ }
 /******/ ]);

@@ -41,6 +41,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->reset_data();
 
 		if ( $was_already_running ) {
+			/**
+			 * Fires when a full sync is cancelled.
+			 *
+			 * @since 4.2.0
+			 */
 			do_action( 'jetpack_full_sync_cancelled' );
 		}
 
@@ -51,22 +56,57 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_start' );
-		$this->update_status_option( "started", time() );
+		$this->update_status_option( 'started', time() );
 
+		// configure modules
+		if ( ! is_array( $modules ) ) {
+			$modules = array();
+		}
+
+		// by default, all modules are fully enabled
+		if ( count( $modules ) === 0 ) {
+			$default_module_config = true;
+		} else {
+			$default_module_config = false;
+		}
+
+		// set default configuration, calculate totals, and save configuration if totals > 0
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
-			if ( is_array( $modules ) && ! in_array( $module_name, $modules ) ) {
+			if ( ! isset( $modules[ $module_name ] ) ) {
+				$modules[ $module_name ] = $default_module_config;
+			}
+
+			// check if this module is enabled
+			if ( ! ( $module_config = $modules[ $module_name ] ) ) {
 				continue;
 			}
 
-			$items_enqueued = $module->enqueue_full_sync_actions();
-			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
-				// TODO: only update this once every N items, then at end - why cause all that DB churn?
-				$this->update_status_option( "{$module->name()}_queued", $items_enqueued );
+			$total_items = $module->estimate_full_sync_actions( $module_config );
+
+			if ( ! is_null( $total_items ) && $total_items > 0 ) {
+				$this->update_status_option( "{$module_name}_total", $total_items );
+				$this->update_status_option( "{$module_name}_config", $module_config );
 			}
 		}
 
-		$this->update_status_option( "queue_finished", time() );
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			$module_name   = $module->name();
+			$module_config = $modules[ $module_name ];
+
+			// check if this module is enabled
+			if ( ! $module_config ) {
+				continue;
+			}
+
+			$items_enqueued = $module->enqueue_full_sync_actions( $module_config );
+
+			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
+				$this->update_status_option( "{$module_name}_queued", $items_enqueued );
+			}
+		}
+
+		$this->update_status_option( 'queue_finished', time() );
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -92,7 +132,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_start'] ) ) {
-			$this->update_status_option( "sent_started", time() );
+			$this->update_status_option( 'sent_started', time() );
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
@@ -112,16 +152,16 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
-			$this->update_status_option( "finished", time() );
+			$this->update_status_option( 'finished', time() );
 		}
 	}
 
 	public function is_started() {
-		return !! $this->get_status_option( "started" );
+		return !! $this->get_status_option( 'started' );
 	}
 
 	public function is_finished() {
-		return !! $this->get_status_option( "finished" );
+		return !! $this->get_status_option( 'finished' );
 	}
 
 	public function get_status() {
@@ -132,18 +172,27 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			'finished'       => $this->get_status_option( 'finished' ),
 			'sent'           => array(),
 			'queue'          => array(),
+			'config'         => array(),
+			'total'          => array(),
 		);
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$queued = $this->get_status_option( "{$module->name()}_queued" );
-			$sent   = $this->get_status_option( "{$module->name()}_sent" );
+			$name = $module->name();
 
-			if ( $queued ) {
-				$status[ 'queue' ][ $module->name() ] = $queued;
+			if ( $total = $this->get_status_option( "{$name}_total" ) ) {
+				$status[ 'total' ][ $name ] = $total;
+			}
+
+			if ( $queued = $this->get_status_option( "{$name}_queued" ) ) {
+				$status[ 'queue' ][ $name ] = $queued;
 			}
 			
-			if ( $sent ) {
-				$status[ 'sent' ][ $module->name() ] = $sent;
+			if ( $sent = $this->get_status_option( "{$name}_sent" ) ) {
+				$status[ 'sent' ][ $name ] = $sent;
+			}
+
+			if ( $config = $this->get_status_option( "{$name}_config" ) ) {
+				$status[ 'config' ][ $name ] = $config;
 			}
 		}
 
@@ -158,8 +207,10 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		delete_option( "{$prefix}_finished" );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			delete_option( "{$prefix}_{$module->name()}_total" );
 			delete_option( "{$prefix}_{$module->name()}_queued" );
 			delete_option( "{$prefix}_{$module->name()}_sent" );
+			delete_option( "{$prefix}_{$module->name()}_config" );
 		}
 	}
 
@@ -180,7 +231,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			return $default;
 		}
 
-		return intval( $value );
+		return is_numeric( $value ) ? intval( $value ) : $value;
 	}
 
 	private function update_status_option( $name, $value ) {

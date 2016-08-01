@@ -245,6 +245,7 @@ class Jetpack_Sync_Defaults {
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
 	static $default_upload_max_rows = 500;
 	static $default_sync_wait_time = 10; // seconds, between syncs
+	static $default_sync_wait_threshold = 5; // only wait before next send if the current send took more than X seconds
 	static $default_max_queue_size = 1000;
 	static $default_max_queue_lag = 900; // 15 minutes
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again

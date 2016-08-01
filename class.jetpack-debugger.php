@@ -18,6 +18,27 @@ class Jetpack_Debugger {
 		}
 	}
 
+	static function seconds_to_time( $seconds ) {
+		$units = array(
+			"week"   => 7*24*3600,
+			"day"    =>   24*3600,
+			"hour"   =>      3600,
+			"minute" =>        60,
+			"second" =>         1,
+		);
+		// specifically handle zero
+		if ( $seconds == 0 ) return "0 seconds";
+		$human_readable = "";
+		foreach ( $units as $name => $divisor ) {
+			if ( $quot = intval( $seconds / $divisor) ) {
+				$human_readable .= "$quot $name";
+				$human_readable .= ( abs( $quot ) > 1 ? "s" : "" ) . ", ";
+				$seconds -= $quot * $divisor;
+			}
+		}
+		return substr( $human_readable, 0, -2 );
+	}
+
 	public static function jetpack_increase_timeout() {
 		return 30; // seconds
 	}
@@ -59,6 +80,40 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "JETPACK__PLUGIN_DIR: " . JETPACK__PLUGIN_DIR );
 		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
 		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
+
+		$debug_info .= "\r\n";
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
+		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$sync_statuses = $sync_module->get_status();
+		$human_readable_sync_status = array();
+		foreach( $sync_statuses  as $sync_status => $sync_status_value ) {
+			$human_readable_sync_status[ $sync_status ] =
+				in_array( $sync_status, array( 'started', 'queue_finished', 'sent_started', 'finished' ) )
+				? date( 'r', $sync_status_value ) : $sync_status_value ;
+		}
+
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) );
+
+		$next_schedules = wp_next_scheduled( 'jetpack_sync_full' );
+		if( $next_schedules ) {
+			$debug_info .= "\r\n". sprintf( esc_html__( 'Next Jetpack Full Sync Schedule: `%1$s`', 'jetpack' ), date( 'r', $next_schedules ) );
+		} else {
+			$debug_info .= "\r\n". esc_html__( "Next Jetpack Full Sync Schedule: Not Schedules", 'jetpack' );
+		}
+
+		require_once JETPACK__PLUGIN_DIR. 'sync/class.jetpack-sync-sender.php';
+
+		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
+
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Sync Queue size: %1$s', 'jetpack' ), $queue->size() );
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Sync Queue lag: %1$s', 'jetpack' ), self::seconds_to_time( $queue->lag() ) );
+
+		$full_sync_queue = Jetpack_Sync_Sender::get_instance()->get_full_sync_queue();
+
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Full Sync Queue size: %1$s', 'jetpack' ), $full_sync_queue->size() );
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Full Sync Queue lag: %1$s', 'jetpack' ), self::seconds_to_time( $full_sync_queue->lag() ) );
+
+		$debug_info .= "\r\n";
 
 		foreach ( array (
 					  'HTTP_HOST',
@@ -269,7 +324,7 @@ class Jetpack_Debugger {
 		<div id="toggle_debug_info"><a href="#"><?php _e( 'View Advanced Debug Results', 'jetpack' ); ?></a></div>
 			<div id="debug_info_div" style="display:none">
 			<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
-			<div id="debug_info"><?php echo wpautop( esc_html( $debug_info ) ); ?></div>
+			<div id="debug_info"><pre><?php echo esc_html( $debug_info ) ; ?></pre></div>
 		</div>
 		</div>
 	<?php
@@ -350,6 +405,12 @@ class Jetpack_Debugger {
 				padding: 10px;
 				width: 97%;
 			}
+			#debug_info_div {
+				border-radius: 0;
+				margin-top: 16px;
+				background: #FFF;
+				padding: 16px;
+			}
 			.formbox .contact-support input[type="submit"] {
 				float: right;
 				margin: 0 !important;
@@ -391,7 +452,7 @@ class Jetpack_Debugger {
 			}
 
 			#debug_info_div, #toggle_debug_info, #debug_info_div p {
-				font-size: smaller;
+				font-size: 12px;
 			}
 
 		</style>

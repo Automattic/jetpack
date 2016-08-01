@@ -575,7 +575,10 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
 	'request_format' => array(
-		'modules' => '(string) Comma-delimited set of sync modules to use (default: all of them)'
+		'modules'  => '(string) Comma-delimited set of sync modules to use (default: all of them)',
+		'posts'    => '(string) Comma-delimited list of post IDs to sync',
+		'comments' => '(string) Comma-delimited list of comment IDs to sync',
+		'users'    => '(string) Comma-delimited list of user IDs to sync',
 	),
 	'response_format' => array(
 		'scheduled' => '(bool) Whether or not the synchronisation was scheduled'
@@ -597,8 +600,15 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'queue_finished' => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
 		'sent_started' => '(int|null) The unix timestamp when the last sent process started',
 		'finished' => '(int|null) The unix timestamp when the last sync finished',
+		'total'  => '(array) Count of actions that could be sent',
 		'queue'  => '(array) Count of actions that have been added to the queue',
 		'sent'  => '(array) Count of actions that have been sent',
+		'config' => '(array) Configuration of the last full sync',
+		'queue_size' => '(int) Number of items in the  sync queue',
+		'queue_lag' => '(float) Time delay of the oldest item in the sync queue',
+		'full_queue_size' => '(int) Number of items in the full sync queue',
+		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue',
+		'is_scheduled' => '(bool) Is a full sync scheduled via cron?'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
 ) );
@@ -645,12 +655,13 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
 ) );
 
 $sync_settings_response = array(
-	'dequeue_max_bytes' => '(int|bool=false) Maximum bytes to read from queue in a single request',
-	'sync_wait_time'    => '(int|bool=false) Minimum time between requests in seconds',
-	'upload_max_bytes'  => '(int|bool=false) Maximum bytes to send in a single request',
-	'upload_max_rows'   => '(int|bool=false) Maximum rows to send in a single request',
-	'max_queue_size'    => '(int|bool=false) Maximum queue size that that the queue is allowed to expand to in DB rows to prevent the DB from filling up. Needs to also meet the max_queue_lag limit.',
-	'max_queue_lag'     => '(int|bool=false) Maximum queue lag in seconds used to prevent the DB from filling up. Needs to also meet the max_queue_size limit.',
+	'dequeue_max_bytes'   => '(int|bool=false) Maximum bytes to read from queue in a single request',
+	'sync_wait_time'      => '(int|bool=false) Wait time between requests in seconds if sync threshold exceeded',
+	'sync_wait_threshold' => '(int|bool=false) If a request to WPCOM exceeds this duration, wait sync_wait_time seconds before sending again',
+	'upload_max_bytes'    => '(int|bool=false) Maximum bytes to send in a single request',
+	'upload_max_rows'     => '(int|bool=false) Maximum rows to send in a single request',
+	'max_queue_size'      => '(int|bool=false) Maximum queue size that that the queue is allowed to expand to in DB rows to prevent the DB from filling up. Needs to also meet the max_queue_lag limit.',
+	'max_queue_lag'       => '(int|bool=false) Maximum queue lag in seconds used to prevent the DB from filling up. Needs to also meet the max_queue_size limit.',
 );
 
 // GET /sites/%s/sync/settings

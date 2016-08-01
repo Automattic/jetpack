@@ -72,7 +72,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		return call_user_func( $callable );
 	}
 
-	public function enqueue_full_sync_actions() {
+	public function enqueue_full_sync_actions( $config ) {
 		/**
 		 * Tells the client to sync all callables to the server
 		 *
@@ -83,6 +83,10 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_callables', true );
 
 		return 1; // The number of actions enqueued
+	}
+
+	public function estimate_full_sync_actions( $config ) {
+		return 1;
 	}
 
 	public function get_full_sync_actions() {
