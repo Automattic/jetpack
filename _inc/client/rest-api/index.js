@@ -168,15 +168,23 @@ const restApi = {
 		}
 	} )
 		.then( checkStatus ).then( response => response.json() ),
-	fetchSiteData: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/site`, {
-		method: 'get',
-		credentials: 'same-origin',
-		headers: {
-			'X-WP-Nonce': window.Initial_State.WP_API_nonce,
-			'Content-type': 'application/json'
+	fetchSiteData: () => {
+		if ( Promise.resolve( window.Initial_State.siteData ) === window.Initial_State.siteData ) {
+			return window.Initial_State.siteData;
 		}
-	} )
-		.then( checkStatus ).then( response => response.json() ),
+		return fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/site`, {
+			method: 'get',
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': window.Initial_State.WP_API_nonce,
+				'Content-type': 'application/json'
+			}
+		} )
+			.then( checkStatus ).then( response => {
+				window.Initial_State.siteData = response.json();
+				return window.Initial_State.siteData;
+			} );
+	},
 	dismissJetpackNotice: ( notice ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/notice/${ notice }/dismiss`, {
 		method: 'put',
 		credentials: 'same-origin',
