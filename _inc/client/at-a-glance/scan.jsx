@@ -16,7 +16,6 @@ import {
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
 import { getSitePlan } from 'state/site';
-import { SecurityModulesSettings } from 'components/module-settings/modules-per-tab-page';
 import { isPluginInstalled } from 'state/site/plugins';
 import {
 	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
