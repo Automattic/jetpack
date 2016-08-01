@@ -100,19 +100,18 @@ class Jetpack_Sync_Listener {
 	}
 
 	function full_sync_action_handler() {
-		$args           = func_get_args();
-		$this->enqueue_action( current_filter(), $args, $this->full_sync_queue );
+		$args = func_get_args();
+		$this->enqueue_action( current_filter(), $args, $this->full_sync_queue, true );
 	}
 
 	function action_handler() {
-		$args           = func_get_args();
+		$args = func_get_args();
 		$this->enqueue_action( current_filter(), $args, $this->sync_queue );
 	}
 
-	function enqueue_action( $current_filter, $args, $queue ) {
-
-		if ( Jetpack_Sync_Settings::is_importing() ) {
-			return false;
+	function enqueue_action( $current_filter, $args, $queue, $override_import = false ) {
+		if ( Jetpack_Sync_Settings::is_importing() && ! $override_import ) {
+			return;
 		}
 
 		/**
@@ -135,9 +134,8 @@ class Jetpack_Sync_Listener {
 			return;
 		}
 
-		// if we add any items to the queue, we should
-		// try to ensure that our script can't be killed before
-		// they are sent
+		// if we add any items to the queue, we should try to ensure that our script 
+		// can't be killed before they are sent
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}
