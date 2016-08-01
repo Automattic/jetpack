@@ -61,18 +61,16 @@ export const Page = ( props ) => {
 		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
-			adminAndNonAdmin = isAdmin || nonAdminAvailable.includes( element[0] );
+			adminAndNonAdmin = isAdmin || nonAdminAvailable.includes( element[0] ),
+			isModuleActive = isModuleActivated( element[0] );
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
-		} else {
-			if ( adminAndNonAdmin ) {
-				toggle = <ModuleToggle slug={ element[0] }
-							activated={ isModuleActivated( element[0] ) }
-							toggling={ isTogglingModule( element[0] ) }
-							toggleModule={ toggleModule } />;
-			}
+		} else if ( adminAndNonAdmin ) {
+			toggle = <ModuleToggle slug={ element[0] }
+						activated={ isModuleActivated( element[0] ) }
+						toggling={ isTogglingModule( element[0] ) }
+						toggleModule={ toggleModule } />;
 		}
-
 		return (
 			<FoldableCard
 				className={ customClasses }
@@ -84,13 +82,24 @@ export const Page = ( props ) => {
 				clickableHeaderText={ true }
 				disabled={ ! adminAndNonAdmin } >
 				{
-					isModuleActivated( element[0] ) ?
+					isModuleActive ?
 						<EngagementModulesSettings module={ getModule( element[0] ) } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<p>
 					<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
+					{
+						'subscriptions' === element[0] && isModuleActive ? (
+							<span> | {
+								__( 'View your {{a}}Email Followers{{/a}}', {
+									components: {
+										a: <a href={ 'https://wordpress.com/people/email-followers/' + window.Initial_State.rawUrl } />
+									}
+								} )
+							}</span>
+						) : ''
+					}
 				</p>
 			</FoldableCard>
 		);
