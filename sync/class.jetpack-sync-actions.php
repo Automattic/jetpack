@@ -129,7 +129,7 @@ class Jetpack_Sync_Actions {
 		// we need this function call here because we have to run this function 
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
 		wp_functionality_constants();
-		self::schedule_full_sync( array( 'options', 'network_options', 'functions', 'constants', 'users' ) );
+		self::schedule_full_sync( array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => true ) );
 	}
 
 	static function schedule_full_sync( $modules = null ) {
