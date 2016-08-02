@@ -1744,21 +1744,6 @@ a.dops-notice__action {
 
 .form-toggle.is-compact:checked + .form-toggle__label .form-toggle__switch:after {
   left: 8px; }
-/**
- * Related Posts Preview styles
- */
-.related-posts-settings_preview_container {
-  text-align: center; }
-
-.related-posts-settings_preview_container h3 {
-  text-align: left; }
-
-.related-posts-settings_preview_image_container {
-  display: inline-block;
-  width: 29%; }
-
-.related-posts-settings_preview_image_container img {
-  max-width: 100%; }
 .dops-checkbox.dops-checkbox {
   display: inline-block;
   box-sizing: border-box;
