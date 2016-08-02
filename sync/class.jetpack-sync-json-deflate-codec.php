@@ -14,7 +14,7 @@ class Jetpack_Sync_JSON_Deflate_Codec implements iJetpack_Sync_Codec {
 	}
 
 	public function encode( $object ) {
-		return base64_encode( gzdeflate( $this->json_serialize( $object ) ) );
+		return base64_encode( gzdeflate( $this->json_serialize( unserialize( serialize( $object ) ) ) ) );
 	}
 
 	public function decode( $input ) {
