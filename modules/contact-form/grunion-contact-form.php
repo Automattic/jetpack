@@ -867,7 +867,7 @@ class Grunion_Contact_Form_Plugin {
 			 * Put all the fields in `$current_row` array.
 			 */
 			foreach ( $fields as $single_field_name ) {
-				$current_row[] = $data[ $single_field_name ][ $i ];
+				$current_row[] = $this->esc_csv( $data[ $single_field_name ][ $i ] );
 			}
 
 			/**
@@ -877,6 +877,30 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		fclose( $output );
+	}
+
+	/**
+	 * Escape a string to be used in a CSV context
+	 *
+	 * Malicious input can inject formulas into CSV files, opening up the possibility for phishing attacks and
+	 * disclosure of sensitive information.
+	 *
+	 * Additionally, Excel exposes the ability to launch arbitrary commands through the DDE protocol.
+	 *
+	 * @see http://www.contextis.com/resources/blog/comma-separated-vulnerabilities/
+	 *
+	 * @param string $field
+	 *
+	 * @return string
+	 */
+	function esc_csv( $field ) {
+		$active_content_triggers = array( '=', '+', '-', '@' );
+
+		if ( in_array( mb_substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
+			$field = "'" . $field;
+		}
+
+		return $field;
 	}
 
 	/**
