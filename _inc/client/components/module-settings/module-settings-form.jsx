@@ -23,16 +23,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 				optionValue = typeof event.target.checked !== 'undefined'
 					? event.target.checked
 					: event.target.value;
-			}
-			if ( event.target.type === 'radio' ) {
-				optionValue = event.target.value;
-			}
-
-			if ( event.target.type === 'text' ) {
-				optionValue = event.target.value;
-			}
-
-			if ( event.target.type === 'textarea' ) {
+			} else {
 				optionValue = event.target.value;
 			}
 

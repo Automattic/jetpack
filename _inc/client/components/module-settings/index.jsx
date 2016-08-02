@@ -5,6 +5,8 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import Button from 'components/button';
+import TagsInput from 'components/tags-input';
+
 /**
  * Internal dependencies
  */
@@ -661,6 +663,18 @@ export let AfterTheDeadlineSettings = React.createClass( {
 						name={ 'guess_lang' }
 						{ ...this.props }
 						label={ __( 'Use automatically detected language to proofread posts and pages' ) } />
+				</FormFieldset>
+				<FormFieldset>
+					<FormLegend>
+						{ __( 'Ignored Phrases' ) }
+					</FormLegend>
+					<TagsInput
+						name="ignored_phrases"
+						placeholder={ __( 'Add a phrase' ) }
+						value={ this.props.getOptionValue( 'ignored_phrases' ).split( ',' ) }
+						onChange={ this.props.onOptionChange } />
+				</FormFieldset>
+				<FormFieldset>
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }
