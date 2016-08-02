@@ -131,7 +131,7 @@ export const Page = ( props ) => {
 						__( 'ACTIVE' )
 					);
 				} else {
-					return (
+					return unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) : (
 						<Button
 							compact={ true }
 							primary={ true }
