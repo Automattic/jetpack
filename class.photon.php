@@ -612,6 +612,11 @@ class Jetpack_Photon {
 				continue;
 			}
 
+			/** This filter is already documented in class.photon.php */
+			if ( apply_filters( 'jetpack_photon_skip_image', false, $source['url'], $source ) ) {
+				continue;
+			}
+
 			$url = $source['url'];
 			list( $width, $height ) = Jetpack_Photon::parse_dimensions_from_filename( $url );
 
@@ -681,6 +686,12 @@ class Jetpack_Photon {
 			$newsources = null;
 
 			foreach ( $multipliers as $multiplier ) {
+
+				/** This filter is already documented in class.photon.php */
+				if ( apply_filters( 'jetpack_photon_skip_image', false, $url ) ) {
+					continue;
+				}
+
 				$newwidth = $base * $multiplier;
 				foreach ( $currentwidths as $currentwidth ){
 					// If a new width would be within 100 pixes of an existing one or larger than the full size image, skip.
