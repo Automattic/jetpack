@@ -896,6 +896,16 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
+	function test_sync_call_ables_does_not_modify_globals() {
+		global $wp_taxonomies;
+		// assert that $wp_taxonomy object stays an array. 
+		$this->assertTrue( is_array( $wp_taxonomies['category']->rewrite ) );
+		$this->setSyncClientDefaults();
+		$this->full_sync->start();
+		$this->sender->do_sync();
+		$this->assertTrue( is_array( $wp_taxonomies['category']->rewrite ) );
+	}
+
 	function upgrade_terms_to_pass_test( $term ) {
 		global $wp_version;
 		if ( version_compare( $wp_version, '4.4', '<' ) ) {
