@@ -8,6 +8,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
 
 	private $full_sync_end_checksum;
+	private $full_sync_start_config;
 
 	function setUp() {
 		parent::setUp();
@@ -511,6 +512,21 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $updates->last_checked > strtotime( "-10 seconds" ) );
 	}
 
+	function test_full_sync_start_sends_configuration() {
+		// this is so that on WPCOM we can tell what has been synchronized in the past
+		add_action( 'jetpack_full_sync_start', array( $this, 'record_full_sync_start_config' ), 10, 1 );
+
+		$this->full_sync->start();
+
+		$this->assertEquals( null, $this->full_sync_start_config );
+
+		$custom_config = array( 'posts' => array( 1, 2, 3, ) );
+
+		$this->full_sync->start( $custom_config );
+
+		$this->assertEquals( $custom_config, $this->full_sync_start_config );
+	}
+
 	function test_full_sync_end_sends_checksums() {
 		add_action( 'jetpack_full_sync_end', array( $this, 'record_full_sync_end_checksum' ), 10, 1 );
 
@@ -526,6 +542,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function record_full_sync_end_checksum( $checksum ) {
 		$this->full_sync_end_checksum = $checksum;
+	}
+
+	function record_full_sync_start_config( $modules ) {
+		$this->full_sync_start_config = $modules;
 	}
 
 	function create_dummy_data_and_empty_the_queue() {

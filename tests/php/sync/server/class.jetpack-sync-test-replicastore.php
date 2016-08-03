@@ -43,7 +43,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->users           = array();
 	}
 
-	function full_sync_start() {
+	function full_sync_start( $config ) {
 		$this->reset();
 	}
 
