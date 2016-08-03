@@ -671,7 +671,10 @@ export let AfterTheDeadlineSettings = React.createClass( {
 					<TagsInput
 						name="ignored_phrases"
 						placeholder={ __( 'Add a phrase' ) }
-						value={ this.props.getOptionValue( 'ignored_phrases' ).split( ',' ) }
+						value={ this.props.getOptionValue( 'ignored_phrases' ) !== '' ?
+							this.props.getOptionValue( 'ignored_phrases' ).split( ',' ) :
+							[]
+						}
 						onChange={ this.props.onOptionChange } />
 				</FormFieldset>
 				<FormFieldset>
