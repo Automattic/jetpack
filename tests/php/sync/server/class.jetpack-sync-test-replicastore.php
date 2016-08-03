@@ -489,8 +489,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	function checksum_all() {
 		return array(
 			'posts'    => $this->posts_checksum(),
-			'comments' => $this->comments_checksum(),
-			'options'  => $this->options_checksum(),
+			'comments' => $this->comments_checksum()
 		);
 	}
 
