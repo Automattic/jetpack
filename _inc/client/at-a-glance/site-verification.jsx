@@ -24,10 +24,10 @@ const DashSiteVerify = React.createClass( {
 						{
 							__( 'Site Verification Tools are active. Ensure your site is verified with Google, ' +
 								'Bing, and Pinterest for more accurate indexing and ranking. {{a}}Verify now{{/a}}', {
-								components: {
-									a: <a href={ window.Initial_State.adminUrl + 'tools.php' } />
-								}
-							} )
+									components: {
+										a: <a href={ this.props.siteAdminUrl + 'tools.php' } />
+									}
+								} )
 						}
 					</p>
 				</DashItem>
