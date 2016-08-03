@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import NoticesList from 'components/global-notices';
-import { createNotice } from 'components/global-notices/state/notices/actions';
 
 /**
  * Internal dependencies
@@ -191,60 +190,6 @@ export const DevModeNotice = React.createClass( {
 
 } );
 
-
-/**
- * These notices are triggered by actions in the app, like:
- * - Disconnecting
- * - Connecting
- * - Unlink
- * - Activate Module, etc...
- *
- * It will probably break off into it's own thing when it gets bigger.
- * It listens to the notice actions via this.props.jetpackNotices( this.props );
- */
-export const ActionNotices = React.createClass( {
-	displayName: 'ActionNotices',
-
-	componentDidMount() {
-		this.showModuleActivationNotices( this.props.jetpackNotices );
-	},
-
-	componentWillUpdate( nextProps ) {
-		this.showModuleActivationNotices( nextProps.jetpackNotices );
-	},
-
-	showModuleActivationNotices( jetpackNotices ) {
-		console.log( jetpackNotices );
-
-		switch ( jetpackNotices ) {
-			case 'module_activate' :
-				this.showNoticeWhat( 'is-info', 'activate' );
-				break;
-			case 'module_activate_success' :
-				this.showNoticeWhat( 'is-info', 'activate success' );
-				break;
-			case 'module_deactivate' :
-				this.showNoticeWhat( 'is-info', 'deactivate' );
-				break;
-			case 'module_deactivate_success' :
-				this.showNoticeWhat( 'is-info', 'deactivate success' );
-				break;
-
-			default:
-				return false;
-		}
-	},
-
-	showNoticeWhat: function( type, message ) {
-		this.props.createNotice( type, message );
-	},
-
-	render() {
-		return false;
-	}
-
-} );
-
 const JetpackNotices = React.createClass( {
 	displayName: 'JetpackNotices',
 
@@ -256,7 +201,6 @@ const JetpackNotices = React.createClass( {
 				<DevVersionNotice { ...this.props } />
 				<DevModeNotice { ...this.props } />
 				<StagingSiteNotice { ...this.props } />
-				<ActionNotices { ...this.props } />
 			</div>
 		);
 	}
@@ -267,11 +211,6 @@ export default connect(
 		return {
 			jetpackNotices: _getJetpackNotices( state ),
 			isDismissed: ( notice ) => _isNoticeDismissed( state, notice )
-		};
-	},
-	( dispatch ) => {
-		return {
-			createNotice: ( type, message ) => dispatch( createNotice( type, message ) )
 		};
 	}
 )( JetpackNotices );

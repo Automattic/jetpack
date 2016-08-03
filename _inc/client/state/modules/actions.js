@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+
+/**
  * Internal dependencies
  */
 import {
@@ -16,8 +21,7 @@ import {
 	JETPACK_MODULE_DEACTIVATE_SUCCESS,
 	JETPACK_MODULE_UPDATE_OPTIONS,
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
-
+	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -67,12 +71,16 @@ export const activateModule = ( slug ) => {
 			type: JETPACK_MODULE_ACTIVATE,
 			module: slug
 		} );
+		dispatch( removeNotice( `module-${ slug }` ) );
+		dispatch( createNotice( 'is-info', `Activating ${ slug }...`, { id: `module-${ slug }` } ) );
 		return restApi.activateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_SUCCESS,
 				module: slug,
 				success: true
 			} );
+			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( createNotice( 'is-success', `${ slug } has been activated`, { id: `module-${ slug }` } ) );
 		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_FAIL,
@@ -80,6 +88,8 @@ export const activateModule = ( slug ) => {
 				success: false,
 				error: error
 			} );
+			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( createNotice( 'is-error', `${ slug } failed to activate`, { id: `module-${ slug }` } ) );
 		} );
 	}
 }
@@ -90,12 +100,16 @@ export const deactivateModule = ( slug ) => {
 			type: JETPACK_MODULE_DEACTIVATE,
 			module: slug
 		} );
+		dispatch( removeNotice( `module-${ slug }` ) );
+		dispatch( createNotice( 'is-info', `Deactivating ${ slug }...`, { id: `module-${ slug }` } ) );
 		return restApi.deactivateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_SUCCESS,
 				module: slug,
 				success: true
 			} );
+			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( createNotice( 'is-success', `${ slug } has been deactivated`, { id: `module-${ slug }` } ) );
 		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_FAIL,
@@ -103,6 +117,8 @@ export const deactivateModule = ( slug ) => {
 				success: false,
 				error: error
 			} );
+			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( createNotice( 'is-error', `${ slug } failed to deactivate`, { id: `module-${ slug }` } ) );
 		} );
 	}
 }
