@@ -1,4 +1,10 @@
 /**
+ * External dependencies
+ */
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import { translate as __ } from 'i18n-calypso';
+
+/**
  * Internal dependencies
  */
 import {
@@ -72,16 +78,29 @@ export const disconnectSite = () => {
 		dispatch( {
 			type: DISCONNECT_SITE
 		} );
+		dispatch( createNotice( 'is-info', __( 'Disconnecting Jetpack' ), { id: 'disconnect-jetpack' } ) );
 		return restApi.disconnectSite().then( disconnectingSite => {
 			dispatch( {
 				type: DISCONNECT_SITE_SUCCESS,
 				disconnectingSite: disconnectingSite
 			} );
+			dispatch( removeNotice( 'disconnect-jetpack' ) );
+			dispatch( createNotice( 'is-success', __( 'Jetpack Disconnected.' ), { id: 'disconnect-jetpack' } ) );
 		} )['catch']( error => {
 			dispatch( {
 				type: DISCONNECT_SITE_FAIL,
 				error: error
 			} );
+			dispatch( removeNotice( 'disconnect-jetpack' ) );
+			dispatch( createNotice(
+				'is-error',
+				__( 'There was an error disconnecting Jetpack. Error: %(error)s', {
+					args: {
+						error: error
+					}
+				} ),
+				{ id: 'disconnect-jetpack' }
+			) );
 		} );
 	}
 }

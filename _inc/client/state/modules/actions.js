@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -72,7 +73,15 @@ export const activateModule = ( slug ) => {
 			module: slug
 		} );
 		dispatch( removeNotice( `module-${ slug }` ) );
-		dispatch( createNotice( 'is-info', `Activating ${ slug }...`, { id: `module-${ slug }` } ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Activating %(slug)s', {
+				args: {
+					slug: slug
+				}
+			} ),
+			{ id: `module-${ slug }` }
+		) );
 		return restApi.activateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_SUCCESS,
@@ -80,7 +89,15 @@ export const activateModule = ( slug ) => {
 				success: true
 			} );
 			dispatch( removeNotice( `module-${ slug }` ) );
-			dispatch( createNotice( 'is-success', `${ slug } has been activated`, { id: `module-${ slug }` } ) );
+			dispatch( createNotice(
+				'is-success',
+				__( '%(slug)s has been activated.', {
+					args: {
+						slug: slug
+					}
+				} ),
+				{ id: `module-${ slug }` }
+			) );
 		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_FAIL,
@@ -89,7 +106,16 @@ export const activateModule = ( slug ) => {
 				error: error
 			} );
 			dispatch( removeNotice( `module-${ slug }` ) );
-			dispatch( createNotice( 'is-error', `${ slug } failed to activate`, { id: `module-${ slug }` } ) );
+			dispatch( createNotice(
+				'is-error',
+				__( '%(slug)s failed to activate.  Error: %(error)d', {
+					args: {
+						slug: slug,
+						error: error
+					}
+				} ),
+				{ id: `module-${ slug }` }
+			) );
 		} );
 	}
 }
