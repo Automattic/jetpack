@@ -15,7 +15,7 @@ interface iJetpack_Sync_Replicastore {
 	public function reset();
 
 	// trigger setup for sync start/end
-	public function full_sync_start();
+	public function full_sync_start( $config );
 
 	public function full_sync_end( $checksum );
 
