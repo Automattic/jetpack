@@ -136,7 +136,8 @@ class Jetpack_Sync_Server_Replicator {
 
 			// full sync
 			case 'jetpack_full_sync_start':
-				$this->store->full_sync_start();
+				list( $config ) = $args;
+				$this->store->full_sync_start( $config );
 				break;
 
 			case 'jetpack_full_sync_end':
