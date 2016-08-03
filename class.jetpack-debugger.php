@@ -98,7 +98,7 @@ class Jetpack_Debugger {
 		if( $next_schedules ) {
 			$debug_info .= "\r\n". sprintf( esc_html__( 'Next Jetpack Full Sync Schedule: `%1$s`', 'jetpack' ), date( 'r', $next_schedules ) );
 		} else {
-			$debug_info .= "\r\n". esc_html__( "Next Jetpack Full Sync Schedule: Not Schedules", 'jetpack' );
+			$debug_info .= "\r\n". esc_html__( "Next Jetpack Full Sync Schedule: Not Scheduled", 'jetpack' );
 		}
 
 		require_once JETPACK__PLUGIN_DIR. 'sync/class.jetpack-sync-sender.php';
