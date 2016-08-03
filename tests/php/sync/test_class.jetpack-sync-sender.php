@@ -136,34 +136,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		return $randomString;
 	}
 
-	/**
-	 * We have to run this in a separate process so we can set the constant without
-	 * it interfering with other tests. That's also why we have to reconnect the DB
-	 */
-	function test_queues_cron_job_if_is_importing() {
-		$this->markTestIncomplete( "This works but I haven't found a way to undefine the WP_IMPORTING constant when I'm done :(" );
-
-		$queue = $this->sender->get_sync_queue();
-
-		$this->factory->post->create();
-
-		$pre_sync_queue_size = $queue->size();
-		$this->assertTrue( $pre_sync_queue_size > 0 ); // just to be sure stuff got queued
-
-		define( 'WP_IMPORTING', true );
-
-		$this->sender->do_sync();
-
-		// assert that queue hasn't budged
-		$this->assertEquals( $pre_sync_queue_size, $queue->size() );
-
-		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
-
-		// we're making some assumptions here about how fast the test will run...
-		$this->assertTrue( $timestamp >= time() + 59 );
-		$this->assertTrue( $timestamp <= time() + 61 );
-	}
-
 	function test_rate_limit_how_often_sync_runs_with_option() {
 		$this->sender->do_sync();
 

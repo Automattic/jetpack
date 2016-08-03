@@ -76,4 +76,33 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
 	}
+
+	function test_doesnt_enqueue_incremental_actions_while_importing() {
+		Jetpack_Sync_Settings::set_importing( true );
+
+		$post_id = $this->factory->post->create();
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+
+		$this->assertFalse( $event );
+	}
+
+	function test_does_enqueue_full_sync_actions_while_importing() {
+		// since full sync actions are "silent" on the other end, we can (and should) allow
+		// them to be enqueued
+
+		Jetpack_Sync_Settings::set_importing( true );
+
+		$post_id = $this->factory->post->create();
+
+		Jetpack_Sync_Modules::get_module( 'posts' )->enqueue_full_sync_actions( true );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'wp_insert_post' ) );
+		$this->assertTrue( is_object ( $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' ) ) );
+		
+	}
 }

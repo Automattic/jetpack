@@ -36,8 +36,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$this->setSyncClientDefaults();
 
-		$server       = new Jetpack_Sync_Server();
-		$this->server = $server;
+		$this->server = new Jetpack_Sync_Server();
 
 		// bind the sender to the server
 		remove_all_filters( 'jetpack_sync_send_data' );
@@ -131,5 +130,10 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		// we need to check a while in the past because the task got scheduled at 
 		// the beginning of the entire test run, not at the beginning of this test :)
 		$this->assertTrue( $timestamp > time()-HOUR_IN_SECONDS );
+	}
+
+	function test_enqueues_full_sync_after_import() {
+		do_action( 'import_end' );
+		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full' ) !== false );
 	}
 }
