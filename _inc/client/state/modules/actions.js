@@ -156,6 +156,16 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 			module: slug,
 			newOptionValues
 		} );
+		dispatch( removeNotice( `module-setting-${ slug }` ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Updating %(slug)s settings.', {
+				args: {
+					slug: slug
+				}
+			} ),
+			{ id: `module-setting-${ slug }` }
+		) );
 		return restApi.updateModuleOptions( slug, newOptionValues ).then( success => {
 			dispatch( {
 				type: JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
@@ -163,6 +173,16 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 				newOptionValues,
 				success: success
 			} );
+			dispatch( removeNotice( `module-setting-${ slug }` ) );
+			dispatch( createNotice(
+				'is-success',
+				__( 'Updated %(slug)s settings.', {
+					args: {
+						slug: slug
+					}
+				} ),
+				{ id: `module-setting-${ slug }` }
+			) );
 		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
@@ -171,6 +191,17 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 				error: error,
 				newOptionValues
 			} );
+			dispatch( removeNotice( `module-setting-${ slug }` ) );
+			dispatch( createNotice(
+				'is-error',
+				__( 'Error updating %(slug) settings. %(error)d', {
+					args: {
+						slug: slug,
+						error: error
+					}
+				} ),
+				{ id: `module-setting-${ slug }` }
+			) );
 		} );
 	}
 }
