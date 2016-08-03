@@ -131,4 +131,9 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		// the beginning of the entire test run, not at the beginning of this test :)
 		$this->assertTrue( $timestamp > time()-HOUR_IN_SECONDS );
 	}
+
+	function test_enqueues_full_sync_after_import() {
+		do_action( 'import_end' );
+		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full' ) !== false );
+	}
 }
