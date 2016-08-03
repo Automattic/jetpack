@@ -33,3 +33,5 @@ window.versionNotice = Server.renderToStaticMarkup(
 			<StaticWarning />
 		</Provider>
 	);
+
+window.ieNotice = "<!--[if lte IE 10]>" + window.versionNotice + "<![endif]-->";

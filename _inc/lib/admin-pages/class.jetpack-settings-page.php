@@ -22,6 +22,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		$static_html = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
 		$noscript_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
 		$version_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
+		$ie_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-ie-notice.html' );
 
 		$noscript_notice = str_replace(
 			'#HEADER_TEXT#',
@@ -45,6 +46,17 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			$version_notice
 		);
 
+		$ie_notice = str_replace(
+			'#HEADER_TEXT#',
+			esc_html( __( 'You are using an unsupported browser version.', 'jetpack' ) ),
+			$ie_notice
+		);
+		$ie_notice = str_replace(
+			'#TEXT#',
+			esc_html( __( "Update your browser to unlock Jetpack's full potential!", 'jetpack' ) ),
+			$ie_notice
+		);
+
 		ob_start();
 
 		$this->admin_page_top();
@@ -53,6 +65,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			echo $version_notice;
 		}
 		echo $noscript_notice;
+		echo $ie_notice;
 		?>
 
 		<div class="page-content configure">
