@@ -395,7 +395,7 @@ abstract class SAL_Site {
 	}
 
 	function get_unmapped_url() {
-		return get_site_url( $this->blog_id );
+		return get_site_url( get_current_blog_id() );
 	}
 
 	function get_theme_slug() {
