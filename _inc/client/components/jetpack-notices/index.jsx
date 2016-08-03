@@ -21,68 +21,6 @@ import {
 	dismissJetpackNotice
 } from 'state/jetpack-notices';
 
-/**
- * Welcome Notice for 1st time connections.
- * Decided not to show this.  See https://github.com/Automattic/jetpack/issues/4082
- */
-export const WelcomeNotice = React.createClass( {
-	displayName: 'WelcomeNotice',
-	getInitialState: function() {
-		return { showNotice: true };
-	},
-
-	dismissWelcomeNotice: function() {
-		this.setState( { showNotice: false } );
-	},
-
-	propTypes: {
-		jumpstarted: React.PropTypes.bool
-	},
-
-	getDefaultProps() {
-		return {
-			jumpstarted: false
-		};
-	},
-
-	getWelcomeMessageText: function() {
-		if ( this.props.jumpstarted ) {
-			return(
-				__( 'Great choice! By Jumpstarting your site, you have unlocked even more power of wordpress.com! {{a}}Learn more{{/a}}', {
-					components: {
-						a: <a href={ 'https://jetpack.com/support/' } target="_blank" />
-					}
-				} )
-			);
-		} else {
-			return(
-				__( 'Welcome to your Jetpack dashboard! Now you can quickly manage all of Jetpack’s great features from one central location. {{a}}Learn more{{/a}}.', {
-					components: {
-						a: <a href={ 'https://jetpack.com/support/' } target="_blank" />
-					}
-				} )
-			);
-		}
-	},
-
-	render() {
-		if ( ! this.state.showNotice ) {
-			return false;
-		}
-		return (
-			<div>
-				<SimpleNotice
-					status="is-info"
-					onDismissClick={ this.dismissWelcomeNotice }
-				>
-					{ this.getWelcomeMessageText() }
-				</SimpleNotice>
-			</div>
-		);
-	}
-
-} );
-
 export const DevVersionNotice = React.createClass( {
 	displayName: 'DevVersionNotice',
 
