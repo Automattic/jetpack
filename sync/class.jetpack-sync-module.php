@@ -96,12 +96,20 @@ abstract class Jetpack_Sync_Module {
 			return array();
 		}
 
-		return $wpdb->get_results( "SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )', OBJECT );
+		return array_map( 
+			array( $this, 'unserialize_meta' ), 
+			$wpdb->get_results( "SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )', OBJECT ) 
+		);
 	}
 
 	protected function get_term_relationships( $ids ) {
 		global $wpdb;
 
 		return $wpdb->get_results( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE object_id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )', OBJECT );
+	}
+
+	public function unserialize_meta( $meta ) {
+		$meta->meta_value = maybe_unserialize( $meta->meta_value );
+		return $meta;
 	}
 }
