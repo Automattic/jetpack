@@ -85,7 +85,6 @@ export const disconnectSite = () => {
 				disconnectingSite: disconnectingSite
 			} );
 			dispatch( removeNotice( 'disconnect-jetpack' ) );
-			dispatch( createNotice( 'is-success', __( 'Jetpack Disconnected.' ), { id: 'disconnect-jetpack' } ) );
 		} )['catch']( error => {
 			dispatch( {
 				type: DISCONNECT_SITE_FAIL,
