@@ -532,7 +532,7 @@ class WPCOM_JSON_API {
 
 	// Returns the site's blog_id in the WP.com ecosystem
 	function get_blog_id_for_output() {
-		return  $this->token_details['blog_id'];
+		return $this->token_details['blog_id'];
 	}
 
 	// Returns the site's local blog_id
