@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import NoticesList from 'components/global-notices';
+import { createNotice } from 'components/global-notices/state/notices/actions';
 
 /**
  * Internal dependencies
@@ -204,36 +205,45 @@ export const DevModeNotice = React.createClass( {
 export const ActionNotices = React.createClass( {
 	displayName: 'ActionNotices',
 
-	render() {
-		const notices = this.props.jetpackNotices( this.props );
+	componentDidMount() {
+		this.showModuleActivationNotices( this.props.jetpackNotices );
+	},
 
-		switch ( notices ) {
-			case 'disconnected' :
-				return (
-					<div>
-						<SimpleNotice>
-							{ __( 'You have successfully disconnected Jetpack' ) }
-							<br />
-							{
-								__(	'Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack.',
-									{
-										components: {
-											a: <a href="https://jetpack.com/survey-disconnected/" target="_blank" />
-										}
-									}
-								)
-							}
-						</SimpleNotice>
-					</div>
-				);
+	componentWillUpdate( nextProps ) {
+		this.showModuleActivationNotices( nextProps.jetpackNotices );
+	},
+
+	showModuleActivationNotices( jetpackNotices ) {
+		console.log( jetpackNotices );
+
+		switch ( jetpackNotices ) {
+			case 'module_activate' :
+				this.showNoticeWhat( 'is-info', 'activate' );
+				break;
+			case 'module_activate_success' :
+				this.showNoticeWhat( 'is-info', 'activate success' );
+				break;
+			case 'module_deactivate' :
+				this.showNoticeWhat( 'is-info', 'deactivate' );
+				break;
+			case 'module_deactivate_success' :
+				this.showNoticeWhat( 'is-info', 'deactivate success' );
+				break;
 
 			default:
 				return false;
 		}
+	},
+
+	showNoticeWhat: function( type, message ) {
+		this.props.createNotice( type, message );
+	},
+
+	render() {
+		return false;
 	}
 
 } );
-
 
 const JetpackNotices = React.createClass( {
 	displayName: 'JetpackNotices',
@@ -255,8 +265,13 @@ const JetpackNotices = React.createClass( {
 export default connect(
 	state => {
 		return {
-			jetpackNotices: () => _getJetpackNotices( state ),
+			jetpackNotices: _getJetpackNotices( state ),
 			isDismissed: ( notice ) => _isNoticeDismissed( state, notice )
+		};
+	},
+	( dispatch ) => {
+		return {
+			createNotice: ( type, message ) => dispatch( createNotice( type, message ) )
 		};
 	}
 )( JetpackNotices );
