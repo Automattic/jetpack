@@ -53,22 +53,48 @@ class Jetpack {
 	);
 
 	public $plugins_to_deactivate = array(
-		'stats'               => array( 'stats/stats.php', 'WordPress.com Stats' ),
-		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
-		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
-		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
-		'after-the-deadline'  => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
-		'contact-form'        => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
-		'contact-form'        => array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
-		'custom-css'          => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
-		'random-redirect'     => array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
-		'videopress'          => array( 'video/video.php', 'VideoPress' ),
-		'widget-visibility'   => array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
-		'widget-visibility'   => array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
-		'sharedaddy'          => array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
-		'omnisearch'          => array( 'jetpack-omnisearch/omnisearch.php', 'Jetpack Omnisearch' ),
-		'gravatar-hovercards' => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
-		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
+		'stats'               => array(
+			array( 'stats/stats.php', 'WordPress.com Stats' ),
+		),
+		'shortlinks'          => array(
+			array( 'stats/stats.php', 'WordPress.com Stats' ),
+		),
+		'sharedaddy'          => array(
+			array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
+			array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
+		),
+		'twitter-widget'      => array(
+			array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
+		),
+		'after-the-deadline'  => array(
+			array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
+		),
+		'contact-form'        => array(
+			array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
+			array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
+		),
+		'custom-css'          => array(
+			array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
+		),
+		'random-redirect'     => array(
+			array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
+		),
+		'videopress'          => array(
+			array( 'video/video.php', 'VideoPress' ),
+		),
+		'widget-visibility'   => array(
+			array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
+			array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
+		),
+		'omnisearch'          => array(
+			array( 'jetpack-omnisearch/omnisearch.php', 'Jetpack Omnisearch' ),
+		),
+		'gravatar-hovercards' => array(
+			array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
+		),
+		'latex'               => array(
+			array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
+		)
 	);
 
 	static $capability_translations = array(
