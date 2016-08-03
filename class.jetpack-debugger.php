@@ -286,7 +286,7 @@ class Jetpack_Debugger {
 					?>
 					<div class="formbox">
 						<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
-						<textarea name="message" cols="40" rows="7" id="did"></textarea>
+						<textarea name="message" cols="40" rows="7" id="did"><?php echo ( isset( $_GET['note'] ) ? esc_textarea( $_GET['note'] ) : '' ); ?></textarea>
 					</div>
 
 					<div id="name_div" class="formbox">
@@ -314,7 +314,7 @@ class Jetpack_Debugger {
 
 					<div id="blog_div" class="formbox">
 						<div id="submit_div" class="contact-support">
-						<input type="submit" name="submit" value="<?php esc_html_e( 'Submit &#187;', 'jetpack' ); ?>">
+						<input type="submit" name="submit" class="button button-primary button-large" value="<?php esc_html_e( 'Submit &#187;', 'jetpack' ); ?>">
 						</div>
 					</div>
 					<div style="clear: both;"></div>
@@ -376,13 +376,11 @@ class Jetpack_Debugger {
 
 			form#contactme {
 				border: 1px solid #dfdfdf;
-				background: #eaf3fa;
+				background: #FFF;
 				padding: 20px;
 				margin: 10px;
-				background-color: #eaf3fa;
-				border-radius: 5px;
+				background-color: #F3F6F8;
 				font-size: 15px;
-				font-family: "Open Sans", "Helvetica Neue", sans-serif;
 			}
 
 			form#contactme label.h {
@@ -399,7 +397,6 @@ class Jetpack_Debugger {
 
 			.formbox input[type="text"], .formbox input[type="email"], .formbox input[type="url"], .formbox textarea, #debug_info_div {
 				border: 1px solid #e5e5e5;
-				border-radius: 11px;
 				box-shadow: inset 0 1px 1px rgba(0,0,0,0.1);
 				color: #666;
 				font-size: 14px;
@@ -411,25 +408,6 @@ class Jetpack_Debugger {
 				margin-top: 16px;
 				background: #FFF;
 				padding: 16px;
-			}
-			.formbox .contact-support input[type="submit"] {
-				float: right;
-				margin: 0 !important;
-				border-radius: 20px !important;
-				cursor: pointer;
-				font-size: 13pt !important;
-				height: auto !important;
-				margin: 0 0 2em 10px !important;
-				padding: 8px 16px !important;
-				background-color: #ddd;
-				border: 1px solid rgba(0,0,0,0.05);
-				border-top-color: rgba(255,255,255,0.1);
-				border-bottom-color: rgba(0,0,0,0.15);
-				color: #333;
-				font-weight: 400;
-				display: inline-block;
-				text-align: center;
-				text-decoration: none;
 			}
 
 			.formbox span.errormsg {
