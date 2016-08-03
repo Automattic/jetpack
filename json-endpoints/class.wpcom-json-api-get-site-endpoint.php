@@ -171,7 +171,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			array_intersect( $default_fields, $this->fields_to_include ) :
 			$default_fields;
 
-		if ( ! is_user_member_of_blog( get_current_user(), $blog_id ) ) {
+		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 			$response_keys = array_intersect( $response_keys, self::$no_member_fields );
 		}
 
@@ -459,7 +459,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$response->{ $key } = $value;
 		}
 
-		if ( is_user_member_of_blog( get_current_user(), $response->ID ) ) {
+		$token_details = (object) $this->api->token_details;
+		if ( is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) || 'blog' === $token_details->access ) {
 			$wpcom_member_response = $this->render_response_keys( self::$jetpack_response_field_member_additions );
 
 			foreach( $wpcom_member_response as $key => $value ) {

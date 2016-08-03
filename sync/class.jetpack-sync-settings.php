@@ -15,6 +15,8 @@ class Jetpack_Sync_Settings {
 		'max_queue_lag'       => true,
 	);
 
+	static $is_importing;
+
 	static function get_settings() {
 		$settings = array();
 		foreach ( array_keys( self::$valid_settings ) as $setting ) {
@@ -55,5 +57,19 @@ class Jetpack_Sync_Settings {
 		foreach ( $valid_settings as $option => $value ) {
 			delete_option( $settings_prefix . $option );
 		}
+		self::set_importing( null );
+	}
+
+	static function set_importing( $is_importing ) {
+		// set to NULL to revert to WP_IMPORTING, the standard behaviour
+		self::$is_importing = $is_importing;
+	}
+
+	static function is_importing() {
+		if ( ! is_null( self::$is_importing ) ) {
+			return self::$is_importing;
+		}
+
+		return defined( 'WP_IMPORTING' ) && WP_IMPORTING;
 	}
 }
