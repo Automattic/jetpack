@@ -17,6 +17,9 @@ class Jetpack_Sync_Actions {
 
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
+		
+		// When imports are finished, schedule a full sync
+		add_action( 'import_end', array( __CLASS__, 'schedule_full_sync' ) );
 
 		// Sync connected user role changes to .com
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
@@ -133,7 +136,12 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function schedule_full_sync( $modules = null ) {
-		wp_schedule_single_event( time() + 1, 'jetpack_sync_full', array( $modules ) );
+		if ( $modules ) {
+			wp_schedule_single_event( time() + 1, 'jetpack_sync_full', array( $modules ) );
+		} else {
+			wp_schedule_single_event( time() + 1, 'jetpack_sync_full' );
+		}
+
 		spawn_cron();
 	}
 

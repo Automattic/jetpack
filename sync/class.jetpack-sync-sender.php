@@ -268,6 +268,7 @@ class Jetpack_Sync_Sender {
 		$this->codec      = new Jetpack_Sync_JSON_Deflate_Codec();
 
 		// saved settings
+		Jetpack_Sync_Settings::set_importing( null );
 		$settings = Jetpack_Sync_Settings::get_settings();
 		$this->set_dequeue_max_bytes( $settings['dequeue_max_bytes'] );
 		$this->set_upload_max_bytes( $settings['upload_max_bytes'] );
