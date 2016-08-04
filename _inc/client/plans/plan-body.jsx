@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 
@@ -9,6 +10,13 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import { imagePath } from 'constants';
+import {
+	fetchPluginsData,
+	isFetchingPluginsData,
+	isPluginActive,
+	isPluginInstalled
+} from 'state/site/plugins';
+import QuerySitePlugins from 'components/data/query-site-plugins';
 
 const PlanBody = React.createClass( {
 	render() {
@@ -25,10 +33,10 @@ const PlanBody = React.createClass( {
 							<h3 className="jp-landing__plan-features-title">{ __( 'Need more?' ) }</h3>
 							<p>{ __( 'Jetpack Professional offers more features.' ) }</p>
 							<p>
-								<Button href={ 'https://wordpress.com/plans/compare/' + window.Initial_State.rawUrl }>
+								<Button href={ 'https://wordpress.com/plans/compare/' + this.props.siteRawUrl }>
 									{ __( 'Compare Plans' ) }
 								</Button>
-								<Button href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } className="is-primary">
+								<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
 									{ __( 'Upgrade to Professional' ) }
 								</Button>
 							</p>
@@ -40,9 +48,20 @@ const PlanBody = React.createClass( {
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Jetpack Anti-spam' ) }</h3>
 							<p>{ __( 'Bulletproof spam filtering help maintain peace of mind while you build and grow your site.' ) }</p>
-							<Button href={ window.Initial_State.adminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
-								{ __( 'View your spam stats' ) }
-							</Button>
+							{
+								this.props.isFetchingPluginsData ? '' :
+									this.props.isPluginInstalled( 'akismet/akismet.php' )
+									&& this.props.isPluginActive( 'akismet/akismet.php' ) ? (
+										<Button href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
+											{ __( 'View your spam stats' ) }
+										</Button>
+									)
+									: (
+										<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl } className="is-primary">
+											{ __( 'Configure Akismet' ) }
+										</Button>
+									)
+							}
 						</div>
 
 						<div className="jp-landing__plan-features-card">
@@ -100,10 +119,24 @@ const PlanBody = React.createClass( {
 		}
 		return (
 			<div>
+				<QuerySitePlugins />
 				{ planCard	}
 			</div>
 		);
 	}
 } );
 
-export default PlanBody;
+export default connect(
+	( state ) => {
+		return {
+			isFetchingPluginsData: isFetchingPluginsData( state ),
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
+		};
+	},
+	( dispatch ) => {
+		return {
+			fetchPluginsData: () => dispatch( fetchPluginsData() )
+		};
+	}
+)( PlanBody );

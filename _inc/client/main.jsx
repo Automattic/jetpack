@@ -17,7 +17,7 @@ import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
 import { getJumpStartStatus } from 'state/jumpstart';
 import { getSiteConnectionStatus } from 'state/connection';
-import { setInitialState } from 'state/initial-state';
+import { setInitialState, getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
 import Security from 'security/index.jsx';
@@ -71,7 +71,7 @@ const Main = React.createClass( {
 				pageComponent = <Apps { ...this.props } />;
 				break;
 			case '/professional':
-				pageComponent = <Plans { ...this.props } />;
+				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } { ...this.props } />;
 				break;
 			case '/settings':
 				navComponent = <NavigationSettings { ...this.props } />;
@@ -135,7 +135,9 @@ const Main = React.createClass( {
 export default connect(
 	state => {
 		return assign( {}, state, {
-			getJumpStartStatus: getJumpStartStatus( state )
+			getJumpStartStatus: getJumpStartStatus( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			siteAdminUrl: getSiteAdminUrl( state )
 		} );
 	},
 	dispatch => bindActionCreators( { setInitialState }, dispatch )
