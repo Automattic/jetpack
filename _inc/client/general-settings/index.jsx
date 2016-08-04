@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
@@ -78,14 +77,14 @@ export const Page = ( props ) => {
 					disabled={ ! isAdmin }
 				>
 					<ConnectionSettings { ...props } />
-				</FoldableCard>: ''
+				</FoldableCard> : ''
 			}
 			{ isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' ) }
 			{ moduleCard( 'notes' ) }
 			{ moduleCard( 'json-api' ) }
 			<FoldableCard
-				header={ __( 'Miscellaneous Settings' ) }
-				subheader={ __( 'Manage Snow and other fun things for your site.' ) }
+				header={ __( 'Holiday Snow' ) }
+				subheader={ __( 'Show falling snow in the holiday period.' ) }
 				clickableHeaderText={ true }
 				disabled={ ! isAdmin }
 			>

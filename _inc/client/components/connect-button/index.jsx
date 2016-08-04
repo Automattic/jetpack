@@ -81,7 +81,7 @@ const ConnectButton = React.createClass( {
 				<Button
 					onClick={ this.disconnectSite }
 					disabled={ disconnecting }>
-					{ __( 'Disconnect site from WordPress.com ') }
+					{ __( 'Disconnect Jetpack') }
 				</Button>
 			);
 		}
