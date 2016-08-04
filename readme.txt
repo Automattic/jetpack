@@ -75,6 +75,37 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.2 =
+
+Bug Fixes:
+
+* Compatibility: avoid PHP notices in the Woocommerce plugin wizard screen. #4473
+* Infinite Scroll: do not load theme compatibility stylesheets on the default theme's singular views. #4236
+* General: make sure Debug tests are sent along to the Jetpack support team when using the contact form in the Jetpack Debug menu. #4398
+* Notifications: avoid PHP notices when moderating comments. #4208
+* Publicize: fix PHP notices when publishing posts via Cron. #4524
+* Security: more changes to harden Jetpack security by implementing the `hash_equals()` function in an effort to avoid timing attacks when comparing strings. #4531
+* Sharing: we fixed inconsistent horizontal spacing between the buttons when using the official buttons. #4317
+* Shortcodes: we updated the Cartodb shortcode to match the new product name, Carto. #4351
+* Shortcodes: When using the YouTube shortcode, we now use the content width defined by the theme when available, even if an embed size was defined in an old version of WordPress. #4420
+* Sitemaps: we fixed some PHP warnings in the sitemaps' stylesheets. #4362
+* Theme Tools: avoid warnings when Tonesque processes a file which claims to be one filetype, but are actually another. #3741
+* Theme Tools: avoid PHP notices when using Random Redirect, and when the author wasn't set. #4584
+
+Enhancements:
+
+* Breadcrumbs: add support for hierarchical post types and taxonomies. #3323
+* Carousel: each Carousel view is now tracked in Stats. #3638
+* Custom Content Types: add the Portfolio Post Type to the WordPress.com REST API whitelist. #4401
+* Custom CSS: we added support for the `font-feature-settings` property in the Custom CSS editor. This will allow you to customize advanced typographic settings like ligatures. #4371
+* General: we've completely refactored the way information was synchronized between your site and WordPress.com, thus ensuring every module uses information that's up to date.
+* Infinite Scroll: improve user experience when there are no more entries to load. #3553
+* Performance: we've reduced the number of queries typically run on both the front end and the dashboard, to improve overall performance. #4281, #4316
+* Performance: we've improved the way Jetpack queried for information about module data, to execute less queries to get Jetpack options. #4315
+* Staging: Added WP Stagecoach as a known staging site provider so those staging sites will not impact production sites. #4518
+* Shortcodes: new parameters for the Dailymotion shortcode. #4103
+* Widgets: allow site owners to enter a Google Maps API Key in the Contact Info Widget settings. This is now required by Google if one wants to display a map. More info [here](https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/). #4242 and #4562
+
 = 4.1.1 =
 
 * Release date: July 7th, 2016
