@@ -1,4 +1,5 @@
 <?php
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -20,6 +21,9 @@ class Jetpack_Sync_Actions {
 		
 		// When imports are finished, schedule a full sync
 		add_action( 'import_end', array( __CLASS__, 'schedule_full_sync' ) );
+
+		// When importing via cron, do not sync
+		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
 		// Sync connected user role changes to .com
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
@@ -101,6 +105,10 @@ class Jetpack_Sync_Actions {
 	static function sync_allowed() {
 		return ( Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
+	}
+
+	static function set_is_importing_true() {
+		Jetpack_Sync_Settings::set_importing( true );
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id ) {
