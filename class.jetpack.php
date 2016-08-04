@@ -1322,13 +1322,15 @@ class Jetpack {
 	}
 
 	public static function show_sync_lag_notice() {
-		if ( ! class_exists( 'Jetpack_Sync_Queue' ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-queue.php';
+		if ( ! Jetpack::is_active() && Jetpack::is_staging_site() && Jetpack::is_development_mode() ) {
+			return;
 		}
 
-		if ( Jetpack::is_active() &&
-		     ! Jetpack::is_staging_site() &&
-		     Jetpack_Sync_Queue::get_lag( 'sync' )  > DAY_IN_SECONDS * 1000000 ) { // Display notice if the lag is large then 24 hours.
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-listener.php';
+		$listener = Jetpack_Sync_Listener::get_instance();
+		$queue = $listener->get_sync_queue();
+
+		if ( ! $listener->can_add_to_queue( $queue ) ) { // Display notice if the lag is large then 24 hours.
 			$contact_url = admin_url( "admin.php?page=jetpack-debugger&contact=1&note=Jetpack is not able to talk to WordPress.com." );
 			$notice = sprintf(
 				__( 'Oh no! Jetpack is unable to communicate with WordPress.com. This affects a number of features you may be using. Please check your server logs for errors and <a href="%s">contact Jetpack support</a>.', 'jetpack' ),
