@@ -53,6 +53,7 @@ export const EngagementModulesSettings = React.createClass( {
 				return ( <VerificationToolsSettings module={ module } { ...this.props } /> );
 			case 'notifications':
 			case 'enhanced-distribution':
+			case 'sitemaps':
 				return <span>{ __( 'This module has no configuration options' ) } </span>;
 			case 'publicize':
 			default:
@@ -80,7 +81,7 @@ export const SecurityModulesSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<a href={ module.configure_url }>{ __( 'Settings' ) }</a>
+						<Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
 					</div>
 				);
 		}
@@ -107,7 +108,7 @@ export const AppearanceModulesSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<a href={ module.configure_url }>{ __( 'Settings' ) }</a>
+						<Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
 					</div>
 				);
 		}
@@ -134,7 +135,7 @@ export const WritingModulesSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<a href={ module.configure_url }>{ __( 'Settings' ) }</a>
+						<Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
 					</div>
 				);
 		}
