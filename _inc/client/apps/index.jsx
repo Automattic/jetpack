@@ -44,10 +44,10 @@ const Apps = ( props ) => {
 						<img src={ imagePath + '/apps/manage2x.png' } />
 					</div>
 					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
-						<h3 className="jp-landing__apps-feature-title">{ __( 'Secure & Manage' ) }</h3>
+						<h3 className="jp-landing__apps-feature-title">{ __( 'Bulk and automatic updates' ) }</h3>
 						<p className="jp-landing__apps-feature-text">{ __( 'Most security flaws are found in outdated plugins. Use our Web and Desktop apps to turn on auto-updates or update plugins manually for all your websites in one convenient place.' ) }</p>
 						<Button href={ 'https://wordpress.com/plugins/' + window.Initial_State.rawUrl }	className="is-primary">
-							{ __( 'Manage on WordPress.com' ) }
+							{ __( 'Manage Plugins' ) }
 						</Button>
 					</div>
 				</div>
@@ -57,7 +57,7 @@ const Apps = ( props ) => {
 						<h3 className="jp-landing__apps-feature-title">{ __( 'Focus on your Writing' ) }</h3>
 						<p className="jp-landing__apps-feature-text">{ __( 'Our new editor is lightning fast, optimized for writers and eliminates distractions, giving you the ability to focus on your work.' ) }</p>
 						<Button href={ 'https://wordpress.com/post/' + window.Initial_State.rawUrl }	className="is-primary">
-							{ __( 'Write on WordPress.com' ) }
+							{ __( 'Try the New Editor' ) }
 						</Button>
 					</div>
 					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
@@ -75,7 +75,7 @@ const Apps = ( props ) => {
 								<h2>{ __( 'Connect with your Visitors' ) }</h2>
 								<p>{ __( 'Monitor your visitors with advanced stats. Watch for trends, learn what content performs the best and understand your visitors from anywhere in the world.' ) }</p>
 								<Button href={ 'https://wordpress.com/stats/' + window.Initial_State.rawUrl }	className="is-primary">
-									{ __( 'View Stats on WordPress.com' ) }
+									{ __( 'View Your Stats' ) }
 								</Button>
 							</div>
 						</div>
@@ -98,7 +98,7 @@ const Apps = ( props ) => {
 						<h2>{ __( 'Connect with the Community' ) }</h2>
 						<p>{ __( 'The WordPress apps all have impressively fast and full featured readers so you can catch up with your favorite sites and join the conversation anywhere, any time.' ) }</p>
 						<Button href={ 'https://wordpress.com/reader' }	className="is-primary">
-							{ __( 'Browse WordPress.com' ) }
+							{ __( 'Launch Reader' ) }
 						</Button>
 					</div>
 					{
