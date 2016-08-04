@@ -620,11 +620,11 @@ export let AfterTheDeadlineSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'Cliches' }
 						{ ...this.props }
-						label={ __( 'Cliches' ) } />
+						label={ __( 'Clichés' ) } />
 					<ModuleSettingCheckbox
 						name={ 'Complex Expression' }
 						{ ...this.props }
-						label={ __( 'Complex Expression' ) } />
+						label={ __( 'Complex Phrases' ) } />
 					<ModuleSettingCheckbox
 						name={ 'Diacritical Marks' }
 						{ ...this.props }
@@ -632,7 +632,7 @@ export let AfterTheDeadlineSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'Double Negative' }
 						{ ...this.props }
-						label={ __( 'Double Negative' ) } />
+						label={ __( 'Double Negatives' ) } />
 					<ModuleSettingCheckbox
 						name={ 'Hidden Verbs' }
 						{ ...this.props }
@@ -640,11 +640,11 @@ export let AfterTheDeadlineSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'Jargon Language' }
 						{ ...this.props }
-						label={ __( 'Jargon Language' ) } />
+						label={ __( 'Jargon' ) } />
 					<ModuleSettingCheckbox
 						name={ 'Passive voice' }
 						{ ...this.props }
-						label={ __( 'Passive voice' ) } />
+						label={ __( 'Passive Voice' ) } />
 					<ModuleSettingCheckbox
 						name={ 'Phrases to Avoid' }
 						{ ...this.props }
@@ -652,7 +652,7 @@ export let AfterTheDeadlineSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'Redundant Expression' }
 						{ ...this.props }
-						label={ __( 'Redundant Expression' ) } />
+						label={ __( 'Redundant Phrases' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend> { __( 'Language: The proofreader supports English, French, ' +
