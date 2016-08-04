@@ -24,6 +24,7 @@ import {
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
 } from 'state/action-types';
+import { getModule } from 'state/modules';
 import restApi from 'rest-api';
 
 export const fetchModules = () => {
@@ -67,7 +68,7 @@ export const fetchModule = () => {
 }
 
 export const activateModule = ( slug ) => {
-	return ( dispatch ) => {
+	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_ACTIVATE,
 			module: slug
@@ -75,9 +76,9 @@ export const activateModule = ( slug ) => {
 		dispatch( removeNotice( `module-${ slug }` ) );
 		dispatch( createNotice(
 			'is-info',
-			__( 'Activating %(slug)s', {
+			__( 'Activating %(slug)s…', {
 				args: {
-					slug: slug
+					slug: getModule( getState(), slug ).name
 				}
 			} ),
 			{ id: `module-${ slug }` }
@@ -93,7 +94,7 @@ export const activateModule = ( slug ) => {
 				'is-success',
 				__( '%(slug)s has been activated.', {
 					args: {
-						slug: slug
+						slug: getModule( getState(), slug ).name
 					}
 				} ),
 				{ id: `module-${ slug }` }
@@ -110,7 +111,7 @@ export const activateModule = ( slug ) => {
 				'is-error',
 				__( '%(slug)s failed to activate.  Error: %(error)d', {
 					args: {
-						slug: slug,
+						slug: getModule( getState(), slug ).name,
 						error: error
 					}
 				} ),
@@ -121,13 +122,21 @@ export const activateModule = ( slug ) => {
 }
 
 export const deactivateModule = ( slug ) => {
-	return ( dispatch ) => {
+	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_DEACTIVATE,
 			module: slug
 		} );
 		dispatch( removeNotice( `module-${ slug }` ) );
-		dispatch( createNotice( 'is-info', `Deactivating ${ slug }...`, { id: `module-${ slug }` } ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Deactivating %(slug)s…', {
+				args: {
+					slug: getModule( getState(), slug ).name
+				}
+			} ),
+			{ id: `module-${ slug }` }
+		) );
 		return restApi.deactivateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_SUCCESS,
@@ -135,7 +144,15 @@ export const deactivateModule = ( slug ) => {
 				success: true
 			} );
 			dispatch( removeNotice( `module-${ slug }` ) );
-			dispatch( createNotice( 'is-success', `${ slug } has been deactivated`, { id: `module-${ slug }` } ) );
+			dispatch( createNotice(
+				'is-success',
+				__( '%(slug)s has been deactivated.', {
+					args: {
+						slug: getModule( getState(), slug ).name
+					}
+				} ),
+				{ id: `module-${ slug }` }
+			) );
 		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_FAIL,
@@ -144,13 +161,22 @@ export const deactivateModule = ( slug ) => {
 				error: error
 			} );
 			dispatch( removeNotice( `module-${ slug }` ) );
-			dispatch( createNotice( 'is-error', `${ slug } failed to deactivate`, { id: `module-${ slug }` } ) );
+			dispatch( createNotice(
+				'is-error',
+				__( '%(slug)s failed to deactivate. %(error)d', {
+					args: {
+						slug: getModule( getState(), slug ).name,
+						error: error
+					}
+				} ),
+				{ id: `module-${ slug }` }
+			) );
 		} );
 	}
 }
 
 export const updateModuleOptions = ( slug, newOptionValues ) => {
-	return ( dispatch ) => {
+	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_UPDATE_OPTIONS,
 			module: slug,
@@ -159,9 +185,9 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 		dispatch( removeNotice( `module-setting-${ slug }` ) );
 		dispatch( createNotice(
 			'is-info',
-			__( 'Updating %(slug)s settings.', {
+			__( 'Updating %(slug)s settings…', {
 				args: {
-					slug: slug
+					slug: getModule( getState(), slug ).name
 				}
 			} ),
 			{ id: `module-setting-${ slug }` }
@@ -178,7 +204,7 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 				'is-success',
 				__( 'Updated %(slug)s settings.', {
 					args: {
-						slug: slug
+						slug: getModule( getState(), slug ).name
 					}
 				} ),
 				{ id: `module-setting-${ slug }` }
@@ -196,7 +222,7 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 				'is-error',
 				__( 'Error updating %(slug) settings. %(error)d', {
 					args: {
-						slug: slug,
+						slug: getModule( getState(), slug ).name,
 						error: error
 					}
 				} ),
