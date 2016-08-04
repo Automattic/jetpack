@@ -1330,7 +1330,10 @@ class Jetpack {
 		     ! Jetpack::is_staging_site() &&
 		     Jetpack_Sync_Queue::get_lag( 'sync' )  > DAY_IN_SECONDS * 1000000 ) { // Display notice if the lag is large then 24 hours.
 			$contact_url = admin_url( "admin.php?page=jetpack-debugger&contact=1&note=Jetpack is not able to talk to WordPress.com." );
-			$notice = sprintf( __( 'Oh no, Jetpack is not able to communicate with WordPress.com. Please check your error logs for errors or <a href="%s">contact support</a>.', 'jetpack' ), $contact_url );
+			$notice = sprintf(
+				__( 'Oh no! Jetpack is unable to communicate with WordPress.com. This affects a number of features you may be using. Please check your server logs for errors and <a href="%s">contact Jetpack support</a>.', 'jetpack' ),
+				esc_url( $contact_url )
+			);
 			echo '<div class="error" style="border-color: #dc3232;"><p>' . $notice . '</p></div>';
 		}
 	}
