@@ -19,7 +19,7 @@ const PlanHeader = React.createClass( {
 				starrySky = (
 					<div className="jp-landing-plans__header">
 						<h2 className="jp-landing-plans__header-title">
-							{ __( 'World class security and publishing tools.' ) }
+							{ __( 'Powerful security tools for ultimate peace of mind' ) }
 						</h2>
 						<p className="jp-landing-plans__header-description">
 							{ __( 'Backup, protect, repair and build a better website.' ) }
@@ -29,11 +29,8 @@ const PlanHeader = React.createClass( {
 								<h3 className="jp-landing-plans__header-subtitle">{ __( "Threats don't discriminate" ) }</h3>
 								<p className="jp-landing-plans__header-text">{ __( "Hackers, botnets and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios we'll be here to help you restore your site to its former glory." ) }</p>
 								<p className="jp-landing-plans__header-btn-container">
-									<Button href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl }>
-										{ __( 'Compare Plans' ) }
-									</Button>
 									<Button href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } className="is-primary">
-										{ __( 'Upgrade Now' ) }
+										{ __( 'Compare Plans' ) }
 									</Button>
 								</p>
 							</div>
@@ -67,8 +64,8 @@ const PlanHeader = React.createClass( {
 							<img src={ imagePath + '/plans/premium-plan-icon.jpg' } className="jp-landing__plan-icon" />
 						</div>
 						<div className="jp-landing__plan-card-current">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Premium Jetpack Plan' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'Unlock the full potential of your site with the premium features included in your plan.' ) }</p>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Premium plan' ) }</h3>
+							<p className="jp-landing__plan-features-text">{ __( 'Unlock the full potential of your site with the features included in your plan.' ) }</p>
 						</div>
 					</div>
 				);
@@ -82,8 +79,8 @@ const PlanHeader = React.createClass( {
 							<img src={ imagePath + '/plans/pro-plan-icon.jpg' } className="jp-landing__plan-icon" />
 						</div>
 						<div className="jp-landing__plan-card-current">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Professional Jetpack Plan' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'Unlock the full potential of your site with the professional features included in your plan.' ) }</p>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Professional plan' ) }</h3>
+							<p className="jp-landing__plan-features-text">{ __( 'Unlock the full potential of your site with the features included in your plan.' ) }</p>
 						</div>
 					</div>
 				);

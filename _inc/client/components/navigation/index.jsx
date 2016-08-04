@@ -34,7 +34,7 @@ const Navigation = React.createClass( {
 					<NavItem
 						path="#professional"
 						selected={ this.props.route.path === '/professional' }>
-						{ __( 'Professional', { context: 'Navigation item.' } ) }
+						{ __( 'Plans', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
 			);

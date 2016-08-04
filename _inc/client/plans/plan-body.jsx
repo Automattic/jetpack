@@ -29,8 +29,8 @@ const PlanBody = React.createClass( {
 				planCard = (
 					<div className="jp-landing__plan-features">
 						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Jetpack Anti-spam' ) }</h3>
-							<p>{ __( 'Bulletproof spam filtering help maintain peace of mind while you build and grow your site.' ) }</p>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Spam Protection' ) }</h3>
+							<p>{ __( 'State-of-the-art spam defense powered by Akismet.' ) }</p>
 							{
 								this.props.isFetchingPluginsData ? '' :
 									this.props.isPluginInstalled( 'akismet/akismet.php' )
@@ -48,7 +48,7 @@ const PlanBody = React.createClass( {
 						</div>
 
 						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Jetpack Security Scanning & Backups' ) }</h3>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Security Scanning & Backups' ) }</h3>
 							<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place.' ) }</p>
 							<Button href="https://dashboard.vaultpress.com/" className="is-primary">
 								{ __( 'View your security dashboard' ) }
@@ -71,13 +71,16 @@ const PlanBody = React.createClass( {
 							[ 'jetpack_premium', 'jetpack_premium_monthly' ].includes( this.props.plan ) ?
 								<div className="jp-landing__plan-features-card">
 									<h3 className="jp-landing__plan-features-title">{ __( 'Need more?' ) }</h3>
-									<p>{ __( 'Jetpack Professional offers more features.' ) }</p>
+									<p>{ __( 'Jetpack Professional offers advanced features including:' ) }</p>
+									<p> &mdash; { __( 'Supports 1-3 sites' ) }</p>
+									<p> &mdash; { __( 'Includes on-demand malware scanning' ) }</p>
+									<p> &mdash; { __( 'Unlimited backup archive' ) }</p>
+									<p> &mdash; { __( 'Real-time backups' ) }</p>
+									<p> &mdash; { __( 'One-click threat resolution' ) }</p>
+									<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
 									<p>
-										<Button href={ 'https://wordpress.com/plans/compare/' + this.props.siteRawUrl }>
-											{ __( 'Compare Plans' ) }
-										</Button>
 										<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
-											{ __( 'Upgrade to Professional' ) }
+											{ __( 'Compare Plans' ) }
 										</Button>
 									</p>
 								</div>
