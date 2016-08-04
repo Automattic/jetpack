@@ -109,16 +109,29 @@ export const unlinkUser = () => {
 		dispatch( {
 			type: UNLINK_USER
 		} );
+		dispatch( createNotice( 'is-info', __( 'Unlinking from WordPress.com' ), { id: 'unlink-user' } ) );
 		return restApi.unlinkUser().then( userUnlinked => {
 			dispatch( {
 				type: UNLINK_USER_SUCCESS,
 				userUnlinked: userUnlinked
 			} );
+			dispatch( removeNotice( 'unlink-user' ) );
+			dispatch( createNotice( 'is-success', __( 'Unlinked from WordPress.com.' ), { id: 'unlink-user' } ) );
 		} )['catch']( error => {
 			dispatch( {
 				type: UNLINK_USER_FAIL,
 				error: error
 			} );
+			dispatch( removeNotice( 'unlink-user' ) );
+			dispatch( createNotice(
+				'is-error',
+				__( 'Error unlinking from WordPress.com. %(error)s', {
+					args: {
+						error: error
+					}
+				} ),
+				{ id: 'unlink-user' }
+			) );
 		} );
 	}
 }
