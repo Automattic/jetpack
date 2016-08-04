@@ -3,18 +3,18 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
-import { isCurrentUserLinked as _isCurrentUserLinked } from 'state/connection';
+import { isCurrentUserLinked, isDevMode } from 'state/connection';
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import ConnectButton from 'components/connect-button';
 
 const ConnectionSettings = React.createClass( {
 	renderContent: function() {
 		const userData = window.Initial_State.userData;
-		const isLinked = this.props.isLinked( this.props );
 
 		const maybeShowDisconnectBtn = userData.currentUser.permissions.disconnect
 			? <ConnectButton />
@@ -24,17 +24,33 @@ const ConnectionSettings = React.createClass( {
 			? null
 			: <ConnectButton connectUser={ true } />;
 
-		return(
+		return isDevMode( this.props ) ?
 			<div>
 				{
-					isLinked
-						? `You are linked to WordPress.com account ${ userData.currentUser.wpcomUser.login } / ${ userData.currentUser.wpcomUser.email }`
-						: `You, ${ userData.currentUser.username }, are not connected to WordPress.com`
+					__( 'The site is in Development Mode, so you can not connect to WordPress.com.' )
+				}
+			</div>
+			:
+			<div>
+				{
+					this.props.isLinked( this.props ) ?
+						__( 'You are linked to WordPress.com account {{userLogin}} / {{userEmail}}.', {
+							components: {
+								userLogin: userData.currentUser.wpcomUser.login,
+								userEmail: userData.currentUser.wpcomUser.email
+							}
+						} )
+						:
+						__( 'You, {{userName}}, are not connected to WordPress.com.', {
+							components: {
+								userName: userData.currentUser.username
+							}
+						} )
 				}
 				{ maybeShowDisconnectBtn }
 				{ maybeShowLinkUnlinkBtn }
 			</div>
-		)
+			;
 	},
 
 	render() {
@@ -50,7 +66,7 @@ const ConnectionSettings = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			isLinked: () => _isCurrentUserLinked( state )
+			isLinked: () => isCurrentUserLinked( state )
 		}
 	}
 )( ConnectionSettings );

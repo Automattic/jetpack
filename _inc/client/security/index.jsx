@@ -62,7 +62,7 @@ export const Page = ( props ) => {
 		[ 'backups', __( 'Site Backups' ), __( 'Keep your site backed up!' ), 'https://vaultpress.com/jetpack/' ],
 		[ 'sso', getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
 	].map( ( element ) => {
-		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
+		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			toggle = (
 				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
 				<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
@@ -131,7 +131,7 @@ export const Page = ( props ) => {
 						__( 'ACTIVE' )
 					);
 				} else {
-					return (
+					return unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) : (
 						<Button
 							compact={ true }
 							primary={ true }
@@ -223,6 +223,7 @@ export default connect(
 			getScanThreats: () => _getVaultPressScanThreatCount( state ),
 			getVaultPressData: () => _getVaultPressData( state ),
 			getAkismetData: () => _getAkismetData( state ),
+			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
 		};
 	},
 	( dispatch ) => {

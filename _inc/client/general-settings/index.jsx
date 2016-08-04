@@ -14,8 +14,7 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import ConnectionSettings from './connection-settings';
-import { disconnectSite } from 'state/connection';
-import { isDevMode } from 'state/connection';
+import { disconnectSite, isUnavailableInDevMode } from 'state/connection';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -26,59 +25,75 @@ import {
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 
-const GeneralSettings = React.createClass( {
-	render() {
-		let nonAdmin = ! window.Initial_State.userData.currentUser.permissions.manage_modules;
-		const toggle = ( module_name ) =>
-			<ModuleToggle
-				slug={ module_name }
-				activated={ this.props.isModuleActivated( module_name ) }
-				toggling={ this.props.isTogglingModule( module_name ) }
-				toggleModule={ this.props.toggleModule }
-			/>;
+export const Page = ( props ) => {
+	let {
+		toggleModule,
+		isModuleActivated,
+		isTogglingModule,
+		getModule
+		} = props;
+	let isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
 
-		const moduleCard = ( module_slug, requires_connection = true ) =>
+	const moduleCard = ( module_slug ) => {
+		var unavailableInDevMode = props.isUnavailableInDevMode( module_slug ),
+			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
+			toggle = '';
+
+		if ( unavailableInDevMode ) {
+			toggle = () => __( 'Unavailable in Dev Mode' );
+		} else if ( isAdmin ) {
+			toggle = ( module_name ) =>
+				<ModuleToggle
+					slug={ module_name }
+					activated={ isModuleActivated( module_name ) }
+					toggling={ isTogglingModule( module_name ) }
+					toggleModule={ toggleModule }
+				/>;
+		}
+		return (
 			<FoldableCard
-				header={ this.props.getModule( module_slug ).name }
-				subheader={ this.props.getModule( module_slug ).description }
+				className={ customClasses }
+				header={ getModule( module_slug ).name }
+				subheader={ getModule( module_slug ).description }
 				clickableHeaderText={ true }
-				disabled={ ( isDevMode( this.props ) && requires_connection ) || nonAdmin }
-				summary={ nonAdmin ? '' : toggle( module_slug ) }
-				expandedSummary={ nonAdmin ? '' : toggle( module_slug ) }
+				disabled={ ! isAdmin }
+				summary={ isAdmin ? toggle( module_slug ) : '' }
+				expandedSummary={ isAdmin ? toggle( module_slug ) : '' }
 			>
-				<div dangerouslySetInnerHTML={ renderLongDescription( this.props.getModule( module_slug ) ) } />
+				<div dangerouslySetInnerHTML={ renderLongDescription( getModule( module_slug ) ) } />
 				<div className="jp-module-settings__read-more">
-					<Button borderless compact href={ this.props.getModule( module_slug ).learn_more_button }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
+					<Button borderless compact href={ getModule( module_slug ).learn_more_button }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
-			</FoldableCard>;
+			</FoldableCard>
+		);
+	};
 
-		const maybeShowManage = this.props.isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' );
-
-		return(
-			<div>
-				<FoldableCard
+	return (
+		<div>
+			{
+				isAdmin ? <FoldableCard
 					header={ __( 'Connection Settings' ) }
 					subheader={ __( 'Manage your connected user accounts or disconnect.' ) }
 					clickableHeaderText={ true }
-					disabled={ isDevMode( this.props ) }
+					disabled={ ! isAdmin }
 				>
-					<ConnectionSettings { ...this.props } />
-				</FoldableCard>
-				{ maybeShowManage }
-				{ moduleCard( 'notes' ) }
-				{ moduleCard( 'json-api' ) }
-				<FoldableCard
-					header={ __( 'Miscellaneous Settings' ) }
-					subheader={ __( 'Manage Snow and other fun things for your site.' ) }
-					clickableHeaderText={ true }
-					disabled={ nonAdmin }
-				>
-					<Settings />
-				</FoldableCard>
-			</div>
-		);
-	}
-} );
+					<ConnectionSettings { ...props } />
+				</FoldableCard>: ''
+			}
+			{ isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' ) }
+			{ moduleCard( 'notes' ) }
+			{ moduleCard( 'json-api' ) }
+			<FoldableCard
+				header={ __( 'Miscellaneous Settings' ) }
+				subheader={ __( 'Manage Snow and other fun things for your site.' ) }
+				clickableHeaderText={ true }
+				disabled={ ! isAdmin }
+			>
+				<Settings />
+			</FoldableCard>
+		</div>
+	);
+};
 
 function renderLongDescription( module ) {
 	// Rationale behind returning an object and not just the string
@@ -91,8 +106,8 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			isTogglingModule: ( module_name ) =>
-			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name )
+			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
+			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
 		};
 	},
 	( dispatch ) => {
@@ -102,8 +117,7 @@ export default connect(
 					? dispatch( deactivateModule( module_name ) )
 					: dispatch( activateModule( module_name ) );
 			},
-			fetchPluginsData: () => dispatch( fetchPluginsData() ),
 			disconnectSite: () => dispatch( disconnectSite )
 		};
 	}
-)( GeneralSettings );
+)( Page );

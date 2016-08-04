@@ -58,7 +58,7 @@ export const Page = ( props ) => {
 		cards = cards.filter( ( element, index ) => cards.indexOf( element ) === index );
 	}
 	cards = cards.map( ( element, i ) => {
-		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
+		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
 			adminAndNonAdmin = isAdmin || nonAdminAvailable.includes( element[0] );
@@ -118,7 +118,8 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) =>
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
-			getModule: ( module_name ) => _getModule( state, module_name )
+			getModule: ( module_name ) => _getModule( state, module_name ),
+			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
 		};
 	},
 	( dispatch ) => {
