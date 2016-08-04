@@ -307,7 +307,7 @@ const DashStatsBottom = React.createClass( {
 					<p></p>
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
-					{ __( '{{button}}View more stats{{/button}}', {
+					{ __( '{{button}}View More Stats{{/button}}', {
 						components: { button: <Button className="is-primary" href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl } /> }
 					} ) }
 				</div>
