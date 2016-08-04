@@ -148,18 +148,17 @@ class Jetpack_Sync_Actions {
 	static function is_scheduled_full_sync( $modules = null ) {
 		if ( is_null( $modules ) ) {
 			$crons = _get_cron_array();
-			if ( empty( $crons ) ) {
-				return false;
-			}
-			$result = array();
+			
 			foreach ( $crons as $timestamp => $cron ) {
 				if ( ! empty( $cron['jetpack_sync_full'] ) ) {
-					$result[ $timestamp ] = $cron['jetpack_sync_full'];
+					return true;
 				}
 			}
-			return $result;
+
+			return false;
 		}
-		return wp_next_scheduled( 'jetpack_sync_full', $modules );
+
+		return wp_next_scheduled( 'jetpack_sync_full', array( $modules ) );
 	}
 
 	static function do_full_sync( $modules = null ) {
