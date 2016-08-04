@@ -66,7 +66,7 @@ const DashBackups = React.createClass( {
 		const upgradeOrActivateText = () => {
 			if ( hasSitePlan ) {
 				return(
-					__( 'To automatically back up your site, please {{a}}install and activate{{/a}} VaultPress', {
+					__( 'To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
 							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
 						}
@@ -74,7 +74,7 @@ const DashBackups = React.createClass( {
 				);
 			} else {
 				return(
-					__( 'To automatically back up your site, please {{a}}upgrade!{{/a}}', {
+					__( 'To automatically back up your entire site, please {{a}}upgrade!{{/a}}.', {
 						components: {
 							a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
 						}

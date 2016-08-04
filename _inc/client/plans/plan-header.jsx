@@ -53,7 +53,7 @@ const PlanHeader = React.createClass( {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Free Jetpack Plan' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'Upgrade to Premium or Pro in order to unlock world class security, anti-spam tools, and priority support.' ) }</p>
+							<p className="jp-landing__plan-features-text">{ __( 'Upgrade to Premium or Pro in order to unlock world class security, spam protection tools, and priority support.' ) }</p>
 						</div>
 					</div>
 				);
@@ -97,7 +97,7 @@ const PlanHeader = React.createClass( {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on Development Mode' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'Once you connect, you can upgrade to Premium or Pro in order to unlock worldclass security, anti-spam tools, and priority support.' ) }</p>
+							<p className="jp-landing__plan-features-text">{ __( 'Once you connect, you can upgrade to Premium or Pro in order to unlock worldclass security, spam protection tools, and priority support.' ) }</p>
 						</div>
 					</div>
 				);
