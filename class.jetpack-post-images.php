@@ -200,7 +200,6 @@ class Jetpack_PostImages {
 
 		if ( $thumb ) {
 			$meta = wp_get_attachment_metadata( $thumb );
-
 			// Must be larger than requested minimums
 			if ( !isset( $meta['width'] ) || $meta['width'] < $width )
 				return $images;
@@ -220,9 +219,14 @@ class Jetpack_PostImages {
 			} else {
 				$img_src = wp_get_attachment_image_src( $thumb, 'full' );
 			}
+			if ( ! is_array( $img_src ) ) {
+				// If wp_get_attachment_image_src returns false but we know that there should be an image that could be used.
+				// we try a bit harder and user the data that we have.
+				$thumb_post_data = get_post( $thumb );
+				$img_src = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
+			}
 
 			$url = $img_src[0];
-
 			$images = array( array( // Other methods below all return an array of arrays
 				'type'       => 'image',
 				'from'       => 'thumbnail',
@@ -231,6 +235,7 @@ class Jetpack_PostImages {
 				'src_height' => $img_src[2],
 				'href'       => get_permalink( $thumb ),
 			) );
+
 		}
 
 		if ( empty( $images ) && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
