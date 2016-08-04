@@ -32,7 +32,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		$wpdb->query( "DELETE FROM $wpdb->postmeta WHERE meta_key NOT LIKE '\_%'" );
 	}
 
-	function full_sync_start() {
+	function full_sync_start( $config ) {
 		$this->reset();
 	}
 
@@ -573,8 +573,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function checksum_all() {
 		return array(
 			'posts'    => $this->posts_checksum(),
-			'comments' => $this->comments_checksum(),
-			'options'  => $this->options_checksum(),
+			'comments' => $this->comments_checksum()
 		);
 	}
 

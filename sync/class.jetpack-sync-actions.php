@@ -145,6 +145,23 @@ class Jetpack_Sync_Actions {
 		spawn_cron();
 	}
 
+	static function is_scheduled_full_sync( $modules = null ) {
+		if ( is_null( $modules ) ) {
+			$crons = _get_cron_array();
+			if ( empty( $crons ) ) {
+				return false;
+			}
+			$result = array();
+			foreach ( $crons as $timestamp => $cron ) {
+				if ( ! empty( $cron['jetpack_sync_full'] ) ) {
+					$result[ $timestamp ] = $cron['jetpack_sync_full'];
+				}
+			}
+			return $result;
+		}
+		return wp_next_scheduled( 'jetpack_sync_full', $modules );
+	}
+
 	static function do_full_sync( $modules = null ) {
 		if ( ! self::sync_allowed() ) {
 			return;

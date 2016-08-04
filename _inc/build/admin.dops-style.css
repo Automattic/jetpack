@@ -896,6 +896,12 @@
       width: 18px;
       height: 18px;
       top: 5px; }
+@keyframes appear {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+
 .dops-foldable-card.dops-card {
   position: relative;
   transition: margin .15s linear;
@@ -1438,6 +1444,12 @@ button.dops-foldable-card__action {
       width: 30px;
       height: 24px;
       display: block; }
+@keyframes appear {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+
 .dops-notice {
   display: flex;
   position: relative;
