@@ -42,12 +42,6 @@ function grofiles_load_more_link() {
 add_filter( 'jetpack_learn_more_button_gravatar-hovercards', 'grofiles_load_more_link' );
 
 function grofiles_more_info() { ?>
-	<div class="jp-info-img">
-		<a href="https://blog.gravatar.com/2010/10/06/gravatar-hovercards-on-wordpress-com/" target="_blank">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/hovercards.jpg' ) ?>" alt="<?php esc_attr_e( 'Gravatar Hovercard', 'jetpack' ) ?>" width="300" height="150" />
-		</a>
-	</div>
-
 	<?php esc_html_e(
 		'Hovercards enhance plain Gravatar images with information about a person, including a name,
 		bio, pictures, and contact info. Hovercards will appear when you hover over the user image
@@ -65,12 +59,6 @@ function jetpack_shortcodes_load_more_link() {
 add_filter( 'jetpack_learn_more_button_shortcodes', 'jetpack_shortcodes_load_more_link' );
 
 function jetpack_shortcodes_more_info() { ?>
-	<div class="jp-info-img">
-		<a href="http://en.support.wordpress.com/shortcodes/" target="_blank">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/shortcodes.jpg' ) ?>" alt="<?php esc_attr_e( 'Shortcode Embeds', 'jetpack' ) ?>" width="300" height="150" />
-		</a>
-	</div>
-
 	<?php esc_html_e(
 		'Shortcodes allow you to easily and safely embed media from other places in your site.
 		With one simple code, you can tell your site to embed media from YouTube, Facebook, Flickr, Vimeo, Instagram,
@@ -89,12 +77,6 @@ function wpme_load_more_link() {
 add_filter( 'jetpack_learn_more_button_shortlinks', 'wpme_load_more_link' );
 
 function wpme_more_info() { ?>
-	<div class="jp-info-img">
-		<a href="http://wp.me/sf2B5-shorten" target="_blank">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/shortlinks.jpg' ) ?>" alt="<?php esc_attr_e( 'WP.me Shortlinks', 'jetpack' ) ?>" width="300" height="150" />
-		</a>
-	</div>
-
 	<?php esc_html_e(
 		'Instead of typing or copy-pasting long URLs, you can grab short and simple links to your posts and pages.
 		This uses the compact wp.me domain name, and gives you a unique URL that is safe and reliable. It’s perfect
@@ -112,12 +94,6 @@ function stats_load_more_link() {
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
 
 function stats_more_info() { ?>
-	<div class="jp-info-img">
-		<a href="http://en.support.wordpress.com/stats/" target="_blank">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/stats.jpg' ) ?>" alt="<?php esc_attr_e( 'Site Stats', 'jetpack' ) ?>" width="300" height="150" />
-		</a>
-	</div>
-
 	<?php esc_html_e(
 		'There are many plugins and services that provide statistics, but data can be overwhelming! Site Stats makes
 		the most popular metrics easy to understand through a clear and attractive interface. You can see what visitors
@@ -135,12 +111,6 @@ function publicize_load_more_link() {
 add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
 
 function publicize_more_info() { ?>
-	<div class="jp-info-img">
-		<a href="http://en.support.wordpress.com/publicize/" target="_blank">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/publicize.jpg' ) ?>" alt="<?php esc_attr_e( 'Publicize', 'jetpack' ) ?>" width="328" height="123" />
-		</a>
-	</div>
-
 	<?php esc_html_e(
 		'Publicize allows you to connect your site to social networks like Facebook, Twitter, Tumblr, Google+, Path,
 		and LinkedIn and automatically share new posts with your friends and followers. You can add connections for
@@ -158,12 +128,6 @@ function notes_load_more_link() {
 add_filter( 'jetpack_learn_more_button_notes', 'notes_load_more_link' );
 
 function notes_more_info() { ?>
-	<div class="jp-info-img">
-		<a href="http://support.wordpress.com/notifications/" target="_blank">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/notes.jpg' ) ?>" alt="<?php esc_attr_e( 'Notifications', 'jetpack' ) ?>" width="300" height="150" />
-		</a>
-	</div>
-
 	<?php esc_html_e(
 		'Keep up with the latest interactions on all of your WordPress sites and view and reply to comments as soon as
 		possible. You can keep the conversation going from the admin bar in your dashboard or right from your mobile
@@ -181,12 +145,6 @@ function latex_load_more_link() {
 add_filter( 'jetpack_learn_more_button_latex', 'latex_load_more_link' );
 
 function latex_more_info() { ?>
-	<div class="jp-info-img">
-		<a href="http://support.wordpress.com/latex/" target="_blank">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/beautifulmath.jpg' ) ?>" alt="<?php esc_attr_e( 'LaTeX', 'jetpack' ) ?>" width="300" height="150" />
-		</a>
-	</div>
-
 	<?php printf( esc_html__(
 		'%1$s is a powerful markup language for writing complex mathematical equations and formulas.
 		Jetpack combines the power of %1$s and the simplicity of WordPress to give you the ultimate
@@ -208,9 +166,6 @@ function sharedaddy_load_more_link() {
 add_filter( 'jetpack_learn_more_button_sharedaddy', 'sharedaddy_load_more_link' );
 
 function sharedaddy_more_info() { ?>
-	<div class="jp-info-img">
-		<embed type="application/x-shockwave-flash" src="http://s0.videopress.com/player.swf?v=1.02" height="190" wmode="transparent" seamlesstabbing="true" allowfullscreen="true" allowscriptaccess="always" overstretch="true" flashvars="guid=WV0JOwY2"></embed>
-	</div>
 	<?php esc_html_e(
 		'Visitors can share your posts with Twitter, Facebook, and a host of other services. You can configure services
 		to appear as icons, text, or both. Some services have additional options to display smart buttons, such as
@@ -229,12 +184,6 @@ function jpatd_load_more_link() {
 add_filter( 'jetpack_learn_more_button_after-the-deadline', 'jpatd_load_more_link' );
 
 function jpatd_more_info() { ?>
-	<div class="jp-info-img">
-		<a href="http://en.support.wordpress.com/proofreading/" target="_blank">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/spelling.jpg' ) ?>" alt="<?php esc_attr_e( 'Spelling and Grammar', 'jetpack' ) ?>" width="300" height="150" />
-		</a>
-	</div>
-
 	<?php esc_html_e(
 		'The After the Deadline proofreading service improves your writing by using artificial intelligence to
 		find spelling and grammatical errors and offers smart suggestions.'
@@ -251,9 +200,6 @@ function jetpack_widgets_load_more_link() {
 add_filter( 'jetpack_learn_more_button_widgets', 'jetpack_widgets_load_more_link' );
 
 function jetpack_widgets_more_info() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/widgets.jpg' ) ?>" alt="<?php esc_attr_e( 'Widgets Screenshot', 'jetpack' ) ?>" width="300" height="150" />
-	</div>
 	<?php esc_html_e(
 		'Show your visitors a variety of useful content within your sidebar, including your latest tweets,
 		a Facebook like box, custom images, your Gravatar image and profile data, a tiled gallery,
@@ -272,10 +218,6 @@ function jetpack_subscriptions_load_more_link() {
 add_action( 'jetpack_learn_more_button_subscriptions', 'jetpack_subscriptions_load_more_link' );
 
 function jetpack_subscriptions_more_info() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/subscriptions.jpg' ) ?>" alt="<?php esc_attr_e( 'Subsriptions Screenshot', 'jetpack' ) ?>" width="300" height="150" />
-	</div>
-
 	<?php esc_html_e(
 		'Allow any visitor to subscribe to your site through a widget in your sidebar. Each time you publish new content,
 		Jetpack will email a notification to all of your subscribers. When leaving comments, your visitors can also
@@ -348,10 +290,6 @@ function jetpack_contact_form_learn_more_button() {
 add_action( 'jetpack_learn_more_button_contact-form', 'jetpack_contact_form_learn_more_button' );
 
 function jetpack_contact_form_more_info() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/contactform.jpg' ) ?>" alt="<?php esc_attr_e( 'Contact Form', 'jetpack' ) ?>" width="300" height="150" />
-	</div>
-
 	<?php esc_html_e(
 		'Offer your readers the ability to get in touch without publishing your personal email address.
 		You can have multiple forms on your site and customize each one to fit specific needs.
@@ -372,10 +310,6 @@ function jetpack_comments_learn_more_button() {
 add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_learn_more_button' );
 
 function jetpack_comments_more_info() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/comments.jpg' ) ?>" alt="<?php esc_attr_e( 'Comments Screenshot', 'jetpack' ) ?>" width="300" height="150" />
-	</div>
-
 	<?php esc_html_e(
 		'Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on
 		your site. Jetpack tries to match your site\'s color scheme automatically, but you can make manual adjustments
@@ -393,10 +327,6 @@ function jetpack_carousel_learn_more_button() {
 add_action( 'jetpack_learn_more_button_carousel', 'jetpack_carousel_learn_more_button' );
 
 function jetpack_carousel_more_info() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/carousel.jpg' ) ?>" alt="<?php esc_attr_e( 'Gallery Carousel Screenshot', 'jetpack' ) ?>" width="300" height="188" />
-	</div>
-
 	<?php esc_html_e(
 		'With Carousel active, any standard WordPress galleries you have embedded in posts or pages will
 		launch a full-screen photo browsing experience with comments and EXIF metadata.'
@@ -414,9 +344,6 @@ function jetpack_custom_css_more_button() {
 add_action( 'jetpack_learn_more_button_custom-css', 'jetpack_custom_css_more_button' );
 
 function jetpack_custom_css_more_info() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/custom-css.jpg' ) ?>" alt="<?php esc_attr_e( 'Custom CSS', 'jetpack' ) ?>" width="300" height="150" />
-	</div>
 	<?php esc_html_e(
 		"The Custom CSS editor lets you add to or replace your theme's CSS, while supplying syntax coloring,
 		auto-indentation, and immediate feedback on the validity of the CSS you're writing.
@@ -434,10 +361,6 @@ function jetpack_minileven_more_button() {
 add_action( 'jetpack_learn_more_button_minileven', 'jetpack_minileven_more_button' );
 
 function jetpack_minileven_more_info() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/mobile-theme.jpg' ) ?>" alt="<?php esc_attr_e( 'Mobile Theme', 'jetpack' ) ?>" width="300" height="150" />
-	</div>
-
 	<?php esc_html_e(
 		"There's a good chance that visitors to your site will be using a smartphone,
 		and it's important to provide them with a great reading experience while on the small screen.
@@ -476,10 +399,6 @@ function jetpack_post_by_email_more_link() {
 add_action( 'jetpack_learn_more_button_post-by-email', 'jetpack_post_by_email_more_link' );
 
 function jetpack_post_by_email_more_info() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/post-by-email.jpg' ) ?>" alt="<?php esc_attr_e( 'Post by Email', 'jetpack' ) ?>" width="300" height="115" />
-	</div>
-
 	<?php esc_html_e(
 		'With Post by Email, you can publish posts on your site by sending an email instead of using the post editor.
 		Any email client can be used to send the email (such as GMail, Outlook, and Apple Mail), which allows you to
@@ -516,10 +435,6 @@ function jetpack_tiled_gallery_more_link() {
 add_action( 'jetpack_learn_more_button_tiled-gallery', 'jetpack_tiled_gallery_more_link' );
 
 function jetpack_tiled_gallery_more_info() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/tiled-gallery.jpg' ) ?>" alt="<?php esc_attr_e( 'Tiled Galleries', 'jetpack' ) ?>" width="300" height="150" />
-	</div>
-
 	<?php esc_html_e(
 		'Create elegant magazine-style mosaic layouts for your photos without having to use an external graphics editor.
 		When adding a gallery to your post, you will have the option to select a layout style for your images
@@ -537,12 +452,6 @@ function jetpack_likes_more_link() {
 add_action( 'jetpack_learn_more_button_likes', 'jetpack_likes_more_link' );
 
 function jetpack_likes_more_info() { ?>
-	<div class="jp-info-img">
-		<a href="http://jetpack.com/support/likes/" target="_blank">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/likes.jpg' ) ?>" alt="<?php esc_attr_e( 'Likes', 'jetpack' ) ?>" width="323" height="69" />
-		</a>
-	</div>
-
 	<?php esc_html_e(
 		'Likes allow your readers to show their appreciation for your posts and other published content using their
 		WordPress.com accounts. You will see your likes below each post, as well as the Gravatars of the people who
@@ -699,10 +608,6 @@ function jetpack_custom_content_types_more_link() {
 add_action( 'jetpack_learn_more_button_custom-content-types', 'jetpack_custom_content_types_more_link' );
 
 function jetpack_custom_content_types_more_info() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/custom-content-types.jpg' ) ?>" alt="<?php esc_attr_e( 'Custom Content Type', 'jetpack' ) ?>" width="300" height="150" />
-	</div>
-
 	<?php esc_html_e(
 		'This feature allows you to add and organize content that doesn’t necessarily fit into a post or static page.
 		For example, the Portfolio type gives you an easy way to manage and showcase projects on your site, while the
@@ -734,10 +639,6 @@ function jetpack_manage_more_link() {
 add_action( 'jetpack_learn_more_button_manage', 'jetpack_manage_more_link' );
 
 function jetpack_custom_jetpack_manage() { ?>
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/manage.jpg' ) ?>" alt="<?php esc_attr_e( 'Manage all of your WordPress sites, self-hosted or not, from WordPress.com', 'jetpack' ) ?>" width="300" height="150" />
-	</div>
-
 	<?php esc_html_e(
 		'Manage and update this and other WordPress sites from one simple dashboard on WordPress.com. You can update
 		plugins, set them to automatically update, and (de)activate them on a per-site basis or in bulk from
