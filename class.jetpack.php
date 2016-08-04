@@ -518,6 +518,8 @@ class Jetpack {
 
 		add_action( 'jetpack_notices', array( $this, 'show_development_mode_notice' ) );
 
+		add_action( 'jetpack_notices', array( $this, 'show_sync_lag_notice' ) );
+
 		/**
 		 * These actions run checks to load additional files.
 		 * They check for external files or plugins, so they need to run as late as possible.
@@ -1316,6 +1318,25 @@ class Jetpack {
 			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), 'https://jetpack.com/support/staging-sites/' );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
+		}
+	}
+
+	public static function show_sync_lag_notice() {
+		if ( ! Jetpack::is_active() && Jetpack::is_staging_site() && Jetpack::is_development_mode() ) {
+			return;
+		}
+
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-listener.php';
+		$listener = Jetpack_Sync_Listener::get_instance();
+		$queue = $listener->get_sync_queue();
+
+		if ( ! $listener->can_add_to_queue( $queue ) ) { // Display notice if the lag is large then 24 hours.
+			$contact_url = admin_url( "admin.php?page=jetpack-debugger&contact=1&note=Jetpack is not able to talk to WordPress.com." );
+			$notice = sprintf(
+				__( 'Oh no! Jetpack is unable to communicate with WordPress.com. This affects a number of features you may be using. Please check your server logs for errors and <a href="%s">contact Jetpack support</a>.', 'jetpack' ),
+				esc_url( $contact_url )
+			);
+			echo '<div class="error" style="border-color: #dc3232;"><p>' . $notice . '</p></div>';
 		}
 	}
 

@@ -91,11 +91,15 @@ class Jetpack_Sync_Queue {
 	// lag is the difference in time between the age of the oldest item
 	// (aka first or frontmost item) and the current time
 	function lag() {
+		return self::get_lag( $this->id );
+	}
+
+	static function get_lag( $id ) {
 		global $wpdb;
 
 		$first_item_name = $wpdb->get_var( $wpdb->prepare(
 			"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT 1",
-			"jpsq_{$this->id}-%"
+			"jpsq_{$id}-%"
 		) );
 
 		if ( ! $first_item_name ) {
@@ -104,7 +108,7 @@ class Jetpack_Sync_Queue {
 
 		// break apart the item name to get the timestamp
 		$matches = null;
-		if ( preg_match( '/^jpsq_' . $this->id . '-(\d+\.\d+)-/', $first_item_name, $matches ) ) {
+		if ( preg_match( '/^jpsq_' . $id . '-(\d+\.\d+)-/', $first_item_name, $matches ) ) {
 			return microtime( true ) - floatval( $matches[1] );
 		} else {
 			return 0;
