@@ -5,6 +5,8 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import Button from 'components/button';
+import TagsInput from 'components/tags-input';
+
 /**
  * Internal dependencies
  */
@@ -618,11 +620,11 @@ export let AfterTheDeadlineSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'Cliches' }
 						{ ...this.props }
-						label={ __( 'Cliches' ) } />
+						label={ __( 'Clichés' ) } />
 					<ModuleSettingCheckbox
 						name={ 'Complex Expression' }
 						{ ...this.props }
-						label={ __( 'Complex Expression' ) } />
+						label={ __( 'Complex Phrases' ) } />
 					<ModuleSettingCheckbox
 						name={ 'Diacritical Marks' }
 						{ ...this.props }
@@ -630,7 +632,7 @@ export let AfterTheDeadlineSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'Double Negative' }
 						{ ...this.props }
-						label={ __( 'Double Negative' ) } />
+						label={ __( 'Double Negatives' ) } />
 					<ModuleSettingCheckbox
 						name={ 'Hidden Verbs' }
 						{ ...this.props }
@@ -638,11 +640,11 @@ export let AfterTheDeadlineSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'Jargon Language' }
 						{ ...this.props }
-						label={ __( 'Jargon Language' ) } />
+						label={ __( 'Jargon' ) } />
 					<ModuleSettingCheckbox
 						name={ 'Passive voice' }
 						{ ...this.props }
-						label={ __( 'Passive voice' ) } />
+						label={ __( 'Passive Voice' ) } />
 					<ModuleSettingCheckbox
 						name={ 'Phrases to Avoid' }
 						{ ...this.props }
@@ -650,7 +652,7 @@ export let AfterTheDeadlineSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'Redundant Expression' }
 						{ ...this.props }
-						label={ __( 'Redundant Expression' ) } />
+						label={ __( 'Redundant Phrases' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend> { __( 'Language: The proofreader supports English, French, ' +
@@ -661,6 +663,21 @@ export let AfterTheDeadlineSettings = React.createClass( {
 						name={ 'guess_lang' }
 						{ ...this.props }
 						label={ __( 'Use automatically detected language to proofread posts and pages' ) } />
+				</FormFieldset>
+				<FormFieldset>
+					<FormLegend>
+						{ __( 'Ignored Phrases' ) }
+					</FormLegend>
+					<TagsInput
+						name="ignored_phrases"
+						placeholder={ __( 'Add a phrase' ) }
+						value={ this.props.getOptionValue( 'ignored_phrases' ) !== '' ?
+							this.props.getOptionValue( 'ignored_phrases' ).split( ',' ) :
+							[]
+						}
+						onChange={ this.props.onOptionChange } />
+				</FormFieldset>
+				<FormFieldset>
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }

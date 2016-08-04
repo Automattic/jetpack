@@ -1233,7 +1233,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$atd_option = 'AtD_ignored_phrases';
 					$grouped_options = $grouped_options_current = explode( ',', AtD_get_setting( $user_id, $atd_option ) );
 					if ( 'ignored_phrases' == $option ) {
-						$grouped_options[] = $value;
+						$grouped_options = explode( ',', $value );
 					} else {
 						$index = array_search( $value, $grouped_options );
 						if ( false !== $index ) {
