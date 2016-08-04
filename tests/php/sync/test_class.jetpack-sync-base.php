@@ -138,7 +138,12 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_is_scheduled_full_sync_works_with_different_args() {
+		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );
+
 		Jetpack_Sync_Actions::schedule_full_sync( array( 'posts' => true ) );
+
 		$this->assertTrue( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync() );
+		$this->assertTrue( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync( array( 'posts' => true ) ) );
+		$this->assertFalse( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync( array( 'comments' => true ) ) );
 	}
 }
