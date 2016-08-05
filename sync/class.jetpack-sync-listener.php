@@ -110,10 +110,6 @@ class Jetpack_Sync_Listener {
 	}
 
 	function enqueue_action( $current_filter, $args, $queue, $override_import = false ) {
-		if ( Jetpack_Sync_Settings::is_importing() && ! $override_import ) {
-			return;
-		}
-
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
 		 *
@@ -145,6 +141,7 @@ class Jetpack_Sync_Listener {
 			$args,
 			get_current_user_id(),
 			microtime( true ),
+			Jetpack_Sync_Settings::is_importing()
 		) );
 	}
 
