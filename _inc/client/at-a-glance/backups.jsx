@@ -51,8 +51,8 @@ const DashBackups = React.createClass( {
 
 						<p className="jp-dash-item__description">
 							{ vpData.message }
-							<br/>
-							{ __( '{{a}}View backup details{{/a}}', {
+
+							{ __( ' {{a}}View backup details{{/a}}.', {
 								components: {
 									a: <a href='https://dashboard.vaultpress.com' target="_blank" />
 								}
