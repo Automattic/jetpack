@@ -72,7 +72,7 @@ class Jetpack_Sync_Server {
 		do_action( 'jetpack_sync_remote_actions', $events, $token );
 
 		foreach ( $events as $key => $event ) {
-			list( $action_name, $args, $user_id, $timestamp ) = $event;
+			list( $action_name, $args, $user_id, $timestamp, $silent ) = $event;
 
 			/**
 			 * Fires when an action is received from a remote Jetpack site
@@ -82,12 +82,13 @@ class Jetpack_Sync_Server {
 			 * @param string $action_name The name of the action executed on the remote site
 			 * @param array $args The arguments passed to the action
 			 * @param int $user_id The external_user_id who did the action
+			 * @param bool $silent Whether the item was created via import
 			 * @param double $timestamp Timestamp (in seconds) when the action occurred
 			 * @param double $sent_timestamp Timestamp (in seconds) when the action was transmitted
 			 * @param string $queue_id ID of the queue from which the event was sent (sync or full_sync)
 			 * @param array $token The auth token used to invoke the API
 			 */
-			do_action( 'jetpack_sync_remote_action', $action_name, $args, $user_id, $timestamp, $sent_timestamp, $queue_id, $token );
+			do_action( 'jetpack_sync_remote_action', $action_name, $args, $user_id, $silent, $timestamp, $sent_timestamp, $queue_id, $token );
 
 			$events_processed[] = $key;
 
