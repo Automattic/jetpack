@@ -12,6 +12,7 @@ import { translate as __ } from 'i18n-calypso';
 import { getCurrentVersion, isDevVersion } from 'state/initial-state';
 import { resetOptions } from 'state/dev-version';
 import { disconnectSite } from 'state/connection';
+import { getSiteConnectionStatus } from 'state/connection';
 
 export const Footer = React.createClass( {
 	displayName: 'Footer',
@@ -60,7 +61,7 @@ export const Footer = React.createClass( {
 		};
 
 		const maybeShowDisconnect = () =>  {
-			if ( window.Initial_State.userData.currentUser.permissions.disconnect ) {
+			if ( window.Initial_State.userData.currentUser.permissions.disconnect && getSiteConnectionStatus( this.props ) ) {
 				return (
 					<li className="jp-footer__link-item">
 						<a
