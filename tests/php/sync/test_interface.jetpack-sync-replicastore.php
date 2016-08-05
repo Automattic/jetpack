@@ -150,6 +150,26 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( $store->comments_checksum( 6, 10 ), $histogram['6'] );
 	}
 
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_does_not_checksum_spam_comments( $store ) {
+		$comment        = self::$factory->comment( 3, 1 );
+		$spam_comment = self::$factory->comment( 6, 1, array( 'comment_approved' => 'spam' ) );
+		$trash_comment = self::$factory->comment( 9, 1, array( 'comment_approved' => 'trash' )  );
+
+		$store->upsert_comment( $comment );
+		$store->upsert_comment( $trash_comment );
+
+		$checksum = $store->comments_checksum();
+
+		// add a spam comment and assert that checksum didn't change
+		$store->upsert_comment( $spam_comment );
+
+		$this->assertEquals( $checksum, $store->comments_checksum() );
+	}
+
 
 	/**
 	 * Histograms
