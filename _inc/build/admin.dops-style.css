@@ -1808,5 +1808,86 @@ a.dops-notice__action {
   .dops-checkbox.dops-checkbox + span {
     display: block;
     margin-left: 24px; }
+.notices-list {
+  overflow: hidden; }
+  .notices-list.is-pinned {
+    width: calc( 100% - 272px - 32px - 32px);
+    z-index: z-index("root", ".notices-list.is-pinned");
+    position: fixed;
+    top: 79px; }
+    .notices-list.is-pinned .notice {
+      z-index: z-index("root", ".notices-list.is-pinned .notice"); }
+
+.notices-list__whitespace {
+  height: 71px;
+  width: 100%;
+  display: block; }
+@keyframes appear {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+
+.global-notices {
+  overflow: hidden;
+  text-align: right;
+  z-index: 100;
+  position: fixed;
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0; }
+  @media (min-width: 661px) {
+    .global-notices {
+      top: 63px;
+      right: 16px;
+      bottom: auto;
+      left: auto;
+      max-width: calc( 100% - 32px); } }
+  @media (min-width: 961px) {
+    .global-notices {
+      top: 71px;
+      right: 24px;
+      max-width: calc( 100% - 48px); } }
+  @media (min-width: 1041px) {
+    .global-notices {
+      right: 32px;
+      max-width: calc( 100% - 64px); } }
+
+.global-notices .dops-notice {
+  flex-wrap: nowrap;
+  margin-bottom: 0;
+  text-align: left;
+  pointer-events: auto; }
+  @media (min-width: 661px) {
+    .global-notices .dops-notice {
+      display: flex;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 24px; } }
+
+@media (min-width: 661px) {
+  .global-notices .dops-notice__icon {
+    padding: 8px 0 8px 16px; } }
+
+.global-notices .dops-notice__text {
+  padding-left: 16px;
+  flex-basis: auto;
+  flex-grow: 1; }
+  @media (min-width: 661px) {
+    .global-notices .dops-notice__text {
+      flex-grow: 0;
+      padding: 9px 13px; } }
+
+@media (min-width: 661px) {
+  .global-notices .dops-notice a.dops-notice__action {
+    font-size: 14px;
+    padding: 9px 16px; } }
+
+.global-notices .dops-notice__dismiss {
+  flex-shrink: 0; }
+  @media (min-width: 661px) {
+    .global-notices .dops-notice__dismiss {
+      padding: 8px 16px; } }
 
 /*# sourceMappingURL=admin.dops-style.css.map*/
