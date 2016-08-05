@@ -42,3 +42,7 @@
 @import '../at-a-glance/style';
 @import '../plans/style';
 @import '../apps/style';
+
+.dops-search__input[type="search"] {
+	width: 100%;
+}

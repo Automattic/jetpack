@@ -31,6 +31,7 @@ import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
+import SearchPage from 'search/index.jsx';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
@@ -102,6 +103,10 @@ const Main = React.createClass( {
 			case '/writing':
 				navComponent = <NavigationSettings { ...this.props } />;
 				pageComponent = <Writing { ...this.props } />;
+				break;
+			case '/search':
+				navComponent = <NavigationSettings { ...this.props } />;
+				pageComponent = <SearchPage { ...this.props } />;
 				break;
 
 			default:
