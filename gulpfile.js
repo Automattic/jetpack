@@ -52,7 +52,9 @@ function onBuild( done ) {
 		} ), '\nJS finished at', Date.now() );
 
 		if ( done ) {
-			done();
+			doStatic( done );
+		} else {
+			doStatic();
 		}
 	};
 }
@@ -117,8 +119,15 @@ gulp.task( 'react:watch', function() {
 	webpack( config ).watch( 100, onBuild() );
 } );
 
-gulp.task( 'react:static', [ 'react:build' ], function() {
-	var jsdom = require( 'jsdom' );
+gulp.task( 'react:static', function( done ) {
+	doStatic( done );
+} );
+
+function doStatic( done ) {
+	var path,
+		jsdom = require( 'jsdom' );
+
+	gutil.log( 'Building static HTML from built JS…' );
 
 	jsdom.env( '', function( err, window ) {
 		global.window = window;
@@ -139,13 +148,20 @@ gulp.task( 'react:static', [ 'react:build' ], function() {
 			}
 		};
 
-		require( './_inc/build/static.js' );
+		path = __dirname + '/_inc/build/static.js';
 
-		fs.writeFile( './_inc/build/static.html', window.staticHtml );
-		fs.writeFile( './_inc/build/static-noscript-notice.html', window.noscriptNotice );
-		fs.writeFile( './_inc/build/static-version-notice.html', window.versionNotice );
+		delete require.cache[ path ]; // Making sure NodeJS requires this file every time this is called
+		require( path );
+
+		fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
+		fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
+		fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
+
+		if ( done ) {
+			done();
+		}
 	} );
-} );
+}
 
 // Admin CSS to be minified, autoprefixed, rtl
 //
@@ -419,7 +435,7 @@ gulp.task( 'languages:extract', [ 'react:build' ], function( callback ) {
 // Default task
 gulp.task(
 	'default',
-	['react:static', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint']
+	['react:build', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint']
 );
 gulp.task(
 	'watch',
