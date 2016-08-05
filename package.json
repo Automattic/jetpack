@@ -14,7 +14,7 @@
   },
   "scripts": {
     "watch": "gulp watch",
-    "clean": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map",
+    "clean": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map _inc/build/*.html",
     "distclean": "rm -rf node_modules",
     "build": "npm install && npm run build-client",
     "build-client": "gulp",
