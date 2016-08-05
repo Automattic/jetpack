@@ -121,7 +121,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function comments_checksum( $min_id = null, $max_id = null ) {
-		return $this->calculate_checksum( $this->comments, 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
+		return $this->calculate_checksum( array_filter( $this->comments, array( $this, 'is_not_spam' ) ), 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
+	}
+
+	function is_not_spam( $comment ) {
+		return $comment->comment_approved !== 'spam';
 	}
 
 	function filter_comment_status( $comment ) {
