@@ -137,7 +137,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			/** This action is already documented in views/admin/admin-page.php */
 			do_action( 'jetpack_notices' );
 		?>
-		<div id="jp-plugin-container"></div>
+		<div id="jp-plugin-container">
+			<div class="jp-admin-page--placeholder">
+				<img src="<?php echo plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/jetpack-logo.svg' ?>"/>
+			</div>
+		</div>
 	<?php }
 
 	function get_i18n_data() {
