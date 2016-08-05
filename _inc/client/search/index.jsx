@@ -28,7 +28,12 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 
 	forEach( modules, function( m ) {
 		moduleList.push( [
-			m.module, getModule( m.module ).name, getModule( m.module ).description, getModule( m.module ).learn_more_button
+			m.module,
+			getModule( m.module ).name,
+			getModule( m.module ).description,
+			getModule( m.module ).learn_more_button,
+			getModule( m.module ).search_terms,
+			getModule( m.module ).short_description
 		] );
 	} );
 
@@ -48,7 +53,9 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 
 		return (
 			<FoldableCard
+				key={ element[1] }
 				header={ element[1] }
+				searchTerms={ element[0] + element[1] + element[2] + element[3] + element[4] + element[5] }
 				subheader={ element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle } >
@@ -65,7 +72,6 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 	return (
 		<div>
 			<h2>Searching All Modules</h2>
-			<div id="jetpack-search-target"></div>
 			<Collection
 				filter={ searchTerm() }
 			>
