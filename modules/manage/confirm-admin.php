@@ -22,6 +22,11 @@ switch( $section ) {
 		$link_title = __( 'Manage Your Plugins', 'jetpack' );
 		break;
 
+	case 'plugins-setup':
+		$link = 'https://wordpress.com/plugins/setup/' . $normalized_site_url;
+		$link_title = __( 'Back to Plan Setup', 'jetpack' );
+		break;
+
 	case 'themes':
 		$link = 'https://wordpress.com/design/' . $normalized_site_url;
 		$link_title = __( 'Manage Your Themes', 'jetpack' );
@@ -41,11 +46,6 @@ switch( $section ) {
 		$link = 'https://wordpress.com/stats/day/' . $normalized_site_url;
 		$link_title = __( 'Manage Your Site', 'jetpack' );
 		break;
-}
-
-if ( isset( $_GET['return_url'] ) && isset( $_GET['return_title'] ) ) {
-	$link = $_GET['return_url'];
-	$link_title = $_GET['return_title'];
 }
 ?>
 <div class="page-content landing manage-page">
