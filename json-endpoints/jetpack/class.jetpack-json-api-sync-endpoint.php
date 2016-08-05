@@ -4,6 +4,10 @@
 class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected $needed_capabilities = 'manage_options';
 
+	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
+		parent::validate_call( $_blog_id, $capability, false );
+	}
+
 	protected function result() {
 		$args = $this->input();
 
@@ -35,9 +39,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 }
 
 // GET /sites/%s/sync/status
-class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
-
+class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
 		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-modules.php';
 		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
@@ -61,9 +63,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
 }
 
 // GET /sites/%s/data-check
-class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
-
+class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
 		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
 
@@ -99,9 +99,7 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 }
 
 // GET /sites/%s/data-histogram
-class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
-
+class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
 		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
 
@@ -145,9 +143,7 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Endpoint
 }
 
 // POST /sites/%s/sync/settings
-class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
-
+class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
 		$args = $this->input();
 
@@ -172,9 +168,7 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_En
 }
 
 // GET /sites/%s/sync/settings
-class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
-
+class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
 		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-settings.php';
 
