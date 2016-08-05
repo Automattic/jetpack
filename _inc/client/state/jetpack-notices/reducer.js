@@ -10,6 +10,7 @@ import assign from 'lodash/assign';
  * Internal dependencies
  */
 import {
+	JETPACK_ACTION_NOTICES_DISMISS,
 	JETPACK_NOTICES_DISMISS,
 	JETPACK_NOTICES_DISMISS_FAIL,
 	JETPACK_NOTICES_DISMISS_SUCCESS,
@@ -17,16 +18,11 @@ import {
 	RESET_OPTIONS_SUCCESS,
 	JUMPSTART_ACTIVATE_SUCCESS,
 	JUMPSTART_SKIP,
-	JETPACK_MODULE_ACTIVATE,
-	JETPACK_MODULE_ACTIVATE_FAIL,
-	JETPACK_MODULE_ACTIVATE_SUCCESS,
-	JETPACK_MODULE_DEACTIVATE,
-	JETPACK_MODULE_DEACTIVATE_FAIL,
-	JETPACK_MODULE_DEACTIVATE_SUCCESS
+
 } from 'state/action-types';
 import restApi from 'rest-api';
 
-const notice = ( state = false , action ) => {
+const notice = ( state = false, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_SITE_SUCCESS:
 			return 'disconnected';
@@ -37,18 +33,6 @@ const notice = ( state = false , action ) => {
 		case JUMPSTART_SKIP:
 			return 'new_connection_no_jumpstart';
 
-		case JETPACK_MODULE_ACTIVATE:
-			return 'module_activate';
-
-		case JETPACK_MODULE_ACTIVATE_SUCCESS:
-			return 'module_activate_success';
-
-		case JETPACK_MODULE_DEACTIVATE:
-			return 'module_activate';
-
-		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
-			return 'module_deactivate_success';
-
 		default:
 			return state;
 	}
@@ -56,6 +40,9 @@ const notice = ( state = false , action ) => {
 
 const dismissed = ( state = window.Initial_State.dismissedNotices, action ) => {
 	switch ( action.type ) {
+		case JETPACK_ACTION_NOTICES_DISMISS:
+			return assign( {}, state, { [ action.notice ]: true } );
+
 		case JETPACK_NOTICES_DISMISS_SUCCESS:
 			return assign( {}, state, action.dismissedNotices );
 

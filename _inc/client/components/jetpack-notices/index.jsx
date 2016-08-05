@@ -11,15 +11,9 @@ import NoticesList from 'components/global-notices';
  * Internal dependencies
  */
 import JetpackStateNotices from './state-notices';
-import {
-	getJetpackNotices as _getJetpackNotices
-} from 'state/jetpack-notices';
 import { getSiteConnectionStatus, getSiteDevMode, isStaging } from 'state/connection';
 import { isDevVersion } from 'state/initial-state';
-import {
-	isNoticeDismissed as _isNoticeDismissed,
-	dismissJetpackNotice
-} from 'state/jetpack-notices';
+import DismissableNotices from './dismissable';
 
 export const DevVersionNotice = React.createClass( {
 	displayName: 'DevVersionNotice',
@@ -139,6 +133,7 @@ const JetpackNotices = React.createClass( {
 				<DevVersionNotice { ...this.props } />
 				<DevModeNotice { ...this.props } />
 				<StagingSiteNotice { ...this.props } />
+				<DismissableNotices />
 			</div>
 		);
 	}
@@ -146,9 +141,6 @@ const JetpackNotices = React.createClass( {
 
 export default connect(
 	state => {
-		return {
-			jetpackNotices: _getJetpackNotices( state ),
-			isDismissed: ( notice ) => _isNoticeDismissed( state, notice )
-		};
+		return state;
 	}
 )( JetpackNotices );
