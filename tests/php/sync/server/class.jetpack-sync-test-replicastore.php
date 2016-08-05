@@ -77,7 +77,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		// append fields
 		$value = '';
 		foreach ( $this->checksum_fields as $field ) {
-			$value .= $post->{$field};
+			$value .= preg_replace( '/[^\x20-\x7E]/','', $post->{ $field } );
 		}
 		return $carry ^ sprintf( '%u', crc32( $value ) ) + 0;
 	}
