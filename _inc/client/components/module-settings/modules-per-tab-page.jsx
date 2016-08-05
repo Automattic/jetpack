@@ -43,8 +43,6 @@ export const EngagementModulesSettings = React.createClass( {
 				return ( <CommentsSettings module={ module } { ...this.props } /> );
 			case 'subscriptions':
 				return ( <SubscriptionsSettings module={ module } { ...this.props } /> );
-			case 'sharedaddy':
-				return ( <SharedaddySettings module={ module } { ...this.props } /> );
 			case 'gravatar-hovercards':
 				return ( <GravatarHovercardsSettings module={ module } { ...this.props } /> );
 			case 'likes':
@@ -56,6 +54,7 @@ export const EngagementModulesSettings = React.createClass( {
 			case 'sitemaps':
 				return <span>{ __( 'This module has no configuration options' ) } </span>;
 			case 'publicize':
+			case 'sharedaddy':
 			default:
 				return (
 					<div>
