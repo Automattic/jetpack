@@ -10,6 +10,7 @@ import assign from 'lodash/assign';
  * Internal dependencies
  */
 import {
+	JETPACK_ACTION_NOTICES_DISMISS,
 	JETPACK_NOTICES_DISMISS,
 	JETPACK_NOTICES_DISMISS_FAIL,
 	JETPACK_NOTICES_DISMISS_SUCCESS,
@@ -26,7 +27,7 @@ import {
 } from 'state/action-types';
 import restApi from 'rest-api';
 
-const notice = ( state = false , action ) => {
+const notice = ( state = false, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_SITE_SUCCESS:
 			return 'disconnected';
@@ -56,6 +57,9 @@ const notice = ( state = false , action ) => {
 
 const dismissed = ( state = window.Initial_State.dismissedNotices, action ) => {
 	switch ( action.type ) {
+		case JETPACK_ACTION_NOTICES_DISMISS:
+			return assign( {}, state, { [ action.notice ]: true } );
+
 		case JETPACK_NOTICES_DISMISS_SUCCESS:
 			return assign( {}, state, action.dismissedNotices );
 

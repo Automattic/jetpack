@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import {
+	JETPACK_ACTION_NOTICES_DISMISS,
 	JETPACK_NOTICES_DISMISS,
 	JETPACK_NOTICES_DISMISS_FAIL,
 	JETPACK_NOTICES_DISMISS_SUCCESS,
@@ -25,6 +26,15 @@ export const dismissJetpackNotice = ( notice ) => {
 				type: JETPACK_NOTICES_DISMISS_FAIL,
 				error: error
 			} );
+		} );
+	}
+}
+
+export const dismissJetpackActionNotice = ( notice ) => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: JETPACK_ACTION_NOTICES_DISMISS,
+			notice: notice
 		} );
 	}
 }
