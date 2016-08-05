@@ -124,6 +124,7 @@ class Jetpack_Sync_Defaults {
 		'WP_HTTP_BLOCK_EXTERNAL',
 		'WP_ACCESSIBLE_HOSTS',
 		'JETPACK__VERSION',
+		'IS_PRESSABLE',
 	);
 
 	static $default_callable_whitelist = array(
