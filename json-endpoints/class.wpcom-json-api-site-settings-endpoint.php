@@ -414,11 +414,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						continue;
 					}
 
-					// The seo meta description should be shorter than 300 characters
-					$value = substr( $value, 0, 300 );
+					$seo_description = sanitize_text_field( $value );
 
-					if ( update_option( $key, $value ) ) {
-						$updated[ $key ] = $value;
+					// The seo meta description should be shorter than 300 characters
+					$seo_description = substr( $seo_description, 0, 300 );
+
+					if ( update_option( $key, $seo_description ) ) {
+						$updated[ $key ] = $seo_description;
 					}
 					break;
 
@@ -444,7 +446,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$previous_formats = get_option( 'advanced_seo_title_formats', array() );
 
 						$new_formats = array_merge( $empty_formats, $previous_formats, $value );
-						$new_formats = array_map( 'esc_html', $new_formats );
+						$new_formats = array_map( 'sanitize_text_field', $new_formats );
 
 						if ( update_option( 'advanced_seo_title_formats', $new_formats ) ) {
 							$updated[ $key ] = $new_formats;
