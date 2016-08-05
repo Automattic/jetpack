@@ -1065,7 +1065,14 @@ EOT;
 			}
 		}
 
-		$cache_ttl = 12 * HOUR_IN_SECONDS;
+		// An empty array might indicate no related posts or that posts
+		// are not yet synced to WordPress.com, so we cache for only 1
+		// minute in this case
+		if ( empty( $related_posts ) ) {
+			$cache_ttl = 60;
+		} else {
+			$cache_ttl = 12 * HOUR_IN_SECONDS;
+		}
 
 		// Update cache
 		if ( wp_using_ext_object_cache() ) {
