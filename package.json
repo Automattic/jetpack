@@ -20,7 +20,7 @@
     "build-client": "gulp",
     "build-production": "npm run build-languages && NODE_ENV=production npm run build",
     "build-languages": "gulp languages",
-    "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js"
+    "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js"
   },
   "devDependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
