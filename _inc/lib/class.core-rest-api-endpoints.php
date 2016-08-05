@@ -689,6 +689,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$modules = Jetpack_Admin::init()->get_modules();
 		foreach ( $modules as $slug => $properties ) {
 			$modules[ $slug ]['options'] = self::prepare_options_for_response( $slug );
+			if ( isset( $modules[ $slug ]['requires_connection'] ) && $modules[ $slug ]['requires_connection'] && Jetpack::is_development_mode() ) {
+				$modules[ $slug ]['activated'] = false;
+			}
 		}
 
 		return $modules;
@@ -713,6 +716,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$module = Jetpack::get_module( $data['slug'] );
 
 			$module['options'] = self::prepare_options_for_response( $data['slug'] );
+
+			if ( isset( $module['requires_connection'] ) && $module['requires_connection'] && Jetpack::is_development_mode() ) {
+				$module['activated'] = false;
+			}
 
 			return $module;
 		}
@@ -1233,7 +1240,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$atd_option = 'AtD_ignored_phrases';
 					$grouped_options = $grouped_options_current = explode( ',', AtD_get_setting( $user_id, $atd_option ) );
 					if ( 'ignored_phrases' == $option ) {
-						$grouped_options[] = $value;
+						$grouped_options = explode( ',', $value );
 					} else {
 						$index = array_search( $value, $grouped_options );
 						if ( false !== $index ) {

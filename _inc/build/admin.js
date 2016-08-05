@@ -54293,43 +54293,43 @@
 	
 	var _engagementIndexJsx2 = _interopRequireDefault(_engagementIndexJsx);
 	
-	var _securityIndexJsx = __webpack_require__(847);
+	var _securityIndexJsx = __webpack_require__(849);
 	
 	var _securityIndexJsx2 = _interopRequireDefault(_securityIndexJsx);
 	
-	var _appearanceIndexJsx = __webpack_require__(848);
+	var _appearanceIndexJsx = __webpack_require__(850);
 	
 	var _appearanceIndexJsx2 = _interopRequireDefault(_appearanceIndexJsx);
 	
-	var _generalSettingsIndexJsx = __webpack_require__(849);
+	var _generalSettingsIndexJsx = __webpack_require__(851);
 	
 	var _generalSettingsIndexJsx2 = _interopRequireDefault(_generalSettingsIndexJsx);
 	
-	var _writingIndexJsx = __webpack_require__(854);
+	var _writingIndexJsx = __webpack_require__(856);
 	
 	var _writingIndexJsx2 = _interopRequireDefault(_writingIndexJsx);
 	
-	var _appsIndexJsx = __webpack_require__(855);
+	var _appsIndexJsx = __webpack_require__(857);
 	
 	var _appsIndexJsx2 = _interopRequireDefault(_appsIndexJsx);
 	
-	var _plansIndexJsx = __webpack_require__(856);
+	var _plansIndexJsx = __webpack_require__(858);
 	
 	var _plansIndexJsx2 = _interopRequireDefault(_plansIndexJsx);
 	
-	var _componentsFooter = __webpack_require__(859);
+	var _componentsFooter = __webpack_require__(861);
 	
 	var _componentsFooter2 = _interopRequireDefault(_componentsFooter);
 	
-	var _componentsSupportCard = __webpack_require__(862);
+	var _componentsSupportCard = __webpack_require__(864);
 	
 	var _componentsSupportCard2 = _interopRequireDefault(_componentsSupportCard);
 	
-	var _componentsNonAdminView = __webpack_require__(865);
+	var _componentsNonAdminView = __webpack_require__(867);
 	
 	var _componentsNonAdminView2 = _interopRequireDefault(_componentsNonAdminView);
 	
-	var _componentsJetpackNotices = __webpack_require__(868);
+	var _componentsJetpackNotices = __webpack_require__(870);
 	
 	var _componentsJetpackNotices2 = _interopRequireDefault(_componentsJetpackNotices);
 	
@@ -76961,7 +76961,7 @@
 			});
 		}
 		cards = cards.map(function (element) {
-			var unavailableInDevMode = (0, _stateConnection.isUnavailableInDevMode)(props, element[0]),
+			var unavailableInDevMode = props.isUnavailableInDevMode(element[0]),
 			    customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			    toggle = '',
 			    adminAndNonAdmin = isAdmin || nonAdminAvailable.includes(element[0]),
@@ -77056,6 +77056,9 @@
 			},
 			getModule: function getModule(module_name) {
 				return (0, _stateModules.getModule)(state, module_name);
+			},
+			isUnavailableInDevMode: function isUnavailableInDevMode(module_name) {
+				return (0, _stateConnection.isUnavailableInDevMode)(state, module_name);
 			}
 		};
 	}, function (dispatch) {
@@ -77128,6 +77131,7 @@
 					return _react2['default'].createElement(_componentsModuleSettings.VerificationToolsSettings, _extends({ module: module }, this.props));
 				case 'notifications':
 				case 'enhanced-distribution':
+				case 'sitemaps':
 					return _react2['default'].createElement(
 						'span',
 						null,
@@ -77174,8 +77178,8 @@
 						'div',
 						null,
 						_react2['default'].createElement(
-							'a',
-							{ href: module.configure_url },
+							_componentsButton2['default'],
+							{ compact: true, href: module.configure_url },
 							(0, _i18nCalypso.translate)('Settings')
 						)
 					);
@@ -77214,8 +77218,8 @@
 						'div',
 						null,
 						_react2['default'].createElement(
-							'a',
-							{ href: module.configure_url },
+							_componentsButton2['default'],
+							{ compact: true, href: module.configure_url },
 							(0, _i18nCalypso.translate)('Settings')
 						)
 					);
@@ -77254,8 +77258,8 @@
 						'div',
 						null,
 						_react2['default'].createElement(
-							'a',
-							{ href: module.configure_url },
+							_componentsButton2['default'],
+							{ compact: true, href: module.configure_url },
 							(0, _i18nCalypso.translate)('Settings')
 						)
 					);
@@ -77299,15 +77303,19 @@
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
+	var _componentsTagsInput = __webpack_require__(815);
+	
+	var _componentsTagsInput2 = _interopRequireDefault(_componentsTagsInput);
+	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsForms = __webpack_require__(815);
+	var _componentsForms = __webpack_require__(817);
 	
-	var _componentsModuleSettingsFormComponents = __webpack_require__(838);
+	var _componentsModuleSettingsFormComponents = __webpack_require__(840);
 	
-	var _componentsModuleSettingsModuleSettingsForm = __webpack_require__(845);
+	var _componentsModuleSettingsModuleSettingsForm = __webpack_require__(847);
 	
 	var SharedaddySettings = _react2['default'].createClass({
 		displayName: 'SharedaddySettings',
@@ -78187,11 +78195,11 @@
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'Cliches'
 					}, this.props, {
-						label: (0, _i18nCalypso.translate)('Cliches') })),
+						label: (0, _i18nCalypso.translate)('Clichés') })),
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'Complex Expression'
 					}, this.props, {
-						label: (0, _i18nCalypso.translate)('Complex Expression') })),
+						label: (0, _i18nCalypso.translate)('Complex Phrases') })),
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'Diacritical Marks'
 					}, this.props, {
@@ -78199,7 +78207,7 @@
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'Double Negative'
 					}, this.props, {
-						label: (0, _i18nCalypso.translate)('Double Negative') })),
+						label: (0, _i18nCalypso.translate)('Double Negatives') })),
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'Hidden Verbs'
 					}, this.props, {
@@ -78207,11 +78215,11 @@
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'Jargon Language'
 					}, this.props, {
-						label: (0, _i18nCalypso.translate)('Jargon Language') })),
+						label: (0, _i18nCalypso.translate)('Jargon') })),
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'Passive voice'
 					}, this.props, {
-						label: (0, _i18nCalypso.translate)('Passive voice') })),
+						label: (0, _i18nCalypso.translate)('Passive Voice') })),
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'Phrases to Avoid'
 					}, this.props, {
@@ -78219,7 +78227,7 @@
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'Redundant Expression'
 					}, this.props, {
-						label: (0, _i18nCalypso.translate)('Redundant Expression') }))
+						label: (0, _i18nCalypso.translate)('Redundant Phrases') }))
 				),
 				_react2['default'].createElement(
 					_componentsForms.FormFieldset,
@@ -78233,7 +78241,25 @@
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'guess_lang'
 					}, this.props, {
-						label: (0, _i18nCalypso.translate)('Use automatically detected language to proofread posts and pages') })),
+						label: (0, _i18nCalypso.translate)('Use automatically detected language to proofread posts and pages') }))
+				),
+				_react2['default'].createElement(
+					_componentsForms.FormFieldset,
+					null,
+					_react2['default'].createElement(
+						_componentsForms.FormLegend,
+						null,
+						(0, _i18nCalypso.translate)('Ignored Phrases')
+					),
+					_react2['default'].createElement(_componentsTagsInput2['default'], {
+						name: 'ignored_phrases',
+						placeholder: (0, _i18nCalypso.translate)('Add a phrase'),
+						value: this.props.getOptionValue('ignored_phrases') !== '' ? this.props.getOptionValue('ignored_phrases').split(',') : [],
+						onChange: this.props.onOptionChange })
+				),
+				_react2['default'].createElement(
+					_componentsForms.FormFieldset,
+					null,
 					_react2['default'].createElement(_componentsForms.FormButton, {
 						className: 'is-primary',
 						isSubmitting: this.props.isSavingAnyOption(),
@@ -78280,6 +78306,661 @@
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _react = __webpack_require__(146);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactTagsinput = __webpack_require__(816);
+	
+	var _reactTagsinput2 = _interopRequireDefault(_reactTagsinput);
+	
+	var JetpackTagsInput = _react2['default'].createClass({
+		displayName: 'JetpackTagsInput',
+	
+		getInitialState: function getInitialState() {
+			return {
+				tags: this.props.value || []
+			};
+		},
+	
+		handleChange: function handleChange(tags) {
+			this.setState({ tags: tags });
+			if (this.props.onChange) {
+				this.props.onChange({
+					target: {
+						name: this.props.name,
+						value: tags.join(',')
+					}
+				});
+			}
+		},
+	
+		render: function render() {
+			var props = this.props;
+			return _react2['default'].createElement(_reactTagsinput2['default'], {
+				inputProps: { placeholder: props.placeholder },
+				onChange: this.handleChange,
+				value: this.state.tags });
+		}
+	});
+	
+	exports['default'] = JetpackTagsInput;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ },
+/* 816 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
+	  if (true) {
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [module, exports, __webpack_require__(146)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  } else if (typeof exports !== "undefined") {
+	    factory(module, exports, require('react'));
+	  } else {
+	    var mod = {
+	      exports: {}
+	    };
+	    factory(mod, mod.exports, global.React);
+	    global.ReactTagsInput = mod.exports;
+	  }
+	})(this, function (module, exports, _react) {
+	  'use strict';
+	
+	  Object.defineProperty(exports, "__esModule", {
+	    value: true
+	  });
+	
+	  var _react2 = _interopRequireDefault(_react);
+	
+	  function _interopRequireDefault(obj) {
+	    return obj && obj.__esModule ? obj : {
+	      default: obj
+	    };
+	  }
+	
+	  function _defineProperty(obj, key, value) {
+	    if (key in obj) {
+	      Object.defineProperty(obj, key, {
+	        value: value,
+	        enumerable: true,
+	        configurable: true,
+	        writable: true
+	      });
+	    } else {
+	      obj[key] = value;
+	    }
+	
+	    return obj;
+	  }
+	
+	  function _classCallCheck(instance, Constructor) {
+	    if (!(instance instanceof Constructor)) {
+	      throw new TypeError("Cannot call a class as a function");
+	    }
+	  }
+	
+	  var _createClass = function () {
+	    function defineProperties(target, props) {
+	      for (var i = 0; i < props.length; i++) {
+	        var descriptor = props[i];
+	        descriptor.enumerable = descriptor.enumerable || false;
+	        descriptor.configurable = true;
+	        if ("value" in descriptor) descriptor.writable = true;
+	        Object.defineProperty(target, descriptor.key, descriptor);
+	      }
+	    }
+	
+	    return function (Constructor, protoProps, staticProps) {
+	      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+	      if (staticProps) defineProperties(Constructor, staticProps);
+	      return Constructor;
+	    };
+	  }();
+	
+	  function _possibleConstructorReturn(self, call) {
+	    if (!self) {
+	      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+	    }
+	
+	    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+	  }
+	
+	  function _inherits(subClass, superClass) {
+	    if (typeof superClass !== "function" && superClass !== null) {
+	      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+	    }
+	
+	    subClass.prototype = Object.create(superClass && superClass.prototype, {
+	      constructor: {
+	        value: subClass,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+	  }
+	
+	  var _extends = Object.assign || function (target) {
+	    for (var i = 1; i < arguments.length; i++) {
+	      var source = arguments[i];
+	
+	      for (var key in source) {
+	        if (Object.prototype.hasOwnProperty.call(source, key)) {
+	          target[key] = source[key];
+	        }
+	      }
+	    }
+	
+	    return target;
+	  };
+	
+	  function _objectWithoutProperties(obj, keys) {
+	    var target = {};
+	
+	    for (var i in obj) {
+	      if (keys.indexOf(i) >= 0) continue;
+	      if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
+	      target[i] = obj[i];
+	    }
+	
+	    return target;
+	  }
+	
+	  function uniq(arr) {
+	    var out = [];
+	
+	    for (var i = 0; i < arr.length; i++) {
+	      if (out.indexOf(arr[i]) === -1) {
+	        out.push(arr[i]);
+	      }
+	    }
+	
+	    return out;
+	  }
+	
+	  /* istanbul ignore next */
+	  function getClipboardData(e) {
+	    if (window.clipboardData) {
+	      return window.clipboardData.getData('Text');
+	    }
+	
+	    if (e.clipboardData) {
+	      return e.clipboardData.getData('text/plain');
+	    }
+	
+	    return '';
+	  }
+	
+	  function defaultRenderTag(props) {
+	    var tag = props.tag;
+	    var key = props.key;
+	    var disabled = props.disabled;
+	    var onRemove = props.onRemove;
+	    var classNameRemove = props.classNameRemove;
+	    var getTagDisplayValue = props.getTagDisplayValue;
+	
+	    var other = _objectWithoutProperties(props, ['tag', 'key', 'disabled', 'onRemove', 'classNameRemove', 'getTagDisplayValue']);
+	
+	    return _react2.default.createElement(
+	      'span',
+	      _extends({ key: key }, other),
+	      getTagDisplayValue(tag),
+	      !disabled && _react2.default.createElement('a', { className: classNameRemove, onClick: function onClick(e) {
+	          return onRemove(key);
+	        } })
+	    );
+	  }
+	
+	  defaultRenderTag.propTypes = {
+	    key: _react2.default.PropTypes.number,
+	    tag: _react2.default.PropTypes.string,
+	    onRemove: _react2.default.PropTypes.func,
+	    classNameRemove: _react2.default.PropTypes.string,
+	    getTagDisplayValue: _react2.default.PropTypes.func
+	  };
+	
+	  function defaultRenderInput(props) {
+	    var onChange = props.onChange;
+	    var value = props.value;
+	    var addTag = props.addTag;
+	
+	    var other = _objectWithoutProperties(props, ['onChange', 'value', 'addTag']);
+	
+	    return _react2.default.createElement('input', _extends({ type: 'text', onChange: onChange, value: value }, other));
+	  }
+	
+	  defaultRenderInput.propTypes = {
+	    value: _react2.default.PropTypes.string,
+	    onChange: _react2.default.PropTypes.func,
+	    addTag: _react2.default.PropTypes.func
+	  };
+	
+	  function defaultRenderLayout(tagComponents, inputComponent) {
+	    return _react2.default.createElement(
+	      'span',
+	      null,
+	      tagComponents,
+	      inputComponent
+	    );
+	  }
+	
+	  function defaultPasteSplit(data) {
+	    return data.split(' ').map(function (d) {
+	      return d.trim();
+	    });
+	  }
+	
+	  var defaultInputProps = {
+	    className: 'react-tagsinput-input',
+	    placeholder: 'Add a tag'
+	  };
+	
+	  var TagsInput = function (_React$Component) {
+	    _inherits(TagsInput, _React$Component);
+	
+	    function TagsInput() {
+	      _classCallCheck(this, TagsInput);
+	
+	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TagsInput).call(this));
+	
+	      _this.state = { tag: '', isFocused: false };
+	      _this.focus = _this.focus.bind(_this);
+	      _this.blur = _this.blur.bind(_this);
+	      return _this;
+	    }
+	
+	    _createClass(TagsInput, [{
+	      key: '_getTagDisplayValue',
+	      value: function _getTagDisplayValue(tag) {
+	        var tagDisplayProp = this.props.tagDisplayProp;
+	
+	
+	        if (tagDisplayProp) {
+	          return tag[tagDisplayProp];
+	        }
+	
+	        return tag;
+	      }
+	    }, {
+	      key: '_makeTag',
+	      value: function _makeTag(tag) {
+	        var tagDisplayProp = this.props.tagDisplayProp;
+	
+	
+	        if (tagDisplayProp) {
+	          return _defineProperty({}, tagDisplayProp, tag);
+	        }
+	
+	        return tag;
+	      }
+	    }, {
+	      key: '_removeTag',
+	      value: function _removeTag(index) {
+	        var value = this.props.value.concat([]);
+	        if (index > -1 && index < value.length) {
+	          var changed = value.splice(index, 1);
+	          this.props.onChange(value, changed, [index]);
+	        }
+	      }
+	    }, {
+	      key: '_clearInput',
+	      value: function _clearInput() {
+	        this.setState({ tag: '' });
+	      }
+	    }, {
+	      key: '_addTags',
+	      value: function _addTags(tags) {
+	        var _this2 = this;
+	
+	        var _props = this.props;
+	        var validationRegex = _props.validationRegex;
+	        var onChange = _props.onChange;
+	        var onlyUnique = _props.onlyUnique;
+	        var maxTags = _props.maxTags;
+	        var value = _props.value;
+	
+	
+	        if (onlyUnique) {
+	          tags = uniq(tags);
+	          tags = tags.filter(function (tag) {
+	            return value.every(function (currentTag) {
+	              return _this2._getTagDisplayValue(currentTag) !== _this2._getTagDisplayValue(tag);
+	            });
+	          });
+	        }
+	
+	        tags = tags.filter(function (tag) {
+	          return validationRegex.test(_this2._getTagDisplayValue(tag));
+	        });
+	        tags = tags.filter(function (tag) {
+	          return _this2._getTagDisplayValue(tag).trim().length > 0;
+	        });
+	
+	        if (maxTags >= 0) {
+	          var remainingLimit = Math.max(maxTags - value.length, 0);
+	          tags = tags.slice(0, remainingLimit);
+	        }
+	
+	        if (tags.length > 0) {
+	          var newValue = value.concat(tags);
+	          var indexes = [];
+	          for (var i = 0; i < tags.length; i++) {
+	            indexes.push(value.length + i);
+	          }
+	          onChange(newValue, tags, indexes);
+	          this._clearInput();
+	          return true;
+	        }
+	
+	        return false;
+	      }
+	    }, {
+	      key: 'focus',
+	      value: function focus() {
+	        this.refs.input.focus();
+	        this.handleOnFocus();
+	      }
+	    }, {
+	      key: 'blur',
+	      value: function blur() {
+	        this.refs.input.blur();
+	        this.handleOnBlur();
+	      }
+	    }, {
+	      key: 'accept',
+	      value: function accept() {
+	        var tag = this.state.tag;
+	
+	
+	        if (tag !== '') {
+	          tag = this._makeTag(tag);
+	          return this._addTags([tag]);
+	        }
+	
+	        return false;
+	      }
+	    }, {
+	      key: 'addTag',
+	      value: function addTag(tag) {
+	        return this._addTags([tag]);
+	      }
+	    }, {
+	      key: 'clearInput',
+	      value: function clearInput() {
+	        this._clearInput();
+	      }
+	    }, {
+	      key: 'handlePaste',
+	      value: function handlePaste(e) {
+	        var _this3 = this;
+	
+	        var _props2 = this.props;
+	        var addOnPaste = _props2.addOnPaste;
+	        var pasteSplit = _props2.pasteSplit;
+	
+	
+	        if (!addOnPaste) {
+	          return;
+	        }
+	
+	        e.preventDefault();
+	
+	        var data = getClipboardData(e);
+	        var tags = pasteSplit(data).map(function (tag) {
+	          return _this3._makeTag(tag);
+	        });
+	
+	        this._addTags(tags);
+	      }
+	    }, {
+	      key: 'handleKeyDown',
+	      value: function handleKeyDown(e) {
+	        var _props3 = this.props;
+	        var value = _props3.value;
+	        var removeKeys = _props3.removeKeys;
+	        var addKeys = _props3.addKeys;
+	        var tag = this.state.tag;
+	
+	        var empty = tag === '';
+	        var keyCode = e.keyCode;
+	        var add = addKeys.indexOf(keyCode) !== -1;
+	        var remove = removeKeys.indexOf(keyCode) !== -1;
+	
+	        if (add) {
+	          var added = this.accept();
+	          // Special case for preventing forms submitting.
+	          if (added || keyCode === 13) {
+	            e.preventDefault();
+	          }
+	        }
+	
+	        if (remove && value.length > 0 && empty) {
+	          e.preventDefault();
+	          this._removeTag(value.length - 1);
+	        }
+	      }
+	    }, {
+	      key: 'handleClick',
+	      value: function handleClick(e) {
+	        if (e.target === this.refs.div) {
+	          this.focus();
+	        }
+	      }
+	    }, {
+	      key: 'handleChange',
+	      value: function handleChange(e) {
+	        var onChange = this.props.inputProps.onChange;
+	
+	        var tag = e.target.value;
+	
+	        if (onChange) {
+	          onChange(e);
+	        }
+	
+	        this.setState({ tag: tag });
+	      }
+	    }, {
+	      key: 'handleOnFocus',
+	      value: function handleOnFocus(e) {
+	        var onFocus = this.props.inputProps.onFocus;
+	
+	
+	        if (onFocus) {
+	          onFocus(e);
+	        }
+	
+	        this.setState({ isFocused: true });
+	      }
+	    }, {
+	      key: 'handleOnBlur',
+	      value: function handleOnBlur(e) {
+	        var onBlur = this.props.inputProps.onBlur;
+	
+	
+	        this.setState({ isFocused: false });
+	
+	        if (e == null) {
+	          return;
+	        }
+	
+	        if (onBlur) {
+	          onBlur(e);
+	        }
+	
+	        if (this.props.addOnBlur) {
+	          var tag = this._makeTag(e.target.value);
+	          this._addTags([tag]);
+	        }
+	      }
+	    }, {
+	      key: 'handleRemove',
+	      value: function handleRemove(tag) {
+	        this._removeTag(tag);
+	      }
+	    }, {
+	      key: 'inputProps',
+	      value: function inputProps() {
+	        var _props$inputProps = this.props.inputProps;
+	        var onChange = _props$inputProps.onChange;
+	        var onFocus = _props$inputProps.onFocus;
+	        var onBlur = _props$inputProps.onBlur;
+	
+	        var otherInputProps = _objectWithoutProperties(_props$inputProps, ['onChange', 'onFocus', 'onBlur']);
+	
+	        var props = _extends({}, defaultInputProps, otherInputProps);
+	
+	        if (this.props.disabled) {
+	          props.disabled = true;
+	        }
+	
+	        return props;
+	      }
+	    }, {
+	      key: 'componentDidMount',
+	      value: function componentDidMount() {
+	        this.setState({
+	          tag: this.props.currentValue
+	        });
+	      }
+	    }, {
+	      key: 'componentWillReceiveProps',
+	      value: function componentWillReceiveProps(nextProps) {
+	        if (!nextProps.currentValue) {
+	          return;
+	        }
+	
+	        this.setState({
+	          tag: nextProps.currentValue
+	        });
+	      }
+	    }, {
+	      key: 'render',
+	      value: function render() {
+	        var _this4 = this;
+	
+	        var _props4 = this.props;
+	        var value = _props4.value;
+	        var onChange = _props4.onChange;
+	        var tagProps = _props4.tagProps;
+	        var renderLayout = _props4.renderLayout;
+	        var renderTag = _props4.renderTag;
+	        var renderInput = _props4.renderInput;
+	        var addKeys = _props4.addKeys;
+	        var removeKeys = _props4.removeKeys;
+	        var className = _props4.className;
+	        var focusedClassName = _props4.focusedClassName;
+	        var addOnBlur = _props4.addOnBlur;
+	        var addOnPaste = _props4.addOnPaste;
+	        var inputProps = _props4.inputProps;
+	        var pasteSplit = _props4.pasteSplit;
+	        var onlyUnique = _props4.onlyUnique;
+	        var maxTags = _props4.maxTags;
+	        var validationRegex = _props4.validationRegex;
+	        var disabled = _props4.disabled;
+	        var tagDisplayProp = _props4.tagDisplayProp;
+	
+	        var other = _objectWithoutProperties(_props4, ['value', 'onChange', 'tagProps', 'renderLayout', 'renderTag', 'renderInput', 'addKeys', 'removeKeys', 'className', 'focusedClassName', 'addOnBlur', 'addOnPaste', 'inputProps', 'pasteSplit', 'onlyUnique', 'maxTags', 'validationRegex', 'disabled', 'tagDisplayProp']);
+	
+	        var _state = this.state;
+	        var tag = _state.tag;
+	        var isFocused = _state.isFocused;
+	
+	
+	        if (isFocused) {
+	          className += ' ' + focusedClassName;
+	        }
+	
+	        var tagComponents = value.map(function (tag, index) {
+	          return renderTag(_extends({
+	            key: index, tag: tag, onRemove: _this4.handleRemove.bind(_this4), disabled: disabled, getTagDisplayValue: _this4._getTagDisplayValue.bind(_this4) }, tagProps));
+	        });
+	
+	        var inputComponent = renderInput(_extends({
+	          ref: 'input',
+	          value: tag,
+	          onPaste: this.handlePaste.bind(this),
+	          onKeyDown: this.handleKeyDown.bind(this),
+	          onChange: this.handleChange.bind(this),
+	          onFocus: this.handleOnFocus.bind(this),
+	          onBlur: this.handleOnBlur.bind(this),
+	          addTag: this.addTag.bind(this)
+	        }, this.inputProps()));
+	
+	        return _react2.default.createElement(
+	          'div',
+	          { ref: 'div', onClick: this.handleClick.bind(this), className: className },
+	          renderLayout(tagComponents, inputComponent)
+	        );
+	      }
+	    }]);
+	
+	    return TagsInput;
+	  }(_react2.default.Component);
+	
+	  TagsInput.propTypes = {
+	    focusedClassName: _react2.default.PropTypes.string,
+	    addKeys: _react2.default.PropTypes.array,
+	    addOnBlur: _react2.default.PropTypes.bool,
+	    addOnPaste: _react2.default.PropTypes.bool,
+	    currentValue: _react2.default.PropTypes.string,
+	    inputProps: _react2.default.PropTypes.object,
+	    onChange: _react2.default.PropTypes.func.isRequired,
+	    removeKeys: _react2.default.PropTypes.array,
+	    renderInput: _react2.default.PropTypes.func,
+	    renderTag: _react2.default.PropTypes.func,
+	    renderLayout: _react2.default.PropTypes.func,
+	    pasteSplit: _react2.default.PropTypes.func,
+	    tagProps: _react2.default.PropTypes.object,
+	    onlyUnique: _react2.default.PropTypes.bool,
+	    value: _react2.default.PropTypes.array.isRequired,
+	    maxTags: _react2.default.PropTypes.number,
+	    validationRegex: _react2.default.PropTypes.instanceOf(RegExp),
+	    disabled: _react2.default.PropTypes.bool,
+	    tagDisplayProp: _react2.default.PropTypes.string
+	  };
+	  TagsInput.defaultProps = {
+	    className: 'react-tagsinput',
+	    focusedClassName: 'react-tagsinput--focused',
+	    currentValue: '',
+	    addKeys: [9, 13],
+	    addOnBlur: false,
+	    addOnPaste: false,
+	    inputProps: {},
+	    removeKeys: [8],
+	    renderInput: defaultRenderInput,
+	    renderTag: defaultRenderTag,
+	    renderLayout: defaultRenderLayout,
+	    pasteSplit: defaultPasteSplit,
+	    tagProps: { className: 'react-tagsinput-tag', classNameRemove: 'react-tagsinput-remove' },
+	    onlyUnique: false,
+	    maxTags: -1,
+	    validationRegex: /.*/,
+	    disabled: false,
+	    tagDisplayProp: null
+	  };
+	  exports.default = TagsInput;
+	  module.exports = exports['default'];
+	});
+	
+
+
+/***/ },
+/* 817 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	
 	/**
 	 * External dependencies
 	 */
@@ -78297,11 +78978,11 @@
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
-	var _lodashOmit = __webpack_require__(816);
+	var _lodashOmit = __webpack_require__(818);
 	
 	var _lodashOmit2 = _interopRequireDefault(_lodashOmit);
 	
-	var _lodashIsEmpty = __webpack_require__(835);
+	var _lodashIsEmpty = __webpack_require__(837);
 	
 	var _lodashIsEmpty2 = _interopRequireDefault(_lodashIsEmpty);
 	
@@ -78471,15 +79152,15 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 816 */
+/* 818 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var arrayMap = __webpack_require__(492),
-	    baseDifference = __webpack_require__(817),
-	    baseFlatten = __webpack_require__(821),
-	    basePick = __webpack_require__(824),
+	    baseDifference = __webpack_require__(819),
+	    baseFlatten = __webpack_require__(823),
+	    basePick = __webpack_require__(826),
 	    baseRest = __webpack_require__(257),
-	    getAllKeysIn = __webpack_require__(826),
+	    getAllKeysIn = __webpack_require__(828),
 	    toKey = __webpack_require__(318);
 	
 	/**
@@ -78513,15 +79194,15 @@
 
 
 /***/ },
-/* 817 */
+/* 819 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var SetCache = __webpack_require__(685),
-	    arrayIncludes = __webpack_require__(818),
-	    arrayIncludesWith = __webpack_require__(819),
+	    arrayIncludes = __webpack_require__(820),
+	    arrayIncludesWith = __webpack_require__(821),
 	    arrayMap = __webpack_require__(492),
 	    baseUnary = __webpack_require__(702),
-	    cacheHas = __webpack_require__(820);
+	    cacheHas = __webpack_require__(822);
 	
 	/** Used as the size to enable large array optimizations. */
 	var LARGE_ARRAY_SIZE = 200;
@@ -78586,7 +79267,7 @@
 
 
 /***/ },
-/* 818 */
+/* 820 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var baseIndexOf = __webpack_require__(484);
@@ -78609,7 +79290,7 @@
 
 
 /***/ },
-/* 819 */
+/* 821 */
 /***/ function(module, exports) {
 
 	/**
@@ -78637,7 +79318,7 @@
 
 
 /***/ },
-/* 820 */
+/* 822 */
 /***/ function(module, exports) {
 
 	/**
@@ -78656,11 +79337,11 @@
 
 
 /***/ },
-/* 821 */
+/* 823 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(822),
-	    isFlattenable = __webpack_require__(823);
+	var arrayPush = __webpack_require__(824),
+	    isFlattenable = __webpack_require__(825);
 	
 	/**
 	 * The base implementation of `_.flatten` with support for restricting flattening.
@@ -78700,7 +79381,7 @@
 
 
 /***/ },
-/* 822 */
+/* 824 */
 /***/ function(module, exports) {
 
 	/**
@@ -78726,7 +79407,7 @@
 
 
 /***/ },
-/* 823 */
+/* 825 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Symbol = __webpack_require__(315),
@@ -78752,10 +79433,10 @@
 
 
 /***/ },
-/* 824 */
+/* 826 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var basePickBy = __webpack_require__(825);
+	var basePickBy = __webpack_require__(827);
 	
 	/**
 	 * The base implementation of `_.pick` without support for individual
@@ -78777,7 +79458,7 @@
 
 
 /***/ },
-/* 825 */
+/* 827 */
 /***/ function(module, exports) {
 
 	/**
@@ -78809,12 +79490,12 @@
 
 
 /***/ },
-/* 826 */
+/* 828 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetAllKeys = __webpack_require__(827),
-	    getSymbolsIn = __webpack_require__(828),
-	    keysIn = __webpack_require__(831);
+	var baseGetAllKeys = __webpack_require__(829),
+	    getSymbolsIn = __webpack_require__(830),
+	    keysIn = __webpack_require__(833);
 	
 	/**
 	 * Creates an array of own and inherited enumerable property names and
@@ -78832,10 +79513,10 @@
 
 
 /***/ },
-/* 827 */
+/* 829 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(822),
+	var arrayPush = __webpack_require__(824),
 	    isArray = __webpack_require__(275);
 	
 	/**
@@ -78858,13 +79539,13 @@
 
 
 /***/ },
-/* 828 */
+/* 830 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(822),
+	var arrayPush = __webpack_require__(824),
 	    getPrototype = __webpack_require__(168),
-	    getSymbols = __webpack_require__(829),
-	    stubArray = __webpack_require__(830);
+	    getSymbols = __webpack_require__(831),
+	    stubArray = __webpack_require__(832);
 	
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -78890,11 +79571,11 @@
 
 
 /***/ },
-/* 829 */
+/* 831 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var overArg = __webpack_require__(169),
-	    stubArray = __webpack_require__(830);
+	    stubArray = __webpack_require__(832);
 	
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -78912,7 +79593,7 @@
 
 
 /***/ },
-/* 830 */
+/* 832 */
 /***/ function(module, exports) {
 
 	/**
@@ -78941,10 +79622,10 @@
 
 
 /***/ },
-/* 831 */
+/* 833 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseKeysIn = __webpack_require__(832),
+	var baseKeysIn = __webpack_require__(834),
 	    indexKeys = __webpack_require__(271),
 	    isIndex = __webpack_require__(266),
 	    isPrototype = __webpack_require__(267);
@@ -79002,11 +79683,11 @@
 
 
 /***/ },
-/* 832 */
+/* 834 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Reflect = __webpack_require__(833),
-	    iteratorToArray = __webpack_require__(834);
+	var Reflect = __webpack_require__(835),
+	    iteratorToArray = __webpack_require__(836);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -79044,7 +79725,7 @@
 
 
 /***/ },
-/* 833 */
+/* 835 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var root = __webpack_require__(291);
@@ -79056,7 +79737,7 @@
 
 
 /***/ },
-/* 834 */
+/* 836 */
 /***/ function(module, exports) {
 
 	/**
@@ -79080,14 +79761,14 @@
 
 
 /***/ },
-/* 835 */
+/* 837 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var getTag = __webpack_require__(694),
 	    isArguments = __webpack_require__(273),
 	    isArray = __webpack_require__(275),
 	    isArrayLike = __webpack_require__(260),
-	    isBuffer = __webpack_require__(836),
+	    isBuffer = __webpack_require__(838),
 	    isFunction = __webpack_require__(263),
 	    isObjectLike = __webpack_require__(171),
 	    isString = __webpack_require__(276),
@@ -79166,11 +79847,11 @@
 
 
 /***/ },
-/* 836 */
+/* 838 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(291),
-	    stubFalse = __webpack_require__(837);
+	    stubFalse = __webpack_require__(839);
 	
 	/** Detect free variable `exports`. */
 	var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -79211,7 +79892,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(328)(module)))
 
 /***/ },
-/* 837 */
+/* 839 */
 /***/ function(module, exports) {
 
 	/**
@@ -79235,7 +79916,7 @@
 
 
 /***/ },
-/* 838 */
+/* 840 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -79255,11 +79936,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _lodashConcat = __webpack_require__(839);
+	var _lodashConcat = __webpack_require__(841);
 	
 	var _lodashConcat2 = _interopRequireDefault(_lodashConcat);
 	
-	var _lodashWithout = __webpack_require__(841);
+	var _lodashWithout = __webpack_require__(843);
 	
 	var _lodashWithout2 = _interopRequireDefault(_lodashWithout);
 	
@@ -79267,9 +79948,9 @@
 	 * Internal dependencies
 	 */
 	
-	var _componentsForms = __webpack_require__(815);
+	var _componentsForms = __webpack_require__(817);
 	
-	var _componentsCheckbox = __webpack_require__(842);
+	var _componentsCheckbox = __webpack_require__(844);
 	
 	var _componentsCheckbox2 = _interopRequireDefault(_componentsCheckbox);
 	
@@ -79384,12 +80065,12 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "form-components.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 839 */
+/* 841 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(822),
-	    baseFlatten = __webpack_require__(821),
-	    copyArray = __webpack_require__(840),
+	var arrayPush = __webpack_require__(824),
+	    baseFlatten = __webpack_require__(823),
+	    copyArray = __webpack_require__(842),
 	    isArray = __webpack_require__(275);
 	
 	/**
@@ -79432,7 +80113,7 @@
 
 
 /***/ },
-/* 840 */
+/* 842 */
 /***/ function(module, exports) {
 
 	/**
@@ -79458,10 +80139,10 @@
 
 
 /***/ },
-/* 841 */
+/* 843 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseDifference = __webpack_require__(817),
+	var baseDifference = __webpack_require__(819),
 	    baseRest = __webpack_require__(257),
 	    isArrayLikeObject = __webpack_require__(274);
 	
@@ -79495,7 +80176,7 @@
 
 
 /***/ },
-/* 842 */
+/* 844 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -79511,7 +80192,7 @@
 	    classnames = __webpack_require__(560),
 	    omit = __webpack_require__(726);
 	
-	__webpack_require__(843);
+	__webpack_require__(845);
 	
 	module.exports = React.createClass({
 	
@@ -79538,14 +80219,14 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 843 */
+/* 845 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 844 */,
-/* 845 */
+/* 846 */,
+/* 847 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -79575,7 +80256,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _componentsModuleSettingsConnectModuleOptions = __webpack_require__(846);
+	var _componentsModuleSettingsConnectModuleOptions = __webpack_require__(848);
 	
 	function ModuleSettingsForm(InnerComponent) {
 		var SettingsForm = _react2['default'].createClass({
@@ -79592,16 +80273,7 @@
 				// Get the option value from the `checked` property if present.
 				if (event.target.type === 'checkbox') {
 					optionValue = typeof event.target.checked !== 'undefined' ? event.target.checked : event.target.value;
-				}
-				if (event.target.type === 'radio') {
-					optionValue = event.target.value;
-				}
-	
-				if (event.target.type === 'text') {
-					optionValue = event.target.value;
-				}
-	
-				if (event.target.type === 'textarea') {
+				} else {
 					optionValue = event.target.value;
 				}
 	
@@ -79658,7 +80330,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "module-settings-form.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 846 */
+/* 848 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -79723,7 +80395,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "connect-module-options.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 847 */
+/* 849 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -79806,7 +80478,7 @@
 		var isFetchingSiteData = props.isFetchingSiteData;
 	
 		var cards = [['scan', (0, _i18nCalypso.translate)('Security Scanning'), (0, _i18nCalypso.translate)('Automatically scan your site for common threats and attacks.')], ['protect', getModule('protect').name, getModule('protect').description, getModule('protect').learn_more_button], ['monitor', getModule('monitor').name, getModule('monitor').description, getModule('monitor').learn_more_button], ['akismet', 'Akismet', (0, _i18nCalypso.translate)('Keep those spammers away!'), 'https://akismet.com/jetpack/'], ['backups', (0, _i18nCalypso.translate)('Site Backups'), (0, _i18nCalypso.translate)('Keep your site backed up!'), 'https://vaultpress.com/jetpack/'], ['sso', getModule('sso').name, getModule('sso').description, getModule('sso').learn_more_button]].map(function (element) {
-			var unavailableInDevMode = (0, _stateConnection.isUnavailableInDevMode)(props, element[0]),
+			var unavailableInDevMode = props.isUnavailableInDevMode(element[0]),
 			    toggle = unavailableInDevMode ? (0, _i18nCalypso.translate)('Unavailable in Dev Mode') : _react2['default'].createElement(_componentsModuleToggle.ModuleToggle, { slug: element[0], activated: isModuleActivated(element[0]),
 				toggling: isTogglingModule(element[0]),
 				toggleModule: toggleModule }),
@@ -79866,7 +80538,7 @@
 					if (active && installed) {
 						return (0, _i18nCalypso.translate)('ACTIVE');
 					} else {
-						return _react2['default'].createElement(
+						return unavailableInDevMode ? (0, _i18nCalypso.translate)('Unavailable in Dev Mode') : _react2['default'].createElement(
 							_componentsButton2['default'],
 							{
 								compact: true,
@@ -79982,6 +80654,9 @@
 			},
 			getAkismetData: function getAkismetData() {
 				return (0, _stateAtAGlance.getAkismetData)(state);
+			},
+			isUnavailableInDevMode: function isUnavailableInDevMode(module_name) {
+				return (0, _stateConnection.isUnavailableInDevMode)(state, module_name);
 			}
 		};
 	}, function (dispatch) {
@@ -79998,7 +80673,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 848 */
+/* 850 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -80053,7 +80728,7 @@
 		var getModule = props.getModule;
 	
 		var cards = [['tiled-gallery', getModule('tiled-gallery').name, getModule('tiled-gallery').description, getModule('tiled-gallery').learn_more_button], ['photon', getModule('photon').name, getModule('photon').description, getModule('photon').learn_more_button], ['carousel', getModule('carousel').name, getModule('carousel').description, getModule('carousel').learn_more_button], ['widgets', getModule('widgets').name, getModule('widgets').description, getModule('widgets').learn_more_button], ['widget-visibility', getModule('widget-visibility').name, getModule('widget-visibility').description, getModule('widget-visibility').learn_more_button], ['custom-css', getModule('custom-css').name, getModule('custom-css').description, getModule('custom-css').learn_more_button], ['infinite-scroll', getModule('infinite-scroll').name, getModule('infinite-scroll').description, getModule('infinite-scroll').learn_more_button], ['minileven', getModule('minileven').name, getModule('minileven').description, getModule('minileven').learn_more_button]].map(function (element) {
-			var unavailableInDevMode = (0, _stateConnection.isUnavailableInDevMode)(props, element[0]),
+			var unavailableInDevMode = props.isUnavailableInDevMode(element[0]),
 			    toggle = unavailableInDevMode ? (0, _i18nCalypso.translate)('Unavailable in Dev Mode') : _react2['default'].createElement(_componentsModuleToggle.ModuleToggle, { slug: element[0], activated: isModuleActivated(element[0]),
 				toggling: isTogglingModule(element[0]),
 				toggleModule: toggleModule }),
@@ -80111,6 +80786,9 @@
 			},
 			getModule: function getModule(module_name) {
 				return (0, _stateModules.getModule)(state, module_name);
+			},
+			isUnavailableInDevMode: function isUnavailableInDevMode(module_name) {
+				return (0, _stateConnection.isUnavailableInDevMode)(state, module_name);
 			}
 		};
 	}, function (dispatch) {
@@ -80124,7 +80802,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 849 */
+/* 851 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -80160,7 +80838,7 @@
 	
 	var _componentsGridicon2 = _interopRequireDefault(_componentsGridicon);
 	
-	var _componentsSettings = __webpack_require__(850);
+	var _componentsSettings = __webpack_require__(852);
 	
 	var _componentsSettings2 = _interopRequireDefault(_componentsSettings);
 	
@@ -80170,7 +80848,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _connectionSettings = __webpack_require__(852);
+	var _connectionSettings = __webpack_require__(854);
 	
 	var _connectionSettings2 = _interopRequireDefault(_connectionSettings);
 	
@@ -80180,84 +80858,92 @@
 	
 	var _componentsModuleToggle = __webpack_require__(793);
 	
-	var GeneralSettings = _react2['default'].createClass({
-		displayName: 'GeneralSettings',
+	var Page = function Page(props) {
+		var toggleModule = props.toggleModule;
+		var isModuleActivated = props.isModuleActivated;
+		var isTogglingModule = props.isTogglingModule;
+		var getModule = props.getModule;
 	
-		render: function render() {
-			var _this = this;
+		var isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
 	
-			var nonAdmin = !window.Initial_State.userData.currentUser.permissions.manage_modules;
-			var toggle = function toggle(module_name) {
-				return _react2['default'].createElement(_componentsModuleToggle.ModuleToggle, {
-					slug: module_name,
-					activated: _this.props.isModuleActivated(module_name),
-					toggling: _this.props.isTogglingModule(module_name),
-					toggleModule: _this.props.toggleModule
-				});
-			};
+		var moduleCard = function moduleCard(module_slug) {
+			var unavailableInDevMode = props.isUnavailableInDevMode(module_slug),
+			    customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
+			    toggle = '';
 	
-			var moduleCard = function moduleCard(module_slug) {
-				var requires_connection = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
-				return _react2['default'].createElement(
-					_componentsFoldableCard2['default'],
-					{
-						header: _this.props.getModule(module_slug).name,
-						subheader: _this.props.getModule(module_slug).description,
-						clickableHeaderText: true,
-						disabled: (0, _stateConnection.isDevMode)(_this.props) && requires_connection || nonAdmin,
-						summary: nonAdmin ? '' : toggle(module_slug),
-						expandedSummary: nonAdmin ? '' : toggle(module_slug)
-					},
-					_react2['default'].createElement('div', { dangerouslySetInnerHTML: renderLongDescription(_this.props.getModule(module_slug)) }),
+			if (unavailableInDevMode) {
+				toggle = function () {
+					return (0, _i18nCalypso.translate)('Unavailable in Dev Mode');
+				};
+			} else if (isAdmin) {
+				toggle = function (module_name) {
+					return _react2['default'].createElement(_componentsModuleToggle.ModuleToggle, {
+						slug: module_name,
+						activated: isModuleActivated(module_name),
+						toggling: isTogglingModule(module_name),
+						toggleModule: toggleModule
+					});
+				};
+			}
+			return _react2['default'].createElement(
+				_componentsFoldableCard2['default'],
+				{
+					className: customClasses,
+					header: getModule(module_slug).name,
+					subheader: getModule(module_slug).description,
+					clickableHeaderText: true,
+					disabled: !isAdmin,
+					summary: isAdmin ? toggle(module_slug) : '',
+					expandedSummary: isAdmin ? toggle(module_slug) : ''
+				},
+				_react2['default'].createElement('div', { dangerouslySetInnerHTML: renderLongDescription(getModule(module_slug)) }),
+				_react2['default'].createElement(
+					'div',
+					{ className: 'jp-module-settings__read-more' },
 					_react2['default'].createElement(
-						'div',
-						{ className: 'jp-module-settings__read-more' },
+						_componentsButton2['default'],
+						{ borderless: true, compact: true, href: getModule(module_slug).learn_more_button },
+						_react2['default'].createElement(_componentsGridicon2['default'], { icon: 'help-outline' }),
 						_react2['default'].createElement(
-							_componentsButton2['default'],
-							{ borderless: true, compact: true, href: _this.props.getModule(module_slug).learn_more_button },
-							_react2['default'].createElement(_componentsGridicon2['default'], { icon: 'help-outline' }),
-							_react2['default'].createElement(
-								'span',
-								{ className: 'screen-reader-text' },
-								(0, _i18nCalypso.translate)('Learn More')
-							)
+							'span',
+							{ className: 'screen-reader-text' },
+							(0, _i18nCalypso.translate)('Learn More')
 						)
 					)
-				);
-			};
-	
-			var maybeShowManage = this.props.isModuleActivated('manage') ? '' : moduleCard('manage');
-	
-			return _react2['default'].createElement(
-				'div',
-				null,
-				_react2['default'].createElement(
-					_componentsFoldableCard2['default'],
-					{
-						header: (0, _i18nCalypso.translate)('Connection Settings'),
-						subheader: (0, _i18nCalypso.translate)('Manage your connected user accounts or disconnect.'),
-						clickableHeaderText: true,
-						disabled: (0, _stateConnection.isDevMode)(this.props)
-					},
-					_react2['default'].createElement(_connectionSettings2['default'], this.props)
-				),
-				maybeShowManage,
-				moduleCard('notes'),
-				moduleCard('json-api'),
-				_react2['default'].createElement(
-					_componentsFoldableCard2['default'],
-					{
-						header: (0, _i18nCalypso.translate)('Miscellaneous Settings'),
-						subheader: (0, _i18nCalypso.translate)('Manage Snow and other fun things for your site.'),
-						clickableHeaderText: true,
-						disabled: nonAdmin
-					},
-					_react2['default'].createElement(_componentsSettings2['default'], null)
 				)
 			);
-		}
-	});
+		};
 	
+		return _react2['default'].createElement(
+			'div',
+			null,
+			isAdmin ? _react2['default'].createElement(
+				_componentsFoldableCard2['default'],
+				{
+					header: (0, _i18nCalypso.translate)('Connection Settings'),
+					subheader: (0, _i18nCalypso.translate)('Manage your connected user accounts or disconnect.'),
+					clickableHeaderText: true,
+					disabled: !isAdmin
+				},
+				_react2['default'].createElement(_connectionSettings2['default'], props)
+			) : '',
+			isModuleActivated('manage') ? '' : moduleCard('manage'),
+			moduleCard('notes'),
+			moduleCard('json-api'),
+			_react2['default'].createElement(
+				_componentsFoldableCard2['default'],
+				{
+					header: (0, _i18nCalypso.translate)('Miscellaneous Settings'),
+					subheader: (0, _i18nCalypso.translate)('Manage Snow and other fun things for your site.'),
+					clickableHeaderText: true,
+					disabled: !isAdmin
+				},
+				_react2['default'].createElement(_componentsSettings2['default'], null)
+			)
+		);
+	};
+	
+	exports.Page = Page;
 	function renderLongDescription(module) {
 		// Rationale behind returning an object and not just the string
 		// https://facebook.github.io/react/tips/dangerously-set-inner-html.html
@@ -80274,6 +80960,9 @@
 			},
 			isTogglingModule: function isTogglingModule(module_name) {
 				return (0, _stateModules.isActivatingModule)(state, module_name) || (0, _stateModules.isDeactivatingModule)(state, module_name);
+			},
+			isUnavailableInDevMode: function isUnavailableInDevMode(module_name) {
+				return (0, _stateConnection.isUnavailableInDevMode)(state, module_name);
 			}
 		};
 	}, function (dispatch) {
@@ -80281,30 +80970,16 @@
 			toggleModule: function toggleModule(module_name, activated) {
 				return activated ? dispatch((0, _stateModules.deactivateModule)(module_name)) : dispatch((0, _stateModules.activateModule)(module_name));
 			},
-			fetchPluginsData: (function (_fetchPluginsData) {
-				function fetchPluginsData() {
-					return _fetchPluginsData.apply(this, arguments);
-				}
-	
-				fetchPluginsData.toString = function () {
-					return _fetchPluginsData.toString();
-				};
-	
-				return fetchPluginsData;
-			})(function () {
-				return dispatch(fetchPluginsData());
-			}),
 			disconnectSite: function disconnectSite() {
 				return dispatch(_stateConnection.disconnectSite);
 			}
 		};
-	})(GeneralSettings);
-	module.exports = exports['default'];
-
+	})(Page);
+	
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 850 */
+/* 852 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -80329,7 +81004,7 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsSettingToggle = __webpack_require__(851);
+	var _componentsSettingToggle = __webpack_require__(853);
 	
 	var _i18nCalypso = __webpack_require__(352);
 	
@@ -80387,7 +81062,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 851 */
+/* 853 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -80449,7 +81124,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 852 */
+/* 854 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -80471,13 +81146,15 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
+	var _i18nCalypso = __webpack_require__(352);
+	
 	/**
 	 * Internal dependencies
 	 */
 	
 	var _stateConnection = __webpack_require__(334);
 	
-	var _componentsDataQueryUserConnection = __webpack_require__(853);
+	var _componentsDataQueryUserConnection = __webpack_require__(855);
 	
 	var _componentsDataQueryUserConnection2 = _interopRequireDefault(_componentsDataQueryUserConnection);
 	
@@ -80490,16 +81167,28 @@
 	
 		renderContent: function renderContent() {
 			var userData = window.Initial_State.userData;
-			var isLinked = this.props.isLinked(this.props);
 	
 			var maybeShowDisconnectBtn = userData.currentUser.permissions.disconnect ? _react2['default'].createElement(_componentsConnectButton2['default'], null) : null;
 	
 			var maybeShowLinkUnlinkBtn = userData.currentUser.isMaster ? null : _react2['default'].createElement(_componentsConnectButton2['default'], { connectUser: true });
 	
-			return _react2['default'].createElement(
+			return (0, _stateConnection.isDevMode)(this.props) ? _react2['default'].createElement(
 				'div',
 				null,
-				isLinked ? 'You are linked to WordPress.com account ' + userData.currentUser.wpcomUser.login + ' / ' + userData.currentUser.wpcomUser.email : 'You, ' + userData.currentUser.username + ', are not connected to WordPress.com',
+				(0, _i18nCalypso.translate)('The site is in Development Mode, so you can not connect to WordPress.com.')
+			) : _react2['default'].createElement(
+				'div',
+				null,
+				this.props.isLinked(this.props) ? (0, _i18nCalypso.translate)('You are linked to WordPress.com account {{userLogin}} / {{userEmail}}.', {
+					components: {
+						userLogin: userData.currentUser.wpcomUser.login,
+						userEmail: userData.currentUser.wpcomUser.email
+					}
+				}) : (0, _i18nCalypso.translate)('You, {{userName}}, are not connected to WordPress.com.', {
+					components: {
+						userName: userData.currentUser.username
+					}
+				}),
 				maybeShowDisconnectBtn,
 				maybeShowLinkUnlinkBtn
 			);
@@ -80527,7 +81216,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "connection-settings.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 853 */
+/* 855 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -80603,7 +81292,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 854 */
+/* 856 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -80677,7 +81366,7 @@
 			});
 		}
 		cards = cards.map(function (element, i) {
-			var unavailableInDevMode = (0, _stateConnection.isUnavailableInDevMode)(props, element[0]),
+			var unavailableInDevMode = props.isUnavailableInDevMode(element[0]),
 			    customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			    toggle = '',
 			    adminAndNonAdmin = isAdmin || nonAdminAvailable.includes(element[0]);
@@ -80755,6 +81444,9 @@
 			},
 			getModule: function getModule(module_name) {
 				return (0, _stateModules.getModule)(state, module_name);
+			},
+			isUnavailableInDevMode: function isUnavailableInDevMode(module_name) {
+				return (0, _stateConnection.isUnavailableInDevMode)(state, module_name);
 			}
 		};
 	}, function (dispatch) {
@@ -80768,7 +81460,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 855 */
+/* 857 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -81085,7 +81777,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 856 */
+/* 858 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -81125,11 +81817,11 @@
 	
 	var _stateConnection = __webpack_require__(334);
 	
-	var _planHeader = __webpack_require__(857);
+	var _planHeader = __webpack_require__(859);
 	
 	var _planHeader2 = _interopRequireDefault(_planHeader);
 	
-	var _planBody = __webpack_require__(858);
+	var _planBody = __webpack_require__(860);
 	
 	var _planBody2 = _interopRequireDefault(_planBody);
 	
@@ -81184,7 +81876,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 857 */
+/* 859 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -81422,7 +82114,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "plan-header.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 858 */
+/* 860 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -81653,7 +82345,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "plan-body.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 859 */
+/* 861 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -81687,7 +82379,7 @@
 	
 	var _stateInitialState = __webpack_require__(250);
 	
-	var _stateDevVersion = __webpack_require__(860);
+	var _stateDevVersion = __webpack_require__(862);
 	
 	var _stateConnection = __webpack_require__(334);
 	
@@ -81838,7 +82530,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 860 */
+/* 862 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -81853,14 +82545,14 @@
 	
 	function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 	
-	var _actions = __webpack_require__(861);
+	var _actions = __webpack_require__(863);
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 861 */
+/* 863 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -81904,7 +82596,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 862 */
+/* 864 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -81928,7 +82620,7 @@
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
-	var _lodashSample = __webpack_require__(863);
+	var _lodashSample = __webpack_require__(865);
 	
 	var _lodashSample2 = _interopRequireDefault(_lodashSample);
 	
@@ -82045,10 +82737,10 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 863 */
+/* 865 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseRandom = __webpack_require__(864),
+	var baseRandom = __webpack_require__(866),
 	    isArrayLike = __webpack_require__(260),
 	    values = __webpack_require__(490);
 	
@@ -82077,7 +82769,7 @@
 
 
 /***/ },
-/* 864 */
+/* 866 */
 /***/ function(module, exports) {
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
@@ -82101,7 +82793,7 @@
 
 
 /***/ },
-/* 865 */
+/* 867 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -82139,15 +82831,15 @@
 	
 	var _stateConnection = __webpack_require__(334);
 	
-	var _componentsDataQueryUserConnection = __webpack_require__(853);
+	var _componentsDataQueryUserConnection = __webpack_require__(855);
 	
 	var _componentsDataQueryUserConnection2 = _interopRequireDefault(_componentsDataQueryUserConnection);
 	
-	var _connected = __webpack_require__(866);
+	var _connected = __webpack_require__(868);
 	
 	var _connected2 = _interopRequireDefault(_connected);
 	
-	var _notConnected = __webpack_require__(867);
+	var _notConnected = __webpack_require__(869);
 	
 	var _notConnected2 = _interopRequireDefault(_notConnected);
 	
@@ -82192,7 +82884,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 866 */
+/* 868 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -82230,7 +82922,7 @@
 	
 	var _stateConnection = __webpack_require__(334);
 	
-	var _componentsDataQueryUserConnection = __webpack_require__(853);
+	var _componentsDataQueryUserConnection = __webpack_require__(855);
 	
 	var _componentsDataQueryUserConnection2 = _interopRequireDefault(_componentsDataQueryUserConnection);
 	
@@ -82254,15 +82946,15 @@
 	
 	var _engagementIndexJsx2 = _interopRequireDefault(_engagementIndexJsx);
 	
-	var _generalSettingsIndexJsx = __webpack_require__(849);
+	var _generalSettingsIndexJsx = __webpack_require__(851);
 	
 	var _generalSettingsIndexJsx2 = _interopRequireDefault(_generalSettingsIndexJsx);
 	
-	var _writingIndexJsx = __webpack_require__(854);
+	var _writingIndexJsx = __webpack_require__(856);
 	
 	var _writingIndexJsx2 = _interopRequireDefault(_writingIndexJsx);
 	
-	var _appsIndexJsx = __webpack_require__(855);
+	var _appsIndexJsx = __webpack_require__(857);
 	
 	var _appsIndexJsx2 = _interopRequireDefault(_appsIndexJsx);
 	
@@ -82338,7 +83030,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "connected.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 867 */
+/* 869 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -82376,7 +83068,7 @@
 	
 	var _stateConnection = __webpack_require__(334);
 	
-	var _componentsDataQueryUserConnection = __webpack_require__(853);
+	var _componentsDataQueryUserConnection = __webpack_require__(855);
 	
 	var _componentsDataQueryUserConnection2 = _interopRequireDefault(_componentsDataQueryUserConnection);
 	
@@ -82605,7 +83297,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "not-connected.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 868 */
+/* 870 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -82637,7 +83329,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateNotices = __webpack_require__(869);
+	var _stateNotices = __webpack_require__(871);
 	
 	var _stateNotices2 = _interopRequireDefault(_stateNotices);
 	
@@ -82880,7 +83572,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 869 */
+/* 871 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/jeherve/public_html/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
