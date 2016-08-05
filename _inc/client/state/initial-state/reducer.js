@@ -20,10 +20,17 @@ export const initialState = ( state = window.Initial_State, action ) => {
 };
 
 export function getSiteRoles( state ) {
-	const roles = get( state.jetpack.initialState.stats, 'roles', {} );
-	return roles;
+	return get( state.jetpack.initialState.stats, 'roles', {} );
 }
 
 export function getAdminEmailAddress( state ) {
 	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'wpcomUser', 'email' ] );
+}
+
+export function getSiteRawUrl( state ) {
+	return get( state.jetpack.initialState, 'rawUrl', {} );
+}
+
+export function getSiteAdminUrl( state ) {
+	return get( state.jetpack.initialState, 'adminUrl', {} );
 }

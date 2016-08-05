@@ -30,15 +30,14 @@ export const Plans = React.createClass( {
 			// do nothing
 		} else {
 			// Plan is jetpack_free, jetpack_premium, jetpack_premium_monthly, jetpack_business, jetpack_business_monthly
-			sitePlan = this.props.getSitePlan();
-			sitePlan = sitePlan.product_slug;
+			sitePlan = this.props.getSitePlan().product_slug;
 		}
 		return (
 			<div>
 				<QuerySite />
 				<div className="jp-landing__plans dops-card">
 					<PlanHeader plan={ sitePlan } />
-					<PlanBody plan={ sitePlan } />
+					<PlanBody plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />
 				</div>
 			</div>
 		);
