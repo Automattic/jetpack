@@ -12,11 +12,14 @@ import trim from 'lodash/trim';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
-import SearchPage from 'search/index.jsx';
+/**
+ * Internal dependencies
+ */
+import { filterSearch } from 'state/search';
 
 const NavigationSettings = React.createClass( {
-	demoSearch: function( keywords ) {
-		console.log( 'Section Nav Search (keywords):', keywords );
+	getInitialState() {
+		return { filter: '' };
 	},
 
 	openSearch: function() {
@@ -26,8 +29,8 @@ const NavigationSettings = React.createClass( {
 		}
 	},
 
-	onSearch( keywords ) {
-		this.setState( { filter: trim( keywords || '' ).toLowerCase() } );
+	onSearch( term ) {
+		this.props.searchForTerm( trim( term || '' ).toLowerCase() );
 	},
 
 	onClose: function() {
@@ -111,5 +114,10 @@ const NavigationSettings = React.createClass( {
 export default connect(
 	( state ) => {
 		return state;
+	},
+	( dispatch ) => {
+		return {
+			searchForTerm: ( term ) => dispatch( filterSearch( term ) )
+		}
 	}
 )( NavigationSettings );

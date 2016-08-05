@@ -20,7 +20,7 @@ import {
 	getModules as _getModules
 } from 'state/modules';
 
-export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule, getModules, searchFilter } ) => {
+export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule, getModules } ) => {
 	const modules = getModules();
 	let moduleList = [];
 
@@ -59,8 +59,6 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 			</FoldableCard>
 		);
 	} );
-
-	console.log( searchFilter );
 
 	return (
 		<div>
