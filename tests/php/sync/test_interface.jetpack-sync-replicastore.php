@@ -170,6 +170,30 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( $checksum, $store->comments_checksum() );
 	}
 
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_strips_non_ascii_chars_for_checksum( $store ) {
+		$utf8_post = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
+		$ascii_post = self::$factory->post( 1, array( 'post_content' => 'Panam' ) );
+		$utf8_comment = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panamá' ) );
+		$ascii_comment = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panam' ) );
+
+		// generate checksums just for utf8 content
+		$store->upsert_post( $utf8_post );
+		$store->upsert_comment( $utf8_comment );
+
+		$utf8_post_checksum = $store->posts_checksum();
+		$utf8_comment_checksum = $store->comments_checksum();
+
+		// generate checksums just for ascii content
+		$store->upsert_post( $ascii_post );
+		$store->upsert_comment( $ascii_comment );
+
+		$this->assertEquals( $utf8_post_checksum, $store->posts_checksum() );
+		$this->assertEquals( $utf8_comment_checksum, $store->comments_checksum() );
+	}
 
 	/**
 	 * Histograms
