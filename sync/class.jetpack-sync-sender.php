@@ -134,6 +134,7 @@ class Jetpack_Sync_Sender {
 			 * @since 4.2.0
 			 *
 			 * @param array The action parameters
+			 * @param int The ID of the user who triggered the action
 			 */
 			$item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
 
@@ -156,6 +157,9 @@ class Jetpack_Sync_Sender {
 		 * @since 4.2.0
 		 *
 		 * @param array $data The action buffer
+		 * @param string $codec The codec name used to encode the data
+		 * @param double $time The current time
+		 * @param string $queue The queue used to send ('sync' or 'full_sync')
 		 */
 		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id );
 
