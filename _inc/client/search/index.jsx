@@ -27,13 +27,17 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 	let moduleList = [];
 
 	forEach( modules, function( m ) {
+		console.log( getModule( m.module ) );
 		moduleList.push( [
 			m.module,
 			getModule( m.module ).name,
 			getModule( m.module ).description,
+			getModule( m.module ).long_description,
 			getModule( m.module ).learn_more_button,
 			getModule( m.module ).search_terms,
-			getModule( m.module ).short_description
+			getModule( m.module ).additional_search_queries,
+			getModule( m.module ).short_description,
+			getModule( m.module ).feature.toString()
 		] );
 	} );
 
@@ -55,7 +59,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 			<FoldableCard
 				key={ element[1] }
 				header={ element[1] }
-				searchTerms={ element[0] + element[1] + element[2] + element[3] + element[4] + element[5] }
+				searchTerms={ element.toString() }
 				subheader={ element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle } >

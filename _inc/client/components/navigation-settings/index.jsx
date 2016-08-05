@@ -100,7 +100,7 @@ const NavigationSettings = React.createClass( {
 
 					<Search
 						pinned={ true }
-						placeholder="Search doesn't work yet, but you can still write stuff to the console."
+						placeholder={ __( 'Search for a Jetpack feature.' ) }
 						onSearchOpen={ this.openSearch }
 						onSearch={ this.onSearch }
 						onSearchClose={ this.onClose }
