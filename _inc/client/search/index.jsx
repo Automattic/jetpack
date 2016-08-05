@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import { ModuleToggle } from 'components/module-toggle';
 import forEach from 'lodash/forEach';
+import Collection from 'components/search/search-collection.jsx';
 
 /**
  * Internal dependencies
@@ -19,8 +20,9 @@ import {
 	getModule as _getModule,
 	getModules as _getModules
 } from 'state/modules';
+import { getSearchTerm } from 'state/search';
 
-export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule, getModules } ) => {
+export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule, getModules, searchTerm } ) => {
 	const modules = getModules();
 	let moduleList = [];
 
@@ -64,7 +66,11 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 		<div>
 			<h2>Searching All Modules</h2>
 			<div id="jetpack-search-target"></div>
-			{ cards }
+			<Collection
+				filter={ searchTerm() }
+			>
+				{ cards }
+			</Collection>
 		</div>
 	);
 };
@@ -93,7 +99,8 @@ export default connect(
 			isTogglingModule: ( module_name ) =>
 			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			getModules: ( module_name ) => _getModules( state )
+			getModules: ( module_name ) => _getModules( state ),
+			searchTerm: () => getSearchTerm( state )
 		};
 	},
 	( dispatch ) => {

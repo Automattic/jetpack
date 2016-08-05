@@ -32,5 +32,5 @@ export const reducer = combineReducers( {
  * @return {string}        The current term being searched
  */
 export function getSearchTerm( state ) {
-	return state.jetpack.searchTerm;
+	return state.jetpack.search.searchTerm;
 }
