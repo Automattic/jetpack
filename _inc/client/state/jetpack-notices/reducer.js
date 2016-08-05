@@ -18,12 +18,7 @@ import {
 	RESET_OPTIONS_SUCCESS,
 	JUMPSTART_ACTIVATE_SUCCESS,
 	JUMPSTART_SKIP,
-	JETPACK_MODULE_ACTIVATE,
-	JETPACK_MODULE_ACTIVATE_FAIL,
-	JETPACK_MODULE_ACTIVATE_SUCCESS,
-	JETPACK_MODULE_DEACTIVATE,
-	JETPACK_MODULE_DEACTIVATE_FAIL,
-	JETPACK_MODULE_DEACTIVATE_SUCCESS
+
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -37,18 +32,6 @@ const notice = ( state = false, action ) => {
 
 		case JUMPSTART_SKIP:
 			return 'new_connection_no_jumpstart';
-
-		case JETPACK_MODULE_ACTIVATE:
-			return 'module_activate';
-
-		case JETPACK_MODULE_ACTIVATE_SUCCESS:
-			return 'module_activate_success';
-
-		case JETPACK_MODULE_DEACTIVATE:
-			return 'module_activate';
-
-		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
-			return 'module_deactivate_success';
 
 		default:
 			return state;
