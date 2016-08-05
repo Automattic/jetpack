@@ -1,4 +1,10 @@
 /**
+ * External dependencies
+ */
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import { translate as __ } from 'i18n-calypso';
+
+/**
  * Internal dependencies
  */
 import {
@@ -72,16 +78,28 @@ export const disconnectSite = () => {
 		dispatch( {
 			type: DISCONNECT_SITE
 		} );
+		dispatch( createNotice( 'is-info', __( 'Disconnecting Jetpack' ), { id: 'disconnect-jetpack' } ) );
 		return restApi.disconnectSite().then( disconnectingSite => {
 			dispatch( {
 				type: DISCONNECT_SITE_SUCCESS,
 				disconnectingSite: disconnectingSite
 			} );
+			dispatch( removeNotice( 'disconnect-jetpack' ) );
 		} )['catch']( error => {
 			dispatch( {
 				type: DISCONNECT_SITE_FAIL,
 				error: error
 			} );
+			dispatch( removeNotice( 'disconnect-jetpack' ) );
+			dispatch( createNotice(
+				'is-error',
+				__( 'There was an error disconnecting Jetpack. Error: %(error)s', {
+					args: {
+						error: error
+					}
+				} ),
+				{ id: 'disconnect-jetpack' }
+			) );
 		} );
 	}
 }
@@ -91,16 +109,29 @@ export const unlinkUser = () => {
 		dispatch( {
 			type: UNLINK_USER
 		} );
+		dispatch( createNotice( 'is-info', __( 'Unlinking from WordPress.com' ), { id: 'unlink-user' } ) );
 		return restApi.unlinkUser().then( userUnlinked => {
 			dispatch( {
 				type: UNLINK_USER_SUCCESS,
 				userUnlinked: userUnlinked
 			} );
+			dispatch( removeNotice( 'unlink-user' ) );
+			dispatch( createNotice( 'is-success', __( 'Unlinked from WordPress.com.' ), { id: 'unlink-user' } ) );
 		} )['catch']( error => {
 			dispatch( {
 				type: UNLINK_USER_FAIL,
 				error: error
 			} );
+			dispatch( removeNotice( 'unlink-user' ) );
+			dispatch( createNotice(
+				'is-error',
+				__( 'Error unlinking from WordPress.com. %(error)s', {
+					args: {
+						error: error
+					}
+				} ),
+				{ id: 'unlink-user' }
+			) );
 		} );
 	}
 }

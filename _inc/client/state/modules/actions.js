@@ -1,4 +1,10 @@
 /**
+ * External dependencies
+ */
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import { translate as __ } from 'i18n-calypso';
+
+/**
  * Internal dependencies
  */
 import {
@@ -16,9 +22,9 @@ import {
 	JETPACK_MODULE_DEACTIVATE_SUCCESS,
 	JETPACK_MODULE_UPDATE_OPTIONS,
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
-
+	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
 } from 'state/action-types';
+import { getModule } from 'state/modules';
 import restApi from 'rest-api';
 
 export const fetchModules = () => {
@@ -62,17 +68,37 @@ export const fetchModule = () => {
 }
 
 export const activateModule = ( slug ) => {
-	return ( dispatch ) => {
+	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_ACTIVATE,
 			module: slug
 		} );
+		dispatch( removeNotice( `module-${ slug }` ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Activating %(slug)s…', {
+				args: {
+					slug: getModule( getState(), slug ).name
+				}
+			} ),
+			{ id: `module-${ slug }` }
+		) );
 		return restApi.activateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_SUCCESS,
 				module: slug,
 				success: true
 			} );
+			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( createNotice(
+				'is-success',
+				__( '%(slug)s has been activated.', {
+					args: {
+						slug: getModule( getState(), slug ).name
+					}
+				} ),
+				{ id: `module-${ slug }` }
+			) );
 		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_FAIL,
@@ -80,22 +106,53 @@ export const activateModule = ( slug ) => {
 				success: false,
 				error: error
 			} );
+			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( createNotice(
+				'is-error',
+				__( '%(slug)s failed to activate.  Error: %(error)d', {
+					args: {
+						slug: getModule( getState(), slug ).name,
+						error: error
+					}
+				} ),
+				{ id: `module-${ slug }` }
+			) );
 		} );
 	}
 }
 
 export const deactivateModule = ( slug ) => {
-	return ( dispatch ) => {
+	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_DEACTIVATE,
 			module: slug
 		} );
+		dispatch( removeNotice( `module-${ slug }` ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Deactivating %(slug)s…', {
+				args: {
+					slug: getModule( getState(), slug ).name
+				}
+			} ),
+			{ id: `module-${ slug }` }
+		) );
 		return restApi.deactivateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_SUCCESS,
 				module: slug,
 				success: true
 			} );
+			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( createNotice(
+				'is-success',
+				__( '%(slug)s has been deactivated.', {
+					args: {
+						slug: getModule( getState(), slug ).name
+					}
+				} ),
+				{ id: `module-${ slug }` }
+			) );
 		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_FAIL,
@@ -103,17 +160,38 @@ export const deactivateModule = ( slug ) => {
 				success: false,
 				error: error
 			} );
+			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( createNotice(
+				'is-error',
+				__( '%(slug)s failed to deactivate. %(error)d', {
+					args: {
+						slug: getModule( getState(), slug ).name,
+						error: error
+					}
+				} ),
+				{ id: `module-${ slug }` }
+			) );
 		} );
 	}
 }
 
 export const updateModuleOptions = ( slug, newOptionValues ) => {
-	return ( dispatch ) => {
+	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_UPDATE_OPTIONS,
 			module: slug,
 			newOptionValues
 		} );
+		dispatch( removeNotice( `module-setting-${ slug }` ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Updating %(slug)s settings…', {
+				args: {
+					slug: getModule( getState(), slug ).name
+				}
+			} ),
+			{ id: `module-setting-${ slug }` }
+		) );
 		return restApi.updateModuleOptions( slug, newOptionValues ).then( success => {
 			dispatch( {
 				type: JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
@@ -121,6 +199,16 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 				newOptionValues,
 				success: success
 			} );
+			dispatch( removeNotice( `module-setting-${ slug }` ) );
+			dispatch( createNotice(
+				'is-success',
+				__( 'Updated %(slug)s settings.', {
+					args: {
+						slug: getModule( getState(), slug ).name
+					}
+				} ),
+				{ id: `module-setting-${ slug }` }
+			) );
 		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
@@ -129,6 +217,17 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 				error: error,
 				newOptionValues
 			} );
+			dispatch( removeNotice( `module-setting-${ slug }` ) );
+			dispatch( createNotice(
+				'is-error',
+				__( 'Error updating %(slug) settings. %(error)d', {
+					args: {
+						slug: getModule( getState(), slug ).name,
+						error: error
+					}
+				} ),
+				{ id: `module-setting-${ slug }` }
+			) );
 		} );
 	}
 }
