@@ -119,7 +119,7 @@ export const Page = ( props ) => {
 						<Button
 							compact={ true }
 							primary={ true }
-							href={ 'https://wordpress.com/plugins/' + pluginSlug + '/' + window.Initial_State.rawUrl }
+							href={ 'https://wordpress.com/plugins/setup/' + window.Initial_State.rawUrl }
 						>
 							{ ! installed ? __( 'Install' ) : __( 'Activate' ) }
 						</Button>
