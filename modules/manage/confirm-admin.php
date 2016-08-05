@@ -42,6 +42,11 @@ switch( $section ) {
 		$link_title = __( 'Manage Your Site', 'jetpack' );
 		break;
 }
+
+if ( isset( $_GET['return_url'] ) && isset( $_GET['return_title'] ) ) {
+	$link = $_GET['return_url'];
+	$link_title = $_GET['return_title'];
+}
 ?>
 <div class="page-content landing manage-page">
 	<div class="manage__icon">
