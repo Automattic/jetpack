@@ -1086,14 +1086,12 @@ EOT;
 				}
 			}
 
-			// Set new cache value if valid
+			// Set new cache value
 			$cache_expires = $cache_ttl + $now_ts;
-			if ( ! empty( $related_posts ) ) {
-				$new_cache[ $cache_key ] = array(
-					'expires' => $cache_expires,
-					'payload' => $related_posts,
-				);
-			}
+			$new_cache[ $cache_key ] = array(
+				'expires' => $cache_expires,
+				'payload' => $related_posts,
+			);
 			update_post_meta( $post_id, $cache_meta_key, $new_cache );
 		}
 
