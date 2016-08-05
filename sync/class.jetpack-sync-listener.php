@@ -101,7 +101,7 @@ class Jetpack_Sync_Listener {
 
 	function full_sync_action_handler() {
 		$args = func_get_args();
-		$this->enqueue_action( current_filter(), $args, $this->full_sync_queue, true );
+		$this->enqueue_action( current_filter(), $args, $this->full_sync_queue );
 	}
 
 	function action_handler() {
@@ -109,11 +109,7 @@ class Jetpack_Sync_Listener {
 		$this->enqueue_action( current_filter(), $args, $this->sync_queue );
 	}
 
-	function enqueue_action( $current_filter, $args, $queue, $override_import = false ) {
-		if ( Jetpack_Sync_Settings::is_importing() && ! $override_import ) {
-			return;
-		}
-
+	function enqueue_action( $current_filter, $args, $queue ) {
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
 		 *
@@ -145,6 +141,7 @@ class Jetpack_Sync_Listener {
 			$args,
 			get_current_user_id(),
 			microtime( true ),
+			Jetpack_Sync_Settings::is_importing()
 		) );
 	}
 
