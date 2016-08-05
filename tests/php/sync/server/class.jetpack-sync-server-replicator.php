@@ -12,16 +12,16 @@ class Jetpack_Sync_Server_Replicator {
 	}
 
 	function init() {
-		add_action( 'jetpack_sync_remote_action', array( $this, 'handle_remote_action' ), 5, 7 );
+		add_action( 'jetpack_sync_remote_action', array( $this, 'handle_remote_action' ), 5, 8 );
 	}
 
-	function handle_remote_action( $action_name, $args, $user_id, $timestamp, $sent_timestamp, $queue_id, $token ) {
+	function handle_remote_action( $action_name, $args, $user_id, $silent, $timestamp, $sent_timestamp, $queue_id, $token ) {
 
 		switch ( $action_name ) {
 			// posts
 			case 'wp_insert_post':
 				list( $post_id, $post ) = $args;
-				$this->store->upsert_post( $post );
+				$this->store->upsert_post( $post, $silent );
 				break;
 			case 'deleted_post':
 				list( $post_id ) = $args;
@@ -31,18 +31,18 @@ class Jetpack_Sync_Server_Replicator {
 			// attachments
 			case 'attachment_updated':
 				list( $post_id, $post, $post_before ) = $args;
-				$this->store->upsert_post( $post );
+				$this->store->upsert_post( $post, $silent );
 				break;
 			case 'jetpack_sync_save_add_attachment':
 				list( $attachment_id, $attachment ) = $args;
-				$this->store->upsert_post( $attachment );
+				$this->store->upsert_post( $attachment, $silent );
 				break;
 
 			// comments
 			case 'wp_insert_comment':
 			case ( preg_match( '/^comment_[^_]*_[^_]*$/', $action_name ) ? true : false ):
 				list( $comment_id, $comment ) = $args;
-				$this->store->upsert_comment( $comment );
+				$this->store->upsert_comment( $comment, $silent );
 				break;
 			case 'deleted_comment':
 				list( $comment_id ) = $args;
