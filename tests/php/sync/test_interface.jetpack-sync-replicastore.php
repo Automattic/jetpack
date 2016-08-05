@@ -430,7 +430,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_replica_update_option( $store ) {
 		$option_name  = 'blogdescription';
-		$option_value = rand();
+		$option_value = (string) rand();
 		$store->update_option( $option_name, $option_value );
 		$replica_option_value = $store->get_option( $option_name );
 
@@ -443,7 +443,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_replica_delete_option( $store ) {
 		$option_name  = 'test_replicastore_' . rand();
-		$option_value = rand();
+		$option_value = (string) rand();
 		$store->update_option( $option_name, $option_value );
 		$store->delete_option( $option_name );
 		$replica_option_value = $store->get_option( $option_name );
