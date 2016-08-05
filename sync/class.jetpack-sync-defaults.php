@@ -139,6 +139,7 @@ class Jetpack_Sync_Defaults {
 		'is_version_controlled'            => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
 		'taxonomies'                       => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
 		'post_types'                       => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
+		'post_type_features'               => array( 'Jetpack_Sync_Functions', 'get_post_type_features' ),
 		'rest_api_allowed_post_types'      => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_post_types' ),
 		'rest_api_allowed_public_metadata' => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_public_metadata' ),
 		'sso_is_two_step_required'         => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
