@@ -648,7 +648,8 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		global $wpdb;
 
 		// sanitize to just valid MySQL column names
-		$columns_sql = implode( ',', preg_grep ( '/^[0-9,a-z,A-Z$_]+$/i', $columns ) );
+		$sanitized_columns = preg_grep ( '/^[0-9,a-z,A-Z$_]+$/i', $columns );
+		$columns_sql = implode( ',', array_map( array( $this, 'strip_non_ascii_sql' ), $sanitized_columns ) );
 
 		if ( $min_id !== null ) {
 			$min_id = intval( $min_id );
@@ -674,6 +675,15 @@ ENDSQL;
 
 		return $result;
 
+	}
+
+	/**
+	 * Wraps a column name in SQL which strips non-ASCII chars.
+	 * This helps normalize data to avoid checksum differences caused by
+	 * badly encoded data in the DB
+	 */
+	function strip_non_ascii_sql( $column_name ) {
+		return "REPLACE( CONVERT( $column_name USING ascii ), '?', '' )";
 	}
 
 	private function invalid_call() {
