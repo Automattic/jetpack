@@ -24,6 +24,12 @@ class Jetpack_Sync_Functions {
 		return $wp_post_types;
 	}
 
+	public static function get_post_type_features() {
+		global $_wp_post_type_features;
+
+		return $_wp_post_type_features;
+	}
+
 	public static function rest_api_allowed_post_types() {
 		/** This filter is already documented in class.json-api-endpoints.php */
 		return apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'revision' ) );
