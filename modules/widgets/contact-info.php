@@ -59,7 +59,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'address' => __( "3999 Mission Boulevard,\nSan Diego CA 92109", 'jetpack' ),
 				'phone'   => _x( '1-202-555-1212', 'Example of a phone number', 'jetpack' ),
 				'hours'   => __( "Lunch: 11am - 2pm \nDinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am", 'jetpack' ),
-				'showmap' => 1,
+				'showmap' => 0,
 				'apikey'  => null,
 				'lat'     => null,
 				'lon'     => null
