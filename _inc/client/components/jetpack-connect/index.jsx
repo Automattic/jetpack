@@ -10,6 +10,7 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import ConnectButton from 'components/connect-button';
+import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import { imagePath } from 'constants';
 
 const JetpackConnect = React.createClass( {
@@ -28,7 +29,7 @@ const JetpackConnect = React.createClass( {
 					</p>
 					<ConnectButton />
 					<p>
-						<a href="https://wordpress.com/start/jetpack/" className="jp-jetpack-connect__link">
+						<a href={ this.props.connectUrl( this.props ) } className="jp-jetpack-connect__link">
 							{ __( 'No WordPress.com account? Create one for free.' ) }
 						</a>
 					</p>
@@ -222,6 +223,8 @@ const JetpackConnect = React.createClass( {
 
 export default connect(
 	state => {
-		return state;
+		return {
+			connectUrl: () => _getConnectUrl( state )
+		}
 	}
 )( JetpackConnect );
