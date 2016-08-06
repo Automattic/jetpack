@@ -133,10 +133,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return $this->render_nojs_configurable( $_GET['configure'] );
 		}
 		?>
-		<?php
-			/** This action is already documented in views/admin/admin-page.php */
-			do_action( 'jetpack_notices' );
-		?>
+		<style>
+			.jetpack-pagestyles #wpbody-content {
+				background: #72af3a !important;
+			}
+			#jp-plugin-container {
+				background: #f3f6f8 !important;
+			}
+		</style>
 		<div id="jp-plugin-container"></div>
 	<?php }
 
