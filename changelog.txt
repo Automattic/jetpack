@@ -519,7 +519,7 @@ Release Post: http://wp.me/p1moTy-1ua
 
 Feature Enhancements:
 
-* CLI: Add a number of Jetpack CLI improvements: see http://jetpack.com/support/jetpack-cli
+* CLI: Add a number of Jetpack CLI improvements: see https://jetpack.com/support/jetpack-cli
 * New Jetpack admin page for connection management
 * New Social Media Icons widget
 * FB Like Box: A visual refresh of the Facebook likebox widget
@@ -1024,8 +1024,8 @@ Release Date: December 3, 2013
 Release Date: November 28, 2013
 Release Post: http://wp.me/p1moTy-KE
 
-* Enhancement: WPCC / now called [SSO](http://jetpack.com/support/sso/): refactored.
-* Enhancement: Monitor: new module which will notify you if your site goes down(http://jetpack.com/support/monitor/).
+* Enhancement: WPCC / now called [SSO](https://jetpack.com/support/sso/): refactored.
+* Enhancement: Monitor: new module which will notify you if your site goes down(https://jetpack.com/support/monitor/).
 * Enhancement: Custom CSS: replace Ace editor with Codemirror.
 * Enhancement: Widgets: new “Display Posts” widget.
 * Enhancement: WP-CLI: add commands to disconnect a site and manage modules.
@@ -1775,7 +1775,7 @@ Release Post: http://wp.me/p1moTy-9H
 * Bug Fix: Fixed errors displayed during some upgrades.
 * Bug Fix: Fix inaccurate new modules "bubble" in menu for some upgrades.
 * Bug Fix: Fix VaultPress detection.
-* Bug Fix: Fix link to http://jetpack.com/faq/
+* Bug Fix: Fix link to https://jetpack.com/faq/
 
 = 1.2 =
 Release Date: November 17, 2011

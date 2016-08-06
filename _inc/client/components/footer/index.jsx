@@ -87,7 +87,7 @@ export const Footer = React.createClass( {
 				</div>
 				<ul className="jp-footer__links">
 					<li className="jp-footer__link-item">
-						<a href="http://jetpack.com" target="_blank" className="jp-footer__link" title={ version } >
+						<a href="https://jetpack.com" target="_blank" className="jp-footer__link" title={ version } >
 							{ version }
 						</a>
 					</li>

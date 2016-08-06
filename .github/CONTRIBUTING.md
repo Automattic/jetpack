@@ -8,23 +8,23 @@ Whether you can barely recognize a filter (or don’t know what that means) or y
 
 ### Beta Testing
 
-Beta testers give updates, fixes, and new modules a test run before they’re publicly released, so they’re an important part of the development process. If you'd like to join our Beta group, [sign up to be a Beta tester here](http://jetpack.com/beta/).
+Beta testers give updates, fixes, and new modules a test run before they’re publicly released, so they’re an important part of the development process. If you'd like to join our Beta group, [sign up to be a Beta tester here](https://jetpack.com/beta/).
 
 ### Create Bug Reports
 
 If you find a bug, just [file a GitHub issue](https://github.com/Automattic/jetpack/issues/), that’s all. If you want to prefix the title with a “Question:”, “Bug:”, or the general area of the application, that would be helpful, but by no means mandatory. If you have write access, add the appropriate labels.
 
-If you’re filing a bug, specific steps to reproduce are helpful. Please include the URL of the page that has the bug, along with what you expected to see and what happened instead. You can [check our recommendations to create great bug reports here](http://jetpack.com/contribute/#bugs).
+If you’re filing a bug, specific steps to reproduce are helpful. Please include the URL of the page that has the bug, along with what you expected to see and what happened instead. You can [check our recommendations to create great bug reports here](https://jetpack.com/contribute/#bugs).
 
 ### Write and submit a patch
 
-If you'd like to fix a bug, you can submit a Pull Request. [Follow these detailed steps to find out how](http://jetpack.com/contribute/#patch).
+If you'd like to fix a bug, you can submit a Pull Request. [Follow these detailed steps to find out how](https://jetpack.com/contribute/#patch).
 
 When creating Pull Requests, remember:
 
 - [Check In Early, Check In Often](http://blog.codinghorror.com/check-in-early-check-in-often/).
 - Write [good commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
-- Respect the [Best practices for WordPress development](http://jetpack.com/contribute/#practices).
+- Respect the [Best practices for WordPress development](https://jetpack.com/contribute/#practices).
 
 #### Code Reviews
 
