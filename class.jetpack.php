@@ -2374,10 +2374,16 @@ class Jetpack {
 		// Check and see if the old plugin is active
 		if ( isset( $jetpack->plugins_to_deactivate[ $module ] ) ) {
 			// Deactivate the old plugin
-			if ( Jetpack_Client_Server::deactivate_plugin( $jetpack->plugins_to_deactivate[ $module ][0], $jetpack->plugins_to_deactivate[ $module ][1] ) ) {
+			$deactivated_plugins = array();
+			foreach ( $jetpack->plugins_to_deactivate[ $module ] as $index => $to_deactivate ) {
+				if ( Jetpack_Client_Server::deactivate_plugin( $to_deactivate[0], $to_deactivate[1] ) ) {
+					$deactivated_plugins[ $module ][] = $index;
+				};
+			}
+			if ( ! empty( $deactivated_plugins ) ) {
 				// If we deactivated the old plugin, remembere that with ::state() and redirect back to this page to activate the module
 				// We can't activate the module on this page load since the newly deactivated old plugin is still loaded on this page load.
-				Jetpack::state( 'deactivated_plugins', $module );
+				Jetpack::state( 'deactivated_plugins', json_encode( $deactivated_plugins ) );
 				wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
 				exit;
 			}
@@ -3559,17 +3565,19 @@ p {
 
 		}
 
-		$deactivated_plugins = Jetpack::state( 'deactivated_plugins' );
+		$deactivated_plugins = json_decode( stripslashes( Jetpack::state( 'deactivated_plugins' ) ), true );
 
 		if ( ! empty( $deactivated_plugins ) ) {
-			$deactivated_plugins = explode( ',', $deactivated_plugins );
-			$deactivated_titles  = array();
-			foreach ( $deactivated_plugins as $deactivated_plugin ) {
-				if ( ! isset( $this->plugins_to_deactivate[$deactivated_plugin] ) ) {
+
+			$deactivated_titles = array();
+			foreach ( $deactivated_plugins as $conflicting_module => $deactivated_index_list ) {
+				if ( ! isset( $this->plugins_to_deactivate[ $conflicting_module ] ) ) {
 					continue;
 				}
 
-				$deactivated_titles[] = '<strong>' . str_replace( ' ', '&nbsp;', $this->plugins_to_deactivate[$deactivated_plugin][1] ) . '</strong>';
+				foreach ( $deactivated_index_list as $deactivated_index ) {
+					$deactivated_titles[] = '<strong>' . str_replace( ' ', '&nbsp;', $this->plugins_to_deactivate[ $conflicting_module ][ $deactivated_index ][1] ) . '</strong>';
+				}
 			}
 
 			if ( $deactivated_titles ) {
