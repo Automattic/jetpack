@@ -32,6 +32,26 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEquals( TEST_BAR, $synced_bar_value );
 	}
 
+	function test_use_full_sync_instead_of_individual_sync_if_we_send_all_data() {
+		delete_option( Jetpack_Sync_Module_Constants::CONSTANTS_CHECKSUM_OPTION_NAME );
+		define( 'TEST_BAR_2', sprintf( "%.8f", microtime( true ) ) );
+		$this->constant_module->set_constants_whitelist( array( 'TEST_BAR_2' ) );
+
+		$this->sender->do_sync();
+
+		$checksum_option = get_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->assertFalse( empty( $checksum_option ) );
+
+		$synced_bar_value = $this->server_replica_storage->get_constant( 'TEST_BAR_2' );
+
+		$this->assertEquals( TEST_BAR_2, $synced_bar_value );
+		$jetpack_sync_full_sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_constants' );
+		$jetpack_sync_constant_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_constant' );
+
+		$this->assertFalse( empty( $jetpack_sync_full_sync_event ) );
+		$this->assertFalse( $jetpack_sync_constant_event );
+	}
+
 	function test_does_not_fire_if_constants_havent_changed() {
 		$this->constant_module->set_defaults(); // use the default constants
 		$this->sender->do_sync();
