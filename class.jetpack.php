@@ -2231,15 +2231,17 @@ class Jetpack {
 		}
 
 		$deactivated = array();
-		foreach ( $to_deactivate as $module => $deactivate_me ) {
-			list( $probable_file, $probable_title ) = $deactivate_me;
-			if ( Jetpack_Client_Server::deactivate_plugin( $probable_file, $probable_title ) ) {
-				$deactivated[] = $module;
+		foreach ( $to_deactivate as $module => $to_deactivate_list ) {
+			foreach( $to_deactivate_list as $index => $deactivate_me ) {
+				list( $probable_file, $probable_title ) = $deactivate_me;
+				if ( Jetpack_Client_Server::deactivate_plugin( $probable_file, $probable_title ) ) {
+					$deactivated[ $module ][] = $index;
+				}
 			}
 		}
 
 		if ( $deactivated && $redirect ) {
-			Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
+			Jetpack::state( 'deactivated_plugins', json_encode( $deactivated ) );
 
 			$url = add_query_arg(
 				array(
