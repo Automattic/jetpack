@@ -1370,6 +1370,51 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML for the concat form.
 	 */
 	static function parse( $attributes, $content ) {
+		global $post, $current_user;
+
+		$post_author_id  = $post->post_author;
+		$current_user_id = $current_user->ID;
+		$post_author     = get_userdata( $post->post_author );
+		$user_name       = $post_author->data->user_login;
+
+		// Set the default email address to fall back to
+		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
+			$default_email   = get_option( 'admin_email' );
+		} else if ( $post ) {
+			$default_email = $post_author->user_email;
+		} else {
+			$default_email = get_option( 'admin_email' );
+		}
+
+		// Show the post author an error message when the shortcode is parsed for invalid emails
+		if ( isset( $attributes['to'] ) && $post_author_id == $current_user_id ) {
+			$attributes['to'] = str_replace( ' ', '', $attributes['to'] );
+			$invalid_emails  = array();
+			$valid_emails    = array();
+
+			$emails = explode( ',', $attributes['to'] );
+			foreach ( (array) $emails as $email ) {
+				if ( ! is_email( $email ) ) {
+					$invalid_emails[] = $email;
+				} else {
+					$valid_emails[] = $email;
+				}
+			}
+
+			// If there are invalid email addresses found, but there are some good ones, notify the post_author
+			// If there are no valid email addresses, use default email address and notify post_author
+			$email_error_sub_message = sprintf( __( '%sOnly %s can see this message.%s', 'jetpack'), "<div class='email-error-sub-message' style='font-style: italic; font-size: small;'>",  $user_name, "</div>" );
+			if ( empty( $valid_emails ) ) {
+				$no_valid_email = sprintf( __( '%sNo valid email recipients found for this form.  Defaulting to %s %s', 'jetpack' ), "<div class='email-error-message' style='color: red; border: 1px solid red; padding: 1em;'>",  $default_email, "</div>" );
+				echo $no_valid_email;
+				echo $email_error_sub_message;
+			} elseif( ! empty( $valid_emails ) && ! empty( $invalid_emails ) ) {
+				$invalid_emails_found = sprintf( __( '%sDear Post Author, we noticed there are some invalid email recipients %s found for this form.%s', 'jetpack' ), "<div class='email-error-message' style='color: red; border: 1px solid red; padding: 1em;'>", json_encode( $invalid_emails ), "</div>" );
+				echo $invalid_emails_found;
+				echo $email_error_sub_message;
+			}
+		}
+
 		// Create a new Grunion_Contact_Form object (this class)
 		$form = new Grunion_Contact_Form( $attributes, $content );
 
