@@ -411,21 +411,13 @@ class Jetpack_SSO {
 				$this->handle_login();
 				$this->display_sso_login_form();
 			} else {
-				if ( Jetpack::check_identity_crisis() ) {
-					JetpackTracking::record_user_event( 'sso_login_redirect_failed', array(
-						'error_message' => 'identity_crisis'
-					) );
-					wp_die( __( "Error: This site's Jetpack connection is currently experiencing problems.", 'jetpack' ) );
-				} else {
-					$this->maybe_save_cookie_redirect();
-					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
-					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
-					$reauth = ! empty( $_GET['force_reauth'] );
-					$sso_url = $this->get_sso_url_or_die( $reauth );
-					JetpackTracking::record_user_event( 'sso_login_redirect_success' );
-					wp_safe_redirect( $sso_url );
-					exit;
-				}
+				$this->maybe_save_cookie_redirect();
+				add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+				$reauth = ! empty( $_GET['force_reauth'] );
+				$sso_url = $this->get_sso_url_or_die( $reauth );
+				JetpackTracking::record_user_event( 'sso_login_redirect_success' );
+				wp_safe_redirect( $sso_url );
+				exit;
 			}
 		}
 	}
