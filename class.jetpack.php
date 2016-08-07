@@ -855,13 +855,7 @@ class Jetpack {
 		// Don't let anyone authenticate
 		$_COOKIE = array();
 		remove_all_filters( 'authenticate' );
-
-		/**
-		 * For the moment, remove Limit Login Attempts if its xmlrpc for Jetpack.
-		 * If Limit Login Attempts is installed as a mu-plugin, it can occasionally
-		 * generate false-positives.
-		 */
-		remove_filter( 'wp_login_failed', 'limit_login_failed' );
+		remove_all_actions( 'wp_login_failed' );
 
 		if ( Jetpack::is_active() ) {
 			// Allow Jetpack authentication
