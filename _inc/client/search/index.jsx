@@ -75,7 +75,7 @@ export const Page = ( {
 			<FoldableCard
 				key={ element[1] }
 				header={ element[1] }
-				searchTerms={ element.toString() }
+				searchTerms={ element.toString().replace( /<(?:.|\n)*?>/gm, '' ) }
 				subheader={ element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle }
