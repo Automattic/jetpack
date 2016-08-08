@@ -1,10 +1,19 @@
 .jp-loading-placeholder {
-	margin: 0 auto;
-	width: 500px;
-	height: 500px;
+	$size: 12vw;
+
+	margin-top: 30vh;
+	margin-bottom: 25vh;
+	color: lighten( $gray, 20% );
+	font-size: $size;
+	text-align: center;
+
+	@include breakpoint( ">960px" ) {
+		font-size: 120px;
+	}
 
 	.dashicons {
-		width: 500px;
-		font-size: 500px;
+		font-size: inherit;
+		width: auto;
+		height: auto;
 	}
 }
