@@ -21,6 +21,7 @@
 	background-color: $gray-light;
 	line-height: 1.4; // fixes core bug that sets an em unit on body
 	height: auto;
+	min-height: 100%;
 }
 
 // Hello Dolly positioning overwrite
@@ -65,4 +66,17 @@
 
 @keyframes pulse-light {
 	50% { background-color: lighten( $gray, 30% ); }
+}
+
+.jp-admin-page--placeholder {
+	font-size: 12vw;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+}
+
+.jp-admin-page--placeholder img {
+	height: 50px;
 }
