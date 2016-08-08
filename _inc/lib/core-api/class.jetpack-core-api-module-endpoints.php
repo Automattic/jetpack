@@ -6,7 +6,13 @@
 class Jetpack_Core_API_Module_Activate_Endpoint
 	extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
-	private $modules_requiring_public = array( 'sitemaps', 'photon', 'enhanced-distribution', 'sharedaddy' );
+	private $modules_requiring_public = array(
+		'sitemaps',
+		'photon',
+		'enhanced-distribution',
+		'sharedaddy',
+		'json-api',
+	);
 
 	public function process( $data ) {
 		if (
