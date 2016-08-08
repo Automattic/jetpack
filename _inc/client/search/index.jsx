@@ -19,6 +19,7 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryAkismetData from 'components/data/query-akismet-data';
+import { isUnavailableInDevMode } from 'state/connection';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -58,7 +59,8 @@ export const Page = ( {
 	fetchingPluginsData,
 	pluginInstalled,
 	pluginActive,
-	fetchingSiteData
+	fetchingSiteData,
+	unavailableInDevMode
 	} ) => {
 	let modules = getModules(),
 		moduleList = [
@@ -66,8 +68,7 @@ export const Page = ( {
 			[ 'akismet', 'Akismet', __( 'Keep those spammers away!' ), 'https://akismet.com/jetpack/', 'spam security comments pro' ],
 			[ 'backups', __( 'Site Backups' ), __( 'Keep your site backed up!' ), 'https://vaultpress.com/jetpack/', 'backup restore pro security' ]
 		],
-		cards,
-		toggle;
+		cards;
 
 	forEach( modules, function( m ) {
 		moduleList.push( [
@@ -84,17 +85,18 @@ export const Page = ( {
 	} );
 
 	cards = moduleList.map( ( element ) => {
-		toggle = (
-			<ModuleToggle
-				slug={ element[0] }
-				activated={ isModuleActivated( element[0] ) }
-				toggling={ isTogglingModule( element[0] ) }
-				toggleModule={ toggleModule }
-			/>
-		);
-
 		let isPro = 'scan' === element[0] || 'akismet' === element[0] || 'backups' === element[0],
-			proProps = {};
+			proProps = {},
+			unavailableDevMode = unavailableInDevMode( element[0] ),
+			toggle = unavailableDevMode ? __( 'Unavailable in Dev Mode' ) : (
+				<ModuleToggle
+					slug={ element[0] }
+					activated={ isModuleActivated( element[0] ) }
+					toggling={ isTogglingModule( element[0] ) }
+					toggleModule={ toggleModule }
+				/>
+			),
+			customClasses = unavailableDevMode ? 'devmode-disabled' : '';
 
 		let getProToggle = ( active, installed ) => {
 			let pluginSlug = 'scan' === element[0] || 'backups' === element[0] ?
@@ -189,6 +191,7 @@ export const Page = ( {
 		return (
 			<FoldableCard
 				key={ element[0] }
+				className={ customClasses }
 				header={ element[1] }
 				searchTerms={ element.toString().replace( /<(?:.|\n)*?>/gm, '' ) }
 				subheader={ element[2] }
@@ -256,7 +259,8 @@ export default connect(
 			fetchingSiteData: isFetchingSiteData( state ),
 			fetchingPluginsData: isFetchingPluginsData( state ),
 			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
+			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
+			unavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
 		};
 	},
 	( dispatch ) => {
