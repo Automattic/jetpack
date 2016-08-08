@@ -3,7 +3,7 @@ Contributors: automattic, apokalyptik, briancolinger, josephscott, shaunandrews,
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 3.2
 Tested up to: 4.6
-Stable tag: 1.8.4
+Stable tag: 1.8.5
 License: GPLv2
 
 VaultPress is a subscription service offering realtime backup, automated security scanning, and support from WordPress experts.
