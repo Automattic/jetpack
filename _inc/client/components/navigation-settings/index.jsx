@@ -101,6 +101,7 @@ const NavigationSettings = React.createClass( {
 					<Search
 						pinned={ true }
 						placeholder={ __( 'Search for a Jetpack feature.' ) }
+						delaySearch={ true }
 						onSearchOpen={ this.openSearch }
 						onSearch={ this.onSearch }
 						onSearchClose={ this.onClose }
