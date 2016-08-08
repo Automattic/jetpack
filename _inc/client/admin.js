@@ -4,8 +4,9 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Route, Router, hashHistory } from 'react-router';
+import { Route, Router, useRouterHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
+import { createHashHistory } from 'history'
 
 /**
  * Internal dependencies
@@ -33,6 +34,8 @@ if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
 }
 
 i18n.setLocale( Initial_State.locale );
+
+const hashHistory = useRouterHistory( createHashHistory )( { queryKey: false } );
 
 const history = syncHistoryWithStore( hashHistory, store );
 
