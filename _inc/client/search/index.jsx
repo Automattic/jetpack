@@ -6,7 +6,10 @@ import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import { ModuleToggle } from 'components/module-toggle';
 import forEach from 'lodash/forEach';
+import Button from 'components/button';
+import Gridicon from 'components/gridicon';
 import Collection from 'components/search/search-collection.jsx';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -21,13 +24,26 @@ import {
 	getModules as _getModules
 } from 'state/modules';
 import { getSearchTerm } from 'state/search';
+import Engagement from 'engagement/index.jsx';
+import Security from 'security/index.jsx';
+import Appearance from 'appearance/index.jsx';
+import GeneralSettings from 'general-settings/index.jsx';
+import Writing from 'writing/index.jsx';
 
-export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule, getModules, searchTerm } ) => {
-	const modules = getModules();
-	let moduleList = [];
+export const Page = ( {
+	toggleModule,
+	isModuleActivated,
+	isTogglingModule,
+	getModule,
+	getModules,
+	searchTerm
+	} ) => {
+	let modules = getModules(),
+		moduleList = [],
+		cards,
+		toggle;
 
 	forEach( modules, function( m ) {
-		console.log( getModule( m.module ) );
 		moduleList.push( [
 			m.module,
 			getModule( m.module ).name,
@@ -41,8 +57,8 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 		] );
 	} );
 
-	const cards = moduleList.map( ( element ) => {
-		var toggle = (
+	cards = moduleList.map( ( element ) => {
+		toggle = (
 			<ModuleToggle
 				slug={ element[0] }
 				activated={ isModuleActivated( element[0] ) }
@@ -62,13 +78,17 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 				searchTerms={ element.toString() }
 				subheader={ element[2] }
 				summary={ toggle }
-				expandedSummary={ toggle } >
+				expandedSummary={ toggle }
+				clickableHeaderText={ true }
+			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ? renderSettings( getModule( element[0] ) ) :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<br/>
-				<a href={ element[3] } target="_blank">Learn More</a>
+				<div className="jp-module-settings__read-more">
+					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
+				</div>
 			</FoldableCard>
 		);
 	} );
@@ -106,10 +126,9 @@ export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isTogglingModule: ( module_name ) =>
-			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
+			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			getModules: ( module_name ) => _getModules( state ),
+			getModules: () => _getModules( state ),
 			searchTerm: () => getSearchTerm( state )
 		};
 	},
