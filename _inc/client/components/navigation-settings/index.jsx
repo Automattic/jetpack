@@ -41,7 +41,23 @@ const NavigationSettings = React.createClass( {
 	},
 
 	render: function() {
-		let navItems;
+		let navItems,
+			isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
+
+		let maybeShowSearch = () => {
+			if ( isAdmin ) {
+				return (
+					<Search
+						pinned={ true }
+						placeholder={ __( 'Search for a Jetpack feature.' ) }
+						delaySearch={ true }
+						onSearchOpen={ this.openSearch }
+						onSearch={ this.onSearch }
+						onSearchClose={ this.onClose }
+					/>
+				);
+			}
+		};
 		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
@@ -93,19 +109,12 @@ const NavigationSettings = React.createClass( {
 				</NavTabs>
 			);
 		}
+
 		return (
 			<div className='dops-navigation'>
 				<SectionNav selectedText={ this.props.route.name }>
 					{ navItems }
-
-					<Search
-						pinned={ true }
-						placeholder={ __( 'Search for a Jetpack feature.' ) }
-						delaySearch={ true }
-						onSearchOpen={ this.openSearch }
-						onSearch={ this.onSearch }
-						onSearchClose={ this.onClose }
-					/>
+					{ maybeShowSearch() }
 				</SectionNav>
 			</div>
 		)
