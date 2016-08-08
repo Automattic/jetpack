@@ -37,13 +37,11 @@ import {
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import {
 	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
-	getVaultPressData as _getVaultPressData
+	getVaultPressData as _getVaultPressData,
+	getAkismetData as _getAkismetData
 } from 'state/at-a-glance';
 import { isUnavailableInDevMode } from 'state/connection';
 import QueryAkismetData from 'components/data/query-akismet-data';
-import {
-	getAkismetData as _getAkismetData
-} from 'state/at-a-glance';
 
 export const Page = ( props ) => {
 	let {

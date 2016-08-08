@@ -10,10 +10,15 @@ import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import Collection from 'components/search/search-collection.jsx';
 import { translate as __ } from 'i18n-calypso';
+import SimpleNotice from 'components/notice';
 
 /**
  * Internal dependencies
  */
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import QuerySite from 'components/data/query-site';
+import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import QueryAkismetData from 'components/data/query-akismet-data';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -24,11 +29,20 @@ import {
 	getModules as _getModules
 } from 'state/modules';
 import { getSearchTerm } from 'state/search';
-import Engagement from 'engagement/index.jsx';
-import Security from 'security/index.jsx';
-import Appearance from 'appearance/index.jsx';
-import GeneralSettings from 'general-settings/index.jsx';
-import Writing from 'writing/index.jsx';
+import {
+	isFetchingPluginsData,
+	isPluginActive,
+	isPluginInstalled
+} from 'state/site/plugins';
+import {
+	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
+	getVaultPressData as _getVaultPressData,
+	getAkismetData as _getAkismetData
+} from 'state/at-a-glance';
+import {
+	getSitePlan,
+	isFetchingSiteData
+} from 'state/site';
 
 export const Page = ( {
 	toggleModule,
@@ -36,10 +50,22 @@ export const Page = ( {
 	isTogglingModule,
 	getModule,
 	getModules,
-	searchTerm
+	searchTerm,
+	getVaultPressData,
+	getScanThreats,
+	getAkismetData,
+	sitePlan,
+	fetchingPluginsData,
+	pluginInstalled,
+	pluginActive,
+	fetchingSiteData
 	} ) => {
 	let modules = getModules(),
-		moduleList = [],
+		moduleList = [
+			[ 'scan', __( 'Security Scanning' ), __( 'Automatically scan your site for common threats and attacks.' ), 'security scan threat attacks pro' ],
+			[ 'akismet', 'Akismet', __( 'Keep those spammers away!' ), 'https://akismet.com/jetpack/', 'spam security comments pro' ],
+			[ 'backups', __( 'Site Backups' ), __( 'Keep your site backed up!' ), 'https://vaultpress.com/jetpack/', 'backup restore pro security' ]
+		],
 		cards,
 		toggle;
 
@@ -67,13 +93,102 @@ export const Page = ( {
 			/>
 		);
 
+		let isPro = 'scan' === element[0] || 'akismet' === element[0] || 'backups' === element[0],
+			proProps = {};
+
+		let getProToggle = ( active, installed ) => {
+			let pluginSlug = 'scan' === element[0] || 'backups' === element[0] ?
+				'vaultpress' :
+				'akismet';
+
+			let vpData = getVaultPressData();
+
+			if ( 'N/A' !== vpData && 'scan' === element[0] ) {
+				if ( 0 !== getScanThreats() ) {
+					return(
+						<SimpleNotice
+							showDismiss={ false }
+							status='is-error'
+							isCompact={ true }
+						>
+							{ __( 'Threats found!' ) }
+						</SimpleNotice>
+					);
+				}
+			}
+
+			if ( 'akismet' === element[0] ) {
+				const akismetData = getAkismetData();
+				if ( akismetData === 'invalid_key' ) {
+					return(
+						<SimpleNotice
+							showDismiss={ false }
+							status='is-warning'
+							isCompact={ true }
+						>
+							{ __( 'Invalid Key' ) }
+						</SimpleNotice>
+					);
+				}
+			}
+
+			if ( false !== sitePlan() ) {
+				if ( active && installed ) {
+					return (
+						__( 'ACTIVE' )
+					);
+				} else {
+					return (
+						<Button
+							compact={ true }
+							primary={ true }
+							href={ 'https://wordpress.com/plugins/' + pluginSlug + '/' + window.Initial_State.rawUrl }
+						>
+							{ ! installed ? __( 'Install' ) : __( 'Activate' ) }
+						</Button>
+					);
+				}
+			} else {
+				if ( active && installed ) {
+					return (
+						__( 'ACTIVE' )
+					);
+				}
+			}
+		};
+
+		if ( isPro ) {
+			proProps = {
+				module: element[0],
+				fetchingPluginsData: fetchingPluginsData,
+				isProPluginInstalled: 'backups' === element[0] || 'scan' === element[0] ?
+					pluginInstalled( 'vaultpress/vaultpress.php' ) :
+					pluginInstalled( 'akismet/akismet.php' ),
+				isProPluginActive: 'backups' === element[0] || 'scan' === element[0] ?
+					pluginActive( 'vaultpress/vaultpress.php' ) :
+					pluginActive( 'akismet/akismet.php' )
+			};
+			toggle = ! fetchingSiteData ? getProToggle( proProps.isProPluginActive, proProps.isProPluginInstalled ) : '';
+
+			// Add a "pro" button next to the header title
+			element[1] = <span>
+				{ element[1] }
+				<Button
+					compact={ true }
+					href="#professional"
+				>
+					{ __( 'Pro' ) }
+				</Button>
+			</span>
+		}
+
 		if ( 1 === element.length ) {
 			return ( <h1>{ element[0] }</h1> );
 		}
 
 		return (
 			<FoldableCard
-				key={ element[1] }
+				key={ element[0] }
 				header={ element[1] }
 				searchTerms={ element.toString().replace( /<(?:.|\n)*?>/gm, '' ) }
 				subheader={ element[2] }
@@ -95,6 +210,10 @@ export const Page = ( {
 
 	return (
 		<div>
+			<QuerySite />
+			<QuerySitePlugins />
+			<QueryVaultPressData />
+			<QueryAkismetData />
 			<h2>Searching All Modules</h2>
 			<Collection
 				filter={ searchTerm() }
@@ -129,7 +248,15 @@ export default connect(
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			getModules: () => _getModules( state ),
-			searchTerm: () => getSearchTerm( state )
+			searchTerm: () => getSearchTerm( state ),
+			getScanThreats: () => _getVaultPressScanThreatCount( state ),
+			getVaultPressData: () => _getVaultPressData( state ),
+			getAkismetData: () => _getAkismetData( state ),
+			sitePlan: () => getSitePlan( state ),
+			fetchingSiteData: isFetchingSiteData( state ),
+			fetchingPluginsData: isFetchingPluginsData( state ),
+			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
 		};
 	},
 	( dispatch ) => {
