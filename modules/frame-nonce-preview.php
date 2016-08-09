@@ -1,25 +1,24 @@
 <?php
+
 /**
- * Public Post Preview
- *
  * Allows viewing posts on the frontend when the user is not logged in.
  */
-class Jetpack_Public_Post_Preview {
+class Jetpack_Frame_Nonce_Preview {
 	static $instance = null;
 
 	/**
-	 * Returns the single instance of the Jetpack_Public_Post_Preview object
+	 * Returns the single instance of the Jetpack_Frame_Nonce_Preview object
 	 *
 	 * @since 4.4.0
 	 *
-	 * @return Jetpack_Public_Post_Preview
+	 * @return Jetpack_Frame_Nonce_Preview
 	 **/
 	public static function get_instance() {
 		if ( ! is_null( self::$instance ) ) {
 			return self::$instance;
 		}
 
-		return self::$instance = new Jetpack_Public_Post_Preview();
+		return self::$instance = new Jetpack_Frame_Nonce_Preview();
 	}
 
 	function __construct() {
@@ -56,6 +55,15 @@ class Jetpack_Public_Post_Preview {
 		return (bool) $xml->getResponse();
 	}
 
+	/**
+	 * Conditionally add a hook on posts_results if this is the main query, a preview, and singular.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param WP_Query $query
+	 *
+	 * @return WP_Query
+	 */
 	public function maybe_display_post( $query ) {
 		if (
 			$query->is_main_query() &&
@@ -94,4 +102,4 @@ class Jetpack_Public_Post_Preview {
 	}
 }
 
-Jetpack_Public_Post_Preview::get_instance();
+Jetpack_Frame_Nonce_Preview::get_instance();

@@ -19,7 +19,7 @@ $tools = array(
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
 	'theme-tools.php',
-	'public-post-preview.php',
+	'frame-nonce-preview.php',
 );
 
 /**
