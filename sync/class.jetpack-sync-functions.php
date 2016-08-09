@@ -81,18 +81,27 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function home_url() {
-		return self::preserve_scheme( 'home', home_url(), true );
+		return self::preserve_scheme( 'home', 'home_url', true );
 	}
 
 	public static function site_url() {
-		return self::preserve_scheme( 'siteurl', site_url(), true );
+		return self::preserve_scheme( 'siteurl', 'site_url', true );
 	}
 
 	public static function main_network_site_url() {
-		return self::preserve_scheme( 'siteurl', network_site_url(), false );
+		return self::preserve_scheme( 'siteurl', 'network_site_url', false );
 	}
 
-	public static function preserve_scheme( $option, $url, $normalize_www = false ) {
+	public static function preserve_scheme( $option, $url_function, $normalize_www = false ) {
+		$previous_https_value = isset( $_SERVER['HTTPS'] ) ? $_SERVER['HTTPS'] : null;
+		$_SERVER['HTTPS'] = 'off';
+		$url = call_user_func( $url_function );
+		if ( $previous_https_value ) {
+			$_SERVER['HTTPS'] = $previous_https_value;	
+		} else {
+			unset( $_SERVER['HTTPS'] );
+		}
+
 		$option_url = get_option( $option );
 		if ( $option_url === $url ) {
 			return $url;
