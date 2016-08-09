@@ -20,6 +20,7 @@ import QuerySite from 'components/data/query-site';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryAkismetData from 'components/data/query-akismet-data';
 import { isUnavailableInDevMode } from 'state/connection';
+import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -64,14 +65,30 @@ export const Page = ( {
 	} ) => {
 	let modules = getModules(),
 		moduleList = [
-			[ 'scan', __( 'Security Scanning' ), __( 'Automatically scan your site for common threats and attacks.' ), 'security scan threat attacks pro' ],
-			[ 'akismet', 'Akismet', __( 'Keep those spammers away!' ), 'https://akismet.com/jetpack/', 'spam security comments pro' ],
-			[ 'backups', __( 'Site Backups' ), __( 'Keep your site backed up!' ), 'https://vaultpress.com/jetpack/', 'backup restore pro security' ]
+			[
+				'scan',
+				__( 'Security Scanning' ),
+				__( 'Automatically scan your site for common threats and attacks.' ),
+				'security scan threat attacks pro' // Extra search terms @todo make translatable
+			],
+			[ 'akismet',
+				'Akismet',
+				__( 'Keep those spammers away!' ),
+				'https://akismet.com/jetpack/',
+				'spam security comments pro'
+			],
+			[
+				'backups',
+				__( 'Site Backups' ),
+				__( 'Keep your site backed up!' ),
+				'https://vaultpress.com/jetpack/',
+				'backup restore pro security'
+			]
 		],
 		cards;
 
 	forEach( modules, function( m ) {
-		moduleList.push( [
+		'vaultpress' !== m.module ? moduleList.push( [
 			m.module,
 			getModule( m.module ).name,
 			getModule( m.module ).description,
@@ -81,7 +98,7 @@ export const Page = ( {
 			getModule( m.module ).additional_search_queries,
 			getModule( m.module ).short_description,
 			getModule( m.module ).feature.toString()
-		] );
+		] ) : '';
 	} );
 
 	cards = moduleList.map( ( element ) => {
@@ -105,24 +122,22 @@ export const Page = ( {
 
 			let vpData = getVaultPressData();
 
-			if ( 'N/A' !== vpData && 'scan' === element[0] ) {
-				if ( 0 !== getScanThreats() ) {
-					return(
-						<SimpleNotice
-							showDismiss={ false }
-							status='is-error'
-							isCompact={ true }
-						>
-							{ __( 'Threats found!' ) }
-						</SimpleNotice>
-					);
-				}
+			if ( 'N/A' !== vpData && 'vaultpress' === element[0] && 0 !== getScanThreats() ) {
+				return(
+					<SimpleNotice
+						showDismiss={ false }
+						status='is-error'
+						isCompact={ true }
+					>
+						{ __( 'Threats found!' ) }
+					</SimpleNotice>
+				);
 			}
 
 			if ( 'akismet' === element[0] ) {
 				const akismetData = getAkismetData();
-				if ( akismetData === 'invalid_key' ) {
-					return(
+				return 'invalid_key' === akismetData ?
+					(
 						<SimpleNotice
 							showDismiss={ false }
 							status='is-warning'
@@ -130,33 +145,22 @@ export const Page = ( {
 						>
 							{ __( 'Invalid Key' ) }
 						</SimpleNotice>
-					);
-				}
+					) : '';
 			}
 
 			if ( false !== sitePlan() ) {
-				if ( active && installed ) {
-					return (
-						__( 'ACTIVE' )
-					);
-				} else {
-					return (
-						<Button
-							compact={ true }
-							primary={ true }
-							href={ 'https://wordpress.com/plugins/' + pluginSlug + '/' + window.Initial_State.rawUrl }
-						>
-							{ ! installed ? __( 'Install' ) : __( 'Activate' ) }
-						</Button>
-					);
-				}
-			} else {
-				if ( active && installed ) {
-					return (
-						__( 'ACTIVE' )
-					);
-				}
+				return active && installed ?
+					__( 'ACTIVE' ) :
+					<Button
+						compact={ true }
+						primary={ true }
+						href={ 'https://wordpress.com/plugins/' + pluginSlug + '/' + window.Initial_State.rawUrl }
+					>
+						{ ! installed ? __( 'Install' ) : __( 'Activate' ) }
+					</Button>;
 			}
+
+			return active && installed ? __( 'ACTIVE' ) : '';
 		};
 
 		if ( isPro ) {
@@ -168,7 +172,10 @@ export const Page = ( {
 					pluginInstalled( 'akismet/akismet.php' ),
 				isProPluginActive: 'backups' === element[0] || 'scan' === element[0] ?
 					pluginActive( 'vaultpress/vaultpress.php' ) :
-					pluginActive( 'akismet/akismet.php' )
+					pluginActive( 'akismet/akismet.php' ),
+				configure_url: 'backups' === element[0] || 'scan' === element[0] ?
+					'https://dashboard.vaultpress.com' :
+					Initial_State.adminUrl + 'admin.php?page=akismet-key-config'
 			};
 			toggle = ! fetchingSiteData ? getProToggle( proProps.isProPluginActive, proProps.isProPluginInstalled ) : '';
 
@@ -199,9 +206,11 @@ export const Page = ( {
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
 			>
-				{ isModuleActivated( element[0] ) || 'scan' === element[0] ? renderSettings( getModule( element[0] ) ) :
-					// Render the long_description if module is deactivated
-					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
+				{
+					isModuleActivated ?
+						<AllModuleSettings module={ isPro ? proProps : getModule( element[0] ) } /> :
+						// Render the long_description if module is deactivated
+						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<br/>
 				<div className="jp-module-settings__read-more">
@@ -217,10 +226,8 @@ export const Page = ( {
 			<QuerySitePlugins />
 			<QueryVaultPressData />
 			<QueryAkismetData />
-			<h2>Searching All Modules</h2>
-			<Collection
-				filter={ searchTerm() }
-			>
+			<h2>{ __( 'Searching All Modules' ) }</h2>
+			<Collection filter={ searchTerm() }>
 				{ cards }
 			</Collection>
 		</div>
@@ -231,17 +238,6 @@ function renderLongDescription( module ) {
 	// Rationale behind returning an object and not just the string
 	// https://facebook.github.io/react/tips/dangerously-set-inner-html.html
 	return { __html: module.long_description };
-}
-
-function renderSettings( module ) {
-	switch ( module.module ) {
-		default:
-			return (
-				<div>
-					<a href={ module.configure_url }>Link to old settings</a>
-				</div>
-			);
-	}
 }
 
 export default connect(
