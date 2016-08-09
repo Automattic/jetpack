@@ -6,7 +6,6 @@
  */
 class Jetpack_Public_Post_Preview {
 	static $instance = null;
-	static $query_var = 'jetpack_public_post_preview';
 
 	/**
 	 * Returns the single instance of the Jetpack_Public_Post_Preview object
@@ -24,13 +23,37 @@ class Jetpack_Public_Post_Preview {
 	}
 
 	function __construct() {
-		if ( ! is_admin() ) {
+		if (
+			isset( $_GET['frame-nonce'] ) &&
+			! is_admin() &&
+			! is_user_logged_in()
+
+		) {
 			add_filter( 'pre_get_posts', array( $this, 'maybe_display_post' ) );
 		}
 	}
 
-	public function draft_key_valid() {
-		return true;
+	/**
+	 * Verify that frame nonce exists, and if so, validate the nonce by calling WP.com.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return bool
+	 */
+	public function is_frame_nonce_valid() {
+		if ( empty( $_GET[ 'frame-nonce' ] ) ) {
+			return false;
+		}
+
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client();
+		$xml->query( 'jetpack.verifyFrameNonce', sanitize_key( $_GET['frame-nonce'] ) );
+
+		if ( $xml->isError() ) {
+			return false;
+		}
+
+		return (bool) $xml->getResponse();
 	}
 
 	public function maybe_display_post( $query ) {
@@ -45,10 +68,19 @@ class Jetpack_Public_Post_Preview {
 		return $query;
 	}
 
+	/**
+	 * Conditionally set the first post to 'publish' if the frame nonce is valid and there is a post.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param array $posts
+	 *
+	 * @return array
+	 */
 	public function set_post_to_publish( $posts ) {
 		remove_filter( 'posts_results', array( $this, 'set_post_to_publish' ), 10, 2 );
 
-		if ( empty( $posts ) ) {
+		if ( empty( $posts ) || ! $this->is_frame_nonce_valid() ) {
 			return $posts;
 		}
 
