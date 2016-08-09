@@ -867,7 +867,7 @@ class Jetpack_SSO {
 			'<a rel="nofollow" href="%1$s" class="%2$s"><span>%3$s %4$s</span></a>',
 			esc_url( $url ),
 			$classes,
-			'<span class="genericon genericon-wordpress"></span>',
+			'<span class="dashicons dashicons-wordpress-alt"></span>',
 			esc_html__( 'Log in with WordPress.com', 'jetpack' )
 		);
 	}

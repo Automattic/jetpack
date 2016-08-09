@@ -37,8 +37,8 @@ button.omnisearch-submit {
 }
 
 button.omnisearch-submit::before {
-	font-family: 'Genericons', Noticons;
-	content: '\f400';
+	font-family: dashicons, Noticons;
+	content: '\f179';
 }
 
 button.omnisearch-submit span {
