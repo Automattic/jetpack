@@ -96,13 +96,13 @@ class Jetpack_Sync_Functions {
 		$previous_https_value = isset( $_SERVER['HTTPS'] ) ? $_SERVER['HTTPS'] : null;
 		$_SERVER['HTTPS'] = 'off';
 		$url = call_user_func( $url_function );
+		$option_url = get_option( $option );
 		if ( $previous_https_value ) {
 			$_SERVER['HTTPS'] = $previous_https_value;	
 		} else {
 			unset( $_SERVER['HTTPS'] );
 		}
 
-		$option_url = get_option( $option );
 		if ( $option_url === $url ) {
 			return $url;
 		}
