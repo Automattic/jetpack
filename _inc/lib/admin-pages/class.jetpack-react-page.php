@@ -99,7 +99,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
 
 		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
-		echo '<div class="clouds-sm"></div>';
 		echo '<div class="wrap configure-module">';
 
 		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
