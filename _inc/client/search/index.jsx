@@ -130,7 +130,7 @@ export const Page = ( {
 				clickableHeaderText={ true }
 			>
 				{
-					isModuleActivated ?
+					isModuleActivated( element[0] ) ?
 						<AllModuleSettings module={ isPro ? proProps : getModule( element[0] ) } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
