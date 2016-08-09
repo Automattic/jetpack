@@ -10,15 +10,11 @@ import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import Collection from 'components/search/search-collection.jsx';
 import { translate as __ } from 'i18n-calypso';
-import SimpleNotice from 'components/notice';
 
 /**
  * Internal dependencies
  */
-import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
-import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import QueryAkismetData from 'components/data/query-akismet-data';
 import { isUnavailableInDevMode } from 'state/connection';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import {
@@ -32,19 +28,9 @@ import {
 } from 'state/modules';
 import { getSearchTerm } from 'state/search';
 import {
-	isFetchingPluginsData,
-	isPluginActive,
-	isPluginInstalled
-} from 'state/site/plugins';
-import {
-	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
-	getVaultPressData as _getVaultPressData,
-	getAkismetData as _getAkismetData
-} from 'state/at-a-glance';
-import {
-	getSitePlan,
-	isFetchingSiteData
+	getSitePlan
 } from 'state/site';
+import ProStatus from 'pro-status';
 
 export const Page = ( {
 	toggleModule,
@@ -53,14 +39,6 @@ export const Page = ( {
 	getModule,
 	getModules,
 	searchTerm,
-	getVaultPressData,
-	getScanThreats,
-	getAkismetData,
-	sitePlan,
-	fetchingPluginsData,
-	pluginInstalled,
-	pluginActive,
-	fetchingSiteData,
 	unavailableInDevMode
 	} ) => {
 	let modules = getModules(),
@@ -115,69 +93,14 @@ export const Page = ( {
 			),
 			customClasses = unavailableDevMode ? 'devmode-disabled' : '';
 
-		let getProToggle = ( active, installed ) => {
-			let pluginSlug = 'scan' === element[0] || 'backups' === element[0] ?
-				'vaultpress' :
-				'akismet';
-
-			let vpData = getVaultPressData();
-
-			if ( 'N/A' !== vpData && 'vaultpress' === element[0] && 0 !== getScanThreats() ) {
-				return(
-					<SimpleNotice
-						showDismiss={ false }
-						status='is-error'
-						isCompact={ true }
-					>
-						{ __( 'Threats found!' ) }
-					</SimpleNotice>
-				);
-			}
-
-			if ( 'akismet' === element[0] ) {
-				const akismetData = getAkismetData();
-				return 'invalid_key' === akismetData ?
-					(
-						<SimpleNotice
-							showDismiss={ false }
-							status='is-warning'
-							isCompact={ true }
-						>
-							{ __( 'Invalid Key' ) }
-						</SimpleNotice>
-					) : '';
-			}
-
-			if ( false !== sitePlan() ) {
-				return active && installed ?
-					__( 'ACTIVE' ) :
-					<Button
-						compact={ true }
-						primary={ true }
-						href={ 'https://wordpress.com/plugins/' + pluginSlug + '/' + window.Initial_State.rawUrl }
-					>
-						{ ! installed ? __( 'Install' ) : __( 'Activate' ) }
-					</Button>;
-			}
-
-			return active && installed ? __( 'ACTIVE' ) : '';
-		};
-
 		if ( isPro ) {
 			proProps = {
 				module: element[0],
-				fetchingPluginsData: fetchingPluginsData,
-				isProPluginInstalled: 'backups' === element[0] || 'scan' === element[0] ?
-					pluginInstalled( 'vaultpress/vaultpress.php' ) :
-					pluginInstalled( 'akismet/akismet.php' ),
-				isProPluginActive: 'backups' === element[0] || 'scan' === element[0] ?
-					pluginActive( 'vaultpress/vaultpress.php' ) :
-					pluginActive( 'akismet/akismet.php' ),
 				configure_url: 'backups' === element[0] || 'scan' === element[0] ?
 					'https://dashboard.vaultpress.com' :
 					Initial_State.adminUrl + 'admin.php?page=akismet-key-config'
 			};
-			toggle = ! fetchingSiteData ? getProToggle( proProps.isProPluginActive, proProps.isProPluginInstalled ) : '';
+			toggle = <ProStatus proFeature={ element[0] } />;
 
 			// Add a "pro" button next to the header title
 			element[1] = <span>
@@ -223,9 +146,6 @@ export const Page = ( {
 	return (
 		<div>
 			<QuerySite />
-			<QuerySitePlugins />
-			<QueryVaultPressData />
-			<QueryAkismetData />
 			<h2>{ __( 'Searching All Modules' ) }</h2>
 			<Collection filter={ searchTerm() }>
 				{ cards }
@@ -248,14 +168,7 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			getModules: () => _getModules( state ),
 			searchTerm: () => getSearchTerm( state ),
-			getScanThreats: () => _getVaultPressScanThreatCount( state ),
-			getVaultPressData: () => _getVaultPressData( state ),
-			getAkismetData: () => _getAkismetData( state ),
 			sitePlan: () => getSitePlan( state ),
-			fetchingSiteData: isFetchingSiteData( state ),
-			fetchingPluginsData: isFetchingPluginsData( state ),
-			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			unavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
 		};
 	},

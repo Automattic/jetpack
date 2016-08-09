@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
-import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -25,6 +24,7 @@ import {
 	isDeactivatingModule,
 	getModule as _getModule
 } from 'state/modules';
+import ProStatus from 'pro-status';
 
 const DashItem = React.createClass( {
 	displayName: 'DashItem',
@@ -44,74 +44,6 @@ const DashItem = React.createClass( {
 			module: '',
 			pro: false
 		};
-	},
-
-	proCardStatus() {
-		let status;
-
-		if ( this.props.isDevMode ) {
-			return '';
-		}
-
-		if ( this.props.isFetchingSiteData ) {
-			return <Spinner />;
-		}
-
-		switch ( this.props.status ) {
-			case 'no-pro-uninstalled-or-inactive':
-				status = <Button
-					compact={ true }
-					primary={ true }
-					href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl }
-				>
-					{ __( 'Upgrade' ) }
-				</Button>;
-				break;
-			case 'pro-uninstalled':
-				status = <Button
-					compact={ true }
-					primary={ true }
-					href={ 'https://wordpress.com/plugins/' + this.props.module + '/' + window.Initial_State.rawUrl }
-				>
-					{ __( 'Install' ) }
-				</Button>;
-				break;
-			case 'pro-inactive':
-				status = <Button
-					compact={ true }
-					primary={ true }
-					href={ 'https://wordpress.com/plugins/' + this.props.module + '/' + window.Initial_State.rawUrl }
-				>
-					{ __( 'Activate' ) }
-				</Button>;
-				break;
-			case 'is-error':
-				status = <SimpleNotice
-					showDismiss={ false }
-					status={ this.props.status }
-					isCompact={ true }
-				>
-					{ this.props.statusText }
-				</SimpleNotice>;
-				break;
-			case 'is-warning':
-				status = <SimpleNotice
-					showDismiss={ false }
-					status={ this.props.status }
-					isCompact={ true }
-				>
-					{ this.props.statusText }
-				</SimpleNotice>;
-				break;
-			case 'is-working':
-				status = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>;
-				break;
-			default:
-				status = '';
-				break;
-		}
-
-		return status;
 	},
 
 	render() {
@@ -162,7 +94,7 @@ const DashItem = React.createClass( {
 				</Button>
 			;
 
-			toggle = this.proCardStatus();
+			toggle = <ProStatus proFeature={ this.props.module } />;
 		}
 
 		return (
