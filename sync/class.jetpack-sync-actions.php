@@ -149,8 +149,6 @@ class Jetpack_Sync_Actions {
 			wp_schedule_single_event( time() + 1, 'jetpack_sync_full' );
 		}
 
-		wp_schedule_single_event( time() + 2, 'jetpack_sync_cron' );
-
 		spawn_cron();
 	}
 
