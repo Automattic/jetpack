@@ -165,7 +165,8 @@ window.wpNavMenuClassChange = function() {
 		'#/engagement',
 		'#/security',
 		'#/appearance',
-		'#/writing'
+		'#/writing',
+		'#/search'
 	],
 	dashboardRoutes = [
 		'#/',
