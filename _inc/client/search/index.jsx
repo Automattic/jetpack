@@ -146,7 +146,6 @@ export const Page = ( {
 	return (
 		<div>
 			<QuerySite />
-			<h2>{ __( 'Searching All Modules' ) }</h2>
 			<Collection filter={ searchTerm() }>
 				{ cards }
 			</Collection>
