@@ -34,4 +34,19 @@ window.versionNotice = Server.renderToStaticMarkup(
 		</Provider>
 	);
 
-window.ieNotice = "<!--[if lte IE 10]>" + window.versionNotice + "<![endif]-->";
+window.ieNotice = Server.renderToStaticMarkup(
+		<Provider store={ store }>
+			<div id="ie-legacy-notice" style={{ display: 'none' }}>
+				<StaticWarning  />
+			</div>
+		</Provider>
+	);
+
+window.ieNotice = window.ieNotice +
+	"<script type=\"text/javascript\">\n" +
+	"/*@cc_on\n" +
+	"if ( @_jscript_version <= 10) {\n" +
+	"jQuery( '#ie-legacy-notice' ).show();\n" +
+	"}\n" +
+	"@*/\n" +
+	"</script>";
