@@ -37,7 +37,6 @@ class Jetpack_Sync_Actions {
 		add_action( 'jetpack_sync_send_db_checksum', array( __CLASS__, 'send_db_checksum' ) );
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
-		add_action( 'jetpack_sync_send_pending_data', array( __CLASS__, 'do_send_pending_data' ) );
 
 		if ( ! wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			// Schedule a job to send DB checksums once an hour
@@ -150,6 +149,8 @@ class Jetpack_Sync_Actions {
 			wp_schedule_single_event( time() + 1, 'jetpack_sync_full' );
 		}
 
+		wp_schedule_single_event( time() + 2, 'jetpack_sync_cron' );
+
 		spawn_cron();
 	}
 
@@ -176,7 +177,7 @@ class Jetpack_Sync_Actions {
 
 		self::initialize_listener();
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
-		self::do_send_pending_data(); // try to send at least some of the data
+		self::do_cron_sync(); // immediately run a cron sync, which sends pending data
 	}
 
 	static function minute_cron_schedule( $schedules ) {
@@ -213,11 +214,6 @@ class Jetpack_Sync_Actions {
 
 			$result = self::$sender->do_sync();
 		} while ( $result );
-	}
-
-	static function do_send_pending_data() {
-		self::initialize_sender();
-		self::$sender->do_sync();
 	}
 
 	static function send_db_checksum() {
