@@ -26,23 +26,6 @@ const PlanBody = React.createClass( {
 			case 'jetpack_premium_monthly':
 			case 'jetpack_business':
 			case 'jetpack_business_monthly':
-				let needMore = '';
-				if ( [ 'jetpack_premium', 'jetpack_premium_monthly' ].includes( this.props.plan ) ) {
-					needMore = (
-						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Need more?' ) }</h3>
-							<p>{ __( 'Jetpack Professional offers more features.' ) }</p>
-							<p>
-								<Button href={ 'https://wordpress.com/plans/compare/' + this.props.siteRawUrl }>
-									{ __( 'Compare Plans' ) }
-								</Button>
-								<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
-									{ __( 'Upgrade to Professional' ) }
-								</Button>
-							</p>
-						</div>
-					)
-				}
 				planCard = (
 					<div className="jp-landing__plan-features">
 						<div className="jp-landing__plan-features-card">
@@ -71,7 +54,35 @@ const PlanBody = React.createClass( {
 								{ __( 'View your security dashboard' ) }
 							</Button>
 						</div>
-						{ needMore }
+
+						{
+							[ 'jetpack_business', 'jetpack_business_monthly' ].includes( this.props.plan ) ?
+								<div className="jp-landing__plan-features-card">
+									<h3 className="jp-landing__plan-features-title">{ __( 'Surveys & Polls' ) }</h3>
+									<p>{ __( 'Unlimited surveys, unlimited responses. Use the survey editor to create surveys quickly and easily. Collect responses via your website, e-mail or on your iPad or iPhone.' ) }</p>
+									<Button href="https://polldaddy.com/dashboard/" className="is-primary">
+										{ __( 'Create a new poll' ) }
+									</Button>
+								</div>
+								: ''
+						}
+
+						{
+							[ 'jetpack_premium', 'jetpack_premium_monthly' ].includes( this.props.plan ) ?
+								<div className="jp-landing__plan-features-card">
+									<h3 className="jp-landing__plan-features-title">{ __( 'Need more?' ) }</h3>
+									<p>{ __( 'Jetpack Professional offers more features.' ) }</p>
+									<p>
+										<Button href={ 'https://wordpress.com/plans/compare/' + this.props.siteRawUrl }>
+											{ __( 'Compare Plans' ) }
+										</Button>
+										<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
+											{ __( 'Upgrade to Professional' ) }
+										</Button>
+									</p>
+								</div>
+								: ''
+						}
 					</div>
 				);
 				break;
