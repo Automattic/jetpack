@@ -123,7 +123,7 @@ class Jetpack_Sync_Sender {
 		require_once(ABSPATH . 'wp-admin/includes/screen.php');
 		set_current_screen( 'sync' );
 
-		$skipped_items_ids = [];
+		$skipped_items_ids = array();
 
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
