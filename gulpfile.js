@@ -53,6 +53,9 @@ function onBuild( done ) {
 
 		if ( done ) {
 			doStatic( done );
+
+			// After CSS files are built, create RTL versions
+			doRTL();
 		} else {
 			doStatic();
 		}
@@ -84,13 +87,30 @@ function doSass() {
 		} );
 }
 
-gulp.task( 'sass:build', function() {
+function doRTL( files ) {
+	gulp.src( 'main' === files ? './_inc/build/style.min.css' : './_inc/build/*style!(.rtl)*.css' )
+		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
+		.pipe( autoprefixer( { browsers: [ 'last 2 versions', 'ie >= 8' ] } ) )
+		.pipe( rtlcss() )
+		.pipe( rename( { suffix: '.rtl' } ) )
+		.pipe( sourcemaps.init() )
+		.pipe( sourcemaps.write( './' ) )
+		.pipe( gulp.dest( './_inc/build' ) )
+		.on( 'end', function() {
+			console.log( 'main' === files ? 'Dashboard RTL CSS finished.' : 'DOPS Components RTL CSS finished.' );
+		} );
+}
+
+function doSassAndRTL() {
 	doSass();
-} );
+	doRTL( 'main' );
+}
+
+gulp.task( 'sass:build', doSassAndRTL );
 
 gulp.task( 'sass:watch', function() {
-	doSass();
-	gulp.watch( [ './**/*.scss' ], doSass );
+	doSassAndRTL();
+	gulp.watch( [ './**/*.scss' ], doSassAndRTL );
 } );
 
 gulp.task( 'react:build', function( done ) {
