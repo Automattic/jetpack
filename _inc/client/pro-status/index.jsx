@@ -43,7 +43,8 @@ const ProStatus = React.createClass( {
 	},
 
 	render() {
-		let pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature ?
+		let sitePlan = this.props.sitePlan(),
+			pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature ?
 			'vaultpress/vaultpress.php' :
 			'akismet/akismet.php';
 
@@ -77,16 +78,33 @@ const ProStatus = React.createClass( {
 				}
 			}
 
-			if ( false !== this.props.sitePlan() ) {
-				return active && installed ?
-					__( 'ACTIVE' ) :
+			if ( false !== sitePlan ) {
+				let btnVals = {};
+				if ( 'jetpack_free' !== sitePlan.product_slug ) {
+					btnVals = {
+						href: 'https://wordpress.com/plugins/' + pluginSlug + '/' + window.Initial_State.rawUrl,
+						text: ! installed ? __( 'Install' ) : __( 'Activate' )
+					}
+				} else {
+					btnVals = {
+						href: 'https://wordpress.com/plans/' + window.Initial_State.rawUrl,
+						text: 'Upgrade'
+					}
+				}
+
+				if ( active && installed ) {
+					return __( 'ACTIVE' );
+				}
+
+				return (
 					<Button
 						compact={ true }
 						primary={ true }
-						href={ 'https://wordpress.com/plugins/' + pluginSlug + '/' + window.Initial_State.rawUrl }
+						href={ btnVals.href }
 					>
-						{ ! installed ? __( 'Install' ) : __( 'Activate' ) }
-					</Button>;
+						{ btnVals.text }
+					</Button>
+				);
 			}
 
 			return active && installed ?
