@@ -486,9 +486,6 @@ class Jetpack {
 		// If any module option is updated before Jump Start is dismissed, hide Jump Start.
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
-		// Identity Crisis AJAX callback function
-		add_action( 'wp_ajax_jetpack_resolve_identity_crisis', array( $this, 'resolve_identity_crisis_ajax_callback' ) );
-
 		// JITM AJAX callback function
 		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
 
@@ -5123,7 +5120,6 @@ p {
 					// If the current options is an IP address
 					if ( filter_var( $parsed_cloud_value['host'], FILTER_VALIDATE_IP ) ) {
 						// Give the new value a Jetpack to fly in to the clouds
-						Jetpack::resolve_identity_crisis( $cloud_key );
 						continue;
 					}
 
@@ -5164,122 +5160,6 @@ p {
 		 * @param bool $force_recheck Ignore any cached transient and manually re-check. Default to false.
 		 */
 		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
-	}
-
-	/*
-	 * Resolve ID crisis
-	 *
-	 * If the URL has changed, but the rest of the options are the same (i.e. blog/user tokens)
-	 * The user has the option to update the shadow site with the new URL before a new
-	 * token is created.
-	 *
-	 * @param $key : Which option to sync.  null defautlts to home and siteurl
-	 */
-	public static function resolve_identity_crisis( $key = null ) {
-		if ( $key ) {
-			$identity_options = array( $key );
-		} else {
-			$identity_options = self::identity_crisis_options_to_check();
-		}
-
-		if ( is_array( $identity_options ) ) {
-			foreach( $identity_options as $identity_option ) {
-				/**
-				 * Fires when a shadow site option is updated.
-				 * These options are updated via the Identity Crisis UI.
-				 * $identity_option is the option that gets updated.
-				 *
-				 * @since 3.7.0
-				 */
-				do_action( "update_option_{$identity_option}" );
-			}
-		}
-	}
-
-	/*
-	 * Whitelist URL
-	 *
-	 * Ignore the URL differences between the blog and the shadow site.
-	 */
-	public static function whitelist_current_url() {
-		$options_to_check = Jetpack::identity_crisis_options_to_check();
-		$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
-
-		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
-			Jetpack::whitelist_identity_crisis_value( $cloud_key, $cloud_value );
-		}
-	}
-
-	/*
-	 * Ajax callbacks for ID crisis resolutions
-	 *
-	 * Things that could happen here:
-	 *  - site_migrated : Update the URL on the shadow blog to match new domain
-	 *  - whitelist     : Ignore the URL difference
-	 *  - default       : Error message
-	 */
-	public static function resolve_identity_crisis_ajax_callback() {
-		check_ajax_referer( 'resolve-identity-crisis', 'ajax-nonce' );
-
-		switch ( $_POST[ 'crisis_resolution_action' ] ) {
-			case 'site_migrated':
-				Jetpack::resolve_identity_crisis();
-				echo 'resolved';
-				break;
-
-			case 'whitelist':
-				Jetpack::whitelist_current_url();
-				echo 'whitelisted';
-				break;
-
-			case 'reset_connection':
-				// Delete the options first so it doesn't get confused which site to disconnect dotcom-side
-				Jetpack_Options::delete_option(
-					array(
-						'register',
-						'blog_token',
-						'user_token',
-						'user_tokens',
-						'master_user',
-						'time_diff',
-						'fallback_no_verify_ssl_certs',
-						'id',
-					)
-				);
-				delete_transient( 'jetpack_has_identity_crisis' );
-
-				echo 'reset-connection-success';
-				break;
-
-			default:
-				echo 'missing action';
-				break;
-		}
-
-		wp_die();
-	}
-
-	/**
-	 * Adds a value to the whitelist for the specified key.
-	 *
-	 * @param string $key The option name that we're whitelisting the value for.
-	 * @param string $value The value that we're intending to add to the whitelist.
-	 *
-	 * @return bool Whether the value was added to the whitelist, or false if it was already there.
-	 */
-	public static function whitelist_identity_crisis_value( $key, $value ) {
-		if ( Jetpack::is_identity_crisis_value_whitelisted( $key, $value ) ) {
-			return false;
-		}
-
-		$whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist', array() );
-		if ( empty( $whitelist[ $key ] ) || ! is_array( $whitelist[ $key ] ) ) {
-			$whitelist[ $key ] = array();
-		}
-		array_push( $whitelist[ $key ], $value );
-
-		Jetpack_Options::update_option( 'identity_crisis_whitelist', $whitelist );
-		return true;
 	}
 
 	/**
@@ -5371,77 +5251,6 @@ p {
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
-	}
-
-	public function identity_crisis_js( $nonce ) {
-?>
-<script>
-(function( $ ) {
-	var SECOND_IN_MS = 1000;
-
-	function contactSupport( e ) {
-		e.preventDefault();
-		$( '.jp-id-crisis-question' ).hide();
-		$( '#jp-id-crisis-contact-support' ).show();
-	}
-
-	function autodismissSuccessBanner() {
-		$( '.jp-identity-crisis' ).fadeOut(600); //.addClass( 'dismiss' );
-	}
-
-	var data = { action: 'jetpack_resolve_identity_crisis', 'ajax-nonce': '<?php echo $nonce; ?>' };
-
-	$( document ).ready(function() {
-
-		// Site moved: Update the URL on the shadow blog
-		$( '.site-moved' ).click(function( e ) {
-			e.preventDefault();
-			data.crisis_resolution_action = 'site_migrated';
-			$( '#jp-id-crisis-question-1 .spinner' ).show();
-			$.post( ajaxurl, data, function() {
-				$( '.jp-id-crisis-question' ).hide();
-				$( '.banner-title' ).hide();
-				$( '#jp-id-crisis-success' ).show();
-				setTimeout( autodismissSuccessBanner, 6 * SECOND_IN_MS );
-			});
-
-		});
-
-		// URL hasn't changed, next question please.
-		$( '.site-not-moved' ).click(function( e ) {
-			e.preventDefault();
-			$( '.jp-id-crisis-question' ).hide();
-			$( '#jp-id-crisis-question-2' ).show();
-		});
-
-		// Reset connection: two separate sites.
-		$( '.reset-connection' ).click(function( e ) {
-			data.crisis_resolution_action = 'reset_connection';
-			$.post( ajaxurl, data, function( response ) {
-				if ( 'reset-connection-success' === response ) {
-					window.location.replace( '<?php echo Jetpack::admin_url(); ?>' );
-				}
-			});
-		});
-
-		// It's a dev environment.  Ignore.
-		$( '.is-dev-env' ).click(function( e ) {
-			data.crisis_resolution_action = 'whitelist';
-			$( '#jp-id-crisis-question-2 .spinner' ).show();
-			$.post( ajaxurl, data, function() {
-				$( '.jp-id-crisis-question' ).hide();
-				$( '.banner-title' ).hide();
-				$( '#jp-id-crisis-success' ).show();
-				setTimeout( autodismissSuccessBanner, 4 * SECOND_IN_MS );
-			});
-		});
-
-		$( '.not-reconnecting' ).click(contactSupport);
-		$( '.not-staging-or-dev' ).click(contactSupport);
-	});
-})( jQuery );
-</script>
-<?php
 	}
 
 	/**
