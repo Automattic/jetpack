@@ -53,6 +53,7 @@ function render() {
 			<Provider store={ store }>
 				<Router history={ history }>
 					<Route path='/' name={ i18n.translate( 'At A Glance', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/jumpstart' component={ Main } />
 					<Route path='/dashboard' name={ i18n.translate( 'At A Glance' ) } component={ Main } />
 					<Route path='/apps' name={ i18n.translate( 'Apps', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/professional' name={ i18n.translate( 'Professional', { context: 'Navigation item.' } ) } component={ Main } />
