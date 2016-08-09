@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import assign from 'lodash/assign';
 import includes from 'lodash/includes';
+import { createHistory } from 'history';
 
 /**
  * Internal dependencies
@@ -54,7 +55,12 @@ const Main = React.createClass( {
 		}
 
 		if ( showJumpStart ) {
-			return <JumpStart { ...this.props } />
+			if ( '/' === route ) {
+				const history = createHistory();
+				history.push( '/wp-admin/admin.php?page=jetpack#/jumpstart' );
+			} else if ( '/jumpstart' === route ) {
+				return <JumpStart { ...this.props } />
+			}
 		}
 
 		if ( ! getSiteConnectionStatus( this.props ) ) {
