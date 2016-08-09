@@ -328,6 +328,18 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
 	}
 
+	public function test_deleted_user_during_sync_doesnt_cause_error() {
+		$this->server_event_storage->reset();
+
+		do_action( 'jetpack_sync_save_user', null );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+
+		$this->assertFalse( $event );
+	}
+
 	public function test_maybe_demote_master_user_method() {
 		// set up
 		$current_master_id = $this->factory->user->create( array( 'user_login' => 'current_master' ) );

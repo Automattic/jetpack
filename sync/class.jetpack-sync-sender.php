@@ -123,6 +123,8 @@ class Jetpack_Sync_Sender {
 		require_once(ABSPATH . 'wp-admin/includes/screen.php');
 		set_current_screen( 'sync' );
 
+		$skipped_items_ids = array();
+
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
 		foreach ( $items as $key => $item ) {
@@ -137,6 +139,11 @@ class Jetpack_Sync_Sender {
 			 * @param int The ID of the user who triggered the action
 			 */
 			$item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
+
+			if ( $item[1] === false ) {
+				$skipped_items_ids[] = $key;
+				continue;
+			}
 
 			$encoded_item = $this->codec->encode( $item );
 
@@ -189,6 +196,11 @@ class Jetpack_Sync_Sender {
 			}
 
 			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
+
+			// also checkin any items that were skipped
+			if ( count( $skipped_items_ids ) > 0 ) {
+				$processed_item_ids = $processed_item_ids + $skipped_items_ids;				
+			}
 
 			/**
 			 * Allows us to keep track of all the actions that have been sent.
