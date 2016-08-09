@@ -21,7 +21,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
-import { SecurityModulesSettings } from 'components/module-settings/modules-per-tab-page';
+import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import {
 	fetchPluginsData,
 	isFetchingPluginsData,
@@ -178,7 +178,7 @@ export const Page = ( props ) => {
 				clickableHeaderText={ true } >
 				{
 					isModuleActivated( element[0] ) || isPro ?
-						<SecurityModulesSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
+						<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}

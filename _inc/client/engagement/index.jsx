@@ -20,7 +20,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
-import { EngagementModulesSettings } from 'components/module-settings/modules-per-tab-page';
+import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 
 export const Page = ( props ) => {
@@ -85,7 +85,7 @@ export const Page = ( props ) => {
 				disabled={ ! adminAndNonAdmin } >
 				{
 					isModuleActive ?
-						<EngagementModulesSettings module={ getModule( element[0] ) } /> :
+						<AllModuleSettings module={ getModule( element[0] ) } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
