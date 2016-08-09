@@ -15,12 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Load WP_Error for error messages.
 require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
-// Load API endpoint base classes
-require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
-
-// Load API endpoints
-require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
-
 // Register endpoints when WP REST API is initialized.
 add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
 
@@ -47,6 +41,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @since 4.1.0
 	 */
 	public static function register_endpoints() {
+
+		// Load API endpoint base classes
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
+
+		// Load API endpoints
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
+
 		self::$user_permissions_error_msg = esc_html__(
 			'You do not have the correct user permissions to perform this action.
 			Please contact your site admin if you think this is a mistake.',
