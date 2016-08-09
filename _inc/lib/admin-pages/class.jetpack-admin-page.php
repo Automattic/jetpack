@@ -60,12 +60,9 @@ abstract class Jetpack_Admin_Page {
 		}
 	}
 
-	// Render the page with a common top and bottom part, and page specific
-	// content
+	// Render the page with a common top and bottom part, and page specific content
 	function render() {
-//		$this->admin_page_top();
 		$this->page_render();
-//		$this->admin_page_bottom();
 	}
 
 	function admin_help() {
@@ -75,19 +72,6 @@ abstract class Jetpack_Admin_Page {
 	function admin_page_load() {
 		// This is big.  For the moment, just call the existing one.
 		$this->jetpack->admin_page_load();
-	}
-
-	// Load underscore template for the landing page and settings page modal
-	function module_modal_js_template() {
-		Jetpack::init()->load_view( 'admin/module-modal-template.php' );
-	}
-
-	function admin_page_top() {
-		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
-	}
-
-	function admin_page_bottom() {
-		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
 	}
 
 	// Add page specific scripts and jetpack stats for all menu pages
