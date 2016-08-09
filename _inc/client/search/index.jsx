@@ -146,7 +146,10 @@ export const Page = ( {
 	return (
 		<div>
 			<QuerySite />
-			<Collection filter={ searchTerm() }>
+			<Collection
+				filter={ searchTerm() }
+				noResultsText={ __( 'No Results Found.' ) }
+			>
 				{ cards }
 			</Collection>
 		</div>

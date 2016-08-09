@@ -88,7 +88,7 @@ const ProStatus = React.createClass( {
 				} else {
 					btnVals = {
 						href: 'https://wordpress.com/plans/' + window.Initial_State.rawUrl,
-						text: 'Upgrade'
+						text: __( 'Upgrade' )
 					}
 				}
 
