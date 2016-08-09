@@ -245,6 +245,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $non_https_site_url, Jetpack_Sync_Functions::preserve_scheme( 'siteurl', 'site_url') );
 
 		$this->assertEquals( $_SERVER['HTTPS'], 'on' );
+
+		unset( $_SERVER['HTTPS'] );
 	}
 
 	function test_subdomain_switching_to_www_does_not_cause_sync() {
