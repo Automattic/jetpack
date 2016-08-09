@@ -46,7 +46,7 @@ add_action( 'after_setup_theme', 'jetpack_social_menu_init', 99 );
 /* Function to enqueue CSS */
 function jetpack_social_menu_style() {
 	if ( has_nav_menu( 'jetpack-social-menu' ) ) {
-		wp_enqueue_style( 'jetpack-social-menu', plugins_url( 'social-menu/social-menu.css', __FILE__ ), array( 'genericons' ), '1.0' );
+		wp_enqueue_style( 'jetpack-social-menu', plugins_url( 'social-menu/social-menu.css', __FILE__ ), array( 'social-logos' ), '1.0' );
 	}
 }
 
