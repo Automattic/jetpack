@@ -337,8 +337,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 
-		error_log(print_r( $event, 1));
-
 		$this->assertFalse( $event );
 	}
 
