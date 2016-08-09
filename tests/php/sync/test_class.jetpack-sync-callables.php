@@ -14,6 +14,7 @@ function jetpack_foo_is_callable() {
 class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 	protected $callable_module;
+	protected $callable_return_value;
 
 	public function setUp() {
 		parent::setUp();
@@ -276,5 +277,42 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$parsed_url = parse_url( $url );
 
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
+	}
+
+	function test_has_different_checksums_when_doing_cron() {
+		$this->callable_return_value = 'blah';
+
+		$this->callable_module->set_callable_whitelist( array( 'custom_callable_value' => array( $this, 'get_custom_callable_value' ) ) );
+
+		$this->sender->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'custom_callable_value' );
+		$this->assertEquals( 'blah', $synced_value );
+
+		// syncing again shouldn't send again
+		$this->server_replica_storage->reset();
+		$this->sender->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'custom_callable_value' );
+		$this->assertNull( $synced_value );
+
+		Jetpack_Sync_Settings::set_doing_cron( true );
+
+		// syncing again while in cron SHOULD send again
+		$this->sender->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'custom_callable_value' );
+		$this->assertEquals( 'blah', $synced_value );
+
+		// but syncing a second time should not
+		$this->server_replica_storage->reset();
+		$this->sender->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'custom_callable_value' );
+		$this->assertNull( $synced_value );
+	}
+
+	function get_custom_callable_value() {
+		return $this->callable_return_value;
 	}
 }
