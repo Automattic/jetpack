@@ -251,6 +251,7 @@ class Jetpack_Sync_Defaults {
 	static $default_sync_wait_threshold = 5; // only wait before next send if the current send took more than X seconds
 	static $default_max_queue_size = 1000;
 	static $default_max_queue_lag = 900; // 15 minutes
+	static $default_queue_max_writes_sec = 100; // 100 rows a second
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
 }

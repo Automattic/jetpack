@@ -825,6 +825,18 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $keep_user_id, $users[ $existing_user_count ]->ID );
 	}
 
+	function test_full_sync_doesnt_exceed_options_write_rate_limit() {
+		foreach( range( 1, 2100 ) as $i ) { // 200 items+
+			$this->factory->user->create();	
+		}
+
+		$start_time = microtime( true );
+
+		$this->full_sync->start();
+
+		$this->assertTrue( microtime( true ) > ( $start_time + 2.0 ) );
+	}
+
 	function test_full_sync_has_correct_sent_count_even_if_some_actions_unsent() {
 		// if actions get filtered out after dequeue, this can lead to the sent count 
 		// not matching the queued count - we should make sure the count is incremented even for late-deleted items
