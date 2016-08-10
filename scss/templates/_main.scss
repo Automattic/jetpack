@@ -154,38 +154,6 @@
 		display: none;
 	}
 }
-// ==========================================================================
-// Masthead
-// ==========================================================================
-
-.clouds-sm {
-	$start: $green; // top gradient color and fallback
-	$end: lighten($green, 3%); // bottom gradient color
-
-	height: 100px;
-	position: relative;
-	text-align: center;
-	z-index: 1;
-	background-color: $start;
-	background-image: linear-gradient(to bottom, $start, $end);
-
-	&:after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		margin-bottom: -1px; // Removes subpixel gap on retina landscape
-		width: 100%;
-		height: 137px;
-		background: url('../images/the-cloud-sm.svg') center bottom repeat-x;
-		pointer-events: none;
-		z-index: 2;
-	}
-	@include breakpoint(large-phone){
-		height: 90px;
-	};
-}
-
 
 // ==========================================================================
 // Modal
@@ -618,13 +586,6 @@
 // ==========================================================================
 // Uncategorized
 // ==========================================================================
-
-@include breakpoint(phablet){
-	// clouds are nice, but occupy too much vert space on mobile
-	.clouds-sm {
-		display: none;
-	}
-};
 
 @include breakpoint(large-phone){
 	.wrap.inner.jp-support { // Used anywhere?

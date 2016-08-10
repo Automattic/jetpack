@@ -473,35 +473,6 @@ hr {
   display: none;
 }
 
-.clouds-sm {
-  height: 100px;
-  position: relative;
-  text-align: center;
-  z-index: 1;
-  background-color: #81a844;
-  background-image: -webkit-linear-gradient(top, #81a844, #89b348);
-  background-image: linear-gradient(to bottom, #81a844, #89b348);
-}
-
-.clouds-sm:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  margin-bottom: -1px;
-  width: 100%;
-  height: 137px;
-  background: url("../images/the-cloud-sm.svg") center bottom repeat-x;
-  pointer-events: none;
-  z-index: 2;
-}
-
-@media (max-width: 530px) {
-  .clouds-sm {
-    height: 90px;
-  }
-}
-
 .loading {
   bottom: 50%;
   position: absolute;
@@ -983,12 +954,6 @@ hr {
 
 .configure-module .jetpack-message {
   max-width: 100%;
-}
-
-@media (max-width: 600px) {
-  .clouds-sm {
-    display: none;
-  }
 }
 
 @media (max-width: 530px) {

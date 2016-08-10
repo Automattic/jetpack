@@ -45,9 +45,6 @@ class Jetpack_Photon {
 	 * @return null
 	 */
 	private function setup() {
-		// Display warning if site is private
-		add_action( 'jetpack_activate_module_photon', array( $this, 'action_jetpack_activate_module_photon' ) );
-
 		if ( ! function_exists( 'jetpack_photon_url' ) )
 			return;
 
@@ -64,17 +61,6 @@ class Jetpack_Photon {
 
 		// Helpers for maniuplated images
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
-	}
-
-	/**
-	 * Check if site is private and warn user if it is
-	 *
-	 * @uses Jetpack::check_privacy
-	 * @action jetpack_activate_module_photon
-	 * @return null
-	 */
-	public function action_jetpack_activate_module_photon() {
-		Jetpack::check_privacy( __FILE__ );
 	}
 
 	/**
