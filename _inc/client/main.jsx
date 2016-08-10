@@ -192,4 +192,8 @@ window.wpNavMenuClassChange = function() {
 		} );
 		subNavItem[0].classList.add( 'current' );
 	}
+
+	jQuery( 'body' ).on( 'click', '.jetpack-js-stop-propagation', function( e ) {
+		e.stopPropagation();
+	} );
 };

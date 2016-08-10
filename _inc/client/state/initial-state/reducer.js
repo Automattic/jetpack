@@ -34,3 +34,7 @@ export function getSiteRawUrl( state ) {
 export function getSiteAdminUrl( state ) {
 	return get( state.jetpack.initialState, 'adminUrl', {} );
 }
+
+export function isSitePublic( state ) {
+	return get( state.jetpack.initialState, [ 'connectionStatus', 'isPublic' ] );
+}

@@ -22,6 +22,7 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
+import { getSiteAdminUrl, getSiteRawUrl, isSitePublic } from 'state/initial-state';
 
 export const Page = ( props ) => {
 	let {
@@ -29,8 +30,31 @@ export const Page = ( props ) => {
 		isModuleActivated,
 		isTogglingModule,
 		getModule
-	} = props;
-	let isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
+	} = props,
+		isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules,
+		sitemapsDesc = getModule( 'sitemaps' ).description,
+		enhaDistDesc = getModule( 'enhanced-distribution' ).description;
+
+	if ( ! props.isSitePublic() ) {
+		let makePublic = (
+			<p className="howto small">
+				{ __( 'Your site must be publicly accesible for this feature to work properly. You can make your site public in {{a}}Reading Settings{{/a}}.', {
+					components: {
+						a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
+					}
+				} ) }
+			</p>
+		);
+		sitemapsDesc = <span>
+			{ sitemapsDesc }
+			{ makePublic }
+		</span>;
+		enhaDistDesc = <span>
+			{ enhaDistDesc }
+			{ makePublic }
+		</span>;
+	}
+
 	/**
 	 * Array of modules that directly map to a card for rendering
 	 * @type {Array}
@@ -44,8 +68,8 @@ export const Page = ( props ) => {
 		[ 'likes', getModule( 'likes' ).name, getModule( 'likes' ).description, getModule( 'likes' ).learn_more_button ],
 		[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description, getModule( 'subscriptions' ).learn_more_button ],
 		[ 'gravatar-hovercards', getModule( 'gravatar-hovercards' ).name, getModule( 'gravatar-hovercards' ).description, getModule( 'gravatar-hovercards' ).learn_more_button ],
-		[ 'sitemaps', getModule( 'sitemaps' ).name, getModule( 'sitemaps' ).description, getModule( 'sitemaps' ).learn_more_button ],
-		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description, getModule( 'enhanced-distribution' ).learn_more_button ],
+		[ 'sitemaps', getModule( 'sitemaps' ).name, sitemapsDesc, getModule( 'sitemaps' ).learn_more_button ],
+		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, enhaDistDesc, getModule( 'enhanced-distribution' ).learn_more_button ],
 		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
 	],
 		nonAdminAvailable = [ 'publicize' ];
@@ -98,7 +122,7 @@ export const Page = ( props ) => {
 								<span className="jp-module-settings__more-text">{
 									__( 'View {{a}}All Stats{{/a}}', {
 										components: {
-											a: <a href={ window.Initial_State.adminUrl + 'admin.php?page=stats' } />
+											a: <a href={ props.getSiteAdminUrl() + 'admin.php?page=stats' } />
 										}
 									} )
 								}</span>
@@ -112,7 +136,7 @@ export const Page = ( props ) => {
 								<span className="jp-module-settings__more-text">{
 									__( 'View your {{a}}Email Followers{{/a}}', {
 										components: {
-											a: <a href={ 'https://wordpress.com/people/email-followers/' + window.Initial_State.rawUrl } />
+											a: <a href={ 'https://wordpress.com/people/email-followers/' + props.getSiteRawUrl() } />
 										}
 									} )
 								}</span>
@@ -142,7 +166,10 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
+			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
+			getSiteRawUrl: () => getSiteRawUrl( state ),
+			getSiteAdminUrl: () => getSiteAdminUrl( state ),
+			isSitePublic: () => isSitePublic( state )
 		};
 	},
 	( dispatch ) => {

@@ -22,6 +22,7 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
+import { getSiteAdminUrl, isSitePublic } from 'state/initial-state';
 
 export const Page = ( props ) => {
 	let {
@@ -29,10 +30,28 @@ export const Page = ( props ) => {
 		isModuleActivated,
 		isTogglingModule,
 		getModule
-	} = props;
+	} = props,
+		photonDesc = getModule( 'photon' ).description;
+
+	if ( ! props.isSitePublic() ) {
+		let makePublic = (
+			<p className="howto small">
+				{ __( 'Your site must be publicly accesible for this feature to work properly. You can make your site public in {{a}}Reading Settings{{/a}}.', {
+					components: {
+						a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
+					}
+				} ) }
+			</p>
+		);
+		photonDesc = <span>
+			{ photonDesc }
+			{ makePublic }
+		</span>;
+	}
+
 	var cards = [
 		[ 'tiled-gallery', getModule( 'tiled-gallery' ).name, getModule( 'tiled-gallery' ).description, getModule( 'tiled-gallery' ).learn_more_button ],
-		[ 'photon', getModule( 'photon' ).name, getModule( 'photon' ).description, getModule( 'photon' ).learn_more_button ],
+		[ 'photon', getModule( 'photon' ).name, photonDesc, getModule( 'photon' ).learn_more_button ],
 		[ 'carousel', getModule( 'carousel' ).name, getModule( 'carousel' ).description, getModule( 'carousel' ).learn_more_button ],
 		[ 'widgets', getModule( 'widgets' ).name, getModule( 'widgets' ).description, getModule( 'widgets' ).learn_more_button ],
 		[ 'widget-visibility', getModule( 'widget-visibility' ).name, getModule( 'widget-visibility' ).description, getModule( 'widget-visibility' ).learn_more_button ],
@@ -89,7 +108,9 @@ export default connect(
 			isTogglingModule: ( module_name ) =>
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
+			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
+			getSiteAdminUrl: () => getSiteAdminUrl( state ),
+			isSitePublic: () => isSitePublic( state )
 		};
 	},
 	( dispatch ) => {
