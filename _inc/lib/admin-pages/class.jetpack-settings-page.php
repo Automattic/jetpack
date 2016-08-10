@@ -132,9 +132,9 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		ob_end_clean();
 
 		echo str_replace(
-		     '<div id="jetpack-static-container"></div>',
-		     $page_content,
-		     $static_html
+			'<div class="jp-loading-placeholder"><span class="dashicons dashicons-wordpress-alt"></span></div>',
+			$page_content,
+			$static_html
 		);
 	}
 
