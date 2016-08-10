@@ -83,7 +83,7 @@ const ProStatus = React.createClass( {
 				let btnVals = {};
 				if ( 'jetpack_free' !== sitePlan.product_slug ) {
 					btnVals = {
-						href: 'https://wordpress.com/plugins/' + pluginSlug + '/' + this.props.siteRawUrl,
+						href: `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }`,
 						text: __( 'Set up' )
 					}
 				} else {
