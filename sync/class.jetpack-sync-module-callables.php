@@ -43,8 +43,8 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	}
 
 	public function reset_data() {
-		delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME );
-		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( $this->get_checksum_option_name() );
+		delete_transient( $this->get_await_transient_name() );
 	}
 
 	function set_callable_whitelist( $callables ) {
@@ -94,11 +94,11 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	}
 
 	public function unlock_sync_callable() {
-		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( $this->get_await_transient_name() );
 	}
 	
 	public function maybe_sync_callables() {
-		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
+		if ( get_transient( $this->get_await_transient_name() ) ) {
 			return;
 		}
 
@@ -108,9 +108,9 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			return;
 		}
 
-		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
+		set_transient( $this->get_await_transient_name(), microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
 
-		$callable_checksums = (array) get_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
+		$callable_checksums = (array) get_option( $this->get_checksum_option_name(), array() );
 
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
@@ -131,7 +131,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 				$callable_checksums[ $name ] = $checksum;
 			}
 		}
-		update_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
+		update_option( $this->get_checksum_option_name(), $callable_checksums );
 	}
 
 	public function expand_callables( $args ) {
@@ -140,5 +140,15 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		}
 
 		return $args;
+	}
+
+	private function get_await_transient_name() {
+		$suffix = Jetpack_Sync_Settings::is_doing_cron() ? '_cron' : '';
+		return self::CALLABLES_AWAIT_TRANSIENT_NAME . $suffix;
+	}
+
+	private function get_checksum_option_name() {
+		$suffix = Jetpack_Sync_Settings::is_doing_cron() ? '_cron' : '';
+		return self::CALLABLES_CHECKSUM_OPTION_NAME . $suffix;
 	}
 }
