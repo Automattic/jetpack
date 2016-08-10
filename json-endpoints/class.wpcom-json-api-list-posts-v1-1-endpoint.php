@@ -183,6 +183,23 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$query['tag'] = $args['tag'];
 		}
 
+		if ( ! empty( $args['term'] ) ) {
+			$query['tax_query'] = array();
+			foreach ( $args['term'] as $taxonomy => $slug ) {
+				$taxonomy_object = get_taxonomy( $taxonomy );
+				if ( false === $taxonomy_object || ( ! $taxonomy_object->public && 
+						! current_user_can( $taxonomy_object->cap->assign_terms ) ) ) {
+					continue;
+				}
+
+				$query['tax_query'][] = array(
+					'taxonomy' => $taxonomy,
+					'field' => 'slug',
+					'terms' => explode( ',', $slug )
+				);				
+			}
+		}
+
 		if ( isset( $args['page'] ) ) {
 			if ( $args['page'] < 1 ) {
 				$args['page'] = 1;
