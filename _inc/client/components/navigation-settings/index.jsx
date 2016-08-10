@@ -18,10 +18,6 @@ injectTapEventPlugin();
 import { filterSearch } from 'state/search';
 
 const NavigationSettings = React.createClass( {
-	getInitialState() {
-		return { filter: '' };
-	},
-
 	openSearch: function() {
 		let currentHash = window.location.hash;
 		if ( currentHash.indexOf( 'search' ) === -1 ) {
@@ -36,28 +32,31 @@ const NavigationSettings = React.createClass( {
 	onClose: function() {
 		let currentHash = window.location.hash;
 		if ( currentHash.indexOf( 'search' ) > -1 ) {
-			history.go( -1 );
+			this.context.router.goBack();
+		}
+	},
+
+	maybeShowSearch: function() {
+		let isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
+
+		if ( isAdmin ) {
+			return (
+				<Search
+					pinned={ true }
+					placeholder={ __( 'Search for a Jetpack feature.' ) }
+					delaySearch={ true }
+					onSearchOpen={ this.openSearch }
+					onSearch={ this.onSearch }
+					onSearchClose={ this.onClose }
+					isOpen={ '/search' === this.props.route.path }
+				/>
+			);
 		}
 	},
 
 	render: function() {
-		let navItems,
-			isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
+		let navItems;
 
-		let maybeShowSearch = () => {
-			if ( isAdmin ) {
-				return (
-					<Search
-						pinned={ true }
-						placeholder={ __( 'Search for a Jetpack feature.' ) }
-						delaySearch={ true }
-						onSearchOpen={ this.openSearch }
-						onSearch={ this.onSearch }
-						onSearchClose={ this.onClose }
-					/>
-				);
-			}
-		};
 		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
@@ -114,12 +113,16 @@ const NavigationSettings = React.createClass( {
 			<div className='dops-navigation'>
 				<SectionNav selectedText={ this.props.route.name }>
 					{ navItems }
-					{ maybeShowSearch() }
+					{ this.maybeShowSearch() }
 				</SectionNav>
 			</div>
 		)
 	}
 } );
+
+NavigationSettings.contextTypes = {
+	router: React.PropTypes.object.isRequired
+};
 
 export default connect(
 	( state ) => {
