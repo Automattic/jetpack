@@ -177,12 +177,20 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	private function get_where_sql( $config ) {
-		// config is a list of user IDs to sync
-		if ( is_array( $config ) ) {
-			return 'ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+		global $wpdb;
+
+		if ( is_multisite() ) {
+			$query = "ID IN ( SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->base_prefix}capabilities' )";
+		} else {
+			$query = '1=1';
 		}
 
-		return null;
+		// config is a list of user IDs to sync
+		if ( is_array( $config ) ) {
+			$query .= ' AND ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+		}
+
+		return $query;
 	}
 
 	function get_full_sync_actions() {

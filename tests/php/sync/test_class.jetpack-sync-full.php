@@ -9,6 +9,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	private $full_sync_end_checksum;
 	private $full_sync_start_config;
+	private $synced_user_ids;
 
 	function setUp() {
 		parent::setUp();
@@ -219,8 +220,18 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
+		$this->sender->get_sync_queue()->reset();
+
+		// let's register a listener that asserts that only our intended users get enqueued
+		add_action( 'jetpack_full_sync_users', array( $this, 'record_full_synced_users' ) );
 
 		$this->full_sync->start();
+
+		// let's make sure we've only enqueued users from the current blog too
+		$this->assertTrue( in_array( $added_mu_blog_user_id, $this->synced_user_ids ) );
+		$this->assertTrue( in_array( $user_id, $this->synced_user_ids ) );
+		$this->assertFalse( in_array( $mu_blog_user_id, $this->synced_user_ids ) );
+
 		$this->sender->do_sync();
 
 		// admin user, our current-blog-created user and our "added" user
@@ -229,6 +240,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotNull( $this->server_replica_storage->get_user( $user_id ) );
 		$this->assertNotNull( $this->server_replica_storage->get_user( $added_mu_blog_user_id ) );
 		$this->assertNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
+	}
+
+	function record_full_synced_users( $user_ids ) {
+		$this->synced_user_ids = $user_ids;
 	}
 
 	function test_full_sync_sends_all_constants() {
@@ -953,6 +968,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 			$this->assertSame( $estimate, $actual );
 		}
+	}
+
+	function test_only_sync_current_site_users_on_multisite() {
+
 	}
 
 	function test_sync_call_ables_does_not_modify_globals() {
