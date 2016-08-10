@@ -154,7 +154,8 @@ class Jetpack_Sync_Defaults {
 	);
 
 	static $blacklisted_post_types = array(
-		'ai1ec_event'
+		'ai1ec_event',
+		'snitch',
 	);
 
 	static $default_post_checksum_columns = array(

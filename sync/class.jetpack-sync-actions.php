@@ -37,7 +37,6 @@ class Jetpack_Sync_Actions {
 		add_action( 'jetpack_sync_send_db_checksum', array( __CLASS__, 'send_db_checksum' ) );
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
-		add_action( 'jetpack_sync_send_pending_data', array( __CLASS__, 'do_send_pending_data' ) );
 
 		if ( ! wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			// Schedule a job to send DB checksums once an hour
@@ -176,7 +175,7 @@ class Jetpack_Sync_Actions {
 
 		self::initialize_listener();
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
-		self::do_send_pending_data(); // try to send at least some of the data
+		self::do_cron_sync(); // immediately run a cron sync, which sends pending data
 	}
 
 	static function minute_cron_schedule( $schedules ) {
@@ -199,6 +198,11 @@ class Jetpack_Sync_Actions {
 
 		self::initialize_sender();
 		
+		// remove shutdown hook - no need to sync twice
+		if ( has_action( 'shutdown', array( self::$sender, 'do_sync' ) ) ) {
+			remove_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+		}
+
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time();
 			
@@ -213,11 +217,6 @@ class Jetpack_Sync_Actions {
 
 			$result = self::$sender->do_sync();
 		} while ( $result );
-	}
-
-	static function do_send_pending_data() {
-		self::initialize_sender();
-		self::$sender->do_sync();
 	}
 
 	static function send_db_checksum() {
@@ -243,7 +242,7 @@ class Jetpack_Sync_Actions {
 
 // Allow other plugins to add filters before we initialize the actions.
 // Load the listeners if before modules get loaded so that we can capture version changes etc.
-add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
+add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'schedule_initial_sync' ), 10 );

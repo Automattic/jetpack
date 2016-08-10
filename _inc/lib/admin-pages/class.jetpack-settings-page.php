@@ -127,8 +127,10 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 	// Javascript logic specific to the list table
 	function page_admin_scripts() {
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
-		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/static.dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
-		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), time() );
+		$rtl = is_rtl() ? '.rtl' : '';
+
+		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
+		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/static.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
 }

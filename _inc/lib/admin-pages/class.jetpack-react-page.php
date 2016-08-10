@@ -132,13 +132,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( ! empty( $_GET['configure'] ) ) {
 			return $this->render_nojs_configurable( $_GET['configure'] );
 		}
-		?>
-		<?php
-			/** This action is already documented in views/admin/admin-page.php */
-			do_action( 'jetpack_notices' );
-		?>
-		<div id="jp-plugin-container"></div>
-	<?php }
+
+		/** This action is already documented in views/admin/admin-page.php */
+		do_action( 'jetpack_notices' );
+
+		echo file_get_contents( JETPACK__PLUGIN_DIR . '/_inc/build/static.html' );
+	}
 
 	function get_i18n_data() {
 		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . '/languages/json/jetpack-' . get_locale() . '.json' );
@@ -173,10 +172,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page
 		}
 
+		$rtl = is_rtl() ? '.rtl' : '';
+
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
-		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 
 		$localeSlug = explode( '_', get_locale() );
 		$localeSlug = $localeSlug[0];
