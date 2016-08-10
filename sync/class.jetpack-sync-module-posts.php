@@ -13,7 +13,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'wp_insert_post', $callable, 10, 3 );
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
-		add_filter( "jetpack_sync_before_enqueue_wp_insert_post", array( $this, 'filter_blacklisted_post_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
