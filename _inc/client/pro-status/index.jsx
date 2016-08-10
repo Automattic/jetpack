@@ -11,6 +11,7 @@ import Spinner from 'components/spinner';
 /**
  * Internal dependencies
  */
+import { getSiteRawUrl } from 'state/initial-state';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryAkismetData from 'components/data/query-akismet-data';
@@ -44,7 +45,7 @@ const ProStatus = React.createClass( {
 
 	render() {
 		let sitePlan = this.props.sitePlan(),
-			pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature ?
+			pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature ?
 			'vaultpress/vaultpress.php' :
 			'akismet/akismet.php';
 
@@ -82,18 +83,18 @@ const ProStatus = React.createClass( {
 				let btnVals = {};
 				if ( 'jetpack_free' !== sitePlan.product_slug ) {
 					btnVals = {
-						href: 'https://wordpress.com/plugins/' + pluginSlug + '/' + window.Initial_State.rawUrl,
-						text: ! installed ? __( 'Install' ) : __( 'Activate' )
+						href: `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }`,
+						text: __( 'Set up' )
 					}
 				} else {
 					btnVals = {
-						href: 'https://wordpress.com/plans/' + window.Initial_State.rawUrl,
+						href: 'https://wordpress.com/plans/' + this.props.siteRawUrl,
 						text: __( 'Upgrade' )
 					}
 				}
 
 				if ( active && installed ) {
-					return __( 'ACTIVE' );
+					return <span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>;
 				}
 
 				return (
@@ -130,6 +131,7 @@ const ProStatus = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
+			siteRawUrl: getSiteRawUrl( state ),
 			getScanThreats: () => _getVaultPressScanThreatCount( state ),
 			getVaultPressData: () => _getVaultPressData( state ),
 			getAkismetData: () => _getAkismetData( state ),

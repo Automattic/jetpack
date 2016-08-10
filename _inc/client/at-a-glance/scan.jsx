@@ -45,6 +45,7 @@ const DashScan = React.createClass( {
 				return(
 					<DashItem
 						label={ labelName }
+						module="vaultpress"
 						status="is-error"
 						statusText={ __( 'Threats found' ) }
 						pro={ true }
@@ -73,6 +74,7 @@ const DashScan = React.createClass( {
 				return(
 					<DashItem
 						label={ labelName }
+						module="vaultpress"
 						status="is-working"
 						pro={ true }
 					>

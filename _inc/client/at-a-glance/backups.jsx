@@ -43,6 +43,7 @@ const DashBackups = React.createClass( {
 				return(
 					<DashItem
 						label={ labelName }
+						module="vaultpress"
 						status="is-working"
 						className="jp-dash-item__is-active"
 						pro={ true }
