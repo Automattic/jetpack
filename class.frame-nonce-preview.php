@@ -22,12 +22,7 @@ class Jetpack_Frame_Nonce_Preview {
 	}
 
 	function __construct() {
-		if (
-			isset( $_GET['frame-nonce'] ) &&
-			! is_admin() &&
-			! is_user_logged_in()
-
-		) {
+		if ( isset( $_GET['frame-nonce'] ) && ! is_admin() ) {
 			add_filter( 'pre_get_posts', array( $this, 'maybe_display_post' ) );
 		}
 	}
@@ -88,7 +83,7 @@ class Jetpack_Frame_Nonce_Preview {
 	public function set_post_to_publish( $posts ) {
 		remove_filter( 'posts_results', array( $this, 'set_post_to_publish' ), 10, 2 );
 
-		if ( empty( $posts ) || ! $this->is_frame_nonce_valid() ) {
+		if ( empty( $posts ) || is_user_logged_in() || ! $this->is_frame_nonce_valid() ) {
 			return $posts;
 		}
 

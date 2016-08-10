@@ -19,7 +19,6 @@ $tools = array(
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
 	'theme-tools.php',
-	'frame-nonce-preview.php',
 );
 
 /**
