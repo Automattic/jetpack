@@ -82,6 +82,15 @@ class Jetpack_Sync_Sender {
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time() );
 		}
 
+		// This insures that do_sync doesn't get called on shutdown again.
+		if ( has_action( 'shutdown', array( __CLASS__, 'do_sync' ) ) ) {
+			remove_action( 'shutdown', array( __CLASS__, 'do_sync' ) );
+
+			// Remove any action that are attached to _sync_before_send_queue since they should only be called once.
+			remove_action( 'jetpack_sync_before_send_queue_' . $this->full_sync_queue );
+			remove_action( 'jetpack_sync_before_send_queue_' . $this->sync_queue );
+		}
+
 		// we use OR here because if either one returns true then the caller should
 		// be allowed to call do_sync again, as there may be more items
 		return $full_sync_result || $sync_result;
