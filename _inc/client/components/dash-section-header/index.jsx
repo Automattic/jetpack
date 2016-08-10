@@ -13,7 +13,8 @@ export default React.createClass( {
 		label: React.PropTypes.string.isRequired,
 		settingsPath: React.PropTypes.string,
 		externalLinkPath: React.PropTypes.string,
-		externalLink: React.PropTypes.string
+		externalLink: React.PropTypes.string,
+		externalLinkClick: React.PropTypes.func
 	},
 
 	getDefaultProps() {
@@ -50,7 +51,9 @@ export default React.createClass( {
 			externalLink = (
 				<a
 					className="jp-dash-section-header__external-link"
-					href={ this.props.externalLinkPath }>
+					href={ this.props.externalLinkPath }
+					onClick={ this.props.externalLinkClick }
+				>
 						{ this.props.externalLink }
 				</a>
 			);
