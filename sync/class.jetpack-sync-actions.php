@@ -199,6 +199,11 @@ class Jetpack_Sync_Actions {
 
 		self::initialize_sender();
 		
+		// remove shutdown hook - no need to sync twice
+		if ( has_action( 'shutdown', array( self::$sender, 'do_sync' ) ) ) {
+			remove_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+		}
+
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time();
 			
