@@ -970,10 +970,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_only_sync_current_site_users_on_multisite() {
-
-	}
-
 	function test_sync_call_ables_does_not_modify_globals() {
 		global $wp_taxonomies;
 		// assert that $wp_taxonomy object stays an array. 
