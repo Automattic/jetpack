@@ -77,6 +77,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.2 =
 
+* Release date: August 10th, 2016
+
 **Performance Enhancements:**
 
 * We’ve improved Jetpack’s performance by making calls to the database more efficient; essentially, Jetpack is doing less on each page load, making things faster. #4281, #4316
