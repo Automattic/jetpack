@@ -311,7 +311,15 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 9 );	
 	}
 
-	function serverReceiveWithThreeSecondDelay( $data, $codec, $sent_timestamp ) {
+	function test_do_sync_removes_shutdown_action() {
+
+		$this->assertTrue( is_int( has_action( 'shutdown', array( $this->sender, 'do_sync' ) ) ) );
+		$this->sender->do_sync();
+		$this->assertFalse( has_action( 'shutdown', array( $this->sender, 'do_sync' ) ) );
+	}
+
+
+function serverReceiveWithThreeSecondDelay( $data, $codec, $sent_timestamp ) {
 		sleep( 3 );
 		return array_keys( $data );
 	}
