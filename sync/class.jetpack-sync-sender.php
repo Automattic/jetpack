@@ -195,12 +195,12 @@ class Jetpack_Sync_Sender {
 				$wp_error = array_pop( $processed_item_ids );
 			}
 
-			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
-
 			// also checkin any items that were skipped
 			if ( count( $skipped_items_ids ) > 0 ) {
-				$processed_item_ids = $processed_item_ids + $skipped_items_ids;				
+				$processed_item_ids = array_merge( $processed_item_ids, $skipped_items_ids );
 			}
+
+			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
 
 			/**
 			 * Allows us to keep track of all the actions that have been sent.
