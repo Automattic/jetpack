@@ -16,27 +16,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function add_page_actions( $hook ) {
-		// Add landing page specific underscore templates
-		/**
-		 * Filters the js_templates callback value
-		 *
-		 * @since 3.6.0
-		 *
-		 * @param array array( $this, 'js_templates' ) js_templates callback.
-		 * @param string $hook Specific admin page.
-		 */
-		// @todo is that filter still relevant?
-//		add_action( "admin_footer-$hook", apply_filters( 'jetpack_landing_page_js_templates_callback', array( $this, 'js_templates' ), $hook ) );
-
 		/** This action is documented in class.jetpack.php */
 		do_action( 'jetpack_admin_menu', $hook );
 
-		// Place the Jetpack menu item on top and others in the order they
-		// appear
+		// Place the Jetpack menu item on top and others in the order they appear
 		add_filter( 'custom_menu_order',         '__return_true' );
 		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
-
-//		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
 
 		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] || ! empty( $_GET['configure'] ) ) {
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page
@@ -48,8 +33,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
 		}
 
-		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have
-		// JavaScript disabled
+		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 	}
 
@@ -115,7 +99,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
 
 		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
-		echo '<div class="clouds-sm"></div>';
 		echo '<div class="wrap configure-module">';
 
 		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {

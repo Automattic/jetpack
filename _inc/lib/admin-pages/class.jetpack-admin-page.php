@@ -34,9 +34,7 @@ abstract class Jetpack_Admin_Page {
 		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
-
-		add_action( "admin_footer-$hook",        array( $this, 'module_modal_js_template' ) );
-
+		
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
 
@@ -60,12 +58,9 @@ abstract class Jetpack_Admin_Page {
 		}
 	}
 
-	// Render the page with a common top and bottom part, and page specific
-	// content
+	// Render the page with a common top and bottom part, and page specific content
 	function render() {
-//		$this->admin_page_top();
 		$this->page_render();
-//		$this->admin_page_bottom();
 	}
 
 	function admin_help() {
@@ -75,11 +70,6 @@ abstract class Jetpack_Admin_Page {
 	function admin_page_load() {
 		// This is big.  For the moment, just call the existing one.
 		$this->jetpack->admin_page_load();
-	}
-
-	// Load underscore template for the landing page and settings page modal
-	function module_modal_js_template() {
-		Jetpack::init()->load_view( 'admin/module-modal-template.php' );
 	}
 
 	function admin_page_top() {
