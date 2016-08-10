@@ -132,13 +132,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( ! empty( $_GET['configure'] ) ) {
 			return $this->render_nojs_configurable( $_GET['configure'] );
 		}
-		?>
-		<?php
-			/** This action is already documented in views/admin/admin-page.php */
-			do_action( 'jetpack_notices' );
-		?>
-		<div id="jp-plugin-container"></div>
-	<?php }
+
+		/** This action is already documented in views/admin/admin-page.php */
+		do_action( 'jetpack_notices' );
+
+		echo file_get_contents( JETPACK__PLUGIN_DIR . '/_inc/build/static.html' );
+	}
 
 	function get_i18n_data() {
 		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . '/languages/json/jetpack-' . get_locale() . '.json' );

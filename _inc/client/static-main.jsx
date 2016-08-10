@@ -9,6 +9,7 @@ import { bindActionCreators } from 'redux';
  * Internal dependencies
  */
 import Masthead from 'components/masthead';
+import LoadingPlaceholder from 'components/loading-placeholder';
 import { setInitialState } from 'state/initial-state';
 import Footer from 'components/footer';
 
@@ -19,9 +20,9 @@ const StaticMain = React.createClass( {
 
 	render: function() {
 		return (
-			<div>
+			<div id="jp-plugin-container">
 				<Masthead { ...this.props } />
-				<div id="jetpack-static-container"></div>
+				<LoadingPlaceholder { ...this.props } />
 				<Footer { ...this.props } />
 			</div>
 		);
