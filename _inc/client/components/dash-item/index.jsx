@@ -98,7 +98,6 @@ const DashItem = React.createClass( {
 		}
 
 		return (
-
 			<div className={ classes }>
 				<SectionHeader
 					label={ this.props.label }
