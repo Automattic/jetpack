@@ -32,6 +32,7 @@ import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import SearchPage from 'search/index.jsx';
+import analytics from 'lib/analytics';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
@@ -47,6 +48,9 @@ const Main = React.createClass( {
 	renderMainContent: function( route ) {
 		const showJumpStart = getJumpStartStatus( this.props );
 		const canManageModules = window.Initial_State.userData.currentUser.permissions.manage_modules;
+
+		// Track page views
+		analytics.tracks.recordEvent( 'jetpack_page_view', { path: route } );
 
 		// On any route change/re-render, jump back to the top of the page
 		window.scrollTo( 0, 0 );
