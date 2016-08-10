@@ -926,6 +926,16 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( is_array( $wp_taxonomies['category']->rewrite ) );
 	}
 
+	function test_that_we_full_sync_constants_and_callables_on_heatbeat() {
+		do_action( 'jetpack_heartbeat' );
+		$this->sender->do_sync();
+
+		$synced_callables_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_callables' );
+		$synced_constants_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_constants' );
+		$this->assertTrue( ! empty( $synced_callables_event ) );
+		$this->assertTrue( ! empty( $synced_constants_event ) );
+	}
+
 	function upgrade_terms_to_pass_test( $term ) {
 		global $wp_version;
 		if ( version_compare( $wp_version, '4.4', '<' ) ) {
