@@ -31,6 +31,7 @@ export const jumpStartActivate = () => {
 				type: JUMPSTART_ACTIVATE_SUCCESS,
 				jumpStart: true
 			} );
+			analytics.tracks.recordEvent( 'jetpack_jumpstart_submit', {} );
 			dispatch( removeNotice( 'jumpstart-activate' ) );
 			dispatch( createNotice( 'is-success', __( 'Recommended features active.' ), { id: 'jumpstart-activate' } ) );
 		} )['catch']( error => {
