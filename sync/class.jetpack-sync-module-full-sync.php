@@ -125,6 +125,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_full_sync_end', $store->checksum_all() );
 
+		$this->disable_queue_rate_limit();
+
 		return true;
 	}
 
@@ -254,6 +256,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		add_action( 'jpsq_items_added', array( $this, 'queue_items_added' ) );
 	}
 
+	private function disable_queue_rate_limit() {
+		remove_action( 'jpsq_item_added', array( $this, 'queue_item_added' ) );
+		remove_action( 'jpsq_items_added', array( $this, 'queue_items_added' ) );
+	}
+
 	public function queue_item_added() {
 		$this->queue_items_added( 1 );
 	}
@@ -264,10 +271,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		if ( $this->items_added_since_last_pause > $this->queue_rate_limit ) {
 			// sleep for the rest of the second
 			$sleep_til = $this->last_pause_time + 1.0;
-			$sleep_duration = microtime( true ) - $sleep_til;
+			$sleep_duration = $sleep_til - microtime( true );
 			if ( $sleep_duration > 0.0 ) {
-				error_log("sleeping for $sleep_duration");
-				sleep( $sleep_duration );
+				usleep( $sleep_duration * 1000000 );
 				$this->last_pause_time = microtime( true );
 			}
 			$this->items_added_since_last_pause = 0;
