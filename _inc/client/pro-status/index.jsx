@@ -94,7 +94,7 @@ const ProStatus = React.createClass( {
 				}
 
 				if ( active && installed ) {
-					return __( 'ACTIVE' );
+					return <span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>;
 				}
 
 				return (
