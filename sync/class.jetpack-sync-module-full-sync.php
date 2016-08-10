@@ -18,6 +18,10 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
 	const FULL_SYNC_TIMEOUT = 3600;
 
+	private $items_added_since_last_pause;
+	private $last_pause_time;
+	private $queue_rate_limit;
+
 	public function name() {
 		return 'full-sync';
 	}
@@ -39,6 +43,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// remove all evidence of previous full sync items and status
 		$this->reset_data();
+
+		$this->enable_queue_rate_limit();
 
 		if ( $was_already_running ) {
 			/**
@@ -237,5 +243,32 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	private function update_status_option( $name, $value ) {
 		$prefix = self::STATUS_OPTION_PREFIX;
 		update_option( "{$prefix}_{$name}", $value, false );
+	}
+
+	private function enable_queue_rate_limit() {
+		$this->queue_rate_limit = Jetpack_Sync_Settings::get_setting( 'queue_max_writes_sec' );
+		$this->items_added_since_last_pause = 0;
+		$this->last_pause_time = microtime( true );
+
+		add_action( 'jpsq_item_added', array( $this, 'queue_item_added' ) );
+		add_action( 'jpsq_items_added', array( $this, 'queue_items_added' ) );
+	}
+
+	public function queue_item_added() {
+		$this->queue_items_added( 1 );
+	}
+
+	public function queue_items_added( $item_count ) {
+		$this->items_added_since_last_pause += $item_count;
+
+		if ( $this->items_added_since_last_pause > $this->queue_rate_limit ) {
+			// sleep for the rest of the second
+			$sleep_til = $this->last_pause_time + 1.0;
+			$sleep_duration = microtime( true ) - $sleep_til;
+			if ( $sleep_duration > 0.0 ) {
+				error_log("sleeping for $sleep_duration");
+				sleep( $sleep_duration );
+			}
+		}
 	}
 }

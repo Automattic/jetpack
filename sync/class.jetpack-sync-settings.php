@@ -6,13 +6,14 @@ class Jetpack_Sync_Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
 	static $valid_settings = array(
-		'dequeue_max_bytes'   => true,
-		'upload_max_bytes'    => true,
-		'upload_max_rows'     => true,
-		'sync_wait_time'      => true,
-		'sync_wait_threshold' => true,
-		'max_queue_size'      => true,
-		'max_queue_lag'       => true,
+		'dequeue_max_bytes'    => true,
+		'upload_max_bytes'     => true,
+		'upload_max_rows'      => true,
+		'sync_wait_time'       => true,
+		'sync_wait_threshold'  => true,
+		'max_queue_size'       => true,
+		'max_queue_lag'        => true,
+		'queue_max_writes_sec' => true,
 	);
 
 	static $is_importing;
