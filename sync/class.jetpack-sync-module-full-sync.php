@@ -268,7 +268,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			if ( $sleep_duration > 0.0 ) {
 				error_log("sleeping for $sleep_duration");
 				sleep( $sleep_duration );
+				$this->last_pause_time = microtime( true );
 			}
+			$this->items_added_since_last_pause = 0;
 		}
 	}
 }
