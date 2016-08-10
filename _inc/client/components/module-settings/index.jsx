@@ -5,6 +5,7 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import Button from 'components/button';
+import InputText from 'components/input-text';
 import TagsInput from 'components/tags-input';
 
 /**
@@ -555,7 +556,7 @@ export let PostByEmailSettings = React.createClass( {
 				<FormFieldset>
 					<FormLabel>
 						<span> { __( 'Email Address' ) } </span>
-						<FormTextInput
+						<InputText
 							value={ this.address() }
 							readOnly="readonly" />
 						<Button
