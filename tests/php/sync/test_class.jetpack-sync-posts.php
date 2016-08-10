@@ -361,7 +361,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Options::update_option( 'active_modules', $active_modules );
 	}
 
-
 	function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
 
 		add_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
@@ -395,6 +394,20 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 		// no we sync the content and it looks like what we expect to be.
 		$this->assertEquals( $this->post->post_content, $synced_post->post_content );
+	}
+
+	function test_filters_out_blacklisted_post_types() {
+		$args = array(
+			'public' => true,
+			'label'  => 'Snitch'
+		);
+		register_post_type( 'snitch', $args );
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {
