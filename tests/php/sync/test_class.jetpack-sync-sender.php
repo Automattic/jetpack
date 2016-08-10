@@ -415,6 +415,23 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		return array_keys( $data );
 	}
 
+	function test_delays_next_send_by_5s_if_both_syncs_returned_false() {
+
+		// do this so that callables have been synced
+		$this->sender->do_sync();
+
+		$this->sender->set_sync_wait_time( 10 );     // 10 second delay
+		$this->sender->set_sync_wait_threshold( 2 ); // wait no matter what
+
+		// clear the queues - nothing to send
+		$this->sender->get_sync_queue()->reset();
+  		$this->sender->get_full_sync_queue()->reset();
+
+		$this->sender->do_sync();
+
+		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 4 );	
+	}
+
 	function action_ran( $data, $codec, $sent_timestamp ) {
 		$this->action_ran       = true;
 		$this->action_codec     = $codec;

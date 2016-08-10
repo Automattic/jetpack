@@ -95,6 +95,9 @@ class Jetpack_Sync_Sender {
 		} elseif ( $exceeded_sync_wait_threshold ) {
 			// if we actually sent data and it took a while, wait before sending again
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time(), $queue->id );
+		} elseif ( ! ( $full_sync_result || $sync_result ) ) {
+			// wait if both returned false
+			$this->set_next_sync_time( time() + self::WPCOM_REGULAR_SYNC_DELAY, $queue->id );
 		}
 
 		return $sync_result;
