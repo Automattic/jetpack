@@ -11,11 +11,6 @@
  * Additional Search Queries: google, seo, firehose, search, broadcast, broadcasting
  */
 
-function jetpack_enhanced_distribution_activate() {
-	Jetpack::check_privacy( __FILE__ );
-}
-
-
 // In case it's active prior to upgrading to 1.9
 function jetpack_enhanced_distribution_before_activate_default_modules() {
 	$old_version = Jetpack_Options::get_option( 'old_version' );
@@ -28,7 +23,6 @@ function jetpack_enhanced_distribution_before_activate_default_modules() {
 	Jetpack::check_privacy( __FILE__ );
 }
 
-add_action( 'jetpack_activate_module_enhanced-distribution', 'jetpack_enhanced_distribution_activate' );
 add_action( 'jetpack_before_activate_default_modules', 'jetpack_enhanced_distribution_before_activate_default_modules' );
 
 /**
