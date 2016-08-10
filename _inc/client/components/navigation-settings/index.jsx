@@ -2,21 +2,61 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import SectionNav from 'components/section-nav';
 import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
 import { translate as __ } from 'i18n-calypso';
+import trim from 'lodash/trim';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
+/**
+ * Internal dependencies
+ */
+import { filterSearch } from 'state/search';
+
 const NavigationSettings = React.createClass( {
-	demoSearch: function( keywords ) {
-		console.log( 'Section Nav Search (keywords):', keywords );
+	openSearch: function() {
+		let currentHash = window.location.hash;
+		if ( currentHash.indexOf( 'search' ) === -1 ) {
+			window.location.hash = 'search';
+		}
+	},
+
+	onSearch( term ) {
+		this.props.searchForTerm( trim( term || '' ).toLowerCase() );
+	},
+
+	onClose: function() {
+		let currentHash = window.location.hash;
+		if ( currentHash.indexOf( 'search' ) > -1 ) {
+			this.context.router.goBack();
+		}
+	},
+
+	maybeShowSearch: function() {
+		let isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
+
+		if ( isAdmin ) {
+			return (
+				<Search
+					pinned={ true }
+					placeholder={ __( 'Search for a Jetpack feature.' ) }
+					delaySearch={ true }
+					onSearchOpen={ this.openSearch }
+					onSearch={ this.onSearch }
+					onSearchClose={ this.onClose }
+					isOpen={ '/search' === this.props.route.path }
+				/>
+			);
+		}
 	},
 
 	render: function() {
 		let navItems;
+
 		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
@@ -68,22 +108,29 @@ const NavigationSettings = React.createClass( {
 				</NavTabs>
 			);
 		}
+
 		return (
 			<div className='dops-navigation'>
 				<SectionNav selectedText={ this.props.route.name }>
 					{ navItems }
-
-					<Search
-						pinned={ true }
-						placeholder="Search doesn't work yet, but you can still write stuff to the console. "
-						analyticsGroup="Pages"
-						delaySearch={ true }
-						onSearch={ this.demoSearch }
-					/>
+					{ this.maybeShowSearch() }
 				</SectionNav>
 			</div>
 		)
 	}
 } );
 
-export default NavigationSettings;
+NavigationSettings.contextTypes = {
+	router: React.PropTypes.object.isRequired
+};
+
+export default connect(
+	( state ) => {
+		return state;
+	},
+	( dispatch ) => {
+		return {
+			searchForTerm: ( term ) => dispatch( filterSearch( term ) )
+		}
+	}
+)( NavigationSettings );

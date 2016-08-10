@@ -15,7 +15,9 @@ import {
 
 export const QuerySite = React.createClass( {
 	componentDidMount() {
-		this.props.fetchSiteData();
+		if ( ! this.props.isFetchingSiteData ) {
+			this.props.fetchSiteData();
+		}
 	},
 
 	render() {

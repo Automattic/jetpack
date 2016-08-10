@@ -17,6 +17,7 @@ import { reducer as settings } from 'state/settings';
 import { reducer as siteData } from 'state/site';
 import { reducer as pluginsData } from 'state/site/plugins';
 import { reducer as jetpackNotices } from 'state/jetpack-notices';
+import { reducer as search } from 'state/search';
 
 const jetpackReducer = combineReducers( {
 	initialState,
@@ -27,7 +28,8 @@ const jetpackReducer = combineReducers( {
 	settings,
 	siteData,
 	jetpackNotices,
-	pluginsData
+	pluginsData,
+	search
 } );
 
 export default combineReducers( {
