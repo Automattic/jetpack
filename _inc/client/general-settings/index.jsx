@@ -72,7 +72,7 @@ export const Page = ( props ) => {
 			{
 				isAdmin ? <FoldableCard
 					header={ __( 'Connection Settings' ) }
-					subheader={ __( 'Manage your connected user accounts or disconnect.' ) }
+					subheader={ __( 'Manage your connection or disconnect Jetpack.' ) }
 					clickableHeaderText={ true }
 					disabled={ ! isAdmin }
 				>

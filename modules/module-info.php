@@ -523,7 +523,7 @@ add_action( 'jetpack_learn_more_button_related-posts', 'jetpack_related_posts_mo
 
 function jetpack_related_posts_more_info() {
 	esc_html_e(
-		'Show visiors related content from your site at the bottom of your posts. This encourages them
+		'Show visitors related content from your site at the bottom of your posts. This encourages them
 		to browse more content, explore your site, and transform them into regular readers.'
 		, 'jetpack' );
 }
@@ -556,7 +556,7 @@ add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verificatio
 function jetpack_verification_tools_more_info() {
 	esc_html_e(
 		'Verify your site ownership with services like Google, Bing, and Pinterest. This gives you access to
-		advanced features on these services and get a verification badges.'
+		advanced features on these services and get verification badges.'
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_verification-tools', 'jetpack_verification_tools_more_info' );
