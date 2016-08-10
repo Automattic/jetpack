@@ -3413,8 +3413,8 @@ p {
 				$registered = Jetpack::try_registration();
 				if ( is_wp_error( $registered ) ) {
 					$error = $registered->get_error_code();
-					Jetpack::state( 'error_description', $error );
-					Jetpack::state( 'error_description', $registered->get_error_message() );
+					Jetpack::state( 'error', $error );
+					Jetpack::state( 'error', $registered->get_error_message() );
 					break;
 				}
 
