@@ -92,7 +92,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Security:**
 
-* We’re continuing our efforts to harden Jetpack security, by implementing the `hash_equals()` function to avoid timing attacks when comparing strings.
+* We’re continuing our efforts to harden Jetpack security, by implementing the `hash_equals()` function to avoid timing attacks when comparing strings.  We also improved security on CSVs exported from your contact form.
 
 **Slightly Less Exciting Feature Improvements:**
 
