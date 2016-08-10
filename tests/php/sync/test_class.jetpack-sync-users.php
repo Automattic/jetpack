@@ -60,8 +60,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_delete_user_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
 
-		$this->sender->do_sync();
-
 		// make sure user exists in replica
 		$this->assertUsersEqual( $user, $this->server_replica_storage->get_user( $this->user_id ) );
 
