@@ -212,7 +212,7 @@ add_action( 'jetpack_learn_more_button_subscriptions', 'jetpack_subscriptions_lo
 function jetpack_subscriptions_more_info() { ?>
 	<?php esc_html_e(
 		'A widget in your sidebar allows visitors to subscribe to your site so that they receive an email
-		each time you publish new content. Your visitors can also subscribe to a post’s comments to keep up with the conversation.'
+		each time you publish new content. Your visitors can also subscribe to a post\'s comments to keep up with the conversation.'
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_subscriptions', 'jetpack_subscriptions_more_info' );
