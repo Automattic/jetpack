@@ -11,6 +11,9 @@
 			<file>tests/php/test_class.jetpack-xmlrpc-server.php</file>
 			<file>tests/php/test_class.jetpack-heartbeat.php</file>
 		</testsuite>
+		<testsuite name="core-api">
+			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/core-api</directory>
+		</testsuite>
 		<testsuite name="media">
 			<file>tests/php/test_class.jetpack-media-extractor.php</file>
 			<file>tests/php/test_class.jetpack-media-summary.php</file>
