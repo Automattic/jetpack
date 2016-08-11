@@ -986,19 +986,38 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_initial_sync_doesnt_sync_subscribers() {
 		$this->factory->user->create( array( 'user_login' => 'theauthor', 'role' => 'author' ) );
-		$this->factory->user->create( array( 'user_login' => 'thesubscriber', 'role' => 'subscriber' ) );
-
+		$this->factory->user->create( array( 'user_login' => 'theadmin', 'role' => 'administrator' ) );
+		foreach( range( 1, 10 ) as $i ) {
+			$this->factory->user->create( array( 'role' => 'subscriber' ) );
+		}
 		$this->full_sync->start();
 		$this->sender->do_sync();
-		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
-
+		$this->assertEquals( 13, $this->server_replica_storage->user_count() );
 		$this->server_replica_storage->reset();
 		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
-
-		$this->full_sync->start( array( 'users' => Jetpack_Sync_Actions::get_user_ids_for_initial_sync() ) );
+		$user_ids = Jetpack_Sync_Actions::get_initial_sync_user_config();
+		$this->assertEquals( 3, count( $user_ids ) );
+		$this->full_sync->start( array( 'users' => Jetpack_Sync_Actions::get_initial_sync_user_config() ) );
 		$this->sender->do_sync();
+		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
+		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
+		Jetpack_Sync_Actions::schedule_initial_sync();
+		$this->assertTrue(
+			!! Jetpack_Sync_Actions::is_scheduled_full_sync(
+				array(
+					'options' => true,
+					'network_options' => true,
+					'functions' => true,
+					'constants' => true,
+					'users' => Jetpack_Sync_Actions::get_initial_sync_user_config(),
+				)
+			)
+		);
+	}
 
-		$this->assertEquals( 2, $this->server_replica_storage->user_count() );
+	function _do_cron() {
+		$_GET['check'] = wp_hash( '187425' );
+		require( ABSPATH . '/wp-cron.php' );
 	}
 
 	function upgrade_terms_to_pass_test( $term ) {
