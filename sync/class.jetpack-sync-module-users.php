@@ -51,6 +51,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function sanitize_user( $user ) {
+		// this create a new user object and stops the passing of the object by reference.
+		$user = unserialize( serialize( $user ) );
 		unset( $user->data->user_pass );
 
 		return $user;
@@ -144,16 +146,16 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
+		$user =  get_user_by( 'id', $user_id );
 		if ( $meta_key === $user->cap_key ) {
 			/**
 			 * Fires when the client needs to sync an updated user
 			 *
 			 * @since 4.2.0
 			 *
-			 * @param object The WP_User object
+			 * @param object The Sanitized WP_User object
 			 */
-			do_action( 'jetpack_sync_save_user', $user );
+			do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ) );
 		}
 	}
 
