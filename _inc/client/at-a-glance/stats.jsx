@@ -304,7 +304,6 @@ const DashStatsBottom = React.createClass( {
 			</div>
 			<div className="jp-at-a-glance__stats-cta">
 				<div className="jp-at-a-glance__stats-cta-description">
-					<p></p>
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
 					{ __( '{{button}}View More Stats{{/button}}', {
