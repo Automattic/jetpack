@@ -223,7 +223,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->get_sync_queue()->reset();
 
 		// let's register a listener that asserts that only our intended users get enqueued
-		add_action( 'jetpack_full_sync_users', array( $this, 'record_full_synced_users' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_full_sync_users', array( $this, 'record_full_synced_users' ) );
 
 		$this->full_sync->start();
 
