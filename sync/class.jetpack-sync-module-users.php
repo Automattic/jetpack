@@ -206,7 +206,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			$query .= ' AND ' . $where_sql;
 		}
 
-		error_log( $query );
 		$count = $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
