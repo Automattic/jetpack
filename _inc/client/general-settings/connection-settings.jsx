@@ -34,15 +34,14 @@ const ConnectionSettings = React.createClass( {
 			<div>
 				{
 					this.props.isLinked( this.props ) ?
-						__( 'You are linked to WordPress.com account {{userLogin}} / {{userEmail}}.', {
-							components: {
+						__( 'You are linked to WordPress.com account %(userLogin)s / %(userEmail)s.', {
+							args: {
 								userLogin: userData.currentUser.wpcomUser.login,
 								userEmail: userData.currentUser.wpcomUser.email
 							}
-						} )
-						:
-						__( 'You, {{userName}}, are not connected to WordPress.com.', {
-							components: {
+						} ) :
+						__( 'You, %(userName)s, are not connected to WordPress.com.', {
+							args: {
 								userName: userData.currentUser.username
 							}
 						} )
