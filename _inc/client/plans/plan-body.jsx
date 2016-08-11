@@ -41,7 +41,7 @@ const PlanBody = React.createClass( {
 										</Button>
 									)
 									: (
-										<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl } className="is-primary">
+										<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=akismet' } className="is-primary">
 											{ __( 'Configure Akismet' ) }
 										</Button>
 									)
