@@ -128,6 +128,8 @@ class Jetpack_Sync_Sender {
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
 		foreach ( $items as $key => $item ) {
+			// Suspending cache addition help prevent overloading in memory cache of large sites.
+			wp_suspend_cache_addition( true );
 			/**
 			 * Modify the data within an action before it is serialized and sent to the server
 			 * For example, during full sync this expands Post ID's into full Post objects,
@@ -139,7 +141,7 @@ class Jetpack_Sync_Sender {
 			 * @param int The ID of the user who triggered the action
 			 */
 			$item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
-
+			wp_suspend_cache_addition( false );
 			if ( $item[1] === false ) {
 				$skipped_items_ids[] = $key;
 				continue;
