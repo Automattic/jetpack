@@ -280,7 +280,7 @@ function jetpack_contact_form_more_info() { ?>
 	<?php esc_html_e(
 		'Create simple contact forms without any coding. You can have multiple forms and when
 		a user submits it, their feedback will be emailed directly to you. If Akismet is active, submissions will be
-		automatically filtered for spam. '
+		automatically filtered for spam.'
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_info' );
