@@ -9,6 +9,7 @@ import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
 import { translate as __ } from 'i18n-calypso';
 import trim from 'lodash/trim';
+import analytics from 'lib/analytics';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
@@ -26,6 +27,9 @@ const NavigationSettings = React.createClass( {
 	},
 
 	onSearch( term ) {
+		if ( term.length >= 3 ) {
+			analytics.tracks.recordEvent( 'jetpack_admin_search_term', { term: term.toLowerCase() } );
+		}
 		this.props.searchForTerm( trim( term || '' ).toLowerCase() );
 	},
 
@@ -45,6 +49,7 @@ const NavigationSettings = React.createClass( {
 					pinned={ true }
 					placeholder={ __( 'Search for a Jetpack feature.' ) }
 					delaySearch={ true }
+					delayTimeout={ 500 }
 					onSearchOpen={ this.openSearch }
 					onSearch={ this.onSearch }
 					onSearchClose={ this.onClose }
