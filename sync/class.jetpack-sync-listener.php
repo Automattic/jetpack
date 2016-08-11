@@ -109,6 +109,55 @@ class Jetpack_Sync_Listener {
 		$this->enqueue_action( current_filter(), $args, $this->sync_queue );
 	}
 
+	// add many actions to the queue directly, without invoking them
+	function bulk_enqueue_full_sync_actions( $action_name, $args_array ) {
+		$queue = $this->get_full_sync_queue();
+
+		// periodically check the size of the queue, and disable adding to it if
+		// it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped)
+		if ( ! $this->can_add_to_queue( $queue ) ) {
+			return;
+		}
+
+		// if we add any items to the queue, we should try to ensure that our script 
+		// can't be killed before they are sent
+		if ( function_exists( 'ignore_user_abort' ) ) {
+			ignore_user_abort( true );
+		}
+
+		$data_to_enqueue = array();
+		$user_id         = get_current_user_id();
+		$currtime        = microtime( true );
+		$is_importing    = Jetpack_Sync_Settings::is_importing();
+
+		foreach( $args_array as $args ) {
+
+			/**
+			 * Modify or reject the data within an action before it is enqueued locally.
+			 *
+			 * @since 4.2.0
+			 *
+			 * @param array The action parameters
+			 */
+			$args = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
+
+			// allow listeners to abort
+			if ( $args === false ) {
+				continue;
+			}
+
+			$data_to_enqueue[] = array(
+				$action_name,
+				array( $args ),
+				$user_id,
+				$currtime,
+				$is_importing,
+			);
+		}
+
+		$queue->add_all( $data_to_enqueue );
+	}
+
 	function enqueue_action( $current_filter, $args, $queue ) {
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
