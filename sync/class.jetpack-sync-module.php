@@ -65,22 +65,14 @@ abstract class Jetpack_Sync_Module {
 		$page           = 1;
 		$chunk_count    = 0;
 		$previous_id    = 0;
+		$listener       = Jetpack_Sync_Listener::get_instance();
 		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} > {$previous_id} ORDER BY {$id_field} ASC LIMIT {$items_per_page}" ) ) {
 			// Request posts in groups of N for efficiency
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
 
-			// Send each chunk as an array of objects
-			foreach ( $chunked_ids as $chunk ) {
-				/**
-				 * Fires with a chunk of object IDs during full sync.
-				 * These are expanded to full objects before upload
-				 *
-				 * @since 4.2.0
-				 */
-				do_action( $action_name, $chunk );
-				$chunk_count ++;
-			}
+			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids );
 
+			$chunk_count += count( $chunked_ids );
 			$page += 1;
 			$previous_id = end( $ids );
 		}

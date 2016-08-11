@@ -266,7 +266,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	public function queue_items_added( $item_count ) {
-		$this->items_added_since_last_pause += $item_count;
+		// jpsq_item_added and jpsq_items_added both exec 1 db query, 
+		// so we ignore $item_count and treat it as always 1
+		$this->items_added_since_last_pause += 1; 
 
 		if ( $this->items_added_since_last_pause > $this->queue_rate_limit ) {
 			// sleep for the rest of the second

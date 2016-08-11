@@ -41,6 +41,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @since 4.1.0
 	 */
 	public static function register_endpoints() {
+
+		// Load API endpoint base classes
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
+
+		// Load API endpoints
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
+
 		self::$user_permissions_error_msg = esc_html__(
 			'You do not have the correct user permissions to perform this action.
 			Please contact your site admin if you think this is a mistake.',
@@ -111,10 +118,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Activate a module
+		Jetpack::load_xml_rpc_client();
+		$xmlrpc = new Jetpack_IXR_Client();
+		$module_activate = new Jetpack_Core_API_Module_Activate_Endpoint( $xmlrpc );
 		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/activate', array(
 			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::activate_module',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'callback' => array( $module_activate, 'process' ),
+			'permission_callback' => array( $module_activate, 'can_write' ),
 		) );
 
 		// Deactivate a module

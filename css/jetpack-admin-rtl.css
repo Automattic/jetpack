@@ -999,6 +999,11 @@ hr {
   }
 }
 
+#ie-legacy-notice .dops-notice__content {
+  display: inline-block;
+  margin-right: 10px;
+}
+
 .page-content.configure {
   margin-top: 0;
 }

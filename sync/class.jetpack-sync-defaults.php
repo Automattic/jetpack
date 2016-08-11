@@ -70,7 +70,6 @@ class Jetpack_Sync_Defaults {
 		'comment_whitelist',
 		'comment_max_links',
 		'moderation_keys',
-		'blacklist_keys',
 		'lang_id',
 		'wga',
 		'disabled_likes',
