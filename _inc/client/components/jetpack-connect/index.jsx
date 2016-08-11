@@ -30,7 +30,7 @@ const JetpackConnect = React.createClass( {
 					<ConnectButton />
 					<p>
 						<a href={ this.props.connectUrl( this.props ) } className="jp-jetpack-connect__link">
-							{ __( 'No account? Create one for free...' ) }
+							{ __( 'No account? Create one for free…' ) }
 						</a>
 					</p>
 				</Card>
@@ -217,7 +217,7 @@ const JetpackConnect = React.createClass( {
 					<ConnectButton />
 					<p>
 						<a href="https://wordpress.com/start/jetpack/" className="jp-jetpack-connect__link">
-							{ __( 'No account? Create one for free...' ) }
+							{ __( 'No account? Create one for free…' ) }
 						</a>
 					</p>
 				</Card>
