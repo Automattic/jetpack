@@ -176,10 +176,12 @@ function doStatic( done ) {
 		fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
 		fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
 		fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
+		fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
 
 		if ( done ) {
 			done();
 		}
+
 	} );
 }
 

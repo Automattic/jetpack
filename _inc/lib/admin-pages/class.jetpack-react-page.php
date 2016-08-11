@@ -35,6 +35,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
+
+		// Adding a redirect tag wrapped in browser conditional comments
+		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
 	}
 
 	/**
@@ -76,6 +79,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		echo '<noscript>';
 		$this->add_fallback_head_meta();
 		echo '</noscript>';
+	}
+
+	function add_legacy_browsers_head_script() {
+		echo
+			"<script type=\"text/javascript\">\n"
+			. "/*@cc_on\n"
+			. "if ( @_jscript_version <= 10) {\n"
+			. "window.location.href = '?page=jetpack_modules';\n"
+			. "}\n"
+			. "@*/\n"
+			. "</script>";
 	}
 
 	function jetpack_menu_order( $menu_order ) {

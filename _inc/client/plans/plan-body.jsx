@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -56,7 +57,7 @@ const PlanBody = React.createClass( {
 						</div>
 
 						{
-							[ 'jetpack_business', 'jetpack_business_monthly' ].includes( this.props.plan ) ?
+							includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 								<div className="jp-landing__plan-features-card">
 									<h3 className="jp-landing__plan-features-title">{ __( 'Surveys & Polls' ) }</h3>
 									<p>{ __( 'Unlimited surveys, unlimited responses. Use the survey editor to create surveys quickly and easily. Collect responses via your website, e-mail or on your iPad or iPhone.' ) }</p>
@@ -68,7 +69,7 @@ const PlanBody = React.createClass( {
 						}
 
 						{
-							[ 'jetpack_premium', 'jetpack_premium_monthly' ].includes( this.props.plan ) ?
+							includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
 								<div className="jp-landing__plan-features-card">
 									<h3 className="jp-landing__plan-features-title">{ __( 'Need more?' ) }</h3>
 									<p>{ __( 'Jetpack Professional offers more features.' ) }</p>

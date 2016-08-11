@@ -7,6 +7,7 @@ import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -51,7 +52,7 @@ export const Page = ( props ) => {
 	if ( ! isAdmin ) {
 		let cardsCopy = cards.slice();
 		cardsCopy.reverse().forEach( ( element ) => {
-			if ( nonAdminAvailable.includes( element[0] ) ) {
+			if ( includes( nonAdminAvailable, element[0] ) ) {
 				cards.unshift( element );
 			}
 		} );
@@ -61,7 +62,7 @@ export const Page = ( props ) => {
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
-			adminAndNonAdmin = isAdmin || nonAdminAvailable.includes( element[0] );
+			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] );
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
 		} else {
