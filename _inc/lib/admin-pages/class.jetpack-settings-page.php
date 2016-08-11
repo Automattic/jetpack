@@ -137,7 +137,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			$static_html
 		);
 
-		JetpackTracking::record_user_event( 'page_view', array( 'path' => 'old_settings' ) );
+		JetpackTracking::record_user_event( 'page_view', array( 'path' => 'wpa_old_settings' ) );
 	}
 
 	// Javascript logic specific to the list table

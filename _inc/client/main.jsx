@@ -50,7 +50,7 @@ const Main = React.createClass( {
 		const canManageModules = window.Initial_State.userData.currentUser.permissions.manage_modules;
 
 		// Track page views
-		analytics.tracks.recordEvent( 'jetpack_page_view', { path: route } );
+		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
 		// On any route change/re-render, jump back to the top of the page
 		window.scrollTo( 0, 0 );

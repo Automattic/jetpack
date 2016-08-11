@@ -33,7 +33,7 @@ import {
 const DashStats = React.createClass( {
 	barClick: function( bar ) {
 		if ( bar.data.link ) {
-			analytics.tracks.recordEvent( 'jetpack_aag_stats_bar_click', {} );
+			analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_bar_click', {} );
 			window.open(
 				bar.data.link,
 				'_blank'
@@ -191,7 +191,7 @@ const DashStats = React.createClass( {
 	},
 
 	handleSwitchStatsView: function( view ) {
-		analytics.tracks.recordEvent( 'jetpack_aag_stats_switch_view', { view: view } );
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_switch_view', { view: view } );
 		this.props.switchView( view );
 		this.props.fetchStatsData( view );
 	},
@@ -313,7 +313,7 @@ const DashStatsBottom = React.createClass( {
 						components: {
 							button:
 								<Button
-									onClick={ () => analytics.tracks.recordEvent( 'jetpack_aag_stats_wpcom_click', {} ) }
+									onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_wpcom_click', {} ) }
 									className="is-primary"
 									href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl }
 								/>

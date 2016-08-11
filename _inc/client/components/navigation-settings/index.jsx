@@ -28,7 +28,7 @@ const NavigationSettings = React.createClass( {
 
 	onSearch( term ) {
 		if ( term.length >= 3 ) {
-			analytics.tracks.recordEvent( 'jetpack_admin_search_term', { term: term.toLowerCase() } );
+			analytics.tracks.recordEvent( 'jetpack_wpa_search_term', { term: term.toLowerCase() } );
 		}
 		this.props.searchForTerm( trim( term || '' ).toLowerCase() );
 	},
