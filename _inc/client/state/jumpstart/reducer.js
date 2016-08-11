@@ -3,6 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import assign from 'lodash/assign';
+import { createHistory } from 'history';
 
 /**
  * Internal dependencies
@@ -14,6 +15,8 @@ import {
 	JUMPSTART_ACTIVATE_SUCCESS,
 	JUMPSTART_SKIP
 } from 'state/action-types';
+
+const history = createHistory();
 
 const jumpstartState = {
 	showJumpStart: typeof window !== 'undefined' && typeof window.Initial_State === 'object' ?
@@ -28,9 +31,13 @@ export const status = ( state = jumpstartState, action ) => {
 			return assign( {}, state, { isJumpstarting: true } );
 
 		case RESET_OPTIONS_SUCCESS:
+			window.location.hash = 'jumpstart';
+			history.push( '/wp-admin/admin.php?page=jetpack#/jumpstart' );
 			return assign( {}, state, { showJumpStart: true } );
+
 		case JUMPSTART_ACTIVATE_SUCCESS:
 		case JUMPSTART_SKIP:
+			history.push( '/wp-admin/admin.php?page=jetpack#/dashboard' );
 			return assign( {}, state, { showJumpStart: false, isJumpstarting: false } );
 
 		case JUMPSTART_ACTIVATE_FAIL:
