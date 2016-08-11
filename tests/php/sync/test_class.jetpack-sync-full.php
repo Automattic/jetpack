@@ -984,6 +984,23 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( is_array( $wp_taxonomies['category']->rewrite ) );
 	}
 
+	public function test_initial_sync_doesnt_sync_subscribers() {
+		$this->factory->user->create( array( 'user_login' => 'theauthor', 'role' => 'author' ) );
+		$this->factory->user->create( array( 'user_login' => 'thesubscriber', 'role' => 'subscriber' ) );
+
+		$this->full_sync->start();
+		$this->sender->do_sync();
+		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
+
+		$this->server_replica_storage->reset();
+		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
+
+		$this->full_sync->start( array( 'users' => 'initial_sync' ) );
+		$this->sender->do_sync();
+
+		$this->assertEquals( 2, $this->server_replica_storage->user_count() );
+	}
+
 	function upgrade_terms_to_pass_test( $term ) {
 		global $wp_version;
 		if ( version_compare( $wp_version, '4.4', '<' ) ) {
