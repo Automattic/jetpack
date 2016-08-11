@@ -109,7 +109,7 @@ add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
 function publicize_more_info() { ?>
 	<?php esc_html_e(
 		'Automatically share and promote newly published posts to Facebook, Twitter, Tumblr, Google+, Path,
-		and LinkedIn. You can add connections for	yourself or for all users on your site.'
+		and LinkedIn. You can add connections for yourself or for all users on your site.'
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_publicize', 'publicize_more_info' );
@@ -212,7 +212,7 @@ add_action( 'jetpack_learn_more_button_subscriptions', 'jetpack_subscriptions_lo
 function jetpack_subscriptions_more_info() { ?>
 	<?php esc_html_e(
 		'A widget in your sidebar allows visitors to subscribe to your site so that they receive an email
-		each time you publish new content. Your visitors can also	subscribe to a post’s comments to keep up with the conversation.'
+		each time you publish new content. Your visitors can also subscribe to a post’s comments to keep up with the conversation.'
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_subscriptions', 'jetpack_subscriptions_more_info' );
@@ -330,7 +330,7 @@ add_action( 'jetpack_learn_more_button_custom-css', 'jetpack_custom_css_more_but
 function jetpack_custom_css_more_info() { ?>
 	<?php esc_html_e(
 		"Add to or replace your theme's CSS including mobile styles, LESS, and SaSS.
-		Includes syntax coloring,	auto-indentation, and immediate CSS validation."
+		Includes syntax coloring, auto-indentation, and immediate CSS validation."
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info' );
@@ -616,7 +616,7 @@ add_action( 'jetpack_learn_more_button_sitemaps', 'jetpack_sitemaps_more_link' )
 
 function jetpack_xml_sitemap_more_info() {
 	esc_html_e(
-		'Automatically create two	sitemap files that list the URLs of posts and pages in your site.
+		'Automatically create two sitemap files that list the URLs of posts and pages in your site.
 		This makes it easier for search engines (like Google) to include your site in relevant search results.'
 		, 'jetpack' );
 }
