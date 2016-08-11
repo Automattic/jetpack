@@ -32,12 +32,12 @@ export const status = ( state = jumpstartState, action ) => {
 
 		case RESET_OPTIONS_SUCCESS:
 			window.location.hash = 'jumpstart';
-			history.push( '/wp-admin/admin.php?page=jetpack#/jumpstart' );
+			history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 			return assign( {}, state, { showJumpStart: true } );
 
 		case JUMPSTART_ACTIVATE_SUCCESS:
 		case JUMPSTART_SKIP:
-			history.push( '/wp-admin/admin.php?page=jetpack#/dashboard' );
+			history.push( window.location.pathname + '?page=jetpack#/dashboard' );
 			return assign( {}, state, { showJumpStart: false, isJumpstarting: false } );
 
 		case JUMPSTART_ACTIVATE_FAIL:

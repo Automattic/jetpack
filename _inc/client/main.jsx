@@ -58,7 +58,7 @@ const Main = React.createClass( {
 		if ( showJumpStart ) {
 			if ( '/' === route ) {
 				const history = createHistory();
-				history.push( '/wp-admin/admin.php?page=jetpack#/jumpstart' );
+				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 			} else if ( '/jumpstart' === route ) {
 				return <JumpStart { ...this.props } />
 			}
