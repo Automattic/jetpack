@@ -4,6 +4,7 @@
 import { combineReducers } from 'redux';
 import assign from 'lodash/assign';
 import get from 'lodash/get';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -224,10 +225,10 @@ export function isStaging( state ) {
  * @return {boolean} True if module requires connection.
  */
 export function requiresConnection( state, slug ) {
-	return getModulesThatRequireConnection( state ).concat( [
+	return includes( getModulesThatRequireConnection( state ).concat( [
 		'backups',
 		'scan'
-	] ).includes( slug );
+	] ), slug );
 }
 
 /**
