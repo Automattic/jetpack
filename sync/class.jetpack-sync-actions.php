@@ -135,11 +135,16 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
+	static function get_user_ids_for_initial_sync() {
+		global $wpdb;
+		return $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->base_prefix}user_level' AND meta_value > 0" );
+	}
+
 	static function schedule_initial_sync() {
-		// we need this function call here because we have to run this function 
+		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
 		wp_functionality_constants();
-		self::schedule_full_sync( array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => true ) );
+		self::schedule_full_sync( array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => self::get_user_ids_for_initial_sync() ) );
 	}
 
 	static function schedule_full_sync( $modules = null ) {
