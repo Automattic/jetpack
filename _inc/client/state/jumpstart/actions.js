@@ -61,7 +61,7 @@ export const jumpStartSkip = () => {
 			type: JUMPSTART_SKIP
 		} );
 		analytics.tracks.recordEvent( 'jetpack_wpa_jumpstart_skip', {} );
-		history.push( '/wp-admin/admin.php?page=jetpack#/dashboard' );
+		history.push( window.location.pathname + '?page=jetpack#/dashboard' );
 		return restApi.jumpStart( 'deactivate' ).then( () => {
 			dispatch( {
 				type: JUMPSTART_SKIP_SUCCESS,
