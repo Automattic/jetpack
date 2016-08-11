@@ -157,6 +157,41 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 	}
 
+	protected function enqueue_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql ) {
+		global $wpdb;
+
+		if ( ! $where_sql ) {
+			$where_sql = '1 = 1';
+		}
+
+		$items_per_page = 1000;
+		$page           = 1;
+		$chunk_count    = 0;
+		$previous_id    = 0;
+
+		while ( $ids = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->base_prefix}user_level' AND {$where_sql} AND user_id > {$previous_id} ORDER BY user_id ASC LIMIT {$items_per_page}" ) ) {
+			// Request posts in groups of N for efficiency
+			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
+
+			// Send each chunk as an array of objects
+			foreach ( $chunked_ids as $chunk ) {
+				/**
+				 * Fires with a chunk of object IDs during full sync.
+				 * These are expanded to full objects before upload
+				 *
+				 * @since 4.2.0
+				 */
+				do_action( $action_name, $chunk );
+				$chunk_count ++;
+			}
+
+			$page += 1;
+			$previous_id = end( $ids );
+		}
+
+		return $chunk_count;
+	}
+
 	public function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->users, 'ID', $this->get_where_sql( $config ) );
@@ -165,10 +200,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
 
-		$query = "SELECT count(*) FROM $wpdb->users";
+		$query = "SELECT count(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->base_prefix}user_level'";
 		
 		if ( $where_sql = $this->get_where_sql( $config ) ) {
-			$query .= ' WHERE ' . $where_sql;
+			$query .= ' AND ' . $where_sql;
 		}
 
 		$count = $wpdb->get_var( $query );
@@ -177,17 +212,15 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	private function get_where_sql( $config ) {
-		global $wpdb;
+		$query = '1=1';
 
-		if ( is_multisite() ) {
-			$query = "ID IN ( SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->base_prefix}capabilities' )";
-		} else {
-			$query = '1=1';
+		if ( $config === 'initial_sync' ) {
+			$query = 'meta_value > 0';
 		}
 
 		// config is a list of user IDs to sync
 		if ( is_array( $config ) ) {
-			$query .= ' AND ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+			$query .= ' AND user_id IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
 
 		return $query;
