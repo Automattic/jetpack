@@ -2727,9 +2727,9 @@ p {
 	/**
 	 * Return stat data for WPCOM sync
 	 */
-	function get_stat_data() {
+	public static function get_stat_data() {
 		$heartbeat_data = Jetpack_Heartbeat::generate_stats_array();
-		$additional_data = $this->get_additional_stat_data();
+		$additional_data = self::get_additional_stat_data();
 
 		return json_encode( array_merge( $heartbeat_data, $additional_data ) );
 	}
@@ -2737,7 +2737,7 @@ p {
 	/**
 	 * Get additional stat data to sync to WPCOM
 	 */
-	function get_additional_stat_data( $prefix = '' ) {
+	public static function get_additional_stat_data( $prefix = '' ) {
 		$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
 		$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
 		$return["{$prefix}users"]          = count_users();
