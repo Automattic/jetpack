@@ -138,13 +138,14 @@ class Jetpack_Sync_Actions {
 
 	static function get_initial_sync_user_config() {
 		$user_query = new WP_User_Query( array(
-			'who' => 'authors',
+			'who'    => 'authors',
 			'fields' => 'ID',
 			'number' => self::MAX_INITIAL_SYNC_USERS + 1,
-			) );
+		) );
 		if ( $user_query->get_total() >= self::MAX_INITIAL_SYNC_USERS ) {
 			return false;
- 		}
+		}
+
 		return $user_query->get_results();
 	}
 
