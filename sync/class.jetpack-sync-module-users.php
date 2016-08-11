@@ -133,14 +133,16 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
+		$is_capability_meta_key =  preg_match( '/capabilities|user_level/', $meta_key );
 
 		// if a user is currently being removed as a member of this blog, we don't fire the event
-		if ( current_filter() === 'deleted_user_meta'
-		     &&
-		     preg_match( '/capabilities|user_level/', $meta_key )
-		     &&
-		     ! is_user_member_of_blog( $user_id, get_current_blog_id() )
+		if (
+			current_filter() === 'deleted_user_meta' &&
+			$is_capability_meta_key &&
+			! is_user_member_of_blog( $user_id, get_current_blog_id() )
 		) {
+			return;
+		} else if ( ! $is_capability_meta_key ) {
 			return;
 		}
 
