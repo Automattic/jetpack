@@ -45,17 +45,17 @@ class JetpackTracking {
 		$wpcom_user_data = Jetpack::get_connected_user_data( $user_id );
 		update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
 
-		self::record_user_event( 'user_linked', array() );
+		self::record_user_event( 'wpa_user_linked', array() );
 	}
 
 	/* Activated module */
 	static function track_activate_module( $module ) {
-		self::record_user_event( 'module_activated', array( 'module' => $module ) );
+		self::record_user_event( 'wpa_module_activated', array( 'module' => $module ) );
 	}
 
 	/* Deactivated module */
 	static function track_deactivate_module( $module ) {
-		self::record_user_event( 'module_deactivated', array( 'module' => $module ) );
+		self::record_user_event( 'wpa_module_deactivated', array( 'module' => $module ) );
 	}
 
 	static function record_user_event( $event_type, $data= array() ) {

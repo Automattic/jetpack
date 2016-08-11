@@ -8,6 +8,7 @@ import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import Settings from 'components/settings';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -58,6 +59,12 @@ export const Page = ( props ) => {
 				disabled={ ! isAdmin }
 				summary={ isAdmin ? toggle( module_slug ) : '' }
 				expandedSummary={ isAdmin ? toggle( module_slug ) : '' }
+				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+					{
+						card: module_slug,
+						path: props.route.path
+					}
+				) }
 			>
 				<div dangerouslySetInnerHTML={ renderLongDescription( getModule( module_slug ) ) } />
 				<div className="jp-module-settings__read-more">
@@ -75,6 +82,12 @@ export const Page = ( props ) => {
 					subheader={ __( 'Manage your connection or disconnect Jetpack.' ) }
 					clickableHeaderText={ true }
 					disabled={ ! isAdmin }
+					onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+						{
+							card: 'connection_settings',
+							path: props.route.path
+						}
+					) }
 				>
 					<ConnectionSettings { ...props } />
 				</FoldableCard> : ''
@@ -87,6 +100,12 @@ export const Page = ( props ) => {
 				subheader={ __( 'Show falling snow in the holiday period.' ) }
 				clickableHeaderText={ true }
 				disabled={ ! isAdmin }
+				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+					{
+						card: 'misc_settings',
+						path: props.route.path
+					}
+				) }
 			>
 				<Settings />
 			</FoldableCard>

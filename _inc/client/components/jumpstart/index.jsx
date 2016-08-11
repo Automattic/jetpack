@@ -9,6 +9,7 @@ import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Spinner from 'components/spinner';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -25,6 +26,7 @@ const JumpStart = React.createClass( {
 	displayName: 'JumpStart',
 
 	render: function() {
+		const trackLearnMore = () => analytics.tracks.recordEvent( 'jetpack_jumpstart_learn_more', {} );
 		let jumpstartModules = this.props.jumpstartFeatures( this.props ).map( ( module ) => (
 			<div
 				className="jp-jumpstart__feature-list-column"
@@ -60,6 +62,7 @@ const JumpStart = React.createClass( {
 						className="jp-jumpstart__features"
 						clickableHeaderText={ true }
 						subheader="Learn more"
+						onOpen={ trackLearnMore }
 					>
 						<p className="jp-jumpstart__description">
 							{ __( "Jetpack's recommended features include:" ) }

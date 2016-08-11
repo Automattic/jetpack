@@ -10,6 +10,7 @@ import DashSectionHeader from 'components/dash-section-header';
 import Button from 'components/button';
 import Spinner from 'components/spinner';
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -32,6 +33,7 @@ import {
 const DashStats = React.createClass( {
 	barClick: function( bar ) {
 		if ( bar.data.link ) {
+			analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_bar_click', {} );
 			window.open(
 				bar.data.link,
 				'_blank'
@@ -189,6 +191,7 @@ const DashStats = React.createClass( {
 	},
 
 	handleSwitchStatsView: function( view ) {
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_switch_view', { view: view } );
 		this.props.switchView( view );
 		this.props.fetchStatsData( view );
 	},
@@ -307,7 +310,14 @@ const DashStatsBottom = React.createClass( {
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
 					{ __( '{{button}}View More Stats{{/button}}', {
-						components: { button: <Button className="is-primary" href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl } /> }
+						components: {
+							button:
+								<Button
+									onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_wpcom_click', {} ) }
+									className="is-primary"
+									href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl }
+								/>
+						}
 					} ) }
 				</div>
 			</div>

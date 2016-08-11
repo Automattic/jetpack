@@ -8,6 +8,7 @@ import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -107,7 +108,14 @@ export const Page = ( props ) => {
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
-				disabled={ ! adminAndNonAdmin } >
+				disabled={ ! adminAndNonAdmin }
+				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+					{
+						card: element[0],
+						path: props.route.path
+					}
+				) }
+			>
 				{
 					isModuleActive ?
 						<AllModuleSettings module={ getModule( element[0] ) } /> :

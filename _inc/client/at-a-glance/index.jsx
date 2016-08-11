@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import Card from 'components/card';
 import DashSectionHeader from 'components/dash-section-header';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -32,6 +33,7 @@ const AtAGlance = React.createClass( {
 					settingsPath="#security"
 					externalLink={ __( 'Manage security on WordPress.com' ) }
 					externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl }
+					externalLinkClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_security_wpcom_click', {} ) }
 				/>,
 			performanceHeader =
 				<DashSectionHeader

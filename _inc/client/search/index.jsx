@@ -10,6 +10,7 @@ import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import Collection from 'components/search/search-collection.jsx';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -128,6 +129,12 @@ export const Page = ( {
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
+				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+					{
+						card: element[0],
+						path: '/search'
+					}
+				) }
 			>
 				{
 					isModuleActivated( element[0] ) ?
