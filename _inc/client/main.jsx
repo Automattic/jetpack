@@ -55,6 +55,10 @@ const Main = React.createClass( {
 			return <NonAdminView { ...this.props } />
 		}
 
+		if ( ! getSiteConnectionStatus( this.props ) ) {
+			return <JetpackConnect { ...this.props } />
+		}
+
 		if ( showJumpStart ) {
 			if ( '/' === route ) {
 				const history = createHistory();
@@ -62,10 +66,6 @@ const Main = React.createClass( {
 			} else if ( '/jumpstart' === route ) {
 				return <JumpStart { ...this.props } />
 			}
-		}
-
-		if ( ! getSiteConnectionStatus( this.props ) ) {
-			return <JetpackConnect { ...this.props } />
 		}
 
 		let pageComponent,
