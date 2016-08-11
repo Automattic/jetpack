@@ -44,6 +44,34 @@ const Main = React.createClass( {
 			nextProps.route.path !== this.props.route.path;
 	},
 
+	componentWillReceiveProps( nextProps ) {
+		if ( nextProps.jetpack.jumpstart.status.showJumpStart !== this.props.jetpack.jumpstart.status.showJumpStart ||
+			nextProps.jetpack.jumpstart.status.isJumpstarting !== this.props.jetpack.jumpstart.status.isJumpstarting ) {
+			this.handleJumpstart( nextProps );
+		}
+	},
+
+	/**
+	 *
+	 * Takes care of redirection when
+	 *  - jumpstarting ( resseting options )
+	 * - the jumpstart is complete
+	 * @param  {Object} nextProps The next props as received by componentWillReceiveProps
+	 */
+	handleJumpstart( nextProps ) {
+		const history = createHistory();
+		const willShowJumpStart = nextProps.jetpack.jumpstart.status.showJumpStart;
+		const willBeJumpstarting = nextProps.jetpack.jumpstart.status.isJumpstarting;
+
+		if ( ! this.props.showJumpStart && willShowJumpStart ) {
+			window.location.hash = 'jumpstart';
+			history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
+		}
+		if ( ! this.props.jetpack.jumpstart.showJumpStart && ! willShowJumpStart && ! willBeJumpstarting ) {
+			history.push( window.location.pathname + '?page=jetpack#/dashboard' );
+		}
+	},
+
 	renderMainContent: function( route ) {
 		const showJumpStart = getJumpStartStatus( this.props );
 		const canManageModules = window.Initial_State.userData.currentUser.permissions.manage_modules;
@@ -145,6 +173,7 @@ const Main = React.createClass( {
 
 export default connect(
 	state => {
+		// This is tricky. We're passing the whole state as props of the main component
 		return assign( {}, state, {
 			getJumpStartStatus: getJumpStartStatus( state ),
 			siteRawUrl: getSiteRawUrl( state ),
