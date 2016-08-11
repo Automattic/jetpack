@@ -7,6 +7,7 @@ import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -69,12 +70,21 @@ export const Page = ( props ) => {
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
 
 		return (
-			<FoldableCard className={ customClasses } key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
+			<FoldableCard
+				className={ customClasses }
+				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 				header={ element[1] }
 				subheader={ element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle }
-				clickableHeaderText={ true } >
+				clickableHeaderText={ true }
+				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+					{
+						card: element[0],
+						path: props.route.path
+					}
+				) }
+			>
 				{
 					isModuleActivated( element[0] ) ?
 						<AllModuleSettings module={ getModule( element[0] ) } /> :

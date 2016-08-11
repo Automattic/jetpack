@@ -8,6 +8,7 @@ import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
 import SimpleNotice from 'components/notice';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -75,7 +76,14 @@ export const Page = ( props ) => {
 				subheader={ element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle }
-				clickableHeaderText={ true } >
+				clickableHeaderText={ true }
+				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+					{
+						card: element[0],
+						path: props.route.path
+					}
+				) }
+			>
 				{
 					isModuleActivated( element[0] ) || isPro ?
 						<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
