@@ -36,7 +36,7 @@ const DashProtect = React.createClass( {
 					>
 						<div className="jp-dash-item__recently-activated-lower">
 							<QueryProtectCount />
-							<p className="jp-dash-item__description">{ __( 'Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon!' ) }</p>
+							<p className="jp-dash-item__description">{ __( 'Jetpack is actively blocking malicious login attempts. Data will display here soon!' ) }</p>
 						</div>
 					</DashItem>
 				);
@@ -61,7 +61,7 @@ const DashProtect = React.createClass( {
 			>
 				<p className="jp-dash-item__description">{
 					isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
-					__( '{{a}}Activate Protect{{/a}} to keep your site protected from malicious attacks.', {
+					__( '{{a}}Activate Protect{{/a}} to keep your site protected from malicious login attempts.', {
 						components: {
 							a: <a href="javascript:void(0)" onClick={ this.props.activateProtect } />
 						}

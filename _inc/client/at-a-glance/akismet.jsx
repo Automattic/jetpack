@@ -31,7 +31,7 @@ const DashAkismet = React.createClass( {
 	getContent: function() {
 		const akismetData = this.props.getAkismetData(),
 			akismetSettingsUrl = window.Initial_State.adminUrl + 'admin.php?page=akismet-key-config',
-			labelName = __( 'Anti-spam' ),
+			labelName = __( 'Spam Protection' ),
 			hasSitePlan = false !== this.props.getSitePlan();
 
 		if ( akismetData === 'N/A' ) {
@@ -59,7 +59,11 @@ const DashAkismet = React.createClass( {
 				>
 					<p className="jp-dash-item__description">
 						{
-							__( 'Automatically block spam comments and more.' )
+							__( 'For state-of-the-art spam defense, please {{a}}install Akismet{{/a}}.', {
+								components: {
+									a: <a href={ 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl } target="_blank" />
+								}
+							} )
 						}
 					</p>
 				</DashItem>
@@ -77,7 +81,7 @@ const DashAkismet = React.createClass( {
 				>
 					<p className="jp-dash-item__description">
 						{
-							__( '{{a}}Activate Akismet{{/a}} to automatically block spam comments and more.', {
+							__( 'For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}.', {
 								components: {
 									a: <a href={ 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl } target="_blank" />
 								}

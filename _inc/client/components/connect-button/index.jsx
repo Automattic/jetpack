@@ -81,7 +81,7 @@ const ConnectButton = React.createClass( {
 				<Button
 					onClick={ this.disconnectSite }
 					disabled={ disconnecting }>
-					{ __( 'Disconnect site from WordPress.com ') }
+					{ __( 'Disconnect Jetpack') }
 				</Button>
 			);
 		}
@@ -91,7 +91,7 @@ const ConnectButton = React.createClass( {
 				className="is-primary jp-jetpack-connect__button"
 				href={ this.props.connectUrl( this.props ) }
 				disabled={ fetchingUrl }>
-				{ __( 'Connect to WordPress.com' ) }
+				{ __( 'Connect Jetpack' ) }
 			</Button>
 		);
 	},

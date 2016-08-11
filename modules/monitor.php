@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Monitor
- * Module Description: Receive notification on site downtime, 24/7.
+ * Module Description: Receive immediate notifications if your site goes down, 24/7.
  * Sort Order: 28
  * Recommendation Order: 10
  * First Introduced: 2.6

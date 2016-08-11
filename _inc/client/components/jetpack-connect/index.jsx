@@ -19,18 +19,18 @@ const JetpackConnect = React.createClass( {
 	render: function() {
 		return (
 			<div className="jp-jetpack-connect__container">
-				<h1 className="jp-jetpack-connect__container-title" title="Please connect Jetpack to WordPress.com">
-					{ __( 'Please Connect Jetpack' ) }
+				<h1 className="jp-jetpack-connect__container-title" title="Welcome to Jetpack">
+					{ __( 'Welcome to Jetpack' ) }
 				</h1>
 
 				<Card className="jp-jetpack-connect__cta">
 					<p className="jp-jetpack-connect__description">
-						{ __( 'Please connect to or create a WordPress.com account to enable Jetpack, including powerful security, traffic, and customization services.' ) }
+						{ __( 'Please connect to or create a WordPress.com account to start using Jetpack. This will enable powerful security, traffic, and customization services.' ) }
 					</p>
 					<ConnectButton />
 					<p>
 						<a href={ this.props.connectUrl( this.props ) } className="jp-jetpack-connect__link">
-							{ __( 'No WordPress.com account? Create one for free.' ) }
+							{ __( 'No account? Create one for free…' ) }
 						</a>
 					</p>
 				</Card>
@@ -215,6 +215,11 @@ const JetpackConnect = React.createClass( {
 						) }
 					</p>
 					<ConnectButton />
+					<p>
+						<a href="https://wordpress.com/start/jetpack/" className="jp-jetpack-connect__link">
+							{ __( 'No account? Create one for free…' ) }
+						</a>
+					</p>
 				</Card>
 			</div>
 		);

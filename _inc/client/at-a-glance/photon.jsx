@@ -26,7 +26,7 @@ const DashPhoton = React.createClass( {
 					module="photon"
 					status="is-working"
 				>
-					<p className="jp-dash-item__description">{ __( 'Photon is active and currently improving image performance.' ) }</p>
+					<p className="jp-dash-item__description">{ __( 'Jetpack is improving and optimising your image speed.' ) }</p>
 				</DashItem>
 			);
 		}
@@ -40,7 +40,7 @@ const DashPhoton = React.createClass( {
 				<p className="jp-dash-item__description">
 					{
 						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
-						__( '{{a}}Activate Photon{{/a}} to enhance the performance of your images.', {
+						__( '{{a}}Activate Photon{{/a}} to enhance the performance and speed of your images.', {
 							components: {
 								a: <a href="javascript:void(0)" onClick={ this.props.activatePhoton } />
 							}

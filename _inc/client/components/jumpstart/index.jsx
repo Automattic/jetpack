@@ -43,9 +43,9 @@ const JumpStart = React.createClass( {
 
 		return (
 			<div className="jp-jumpstart">
-				<h2 className="jp-jumpstart__title">
-					{ __( 'Jump Start your Website' ) }
-				</h2>
+				<h1 className="jp-jumpstart__title">
+					{ __( 'Jump Start your Site' ) }
+				</h1>
 				<Card className="jp-jumpstart__cta-container">
 					<Card className="jp-jumpstart__cta">
 						{ this.props.jumpstarting( this.props ) ? <Spinner /> : null }

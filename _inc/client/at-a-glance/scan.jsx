@@ -25,7 +25,7 @@ import { isDevMode } from 'state/connection';
 
 const DashScan = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Malware Scan' ),
+		const labelName = __( 'Malware Scanning' ),
 			hasSitePlan = false !== this.props.getSitePlan(),
 			vpData = this.props.getVaultPressData(),
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
@@ -89,7 +89,7 @@ const DashScan = React.createClass( {
 		const upgradeOrActivateText = () => {
 			if ( hasSitePlan ) {
 				return(
-					__( 'To automatically scan your site for malicious threats, please {{a}}install and activate{{/a}} VaultPress', {
+					__( 'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
 							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
 						}
@@ -97,7 +97,7 @@ const DashScan = React.createClass( {
 				);
 			} else {
 				return(
-					__( 'To automatically scan your site for malicious threats, please {{a}}upgrade your account{{/a}}', {
+					__( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
 						components: {
 							a: <a href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } target="_blank" />
 						}

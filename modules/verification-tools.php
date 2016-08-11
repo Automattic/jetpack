@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Site Verification
- * Module Description: Verify your site with Google Search Console, Pinterest, and others.
+ * Module Description: Establish your site's authenticity with external services.
  * First Introduced: 3.0
  * Sort Order: 33
  * Requires Connection: No

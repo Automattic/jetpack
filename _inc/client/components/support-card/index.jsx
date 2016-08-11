@@ -79,7 +79,7 @@ export default React.createClass( {
 						{ __(
 							'{{hideOnMobile}}Enjoying Jetpack or have feedback?{{/hideOnMobile}} ' +
 							'{{reviewLink}}Leave us a review{{/reviewLink}}{{hideOnMobile}},{{/hideOnMobile}} ' +
-							'{{twitterLink}}follow us on Twitter{{/twitterLink}}{{hideOnMobile}}, or{{/hideOnMobile}} ' +
+							'{{twitterLink}}follow us on Twitter{{/twitterLink}}{{hideOnMobile}}, and{{/hideOnMobile}} ' +
 							'{{facebookLink}}like us on Facebook{{/facebookLink}}{{hideOnMobile}}.{{/hideOnMobile}}', {
 								components: {
 									hideOnMobile: <span className="jp-hidden-on-mobile" />,
@@ -103,7 +103,7 @@ export default React.createClass( {
 										<a
 											className="jp-support-card__link"
 											href="https://www.facebook.com/jetpackme"
-											title={ __( 'Like us on facebook' ) }
+											title={ __( 'Like us on Facebook' ) }
 											target="_blank"
 										/>
 									)

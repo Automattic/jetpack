@@ -30,7 +30,7 @@ const AtAGlance = React.createClass( {
 				<DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath="#security"
-					externalLink={ __( 'Manage Security on WordPress.com' ) }
+					externalLink={ __( 'Manage security on WordPress.com' ) }
 					externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl }
 				/>,
 			performanceHeader =

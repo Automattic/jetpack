@@ -60,8 +60,7 @@ const DashMonitor = React.createClass( {
 					module="monitor"
 					status="is-working"
 				>
-					<p className="jp-dash-item__description">{ __( 'Monitor is on and is watching your site.' ) }</p>
-					{ lastDowntimeMessage() }
+					<p className="jp-dash-item__description">{ __( 'Jetpack is monitoring your site. If we think your site is down you will receive an email.' ) }</p>
 				</DashItem>
 			);
 		}

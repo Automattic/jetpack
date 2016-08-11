@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: WP.me Shortlinks
- * Module Description: Enable shortlinks for all posts and pages.
+ * Module Description: Create short and simple links for all posts and pages.
  * Sort Order: 8
  * First Introduced: 1.1
  * Requires Connection: Yes
