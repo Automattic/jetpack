@@ -136,8 +136,8 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function get_user_ids_for_initial_sync() {
-		global $wpdb;
-		return $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->base_prefix}user_level' AND meta_value > 0" );
+		$user_query = new WP_User_Query( array( 'who' => 'authors', 'fields' => 'ID' ) );
+		return $user_query->get_results();
 	}
 
 	static function schedule_initial_sync() {
