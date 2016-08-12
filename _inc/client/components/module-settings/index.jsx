@@ -6,6 +6,7 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import TextInput from 'components/text-input';
 import TagsInput from 'components/tags-input';
+import ClipboardButtonInput from 'components/clipboard-button-input';
 
 /**
  * Internal dependencies
@@ -554,9 +555,12 @@ export let PostByEmailSettings = React.createClass( {
 				<FormFieldset>
 					<FormLabel>
 						<FormLegend>{ __( 'Email Address' ) }</FormLegend>
-						<TextInput
+						<ClipboardButtonInput
 							value={ this.address() }
-							readOnly="readonly" />
+							copy={ __( 'Copy', { context: 'verb' } ) }
+							copied={ __( 'Copied!' ) }
+							prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+						/>
 						<FormButton
 							onClick={ this.regeneratePostByEmailAddress } >
 							{ __( 'Regenerate address' ) }
