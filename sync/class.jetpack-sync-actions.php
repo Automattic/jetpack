@@ -10,6 +10,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
+	const MAX_INITIAL_SYNC_USERS = 500;
 
 	static function init() {
 
@@ -135,11 +136,24 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
+	static function get_initial_sync_user_config() {
+		$user_query = new WP_User_Query( array(
+			'who'    => 'authors',
+			'fields' => 'ID',
+			'number' => self::MAX_INITIAL_SYNC_USERS + 1,
+		) );
+		if ( $user_query->get_total() >= self::MAX_INITIAL_SYNC_USERS ) {
+			return false;
+		}
+
+		return $user_query->get_results();
+	}
+
 	static function schedule_initial_sync() {
-		// we need this function call here because we have to run this function 
+		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
 		wp_functionality_constants();
-		self::schedule_full_sync( array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => true ) );
+		self::schedule_full_sync( array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => self::get_initial_sync_user_config() ) );
 	}
 
 	static function schedule_full_sync( $modules = null ) {
