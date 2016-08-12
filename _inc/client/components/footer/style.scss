@@ -34,6 +34,15 @@
 .jp-footer__link-item {
 	display: inline-block;
 	margin-bottom: 0;
+
+	@include breakpoint( ">660px" ) {
+		display: inline-block;
+	}
+
+	@include breakpoint( "<660px" ) {
+		display: block;
+		border-bottom: 1px lighten( $gray, 25% ) solid;
+	}
 }
 
 .jp-footer__link {
