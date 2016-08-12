@@ -156,6 +156,12 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 				if ( is_numeric( $value ) ) {
 					$value = (int) $value;
 				}
+				
+				// special case for sending empty arrays - a string with value 'empty'
+				if ( $value === 'empty' ) {
+					$value = array();
+				}
+
 				$sync_settings[ $key ] = $value;
 			}
 		}
