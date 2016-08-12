@@ -70,12 +70,13 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 			return;
 		}
 
+		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
+
 		$constants = $this->get_all_constants();
 		if ( empty( $constants ) ) {
 			return;
 		}
 
-		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
 		$constants_checksums = (array) get_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, array() );
 
 		foreach ( $constants as $name => $value ) {
