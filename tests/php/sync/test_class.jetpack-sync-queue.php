@@ -176,6 +176,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_checkin_wrong_buffer_raises_error() {
+		$this->markTestIncomplete( "It's not clear that it's all that useful to have buffer IDs" );
 		$this->queue->add_all( array( 1, 2, 3, 4 ) );
 		$buffer       = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
 		$other_buffer = $this->queue->checkout( 5 );
@@ -273,8 +274,8 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$buffer = $queue->checkout( 2 );
 		
 		// let's force-unlock the in-memory lock
-		$this->assertNotNull( Jetpack_Sync_Queue::$in_memory_lock );
-		Jetpack_Sync_Queue::$in_memory_lock = null;
+		$this->assertNotNull( Jetpack_Sync_Lock_MySQL::$in_memory_lock );
+		Jetpack_Sync_Lock_MySQL::$in_memory_lock = null;
 
 		// now let's try to acquire the lock from another connection
 		$other_wpdb = new wpdb( DB_USER, DB_PASSWORD, DB_NAME, DB_HOST );

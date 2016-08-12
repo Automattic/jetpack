@@ -28,7 +28,6 @@ class Jetpack_Sync_Queue_Buffer {
 }
 
 interface Jetpack_Sync_Lock {
-	const QUEUE_LOCK_TIMEOUT = 300; // 5 minutes
 	public function acquire_lock( $wait = 0 );
 	public function release_lock();
 	public function reset();
@@ -78,7 +77,7 @@ class Jetpack_Sync_Lock_Transient implements Jetpack_Sync_Lock {
 	}
 
 	private function set_lock() {
-		return set_transient( $this->get_checkout_transient_name(), microtime( true ), self::QUEUE_LOCK_TIMEOUT ); // 5 minute timeout
+		return set_transient( $this->get_checkout_transient_name(), microtime( true ), Jetpack_Sync_Queue::QUEUE_LOCK_TIMEOUT ); // 5 minute timeout
 	}
 
 	private function delete_lock_value() {
@@ -109,7 +108,7 @@ class Jetpack_Sync_Lock_MySQL {
 	public function acquire_lock( $wait = 0 ) {
 		// use mysql to prevent cross-process concurrent access, 
 		// and in-memory lock to prevent in-process concurrent access
-		if ( self::$in_memory_lock && ( microtime( true ) < self::$in_memory_lock + self::QUEUE_LOCK_TIMEOUT ) ) {
+		if ( self::$in_memory_lock && ( microtime( true ) < self::$in_memory_lock + Jetpack_Sync_Queue::QUEUE_LOCK_TIMEOUT ) ) {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
@@ -127,7 +126,7 @@ class Jetpack_Sync_Lock_MySQL {
 		return true;
 	}
 
-	public function release_lock( $buffer_id ) {
+	public function release_lock() {
 		global $wpdb;
 		$result = $wpdb->get_var( $wpdb->prepare( "SELECT RELEASE_LOCK( %s )", $this->named_lock_name ) );
 
@@ -141,7 +140,7 @@ class Jetpack_Sync_Lock_MySQL {
 	}
 
 	public function reset() {
-		$this->release_lock( 'anything' );
+		$this->release_lock();
 	}
 }
 
@@ -152,6 +151,7 @@ class Jetpack_Sync_Lock_MySQL {
  * tons of added_option callbacks.
  */
 class Jetpack_Sync_Queue {
+	const QUEUE_LOCK_TIMEOUT = 300; // 5 minutes
 	public $id;
 	private $row_iterator;
 	private $lock;
