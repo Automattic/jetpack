@@ -2727,11 +2727,17 @@ p {
 	/**
 	 * Return stat data for WPCOM sync
 	 */
-	public static function get_stat_data() {
+	public static function get_stat_data( $encode = true ) {
 		$heartbeat_data = Jetpack_Heartbeat::generate_stats_array();
 		$additional_data = self::get_additional_stat_data();
 
-		return json_encode( array_merge( $heartbeat_data, $additional_data ) );
+		$merged_data = array_merge( $heartbeat_data, $additional_data );
+
+		if ( $encode ) {
+			return json_encode( $merged_data );
+		}
+		
+		return $merged_data;
 	}
 
 	/**
