@@ -4,7 +4,6 @@
 class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sends_stats_data_on_heartbeat() {
-		$this->markTestIncomplete( 'Stalls' );
 		$heartbeat = Jetpack_Heartbeat::init();
 		$heartbeat->cron_exec();
 		$this->sender->do_sync();
