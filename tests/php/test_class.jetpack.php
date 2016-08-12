@@ -119,10 +119,9 @@ EXPECTED;
 		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
 
 		// Mock get_cloud_site_options
-		$jp	= $this->getMock(
-			'MockJetpack',
-			array( 'get_cloud_site_options' )
-		);
+		$jp	= $this->getMockBuilder( 'MockJetpack' )
+			->setMethods( array( 'get_cloud_site_options' ) )
+			->getMock();
 
 		$jp->init();
 		Jetpack::$instance = $jp;
@@ -207,10 +206,9 @@ EXPECTED;
 		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
 
 		// Mock get_cloud_site_options
-		$jp	= $this->getMock(
-			'MockJetpack',
-			array( 'get_cloud_site_options' )
-		);
+		$jp	= $this->getMockBuilder( 'MockJetpack' )
+			->setMethods( array( 'get_cloud_site_options' ) )
+			->getMock();
 
 		$jp->init();
 		Jetpack::$instance = $jp;
@@ -247,10 +245,9 @@ EXPECTED;
 		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
 
 		// Mock get_cloud_site_options
-		$jp = $this->getMock(
-			'MockJetpack',
-			array( 'get_cloud_site_options' )
-		);
+		$jp = $this->getMockBuilder( 'MockJetpack' )
+		    ->setMethods( array( 'get_cloud_site_options' ) )
+		    ->getMock();
 
 		$jp->init();
 		Jetpack::$instance = $jp;
