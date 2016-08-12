@@ -23,6 +23,8 @@ class Jetpack_Sync_Settings {
 
 	static $is_importing;
 
+	static $settings_cache = array(); // some settings can be expensive to compute - let's cache them
+
 	static function get_settings() {
 		$settings = array();
 		foreach ( array_keys( self::$valid_settings ) as $setting ) {
@@ -39,6 +41,10 @@ class Jetpack_Sync_Settings {
 			return false;
 		}
 
+		if ( isset( self::$settings_cache[ $setting ] ) ) {
+			return self::$settings_cache[ $setting ];
+		}
+
 		$value = get_option( self::SETTINGS_OPTION_PREFIX . $setting );
 
 		if ( false === $value ) {
@@ -48,13 +54,15 @@ class Jetpack_Sync_Settings {
 		}
 
 		if ( is_numeric( $value ) ) {
-			return intval( $value );
+			$value = intval( $value );
 		}
 
 		// specifically for the post_types blacklist, we want to include the hardcoded settings
 		if ( $setting === 'post_types_blacklist' ) {
-			$value = array_merge( $value, Jetpack_Sync_Defaults::$blacklisted_post_types );
+			$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$blacklisted_post_types ) );
 		}
+
+		self::$settings_cache[ $setting ] = $value;
 
 		return $value;
 	}
@@ -63,6 +71,7 @@ class Jetpack_Sync_Settings {
 		$validated_settings = array_intersect_key( $new_settings, self::$valid_settings );
 		foreach ( $validated_settings as $setting => $value ) {
 			update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+			unset( self::$settings_cache[ $setting ] );
 		}
 	}
 
@@ -72,10 +81,10 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function reset_data() {
-		$valid_settings  = self::$valid_settings;
-		$settings_prefix = self::SETTINGS_OPTION_PREFIX;
+		$valid_settings       = self::$valid_settings;
+		self::$settings_cache = array();
 		foreach ( $valid_settings as $option => $value ) {
-			delete_option( $settings_prefix . $option );
+			delete_option( self::SETTINGS_OPTION_PREFIX . $option );
 		}
 		self::set_importing( null );
 	}
