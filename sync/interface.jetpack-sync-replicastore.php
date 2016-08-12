@@ -47,6 +47,10 @@ interface iJetpack_Sync_Replicastore {
 
 	public function delete_comment( $comment_id );
 
+	public function trashed_post_comments( $post_id, $statuses );
+
+	public function untrashed_post_comments( $post_id );
+
 	public function comments_checksum( $min_id = null, $max_id = null );
 
 	// options

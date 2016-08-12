@@ -6,15 +6,15 @@
 class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 	protected $comment;
+	protected $post_id;
+	protected $comment_ids;
 
 	public function setUp() {
 		parent::setUp();
 
-		$comment_ids = $this->factory->comment->create_post_comments(
-			$this->factory->post->create()
-		);
-
-		$this->comment = get_comment( $comment_ids[0] );
+		$this->post_id = $this->factory->post->create();
+		$this->comment_ids = $this->factory->comment->create_post_comments( $this->post_id );
+		$this->comment = get_comment( $this->comment_ids[0] );
 
 		$this->sender->do_sync();
 	}
@@ -134,5 +134,22 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'spam' ) );
+	}
+
+	public function test_post_trashed_comment_handling() {
+		wp_trash_post( $this->post_id );
+
+		$this->sender->do_sync();
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'post-trashed' ) );
+	}
+
+	public function test_post_untrashed_comment_handling() {
+		wp_trash_post( $this->post_id );
+		$this->sender->do_sync();
+
+		wp_untrash_post( $this->post_id );
+		$this->sender->do_sync();
+
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 	}
 }
