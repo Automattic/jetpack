@@ -254,6 +254,49 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( array( 'foo' ), $other_queue->checkout( 5 )->get_item_values() );
 	}
 
+	function test_queue_can_use_named_locks() {
+		Jetpack_Sync_Settings::update_settings( array( 'use_mysql_named_lock' => true ) );
+
+		$queue = new Jetpack_Sync_Queue( 'my_queue' );
+
+		$queue->add( 'foo' );
+
+		$buffer = $queue->checkout( 2 );
+		$this->assertTrue( is_wp_error( $queue->checkout( 2 ) ) );
+		$queue->checkin( $buffer );
+
+		global $wpdb, $blog_id;
+
+		$original_wpdb = $wpdb;
+
+		// lock with original connection, then try to unlock with different connection
+		$buffer = $queue->checkout( 2 );
+		
+		// let's force-unlock the in-memory lock
+		$this->assertNotNull( Jetpack_Sync_Queue::$in_memory_lock );
+		Jetpack_Sync_Queue::$in_memory_lock = null;
+
+		// now let's try to acquire the lock from another connection
+		$other_wpdb = new wpdb( DB_USER, DB_PASSWORD, DB_NAME, DB_HOST );
+		$wpdb = $other_wpdb;
+		wp_set_wpdb_vars();
+
+		// the DB lock should prevent checkout
+		$result = $queue->checkout( 2 );
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'lock_failed', $result->get_error_code() );
+
+		$wpdb = $original_wpdb;
+		$queue->checkin( $buffer );
+
+		// now a checkout should work
+		$wpdb = $other_wpdb;
+		$result = $queue->checkout( 2 );
+		$this->assertFalse( is_wp_error( $result ) );
+
+		$wpdb = $original_wpdb;
+	}
+
 	function test_benchmark() {
 		$this->markTestIncomplete( "We don't want to run this every time" );
 		$iterations  = 100;

@@ -34,14 +34,28 @@ class Jetpack_Sync_Queue_Buffer {
  * tons of added_option callbacks.
  */
 class Jetpack_Sync_Queue {
+	const QUEUE_LOCK_TIMEOUT = 300; // 5 minutes
 	public $id;
 	private $row_iterator;
 	private $use_named_lock;
+	private $named_lock_name;
+
+	static $in_memory_lock; // in-process lock
 
 	function __construct( $id ) {
 		$this->id             = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 		$this->row_iterator   = 0;
 		$this->use_named_lock = (bool) Jetpack_Sync_Settings::get_setting( 'use_mysql_named_lock' );
+
+		if ( $this->use_named_lock ) {
+			global $wpdb;
+			// named lock names are GLOBAL PER SERVER so should be namespaced to this particular
+			// wp installation, site and queue
+			$this->named_lock_name = 'jpsq_' . $wpdb->prefix . $this->id;
+			if ( strlen( $this->named_lock_name ) > 64 ) {
+				error_log("Warning: Named lock key is > 64 chars: '{$this->named_lock_name}'");
+			}
+		}
 	}
 
 	function add( $item ) {
@@ -297,7 +311,26 @@ class Jetpack_Sync_Queue {
 
 	private function acquire_lock( $buffer_id ) {
 		if ( $this->use_named_lock ) {
-			// use mysql
+			$lockval = self::$in_memory_lock;
+			
+			// use mysql to prevent cross-process concurrent access, 
+			// and in-memory lock to prevent in-process concurrent access
+			if ( self::$in_memory_lock && ( microtime( true ) < self::$in_memory_lock + self::QUEUE_LOCK_TIMEOUT ) ) {
+				return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+			}
+
+			global $wpdb;
+
+			$acquired_lock = $wpdb->get_var( $wpdb->prepare( "SELECT GET_LOCK( %s, 0 )", $this->named_lock_name ) );
+
+			if ( $acquired_lock == 0 ) {
+				return new WP_Error( 'lock_failed', 'Another process has the lock' );
+			}
+
+			// lock memory and DB
+			self::$in_memory_lock = microtime( true );
+
+			return true;
 		} else {
 			if ( $this->get_checkout_id() ) {
 				return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
@@ -315,12 +348,44 @@ class Jetpack_Sync_Queue {
 		}
 	}
 
+	private function release_lock( $buffer ) {
+		if ( ! $buffer instanceof Jetpack_Sync_Queue_Buffer ) {
+			return new WP_Error( 'not_a_buffer', 'You must checkin an instance of Jetpack_Sync_Queue_Buffer' );
+		}
+
+		if ( $this->use_named_lock ) {
+			// TODO
+			global $wpdb;
+			$result = $wpdb->get_var( $wpdb->prepare( "SELECT RELEASE_LOCK( %s )", $this->named_lock_name ) );
+
+			if ( $result != '1' ) {
+				error_log("Warning: released lock that wasn't locked: {$this->named_lock_name}");
+			}
+
+			self::$in_memory_lock = null;
+		} else {
+			$checkout_id = $this->get_checkout_id();
+
+			if ( ! $checkout_id ) {
+				return new WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
+			}
+
+			if ( $checkout_id != $buffer->id ) {
+				return new WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
+			}
+
+			$this->delete_checkout_id();
+		}
+
+		return true;
+	}
+
 	private function get_checkout_id() {
 		return get_transient( $this->get_checkout_transient_name() );
 	}
 
 	private function set_checkout_id( $checkout_id ) {
-		return set_transient( $this->get_checkout_transient_name(), $checkout_id, 5 * 60 ); // 5 minute timeout
+		return set_transient( $this->get_checkout_transient_name(), $checkout_id, self::QUEUE_LOCK_TIMEOUT ); // 5 minute timeout
 	}
 
 	private function delete_checkout_id() {
@@ -381,30 +446,6 @@ class Jetpack_Sync_Queue {
 		} else {
 			return array();
 		}
-	}
-
-	private function release_lock( $buffer ) {
-		if ( ! $buffer instanceof Jetpack_Sync_Queue_Buffer ) {
-			return new WP_Error( 'not_a_buffer', 'You must checkin an instance of Jetpack_Sync_Queue_Buffer' );
-		}
-
-		if ( $this->use_named_lock ) {
-			// TODO
-		} else {
-			$checkout_id = $this->get_checkout_id();
-
-			if ( ! $checkout_id ) {
-				return new WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
-			}
-
-			if ( $checkout_id != $buffer->id ) {
-				return new WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
-			}
-
-			$this->delete_checkout_id();
-		}
-
-		return true;
 	}
 }
 
