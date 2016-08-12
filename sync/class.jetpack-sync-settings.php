@@ -14,9 +14,13 @@ class Jetpack_Sync_Settings {
 		'max_queue_size'       => true,
 		'max_queue_lag'        => true,
 		'queue_max_writes_sec' => true,
+		'post_types_blacklist' => true,
+		'meta_blacklist'       => true,
 	);
 
 	static $is_importing;
+
+	static $settings_cache = array(); // some settings can be expensive to compute - let's cache them
 
 	static function get_settings() {
 		$settings = array();
@@ -34,6 +38,10 @@ class Jetpack_Sync_Settings {
 			return false;
 		}
 
+		if ( isset( self::$settings_cache[ $setting ] ) ) {
+			return self::$settings_cache[ $setting ];
+		}
+
 		$value = get_option( self::SETTINGS_OPTION_PREFIX . $setting );
 
 		if ( false === $value ) {
@@ -42,21 +50,43 @@ class Jetpack_Sync_Settings {
 			update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 		}
 
-		return (int) $value;
+		if ( is_numeric( $value ) ) {
+			$value = intval( $value );
+		}
+
+		// specifically for the post_types blacklist, we want to include the hardcoded settings
+		if ( $setting === 'post_types_blacklist' ) {
+			$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$blacklisted_post_types ) );
+		}
+
+		// ditto for meta blacklist
+		if ( $setting === 'meta_blacklist' ) {
+			$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$default_blacklist_meta_keys ) );
+		}
+
+		self::$settings_cache[ $setting ] = $value;
+
+		return $value;
 	}
 
 	static function update_settings( $new_settings ) {
 		$validated_settings = array_intersect_key( $new_settings, self::$valid_settings );
 		foreach ( $validated_settings as $setting => $value ) {
 			update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+			unset( self::$settings_cache[ $setting ] );
 		}
 	}
 
+	// returns escapted SQL that can be injected into a WHERE clause
+	static function get_blacklisted_post_types_sql() {
+		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
+	}
+
 	static function reset_data() {
-		$valid_settings  = self::$valid_settings;
-		$settings_prefix = self::SETTINGS_OPTION_PREFIX;
+		$valid_settings       = self::$valid_settings;
+		self::$settings_cache = array();
 		foreach ( $valid_settings as $option => $value ) {
-			delete_option( $settings_prefix . $option );
+			delete_option( self::SETTINGS_OPTION_PREFIX . $option );
 		}
 		self::set_importing( null );
 	}
