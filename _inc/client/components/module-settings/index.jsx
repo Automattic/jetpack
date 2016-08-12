@@ -555,14 +555,14 @@ export let PostByEmailSettings = React.createClass( {
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
 					<FormLabel>
-						<span> { __( 'Email Address' ) } </span>
+						<FormLegend>{ __( 'Email Address' ) }</FormLegend>
 						<TextInput
 							value={ this.address() }
 							readOnly="readonly" />
-						<Button
+						<FormButton
 							onClick={ this.regeneratePostByEmailAddress } >
 							{ __( 'Regenerate address' ) }
-						</Button>
+						</FormButton>
 					</FormLabel>
 				</FormFieldset>
 			</form>
