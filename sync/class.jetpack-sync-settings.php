@@ -14,6 +14,7 @@ class Jetpack_Sync_Settings {
 		'max_queue_size'       => true,
 		'max_queue_lag'        => true,
 		'queue_max_writes_sec' => true,
+		'use_mysql_named_lock' => true, // 0 or 1
 	);
 
 	static $is_importing;
