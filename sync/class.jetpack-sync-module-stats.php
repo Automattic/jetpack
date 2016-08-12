@@ -1,8 +1,5 @@
 <?php
 
-/**
- * 
- */
 class Jetpack_Sync_Module_Stats extends Jetpack_Sync_Module {
 
 	function name() {
@@ -26,5 +23,3 @@ class Jetpack_Sync_Module_Stats extends Jetpack_Sync_Module {
 		return Jetpack::get_stat_data();
 	}
 }
-
-
