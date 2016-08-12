@@ -271,19 +271,16 @@ export let MonitorSettings = React.createClass( {
 						name={ 'monitor_receive_notifications' }
 						{ ...this.props }
 						label={ __( 'Receive Monitor Email Notifications' ) } />
-					<p>
-						<em>{ __( 'Emails will be sent to ' ) + this.props.adminEmailAddress }.</em>
-						<span>
-							&nbsp;
-							{
-								__( '{{a}}Edit{{/a}}', {
-									components: {
-										a: <a href={ 'https://wordpress.com/settings/account/' } />
-									}
-								} )
-							}
-						</span>
-					</p>
+					<span className="form-setting-explanation">{ __( 'Emails will be sent to ' ) + this.props.adminEmailAddress }. <span>
+						&nbsp;
+						{
+							__( '{{a}}Edit{{/a}}', {
+								components: {
+									a: <a href={ 'https://wordpress.com/settings/account/' } />
+								}
+							} )
+						}
+					</span></span>
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }
@@ -438,7 +435,7 @@ export let VerificationToolsSettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<p>
+					<p className="form-setting-explanation">
 						{
 							__( 'Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a}}Bing Webmaster Center{{/a}} and {{a}}Pinterest Site Verification{{/a}}.', {
 								components: {
