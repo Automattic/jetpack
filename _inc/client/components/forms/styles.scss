@@ -35,10 +35,10 @@
 .form-setting-explanation {
 	color: $gray;
 	display: block;
-	font-size: 13px;
+	font-size: rem( 13px );
 	font-style: italic;
 	font-weight: 400;
-	margin: 5px 0 0 0;
+	margin: rem( 5px ) 0 0 0;
 }
 
 // ==========================================================================
