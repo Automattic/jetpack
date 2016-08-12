@@ -1,6 +1,6 @@
 <?php
 
-require dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 /**
  * A buffer of items from the queue that can be checked out
@@ -146,16 +146,12 @@ class Jetpack_Sync_Queue {
 	}
 
 	function checkout( $buffer_size ) {
-		if ( ! $this->acquire_lock() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
-		}
-
 		$buffer_id = uniqid();
 
-		$result = $this->set_checkout_id( $buffer_id );
+		$lock_result = $this->acquire_lock( $buffer_id );
 
-		if ( ! $result || is_wp_error( $result ) ) {
-			return $result;
+		if ( is_wp_error( $lock_result ) ) {
+			return $lock_result;
 		}
 
 		$items = $this->fetch_items( $buffer_size );
@@ -175,16 +171,12 @@ class Jetpack_Sync_Queue {
 	// The only way it will load more items than $max_size is if a single queue item
 	// exceeds the memory limit, but in that case it will send that item by itself.
 	function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
-		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
-		}
-
 		$buffer_id = uniqid();
 
-		$result = $this->set_checkout_id( $buffer_id );
-
-		if ( ! $result || is_wp_error( $result ) ) {
-			return $result;
+		$lock_result = $this->acquire_lock( $buffer_id );
+		
+		if ( is_wp_error( $lock_result ) ) {
+			return $lock_result;
 		}
 
 		// get the map of buffer_id -> memory_size
@@ -227,25 +219,21 @@ class Jetpack_Sync_Queue {
 	}
 
 	function checkin( $buffer ) {
-		$is_valid = $this->validate_checkout( $buffer );
+		$released = $this->release_lock( $buffer );
 
-		if ( is_wp_error( $is_valid ) ) {
-			return $is_valid;
+		if ( is_wp_error( $released ) ) {
+			return $released;
 		}
-
-		$this->delete_checkout_id();
 
 		return true;
 	}
 
 	function close( $buffer, $ids_to_remove = null ) {
-		$is_valid = $this->validate_checkout( $buffer );
+		$released = $this->release_lock( $buffer );
 
-		if ( is_wp_error( $is_valid ) ) {
-			return $is_valid;
+		if ( is_wp_error( $released ) ) {
+			return $released;
 		}
-
-		$this->delete_checkout_id();
 
 		// by default clear all items in the buffer
 		if ( is_null( $ids_to_remove ) ) {
@@ -294,15 +282,10 @@ class Jetpack_Sync_Queue {
 			return new WP_Error( 'lock_timeout', 'Timeout waiting for sync queue to empty' );
 		}
 
-		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
-		}
+		$lock_result = $this->acquire_lock( 'lock' );
 
-		// hopefully this means we can acquire a checkout?
-		$result = $this->set_checkout_id( 'lock' );
-
-		if ( ! $result || is_wp_error( $result ) ) {
-			return $result;
+		if ( is_wp_error( $lock_result ) ) {
+			return $lock_result;
 		}
 
 		return true;
@@ -312,21 +295,32 @@ class Jetpack_Sync_Queue {
 		$this->delete_checkout_id();
 	}
 
-	private function get_checkout_id() {
+	private function acquire_lock( $buffer_id ) {
 		if ( $this->use_named_lock ) {
-			global $wpdb;
-			$wpdb->
+			// use mysql
 		} else {
-			return get_transient( $this->get_checkout_transient_name() );
+			if ( $this->get_checkout_id() ) {
+				return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+			}
+
+			$result = $this->set_checkout_id( $buffer_id );
+
+			if ( ! $result ) {
+				return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+			} elseif ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			return true;
 		}
 	}
 
-	private function set_checkout_id( $checkout_id ) {
-		if ( $this->use_named_lock ) {
+	private function get_checkout_id() {
+		return get_transient( $this->get_checkout_transient_name() );
+	}
 
-		} else {
-			return set_transient( $this->get_checkout_transient_name(), $checkout_id, 5 * 60 ); // 5 minute timeout
-		}
+	private function set_checkout_id( $checkout_id ) {
+		return set_transient( $this->get_checkout_transient_name(), $checkout_id, 5 * 60 ); // 5 minute timeout
 	}
 
 	private function delete_checkout_id() {
@@ -389,19 +383,25 @@ class Jetpack_Sync_Queue {
 		}
 	}
 
-	private function validate_checkout( $buffer ) {
+	private function release_lock( $buffer ) {
 		if ( ! $buffer instanceof Jetpack_Sync_Queue_Buffer ) {
 			return new WP_Error( 'not_a_buffer', 'You must checkin an instance of Jetpack_Sync_Queue_Buffer' );
 		}
 
-		$checkout_id = $this->get_checkout_id();
+		if ( $this->use_named_lock ) {
+			// TODO
+		} else {
+			$checkout_id = $this->get_checkout_id();
 
-		if ( ! $checkout_id ) {
-			return new WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
-		}
+			if ( ! $checkout_id ) {
+				return new WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
+			}
 
-		if ( $checkout_id != $buffer->id ) {
-			return new WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
+			if ( $checkout_id != $buffer->id ) {
+				return new WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
+			}
+
+			$this->delete_checkout_id();
 		}
 
 		return true;
