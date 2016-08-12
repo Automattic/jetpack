@@ -204,6 +204,16 @@ class Jetpack_Sync_Defaults {
 		'_publicize_twitter_user',
 	);
 
+	static $default_blacklist_meta_keys = array(
+		'post_views_count',
+		'Views',
+		'tve_leads_impressions',
+		'views',
+		'scc_share_count_crawldate',
+		'wprss_last_update',
+		'wprss_feed_is_updating',
+	);
+
 	// TODO: move this to server? - these are theme support values
 	// that should be synced as jetpack_current_theme_supports_foo option values
 	static $default_theme_support_whitelist = array(

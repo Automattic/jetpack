@@ -29,6 +29,10 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 			return false;
 		}
 
+		if ( in_array( $args[2], Jetpack_Sync_Defaults::$default_blacklist_meta_keys ) ) {
+			return false;
+		}
+
 		return $args;
 	}
 }

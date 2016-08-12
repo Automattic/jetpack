@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -81,7 +81,7 @@
 	
 	var _stateReduxStore2 = _interopRequireDefault(_stateReduxStore);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	var _i18nCalypso2 = _interopRequireDefault(_i18nCalypso);
 	
@@ -154,7 +154,7 @@
 		), container);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "admin.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "admin.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 1 */
@@ -20527,10 +20527,11 @@
 	var objectTag = '[object Object]';
 	
 	/** Used for built-in method references. */
-	var objectProto = Object.prototype;
+	var funcProto = Function.prototype,
+	    objectProto = Object.prototype;
 	
 	/** Used to resolve the decompiled source of functions. */
-	var funcToString = Function.prototype.toString;
+	var funcToString = funcProto.toString;
 	
 	/** Used to check objects for own properties. */
 	var hasOwnProperty = objectProto.hasOwnProperty;
@@ -29017,7 +29018,7 @@
 /* 269 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -29245,7 +29246,7 @@
 	
 	module.exports = analytics;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 270 */
@@ -30844,7 +30845,7 @@
 /* 302 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	"use strict";
 	
@@ -30862,13 +30863,13 @@
 	}
 	module.exports = config;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "config.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "config.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -30911,7 +30912,7 @@
 	}
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "redux-store.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "redux-store.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 304 */
@@ -30945,7 +30946,7 @@
 /* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -30968,11 +30969,11 @@
 	
 	var _stateInitialState = __webpack_require__(317);
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var _stateJumpstart = __webpack_require__(546);
 	
@@ -31006,13 +31007,13 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -31052,7 +31053,7 @@
 		globalNotices: globalNotices
 	});
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 307 */
@@ -31641,7 +31642,7 @@
 /* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -31653,13 +31654,13 @@
 	var REMOVE_NOTICE = 'REMOVE_NOTICE';
 	exports.REMOVE_NOTICE = REMOVE_NOTICE;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "action-types.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "action-types.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -31675,17 +31676,17 @@
 	
 	_defaults(exports, _interopExportWildcard(_reducer, _defaults));
 	
-	var _actions = __webpack_require__(385);
+	var _actions = __webpack_require__(384);
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -31707,7 +31708,7 @@
 	
 	var _lodashAssign2 = _interopRequireDefault(_lodashAssign);
 	
-	var _lodashGet = __webpack_require__(342);
+	var _lodashGet = __webpack_require__(341);
 	
 	var _lodashGet2 = _interopRequireDefault(_lodashGet);
 	
@@ -31715,7 +31716,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var initialState = function initialState(state, action) {
 		if (state === undefined) state = window.Initial_State;
@@ -31751,7 +31752,7 @@
 		return (0, _lodashGet2['default'])(state.jetpack.initialState, ['connectionStatus', 'isPublic']);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 319 */
@@ -32161,8 +32162,7 @@
 	 */
 	function isFunction(value) {
 	  // The use of `Object#toString` avoids issues with the `typeof` operator
-	  // in Safari 8 which returns 'object' for typed array and weak map constructors,
-	  // and PhantomJS 1.9 which returns 'function' for `NodeList` instances.
+	  // in Safari 8-9 which returns 'object' for typed array and other constructors.
 	  var tag = isObject(value) ? objectToString.call(value) : '';
 	  return tag == funcTag || tag == genTag;
 	}
@@ -32305,7 +32305,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var arrayLikeKeys = __webpack_require__(334),
-	    baseKeys = __webpack_require__(340),
+	    baseKeys = __webpack_require__(339),
 	    isArrayLike = __webpack_require__(327);
 	
 	/**
@@ -32350,8 +32350,7 @@
 	var baseTimes = __webpack_require__(335),
 	    isArguments = __webpack_require__(336),
 	    isArray = __webpack_require__(338),
-	    isIndex = __webpack_require__(331),
-	    isString = __webpack_require__(339);
+	    isIndex = __webpack_require__(331);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -32368,7 +32367,9 @@
 	 * @returns {Array} Returns the array of property names.
 	 */
 	function arrayLikeKeys(value, inherited) {
-	  var result = (isArray(value) || isString(value) || isArguments(value))
+	  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+	  // Safari 9 makes `arguments.length` enumerable in strict mode.
+	  var result = (isArray(value) || isArguments(value))
 	    ? baseTimes(value.length, String)
 	    : [];
 	
@@ -32457,7 +32458,7 @@
 	 * // => false
 	 */
 	function isArguments(value) {
-	  // Safari 8.1 incorrectly makes `arguments.callee` enumerable in strict mode.
+	  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
 	  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
 	    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
 	}
@@ -32540,53 +32541,8 @@
 /* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArray = __webpack_require__(338),
-	    isObjectLike = __webpack_require__(171);
-	
-	/** `Object#toString` result references. */
-	var stringTag = '[object String]';
-	
-	/** Used for built-in method references. */
-	var objectProto = Object.prototype;
-	
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString = objectProto.toString;
-	
-	/**
-	 * Checks if `value` is classified as a `String` primitive or object.
-	 *
-	 * @static
-	 * @since 0.1.0
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a string, else `false`.
-	 * @example
-	 *
-	 * _.isString('abc');
-	 * // => true
-	 *
-	 * _.isString(1);
-	 * // => false
-	 */
-	function isString(value) {
-	  return typeof value == 'string' ||
-	    (!isArray(value) && isObjectLike(value) && objectToString.call(value) == stringTag);
-	}
-	
-	module.exports = isString;
-
-
-/***/ },
-/* 340 */
-/***/ function(module, exports, __webpack_require__) {
-
 	var isPrototype = __webpack_require__(332),
-	    nativeKeys = __webpack_require__(341);
+	    nativeKeys = __webpack_require__(340);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -32618,7 +32574,7 @@
 
 
 /***/ },
-/* 341 */
+/* 340 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var overArg = __webpack_require__(169);
@@ -32630,10 +32586,10 @@
 
 
 /***/ },
-/* 342 */
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGet = __webpack_require__(343);
+	var baseGet = __webpack_require__(342);
 	
 	/**
 	 * Gets the value at `path` of `object`. If the resolved value is
@@ -32669,12 +32625,12 @@
 
 
 /***/ },
-/* 343 */
+/* 342 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var castPath = __webpack_require__(344),
-	    isKey = __webpack_require__(382),
-	    toKey = __webpack_require__(383);
+	var castPath = __webpack_require__(343),
+	    isKey = __webpack_require__(381),
+	    toKey = __webpack_require__(382);
 	
 	/**
 	 * The base implementation of `_.get` without support for default values.
@@ -32700,11 +32656,11 @@
 
 
 /***/ },
-/* 344 */
+/* 343 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isArray = __webpack_require__(338),
-	    stringToPath = __webpack_require__(345);
+	    stringToPath = __webpack_require__(344);
 	
 	/**
 	 * Casts `value` to a path array if it's not one.
@@ -32721,11 +32677,11 @@
 
 
 /***/ },
-/* 345 */
+/* 344 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var memoize = __webpack_require__(346),
-	    toString = __webpack_require__(378);
+	var memoize = __webpack_require__(345),
+	    toString = __webpack_require__(377);
 	
 	/** Used to match property names within property paths. */
 	var reLeadingDot = /^\./,
@@ -32758,10 +32714,10 @@
 
 
 /***/ },
-/* 346 */
+/* 345 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var MapCache = __webpack_require__(347);
+	var MapCache = __webpack_require__(346);
 	
 	/** Used as the `TypeError` message for "Functions" methods. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -32837,14 +32793,14 @@
 
 
 /***/ },
-/* 347 */
+/* 346 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var mapCacheClear = __webpack_require__(348),
-	    mapCacheDelete = __webpack_require__(372),
-	    mapCacheGet = __webpack_require__(375),
-	    mapCacheHas = __webpack_require__(376),
-	    mapCacheSet = __webpack_require__(377);
+	var mapCacheClear = __webpack_require__(347),
+	    mapCacheDelete = __webpack_require__(371),
+	    mapCacheGet = __webpack_require__(374),
+	    mapCacheHas = __webpack_require__(375),
+	    mapCacheSet = __webpack_require__(376);
 	
 	/**
 	 * Creates a map cache object to store key-value pairs.
@@ -32875,12 +32831,12 @@
 
 
 /***/ },
-/* 348 */
+/* 347 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Hash = __webpack_require__(349),
-	    ListCache = __webpack_require__(364),
-	    Map = __webpack_require__(371);
+	var Hash = __webpack_require__(348),
+	    ListCache = __webpack_require__(363),
+	    Map = __webpack_require__(370);
 	
 	/**
 	 * Removes all key-value entries from the map.
@@ -32901,14 +32857,14 @@
 
 
 /***/ },
-/* 349 */
+/* 348 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var hashClear = __webpack_require__(350),
-	    hashDelete = __webpack_require__(360),
-	    hashGet = __webpack_require__(361),
-	    hashHas = __webpack_require__(362),
-	    hashSet = __webpack_require__(363);
+	var hashClear = __webpack_require__(349),
+	    hashDelete = __webpack_require__(359),
+	    hashGet = __webpack_require__(360),
+	    hashHas = __webpack_require__(361),
+	    hashSet = __webpack_require__(362);
 	
 	/**
 	 * Creates a hash object.
@@ -32939,10 +32895,10 @@
 
 
 /***/ },
-/* 350 */
+/* 349 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(351);
+	var nativeCreate = __webpack_require__(350);
 	
 	/**
 	 * Removes all key-value entries from the hash.
@@ -32959,10 +32915,10 @@
 
 
 /***/ },
-/* 351 */
+/* 350 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(352);
+	var getNative = __webpack_require__(351);
 	
 	/* Built-in method references that are verified to be native. */
 	var nativeCreate = getNative(Object, 'create');
@@ -32971,11 +32927,11 @@
 
 
 /***/ },
-/* 352 */
+/* 351 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsNative = __webpack_require__(353),
-	    getValue = __webpack_require__(359);
+	var baseIsNative = __webpack_require__(352),
+	    getValue = __webpack_require__(358);
 	
 	/**
 	 * Gets the native function at `key` of `object`.
@@ -32994,14 +32950,14 @@
 
 
 /***/ },
-/* 353 */
+/* 352 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isFunction = __webpack_require__(328),
 	    isHostObject = __webpack_require__(170),
-	    isMasked = __webpack_require__(354),
+	    isMasked = __webpack_require__(353),
 	    isObject = __webpack_require__(329),
-	    toSource = __webpack_require__(358);
+	    toSource = __webpack_require__(357);
 	
 	/**
 	 * Used to match `RegExp`
@@ -33013,10 +32969,11 @@
 	var reIsHostCtor = /^\[object .+?Constructor\]$/;
 	
 	/** Used for built-in method references. */
-	var objectProto = Object.prototype;
+	var funcProto = Function.prototype,
+	    objectProto = Object.prototype;
 	
 	/** Used to resolve the decompiled source of functions. */
-	var funcToString = Function.prototype.toString;
+	var funcToString = funcProto.toString;
 	
 	/** Used to check objects for own properties. */
 	var hasOwnProperty = objectProto.hasOwnProperty;
@@ -33047,10 +33004,10 @@
 
 
 /***/ },
-/* 354 */
+/* 353 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var coreJsData = __webpack_require__(355);
+	var coreJsData = __webpack_require__(354);
 	
 	/** Used to detect methods masquerading as native. */
 	var maskSrcKey = (function() {
@@ -33073,10 +33030,10 @@
 
 
 /***/ },
-/* 355 */
+/* 354 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(356);
+	var root = __webpack_require__(355);
 	
 	/** Used to detect overreaching core-js shims. */
 	var coreJsData = root['__core-js_shared__'];
@@ -33085,10 +33042,10 @@
 
 
 /***/ },
-/* 356 */
+/* 355 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var freeGlobal = __webpack_require__(357);
+	var freeGlobal = __webpack_require__(356);
 	
 	/** Detect free variable `self`. */
 	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -33100,7 +33057,7 @@
 
 
 /***/ },
-/* 357 */
+/* 356 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
@@ -33111,11 +33068,14 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 358 */
+/* 357 */
 /***/ function(module, exports) {
 
+	/** Used for built-in method references. */
+	var funcProto = Function.prototype;
+	
 	/** Used to resolve the decompiled source of functions. */
-	var funcToString = Function.prototype.toString;
+	var funcToString = funcProto.toString;
 	
 	/**
 	 * Converts `func` to its source code.
@@ -33140,7 +33100,7 @@
 
 
 /***/ },
-/* 359 */
+/* 358 */
 /***/ function(module, exports) {
 
 	/**
@@ -33159,7 +33119,7 @@
 
 
 /***/ },
-/* 360 */
+/* 359 */
 /***/ function(module, exports) {
 
 	/**
@@ -33180,10 +33140,10 @@
 
 
 /***/ },
-/* 361 */
+/* 360 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(351);
+	var nativeCreate = __webpack_require__(350);
 	
 	/** Used to stand-in for `undefined` hash values. */
 	var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -33216,10 +33176,10 @@
 
 
 /***/ },
-/* 362 */
+/* 361 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(351);
+	var nativeCreate = __webpack_require__(350);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -33245,10 +33205,10 @@
 
 
 /***/ },
-/* 363 */
+/* 362 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var nativeCreate = __webpack_require__(351);
+	var nativeCreate = __webpack_require__(350);
 	
 	/** Used to stand-in for `undefined` hash values. */
 	var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -33273,14 +33233,14 @@
 
 
 /***/ },
-/* 364 */
+/* 363 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var listCacheClear = __webpack_require__(365),
-	    listCacheDelete = __webpack_require__(366),
-	    listCacheGet = __webpack_require__(368),
-	    listCacheHas = __webpack_require__(369),
-	    listCacheSet = __webpack_require__(370);
+	var listCacheClear = __webpack_require__(364),
+	    listCacheDelete = __webpack_require__(365),
+	    listCacheGet = __webpack_require__(367),
+	    listCacheHas = __webpack_require__(368),
+	    listCacheSet = __webpack_require__(369);
 	
 	/**
 	 * Creates an list cache object.
@@ -33311,7 +33271,7 @@
 
 
 /***/ },
-/* 365 */
+/* 364 */
 /***/ function(module, exports) {
 
 	/**
@@ -33329,10 +33289,10 @@
 
 
 /***/ },
-/* 366 */
+/* 365 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(367);
+	var assocIndexOf = __webpack_require__(366);
 	
 	/** Used for built-in method references. */
 	var arrayProto = Array.prototype;
@@ -33369,7 +33329,7 @@
 
 
 /***/ },
-/* 367 */
+/* 366 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var eq = __webpack_require__(321);
@@ -33378,7 +33338,7 @@
 	 * Gets the index at which the `key` is found in `array` of key-value pairs.
 	 *
 	 * @private
-	 * @param {Array} array The array to search.
+	 * @param {Array} array The array to inspect.
 	 * @param {*} key The key to search for.
 	 * @returns {number} Returns the index of the matched value, else `-1`.
 	 */
@@ -33396,10 +33356,10 @@
 
 
 /***/ },
-/* 368 */
+/* 367 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(367);
+	var assocIndexOf = __webpack_require__(366);
 	
 	/**
 	 * Gets the list cache value for `key`.
@@ -33421,10 +33381,10 @@
 
 
 /***/ },
-/* 369 */
+/* 368 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(367);
+	var assocIndexOf = __webpack_require__(366);
 	
 	/**
 	 * Checks if a list cache value for `key` exists.
@@ -33443,10 +33403,10 @@
 
 
 /***/ },
-/* 370 */
+/* 369 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assocIndexOf = __webpack_require__(367);
+	var assocIndexOf = __webpack_require__(366);
 	
 	/**
 	 * Sets the list cache `key` to `value`.
@@ -33474,11 +33434,11 @@
 
 
 /***/ },
-/* 371 */
+/* 370 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(352),
-	    root = __webpack_require__(356);
+	var getNative = __webpack_require__(351),
+	    root = __webpack_require__(355);
 	
 	/* Built-in method references that are verified to be native. */
 	var Map = getNative(root, 'Map');
@@ -33487,10 +33447,10 @@
 
 
 /***/ },
-/* 372 */
+/* 371 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(373);
+	var getMapData = __webpack_require__(372);
 	
 	/**
 	 * Removes `key` and its value from the map.
@@ -33509,10 +33469,10 @@
 
 
 /***/ },
-/* 373 */
+/* 372 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isKeyable = __webpack_require__(374);
+	var isKeyable = __webpack_require__(373);
 	
 	/**
 	 * Gets the data for `map`.
@@ -33533,7 +33493,7 @@
 
 
 /***/ },
-/* 374 */
+/* 373 */
 /***/ function(module, exports) {
 
 	/**
@@ -33554,10 +33514,10 @@
 
 
 /***/ },
-/* 375 */
+/* 374 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(373);
+	var getMapData = __webpack_require__(372);
 	
 	/**
 	 * Gets the map value for `key`.
@@ -33576,10 +33536,10 @@
 
 
 /***/ },
-/* 376 */
+/* 375 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(373);
+	var getMapData = __webpack_require__(372);
 	
 	/**
 	 * Checks if a map value for `key` exists.
@@ -33598,10 +33558,10 @@
 
 
 /***/ },
-/* 377 */
+/* 376 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getMapData = __webpack_require__(373);
+	var getMapData = __webpack_require__(372);
 	
 	/**
 	 * Sets the map `key` to `value`.
@@ -33622,10 +33582,10 @@
 
 
 /***/ },
-/* 378 */
+/* 377 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseToString = __webpack_require__(379);
+	var baseToString = __webpack_require__(378);
 	
 	/**
 	 * Converts `value` to a string. An empty string is returned for `null`
@@ -33656,11 +33616,11 @@
 
 
 /***/ },
-/* 379 */
+/* 378 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(380),
-	    isSymbol = __webpack_require__(381);
+	var Symbol = __webpack_require__(379),
+	    isSymbol = __webpack_require__(380);
 	
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -33693,10 +33653,10 @@
 
 
 /***/ },
-/* 380 */
+/* 379 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(356);
+	var root = __webpack_require__(355);
 	
 	/** Built-in value references. */
 	var Symbol = root.Symbol;
@@ -33705,7 +33665,7 @@
 
 
 /***/ },
-/* 381 */
+/* 380 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isObjectLike = __webpack_require__(171);
@@ -33749,11 +33709,11 @@
 
 
 /***/ },
-/* 382 */
+/* 381 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isArray = __webpack_require__(338),
-	    isSymbol = __webpack_require__(381);
+	    isSymbol = __webpack_require__(380);
 	
 	/** Used to match property names within property paths. */
 	var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
@@ -33784,10 +33744,10 @@
 
 
 /***/ },
-/* 383 */
+/* 382 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isSymbol = __webpack_require__(381);
+	var isSymbol = __webpack_require__(380);
 	
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -33811,10 +33771,10 @@
 
 
 /***/ },
-/* 384 */
+/* 383 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -33992,13 +33952,13 @@
 	var JETPACK_SEARCH_TERM = 'JETPACK_SEARCH_TERM';
 	exports.JETPACK_SEARCH_TERM = JETPACK_SEARCH_TERM;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "action-types.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "action-types.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 385 */
+/* 384 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -34013,7 +33973,7 @@
 	exports.getHappinessGravatarIds = getHappinessGravatarIds;
 	exports.isDevVersion = isDevVersion;
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var setInitialState = function setInitialState() {
 	  return function (dispatch) {
@@ -34072,13 +34032,13 @@
 	  return state.jetpack.initialState.isDevVersion;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 386 */
+/* 385 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -34090,21 +34050,21 @@
 	
 	function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 	
-	var _reducer = __webpack_require__(387);
+	var _reducer = __webpack_require__(386);
 	
 	_defaults(exports, _interopExportWildcard(_reducer, _defaults));
 	
-	var _actions = __webpack_require__(388);
+	var _actions = __webpack_require__(387);
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 387 */
+/* 386 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -34141,7 +34101,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var requests = function requests(state, action) {
 		if (state === undefined) state = {};
@@ -34435,13 +34395,13 @@
 		return state.jetpack.dashboard.pluginUpdates;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 388 */
+/* 387 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -34454,11 +34414,11 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _restApi = __webpack_require__(389);
+	var _restApi = __webpack_require__(388);
 	
 	var _restApi2 = _interopRequireDefault(_restApi);
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var statsSwitchTab = function statsSwitchTab(tab) {
 		return function (dispatch) {
@@ -34590,13 +34550,13 @@
 	};
 	exports.fetchPluginUpdates = fetchPluginUpdates;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 389 */
+/* 388 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -34607,9 +34567,9 @@
 		value: true
 	});
 	
-	__webpack_require__(390);
+	__webpack_require__(389);
 	
-	__webpack_require__(391).polyfill();
+	__webpack_require__(390).polyfill();
 	
 	var restApi = {
 		fetchSiteConnectionStatus: function fetchSiteConnectionStatus() {
@@ -34890,10 +34850,10 @@
 	}
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 390 */
+/* 389 */
 /***/ function(module, exports) {
 
 	(function(self) {
@@ -35332,7 +35292,7 @@
 
 
 /***/ },
-/* 391 */
+/* 390 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var require;var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, global, module) {/*!
@@ -35466,7 +35426,7 @@
 	    function lib$es6$promise$asap$$attemptVertx() {
 	      try {
 	        var r = require;
-	        var vertx = __webpack_require__(394);
+	        var vertx = __webpack_require__(393);
 	        lib$es6$promise$asap$$vertxNext = vertx.runOnLoop || vertx.runOnContext;
 	        return lib$es6$promise$asap$$useVertxTimer();
 	      } catch(e) {
@@ -36291,7 +36251,7 @@
 	    };
 	
 	    /* global define:true module:true window: true */
-	    if ("function" === 'function' && __webpack_require__(395)['amd']) {
+	    if ("function" === 'function' && __webpack_require__(394)['amd']) {
 	      !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return lib$es6$promise$umd$$ES6Promise; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	    } else if (typeof module !== 'undefined' && module['exports']) {
 	      module['exports'] = lib$es6$promise$umd$$ES6Promise;
@@ -36303,10 +36263,10 @@
 	}).call(this);
 	
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(392), (function() { return this; }()), __webpack_require__(393)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(391), (function() { return this; }()), __webpack_require__(392)(module)))
 
 /***/ },
-/* 392 */
+/* 391 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -36472,7 +36432,7 @@
 
 
 /***/ },
-/* 393 */
+/* 392 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -36488,23 +36448,23 @@
 
 
 /***/ },
-/* 394 */
+/* 393 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 395 */
+/* 394 */
 /***/ function(module, exports) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };
 
 
 /***/ },
-/* 396 */
+/* 395 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -36516,21 +36476,21 @@
 	
 	function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 	
-	var _reducer = __webpack_require__(397);
+	var _reducer = __webpack_require__(396);
 	
 	_defaults(exports, _interopExportWildcard(_reducer, _defaults));
 	
-	var _actions = __webpack_require__(398);
+	var _actions = __webpack_require__(397);
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 397 */
+/* 396 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -36558,7 +36518,7 @@
 	
 	var _redux = __webpack_require__(165);
 	
-	var _lodashGet = __webpack_require__(342);
+	var _lodashGet = __webpack_require__(341);
 	
 	var _lodashGet2 = _interopRequireDefault(_lodashGet);
 	
@@ -36570,7 +36530,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var items = function items(state, action) {
 		if (state === undefined) state = {};
@@ -36778,13 +36738,13 @@
 		return (0, _lodashGet2['default'])(state.jetpack.modules.items, [name, 'activated'], false) ? true : false;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 398 */
+/* 397 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -36797,19 +36757,19 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _componentsGlobalNoticesStateNoticesActions = __webpack_require__(399);
+	var _componentsGlobalNoticesStateNoticesActions = __webpack_require__(398);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _restApi = __webpack_require__(389);
+	var _restApi = __webpack_require__(388);
 	
 	var _restApi2 = _interopRequireDefault(_restApi);
 	
@@ -36992,12 +36952,19 @@
 		var payload = {
 			post_by_email_address: 'regenerate'
 		};
-		return function (dispatch) {
+	
+		return function (dispatch, getState) {
 			dispatch({
 				type: _stateActionTypes.JETPACK_MODULE_UPDATE_OPTIONS,
 				module: slug,
 				newOptionValues: payload
 			});
+			dispatch((0, _componentsGlobalNoticesStateNoticesActions.removeNotice)('module-setting-' + slug));
+			dispatch((0, _componentsGlobalNoticesStateNoticesActions.createNotice)('is-info', (0, _i18nCalypso.translate)('Updating %(slug)s address…', {
+				args: {
+					slug: (0, _stateModules.getModule)(getState(), slug).name
+				}
+			}), { id: 'module-setting-' + slug }));
 			return _restApi2['default'].updateModuleOptions(slug, payload).then(function (success) {
 				var newOptionValues = {
 					post_by_email_address: success.post_by_email_address
@@ -37008,6 +36975,12 @@
 					newOptionValues: newOptionValues,
 					success: success
 				});
+				dispatch((0, _componentsGlobalNoticesStateNoticesActions.removeNotice)('module-setting-' + slug));
+				dispatch((0, _componentsGlobalNoticesStateNoticesActions.createNotice)('is-success', (0, _i18nCalypso.translate)('Regenerated %(slug)s address .', {
+					args: {
+						slug: (0, _stateModules.getModule)(getState(), slug).name
+					}
+				}), { id: 'module-setting-' + slug }));
 			})['catch'](function (error) {
 				dispatch({
 					type: _stateActionTypes.JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
@@ -37016,18 +36989,25 @@
 					error: error,
 					newOptionValues: payload
 				});
+				dispatch((0, _componentsGlobalNoticesStateNoticesActions.removeNotice)('module-setting-' + slug));
+				dispatch((0, _componentsGlobalNoticesStateNoticesActions.createNotice)('is-error', (0, _i18nCalypso.translate)('Error regenerating %(slug) address. %(error)d', {
+					args: {
+						slug: (0, _stateModules.getModule)(getState(), slug).name,
+						error: error
+					}
+				}), { id: 'module-setting-' + slug }));
 			});
 		};
 	};
 	exports.regeneratePostByEmailAddress = regeneratePostByEmailAddress;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 399 */
+/* 398 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -37042,7 +37022,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _lodashUniqueId = __webpack_require__(400);
+	var _lodashUniqueId = __webpack_require__(399);
 	
 	var _lodashUniqueId2 = _interopRequireDefault(_lodashUniqueId);
 	
@@ -37087,13 +37067,13 @@
 	var warningNotice = createNotice.bind(null, 'is-warning');
 	exports.warningNotice = warningNotice;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 400 */
+/* 399 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var toString = __webpack_require__(401);
+	var toString = __webpack_require__(400);
 	
 	/** Used to generate unique IDs. */
 	var idCounter = 0;
@@ -37123,11 +37103,11 @@
 
 
 /***/ },
-/* 401 */
+/* 400 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(402),
-	    isSymbol = __webpack_require__(405);
+	var Symbol = __webpack_require__(401),
+	    isSymbol = __webpack_require__(404);
 	
 	/** Used as references for various `Number` constants. */
 	var INFINITY = 1 / 0;
@@ -37175,10 +37155,10 @@
 
 
 /***/ },
-/* 402 */
+/* 401 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(403);
+	var root = __webpack_require__(402);
 	
 	/** Built-in value references. */
 	var Symbol = root.Symbol;
@@ -37187,10 +37167,10 @@
 
 
 /***/ },
-/* 403 */
+/* 402 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module, global) {var checkGlobal = __webpack_require__(404);
+	/* WEBPACK VAR INJECTION */(function(module, global) {var checkGlobal = __webpack_require__(403);
 	
 	/** Used to determine if values are of the language type `Object`. */
 	var objectTypes = {
@@ -37232,10 +37212,10 @@
 	
 	module.exports = root;
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(393)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(392)(module), (function() { return this; }())))
 
 /***/ },
-/* 404 */
+/* 403 */
 /***/ function(module, exports) {
 
 	/**
@@ -37253,7 +37233,7 @@
 
 
 /***/ },
-/* 405 */
+/* 404 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isObjectLike = __webpack_require__(298);
@@ -37295,13 +37275,13 @@
 
 
 /***/ },
-/* 406 */
+/* 405 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Internal dependencies
 	 */
-	var I18N = __webpack_require__( 407 ),
+	var I18N = __webpack_require__( 406 ),
 		i18n = new I18N();
 	
 	module.exports = {
@@ -37321,8 +37301,8 @@
 		on: i18n.stateObserver.on.bind(i18n.stateObserver),
 		off: i18n.stateObserver.removeListener.bind(i18n.stateObserver),
 		emit: i18n.stateObserver.emit.bind(i18n.stateObserver),
-		mixin: __webpack_require__( 529 )( i18n ),
-		localize: __webpack_require__( 532 )( i18n ),
+		mixin: __webpack_require__( 528 )( i18n ),
+		localize: __webpack_require__( 531 )( i18n ),
 		$this: i18n,
 		I18N: I18N
 	};
@@ -37330,24 +37310,24 @@
 
 
 /***/ },
-/* 407 */
+/* 406 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * External dependencies
 	 */
 	var debug = __webpack_require__( 270 )( 'i18n-calypso' ),
-		Jed = __webpack_require__( 408 ),
-		moment = __webpack_require__( 409 ),
-		EventEmitter = __webpack_require__( 515 ).EventEmitter,
-		interpolateComponents = __webpack_require__( 516 ).default,
-		LRU = __webpack_require__( 520 ),
-		assign = __webpack_require__( 527 );
+		Jed = __webpack_require__( 407 ),
+		moment = __webpack_require__( 408 ),
+		EventEmitter = __webpack_require__( 514 ).EventEmitter,
+		interpolateComponents = __webpack_require__( 515 ).default,
+		LRU = __webpack_require__( 519 ),
+		assign = __webpack_require__( 526 );
 	
 	/**
 	 * Internal dependencies
 	 */
-	var numberFormatPHPJS = __webpack_require__( 528 );
+	var numberFormatPHPJS = __webpack_require__( 527 );
 	
 	/**
 	 * Constants
@@ -37672,7 +37652,7 @@
 
 
 /***/ },
-/* 408 */
+/* 407 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -38700,15 +38680,15 @@
 
 
 /***/ },
-/* 409 */
+/* 408 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var moment = module.exports = __webpack_require__(410);
-	moment.tz.load(__webpack_require__(514));
+	var moment = module.exports = __webpack_require__(409);
+	moment.tz.load(__webpack_require__(513));
 
 
 /***/ },
-/* 410 */
+/* 409 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//! moment-timezone.js
@@ -38722,7 +38702,7 @@
 	
 		/*global define*/
 		if (true) {
-			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(411)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));                 // AMD
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(410)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));                 // AMD
 		} else if (typeof exports === 'object') {
 			module.exports = factory(require('moment')); // Node
 		} else {
@@ -39140,7 +39120,7 @@
 
 
 /***/ },
-/* 411 */
+/* 410 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {//! moment.js
@@ -40906,7 +40886,7 @@
 	                module && module.exports) {
 	            try {
 	                oldLocale = globalLocale._abbr;
-	                __webpack_require__(412)("./" + name);
+	                __webpack_require__(411)("./" + name);
 	                // because defineLocale currently also sets the global locale, we
 	                // want to undo that for lazy loaded locales
 	                locale_locales__getSetGlobalLocale(oldLocale);
@@ -43338,215 +43318,215 @@
 	    return _moment;
 	
 	}));
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(393)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(392)(module)))
 
 /***/ },
-/* 412 */
+/* 411 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var map = {
-		"./af": 413,
-		"./af.js": 413,
-		"./ar": 414,
-		"./ar-ma": 415,
-		"./ar-ma.js": 415,
-		"./ar-sa": 416,
-		"./ar-sa.js": 416,
-		"./ar-tn": 417,
-		"./ar-tn.js": 417,
-		"./ar.js": 414,
-		"./az": 418,
-		"./az.js": 418,
-		"./be": 419,
-		"./be.js": 419,
-		"./bg": 420,
-		"./bg.js": 420,
-		"./bn": 421,
-		"./bn.js": 421,
-		"./bo": 422,
-		"./bo.js": 422,
-		"./br": 423,
-		"./br.js": 423,
-		"./bs": 424,
-		"./bs.js": 424,
-		"./ca": 425,
-		"./ca.js": 425,
-		"./cs": 426,
-		"./cs.js": 426,
-		"./cv": 427,
-		"./cv.js": 427,
-		"./cy": 428,
-		"./cy.js": 428,
-		"./da": 429,
-		"./da.js": 429,
-		"./de": 430,
-		"./de-at": 431,
-		"./de-at.js": 431,
-		"./de.js": 430,
-		"./dv": 432,
-		"./dv.js": 432,
-		"./el": 433,
-		"./el.js": 433,
-		"./en-au": 434,
-		"./en-au.js": 434,
-		"./en-ca": 435,
-		"./en-ca.js": 435,
-		"./en-gb": 436,
-		"./en-gb.js": 436,
-		"./en-ie": 437,
-		"./en-ie.js": 437,
-		"./en-nz": 438,
-		"./en-nz.js": 438,
-		"./eo": 439,
-		"./eo.js": 439,
-		"./es": 440,
-		"./es-do": 441,
-		"./es-do.js": 441,
-		"./es.js": 440,
-		"./et": 442,
-		"./et.js": 442,
-		"./eu": 443,
-		"./eu.js": 443,
-		"./fa": 444,
-		"./fa.js": 444,
-		"./fi": 445,
-		"./fi.js": 445,
-		"./fo": 446,
-		"./fo.js": 446,
-		"./fr": 447,
-		"./fr-ca": 448,
-		"./fr-ca.js": 448,
-		"./fr-ch": 449,
-		"./fr-ch.js": 449,
-		"./fr.js": 447,
-		"./fy": 450,
-		"./fy.js": 450,
-		"./gd": 451,
-		"./gd.js": 451,
-		"./gl": 452,
-		"./gl.js": 452,
-		"./he": 453,
-		"./he.js": 453,
-		"./hi": 454,
-		"./hi.js": 454,
-		"./hr": 455,
-		"./hr.js": 455,
-		"./hu": 456,
-		"./hu.js": 456,
-		"./hy-am": 457,
-		"./hy-am.js": 457,
-		"./id": 458,
-		"./id.js": 458,
-		"./is": 459,
-		"./is.js": 459,
-		"./it": 460,
-		"./it.js": 460,
-		"./ja": 461,
-		"./ja.js": 461,
-		"./jv": 462,
-		"./jv.js": 462,
-		"./ka": 463,
-		"./ka.js": 463,
-		"./kk": 464,
-		"./kk.js": 464,
-		"./km": 465,
-		"./km.js": 465,
-		"./ko": 466,
-		"./ko.js": 466,
-		"./ky": 467,
-		"./ky.js": 467,
-		"./lb": 468,
-		"./lb.js": 468,
-		"./lo": 469,
-		"./lo.js": 469,
-		"./lt": 470,
-		"./lt.js": 470,
-		"./lv": 471,
-		"./lv.js": 471,
-		"./me": 472,
-		"./me.js": 472,
-		"./mk": 473,
-		"./mk.js": 473,
-		"./ml": 474,
-		"./ml.js": 474,
-		"./mr": 475,
-		"./mr.js": 475,
-		"./ms": 476,
-		"./ms-my": 477,
-		"./ms-my.js": 477,
-		"./ms.js": 476,
-		"./my": 478,
-		"./my.js": 478,
-		"./nb": 479,
-		"./nb.js": 479,
-		"./ne": 480,
-		"./ne.js": 480,
-		"./nl": 481,
-		"./nl.js": 481,
-		"./nn": 482,
-		"./nn.js": 482,
-		"./pa-in": 483,
-		"./pa-in.js": 483,
-		"./pl": 484,
-		"./pl.js": 484,
-		"./pt": 485,
-		"./pt-br": 486,
-		"./pt-br.js": 486,
-		"./pt.js": 485,
-		"./ro": 487,
-		"./ro.js": 487,
-		"./ru": 488,
-		"./ru.js": 488,
-		"./se": 489,
-		"./se.js": 489,
-		"./si": 490,
-		"./si.js": 490,
-		"./sk": 491,
-		"./sk.js": 491,
-		"./sl": 492,
-		"./sl.js": 492,
-		"./sq": 493,
-		"./sq.js": 493,
-		"./sr": 494,
-		"./sr-cyrl": 495,
-		"./sr-cyrl.js": 495,
-		"./sr.js": 494,
-		"./ss": 496,
-		"./ss.js": 496,
-		"./sv": 497,
-		"./sv.js": 497,
-		"./sw": 498,
-		"./sw.js": 498,
-		"./ta": 499,
-		"./ta.js": 499,
-		"./te": 500,
-		"./te.js": 500,
-		"./th": 501,
-		"./th.js": 501,
-		"./tl-ph": 502,
-		"./tl-ph.js": 502,
-		"./tlh": 503,
-		"./tlh.js": 503,
-		"./tr": 504,
-		"./tr.js": 504,
-		"./tzl": 505,
-		"./tzl.js": 505,
-		"./tzm": 506,
-		"./tzm-latn": 507,
-		"./tzm-latn.js": 507,
-		"./tzm.js": 506,
-		"./uk": 508,
-		"./uk.js": 508,
-		"./uz": 509,
-		"./uz.js": 509,
-		"./vi": 510,
-		"./vi.js": 510,
-		"./x-pseudo": 511,
-		"./x-pseudo.js": 511,
-		"./zh-cn": 512,
-		"./zh-cn.js": 512,
-		"./zh-tw": 513,
-		"./zh-tw.js": 513
+		"./af": 412,
+		"./af.js": 412,
+		"./ar": 413,
+		"./ar-ma": 414,
+		"./ar-ma.js": 414,
+		"./ar-sa": 415,
+		"./ar-sa.js": 415,
+		"./ar-tn": 416,
+		"./ar-tn.js": 416,
+		"./ar.js": 413,
+		"./az": 417,
+		"./az.js": 417,
+		"./be": 418,
+		"./be.js": 418,
+		"./bg": 419,
+		"./bg.js": 419,
+		"./bn": 420,
+		"./bn.js": 420,
+		"./bo": 421,
+		"./bo.js": 421,
+		"./br": 422,
+		"./br.js": 422,
+		"./bs": 423,
+		"./bs.js": 423,
+		"./ca": 424,
+		"./ca.js": 424,
+		"./cs": 425,
+		"./cs.js": 425,
+		"./cv": 426,
+		"./cv.js": 426,
+		"./cy": 427,
+		"./cy.js": 427,
+		"./da": 428,
+		"./da.js": 428,
+		"./de": 429,
+		"./de-at": 430,
+		"./de-at.js": 430,
+		"./de.js": 429,
+		"./dv": 431,
+		"./dv.js": 431,
+		"./el": 432,
+		"./el.js": 432,
+		"./en-au": 433,
+		"./en-au.js": 433,
+		"./en-ca": 434,
+		"./en-ca.js": 434,
+		"./en-gb": 435,
+		"./en-gb.js": 435,
+		"./en-ie": 436,
+		"./en-ie.js": 436,
+		"./en-nz": 437,
+		"./en-nz.js": 437,
+		"./eo": 438,
+		"./eo.js": 438,
+		"./es": 439,
+		"./es-do": 440,
+		"./es-do.js": 440,
+		"./es.js": 439,
+		"./et": 441,
+		"./et.js": 441,
+		"./eu": 442,
+		"./eu.js": 442,
+		"./fa": 443,
+		"./fa.js": 443,
+		"./fi": 444,
+		"./fi.js": 444,
+		"./fo": 445,
+		"./fo.js": 445,
+		"./fr": 446,
+		"./fr-ca": 447,
+		"./fr-ca.js": 447,
+		"./fr-ch": 448,
+		"./fr-ch.js": 448,
+		"./fr.js": 446,
+		"./fy": 449,
+		"./fy.js": 449,
+		"./gd": 450,
+		"./gd.js": 450,
+		"./gl": 451,
+		"./gl.js": 451,
+		"./he": 452,
+		"./he.js": 452,
+		"./hi": 453,
+		"./hi.js": 453,
+		"./hr": 454,
+		"./hr.js": 454,
+		"./hu": 455,
+		"./hu.js": 455,
+		"./hy-am": 456,
+		"./hy-am.js": 456,
+		"./id": 457,
+		"./id.js": 457,
+		"./is": 458,
+		"./is.js": 458,
+		"./it": 459,
+		"./it.js": 459,
+		"./ja": 460,
+		"./ja.js": 460,
+		"./jv": 461,
+		"./jv.js": 461,
+		"./ka": 462,
+		"./ka.js": 462,
+		"./kk": 463,
+		"./kk.js": 463,
+		"./km": 464,
+		"./km.js": 464,
+		"./ko": 465,
+		"./ko.js": 465,
+		"./ky": 466,
+		"./ky.js": 466,
+		"./lb": 467,
+		"./lb.js": 467,
+		"./lo": 468,
+		"./lo.js": 468,
+		"./lt": 469,
+		"./lt.js": 469,
+		"./lv": 470,
+		"./lv.js": 470,
+		"./me": 471,
+		"./me.js": 471,
+		"./mk": 472,
+		"./mk.js": 472,
+		"./ml": 473,
+		"./ml.js": 473,
+		"./mr": 474,
+		"./mr.js": 474,
+		"./ms": 475,
+		"./ms-my": 476,
+		"./ms-my.js": 476,
+		"./ms.js": 475,
+		"./my": 477,
+		"./my.js": 477,
+		"./nb": 478,
+		"./nb.js": 478,
+		"./ne": 479,
+		"./ne.js": 479,
+		"./nl": 480,
+		"./nl.js": 480,
+		"./nn": 481,
+		"./nn.js": 481,
+		"./pa-in": 482,
+		"./pa-in.js": 482,
+		"./pl": 483,
+		"./pl.js": 483,
+		"./pt": 484,
+		"./pt-br": 485,
+		"./pt-br.js": 485,
+		"./pt.js": 484,
+		"./ro": 486,
+		"./ro.js": 486,
+		"./ru": 487,
+		"./ru.js": 487,
+		"./se": 488,
+		"./se.js": 488,
+		"./si": 489,
+		"./si.js": 489,
+		"./sk": 490,
+		"./sk.js": 490,
+		"./sl": 491,
+		"./sl.js": 491,
+		"./sq": 492,
+		"./sq.js": 492,
+		"./sr": 493,
+		"./sr-cyrl": 494,
+		"./sr-cyrl.js": 494,
+		"./sr.js": 493,
+		"./ss": 495,
+		"./ss.js": 495,
+		"./sv": 496,
+		"./sv.js": 496,
+		"./sw": 497,
+		"./sw.js": 497,
+		"./ta": 498,
+		"./ta.js": 498,
+		"./te": 499,
+		"./te.js": 499,
+		"./th": 500,
+		"./th.js": 500,
+		"./tl-ph": 501,
+		"./tl-ph.js": 501,
+		"./tlh": 502,
+		"./tlh.js": 502,
+		"./tr": 503,
+		"./tr.js": 503,
+		"./tzl": 504,
+		"./tzl.js": 504,
+		"./tzm": 505,
+		"./tzm-latn": 506,
+		"./tzm-latn.js": 506,
+		"./tzm.js": 505,
+		"./uk": 507,
+		"./uk.js": 507,
+		"./uz": 508,
+		"./uz.js": 508,
+		"./vi": 509,
+		"./vi.js": 509,
+		"./x-pseudo": 510,
+		"./x-pseudo.js": 510,
+		"./zh-cn": 511,
+		"./zh-cn.js": 511,
+		"./zh-tw": 512,
+		"./zh-tw.js": 512
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -43559,11 +43539,11 @@
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-	webpackContext.id = 412;
+	webpackContext.id = 411;
 
 
 /***/ },
-/* 413 */
+/* 412 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43571,7 +43551,7 @@
 	//! author : Werner Mollentze : https://github.com/wernerm
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -43640,7 +43620,7 @@
 	}));
 
 /***/ },
-/* 414 */
+/* 413 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43650,7 +43630,7 @@
 	//! Native plural forms: forabi https://github.com/forabi
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -43781,7 +43761,7 @@
 	}));
 
 /***/ },
-/* 415 */
+/* 414 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43790,7 +43770,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -43845,7 +43825,7 @@
 	}));
 
 /***/ },
-/* 416 */
+/* 415 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43853,7 +43833,7 @@
 	//! author : Suhail Alkowaileet : https://github.com/xsoh
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -43953,14 +43933,14 @@
 	}));
 
 /***/ },
-/* 417 */
+/* 416 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale  :  Arabic (Tunisia) [ar-tn]
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -44015,7 +43995,7 @@
 	}));
 
 /***/ },
-/* 418 */
+/* 417 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44023,7 +44003,7 @@
 	//! author : topchiyev : https://github.com/topchiyev
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -44124,7 +44104,7 @@
 	}));
 
 /***/ },
-/* 419 */
+/* 418 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44134,7 +44114,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -44262,7 +44242,7 @@
 	}));
 
 /***/ },
-/* 420 */
+/* 419 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44270,7 +44250,7 @@
 	//! author : Krasen Borisov : https://github.com/kraz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -44356,7 +44336,7 @@
 	}));
 
 /***/ },
-/* 421 */
+/* 420 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44364,7 +44344,7 @@
 	//! author : Kaushik Gandhi : https://github.com/kaushikgandhi
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -44479,7 +44459,7 @@
 	}));
 
 /***/ },
-/* 422 */
+/* 421 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44487,7 +44467,7 @@
 	//! author : Thupten N. Chakrishar : https://github.com/vajradog
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -44602,7 +44582,7 @@
 	}));
 
 /***/ },
-/* 423 */
+/* 422 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44610,7 +44590,7 @@
 	//! author : Jean-Baptiste Le Duigou : https://github.com/jbleduigou
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -44714,7 +44694,7 @@
 	}));
 
 /***/ },
-/* 424 */
+/* 423 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44723,7 +44703,7 @@
 	//! based on (hr) translation by Bojan Marković
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -44861,7 +44841,7 @@
 	}));
 
 /***/ },
-/* 425 */
+/* 424 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44869,7 +44849,7 @@
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -44946,7 +44926,7 @@
 	}));
 
 /***/ },
-/* 426 */
+/* 425 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44954,7 +44934,7 @@
 	//! author : petrbela : https://github.com/petrbela
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45122,7 +45102,7 @@
 	}));
 
 /***/ },
-/* 427 */
+/* 426 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45130,7 +45110,7 @@
 	//! author : Anatoly Mironov : https://github.com/mirontoli
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45189,7 +45169,7 @@
 	}));
 
 /***/ },
-/* 428 */
+/* 427 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45197,7 +45177,7 @@
 	//! author : Robert Allen
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45273,7 +45253,7 @@
 	}));
 
 /***/ },
-/* 429 */
+/* 428 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45281,7 +45261,7 @@
 	//! author : Ulrik Nielsen : https://github.com/mrbase
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45337,7 +45317,7 @@
 	}));
 
 /***/ },
-/* 430 */
+/* 429 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45347,7 +45327,7 @@
 	//! author : Mikolaj Dadela : https://github.com/mik01aj
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45419,7 +45399,7 @@
 	}));
 
 /***/ },
-/* 431 */
+/* 430 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45430,7 +45410,7 @@
 	//! author : Mikolaj Dadela : https://github.com/mik01aj
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45502,7 +45482,7 @@
 	}));
 
 /***/ },
-/* 432 */
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45510,7 +45490,7 @@
 	//! author : Jawish Hameed : https://github.com/jawish
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45605,7 +45585,7 @@
 	}));
 
 /***/ },
-/* 433 */
+/* 432 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45613,7 +45593,7 @@
 	//! author : Aggelos Karalias : https://github.com/mehiel
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45707,14 +45687,14 @@
 	}));
 
 /***/ },
-/* 434 */
+/* 433 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale : English (Australia) [en-au]
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45777,7 +45757,7 @@
 	}));
 
 /***/ },
-/* 435 */
+/* 434 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45785,7 +45765,7 @@
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45844,7 +45824,7 @@
 	}));
 
 /***/ },
-/* 436 */
+/* 435 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45852,7 +45832,7 @@
 	//! author : Chris Gedrim : https://github.com/chrisgedrim
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45915,7 +45895,7 @@
 	}));
 
 /***/ },
-/* 437 */
+/* 436 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45923,7 +45903,7 @@
 	//! author : Chris Cartlidge : https://github.com/chriscartlidge
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -45986,14 +45966,14 @@
 	}));
 
 /***/ },
-/* 438 */
+/* 437 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale : English (New Zealand) [en-nz]
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46056,7 +46036,7 @@
 	}));
 
 /***/ },
-/* 439 */
+/* 438 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46066,7 +46046,7 @@
 	//!          Se ne, bonvolu korekti kaj avizi min por ke mi povas lerni!
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46133,7 +46113,7 @@
 	}));
 
 /***/ },
-/* 440 */
+/* 439 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46141,7 +46121,7 @@
 	//! author : Julio Napurí : https://github.com/julionc
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46218,14 +46198,14 @@
 	}));
 
 /***/ },
-/* 441 */
+/* 440 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale : Spanish (Dominican Republic) [es-do]
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46302,7 +46282,7 @@
 	}));
 
 /***/ },
-/* 442 */
+/* 441 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46311,7 +46291,7 @@
 	//! improvements : Illimar Tambek : https://github.com/ragulka
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46386,7 +46366,7 @@
 	}));
 
 /***/ },
-/* 443 */
+/* 442 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46394,7 +46374,7 @@
 	//! author : Eneko Illarramendi : https://github.com/eillarra
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46456,7 +46436,7 @@
 	}));
 
 /***/ },
-/* 444 */
+/* 443 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46464,7 +46444,7 @@
 	//! author : Ebrahim Byagowi : https://github.com/ebraminio
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46566,7 +46546,7 @@
 	}));
 
 /***/ },
-/* 445 */
+/* 444 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46574,7 +46554,7 @@
 	//! author : Tarmo Aidantausta : https://github.com/bleadof
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46677,7 +46657,7 @@
 	}));
 
 /***/ },
-/* 446 */
+/* 445 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46685,7 +46665,7 @@
 	//! author : Ragnar Johannesen : https://github.com/ragnar123
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46741,7 +46721,7 @@
 	}));
 
 /***/ },
-/* 447 */
+/* 446 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46749,7 +46729,7 @@
 	//! author : John Fischer : https://github.com/jfroffice
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46809,7 +46789,7 @@
 	}));
 
 /***/ },
-/* 448 */
+/* 447 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46817,7 +46797,7 @@
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46873,7 +46853,7 @@
 	}));
 
 /***/ },
-/* 449 */
+/* 448 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46881,7 +46861,7 @@
 	//! author : Gaspard Bucher : https://github.com/gaspard
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -46941,7 +46921,7 @@
 	}));
 
 /***/ },
-/* 450 */
+/* 449 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46949,7 +46929,7 @@
 	//! author : Robin van der Vliet : https://github.com/robin0van0der0v
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -47018,7 +46998,7 @@
 	}));
 
 /***/ },
-/* 451 */
+/* 450 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47026,7 +47006,7 @@
 	//! author : Jon Ashdown : https://github.com/jonashdown
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -47098,7 +47078,7 @@
 	}));
 
 /***/ },
-/* 452 */
+/* 451 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47106,7 +47086,7 @@
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -47179,7 +47159,7 @@
 	}));
 
 /***/ },
-/* 453 */
+/* 452 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47189,7 +47169,7 @@
 	//! author : Tal Ater : https://github.com/TalAter
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -47282,7 +47262,7 @@
 	}));
 
 /***/ },
-/* 454 */
+/* 453 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47290,7 +47270,7 @@
 	//! author : Mayank Singhal : https://github.com/mayanksinghal
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -47410,7 +47390,7 @@
 	}));
 
 /***/ },
-/* 455 */
+/* 454 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47418,7 +47398,7 @@
 	//! author : Bojan Marković : https://github.com/bmarkovic
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -47559,7 +47539,7 @@
 	}));
 
 /***/ },
-/* 456 */
+/* 455 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47567,7 +47547,7 @@
 	//! author : Adam Brunner : https://github.com/adambrunner
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -47672,7 +47652,7 @@
 	}));
 
 /***/ },
-/* 457 */
+/* 456 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47680,7 +47660,7 @@
 	//! author : Armendarabyan : https://github.com/armendarabyan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -47771,7 +47751,7 @@
 	}));
 
 /***/ },
-/* 458 */
+/* 457 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47780,7 +47760,7 @@
 	//! reference: http://id.wikisource.org/wiki/Pedoman_Umum_Ejaan_Bahasa_Indonesia_yang_Disempurnakan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -47858,7 +47838,7 @@
 	}));
 
 /***/ },
-/* 459 */
+/* 458 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47866,7 +47846,7 @@
 	//! author : Hinrik Örn Sigurðsson : https://github.com/hinrik
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -47989,7 +47969,7 @@
 	}));
 
 /***/ },
-/* 460 */
+/* 459 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47998,7 +47978,7 @@
 	//! author: Mattia Larentis: https://github.com/nostalgiaz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48063,7 +48043,7 @@
 	}));
 
 /***/ },
-/* 461 */
+/* 460 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48071,7 +48051,7 @@
 	//! author : LI Long : https://github.com/baryon
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48143,7 +48123,7 @@
 	}));
 
 /***/ },
-/* 462 */
+/* 461 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48152,7 +48132,7 @@
 	//! reference: http://jv.wikipedia.org/wiki/Basa_Jawa
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48230,7 +48210,7 @@
 	}));
 
 /***/ },
-/* 463 */
+/* 462 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48238,7 +48218,7 @@
 	//! author : Irakli Janiashvili : https://github.com/irakli-janiashvili
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48323,7 +48303,7 @@
 	}));
 
 /***/ },
-/* 464 */
+/* 463 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48331,7 +48311,7 @@
 	//! authors : Nurlan Rakhimzhanov : https://github.com/nurlan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48414,7 +48394,7 @@
 	}));
 
 /***/ },
-/* 465 */
+/* 464 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48422,7 +48402,7 @@
 	//! author : Kruy Vanna : https://github.com/kruyvanna
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48476,7 +48456,7 @@
 	}));
 
 /***/ },
-/* 466 */
+/* 465 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48488,7 +48468,7 @@
 	//! - Jeeeyul Lee <jeeeyul@gmail.com>
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48548,7 +48528,7 @@
 	}));
 
 /***/ },
-/* 467 */
+/* 466 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48556,7 +48536,7 @@
 	//! author : Chyngyz Arystan uulu : https://github.com/chyngyz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48640,7 +48620,7 @@
 	}));
 
 /***/ },
-/* 468 */
+/* 467 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48648,7 +48628,7 @@
 	//! author : mweimerskirch : https://github.com/mweimerskirch, David Raison : https://github.com/kwisatz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48780,7 +48760,7 @@
 	}));
 
 /***/ },
-/* 469 */
+/* 468 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48788,7 +48768,7 @@
 	//! author : Ryan Hart : https://github.com/ryanhart2
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48854,7 +48834,7 @@
 	}));
 
 /***/ },
-/* 470 */
+/* 469 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48862,7 +48842,7 @@
 	//! author : Mindaugas Mozūras : https://github.com/mmozuras
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -48975,7 +48955,7 @@
 	}));
 
 /***/ },
-/* 471 */
+/* 470 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48984,7 +48964,7 @@
 	//! author : Jānis Elmeris : https://github.com/JanisE
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -49076,7 +49056,7 @@
 	}));
 
 /***/ },
-/* 472 */
+/* 471 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49084,7 +49064,7 @@
 	//! author : Miodrag Nikač <miodrag@restartit.me> : https://github.com/miodragnikac
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -49191,7 +49171,7 @@
 	}));
 
 /***/ },
-/* 473 */
+/* 472 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49199,7 +49179,7 @@
 	//! author : Borislav Mickov : https://github.com/B0k0
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -49285,7 +49265,7 @@
 	}));
 
 /***/ },
-/* 474 */
+/* 473 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49293,7 +49273,7 @@
 	//! author : Floyd Pink : https://github.com/floydpink
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -49370,7 +49350,7 @@
 	}));
 
 /***/ },
-/* 475 */
+/* 474 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49379,7 +49359,7 @@
 	//! author : Vivek Athalye : https://github.com/vnathalye
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -49533,7 +49513,7 @@
 	}));
 
 /***/ },
-/* 476 */
+/* 475 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49541,7 +49521,7 @@
 	//! author : Weldan Jamili : https://github.com/weldan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -49619,7 +49599,7 @@
 	}));
 
 /***/ },
-/* 477 */
+/* 476 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49628,7 +49608,7 @@
 	//! author : Weldan Jamili : https://github.com/weldan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -49706,7 +49686,7 @@
 	}));
 
 /***/ },
-/* 478 */
+/* 477 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49714,7 +49694,7 @@
 	//! author : Squar team, mysquar.com
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -49803,7 +49783,7 @@
 	}));
 
 /***/ },
-/* 479 */
+/* 478 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49812,7 +49792,7 @@
 	//!           Sigurd Gartmann : https://github.com/sigurdga
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -49870,7 +49850,7 @@
 	}));
 
 /***/ },
-/* 480 */
+/* 479 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49878,7 +49858,7 @@
 	//! author : suvash : https://github.com/suvash
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -49997,7 +49977,7 @@
 	}));
 
 /***/ },
-/* 481 */
+/* 480 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50005,7 +49985,7 @@
 	//! author : Joris Röling : https://github.com/jjupiter
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -50074,7 +50054,7 @@
 	}));
 
 /***/ },
-/* 482 */
+/* 481 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50082,7 +50062,7 @@
 	//! author : https://github.com/mechuwind
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -50138,7 +50118,7 @@
 	}));
 
 /***/ },
-/* 483 */
+/* 482 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50146,7 +50126,7 @@
 	//! author : Harpreet Singh : https://github.com/harpreetkhalsagtbit
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -50266,7 +50246,7 @@
 	}));
 
 /***/ },
-/* 484 */
+/* 483 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50274,7 +50254,7 @@
 	//! author : Rafal Hirsz : https://github.com/evoL
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -50375,7 +50355,7 @@
 	}));
 
 /***/ },
-/* 485 */
+/* 484 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50383,7 +50363,7 @@
 	//! author : Jefferson : https://github.com/jalex79
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -50444,7 +50424,7 @@
 	}));
 
 /***/ },
-/* 486 */
+/* 485 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50452,7 +50432,7 @@
 	//! author : Caio Ribeiro Pereira : https://github.com/caio-ribeiro-pereira
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -50509,7 +50489,7 @@
 	}));
 
 /***/ },
-/* 487 */
+/* 486 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50518,7 +50498,7 @@
 	//! author : Valentin Agachi : https://github.com/avaly
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -50588,7 +50568,7 @@
 	}));
 
 /***/ },
-/* 488 */
+/* 487 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50598,7 +50578,7 @@
 	//! author : Коренберг Марк : https://github.com/socketpair
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -50775,7 +50755,7 @@
 	}));
 
 /***/ },
-/* 489 */
+/* 488 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50783,7 +50763,7 @@
 	//! authors : Bård Rolstad Henriksen : https://github.com/karamell
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -50840,7 +50820,7 @@
 	}));
 
 /***/ },
-/* 490 */
+/* 489 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50848,7 +50828,7 @@
 	//! author : Sampath Sitinamaluwa : https://github.com/sampathsris
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -50915,7 +50895,7 @@
 	}));
 
 /***/ },
-/* 491 */
+/* 490 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50924,7 +50904,7 @@
 	//! based on work of petrbela : https://github.com/petrbela
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -51069,7 +51049,7 @@
 	}));
 
 /***/ },
-/* 492 */
+/* 491 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51077,7 +51057,7 @@
 	//! author : Robert Sedovšek : https://github.com/sedovsek
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -51235,7 +51215,7 @@
 	}));
 
 /***/ },
-/* 493 */
+/* 492 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51245,7 +51225,7 @@
 	//! author : Oerd Cukalla : https://github.com/oerd (fixes)
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -51309,7 +51289,7 @@
 	}));
 
 /***/ },
-/* 494 */
+/* 493 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51317,7 +51297,7 @@
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -51423,7 +51403,7 @@
 	}));
 
 /***/ },
-/* 495 */
+/* 494 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51431,7 +51411,7 @@
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -51537,7 +51517,7 @@
 	}));
 
 /***/ },
-/* 496 */
+/* 495 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51545,7 +51525,7 @@
 	//! author : Nicolai Davies<mail@nicolai.io> : https://github.com/nicolaidavies
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -51630,7 +51610,7 @@
 	}));
 
 /***/ },
-/* 497 */
+/* 496 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51638,7 +51618,7 @@
 	//! author : Jens Alm : https://github.com/ulmus
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -51703,7 +51683,7 @@
 	}));
 
 /***/ },
-/* 498 */
+/* 497 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51711,7 +51691,7 @@
 	//! author : Fahad Kassim : https://github.com/fadsel
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -51766,7 +51746,7 @@
 	}));
 
 /***/ },
-/* 499 */
+/* 498 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51774,7 +51754,7 @@
 	//! author : Arjunkumar Krishnamoorthy : https://github.com/tk120404
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -51899,7 +51879,7 @@
 	}));
 
 /***/ },
-/* 500 */
+/* 499 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51907,7 +51887,7 @@
 	//! author : Krishna Chaitanya Thota : https://github.com/kcthota
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -51992,7 +51972,7 @@
 	}));
 
 /***/ },
-/* 501 */
+/* 500 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52000,7 +51980,7 @@
 	//! author : Kridsada Thanabulpong : https://github.com/sirn
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52063,7 +52043,7 @@
 	}));
 
 /***/ },
-/* 502 */
+/* 501 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52071,7 +52051,7 @@
 	//! author : Dan Hagman
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52129,7 +52109,7 @@
 	}));
 
 /***/ },
-/* 503 */
+/* 502 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52137,7 +52117,7 @@
 	//! author : Dominika Kruk : https://github.com/amaranthrose
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52253,7 +52233,7 @@
 	}));
 
 /***/ },
-/* 504 */
+/* 503 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52262,7 +52242,7 @@
 	//!           Burak Yiğit Kaya: https://github.com/BYK
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52347,7 +52327,7 @@
 	}));
 
 /***/ },
-/* 505 */
+/* 504 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52355,7 +52335,7 @@
 	//! author : Robin van der Vliet : https://github.com/robin0van0der0v with the help of Iustì Canun
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52442,7 +52422,7 @@
 	}));
 
 /***/ },
-/* 506 */
+/* 505 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52450,7 +52430,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52504,7 +52484,7 @@
 	}));
 
 /***/ },
-/* 507 */
+/* 506 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52512,7 +52492,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52566,7 +52546,7 @@
 	}));
 
 /***/ },
-/* 508 */
+/* 507 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52575,7 +52555,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52716,7 +52696,7 @@
 	}));
 
 /***/ },
-/* 509 */
+/* 508 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52724,7 +52704,7 @@
 	//! author : Sardor Muminov : https://github.com/muminoff
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52778,7 +52758,7 @@
 	}));
 
 /***/ },
-/* 510 */
+/* 509 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52786,7 +52766,7 @@
 	//! author : Bang Nguyen : https://github.com/bangnk
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52861,7 +52841,7 @@
 	}));
 
 /***/ },
-/* 511 */
+/* 510 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52869,7 +52849,7 @@
 	//! author : Andrew Hood : https://github.com/andrewhood125
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -52933,7 +52913,7 @@
 	}));
 
 /***/ },
-/* 512 */
+/* 511 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -52942,7 +52922,7 @@
 	//! author : Zeno Zeng : https://github.com/zenozeng
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -53064,7 +53044,7 @@
 	}));
 
 /***/ },
-/* 513 */
+/* 512 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -53073,7 +53053,7 @@
 	//! author : Chris Lam : https://github.com/hehachris
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(411)) :
+	    true ? factory(__webpack_require__(410)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -53172,7 +53152,7 @@
 	}));
 
 /***/ },
-/* 514 */
+/* 513 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -53766,7 +53746,7 @@
 	};
 
 /***/ },
-/* 515 */
+/* 514 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -54074,7 +54054,7 @@
 
 
 /***/ },
-/* 516 */
+/* 515 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -54097,11 +54077,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactAddonsCreateFragment = __webpack_require__(517);
+	var _reactAddonsCreateFragment = __webpack_require__(516);
 	
 	var _reactAddonsCreateFragment2 = _interopRequireDefault(_reactAddonsCreateFragment);
 	
-	var _tokenize = __webpack_require__(519);
+	var _tokenize = __webpack_require__(518);
 	
 	var _tokenize2 = _interopRequireDefault(_tokenize);
 	
@@ -54239,13 +54219,13 @@
 	//# sourceMappingURL=index.js.map
 
 /***/ },
-/* 517 */
+/* 516 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(518).create;
+	module.exports = __webpack_require__(517).create;
 
 /***/ },
-/* 518 */
+/* 517 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -54314,7 +54294,7 @@
 	module.exports = ReactFragment;
 
 /***/ },
-/* 519 */
+/* 518 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -54354,18 +54334,18 @@
 	//# sourceMappingURL=tokenize.js.map
 
 /***/ },
-/* 520 */
+/* 519 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = LRUCache
 	
 	// This will be a proper iterable 'Map' in engines that support it,
 	// or a fakey-fake PseudoMap in older versions.
-	var Map = __webpack_require__(521)
-	var util = __webpack_require__(523)
+	var Map = __webpack_require__(520)
+	var util = __webpack_require__(522)
 	
 	// A linked list to keep track of recently-used-ness
-	var Yallist = __webpack_require__(526)
+	var Yallist = __webpack_require__(525)
 	
 	// use symbols if possible, otherwise just _props
 	var symbols = {}
@@ -54829,7 +54809,7 @@
 
 
 /***/ },
-/* 521 */
+/* 520 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (({"NODE_ENV":"development"}).npm_package_name === 'pseudomap' &&
@@ -54839,12 +54819,12 @@
 	if (typeof Map === 'function' && !({"NODE_ENV":"development"}).TEST_PSEUDOMAP) {
 	  module.exports = Map
 	} else {
-	  module.exports = __webpack_require__(522)
+	  module.exports = __webpack_require__(521)
 	}
 
 
 /***/ },
-/* 522 */
+/* 521 */
 /***/ function(module, exports) {
 
 	var hasOwnProperty = Object.prototype.hasOwnProperty
@@ -54963,7 +54943,7 @@
 
 
 /***/ },
-/* 523 */
+/* 522 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -55491,7 +55471,7 @@
 	}
 	exports.isPrimitive = isPrimitive;
 	
-	exports.isBuffer = __webpack_require__(524);
+	exports.isBuffer = __webpack_require__(523);
 	
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -55535,7 +55515,7 @@
 	 *     prototype.
 	 * @param {function} superCtor Constructor function to inherit prototype from.
 	 */
-	exports.inherits = __webpack_require__(525);
+	exports.inherits = __webpack_require__(524);
 	
 	exports._extend = function(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -55553,10 +55533,10 @@
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(392)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(391)))
 
 /***/ },
-/* 524 */
+/* 523 */
 /***/ function(module, exports) {
 
 	module.exports = function isBuffer(arg) {
@@ -55567,7 +55547,7 @@
 	}
 
 /***/ },
-/* 525 */
+/* 524 */
 /***/ function(module, exports) {
 
 	if (typeof Object.create === 'function') {
@@ -55596,7 +55576,7 @@
 
 
 /***/ },
-/* 526 */
+/* 525 */
 /***/ function(module, exports) {
 
 	module.exports = Yallist
@@ -55962,7 +55942,7 @@
 
 
 /***/ },
-/* 527 */
+/* 526 */
 /***/ function(module, exports) {
 
 	/**
@@ -56679,7 +56659,7 @@
 
 
 /***/ },
-/* 528 */
+/* 527 */
 /***/ function(module, exports) {
 
 	/**
@@ -56721,10 +56701,10 @@
 
 
 /***/ },
-/* 529 */
+/* 528 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var tzDetect = __webpack_require__( 530 ),
+	var tzDetect = __webpack_require__( 529 ),
 		debug = __webpack_require__( 270 )( 'i18n-calypso:mixin' );
 	
 	module.exports = function( i18n ) {
@@ -56766,13 +56746,13 @@
 	};
 
 /***/ },
-/* 530 */
+/* 529 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * External dependencies
 	 */
-	var tzdetect = __webpack_require__( 531 );
+	var tzdetect = __webpack_require__( 530 );
 	
 	/**
 	 * Detect and return the current timezone of the browser
@@ -56786,7 +56766,7 @@
 
 
 /***/ },
-/* 531 */
+/* 530 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -57151,11 +57131,11 @@
 
 
 /***/ },
-/* 532 */
+/* 531 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__( 146 ),
-		assign = __webpack_require__( 527 );
+		assign = __webpack_require__( 526 );
 	
 	/**
 	 * Localize a React component
@@ -57198,10 +57178,10 @@
 
 
 /***/ },
-/* 533 */
+/* 532 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -57213,7 +57193,7 @@
 	
 	function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 	
-	var _reducer = __webpack_require__(534);
+	var _reducer = __webpack_require__(533);
 	
 	_defaults(exports, _interopExportWildcard(_reducer, _defaults));
 	
@@ -57221,13 +57201,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 534 */
+/* 533 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -57258,11 +57238,11 @@
 	
 	var _lodashAssign2 = _interopRequireDefault(_lodashAssign);
 	
-	var _lodashGet = __webpack_require__(342);
+	var _lodashGet = __webpack_require__(341);
 	
 	var _lodashGet2 = _interopRequireDefault(_lodashGet);
 	
-	var _lodashIncludes = __webpack_require__(535);
+	var _lodashIncludes = __webpack_require__(534);
 	
 	var _lodashIncludes2 = _interopRequireDefault(_lodashIncludes);
 	
@@ -57270,9 +57250,9 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var status = function status(state, action) {
 		if (state === undefined) state = { siteConnected: window.Initial_State.connectionStatus };
@@ -57513,15 +57493,15 @@
 		return isDevMode(state) && requiresConnection(state, module);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 535 */
+/* 534 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIndexOf = __webpack_require__(536),
+	var baseIndexOf = __webpack_require__(535),
 	    isArrayLike = __webpack_require__(327),
-	    isString = __webpack_require__(339),
+	    isString = __webpack_require__(538),
 	    toInteger = __webpack_require__(539),
 	    values = __webpack_require__(542);
 	
@@ -57539,7 +57519,7 @@
 	 * @memberOf _
 	 * @since 0.1.0
 	 * @category Collection
-	 * @param {Array|Object|string} collection The collection to search.
+	 * @param {Array|Object|string} collection The collection to inspect.
 	 * @param {*} value The value to search for.
 	 * @param {number} [fromIndex=0] The index to search from.
 	 * @param- {Object} [guard] Enables use as an iteratee for methods like `_.reduce`.
@@ -57575,17 +57555,17 @@
 
 
 /***/ },
-/* 536 */
+/* 535 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseFindIndex = __webpack_require__(537),
-	    baseIsNaN = __webpack_require__(538);
+	var baseFindIndex = __webpack_require__(536),
+	    baseIsNaN = __webpack_require__(537);
 	
 	/**
 	 * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
 	 *
 	 * @private
-	 * @param {Array} array The array to search.
+	 * @param {Array} array The array to inspect.
 	 * @param {*} value The value to search for.
 	 * @param {number} fromIndex The index to search from.
 	 * @returns {number} Returns the index of the matched value, else `-1`.
@@ -57609,7 +57589,7 @@
 
 
 /***/ },
-/* 537 */
+/* 536 */
 /***/ function(module, exports) {
 
 	/**
@@ -57617,7 +57597,7 @@
 	 * support for iteratee shorthands.
 	 *
 	 * @private
-	 * @param {Array} array The array to search.
+	 * @param {Array} array The array to inspect.
 	 * @param {Function} predicate The function invoked per iteration.
 	 * @param {number} fromIndex The index to search from.
 	 * @param {boolean} [fromRight] Specify iterating from right to left.
@@ -57639,7 +57619,7 @@
 
 
 /***/ },
-/* 538 */
+/* 537 */
 /***/ function(module, exports) {
 
 	/**
@@ -57654,6 +57634,51 @@
 	}
 	
 	module.exports = baseIsNaN;
+
+
+/***/ },
+/* 538 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var isArray = __webpack_require__(338),
+	    isObjectLike = __webpack_require__(171);
+	
+	/** `Object#toString` result references. */
+	var stringTag = '[object String]';
+	
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+	
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var objectToString = objectProto.toString;
+	
+	/**
+	 * Checks if `value` is classified as a `String` primitive or object.
+	 *
+	 * @static
+	 * @since 0.1.0
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a string, else `false`.
+	 * @example
+	 *
+	 * _.isString('abc');
+	 * // => true
+	 *
+	 * _.isString(1);
+	 * // => false
+	 */
+	function isString(value) {
+	  return typeof value == 'string' ||
+	    (!isArray(value) && isObjectLike(value) && objectToString.call(value) == stringTag);
+	}
+	
+	module.exports = isString;
 
 
 /***/ },
@@ -57750,9 +57775,8 @@
 /* 541 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isFunction = __webpack_require__(328),
-	    isObject = __webpack_require__(329),
-	    isSymbol = __webpack_require__(381);
+	var isObject = __webpack_require__(329),
+	    isSymbol = __webpack_require__(380);
 	
 	/** Used as references for various `Number` constants. */
 	var NAN = 0 / 0;
@@ -57803,7 +57827,7 @@
 	    return NAN;
 	  }
 	  if (isObject(value)) {
-	    var other = isFunction(value.valueOf) ? value.valueOf() : value;
+	    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
 	    value = isObject(other) ? (other + '') : other;
 	  }
 	  if (typeof value != 'string') {
@@ -57915,7 +57939,7 @@
 /* 545 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -57928,17 +57952,17 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _componentsGlobalNoticesStateNoticesActions = __webpack_require__(399);
+	var _componentsGlobalNoticesStateNoticesActions = __webpack_require__(398);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
-	var _restApi = __webpack_require__(389);
+	var _restApi = __webpack_require__(388);
 	
 	var _restApi2 = _interopRequireDefault(_restApi);
 	
@@ -58051,13 +58075,13 @@
 	};
 	exports.unlinkUser = unlinkUser;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 546 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -58077,13 +58101,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 547 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -58108,7 +58132,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var jumpstartState = {
 		showJumpStart: typeof window !== 'undefined' && typeof window.Initial_State === 'object' ? window.Initial_State.showJumpstart : {},
@@ -58164,13 +58188,13 @@
 		return state.jetpack.jumpstart.status.isJumpstarting;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 548 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -58183,9 +58207,9 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _componentsGlobalNoticesStateNoticesActions = __webpack_require__(399);
+	var _componentsGlobalNoticesStateNoticesActions = __webpack_require__(398);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	var _history = __webpack_require__(247);
 	
@@ -58197,9 +58221,9 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
-	var _restApi = __webpack_require__(389);
+	var _restApi = __webpack_require__(388);
 	
 	var _restApi2 = _interopRequireDefault(_restApi);
 	
@@ -58258,13 +58282,13 @@
 	};
 	exports.jumpStartSkip = jumpStartSkip;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 549 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -58284,13 +58308,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 550 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -58312,7 +58336,7 @@
 	
 	var _redux = __webpack_require__(165);
 	
-	var _lodashGet = __webpack_require__(342);
+	var _lodashGet = __webpack_require__(341);
 	
 	var _lodashGet2 = _interopRequireDefault(_lodashGet);
 	
@@ -58324,7 +58348,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var items = function items(state, action) {
 		if (state === undefined) state = {};
@@ -58437,13 +58461,13 @@
 		return (0, _lodashGet2['default'])(state.jetpack.settings.items, [name], false) ? true : false;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 551 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -58456,9 +58480,9 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
-	var _restApi = __webpack_require__(389);
+	var _restApi = __webpack_require__(388);
 	
 	var _restApi2 = _interopRequireDefault(_restApi);
 	
@@ -58507,13 +58531,13 @@
 	};
 	exports.updateSetting = updateSetting;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 552 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -58533,13 +58557,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 553 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -58556,7 +58580,7 @@
 	
 	var _redux = __webpack_require__(165);
 	
-	var _lodashGet = __webpack_require__(342);
+	var _lodashGet = __webpack_require__(341);
 	
 	var _lodashGet2 = _interopRequireDefault(_lodashGet);
 	
@@ -58568,7 +58592,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var items = function items(state, action) {
 		if (state === undefined) state = {};
@@ -58639,13 +58663,13 @@
 		return false;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 554 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -58658,9 +58682,9 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
-	var _restApi = __webpack_require__(389);
+	var _restApi = __webpack_require__(388);
 	
 	var _restApi2 = _interopRequireDefault(_restApi);
 	
@@ -58685,13 +58709,13 @@
 	};
 	exports.fetchSiteData = fetchSiteData;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 555 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -58711,13 +58735,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 556 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -58735,7 +58759,7 @@
 	
 	var _redux = __webpack_require__(165);
 	
-	var _lodashGet = __webpack_require__(342);
+	var _lodashGet = __webpack_require__(341);
 	
 	var _lodashGet2 = _interopRequireDefault(_lodashGet);
 	
@@ -58747,7 +58771,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var items = function items(state, action) {
 		if (state === undefined) state = {};
@@ -58823,13 +58847,13 @@
 		return state.jetpack.pluginsData.items[plugin];
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 557 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -58842,9 +58866,9 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
-	var _restApi = __webpack_require__(389);
+	var _restApi = __webpack_require__(388);
 	
 	var _restApi2 = _interopRequireDefault(_restApi);
 	
@@ -58869,13 +58893,13 @@
 	};
 	exports.fetchPluginsData = fetchPluginsData;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 558 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -58895,13 +58919,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_reducer, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 559 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -58914,9 +58938,9 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
-	var _restApi = __webpack_require__(389);
+	var _restApi = __webpack_require__(388);
 	
 	var _restApi2 = _interopRequireDefault(_restApi);
 	
@@ -58952,13 +58976,13 @@
 	};
 	exports.dismissJetpackActionNotice = dismissJetpackActionNotice;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 560 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	
 	/**
@@ -58978,7 +59002,7 @@
 	
 	var _redux = __webpack_require__(165);
 	
-	var _lodashGet = __webpack_require__(342);
+	var _lodashGet = __webpack_require__(341);
 	
 	var _lodashGet2 = _interopRequireDefault(_lodashGet);
 	
@@ -58990,9 +59014,9 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
-	var _restApi = __webpack_require__(389);
+	var _restApi = __webpack_require__(388);
 	
 	var _restApi2 = _interopRequireDefault(_restApi);
 	
@@ -59061,13 +59085,13 @@
 		return (0, _lodashGet2['default'])(state.jetpack.jetpackNotices.dismissed, [notice], false);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 561 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -59087,13 +59111,13 @@
 	
 	_defaults(exports, _interopExportWildcard(_reducer, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 562 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Internal dependencies
@@ -59104,7 +59128,7 @@
 		value: true
 	});
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var filterSearch = function filterSearch(term) {
 		return function (dispatch) {
@@ -59116,13 +59140,13 @@
 	};
 	exports.filterSearch = filterSearch;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 563 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	
 	/**
@@ -59141,7 +59165,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
 	var searchTerm = function searchTerm(state, action) {
 	  if (state === undefined) state = false;
@@ -59171,13 +59195,13 @@
 	  return state.jetpack.search.searchTerm;
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "reducer.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 564 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -59204,7 +59228,7 @@
 	
 	var _lodashAssign2 = _interopRequireDefault(_lodashAssign);
 	
-	var _lodashIncludes = __webpack_require__(535);
+	var _lodashIncludes = __webpack_require__(534);
 	
 	var _lodashIncludes2 = _interopRequireDefault(_lodashIncludes);
 	
@@ -59226,69 +59250,69 @@
 	
 	var _componentsNavigationSettings2 = _interopRequireDefault(_componentsNavigationSettings);
 	
-	var _componentsJetpackConnect = __webpack_require__(691);
+	var _componentsJetpackConnect = __webpack_require__(694);
 	
 	var _componentsJetpackConnect2 = _interopRequireDefault(_componentsJetpackConnect);
 	
-	var _componentsJumpstart = __webpack_require__(702);
+	var _componentsJumpstart = __webpack_require__(705);
 	
 	var _componentsJumpstart2 = _interopRequireDefault(_componentsJumpstart);
 	
 	var _stateJumpstart = __webpack_require__(546);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var _stateInitialState = __webpack_require__(317);
 	
-	var _atAGlanceIndexJsx = __webpack_require__(707);
+	var _atAGlanceIndexJsx = __webpack_require__(710);
 	
 	var _atAGlanceIndexJsx2 = _interopRequireDefault(_atAGlanceIndexJsx);
 	
-	var _engagementIndexJsx = __webpack_require__(858);
+	var _engagementIndexJsx = __webpack_require__(861);
 	
 	var _engagementIndexJsx2 = _interopRequireDefault(_engagementIndexJsx);
 	
-	var _securityIndexJsx = __webpack_require__(894);
+	var _securityIndexJsx = __webpack_require__(900);
 	
 	var _securityIndexJsx2 = _interopRequireDefault(_securityIndexJsx);
 	
-	var _appearanceIndexJsx = __webpack_require__(895);
+	var _appearanceIndexJsx = __webpack_require__(901);
 	
 	var _appearanceIndexJsx2 = _interopRequireDefault(_appearanceIndexJsx);
 	
-	var _generalSettingsIndexJsx = __webpack_require__(896);
+	var _generalSettingsIndexJsx = __webpack_require__(902);
 	
 	var _generalSettingsIndexJsx2 = _interopRequireDefault(_generalSettingsIndexJsx);
 	
-	var _writingIndexJsx = __webpack_require__(901);
+	var _writingIndexJsx = __webpack_require__(907);
 	
 	var _writingIndexJsx2 = _interopRequireDefault(_writingIndexJsx);
 	
-	var _appsIndexJsx = __webpack_require__(902);
+	var _appsIndexJsx = __webpack_require__(908);
 	
 	var _appsIndexJsx2 = _interopRequireDefault(_appsIndexJsx);
 	
-	var _plansIndexJsx = __webpack_require__(903);
+	var _plansIndexJsx = __webpack_require__(909);
 	
 	var _plansIndexJsx2 = _interopRequireDefault(_plansIndexJsx);
 	
-	var _componentsFooter = __webpack_require__(906);
+	var _componentsFooter = __webpack_require__(912);
 	
 	var _componentsFooter2 = _interopRequireDefault(_componentsFooter);
 	
-	var _componentsSupportCard = __webpack_require__(909);
+	var _componentsSupportCard = __webpack_require__(915);
 	
 	var _componentsSupportCard2 = _interopRequireDefault(_componentsSupportCard);
 	
-	var _componentsNonAdminView = __webpack_require__(912);
+	var _componentsNonAdminView = __webpack_require__(918);
 	
 	var _componentsNonAdminView2 = _interopRequireDefault(_componentsNonAdminView);
 	
-	var _componentsJetpackNotices = __webpack_require__(915);
+	var _componentsJetpackNotices = __webpack_require__(921);
 	
 	var _componentsJetpackNotices2 = _interopRequireDefault(_componentsJetpackNotices);
 	
-	var _searchIndexJsx = __webpack_require__(926);
+	var _searchIndexJsx = __webpack_require__(932);
 	
 	var _searchIndexJsx2 = _interopRequireDefault(_searchIndexJsx);
 	
@@ -59477,13 +59501,13 @@
 	};
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "main.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "main.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 565 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -59496,13 +59520,13 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var Masthead = _react2['default'].createClass({
 		displayName: 'Masthead',
@@ -59569,13 +59593,13 @@
 	
 	module.exports = Masthead;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 566 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -59606,7 +59630,7 @@
 	
 	var _componentsSectionNavItem2 = _interopRequireDefault(_componentsSectionNavItem);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	var _reactTapEventPlugin = __webpack_require__(680);
 	
@@ -59616,7 +59640,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	(0, _reactTapEventPlugin2['default'])();
 	
@@ -59696,13 +59720,13 @@
 	})(Navigation);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 567 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -59890,7 +59914,7 @@
 	
 	module.exports = SectionNav;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 568 */
@@ -60549,7 +60573,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var getNative = __webpack_require__(585),
-	    root = __webpack_require__(403);
+	    root = __webpack_require__(402);
 	
 	/* Built-in method references that are verified to be native. */
 	var Map = getNative(root, 'Map');
@@ -60940,7 +60964,7 @@
 /* 601 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(402),
+	var Symbol = __webpack_require__(401),
 	    Uint8Array = __webpack_require__(602),
 	    mapToArray = __webpack_require__(603),
 	    setToArray = __webpack_require__(604);
@@ -61034,7 +61058,7 @@
 /* 602 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(403);
+	var root = __webpack_require__(402);
 	
 	/** Built-in value references. */
 	var Uint8Array = root.Uint8Array;
@@ -61248,7 +61272,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var getNative = __webpack_require__(585),
-	    root = __webpack_require__(403);
+	    root = __webpack_require__(402);
 	
 	/* Built-in method references that are verified to be native. */
 	var Set = getNative(root, 'Set');
@@ -61261,7 +61285,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var getNative = __webpack_require__(585),
-	    root = __webpack_require__(403);
+	    root = __webpack_require__(402);
 	
 	/* Built-in method references that are verified to be native. */
 	var WeakMap = getNative(root, 'WeakMap');
@@ -61408,7 +61432,7 @@
 /* 611 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -61609,7 +61633,7 @@
 	
 	module.exports = NavTabs;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "tabs.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "tabs.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 612 */
@@ -61823,7 +61847,7 @@
 /* 614 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -62299,7 +62323,7 @@
 	exports['default'] = SelectDropdown;
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 615 */
@@ -62948,7 +62972,7 @@
 /* 635 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var toString = __webpack_require__(401);
+	var toString = __webpack_require__(400);
 	
 	/** Used to match property names within property paths. */
 	var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]/g;
@@ -63578,7 +63602,7 @@
 /* 653 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -63646,13 +63670,13 @@
 	
 	module.exports = SelectDropdownItem;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "item.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "item.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 654 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -63697,7 +63721,7 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 655 */
@@ -63790,7 +63814,7 @@
 /* 662 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -63811,13 +63835,13 @@
 	
 	module.exports = SelectDropdownSeparator;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "separator.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "separator.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 663 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -63887,7 +63911,7 @@
 	;
 	module.exports = exports["default"];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "label.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "label.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 664 */
@@ -63900,7 +63924,7 @@
 /* 666 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* WEBPACK VAR INJECTION */(function(global) {/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -63997,14 +64021,14 @@
 		getWindowInnerWidth: getWindowInnerWidth
 	};
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 667 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -64090,13 +64114,13 @@
 	
 	module.exports = NavItem;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "item.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "item.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 668 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -64430,7 +64454,7 @@
 	
 	module.exports = Search;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 669 */
@@ -64461,7 +64485,7 @@
 /* 670 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* WEBPACK VAR INJECTION */(function(global) {/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -64567,7 +64591,7 @@
 	
 	module.exports = Spinner;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
@@ -64581,7 +64605,7 @@
 /* 673 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/** @ssr-ready **/
 	
@@ -66296,7 +66320,7 @@
 	
 	module.exports = Gridicon;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 674 */
@@ -66597,7 +66621,7 @@
 /* 684 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -66632,7 +66656,7 @@
 	
 	var _componentsSearch2 = _interopRequireDefault(_componentsSearch);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	var _lodashTrim = __webpack_require__(685);
 	
@@ -66794,18 +66818,18 @@
 	})(NavigationSettings);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 685 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseToString = __webpack_require__(379),
+	var baseToString = __webpack_require__(378),
 	    castSlice = __webpack_require__(686),
 	    charsEndIndex = __webpack_require__(688),
 	    charsStartIndex = __webpack_require__(689),
 	    stringToArray = __webpack_require__(690),
-	    toString = __webpack_require__(378);
+	    toString = __webpack_require__(377);
 	
 	/** Used to match leading and trailing whitespace. */
 	var reTrim = /^\s+|\s+$/g;
@@ -66916,7 +66940,7 @@
 /* 688 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIndexOf = __webpack_require__(536);
+	var baseIndexOf = __webpack_require__(535);
 	
 	/**
 	 * Used by `_.trim` and `_.trimEnd` to get the index of the last string symbol
@@ -66941,7 +66965,7 @@
 /* 689 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIndexOf = __webpack_require__(536);
+	var baseIndexOf = __webpack_require__(535);
 	
 	/**
 	 * Used by `_.trim` and `_.trimStart` to get the index of the first string symbol
@@ -66965,6 +66989,78 @@
 
 /***/ },
 /* 690 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var asciiToArray = __webpack_require__(691),
+	    hasUnicode = __webpack_require__(692),
+	    unicodeToArray = __webpack_require__(693);
+	
+	/**
+	 * Converts `string` to an array.
+	 *
+	 * @private
+	 * @param {string} string The string to convert.
+	 * @returns {Array} Returns the converted array.
+	 */
+	function stringToArray(string) {
+	  return hasUnicode(string)
+	    ? unicodeToArray(string)
+	    : asciiToArray(string);
+	}
+	
+	module.exports = stringToArray;
+
+
+/***/ },
+/* 691 */
+/***/ function(module, exports) {
+
+	/**
+	 * Converts an ASCII `string` to an array.
+	 *
+	 * @private
+	 * @param {string} string The string to convert.
+	 * @returns {Array} Returns the converted array.
+	 */
+	function asciiToArray(string) {
+	  return string.split('');
+	}
+	
+	module.exports = asciiToArray;
+
+
+/***/ },
+/* 692 */
+/***/ function(module, exports) {
+
+	/** Used to compose unicode character classes. */
+	var rsAstralRange = '\\ud800-\\udfff',
+	    rsComboMarksRange = '\\u0300-\\u036f\\ufe20-\\ufe23',
+	    rsComboSymbolsRange = '\\u20d0-\\u20f0',
+	    rsVarRange = '\\ufe0e\\ufe0f';
+	
+	/** Used to compose unicode capture groups. */
+	var rsZWJ = '\\u200d';
+	
+	/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
+	var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboMarksRange + rsComboSymbolsRange + rsVarRange + ']');
+	
+	/**
+	 * Checks if `string` contains Unicode symbols.
+	 *
+	 * @private
+	 * @param {string} string The string to inspect.
+	 * @returns {boolean} Returns `true` if a symbol is found, else `false`.
+	 */
+	function hasUnicode(string) {
+	  return reHasUnicode.test(string);
+	}
+	
+	module.exports = hasUnicode;
+
+
+/***/ },
+/* 693 */
 /***/ function(module, exports) {
 
 	/** Used to compose unicode character classes. */
@@ -66991,27 +67087,27 @@
 	    rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
 	
 	/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
-	var reComplexSymbol = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
+	var reUnicode = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
 	
 	/**
-	 * Converts `string` to an array.
+	 * Converts a Unicode `string` to an array.
 	 *
 	 * @private
 	 * @param {string} string The string to convert.
 	 * @returns {Array} Returns the converted array.
 	 */
-	function stringToArray(string) {
-	  return string.match(reComplexSymbol);
+	function unicodeToArray(string) {
+	  return string.match(reUnicode) || [];
 	}
 	
-	module.exports = stringToArray;
+	module.exports = unicodeToArray;
 
 
 /***/ },
-/* 691 */
+/* 694 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -67030,23 +67126,23 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsConnectButton = __webpack_require__(696);
+	var _componentsConnectButton = __webpack_require__(699);
 	
 	var _componentsConnectButton2 = _interopRequireDefault(_componentsConnectButton);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _constants = __webpack_require__(701);
+	var _constants = __webpack_require__(704);
 	
 	var JetpackConnect = _react2['default'].createClass({
 		displayName: 'JetpackConnect',
@@ -67372,13 +67468,13 @@
 	module.exports = exports['default'];
 	/* defining width and height for IE here */
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 692 */
+/* 695 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -67387,10 +67483,10 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 	
 	var React = __webpack_require__(146),
-	    Icon = __webpack_require__(693),
+	    Icon = __webpack_require__(696),
 	    classnames = __webpack_require__(610);
 	
-	__webpack_require__(694);
+	__webpack_require__(697);
 	
 	var CardSection = React.createClass({
 		displayName: 'CardSection',
@@ -67516,13 +67612,13 @@
 	
 	module.exports = Card;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 693 */
+/* 696 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	// simple genericon wrapper
 	
@@ -67578,20 +67674,20 @@
 	
 	module.exports = Icon;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "icon.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "icon.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 694 */
+/* 697 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 695 */,
-/* 696 */
+/* 698 */,
+/* 699 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -67610,19 +67706,19 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _componentsDataQueryConnectUrl = __webpack_require__(700);
+	var _componentsDataQueryConnectUrl = __webpack_require__(703);
 	
 	var _componentsDataQueryConnectUrl2 = _interopRequireDefault(_componentsDataQueryConnectUrl);
 	
@@ -67745,13 +67841,13 @@
 	})(ConnectButton);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 697 */
+/* 700 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -67780,7 +67876,7 @@
 	
 	var _lodashNoop2 = _interopRequireDefault(_lodashNoop);
 	
-	__webpack_require__(698);
+	__webpack_require__(701);
 	
 	exports['default'] = _react2['default'].createClass({
 	
@@ -67825,20 +67921,20 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 698 */
+/* 701 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 699 */,
-/* 700 */
+/* 702 */,
+/* 703 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -67867,7 +67963,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var QueryConnectUrl = (function (_Component) {
 		_inherits(QueryConnectUrl, _Component);
@@ -67908,13 +68004,13 @@
 	})(QueryConnectUrl);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 701 */
+/* 704 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -67924,13 +68020,13 @@
 	var imagePath = window.Initial_State.pluginBaseUrl + '/images/jp-4/';
 	exports.imagePath = imagePath;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "constants.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "constants.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 702 */
+/* 705 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -67951,15 +68047,15 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	var _componentsFoldableCard = __webpack_require__(703);
+	var _componentsFoldableCard = __webpack_require__(706);
 	
 	var _componentsFoldableCard2 = _interopRequireDefault(_componentsFoldableCard);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -67967,7 +68063,7 @@
 	
 	var _componentsSpinner2 = _interopRequireDefault(_componentsSpinner);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	var _libAnalytics = __webpack_require__(269);
 	
@@ -67979,7 +68075,7 @@
 	
 	var _stateJumpstart = __webpack_require__(546);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var JumpStart = _react2['default'].createClass({
 	
@@ -68094,13 +68190,13 @@
 	}
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 703 */
+/* 706 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External Dependencies
@@ -68114,11 +68210,11 @@
 	/**
 	 * Internal Dependencies
 	 */
-	var Card = __webpack_require__(692),
-	    CompactCard = __webpack_require__(704),
+	var Card = __webpack_require__(695),
+	    CompactCard = __webpack_require__(707),
 	    Gridicon = __webpack_require__(673);
 	
-	__webpack_require__(705);
+	__webpack_require__(708);
 	
 	var FoldableCard = React.createClass({
 		displayName: 'FoldableCard',
@@ -68294,13 +68390,13 @@
 	
 	module.exports = FoldableCard;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 704 */
+/* 707 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -68314,7 +68410,7 @@
 	/**
 	 * Internal dependencies
 	 */
-	var Card = __webpack_require__(692);
+	var Card = __webpack_require__(695);
 	
 	module.exports = React.createClass({
 		displayName: 'CompactCard',
@@ -68330,20 +68426,20 @@
 		}
 	});
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "compact.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "compact.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 705 */
+/* 708 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 706 */,
-/* 707 */
+/* 709 */,
+/* 710 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -68362,15 +68458,15 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	var _componentsDashSectionHeader = __webpack_require__(708);
+	var _componentsDashSectionHeader = __webpack_require__(711);
 	
 	var _componentsDashSectionHeader2 = _interopRequireDefault(_componentsDashSectionHeader);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	var _libAnalytics = __webpack_require__(269);
 	
@@ -68380,53 +68476,53 @@
 	 * Internal dependencies
 	 */
 	
-	var _stats = __webpack_require__(709);
+	var _stats = __webpack_require__(712);
 	
 	var _stats2 = _interopRequireDefault(_stats);
 	
-	var _protect = __webpack_require__(830);
+	var _protect = __webpack_require__(833);
 	
 	var _protect2 = _interopRequireDefault(_protect);
 	
-	var _monitor = __webpack_require__(847);
+	var _monitor = __webpack_require__(850);
 	
 	var _monitor2 = _interopRequireDefault(_monitor);
 	
-	var _scan = __webpack_require__(849);
+	var _scan = __webpack_require__(852);
 	
 	var _scan2 = _interopRequireDefault(_scan);
 	
-	var _akismet = __webpack_require__(850);
+	var _akismet = __webpack_require__(853);
 	
 	var _akismet2 = _interopRequireDefault(_akismet);
 	
-	var _backups = __webpack_require__(851);
+	var _backups = __webpack_require__(854);
 	
 	var _backups2 = _interopRequireDefault(_backups);
 	
-	var _plugins = __webpack_require__(852);
+	var _plugins = __webpack_require__(855);
 	
 	var _plugins2 = _interopRequireDefault(_plugins);
 	
-	var _photon = __webpack_require__(854);
+	var _photon = __webpack_require__(857);
 	
 	var _photon2 = _interopRequireDefault(_photon);
 	
-	var _siteVerification = __webpack_require__(855);
+	var _siteVerification = __webpack_require__(858);
 	
 	var _siteVerification2 = _interopRequireDefault(_siteVerification);
 	
-	var _componentsJetpackNoticesFeedbackDashRequest = __webpack_require__(856);
+	var _componentsJetpackNoticesFeedbackDashRequest = __webpack_require__(859);
 	
 	var _componentsJetpackNoticesFeedbackDashRequest2 = _interopRequireDefault(_componentsJetpackNoticesFeedbackDashRequest);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _componentsDataQuerySitePlugins = __webpack_require__(843);
+	var _componentsDataQuerySitePlugins = __webpack_require__(846);
 	
 	var _componentsDataQuerySitePlugins2 = _interopRequireDefault(_componentsDataQuerySitePlugins);
 	
-	var _componentsDataQuerySite = __webpack_require__(857);
+	var _componentsDataQuerySite = __webpack_require__(860);
 	
 	var _componentsDataQuerySite2 = _interopRequireDefault(_componentsDataQuerySite);
 	
@@ -68552,13 +68648,13 @@
 	})(AtAGlance);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 708 */
+/* 711 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -68583,7 +68679,7 @@
 	
 	var _componentsGridicon2 = _interopRequireDefault(_componentsGridicon);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	exports['default'] = _react2['default'].createClass({
 		displayName: 'DashSectionHeader',
@@ -68665,13 +68761,13 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 709 */
+/* 712 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -68688,25 +68784,25 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _lodashForEach = __webpack_require__(710);
+	var _lodashForEach = __webpack_require__(713);
 	
 	var _lodashForEach2 = _interopRequireDefault(_lodashForEach);
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	var _componentsChart = __webpack_require__(759);
+	var _componentsChart = __webpack_require__(762);
 	
 	var _componentsChart2 = _interopRequireDefault(_componentsChart);
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsDashSectionHeader = __webpack_require__(708);
+	var _componentsDashSectionHeader = __webpack_require__(711);
 	
 	var _componentsDashSectionHeader2 = _interopRequireDefault(_componentsDashSectionHeader);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -68714,7 +68810,7 @@
 	
 	var _componentsSpinner2 = _interopRequireDefault(_componentsSpinner);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	var _libAnalytics = __webpack_require__(269);
 	
@@ -68724,17 +68820,17 @@
 	 * Internal dependencies
 	 */
 	
-	var _constants = __webpack_require__(701);
+	var _constants = __webpack_require__(704);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _componentsDataQueryStatsData = __webpack_require__(829);
+	var _componentsDataQueryStatsData = __webpack_require__(832);
 	
 	var _componentsDataQueryStatsData2 = _interopRequireDefault(_componentsDataQueryStatsData);
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var DashStats = _react2['default'].createClass({
 		displayName: 'DashStats',
@@ -69118,15 +69214,15 @@
 	})(DashStats);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "stats.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "stats.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 710 */
+/* 713 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayEach = __webpack_require__(711),
-	    baseEach = __webpack_require__(712),
-	    baseIteratee = __webpack_require__(717),
+	var arrayEach = __webpack_require__(714),
+	    baseEach = __webpack_require__(715),
+	    baseIteratee = __webpack_require__(720),
 	    isArray = __webpack_require__(338);
 	
 	/**
@@ -69168,7 +69264,7 @@
 
 
 /***/ },
-/* 711 */
+/* 714 */
 /***/ function(module, exports) {
 
 	/**
@@ -69196,11 +69292,11 @@
 
 
 /***/ },
-/* 712 */
+/* 715 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseForOwn = __webpack_require__(713),
-	    createBaseEach = __webpack_require__(716);
+	var baseForOwn = __webpack_require__(716),
+	    createBaseEach = __webpack_require__(719);
 	
 	/**
 	 * The base implementation of `_.forEach` without support for iteratee shorthands.
@@ -69216,10 +69312,10 @@
 
 
 /***/ },
-/* 713 */
+/* 716 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseFor = __webpack_require__(714),
+	var baseFor = __webpack_require__(717),
 	    keys = __webpack_require__(333);
 	
 	/**
@@ -69238,10 +69334,10 @@
 
 
 /***/ },
-/* 714 */
+/* 717 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var createBaseFor = __webpack_require__(715);
+	var createBaseFor = __webpack_require__(718);
 	
 	/**
 	 * The base implementation of `baseForOwn` which iterates over `object`
@@ -69260,7 +69356,7 @@
 
 
 /***/ },
-/* 715 */
+/* 718 */
 /***/ function(module, exports) {
 
 	/**
@@ -69291,7 +69387,7 @@
 
 
 /***/ },
-/* 716 */
+/* 719 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isArrayLike = __webpack_require__(327);
@@ -69329,14 +69425,14 @@
 
 
 /***/ },
-/* 717 */
+/* 720 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseMatches = __webpack_require__(718),
-	    baseMatchesProperty = __webpack_require__(751),
-	    identity = __webpack_require__(755),
+	var baseMatches = __webpack_require__(721),
+	    baseMatchesProperty = __webpack_require__(754),
+	    identity = __webpack_require__(758),
 	    isArray = __webpack_require__(338),
-	    property = __webpack_require__(756);
+	    property = __webpack_require__(759);
 	
 	/**
 	 * The base implementation of `_.iteratee`.
@@ -69366,12 +69462,12 @@
 
 
 /***/ },
-/* 718 */
+/* 721 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsMatch = __webpack_require__(719),
-	    getMatchData = __webpack_require__(748),
-	    matchesStrictComparable = __webpack_require__(750);
+	var baseIsMatch = __webpack_require__(722),
+	    getMatchData = __webpack_require__(751),
+	    matchesStrictComparable = __webpack_require__(753);
 	
 	/**
 	 * The base implementation of `_.matches` which doesn't clone `source`.
@@ -69394,11 +69490,11 @@
 
 
 /***/ },
-/* 719 */
+/* 722 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stack = __webpack_require__(720),
-	    baseIsEqual = __webpack_require__(726);
+	var Stack = __webpack_require__(723),
+	    baseIsEqual = __webpack_require__(729);
 	
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -69462,15 +69558,15 @@
 
 
 /***/ },
-/* 720 */
+/* 723 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var ListCache = __webpack_require__(364),
-	    stackClear = __webpack_require__(721),
-	    stackDelete = __webpack_require__(722),
-	    stackGet = __webpack_require__(723),
-	    stackHas = __webpack_require__(724),
-	    stackSet = __webpack_require__(725);
+	var ListCache = __webpack_require__(363),
+	    stackClear = __webpack_require__(724),
+	    stackDelete = __webpack_require__(725),
+	    stackGet = __webpack_require__(726),
+	    stackHas = __webpack_require__(727),
+	    stackSet = __webpack_require__(728);
 	
 	/**
 	 * Creates a stack cache object to store key-value pairs.
@@ -69494,10 +69590,10 @@
 
 
 /***/ },
-/* 721 */
+/* 724 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var ListCache = __webpack_require__(364);
+	var ListCache = __webpack_require__(363);
 	
 	/**
 	 * Removes all key-value entries from the stack.
@@ -69514,7 +69610,7 @@
 
 
 /***/ },
-/* 722 */
+/* 725 */
 /***/ function(module, exports) {
 
 	/**
@@ -69534,7 +69630,7 @@
 
 
 /***/ },
-/* 723 */
+/* 726 */
 /***/ function(module, exports) {
 
 	/**
@@ -69554,7 +69650,7 @@
 
 
 /***/ },
-/* 724 */
+/* 727 */
 /***/ function(module, exports) {
 
 	/**
@@ -69574,12 +69670,12 @@
 
 
 /***/ },
-/* 725 */
+/* 728 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var ListCache = __webpack_require__(364),
-	    Map = __webpack_require__(371),
-	    MapCache = __webpack_require__(347);
+	var ListCache = __webpack_require__(363),
+	    Map = __webpack_require__(370),
+	    MapCache = __webpack_require__(346);
 	
 	/** Used as the size to enable large array optimizations. */
 	var LARGE_ARRAY_SIZE = 200;
@@ -69612,10 +69708,10 @@
 
 
 /***/ },
-/* 726 */
+/* 729 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsEqualDeep = __webpack_require__(727),
+	var baseIsEqualDeep = __webpack_require__(730),
 	    isObject = __webpack_require__(329),
 	    isObjectLike = __webpack_require__(171);
 	
@@ -69648,17 +69744,17 @@
 
 
 /***/ },
-/* 727 */
+/* 730 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stack = __webpack_require__(720),
-	    equalArrays = __webpack_require__(728),
-	    equalByTag = __webpack_require__(733),
-	    equalObjects = __webpack_require__(737),
-	    getTag = __webpack_require__(738),
+	var Stack = __webpack_require__(723),
+	    equalArrays = __webpack_require__(731),
+	    equalByTag = __webpack_require__(736),
+	    equalObjects = __webpack_require__(740),
+	    getTag = __webpack_require__(741),
 	    isArray = __webpack_require__(338),
 	    isHostObject = __webpack_require__(170),
-	    isTypedArray = __webpack_require__(744);
+	    isTypedArray = __webpack_require__(747);
 	
 	/** Used to compose bitmasks for comparison styles. */
 	var PARTIAL_COMPARE_FLAG = 2;
@@ -69736,11 +69832,11 @@
 
 
 /***/ },
-/* 728 */
+/* 731 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var SetCache = __webpack_require__(729),
-	    arraySome = __webpack_require__(732);
+	var SetCache = __webpack_require__(732),
+	    arraySome = __webpack_require__(735);
 	
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -69825,12 +69921,12 @@
 
 
 /***/ },
-/* 729 */
+/* 732 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var MapCache = __webpack_require__(347),
-	    setCacheAdd = __webpack_require__(730),
-	    setCacheHas = __webpack_require__(731);
+	var MapCache = __webpack_require__(346),
+	    setCacheAdd = __webpack_require__(733),
+	    setCacheHas = __webpack_require__(734);
 	
 	/**
 	 *
@@ -69858,7 +69954,7 @@
 
 
 /***/ },
-/* 730 */
+/* 733 */
 /***/ function(module, exports) {
 
 	/** Used to stand-in for `undefined` hash values. */
@@ -69883,7 +69979,7 @@
 
 
 /***/ },
-/* 731 */
+/* 734 */
 /***/ function(module, exports) {
 
 	/**
@@ -69903,7 +69999,7 @@
 
 
 /***/ },
-/* 732 */
+/* 735 */
 /***/ function(module, exports) {
 
 	/**
@@ -69932,15 +70028,15 @@
 
 
 /***/ },
-/* 733 */
+/* 736 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(380),
-	    Uint8Array = __webpack_require__(734),
+	var Symbol = __webpack_require__(379),
+	    Uint8Array = __webpack_require__(737),
 	    eq = __webpack_require__(321),
-	    equalArrays = __webpack_require__(728),
-	    mapToArray = __webpack_require__(735),
-	    setToArray = __webpack_require__(736);
+	    equalArrays = __webpack_require__(731),
+	    mapToArray = __webpack_require__(738),
+	    setToArray = __webpack_require__(739);
 	
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -70051,10 +70147,10 @@
 
 
 /***/ },
-/* 734 */
+/* 737 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(356);
+	var root = __webpack_require__(355);
 	
 	/** Built-in value references. */
 	var Uint8Array = root.Uint8Array;
@@ -70063,7 +70159,7 @@
 
 
 /***/ },
-/* 735 */
+/* 738 */
 /***/ function(module, exports) {
 
 	/**
@@ -70087,7 +70183,7 @@
 
 
 /***/ },
-/* 736 */
+/* 739 */
 /***/ function(module, exports) {
 
 	/**
@@ -70111,7 +70207,7 @@
 
 
 /***/ },
-/* 737 */
+/* 740 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var keys = __webpack_require__(333);
@@ -70207,16 +70303,16 @@
 
 
 /***/ },
-/* 738 */
+/* 741 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var DataView = __webpack_require__(739),
-	    Map = __webpack_require__(371),
-	    Promise = __webpack_require__(740),
-	    Set = __webpack_require__(741),
-	    WeakMap = __webpack_require__(742),
-	    baseGetTag = __webpack_require__(743),
-	    toSource = __webpack_require__(358);
+	var DataView = __webpack_require__(742),
+	    Map = __webpack_require__(370),
+	    Promise = __webpack_require__(743),
+	    Set = __webpack_require__(744),
+	    WeakMap = __webpack_require__(745),
+	    baseGetTag = __webpack_require__(746),
+	    toSource = __webpack_require__(357);
 	
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -70254,7 +70350,7 @@
 	var getTag = baseGetTag;
 	
 	// Fallback for data views, maps, sets, and weak maps in IE 11,
-	// for data views in Edge, and promises in Node.js.
+	// for data views in Edge < 14, and promises in Node.js.
 	if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag) ||
 	    (Map && getTag(new Map) != mapTag) ||
 	    (Promise && getTag(Promise.resolve()) != promiseTag) ||
@@ -70282,11 +70378,11 @@
 
 
 /***/ },
-/* 739 */
+/* 742 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(352),
-	    root = __webpack_require__(356);
+	var getNative = __webpack_require__(351),
+	    root = __webpack_require__(355);
 	
 	/* Built-in method references that are verified to be native. */
 	var DataView = getNative(root, 'DataView');
@@ -70295,11 +70391,11 @@
 
 
 /***/ },
-/* 740 */
+/* 743 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(352),
-	    root = __webpack_require__(356);
+	var getNative = __webpack_require__(351),
+	    root = __webpack_require__(355);
 	
 	/* Built-in method references that are verified to be native. */
 	var Promise = getNative(root, 'Promise');
@@ -70308,11 +70404,11 @@
 
 
 /***/ },
-/* 741 */
+/* 744 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(352),
-	    root = __webpack_require__(356);
+	var getNative = __webpack_require__(351),
+	    root = __webpack_require__(355);
 	
 	/* Built-in method references that are verified to be native. */
 	var Set = getNative(root, 'Set');
@@ -70321,11 +70417,11 @@
 
 
 /***/ },
-/* 742 */
+/* 745 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getNative = __webpack_require__(352),
-	    root = __webpack_require__(356);
+	var getNative = __webpack_require__(351),
+	    root = __webpack_require__(355);
 	
 	/* Built-in method references that are verified to be native. */
 	var WeakMap = getNative(root, 'WeakMap');
@@ -70334,7 +70430,7 @@
 
 
 /***/ },
-/* 743 */
+/* 746 */
 /***/ function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -70362,12 +70458,12 @@
 
 
 /***/ },
-/* 744 */
+/* 747 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsTypedArray = __webpack_require__(745),
-	    baseUnary = __webpack_require__(746),
-	    nodeUtil = __webpack_require__(747);
+	var baseIsTypedArray = __webpack_require__(748),
+	    baseUnary = __webpack_require__(749),
+	    nodeUtil = __webpack_require__(750);
 	
 	/* Node.js helper references. */
 	var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
@@ -70395,7 +70491,7 @@
 
 
 /***/ },
-/* 745 */
+/* 748 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isLength = __webpack_require__(330),
@@ -70470,7 +70566,7 @@
 
 
 /***/ },
-/* 746 */
+/* 749 */
 /***/ function(module, exports) {
 
 	/**
@@ -70490,10 +70586,10 @@
 
 
 /***/ },
-/* 747 */
+/* 750 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(357);
+	/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(356);
 	
 	/** Detect free variable `exports`. */
 	var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -70516,13 +70612,13 @@
 	
 	module.exports = nodeUtil;
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(393)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(392)(module)))
 
 /***/ },
-/* 748 */
+/* 751 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isStrictComparable = __webpack_require__(749),
+	var isStrictComparable = __webpack_require__(752),
 	    keys = __webpack_require__(333);
 	
 	/**
@@ -70549,7 +70645,7 @@
 
 
 /***/ },
-/* 749 */
+/* 752 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isObject = __webpack_require__(329);
@@ -70570,7 +70666,7 @@
 
 
 /***/ },
-/* 750 */
+/* 753 */
 /***/ function(module, exports) {
 
 	/**
@@ -70596,16 +70692,16 @@
 
 
 /***/ },
-/* 751 */
+/* 754 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsEqual = __webpack_require__(726),
-	    get = __webpack_require__(342),
-	    hasIn = __webpack_require__(752),
-	    isKey = __webpack_require__(382),
-	    isStrictComparable = __webpack_require__(749),
-	    matchesStrictComparable = __webpack_require__(750),
-	    toKey = __webpack_require__(383);
+	var baseIsEqual = __webpack_require__(729),
+	    get = __webpack_require__(341),
+	    hasIn = __webpack_require__(755),
+	    isKey = __webpack_require__(381),
+	    isStrictComparable = __webpack_require__(752),
+	    matchesStrictComparable = __webpack_require__(753),
+	    toKey = __webpack_require__(382);
 	
 	/** Used to compose bitmasks for comparison styles. */
 	var UNORDERED_COMPARE_FLAG = 1,
@@ -70635,11 +70731,11 @@
 
 
 /***/ },
-/* 752 */
+/* 755 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseHasIn = __webpack_require__(753),
-	    hasPath = __webpack_require__(754);
+	var baseHasIn = __webpack_require__(756),
+	    hasPath = __webpack_require__(757);
 	
 	/**
 	 * Checks if `path` is a direct or inherited property of `object`.
@@ -70675,7 +70771,7 @@
 
 
 /***/ },
-/* 753 */
+/* 756 */
 /***/ function(module, exports) {
 
 	/**
@@ -70694,17 +70790,16 @@
 
 
 /***/ },
-/* 754 */
+/* 757 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var castPath = __webpack_require__(344),
+	var castPath = __webpack_require__(343),
 	    isArguments = __webpack_require__(336),
 	    isArray = __webpack_require__(338),
 	    isIndex = __webpack_require__(331),
-	    isKey = __webpack_require__(382),
+	    isKey = __webpack_require__(381),
 	    isLength = __webpack_require__(330),
-	    isString = __webpack_require__(339),
-	    toKey = __webpack_require__(383);
+	    toKey = __webpack_require__(382);
 	
 	/**
 	 * Checks if `path` exists on `object`.
@@ -70734,14 +70829,14 @@
 	  }
 	  var length = object ? object.length : 0;
 	  return !!length && isLength(length) && isIndex(key, length) &&
-	    (isArray(object) || isString(object) || isArguments(object));
+	    (isArray(object) || isArguments(object));
 	}
 	
 	module.exports = hasPath;
 
 
 /***/ },
-/* 755 */
+/* 758 */
 /***/ function(module, exports) {
 
 	/**
@@ -70768,13 +70863,13 @@
 
 
 /***/ },
-/* 756 */
+/* 759 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseProperty = __webpack_require__(757),
-	    basePropertyDeep = __webpack_require__(758),
-	    isKey = __webpack_require__(382),
-	    toKey = __webpack_require__(383);
+	var baseProperty = __webpack_require__(760),
+	    basePropertyDeep = __webpack_require__(761),
+	    isKey = __webpack_require__(381),
+	    toKey = __webpack_require__(382);
 	
 	/**
 	 * Creates a function that returns the value at `path` of a given object.
@@ -70806,7 +70901,7 @@
 
 
 /***/ },
-/* 757 */
+/* 760 */
 /***/ function(module, exports) {
 
 	/**
@@ -70826,10 +70921,10 @@
 
 
 /***/ },
-/* 758 */
+/* 761 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGet = __webpack_require__(343);
+	var baseGet = __webpack_require__(342);
 	
 	/**
 	 * A specialized version of `baseProperty` which supports deep paths.
@@ -70848,10 +70943,10 @@
 
 
 /***/ },
-/* 759 */
+/* 762 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -70860,15 +70955,15 @@
 	
 	var React = __webpack_require__(146),
 	    noop = __webpack_require__(669),
-	    throttle = __webpack_require__(760);
+	    throttle = __webpack_require__(763);
 	
 	/**
 	 * Internal dependencies
 	 */
-	var BarContainer = __webpack_require__(761),
-	    touchDetect = __webpack_require__(826);
+	var BarContainer = __webpack_require__(764),
+	    touchDetect = __webpack_require__(829);
 	
-	__webpack_require__(827);
+	__webpack_require__(830);
 	
 	module.exports = React.createClass({
 		displayName: 'ModuleChart',
@@ -71033,10 +71128,10 @@
 	});
 	/* Translate this. */
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 760 */
+/* 763 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var debounce = __webpack_require__(612),
@@ -71107,10 +71202,10 @@
 
 
 /***/ },
-/* 761 */
+/* 764 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -71122,8 +71217,8 @@
 	/**
 	 * Internal dependencies
 	 */
-	var Bar = __webpack_require__(762),
-	    XAxis = __webpack_require__(824);
+	var Bar = __webpack_require__(765),
+	    XAxis = __webpack_require__(827);
 	
 	module.exports = React.createClass({
 		displayName: 'ModuleChartBarContainer',
@@ -71178,13 +71273,13 @@
 		}
 	});
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "bar-container.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "bar-container.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 762 */
+/* 765 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -71198,8 +71293,8 @@
 	/**
 	 * Internal dependencies
 	 */
-	var Popover = __webpack_require__(763),
-	    Tooltip = __webpack_require__(823);
+	var Popover = __webpack_require__(766),
+	    Tooltip = __webpack_require__(826);
 	
 	module.exports = React.createClass({
 		displayName: 'ModuleChartBar',
@@ -71328,13 +71423,13 @@
 		}
 	});
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "bar.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "bar.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 763 */
+/* 766 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -71345,11 +71440,11 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _clickOutside = __webpack_require__(764);
+	var _clickOutside = __webpack_require__(767);
 	
 	var _clickOutside2 = _interopRequireDefault(_clickOutside);
 	
-	var _lodashDefer = __webpack_require__(769);
+	var _lodashDefer = __webpack_require__(772);
 	
 	var _lodashDefer2 = _interopRequireDefault(_lodashDefer);
 	
@@ -71361,11 +71456,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _lodashOmit = __webpack_require__(771);
+	var _lodashOmit = __webpack_require__(774);
 	
 	var _lodashOmit2 = _interopRequireDefault(_lodashOmit);
 	
-	var _componentTip = __webpack_require__(789);
+	var _componentTip = __webpack_require__(792);
 	
 	var _componentTip2 = _interopRequireDefault(_componentTip);
 	
@@ -71373,7 +71468,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _mixinsCloseOnEsc = __webpack_require__(822);
+	var _mixinsCloseOnEsc = __webpack_require__(825);
 	
 	var _mixinsCloseOnEsc2 = _interopRequireDefault(_mixinsCloseOnEsc);
 	
@@ -71510,25 +71605,25 @@
 	
 	module.exports = Popover;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 764 */
+/* 767 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var _core = __webpack_require__(765)["default"];
+	var _core = __webpack_require__(768)["default"];
 	
-	var _interopRequire = __webpack_require__(766)["default"];
+	var _interopRequire = __webpack_require__(769)["default"];
 	
 	/**
 	 * Module dependencies.
 	 */
 	
-	var ev = _interopRequire(__webpack_require__(767));
+	var ev = _interopRequire(__webpack_require__(770));
 	
-	var contains = _interopRequire(__webpack_require__(768));
+	var contains = _interopRequire(__webpack_require__(771));
 	
 	/**
 	 * Module exports.
@@ -71592,7 +71687,7 @@
 
 
 /***/ },
-/* 765 */
+/* 768 */
 /***/ function(module, exports) {
 
 	/**
@@ -73938,7 +74033,7 @@
 
 
 /***/ },
-/* 766 */
+/* 769 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -73950,7 +74045,7 @@
 	exports.__esModule = true;
 
 /***/ },
-/* 767 */
+/* 770 */
 /***/ function(module, exports) {
 
 	var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
@@ -73990,7 +74085,7 @@
 	};
 
 /***/ },
-/* 768 */
+/* 771 */
 /***/ function(module, exports) {
 
 	
@@ -74017,10 +74112,10 @@
 
 
 /***/ },
-/* 769 */
+/* 772 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseDelay = __webpack_require__(770),
+	var baseDelay = __webpack_require__(773),
 	    rest = __webpack_require__(287);
 	
 	/**
@@ -74048,7 +74143,7 @@
 
 
 /***/ },
-/* 770 */
+/* 773 */
 /***/ function(module, exports) {
 
 	/** Used as the `TypeError` message for "Functions" methods. */
@@ -74075,14 +74170,14 @@
 
 
 /***/ },
-/* 771 */
+/* 774 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var arrayMap = __webpack_require__(630),
-	    baseDifference = __webpack_require__(772),
-	    baseFlatten = __webpack_require__(781),
-	    basePick = __webpack_require__(783),
-	    keysIn = __webpack_require__(785),
+	    baseDifference = __webpack_require__(775),
+	    baseFlatten = __webpack_require__(784),
+	    basePick = __webpack_require__(786),
+	    keysIn = __webpack_require__(788),
 	    rest = __webpack_require__(287);
 	
 	/**
@@ -74115,15 +74210,15 @@
 
 
 /***/ },
-/* 772 */
+/* 775 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var SetCache = __webpack_require__(773),
-	    arrayIncludes = __webpack_require__(775),
-	    arrayIncludesWith = __webpack_require__(778),
+	var SetCache = __webpack_require__(776),
+	    arrayIncludes = __webpack_require__(778),
+	    arrayIncludesWith = __webpack_require__(781),
 	    arrayMap = __webpack_require__(630),
-	    baseUnary = __webpack_require__(779),
-	    cacheHas = __webpack_require__(780);
+	    baseUnary = __webpack_require__(782),
+	    cacheHas = __webpack_require__(783);
 	
 	/** Used as the size to enable large array optimizations. */
 	var LARGE_ARRAY_SIZE = 200;
@@ -74187,11 +74282,11 @@
 
 
 /***/ },
-/* 773 */
+/* 776 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var MapCache = __webpack_require__(581),
-	    cachePush = __webpack_require__(774);
+	    cachePush = __webpack_require__(777);
 	
 	/**
 	 *
@@ -74218,7 +74313,7 @@
 
 
 /***/ },
-/* 774 */
+/* 777 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isKeyable = __webpack_require__(592);
@@ -74251,10 +74346,10 @@
 
 
 /***/ },
-/* 775 */
+/* 778 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIndexOf = __webpack_require__(776);
+	var baseIndexOf = __webpack_require__(779);
 	
 	/**
 	 * A specialized version of `_.includes` for arrays without support for
@@ -74273,10 +74368,10 @@
 
 
 /***/ },
-/* 776 */
+/* 779 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var indexOfNaN = __webpack_require__(777);
+	var indexOfNaN = __webpack_require__(780);
 	
 	/**
 	 * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
@@ -74306,7 +74401,7 @@
 
 
 /***/ },
-/* 777 */
+/* 780 */
 /***/ function(module, exports) {
 
 	/**
@@ -74335,7 +74430,7 @@
 
 
 /***/ },
-/* 778 */
+/* 781 */
 /***/ function(module, exports) {
 
 	/**
@@ -74364,7 +74459,7 @@
 
 
 /***/ },
-/* 779 */
+/* 782 */
 /***/ function(module, exports) {
 
 	/**
@@ -74384,7 +74479,7 @@
 
 
 /***/ },
-/* 780 */
+/* 783 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isKeyable = __webpack_require__(592);
@@ -74415,10 +74510,10 @@
 
 
 /***/ },
-/* 781 */
+/* 784 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(782),
+	var arrayPush = __webpack_require__(785),
 	    isArguments = __webpack_require__(296),
 	    isArray = __webpack_require__(299),
 	    isArrayLikeObject = __webpack_require__(297);
@@ -74460,7 +74555,7 @@
 
 
 /***/ },
-/* 782 */
+/* 785 */
 /***/ function(module, exports) {
 
 	/**
@@ -74486,10 +74581,10 @@
 
 
 /***/ },
-/* 783 */
+/* 786 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayReduce = __webpack_require__(784);
+	var arrayReduce = __webpack_require__(787);
 	
 	/**
 	 * The base implementation of `_.pick` without support for individual
@@ -74514,7 +74609,7 @@
 
 
 /***/ },
-/* 784 */
+/* 787 */
 /***/ function(module, exports) {
 
 	/**
@@ -74545,10 +74640,10 @@
 
 
 /***/ },
-/* 785 */
+/* 788 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseKeysIn = __webpack_require__(786),
+	var baseKeysIn = __webpack_require__(789),
 	    indexKeys = __webpack_require__(294),
 	    isIndex = __webpack_require__(286),
 	    isPrototype = __webpack_require__(301);
@@ -74605,11 +74700,11 @@
 
 
 /***/ },
-/* 786 */
+/* 789 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Reflect = __webpack_require__(787),
-	    iteratorToArray = __webpack_require__(788);
+	var Reflect = __webpack_require__(790),
+	    iteratorToArray = __webpack_require__(791);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -74647,10 +74742,10 @@
 
 
 /***/ },
-/* 787 */
+/* 790 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(403);
+	var root = __webpack_require__(402);
 	
 	/** Built-in value references. */
 	var Reflect = root.Reflect;
@@ -74659,7 +74754,7 @@
 
 
 /***/ },
-/* 788 */
+/* 791 */
 /***/ function(module, exports) {
 
 	/**
@@ -74683,7 +74778,7 @@
 
 
 /***/ },
-/* 789 */
+/* 792 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -74691,51 +74786,51 @@
 	 */
 	
 	try {
-	  var css = __webpack_require__(790);
+	  var css = __webpack_require__(793);
 	} catch (err) {
-	  var css = __webpack_require__(790);
+	  var css = __webpack_require__(793);
 	}
 	
 	try {
-	  var bind = __webpack_require__(808);
+	  var bind = __webpack_require__(811);
 	} catch (err) {
-	  var bind = __webpack_require__(808);
+	  var bind = __webpack_require__(811);
 	}
 	
 	try {
-	  var query = __webpack_require__(809);
+	  var query = __webpack_require__(812);
 	} catch (err) {
-	  var query = __webpack_require__(809);
+	  var query = __webpack_require__(812);
 	}
 	
 	try {
-	  var events = __webpack_require__(810);
+	  var events = __webpack_require__(813);
 	} catch (err) {
-	  var events = __webpack_require__(810);
+	  var events = __webpack_require__(813);
 	}
 	
 	try {
-	  var Emitter = __webpack_require__(814);
+	  var Emitter = __webpack_require__(817);
 	} catch (err) {
-	  var Emitter = __webpack_require__(814);
+	  var Emitter = __webpack_require__(817);
 	}
 	
 	try {
-	  var classes = __webpack_require__(815);
+	  var classes = __webpack_require__(818);
 	} catch (err) {
-	  var classes = __webpack_require__(815);
+	  var classes = __webpack_require__(818);
 	}
 	
 	try {
-	  var raf = __webpack_require__(817);
+	  var raf = __webpack_require__(820);
 	} catch (err) {
-	  var raf = __webpack_require__(817);
+	  var raf = __webpack_require__(820);
 	}
 	
-	var domify = __webpack_require__(818);
-	var getBoundingClientRect = __webpack_require__(819);
+	var domify = __webpack_require__(821);
+	var getBoundingClientRect = __webpack_require__(822);
 	
-	var html = domify(__webpack_require__(821));
+	var html = domify(__webpack_require__(824));
 	
 	
 	// inspired by https://github.com/jkroso/viewport
@@ -75309,7 +75404,7 @@
 
 
 /***/ },
-/* 790 */
+/* 793 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -75317,8 +75412,8 @@
 	 */
 	
 	var debug = __webpack_require__(270)('css');
-	var set = __webpack_require__(791);
-	var get = __webpack_require__(803);
+	var set = __webpack_require__(794);
+	var get = __webpack_require__(806);
 	
 	/**
 	 * Expose `css`
@@ -75373,7 +75468,7 @@
 
 
 /***/ },
-/* 791 */
+/* 794 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -75381,10 +75476,10 @@
 	 */
 	
 	var debug = __webpack_require__(270)('css:style');
-	var camelcase = __webpack_require__(792);
-	var support = __webpack_require__(795);
-	var property = __webpack_require__(796);
-	var hooks = __webpack_require__(798);
+	var camelcase = __webpack_require__(795);
+	var support = __webpack_require__(798);
+	var property = __webpack_require__(799);
+	var hooks = __webpack_require__(801);
 	
 	/**
 	 * Expose `style`
@@ -75485,11 +75580,11 @@
 
 
 /***/ },
-/* 792 */
+/* 795 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var toSpace = __webpack_require__(793);
+	var toSpace = __webpack_require__(796);
 	
 	
 	/**
@@ -75514,11 +75609,11 @@
 	}
 
 /***/ },
-/* 793 */
+/* 796 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	var clean = __webpack_require__(794);
+	var clean = __webpack_require__(797);
 	
 	
 	/**
@@ -75543,7 +75638,7 @@
 	}
 
 /***/ },
-/* 794 */
+/* 797 */
 /***/ function(module, exports) {
 
 	
@@ -75622,7 +75717,7 @@
 	}
 
 /***/ },
-/* 795 */
+/* 798 */
 /***/ function(module, exports) {
 
 	/**
@@ -75729,7 +75824,7 @@
 
 
 /***/ },
-/* 796 */
+/* 799 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -75737,8 +75832,8 @@
 	 */
 	
 	var debug = __webpack_require__(270)('css:prop');
-	var camelcase = __webpack_require__(792);
-	var vendor = __webpack_require__(797);
+	var camelcase = __webpack_require__(795);
+	var vendor = __webpack_require__(800);
 	
 	/**
 	 * Export `prop`
@@ -75771,7 +75866,7 @@
 
 
 /***/ },
-/* 797 */
+/* 800 */
 /***/ function(module, exports) {
 
 	/**
@@ -75813,7 +75908,7 @@
 
 
 /***/ },
-/* 798 */
+/* 801 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -75821,20 +75916,20 @@
 	 */
 	
 	try {
-	  var each = __webpack_require__(799);
+	  var each = __webpack_require__(802);
 	} catch (err) {
-	  var each = __webpack_require__(799);
+	  var each = __webpack_require__(802);
 	}
-	var css = __webpack_require__(803);
+	var css = __webpack_require__(806);
 	var cssShow = { position: 'absolute', visibility: 'hidden', display: 'block' };
 	var pnum = (/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/).source;
 	var rnumnonpx = new RegExp( '^(' + pnum + ')(?!px)[a-z%]+$', 'i');
 	var rnumsplit = new RegExp( '^(' + pnum + ')(.*)$', 'i');
 	var rdisplayswap = /^(none|table(?!-c[ea]).+)/;
-	var styles = __webpack_require__(806);
-	var support = __webpack_require__(795);
-	var swap = __webpack_require__(807);
-	var computed = __webpack_require__(804);
+	var styles = __webpack_require__(809);
+	var support = __webpack_require__(798);
+	var swap = __webpack_require__(810);
+	var computed = __webpack_require__(807);
 	var cssExpand = [ "Top", "Right", "Bottom", "Left" ];
 	
 	/**
@@ -75985,7 +76080,7 @@
 
 
 /***/ },
-/* 799 */
+/* 802 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -75994,12 +76089,12 @@
 	 */
 	
 	try {
-	  var type = __webpack_require__(800);
+	  var type = __webpack_require__(803);
 	} catch (err) {
-	  var type = __webpack_require__(800);
+	  var type = __webpack_require__(803);
 	}
 	
-	var toFunction = __webpack_require__(801);
+	var toFunction = __webpack_require__(804);
 	
 	/**
 	 * HOP reference.
@@ -76080,7 +76175,7 @@
 
 
 /***/ },
-/* 800 */
+/* 803 */
 /***/ function(module, exports) {
 
 	
@@ -76118,7 +76213,7 @@
 
 
 /***/ },
-/* 801 */
+/* 804 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -76128,9 +76223,9 @@
 	
 	var expr;
 	try {
-	  expr = __webpack_require__(802);
+	  expr = __webpack_require__(805);
 	} catch(e) {
-	  expr = __webpack_require__(802);
+	  expr = __webpack_require__(805);
 	}
 	
 	/**
@@ -76276,7 +76371,7 @@
 
 
 /***/ },
-/* 802 */
+/* 805 */
 /***/ function(module, exports) {
 
 	/**
@@ -76367,7 +76462,7 @@
 
 
 /***/ },
-/* 803 */
+/* 806 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -76375,9 +76470,9 @@
 	 */
 	
 	var debug = __webpack_require__(270)('css:css');
-	var camelcase = __webpack_require__(792);
-	var computed = __webpack_require__(804);
-	var property = __webpack_require__(796);
+	var camelcase = __webpack_require__(795);
+	var computed = __webpack_require__(807);
+	var property = __webpack_require__(799);
 	
 	/**
 	 * Expose `css`
@@ -76405,7 +76500,7 @@
 	 */
 	
 	function css(el, prop, extra, styles) {
-	  var hooks = __webpack_require__(798);
+	  var hooks = __webpack_require__(801);
 	  var orig = camelcase(prop);
 	  var style = el.style;
 	  var val;
@@ -76453,7 +76548,7 @@
 
 
 /***/ },
-/* 804 */
+/* 807 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -76461,8 +76556,8 @@
 	 */
 	
 	var debug = __webpack_require__(270)('css:computed');
-	var withinDocument = __webpack_require__(805);
-	var styles = __webpack_require__(806);
+	var withinDocument = __webpack_require__(808);
+	var styles = __webpack_require__(809);
 	
 	/**
 	 * Expose `computed`
@@ -76494,7 +76589,7 @@
 	
 	  if ('' === ret && !withinDocument(el)) {
 	    debug('element not within document, try finding from style attribute');
-	    var style = __webpack_require__(791);
+	    var style = __webpack_require__(794);
 	    ret = style(el, prop);
 	  }
 	
@@ -76507,7 +76602,7 @@
 
 
 /***/ },
-/* 805 */
+/* 808 */
 /***/ function(module, exports) {
 
 	
@@ -76528,7 +76623,7 @@
 	};
 
 /***/ },
-/* 806 */
+/* 809 */
 /***/ function(module, exports) {
 
 	/**
@@ -76554,7 +76649,7 @@
 
 
 /***/ },
-/* 807 */
+/* 810 */
 /***/ function(module, exports) {
 
 	/**
@@ -76592,7 +76687,7 @@
 
 
 /***/ },
-/* 808 */
+/* 811 */
 /***/ function(module, exports) {
 
 	/**
@@ -76621,7 +76716,7 @@
 
 
 /***/ },
-/* 809 */
+/* 812 */
 /***/ function(module, exports) {
 
 	function one(selector, el) {
@@ -76648,7 +76743,7 @@
 
 
 /***/ },
-/* 810 */
+/* 813 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -76657,15 +76752,15 @@
 	 */
 	
 	try {
-	  var events = __webpack_require__(767);
+	  var events = __webpack_require__(770);
 	} catch(err) {
-	  var events = __webpack_require__(767);
+	  var events = __webpack_require__(770);
 	}
 	
 	try {
-	  var delegate = __webpack_require__(811);
+	  var delegate = __webpack_require__(814);
 	} catch(err) {
-	  var delegate = __webpack_require__(811);
+	  var delegate = __webpack_require__(814);
 	}
 	
 	/**
@@ -76839,7 +76934,7 @@
 
 
 /***/ },
-/* 811 */
+/* 814 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -76847,15 +76942,15 @@
 	 */
 	
 	try {
-	  var closest = __webpack_require__(812);
+	  var closest = __webpack_require__(815);
 	} catch(err) {
-	  var closest = __webpack_require__(812);
+	  var closest = __webpack_require__(815);
 	}
 	
 	try {
-	  var event = __webpack_require__(767);
+	  var event = __webpack_require__(770);
 	} catch(err) {
-	  var event = __webpack_require__(767);
+	  var event = __webpack_require__(770);
 	}
 	
 	/**
@@ -76896,7 +76991,7 @@
 
 
 /***/ },
-/* 812 */
+/* 815 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -76904,9 +76999,9 @@
 	 */
 	
 	try {
-	  var matches = __webpack_require__(813)
+	  var matches = __webpack_require__(816)
 	} catch (err) {
-	  var matches = __webpack_require__(813)
+	  var matches = __webpack_require__(816)
 	}
 	
 	/**
@@ -76938,7 +77033,7 @@
 
 
 /***/ },
-/* 813 */
+/* 816 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -76946,9 +77041,9 @@
 	 */
 	
 	try {
-	  var query = __webpack_require__(809);
+	  var query = __webpack_require__(812);
 	} catch (err) {
-	  var query = __webpack_require__(809);
+	  var query = __webpack_require__(812);
 	}
 	
 	/**
@@ -76994,7 +77089,7 @@
 
 
 /***/ },
-/* 814 */
+/* 817 */
 /***/ function(module, exports) {
 
 	
@@ -77164,7 +77259,7 @@
 
 
 /***/ },
-/* 815 */
+/* 818 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -77172,9 +77267,9 @@
 	 */
 	
 	try {
-	  var index = __webpack_require__(816);
+	  var index = __webpack_require__(819);
 	} catch (err) {
-	  var index = __webpack_require__(816);
+	  var index = __webpack_require__(819);
 	}
 	
 	/**
@@ -77361,7 +77456,7 @@
 
 
 /***/ },
-/* 816 */
+/* 819 */
 /***/ function(module, exports) {
 
 	module.exports = function(arr, obj){
@@ -77373,7 +77468,7 @@
 	};
 
 /***/ },
-/* 817 */
+/* 820 */
 /***/ function(module, exports) {
 
 	/**
@@ -77413,7 +77508,7 @@
 
 
 /***/ },
-/* 818 */
+/* 821 */
 /***/ function(module, exports) {
 
 	
@@ -77512,7 +77607,7 @@
 
 
 /***/ },
-/* 819 */
+/* 822 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -77520,7 +77615,7 @@
 	 * Module dependencies.
 	 */
 	
-	var getDocument = __webpack_require__(820);
+	var getDocument = __webpack_require__(823);
 	
 	/**
 	 * Module exports.
@@ -77575,7 +77670,7 @@
 
 
 /***/ },
-/* 820 */
+/* 823 */
 /***/ function(module, exports) {
 
 	
@@ -77638,16 +77733,16 @@
 
 
 /***/ },
-/* 821 */
+/* 824 */
 /***/ function(module, exports) {
 
 	module.exports = "<div class=\"tip tip-hide\">\n  <div class=\"tip-arrow\"></div>\n  <div class=\"tip-inner\"></div>\n</div>";
 
 /***/ },
-/* 822 */
+/* 825 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -77716,13 +77811,13 @@
 	
 	module.exports = closeOnEsc;
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 823 */
+/* 826 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -77785,13 +77880,13 @@
 		}
 	});
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "tooltip.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "tooltip.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 824 */
+/* 827 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -77799,12 +77894,12 @@
 	'use strict';
 	
 	var React = __webpack_require__(146),
-	    throttle = __webpack_require__(760);
+	    throttle = __webpack_require__(763);
 	
 	/**
 	 * Internal dependencies
 	 */
-	var Label = __webpack_require__(825);
+	var Label = __webpack_require__(828);
 	
 	module.exports = React.createClass({
 		displayName: 'ModuleChartXAxis',
@@ -77901,13 +77996,13 @@
 		}
 	});
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "x-axis.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "x-axis.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 825 */
+/* 828 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -77943,13 +78038,13 @@
 		}
 	});
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "label.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "label.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 826 */
+/* 829 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * Module exports.
@@ -77974,20 +78069,20 @@
 		}
 	};
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 827 */
+/* 830 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 828 */,
-/* 829 */
+/* 831 */,
+/* 832 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -78014,7 +78109,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
 	var QueryStatsData = (function (_Component) {
 		_inherits(QueryStatsData, _Component);
@@ -78062,13 +78157,13 @@
 	})(QueryStatsData);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 830 */
+/* 833 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -78087,25 +78182,25 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsDashItem = __webpack_require__(831);
+	var _componentsDashItem = __webpack_require__(834);
 	
 	var _componentsDashItem2 = _interopRequireDefault(_componentsDashItem);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsDataQueryDashProtect = __webpack_require__(846);
+	var _componentsDataQueryDashProtect = __webpack_require__(849);
 	
 	var _componentsDataQueryDashProtect2 = _interopRequireDefault(_componentsDataQueryDashProtect);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var DashProtect = _react2['default'].createClass({
 		displayName: 'DashProtect',
@@ -78211,13 +78306,13 @@
 	})(DashProtect);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "protect.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "protect.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 831 */
+/* 834 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -78240,13 +78335,13 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsNotice = __webpack_require__(832);
+	var _componentsNotice = __webpack_require__(835);
 	
 	var _componentsNotice2 = _interopRequireDefault(_componentsNotice);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -78254,23 +78349,23 @@
 	 * Internal dependencies
 	 */
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	var _componentsSectionHeader = __webpack_require__(835);
+	var _componentsSectionHeader = __webpack_require__(838);
 	
 	var _componentsSectionHeader2 = _interopRequireDefault(_componentsSectionHeader);
 	
-	var _componentsModuleToggle = __webpack_require__(838);
+	var _componentsModuleToggle = __webpack_require__(841);
 	
 	var _stateSite = __webpack_require__(552);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _proStatus = __webpack_require__(842);
+	var _proStatus = __webpack_require__(845);
 	
 	var _proStatus2 = _interopRequireDefault(_proStatus);
 	
@@ -78391,13 +78486,13 @@
 	})(DashItem);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 832 */
+/* 835 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -78430,7 +78525,7 @@
 	
 	var _componentsGridicon2 = _interopRequireDefault(_componentsGridicon);
 	
-	__webpack_require__(833);
+	__webpack_require__(836);
 	
 	exports['default'] = _react2['default'].createClass({
 		displayName: 'SimpleNotice',
@@ -78559,20 +78654,20 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 833 */
+/* 836 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 834 */,
-/* 835 */
+/* 837 */,
+/* 838 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -78597,11 +78692,11 @@
 	 * Internal dependencies
 	 */
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	__webpack_require__(836);
+	__webpack_require__(839);
 	
 	exports['default'] = _react2['default'].createClass({
 		displayName: 'SectionHeader',
@@ -78646,20 +78741,20 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 836 */
+/* 839 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 837 */,
-/* 838 */
+/* 840 */,
+/* 841 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	
 	/**
@@ -78677,7 +78772,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _componentsFormFormToggle = __webpack_require__(839);
+	var _componentsFormFormToggle = __webpack_require__(842);
 	
 	var _componentsFormFormToggle2 = _interopRequireDefault(_componentsFormFormToggle);
 	
@@ -78713,13 +78808,13 @@
 	});
 	exports.ModuleToggle = ModuleToggle;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 839 */
+/* 842 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -78731,7 +78826,7 @@
 	
 	var idNum = 0;
 	
-	__webpack_require__(840);
+	__webpack_require__(843);
 	
 	module.exports = React.createClass({
 	
@@ -78800,20 +78895,20 @@
 		}
 	});
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 840 */
+/* 843 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 841 */,
-/* 842 */
+/* 844 */,
+/* 845 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -78832,13 +78927,13 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
-	var _componentsNotice = __webpack_require__(832);
+	var _componentsNotice = __webpack_require__(835);
 	
 	var _componentsNotice2 = _interopRequireDefault(_componentsNotice);
 	
@@ -78852,21 +78947,21 @@
 	
 	var _stateInitialState = __webpack_require__(317);
 	
-	var _componentsDataQuerySitePlugins = __webpack_require__(843);
+	var _componentsDataQuerySitePlugins = __webpack_require__(846);
 	
 	var _componentsDataQuerySitePlugins2 = _interopRequireDefault(_componentsDataQuerySitePlugins);
 	
-	var _componentsDataQueryVaultpressData = __webpack_require__(844);
+	var _componentsDataQueryVaultpressData = __webpack_require__(847);
 	
 	var _componentsDataQueryVaultpressData2 = _interopRequireDefault(_componentsDataQueryVaultpressData);
 	
-	var _componentsDataQueryAkismetData = __webpack_require__(845);
+	var _componentsDataQueryAkismetData = __webpack_require__(848);
 	
 	var _componentsDataQueryAkismetData2 = _interopRequireDefault(_componentsDataQueryAkismetData);
 	
 	var _stateSitePlugins = __webpack_require__(555);
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
 	var _stateSite = __webpack_require__(552);
 	
@@ -78998,13 +79093,13 @@
 	})(ProStatus);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 843 */
+/* 846 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	
 	/**
@@ -79056,13 +79151,13 @@
 		};
 	})(QuerySitePlugins);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 844 */
+/* 847 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -79091,9 +79186,9 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var QueryVaultPressData = (function (_Component) {
 		_inherits(QueryVaultPressData, _Component);
@@ -79140,13 +79235,13 @@
 	})(QueryVaultPressData);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 845 */
+/* 848 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -79175,7 +79270,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
 	var QueryAkismetData = (function (_Component) {
 		_inherits(QueryAkismetData, _Component);
@@ -79219,13 +79314,13 @@
 	})(QueryAkismetData);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 846 */
+/* 849 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -79254,9 +79349,9 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var QueryProtectCount = (function (_Component) {
 		_inherits(QueryProtectCount, _Component);
@@ -79303,13 +79398,13 @@
 	})(QueryProtectCount);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 847 */
+/* 850 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -79328,25 +79423,25 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsDashItem = __webpack_require__(831);
+	var _componentsDashItem = __webpack_require__(834);
 	
 	var _componentsDashItem2 = _interopRequireDefault(_componentsDashItem);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsDataQueryLastDowntime = __webpack_require__(848);
+	var _componentsDataQueryLastDowntime = __webpack_require__(851);
 	
 	var _componentsDataQueryLastDowntime2 = _interopRequireDefault(_componentsDataQueryLastDowntime);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var DashMonitor = _react2['default'].createClass({
 		displayName: 'DashMonitor',
@@ -79463,13 +79558,13 @@
 	})(DashMonitor);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "monitor.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "monitor.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 848 */
+/* 851 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -79498,9 +79593,9 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var QueryLastDownTime = (function (_Component) {
 		_inherits(QueryLastDownTime, _Component);
@@ -79547,13 +79642,13 @@
 	})(QueryLastDownTime);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 849 */
+/* 852 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -79572,29 +79667,29 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsDashItem = __webpack_require__(831);
+	var _componentsDashItem = __webpack_require__(834);
 	
 	var _componentsDashItem2 = _interopRequireDefault(_componentsDashItem);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsDataQueryVaultpressData = __webpack_require__(844);
+	var _componentsDataQueryVaultpressData = __webpack_require__(847);
 	
 	var _componentsDataQueryVaultpressData2 = _interopRequireDefault(_componentsDataQueryVaultpressData);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var _stateSite = __webpack_require__(552);
 	
 	var _stateSitePlugins = __webpack_require__(555);
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var DashScan = _react2['default'].createClass({
 		displayName: 'DashScan',
@@ -79742,13 +79837,13 @@
 	})(DashScan);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "scan.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "scan.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 850 */
+/* 853 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -79767,25 +79862,25 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsDashItem = __webpack_require__(831);
+	var _componentsDashItem = __webpack_require__(834);
 	
 	var _componentsDashItem2 = _interopRequireDefault(_componentsDashItem);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsDataQueryAkismetData = __webpack_require__(845);
+	var _componentsDataQueryAkismetData = __webpack_require__(848);
 	
 	var _componentsDataQueryAkismetData2 = _interopRequireDefault(_componentsDataQueryAkismetData);
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
 	var _stateSite = __webpack_require__(552);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var DashAkismet = _react2['default'].createClass({
 		displayName: 'DashAkismet',
@@ -79946,13 +80041,13 @@
 	false positives: { akismetData.all.false_positives }
 	*/
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "akismet.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "akismet.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 851 */
+/* 854 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -79971,29 +80066,29 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsDashItem = __webpack_require__(831);
+	var _componentsDashItem = __webpack_require__(834);
 	
 	var _componentsDashItem2 = _interopRequireDefault(_componentsDashItem);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsDataQueryVaultpressData = __webpack_require__(844);
+	var _componentsDataQueryVaultpressData = __webpack_require__(847);
 	
 	var _componentsDataQueryVaultpressData2 = _interopRequireDefault(_componentsDataQueryVaultpressData);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var _stateSite = __webpack_require__(552);
 	
 	var _stateSitePlugins = __webpack_require__(555);
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var DashBackups = _react2['default'].createClass({
 		displayName: 'DashBackups',
@@ -80113,13 +80208,13 @@
 	})(DashBackups);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "backups.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "backups.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 852 */
+/* 855 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -80138,25 +80233,25 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsDashItem = __webpack_require__(831);
+	var _componentsDashItem = __webpack_require__(834);
 	
 	var _componentsDashItem2 = _interopRequireDefault(_componentsDashItem);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsDataQueryPluginUpdates = __webpack_require__(853);
+	var _componentsDataQueryPluginUpdates = __webpack_require__(856);
 	
 	var _componentsDataQueryPluginUpdates2 = _interopRequireDefault(_componentsDataQueryPluginUpdates);
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var DashPluginUpdates = _react2['default'].createClass({
 		displayName: 'DashPluginUpdates',
@@ -80264,13 +80359,13 @@
 	})(DashPluginUpdates);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "plugins.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "plugins.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 853 */
+/* 856 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -80299,7 +80394,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateAtAGlance = __webpack_require__(386);
+	var _stateAtAGlance = __webpack_require__(385);
 	
 	var QueryPluginUpdates = (function (_Component) {
 		_inherits(QueryPluginUpdates, _Component);
@@ -80343,13 +80438,13 @@
 	})(QueryPluginUpdates);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 854 */
+/* 857 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -80368,19 +80463,19 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsDashItem = __webpack_require__(831);
+	var _componentsDashItem = __webpack_require__(834);
 	
 	var _componentsDashItem2 = _interopRequireDefault(_componentsDashItem);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var DashPhoton = _react2['default'].createClass({
 		displayName: 'DashPhoton',
@@ -80447,13 +80542,13 @@
 	})(DashPhoton);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "photon.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "photon.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 855 */
+/* 858 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -80472,17 +80567,17 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsDashItem = __webpack_require__(831);
+	var _componentsDashItem = __webpack_require__(834);
 	
 	var _componentsDashItem2 = _interopRequireDefault(_componentsDashItem);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var DashSiteVerify = _react2['default'].createClass({
 		displayName: 'DashSiteVerify',
@@ -80544,13 +80639,13 @@
 	})(DashSiteVerify);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "site-verification.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "site-verification.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 856 */
+/* 859 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -80569,13 +80664,13 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	var _componentsNotice = __webpack_require__(832);
+	var _componentsNotice = __webpack_require__(835);
 	
 	var _componentsNotice2 = _interopRequireDefault(_componentsNotice);
 	
@@ -80635,13 +80730,13 @@
 	})(FeedbackDashRequest);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "feedback-dash-request.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "feedback-dash-request.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 857 */
+/* 860 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -80694,13 +80789,13 @@
 		};
 	})(QuerySite);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 858 */
+/* 861 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -80719,11 +80814,11 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsFoldableCard = __webpack_require__(703);
+	var _componentsFoldableCard = __webpack_require__(706);
 	
 	var _componentsFoldableCard2 = _interopRequireDefault(_componentsFoldableCard);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -80731,9 +80826,9 @@
 	
 	var _componentsGridicon2 = _interopRequireDefault(_componentsGridicon);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _lodashIncludes = __webpack_require__(535);
+	var _lodashIncludes = __webpack_require__(534);
 	
 	var _lodashIncludes2 = _interopRequireDefault(_lodashIncludes);
 	
@@ -80745,13 +80840,13 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _componentsModuleToggle = __webpack_require__(838);
+	var _componentsModuleToggle = __webpack_require__(841);
 	
-	var _componentsModuleSettingsModulesPerTabPage = __webpack_require__(859);
+	var _componentsModuleSettingsModulesPerTabPage = __webpack_require__(862);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var _stateInitialState = __webpack_require__(317);
 	
@@ -80931,13 +81026,13 @@
 		};
 	})(Page);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 859 */
+/* 862 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -80956,15 +81051,15 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsModuleSettings = __webpack_require__(860);
+	var _componentsModuleSettings = __webpack_require__(863);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -81034,7 +81129,7 @@
 				case 'sitemaps':
 					return _react2['default'].createElement(
 						'span',
-						null,
+						{ className: 'form-setting-explanation' },
 						(0, _i18nCalypso.translate)('This module has no configuration options'),
 						' '
 					);
@@ -81057,13 +81152,13 @@
 	});
 	exports.AllModuleSettings = AllModuleSettings;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "modules-per-tab-page.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "modules-per-tab-page.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 860 */
+/* 863 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -81082,17 +81177,17 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsTextInput = __webpack_require__(864);
 	
-	var _componentsButton2 = _interopRequireDefault(_componentsButton);
+	var _componentsTextInput2 = _interopRequireDefault(_componentsTextInput);
 	
-	var _componentsTagsInput = __webpack_require__(861);
+	var _componentsTagsInput = __webpack_require__(867);
 	
 	var _componentsTagsInput2 = _interopRequireDefault(_componentsTagsInput);
 	
@@ -81100,11 +81195,11 @@
 	 * Internal dependencies
 	 */
 	
-	var _componentsForms = __webpack_require__(863);
+	var _componentsForms = __webpack_require__(869);
 	
-	var _componentsModuleSettingsFormComponents = __webpack_require__(885);
+	var _componentsModuleSettingsFormComponents = __webpack_require__(891);
 	
-	var _componentsModuleSettingsModuleSettingsForm = __webpack_require__(892);
+	var _componentsModuleSettingsModuleSettingsForm = __webpack_require__(898);
 	
 	var SharedaddySettings = _react2['default'].createClass({
 		displayName: 'SharedaddySettings',
@@ -81256,7 +81351,12 @@
 					_react2['default'].createElement(
 						_componentsForms.FormLegend,
 						null,
-						(0, _i18nCalypso.translate)('Comments headline: A few catchy words to motivate your readers to comment')
+						(0, _i18nCalypso.translate)('Comments headline')
+					),
+					_react2['default'].createElement(
+						'span',
+						{ className: 'form-setting-explanation' },
+						(0, _i18nCalypso.translate)('A few catchy words to motivate your readers to comment.')
 					),
 					_react2['default'].createElement(
 						_componentsForms.FormLabel,
@@ -81460,14 +81560,10 @@
 					}, this.props, {
 						label: (0, _i18nCalypso.translate)('Receive Monitor Email Notifications') })),
 					_react2['default'].createElement(
-						'p',
-						null,
-						_react2['default'].createElement(
-							'em',
-							null,
-							(0, _i18nCalypso.translate)('Emails will be sent to ') + this.props.adminEmailAddress,
-							'.'
-						),
+						'span',
+						{ className: 'form-setting-explanation' },
+						(0, _i18nCalypso.translate)('Emails will be sent to ') + this.props.adminEmailAddress,
+						'. ',
 						_react2['default'].createElement(
 							'span',
 							null,
@@ -81704,7 +81800,7 @@
 					null,
 					_react2['default'].createElement(
 						'p',
-						null,
+						{ className: 'form-setting-explanation' },
 						(0, _i18nCalypso.translate)('Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a}}Bing Webmaster Center{{/a}} and {{a}}Pinterest Site Verification{{/a}}.', {
 							components: {
 								a: _react2['default'].createElement('a', { href: 'https://www.google.com/webmasters/tools/', target: '_blank' }),
@@ -81838,13 +81934,13 @@
 				'form',
 				{ onSubmit: this.props.onSubmit },
 				_react2['default'].createElement(
-					'h3',
-					null,
-					(0, _i18nCalypso.translate)('Excerpts')
-				),
-				_react2['default'].createElement(
 					_componentsForms.FormFieldset,
 					null,
+					_react2['default'].createElement(
+						_componentsForms.FormLegend,
+						null,
+						(0, _i18nCalypso.translate)('Excerpts')
+					),
 					_react2['default'].createElement(_componentsModuleSettingsFormComponents.ModuleSettingCheckbox, _extends({
 						name: 'tiled_galleries'
 					}, this.props, {
@@ -81864,7 +81960,8 @@
 	var PostByEmailSettings = _react2['default'].createClass({
 		displayName: 'PostByEmailSettings',
 	
-		regeneratePostByEmailAddress: function regeneratePostByEmailAddress() {
+		regeneratePostByEmailAddress: function regeneratePostByEmailAddress(event) {
+			event.preventDefault();
 			this.props.regeneratePostByEmailAddress();
 		},
 		address: function address() {
@@ -81879,7 +81976,7 @@
 		render: function render() {
 			return _react2['default'].createElement(
 				'form',
-				{ onSubmit: this.props.onSubmit },
+				null,
 				_react2['default'].createElement(
 					_componentsForms.FormFieldset,
 					null,
@@ -81887,17 +81984,15 @@
 						_componentsForms.FormLabel,
 						null,
 						_react2['default'].createElement(
-							'span',
+							_componentsForms.FormLegend,
 							null,
-							' ',
-							(0, _i18nCalypso.translate)('Email Address'),
-							' '
+							(0, _i18nCalypso.translate)('Email Address')
 						),
-						_react2['default'].createElement(_componentsForms.FormTextInput, {
+						_react2['default'].createElement(_componentsTextInput2['default'], {
 							value: this.address(),
 							readOnly: 'readonly' }),
 						_react2['default'].createElement(
-							_componentsButton2['default'],
+							_componentsForms.FormButton,
 							{
 								onClick: this.regeneratePostByEmailAddress },
 							(0, _i18nCalypso.translate)('Regenerate address')
@@ -82087,13 +82182,92 @@
 	exports.MarkdownSettings = MarkdownSettings;
 	exports.MarkdownSettings = MarkdownSettings = (0, _componentsModuleSettingsModuleSettingsForm.ModuleSettingsForm)(MarkdownSettings);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 861 */
+/* 864 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	
+	/**
+	 * External dependencies
+	 */
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _react = __webpack_require__(146);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _classnames = __webpack_require__(610);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	__webpack_require__(865);
+	
+	exports['default'] = _react2['default'].createClass({
+	
+		displayName: 'TextInput',
+	
+		getDefaultProps: function getDefaultProps() {
+			return {
+				isError: false,
+				isValid: false,
+				selectOnFocus: false,
+				type: 'text'
+			};
+		},
+	
+		focus: function focus() {
+			this.refs.textField.focus();
+		},
+	
+		render: function render() {
+			var _props = this.props;
+			var className = _props.className;
+			var selectOnFocus = _props.selectOnFocus;
+	
+			var classes = (0, _classnames2['default'])(className, {
+				'text-input': true,
+				'is-error': this.props.isError,
+				'is-valid': this.props.isValid
+			});
+	
+			return _react2['default'].createElement('input', _extends({}, this.props, {
+				ref: 'textField',
+				className: classes,
+				onClick: selectOnFocus ? this.selectOnFocus : null }));
+		},
+	
+		selectOnFocus: function selectOnFocus(event) {
+			event.target.select();
+		}
+	
+	});
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ },
+/* 865 */
+/***/ function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
+
+/***/ },
+/* 866 */,
+/* 867 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -82107,7 +82281,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactTagsinput = __webpack_require__(862);
+	var _reactTagsinput = __webpack_require__(868);
 	
 	var _reactTagsinput2 = _interopRequireDefault(_reactTagsinput);
 	
@@ -82144,10 +82318,10 @@
 	exports['default'] = JetpackTagsInput;
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 862 */
+/* 868 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
@@ -82745,10 +82919,10 @@
 
 
 /***/ },
-/* 863 */
+/* 869 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -82767,17 +82941,17 @@
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
-	var _lodashOmit = __webpack_require__(864);
+	var _lodashOmit = __webpack_require__(870);
 	
 	var _lodashOmit2 = _interopRequireDefault(_lodashOmit);
 	
-	var _lodashIsEmpty = __webpack_require__(882);
+	var _lodashIsEmpty = __webpack_require__(888);
 	
 	var _lodashIsEmpty2 = _interopRequireDefault(_lodashIsEmpty);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -82938,19 +83112,19 @@
 	});
 	exports.FormButton = FormButton;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 864 */
+/* 870 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var arrayMap = __webpack_require__(544),
-	    baseDifference = __webpack_require__(865),
-	    baseFlatten = __webpack_require__(869),
-	    basePick = __webpack_require__(872),
+	    baseDifference = __webpack_require__(871),
+	    baseFlatten = __webpack_require__(875),
+	    basePick = __webpack_require__(878),
 	    baseRest = __webpack_require__(324),
-	    getAllKeysIn = __webpack_require__(874),
-	    toKey = __webpack_require__(383);
+	    getAllKeysIn = __webpack_require__(880),
+	    toKey = __webpack_require__(382);
 	
 	/**
 	 * The opposite of `_.pick`; this method creates an object composed of the
@@ -82983,15 +83157,15 @@
 
 
 /***/ },
-/* 865 */
+/* 871 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var SetCache = __webpack_require__(729),
-	    arrayIncludes = __webpack_require__(866),
-	    arrayIncludesWith = __webpack_require__(867),
+	var SetCache = __webpack_require__(732),
+	    arrayIncludes = __webpack_require__(872),
+	    arrayIncludesWith = __webpack_require__(873),
 	    arrayMap = __webpack_require__(544),
-	    baseUnary = __webpack_require__(746),
-	    cacheHas = __webpack_require__(868);
+	    baseUnary = __webpack_require__(749),
+	    cacheHas = __webpack_require__(874);
 	
 	/** Used as the size to enable large array optimizations. */
 	var LARGE_ARRAY_SIZE = 200;
@@ -83056,17 +83230,17 @@
 
 
 /***/ },
-/* 866 */
+/* 872 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIndexOf = __webpack_require__(536);
+	var baseIndexOf = __webpack_require__(535);
 	
 	/**
 	 * A specialized version of `_.includes` for arrays without support for
 	 * specifying an index to search from.
 	 *
 	 * @private
-	 * @param {Array} [array] The array to search.
+	 * @param {Array} [array] The array to inspect.
 	 * @param {*} target The value to search for.
 	 * @returns {boolean} Returns `true` if `target` is found, else `false`.
 	 */
@@ -83079,14 +83253,14 @@
 
 
 /***/ },
-/* 867 */
+/* 873 */
 /***/ function(module, exports) {
 
 	/**
 	 * This function is like `arrayIncludes` except that it accepts a comparator.
 	 *
 	 * @private
-	 * @param {Array} [array] The array to search.
+	 * @param {Array} [array] The array to inspect.
 	 * @param {*} target The value to search for.
 	 * @param {Function} comparator The comparator invoked per element.
 	 * @returns {boolean} Returns `true` if `target` is found, else `false`.
@@ -83107,7 +83281,7 @@
 
 
 /***/ },
-/* 868 */
+/* 874 */
 /***/ function(module, exports) {
 
 	/**
@@ -83126,11 +83300,11 @@
 
 
 /***/ },
-/* 869 */
+/* 875 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(870),
-	    isFlattenable = __webpack_require__(871);
+	var arrayPush = __webpack_require__(876),
+	    isFlattenable = __webpack_require__(877);
 	
 	/**
 	 * The base implementation of `_.flatten` with support for restricting flattening.
@@ -83170,7 +83344,7 @@
 
 
 /***/ },
-/* 870 */
+/* 876 */
 /***/ function(module, exports) {
 
 	/**
@@ -83196,10 +83370,10 @@
 
 
 /***/ },
-/* 871 */
+/* 877 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(380),
+	var Symbol = __webpack_require__(379),
 	    isArguments = __webpack_require__(336),
 	    isArray = __webpack_require__(338);
 	
@@ -83222,10 +83396,10 @@
 
 
 /***/ },
-/* 872 */
+/* 878 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var basePickBy = __webpack_require__(873);
+	var basePickBy = __webpack_require__(879);
 	
 	/**
 	 * The base implementation of `_.pick` without support for individual
@@ -83247,7 +83421,7 @@
 
 
 /***/ },
-/* 873 */
+/* 879 */
 /***/ function(module, exports) {
 
 	/**
@@ -83279,12 +83453,12 @@
 
 
 /***/ },
-/* 874 */
+/* 880 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetAllKeys = __webpack_require__(875),
-	    getSymbolsIn = __webpack_require__(876),
-	    keysIn = __webpack_require__(879);
+	var baseGetAllKeys = __webpack_require__(881),
+	    getSymbolsIn = __webpack_require__(882),
+	    keysIn = __webpack_require__(885);
 	
 	/**
 	 * Creates an array of own and inherited enumerable property names and
@@ -83302,10 +83476,10 @@
 
 
 /***/ },
-/* 875 */
+/* 881 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(870),
+	var arrayPush = __webpack_require__(876),
 	    isArray = __webpack_require__(338);
 	
 	/**
@@ -83328,13 +83502,13 @@
 
 
 /***/ },
-/* 876 */
+/* 882 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(870),
+	var arrayPush = __webpack_require__(876),
 	    getPrototype = __webpack_require__(168),
-	    getSymbols = __webpack_require__(877),
-	    stubArray = __webpack_require__(878);
+	    getSymbols = __webpack_require__(883),
+	    stubArray = __webpack_require__(884);
 	
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -83360,11 +83534,11 @@
 
 
 /***/ },
-/* 877 */
+/* 883 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var overArg = __webpack_require__(169),
-	    stubArray = __webpack_require__(878);
+	    stubArray = __webpack_require__(884);
 	
 	/* Built-in method references for those with the same name as other `lodash` methods. */
 	var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -83382,7 +83556,7 @@
 
 
 /***/ },
-/* 878 */
+/* 884 */
 /***/ function(module, exports) {
 
 	/**
@@ -83411,11 +83585,11 @@
 
 
 /***/ },
-/* 879 */
+/* 885 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var arrayLikeKeys = __webpack_require__(334),
-	    baseKeysIn = __webpack_require__(880),
+	    baseKeysIn = __webpack_require__(886),
 	    isArrayLike = __webpack_require__(327);
 	
 	/**
@@ -83449,12 +83623,12 @@
 
 
 /***/ },
-/* 880 */
+/* 886 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isObject = __webpack_require__(329),
 	    isPrototype = __webpack_require__(332),
-	    nativeKeysIn = __webpack_require__(881);
+	    nativeKeysIn = __webpack_require__(887);
 	
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -83488,7 +83662,7 @@
 
 
 /***/ },
-/* 881 */
+/* 887 */
 /***/ function(module, exports) {
 
 	/**
@@ -83514,19 +83688,16 @@
 
 
 /***/ },
-/* 882 */
+/* 888 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getTag = __webpack_require__(738),
+	var getTag = __webpack_require__(741),
 	    isArguments = __webpack_require__(336),
 	    isArray = __webpack_require__(338),
 	    isArrayLike = __webpack_require__(327),
-	    isBuffer = __webpack_require__(883),
-	    isFunction = __webpack_require__(328),
-	    isObjectLike = __webpack_require__(171),
+	    isBuffer = __webpack_require__(889),
 	    isPrototype = __webpack_require__(332),
-	    isString = __webpack_require__(339),
-	    nativeKeys = __webpack_require__(341);
+	    nativeKeys = __webpack_require__(340);
 	
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -83579,35 +83750,34 @@
 	 */
 	function isEmpty(value) {
 	  if (isArrayLike(value) &&
-	      (isArray(value) || isString(value) || isFunction(value.splice) ||
-	        isArguments(value) || isBuffer(value))) {
+	      (isArray(value) || typeof value == 'string' ||
+	        typeof value.splice == 'function' || isBuffer(value) || isArguments(value))) {
 	    return !value.length;
 	  }
-	  if (isObjectLike(value)) {
-	    var tag = getTag(value);
-	    if (tag == mapTag || tag == setTag) {
-	      return !value.size;
-	    }
+	  var tag = getTag(value);
+	  if (tag == mapTag || tag == setTag) {
+	    return !value.size;
 	  }
-	  var isProto = isPrototype(value);
+	  if (nonEnumShadows || isPrototype(value)) {
+	    return !nativeKeys(value).length;
+	  }
 	  for (var key in value) {
-	    if (hasOwnProperty.call(value, key) &&
-	        !(isProto && key == 'constructor')) {
+	    if (hasOwnProperty.call(value, key)) {
 	      return false;
 	    }
 	  }
-	  return !(nonEnumShadows && nativeKeys(value).length);
+	  return true;
 	}
 	
 	module.exports = isEmpty;
 
 
 /***/ },
-/* 883 */
+/* 889 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(356),
-	    stubFalse = __webpack_require__(884);
+	/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(355),
+	    stubFalse = __webpack_require__(890);
 	
 	/** Detect free variable `exports`. */
 	var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -83645,10 +83815,10 @@
 	
 	module.exports = isBuffer;
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(393)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(392)(module)))
 
 /***/ },
-/* 884 */
+/* 890 */
 /***/ function(module, exports) {
 
 	/**
@@ -83672,10 +83842,10 @@
 
 
 /***/ },
-/* 885 */
+/* 891 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -83692,11 +83862,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _lodashConcat = __webpack_require__(886);
+	var _lodashConcat = __webpack_require__(892);
 	
 	var _lodashConcat2 = _interopRequireDefault(_lodashConcat);
 	
-	var _lodashWithout = __webpack_require__(888);
+	var _lodashWithout = __webpack_require__(894);
 	
 	var _lodashWithout2 = _interopRequireDefault(_lodashWithout);
 	
@@ -83704,9 +83874,9 @@
 	 * Internal dependencies
 	 */
 	
-	var _componentsForms = __webpack_require__(863);
+	var _componentsForms = __webpack_require__(869);
 	
-	var _componentsCheckbox = __webpack_require__(889);
+	var _componentsCheckbox = __webpack_require__(895);
 	
 	var _componentsCheckbox2 = _interopRequireDefault(_componentsCheckbox);
 	
@@ -83818,15 +83988,15 @@
 	});
 	exports.ModuleSettingMultipleSelectCheckboxes = ModuleSettingMultipleSelectCheckboxes;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "form-components.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "form-components.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 886 */
+/* 892 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayPush = __webpack_require__(870),
-	    baseFlatten = __webpack_require__(869),
-	    copyArray = __webpack_require__(887),
+	var arrayPush = __webpack_require__(876),
+	    baseFlatten = __webpack_require__(875),
+	    copyArray = __webpack_require__(893),
 	    isArray = __webpack_require__(338);
 	
 	/**
@@ -83869,7 +84039,7 @@
 
 
 /***/ },
-/* 887 */
+/* 893 */
 /***/ function(module, exports) {
 
 	/**
@@ -83895,10 +84065,10 @@
 
 
 /***/ },
-/* 888 */
+/* 894 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseDifference = __webpack_require__(865),
+	var baseDifference = __webpack_require__(871),
 	    baseRest = __webpack_require__(324),
 	    isArrayLikeObject = __webpack_require__(337);
 	
@@ -83932,10 +84102,10 @@
 
 
 /***/ },
-/* 889 */
+/* 895 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -83946,9 +84116,9 @@
 	
 	var React = __webpack_require__(146),
 	    classnames = __webpack_require__(610),
-	    omit = __webpack_require__(771);
+	    omit = __webpack_require__(774);
 	
-	__webpack_require__(890);
+	__webpack_require__(896);
 	
 	module.exports = React.createClass({
 	
@@ -83972,20 +84142,20 @@
 		}
 	});
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 890 */
+/* 896 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 891 */,
-/* 892 */
+/* 897 */,
+/* 898 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -84012,7 +84182,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _componentsModuleSettingsConnectModuleOptions = __webpack_require__(893);
+	var _componentsModuleSettingsConnectModuleOptions = __webpack_require__(899);
 	
 	function ModuleSettingsForm(InnerComponent) {
 		var SettingsForm = _react2['default'].createClass({
@@ -84083,13 +84253,13 @@
 		return (0, _componentsModuleSettingsConnectModuleOptions.connectModuleOptions)(SettingsForm);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "module-settings-form.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "module-settings-form.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 893 */
+/* 899 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -84107,7 +84277,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var _stateInitialState = __webpack_require__(317);
 	
@@ -84148,13 +84318,13 @@
 		})(Component);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "connect-module-options.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "connect-module-options.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 894 */
+/* 900 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -84173,11 +84343,11 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsFoldableCard = __webpack_require__(703);
+	var _componentsFoldableCard = __webpack_require__(706);
 	
 	var _componentsFoldableCard2 = _interopRequireDefault(_componentsFoldableCard);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -84185,9 +84355,9 @@
 	
 	var _componentsGridicon2 = _interopRequireDefault(_componentsGridicon);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _componentsNotice = __webpack_require__(832);
+	var _componentsNotice = __webpack_require__(835);
 	
 	var _componentsNotice2 = _interopRequireDefault(_componentsNotice);
 	
@@ -84199,21 +84369,21 @@
 	 * Internal dependencies
 	 */
 	
-	var _componentsDataQuerySite = __webpack_require__(857);
+	var _componentsDataQuerySite = __webpack_require__(860);
 	
 	var _componentsDataQuerySite2 = _interopRequireDefault(_componentsDataQuerySite);
 	
-	var _proStatus = __webpack_require__(842);
+	var _proStatus = __webpack_require__(845);
 	
 	var _proStatus2 = _interopRequireDefault(_proStatus);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _componentsModuleToggle = __webpack_require__(838);
+	var _componentsModuleToggle = __webpack_require__(841);
 	
-	var _componentsModuleSettingsModulesPerTabPage = __webpack_require__(859);
+	var _componentsModuleSettingsModulesPerTabPage = __webpack_require__(862);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var Page = function Page(props) {
 		var toggleModule = props.toggleModule;
@@ -84324,13 +84494,13 @@
 		};
 	})(Page);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 895 */
+/* 901 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -84349,11 +84519,11 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsFoldableCard = __webpack_require__(703);
+	var _componentsFoldableCard = __webpack_require__(706);
 	
 	var _componentsFoldableCard2 = _interopRequireDefault(_componentsFoldableCard);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -84361,7 +84531,7 @@
 	
 	var _componentsGridicon2 = _interopRequireDefault(_componentsGridicon);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	var _libAnalytics = __webpack_require__(269);
 	
@@ -84371,13 +84541,13 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _componentsModuleToggle = __webpack_require__(838);
+	var _componentsModuleToggle = __webpack_require__(841);
 	
-	var _componentsModuleSettingsModulesPerTabPage = __webpack_require__(859);
+	var _componentsModuleSettingsModulesPerTabPage = __webpack_require__(862);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var _stateInitialState = __webpack_require__(317);
 	
@@ -84493,13 +84663,13 @@
 		};
 	})(Page);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 896 */
+/* 902 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -84518,11 +84688,11 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsFoldableCard = __webpack_require__(703);
+	var _componentsFoldableCard = __webpack_require__(706);
 	
 	var _componentsFoldableCard2 = _interopRequireDefault(_componentsFoldableCard);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -84530,11 +84700,11 @@
 	
 	var _componentsGridicon2 = _interopRequireDefault(_componentsGridicon);
 	
-	var _componentsSettings = __webpack_require__(897);
+	var _componentsSettings = __webpack_require__(903);
 	
 	var _componentsSettings2 = _interopRequireDefault(_componentsSettings);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	var _libAnalytics = __webpack_require__(269);
 	
@@ -84544,15 +84714,15 @@
 	 * Internal dependencies
 	 */
 	
-	var _connectionSettings = __webpack_require__(899);
+	var _connectionSettings = __webpack_require__(905);
 	
 	var _connectionSettings2 = _interopRequireDefault(_connectionSettings);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _componentsModuleToggle = __webpack_require__(838);
+	var _componentsModuleToggle = __webpack_require__(841);
 	
 	var Page = function Page(props) {
 		var toggleModule = props.toggleModule;
@@ -84690,13 +84860,13 @@
 		};
 	})(Page);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 897 */
+/* 903 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	
 	/**
@@ -84718,9 +84888,9 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsSettingToggle = __webpack_require__(898);
+	var _componentsSettingToggle = __webpack_require__(904);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
@@ -84773,13 +84943,13 @@
 		};
 	})(Settings);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 898 */
+/* 904 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	
 	/**
@@ -84797,7 +84967,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _componentsFormFormToggle = __webpack_require__(839);
+	var _componentsFormFormToggle = __webpack_require__(842);
 	
 	var _componentsFormFormToggle2 = _interopRequireDefault(_componentsFormFormToggle);
 	
@@ -84835,13 +85005,13 @@
 	});
 	exports.SettingToggle = SettingToggle;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 899 */
+/* 905 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -84860,19 +85030,19 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _componentsDataQueryUserConnection = __webpack_require__(900);
+	var _componentsDataQueryUserConnection = __webpack_require__(906);
 	
 	var _componentsDataQueryUserConnection2 = _interopRequireDefault(_componentsDataQueryUserConnection);
 	
-	var _componentsConnectButton = __webpack_require__(696);
+	var _componentsConnectButton = __webpack_require__(699);
 	
 	var _componentsConnectButton2 = _interopRequireDefault(_componentsConnectButton);
 	
@@ -84927,13 +85097,13 @@
 	})(ConnectionSettings);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "connection-settings.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "connection-settings.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 900 */
+/* 906 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -84962,7 +85132,7 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var QueryUserConnectionData = (function (_Component) {
 		_inherits(QueryUserConnectionData, _Component);
@@ -85003,13 +85173,13 @@
 	})(QueryUserConnectionData);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 901 */
+/* 907 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -85028,11 +85198,11 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsFoldableCard = __webpack_require__(703);
+	var _componentsFoldableCard = __webpack_require__(706);
 	
 	var _componentsFoldableCard2 = _interopRequireDefault(_componentsFoldableCard);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -85040,9 +85210,9 @@
 	
 	var _componentsGridicon2 = _interopRequireDefault(_componentsGridicon);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _lodashIncludes = __webpack_require__(535);
+	var _lodashIncludes = __webpack_require__(534);
 	
 	var _lodashIncludes2 = _interopRequireDefault(_lodashIncludes);
 	
@@ -85054,13 +85224,13 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
-	var _componentsModuleToggle = __webpack_require__(838);
+	var _componentsModuleToggle = __webpack_require__(841);
 	
-	var _componentsModuleSettingsModulesPerTabPage = __webpack_require__(859);
+	var _componentsModuleSettingsModulesPerTabPage = __webpack_require__(862);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var Page = function Page(props) {
 		var toggleModule = props.toggleModule;
@@ -85186,13 +85356,13 @@
 		};
 	})(Page);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 902 */
+/* 908 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -85211,17 +85381,17 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _constants = __webpack_require__(701);
+	var _constants = __webpack_require__(704);
 	
 	var Apps = function Apps(props) {
 		var canViewStats = 'object' === typeof window.Initial_State.userData && window.Initial_State.userData.currentUser && window.Initial_State.userData.currentUser.permissions && window.Initial_State.userData.currentUser.permissions.view_stats;
@@ -85503,13 +85673,13 @@
 	exports['default'] = Apps;
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 903 */
+/* 909 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -85528,11 +85698,11 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
@@ -85540,17 +85710,17 @@
 	
 	var _stateSite = __webpack_require__(552);
 	
-	var _componentsDataQuerySite = __webpack_require__(857);
+	var _componentsDataQuerySite = __webpack_require__(860);
 	
 	var _componentsDataQuerySite2 = _interopRequireDefault(_componentsDataQuerySite);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _planHeader = __webpack_require__(904);
+	var _planHeader = __webpack_require__(910);
 	
 	var _planHeader2 = _interopRequireDefault(_planHeader);
 	
-	var _planBody = __webpack_require__(905);
+	var _planBody = __webpack_require__(911);
 	
 	var _planBody2 = _interopRequireDefault(_planBody);
 	
@@ -85601,13 +85771,13 @@
 		};
 	})(Plans);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 904 */
+/* 910 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -85624,17 +85794,17 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _constants = __webpack_require__(701);
+	var _constants = __webpack_require__(704);
 	
 	var PlanHeader = _react2['default'].createClass({
 		displayName: 'PlanHeader',
@@ -85834,13 +86004,13 @@
 	exports['default'] = PlanHeader;
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "plan-header.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "plan-header.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 905 */
+/* 911 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -85859,13 +86029,13 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _lodashIncludes = __webpack_require__(535);
+	var _lodashIncludes = __webpack_require__(534);
 	
 	var _lodashIncludes2 = _interopRequireDefault(_lodashIncludes);
 	
@@ -85873,11 +86043,11 @@
 	 * Internal dependencies
 	 */
 	
-	var _constants = __webpack_require__(701);
+	var _constants = __webpack_require__(704);
 	
 	var _stateSitePlugins = __webpack_require__(555);
 	
-	var _componentsDataQuerySitePlugins = __webpack_require__(843);
+	var _componentsDataQuerySitePlugins = __webpack_require__(846);
 	
 	var _componentsDataQuerySitePlugins2 = _interopRequireDefault(_componentsDataQuerySitePlugins);
 	
@@ -86144,13 +86314,13 @@
 	})(PlanBody);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "plan-body.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "plan-body.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 906 */
+/* 912 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -86173,7 +86343,7 @@
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
@@ -86181,9 +86351,9 @@
 	
 	var _stateInitialState = __webpack_require__(317);
 	
-	var _stateDevVersion = __webpack_require__(907);
+	var _stateDevVersion = __webpack_require__(913);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var Footer = _react2['default'].createClass({
 		displayName: 'Footer',
@@ -86329,13 +86499,13 @@
 		};
 	})(Footer);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 907 */
+/* 913 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	'use strict';
 	
@@ -86347,17 +86517,17 @@
 	
 	function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 	
-	var _actions = __webpack_require__(908);
+	var _actions = __webpack_require__(914);
 	
 	_defaults(exports, _interopExportWildcard(_actions, _defaults));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 908 */
+/* 914 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -86370,17 +86540,17 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _componentsGlobalNoticesStateNoticesActions = __webpack_require__(399);
+	var _componentsGlobalNoticesStateNoticesActions = __webpack_require__(398);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _stateActionTypes = __webpack_require__(384);
+	var _stateActionTypes = __webpack_require__(383);
 	
-	var _restApi = __webpack_require__(389);
+	var _restApi = __webpack_require__(388);
 	
 	var _restApi2 = _interopRequireDefault(_restApi);
 	
@@ -86408,13 +86578,13 @@
 	};
 	exports.resetOptions = resetOptions;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "actions.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 909 */
+/* 915 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -86435,17 +86605,17 @@
 	
 	var _classnames2 = _interopRequireDefault(_classnames);
 	
-	var _lodashSample = __webpack_require__(910);
+	var _lodashSample = __webpack_require__(916);
 	
 	var _lodashSample2 = _interopRequireDefault(_lodashSample);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
@@ -86549,13 +86719,13 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 910 */
+/* 916 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseRandom = __webpack_require__(911),
+	var baseRandom = __webpack_require__(917),
 	    isArrayLike = __webpack_require__(327),
 	    values = __webpack_require__(542);
 	
@@ -86584,7 +86754,7 @@
 
 
 /***/ },
-/* 911 */
+/* 917 */
 /***/ function(module, exports) {
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
@@ -86608,10 +86778,10 @@
 
 
 /***/ },
-/* 912 */
+/* 918 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -86630,31 +86800,31 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsConnectButton = __webpack_require__(696);
+	var _componentsConnectButton = __webpack_require__(699);
 	
 	var _componentsConnectButton2 = _interopRequireDefault(_componentsConnectButton);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _componentsDataQueryUserConnection = __webpack_require__(900);
+	var _componentsDataQueryUserConnection = __webpack_require__(906);
 	
 	var _componentsDataQueryUserConnection2 = _interopRequireDefault(_componentsDataQueryUserConnection);
 	
-	var _connected = __webpack_require__(913);
+	var _connected = __webpack_require__(919);
 	
 	var _connected2 = _interopRequireDefault(_connected);
 	
-	var _notConnected = __webpack_require__(914);
+	var _notConnected = __webpack_require__(920);
 	
 	var _notConnected2 = _interopRequireDefault(_notConnected);
 	
@@ -86696,13 +86866,13 @@
 	})(NonAdminView);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 913 */
+/* 919 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -86721,29 +86891,29 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsConnectButton = __webpack_require__(696);
+	var _componentsConnectButton = __webpack_require__(699);
 	
 	var _componentsConnectButton2 = _interopRequireDefault(_componentsConnectButton);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _componentsDataQueryUserConnection = __webpack_require__(900);
+	var _componentsDataQueryUserConnection = __webpack_require__(906);
 	
 	var _componentsDataQueryUserConnection2 = _interopRequireDefault(_componentsDataQueryUserConnection);
 	
 	var _stateInitialState = __webpack_require__(317);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var _componentsNavigation = __webpack_require__(566);
 	
@@ -86753,23 +86923,23 @@
 	
 	var _componentsNavigationSettings2 = _interopRequireDefault(_componentsNavigationSettings);
 	
-	var _atAGlanceIndexJsx = __webpack_require__(707);
+	var _atAGlanceIndexJsx = __webpack_require__(710);
 	
 	var _atAGlanceIndexJsx2 = _interopRequireDefault(_atAGlanceIndexJsx);
 	
-	var _engagementIndexJsx = __webpack_require__(858);
+	var _engagementIndexJsx = __webpack_require__(861);
 	
 	var _engagementIndexJsx2 = _interopRequireDefault(_engagementIndexJsx);
 	
-	var _generalSettingsIndexJsx = __webpack_require__(896);
+	var _generalSettingsIndexJsx = __webpack_require__(902);
 	
 	var _generalSettingsIndexJsx2 = _interopRequireDefault(_generalSettingsIndexJsx);
 	
-	var _writingIndexJsx = __webpack_require__(901);
+	var _writingIndexJsx = __webpack_require__(907);
 	
 	var _writingIndexJsx2 = _interopRequireDefault(_writingIndexJsx);
 	
-	var _appsIndexJsx = __webpack_require__(902);
+	var _appsIndexJsx = __webpack_require__(908);
 	
 	var _appsIndexJsx2 = _interopRequireDefault(_appsIndexJsx);
 	
@@ -86842,13 +87012,13 @@
 	})(NonAdminViewConnected);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "connected.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "connected.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 914 */
+/* 920 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -86867,27 +87037,27 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsCard = __webpack_require__(692);
+	var _componentsCard = __webpack_require__(695);
 	
 	var _componentsCard2 = _interopRequireDefault(_componentsCard);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
 	 */
 	
-	var _componentsConnectButton = __webpack_require__(696);
+	var _componentsConnectButton = __webpack_require__(699);
 	
 	var _componentsConnectButton2 = _interopRequireDefault(_componentsConnectButton);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _componentsDataQueryUserConnection = __webpack_require__(900);
+	var _componentsDataQueryUserConnection = __webpack_require__(906);
 	
 	var _componentsDataQueryUserConnection2 = _interopRequireDefault(_componentsDataQueryUserConnection);
 	
-	var _constants = __webpack_require__(701);
+	var _constants = __webpack_require__(704);
 	
 	var NonAdminViewNotConnected = _react2['default'].createClass({
 		displayName: 'NonAdminViewNotConnected',
@@ -87109,13 +87279,13 @@
 	module.exports = exports['default'];
 	/* defining width and height for IE here */
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "not-connected.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "not-connected.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 915 */
+/* 921 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -87134,13 +87304,13 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsNotice = __webpack_require__(832);
+	var _componentsNotice = __webpack_require__(835);
 	
 	var _componentsNotice2 = _interopRequireDefault(_componentsNotice);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _componentsGlobalNotices = __webpack_require__(916);
+	var _componentsGlobalNotices = __webpack_require__(922);
 	
 	var _componentsGlobalNotices2 = _interopRequireDefault(_componentsGlobalNotices);
 	
@@ -87148,15 +87318,15 @@
 	 * Internal dependencies
 	 */
 	
-	var _stateNotices = __webpack_require__(924);
+	var _stateNotices = __webpack_require__(930);
 	
 	var _stateNotices2 = _interopRequireDefault(_stateNotices);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
 	var _stateInitialState = __webpack_require__(317);
 	
-	var _dismissable = __webpack_require__(925);
+	var _dismissable = __webpack_require__(931);
 	
 	var _dismissable2 = _interopRequireDefault(_dismissable);
 	
@@ -87281,13 +87451,13 @@
 		return state;
 	})(JetpackNotices);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 916 */
+/* 922 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External Dependencies
@@ -87312,15 +87482,15 @@
 	 * Internal Dependencies
 	 */
 	
-	var _componentsNoticeIndexJsx = __webpack_require__(832);
+	var _componentsNoticeIndexJsx = __webpack_require__(835);
 	
 	var _componentsNoticeIndexJsx2 = _interopRequireDefault(_componentsNoticeIndexJsx);
 	
-	var _componentsNoticeNoticeAction = __webpack_require__(917);
+	var _componentsNoticeNoticeAction = __webpack_require__(923);
 	
 	var _componentsNoticeNoticeAction2 = _interopRequireDefault(_componentsNoticeNoticeAction);
 	
-	var _notices = __webpack_require__(918);
+	var _notices = __webpack_require__(924);
 	
 	var _notices2 = _interopRequireDefault(_notices);
 	
@@ -87328,11 +87498,11 @@
 	
 	var _redux = __webpack_require__(307);
 	
-	var _stateNoticesActions = __webpack_require__(399);
+	var _stateNoticesActions = __webpack_require__(398);
 	
 	var debug = (0, _debug2['default'])('calypso:notices');
 	
-	__webpack_require__(922);
+	__webpack_require__(928);
 	
 	var NoticesList = _react2['default'].createClass({
 	
@@ -87419,13 +87589,13 @@
 	})(NoticesList);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 917 */
+/* 923 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -87492,13 +87662,13 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "notice-action.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "notice-action.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 918 */
+/* 924 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External Dependencies
@@ -87510,7 +87680,7 @@
 	});
 	var debug = __webpack_require__(270)('calypso:notices');
 	
-	var Emitter = __webpack_require__(919);
+	var Emitter = __webpack_require__(925);
 	
 	debug('initializing notices');
 	
@@ -87518,7 +87688,7 @@
 	Emitter(list);
 	var delayedNotices = [];
 	
-	__webpack_require__(920);
+	__webpack_require__(926);
 	
 	var notices = {
 		/**
@@ -87707,13 +87877,13 @@
 	exports['default'] = notices;
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 919 */
+/* 925 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	// Here we make sure we’re not using Node’s core events module,
 	// because it contains a `domain` property and it clashes with our
@@ -87725,7 +87895,7 @@
 	// makes for a nice consistency.
 	'use strict';
 	
-	var EventEmitter = __webpack_require__(515).EventEmitter,
+	var EventEmitter = __webpack_require__(514).EventEmitter,
 	    assign = __webpack_require__(273);
 	
 	module.exports = function (prototype) {
@@ -87736,27 +87906,27 @@
 		prototype.off = prototype.removeListener;
 	};
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 920 */
+/* 926 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 921 */,
-/* 922 */
+/* 927 */,
+/* 928 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 923 */,
-/* 924 */
+/* 929 */,
+/* 930 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -87775,9 +87945,9 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
-	var _componentsNotice = __webpack_require__(832);
+	var _componentsNotice = __webpack_require__(835);
 	
 	var _componentsNotice2 = _interopRequireDefault(_componentsNotice);
 	
@@ -87990,13 +88160,13 @@
 	exports['default'] = JetpackStateNotices;
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "state-notices.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "state-notices.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 925 */
+/* 931 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -88017,11 +88187,11 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsNotice = __webpack_require__(832);
+	var _componentsNotice = __webpack_require__(835);
 	
 	var _componentsNotice2 = _interopRequireDefault(_componentsNotice);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	/**
 	 * Internal dependencies
@@ -88086,13 +88256,13 @@
 	})(DismissableNotices);
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "dismissable.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "dismissable.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 926 */
+/* 932 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	 * External dependencies
@@ -88111,17 +88281,17 @@
 	
 	var _reactRedux = __webpack_require__(158);
 	
-	var _componentsFoldableCard = __webpack_require__(703);
+	var _componentsFoldableCard = __webpack_require__(706);
 	
 	var _componentsFoldableCard2 = _interopRequireDefault(_componentsFoldableCard);
 	
-	var _componentsModuleToggle = __webpack_require__(838);
+	var _componentsModuleToggle = __webpack_require__(841);
 	
-	var _lodashForEach = __webpack_require__(710);
+	var _lodashForEach = __webpack_require__(713);
 	
 	var _lodashForEach2 = _interopRequireDefault(_lodashForEach);
 	
-	var _componentsButton = __webpack_require__(697);
+	var _componentsButton = __webpack_require__(700);
 	
 	var _componentsButton2 = _interopRequireDefault(_componentsButton);
 	
@@ -88129,11 +88299,11 @@
 	
 	var _componentsGridicon2 = _interopRequireDefault(_componentsGridicon);
 	
-	var _componentsSearchSearchCollectionJsx = __webpack_require__(927);
+	var _componentsSearchSearchCollectionJsx = __webpack_require__(933);
 	
 	var _componentsSearchSearchCollectionJsx2 = _interopRequireDefault(_componentsSearchSearchCollectionJsx);
 	
-	var _i18nCalypso = __webpack_require__(406);
+	var _i18nCalypso = __webpack_require__(405);
 	
 	var _libAnalytics = __webpack_require__(269);
 	
@@ -88143,21 +88313,21 @@
 	 * Internal dependencies
 	 */
 	
-	var _componentsDataQuerySite = __webpack_require__(857);
+	var _componentsDataQuerySite = __webpack_require__(860);
 	
 	var _componentsDataQuerySite2 = _interopRequireDefault(_componentsDataQuerySite);
 	
-	var _stateConnection = __webpack_require__(533);
+	var _stateConnection = __webpack_require__(532);
 	
-	var _componentsModuleSettingsModulesPerTabPage = __webpack_require__(859);
+	var _componentsModuleSettingsModulesPerTabPage = __webpack_require__(862);
 	
-	var _stateModules = __webpack_require__(396);
+	var _stateModules = __webpack_require__(395);
 	
 	var _stateSearch = __webpack_require__(561);
 	
 	var _stateSite = __webpack_require__(552);
 	
-	var _proStatus = __webpack_require__(842);
+	var _proStatus = __webpack_require__(845);
 	
 	var _proStatus2 = _interopRequireDefault(_proStatus);
 	
@@ -88315,13 +88485,13 @@
 		};
 	})(Page);
 	
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "index.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 927 */
+/* 933 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/sam/Development/jetpack/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 	
 	/**
 	* External dependencies
@@ -88443,7 +88613,7 @@
 	});
 	module.exports = exports['default'];
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/dsmart/Desktop/Jetpack/dotorg-sandbox/wp-content/plugins/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "search-collection.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/sam/Development/jetpack/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "search-collection.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ }
 /******/ ]);
