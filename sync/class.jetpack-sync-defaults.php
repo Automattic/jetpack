@@ -257,6 +257,7 @@ class Jetpack_Sync_Defaults {
 	static $default_max_queue_lag = 900; // 15 minutes
 	static $default_queue_max_writes_sec = 100; // 100 rows a second
 	static $default_post_types_blacklist = array();
+	static $default_meta_blacklist = array();
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
 }

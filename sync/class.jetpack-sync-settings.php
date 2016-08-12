@@ -15,10 +15,7 @@ class Jetpack_Sync_Settings {
 		'max_queue_lag'        => true,
 		'queue_max_writes_sec' => true,
 		'post_types_blacklist' => true,
-	);
-
-	static $array_settings = array(
-		'post_types_blacklist',
+		'meta_blacklist'       => true,
 	);
 
 	static $is_importing;
@@ -60,6 +57,11 @@ class Jetpack_Sync_Settings {
 		// specifically for the post_types blacklist, we want to include the hardcoded settings
 		if ( $setting === 'post_types_blacklist' ) {
 			$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$blacklisted_post_types ) );
+		}
+
+		// ditto for meta blacklist
+		if ( $setting === 'meta_blacklist' ) {
+			$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$default_blacklist_meta_keys ) );
 		}
 
 		self::$settings_cache[ $setting ] = $value;
