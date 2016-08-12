@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
 import { translate as __ } from 'i18n-calypso';
 import NoticesList from 'components/global-notices';
 
@@ -14,6 +15,8 @@ import JetpackStateNotices from './state-notices';
 import { getSiteConnectionStatus, getSiteDevMode, isStaging } from 'state/connection';
 import { isDevVersion } from 'state/initial-state';
 import DismissableNotices from './dismissable';
+import { getConnectUrl as _getConnectUrl } from 'state/connection';
+import QueryConnectUrl from 'components/data/query-connect-url';
 
 export const DevVersionNotice = React.createClass( {
 	displayName: 'DevVersionNotice',
@@ -122,18 +125,56 @@ export const DevModeNotice = React.createClass( {
 
 } );
 
+export const UserUnlinked = React.createClass( {
+	displayName: 'UserUnlinked',
+
+	render() {
+		if (
+			! window.Initial_State.userData.currentUser.isConnected &&
+			this.props.connectUrl
+		) {
+			let text;
+
+			text = __( 'You, %(userName)s, are not connected to WordPress.com.', {
+				args: {
+					userName: window.Initial_State.userData.currentUser.username
+				}
+			} );
+
+			return (
+				<SimpleNotice
+					showDismiss={ false }
+					status="is-info"
+					text={ text }
+				>
+					<NoticeAction
+						href={ this.props.connectUrl }
+					>
+						{ __( 'Link to WordPress.com' ) }
+					</NoticeAction>
+				</SimpleNotice>
+			);
+		}
+
+		return false;
+	}
+
+} );
+
 const JetpackNotices = React.createClass( {
 	displayName: 'JetpackNotices',
 
 	render() {
 		return (
 			<div>
+				<QueryConnectUrl />
 				<NoticesList { ...this.props } />
 				<JetpackStateNotices />
 				<DevVersionNotice { ...this.props } />
 				<DevModeNotice { ...this.props } />
 				<StagingSiteNotice { ...this.props } />
 				<DismissableNotices />
+				<UserUnlinked connectUrl={ this.props.connectUrl( this.props ) } />
 			</div>
 		);
 	}
@@ -141,6 +182,9 @@ const JetpackNotices = React.createClass( {
 
 export default connect(
 	state => {
-		return state;
+		return {
+			fetchingConnectUrl: () => _isFetchingConnectUrl( state ),
+			connectUrl: () => _getConnectUrl( state )
+		};
 	}
 )( JetpackNotices );
