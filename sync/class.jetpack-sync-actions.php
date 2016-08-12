@@ -10,6 +10,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
+	const MAX_INITIAL_SYNC_USERS = 500;
 
 	static function init() {
 
@@ -135,11 +136,43 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
+	static function get_initial_sync_user_config() {
+		global $wp_roles, $blog_id, $wpdb;
+		$edit_and_publish_roles = array_keys( array_filter( $wp_roles->role_objects, array( __CLASS__, 'is_initial_sync_role' ) ) );
+		$user_role_regexp = join( '|', array_map( array( __CLASS__, 'double_quote' ), $edit_and_publish_roles ) );
+
+		$users_count = $wpdb->get_var( 
+			$wpdb->prepare( 
+				"SELECT count(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->base_prefix}capabilities' AND meta_value REGEXP %s",
+				$user_role_regexp
+			)
+		);
+
+		if ( $users_count <= self::MAX_INITIAL_SYNC_USERS ) {
+			return $wpdb->get_col( 
+				$wpdb->prepare( 
+					"SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->base_prefix}capabilities' AND meta_value REGEXP %s",
+					$user_role_regexp
+				)
+			);
+		} else {
+			return false;
+		}
+	}
+
+	static function double_quote( $str ) {
+		return "\"$str\"";
+	}
+
+	static function is_initial_sync_role( $role ) { 
+		return $role->has_cap( 'edit_pages' ) || $role->has_cap( 'edit_posts' ); 
+	}
+
 	static function schedule_initial_sync() {
 		// we need this function call here because we have to run this function 
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
 		wp_functionality_constants();
-		self::schedule_full_sync( array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => true ) );
+		self::schedule_full_sync( array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => self::get_initial_sync_user_config() ) );
 	}
 
 	static function schedule_full_sync( $modules = null ) {
@@ -169,6 +202,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function do_full_sync( $modules = null ) {
+		error_log("running full sync");
 		if ( ! self::sync_allowed() ) {
 			return;
 		}
