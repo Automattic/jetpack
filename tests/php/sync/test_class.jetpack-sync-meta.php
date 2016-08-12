@@ -90,6 +90,16 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
 	}
 
+	public function test_doesnt_sync_blacklisted_meta() {
+		add_post_meta( $this->post_id, 'post_views_count', '100' );
+		add_post_meta( $this->post_id, 'not_post_views_count', '200' );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'post_views_count', true ) );
+		$this->assertEquals( '200', $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'not_post_views_count', true ) );
+	}
+
 
 	// TODO:
 	// Add tests for other post meta
