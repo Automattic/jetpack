@@ -137,7 +137,8 @@ export let CommentsSettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<FormLegend>{ __( 'Comments headline: A few catchy words to motivate your readers to comment' ) }</FormLegend>
+					<FormLegend>{ __( 'Comments headline' ) }</FormLegend>
+					<span className="form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
 					<FormLabel>
 						<FormTextInput
 							name={ 'highlander_comment_form_prompt' }
