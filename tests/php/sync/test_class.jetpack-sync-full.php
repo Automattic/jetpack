@@ -240,6 +240,30 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotNull( $this->server_replica_storage->get_user( $user_id ) );
 		$this->assertNotNull( $this->server_replica_storage->get_user( $added_mu_blog_user_id ) );
 		$this->assertNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
+
+		// now switch to the other site and sync, and ensure that only that site's users get synced
+		switch_to_blog( $other_blog_id );
+		$this->server_replica_storage->reset();
+		$this->sender->get_sync_queue()->reset();
+		$this->synced_user_ids = null;
+
+		$this->full_sync->start();
+
+		// first user should be synced, as it's a member of both
+		$this->assertTrue( in_array( $added_mu_blog_user_id, $this->synced_user_ids ) );
+		// second should NOT be synced, as it's only a member of original blog
+		$this->assertFalse( in_array( $user_id, $this->synced_user_ids ) );
+		// third should be synced, as it's a member of created blog
+		$this->assertTrue( in_array( $mu_blog_user_id, $this->synced_user_ids ) );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( 2, $this->server_replica_storage->user_count() );
+
+		// again, opposite users from previous sync
+		$this->assertNotNull( $this->server_replica_storage->get_user( $added_mu_blog_user_id ) );
+		$this->assertNull( $this->server_replica_storage->get_user( $user_id ) );
+		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
 	}
 
 	function record_full_synced_users( $user_ids ) {
