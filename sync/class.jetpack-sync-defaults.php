@@ -172,11 +172,6 @@ class Jetpack_Sync_Defaults {
 		'option_value',
 	);
 
-	// returns escapted SQL that can be injected into a WHERE clause
-	static function get_blacklisted_post_types_sql() {
-		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::$blacklisted_post_types ) ) . '\')';
-	}
-
 	static $default_multisite_callable_whitelist = array(
 		'network_name'                        => array( 'Jetpack', 'network_name' ),
 		'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
@@ -261,6 +256,7 @@ class Jetpack_Sync_Defaults {
 	static $default_max_queue_size = 1000;
 	static $default_max_queue_lag = 900; // 15 minutes
 	static $default_queue_max_writes_sec = 100; // 100 rows a second
+	static $default_post_types_blacklist = array();
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
 }

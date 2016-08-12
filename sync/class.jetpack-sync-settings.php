@@ -14,6 +14,11 @@ class Jetpack_Sync_Settings {
 		'max_queue_size'       => true,
 		'max_queue_lag'        => true,
 		'queue_max_writes_sec' => true,
+		'post_types_blacklist' => true,
+	);
+
+	static $array_settings = array(
+		'post_types_blacklist',
 	);
 
 	static $is_importing;
@@ -42,7 +47,16 @@ class Jetpack_Sync_Settings {
 			update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 		}
 
-		return (int) $value;
+		if ( is_numeric( $value ) ) {
+			return intval( $value );
+		}
+
+		// specifically for the post_types blacklist, we want to include the hardcoded settings
+		if ( $setting === 'post_types_blacklist' ) {
+			$value = array_merge( $value, Jetpack_Sync_Defaults::$blacklisted_post_types );
+		}
+
+		return $value;
 	}
 
 	static function update_settings( $new_settings ) {
@@ -50,6 +64,11 @@ class Jetpack_Sync_Settings {
 		foreach ( $validated_settings as $setting => $value ) {
 			update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 		}
+	}
+
+	// returns escapted SQL that can be injected into a WHERE clause
+	static function get_blacklisted_post_types_sql() {
+		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
 	}
 
 	static function reset_data() {

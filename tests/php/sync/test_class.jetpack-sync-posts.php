@@ -410,6 +410,34 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 	}
 
+	function test_post_types_blacklist_can_be_appended_in_settings() {
+		register_post_type( 'filter_me', array( 'public' => true, 'label' => 'Filter Me' ) );
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
+
+		$this->sender->do_sync();
+
+		// first, show that post is being synced
+		$this->assertTrue( !! $this->server_replica_storage->get_post( $post_id ) );
+
+		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+
+		// also assert that the post types blacklist still contains the hard-coded values
+		$setting = Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' );
+
+		$this->assertTrue( in_array( 'filter_me', $setting ) );
+
+		foreach( Jetpack_Sync_Defaults::$blacklisted_post_types as $hardcoded_blacklist_post_type ) {
+			$this->assertTrue( in_array( $hardcoded_blacklist_post_type, $setting ) );
+		}
+	}
+
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment        = get_post( $attachment_id );
