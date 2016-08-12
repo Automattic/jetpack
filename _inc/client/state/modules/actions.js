@@ -237,12 +237,23 @@ export const regeneratePostByEmailAddress = () => {
 	const payload = {
 		post_by_email_address: 'regenerate'
 	};
-	return ( dispatch ) => {
+
+	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_UPDATE_OPTIONS,
 			module: slug,
 			newOptionValues: payload
 		} );
+		dispatch( removeNotice( `module-setting-${ slug }` ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Updating %(slug)s address…', {
+				args: {
+					slug: getModule( getState(), slug ).name
+				}
+			} ),
+			{ id: `module-setting-${ slug }` }
+		) );
 		return restApi.updateModuleOptions( slug, payload ).then( success => {
 			const newOptionValues = {
 				post_by_email_address: success.post_by_email_address
@@ -253,6 +264,16 @@ export const regeneratePostByEmailAddress = () => {
 				newOptionValues,
 				success: success
 			} );
+			dispatch( removeNotice( `module-setting-${ slug }` ) );
+			dispatch( createNotice(
+				'is-success',
+				__( 'Regenerated %(slug)s address .', {
+					args: {
+						slug: getModule( getState(), slug ).name
+					}
+				} ),
+				{ id: `module-setting-${ slug }` }
+			) );
 		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
@@ -261,6 +282,17 @@ export const regeneratePostByEmailAddress = () => {
 				error: error,
 				newOptionValues: payload
 			} );
+			dispatch( removeNotice( `module-setting-${ slug }` ) );
+			dispatch( createNotice(
+				'is-error',
+				__( 'Error regenerating %(slug) address. %(error)d', {
+					args: {
+						slug: getModule( getState(), slug ).name,
+						error: error
+					}
+				} ),
+				{ id: `module-setting-${ slug }` }
+			) );
 		} );
 	}
 }
