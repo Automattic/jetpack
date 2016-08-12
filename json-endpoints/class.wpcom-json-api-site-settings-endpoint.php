@@ -537,7 +537,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * must be one of: front_page, posts, pages, groups or archives.
 	 * After that, we are verifying that the corresponding template for that type
 	 * is formatted correctly and that it contains only allowed chips.
-	 * (e.g. "%site_title% - arbitrary text - %post_title%")
+	 * (e.g. "%_site_title% - arbitrary text - %_post_title%")
 	 *
 	 * @param array $title_formats Template of SEO title to check.
 	 *
@@ -546,14 +546,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public static function are_valid_title_formats( $title_formats ) {
 		// Defines which tokens/chips we want to allow for each type.
 		$allowed_tokens = array(
-			'front_page' => [ '%site_name%', '%tagline%' ],
-			'posts'      => [ '%site_name%', '%tagline%', '%post_title%' ],
-			'pages'      => [ '%site_name%', '%tagline%', '%page_title%' ],
-			'groups'     => [ '%site_name%', '%tagline%', '%group_title%' ],
-			'archives'   => [ '%site_name%', '%tagline%', '%date%' ],
+			'front_page' => [ '%_site_name%', '%_tagline%' ],
+			'posts'      => [ '%_site_name%', '%_tagline%', '%_post_title%' ],
+			'pages'      => [ '%_site_name%', '%_tagline%', '%_page_title%' ],
+			'groups'     => [ '%_site_name%', '%_tagline%', '%_group_title%' ],
+			'archives'   => [ '%_site_name%', '%_tagline%', '%_date%' ],
 		);
 
-		$token_pattern = '/(%[a-zA-Z_]+%)/';
+		$token_pattern = '/(%_[a-zA-Z_]+%)/';
 
 		foreach ( $title_formats as $type => $format ) {
 			// Bail if title format type is not one of: posts, pages, front_page...
