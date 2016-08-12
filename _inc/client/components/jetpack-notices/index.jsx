@@ -129,9 +129,11 @@ export const UserUnlinked = React.createClass( {
 	displayName: 'UserUnlinked',
 
 	render() {
+		console.log( this.props );
 		if (
 			! window.Initial_State.userData.currentUser.isConnected &&
-			this.props.connectUrl
+			this.props.connectUrl &&
+			this.props.siteConnected
 		) {
 			let text;
 
@@ -174,7 +176,10 @@ const JetpackNotices = React.createClass( {
 				<DevModeNotice { ...this.props } />
 				<StagingSiteNotice { ...this.props } />
 				<DismissableNotices />
-				<UserUnlinked connectUrl={ this.props.connectUrl( this.props ) } />
+				<UserUnlinked
+					connectUrl={ this.props.connectUrl( this.props ) }
+					siteConnected={ true === getSiteConnectionStatus( this.props ) }
+				/>
 			</div>
 		);
 	}
@@ -183,7 +188,6 @@ const JetpackNotices = React.createClass( {
 export default connect(
 	state => {
 		return {
-			fetchingConnectUrl: () => _isFetchingConnectUrl( state ),
 			connectUrl: () => _getConnectUrl( state )
 		};
 	}
