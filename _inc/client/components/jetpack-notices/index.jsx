@@ -23,20 +23,17 @@ export const DevVersionNotice = React.createClass( {
 
 	render() {
 		if ( isDevVersion( this.props ) ) {
-			const text = __( 'You are currently running a development version of Jetpack. {{a}} Submit your feedback {{/a}}',
-				{
-					components: {
-						a: <a href="https://jetpack.com/contact-support/beta-group/" target="_blank" />
-					}
-				}
-			);
-
 			return (
 				<SimpleNotice
 					showDismiss={ false }
 					status="is-basic"
+					text={ __( 'You are currently running a development version of Jetpack.' ) }
 				>
-					{ text }
+					<NoticeAction
+						href="https://jetpack.com/contact-support/beta-group/"
+					>
+						{ __( 'Submit your feedback' ) }
+					</NoticeAction>
 				</SimpleNotice>
 			);
 		}
