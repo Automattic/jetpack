@@ -295,6 +295,8 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$this->assertFalse( is_wp_error( $result ) );
 
 		$wpdb = $original_wpdb;
+
+		Jetpack_Sync_Settings::update_settings( array( 'use_mysql_named_lock' => false ) );
 	}
 
 	function test_benchmark() {
