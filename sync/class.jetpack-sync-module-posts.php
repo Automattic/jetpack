@@ -43,7 +43,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	private function get_where_sql( $config ) {
-		$where_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
+		$where_sql = Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
 
 		// config is a list of post IDs to sync
 		if ( is_array( $config ) ) {
@@ -67,7 +67,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	function filter_blacklisted_post_types( $args ) {
 		$post = $args[1];
-		if ( in_array( $post->post_type, Jetpack_Sync_Defaults::$blacklisted_post_types ) ) {
+
+		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
 		}
 
