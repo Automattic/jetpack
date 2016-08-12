@@ -4,7 +4,6 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
-import Button from 'components/button';
 import TextInput from 'components/text-input';
 import TagsInput from 'components/tags-input';
 
@@ -538,7 +537,8 @@ export let TiledGallerySettings = React.createClass( {
 TiledGallerySettings = ModuleSettingsForm( TiledGallerySettings );
 
 export let PostByEmailSettings = React.createClass( {
-	regeneratePostByEmailAddress() {
+	regeneratePostByEmailAddress( event ) {
+		event.preventDefault()
 		this.props.regeneratePostByEmailAddress();
 	},
 	address() {
@@ -552,7 +552,7 @@ export let PostByEmailSettings = React.createClass( {
 	},
 	render() {
 		return (
-			<form onSubmit={ this.props.onSubmit } >
+			<form>
 				<FormFieldset>
 					<FormLabel>
 						<FormLegend>{ __( 'Email Address' ) }</FormLegend>
