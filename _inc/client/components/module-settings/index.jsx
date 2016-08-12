@@ -516,8 +516,8 @@ export let TiledGallerySettings = React.createClass( {
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
-				<h3>{ __( 'Excerpts' ) }</h3>
 				<FormFieldset>
+					<FormLegend>{ __( 'Excerpts' ) }</FormLegend>
 					<ModuleSettingCheckbox
 						name={ 'tiled_galleries' }
 						{ ...this.props }
