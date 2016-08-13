@@ -1157,7 +1157,19 @@ class Jetpack {
 	 * Whether Jetpack's version maps to a public release, or a development version.
 	 */
 	public static function is_development_version() {
-		return ! preg_match( '/^\d+(\.\d+)+$/', JETPACK__VERSION );
+		/**
+		 * Allows filtering whether this is a development version of Jetpack.
+		 *
+		 * This filter is especially useful for tests.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool $development_version Is this a develoment version of Jetpack?
+		 */
+		return (bool) apply_filters(
+			'jetpack_development_version',
+			! preg_match( '/^\d+(\.\d+)+$/', JETPACK__VERSION )
+		);
 	}
 
 	/**
@@ -2736,7 +2748,7 @@ p {
 		if ( $encode ) {
 			return json_encode( $merged_data );
 		}
-		
+
 		return $merged_data;
 	}
 
