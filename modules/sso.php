@@ -395,7 +395,7 @@ class Jetpack_SSO {
 			$this->wants_to_login()
 			&& Jetpack_SSO_Helpers::bypass_login_forward_wpcom()
 		) {
-			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+			add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 			$this->maybe_save_cookie_redirect();
 			$reauth = ! empty( $_GET['force_reauth'] );
 			$sso_url = $this->get_sso_url_or_die( $reauth );
@@ -419,7 +419,7 @@ class Jetpack_SSO {
 				} else {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
-					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+					add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 					$reauth = ! empty( $_GET['force_reauth'] );
 					$sso_url = $this->get_sso_url_or_die( $reauth );
 					JetpackTracking::record_user_event( 'sso_login_redirect_success' );
@@ -840,26 +840,6 @@ class Jetpack_SSO {
 		return admin_url( 'profile.php' );
 	}
 
-	function allowed_redirect_hosts( $hosts ) {
-		if ( empty( $hosts ) ) {
-			$hosts = array();
-		}
-		$hosts[] = 'wordpress.com';
-		$hosts[] = 'jetpack.wordpress.com';
-
-		if (
-			Jetpack::is_development_mode() || Jetpack::is_development_version() &&
-			( false === strpos( JETPACK__API_BASE, 'jetpack.wordpress.com/jetpack' ) )
-		) {
-			$base_url_parts = parse_url( esc_url_raw( JETPACK__API_BASE ) );
-			if ( $base_url_parts && ! empty( $base_url_parts['host'] ) ) {
-				$hosts[] = $base_url_parts['host'];
-			}
-		}
-
-		return array_unique( $hosts );
-	}
-
 	/**
 	 * Builds the "Login to WordPress.com" button that is displayed on the login page as well as user profile page.
 	 *
@@ -1146,7 +1126,7 @@ class Jetpack_SSO {
 		 */
 		$connect_url = Jetpack::init()->build_connect_url( true, $redirect_after_auth, 'sso' );
 
-		add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+		add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 		wp_safe_redirect( $connect_url );
 		exit;
 	}
