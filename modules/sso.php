@@ -847,6 +847,16 @@ class Jetpack_SSO {
 		$hosts[] = 'wordpress.com';
 		$hosts[] = 'jetpack.wordpress.com';
 
+		if (
+			Jetpack::is_development_mode() || Jetpack::is_development_version() &&
+			( false === strpos( JETPACK__API_BASE, 'jetpack.wordpress.com/jetpack' ) )
+		) {
+			$base_url_parts = parse_url( esc_url_raw( JETPACK__API_BASE ) );
+			if ( $base_url_parts && ! empty( $base_url_parts['host'] ) ) {
+				$hosts[] = $base_url_parts['host'];
+			}
+		}
+
 		return array_unique( $hosts );
 	}
 
