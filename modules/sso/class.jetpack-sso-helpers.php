@@ -158,6 +158,9 @@ class Jetpack_SSO_Helpers {
 	/**
 	 * Returns an array of hosts that SSO will redirect to.
 	 *
+	 * Instead of accessing JETPACK__API_BASE within the method directly, we set it as the
+	 * default for $api_base due to restrictions with testing constants in our tests.
+	 *
 	 * @since 4.4.0
 	 *
 	 * @param array $hosts
