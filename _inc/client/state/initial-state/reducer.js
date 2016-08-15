@@ -119,3 +119,7 @@ export function getApiNonce( state ) {
 export function getApiRootUrl( state ) {
 	return get( state.jetpack.initialState, 'WP_API_root' );
 }
+
+export function getTracksUserData( state ) {
+	return get( state.jetpack.initialState, 'tracksUserData' );
+}
