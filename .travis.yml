@@ -22,60 +22,33 @@ env:
 
 matrix:
   include:
-  - php: hhvm
-    env: WP_VERSION=master
-    sudo: required
-    dist: trusty
-    group: edge
-    addons:
-      apt:
-        packages:
-        - mysql-server-5.6
-        - mysql-client-core-5.6
-        - mysql-client-5.6
-  - php: "nightly"
-    env: WP_VERSION=master
   - php: "5.6"
-    env: WP_VERSION=4.5 WP_TRAVISCI="gulp travis:js"
-  - php: "5.6"
-    env: WP_VERSION=4.5 WP_TRAVISCI="npm run test-client"
+    env: WP_TRAVISCI="npm run test-client"
   - php: "5.2"
-    env: WP_VERSION=master
   - php: "5.3"
-    env: WP_VERSION=master WP_TRAVISCI="phpunit --group=uninstall --testsuite=uninstall"
-  - php: "5.2"
-    env: WP_VERSION=4.4
-  - php: "5.2"
-    env: WP_VERSION=4.5
-  - php: "5.3"
-    env: WP_VERSION=4.5
-  - php: "5.4"
-    env: WP_VERSION=4.5
   - php: "5.5"
-    env: WP_VERSION=master
-  - php: "5.5"
-    env: WP_VERSION=4.4
-  - php: "5.5"
-    env: WP_VERSION=4.5
   - php: "5.6"
-    env: WP_VERSION=master
-  - php: "5.6"
-    env: WP_VERSION=4.4
-  - php: "5.6"
-    env: WP_VERSION=4.5
   - php: "7.0"
-    env: WP_VERSION=master
-  - php: "5.3"
-    env: WP_VERSION=4.4 WP_MULTISITE=1 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
-  - php: "5.3"
-    env: WP_VERSION=4.5 WP_MULTISITE=1 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
-  - php: "5.3"
-    env: WP_VERSION=master WP_MULTISITE=1 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
+#
+#  - php: hhvm
+#    env: WP_VERSION=master
+#    sudo: required
+#    dist: trusty
+#    group: edge
+#    addons:
+#      apt:
+#        packages:
+#        - mysql-server-5.6
+#        - mysql-client-core-5.6
+#        - mysql-client-5.6
 
-
-  allow_failures:
-  - php: "hhvm"
-  - php: "nightly"
+#
+# Allow failure tests did not prove that useful, but we might bring them back
+# so leaving this here as a reminder
+#
+#  allow_failures:
+#  - php: "hhvm"
+#  - php: "nightly"
 
 # whitelist branches for the "push" build check.
 branches:
@@ -86,23 +59,13 @@ branches:
 
 # Clones WordPress and configures our testing environment.
 before_script:
+    - phpenv config-rm xdebug.ini
+    - source ~/.nvm/nvm.sh && nvm install 5
     - export PLUGIN_SLUG=$(basename $(pwd))
-    - git clone --depth=1 --branch $WP_VERSION git://develop.git.wordpress.org/ /tmp/wordpress
-# - git clone . "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - cd ..
-    - mv $PLUGIN_SLUG "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - cd /tmp/wordpress
-    - git checkout $WP_VERSION
-    - mysql -u root -e "CREATE DATABASE wordpress_tests;"
-    - cp wp-tests-config-sample.php wp-tests-config.php
-    - sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
-    - sed -i "s/yourusernamehere/root/" wp-tests-config.php
-    - sed -i "s/yourpasswordhere//" wp-tests-config.php
-    - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - ./tests/load-travis.sh
+    - ./tests/prepare-wordpress.sh
 
 script:
-    - $WP_TRAVISCI
+    - ./tests/run-travis.sh
 
 sudo: false
 
