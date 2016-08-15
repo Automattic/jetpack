@@ -182,7 +182,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		global $wpdb;
 
 		if ( is_multisite() ) {
-			$query = "ID IN ( SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->base_prefix}capabilities' )";
+			$query = "ID IN ( SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' )";
 		} else {
 			$query = '1=1';
 		}
