@@ -604,7 +604,8 @@ export let AfterTheDeadlineSettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<FormLegend> { __( 'Automatic proofread content when ' ) } </FormLegend>
+					<FormLegend> { __( 'Proofreading' ) } </FormLegend>
+					<span className="jp-form-setting-explanation">{ __( 'Automatically proofread content when: ' ) }</span>
 					<ModuleSettingCheckbox
 						name={ 'onpublish' }
 						{ ...this.props }
@@ -615,7 +616,18 @@ export let AfterTheDeadlineSettings = React.createClass( {
 						label={ __( 'A post or page is updated' ) } />
 				</FormFieldset>
 				<FormFieldset>
-					<FormLegend> { __( 'English Options: Enable proofreading for the following grammar and style rules' ) } </FormLegend>
+					<FormLegend> { __( 'Automatic Language Detection' ) }
+					</FormLegend>
+					<span className="jp-form-setting-explanation">{ __( 'The proofreader supports English, French, ' +
+						'German, Portuguese and Spanish.' ) }</span>
+					<ModuleSettingCheckbox
+						name={ 'guess_lang' }
+						{ ...this.props }
+						label={ __( 'Use automatically detected language to proofread posts and pages' ) } />
+				</FormFieldset>
+				<FormFieldset>
+					<FormLegend> { __( 'English Options' ) } </FormLegend>
+					<span className="jp-form-setting-explanation">{ __( 'Enable proofreading for the following grammar and style rules: ' ) }</span>
 					<ModuleSettingCheckbox
 						name={ 'Bias Language' }
 						{ ...this.props }
@@ -656,16 +668,6 @@ export let AfterTheDeadlineSettings = React.createClass( {
 						name={ 'Redundant Expression' }
 						{ ...this.props }
 						label={ __( 'Redundant Phrases' ) } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend> { __( 'Language: The proofreader supports English, French, ' +
-						'German, Portuguese and Spanish. Your user interface language (see above) ' +
-						'is the default proofreading language.' ) }
-					</FormLegend>
-					<ModuleSettingCheckbox
-						name={ 'guess_lang' }
-						{ ...this.props }
-						label={ __( 'Use automatically detected language to proofread posts and pages' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend>

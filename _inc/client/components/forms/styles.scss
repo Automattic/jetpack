@@ -8,7 +8,7 @@
 
 .jp-form-legend {
 	padding: 0;
-	margin-bottom: 5px;
+	margin-bottom: rem( 5px );
 	font-size: rem( 14px );
 	font-weight: 600;
 }
@@ -17,7 +17,7 @@
 	display: block;
 	font-size: rem( 14px );
 	line-height: 1.5;
-	margin-bottom: 5px;
+	margin-bottom: rem( 5px );
 }
 
 .jp-form-label input[type="radio"] + span {
@@ -45,6 +45,17 @@
 	margin: rem( 5px ) 0 0 0;
 
 	+ .dops-card {
+		margin-top: rem( 16px );
+	}
+}
+
+.jp-form-fieldset {
+
+	.jp-form-legend + .jp-form-setting-explanation {
+		margin-top: rem( 8px );
+	}
+
+	.jp-form-setting-explanation + .jp-form-label {
 		margin-top: rem( 16px );
 	}
 }
