@@ -21,9 +21,10 @@ import { isDevMode } from 'state/connection';
 
 const DashPluginUpdates = React.createClass( {
 	activateAndRedirect: function( e ) {
+		const props = this.props;
 		e.preventDefault();
 		this.props.activateManage()
-			.then( window.location = 'https://wordpress.com/plugins/' + window.Initial_State.rawUrl )
+			.then( window.location = 'https://wordpress.com/plugins/' + props.siteRawUrl )
 			.catch( console.log( 'Error activating Manage' ) );
 	},
 
@@ -32,8 +33,8 @@ const DashPluginUpdates = React.createClass( {
 		const pluginUpdates = this.props.getPluginUpdates();
 		const manageActive = this.props.isModuleActivated( 'manage' );
 		const ctaLink = manageActive ?
-			'https://wordpress.com/plugins/' + window.Initial_State.rawUrl :
-			window.Initial_State.adminUrl + 'plugins.php';
+			'https://wordpress.com/plugins/' + this.props.siteRawUrl :
+			this.props.siteAdminUrl + 'plugins.php';
 
 		if ( 'N/A' === pluginUpdates ) {
 			return(

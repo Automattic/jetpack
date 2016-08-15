@@ -107,7 +107,7 @@ const Main = React.createClass( {
 				pageComponent = <AtAGlance { ...this.props } />;
 				break;
 			case '/apps':
-				pageComponent = <Apps { ...this.props } />;
+				pageComponent = <Apps siteRawUrl={ this.props.siteRawUrl } { ...this.props } />;
 				break;
 			case '/professional':
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } { ...this.props } />;

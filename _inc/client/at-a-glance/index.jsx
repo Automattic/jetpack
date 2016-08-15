@@ -24,6 +24,10 @@ import FeedbackDashRequest from 'components/jetpack-notices/feedback-dash-reques
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
+import {
+	userCanManageModules,
+	userCanViewStats
+} from 'state/initial-state';
 
 const AtAGlance = React.createClass( {
 	render() {
@@ -32,7 +36,7 @@ const AtAGlance = React.createClass( {
 					label={ __( 'Security' ) }
 					settingsPath="#security"
 					externalLink={ __( 'Manage security on WordPress.com' ) }
-					externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl }
+					externalLinkPath={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
 					externalLinkClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_security_wpcom_click', {} ) }
 				/>,
 			performanceHeader =
@@ -41,7 +45,7 @@ const AtAGlance = React.createClass( {
 				/>;
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
-		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
+		if ( this.props.userCanManageModules ) {
 			return (
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
@@ -91,7 +95,7 @@ const AtAGlance = React.createClass( {
 			);
 		} else {
 			let stats = '';
-			if ( window.Initial_State.userData.currentUser.permissions.view_stats ) {
+			if ( this.props.userCanViewStats ) {
 				stats = <DashStats { ...this.props } />;
 			}
 
@@ -122,7 +126,9 @@ const AtAGlance = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
+			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
+			userCanManageModules: userCanManageModules( state ),
+			userCanViewStats: userCanViewStats( state )
 		};
 	}
 )( AtAGlance );
