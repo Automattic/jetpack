@@ -34,9 +34,6 @@ class Jetpack_Sync_Listener {
 	}
 
 	private function init() {
-		if ( Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
-			return;
-		}
 
 		$handler = array( $this, 'action_handler' );
 		$full_sync_handler = array( $this, 'full_sync_action_handler' );

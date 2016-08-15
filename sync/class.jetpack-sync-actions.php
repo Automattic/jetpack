@@ -13,6 +13,9 @@ class Jetpack_Sync_Actions {
 	const MAX_INITIAL_SYNC_USERS = 500;
 
 	static function init() {
+		if ( Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
+			return false;
+		}
 
 		// Add a custom "every minute" cron schedule
 		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
