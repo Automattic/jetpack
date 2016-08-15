@@ -16,6 +16,7 @@ class Jetpack_Sync_Settings {
 		'queue_max_writes_sec' => true,
 		'post_types_blacklist' => true,
 		'meta_blacklist'       => true,
+		'use_mysql_named_lock' => true, // 0 or 1
 	);
 
 	static $is_importing;

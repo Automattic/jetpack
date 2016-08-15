@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
+
 /**
  * A buffer of items from the queue that can be checked out
  */
@@ -25,6 +27,123 @@ class Jetpack_Sync_Queue_Buffer {
 	}
 }
 
+interface Jetpack_Sync_Lock {
+	public function acquire_lock( $wait = 0 );
+	public function release_lock();
+	public function reset();
+}
+
+class Jetpack_Sync_Lock_Transient implements Jetpack_Sync_Lock {
+	private $id;
+
+	function __construct( $id ) {
+		$this->id = $id;
+	}
+
+	public function acquire_lock( $wait = 0 ) {
+		if ( $this->get_lock_value() ) {
+			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+		}
+
+		$result = $this->set_lock();
+
+		if ( ! $result ) {
+			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+		} elseif ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return true;
+	}
+
+	public function release_lock() {
+		$checkout_id = $this->get_lock_value();
+
+		if ( ! $checkout_id ) {
+			return new WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
+		}
+
+		$this->delete_lock_value();
+
+		return true;
+	}
+
+	public function reset() {
+		$this->delete_lock_value();
+	}
+
+	private function get_lock_value() {
+		return get_transient( $this->get_checkout_transient_name() );
+	}
+
+	private function set_lock() {
+		return set_transient( $this->get_checkout_transient_name(), microtime( true ), Jetpack_Sync_Queue::QUEUE_LOCK_TIMEOUT ); // 5 minute timeout
+	}
+
+	private function delete_lock_value() {
+		delete_transient( $this->get_checkout_transient_name() );
+	}
+
+	private function get_checkout_transient_name() {
+		return "jpsq_{$this->id}_checkout";
+	}
+}
+
+class Jetpack_Sync_Lock_MySQL {
+	private $id;
+	private $named_lock_name;
+	static $in_memory_lock; // in-process lock
+
+	function __construct( $id ) {
+		$this->id = $id;
+		global $wpdb;
+		// named lock names are GLOBAL PER SERVER so should be namespaced to this particular
+		// wp installation, site and queue
+		$this->named_lock_name = 'jpsq_' . $wpdb->prefix . $this->id;
+		if ( strlen( $this->named_lock_name ) > 64 ) {
+			error_log("Warning: Named lock key is > 64 chars: '{$this->named_lock_name}'");
+		}
+	}
+
+	public function acquire_lock( $wait = 0 ) {
+		// use mysql to prevent cross-process concurrent access, 
+		// and in-memory lock to prevent in-process concurrent access
+		if ( self::$in_memory_lock && ( microtime( true ) < self::$in_memory_lock + Jetpack_Sync_Queue::QUEUE_LOCK_TIMEOUT ) ) {
+			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+		}
+
+		global $wpdb;
+
+		$acquired_lock = $wpdb->get_var( $wpdb->prepare( "SELECT GET_LOCK( %s, %d )", $this->named_lock_name, $wait ) );
+
+		if ( $acquired_lock == 0 ) {
+			return new WP_Error( 'lock_failed', 'Another process has the lock' );
+		}
+
+		// lock memory and DB
+		self::$in_memory_lock = microtime( true );
+
+		return true;
+	}
+
+	public function release_lock() {
+		global $wpdb;
+		$result = $wpdb->get_var( $wpdb->prepare( "SELECT RELEASE_LOCK( %s )", $this->named_lock_name ) );
+
+		if ( $result != '1' ) {
+			error_log("Warning: released lock that wasn't locked: {$this->named_lock_name}");
+		}
+
+		self::$in_memory_lock = null;
+
+		return true;
+	}
+
+	public function reset() {
+		$this->release_lock();
+	}
+}
+
 /**
  * A persistent queue that can be flushed in increments of N items,
  * and which blocks reads until checked-out buffers are checked in or
@@ -32,12 +151,20 @@ class Jetpack_Sync_Queue_Buffer {
  * tons of added_option callbacks.
  */
 class Jetpack_Sync_Queue {
+	const QUEUE_LOCK_TIMEOUT = 300; // 5 minutes
 	public $id;
 	private $row_iterator;
+	private $lock;
 
 	function __construct( $id ) {
-		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
-		$this->row_iterator = 0;
+		$this->id             = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
+		$this->row_iterator   = 0;
+
+		if ( (bool) Jetpack_Sync_Settings::get_setting( 'use_mysql_named_lock' ) ) {
+			$this->lock = new Jetpack_Sync_Lock_MySQL( $this->id );
+		} else {
+			$this->lock = new Jetpack_Sync_Lock_Transient( $this->id );
+		}
 	}
 
 	function add( $item ) {
@@ -117,7 +244,7 @@ class Jetpack_Sync_Queue {
 
 	function reset() {
 		global $wpdb;
-		$this->delete_checkout_id();
+		$this->lock->reset();
 		$wpdb->query( $wpdb->prepare(
 			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jpsq_{$this->id}-%"
 		) );
@@ -142,16 +269,12 @@ class Jetpack_Sync_Queue {
 	}
 
 	function checkout( $buffer_size ) {
-		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
-		}
-
 		$buffer_id = uniqid();
 
-		$result = $this->set_checkout_id( $buffer_id );
+		$lock_result = $this->acquire_lock( $buffer_id );
 
-		if ( ! $result || is_wp_error( $result ) ) {
-			return $result;
+		if ( is_wp_error( $lock_result ) ) {
+			return $lock_result;
 		}
 
 		$items = $this->fetch_items( $buffer_size );
@@ -171,16 +294,10 @@ class Jetpack_Sync_Queue {
 	// The only way it will load more items than $max_size is if a single queue item
 	// exceeds the memory limit, but in that case it will send that item by itself.
 	function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
-		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
-		}
-
-		$buffer_id = uniqid();
-
-		$result = $this->set_checkout_id( $buffer_id );
-
-		if ( ! $result || is_wp_error( $result ) ) {
-			return $result;
+		$lock_result = $this->acquire_lock();
+		
+		if ( is_wp_error( $lock_result ) ) {
+			return $lock_result;
 		}
 
 		// get the map of buffer_id -> memory_size
@@ -212,36 +329,25 @@ class Jetpack_Sync_Queue {
 		$items = $this->fetch_items_by_id( $item_ids );
 
 		if ( count( $items ) === 0 ) {
-			$this->delete_checkout_id();
-
+			$this->release_lock();
 			return false;
 		}
 
-		$buffer = new Jetpack_Sync_Queue_Buffer( $buffer_id, $items );
+		$buffer = new Jetpack_Sync_Queue_Buffer( uniqid(), $items );
 
 		return $buffer;
 	}
 
 	function checkin( $buffer ) {
-		$is_valid = $this->validate_checkout( $buffer );
-
-		if ( is_wp_error( $is_valid ) ) {
-			return $is_valid;
-		}
-
-		$this->delete_checkout_id();
-
-		return true;
+		return $this->release_lock();
 	}
 
 	function close( $buffer, $ids_to_remove = null ) {
-		$is_valid = $this->validate_checkout( $buffer );
+		$released = $this->release_lock();
 
-		if ( is_wp_error( $is_valid ) ) {
-			return $is_valid;
+		if ( is_wp_error( $released ) ) {
+			return $released;
 		}
-
-		$this->delete_checkout_id();
 
 		// by default clear all items in the buffer
 		if ( is_null( $ids_to_remove ) ) {
@@ -273,7 +379,7 @@ class Jetpack_Sync_Queue {
 	// use with caution, this could allow multiple processes to delete
 	// and send from the queue at the same time
 	function force_checkin() {
-		$this->delete_checkout_id();
+		$this->release_lock();
 	}
 
 	// used to lock checkouts from the queue.
@@ -290,38 +396,19 @@ class Jetpack_Sync_Queue {
 			return new WP_Error( 'lock_timeout', 'Timeout waiting for sync queue to empty' );
 		}
 
-		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
-		}
-
-		// hopefully this means we can acquire a checkout?
-		$result = $this->set_checkout_id( 'lock' );
-
-		if ( ! $result || is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return true;
+		return $this->acquire_lock();
 	}
 
 	function unlock() {
-		$this->delete_checkout_id();
+		$this->release_lock();
 	}
 
-	private function get_checkout_id() {
-		return get_transient( $this->get_checkout_transient_name() );
+	private function acquire_lock() {
+		return $this->lock->acquire_lock();
 	}
 
-	private function set_checkout_id( $checkout_id ) {
-		return set_transient( $this->get_checkout_transient_name(), $checkout_id, 5 * 60 ); // 5 minute timeout
-	}
-
-	private function delete_checkout_id() {
-		delete_transient( $this->get_checkout_transient_name() );
-	}
-
-	private function get_checkout_transient_name() {
-		return "jpsq_{$this->id}_checkout";
+	private function release_lock() {
+		return $this->lock->release_lock();
 	}
 
 	private function get_next_data_row_option_name() {
@@ -374,24 +461,6 @@ class Jetpack_Sync_Queue {
 		} else {
 			return array();
 		}
-	}
-
-	private function validate_checkout( $buffer ) {
-		if ( ! $buffer instanceof Jetpack_Sync_Queue_Buffer ) {
-			return new WP_Error( 'not_a_buffer', 'You must checkin an instance of Jetpack_Sync_Queue_Buffer' );
-		}
-
-		$checkout_id = $this->get_checkout_id();
-
-		if ( ! $checkout_id ) {
-			return new WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
-		}
-
-		if ( $checkout_id != $buffer->id ) {
-			return new WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
-		}
-
-		return true;
 	}
 }
 
