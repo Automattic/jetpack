@@ -76,22 +76,19 @@ export const Page = ( props ) => {
 
 	return (
 		<div>
-			{
-				isAdmin ? <FoldableCard
-					header={ __( 'Connection Settings' ) }
-					subheader={ __( 'Manage your connection or disconnect Jetpack.' ) }
-					clickableHeaderText={ true }
-					disabled={ ! isAdmin }
-					onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
-						{
-							card: 'connection_settings',
-							path: props.route.path
-						}
-					) }
-				>
-					<ConnectionSettings { ...props } />
-				</FoldableCard> : ''
-			}
+			<FoldableCard
+				header={ __( 'Connection Settings' ) }
+				subheader={ __( 'Manage your Jetpack connection.' ) }
+				clickableHeaderText={ true }
+				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+					{
+						card: 'connection_settings',
+						path: props.route.path
+					}
+				) }
+			>
+				<ConnectionSettings { ...props } />
+			</FoldableCard>
 			{ isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' ) }
 			{ moduleCard( 'notes' ) }
 			{ moduleCard( 'json-api' ) }
