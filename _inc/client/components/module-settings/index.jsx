@@ -5,6 +5,7 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import TextInput from 'components/text-input';
+import Textarea from 'components/textarea';
 import TagsInput from 'components/tags-input';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 
@@ -15,8 +16,6 @@ import ClipboardButtonInput from 'components/clipboard-button-input';
 import {
 	FormFieldset,
 	FormLegend,
-	FormTextarea,
-	FormTextInput,
 	FormLabel,
 	FormButton
 } from 'components/forms';
@@ -241,15 +240,15 @@ export let ProtectSettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<span> { '(Currently does not work)' } </span>
-					<FormLegend>{ __( 'Whitelist Management' ) }</FormLegend>
+					<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
 					<FormLabel>
-						<span>{ __( 'IP addresses/ranges list' ) }</span>
-						<FormTextarea
+						<Textarea
 							name={ 'jetpack_protect_global_whitelist' }
+							placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
 							onChange={ this.props.onOptionChange }
 							value={ this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local } />
 					</FormLabel>
+					<span className="jp-form-setting-explanation">{ __( 'List the IP addresses or IP address ranges.' ) }</span>
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }
