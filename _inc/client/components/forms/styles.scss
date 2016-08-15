@@ -1,38 +1,42 @@
-.form-fieldset {
+.jp-form-fieldset {
 	clear: both;
+
+	+ .jp-form-fieldset {
+		margin-top: rem( 16px );
+	}
 }
 
-.form-legend {
+.jp-form-legend {
 	padding: 0;
 	margin-bottom: 5px;
 	font-size: rem( 14px );
 	font-weight: 600;
 }
 
-.form-label {
+.jp-form-label {
 	display: block;
 	font-size: rem( 14px );
 	line-height: 1.5;
 	margin-bottom: 5px;
 }
 
-.form-label input[type="radio"] + span {
+.jp-form-label input[type="radio"] + span {
 	font-weight: normal;
 }
 
-.form-textarea {
+.jp-form-textarea {
 	display: block;
 	width: 100%;
 	min-height: rem( 250px );
 }
 
-.form-button {
+.jp-form-button {
 	float: right;
 	margin-top: rem( 16px );
 	margin-left: rem( 8px );
 }
 
-.form-setting-explanation {
+.jp-form-setting-explanation {
 	color: $gray;
 	display: block;
 	font-size: rem( 13px );
