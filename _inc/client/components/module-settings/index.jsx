@@ -459,7 +459,7 @@ export let VerificationToolsSettings = React.createClass( {
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example:' ) }
+							{ __( 'Meta key example: ' ) }
 							&lt;meta name='google-site-verification' content='<strong className="code">dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8</strong>'&gt;
 						</span>
 					</div>
@@ -477,7 +477,7 @@ export let VerificationToolsSettings = React.createClass( {
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example:' ) }
+							{ __( 'Meta key example: ' ) }
 							&lt;meta name='msvalidate.01' content='<strong>12C1203B5086AECE94EB3A3D9830B2E</strong>'&gt;
 						</span>
 					</div>
@@ -494,7 +494,7 @@ export let VerificationToolsSettings = React.createClass( {
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example:' ) }
+							{ __( 'Meta key example: ' ) }
 							&lt;meta name='p:domain_verify' content='<strong>f100679e6048d45e4a0b0b92dce1efce</strong>'&gt;
 						</span>
 					</div>
