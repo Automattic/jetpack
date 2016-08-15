@@ -10,9 +10,10 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import { imagePath } from 'constants';
+import { userCanViewStats } from 'state/initial-state';
 
 const Apps = ( props ) => {
-	let canViewStats = 'object' === typeof window.Initial_State.userData && window.Initial_State.userData.currentUser && window.Initial_State.userData.currentUser.permissions && window.Initial_State.userData.currentUser.permissions.view_stats;
+	let canViewStats = props.userCanViewStats;
 	return (
 		<div className="jp-landing__apps dops-card">
 			<div className="jp-landing-apps__header">
@@ -180,4 +181,10 @@ const Apps = ( props ) => {
 	);
 };
 
-export default Apps;
+export default connect(
+	( state ) => {
+		return {
+			userCanViewStats: userCanViewStats( state )
+		};
+	}
+)( Apps );
