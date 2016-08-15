@@ -169,7 +169,7 @@ export let SubscriptionsSettings = React.createClass( {
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
-				<h3>{ __( 'Can readers subscribe to your posts, comments or both?' ) }</h3>
+				<FormLegend>{ __( 'Can readers subscribe to your posts, comments or both?' ) }</FormLegend>
 				<FormFieldset>
 					<ModuleSettingCheckbox
 						name={ "stb_enabled" }
