@@ -25,7 +25,7 @@ import {
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 
-export const Page = ( props ) => {
+export const GeneralSettings = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
@@ -138,4 +138,4 @@ export default connect(
 			disconnectSite: () => dispatch( disconnectSite )
 		};
 	}
-)( Page );
+)( GeneralSettings );
