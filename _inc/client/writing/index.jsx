@@ -26,7 +26,7 @@ import { AllModuleSettings } from 'components/module-settings/modules-per-tab-pa
 import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
 
-export const Page = ( props ) => {
+export const Writing = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
@@ -141,4 +141,4 @@ export default connect(
 			}
 		};
 	}
-)( Page );
+)( Writing );
