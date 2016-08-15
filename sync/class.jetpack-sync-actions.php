@@ -13,10 +13,7 @@ class Jetpack_Sync_Actions {
 	const MAX_INITIAL_SYNC_USERS = 500;
 
 	static function init() {
-		if ( Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
-			return false;
-		}
-
+		
 		// Add a custom "every minute" cron schedule
 		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
 
@@ -106,7 +103,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function sync_allowed() {
-		return ( Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
+		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' ) && Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
@@ -160,6 +157,10 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function schedule_full_sync( $modules = null ) {
+		if ( ! self::sync_allowed() ) {
+			return false;
+		}
+
 		if ( $modules ) {
 			wp_schedule_single_event( time() + 1, 'jetpack_sync_full', array( $modules ) );
 		} else {
@@ -167,6 +168,8 @@ class Jetpack_Sync_Actions {
 		}
 
 		spawn_cron();
+
+		return true;
 	}
 
 	static function is_scheduled_full_sync( $modules = null ) {
