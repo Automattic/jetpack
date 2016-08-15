@@ -25,6 +25,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import ProStatus from 'pro-status';
+import { userCanManageModules } from 'state/initial-state';
 
 const DashItem = React.createClass( {
 	displayName: 'DashItem',
@@ -103,7 +104,7 @@ const DashItem = React.createClass( {
 					label={ this.props.label }
 					cardBadge={ proButton }
 				>
-					{ toggle }
+					{ this.props.userCanToggle ? toggle : '' }
 				</SectionHeader>
 				<Card className="jp-dash-item__card" href={ this.props.href }>
 					<div className="jp-dash-item__content">
@@ -122,7 +123,8 @@ export default connect(
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isFetchingSiteData: isFetchingSiteData( state ),
-			isDevMode: isDevMode( state )
+			isDevMode: isDevMode( state ),
+			userCanToggle: userCanManageModules( state )
 		};
 	},
 	( dispatch ) => {
