@@ -24,7 +24,12 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
-import { getSiteAdminUrl, getSiteRawUrl, isSitePublic } from 'state/initial-state';
+import {
+	getSiteAdminUrl,
+	getSiteRawUrl,
+	isSitePublic,
+	userCanManageModules as _userCanManageModules
+} from 'state/initial-state';
 
 export const Page = ( props ) => {
 	let {
@@ -33,7 +38,7 @@ export const Page = ( props ) => {
 		isTogglingModule,
 		getModule
 	} = props,
-		isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules,
+		isAdmin = props.userCanManageModules,
 		sitemapsDesc = getModule( 'sitemaps' ).description,
 		enhaDistDesc = getModule( 'enhanced-distribution' ).description;
 
@@ -178,7 +183,8 @@ export default connect(
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			getSiteRawUrl: () => getSiteRawUrl( state ),
 			getSiteAdminUrl: () => getSiteAdminUrl( state ),
-			isSitePublic: () => isSitePublic( state )
+			isSitePublic: () => isSitePublic( state ),
+			userCanManageModules: _userCanManageModules( state )
 		};
 	},
 	( dispatch ) => {
