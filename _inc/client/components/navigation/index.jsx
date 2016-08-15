@@ -14,11 +14,13 @@ injectTapEventPlugin();
  * Internal dependencies
  */
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
+import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
+import { userCanViewStats as _userCanViewStats } from 'state/initial-state';
 
 const Navigation = React.createClass( {
 	render: function() {
 		let navTabs;
-		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
+		if ( this.props.userCanManageModules ) {
 			navTabs = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
@@ -40,7 +42,7 @@ const Navigation = React.createClass( {
 			);
 		} else {
 			let dashboard = '';
-			if ( window.Initial_State.userData.currentUser.permissions.view_stats || this.props.isModuleActivated( 'protect' ) ) {
+			if ( this.props.userCanViewStats || this.props.isModuleActivated( 'protect' ) ) {
 				dashboard = (
 					<NavItem
 						path="#dashboard"
@@ -73,6 +75,8 @@ const Navigation = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
+			userCanManageModules: _userCanManageModules( state ),
+			userCanViewStats: _userCanViewStats( state ),
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
 		};
 	}
