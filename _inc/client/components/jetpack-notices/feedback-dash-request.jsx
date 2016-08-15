@@ -4,8 +4,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
 import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
 
 /**
  * Internal dependencies
@@ -17,7 +17,7 @@ import {
 
 const FeedbackDashRequest = React.createClass( {
 	displayName: 'FeedbackDashRequest',
-	renderContent: function( e ) {
+	renderContent: function() {
 		if ( this.props.isDismissed( 'feedback_dash_request' ) ) {
 			return;
 		}
@@ -28,14 +28,13 @@ const FeedbackDashRequest = React.createClass( {
 					className="jp-dash-item__feedback-request"
 					status="is-basic"
 					onDismissClick={ this.props.dismissNotice }
+					text={ __( 'What would you like to see on your Jetpack Dashboard?' ) }
 				>
-				{
-					__( 'What would you like to see on your Jetpack Dashboard? {{a}}Let us know!{{/a}}', {
-						components: {
-							a: <a href="https://jetpack.com/contact" target="_blank" />
-						}
-					} )
-				}
+					<NoticeAction
+						href="https://jetpack.com/contact"
+					>
+						{ __( 'Let us know!' ) }
+					</NoticeAction>
 				</SimpleNotice>
 			</div>
 		);
