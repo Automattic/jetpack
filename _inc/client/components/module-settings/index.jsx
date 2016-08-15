@@ -138,7 +138,7 @@ export let CommentsSettings = React.createClass( {
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
 					<FormLegend>{ __( 'Comments headline' ) }</FormLegend>
-					<span className="form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
+					<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
 					<FormLabel>
 						<FormTextInput
 							name={ 'highlander_comment_form_prompt' }
@@ -271,7 +271,7 @@ export let MonitorSettings = React.createClass( {
 						name={ 'monitor_receive_notifications' }
 						{ ...this.props }
 						label={ __( 'Receive Monitor Email Notifications' ) } />
-					<span className="form-setting-explanation">{ __( 'Emails will be sent to ' ) + this.props.adminEmailAddress }. <span>
+					<span className="jp-form-setting-explanation">{ __( 'Emails will be sent to ' ) + this.props.adminEmailAddress }. <span>
 						&nbsp;
 						{
 							__( '{{a}}Edit{{/a}}', {
@@ -435,7 +435,7 @@ export let VerificationToolsSettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<p className="form-setting-explanation">
+					<p className="jp-form-setting-explanation">
 						{
 							__( 'Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a}}Bing Webmaster Center{{/a}} and {{a}}Pinterest Site Verification{{/a}}.', {
 								components: {

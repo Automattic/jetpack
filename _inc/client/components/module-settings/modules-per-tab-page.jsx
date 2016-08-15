@@ -86,7 +86,7 @@ export const AllModuleSettings = React.createClass( {
 			case 'notifications':
 			case 'enhanced-distribution':
 			case 'sitemaps':
-				return <span className="form-setting-explanation">{ __( 'This module has no configuration options' ) } </span>;
+				return <span className="jp-form-setting-explanation">{ __( 'This module has no configuration options' ) } </span>;
 			case 'custom-css':
 			case 'widgets':
 			case 'publicize':

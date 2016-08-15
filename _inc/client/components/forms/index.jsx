@@ -15,7 +15,7 @@ export const FormFieldset = React.createClass( {
 
 	render: function() {
 		return (
-			<fieldset { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'form-fieldset' ) } >
+			<fieldset { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'jp-form-fieldset' ) } >
 				{ this.props.children }
 			</fieldset>
 		);
@@ -28,7 +28,7 @@ export const FormLabel = React.createClass( {
 
 	render: function() {
 		return (
-			<label { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'form-label' ) } >
+			<label { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'jp-form-label' ) } >
 				{ this.props.children }
 			</label>
 		);
@@ -41,7 +41,7 @@ export const FormLegend = React.createClass( {
 
 	render: function() {
 		return (
-			<legend { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'form-legend' ) } >
+			<legend { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'jp-form-legend' ) } >
 				{ this.props.children }
 			</legend>
 		);
@@ -56,7 +56,7 @@ export const FormCheckbox = React.createClass( {
 		var otherProps = omit( this.props, [ 'className', 'type' ] );
 
 		return (
-			<input { ...otherProps } type="checkbox" className={ classnames( this.props.className, 'form-checkbox' ) } />
+			<input { ...otherProps } type="checkbox" className={ classnames( this.props.className, 'jp-form-checkbox' ) } />
 		);
 	}
 } );
@@ -81,7 +81,7 @@ export const FormTextInput = React.createClass( {
 	render() {
 		const { className, selectOnFocus } = this.props;
 		const classes = classNames( className, {
-			'form-text-input': true,
+			'jp-form-text-input': true,
 			'is-error': this.props.isError,
 			'is-valid': this.props.isValid
 		} );
@@ -107,7 +107,7 @@ export const FormTextarea = React.createClass( {
 
 	render: function() {
 		return (
-			<textarea { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'form-textarea' ) } >
+			<textarea { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'jp-form-textarea' ) } >
 				{ this.props.children }
 			</textarea>
 		);
@@ -125,7 +125,7 @@ export const FormRadio = React.createClass( {
 			<input
 				{ ...otherProps }
 				type="radio"
-				className={ classnames( this.props.className, 'form-radio' ) } />
+				className={ classnames( this.props.className, 'jp-form-radio' ) } />
 		);
 	}
 } );
@@ -148,7 +148,7 @@ export const FormButton = React.createClass( {
 
 	render: function() {
 		var buttonClasses = classNames( {
-			'form-button': true
+			'jp-form-button': true
 		} );
 
 		return (
