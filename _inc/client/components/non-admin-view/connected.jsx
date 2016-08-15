@@ -3,16 +3,11 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import Card from 'components/card';
-import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
-import ConnectButton from 'components/connect-button';
-import { isCurrentUserLinked as _isCurrentUserLinked } from 'state/connection';
-import QueryUserConnectionData from 'components/data/query-user-connection';
-import { setInitialState } from 'state/initial-state';
+import { userCanViewStats as _userCanViewStats } from 'state/initial-state';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
@@ -36,7 +31,7 @@ const NonAdminViewConnected = React.createClass( {
 			navComponent = <Navigation { ...this.props } />;
 		switch ( route ) {
 			case '/dashboard':
-				if ( window.Initial_State.userData.currentUser.permissions.view_stats || this.props.isModuleActivated( 'protect' ) ) {
+				if ( this.props.userCanViewStats || this.props.isModuleActivated( 'protect' ) ) {
 					pageComponent = <AtAGlance { ...this.props } />;
 				}
 				break;
@@ -85,6 +80,7 @@ const NonAdminViewConnected = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
+			userCanViewStats: _userCanViewStats( state ),
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
 		};
 	}
