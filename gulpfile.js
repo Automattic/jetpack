@@ -53,9 +53,6 @@ function onBuild( done ) {
 
 		if ( done ) {
 			doStatic( done );
-
-			// After CSS files are built, create RTL versions
-			doRTL( 'dops' );
 		} else {
 			doStatic();
 		}
@@ -86,6 +83,14 @@ function doSass() {
 			console.log( 'Dashboard CSS finished.' );
 			doRTL( 'main' );
 		} );
+		console.log( 'Building dops-components CSS bundle...' );
+		gulp.src( './_inc/build/*dops-style.css' )
+			.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
+			.pipe( gulp.dest( './_inc/build' ) )
+			.on( 'end', function() {
+				console.log( 'dops-components CSS finished.' );
+				doRTL( 'dops' );
+			} );
 }
 
 function doRTL( files ) {
