@@ -143,7 +143,7 @@ class Jetpack_Sync_Actions {
 
 		$users_count = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT count(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' AND meta_value REGEXP %s",
+				"SELECT count(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0",
 				$user_role_regexp
 			)
 		);
@@ -151,7 +151,7 @@ class Jetpack_Sync_Actions {
 		if ( $users_count <= self::MAX_INITIAL_SYNC_USERS ) {
 			return $wpdb->get_col(
 				$wpdb->prepare(
-					"SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' AND meta_value REGEXP %s",
+					"SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0",
 					$user_role_regexp
 				)
 			);
