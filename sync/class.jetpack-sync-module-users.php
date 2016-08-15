@@ -161,13 +161,13 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
-		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->users, 'ID', $this->get_where_sql( $config ) );
+		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->usermeta, 'user_id', $this->get_where_sql( $config ) );
 	}
 
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
 
-		$query = "SELECT count(*) FROM $wpdb->users";
+		$query = "SELECT count(*) FROM $wpdb->usermeta";
 		
 		if ( $where_sql = $this->get_where_sql( $config ) ) {
 			$query .= ' WHERE ' . $where_sql;
@@ -181,15 +181,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	private function get_where_sql( $config ) {
 		global $wpdb;
 
-		if ( is_multisite() ) {
-			$query = "ID IN ( SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' )";
-		} else {
-			$query = '1=1';
-		}
-
+		$query = "meta_key = '{$wpdb->prefix}capabilities'";
+		
 		// config is a list of user IDs to sync
 		if ( is_array( $config ) ) {
-			$query .= ' AND ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+			$query .= ' AND user_id IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
 
 		return $query;
