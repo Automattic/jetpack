@@ -10,14 +10,15 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import {
+	isDevVersion as _isDevVersion,
 	getCurrentVersion,
-	isDevVersion,
 	userCanManageOptions,
 	userCanDisconnectSite
 } from 'state/initial-state';
 import { resetOptions } from 'state/dev-version';
 import { disconnectSite } from 'state/connection';
 import { getSiteConnectionStatus } from 'state/connection';
+import { isDevMode as _isDevMode } from 'state/connection';
 
 export const Footer = React.createClass( {
 	displayName: 'Footer',
@@ -66,7 +67,7 @@ export const Footer = React.createClass( {
 		};
 
 		const maybeShowDisconnect = () => {
-			if ( this.props.userCanDisconnectSite && this.props.siteConnectionStatus ) {
+			if ( this.props.userCanDisconnectSite && this.props.siteConnectionStatus && ! this.props.isDevMode ) {
 				return (
 					<li className="jp-footer__link-item">
 						<a
@@ -129,7 +130,8 @@ export default connect(
 			currentVersion: getCurrentVersion( state ),
 			userCanManageOptions: userCanManageOptions( state ),
 			userCanDisconnectSite: userCanDisconnectSite( state ),
-			isDevVersion: isDevVersion( state ),
+			isDevVersion: _isDevVersion( state ),
+			isDevMode: _isDevMode( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state )
 		}
 	},
