@@ -14,8 +14,8 @@ injectTapEventPlugin();
  * Internal dependencies
  */
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
-import { userCanManageModules as _userCanManageModules } from 'state/initial-state/reducer';
-import { userCanViewStats as _userCanViewStats } from 'state/initial-state/reducer';
+import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
+import { userCanViewStats as _userCanViewStats } from 'state/initial-state';
 
 const Navigation = React.createClass( {
 	render: function() {
