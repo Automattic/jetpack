@@ -108,7 +108,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	function get_comments( $status = null, $min_id = null, $max_id = null ) {
 		$this->comment_status = $status;
 
-		// valid statuses: 'hold', 'approve', 'spam', or 'trash'.
+		// valid statuses: 'hold', 'approve', 'spam', 'trash', or 'post-trashed.
 		$comments = array_filter( array_values( $this->comments ), array( $this, 'filter_comment_status' ) );
 
 		foreach ( $comments as $i => $comment ) {
@@ -138,6 +138,8 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				return 'spam' === $comment->comment_approved;
 			case 'trash':
 				return 'trash' === $comment->comment_approved;
+			case 'post-trashed':
+				return 'post-trashed' === $comment->comment_approved;
 			case 'any':
 				return true;
 			case 'all':
@@ -165,6 +167,21 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function spam_comment( $comment_id ) {
 		$this->comments[ $comment_id ]->comment_approved = 'spam';
+	}
+
+	function trashed_post_comments( $post_id, $statuses ) {
+		$statuses = (array) $statuses;
+		foreach( $statuses as $comment_id => $status ) {
+			$this->comments[ $comment_id ]->comment_approved = 'post-trashed';
+		}
+	}
+
+	function untrashed_post_comments( $post_id ) {
+		$statuses = (array) $this->get_metadata( 'post', $post_id, '_wp_trash_meta_comments_status', true );
+
+		foreach( $statuses as $comment_id => $status ) {
+			$this->comments[ $comment_id ]->comment_approved = $status;
+		}
 	}
 
 	function delete_comment( $comment_id ) {

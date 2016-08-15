@@ -8,9 +8,11 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'wp_insert_comment', $callable, 10, 2 );
-		add_action( 'deleted_comment', $callable, 10 );
-		add_action( 'trashed_comment', $callable, 10 );
-		add_action( 'spammed_comment', $callable, 10 );
+		add_action( 'deleted_comment', $callable );
+		add_action( 'trashed_comment', $callable );
+		add_action( 'spammed_comment', $callable );
+		add_action( 'trashed_post_comments', $callable, 10, 2 );
+		add_action( 'untrash_post_comments', $callable );
 
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data

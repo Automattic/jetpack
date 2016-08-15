@@ -56,6 +56,15 @@ class Jetpack_Sync_Server_Replicator {
 				list( $comment_id ) = $args;
 				$this->store->spam_comment( $comment_id );
 				break;
+			case 'trashed_post_comments':
+				list( $post_id, $statuses ) = $args;
+				$statuses = (array) $statuses;
+				$this->store->trashed_post_comments( $post_id, $statuses );
+				break;
+			case 'untrash_post_comments':
+				list( $post_id ) = $args;
+				$this->store->untrashed_post_comments( $post_id );
+				break;
 
 			// options
 			case 'added_option':
