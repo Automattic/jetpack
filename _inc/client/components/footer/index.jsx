@@ -9,10 +9,16 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { getCurrentVersion, isDevVersion } from 'state/initial-state';
+import {
+	isDevVersion as _isDevVersion,
+	getCurrentVersion,
+	userCanManageOptions,
+	userCanDisconnectSite
+} from 'state/initial-state';
 import { resetOptions } from 'state/dev-version';
 import { disconnectSite } from 'state/connection';
 import { getSiteConnectionStatus } from 'state/connection';
+import { isDevMode as _isDevMode } from 'state/connection';
 
 export const Footer = React.createClass( {
 	displayName: 'Footer',
@@ -29,9 +35,9 @@ export const Footer = React.createClass( {
 			'jp-footer'
 		);
 
-		const version = getCurrentVersion( this.props );
+		const version = this.props.currentVersion;
 		const maybeShowReset = () => {
-			if ( isDevVersion( this.props ) ) {
+			if ( this.props.isDevVersion ) {
 				return(
 					<li className="jp-footer__link-item">
 						<a
@@ -45,13 +51,13 @@ export const Footer = React.createClass( {
 			return '';
 		};
 
-		const maybeShowDebug = () =>  {
-			if ( window.Initial_State.userData.currentUser.permissions.manage_options ) {
+		const maybeShowDebug = () => {
+			if ( this.props.userCanManageOptions ) {
 				return (
 					<li className="jp-footer__link-item">
 						<a
-							href={ window.Initial_State.adminUrl + 'admin.php?page=jetpack-debugger' }
-							title={ __( "Test your site’s compatibility with Jetpack." ) }
+							href={ this.props.adminUrl + 'admin.php?page=jetpack-debugger' }
+							title={ __( 'Test your site’s compatibility with Jetpack.' ) }
 							className="jp-footer__link">
 							{ __( 'Debug', { context: 'Navigation item. Noun. Links to a debugger tool for Jetpack.' } ) }
 						</a>
@@ -60,13 +66,13 @@ export const Footer = React.createClass( {
 			}
 		};
 
-		const maybeShowDisconnect = () =>  {
-			if ( window.Initial_State.userData.currentUser.permissions.disconnect && getSiteConnectionStatus( this.props ) ) {
+		const maybeShowDisconnect = () => {
+			if ( this.props.userCanDisconnectSite && this.props.siteConnectionStatus && ! this.props.isDevMode ) {
 				return (
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.disconnectSite }
-							title={ __( "Disconnect from WordPress.com" ) }
+							title={ __( 'Disconnect from WordPress.com' ) }
 							className="jp-footer__link">
 							{ __( 'Disconnect Jetpack' ) }
 						</a>
@@ -120,7 +126,14 @@ export const Footer = React.createClass( {
 
 export default connect(
 	state => {
-		return state;
+		return {
+			currentVersion: getCurrentVersion( state ),
+			userCanManageOptions: userCanManageOptions( state ),
+			userCanDisconnectSite: userCanDisconnectSite( state ),
+			isDevVersion: _isDevVersion( state ),
+			isDevMode: _isDevMode( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state )
+		}
 	},
 	( dispatch ) => {
 		return {

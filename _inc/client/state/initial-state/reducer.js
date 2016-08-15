@@ -43,6 +43,14 @@ export function userCanManageModules( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_modules', false );
 }
 
+export function userCanManageOptions( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_options', false );
+}
+
+export function userCanDisconnectSite( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'disconnect', false );
+}
+
 export function userCanViewStats( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
 }
