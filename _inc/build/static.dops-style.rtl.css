@@ -16,6 +16,7 @@
     opacity: 1; } }
 
 .dops-notice {
+  display: -ms-flexbox;
   display: flex;
   position: relative;
   margin-bottom: 24px;
@@ -57,18 +58,22 @@
           padding: 13px; } }
 
 .dops-notice__icon {
-  flex-shrink: 0;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
   padding: 13px 16px 13px 0; }
   @media (max-width: 660px) {
     .dops-notice__icon {
       display: none; } }
 
 .dops-notice__content {
+  display: -ms-flexbox;
   display: flex;
-  flex-grow: 1; }
+  -ms-flex-positive: 1;
+      flex-grow: 1; }
   @media (max-width: 480px) {
     .dops-notice__content {
-      flex-direction: column; } }
+      -ms-flex-direction: column;
+          flex-direction: column; } }
 
 .dops-notice__text {
   font-size: 15px;
@@ -98,8 +103,10 @@
   margin-right: 0.428em; }
 
 .dops-notice__dismiss {
+  display: -ms-flexbox;
   display: flex;
-  flex-shrink: 0;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
   padding: 11px 16px;
   cursor: pointer;
   color: #87a6bc; }
@@ -115,9 +122,12 @@
       opacity: 1; }
 
 a.dops-notice__action {
+  display: -ms-flexbox;
   display: flex;
-  align-items: center;
-  flex-shrink: 0;
+  -ms-flex-align: center;
+      align-items: center;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
   box-sizing: border-box;
   cursor: pointer;
   font-size: 15px;
@@ -147,12 +157,15 @@ a.dops-notice__action {
   @media (max-width: 480px) {
     a.dops-notice__action {
       margin: 0;
-      justify-content: flex-end; } }
+      -ms-flex-pack: end;
+          justify-content: flex-end; } }
 
 .dops-notice.is-compact {
   border-radius: 2px;
+  display: -ms-inline-flexbox;
   display: inline-flex;
-  flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
   min-height: 20px;
   margin: 0;
   padding: 0;
@@ -166,8 +179,10 @@ a.dops-notice__action {
     padding: 6px 8px;
     line-height: 1; }
   .dops-notice.is-compact .dops-notice__icon {
-    align-self: center;
-    flex-shrink: 0;
+    -ms-flex-item-align: center;
+        align-self: center;
+    -ms-flex-negative: 0;
+        flex-shrink: 0;
     margin: 0 8px 0 0;
     padding: 0;
     width: 18px;
@@ -180,7 +195,8 @@ a.dops-notice__action {
     display: inline-block;
     font-size: 11px;
     font-weight: 600;
-    align-self: center;
+    -ms-flex-item-align: center;
+        align-self: center;
     margin-right: 16px;
     padding: 0 8px;
     text-decoration: underline;

@@ -16,6 +16,7 @@ class Jetpack_Sync_Settings {
 		'queue_max_writes_sec' => true,
 		'post_types_blacklist' => true,
 		'meta_blacklist'       => true,
+		'disable'              => true,
 	);
 
 	static $is_importing;
@@ -74,6 +75,13 @@ class Jetpack_Sync_Settings {
 		foreach ( $validated_settings as $setting => $value ) {
 			update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 			unset( self::$settings_cache[ $setting ] );
+
+			// if we set the disabled option to true, clear the queues
+			if ( 'disable' === $setting && !! $value ) {
+				$listener = Jetpack_Sync_Listener::get_instance();
+				$listener->get_sync_queue()->reset();
+				$listener->get_full_sync_queue()->reset();
+			}
 		}
 	}
 
