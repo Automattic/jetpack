@@ -11,6 +11,7 @@ class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
 	const MAX_INITIAL_SYNC_USERS = 500;
+	const INITIAL_SYNC_MULTISITE_INTERVAL = 10;
 
 	static function init() {
 		
@@ -137,24 +138,12 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function get_initial_sync_user_config() {
-		global $wp_roles, $blog_id, $wpdb;
-		$edit_and_publish_roles = array_keys( array_filter( $wp_roles->role_objects, array( __CLASS__, 'is_initial_sync_role' ) ) );
-		$user_role_regexp = join( '|', array_map( array( __CLASS__, 'double_quote' ), $edit_and_publish_roles ) );
+		global $wpdb;
 
-		$users_count = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT count(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0",
-				$user_role_regexp
-			)
-		);
+		$users_count = $wpdb->get_var( "SELECT count(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0" );
 
 		if ( $users_count <= self::MAX_INITIAL_SYNC_USERS ) {
-			return $wpdb->get_col(
-				$wpdb->prepare(
-					"SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0",
-					$user_role_regexp
-				)
-			);
+			return $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0" );
 		} else {
 			return false;
 		}
@@ -175,7 +164,7 @@ class Jetpack_Sync_Actions {
 
 		if ( is_multisite() ) {
 			// stagger initial syncs for multisite blogs so they don't all pile on top of each other
-			$time_offset = rand( 10 ) * get_blog_count();
+			$time_offset = ( rand() / getrandmax() ) * self::INITIAL_SYNC_MULTISITE_INTERVAL * get_blog_count();
 		} else {
 			$time_offset = 1;
 		}
