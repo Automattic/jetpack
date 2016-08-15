@@ -51,6 +51,22 @@ export function userCanDisconnectSite( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'disconnect', false );
 }
 
+export function userIsMaster( state ) {
+	return get( state.jetpack.initialState.userData.currentUser, 'isMaster', false );
+}
+
+export function getUserWpComLogin( state ) {
+	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'login' ] );
+}
+
+export function getUserWpComEmail( state ) {
+	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'email' ] );
+}
+
+export function getUsername( state ) {
+	return get( state.jetpack.initialState.userData.currentUser, [ 'username' ] );
+}
+
 export function userCanViewStats( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
 }
