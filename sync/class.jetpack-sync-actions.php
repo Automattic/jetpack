@@ -192,7 +192,9 @@ class Jetpack_Sync_Actions {
 			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full' );
 		}
 
-		spawn_cron();
+		if ( $time_offset === 1 ) {
+			spawn_cron();
+		}
 
 		return true;
 	}
