@@ -17,6 +17,7 @@ injectTapEventPlugin();
  * Internal dependencies
  */
 import { filterSearch } from 'state/search';
+import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
 
 const NavigationSettings = React.createClass( {
 	openSearch: function() {
@@ -41,7 +42,7 @@ const NavigationSettings = React.createClass( {
 	},
 
 	maybeShowSearch: function() {
-		let isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
+		let isAdmin = this.props.userCanManageModules;
 
 		if ( isAdmin ) {
 			return (
@@ -62,7 +63,7 @@ const NavigationSettings = React.createClass( {
 	render: function() {
 		let navItems;
 
-		if ( window.Initial_State.userData.currentUser.permissions.manage_modules ) {
+		if ( this.props.userCanManageModules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
@@ -131,7 +132,9 @@ NavigationSettings.contextTypes = {
 
 export default connect(
 	( state ) => {
-		return state;
+		return {
+			userCanManageModules: _userCanManageModules( state )
+		};
 	},
 	( dispatch ) => {
 		return {
