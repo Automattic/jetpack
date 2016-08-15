@@ -56,6 +56,8 @@ function onBuild( done ) {
 		} else {
 			doStatic();
 		}
+
+		doSass();
 	};
 }
 
@@ -83,14 +85,14 @@ function doSass() {
 			console.log( 'Dashboard CSS finished.' );
 			doRTL( 'main' );
 		} );
-		console.log( 'Building dops-components CSS bundle...' );
-		gulp.src( './_inc/build/*dops-style.css' )
-			.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
-			.pipe( gulp.dest( './_inc/build' ) )
-			.on( 'end', function() {
-				console.log( 'dops-components CSS finished.' );
-				doRTL( 'dops' );
-			} );
+	console.log( 'Building dops-components CSS bundle...' );
+	gulp.src( './_inc/build/*dops-style.css' )
+		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
+		.pipe( gulp.dest( './_inc/build' ) )
+		.on( 'end', function() {
+			console.log( 'dops-components CSS finished.' );
+			doRTL( 'dops' );
+		} );
 }
 
 function doRTL( files ) {
@@ -105,7 +107,7 @@ function doRTL( files ) {
 		} );
 }
 
-gulp.task( 'sass:build', doSass );
+gulp.task( 'sass:build', ['react:build'], doSass );
 
 gulp.task( 'sass:watch', function() {
 	doSass();
