@@ -149,14 +149,6 @@ class Jetpack_Sync_Actions {
 		}
 	}
 
-	static function double_quote( $str ) {
-		return "\"$str\"";
-	}
-
-	static function is_initial_sync_role( $role ) {
-		return $role->has_cap( 'edit_pages' ) || $role->has_cap( 'edit_posts' );
-	}
-
 	static function schedule_initial_sync() {
 		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
