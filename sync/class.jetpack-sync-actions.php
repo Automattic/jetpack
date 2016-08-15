@@ -172,18 +172,35 @@ class Jetpack_Sync_Actions {
 		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
 		wp_functionality_constants();
-		self::schedule_full_sync( array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => self::get_initial_sync_user_config() ) );
+
+		if ( is_multisite() ) {
+			// stagger initial syncs for multisite blogs so they don't all pile on top of each other
+			$time_offset = rand( 10 ) * get_blog_count();
+		} else {
+			$time_offset = 1;
+		}
+
+		self::schedule_full_sync( 
+			array( 
+				'options' => true, 
+				'network_options' => true, 
+				'functions' => true, 
+				'constants' => true, 
+				'users' => self::get_initial_sync_user_config() 
+			),
+			$time_offset
+		);
 	}
 
-	static function schedule_full_sync( $modules = null ) {
+	static function schedule_full_sync( $modules = null, $time_offset = 1 ) {
 		if ( ! self::sync_allowed() ) {
 			return false;
 		}
 
 		if ( $modules ) {
-			wp_schedule_single_event( time() + 1, 'jetpack_sync_full', array( $modules ) );
+			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full', array( $modules ) );
 		} else {
-			wp_schedule_single_event( time() + 1, 'jetpack_sync_full' );
+			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full' );
 		}
 
 		spawn_cron();
