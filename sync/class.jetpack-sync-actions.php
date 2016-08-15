@@ -200,7 +200,6 @@ class Jetpack_Sync_Actions {
 					return true;
 				}
 			}
-
 			return false;
 		}
 
