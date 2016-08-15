@@ -116,3 +116,13 @@ export function isSettingActivated( state, name ) {
 export function toggleSetting( state, name ) {
 	return get( state.jetpack.settings.items, [ name ], false ) ? true : false;
 }
+
+/**
+ * Returns the slug of a general setting.
+ * @param  {Object}  state Global state tree
+ * @param  {String}  name  A setting's name
+ * @return {String}       The setting name
+ */
+export function getSettingName( state, name ) {
+	return get( state.jetpack.initialState.settingNames, [ name ] );
+}
