@@ -665,6 +665,7 @@ $sync_settings_response = array(
 	'queue_max_writes_sec' => '(int|bool=false) Maximum writes per second to allow to the queue during full sync.',
 	'post_types_blacklist' => '(array|string|bool=false) List of post types to exclude from sync. Send "empty" to unset.',
 	'meta_blacklist'       => '(array|string|bool=false) List of meta keys to exclude from sync. Send "empty" to unset.',
+	'disable'              => '(int|bool=false) Set to 1 or true to disable sync entirely.',
 );
 
 // GET /sites/%s/sync/settings
