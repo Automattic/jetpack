@@ -126,7 +126,6 @@ export const UserUnlinked = React.createClass( {
 	displayName: 'UserUnlinked',
 
 	render() {
-		console.log( this.props );
 		if (
 			! window.Initial_State.userData.currentUser.isConnected &&
 			this.props.connectUrl &&
