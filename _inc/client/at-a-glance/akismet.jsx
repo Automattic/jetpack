@@ -105,7 +105,7 @@ const DashAkismet = React.createClass( {
 				>
 					<p className="jp-dash-item__description">
 						{
-							__( 'Whoops! It appears your Akismet key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.', {
+							__( 'Whoops! Your Akismet key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.', {
 								components: {
 									akismetSettings: <a href={ akismetSettingsUrl } />
 								}

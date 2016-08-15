@@ -95,7 +95,7 @@ const DashPluginUpdates = React.createClass( {
 				<p className="jp-dash-item__description">
 					{
 						manageActive ?
-							__( 'All plugins are up-to-date. Keep up the good work!' ) :
+							__( 'All plugins are up-to-date. Awesome work!' ) :
 							__( '{{a}}Activate Manage{{/a}} to turn on auto updates and manage your plugins from WordPress.com.', { components: { a: <a onClick={ this.props.activateManage } href="javascript:void(0)" /> } } )
 					}
 				</p>
