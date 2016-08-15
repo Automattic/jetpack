@@ -137,16 +137,35 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function get_initial_sync_user_config() {
-		$user_query = new WP_User_Query( array(
-			'who'    => 'authors',
-			'fields' => 'ID',
-			'number' => self::MAX_INITIAL_SYNC_USERS + 1,
-		) );
-		if ( $user_query->get_total() >= self::MAX_INITIAL_SYNC_USERS ) {
+		global $wp_roles, $blog_id, $wpdb;
+		$edit_and_publish_roles = array_keys( array_filter( $wp_roles->role_objects, array( __CLASS__, 'is_initial_sync_role' ) ) );
+		$user_role_regexp = join( '|', array_map( array( __CLASS__, 'double_quote' ), $edit_and_publish_roles ) );
+
+		$users_count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT count(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' AND meta_value REGEXP %s",
+				$user_role_regexp
+			)
+		);
+
+		if ( $users_count <= self::MAX_INITIAL_SYNC_USERS ) {
+			return $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' AND meta_value REGEXP %s",
+					$user_role_regexp
+				)
+			);
+		} else {
 			return false;
 		}
+	}
 
-		return $user_query->get_results();
+	static function double_quote( $str ) {
+		return "\"$str\"";
+	}
+
+	static function is_initial_sync_role( $role ) {
+		return $role->has_cap( 'edit_pages' ) || $role->has_cap( 'edit_posts' );
 	}
 
 	static function schedule_initial_sync() {
