@@ -33,7 +33,8 @@ import {
 } from 'state/site';
 import ProStatus from 'pro-status';
 
-export const Page = ( {
+export const SearchResults = ( {
+	siteAdminUrl,
 	toggleModule,
 	isModuleActivated,
 	isTogglingModule,
@@ -99,7 +100,7 @@ export const Page = ( {
 				module: element[0],
 				configure_url: 'backups' === element[0] || 'scan' === element[0] ?
 					'https://dashboard.vaultpress.com' :
-					Initial_State.adminUrl + 'admin.php?page=akismet-key-config'
+					siteAdminUrl + 'admin.php?page=akismet-key-config'
 			};
 			toggle = <ProStatus proFeature={ element[0] } />;
 
@@ -190,4 +191,4 @@ export default connect(
 			}
 		};
 	}
-)( Page );
+)( SearchResults );
