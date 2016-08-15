@@ -138,14 +138,14 @@ export let CommentsSettings = React.createClass( {
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
 					<FormLegend>{ __( 'Comments headline' ) }</FormLegend>
-					<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
 					<FormLabel>
-						<FormTextInput
+						<TextInput
 							name={ 'highlander_comment_form_prompt' }
 							value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
 							disabled={ this.props.isUpdating( 'highlander_comment_form_prompt' ) }
 							onChange={ this.props.onOptionChange} />
 					</FormLabel>
+					<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend>{ __( 'Color Scheme' ) }</FormLegend>
