@@ -62,7 +62,7 @@ const DashAkismet = React.createClass( {
 						{
 							__( 'For state-of-the-art spam defense, please {{a}}install Akismet{{/a}}.', {
 								components: {
-									a: <a href={ 'https://wordpress.com/plugins/akismet/' + window.Initial_State.rawUrl } target="_blank" />
+									a: <a href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl } target="_blank" />
 								}
 							} )
 						}
