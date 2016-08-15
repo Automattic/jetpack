@@ -6,6 +6,17 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import SimpleNotice from 'components/notice';
 
+/**
+ * Internal dependencies
+ */
+
+import { getCurrentVersion } from 'state/initial-state';
+import {
+	getJetpackStateNoticesErrorCode,
+	getJetpackStateNoticesMessageCode,
+	getJetpackStateNoticesErrorDescription
+} from 'state/jetpack-notices';
+
 const JetpackStateNotices = React.createClass( {
 	displayName: 'JetpackStateNotices',
 	getInitialState: function() {
@@ -20,7 +31,7 @@ const JetpackStateNotices = React.createClass( {
 	},
 
 	getErrorFromKey: function( key ) {
-		const errorDesc = window.Initial_State.jetpackStateNotices.errorDescription || false;
+		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
 		let message = '';
 
 		switch ( key ) {
@@ -157,7 +168,7 @@ const JetpackStateNotices = React.createClass( {
 				message = __( 'Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!',
 					{
 						args: {
-							jetpack_version: window.Initial_State.currentVersion
+							jetpack_version: this.props.currentVersion
 						},
 						components: {
 							s: <strong />
@@ -188,8 +199,8 @@ const JetpackStateNotices = React.createClass( {
 	renderContent: function() {
 		let status = 'is-info';
 		let noticeText = '';
-		const error = window.Initial_State.jetpackStateNotices.errorCode,
-			message = window.Initial_State.jetpackStateNotices.messageCode;
+		const error = this.props.jetpackStateNoticesErrorCode,
+			message = this.props.jetpackStateNoticesMessageCode;
 
 		if ( ! error && ! message ) {
 			return;
@@ -227,4 +238,13 @@ const JetpackStateNotices = React.createClass( {
 	}
 } );
 
-export default JetpackStateNotices;
+export default connect(
+	( state ) => {
+		return {
+			currentVersion: getCurrentVersion( state ),
+			jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
+			jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
+			jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state )
+		};
+	}
+)( JetpackStateNotices );
