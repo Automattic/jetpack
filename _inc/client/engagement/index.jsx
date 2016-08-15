@@ -31,7 +31,7 @@ import {
 	userCanManageModules as _userCanManageModules
 } from 'state/initial-state';
 
-export const Page = ( props ) => {
+export const Engagement = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
@@ -196,4 +196,4 @@ export default connect(
 			}
 		};
 	}
-)( Page );
+)( Engagement );
