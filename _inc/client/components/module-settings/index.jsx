@@ -449,56 +449,54 @@ export let VerificationToolsSettings = React.createClass( {
 
 					<div className="dops-card">
 						<FormLabel>
-							<span>Google</span>
-							<FormTextInput
+							<FormLegend>Google</FormLegend>
+							<TextInput
 								name={ 'google' }
 								value={ this.props.getOptionValue( 'google' ) }
+								placeholder={ 'Example: dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8' }
 								className="widefat code"
 								disabled={ this.props.isUpdating( 'google' ) }
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
-						<p>
-							{ __( 'Example:' ) }
-						</p>
-						<p className="small">
+						<span className="jp-form-setting-explanation">
+							{ __( 'Meta key example: ' ) }
 							&lt;meta name='google-site-verification' content='<strong className="code">dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8</strong>'&gt;
-						</p>
+						</span>
 					</div>
 
 					<div className="dops-card">
 						<FormLabel>
-							<span>Bing</span>
-							<FormTextInput
+							<FormLegend>Bing</FormLegend>
+							<TextInput
 								name={ 'bing' }
 								value={ this.props.getOptionValue( 'bing' ) }
+								placeholder={ 'Example: 12C1203B5086AECE94EB3A3D9830B2E' }
+								className="widefat code"
 								className="widefat code"
 								disabled={ this.props.isUpdating( 'bing' ) }
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
-						<p>
-							{ __( 'Example:' ) }
-						</p>
-						<p className="small">
+						<span className="jp-form-setting-explanation">
+							{ __( 'Meta key example: ' ) }
 							&lt;meta name='msvalidate.01' content='<strong>12C1203B5086AECE94EB3A3D9830B2E</strong>'&gt;
-						</p>
+						</span>
 					</div>
 
 					<div className="dops-card">
 						<FormLabel>
-							<span>Pinterest</span>
-							<FormTextInput
+							<FormLegend>Pinterest</FormLegend>
+							<TextInput
 								name={ 'pinterest' }
 								value={ this.props.getOptionValue( 'pinterest' ) }
+								placeholder={ 'Example: f100679e6048d45e4a0b0b92dce1efce' }
 								className="widefat code"
 								disabled={ this.props.isUpdating( 'pinterest' ) }
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
-						<p>
-							{ __( 'Example:' ) }
-						</p>
-						<p className="small">
+						<span className="jp-form-setting-explanation">
+							{ __( 'Meta key example: ' ) }
 							&lt;meta name='p:domain_verify' content='<strong>f100679e6048d45e4a0b0b92dce1efce</strong>'&gt;
-						</p>
+						</span>
 					</div>
 
 					<FormButton
