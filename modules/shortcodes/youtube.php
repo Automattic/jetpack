@@ -28,7 +28,7 @@
 // <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0"></iframe>
 
 function youtube_embed_to_short_code( $content ) {
-	if ( false === strpos( $content, 'youtube.com' ) )
+	if ( ! is_string( $content ) || false === strpos( $content, 'youtube.com' ) )
 		return $content;
 
 	//older codes
