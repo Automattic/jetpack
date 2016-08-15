@@ -33,7 +33,7 @@ import {
 } from 'state/site';
 import ProStatus from 'pro-status';
 
-export const Page = ( {
+export const SearchResults = ( {
 	siteAdminUrl,
 	toggleModule,
 	isModuleActivated,
@@ -191,4 +191,4 @@ export default connect(
 			}
 		};
 	}
-)( Page );
+)( SearchResults );
