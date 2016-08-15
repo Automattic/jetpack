@@ -109,49 +109,7 @@
 	}
 }
 
-.jp-dash-item__recently-activated {
-	.dops-card:last-of-type {
-		padding: 0;
-	}
-	.jp-dash-item__content {
-		flex: none;
-		flex-basis: 100%;
-	}
-}
-
-.jp-dash-item__recently-activated-lower {
-	background: $white;
-
-	@include breakpoint( ">660px" ) {
-		position: relative;
-		margin-top: 63px;
-		background: $gray-light;
-
-		&:before {
-			position: absolute;
-			top: rem( -24px );
-			left: 0;
-			width: 100%;
-			display: block;
-			content: "";
-			background: $white url('../../images/jp-4/long-clouds.svg') no-repeat;
-			background-size: 150%;
-			background-position: 0;
-			padding: 0;
-			height: rem( 24px );
-
-
-			@include breakpoint( "<660px" ) {
-				display: none;
-			}
-		}
-	}
-	.jp-dash-item__description {
-		box-sizing: border-box;
-	}
-}
-
 .jp-dash-item__recently-activated .jp-dash-item__description {
-	padding: rem( 16px );
 	font-style: italic;
+	box-sizing: border-box;
 }
