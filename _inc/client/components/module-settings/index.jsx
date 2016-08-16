@@ -62,15 +62,15 @@ export let RelatedPostsSettings = React.createClass( {
 		} ];
 
 		return (
-			<div className="related-posts-settings_preview_container">
+			<div className="jp-related-posts-preview">
 				{
 					show_headline ?
-						<h3>{ __( 'Related' ) }</h3> :
+						<div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div> :
 						''
 				}
 				{
 					previews.map( ( preview, i ) => (
-						<span key={ `preview_${ i }` } className="related-posts-settings_preview_image_container" >
+						<span key={ `preview_${ i }` } className="jp-related-posts-preview__item" >
 							{
 								show_thumbnails ? <img src={ preview.url } /> : ''
 							}
@@ -93,7 +93,7 @@ export let RelatedPostsSettings = React.createClass( {
 						name={ 'show_thumbnails' }
 						label={ __( 'Use a large and visually striking layout' ) }
 						{ ...this.props } />
-					<h3>{ __( 'Preview' ) }</h3>
+					<div className="jp-related-posts__preview-label">{ __( 'Preview' ) }</div>
 					<Card>
 						{ this.renderPreviews() }
 					</Card>

@@ -18,22 +18,39 @@
 	}
 }
 
-/**
- * Related Posts Preview styles
- */
-.related-posts-settings_preview_container {
+// Related Posts Preview styles
+.jp-related-posts__preview-label {
+	margin-top: rem( 24px );
+	margin-bottom: rem( 8px );
+	font-size: rem( 14px );
+	font-weight: 600;
+}
+
+.jp-related-posts__preview {
 	text-align: center;
 }
 
-.related-posts-settings_preview_container h3 {
+.jp-related-posts-preview__title {
 	text-align: left;
+	color: $gray;
+	font-weight: 600;
+	margin-left: rem( 8px );
+	margin-bottom: rem( 16px );
+	text-transform: uppercase;
 }
 
-.related-posts-settings_preview_image_container {
+.jp-related-posts-preview__item {
+	box-sizing: border-box;
 	display: inline-block;
-	width: 29%;
-}
+	width: 33.33%;
+	padding: rem( 8px );
 
-.related-posts-settings_preview_image_container img {
-	max-width: 100%;
+	@include breakpoint( "<480px" ) {
+		width: 100%;
+	}
+
+	img {
+		max-width: 100%;
+		margin-bottom: rem( 8px );
+	}
 }
