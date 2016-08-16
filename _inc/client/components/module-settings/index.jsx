@@ -573,6 +573,20 @@ export let PostByEmailSettings = React.createClass( {
 PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 
 export let CustomContentTypesSettings = React.createClass( {
+	componentWillReceiveProps: function() {
+		if ( ! this.props.getOptionValue( 'jetpack_portfolio' ) ) {
+			jQuery( '#menu-posts-jetpack-portfolio' ).hide();
+		} else {
+			jQuery( '#menu-posts-jetpack-portfolio' ).show();
+		}
+
+		if ( ! this.props.getOptionValue( 'jetpack_testimonial' ) ) {
+			jQuery( '#menu-posts-jetpack-testimonial' ).hide();
+		} else {
+			jQuery( '#menu-posts-jetpack-testimonial' ).show();
+		}
+	},
+
 	render() {
 		let portfolioConfigure = () => {
 			return ! this.props.getOptionValue( 'jetpack_portfolio' ) ?
