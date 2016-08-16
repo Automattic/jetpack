@@ -131,18 +131,6 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
-	static function get_initial_sync_user_config() {
-		global $wpdb;
-
-		$user_ids = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0 LIMIT " . ( self::MAX_INITIAL_SYNC_USERS + 1 ) );
-
-		if ( count( $user_ids ) <= self::MAX_INITIAL_SYNC_USERS ) {
-			return $user_ids;
-		} else {
-			return false;
-		}
-	}
-
 	static function schedule_initial_sync() {
 		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.

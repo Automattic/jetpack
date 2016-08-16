@@ -69,8 +69,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			$modules = array();
 		}
 
-		if ( isset( $modules['users'] ) && $modules['users'] === 'initial' ) {
-			$modules['users'] = Jetpack_Sync_Actions::get_initial_sync_user_config();
+		if ( isset( $modules['users'] ) && 'initial' === $modules['users'] ) {
+			$user_module = Jetpack_Sync_Modules::get_module( 'users' );
+			$modules['users'] = $user_module->get_initial_sync_user_config();
 		}
 
 		// by default, all modules are fully enabled
