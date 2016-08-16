@@ -34,6 +34,9 @@ class Jetpack_Sync_Actions {
 			return;
 		}
 
+		// publicize filter to prevent publicizing blacklisted post types
+		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
+
 		// cron hooks
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
@@ -99,6 +102,14 @@ class Jetpack_Sync_Actions {
 	static function sync_allowed() {
 		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' ) && Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
+	}
+
+	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
+		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
+			return false;
+		}
+
+		return $should_publicize;
 	}
 
 	static function set_is_importing_true() {
