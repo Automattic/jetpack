@@ -178,11 +178,19 @@ class Jetpack_Sync_Actions {
 			return false;
 		}
 
+		// Parse cron args
+		$args = array();
+
 		if ( $modules ) {
-			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full', array( $modules ) );
-		} else {
-			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full' );
+			$args = array( $modules );
 		}
+
+		// Clear existing scheduled events
+		if ( wp_next_scheduled( 'jetpack_sync_full', $args ) ) {
+			wp_clear_scheduled_hook( 'jetpack_sync_full', $args );
+		}
+
+		wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full', $args );
 
 		if ( $time_offset === 1 ) {
 			spawn_cron();
