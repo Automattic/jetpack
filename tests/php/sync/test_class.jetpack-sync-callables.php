@@ -272,6 +272,25 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $original_site_url, $this->server_replica_storage->get_callable( 'site_url' ) );
 	}
 
+	function test_only_syncs_if_is_admin_and_not_cron() {
+		// non-admin
+		set_current_screen( 'front' );
+		$this->sender->do_sync();
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
+
+		set_current_screen( 'post-user' );
+
+		// admin but in cron (for some reason)
+		Jetpack_Sync_Settings::set_doing_cron( true );
+
+		$this->sender->do_sync();
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
+		
+		Jetpack_Sync_Settings::set_doing_cron( false );		
+		$this->sender->do_sync();
+		$this->assertEquals( site_url(), $this->server_replica_storage->get_callable( 'site_url' ) );
+	}
+
 	function add_www_subdomain_to_siteurl( $url ) {
 		$parsed_url = parse_url( $url );
 
