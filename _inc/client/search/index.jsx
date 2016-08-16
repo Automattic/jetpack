@@ -32,6 +32,10 @@ import {
 	getSitePlan
 } from 'state/site';
 import ProStatus from 'pro-status';
+import {
+	isFetchingPluginsData,
+	isPluginActive
+} from 'state/site/plugins';
 
 export const SearchResults = ( {
 	siteAdminUrl,
@@ -41,7 +45,9 @@ export const SearchResults = ( {
 	getModule,
 	getModules,
 	searchTerm,
-	unavailableInDevMode
+	unavailableInDevMode,
+	isFetchingPluginsData,
+	isPluginActive
 	} ) => {
 	let modules = getModules(),
 		moduleList = [
@@ -49,9 +55,11 @@ export const SearchResults = ( {
 				'scan',
 				__( 'Security Scanning' ),
 				__( 'Automatically scan your site for common threats and attacks.' ),
-				'security scan threat attacks pro' // Extra search terms @todo make translatable
+				'https://vaultpress.com/jetpack/',
+				'security scan threat attacks pro scanning' // Extra search terms @todo make translatable
 			],
-			[ 'akismet',
+			[
+				'akismet',
 				'Akismet',
 				__( 'Keep those spammers away!' ),
 				'https://akismet.com/jetpack/',
@@ -98,9 +106,7 @@ export const SearchResults = ( {
 		if ( isPro ) {
 			proProps = {
 				module: element[0],
-				configure_url: 'backups' === element[0] || 'scan' === element[0] ?
-					'https://dashboard.vaultpress.com' :
-					siteAdminUrl + 'admin.php?page=akismet-key-config'
+				configure_url: ''
 			};
 			toggle = <ProStatus proFeature={ element[0] } />;
 
@@ -113,7 +119,16 @@ export const SearchResults = ( {
 				>
 					{ __( 'Pro' ) }
 				</Button>
-			</span>
+			</span>;
+
+			// Set proper .configure_url
+			if ( ! isFetchingPluginsData ) {
+				if ( 'akismet' === element[0] && isPluginActive( 'akismet/akismet.php' ) ) {
+					proProps.configure_url = siteAdminUrl + 'admin.php?page=akismet-key-config';
+				} else if ( ( 'scan' === element[0] || 'backups' === element[0] ) && isPluginActive( 'vaultpress/vaultpress.php' ) ) {
+					proProps.configure_url = 'https://dashboard.vaultpress.com/';
+				}
+			}
 		}
 
 		if ( 1 === element.length ) {
@@ -179,7 +194,9 @@ export default connect(
 			getModules: () => _getModules( state ),
 			searchTerm: () => getSearchTerm( state ),
 			sitePlan: () => getSitePlan( state ),
-			unavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
+			unavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
+			isFetchingPluginsData: isFetchingPluginsData( state ),
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
 		};
 	},
 	( dispatch ) => {

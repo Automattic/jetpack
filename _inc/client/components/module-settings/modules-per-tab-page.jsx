@@ -63,7 +63,7 @@ export const AllModuleSettings = React.createClass( {
 				);
 			case 'akismet':
 			case 'backups':
-				return 'undefined' === typeof module.configure_url ? <div></div> : (
+				return '' === module.configure_url ? <div></div> : (
 					<div>
 						<Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
 					</div>
