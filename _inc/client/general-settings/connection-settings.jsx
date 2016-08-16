@@ -14,6 +14,7 @@ import {
 	userIsMaster as _userIsMaster,
 	getUserWpComLogin as _getUserWpComLogin,
 	getUserWpComEmail as _getUserWpComEmail,
+	getUserWpComAvatar as _getUserWpComAvatar,
 	getUsername as _getUsername
 } from 'state/initial-state';
 import QueryUserConnectionData from 'components/data/query-user-connection';
@@ -39,7 +40,9 @@ const ConnectionSettings = React.createClass( {
 			)	:
 			<div>
 				<div className="jp-connection-settings">
-					<div className="gravatar-goes-here jp-connection-settings__gravatar"></div>
+					<div className="gravatar-goes-here jp-connection-settings__gravatar">
+						<img src={ this.props.userWpComAvatar } />
+					</div>
 					<div className="jp-connection-settings__headline">{ __( 'You are connected as ' ) }<span className="jp-connection-settings__username">{ this.props.userWpComLogin }</span></div>
 					<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
 					<div className="jp-connection-settings__actions">
@@ -92,6 +95,7 @@ export default connect(
 			userIsMaster: _userIsMaster( state ),
 			userWpComLogin: _getUserWpComLogin( state ),
 			userWpComEmail: _getUserWpComEmail( state ),
+			userWpComAvatar: _getUserWpComAvatar( state ),
 			username: _getUsername( state ),
 			isLinked: () => isCurrentUserLinked( state )
 		}
