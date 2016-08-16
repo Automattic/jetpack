@@ -24,15 +24,17 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
+import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
 
-export const Page = ( props ) => {
+export const Writing = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
-		getModule
+		getModule,
+		userCanManageModules
 	} = props;
-	let isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
+	let isAdmin = userCanManageModules;
 	/**
 	 * Array of modules that directly map to a card for rendering
 	 * @type {Array}
@@ -47,7 +49,7 @@ export const Page = ( props ) => {
 		[ 'post-by-email', getModule( 'post-by-email' ).name, getModule( 'post-by-email' ).description, getModule( 'post-by-email' ).learn_more_button ],
 		[ 'latex', getModule( 'latex' ).name, getModule( 'latex' ).description, getModule( 'latex' ).learn_more_button ],
 		[ 'custom-content-types', getModule( 'custom-content-types' ).name, getModule( 'custom-content-types' ).description, getModule( 'custom-content-types' ).learn_more_button ]
-	],
+		],
 		nonAdminAvailable = [ 'after-the-deadline', 'post-by-email' ];
 	// Put modules available to non-admin user at the top of the list.
 	if ( ! isAdmin ) {
@@ -66,13 +68,11 @@ export const Page = ( props ) => {
 			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] );
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
-		} else {
-			if ( adminAndNonAdmin ) {
-				toggle = <ModuleToggle slug={ element[0] }
-					activated={ isModuleActivated( element[0] ) }
-					toggling={ isTogglingModule( element[0] ) }
-					toggleModule={ toggleModule } />;
-			}
+		} else if ( adminAndNonAdmin ) {
+			toggle = <ModuleToggle slug={ element[0] }
+				activated={ isModuleActivated( element[0] ) }
+				toggling={ isTogglingModule( element[0] ) }
+				toggleModule={ toggleModule } />;
 		}
 
 		if ( 1 === element.length ) {
@@ -126,9 +126,10 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) =>
-				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
+			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
+			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
+			userCanManageModules: _userCanManageModules( state )
 		};
 	},
 	( dispatch ) => {
@@ -140,4 +141,4 @@ export default connect(
 			}
 		};
 	}
-)( Page );
+)( Writing );
