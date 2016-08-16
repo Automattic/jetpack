@@ -10,7 +10,6 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
-	const MAX_INITIAL_SYNC_USERS = 100;
 	const INITIAL_SYNC_MULTISITE_INTERVAL = 10;
 
 	static function init() {

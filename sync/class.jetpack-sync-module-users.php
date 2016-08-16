@@ -1,6 +1,8 @@
 <?php
 
 class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
+	const MAX_INITIAL_SYNC_USERS = 100;
+	
 	function name() {
 		return 'users';
 	}
