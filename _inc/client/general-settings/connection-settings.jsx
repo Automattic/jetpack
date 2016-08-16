@@ -38,9 +38,13 @@ const ConnectionSettings = React.createClass( {
 				</div>
 			)	:
 			<div>
-				<div className="gravatar-goes-here"></div>
-				<div>{ __( 'You are connected as ' ) }<span>{ this.props.userWpComLogin }</span></div>
-				<div className="jp-connection-settings__user-email">{ this.props.userWpComEmail }</div>
+				<div className="jp-connection-settings">
+					<div className="gravatar-goes-here jp-connection-settings__gravatar"></div>
+					<div>{ __( 'You are connected as ' ) }<span className="jp-connection-settings__username">{ this.props.userWpComLogin }</span></div>
+					<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
+					{ maybeShowDisconnectBtn }
+					{ maybeShowLinkUnlinkBtn }
+				</div>
 
 				<br />
 				{
@@ -57,8 +61,6 @@ const ConnectionSettings = React.createClass( {
 							}
 						} )
 				}
-				{ maybeShowDisconnectBtn }
-				{ maybeShowLinkUnlinkBtn }
 			</div>
 			;
 	},
