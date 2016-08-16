@@ -657,13 +657,19 @@ class Jetpack_Photon {
 		 * @param array|bool $multipliers Array of multipliers to use or false to bypass.
 		 */
 		$multipliers = apply_filters( 'jetpack_photon_srcset_multipliers', array( 2, 3 ) );
+		$url         = trailingslashit( $upload_dir['baseurl'] ) . $image_meta['file'];
 
-		if ( is_array( $multipliers ) // Short-circuit via jetpack_photon_srcset_multipliers filter.
-			&& isset( $image_meta['width'] ) && isset( $image_meta['height'] ) && isset( $image_meta['file'] ) // Verify basic meta is intact.
-			&& isset( $size_array[0] ) && isset( $size_array[1] ) // Verify we have the requested width/height.
+		if (
+			/** Short-circuit via jetpack_photon_srcset_multipliers filter. */
+			is_array( $multipliers )
+			/** This filter is already documented in class.photon.php */
+			&& ! apply_filters( 'jetpack_photon_skip_image', false, $url )
+			/** Verify basic meta is intact. */
+			&& isset( $image_meta['width'] ) && isset( $image_meta['height'] ) && isset( $image_meta['file'] )
+			/** Verify we have the requested width/height. */
+			&& isset( $size_array[0] ) && isset( $size_array[1] )
 			) {
 
-			$url = trailingslashit( $upload_dir['baseurl'] ) . $image_meta['file'];
 			$fullwidth  = $image_meta['width'];
 			$fullheight = $image_meta['height'];
 			$reqwidth   = $size_array[0];
@@ -686,11 +692,6 @@ class Jetpack_Photon {
 			$newsources = null;
 
 			foreach ( $multipliers as $multiplier ) {
-
-				/** This filter is already documented in class.photon.php */
-				if ( apply_filters( 'jetpack_photon_skip_image', false, $url ) ) {
-					continue;
-				}
 
 				$newwidth = $base * $multiplier;
 				foreach ( $currentwidths as $currentwidth ){
