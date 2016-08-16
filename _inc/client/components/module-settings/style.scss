@@ -22,8 +22,11 @@
 .jp-connection-settings {
 	margin: rem( 24px ) 0;
 	text-align: center;
-	font-size: rem( 21px );
 	font-weight: 300;
+}
+
+.jp-connection-settings__headline {
+	font-size: rem( 21px );
 }
 
 .jp-connection-settings__gravatar {
@@ -40,11 +43,18 @@
 }
 
 .jp-connection-settings__email {
-	margin-bottom: rem( 16px );
 	color: $gray;
 	font-size: rem( 13px );
 	font-style: italic;
 	font-weight: 400;
+}
+
+.jp-connection-settings__actions {
+	margin-top: rem( 16px );
+	> div {
+		display: inline-block;
+		margin: 0 rem( 4px ) rem( 16px );
+	}
 }
 
 

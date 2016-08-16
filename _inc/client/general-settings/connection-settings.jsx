@@ -40,10 +40,20 @@ const ConnectionSettings = React.createClass( {
 			<div>
 				<div className="jp-connection-settings">
 					<div className="gravatar-goes-here jp-connection-settings__gravatar"></div>
-					<div>{ __( 'You are connected as ' ) }<span className="jp-connection-settings__username">{ this.props.userWpComLogin }</span></div>
+					<div className="jp-connection-settings__headline">{ __( 'You are connected as ' ) }<span className="jp-connection-settings__username">{ this.props.userWpComLogin }</span></div>
 					<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
-					{ maybeShowDisconnectBtn }
-					{ maybeShowLinkUnlinkBtn }
+					<div className="jp-connection-settings__actions">
+						{ maybeShowDisconnectBtn }
+						{ maybeShowLinkUnlinkBtn }
+					</div>
+				</div>
+
+				<div className="jp-connection-settings">
+					<div className="jp-connection-settings__headline">{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }</div>
+					<div className="jp-connection-settings__actions">
+						{ maybeShowDisconnectBtn }
+						{ maybeShowLinkUnlinkBtn }
+					</div>
 				</div>
 
 				<br />
