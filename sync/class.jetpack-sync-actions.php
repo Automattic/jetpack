@@ -186,8 +186,8 @@ class Jetpack_Sync_Actions {
 		}
 
 		// Clear existing scheduled events
-		if ( wp_next_scheduled( 'jetpack_sync_cron', $args ) ) {
-			wp_clear_scheduled_hook( 'jetpack_sync_cron', $args );
+		if ( wp_next_scheduled( 'jetpack_sync_full', $args ) ) {
+			wp_clear_scheduled_hook( 'jetpack_sync_full', $args );
 		}
 
 		wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full', $args );
