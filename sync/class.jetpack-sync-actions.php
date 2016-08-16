@@ -161,7 +161,7 @@ class Jetpack_Sync_Actions {
 				'network_options' => true, 
 				'functions' => true, 
 				'constants' => true, 
-				'users' => self::get_initial_sync_user_config() 
+				'users' => 'initial' 
 			),
 			$time_offset
 		);
