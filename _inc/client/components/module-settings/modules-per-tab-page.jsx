@@ -61,6 +61,13 @@ export const AllModuleSettings = React.createClass( {
 						<br/><Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
 					</div>
 				);
+			case 'akismet':
+			case 'backups':
+				return 'undefined' === typeof module.configure_url ? <div></div> : (
+					<div>
+						<Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
+					</div>
+				);
 			case 'sso':
 				return ( <SingleSignOnSettings module={ module } { ...this.props } /> );
 			case 'stats':
