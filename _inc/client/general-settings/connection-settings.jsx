@@ -38,6 +38,16 @@ const ConnectionSettings = React.createClass( {
 				</div>
 			)	:
 			<div>
+				<div className="gravatar"></div>
+				<span>{ __( 'Connect as ' ) }</span>
+				<div>
+					<span>User: </span><span>{ this.props.userWpComLogin }</span>
+				</div>
+				<div>
+					<span>Email: </span><span>{ this.props.userWpComEmail }</span>
+				</div>
+
+				<br />
 				{
 					this.props.isLinked( this.props ) ?
 						__( 'You are linked to WordPress.com account %(userLogin)s / %(userEmail)s.', {
