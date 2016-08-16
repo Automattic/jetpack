@@ -9,6 +9,7 @@ import Textarea from 'components/textarea';
 import TagsInput from 'components/tags-input';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 import get from 'lodash/get';
+import Button from 'components/button';
 
 /**
  * Internal dependencies
@@ -573,17 +574,42 @@ PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 
 export let CustomContentTypesSettings = React.createClass( {
 	render() {
+		let portfolioConfigure = () => {
+			return ! this.props.getOptionValue( 'jetpack_portfolio' ) ?
+				'' :
+				<Button
+					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
+					href="/wp-admin/edit.php?post_type=jetpack-portfolio"
+					compact={ true }
+				>{ __( 'Configure Portfolios' ) }</Button>;
+		};
+
+		let testimonialConfigure = () => {
+			return ! this.props.getOptionValue( 'jetpack_testimonial' ) ?
+				'' :
+				<Button
+					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
+					href="/wp-admin/edit.php?post_type=jetpack-testimonial"
+					compact={ true }
+				>{ __( 'Configure Testimonials' ) }</Button>;
+		};
+
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
 					<ModuleSettingCheckbox
 						name={ 'jetpack_portfolio' }
 						{ ...this.props }
-						label={ __( 'Enable Portfolio Projects for this site' ) } />
+						label={ __( 'Enable Portfolio Projects for this site.' ) }
+					/>
 					<ModuleSettingCheckbox
 						name={ 'jetpack_testimonial' }
 						{ ...this.props }
-						label={ __( 'Enable Testimonials for this site' ) } />
+						label={ __( 'Enable Testimonials for this site.' ) }
+					/>
+					<br/>
+					{ portfolioConfigure() }
+					{ testimonialConfigure() }
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }
