@@ -27,12 +27,10 @@ import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 import {
-	fetchPluginsData,
 	isFetchingPluginsData,
 	isPluginActive,
 	isPluginInstalled
 } from 'state/site/plugins';
-import QuerySitePlugins from 'components/data/query-site-plugins';
 
 export const Page = ( props ) => {
 	let {
@@ -119,7 +117,6 @@ export const Page = ( props ) => {
 
 	return (
 		<div>
-			<QuerySitePlugins />
 			<QuerySite />
 			{ cards }
 		</div>
@@ -151,8 +148,7 @@ export default connect(
 				return ( activated )
 					? dispatch( deactivateModule( module_name ) )
 					: dispatch( activateModule( module_name ) );
-			},
-			fetchPluginsData: () => dispatch( fetchPluginsData() )
+			}
 		};
 	}
 )( Page );
