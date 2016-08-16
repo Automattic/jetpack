@@ -1031,7 +1031,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 					'network_options' => true,
 					'functions' => true,
 					'constants' => true,
-					'users' => Jetpack_Sync_Actions::get_initial_sync_user_config(),
+					'users' => 'initial',
 				)
 			)
 		);

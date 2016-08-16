@@ -119,7 +119,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.1', '4.2' );
 
-		$modules = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => Jetpack_Sync_Actions::get_initial_sync_user_config() );
+		$modules = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => 'initial' );
 		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( $modules ) ) > time()-5 );
 	}
 
