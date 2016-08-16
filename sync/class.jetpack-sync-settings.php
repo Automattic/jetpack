@@ -98,6 +98,7 @@ class Jetpack_Sync_Settings {
 			delete_option( self::SETTINGS_OPTION_PREFIX . $option );
 		}
 		self::set_importing( null );
+		self::set_doing_cron( null );
 	}
 
 	static function set_importing( $is_importing ) {
