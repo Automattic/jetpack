@@ -181,6 +181,14 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	private function get_where_sql( $config ) {
 		global $wpdb;
 
+		if ( $config === 'initial' ) {
+			$config = Jetpack_Sync_Actions::get_initial_sync_user_config();
+			if ( false === $config ) {
+				// over size limit, enqueue no results
+				return '1=0';
+			}
+		}
+
 		$query = "meta_key = '{$wpdb->prefix}capabilities'";
 		
 		// config is a list of user IDs to sync
