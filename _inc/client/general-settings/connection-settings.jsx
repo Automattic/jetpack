@@ -43,9 +43,7 @@ const ConnectionSettings = React.createClass( {
 					this.props.isLinked
 					? (
 						<div className="jp-connection-settings">
-							<div className="gravatar-goes-here jp-connection-settings__gravatar">
-								<img src={ this.props.userWpComAvatar } />
-							</div>
+							<img className="jp-connection-settings__gravatar" src={ this.props.userWpComAvatar } />
 							<div className="jp-connection-settings__headline">{ __( 'You are connected as ' ) }<span className="jp-connection-settings__username">{ this.props.userWpComLogin }</span></div>
 							<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
 							<div className="jp-connection-settings__actions">
