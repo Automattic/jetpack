@@ -38,14 +38,9 @@ const ConnectionSettings = React.createClass( {
 				</div>
 			)	:
 			<div>
-				<div className="gravatar"></div>
-				<span>{ __( 'Connect as ' ) }</span>
-				<div>
-					<span>User: </span><span>{ this.props.userWpComLogin }</span>
-				</div>
-				<div>
-					<span>Email: </span><span>{ this.props.userWpComEmail }</span>
-				</div>
+				<div className="gravatar-goes-here"></div>
+				<div>{ __( 'You are connected as ' ) }<span>{ this.props.userWpComLogin }</span></div>
+				<div className="jp-connection-settings__user-email">{ this.props.userWpComEmail }</div>
 
 				<br />
 				{
