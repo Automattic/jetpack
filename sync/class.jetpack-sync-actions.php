@@ -10,7 +10,6 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
-	const MAX_INITIAL_SYNC_USERS = 100;
 	const INITIAL_SYNC_MULTISITE_INTERVAL = 10;
 
 	static function init() {
@@ -129,18 +128,6 @@ class Jetpack_Sync_Actions {
 		}
 
 		return $rpc->getResponse();
-	}
-
-	static function get_initial_sync_user_config() {
-		global $wpdb;
-
-		$user_ids = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0 LIMIT " . ( self::MAX_INITIAL_SYNC_USERS + 1 ) );
-
-		if ( count( $user_ids ) <= self::MAX_INITIAL_SYNC_USERS ) {
-			return $user_ids;
-		} else {
-			return false;
-		}
 	}
 
 	static function schedule_initial_sync() {
