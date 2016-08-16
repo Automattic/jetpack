@@ -1017,9 +1017,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 13, $this->server_replica_storage->user_count() );
 		$this->server_replica_storage->reset();
 		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
-		$user_ids = Jetpack_Sync_Actions::get_initial_sync_user_config();
+		$user_ids = Jetpack_Sync_Modules::get_module( 'users' )->get_initial_sync_user_config();
 		$this->assertEquals( 3, count( $user_ids ) );
-		$this->full_sync->start( array( 'users' => Jetpack_Sync_Actions::get_initial_sync_user_config() ) );
+		$this->full_sync->start( array( 'users' => 'initial' ) );
 		$this->sender->do_sync();
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
