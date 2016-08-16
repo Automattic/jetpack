@@ -39,40 +39,30 @@ const ConnectionSettings = React.createClass( {
 				</div>
 			)	:
 			<div>
-				<div className="jp-connection-settings">
-					<div className="gravatar-goes-here jp-connection-settings__gravatar">
-						<img src={ this.props.userWpComAvatar } />
-					</div>
-					<div className="jp-connection-settings__headline">{ __( 'You are connected as ' ) }<span className="jp-connection-settings__username">{ this.props.userWpComLogin }</span></div>
-					<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
-					<div className="jp-connection-settings__actions">
-						{ maybeShowDisconnectBtn }
-						{ maybeShowLinkUnlinkBtn }
-					</div>
-				</div>
-
-				<div className="jp-connection-settings">
-					<div className="jp-connection-settings__headline">{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }</div>
-					<div className="jp-connection-settings__actions">
-						{ maybeShowDisconnectBtn }
-						{ maybeShowLinkUnlinkBtn }
-					</div>
-				</div>
-
-				<br />
 				{
-					this.props.isLinked( this.props ) ?
-						__( 'You are linked to WordPress.com account %(userLogin)s / %(userEmail)s.', {
-							args: {
-								userLogin: this.props.userWpComLogin,
-								userEmail: this.props.userWpComEmail
-							}
-						} ) :
-						__( 'You, %(userName)s, are not connected to WordPress.com.', {
-							args: {
-								userName: this.props.username
-							}
-						} )
+					this.props.isLinked
+					? (
+						<div className="jp-connection-settings">
+							<div className="gravatar-goes-here jp-connection-settings__gravatar">
+								<img src={ this.props.userWpComAvatar } />
+							</div>
+							<div className="jp-connection-settings__headline">{ __( 'You are connected as ' ) }<span className="jp-connection-settings__username">{ this.props.userWpComLogin }</span></div>
+							<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
+							<div className="jp-connection-settings__actions">
+								{ maybeShowDisconnectBtn }
+								{ maybeShowLinkUnlinkBtn }
+							</div>
+						</div>
+					)
+					: (
+						<div className="jp-connection-settings">
+							<div className="jp-connection-settings__headline">{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }</div>
+							<div className="jp-connection-settings__actions">
+								{ maybeShowDisconnectBtn }
+								{ maybeShowLinkUnlinkBtn }
+							</div>
+						</div>
+					)
 				}
 			</div>
 			;
@@ -97,7 +87,7 @@ export default connect(
 			userWpComEmail: _getUserWpComEmail( state ),
 			userWpComAvatar: _getUserWpComAvatar( state ),
 			username: _getUsername( state ),
-			isLinked: () => isCurrentUserLinked( state )
+			isLinked: isCurrentUserLinked( state )
 		}
 	}
 )( ConnectionSettings );
