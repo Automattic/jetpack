@@ -439,12 +439,12 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_does_not_publicize_blacklisted_post_types() {
-		register_post_type( 'filter_me', array( 'public' => true, 'label' => 'Filter Me' ) );
-		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
+		register_post_type( 'dont_publicize_me', array( 'public' => true, 'label' => 'Filter Me' ) );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'dont_publicize_me' ) );
 
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
+		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'dont_publicize_me' ) ) );
 
 		$this->assertFalse( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 
