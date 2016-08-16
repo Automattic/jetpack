@@ -20,6 +20,7 @@ class Jetpack_Sync_Settings {
 	);
 
 	static $is_importing;
+	static $is_doing_cron;
 
 	static $settings_cache = array(); // some settings can be expensive to compute - let's cache them
 
@@ -110,5 +111,18 @@ class Jetpack_Sync_Settings {
 		}
 
 		return defined( 'WP_IMPORTING' ) && WP_IMPORTING;
+	}
+
+	static function set_doing_cron( $is_doing_cron ) {
+		// set to NULL to revert to WP_IMPORTING, the standard behaviour
+		self::$is_doing_cron = $is_doing_cron;
+	}
+
+	static function is_doing_cron() {
+		if ( ! is_null( self::$is_doing_cron ) ) {
+			return self::$is_doing_cron;
+		}
+
+		return defined( 'DOING_CRON' ) && DOING_CRON;
 	}
 }

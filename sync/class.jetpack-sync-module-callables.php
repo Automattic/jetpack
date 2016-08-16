@@ -98,10 +98,10 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	}
 	
 	public function maybe_sync_callables() {
-		if ( ! is_admin() ) {
+		if ( ! is_admin() || Jetpack_Sync_Settings::is_doing_cron() ) {
 			return;
 		}
-		
+
 		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
 			return;
 		}
