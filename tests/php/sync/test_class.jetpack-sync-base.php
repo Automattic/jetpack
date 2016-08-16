@@ -146,4 +146,26 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync( array( 'posts' => true ) ) );
 		$this->assertFalse( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync( array( 'comments' => true ) ) );
 	}
+
+	function test_can_unschedule_all_full_syncs() {
+		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );
+
+		Jetpack_Sync_Actions::schedule_full_sync( array( 'posts' => true ) );
+		Jetpack_Sync_Actions::schedule_full_sync( array( 'users' => true ) );
+
+		$this->assertTrue( Jetpack_Sync_Actions::is_scheduled_full_sync() );
+
+		Jetpack_Sync_Actions::unschedule_all_full_syncs();
+
+		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );		
+	}
+
+	function test_scheduling_a_full_sync_unschedules_all_future_full_syncs() {
+		Jetpack_Sync_Actions::schedule_full_sync( array( 'posts' => true ), 100 ); // 100 seconds in the future
+		Jetpack_Sync_Actions::schedule_full_sync( array( 'users' => true ), 200 ); // 200 seconds in the future
+
+		// users sync should have overridden posts sync
+		$this->assertFalse( wp_next_scheduled( 'jetpack_sync_full', array( array( 'posts' => true ) ) ) );
+		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( array( 'users' => true ) ) ) >= time() + 199 );
+	}
 }
