@@ -438,6 +438,21 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
+	function test_does_not_publicize_blacklisted_post_types() {
+		register_post_type( 'dont_publicize_me', array( 'public' => true, 'label' => 'Filter Me' ) );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'dont_publicize_me' ) );
+
+		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
+
+		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'dont_publicize_me' ) ) );
+
+		$this->assertFalse( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
+
+		$good_post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+
+		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $good_post_id ) ) );
+	}
+
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment        = get_post( $attachment_id );
