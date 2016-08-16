@@ -317,8 +317,5 @@ class Jetpack_Sync_Sender {
 
 		// clear the sync cron.
 		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
-
-		// clear the checksum cron
-		wp_clear_scheduled_hook( 'jetpack_send_db_checksum' );
 	}
 }
