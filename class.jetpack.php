@@ -974,12 +974,9 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function is_single_user_site() {
-		$user_query = new WP_User_Query( array(
-			'blog_id' => get_current_blog_id(),
-			'fields'  => 'ID',
-			'number' => 2
-		) );
-		return 1 === (int) $user_query->get_total();
+		global $wpdb;
+		$some_users = $wpdb->get_var( "select count(*) from (select user_id from $wpdb->usermeta where meta_key = '{$wpdb->prefix}capabilities' LIMIT 2) as someusers" );
+		return 1 === (int) $some_users;
 	}
 
 	/**

@@ -10,7 +10,8 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
-	const MAX_INITIAL_SYNC_USERS = 500;
+	const MAX_INITIAL_SYNC_USERS = 100;
+	const INITIAL_SYNC_MULTISITE_INTERVAL = 10;
 
 	static function init() {
 		
@@ -35,14 +36,8 @@ class Jetpack_Sync_Actions {
 		}
 
 		// cron hooks
-		add_action( 'jetpack_sync_send_db_checksum', array( __CLASS__, 'send_db_checksum' ) );
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
-
-		if ( ! wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
-			// Schedule a job to send DB checksums once an hour
-			wp_schedule_event( time(), 'hourly', 'jetpack_sync_send_db_checksum' );
-		}
 
 		if ( ! wp_next_scheduled( 'jetpack_sync_cron' ) ) {
 			// Schedule a job to send pending queue items once a minute
@@ -137,39 +132,71 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function get_initial_sync_user_config() {
-		$user_query = new WP_User_Query( array(
-			'who'    => 'authors',
-			'fields' => 'ID',
-			'number' => self::MAX_INITIAL_SYNC_USERS + 1,
-		) );
-		if ( $user_query->get_total() >= self::MAX_INITIAL_SYNC_USERS ) {
+		global $wpdb;
+
+		$user_ids = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0 LIMIT " . ( self::MAX_INITIAL_SYNC_USERS + 1 ) );
+
+		if ( count( $user_ids ) <= self::MAX_INITIAL_SYNC_USERS ) {
+			return $user_ids;
+		} else {
 			return false;
 		}
-
-		return $user_query->get_results();
 	}
 
 	static function schedule_initial_sync() {
 		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
 		wp_functionality_constants();
-		self::schedule_full_sync( array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => self::get_initial_sync_user_config() ) );
+
+		if ( is_multisite() ) {
+			// stagger initial syncs for multisite blogs so they don't all pile on top of each other
+			$time_offset = ( rand() / getrandmax() ) * self::INITIAL_SYNC_MULTISITE_INTERVAL * get_blog_count();
+		} else {
+			$time_offset = 1;
+		}
+
+		self::schedule_full_sync( 
+			array( 
+				'options' => true, 
+				'network_options' => true, 
+				'functions' => true, 
+				'constants' => true, 
+				'users' => self::get_initial_sync_user_config() 
+			),
+			$time_offset
+		);
 	}
 
-	static function schedule_full_sync( $modules = null ) {
+	static function schedule_full_sync( $modules = null, $time_offset = 1 ) {
 		if ( ! self::sync_allowed() ) {
 			return false;
 		}
 
-		if ( $modules ) {
-			wp_schedule_single_event( time() + 1, 'jetpack_sync_full', array( $modules ) );
-		} else {
-			wp_schedule_single_event( time() + 1, 'jetpack_sync_full' );
+		if ( self::is_scheduled_full_sync() ) {
+			self::unschedule_all_full_syncs();
 		}
 
-		spawn_cron();
+		if ( $modules ) {
+			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full', array( $modules ) );
+		} else {
+			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full' );
+		}
+
+		if ( $time_offset === 1 ) {
+			spawn_cron();
+		}
 
 		return true;
+	}
+
+	static function unschedule_all_full_syncs() {
+		foreach ( _get_cron_array() as $timestamp => $cron ) {
+			if ( ! empty( $cron['jetpack_sync_full'] ) ) {
+				foreach( $cron['jetpack_sync_full'] as $key => $config ) {
+					wp_unschedule_event( $timestamp, 'jetpack_sync_full', $config['args'] );
+				}
+			}
+		}
 	}
 
 	static function is_scheduled_full_sync( $modules = null ) {
@@ -181,7 +208,6 @@ class Jetpack_Sync_Actions {
 					return true;
 				}
 			}
-
 			return false;
 		}
 
@@ -237,13 +263,6 @@ class Jetpack_Sync_Actions {
 
 			$result = self::$sender->do_sync();
 		} while ( $result );
-	}
-
-	static function send_db_checksum() {
-		self::initialize_listener();
-		self::initialize_sender();
-		self::$sender->send_checksum();
-		self::$sender->do_sync();
 	}
 
 	static function initialize_listener() {
