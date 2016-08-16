@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -57,7 +58,7 @@ const DashItem = React.createClass( {
 		);
 
 		if ( '' !== this.props.module ) {
-			toggle = (
+			toggle = ( includes( [ 'protect', 'monitor', 'photon' ], this.props.module ) && this.props.isDevMode ) ? '' : (
 				<ModuleToggle
 					slug={ this.props.module }
 					activated={ this.props.isModuleActivated( this.props.module ) }
