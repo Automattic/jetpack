@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import forEach from 'lodash/forEach';
+import get from 'lodash/get';
 import Card from 'components/card';
 import Chart from 'components/chart';
 import { connect } from 'react-redux';
@@ -17,6 +18,7 @@ import analytics from 'lib/analytics';
  */
 import { imagePath } from 'constants';
 import { isDevMode } from 'state/connection';
+import { getInitialStateStatsData } from 'state/initial-state';
 import QueryStatsData from 'components/data/query-stats-data';
 import {
 	getStatsData,
@@ -42,13 +44,14 @@ const DashStats = React.createClass( {
 	},
 
 	statsChart: function( unit ) {
+		const props = this.props;
 		let s = [];
 
-		if ( 'object' !== typeof window.Initial_State.stats.data[unit] ) {
+		if ( 'object' !== typeof props.statsData[unit] ) {
 			return s;
 		}
 
-		forEach( window.Initial_State.stats.data[unit].data, function( v ) {
+		forEach( props.statsData[unit].data, function( v ) {
 			let date = v[0];
 			let chartLabel = '';
 			let tooltipLabel = '';
@@ -72,7 +75,7 @@ const DashStats = React.createClass( {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: `https://wordpress.com/stats/${ unit }/${ window.Initial_State.rawUrl }?startDate=${ date }`
+					link: `https://wordpress.com/stats/${ unit }/${ props.siteRawUrl }?startDate=${ date }`
 				},
 				tooltipData: [ {
 					label: tooltipLabel,
@@ -87,16 +90,10 @@ const DashStats = React.createClass( {
 	/**
 	 * Checks that the stats fetching didn't return errors.
 	 *
-	 * @returns {object|bool}
+	 * @returns {object|bool} Returns statsData.general.errors or false if it is not an object
 	 */
 	statsErrors() {
-		if ( 'object' !== typeof window.Initial_State.stats.data.general ) {
-			return false;
-		}
-		if ( 'undefined' === typeof window.Initial_State.stats.data.general.errors ) {
-			return false;
-		}
-		return window.Initial_State.stats.data.general.errors;
+		return get( this.props.statsData, [ 'general', 'errors'], false );
 	},
 
 	renderStatsArea: function() {
@@ -111,7 +108,7 @@ const DashStats = React.createClass( {
 						{
 							__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
 								components: {
-									a: <a href="{ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl }" />
+									a: <a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
 								}
 							} )
 						}
@@ -124,11 +121,11 @@ const DashStats = React.createClass( {
 					<div className="jp-at-a-glance__stats-chart">
 						<Chart data={ chartData } barClick={ this.barClick } />
 						{
-							0 < chartData.length ? '': <Spinner />
+							0 < chartData.length ? '' : <Spinner />
 						}
 					</div>
 					<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
-						<DashStatsBottom { ...this.props } />
+						<DashStatsBottom statsData={ this.props.statsData } siteRawUrl={ this.props.siteRawUrl }/>
 					</div>
 				</div>
 			);
@@ -204,22 +201,13 @@ const DashStats = React.createClass( {
 
 	render: function() {
 		let range = this.props.activeTab();
-		if ( 'object' !== typeof window.Initial_State.stats.data[ range ] || 'N/A' === window.Initial_State.stats.data[ range ] ) {
-			let statsData = this.props.getStatsData();
-			if ( 'object' !== typeof window.Initial_State.stats.data.general ) {
-				window.Initial_State.stats.data = statsData;
-			} else {
-				window.Initial_State.stats.data.general = statsData.general;
-				window.Initial_State.stats.data[ range ] = statsData[ range ];
-			}
-		}
 		return (
 			<div>
 				<QueryStatsData range={ range } />
 				<DashSectionHeader label={ __( 'Site Stats' ) }>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
-				<Card className={ 'jp-at-a-glance__stats-card ' + ( isDevMode( this.props ) ? 'is-inactive': '' ) }>
+				<Card className={ 'jp-at-a-glance__stats-card ' + ( isDevMode( this.props ) ? 'is-inactive' : '' ) }>
 					{ this.renderStatsArea() }
 				</Card>
 			</div>
@@ -230,15 +218,15 @@ const DashStats = React.createClass( {
 const DashStatsBottom = React.createClass( {
 	statsBottom: function() {
 		let generalStats;
-		if ( 'object' === typeof window.Initial_State.stats.data.general ) {
-			generalStats = window.Initial_State.stats.data.general.stats;
+		if ( 'object' === typeof this.props.statsData.general ) {
+			generalStats = this.props.statsData.general.stats;
 		} else {
 			generalStats = {
-				'views': '-',
-				'comments': '-',
-				'views_today': '-',
-				'views_best_day': '-',
-				'views_best_day_total': '-'
+				views: '-',
+				comments: '-',
+				views_today: '-',
+				views_best_day: '-',
+				views_best_day_total: '-'
 			}
 		}
 		return [
@@ -269,7 +257,7 @@ const DashStatsBottom = React.createClass( {
 					<p className="jp-at-a-glance__stat-details">{ __( 'Best overall day', { comment: 'Referring to a number of page views' } ) }</p>
 					<h3 className="jp-at-a-glance__stat-number">
 						{
-							'-' === s.bestDay.count ? '-':
+							'-' === s.bestDay.count ? '-' :
 							__( '%(number)s View', '%(number)s Views',
 								{
 									count: s.bestDay.count,
@@ -282,7 +270,7 @@ const DashStatsBottom = React.createClass( {
 					</h3>
 					<p className="jp-at-a-glance__stat-details">
 						{
-							'-' === s.bestDay.day ? '-': moment( s.bestDay.day ).format( 'MMMM Do, YYYY' )
+							'-' === s.bestDay.day ? '-' : moment( s.bestDay.day ).format( 'MMMM Do, YYYY' )
 						}
 					</p>
 				</div>
@@ -291,7 +279,7 @@ const DashStatsBottom = React.createClass( {
 						<p className="jp-at-a-glance__stat-details">{ __( 'All-time views', { comment: 'Referring to a number of page views' } ) }</p>
 						<h3 className="jp-at-a-glance__stat-number">
 							{
-								'-' === s.allTime.views ? '-': numberFormat( s.allTime.views )
+								'-' === s.allTime.views ? '-' : numberFormat( s.allTime.views )
 							}
 						</h3>
 					</div>
@@ -299,7 +287,7 @@ const DashStatsBottom = React.createClass( {
 						<p className="jp-at-a-glance__stat-details">{ __( 'All-time comments', { comment: 'Referring to a number of comments' } ) }</p>
 						<h3 className="jp-at-a-glance__stat-number">
 							{
-								'-' === s.allTime.comments ? '-': numberFormat( s.allTime.comments )
+								'-' === s.allTime.comments ? '-' : numberFormat( s.allTime.comments )
 							}
 						</h3>
 					</div>
@@ -315,7 +303,7 @@ const DashStatsBottom = React.createClass( {
 								<Button
 									onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_wpcom_click', {} ) }
 									className="is-primary"
-									href={ 'https://wordpress.com/stats/insights/' + window.Initial_State.rawUrl }
+									href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
 								/>
 						}
 					} ) }
@@ -333,7 +321,7 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isFetchingModules: () => _isFetchingModulesList( state ),
 			activeTab: () => _getActiveStatsTab( state ),
-			getStatsData: () => getStatsData( state )
+			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state )
 		};
 	},
 	( dispatch ) => {

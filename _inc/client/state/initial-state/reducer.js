@@ -23,6 +23,10 @@ export function getSiteRoles( state ) {
 	return get( state.jetpack.initialState.stats, 'roles', {} );
 }
 
+export function getInitialStateStatsData( state ) {
+	return get( state.jetpack.initialState.stats, 'data' );
+}
+
 export function getAdminEmailAddress( state ) {
 	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'wpcomUser', 'email' ] );
 }
