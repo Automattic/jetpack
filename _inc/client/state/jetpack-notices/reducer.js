@@ -20,7 +20,6 @@ import {
 	JUMPSTART_SKIP,
 
 } from 'state/action-types';
-import restApi from 'rest-api';
 
 const notice = ( state = false, action ) => {
 	switch ( action.type ) {
@@ -67,6 +66,36 @@ export const reducer = combineReducers( {
  */
 export function getJetpackNotices( state ) {
 	return state.jetpack.jetpackNotices.notice;
+}
+
+/**
+ * Returns any Jetpack notice error code hooked onto 'jetpack_notices' in PHP
+ *
+ * @param  {Object} state Global state tree
+ * @return {number}  An error code.
+ */
+export function getJetpackStateNoticesErrorCode( state ) {
+	return get( state.jetpack.initialState, ['jetpackStateNotices', 'errorCode' ] );
+}
+
+/**
+ * Returns any Jetpack notice message code hooked onto 'jetpack_notices' in PHP
+ *
+ * @param  {Object} state Global state tree
+ * @return {number}  A message code.
+ */
+export function getJetpackStateNoticesMessageCode( state ) {
+	return get( state.jetpack.initialState, ['jetpackStateNotices', 'messageCode' ] );
+}
+
+/**
+ * Returns any Jetpack notice error description hooked onto 'jetpack_notices' in PHP
+ *
+ * @param  {Object} state Global state tree
+ * @return {string}  An error description.
+ */
+export function getJetpackStateNoticesErrorDescription( state ) {
+	return get( state.jetpack.initialState, ['jetpackStateNotices', 'errorDescription' ] );
 }
 
 /**
