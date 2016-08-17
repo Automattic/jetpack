@@ -79,6 +79,7 @@ class Jetpack_Sync_Settings {
 
 			// if we set the disabled option to true, clear the queues
 			if ( 'disable' === $setting && !! $value ) {
+				require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 				$listener = Jetpack_Sync_Listener::get_instance();
 				$listener->get_sync_queue()->reset();
 				$listener->get_full_sync_queue()->reset();

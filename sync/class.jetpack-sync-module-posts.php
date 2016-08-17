@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
+
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function name() {
