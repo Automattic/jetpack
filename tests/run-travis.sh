@@ -28,14 +28,6 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
         exit 1
     fi
 
-    echo "Testing uninstallation suite on WordPress stable..."
-    if $WP_TRAVISCI --group=uninstall --testsuite=uninstall; then
-	# Everything is fine
-	:
-    else
-        exit 1
-    fi
-
     echo "Testing on WordPress stable minus one..."
     cd /tmp/wordpress-previous/src/wp-content/plugins/$PLUGIN_SLUG
     if $WP_TRAVISCI; then
