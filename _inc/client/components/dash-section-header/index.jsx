@@ -70,7 +70,7 @@ export default React.createClass( {
 		return (
 			<div className={ classes }>
 				<div className="jp-dash-section-header__label">
-					<h2 className="jp-dash-section-header__label">
+					<h2 className="jp-dash-section-header__name">
 						{ this.props.label }
 					</h2>
 					{ settingsIcon }
