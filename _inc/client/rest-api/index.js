@@ -184,9 +184,6 @@ function JetpackRestApiClient( root, nonce ) {
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		fetchSiteData: () => {
-			if ( Promise.resolve( window.Initial_State.siteData ) === window.Initial_State.siteData ) {
-				return window.Initial_State.siteData;
-			}
 			return fetch( `${ apiRoot }jetpack/v4/site`, {
 				method: 'get',
 				credentials: 'same-origin',
@@ -195,9 +192,9 @@ function JetpackRestApiClient( root, nonce ) {
 					'Content-type': 'application/json'
 				}
 			} )
-			.then( checkStatus ).then( response => {
-				window.Initial_State.siteData = response.json();
-				return window.Initial_State.siteData;
+			.then( checkStatus ).then( response => response.json() )
+			.then( body => {
+				return JSON.parse( body.data );
 			} );
 		},
 		dismissJetpackNotice: ( notice ) => fetch( `${ apiRoot }jetpack/v4/notice/${ notice }/dismiss`, {
