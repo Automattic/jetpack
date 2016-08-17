@@ -49,4 +49,8 @@
 
 .jp-dash-section-header__children {
 	align-self: center;
+
+	@include breakpoint( "<480px" ) {
+		width: 100%;
+	}
 }
