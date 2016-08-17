@@ -63,6 +63,10 @@ export function getUserWpComEmail( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'email' ] );
 }
 
+export function getUserWpComAvatar( state ) {
+	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'avatar' ] );
+}
+
 export function getUsername( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'username' ] );
 }
@@ -70,3 +74,4 @@ export function getUsername( state ) {
 export function userCanViewStats( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
 }
+
