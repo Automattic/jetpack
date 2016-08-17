@@ -2,7 +2,7 @@
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stefmattana, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 4.1.1
-Requires at least: 4.4
+Requires at least: 4.5
 Tested up to: 4.6
 
 Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
@@ -75,36 +75,61 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.2.1 =
+
+* Release date: August 17th, 2016
+
+**Bug Fixes:**
+
+* We fixed a conflict between Jetpack and W3 Total Cache, that blocked some site owners from accessing their dashboard.
+* We fixed some issues with Publicize and Custom Post Types.
+* Very large Multisite networks with lots of users can now be synchronized with WordPress.com.
+* We improved the synchronization process between your site and WordPress.com.
+
 = 4.2 =
 
-Bug Fixes:
+* Release date: August 10th, 2016
 
-* Compatibility: avoid PHP notices in the Woocommerce plugin wizard screen. #4473
-* Infinite Scroll: do not load theme compatibility stylesheets on the default theme's singular views. #4236
-* General: make sure Debug tests are sent along to the Jetpack support team when using the contact form in the Jetpack Debug menu. #4398
-* Notifications: avoid PHP notices when moderating comments. #4208
-* Publicize: fix PHP notices when publishing posts via Cron. #4524
-* Security: more changes to harden Jetpack security by implementing the `hash_equals()` function in an effort to avoid timing attacks when comparing strings. #4531
-* Sharing: we fixed inconsistent horizontal spacing between the buttons when using the official buttons. #4317
-* Shortcodes: we updated the Cartodb shortcode to match the new product name, Carto. #4351
-* Shortcodes: When using the YouTube shortcode, we now use the content width defined by the theme when available, even if an embed size was defined in an old version of WordPress. #4420
-* Sitemaps: we fixed some PHP warnings in the sitemaps' stylesheets. #4362
-* Theme Tools: avoid warnings when Tonesque processes a file which claims to be one filetype, but are actually another. #3741
-* Theme Tools: avoid PHP notices when using Random Redirect, and when the author wasn't set. #4584
+**Performance Enhancements:**
 
-Enhancements:
+* We’ve improved Jetpack’s performance by making calls to the database more efficient; essentially, Jetpack is doing less on each page load, making things faster. #4281, #4316
+* We’ve ensured that every feature uses information that is up to date by completely refactoring the way information was synchronized between your site and WordPress.com.
+* We've improved the way Jetpack queries for information about features, which results in less overall queries.
 
-* Breadcrumbs: add support for hierarchical post types and taxonomies. #3323
-* Carousel: each Carousel view is now tracked in Stats. #3638
-* Custom Content Types: add the Portfolio Post Type to the WordPress.com REST API whitelist. #4401
-* Custom CSS: we added support for the `font-feature-settings` property in the Custom CSS editor. This will allow you to customize advanced typographic settings like ligatures. #4371
-* General: we've completely refactored the way information was synchronized between your site and WordPress.com, thus ensuring every module uses information that's up to date.
-* Infinite Scroll: improve user experience when there are no more entries to load. #3553
-* Performance: we've reduced the number of queries typically run on both the front end and the dashboard, to improve overall performance. #4281, #4316
-* Performance: we've improved the way Jetpack queried for information about module data, to execute less queries to get Jetpack options. #4315
-* Staging: Added WP Stagecoach as a known staging site provider so those staging sites will not impact production sites. #4518
-* Shortcodes: new parameters for the Dailymotion shortcode. #4103
-* Widgets: allow site owners to enter a Google Maps API Key in the Contact Info Widget settings. This is now required by Google if one wants to display a map. More info [here](https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/). #4242 and #4562
+**Exciting Feature and UI Improvements:**
+
+* We now track your visitor views of Carousel images in stats.
+* You can now customize advanced typographic settings like ligatures in the Custom CSS editor with new support for the `font-feature-settings` property.
+* We’ve improved the experience when you don’t actually have enough posts to Infinitely Scroll.
+* Our Contact Info Widget allows you to enter a Google Maps API Key which is now required by Google if you want to display a map.
+
+**Security:**
+
+* We’re continuing our efforts to harden Jetpack security, by implementing the `hash_equals()` function to avoid timing attacks when comparing strings.  We also improved security on CSVs exported from your contact form.
+
+**Slightly Less Exciting Feature Improvements:**
+
+* The Cartodb shortcode has been changed to match the new product name, Carto.
+* The YouTube shortcode now uses the content width defined by the theme when available, even if an embed size was defined in an old version of WordPress.
+* Breadcrumbs now support hierarchical post types and taxonomies.
+* We’ve added the Portfolio Post Type to the WordPress.com REST API whitelist.
+* There are a few new parameters for the Dailymotion shortcode.
+
+**Improved Compatibility:**
+
+* We now work well with WP Stagecoach staging sites, so you should not see any future impact on production sites.
+* We had some PHP notices popping up in the WooCommerce plugin wizard screen, these are gone.
+
+**Bug Fixes:**
+
+* We stopped loading compatibility stylesheets on the default theme's singular views for Infinite Scroll.
+* Debug tests forwarded through the contact form in the Jetpack Debug menu are now successfully sent to the support team.
+* We’ve removed the PHP notices you might have seen when moderating comments.
+* There are no longer PHP notices cropping up when publishing via Cron.
+* We’ve fixed the official Sharing buttons so they now line up just right.
+* The PHP warnings of Sitemaps stylesheets have been eliminated.
+* We’ve done away with the warnings that appeared when Tonesque processes a file which claims to be one filetype, but is actually another.
+* We’ve exterminated PHP notices that appeared when using Random Redirect, as well as when the author wasn't set.
 
 = 4.1.1 =
 
