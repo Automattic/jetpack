@@ -70,7 +70,7 @@ add_action( 'jetpack_module_more_info_shortcodes', 'jetpack_shortcodes_more_info
  * Shortlinks
  */
 function wpme_load_more_link() {
-	echo 'http://wp.me/sf2B5-shorten';
+	echo 'http://wp.me/p1moTy-DL';
 }
 add_filter( 'jetpack_learn_more_button_shortlinks', 'wpme_load_more_link' );
 

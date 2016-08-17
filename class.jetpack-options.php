@@ -129,7 +129,7 @@ class Jetpack_Options {
 	 */
 	public static function get_option_and_ensure_autoload( $name, $default ) {
 		$value = get_option( $name );
-		
+
 		if ( $value === false && $default !== false ) {
 			update_option( $name, $default );
 			$value = $default;

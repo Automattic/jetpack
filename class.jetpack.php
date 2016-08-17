@@ -325,6 +325,12 @@ class Jetpack {
 				}
 
 				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
+
+				// Upgrade to 4.3.0
+				if ( Jetpack_Options::get_option( 'identity_crisis_whitelist' ) ) {
+					Jetpack_Options::delete_option( 'identity_crisis_whitelist' );
+				}
+
 				Jetpack::maybe_set_version_option();
 			}
 		}
@@ -2733,7 +2739,7 @@ p {
 		if ( $encode ) {
 			return json_encode( $merged_data );
 		}
-		
+
 		return $merged_data;
 	}
 
@@ -5173,25 +5179,12 @@ p {
 	 * Written so that we don't have re-check $key and $value params every time
 	 * we want to check if this site is whitelisted, for example in footer.php
 	 *
+	 * @since  3.8.0
 	 * @return bool True = already whitelisted False = not whitelisted
 	 */
 	public static function is_staging_site() {
 		$is_staging = false;
 
-		$current_whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist' );
-		if ( $current_whitelist && ! get_transient( 'jetpack_checked_is_staging' ) ) {
-			$options_to_check  = Jetpack::identity_crisis_options_to_check();
-			$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
-
-			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
-				if ( self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
-					$is_staging = true;
-					break;
-				}
-			}
-			// set a flag so we don't check again for an hour
-			set_transient( 'jetpack_checked_is_staging', 1, HOUR_IN_SECONDS );
-		}
 		$known_staging = array(
 			'urls' => array(
 				'#\.staging\.wpengine\.com$#i', // WP Engine

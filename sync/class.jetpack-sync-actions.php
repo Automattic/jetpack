@@ -10,7 +10,6 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
-	const MAX_INITIAL_SYNC_USERS = 100;
 	const INITIAL_SYNC_MULTISITE_INTERVAL = 10;
 
 	static function init() {
@@ -34,6 +33,9 @@ class Jetpack_Sync_Actions {
 		if ( ! self::sync_allowed() ) {
 			return;
 		}
+
+		// publicize filter to prevent publicizing blacklisted post types
+		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
 
 		// cron hooks
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
@@ -102,6 +104,14 @@ class Jetpack_Sync_Actions {
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
+	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
+		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
+			return false;
+		}
+
+		return $should_publicize;
+	}
+
 	static function set_is_importing_true() {
 		Jetpack_Sync_Settings::set_importing( true );
 	}
@@ -131,18 +141,6 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
-	static function get_initial_sync_user_config() {
-		global $wpdb;
-
-		$user_ids = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0 LIMIT " . ( self::MAX_INITIAL_SYNC_USERS + 1 ) );
-
-		if ( count( $user_ids ) <= self::MAX_INITIAL_SYNC_USERS ) {
-			return $user_ids;
-		} else {
-			return false;
-		}
-	}
-
 	static function schedule_initial_sync() {
 		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
@@ -161,7 +159,7 @@ class Jetpack_Sync_Actions {
 				'network_options' => true, 
 				'functions' => true, 
 				'constants' => true, 
-				'users' => self::get_initial_sync_user_config() 
+				'users' => 'initial' 
 			),
 			$time_offset
 		);

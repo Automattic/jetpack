@@ -1,6 +1,8 @@
 <?php
 
 class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
+	const MAX_INITIAL_SYNC_USERS = 100;
+	
 	function name() {
 		return 'users';
 	}
@@ -193,6 +195,18 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_users' );
+	}
+
+	function get_initial_sync_user_config() {
+		global $wpdb;
+
+		$user_ids = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0 LIMIT " . ( self::MAX_INITIAL_SYNC_USERS + 1 ) );
+
+		if ( count( $user_ids ) <= self::MAX_INITIAL_SYNC_USERS ) {
+			return $user_ids;
+		} else {
+			return false;
+		}
 	}
 
 	public function expand_users( $args ) {
