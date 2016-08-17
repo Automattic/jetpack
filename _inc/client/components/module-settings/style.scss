@@ -58,10 +58,15 @@
 }
 
 
-/**
- * Related Posts Preview styles
- */
-.related-posts-settings_preview_container {
+// Related Posts Preview styles
+.jp-related-posts-settings__preview-label {
+	margin-bottom: rem( 8px );
+	margin-top: rem( 24px );
+	font-size: rem( 14px );
+	font-weight: 600;
+}
+
+.jp-related-posts-preview {
 	text-align: center;
 }
 
@@ -79,6 +84,7 @@
 	display: inline-block;
 	width: 33.33%;
 	padding: rem( 8px );
+	text-align: left;
 
 	@include breakpoint( "<480px" ) {
 		width: 100%;
