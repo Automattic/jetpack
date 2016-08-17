@@ -202,6 +202,9 @@ function jetpack_load_xsl( $type = '' ) {
 
 	$transient_xsl = empty( $type ) ? 'jetpack_sitemap_xsl' : "jetpack_{$type}_sitemap_xsl";
 
+	// Add current language as suffix if WPML is active
+	$transient_xsl = $transient_xsl . wpml_transient_language();
+
 	$xsl = get_transient( $transient_xsl );
 
 	if ( $xsl ) {
@@ -250,7 +253,10 @@ function jetpack_print_news_sitemap_xsl() {
 function jetpack_print_sitemap() {
 	global $wpdb, $post;
 
-	$xml = get_transient( 'jetpack_sitemap' );
+	// Current language before switching
+	$current_language = wpml_transient_language();
+
+	$xml = get_transient( 'jetpack_sitemap' . $current_language );
 
 	if ( $xml ) {
 		header( 'Content-Type: ' . jetpack_sitemap_content_type(), true );
@@ -313,6 +319,9 @@ function jetpack_print_sitemap() {
 		if ( apply_filters( 'jetpack_sitemap_skip_post', false, $post ) ) {
 			continue;
 		}
+
+		// Switch language so we can get proper permalink per post
+		wpml_switch_to_post_language( $post->ID );
 
 		$post_latest_mod = null;
 		$url             = array( 'loc' => esc_url( get_permalink( $post->ID ) ) );
@@ -410,6 +419,7 @@ function jetpack_print_sitemap() {
 		jetpack_sitemap_array_to_simplexml( array( 'url' => $url_node ), $tree );
 		unset( $url );
 	}
+
 	wp_reset_postdata();
 	$blog_home = array(
 		'loc'        => esc_url( get_option( 'home' ) ),
@@ -448,7 +458,7 @@ function jetpack_print_sitemap() {
 	$xml = $tree->asXML();
 	unset( $tree );
 	if ( ! empty( $xml ) ) {
-		set_transient( 'jetpack_sitemap', $xml, DAY_IN_SECONDS );
+		set_transient( 'jetpack_sitemap' . $current_language, $xml, DAY_IN_SECONDS );
 		echo $xml;
 	}
 
@@ -465,7 +475,10 @@ function jetpack_print_sitemap() {
  */
 function jetpack_print_news_sitemap() {
 
-	$xml = get_transient( 'jetpack_news_sitemap' );
+	// Current language before switching
+	$current_language = wpml_transient_language();
+
+	$xml = get_transient( 'jetpack_news_sitemap' . $current_language );
 
 	if ( $xml ) {
 		header( 'Content-Type: application/xml' );
@@ -562,6 +575,9 @@ function jetpack_print_news_sitemap() {
 				continue;
 			}
 
+			// Switch language so we can get proper permalink per post
+			wpml_switch_to_post_language( $post->ID );
+
 			$GLOBALS['post']                       = $post;
 			$url                                   = array();
 			$url['loc']                            = get_permalink( $post->ID );
@@ -611,7 +627,7 @@ function jetpack_print_news_sitemap() {
 	$xml = ob_get_contents();
 	ob_end_clean();
 	if ( ! empty( $xml ) ) {
-		set_transient( 'jetpack_news_sitemap', $xml, DAY_IN_SECONDS );
+		set_transient( 'jetpack_news_sitemap' . $current_language, $xml, DAY_IN_SECONDS );
 		echo $xml;
 	}
 
@@ -702,8 +718,10 @@ function jetpack_news_sitemap_discovery() {
  * @param int $post_id unique post identifier. not used.
  */
 function jetpack_sitemap_handle_update( $post_id ) {
-	delete_transient( 'jetpack_sitemap' );
-	delete_transient( 'jetpack_news_sitemap' );
+	$current_language = wpml_transient_language();
+
+	delete_transient( 'jetpack_sitemap' . $current_language );
+	delete_transient( 'jetpack_news_sitemap' . $current_language );
 }
 
 /**
@@ -790,3 +808,26 @@ function jetpack_sitemap_initialize() {
 
 // Initialize sitemaps once themes can filter the initialization.
 add_action( 'after_setup_theme', 'jetpack_sitemap_initialize' );
+
+/**
+ * Add current language as suffix to transient name.
+ *
+ * @return string
+ */
+function wpml_transient_language() {
+	if ( ! defined( 'ICL_SITEPRESS_VERSION' ) ) {
+		return '';
+	}
+
+	return '_' . apply_filters( 'wpml_current_language', NULL );
+}
+
+/**
+ * Switch current language according to post language.
+ *
+ * @param $post_id
+ */
+function wpml_switch_to_post_language( $post_id ) {
+	$post_language = apply_filters( 'wpml_post_language_details', NULL, $post_id ) ;
+	do_action( 'wpml_switch_language', $post_language['language_code'] );
+}
