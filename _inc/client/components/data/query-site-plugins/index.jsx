@@ -16,7 +16,9 @@ import {
 
 export const QuerySitePlugins = React.createClass( {
 	componentDidMount() {
-		this.props.fetchPluginsData();
+		if ( ! this.props.isFetchingPluginsData ) {
+			this.props.fetchPluginsData();
+		}
 	},
 
 	render() {

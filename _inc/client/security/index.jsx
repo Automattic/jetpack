@@ -26,6 +26,10 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
+import {
+	isFetchingPluginsData,
+	isPluginActive
+} from 'state/site/plugins';
 
 export const Page = ( props ) => {
 	let {
@@ -35,7 +39,7 @@ export const Page = ( props ) => {
 		getModule
 		} = props;
 	var cards = [
-		[ 'scan', __( 'Security Scanning' ), __( 'Automated, comprehensive protection from threats and attacks.' ) ],
+		[ 'scan', __( 'Security Scanning' ), __( 'Automated, comprehensive protection from threats and attacks.' ), 'https://vaultpress.com/jetpack/' ],
 		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
 		[ 'monitor', getModule( 'monitor' ).name, getModule( 'monitor' ).description, getModule( 'monitor' ).learn_more_button ],
 		[ 'akismet', 'Akismet', __( 'State-of-the-art spam defense.' ), 'https://akismet.com/jetpack/' ],
@@ -54,6 +58,12 @@ export const Page = ( props ) => {
 			proProps = {};
 
 		if ( isPro ) {
+			proProps = {
+				module: element[0],
+				configure_url: ''
+			};
+			toggle = <ProStatus proFeature={ element[0] } />;
+
 			// Add a "pro" button next to the header title
 			element[1] = <span>
 				{ element[1] }
@@ -65,7 +75,14 @@ export const Page = ( props ) => {
 				</Button>
 			</span>;
 
-			toggle = <ProStatus proFeature={ element[0] } />;
+			// Set proper .configure_url
+			if ( ! props.isFetchingPluginsData ) {
+				if ( 'akismet' === element[0] && props.isPluginActive( 'akismet/akismet.php' ) ) {
+					proProps.configure_url = props.siteAdminUrl + 'admin.php?page=akismet-key-config';
+				} else if ( ( 'scan' === element[0] || 'backups' === element[0] ) && props.isPluginActive( 'vaultpress/vaultpress.php' ) ) {
+					proProps.configure_url = 'https://dashboard.vaultpress.com/';
+				}
+			}
 		}
 
 		return (
@@ -118,7 +135,9 @@ export default connect(
 			isTogglingModule: ( module_name ) =>
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
+			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
+			isFetchingPluginsData: isFetchingPluginsData( state ),
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
 		};
 	},
 	( dispatch ) => {
