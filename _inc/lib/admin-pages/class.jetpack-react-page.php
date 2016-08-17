@@ -180,6 +180,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page
 		}
 
+		$is_dev_mode = Jetpack::is_development_mode();
 		$rtl = is_rtl() ? '.rtl' : '';
 
 		// Enqueue jp.js and localize it
@@ -187,8 +188,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 
-		// Required for Analytics
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js?48' );
+		if ( ! $is_dev_mode ) {
+			// Required for Analytics
+			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js?48', array(), JETPACK__VERSION, true );
+		}
 
 		$localeSlug = explode( '_', get_locale() );
 		$localeSlug = $localeSlug[0];
@@ -212,7 +215,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isActive'  => Jetpack::is_active(),
 				'isStaging' => Jetpack::is_staging_site(),
 				'devMode'   => array(
-					'isActive' => Jetpack::is_development_mode(),
+					'isActive' => $is_dev_mode,
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 					'url'      => site_url() && false === strpos( site_url(), '.' ),
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),
