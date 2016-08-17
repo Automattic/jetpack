@@ -154,6 +154,40 @@ class Jetpack_SSO_Helpers {
 	static function is_match_by_email_checkbox_disabled() {
 		return defined( 'WPCC_MATCH_BY_EMAIL' ) || has_filter( 'jetpack_sso_match_by_email' );
 	}
+
+	/**
+	 * Returns an array of hosts that SSO will redirect to.
+	 *
+	 * Instead of accessing JETPACK__API_BASE within the method directly, we set it as the
+	 * default for $api_base due to restrictions with testing constants in our tests.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param array $hosts
+	 * @param string $api_base
+	 *
+	 * @return array
+	 */
+	static function allowed_redirect_hosts( $hosts, $api_base = JETPACK__API_BASE ) {
+		if ( empty( $hosts ) ) {
+			$hosts = array();
+		}
+
+		$hosts[] = 'wordpress.com';
+		$hosts[] = 'jetpack.wordpress.com';
+
+		if (
+			( Jetpack::is_development_mode() || Jetpack::is_development_version() ) &&
+			( false === strpos( $api_base, 'jetpack.wordpress.com/jetpack' ) )
+		) {
+			$base_url_parts = parse_url( esc_url_raw( $api_base ) );
+			if ( $base_url_parts && ! empty( $base_url_parts[ 'host' ] ) ) {
+				$hosts[] = $base_url_parts[ 'host' ];
+			}
+		}
+
+		return array_unique( $hosts );
+	}
 }
 
 endif;
