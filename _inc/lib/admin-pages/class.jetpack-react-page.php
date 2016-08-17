@@ -206,6 +206,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			);
 		}
 
+		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/module/all' ) );
+		$modules = $response->get_data();
+
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
@@ -226,7 +229,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
 			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),
-			'getModules' => Jetpack_Core_Json_Api_Endpoints::get_modules(),
+			'getModules' => $modules,
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
 			'adminUrl' => esc_url( admin_url() ),

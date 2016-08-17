@@ -57,7 +57,7 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		fetchModules: () => fetch( `${ apiRoot }jetpack/v4/modules`, {
+		fetchModules: () => fetch( `${ apiRoot }jetpack/v4/module/all`, {
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce
