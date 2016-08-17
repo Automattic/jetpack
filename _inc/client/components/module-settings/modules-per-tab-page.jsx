@@ -30,6 +30,7 @@ import {
 	SitemapsSettings
 } from 'components/module-settings/';
 import Button from 'components/button';
+import ExternalLink from 'components/external-link';
 
 export const AllModuleSettings = React.createClass( {
 	render() {
@@ -103,7 +104,7 @@ export const AllModuleSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ '16' } href={ module.configure_url }>{ __( 'Configure your NAME OF MODULE Settings' ) }</ExternalLink>
 					</div>
 				);
 		}
