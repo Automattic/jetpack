@@ -8,11 +8,18 @@ import assign from 'lodash/assign';
 /**
  * External dependencies
  */
-import store from 'state/redux-store';
-import { getApiNonce, getApiRootUrl } from 'state/initial-state';
 
-function JetpackRestApiClient( apiRoot, apiNonce ) {
+function JetpackRestApiClient( root, nonce ) {
+	let apiRoot = root;
+	let apiNonce = nonce;
+
 	const methods = {
+		setApiRoot( newRoot ) {
+			apiRoot = newRoot;
+		},
+		setApiNonce( newNonce ) {
+			apiNonce = newNonce;
+		},
 		fetchSiteConnectionStatus: () => fetch( `${ apiRoot }jetpack/v4/connection-status`, {
 			credentials: 'same-origin',
 			headers: {
@@ -216,7 +223,7 @@ function JetpackRestApiClient( apiRoot, apiNonce ) {
 	assign( this, methods );
 }
 
-const restApi = new JetpackRestApiClient( getApiNonce( store.getState() ), getApiRootUrl( store.getState() ) );
+const restApi = new JetpackRestApiClient();
 
 export default restApi;
 

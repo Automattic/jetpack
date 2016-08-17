@@ -18,7 +18,14 @@ import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
 import { getJumpStartStatus } from 'state/jumpstart';
 import { getSiteConnectionStatus } from 'state/connection';
-import { setInitialState, getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
+import {
+	setInitialState,
+	getSiteRawUrl,
+	getSiteAdminUrl,
+	getApiNonce,
+	getApiRootUrl
+} from 'state/initial-state';
+
 import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
 import Security from 'security/index.jsx';
@@ -33,10 +40,13 @@ import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import SearchPage from 'search/index.jsx';
 import analytics from 'lib/analytics';
+import restApi from 'rest-api';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
 		this.props.setInitialState();
+		restApi.setApiRoot( this.props.apiRoot );
+		restApi.setApiNonce( this.props.apiNonce );
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
@@ -181,7 +191,9 @@ export default connect(
 		return assign( {}, state, {
 			getJumpStartStatus: getJumpStartStatus( state ),
 			siteRawUrl: getSiteRawUrl( state ),
-			siteAdminUrl: getSiteAdminUrl( state )
+			siteAdminUrl: getSiteAdminUrl( state ),
+			apiRoot: getApiRootUrl( state ),
+			apiNonce: getApiNonce( state )
 		} );
 	},
 	dispatch => bindActionCreators( { setInitialState }, dispatch )
