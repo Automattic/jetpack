@@ -6,16 +6,30 @@
 	@include breakpoint( "<660px" ) {
 		margin-bottom: rem( 24px );
 	}
+
+	@include breakpoint( "<480px" ) {
+		display: block;
+	}
 }
 
 .jp-dash-section-header__label {
-	display: inline-block;
 	flex: 1;
 	margin-top: 0;
 	margin-bottom: 0;
 	font-size: rem( 20px );
 	font-weight: 400;
 	white-space: nowrap;
+
+	@include breakpoint( ">480px" ) {
+		display: inline-block;
+	}
+
+	// need to clean up ClassName nesting
+	.jp-dash-section-header__label {
+		@include breakpoint( "<480px" ) {
+			display: inline-block;
+		}
+	}
 }
 
 .jp-dash-section-header__settings {
@@ -44,6 +58,12 @@
 
 	@include breakpoint( "<660px" ) {
 		margin-top: rem( 4px );
+	}
+
+	@include breakpoint( "<480px" ) {
+		display: block;
+		width: 100%;
+		// margin-top: rem( 32px );
 	}
 }
 
