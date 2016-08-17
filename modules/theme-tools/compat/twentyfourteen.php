@@ -61,11 +61,13 @@ function twentyfourteen_init_jetpack() {
 	 * Add our compat CSS file for custom widget stylings and such.
 	 * Set the version equal to filemtime for development builds, and the JETPACK__VERSION for production.
 	 */
-	$version = false;
-	if ( method_exists( 'Jetpack', 'is_development_version' ) ) {
-		$version = Jetpack::is_development_version() ? filemtime( plugin_dir_path( __FILE__ ) . 'twentyfourteen.css' ) : JETPACK__VERSION;
+	if ( ! is_admin() ) {
+		$version = false;
+		if ( method_exists( 'Jetpack', 'is_development_version' ) ) {
+			$version = Jetpack::is_development_version() ? filemtime( plugin_dir_path( __FILE__ ) . 'twentyfourteen.css' ) : JETPACK__VERSION;
+		}
+		wp_enqueue_style( 'twentyfourteen-jetpack', plugins_url( 'twentyfourteen.css', __FILE__ ), array(), $version );
+		wp_style_add_data( 'twentyfourteen-jetpack', 'rtl', 'replace' );
 	}
-	wp_enqueue_style( 'twentyfourteen-jetpack', plugins_url( 'twentyfourteen.css', __FILE__ ), array(), $version );
-	wp_style_add_data( 'twentyfourteen-jetpack', 'rtl', 'replace' );
 }
 add_action( 'init', 'twentyfourteen_init_jetpack' );
