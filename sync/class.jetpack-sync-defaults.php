@@ -211,8 +211,6 @@ class Jetpack_Sync_Defaults {
 		'snapFB',
 		'syndication_item_hash',
 		'phonenumber_spellings',
-		'wprss_feed_is_updating',
-		'wprss_last_update',
 		'tmac_last_id'
 	);
 
