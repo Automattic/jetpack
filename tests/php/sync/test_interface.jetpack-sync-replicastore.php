@@ -35,6 +35,13 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	function setUp() {
 		parent::setUp();
 
+		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
+			$this->markTestSkipped(
+				'PHP 5.2 and below does not support ReflectionProperty to the extent that we need.'
+			);
+			return;
+		}
+
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			switch_to_blog( self::$token->blog_id );
 		}

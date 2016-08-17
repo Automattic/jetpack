@@ -55,8 +55,6 @@
         </testsuite>
         <testsuite name="sync">
             <directory prefix="test_" suffix=".php">php/sync</directory>
-            <exclude>php/sync/test_interface.jetpack-sync-replicastore.php</exclude>
-            <file phpVersion="5.3.0" phpVersionOperator=">=">php/sync/test_interface.jetpack-sync-replicastore.php</file>
         </testsuite>
         <testsuite name="uninstall">
             <directory prefix="test_" suffix=".php">php/uninstall</directory>
