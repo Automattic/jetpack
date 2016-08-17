@@ -81,7 +81,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes:**
 
-* We fixed a conflict between Jetpack and W3 Total Cache, that prevented site owners from logging in to their dashboard.
+* We fixed a conflict between Jetpack and W3 Total Cache.
 * We fixed some issues with Publicize and Custom Post Types.
 * Very large Multisite networks with lots of users can now be synchronized with WordPress.com.
 * We improved the synchronization process between your site and WordPress.com.
