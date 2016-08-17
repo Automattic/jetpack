@@ -208,6 +208,12 @@ class Jetpack_Sync_Defaults {
 		'scc_share_count_crawldate',
 		'wprss_last_update',
 		'wprss_feed_is_updating',
+		'snapFB',
+		'syndication_item_hash',
+		'phonenumber_spellings',
+		'wprss_feed_is_updating',
+		'wprss_last_update',
+		'tmac_last_id'
 	);
 
 	// TODO: move this to server? - these are theme support values
