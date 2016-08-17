@@ -36,7 +36,7 @@ export const Page = ( props ) => {
 
 	if ( ! props.isSitePublic() ) {
 		let makePublic = (
-			<p className="howto small">
+			<p className="jp-form-setting-explanation">
 				{ __( 'Your site must be publicly accessible for this feature to work properly. You can make your site public in {{a}}Reading Settings{{/a}}.', {
 					components: {
 						a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
