@@ -10,7 +10,6 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import {
-	fetchSiteData,
 	isFetchingSiteData,
 	getSitePlan
 } from 'state/site';
@@ -22,16 +21,11 @@ import PlanBody from './plan-body';
 
 export const Plans = React.createClass( {
 	render() {
-		let sitePlan = '';
-
+		let sitePlan = this.props.sitePlan.product_slug || '';
 		if ( 'dev' === this.props.getSiteConnectionStatus( this.props ) ) {
 			sitePlan = 'dev';
-		} else if ( this.props.isFetchingSiteData ) {
-			// do nothing
-		} else {
-			// Plan is jetpack_free, jetpack_premium, jetpack_premium_monthly, jetpack_business, jetpack_business_monthly
-			sitePlan = this.props.getSitePlan().product_slug;
 		}
+
 		return (
 			<div>
 				<QuerySite />
@@ -49,12 +43,7 @@ export default connect(
 		return {
 			getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
 			isFetchingSiteData: isFetchingSiteData( state ),
-			getSitePlan: () => getSitePlan( state )
+			sitePlan: getSitePlan( state )
 		};
-	},
-	( dispatch ) => {
-		return {
-			fetchSiteData: () => dispatch( fetchSiteData() )
-		}
 	}
 )( Plans );

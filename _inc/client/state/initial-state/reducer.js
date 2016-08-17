@@ -79,3 +79,10 @@ export function userCanViewStats( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
 }
 
+export function getApiNonce( state ) {
+	return get( state.jetpack.initialState, 'WP_API_nonce' );
+}
+
+export function getApiRootUrl( state ) {
+	return get( state.jetpack.initialState, 'WP_API_root' );
+}

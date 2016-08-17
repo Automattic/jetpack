@@ -14,7 +14,7 @@ import {
 	JETPACK_SITE_DATA_FETCH_FAIL
 } from 'state/action-types';
 
-export const items = ( state = {}, action ) => {
+export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
 			return assign( {}, action.siteData );
@@ -45,7 +45,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 };
 
 export const reducer = combineReducers( {
-	items,
+	data,
 	requests
 } );
 
@@ -66,9 +66,5 @@ export function isFetchingSiteData( state ) {
  * @return {Object|Boolean}  Site plan
  */
 export function getSitePlan( state ) {
-	if ( 'string' === typeof state.jetpack.siteData.items.data ) {
-		let jsonData = JSON.parse( state.jetpack.siteData.items.data );
-		return jsonData.plan;
-	}
-	return false;
+	return get( state.jetpack.siteData, [ 'data', 'plan'], {} );
 }

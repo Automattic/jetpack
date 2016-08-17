@@ -9,8 +9,7 @@ import { connect } from 'react-redux';
  */
 import {
 	fetchSiteData,
-	isFetchingSiteData,
-	getSitePlan
+	isFetchingSiteData
 } from 'state/site';
 
 export const QuerySite = React.createClass( {
@@ -28,8 +27,7 @@ export const QuerySite = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			isFetchingSiteData: isFetchingSiteData( state ),
-			siteData: fetchSiteData()
+			isFetchingSiteData: isFetchingSiteData( state )
 		};
 	},
 	( dispatch ) => {
