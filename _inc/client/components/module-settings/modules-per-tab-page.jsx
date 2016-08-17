@@ -55,7 +55,7 @@ export const AllModuleSettings = React.createClass( {
 			case 'monitor':
 				return ( <MonitorSettings module={ module } { ...this.props } /> );
 			case 'scan':
-				return (
+				return '' === module.configure_url ? null : (
 					<div>
 						{ __( 'You can see the information about security scanning in the "At a Glance" section.' ) }
 						<br/><Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
@@ -63,7 +63,7 @@ export const AllModuleSettings = React.createClass( {
 				);
 			case 'akismet':
 			case 'backups':
-				return '' === module.configure_url ? <div></div> : (
+				return '' === module.configure_url ? null : (
 					<div>
 						<Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
 					</div>
