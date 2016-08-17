@@ -2,6 +2,10 @@
 	clear: both;
 	margin-top: rem( 16px );
 
+	@include breakpoint( ">480px" ) {
+		margin-top: rem( 32px );
+	}
+
 	.dops-button.is-compact.is-borderless,
 	.jp-module-settings__more-sep,
 	.jp-module-settings__more-text {

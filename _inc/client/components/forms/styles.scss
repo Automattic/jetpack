@@ -25,9 +25,13 @@
 }
 
 .jp-form-button {
-	float: right;
 	margin-top: rem( 16px );
-	margin-left: rem( 8px );
+
+	@include breakpoint( ">480px" ) {
+		position: absolute;
+			right: rem( 16px );
+			bottom: rem( 16px );
+	}
 }
 
 .jp-form-setting-explanation {
