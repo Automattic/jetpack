@@ -122,7 +122,7 @@ const restApi = {
 		}
 	} )
 		.then( checkStatus ).then( response => response.json() ),
-	getStatsData: ( range ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/stats/get`, {
+	fetchStatsData: ( range ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/stats/get`, {
 		method: 'put',
 		credentials: 'same-origin',
 		headers: {
