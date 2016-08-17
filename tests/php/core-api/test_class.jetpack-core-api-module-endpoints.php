@@ -5,8 +5,6 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server
 class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_REST_Controller_Testcase {
 
 	public function setUp() {
-		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class.core-rest-api-endpoints.php';
-
 		parent::setUp();
 
 		Jetpack::load_xml_rpc_client();
