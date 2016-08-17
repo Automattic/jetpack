@@ -93,7 +93,7 @@ export let RelatedPostsSettings = React.createClass( {
 						name={ 'show_thumbnails' }
 						label={ __( 'Use a large and visually striking layout' ) }
 						{ ...this.props } />
-					<div className="jp-related-posts__preview-label">{ __( 'Preview' ) }</div>
+					<div className="jp-related-posts-settings__preview-label">{ __( 'Preview' ) }</div>
 					<Card>
 						{ this.renderPreviews() }
 					</Card>
