@@ -9,8 +9,12 @@
 }
 
 .jp-dash-section-header__label {
-	display: inline-block;
 	flex: 1;
+	white-space: nowrap;
+}
+
+.jp-dash-section-header__name {
+	display: inline-block;
 	margin-top: 0;
 	margin-bottom: 0;
 	font-size: rem( 20px );
