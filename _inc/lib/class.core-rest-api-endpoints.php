@@ -104,11 +104,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Return all modules
-		register_rest_route( 'jetpack/v4', '/modules', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::get_modules',
-			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-		) );
+		self::route(
+			'module/all',
+			'Jetpack_Core_API_Module_Endpoint',
+			WP_REST_Server::READABLE
+		);
 
 		// Return a single module
 		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)', array(
@@ -117,15 +117,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
-		// Activate a module
 		Jetpack::load_xml_rpc_client();
 		$xmlrpc = new Jetpack_IXR_Client();
-		$module_activate = new Jetpack_Core_API_Module_Activate_Endpoint( $xmlrpc );
-		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/activate', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => array( $module_activate, 'process' ),
-			'permission_callback' => array( $module_activate, 'can_write' ),
-		) );
+
+		// Activate a module
+		self::route(
+			'/module/(?P<slug>[a-z\-]+)/activate',
+			'Jetpack_Core_API_Module_Activate_Endpoint',
+			WP_REST_Server::EDITABLE,
+			$xmlrpc
+		);
 
 		// Deactivate a module
 		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/deactivate', array(
@@ -268,6 +269,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::get_plugin',
 			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 		) );
+	}
+
+	public static function route( $path, $classname, $method, $arguments = NULL ) {
+		if ( ! empty( $arguments ) ) {
+			$endpoint = new $classname( $arguments );
+		} else {
+			$endpoint = new $classname();
+		}
+
+		register_rest_route(
+			'jetpack/v4',
+			$path,
+			array(
+				'methods' => $method,
+				'callback' => array( $endpoint, 'process' ),
+				'permission_callback' => array(
+					$endpoint,
+					WP_REST_Server::READABLE === $method ?
+						'can_read' : 'can_write'
+				)
+			)
+		);
 	}
 
 	/**
@@ -684,27 +707,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Get a list of all Jetpack modules and their information.
-	 *
-	 * @since 4.1.0
-	 *
-	 * @return array Array of Jetpack modules.
-	 */
-	public static function get_modules() {
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
-
-		$modules = Jetpack_Admin::init()->get_modules();
-		foreach ( $modules as $slug => $properties ) {
-			$modules[ $slug ]['options'] = self::prepare_options_for_response( $slug );
-			if ( isset( $modules[ $slug ]['requires_connection'] ) && $modules[ $slug ]['requires_connection'] && Jetpack::is_development_mode() ) {
-				$modules[ $slug ]['activated'] = false;
-			}
-		}
-
-		return self::prepare_modules_for_response( $modules );
 	}
 
 	/**

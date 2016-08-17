@@ -19,6 +19,17 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_REST_Con
 		$routes = $this->server->get_routes();
 		$this->assertArrayHasKey( '/jetpack/v4/module/(?P<slug>[a-z\-]+)/activate', $routes );
 
+		$route = $routes['/jetpack/v4/module/all'][0];
+		$this->assertArrayHasKey(
+			'GET',
+			$route['methods'],
+			'should register a GET route'
+		);
+		$this->assertInstanceOf(
+			'Jetpack_Core_API_Module_Endpoint',
+			$route['callback'][0]
+		);
+
 		$route = $routes['/jetpack/v4/module/(?P<slug>[a-z\-]+)/activate'][0];
 		$this->assertInstanceOf(
 			'Jetpack_Core_API_Module_Activate_Endpoint',
