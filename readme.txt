@@ -75,6 +75,17 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.2.1 =
+
+* Release date: August 17th, 2016
+
+**Bug Fixes:**
+
+* We fixed a conflict between Jetpack and W3 Total Cache, that blocked some site owners from accessing their dashboard.
+* We fixed some issues with Publicize and Custom Post Types.
+* Very large Multisite networks with lots of users can now be synchronized with WordPress.com.
+* We improved the synchronization process between your site and WordPress.com.
+
 = 4.2 =
 
 * Release date: August 10th, 2016
