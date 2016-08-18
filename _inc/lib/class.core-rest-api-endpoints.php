@@ -120,20 +120,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		Jetpack::load_xml_rpc_client();
 		$xmlrpc = new Jetpack_IXR_Client();
 
-		// Activate a module
+		// Activate and deactivate a module
 		self::route(
-			'/module/(?P<slug>[a-z\-]+)/activate',
-			'Jetpack_Core_API_Module_Activate_Endpoint',
+			'/module/(?P<slug>[a-z\-]+)/active',
+			'Jetpack_Core_API_Module_Toggle_Endpoint',
 			WP_REST_Server::EDITABLE,
 			$xmlrpc
 		);
-
-		// Deactivate a module
-		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/deactivate', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::deactivate_module',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-		) );
 
 		// Update a module
 		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/update', array(
@@ -710,33 +703,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * If it's a valid Jetpack module, activate it.
-	 *
-	 * @since 4.1.0
-	 *
-	 * @param WP_REST_Request $data {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type string $slug Module slug.
-	 * }
-	 *
-	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
-	 */
-	public static function activate_module( $data ) {
-		if ( Jetpack::is_module( $data['slug'] ) ) {
-			if ( Jetpack::activate_module( $data['slug'], false, false ) ) {
-				return rest_ensure_response( array(
-					'code' 	  => 'success',
-					'message' => esc_html__( 'The requested Jetpack module was activated.', 'jetpack' ),
-				) );
-			}
-			return new WP_Error( 'activation_failed', esc_html__( 'The requested Jetpack module could not be activated.', 'jetpack' ), array( 'status' => 424 ) );
-		}
-
-		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
-	}
-
-	/**
 	 * Activate a list of valid Jetpack modules.
 	 *
 	 * @since 4.1.0
@@ -976,36 +942,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'code' 	  => 'success',
 			'message' => esc_html__( 'Nothing to dismiss. This was not a new connection.', 'jetpack' ),
 		) );
-	}
-
-	/**
-	 * If it's a valid Jetpack module, deactivate it.
-	 *
-	 * @since 4.1.0
-	 *
-	 * @param WP_REST_Request $data {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type string $slug Module slug.
-	 * }
-	 *
-	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
-	 */
-	public static function deactivate_module( $data ) {
-		if ( Jetpack::is_module( $data['slug'] ) ) {
-			if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
-				return new WP_Error( 'already_inactive', esc_html__( 'The requested Jetpack module was already inactive.', 'jetpack' ), array( 'status' => 409 ) );
-			}
-			if ( Jetpack::deactivate_module( $data['slug'] ) ) {
-				return rest_ensure_response( array(
-					'code' 	  => 'success',
-					'message' => esc_html__( 'The requested Jetpack module was deactivated.', 'jetpack' ),
-				) );
-			}
-			return new WP_Error( 'deactivation_failed', esc_html__( 'The requested Jetpack module could not be deactivated.', 'jetpack' ), array( 'status' => 400 ) );
-		}
-
-		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
