@@ -24,6 +24,7 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
+import { userCanManageModules } from 'state/initial-state';
 
 export const GeneralSettings = ( props ) => {
 	let {
@@ -32,7 +33,7 @@ export const GeneralSettings = ( props ) => {
 		isTogglingModule,
 		getModule
 		} = props;
-	let isAdmin = window.Initial_State.userData.currentUser.permissions.manage_modules;
+	let isAdmin = props.userCanManageModules;
 
 	const moduleCard = ( module_slug ) => {
 		var unavailableInDevMode = props.isUnavailableInDevMode( module_slug ),
@@ -122,7 +123,8 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
-			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name )
+			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
+			userCanManageModules: userCanManageModules( state )
 		};
 	},
 	( dispatch ) => {
