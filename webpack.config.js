@@ -23,7 +23,8 @@ var webpackConfig = {
 	// The key is used as the name of the script.
 	entry: {
 		admin: './_inc/client/admin.js',
-		static: './_inc/client/static.jsx'
+		static: './_inc/client/static.jsx',
+		vendor: [ 'react', 'react-dom', 'redux', 'react-redux', 'moment', 'moment-timezone', 'i18n-calypso' ]
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
@@ -94,7 +95,8 @@ var webpackConfig = {
 				NODE_ENV: JSON.stringify( NODE_ENV )
 			}
 		}),
-		new ExtractTextPlugin( '[name].dops-style.css' )
+		new ExtractTextPlugin( '[name].dops-style.css' ),
+		new webpack.optimize.CommonsChunkPlugin( 'vendor', 'vendor.js', [ 'admin', 'vendor' ] )
 	]
 };
 
