@@ -38,6 +38,7 @@ class Jetpack_Sync_Queue {
 	function __construct( $id ) {
 		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 		$this->row_iterator = 0;
+		$this->random_int = random_int( 1, 1000000 );
 	}
 
 	function add( $item ) {
@@ -339,7 +340,7 @@ class Jetpack_Sync_Queue {
 			$this->row_iterator += 1;
 		}
 
-		return 'jpsq_' . $this->id . '-' . $timestamp . '-' . getmypid() . '-' . $this->row_iterator;
+		return 'jpsq_' . $this->id . '-' . $timestamp . '-' . $this->random_int . '-' . $this->row_iterator;
 	}
 
 	private function fetch_items( $limit = null ) {
