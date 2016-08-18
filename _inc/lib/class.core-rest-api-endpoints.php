@@ -704,7 +704,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			}
 		}
 
-		return $modules;
+		return self::prepare_modules_for_response( $modules );
 	}
 
 	/**
@@ -731,7 +731,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$module['activated'] = false;
 			}
 
-			return $module;
+			return self::prepare_modules_for_response( $module, $data['slug'] );
 		}
 
 		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
@@ -2296,6 +2296,41 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $module['slug'];
+	}
+
+	/**
+	 * Adds extra information for modules.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string      $modules Can be a single module or a list of modules.
+	 * @param null|string $slug    Slug of the module in the first parameter.
+	 *
+	 * @return array
+	 */
+	public static function prepare_modules_for_response( $modules = '', $slug = null ) {
+		if ( get_option( 'permalink_structure' ) ) {
+			$sitemap_url = home_url( '/sitemap.xml' );
+			$news_sitemap_url = home_url( '/news-sitemap.xml' );
+		} else {
+			$sitemap_url = home_url( '/?jetpack-sitemap=true' );
+			$news_sitemap_url = home_url( '/?jetpack-news-sitemap=true' );
+		}
+		/** This filter is documented in modules/sitemaps/sitemaps.php */
+		$sitemap_url = apply_filters( 'jetpack_sitemap_location', $sitemap_url );
+		/** This filter is documented in modules/sitemaps/sitemaps.php */
+		$news_sitemap_url = apply_filters( 'jetpack_news_sitemap_location', $news_sitemap_url );
+
+		if ( is_null( $slug ) && isset( $modules['sitemaps'] ) ) {
+			// Is a list of modules
+			$modules['sitemaps']['extra']['sitemap_url'] = $sitemap_url;
+			$modules['sitemaps']['extra']['news_sitemap_url'] = $news_sitemap_url;
+		} elseif ( 'sitemaps' == $slug ) {
+			// It's a single module
+			$modules['extra']['sitemap_url'] = $sitemap_url;
+			$modules['extra']['news_sitemap_url'] = $news_sitemap_url;
+		}
+		return $modules;
 	}
 
 	/**

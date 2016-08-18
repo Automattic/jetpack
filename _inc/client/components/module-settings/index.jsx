@@ -8,6 +8,7 @@ import TextInput from 'components/text-input';
 import Textarea from 'components/textarea';
 import TagsInput from 'components/tags-input';
 import ClipboardButtonInput from 'components/clipboard-button-input';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -711,3 +712,37 @@ export let MarkdownSettings = React.createClass( {
 } );
 
 MarkdownSettings = ModuleSettingsForm( MarkdownSettings );
+
+export let SitemapsSettings = React.createClass( {
+	render() {
+		let sitemap_url = get( this.props, [ 'module', 'extra', 'sitemap_url' ], '' ),
+			news_sitemap_url = get( this.props, [ 'module', 'extra', 'news_sitemap_url' ], '' );
+		return (
+			<div>
+				<p>{ __( 'Search engines will find the sitemaps at these locations:' ) }</p>
+				<p>{
+					__( 'Sitemap: {{a}}%(url)s{{/a}}', {
+						components: {
+							a: <a href={ sitemap_url } target="_blank" />
+						},
+						args: {
+							url: sitemap_url
+						}
+					} )
+				}</p>
+				<p>{
+					__( 'News Sitemap: {{a}}%(url)s{{/a}}', {
+						components: {
+							a: <a href={ news_sitemap_url } target="_blank" />
+						},
+						args: {
+							url: news_sitemap_url
+						}
+					} )
+				}</p>
+			</div>
+		)
+	}
+} );
+
+SitemapsSettings = ModuleSettingsForm( SitemapsSettings );

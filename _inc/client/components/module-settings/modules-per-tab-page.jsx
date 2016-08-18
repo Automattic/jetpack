@@ -27,6 +27,7 @@ import {
 	AfterTheDeadlineSettings,
 	MarkdownSettings,
 	VerificationToolsSettings,
+	SitemapsSettings
 } from 'components/module-settings/';
 import Button from 'components/button';
 
@@ -84,6 +85,8 @@ export const AllModuleSettings = React.createClass( {
 				return ( <LikesSettings module={ module } { ...this.props } /> );
 			case 'verification-tools':
 				return ( <VerificationToolsSettings module={ module } { ...this.props } /> );
+			case 'sitemaps':
+				return ( <SitemapsSettings module={ module } { ...this.props } /> );
 			case 'contact-form':
 			case 'latex':
 			case 'shortlinks':
@@ -92,7 +95,6 @@ export const AllModuleSettings = React.createClass( {
 			case 'widget-visibility':
 			case 'notifications':
 			case 'enhanced-distribution':
-			case 'sitemaps':
 				return <span className="jp-form-setting-explanation">{ __( 'This module has no configuration options' ) } </span>;
 			case 'custom-css':
 			case 'widgets':
