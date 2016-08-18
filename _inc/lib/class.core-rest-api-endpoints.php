@@ -111,11 +111,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		);
 
 		// Return a single module
-		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::get_module',
-			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-		) );
+		self::route(
+			'/module/(?P<slug>[a-z\-]+)',
+			'Jetpack_Core_API_Module_Get_Endpoint',
+			WP_REST_Server::READABLE
+		);
 
 		Jetpack::load_xml_rpc_client();
 		$xmlrpc = new Jetpack_IXR_Client();
@@ -707,36 +707,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Get information about a specific and valid Jetpack module.
-	 *
-	 * @since 4.1.0
-	 *
-	 * @param WP_REST_Request $data {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type string $slug Module slug.
-	 * }
-	 *
-	 * @return mixed|void|WP_Error
-	 */
-	public static function get_module( $data ) {
-		if ( Jetpack::is_module( $data['slug'] ) ) {
-
-			$module = Jetpack::get_module( $data['slug'] );
-
-			$module['options'] = self::prepare_options_for_response( $data['slug'] );
-
-			if ( isset( $module['requires_connection'] ) && $module['requires_connection'] && Jetpack::is_development_mode() ) {
-				$module['activated'] = false;
-			}
-
-			return self::prepare_modules_for_response( $module, $data['slug'] );
-		}
-
-		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**

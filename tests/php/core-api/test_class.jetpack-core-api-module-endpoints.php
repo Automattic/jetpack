@@ -14,30 +14,35 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_REST_Con
 	 * @author zinigor
 	 * @covers Jetpack_Core_API_Module_Activate_Endpoint
 	 * @requires PHP 5.2
+	 * @dataProvider api_routes
 	 */
-	public function test_register_routes() {
+	public function test_register_routes( $route = false, $method = false, $classname = false ) {
 		$routes = $this->server->get_routes();
-		$this->assertArrayHasKey( '/jetpack/v4/module/(?P<slug>[a-z\-]+)/activate', $routes );
+		$this->assertArrayHasKey( $route, $routes );
 
-		$route = $routes['/jetpack/v4/module/all'][0];
+		$route = $routes[ $route ][0];
 		$this->assertArrayHasKey(
-			'GET',
+			$method,
 			$route['methods'],
-			'should register a GET route'
+			"should register a $method route"
 		);
 		$this->assertInstanceOf(
-			'Jetpack_Core_API_Module_Endpoint',
-			$route['callback'][0]
+			$classname,
+			$route['callback'][0],
+			"process method object should be an instance of the $classname class"
 		);
+		$this->assertInstanceOf(
+			$classname,
+			$route['permission_callback'][0],
+			"permission method object should be an instance of the $classname class"
+		);
+	}
 
-		$route = $routes['/jetpack/v4/module/(?P<slug>[a-z\-]+)/activate'][0];
-		$this->assertInstanceOf(
-			'Jetpack_Core_API_Module_Activate_Endpoint',
-			$route['callback'][0]
-		);
-		$this->assertInstanceOf(
-			'Jetpack_Core_API_Module_Activate_Endpoint',
-			$route['permission_callback'][0]
+	public function api_routes() {
+		return array(
+			array( '/jetpack/v4/module/all', 'GET', 'Jetpack_Core_API_Module_Endpoint' ),
+			array( '/jetpack/v4/module/(?P<slug>[a-z\-]+)', 'GET', 'Jetpack_Core_API_Module_Get_Endpoint' ),
+			array( '/jetpack/v4/module/(?P<slug>[a-z\-]+)/activate', 'POST', 'Jetpack_Core_API_Module_Activate_Endpoint' ),
 		);
 	}
 
