@@ -11,15 +11,3 @@ export const setInitialState = () => {
 		} );
 	}
 }
-
-/**
- * Returns a string of the Connect URL used to connect or link an account
- * to WordPress.com
- *
- * @param  {Object}  state  Global state tree
- * @return {string}         Connect URL
- */
-export function getConnectUrl( state ) {
-	return state.jetpack.initialState.connectUrl;
-}
-
