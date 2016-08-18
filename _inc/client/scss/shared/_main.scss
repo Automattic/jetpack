@@ -66,3 +66,10 @@
 @keyframes pulse-light {
 	50% { background-color: lighten( $gray, 30% ); }
 }
+
+.jetpack-pagestyles {
+	// Initially hide VaultPress notices until they're displayed in Jetpack notices area
+	.vp-notice {
+		display: none;
+	}
+}
