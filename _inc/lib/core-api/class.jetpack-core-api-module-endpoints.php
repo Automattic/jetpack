@@ -86,3 +86,48 @@ class Jetpack_Core_API_Module_Endpoint {
 		return current_user_can( 'jetpack_admin_page' );
 	}
 }
+
+class Jetpack_Core_API_Module_Get_Endpoint {
+
+	/**
+	 * Get information about a specific and valid Jetpack module.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Module slug.
+	 * }
+	 *
+	 * @return mixed|void|WP_Error
+	 */
+	public static function process( $data ) {
+		if ( Jetpack::is_module( $data['slug'] ) ) {
+
+			$module = Jetpack::get_module( $data['slug'] );
+
+			$module['options'] = Jetpack_Core_Json_Api_Endpoints::prepare_options_for_response( $data['slug'] );
+
+			if (
+				isset( $module['requires_connection'] )
+				&& $module['requires_connection']
+				&& Jetpack::is_development_mode()
+			) {
+				$module['activated'] = false;
+			}
+
+			return $module;
+		}
+
+		return new WP_Error(
+			'not_found',
+			esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ),
+			array( 'status' => 404 )
+		);
+	}
+
+	public function can_read() {
+		return current_user_can( 'jetpack_admin_page' );
+	}
+}
