@@ -71,20 +71,24 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		activateModule: ( slug ) => fetch( `${ apiRoot }jetpack/v4/module/${ slug }/activate`, {
+		activateModule: ( slug ) => fetch( `${ apiRoot }jetpack/v4/module/${ slug }/active`, {
 			method: 'put',
 			credentials: 'same-origin',
 			headers: {
-				'X-WP-Nonce': apiNonce
-			}
+				'X-WP-Nonce': apiNonce,
+				'Content-type': 'application/json'
+			},
+			body: JSON.stringify( { active: true } )
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		deactivateModule: ( slug ) => fetch( `${ apiRoot }jetpack/v4/module/${ slug }/deactivate`, {
+		deactivateModule: ( slug ) => fetch( `${ apiRoot }jetpack/v4/module/${ slug }/active`, {
 			method: 'put',
 			credentials: 'same-origin',
 			headers: {
-				'X-WP-Nonce': apiNonce
-			}
+				'X-WP-Nonce': apiNonce,
+				'Content-type': 'application/json'
+			},
+			body: JSON.stringify( { active: false } )
 		} ),
 		updateModuleOptions: ( slug, newOptionValues ) => fetch( `${ apiRoot }jetpack/v4/module/${ slug }/update`, {
 			method: 'put',
