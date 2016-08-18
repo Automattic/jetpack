@@ -10,7 +10,6 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import {
-	isFetchingSiteData,
 	getSitePlan
 } from 'state/site';
 import QuerySite from 'components/data/query-site';
@@ -42,7 +41,6 @@ export default connect(
 	( state ) => {
 		return {
 			getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
-			isFetchingSiteData: isFetchingSiteData( state ),
 			sitePlan: getSitePlan( state )
 		};
 	}
