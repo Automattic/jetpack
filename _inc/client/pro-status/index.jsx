@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
-import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -27,7 +26,6 @@ import {
 } from 'state/at-a-glance';
 import {
 	getSitePlan,
-	isFetchingSiteData
 } from 'state/site';
 
 const ProStatus = React.createClass( {

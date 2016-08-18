@@ -15,7 +15,6 @@ import includes from 'lodash/includes';
 import Card from 'components/card';
 import SectionHeader from 'components/section-header';
 import { ModuleToggle } from 'components/module-toggle';
-import { isFetchingSiteData } from 'state/site';
 import { isDevMode } from 'state/connection';
 import {
 	isModuleActivated as _isModuleActivated,
@@ -123,7 +122,6 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			isFetchingSiteData: isFetchingSiteData( state ),
 			isDevMode: isDevMode( state ),
 			userCanToggle: userCanManageModules( state )
 		};
