@@ -471,7 +471,6 @@ export let VerificationToolsSettings = React.createClass( {
 								value={ this.props.getOptionValue( 'bing' ) }
 								placeholder={ 'Example: 12C1203B5086AECE94EB3A3D9830B2E' }
 								className="widefat code"
-								className="widefat code"
 								disabled={ this.props.isUpdating( 'bing' ) }
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
