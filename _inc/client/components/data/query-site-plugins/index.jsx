@@ -10,12 +10,11 @@ import { connect } from 'react-redux';
  */
 import {
 	fetchPluginsData,
-	isFetchingPluginsData,
-	isPluginActive
+	isFetchingPluginsData
 } from 'state/site/plugins';
 
 export const QuerySitePlugins = React.createClass( {
-	componentDidMount() {
+	componentWillMount() {
 		if ( ! this.props.isFetchingPluginsData ) {
 			this.props.fetchPluginsData();
 		}
@@ -29,8 +28,7 @@ export const QuerySitePlugins = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			isFetchingPluginsData: isFetchingPluginsData( state ),
-			pluginsData: fetchPluginsData( state )
+			isFetchingPluginsData: isFetchingPluginsData( state )
 		};
 	},
 	( dispatch ) => {
