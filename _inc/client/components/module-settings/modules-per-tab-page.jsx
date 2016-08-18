@@ -13,7 +13,6 @@ import {
 	CommentsSettings,
 	LikesSettings,
 	SubscriptionsSettings,
-	SharedaddySettings,
 	ProtectSettings,
 	MonitorSettings,
 	SingleSignOnSettings,
@@ -104,7 +103,16 @@ export const AllModuleSettings = React.createClass( {
 			default:
 				return (
 					<div>
-						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ '16' } href={ module.configure_url }>{ __( 'Configure your NAME OF MODULE Settings' ) }</ExternalLink>
+						{
+							__( '{{link}}Configure your %(module_slug)s Settings {{/link}}', {
+								components: {
+									link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url } />,
+								},
+								args: {
+									module_slug: module.name
+								}
+							} )
+						}
 					</div>
 				);
 		}
