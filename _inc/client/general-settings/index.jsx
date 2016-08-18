@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
-import Settings from 'components/settings';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 
@@ -92,20 +91,6 @@ export const GeneralSettings = ( props ) => {
 			{ isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' ) }
 			{ moduleCard( 'notes' ) }
 			{ moduleCard( 'json-api' ) }
-			<FoldableCard
-				header={ __( 'Holiday Snow' ) }
-				subheader={ __( 'Show falling snow in the holiday period.' ) }
-				clickableHeaderText={ true }
-				disabled={ ! isAdmin }
-				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
-					{
-						card: 'misc_settings',
-						path: props.route.path
-					}
-				) }
-			>
-				<Settings />
-			</FoldableCard>
 		</div>
 	);
 };
