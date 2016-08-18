@@ -21,7 +21,6 @@ import {
 } from 'state/connection';
 import QueryConnectUrl from 'components/data/query-connect-url';
 
-
 const ConnectButton = React.createClass( {
 	displayName: 'ConnectButton',
 
@@ -81,7 +80,7 @@ const ConnectButton = React.createClass( {
 				<Button
 					onClick={ this.disconnectSite }
 					disabled={ disconnecting }>
-					{ __( 'Disconnect Jetpack') }
+					{ __( 'Disconnect Jetpack' ) }
 				</Button>
 			);
 		}
