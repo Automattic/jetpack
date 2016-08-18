@@ -39,26 +39,18 @@ export const Engagement = ( props ) => {
 		getModule
 	} = props,
 		isAdmin = props.userCanManageModules,
-		sitemapsDesc = getModule( 'sitemaps' ).description,
-		enhaDistDesc = getModule( 'enhanced-distribution' ).description;
+		sitemapsDesc = getModule( 'sitemaps' ).description;
 
 	if ( ! props.isSitePublic() ) {
-		let makePublic = (
-			<p className="howto small">
-				{ __( 'Your site must be publicly accessible for this feature to work properly. You can make your site public in {{a}}Reading Settings{{/a}}.', {
+		sitemapsDesc = <span>
+			{ sitemapsDesc }
+			{ <p className="jp-form-setting-explanation">
+				{ __( 'Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
 					components: {
 						a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
 					}
 				} ) }
-			</p>
-		);
-		sitemapsDesc = <span>
-			{ sitemapsDesc }
-			{ makePublic }
-		</span>;
-		enhaDistDesc = <span>
-			{ enhaDistDesc }
-			{ makePublic }
+			</p> }
 		</span>;
 	}
 
@@ -76,7 +68,7 @@ export const Engagement = ( props ) => {
 		[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description, getModule( 'subscriptions' ).learn_more_button ],
 		[ 'gravatar-hovercards', getModule( 'gravatar-hovercards' ).name, getModule( 'gravatar-hovercards' ).description, getModule( 'gravatar-hovercards' ).learn_more_button ],
 		[ 'sitemaps', getModule( 'sitemaps' ).name, sitemapsDesc, getModule( 'sitemaps' ).learn_more_button ],
-		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, enhaDistDesc, getModule( 'enhanced-distribution' ).learn_more_button ],
+		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description, getModule( 'enhanced-distribution' ).learn_more_button ],
 		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
 	],
 		nonAdminAvailable = [ 'publicize' ];
