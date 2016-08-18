@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import get from 'lodash/get';
 import assign from 'lodash/assign';
 
 /**
