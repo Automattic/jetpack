@@ -57,6 +57,21 @@ const AdminNotices = React.createClass( {
 				$notice.prependTo( $adminNotices ).wrapInner( '<div class="dops-notice__content">' ).show();
 			} );
 		}
+
+		let $wcNotice = jQuery( '.woocommerce-message' );
+		if ( $wcNotice.length > 0 ) {
+			$wcNotice.each( function () {
+				let $notice = jQuery( this ).addClass( 'dops-notice is-basic' ).removeClass( 'updated wc-connect' );
+				$notice.find( '.button-primary' ).addClass( 'dops-notice__action' ).removeClass( 'button-primary' ).detach().appendTo( $notice );
+				$notice.find( 'p' ).first().replaceWith( function () { return jQuery( '<div/>', { html: this.innerHTML, class: 'dops-notice__text' } ); } );
+				let $dopsNotice = $notice.find( '.dops-notice__text' );
+				$dopsNotice.append( '<br/>' );
+				$notice.find( '.button-secondary' ).removeClass( 'button-secondary' ).detach().appendTo( $dopsNotice );
+				$notice.find( '.submit' ).remove();
+				$notice.find( '.woocommerce-message-close' ).removeClass( 'woocommerce-message-close' ).addClass( 'dops-notice__action' );
+				$notice.prependTo( $adminNotices ).wrapInner( '<div class="dops-notice__content">' ).show();
+			} );
+		}
 	},
 
 	render() {
