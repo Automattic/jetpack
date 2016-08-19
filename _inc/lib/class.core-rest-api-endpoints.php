@@ -110,6 +110,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 			WP_REST_Server::READABLE
 		);
 
+		// Activate many modules
+		self::route(
+			'/module/all/active',
+			'Jetpack_Core_API_Module_List_Endpoint',
+			WP_REST_Server::EDITABLE,
+			NULL,
+			array(
+				'modules' => array(
+					'default'           => '',
+					'type'              => 'array',
+					'required'          => true,
+					'validate_callback' => __CLASS__ . '::validate_module_list',
+				),
+				'active' => array(
+					'default'           => true,
+					'type'              => 'boolean',
+					'required'          => false,
+					'validate_callback' => __CLASS__ . '::validate_boolean',
+				),
+			)
+		);
+
 		Jetpack::load_xml_rpc_client();
 
 		// Return a single module and update it when needed
@@ -125,7 +147,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'/module/(?P<slug>[a-z\-]+)/active',
 			'Jetpack_Core_API_Module_Toggle_Endpoint',
 			WP_REST_Server::EDITABLE,
-			new Jetpack_IXR_Client()
+			new Jetpack_IXR_Client(),
+			array(
+				'active' => array(
+					'default'           => true,
+					'type'              => 'boolean',
+					'required'          => true,
+					'validate_callback' => __CLASS__ . '::validate_boolean',
+				),
+			)
 		);
 
 		// Update a module
@@ -136,21 +166,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
 			self::get_module_updating_parameters()
 		);
-
-		// Activate many modules
-		register_rest_route( 'jetpack/v4', '/modules/activate', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::activate_modules',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-			'args' => array(
-				'modules' => array(
-					'default'           => '',
-					'type'              => 'array',
-					'required'          => true,
-					'validate_callback' => __CLASS__ . '::validate_module_list',
-				),
-			),
-		) );
 
 		// Reset all Jetpack options
 		register_rest_route( 'jetpack/v4', '/reset/(?P<options>[a-z\-]+)', array(
@@ -704,74 +719,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return true;
 	}
 
-	/**
-	 * Activate a list of valid Jetpack modules.
-	 *
-	 * @since 4.1.0
-	 *
-	 * @param WP_REST_Request $data {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type string $slug Module slug.
-	 * }
-	 *
-	 * @return bool|WP_Error True if modules were activated. Otherwise, a WP_Error instance with the corresponding error.
-	 */
-	public static function activate_modules( $data ) {
-		$params = $data->get_json_params();
-		if ( isset( $params['modules'] ) && is_array( $params['modules'] ) ) {
-			$activated = array();
-			$failed = array();
-
-			foreach ( $params['modules'] as $module ) {
-				if ( Jetpack::activate_module( $module, false, false ) ) {
-					$activated[] = $module;
-				} else {
-					$failed[] = $module;
-				}
-			}
-
-			if ( empty( $failed ) ) {
-				return rest_ensure_response( array(
-					'code' 	  => 'success',
-					'message' => esc_html__( 'All modules activated.', 'jetpack' ),
-				) );
-			} else {
-				$error = '';
-
-				$activated_count = count( $activated );
-				if ( $activated_count > 0 ) {
-					$activated_last = array_pop( $activated );
-					$activated_text = $activated_count > 1 ? sprintf(
-						/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
-						__( '%s and %s', 'jetpack' ),
-						join( ', ', $activated ), $activated_last ) : $activated_last;
-
-					$error = sprintf(
-						/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
-						_n( 'The module %s was activated.', 'The modules %s were activated.', $activated_count, 'jetpack' ),
-						$activated_text ) . ' ';
-				}
-
-				$failed_count = count( $failed );
-				if ( count( $failed ) > 0 ) {
-					$failed_last = array_pop( $failed );
-					$failed_text = $failed_count > 1 ? sprintf(
-						/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
-						__( '%s and %s', 'jetpack' ),
-						join( ', ', $failed ), $failed_last ) : $failed_last;
-
-					$error = sprintf(
-						/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
-						_n( 'The module %s failed to be activated.', 'The modules %s failed to be activated.', $failed_count, 'jetpack' ),
-						$failed_text ) . ' ';
-				}
-			}
-			return new WP_Error( 'activation_failed', esc_html( $error ), array( 'status' => 424 ) );
-		}
-
-		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
-	}
 
 	/**
 	 * Reset Jetpack options
