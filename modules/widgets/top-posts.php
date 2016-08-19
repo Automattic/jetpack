@@ -336,8 +336,19 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						 * @param string $post['post_id'] Post ID.
 						 */
 						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+
+						/**
+						 * Filter the permalink of items in the Top Posts widget.
+						 *
+						 * @module widgets
+						 *
+						 * @param string $post['permalink'] Post permalink.
+						 * @param array  $post              Post array. 
+						 */
+						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
+
 						?>
-						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
+						<a href="<?php echo esc_url( $filtered_permalink ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
 							<?php $size = (int) $get_image_options['avatar_size']; ?>
 							<img width="<?php echo absint( $size ); ?>" height="<?php echo absint( $size ); ?>" src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
 						</a>
@@ -365,13 +376,16 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						<?php
 						/** This action is documented in modules/widgets/top-posts.php */
 						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+
+						/** This filter is documented in modules/widgets/top-posts.php */
+						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 						?>
-						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
+						<a href="<?php echo esc_url( $filtered_permalink ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
 							<?php $size = (int) $get_image_options['avatar_size']; ?>
 							<img width="<?php echo absint( $size ); ?>" height="<?php echo absint( $size ); ?>" src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
 						</a>
 						<div class="widgets-list-layout-links">
-							<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
+							<a href="<?php echo esc_url( $filtered_permalink ); ?>" class="bump-view" data-bump-view="tp">
 								<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
 							</a>
 						</div>
@@ -393,8 +407,11 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 					<?php
 					/** This action is documented in modules/widgets/top-posts.php */
 					do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+
+					/** This filter is documented in modules/widgets/top-posts.php */
+					$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 					?>
-					<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
+					<a href="<?php echo esc_url( $filtered_permalink ); ?>" class="bump-view" data-bump-view="tp">
 						<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
 					</a>
 					<?php
