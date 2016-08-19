@@ -36,7 +36,7 @@ const DashAkismet = React.createClass( {
 			hasSitePlan = false !== this.props.getSitePlan();
 
 		if ( akismetData === 'N/A' ) {
-			return(
+			return (
 				<DashItem
 					label={ labelName }
 					module="akismet"
@@ -50,7 +50,7 @@ const DashAkismet = React.createClass( {
 		}
 
 		if ( akismetData === 'not_installed' ) {
-			return(
+			return (
 				<DashItem
 					label={ labelName }
 					module="akismet"
@@ -72,7 +72,7 @@ const DashAkismet = React.createClass( {
 		}
 
 		if ( akismetData === 'not_active' ) {
-			return(
+			return (
 				<DashItem
 					label={ labelName }
 					module="akismet"
@@ -94,7 +94,7 @@ const DashAkismet = React.createClass( {
 		}
 
 		if ( akismetData === 'invalid_key' ) {
-			return(
+			return (
 				<DashItem
 					label={ labelName }
 					module="akismet"
@@ -116,7 +116,7 @@ const DashAkismet = React.createClass( {
 			);
 		}
 
-		return(
+		return (
 			<DashItem
 				label={ labelName }
 				module="akismet"
@@ -143,7 +143,7 @@ const DashAkismet = React.createClass( {
 	},
 
 	render: function() {
-		return(
+		return (
 			<div className="jp-dash-item__interior">
 				<QueryAkismetData />
 				{ this.getContent() }

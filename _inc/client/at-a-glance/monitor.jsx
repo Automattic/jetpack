@@ -26,7 +26,7 @@ const DashMonitor = React.createClass( {
 			const lastDowntime = this.props.getLastDownTime();
 
 			if ( lastDowntime === 'N/A' ) {
-				return(
+				return (
 					<DashItem
 						label={ labelName }
 						module="monitor"
@@ -38,23 +38,7 @@ const DashMonitor = React.createClass( {
 				);
 			}
 
-			const lastDowntimeMessage = () => {
-				if ( null !== lastDowntime.date ) {
-					return (
-						<p className="jp-dash-item__description">
-							{
-								__( 'Last downtime was %(time)s ago.', {
-									args: {
-										time: lastDowntime.date
-									}
-								} )
-							}
-						</p>
-					);
-				}
-			};
-
-			return(
+			return (
 				<DashItem
 					label={ labelName }
 					module="monitor"
@@ -65,7 +49,7 @@ const DashMonitor = React.createClass( {
 			);
 		}
 
-		return(
+		return (
 			<DashItem
 				label={ labelName }
 				module="monitor"
@@ -76,7 +60,7 @@ const DashMonitor = React.createClass( {
 						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
 						__( '{{a}}Activate Monitor{{/a}} to receive notifications if your site goes down.', {
 							components: {
-								a:<a href="javascript:void(0)" onClick={ this.props.activateMonitor } />
+								a: <a href="javascript:void(0)" onClick={ this.props.activateMonitor } />
 							}
 						} )
 					}
@@ -86,7 +70,7 @@ const DashMonitor = React.createClass( {
 	},
 
 	render: function() {
-		return(
+		return (
 			<div>
 				<QueryLastDownTime />
 				{ this.getContent() }
@@ -105,7 +89,7 @@ export default connect(
 	},
 	( dispatch ) => {
 		return {
-			activateMonitor: ( slug ) => {
+			activateMonitor: () => {
 				return dispatch( activateModule( 'monitor' ) );
 			}
 		};

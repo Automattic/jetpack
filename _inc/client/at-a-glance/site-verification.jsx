@@ -18,7 +18,7 @@ const DashSiteVerify = React.createClass( {
 	getContent: function() {
 		const labelName = __( 'Site Verification Tools' );
 		if ( this.props.isModuleActivated( 'verification-tools' ) ) {
-			return(
+			return (
 				<DashItem label={ labelName } status="is-working">
 					<p className="jp-dash-item__description">
 						{
@@ -34,7 +34,7 @@ const DashSiteVerify = React.createClass( {
 			);
 		}
 
-		return(
+		return (
 			<DashItem label={ labelName } className="jp-dash-item__is-inactive">
 				<p className="jp-dash-item__description">
 					{
@@ -50,7 +50,7 @@ const DashSiteVerify = React.createClass( {
 	},
 
 	render: function() {
-		return(
+		return (
 			<div>
 				{ this.getContent() }
 			</div>

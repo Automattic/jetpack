@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import Card from 'components/card';
 import DashSectionHeader from 'components/dash-section-header';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
@@ -19,7 +18,6 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
-import DashSiteVerify from './site-verification';
 import FeedbackDashRequest from 'components/jetpack-notices/feedback-dash-request';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';

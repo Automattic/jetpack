@@ -32,7 +32,7 @@ const DashScan = React.createClass( {
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
-				return(
+				return (
 					<DashItem label={ labelName }>
 						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 					</DashItem>
@@ -42,7 +42,7 @@ const DashScan = React.createClass( {
 			// Check for threats
 			const threats = this.props.getScanThreats();
 			if ( threats !== 0 ) {
-				return(
+				return (
 					<DashItem
 						label={ labelName }
 						module="vaultpress"
@@ -71,7 +71,7 @@ const DashScan = React.createClass( {
 
 			// All good
 			if ( vpData.code === 'success' ) {
-				return(
+				return (
 					<DashItem
 						label={ labelName }
 						module="vaultpress"
@@ -88,7 +88,7 @@ const DashScan = React.createClass( {
 
 		const upgradeOrActivateText = () => {
 			if ( hasSitePlan ) {
-				return(
+				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
 							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
@@ -96,7 +96,7 @@ const DashScan = React.createClass( {
 					} )
 				);
 			} else {
-				return(
+				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
 						components: {
 							a: <a href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } target="_blank" />
@@ -106,7 +106,7 @@ const DashScan = React.createClass( {
 			}
 		};
 
-		return(
+		return (
 			<DashItem
 				label={ labelName }
 				module="vaultpress"
@@ -125,7 +125,7 @@ const DashScan = React.createClass( {
 	},
 
 	render: function() {
-		return(
+		return (
 			<div>
 				<QueryVaultPressData />
 				{ this.getContent() }
