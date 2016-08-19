@@ -40,7 +40,7 @@ const ConnectButton = React.createClass( {
 
 		// Already linked
 		if ( this.props.isLinked( this.props ) ) {
-			return(
+			return (
 				<div>
 					<Button
 						onClick={ this.props.unlinkUser }
@@ -51,7 +51,7 @@ const ConnectButton = React.createClass( {
 			);
 		}
 
-		return(
+		return (
 			<Button
 				className="is-primary jp-jetpack-connect__button"
 				href={ this.props.connectUrl( this.props ) }
@@ -76,7 +76,7 @@ const ConnectButton = React.createClass( {
 		}
 
 		if ( this.props.isSiteConnected( this.props ) ) {
-			return(
+			return (
 				<Button
 					onClick={ this.disconnectSite }
 					disabled={ disconnecting }>
@@ -85,7 +85,7 @@ const ConnectButton = React.createClass( {
 			);
 		}
 
-		return(
+		return (
 			<Button
 				className="is-primary jp-jetpack-connect__button"
 				href={ this.props.connectUrl( this.props ) }

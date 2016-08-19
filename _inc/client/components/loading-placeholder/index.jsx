@@ -25,8 +25,5 @@ export const LoadingPlaceholder = React.createClass( {
 export default connect(
 	state => {
 		return state;
-	},
-	( dispatch ) => {
-		return {};
 	}
 )( LoadingPlaceholder );

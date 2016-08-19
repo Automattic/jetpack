@@ -64,7 +64,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 			return Object.keys( this.state.options ).some( option_name => this.props.isUpdating( option_name ) );
 		},
 		render() {
-			return(
+			return (
 				<InnerComponent
 					getOptionValue={ this.getOptionValue }
 					onSubmit={ this.onSubmit }
