@@ -92,7 +92,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 				}
 			) } );
 		case JETPACK_MODULE_UPDATE_OPTIONS:
-			let updatingOption = assign( {}, state.updatingOption);
+			let updatingOption = assign( {}, state.updatingOption );
 			updatingOption[ action.module ] = assign( {}, updatingOption[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( ( key ) => {
 				updatingOption[ action.module ][ key ] = true;
@@ -220,7 +220,6 @@ export function getModulesThatRequireConnection( state ) {
 		state.jetpack.modules.items[ module_slug ].requires_connection
 	);
 }
-
 
 /**
  * Returns true if the module is activated

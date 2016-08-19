@@ -127,7 +127,6 @@ describe( 'requests reducer', () => {
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingModulesList ).to.be.false;
 		} );
-
 	} );
 
 	describe( '#modulesActivation', () => {

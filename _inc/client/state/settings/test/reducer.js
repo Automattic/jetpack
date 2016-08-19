@@ -43,10 +43,9 @@ describe( 'items reducer', () => {
 				}
 			};
 			let stateOut = itemsReducer( stateIn, action );
-			expect( stateOut[ 'setting_name' ] ).to.equal( 'new-value' );
+			expect( stateOut.setting_name ).to.equal( 'new-value' );
 		} );
 	} );
-
 } );
 
 describe( 'requests reducer', () => {
@@ -104,4 +103,3 @@ describe( 'requests reducer', () => {
 		} );
 	} );
 } );
-

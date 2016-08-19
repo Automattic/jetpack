@@ -51,7 +51,6 @@ export function getCurrentVersion( state ) {
 	return state.jetpack.initialState.currentVersion;
 }
 
-
 export function getSiteRoles( state ) {
 	return get( state.jetpack.initialState.stats, 'roles', {} );
 }
