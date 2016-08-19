@@ -13,6 +13,7 @@ import {
 	CommentsSettings,
 	LikesSettings,
 	SubscriptionsSettings,
+	SharedaddySettings,
 	ProtectSettings,
 	MonitorSettings,
 	SingleSignOnSettings,
@@ -60,7 +61,8 @@ export const AllModuleSettings = React.createClass( {
 						<div className="jp-form-setting-explanation">
 							{ __( 'You can see the information about security scanning in the "At a Glance" section.' ) }
 						</div>
-						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }> __( 'Configure your Security Scans' }</ExternalLink>
+						<br />
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your Security Scans' ) }</ExternalLink>
 					</div>
 				);
 			case 'sso':
