@@ -142,13 +142,16 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function schedule_initial_sync( $new_version = null, $old_version = null ) {
-		if ( $old_version && ( version_compare( $old_version, '4.2', '>=' ) ) ) {
-			error_log( "$old_version: " . version_compare( $old_version, '4.2', '>=' ) );
-			return;
+		$initial_sync_config = array( 
+			'options' => true, 
+			'network_options' => true, 
+			'functions' => true, 
+			'constants' => true, 
+		);
+
+		if ( $old_version && ( version_compare( $old_version, '4.2', '<' ) ) ) {
+			$initial_sync_config['users'] = 'initial';
 		}
-
-		error_log("scheduling initial sync for old version $old_version and new version $new_version");
-
 
 		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
@@ -162,13 +165,7 @@ class Jetpack_Sync_Actions {
 		}
 
 		self::schedule_full_sync( 
-			array( 
-				'options' => true, 
-				'network_options' => true, 
-				'functions' => true, 
-				'constants' => true, 
-				'users' => 'initial' 
-			),
+			$initial_sync_config,
 			$time_offset
 		);
 	}
@@ -217,7 +214,7 @@ class Jetpack_Sync_Actions {
 			return false;
 		}
 
-		return wp_next_scheduled( 'jetpack_sync_full', array( $modules ) );
+		return !! wp_next_scheduled( 'jetpack_sync_full', array( $modules ) );
 	}
 
 	static function do_full_sync( $modules = null ) {
