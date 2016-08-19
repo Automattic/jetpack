@@ -532,13 +532,13 @@ class Jetpack_SSO {
 					<span><?php esc_html_e( 'Or', 'jetpack' ); ?></span>
 				</div>
 
-				<a href="<?php echo add_query_arg( 'jetpack-sso-show-default-form', '1' ); ?>" class="jetpack-sso-toggle wpcom">
+				<a href="<?php echo esc_url( add_query_arg( 'jetpack-sso-show-default-form', '1' ) ); ?>" class="jetpack-sso-toggle wpcom">
 					<?php
 						esc_html_e( 'Log in with username and password', 'jetpack' )
 					?>
 				</a>
 
-				<a href="<?php echo add_query_arg( 'jetpack-sso-show-default-form', '0' ); ?>" class="jetpack-sso-toggle default">
+				<a href="<?php echo esc_url( add_query_arg( 'jetpack-sso-show-default-form', '0' ) ); ?>" class="jetpack-sso-toggle default">
 					<?php
 						esc_html_e( 'Log in with WordPress.com', 'jetpack' )
 					?>
