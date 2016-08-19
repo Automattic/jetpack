@@ -28,7 +28,6 @@ import {
 	VerificationToolsSettings,
 	SitemapsSettings
 } from 'components/module-settings/';
-import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 
 export const AllModuleSettings = React.createClass( {
@@ -58,15 +57,10 @@ export const AllModuleSettings = React.createClass( {
 			case 'scan':
 				return '' === module.configure_url ? null : (
 					<div>
-						{ __( 'You can see the information about security scanning in the "At a Glance" section.' ) }
-						<br/><Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
-					</div>
-				);
-			case 'akismet':
-			case 'backups':
-				return '' === module.configure_url ? null : (
-					<div>
-						<Button compact href={ module.configure_url }>{ __( 'Settings' ) }</Button>
+						<div className="jp-form-setting-explanation">
+							{ __( 'You can see the information about security scanning in the "At a Glance" section.' ) }
+						</div>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }> __( 'Configure your Security Scans' }</ExternalLink>
 					</div>
 				);
 			case 'sso':
@@ -96,6 +90,22 @@ export const AllModuleSettings = React.createClass( {
 			case 'notifications':
 			case 'enhanced-distribution':
 				return <span className="jp-form-setting-explanation">{ __( 'This module has no configuration options' ) } </span>;
+			case 'akismet':
+			case 'backups':
+				return '' === module.configure_url ? null : (
+					<div>
+						{
+							__( '{{link}}Configure your %(module_slug)s Settings {{/link}}', {
+								components: {
+									link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url } />,
+								},
+								args: {
+									module_slug: module.name
+								}
+							} )
+						}
+					</div>
+				);
 			case 'custom-css':
 			case 'widgets':
 			case 'publicize':
