@@ -133,6 +133,14 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 
 class Jetpack_Core_API_Module_List_Endpoint {
 
+	public function process( $request ) {
+		if ( 'GET' === $request->get_method() ) {
+			return $this->get_modules( $request );
+		} else {
+			return $this->update_modules( $request );
+		}
+	}
+
 	/**
 	 * Get a list of all Jetpack modules and their information.
 	 *
@@ -140,7 +148,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 *
 	 * @return array Array of Jetpack modules.
 	 */
-	public function process( $data ) {
+	public function get_modules( $data ) {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
 
 		$modules = Jetpack_Admin::init()->get_modules();
@@ -159,8 +167,94 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		return $modules;
 	}
 
-	public function can_request() {
-		return current_user_can( 'jetpack_admin_page' );
+	/**
+	 * Activate a list of valid Jetpack modules.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Module slug.
+	 * }
+	 *
+	 * @return bool|WP_Error True if modules were activated. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function activate_modules( $data ) {
+		$params = $data->get_json_params();
+
+		if (
+			! isset( $params['modules'] )
+			|| is_array( $params['modules'] )
+		) {
+			return new WP_Error(
+				'not_found',
+				esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$activated = array();
+		$failed = array();
+
+		foreach ( $params['modules'] as $module ) {
+			if ( Jetpack::activate_module( $module, false, false ) ) {
+				$activated[] = $module;
+			} else {
+				$failed[] = $module;
+			}
+		}
+
+		if ( empty( $failed ) ) {
+			return rest_ensure_response( array(
+				'code' 	  => 'success',
+				'message' => esc_html__( 'All modules activated.', 'jetpack' ),
+			) );
+		}
+
+		$error = '';
+
+		$activated_count = count( $activated );
+		if ( $activated_count > 0 ) {
+			$activated_last = array_pop( $activated );
+			$activated_text = $activated_count > 1 ? sprintf(
+				/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
+				__( '%s and %s', 'jetpack' ),
+				join( ', ', $activated ), $activated_last ) : $activated_last;
+
+			$error = sprintf(
+				/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
+				_n( 'The module %s was activated.', 'The modules %s were activated.', $activated_count, 'jetpack' ),
+				$activated_text ) . ' ';
+		}
+
+		$failed_count = count( $failed );
+		if ( count( $failed ) > 0 ) {
+			$failed_last = array_pop( $failed );
+			$failed_text = $failed_count > 1 ? sprintf(
+				/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
+				__( '%s and %s', 'jetpack' ),
+				join( ', ', $failed ), $failed_last ) : $failed_last;
+
+			$error = sprintf(
+				/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
+				_n( 'The module %s failed to be activated.', 'The modules %s failed to be activated.', $failed_count, 'jetpack' ),
+				$failed_text ) . ' ';
+		}
+
+		return new WP_Error(
+			'activation_failed',
+			esc_html( $error ),
+			array( 'status' => 424 )
+		);
+	}
+
+	public function can_request( $request ) {
+		if ( 'GET' === $request->get_method() ) {
+			return current_user_can( 'jetpack_admin_page' );
+		} else {
+			return current_user_can( 'jetpack_manage_modules' );
+		}
 	}
 }
 
