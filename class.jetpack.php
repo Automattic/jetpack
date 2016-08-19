@@ -196,6 +196,8 @@ class Jetpack {
 		'add-meta-tags/add-meta-tags.php',                       // Add Meta Tags
 		'autodescription/autodescription.php',                   // The SEO Framework
 		'easy-facebook-share-thumbnails/esft.php',               // Easy Facebook Share Thumbnail
+		'heateor-open-graph-meta-tags/heateor-open-graph-meta-tags.php',
+		                                                         // Open Graph Meta Tags by Heateor
 		'facebook/facebook.php',                                 // Facebook (official plugin)
 		'facebook-awd/AWD_facebook.php',                         // Facebook AWD All in one
 		'facebook-featured-image-and-open-graph-meta-tags/fb-featured-image.php',
