@@ -16,16 +16,17 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_REST_Con
 	 * @requires PHP 5.2
 	 * @dataProvider api_routes
 	 */
-	public function test_register_routes( $route = false, $method = false, $classname = false ) {
+	public function test_register_routes( $route_string = false, $method = false, $classname = false ) {
 		$routes = $this->server->get_routes();
-		$this->assertArrayHasKey( $route, $routes );
+		$this->assertArrayHasKey( $route_string, $routes );
 
-		$route = $routes[ $route ][0];
-		$this->assertArrayHasKey(
-			$method,
-			$route['methods'],
-			"should register a $method route"
-		);
+		$route = array();
+		foreach ( $routes[ $route_string ] as $item ) {
+			if ( isset( $item['methods'][ $method ] ) ) {
+				$route = $item;
+			}
+		}
+
 		$this->assertInstanceOf(
 			$classname,
 			$route['callback'][0],
@@ -40,8 +41,9 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_REST_Con
 
 	public function api_routes() {
 		return array(
-			array( '/jetpack/v4/module/all', 'GET', 'Jetpack_Core_API_Module_Endpoint' ),
-			array( '/jetpack/v4/module/(?P<slug>[a-z\-]+)', 'GET', 'Jetpack_Core_API_Module_Get_Endpoint' ),
+			array( '/jetpack/v4/module/all', 'GET', 'Jetpack_Core_API_Module_List_Endpoint' ),
+			array( '/jetpack/v4/module/(?P<slug>[a-z\-]+)', 'GET', 'Jetpack_Core_API_Module_Endpoint' ),
+			array( '/jetpack/v4/module/(?P<slug>[a-z\-]+)', 'POST', 'Jetpack_Core_API_Module_Endpoint' ),
 			array( '/jetpack/v4/module/(?P<slug>[a-z\-]+)/active', 'POST', 'Jetpack_Core_API_Module_Toggle_Endpoint' ),
 		);
 	}
