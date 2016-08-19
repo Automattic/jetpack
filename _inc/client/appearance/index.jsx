@@ -23,7 +23,8 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
-import { getSiteAdminUrl, isSitePublic } from 'state/initial-state';
+import { userCanManageModules } from 'state/initial-state';
+import Settings from 'components/settings';
 
 export const Page = ( props ) => {
 	let {
@@ -31,7 +32,8 @@ export const Page = ( props ) => {
 		isModuleActivated,
 		isTogglingModule,
 		getModule
-	} = props;
+	} = props,
+		isAdmin = props.userCanManageModules;
 
 	var cards = [
 		[ 'tiled-gallery', getModule( 'tiled-gallery' ).name, getModule( 'tiled-gallery' ).description, getModule( 'tiled-gallery' ).learn_more_button ],
@@ -84,6 +86,25 @@ export const Page = ( props ) => {
 	return (
 		<div>
 			{ cards }
+
+			<FoldableCard
+				header={ __( 'Holiday Snow' ) }
+				subheader={ __( 'Show falling snow in the holiday period.' ) }
+				clickableHeaderText={ true }
+				disabled={ ! isAdmin }
+				summary={ isAdmin ? <Settings slug="snow" /> : '' }
+				expandedSummary={ isAdmin ? <Settings slug="snow" /> : '' }
+				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+					{
+						card: 'holiday_snow',
+						path: props.route.path
+					}
+				) }
+			>
+				<span className="jp-form-setting-explanation">
+					{ __( 'Show falling snow on my blog from Dec 1st until Jan 4th.' ) }
+				</span>
+			</FoldableCard>
 		</div>
 	);
 };
@@ -102,8 +123,7 @@ export default connect(
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			getSiteAdminUrl: () => getSiteAdminUrl( state ),
-			isSitePublic: () => isSitePublic( state )
+			userCanManageModules: userCanManageModules( state )
 		};
 	},
 	( dispatch ) => {

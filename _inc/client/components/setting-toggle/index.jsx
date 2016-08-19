@@ -1,8 +1,11 @@
-
 /**
  * External dependencies
  */
 import React from 'react';
+
+/**
+ * Internal dependencies
+ */
 import FormToggle from 'components/form/form-toggle';
 
 export const SettingToggle = React.createClass( {
