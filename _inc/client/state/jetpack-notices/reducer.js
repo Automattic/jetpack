@@ -11,8 +11,6 @@ import assign from 'lodash/assign';
  */
 import {
 	JETPACK_ACTION_NOTICES_DISMISS,
-	JETPACK_NOTICES_DISMISS,
-	JETPACK_NOTICES_DISMISS_FAIL,
 	JETPACK_NOTICES_DISMISS_SUCCESS,
 	DISCONNECT_SITE_SUCCESS,
 	RESET_OPTIONS_SUCCESS,
@@ -102,9 +100,9 @@ export function getJetpackStateNoticesErrorDescription( state ) {
  * Returns whether or not a Jetpack notice has been dismissed.
  *
  * @param  {Object} state  Global state tree
- * @param  {String} notice Name of the jetpack notice to check for.
+ * @param  {String} notice_name Name of the jetpack notice to check for.
  * @return {bool}          False if notice is still active, True if it's been dismissed.
  */
-export function isNoticeDismissed( state, notice ) {
-	return get( state.jetpack.jetpackNotices.dismissed, [ notice ], false );
+export function isNoticeDismissed( state, notice_name ) {
+	return get( state.jetpack.jetpackNotices.dismissed, [ notice_name ], false );
 }
