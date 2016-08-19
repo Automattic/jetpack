@@ -75,6 +75,18 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.2.2 =
+
+* Release date: August 19th, 2016
+
+**Bug Fixes:**
+
+* We fixed the code which displays the Facebook share count to accomodate Facebook's new data structure.
+* We fixed an issue which caused PHP notices to get logged for users of the Twenty Fourteen theme.
+* We fixed an issue with the Minileven mobile theme which was preventing it from loading.
+* Improved Sync performance.
+* Increase security by sanitizing a URL used in the SSO process.
+
 = 4.2.1 =
 
 * Release date: August 17th, 2016
