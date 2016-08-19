@@ -90,7 +90,7 @@ function JetpackRestApiClient( root, nonce ) {
 			},
 			body: JSON.stringify( { active: false } )
 		} ),
-		updateModuleOptions: ( slug, newOptionValues ) => fetch( `${ apiRoot }jetpack/v4/module/${ slug }/update`, {
+		updateModuleOptions: ( slug, newOptionValues ) => fetch( `${ apiRoot }jetpack/v4/module/${ slug }`, {
 			method: 'put',
 			credentials: 'same-origin',
 			headers: {
