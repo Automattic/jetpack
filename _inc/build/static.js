@@ -58716,10 +58716,6 @@
 	
 	var _redux = __webpack_require__(165);
 	
-	var _lodashGet = __webpack_require__(341);
-	
-	var _lodashGet2 = _interopRequireDefault(_lodashGet);
-	
 	var _lodashAssign = __webpack_require__(319);
 	
 	var _lodashAssign2 = _interopRequireDefault(_lodashAssign);

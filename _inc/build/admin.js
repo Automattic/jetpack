@@ -58761,10 +58761,6 @@
 	
 	var _redux = __webpack_require__(165);
 	
-	var _lodashGet = __webpack_require__(341);
-	
-	var _lodashGet2 = _interopRequireDefault(_lodashGet);
-	
 	var _lodashAssign = __webpack_require__(319);
 	
 	var _lodashAssign2 = _interopRequireDefault(_lodashAssign);
@@ -78451,8 +78447,6 @@
 	
 	var _componentsModuleToggle = __webpack_require__(842);
 	
-	var _stateSite = __webpack_require__(552);
-	
 	var _stateConnection = __webpack_require__(532);
 	
 	var _stateModules = __webpack_require__(395);
@@ -78568,7 +78562,6 @@
 			getModule: function getModule(module_name) {
 				return (0, _stateModules.getModule)(state, module_name);
 			},
-			isFetchingSiteData: (0, _stateSite.isFetchingSiteData)(state),
 			isDevMode: (0, _stateConnection.isDevMode)(state),
 			userCanToggle: (0, _stateInitialState.userCanManageModules)(state)
 		};
@@ -79032,10 +79025,6 @@
 	
 	var _componentsNotice2 = _interopRequireDefault(_componentsNotice);
 	
-	var _componentsSpinner = __webpack_require__(670);
-	
-	var _componentsSpinner2 = _interopRequireDefault(_componentsSpinner);
-	
 	/**
 	 * Internal dependencies
 	 */
@@ -79223,7 +79212,7 @@
 	var QuerySitePlugins = _react2['default'].createClass({
 		displayName: 'QuerySitePlugins',
 	
-		componentDidMount: function componentDidMount() {
+		componentWillMount: function componentWillMount() {
 			if (!this.props.isFetchingPluginsData) {
 				this.props.fetchPluginsData();
 			}
@@ -79237,8 +79226,7 @@
 	exports.QuerySitePlugins = QuerySitePlugins;
 	exports['default'] = (0, _reactRedux.connect)(function (state) {
 		return {
-			isFetchingPluginsData: (0, _stateSitePlugins.isFetchingPluginsData)(state),
-			pluginsData: (0, _stateSitePlugins.fetchPluginsData)(state)
+			isFetchingPluginsData: (0, _stateSitePlugins.isFetchingPluginsData)(state)
 		};
 	}, function (dispatch) {
 		return {
@@ -81037,29 +81025,21 @@
 		var getModule = props.getModule;
 		var isAdmin = props.userCanManageModules;
 		var sitemapsDesc = getModule('sitemaps').description;
-		var enhaDistDesc = getModule('enhanced-distribution').description;
 	
 		if (!props.isSitePublic()) {
-			var makePublic = _react2['default'].createElement(
-				'p',
-				{ className: 'howto small' },
-				(0, _i18nCalypso.translate)('Your site must be publicly accessible for this feature to work properly. You can make your site public in {{a}}Reading Settings{{/a}}.', {
-					components: {
-						a: _react2['default'].createElement('a', { href: props.getSiteAdminUrl() + 'options-reading.php#blog_public', className: 'jetpack-js-stop-propagation' })
-					}
-				})
-			);
 			sitemapsDesc = _react2['default'].createElement(
 				'span',
 				null,
 				sitemapsDesc,
-				makePublic
-			);
-			enhaDistDesc = _react2['default'].createElement(
-				'span',
-				null,
-				enhaDistDesc,
-				makePublic
+				_react2['default'].createElement(
+					'p',
+					{ className: 'jp-form-setting-explanation' },
+					(0, _i18nCalypso.translate)('Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
+						components: {
+							a: _react2['default'].createElement('a', { href: props.getSiteAdminUrl() + 'options-reading.php#blog_public', className: 'jetpack-js-stop-propagation' })
+						}
+					})
+				)
 			);
 		}
 	
@@ -81067,7 +81047,7 @@
 	  * Array of modules that directly map to a card for rendering
 	  * @type {Array}
 	  */
-		var cards = [['stats', getModule('stats').name, getModule('stats').description, getModule('stats').learn_more_button], ['sharedaddy', getModule('sharedaddy').name, getModule('sharedaddy').description, getModule('sharedaddy').learn_more_button], ['publicize', getModule('publicize').name, getModule('publicize').description, getModule('publicize').learn_more_button], ['related-posts', getModule('related-posts').name, getModule('related-posts').description, getModule('related-posts').learn_more_button], ['comments', getModule('comments').name, getModule('comments').description, getModule('comments').learn_more_button], ['likes', getModule('likes').name, getModule('likes').description, getModule('likes').learn_more_button], ['subscriptions', getModule('subscriptions').name, getModule('subscriptions').description, getModule('subscriptions').learn_more_button], ['gravatar-hovercards', getModule('gravatar-hovercards').name, getModule('gravatar-hovercards').description, getModule('gravatar-hovercards').learn_more_button], ['sitemaps', getModule('sitemaps').name, sitemapsDesc, getModule('sitemaps').learn_more_button], ['enhanced-distribution', getModule('enhanced-distribution').name, enhaDistDesc, getModule('enhanced-distribution').learn_more_button], ['verification-tools', getModule('verification-tools').name, getModule('verification-tools').description, getModule('verification-tools').learn_more_button]],
+		var cards = [['stats', getModule('stats').name, getModule('stats').description, getModule('stats').learn_more_button], ['sharedaddy', getModule('sharedaddy').name, getModule('sharedaddy').description, getModule('sharedaddy').learn_more_button], ['publicize', getModule('publicize').name, getModule('publicize').description, getModule('publicize').learn_more_button], ['related-posts', getModule('related-posts').name, getModule('related-posts').description, getModule('related-posts').learn_more_button], ['comments', getModule('comments').name, getModule('comments').description, getModule('comments').learn_more_button], ['likes', getModule('likes').name, getModule('likes').description, getModule('likes').learn_more_button], ['subscriptions', getModule('subscriptions').name, getModule('subscriptions').description, getModule('subscriptions').learn_more_button], ['gravatar-hovercards', getModule('gravatar-hovercards').name, getModule('gravatar-hovercards').description, getModule('gravatar-hovercards').learn_more_button], ['sitemaps', getModule('sitemaps').name, sitemapsDesc, getModule('sitemaps').learn_more_button], ['enhanced-distribution', getModule('enhanced-distribution').name, getModule('enhanced-distribution').description, getModule('enhanced-distribution').learn_more_button], ['verification-tools', getModule('verification-tools').name, getModule('verification-tools').description, getModule('verification-tools').learn_more_button]],
 		    nonAdminAvailable = ['publicize'];
 		// Put modules available to non-admin user at the top of the list.
 		if (!isAdmin) {
@@ -85835,27 +85815,8 @@
 		var isModuleActivated = props.isModuleActivated;
 		var isTogglingModule = props.isTogglingModule;
 		var getModule = props.getModule;
-		var photonDesc = getModule('photon').description;
 	
-		if (!props.isSitePublic()) {
-			var makePublic = _react2['default'].createElement(
-				'p',
-				{ className: 'howto small' },
-				(0, _i18nCalypso.translate)('Your site must be publicly accessible for this feature to work properly. You can make your site public in {{a}}Reading Settings{{/a}}.', {
-					components: {
-						a: _react2['default'].createElement('a', { href: props.getSiteAdminUrl() + 'options-reading.php#blog_public', className: 'jetpack-js-stop-propagation' })
-					}
-				})
-			);
-			photonDesc = _react2['default'].createElement(
-				'span',
-				null,
-				photonDesc,
-				makePublic
-			);
-		}
-	
-		var cards = [['tiled-gallery', getModule('tiled-gallery').name, getModule('tiled-gallery').description, getModule('tiled-gallery').learn_more_button], ['photon', getModule('photon').name, photonDesc, getModule('photon').learn_more_button], ['carousel', getModule('carousel').name, getModule('carousel').description, getModule('carousel').learn_more_button], ['widgets', getModule('widgets').name, getModule('widgets').description, getModule('widgets').learn_more_button], ['widget-visibility', getModule('widget-visibility').name, getModule('widget-visibility').description, getModule('widget-visibility').learn_more_button], ['custom-css', getModule('custom-css').name, getModule('custom-css').description, getModule('custom-css').learn_more_button], ['infinite-scroll', getModule('infinite-scroll').name, getModule('infinite-scroll').description, getModule('infinite-scroll').learn_more_button], ['minileven', getModule('minileven').name, getModule('minileven').description, getModule('minileven').learn_more_button]].map(function (element) {
+		var cards = [['tiled-gallery', getModule('tiled-gallery').name, getModule('tiled-gallery').description, getModule('tiled-gallery').learn_more_button], ['photon', getModule('photon').name, getModule('photon').description, getModule('photon').learn_more_button], ['carousel', getModule('carousel').name, getModule('carousel').description, getModule('carousel').learn_more_button], ['widgets', getModule('widgets').name, getModule('widgets').description, getModule('widgets').learn_more_button], ['widget-visibility', getModule('widget-visibility').name, getModule('widget-visibility').description, getModule('widget-visibility').learn_more_button], ['custom-css', getModule('custom-css').name, getModule('custom-css').description, getModule('custom-css').learn_more_button], ['infinite-scroll', getModule('infinite-scroll').name, getModule('infinite-scroll').description, getModule('infinite-scroll').learn_more_button], ['minileven', getModule('minileven').name, getModule('minileven').description, getModule('minileven').learn_more_button]].map(function (element) {
 			var unavailableInDevMode = props.isUnavailableInDevMode(element[0]),
 			    toggle = unavailableInDevMode ? (0, _i18nCalypso.translate)('Unavailable in Dev Mode') : _react2['default'].createElement(_componentsModuleToggle.ModuleToggle, { slug: element[0], activated: isModuleActivated(element[0]),
 				toggling: isTogglingModule(element[0]),
@@ -87076,7 +87037,6 @@
 			getSiteConnectionStatus: function getSiteConnectionStatus() {
 				return (0, _stateConnection.getSiteConnectionStatus)(state);
 			},
-			isFetchingSiteData: (0, _stateSite.isFetchingSiteData)(state),
 			sitePlan: (0, _stateSite.getSitePlan)(state)
 		};
 	})(Plans);
