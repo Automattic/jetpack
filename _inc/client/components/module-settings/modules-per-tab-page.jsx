@@ -13,7 +13,6 @@ import {
 	CommentsSettings,
 	LikesSettings,
 	SubscriptionsSettings,
-	SharedaddySettings,
 	ProtectSettings,
 	MonitorSettings,
 	SingleSignOnSettings,
@@ -97,12 +96,13 @@ export const AllModuleSettings = React.createClass( {
 				return '' === module.configure_url ? null : (
 					<div>
 						{
+
 							__( '{{link}}Configure your %(module_slug)s Settings {{/link}}', {
 								components: {
 									link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url } />,
 								},
 								args: {
-									module_slug: module.name
+									module_slug: module.module === 'akismet' ? 'Akismet' : 'Backups'
 								}
 							} )
 						}
