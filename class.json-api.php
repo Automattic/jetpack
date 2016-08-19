@@ -615,12 +615,13 @@ class WPCOM_JSON_API {
 	 * Traps `wp_die()` calls and outputs a JSON response instead.
 	 * The result is always output, never returned.
 	 *
-	 * @param string|null $error_code.  Call with string to start the trapping.  Call with null to stop.
+	 * @param string|null $error_code   Call with string to start trapping wp_die().  Call with null to stop.
+	 * @param int         $http_status  HTTP status code, 400 by default.
 	 */
-	function trap_wp_die( $error_code = null ) {
-		// Stop trapping
+	function trap_wp_die( $error_code = null, $http_status = 400 ) {
 		if ( is_null( $error_code ) ) {
 			$this->trapped_error = null;
+			// Stop trapping
 			remove_filter( 'wp_die_handler', array( $this, 'wp_die_handler_callback' ) );
 			return;
 		}
@@ -636,13 +637,12 @@ class WPCOM_JSON_API {
 			}
 		}
 
-		// Start trapping
 		$this->trapped_error = array(
-			'status'  => 500,
+			'status'  => $http_status,
 			'code'    => $error_code,
 			'message' => '',
 		);
-
+		// Start trapping
 		add_filter( 'wp_die_handler', array( $this, 'wp_die_handler_callback' ) );
 	}
 
@@ -651,29 +651,34 @@ class WPCOM_JSON_API {
 	}
 
 	function wp_die_handler( $message, $title = '', $args = array() ) {
+		// Allow wp_die calls to override HTTP status code...
 		$args = wp_parse_args( $args, array(
-			'response' => 500,
+			'response' => $this->trapped_error['status'],
 		) );
+
+		// ... unless it's 500 ( see http://wp.me/pMz3w-5VV )
+		if ( (int) $args['response'] !== 500 ) {
+			$this->trapped_error['status'] = $args['response'];
+		}
 
 		if ( $title ) {
 			$message = "$title: $message";
 		}
 
-		switch ( $this->trapped_error['code'] ) {
-		case 'comment_failure' :
-			if ( did_action( 'comment_duplicate_trigger' ) ) {
-				$this->trapped_error['code'] = 'comment_duplicate';
-			} else if ( did_action( 'comment_flood_trigger' ) ) {
-				$this->trapped_error['code'] = 'comment_flood';
-			}
-			break;
-		}
-
-		$this->trapped_error['status']  = $args['response'];
 		$this->trapped_error['message'] = wp_kses( $message, array() );
 
+		switch ( $this->trapped_error['code'] ) {
+			case 'comment_failure' :
+				if ( did_action( 'comment_duplicate_trigger' ) ) {
+					$this->trapped_error['code'] = 'comment_duplicate';
+				} else if ( did_action( 'comment_flood_trigger' ) ) {
+					$this->trapped_error['code'] = 'comment_flood';
+				}
+				break;
+		}
+
 		// We still want to exit so that code execution stops where it should.
-		// Attach the JSON output to WordPress' shutdown handler
+		// Attach the JSON output to the WordPress shutdown handler
 		add_action( 'shutdown', array( $this, 'output_trapped_error' ), 0 );
 		exit;
 	}
