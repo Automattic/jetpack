@@ -72,6 +72,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'wp_version'                       => Jetpack_Sync_Functions::wp_version(),
 			'get_plugins'                      => Jetpack_Sync_Functions::get_plugins(),
 			'active_modules'                   => Jetpack::get_active_modules(),
+			'locale'                           => get_locale(),
 		);
 
 		if ( is_multisite() ) {
