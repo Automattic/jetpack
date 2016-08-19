@@ -37,7 +37,7 @@ const DashPluginUpdates = React.createClass( {
 			this.props.siteAdminUrl + 'plugins.php';
 
 		if ( 'N/A' === pluginUpdates ) {
-			return(
+			return (
 				<DashItem
 					label={ labelName }
 					module="manage"
@@ -50,7 +50,7 @@ const DashPluginUpdates = React.createClass( {
 		}
 
 		if ( 'updates-available' === pluginUpdates.code ) {
-			return(
+			return (
 				<DashItem
 					label={ labelName }
 					module="manage"
@@ -78,7 +78,7 @@ const DashPluginUpdates = React.createClass( {
 						{
 							isDevMode( this.props ) ? '' :
 							manageActive ?
-								__( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } ):
+								__( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } ) :
 								__( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="javascript:void(0)" /> } } )
 						}
 					</p>
@@ -86,7 +86,7 @@ const DashPluginUpdates = React.createClass( {
 			);
 		}
 
-		return(
+		return (
 			<DashItem
 				label={ labelName }
 				module="manage"
@@ -104,7 +104,7 @@ const DashPluginUpdates = React.createClass( {
 	},
 
 	render: function() {
-		return(
+		return (
 			<div>
 				<QueryPluginUpdates />
 				{ this.getContent() }

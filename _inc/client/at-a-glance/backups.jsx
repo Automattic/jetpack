@@ -32,7 +32,7 @@ const DashBackups = React.createClass( {
 			const vpData = this.props.getVaultPressData();
 
 			if ( vpData === 'N/A' ) {
-				return(
+				return (
 					<DashItem label={ labelName }>
 						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 					</DashItem>
@@ -40,7 +40,7 @@ const DashBackups = React.createClass( {
 			}
 
 			if ( vpData.code === 'success' ) {
-				return(
+				return (
 					<DashItem
 						label={ labelName }
 						module="vaultpress"
@@ -65,7 +65,7 @@ const DashBackups = React.createClass( {
 
 		const upgradeOrActivateText = () => {
 			if ( hasSitePlan ) {
-				return(
+				return (
 					__( 'To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
 							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
@@ -73,7 +73,7 @@ const DashBackups = React.createClass( {
 					} )
 				);
 			} else {
-				return(
+				return (
 					__( 'To automatically back up your entire site, please {{a}}upgrade!{{/a}}.', {
 						components: {
 							a: <a href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } target="_blank" />
@@ -83,7 +83,7 @@ const DashBackups = React.createClass( {
 			}
 		};
 
-		return(
+		return (
 			<DashItem
 				label={ labelName }
 				module="vaultpress"
@@ -102,7 +102,7 @@ const DashBackups = React.createClass( {
 	},
 
 	render: function() {
-		return(
+		return (
 			<div className="jp-dash-item__interior">
 				<QueryVaultPressData />
 				{ this.getContent() }

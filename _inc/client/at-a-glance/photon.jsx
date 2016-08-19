@@ -20,7 +20,7 @@ const DashPhoton = React.createClass( {
 		const labelName = __( 'Image Performance %(photon)s', { args: { photon: '(Photon)' } } );
 
 		if ( this.props.isModuleActivated( 'photon' ) ) {
-			return(
+			return (
 				<DashItem
 					label={ labelName }
 					module="photon"
@@ -31,7 +31,7 @@ const DashPhoton = React.createClass( {
 			);
 		}
 
-		return(
+		return (
 			<DashItem
 				label={ labelName }
 				module="photon"
@@ -52,7 +52,7 @@ const DashPhoton = React.createClass( {
 	},
 
 	render: function() {
-		return(
+		return (
 			<div className="jp-dash-item__interior">
 				{ this.getContent() }
 			</div>

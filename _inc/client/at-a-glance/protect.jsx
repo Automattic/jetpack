@@ -27,7 +27,7 @@ const DashProtect = React.createClass( {
 			const protectCount = this.props.getProtectCount();
 
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
-				return(
+				return (
 					<DashItem
 						label="Protect"
 						module="protect"
@@ -41,7 +41,7 @@ const DashProtect = React.createClass( {
 					</DashItem>
 				);
 			}
-			return(
+			return (
 				<DashItem
 					label="Protect"
 					module="protect"
@@ -53,7 +53,7 @@ const DashProtect = React.createClass( {
 			);
 		}
 
-		return(
+		return (
 			<DashItem
 				label="Protect"
 				module="protect"
@@ -72,7 +72,7 @@ const DashProtect = React.createClass( {
 	},
 
 	render: function() {
-		return(
+		return (
 			<div className="jp-dash-item__interior">
 				<QueryProtectCount />
 				{ this.getContent() }
