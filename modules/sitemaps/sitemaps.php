@@ -202,8 +202,12 @@ function jetpack_load_xsl( $type = '' ) {
 
 	$transient_xsl = empty( $type ) ? 'jetpack_sitemap_xsl' : "jetpack_{$type}_sitemap_xsl";
 
-	// Add current language as suffix if WPML is active
-	$transient_xsl = $transient_xsl . wpml_transient_language();
+	/**
+	 * Filter transient name.
+	 *
+	 * @module sitemaps
+	 */
+	$transient_xsl = apply_filters( 'jetpack_sitemap_xsl_transient', $transient_xsl );
 
 	$xsl = get_transient( $transient_xsl );
 
@@ -253,10 +257,14 @@ function jetpack_print_news_sitemap_xsl() {
 function jetpack_print_sitemap() {
 	global $wpdb, $post;
 
-	// Current language before switching
-	$current_language = wpml_transient_language();
-
-	$xml = get_transient( 'jetpack_sitemap' . $current_language );
+	$xml = get_transient(
+		/**
+		 * Filter transient name.
+		 *
+		 * @module sitemaps
+		 */
+		apply_filters( 'jetpack_sitemap_transient', 'jetpack_sitemap' )
+	);
 
 	if ( $xml ) {
 		header( 'Content-Type: ' . jetpack_sitemap_content_type(), true );
@@ -320,11 +328,18 @@ function jetpack_print_sitemap() {
 			continue;
 		}
 
-		// Switch language so we can get proper permalink per post
-		wpml_switch_to_post_language( $post->ID );
-
 		$post_latest_mod = null;
-		$url             = array( 'loc' => esc_url( get_permalink( $post->ID ) ) );
+		$url             = array( 'loc' => esc_url(
+			/**
+			 * Filter post permalink.
+			 *
+			 * @module sitemaps
+			 *
+			 * @param string|false The permalink URL or false if post does not exist.
+			 * @param int $post Post ID.
+			 */
+			apply_filters( 'jetpack_sitemap_post_permalink', get_permalink( $post->ID ), $post->ID )
+		) );
 
 		// If this post is configured to be the site home, skip since it's added separately later
 		if ( untrailingslashit( get_permalink( $post->ID ) ) == untrailingslashit( get_option( 'home' ) ) ) {
@@ -419,7 +434,6 @@ function jetpack_print_sitemap() {
 		jetpack_sitemap_array_to_simplexml( array( 'url' => $url_node ), $tree );
 		unset( $url );
 	}
-
 	wp_reset_postdata();
 	$blog_home = array(
 		'loc'        => esc_url( get_option( 'home' ) ),
@@ -458,7 +472,16 @@ function jetpack_print_sitemap() {
 	$xml = $tree->asXML();
 	unset( $tree );
 	if ( ! empty( $xml ) ) {
-		set_transient( 'jetpack_sitemap' . $current_language, $xml, DAY_IN_SECONDS );
+		set_transient(
+			/**
+			 * Filter transient name.
+			 *
+			 * @module sitemaps
+			 */
+			apply_filters( 'jetpack_sitemap_transient', 'jetpack_sitemap' ),
+			$xml,
+			DAY_IN_SECONDS
+		);
 		echo $xml;
 	}
 
@@ -475,10 +498,14 @@ function jetpack_print_sitemap() {
  */
 function jetpack_print_news_sitemap() {
 
-	// Current language before switching
-	$current_language = wpml_transient_language();
-
-	$xml = get_transient( 'jetpack_news_sitemap' . $current_language );
+	$xml = get_transient(
+		/**
+		 * Filter transient name.
+		 *
+		 * @module sitemaps
+		 */
+		apply_filters( 'jetpack_news_sitemap_transient', 'jetpack_news_sitemap' )
+	);
 
 	if ( $xml ) {
 		header( 'Content-Type: application/xml' );
@@ -575,14 +602,21 @@ function jetpack_print_news_sitemap() {
 				continue;
 			}
 
-			// Switch language so we can get proper permalink per post
-			wpml_switch_to_post_language( $post->ID );
+			$GLOBALS['post'] = $post;
+			$url 		     = array();
 
-			$GLOBALS['post']                       = $post;
-			$url                                   = array();
-			$url['loc']                            = get_permalink( $post->ID );
-			$news                                  = array();
-			$news['news:publication']['news:name'] = get_bloginfo_rss( 'name' );
+			/**
+			 * Filter post permalink.
+			 *
+			 * @module sitemaps
+			 *
+			 * @param string|false The permalink URL or false if post does not exist.
+			 * @param int $post Post ID.
+			 */
+			$url['loc'] = apply_filters( 'jetpack_sitemap_post_permalink', get_permalink( $post->ID ), $post->ID );
+
+			$news 								       = array();
+			$news['news:publication']['news:name']	   = get_bloginfo_rss( 'name' );
 			$news['news:publication']['news:language'] = $language_code;
 			$news['news:publication_date'] = jetpack_w3cdate_from_mysql( $post->post_date_gmt );
 			$news['news:title']            = get_the_title_rss();
@@ -627,7 +661,16 @@ function jetpack_print_news_sitemap() {
 	$xml = ob_get_contents();
 	ob_end_clean();
 	if ( ! empty( $xml ) ) {
-		set_transient( 'jetpack_news_sitemap' . $current_language, $xml, DAY_IN_SECONDS );
+		set_transient(
+			/**
+			 * Filter transient name.
+			 *
+			 * @module sitemaps
+			 */
+			apply_filters( 'jetpack_news_sitemap_transient', 'jetpack_news_sitemap' ),
+			$xml,
+			DAY_IN_SECONDS
+		);
 		echo $xml;
 	}
 
@@ -718,10 +761,8 @@ function jetpack_news_sitemap_discovery() {
  * @param int $post_id unique post identifier. not used.
  */
 function jetpack_sitemap_handle_update( $post_id ) {
-	$current_language = wpml_transient_language();
-
-	delete_transient( 'jetpack_sitemap' . $current_language );
-	delete_transient( 'jetpack_news_sitemap' . $current_language );
+	delete_transient( 'jetpack_sitemap' );
+	delete_transient( 'jetpack_news_sitemap' );
 }
 
 /**
@@ -734,6 +775,9 @@ function jetpack_sitemap_initialize() {
 	add_action( 'publish_page', 'jetpack_sitemap_handle_update', 12, 1 );
 	add_action( 'trash_post', 'jetpack_sitemap_handle_update', 12, 1 );
 	add_action( 'deleted_post', 'jetpack_sitemap_handle_update', 12, 1 );
+	// Clear sitemap cache if permalink structure is changed, used mostly because of multilingual plugins.
+	add_action( 'update_option_permalink_structure', 'jetpack_sitemap_handle_update', 12, 1 );
+
 
 	/**
 	 * Filter whether to make the default sitemap discoverable to robots or not.
@@ -808,26 +852,3 @@ function jetpack_sitemap_initialize() {
 
 // Initialize sitemaps once themes can filter the initialization.
 add_action( 'after_setup_theme', 'jetpack_sitemap_initialize' );
-
-/**
- * Add current language as suffix to transient name.
- *
- * @return string
- */
-function wpml_transient_language() {
-	if ( ! defined( 'ICL_SITEPRESS_VERSION' ) ) {
-		return '';
-	}
-
-	return '_' . apply_filters( 'wpml_current_language', NULL );
-}
-
-/**
- * Switch current language according to post language.
- *
- * @param $post_id
- */
-function wpml_switch_to_post_language( $post_id ) {
-	$post_language = apply_filters( 'wpml_post_language_details', NULL, $post_id ) ;
-	do_action( 'wpml_switch_language', $post_language['language_code'] );
-}
