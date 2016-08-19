@@ -211,7 +211,14 @@ class Jetpack_Sync_Defaults {
 		'snapFB',
 		'syndication_item_hash',
 		'phonenumber_spellings',
-		'tmac_last_id'
+		'tmac_last_id',
+		'opanda_imperessions',
+		'administer_stats',
+		'spec_ads_views',
+		'snp_views',
+		'mip_post_views_count',
+		'esml_socialcount_LAST_UPDATED',
+		'wprss_last_update_items',
 	);
 
 	// TODO: move this to server? - these are theme support values
