@@ -2,12 +2,13 @@
 
 /**
  * Module Name: Custom Content Types
- * Module Description: Organize and display different types of content on your site, separate from posts and pages.
+ * Module Description: Organize and display different types of content on your site.
  * First Introduced: 3.1
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Writing
  * Sort Order: 34
+ * Feature: Writing
  * Additional Search Queries: cpt, custom post types, portfolio, portfolios, testimonial, testimonials
  */
 

@@ -8,6 +8,9 @@ class MockJetpack extends Jetpack {
 
 class WP_Test_Jetpack extends WP_UnitTestCase {
 
+	static $activated_modules = array();
+	static $deactivated_modules = array();
+
 	/**
 	 * @author blobaugh
 	 * @covers Jetpack::init
@@ -116,10 +119,9 @@ EXPECTED;
 		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
 
 		// Mock get_cloud_site_options
-		$jp	= $this->getMock(
-			'MockJetpack',
-			array( 'get_cloud_site_options' )
-		);
+		$jp	= $this->getMockBuilder( 'MockJetpack' )
+			->setMethods( array( 'get_cloud_site_options' ) )
+			->getMock();
 
 		$jp->init();
 		Jetpack::$instance = $jp;
@@ -169,6 +171,10 @@ EXPECTED;
 
 		add_filter( 'jetpack_implode_frontend_css', '__return_true' );
 
+		if ( ! file_exists( plugins_url( 'jetpack-carousel.css', __FILE__ ) ) ) {
+			$this->markTestSkipped( 'Required CSS file not found.' );
+		}
+
 		// Enqueue some script on the $to_dequeue list
 		$style_handle = 'jetpack-carousel';
 		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) );
@@ -200,10 +206,9 @@ EXPECTED;
 		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
 
 		// Mock get_cloud_site_options
-		$jp	= $this->getMock(
-			'MockJetpack',
-			array( 'get_cloud_site_options' )
-		);
+		$jp	= $this->getMockBuilder( 'MockJetpack' )
+			->setMethods( array( 'get_cloud_site_options' ) )
+			->getMock();
 
 		$jp->init();
 		Jetpack::$instance = $jp;
@@ -240,10 +245,9 @@ EXPECTED;
 		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
 
 		// Mock get_cloud_site_options
-		$jp = $this->getMock(
-			'MockJetpack',
-			array( 'get_cloud_site_options' )
-		);
+		$jp = $this->getMockBuilder( 'MockJetpack' )
+		    ->setMethods( array( 'get_cloud_site_options' ) )
+		    ->getMock();
 
 		$jp->init();
 		Jetpack::$instance = $jp;
@@ -320,5 +324,53 @@ EXPECTED;
 		            "<link rel='dns-prefetch' href='//example3.com'>\r\n";
 
 		$this->assertEquals( $expected, str_replace( $remove_this, "\r\n", get_echo( array( 'Jetpack', 'dns_prefetch' ) ) ) );
+	}
+
+	public function test_activating_deactivating_modules_fires_actions() {
+		self::reset_tracking_of_module_activation();
+
+		add_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
+		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
+
+		Jetpack::update_active_modules( array( 'stats' ) );
+		Jetpack::update_active_modules( array( 'stats' ) );
+		Jetpack::update_active_modules( array( 'json-api' ) );
+		Jetpack::update_active_modules( array( 'json-api' ) );
+
+		$this->assertEquals( self::$activated_modules, array( 'stats', 'json-api' ) );
+		$this->assertEquals(  self::$deactivated_modules, array( 'stats' ) );
+
+		remove_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
+		remove_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
+	}
+
+	public function test_activating_deactivating_modules_fires_specific_actions() {
+		self::reset_tracking_of_module_activation();
+		add_action( 'jetpack_activate_module_stats', array( __CLASS__, 'track_activated_modules' ) );
+		add_action( 'jetpack_deactivate_module_stats', array( __CLASS__, 'track_deactivated_modules' ) );
+
+		Jetpack::update_active_modules( array( 'stats' ) );
+		Jetpack::update_active_modules( array( 'stats' ) );
+		Jetpack::update_active_modules( array( 'json-api' ) );
+		Jetpack::update_active_modules( array( 'json-api' ) );
+
+		$this->assertEquals( self::$activated_modules, array( 'stats' ) );
+		$this->assertEquals(  self::$deactivated_modules, array( 'stats' ) );
+
+		remove_action( 'jetpack_activate_module_stats', array( __CLASS__, 'track_activated_modules' ) );
+		remove_action( 'jetpack_deactivate_module_stats', array( __CLASS__, 'track_deactivated_modules' ) );
+	}
+
+	static function reset_tracking_of_module_activation() {
+		self::$activated_modules = array();
+		self::$deactivated_modules = array();
+	}
+
+	static function track_activated_modules( $module ) {
+		self::$activated_modules[] = $module;
+	}
+
+	static function track_deactivated_modules( $module ) {
+		self::$deactivated_modules[] = $module;
 	}
 } // end class

@@ -143,13 +143,16 @@ class VideoPress_Player {
 	 * @return string HTML string or empty string if error
 	 */
 	public function asXML() {
-		if ( empty( $this->video ) || is_wp_error( $this->video ) )
+		if ( empty( $this->video ) || is_wp_error( $this->video ) ) {
 			return '';
+		}
 
-		if ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true )
-			$content = $this->html5_static();
-		else
+		if ( isset( $this->options['force_flash'] ) && true === $this->options['force_flash'] ) {
 			$content = $this->flash_embed();
+
+		} else {
+			$content = $this->html5_static();
+		}
 
 		return $this->html_wrapper( $content );
 	}
@@ -162,20 +165,29 @@ class VideoPress_Player {
 	public function asHTML() {
 		if ( empty( $this->video ) ) {
 			$content = '';
+
 		} elseif ( is_wp_error( $this->video ) ) {
 			$content = $this->error_message( $this->video );
-		} elseif ( isset( $this->options['force_flash'] ) && $this->options['force_flash'] === true ) {
+
+		} elseif ( isset( $this->options['force_flash'] ) && true === $this->options['force_flash'] ) {
 			$content = $this->flash_object();
-		} elseif ( isset( $this->video->restricted_embed ) && $this->video->restricted_embed === true ) {
-			if( $this->options['forcestatic'] )
+
+		} elseif ( isset( $this->video->restricted_embed ) && true === $this->video->restricted_embed ) {
+
+			if ( $this->options['forcestatic'] ) {
 				$content = $this->flash_object();
-			else
+
+			} else {
 				$content = $this->html5_dynamic();
-		} elseif ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true ) {
+			}
+
+		} elseif ( isset( $this->options['freedom'] ) && true === $this->options['freedom'] ) {
 			$content = $this->html5_static();
+
 		} else {
 			$content = $this->html5_dynamic();
 		}
+
 		return $this->html_wrapper( $content );
 	}
 

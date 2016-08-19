@@ -329,15 +329,13 @@ abstract class Sharing_Source {
 		$opts = implode( ',', $opts );
 		?>
 		<script type="text/javascript">
-			var windowOpen;
-		jQuery(document).on( 'ready post-load', function(){
-			jQuery( 'a.share-<?php echo $name; ?>' ).on( 'click', function() {
-				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
-					windowOpen.close();
-				}
-				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
-				return false;
-			});
+		var windowOpen;
+		jQuery(document.body).on('click', 'a.share-<?php echo $name; ?>', function() {
+			if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+				windowOpen.close();
+			}
+			windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
+			return false;
 		});
 		</script>
 		<?php
@@ -512,7 +510,7 @@ class Share_Email extends Sharing_Source {
 			?>
 
 			<img style="float: right; display: none" class="loading" src="<?php
-			/** This filter is documented in modules/shortcodes/audio.php */
+			/** This filter is documented in modules/stats.php */
 			echo apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ); ?>" alt="loading" width="16" height="16" />
 			<input type="submit" value="<?php esc_attr_e( 'Send Email', 'jetpack' ); ?>" class="sharing_send" />
 			<a rel="nofollow" href="#cancel" class="sharing_cancel"><?php _e( 'Cancel', 'jetpack' ); ?></a>
@@ -828,7 +826,7 @@ class Share_LinkedIn extends Sharing_Source {
 		} else {
 			?><script type="text/javascript">
 			jQuery( document ).ready( function() {
-			    jQuery.getScript( '//platform.linkedin.com/in.js?async=true', function success() {
+			    jQuery.getScript( 'https://platform.linkedin.com/in.js?async=true', function success() {
 			        IN.init();
 			    });
 			});
@@ -961,7 +959,7 @@ class Share_Facebook extends Sharing_Source {
 				$fb_app_id = '';
 			}
 			?><div id="fb-root"></div>
-			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1<?php echo $fb_app_id; ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
+			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = 'https://connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1<?php echo $fb_app_id; ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
 			<script>
 			jQuery( document.body ).on( 'post-load', function() {
 				if ( 'undefined' !== typeof FB ) {
@@ -1366,7 +1364,7 @@ class Share_Tumblr extends Sharing_Source {
 			if ( true == $this->open_link_in_new )
 				$target = '_blank';
 
-			return '<a target="' . $target . '" href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" title="' . __( 'Share on Tumblr', 'jetpack' ) . '" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'//platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">' . __( 'Share on Tumblr', 'jetpack' ) . '</a>';
+			return '<a target="' . $target . '" href="https://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" title="' . __( 'Share on Tumblr', 'jetpack' ) . '" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'https://platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">' . __( 'Share on Tumblr', 'jetpack' ) . '</a>';
 		 } else {
 			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Tumblr', 'share to', 'jetpack' ), __( 'Click to share on Tumblr', 'jetpack' ), 'share=tumblr' );
 		}
@@ -1377,14 +1375,14 @@ class Share_Tumblr extends Sharing_Source {
 		parent::process_request( $post, $post_data );
 
 		// Redirect to Tumblr's sharing endpoint (a la their bookmarklet)
-		$url = 'http://www.tumblr.com/share?v=3&u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '&s=';
+		$url = 'https://www.tumblr.com/share?v=3&u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '&s=';
 		wp_redirect( $url );
 		die();
 	}
 	// http://www.tumblr.com/share?v=3&u=URL&t=TITLE&s=
 	public function display_footer() {
 		if ( $this->smart ) {
-			?><script type="text/javascript" src="//platform.tumblr.com/v1/share.js"></script><?php
+			?><script type="text/javascript" src="https://platform.tumblr.com/v1/share.js"></script><?php
 		} else {
 			$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
 		}
@@ -1518,7 +1516,7 @@ class Share_Pinterest extends Sharing_Source {
 			</script>
 		<?php elseif ( 'buttonPin' != $this->get_widget_type() ) : ?>
 			<script type="text/javascript">
-				jQuery(document).on('ready', function(){
+				jQuery(document).ready( function(){
 					jQuery('body').on('click', 'a.share-pinterest', function(e){
 						e.preventDefault();
 						// Load Pinterest Bookmarklet code
@@ -1590,7 +1588,7 @@ class Share_Pocket extends Sharing_Source {
 		function jetpack_sharing_pocket_init() {
 			jQuery.getScript( 'https://widgets.getpocket.com/v1/j/btn.js?v=1' );
 		}
-		jQuery( document ).on( 'ready', jetpack_sharing_pocket_init );
+		jQuery( document ).ready( jetpack_sharing_pocket_init );
 		jQuery( document.body ).on( 'post-load', jetpack_sharing_pocket_init );
 		</script>
 		<?php
@@ -1600,6 +1598,49 @@ class Share_Pocket extends Sharing_Source {
 
 	}
 
+}
+
+class Share_Telegram extends Sharing_Source {
+	public $shortname = 'telegram';
+
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+	}
+
+	public function get_name() {
+		return __( 'Telegram', 'jetpack' );
+	}
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+		$telegram_url = esc_url_raw( 'https://telegram.me/share/url?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&text=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
+		wp_redirect( $telegram_url );
+		exit;
+	}
+
+	public function get_display( $post ) {
+		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram' );
+	}
+
+	function display_footer() {
+		$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
+	}
+}
+
+class Jetpack_Share_WhatsApp extends Sharing_Source {
+	public $shortname = 'jetpack-whatsapp';
+
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+	}
+
+	public function get_name() {
+		return __( 'WhatsApp', 'jetpack' );
+	}
+
+	public function get_display( $post ) {
+		return $this->get_link( 'whatsapp://send?text=' . rawurlencode( $this->get_share_title( $post->ID ) ) . ' ' . rawurlencode( $this->get_share_url( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
+	}
 }
 
 class Share_Skype extends Sharing_Source {

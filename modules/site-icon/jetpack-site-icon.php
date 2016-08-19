@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: Site Icon
-Plugin URL: http://wordpress.com/
+Plugin URL: https://wordpress.com/
 Description:  Add a site icon for your website.
 Version: 0.1
 Author: Automattic
@@ -71,7 +71,7 @@ class Jetpack_Site_Icon {
 
 		add_action( 'admin_print_styles-options-general.php', array( $this, 'add_general_options_styles' ) );
 
-		// Add the favicon to the front end and backend if Core's site icon not used.
+		// Add the favicon to the front end and back end if Core's site icon not used.
 		/**
 		 * As of WP 4.3 and JP 3.6, both are outputting the same icons so no need to fire these.
 		 * This is a temporary solution until Jetpack's module primary function is deprecated.

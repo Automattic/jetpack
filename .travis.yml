@@ -3,21 +3,18 @@
 # Tell Travis CI we're using PHP
 language: php
 
-# PHP version used in first build configuration.
-php:
-    - "5.6"
-
-# WordPress version used in first build configuration.
+# Setup a global environemnt and overide as needed
 env:
-    - WP_VERSION=master WP_TRAVISCI=travis:phpunit
+  global:
+    - WP_TRAVISCI=phpunit
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
 
 # Test WP trunk/master and two latest versions on minimum (5.2).
-# Test WP latest two versions (4.4, 4.4) on most popular (5.5, 5.6).
-# Test WP latest stable (4.4) on other supported PHP (5.3, 5.4).
+# Test WP latest two versions (4.5, 4.3) on most popular (5.5, 5.6).
+# Test WP latest stable (4.5) on other supported PHP (5.3, 5.4).
 # Test WP trunk/master on edge platforms (7.0, hhvm, PHP nightly).
 
 # WP_VERSION specifies the tag to use. The way these tests are configured to run
@@ -25,61 +22,50 @@ env:
 
 matrix:
   include:
-   - php: "5.6"
-     env: WP_VERSION=4.4 WP_TRAVISCI=travis:js
-   - php: "5.2"
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   - php: "5.2"
-     env: WP_VERSION=4.3 WP_TRAVISCI=travis:phpunit
-   - php: "5.2"
-     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
-   - php: "5.3"
-     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
-   - php: "5.4"
-     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
-   - php: "5.5"
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   - php: "5.5"
-     env: WP_VERSION=4.3 WP_TRAVISCI=travis:phpunit
-   - php: "5.5"
-     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
-     # 5.6 / master already included above as first build.
-   - php: "5.6"
-     env: WP_VERSION=4.3 WP_TRAVISCI=travis:phpunit
-   - php: "5.6"
-     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
-   - php: "7.0"
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   - php: hhvm
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   - php: "nightly"
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-  allow_failures:
-   - php: "hhvm"
-   - php: "nightly"
+  - php: "5.6"
+    env: WP_TRAVISCI="npm run test-client"
+  - php: "5.2"
+  - php: "5.3"
+  - php: "5.5"
+  - php: "5.6"
+  - php: "7.0"
+#
+#  - php: hhvm
+#    env: WP_VERSION=master
+#    sudo: required
+#    dist: trusty
+#    group: edge
+#    addons:
+#      apt:
+#        packages:
+#        - mysql-server-5.6
+#        - mysql-client-core-5.6
+#        - mysql-client-5.6
+
+#
+# Allow failure tests did not prove that useful, but we might bring them back
+# so leaving this here as a reminder
+#
+#  allow_failures:
+#  - php: "hhvm"
+#  - php: "nightly"
+
+# whitelist branches for the "push" build check.
+branches:
+  only:
+    - master
+    - master-stable
+    - /^branch-.*$/
 
 # Clones WordPress and configures our testing environment.
 before_script:
+    - phpenv config-rm xdebug.ini
+    - source ~/.nvm/nvm.sh && nvm install 5
     - export PLUGIN_SLUG=$(basename $(pwd))
-    - git clone --depth=1 --branch $WP_VERSION git://develop.git.wordpress.org/ /tmp/wordpress
-# - git clone . "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - cd ..
-    - mv $PLUGIN_SLUG "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - cd /tmp/wordpress
-    - git checkout $WP_VERSION
-    - mysql -e "CREATE DATABASE wordpress_tests;" -uroot
-    - cp wp-tests-config-sample.php wp-tests-config.php
-    - sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
-    - sed -i "s/yourusernamehere/travis/" wp-tests-config.php
-    - sed -i "s/yourpasswordhere//" wp-tests-config.php
-    - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - gem install sass
-    - gem install compass
-    - npm install -g npm
-    - npm install -g grunt-cli
-    - npm install
+    - ./tests/prepare-wordpress.sh
 
-script: grunt $WP_TRAVISCI
+script:
+    - ./tests/run-travis.sh
 
 sudo: false
 
@@ -97,3 +83,7 @@ notifications:
        - kraft@automattic.com
        # Encrypted Slack notification address.
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
+
+addons:
+  code_climate:
+    repo_token: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8

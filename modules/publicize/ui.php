@@ -322,7 +322,7 @@ class Publicize_UI {
 <script type="text/javascript">
 jQuery( function($) {
 	var wpasTitleCounter    = $( '#wpas-title-counter' ),
-		wpasTwitterCheckbox = $( '.wpas-submit-twitter' ).size(),
+		wpasTwitterCheckbox = $( '.wpas-submit-twitter' ).length,
 		wpasTitle = $('#wpas-title').keyup( function() {
 		var length = wpasTitle.val().length;
 		wpasTitleCounter.text( length );
@@ -348,7 +348,7 @@ jQuery( function($) {
 		$('#publicize-form').slideDown( 'fast', function() {
 			wpasTitle.focus();
 			if ( !wpasTitle.text() ) {
-				var url = $('#shortlink').size() ? $('#shortlink').val() : '';
+				var url = $('#shortlink').length ? $('#shortlink').val() : '';
 
 				var defaultMessage = $.trim( '<?php printf( $default_prefix, 'url' ); printf( $default_message, '$("#title").val()', 'url' ); printf( $default_suffix, 'url' ); ?>' );
 

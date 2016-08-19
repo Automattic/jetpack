@@ -55,19 +55,19 @@ function jetpack_og_tags() {
 	$description_length = 197;
 
 	if ( is_home() || is_front_page() ) {
-		$site_type              = get_option( 'open_graph_protocol_site_type' );
+		$site_type              = Jetpack_Options::get_option_and_ensure_autoload( 'open_graph_protocol_site_type', '' );
 		$tags['og:type']        = ! empty( $site_type ) ? $site_type : 'website';
 		$tags['og:title']       = get_bloginfo( 'name' );
 		$tags['og:description'] = get_bloginfo( 'description' );
 
 		$front_page_id = get_option( 'page_for_posts' );
-		if ( $front_page_id && is_home() )
+		if ( 'page' == get_option( 'show_on_front' ) && $front_page_id && is_home() )
 			$tags['og:url'] = get_permalink( $front_page_id );
 		else
 			$tags['og:url'] = home_url( '/' );
 
 		// Associate a blog's root path with one or more Facebook accounts
-		$facebook_admins = get_option( 'facebook_admins' );
+		$facebook_admins = Jetpack_Options::get_option_and_ensure_autoload( 'facebook_admins', array() );
 		if ( ! empty( $facebook_admins ) )
 			$tags['fb:admins'] = $facebook_admins;
 

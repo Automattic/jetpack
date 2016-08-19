@@ -565,6 +565,7 @@ new Jetpack_JSON_API_Core_Endpoint( array(
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-sync-endpoint.php' );
 
+// POST /sites/%s/sync
 new Jetpack_JSON_API_Sync_Endpoint( array(
 	'description'     => 'Force sync of all options and constants',
 	'method'          => 'POST',
@@ -573,10 +574,127 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
+	'request_format' => array(
+		'modules'  => '(string) Comma-delimited set of sync modules to use (default: all of them)',
+		'posts'    => '(string) Comma-delimited list of post IDs to sync',
+		'comments' => '(string) Comma-delimited list of comment IDs to sync',
+		'users'    => '(string) Comma-delimited list of user IDs to sync',
+	),
 	'response_format' => array(
 		'scheduled' => '(bool) Whether or not the synchronisation was scheduled'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
+) );
+
+// GET /sites/%s/sync/status
+new Jetpack_JSON_API_Sync_Status_Endpoint( array(
+	'description'     => 'Status of the current full sync or the previous full sync',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/sync/status',
+	'stat'            => 'sync-status',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'started' => '(int|null) The unix timestamp when the last sync started',
+		'queue_finished' => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
+		'sent_started' => '(int|null) The unix timestamp when the last sent process started',
+		'finished' => '(int|null) The unix timestamp when the last sync finished',
+		'total'  => '(array) Count of actions that could be sent',
+		'queue'  => '(array) Count of actions that have been added to the queue',
+		'sent'  => '(array) Count of actions that have been sent',
+		'config' => '(array) Configuration of the last full sync',
+		'queue_size' => '(int) Number of items in the  sync queue',
+		'queue_lag' => '(float) Time delay of the oldest item in the sync queue',
+		'full_queue_size' => '(int) Number of items in the full sync queue',
+		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue',
+		'is_scheduled' => '(bool) Is a full sync scheduled via cron?'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
+) );
+
+
+// GET /sites/%s/data-checksums
+new Jetpack_JSON_API_Sync_Check_Endpoint( array(
+	'description'     => 'Check that cacheable data on the site is in sync with wordpress.com',
+	'group'           => '__do_not_document',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/data-checksums',
+	'stat'            => 'data-checksums',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'posts' => '(string) Posts checksum',
+		'comments' => '(string) Comments checksum',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/data-checksums'
+) );
+
+// GET /sites/%s/data-histogram
+new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
+	'description'     => 'Get a histogram of checksums for certain synced data',
+	'group'           => '__do_not_document',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/data-histogram',
+	'stat'            => 'data-histogram',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'query_parameters' => array(
+		'object_type' => '(string=posts) The type of object to checksum - posts, comments or options',
+		'buckets' => '(int=10) The number of buckets for the checksums',
+		'start_id' => '(int=0) Starting ID for the range',
+		'end_id' => '(int=null) Ending ID for the range',
+		'columns' => '(string) Columns to checksum',
+	),
+	'response_format' => array(
+		'histogram' => '(array) Associative array of histograms by ID range, e.g. "500-999" => "abcd1234"'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/data-histogram'
+) );
+
+$sync_settings_response = array(
+	'dequeue_max_bytes'    => '(int|bool=false) Maximum bytes to read from queue in a single request',
+	'sync_wait_time'       => '(int|bool=false) Wait time between requests in seconds if sync threshold exceeded',
+	'sync_wait_threshold'  => '(int|bool=false) If a request to WPCOM exceeds this duration, wait sync_wait_time seconds before sending again',
+	'upload_max_bytes'     => '(int|bool=false) Maximum bytes to send in a single request',
+	'upload_max_rows'      => '(int|bool=false) Maximum rows to send in a single request',
+	'max_queue_size'       => '(int|bool=false) Maximum queue size that that the queue is allowed to expand to in DB rows to prevent the DB from filling up. Needs to also meet the max_queue_lag limit.',
+	'max_queue_lag'        => '(int|bool=false) Maximum queue lag in seconds used to prevent the DB from filling up. Needs to also meet the max_queue_size limit.',
+	'queue_max_writes_sec' => '(int|bool=false) Maximum writes per second to allow to the queue during full sync.',
+	'post_types_blacklist' => '(array|string|bool=false) List of post types to exclude from sync. Send "empty" to unset.',
+	'meta_blacklist'       => '(array|string|bool=false) List of meta keys to exclude from sync. Send "empty" to unset.',
+	'disable'              => '(int|bool=false) Set to 1 or true to disable sync entirely.',
+);
+
+// GET /sites/%s/sync/settings
+new Jetpack_JSON_API_Sync_Get_Settings_Endpoint( array(
+	'description'     => 'Update sync settings',
+	'method'          => 'GET',
+	'group'           => '__do_not_document',
+	'path'            => '/sites/%s/sync/settings',
+	'stat'            => 'write-sync-settings',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => $sync_settings_response,
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/settings'
+) );
+
+// POST /sites/%s/sync/settings
+new Jetpack_JSON_API_Sync_Modify_Settings_Endpoint( array(
+	'description'     => 'Update sync settings',
+	'method'          => 'POST',
+	'group'           => '__do_not_document',
+	'path'            => '/sites/%s/sync/settings',
+	'stat'            => 'write-sync-settings',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => $sync_settings_response,
+	'response_format' => $sync_settings_response,
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/settings'
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );

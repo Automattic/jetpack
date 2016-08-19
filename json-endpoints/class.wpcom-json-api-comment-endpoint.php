@@ -81,6 +81,8 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				&&
 					isset( $this->api->token_details['user'] )
 				&&
+					isset( $this->api->token_details['user']['user_email'] )
+				&&
 					$this->api->token_details['user']['user_email'] === $comment->comment_author_email
 				&&
 					$this->api->token_details['user']['display_name'] === $comment->comment_author

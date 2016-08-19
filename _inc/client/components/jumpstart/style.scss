@@ -1,0 +1,146 @@
+.jp-jumpstart {
+	text-align: center;
+
+	@include breakpoint( "<660px" ) {
+		text-align: left;
+	}
+}
+
+.jp-jumpstart__cta-container {
+	position: relative; // allows spinner to be positioned
+	padding: 0;
+
+	.dops-spinner {
+		display: flex;
+		justify-content: center;
+		position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+		background: rgba(255, 255, 255, .85);
+		z-index: 1001;
+	}
+	.dops-spinner__image {
+		align-self: center;
+	}
+}
+
+.jp-jumpstart__cta {
+	margin-bottom: 0;
+}
+
+.jp-jumpstart__cta-container {
+	padding: 0;
+}
+
+.jp-jumpstart__cta {
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+.jp-jumpstart__title {
+	font-weight: 400;
+	text-align: center;
+}
+
+.jp-jumpstart__description {
+	margin-top: 0;
+	padding: 0 rem( 16px ) rem( 16px );
+	font-size: rem( 16px );
+
+	@include breakpoint( "<660px" ) {
+		padding: 0 0 rem( 16px );
+	}
+}
+
+.jp-jumpstart__features {
+	margin: 0;
+	padding: rem( 16px );
+
+	// overriding general FoldableCard styles for special use here
+	&.dops-foldable-card {
+		box-shadow: none;
+	}
+
+	&.dops-foldable-card.is-expanded {
+		margin-bottom: 0;
+	}
+
+	.dops-foldable-card__header,
+	&.dops-foldable-card.is-expanded .dops-foldable-card__header {
+		min-height: auto;
+	}
+
+	.dops-foldable-card__main {
+		max-width: 100%;
+		margin-right: 0;
+	}
+
+	.dops-foldable-card__secondary {
+		display: none;
+	}
+
+	.dops-foldable-card__subheader {
+		color: $blue-wordpress;
+		font-style: italic;
+	}
+
+	.dops-foldable-card__content {
+		background-color: lighten( $gray, 35% );
+	}
+}
+
+.jp-jumpstart__feature-list {
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+
+	@include breakpoint( "<660px" ) {
+		margin: rem( -8px ) rem( -16px ) 0; // to avoid altering multiple other elements
+	}
+}
+
+.jp-jumpstart__feature-list-column {
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+	text-align: left;
+	background: $white;
+
+	@include breakpoint( ">660px" ) { 
+		flex-grow: 1;
+		flex-shrink: 0;
+		flex-basis: 50%;
+
+		&:last-of-type {
+			margin-top: 1px;
+			max-width: 49.9%;
+		}
+	}
+
+	@include breakpoint( "<660px" ) { 
+		flex-basis: 100%;
+	}
+}
+
+.jp-jumpstart__feature-content {
+	padding: rem( 16px );
+}
+
+.jp-jumpstart__feature-content-title {
+	margin: 0;
+}
+
+.jp-jumpstart__note {
+	margin: 0;
+	padding: rem( 16px ) 0 0;
+	font-size: rem( 14px );
+	clear: both;
+	font-style: italic;
+}
+
+.jp-jumpstart__skip-step {
+	font-style: italic;
+	cursor: pointer;
+}

@@ -24,25 +24,17 @@ class Jetpack_Admin {
 	private function __construct() {
 		$this->jetpack = Jetpack::init();
 
-		jetpack_require_lib( 'admin-pages/class.jetpack-landing-page' );
-		$this->landing_page = new Jetpack_Landing_Page;
+		jetpack_require_lib( 'admin-pages/class.jetpack-react-page' );
+		$this->jetpack_react = new Jetpack_React_Page;
 
 		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
-		$this->settings_page = new Jetpack_Settings_Page;
+		$this->fallback_page = new Jetpack_Settings_Page;
 
-		jetpack_require_lib( 'admin-pages/class.jetpack-my-jetpack-page' );
-		$this->my_jetpack_page = new Jetpack_My_Jetpack_Page;
-
-		if ( isset( $_POST['jetpack-set-master-user'] ) ) {
-			add_action( 'init', array( $this->my_jetpack_page, 'jetpack_my_jetpack_change_user' ) );
-		}
-
-		// Add hooks for admin menus
-		add_action( 'admin_menu',                    array( $this->landing_page, 'add_actions' ), 998 );
+		add_action( 'admin_menu',                    array( $this->jetpack_react, 'add_actions' ), 998 );
+		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
+		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
-		add_action( 'jetpack_admin_menu',            array( $this->settings_page, 'add_actions' ) );
-		add_action( 'jetpack_admin_menu',            array( $this->my_jetpack_page, 'add_actions' ) );
-
+		add_action( 'jetpack_admin_menu',            array( $this->fallback_page, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules
 		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ), 10, 2 );

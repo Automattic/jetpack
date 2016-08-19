@@ -1,0 +1,17 @@
+{
+	"state": {
+		"modules": {
+			"test": [ "reducer", "selectors" ]
+		},
+		"settings": {
+			"test": [ "reducer", "selectors" ]
+		},
+		"jumpstart": {
+			"test": [ "reducer", "selectors" ]
+		},
+		"connection": {
+			"test": [ "reducer", "selectors" ]
+		}
+	}
+
+}

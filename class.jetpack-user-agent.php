@@ -1,47 +1,84 @@
 <?php
 
+/**
+ * Determine if the current User Agent matches the passed $kind
+ *
+ * @param string $kind Category of mobile device to check for.
+ *                         Either: any, dumb, smart.
+ * @param bool   $return_matched_agent Boolean indicating if the UA should be returned
+ *
+ * @return bool|string Boolean indicating if current UA matches $kind. If
+ *                              $return_matched_agent is true, returns the UA string
+ */
 function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
-	static $kinds = array( 'smart' => false, 'dumb' => false, 'any' => false );
-	static $first_run = true;
+	static $kinds         = array( 'smart' => false, 'dumb' => false, 'any' => false );
+	static $first_run     = true;
 	static $matched_agent = '';
+
+	if ( function_exists( 'apply_filters' ) ) {
+		/**
+		 * Filter the value of jetpack_is_mobile before it is calculated.
+		 *
+		 * Passing a truthy value to the filter will short-circuit determining the
+		 * mobile type, returning the passed value instead.
+		 *
+		 * @since  4.2.0
+		 *
+		 * @param bool|string $matches Boolean if current UA matches $kind or not. If
+		 *                             $return_matched_agent is true, should return the UA string
+		 * @param string      $kind Category of mobile device being checked
+		 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
+		 */
+		$pre = apply_filters( 'pre_jetpack_is_mobile', null, $kind, $return_matched_agent );
+
+		if ( null !== $pre ) {
+			return $pre;
+		}
+	}
 
 	$ua_info = new Jetpack_User_Agent_Info();
 
-	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) )
+	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) ) {
 		return false;
+	}
 
 	// Remove Samsung Galaxy tablets (SCH-I800) from being mobile devices
-	if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ) , 'sch-i800') )
+	if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ) , 'sch-i800') ) {
 		return false;
+	}
 
-	if( $ua_info->is_android_tablet() &&  $ua_info->is_kindle_touch() === false )
+	if( $ua_info->is_android_tablet() &&  $ua_info->is_kindle_touch() === false ) {
 		return false;
+	}
 
-	if( $ua_info->is_blackberry_tablet() )
+	if( $ua_info->is_blackberry_tablet() ) {
 		return false;
+	}
 
 	if ( $first_run ) {
 		$first_run = false;
 
 		//checks for iPhoneTier devices & RichCSS devices
 		if ( $ua_info->isTierIphone() || $ua_info->isTierRichCSS() ) {
-			 $kinds['smart'] = true;
-		     $matched_agent = $ua_info->matched_agent;
+			$kinds['smart'] = true;
+			$matched_agent  = $ua_info->matched_agent;
 		}
 
-		if ( !$kinds['smart'] ) {
+		if ( ! $kinds['smart'] ) {
 			// if smart, we are not dumb so no need to check
 			$dumb_agents = $ua_info->dumb_agents;
-			$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+			$agent       = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+
 			foreach ( $dumb_agents as $dumb_agent ) {
 				if ( false !== strpos( $agent, $dumb_agent ) ) {
 					$kinds['dumb'] = true;
 					$matched_agent = $dumb_agent;
+
 					break;
 				}
 			}
 
-			if ( !$kinds['dumb'] ) {
+			if ( ! $kinds['dumb'] ) {
 				if ( isset( $_SERVER['HTTP_X_WAP_PROFILE'] ) ) {
 					$kinds['dumb'] = true;
 					$matched_agent = 'http_x_wap_profile';
@@ -52,14 +89,32 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 			}
 		}
 
-		if ( $kinds['dumb'] || $kinds['smart'] )
+		if ( $kinds['dumb'] || $kinds['smart'] ) {
 			$kinds['any'] = true;
+		}
 	}
 
-	if ( $return_matched_agent )
-		return $matched_agent;
+	$value = $kinds[ $kind ];
 
-	return $kinds[$kind];
+	if ( $return_matched_agent ) {
+		$value = $matched_agent;
+	}
+
+	if ( function_exists( 'apply_filters' ) ) {
+		/**
+		 * Filter the value of jetpack_is_mobile
+		 *
+		 * @since  4.2.0
+		 *
+		 * @param bool|string $matches Boolean if current UA matches $kind or not. If
+		 *                             $return_matched_agent is true, should return the UA string
+		 * @param string      $kind Category of mobile device being checked
+		 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
+		 */
+		$value = apply_filters( 'jetpack_is_mobile', $value, $kind, $return_matched_agent );
+	}
+
+	return $value;
 }
 
 class Jetpack_User_Agent_Info {

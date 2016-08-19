@@ -47,7 +47,7 @@ class Jetpack_Testimonial {
 		// Check on theme switch if theme supports CPT and setting is disabled
 		add_action( 'after_switch_theme', array( $this, 'activation_post_type_support' ) );
 
-		$setting = get_option( self::OPTION_NAME, '0' );
+		$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
 
 		// Bail early if Testimonial option is not set and the theme doesn't declare support
 		if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {
@@ -470,7 +470,7 @@ class Jetpack_Testimonial {
 		) );
 		$wp_customize->add_control( 'jetpack_testimonials[page-title]', array(
 			'section' => 'jetpack_testimonials',
-			'label'   => esc_html__( 'Testimonial Page Title', 'jetpack' ),
+			'label'   => esc_html__( 'Testimonial Archive Title', 'jetpack' ),
 			'type'    => 'text',
 		) );
 
@@ -482,7 +482,7 @@ class Jetpack_Testimonial {
 		$wp_customize->add_control( new Jetpack_Testimonial_Textarea_Control( $wp_customize, 'jetpack_testimonials[page-content]', array(
 			'section'  => 'jetpack_testimonials',
 			'settings' => 'jetpack_testimonials[page-content]',
-			'label'    => esc_html__( 'Testimonial Page Content', 'jetpack' ),
+			'label'    => esc_html__( 'Testimonial Archive Content', 'jetpack' ),
 		) ) );
 
 		$wp_customize->add_setting( 'jetpack_testimonials[featured-image]', array(
@@ -493,7 +493,7 @@ class Jetpack_Testimonial {
 		) );
 		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
 			'section' => 'jetpack_testimonials',
-			'label'   => esc_html__( 'Testimonial Page Featured Image', 'jetpack' ),
+			'label'   => esc_html__( 'Testimonial Archive Featured Image', 'jetpack' ),
 		) ) );
 
 		// The featured image control doesn't display properly in the Customizer unless we coerce

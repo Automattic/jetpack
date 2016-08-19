@@ -474,6 +474,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	opacity: 0.2;
 	position: absolute;
 	top: 0;
+	left: 0;
 	width: 100%;
 }
 

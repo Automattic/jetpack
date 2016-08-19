@@ -31,7 +31,7 @@ function jetpack_verification_options_init() {
 add_action( 'admin_init', 'jetpack_verification_options_init' );
 
 function jetpack_verification_print_meta() {
-	$verification_services_codes = get_option( 'verification_services_codes' );
+	$verification_services_codes =  Jetpack_Options::get_option_and_ensure_autoload( 'verification_services_codes', '0' );
 	if ( is_array( $verification_services_codes ) ) {
 		$ver_output = "<!-- Jetpack Site Verification Tags -->\n";
 		foreach ( jetpack_verification_services() as $name => $service ) {
@@ -101,7 +101,7 @@ function jetpack_verification_options_form() {
 	foreach ( jetpack_verification_services() as $key => $service ) {
 		echo "<div class='jp-verification-service'>
 				<h4>" . esc_html( $service['name'] ) . "</h4>
-					<input value='" . esc_attr( $verification_services_codes["$key"] ) . "' name='verification_services_codes[" . esc_attr( $key ) . "]' type='text' />
+					<input value='" . esc_attr( isset( $verification_services_codes[ $key ] ) ? $verification_services_codes[ $key ] : '' ) . "' name='verification_services_codes[" . esc_attr( $key ) . "]' type='text' />
 				<small>
 					<label for='verification_services_codes[" . esc_attr( $key ) . "]'>" . esc_html( __( 'Example:' , 'jetpack' ) ) . " <span>&lt;meta name='" . esc_attr( $service['key'] ) . "' content='<strong>" . esc_attr( $service['format'] ) . "</strong>'&gt;</span></label>
 				</small>

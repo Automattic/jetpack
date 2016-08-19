@@ -245,8 +245,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( 'text' != $display ) {
 			$get_image_options = array(
 				'fallback_to_avatars' => true,
-				/** This filter is documented in modules/shortcodes/audio.php */
-				'gravatar_default' => apply_filters( 'jetpack_static_url', set_url_scheme( 'http://en.wordpress.com/i/logo/white-gray-80.png' ) ),
+				/** This filter is documented in modules/stats.php */
+				'gravatar_default' => apply_filters( 'jetpack_static_url', set_url_scheme( 'https://en.wordpress.com/i/logo/white-gray-80.png' ) ),
 			);
 			if ( 'grid' == $display ) {
 				$get_image_options['avatar_size'] = 200;
@@ -450,6 +450,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		/**
 		 * Filter the number of days used to calculate Top Posts for the Top Posts widget.
+		 * We do not recommend accessing more than 10 days of results at one.
+		 * When more than 10 days of results are accessed at once, results should be cached via the WordPress transients API.
+		 * Querying for -1 days will give results for an infinite number of days.
 		 *
 		 * @module widgets
 		 *
@@ -460,12 +463,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 */
 		$days = (int) apply_filters( 'jetpack_top_posts_days', 2, $args );
 
-		if ( $days < 1 ) {
+		/** Handling situations where the number of days makes no sense - allows for unlimited days where $days = -1 */
+		if ( 0 == $days || false == $days ) {
 			$days = 2;
-		}
-
-		if ( $days > 10 ) {
-			$days = 10;
 		}
 
 		$post_view_posts = stats_get_csv( 'postviews', array( 'days' => absint( $days ), 'limit' => 11 ) );
