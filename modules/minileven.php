@@ -129,6 +129,8 @@ function minileven_enabled( $wp_mobile_disable_option ) {
 	return true;
 }
 
-add_filter( 'option_wp_mobile_disable', 'minileven_enabled' );
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	add_filter( 'option_wp_mobile_disable', 'minileven_enabled' );
+}
 
 jetpack_load_minileven();
