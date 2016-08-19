@@ -47,7 +47,6 @@ let state = {
 };
 
 describe( 'requests selectors', () => {
-
 	describe( '#isFetchingModulesList', () => {
 		it( 'should return state.jetpack.modules.requests.fetchingModulesList', () => {
 			const stateIn = state;
@@ -79,8 +78,6 @@ describe( 'requests selectors', () => {
 			expect( output ).to.be.true;
 		} );
 	} );
-
-
 } );
 
 describe( 'items selectors', () => {
@@ -107,5 +104,4 @@ describe( 'items selectors', () => {
 			expect( output ).to.eql( stateIn.jetpack.modules.items[ 'module-a' ].activated );
 		} );
 	} );
-
 } );
