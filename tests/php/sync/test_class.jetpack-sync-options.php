@@ -127,7 +127,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'comment_whitelist'                    => 'pineapple',
 			'comment_max_links'                    => 99,
 			'moderation_keys'                      => 'pineapple',
-			'lang_id'                              => 'pineapple',
 			'wga'                                  => 'pineapple',
 			'disabled_likes'                       => 'pineapple',
 			'disabled_reblogs'                     => 'pineapple',
