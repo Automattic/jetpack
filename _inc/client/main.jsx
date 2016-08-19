@@ -38,6 +38,7 @@ import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
+import AdminNotices from 'components/admin-notices';
 import SearchPage from 'search/index.jsx';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
@@ -170,6 +171,7 @@ const Main = React.createClass( {
 			<div>
 				<Masthead { ...this.props } />
 					<div className="jp-lower">
+						<AdminNotices { ...this.props } />
 						<JetpackNotices { ...this.props } />
 						{ this.renderMainContent( this.props.route.path ) }
 						{
