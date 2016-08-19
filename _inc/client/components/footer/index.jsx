@@ -38,7 +38,7 @@ export const Footer = React.createClass( {
 		const version = this.props.currentVersion;
 		const maybeShowReset = () => {
 			if ( this.props.isDevVersion ) {
-				return(
+				return (
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.props.resetOptions }

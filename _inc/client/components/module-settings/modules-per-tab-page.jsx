@@ -36,23 +36,23 @@ export const AllModuleSettings = React.createClass( {
 		let { module } = this.props;
 		switch ( module.module ) {
 			case 'post-by-email':
-				return( <PostByEmailSettings module={ module } { ...this.props } /> );
+				return ( <PostByEmailSettings module={ module } { ...this.props } /> );
 			case 'custom-content-types':
-				return( <CustomContentTypesSettings module={ module } { ...this.props } /> );
+				return ( <CustomContentTypesSettings module={ module } { ...this.props } /> );
 			case 'after-the-deadline':
-				return( <AfterTheDeadlineSettings module={ module } { ...this.props } /> );
+				return ( <AfterTheDeadlineSettings module={ module } { ...this.props } /> );
 			case 'markdown':
-				return( <MarkdownSettings module={ module } { ...this.props } /> );
+				return ( <MarkdownSettings module={ module } { ...this.props } /> );
 			case 'tiled-gallery':
-				return( <TiledGallerySettings module={ module } { ...this.props } /> );
+				return ( <TiledGallerySettings module={ module } { ...this.props } /> );
 			case 'minileven':
-				return( <MinilevenSettings module={ module } { ...this.props } /> );
+				return ( <MinilevenSettings module={ module } { ...this.props } /> );
 			case 'carousel':
-				return( <CarouselSettings module={ module } { ...this.props } /> );
+				return ( <CarouselSettings module={ module } { ...this.props } /> );
 			case 'infinite-scroll':
-				return( <InfiniteScrollSettings module={ module } { ...this.props } /> );
+				return ( <InfiniteScrollSettings module={ module } { ...this.props } /> );
 			case 'protect':
-				return( <ProtectSettings module={ module } { ...this.props } /> );
+				return ( <ProtectSettings module={ module } { ...this.props } /> );
 			case 'monitor':
 				return ( <MonitorSettings module={ module } { ...this.props } /> );
 			case 'scan':
@@ -72,7 +72,7 @@ export const AllModuleSettings = React.createClass( {
 			case 'sso':
 				return ( <SingleSignOnSettings module={ module } { ...this.props } /> );
 			case 'stats':
-				return( <StatsSettings module={ module } { ...this.props } /> );
+				return ( <StatsSettings module={ module } { ...this.props } /> );
 			case 'related-posts':
 				return ( <RelatedPostsSettings module={ module } { ...this.props } /> );
 			case 'comments':

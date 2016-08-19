@@ -14,7 +14,6 @@ import {
 } from 'components/forms';
 import Checkbox from 'components/checkbox';
 
-
 export const ModuleSettingCheckbox = React.createClass( {
 	render() {
 		const props = this.props;

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from'react';
+import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 
 /**

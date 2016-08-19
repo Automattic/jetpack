@@ -8,13 +8,11 @@ import SimpleNotice from 'components/notice';
 /**
  * Internal dependencies
  */
-import JetpackStateNotices from './state-notices';
 import {
 	getJetpackNotices as _getJetpackNotices
 } from 'state/jetpack-notices';
 import {
-	isNoticeDismissed as _isNoticeDismissed,
-	dismissJetpackNotice
+	isNoticeDismissed as _isNoticeDismissed
 } from 'state/jetpack-notices';
 
 export const StaticWarning = React.createClass( {

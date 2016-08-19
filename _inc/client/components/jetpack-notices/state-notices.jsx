@@ -36,7 +36,7 @@ const JetpackStateNotices = React.createClass( {
 
 		switch ( key ) {
 			case 'cheatin' :
-				message = __( "Cheatin' uh?" );
+				message = __( 'Cheatin\' uh?' );
 				break;
 			case 'access_denied' :
 				message = __( '{{p}}Would you mind telling us why you did not complete the Jetpack connection in this {{a}}2 question survey{{/a}}?{{/p}}' +
@@ -125,8 +125,8 @@ const JetpackStateNotices = React.createClass( {
 			case 'verify_secret_1_malformed' :
 			case 'verify_secrets_missing' :
 			case 'verify_secrets_mismatch' :
-				message = __( "{{s}}Your Jetpack has a glitch.{{/s}}  We're sorry for the inconvenience. " +
-					"Please try again later, if the issue continues please contact support with this message: %(error_key)s",
+				message = __( '{{s}}Your Jetpack has a glitch.{{/s}}  We\'re sorry for the inconvenience. ' +
+					'Please try again later, if the issue continues please contact support with this message: %(error_key)s',
 					{
 						components: {
 							s: <strong />

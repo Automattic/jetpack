@@ -211,7 +211,7 @@ const JetpackConnect = React.createClass( {
 					<p className="jp-jetpack-connect__description">
 						{ __(
 							'Join the millions of users who rely on Jetpack to enhance and secure their sites. ' +
-							"We’re passionate about WordPress and here to make your life easier."
+							'We\'re passionate about WordPress and here to make your life easier.'
 						) }
 					</p>
 					<ConnectButton />

@@ -27,7 +27,7 @@ import {
 	ModuleSettingMultipleSelectCheckboxes
 } from 'components/module-settings/form-components';
 
-import { ModuleSettingsForm } from 'components/module-settings/module-settings-form';
+import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 
 export let SharedaddySettings = React.createClass( {
 	render() {
@@ -45,7 +45,7 @@ export let SharedaddySettings = React.createClass( {
 	}
 } );
 
-SharedaddySettings = ModuleSettingsForm( SharedaddySettings );
+SharedaddySettings = moduleSettingsForm( SharedaddySettings );
 
 export let RelatedPostsSettings = React.createClass( {
 	renderPreviews() {
@@ -108,7 +108,7 @@ export let RelatedPostsSettings = React.createClass( {
 	}
 } );
 
-RelatedPostsSettings = ModuleSettingsForm( RelatedPostsSettings );
+RelatedPostsSettings = moduleSettingsForm( RelatedPostsSettings );
 
 export let LikesSettings = React.createClass( {
 	render() {
@@ -130,7 +130,7 @@ export let LikesSettings = React.createClass( {
 	}
 } );
 
-LikesSettings = ModuleSettingsForm( LikesSettings );
+LikesSettings = moduleSettingsForm( LikesSettings );
 
 export let CommentsSettings = React.createClass( {
 	render() {
@@ -163,7 +163,7 @@ export let CommentsSettings = React.createClass( {
 	}
 } );
 
-CommentsSettings = ModuleSettingsForm( CommentsSettings );
+CommentsSettings = moduleSettingsForm( CommentsSettings );
 
 export let SubscriptionsSettings = React.createClass( {
 	render() {
@@ -190,7 +190,7 @@ export let SubscriptionsSettings = React.createClass( {
 	}
 } );
 
-SubscriptionsSettings = ModuleSettingsForm( SubscriptionsSettings );
+SubscriptionsSettings = moduleSettingsForm( SubscriptionsSettings );
 
 export let StatsSettings = React.createClass( {
 	render() {
@@ -234,7 +234,7 @@ export let StatsSettings = React.createClass( {
 	}
 } );
 
-StatsSettings = ModuleSettingsForm( StatsSettings );
+StatsSettings = moduleSettingsForm( StatsSettings );
 
 export let ProtectSettings = React.createClass( {
 	render() {
@@ -260,7 +260,7 @@ export let ProtectSettings = React.createClass( {
 	}
 } );
 
-ProtectSettings = ModuleSettingsForm( ProtectSettings );
+ProtectSettings = moduleSettingsForm( ProtectSettings );
 
 export let MonitorSettings = React.createClass( {
 	render() {
@@ -291,7 +291,7 @@ export let MonitorSettings = React.createClass( {
 	}
 } );
 
-MonitorSettings = ModuleSettingsForm( MonitorSettings );
+MonitorSettings = moduleSettingsForm( MonitorSettings );
 
 export let SingleSignOnSettings = React.createClass( {
 	render() {
@@ -316,7 +316,7 @@ export let SingleSignOnSettings = React.createClass( {
 	}
 } );
 
-SingleSignOnSettings = ModuleSettingsForm( SingleSignOnSettings );
+SingleSignOnSettings = moduleSettingsForm( SingleSignOnSettings );
 
 export let CarouselSettings = React.createClass( {
 	render() {
@@ -345,7 +345,7 @@ export let CarouselSettings = React.createClass( {
 	}
 } );
 
-CarouselSettings = ModuleSettingsForm( CarouselSettings );
+CarouselSettings = moduleSettingsForm( CarouselSettings );
 
 export let InfiniteScrollSettings = React.createClass( {
 	render() {
@@ -370,7 +370,7 @@ export let InfiniteScrollSettings = React.createClass( {
 	}
 } );
 
-InfiniteScrollSettings = ModuleSettingsForm( InfiniteScrollSettings );
+InfiniteScrollSettings = moduleSettingsForm( InfiniteScrollSettings );
 
 export let MinilevenSettings = React.createClass( {
 	render() {
@@ -406,7 +406,7 @@ export let MinilevenSettings = React.createClass( {
 	}
  } );
 
-MinilevenSettings = ModuleSettingsForm( MinilevenSettings );
+MinilevenSettings = moduleSettingsForm( MinilevenSettings );
 
 export let GravatarHovercardsSettings = React.createClass( {
 	render() {
@@ -428,7 +428,7 @@ export let GravatarHovercardsSettings = React.createClass( {
 	}
 } );
 
-GravatarHovercardsSettings = ModuleSettingsForm( GravatarHovercardsSettings );
+GravatarHovercardsSettings = moduleSettingsForm( GravatarHovercardsSettings );
 
 export let VerificationToolsSettings = React.createClass( {
 	render() {
@@ -508,7 +508,7 @@ export let VerificationToolsSettings = React.createClass( {
 	}
 } );
 
-VerificationToolsSettings = ModuleSettingsForm( VerificationToolsSettings );
+VerificationToolsSettings = moduleSettingsForm( VerificationToolsSettings );
 
 export let TiledGallerySettings = React.createClass( {
 	render() {
@@ -530,7 +530,7 @@ export let TiledGallerySettings = React.createClass( {
 	}
 } );
 
-TiledGallerySettings = ModuleSettingsForm( TiledGallerySettings );
+TiledGallerySettings = moduleSettingsForm( TiledGallerySettings );
 
 export let PostByEmailSettings = React.createClass( {
 	regeneratePostByEmailAddress( event ) {
@@ -569,7 +569,7 @@ export let PostByEmailSettings = React.createClass( {
 	}
 } );
 
-PostByEmailSettings = ModuleSettingsForm( PostByEmailSettings );
+PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 
 export let CustomContentTypesSettings = React.createClass( {
 	render() {
@@ -594,7 +594,7 @@ export let CustomContentTypesSettings = React.createClass( {
 	}
 } );
 
-CustomContentTypesSettings = ModuleSettingsForm( CustomContentTypesSettings );
+CustomContentTypesSettings = moduleSettingsForm( CustomContentTypesSettings );
 
 export let AfterTheDeadlineSettings = React.createClass( {
 	render() {
@@ -690,7 +690,7 @@ export let AfterTheDeadlineSettings = React.createClass( {
 	}
 } );
 
-AfterTheDeadlineSettings = ModuleSettingsForm( AfterTheDeadlineSettings );
+AfterTheDeadlineSettings = moduleSettingsForm( AfterTheDeadlineSettings );
 
 export let MarkdownSettings = React.createClass( {
 	render() {
@@ -711,7 +711,7 @@ export let MarkdownSettings = React.createClass( {
 	}
 } );
 
-MarkdownSettings = ModuleSettingsForm( MarkdownSettings );
+MarkdownSettings = moduleSettingsForm( MarkdownSettings );
 
 export let SitemapsSettings = React.createClass( {
 	render() {
@@ -745,4 +745,4 @@ export let SitemapsSettings = React.createClass( {
 	}
 } );
 
-SitemapsSettings = ModuleSettingsForm( SitemapsSettings );
+SitemapsSettings = moduleSettingsForm( SitemapsSettings );
