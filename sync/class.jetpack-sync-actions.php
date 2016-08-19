@@ -141,7 +141,15 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
-	static function schedule_initial_sync() {
+	static function schedule_initial_sync( $new_version = null, $old_version = null ) {
+		if ( $old_version && ( version_compare( $old_version, '4.2', '>=' ) ) ) {
+			error_log( "$old_version: " . version_compare( $old_version, '4.2', '>=' ) );
+			return;
+		}
+
+		error_log("scheduling initial sync for old version $old_version and new version $new_version");
+
+
 		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
 		wp_functionality_constants();
@@ -282,4 +290,4 @@ class Jetpack_Sync_Actions {
 add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'schedule_initial_sync' ), 10 );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'schedule_initial_sync' ), 10, 2 );
