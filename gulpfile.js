@@ -169,18 +169,27 @@ function doStatic( done ) {
 			}
 		};
 
-		path = __dirname + '/_inc/build/static.js';
+		try {
+			path = __dirname + '/_inc/build/static.js';
 
-		delete require.cache[ path ]; // Making sure NodeJS requires this file every time this is called
-		require( path );
+			delete require.cache[ path ]; // Making sure NodeJS requires this file every time this is called
+			require( path );
 
-		fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
-		fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
-		fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
-		fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
+			fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
+			fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
+			fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
+			fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
 
-		if ( done ) {
-			done();
+			if ( done ) {
+				done();
+			}
+		} catch ( err ) {
+			util.log( util.colors.red( "doStatic errored" ) );
+			util.log( util.colors.red( err.stack ) );
+			if ( done ) {
+				done( err );
+
+			}
 		}
 
 	} );
