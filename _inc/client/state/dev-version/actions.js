@@ -26,7 +26,7 @@ export const resetOptions = ( options ) => {
 			} );
 			dispatch( removeNotice( 'reset-options' ) );
 			dispatch( createNotice( 'is-success', __( 'Options reset.' ), { id: 'reset-options' } ) );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: RESET_OPTIONS_FAIL,
 				error: error

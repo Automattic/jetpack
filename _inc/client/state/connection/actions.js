@@ -45,7 +45,7 @@ export const fetchConnectUrl = () => {
 				type: CONNECT_URL_FETCH_SUCCESS,
 				connectUrl: connectUrl
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: CONNECT_URL_FETCH_FAIL,
 				error: error
@@ -64,7 +64,7 @@ export const fetchUserConnectionData = () => {
 				type: USER_CONNECTION_DATA_FETCH_SUCCESS,
 				userConnectionData: userConnectionData
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: USER_CONNECTION_DATA_FETCH_FAIL,
 				error: error
@@ -85,7 +85,7 @@ export const disconnectSite = () => {
 				disconnectingSite: disconnectingSite
 			} );
 			dispatch( removeNotice( 'disconnect-jetpack' ) );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: DISCONNECT_SITE_FAIL,
 				error: error
@@ -117,7 +117,7 @@ export const unlinkUser = () => {
 			} );
 			dispatch( removeNotice( 'unlink-user' ) );
 			dispatch( createNotice( 'is-success', __( 'Unlinked from WordPress.com.' ), { id: 'unlink-user' } ) );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: UNLINK_USER_FAIL,
 				error: error

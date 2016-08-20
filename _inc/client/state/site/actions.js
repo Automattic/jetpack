@@ -19,7 +19,7 @@ export const fetchSiteData = () => {
 				siteData: siteData
 			} );
 			return siteData;
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_SITE_DATA_FETCH_FAIL,
 				error: error

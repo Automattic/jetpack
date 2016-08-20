@@ -43,7 +43,7 @@ export const fetchStatsData = ( range ) => {
 				type: STATS_DATA_FETCH_SUCCESS,
 				statsData: statsData
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: STATS_DATA_FETCH_FAIL,
 				error: error
@@ -62,7 +62,7 @@ export const fetchProtectCount = () => {
 				type: DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS,
 				protectCount: protectCount
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: DASHBOARD_PROTECT_COUNT_FETCH_FAIL,
 				error: error
@@ -81,7 +81,7 @@ export const fetchLastDownTime = () => {
 				type: MONITOR_LAST_DOWNTIME_FETCH_SUCCESS,
 				lastDownTime: lastDownTime
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: MONITOR_LAST_DOWNTIME_FETCH_FAIL,
 				error: error
@@ -100,7 +100,7 @@ export const fetchVaultPressData = () => {
 				type: VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
 				vaultPressData: vaultPressData
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: VAULTPRESS_SITE_DATA_FETCH_FAIL,
 				error: error
@@ -119,7 +119,7 @@ export const fetchAkismetData = () => {
 				type: AKISMET_DATA_FETCH_SUCCESS,
 				akismetData: akismetData
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: AKISMET_DATA_FETCH_FAIL,
 				error: error
@@ -138,7 +138,7 @@ export const fetchPluginUpdates = () => {
 				type: PLUGIN_UPDATES_FETCH_SUCCESS,
 				pluginUpdates: pluginUpdates
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: PLUGIN_UPDATES_FETCH_FAIL,
 				error: error

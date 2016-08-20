@@ -19,7 +19,7 @@ export const fetchPluginsData = () => {
 				pluginsData: pluginsData
 			} );
 			return pluginsData;
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_PLUGINS_DATA_FETCH_FAIL,
 				error: error

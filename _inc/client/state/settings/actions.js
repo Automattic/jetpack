@@ -22,7 +22,7 @@ export const fetchSettings = () => {
 				settings: settings
 			} );
 			return settings;
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_SETTINGS_FETCH_FAIL,
 				error: error
@@ -43,7 +43,7 @@ export const updateSetting = ( updatedOption ) => {
 				updatedOption,
 				success: success
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_SETTING_UPDATE_FAIL,
 				success: false,
