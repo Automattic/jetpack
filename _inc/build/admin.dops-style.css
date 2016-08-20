@@ -2004,6 +2004,11 @@ a.dops-notice__action {
   .dops-checkbox.dops-checkbox + span {
     display: block;
     margin-left: 24px; }
+.dops-external-link .gridicons-external {
+  color: currentColor;
+  margin-left: 0.5rem;
+  top: 0.125rem;
+  position: relative; }
 .notices-list {
   overflow: hidden; }
   .notices-list.is-pinned {
