@@ -646,3 +646,308 @@ class Jetpack_Core_API_Module_Endpoint
 		}
 	}
 }
+
+class Jetpack_Core_API_Module_Data_Endpoint {
+
+	public function process( $request ) {
+		switch( $request['slug'] ) {
+			case 'protect':
+				return $this->get_protect_data();
+			case 'stats':
+				return $this->get_stats_data( $request );
+			case 'akismet':
+				return $this->get_akismet_data( $request );
+			case 'monitor':
+				return $this->get_monitor_data( $request );
+			case 'verification-tools':
+				return $this->get_verification_tools_data( $request );
+			case 'vaultpress':
+				return $this->get_vaultpress_data( $request );
+		}
+	}
+
+	/**
+	 * Get number of blocked intrusion attempts.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @return mixed|WP_Error Number of blocked attempts if protection is enabled. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public function get_protect_data() {
+		if ( Jetpack::is_module_active( 'protect' ) ) {
+			return get_site_option( 'jetpack_protect_blocked_attempts' );
+		}
+
+		return new WP_Error(
+			'not_active',
+			esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ),
+			array( 'status' => 404 )
+		);
+	}
+
+	/**
+	 * Get number of spam messages blocked by Akismet.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $date Date range to restrict results to.
+	 * }
+	 *
+	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
+	 */
+	public function get_akismet_data( WP_REST_Request $data ) {
+		if ( ! is_wp_error( $status = $this->akismet_is_active_and_registered() ) ) {
+			return rest_ensure_response( Akismet_Admin::get_stats( Akismet::get_api_key() ) );
+		} else {
+			return $status->get_error_code();
+		}
+	}
+
+	/**
+	 * Is Akismet registered and active?
+	 *
+	 * @since 4.3.0
+	 *
+	 * @return bool|WP_Error True if Akismet is active and registered. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	private function akismet_is_active_and_registered() {
+		if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+			return new WP_Error( 'not_installed', esc_html__( 'Please install Akismet.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		if ( ! class_exists( 'Akismet' ) ) {
+			return new WP_Error( 'not_active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		// What about if Akismet is put in a sub-directory or maybe in mu-plugins?
+		require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
+		require_once WP_PLUGIN_DIR . '/akismet/class.akismet-admin.php';
+		$akismet_key = Akismet::verify_key( Akismet::get_api_key() );
+
+		if ( ! $akismet_key || 'invalid' === $akismet_key || 'failed' === $akismet_key ) {
+			return new WP_Error( 'invalid_key', esc_html__( 'Invalid Akismet key. Please contact support.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get stats data for this site
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $date Date range to restrict results to.
+	 * }
+	 *
+	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
+	 */
+	public function get_stats_data( WP_REST_Request $data ) {
+		// Get parameters to fetch Stats data.
+		$params = $data->get_json_params();
+
+		// If no parameters were passed.
+		$range =
+			is_array( $params )
+			&& isset( $params['range'] )
+			&& in_array( $params['range'], array( 'day', 'week', 'month' ), true ) ?
+				$params['range'] : 'day';
+
+		if ( ! function_exists( 'stats_get_from_restapi' ) ) {
+			require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
+		}
+
+		$response = array(
+			'general' => stats_get_from_restapi(),
+		);
+
+		switch ( $range ) {
+			case 'day':
+				$response['day'] = stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' );
+				break;
+			case 'week':
+				$response['week'] = stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' );
+				break;
+			case 'month':
+				$response['month'] = stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' );
+				break;
+		}
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Get date of last downtime.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return mixed|WP_Error Number of days since last downtime. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public function get_monitor_data() {
+		if ( ! Jetpack::is_module_active( 'monitor' ) ) {
+			return new WP_Error(
+				'not_active',
+				esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$monitor       = new Jetpack_Monitor();
+		$last_downtime = $monitor->monitor_get_last_downtime();
+		if ( is_wp_error( $last_downtime ) ) {
+			return $last_downtime;
+		} else if ( false === strtotime( $last_downtime ) ) {
+			return rest_ensure_response( array(
+				'code' => 'success',
+				'date' => null,
+			) );
+		} else {
+			return rest_ensure_response( array(
+				'code' => 'success',
+				'date' => human_time_diff( strtotime( $last_downtime ), strtotime( 'now' ) ),
+			) );
+		}
+	}
+
+	/**
+	 * Get services that this site is verified with.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return mixed|WP_Error List of services that verified this site. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public function get_verification_tools_data() {
+		if ( ! Jetpack::is_module_active( 'verification-tools' ) ) {
+			return new WP_Error(
+				'not_active',
+				esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$verification_services_codes = get_option( 'verification_services_codes' );
+		if (
+			! is_array( $verification_services_codes )
+			|| empty( $verification_services_codes )
+		) {
+			return new WP_Error(
+				'empty',
+				esc_html__( 'Site not verified with any service.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$services = array();
+		foreach ( jetpack_verification_services() as $name => $service ) {
+			if ( is_array( $service ) && ! empty( $verification_services_codes[ $name ] ) ) {
+				switch ( $name ) {
+					case 'google':
+						$services[] = 'Google';
+						break;
+					case 'bing':
+						$services[] = 'Bing';
+						break;
+					case 'pinterest':
+						$services[] = 'Pinterest';
+						break;
+				}
+			}
+		}
+
+		if ( empty( $services ) ) {
+			return new WP_Error(
+				'empty',
+				esc_html__( 'Site not verified with any service.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( 2 > count( $services ) ) {
+			$message = esc_html(
+				sprintf(
+					/* translators: %s is a service name like Google, Bing, Pinterest, etc. */
+					__( 'Your site is verified with %s.', 'jetpack' ),
+					$services[0]
+				)
+			);
+		} else {
+			$copy_services = $services;
+			$last = count( $copy_services ) - 1;
+			$last_service = $copy_services[ $last ];
+			unset( $copy_services[ $last ] );
+			$message = esc_html(
+				sprintf(
+					/* translators: %1$s is a comma separated list of services, and %2$s is a single service name like Google, Bing, Pinterest, etc. */
+					__( 'Your site is verified with %1$s and %2$s.', 'jetpack' ),
+					join( ', ', $copy_services ),
+					$last_service
+				)
+			);
+		}
+
+		return rest_ensure_response( array(
+			'code'     => 'success',
+			'message'  => $message,
+			'services' => $services,
+		) );
+	}
+
+	/**
+	 * Get VaultPress site data including, among other things, the date of tge last backup if it was completed.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @return mixed|WP_Error VaultPress site data. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public function get_vaultpress_data() {
+		if ( ! class_exists( 'VaultPress' ) ) {
+			return new WP_Error(
+				'not_active',
+				esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$vaultpress = new VaultPress();
+		if ( ! $vaultpress->is_registered() ) {
+			return rest_ensure_response( array(
+				'code'    => 'not_registered',
+				'message' => esc_html( __( 'You need to register for VaultPress.', 'jetpack' ) )
+			) );
+		}
+
+		$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
+		if ( is_wp_error( $data ) ) {
+			return $data;
+		} else if ( ! $data->backups->last_backup ) {
+			return rest_ensure_response( array(
+				'code'    => 'success',
+				'message' => esc_html__( 'VaultPress is active and will back up your site soon.', 'jetpack' ),
+				'data'    => $data,
+			) );
+		} else {
+			return rest_ensure_response( array(
+				'code'    => 'success',
+				'message' => esc_html(
+					sprintf(
+						__( 'Your site was successfully backed-up %s ago.', 'jetpack' ),
+						human_time_diff(
+							$data->backups->last_backup,
+							current_time( 'timestamp' )
+						)
+					)
+				),
+				'data'    => $data,
+			) );
+		}
+	}
+
+	public function can_request() {
+		return current_user_can( 'jetpack_admin_page' );
+	}
+}
