@@ -167,8 +167,8 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		updateSetting: ( updatedSetting ) => fetch( `${ apiRoot }jetpack/v4/setting/update`, {
-			method: 'put',
+		updateSetting: ( updatedSetting ) => fetch( `${ apiRoot }jetpack/v4/settings`, {
+			method: 'post',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
