@@ -34,8 +34,8 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( response => response.json() ),
-		disconnectSite: () => fetch( `${ apiRoot }jetpack/v4/disconnect/site`, {
-			method: 'post',
+		disconnectSite: () => fetch( `${ apiRoot }jetpack/v4/connection`, {
+			method: 'delete',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce
