@@ -227,8 +227,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Dismiss Jetpack Notices
-		register_rest_route( 'jetpack/v4', '/notice/(?P<notice>[a-z\-_]+)/dismiss', array(
-			'methods' => WP_REST_Server::EDITABLE,
+		register_rest_route( 'jetpack/v4', '/notice/(?P<notice>[a-z\-_]+)', array(
+			'methods' => WP_REST_Server::DELETABLE,
 			'callback' => __CLASS__ . '::dismiss_notice',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );

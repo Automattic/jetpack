@@ -200,8 +200,8 @@ function JetpackRestApiClient( root, nonce ) {
 				return JSON.parse( body.data );
 			} );
 		},
-		dismissJetpackNotice: ( notice ) => fetch( `${ apiRoot }jetpack/v4/notice/${ notice }/dismiss`, {
-			method: 'put',
+		dismissJetpackNotice: ( notice ) => fetch( `${ apiRoot }jetpack/v4/notice/${ notice }`, {
+			method: 'delete',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
