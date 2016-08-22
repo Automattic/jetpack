@@ -57,7 +57,7 @@ const DashItem = React.createClass( {
 		);
 
 		if ( '' !== this.props.module ) {
-			toggle = ( includes( [ 'protect', 'monitor', 'photon' ], this.props.module ) && this.props.isDevMode ) ? '' : (
+			toggle = ( includes( [ 'protect', 'monitor', 'photon', 'vaultpress', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
 				<ModuleToggle
 					slug={ this.props.module }
 					activated={ this.props.isModuleActivated( this.props.module ) }
@@ -85,7 +85,7 @@ const DashItem = React.createClass( {
 			}
 		}
 
-		if ( this.props.pro ) {
+		if ( this.props.pro && ! this.props.isDevMode ) {
 			proButton =
 				<Button
 					compact={ true }
