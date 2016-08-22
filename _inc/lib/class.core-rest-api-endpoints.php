@@ -70,7 +70,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Get current user connection data
-		register_rest_route( 'jetpack/v4', '/user-connection-data', array(
+		register_rest_route( 'jetpack/v4', '/connection/data', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_user_connection_data',
 			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
