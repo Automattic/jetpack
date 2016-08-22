@@ -148,7 +148,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 *
 	 * @return array Array of Jetpack modules.
 	 */
-	public function get_modules( $data ) {
+	public function get_modules() {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
 
 		$modules = Jetpack_Admin::init()->get_modules();
@@ -656,13 +656,13 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			case 'stats':
 				return $this->get_stats_data( $request );
 			case 'akismet':
-				return $this->get_akismet_data( $request );
+				return $this->get_akismet_data();
 			case 'monitor':
-				return $this->get_monitor_data( $request );
+				return $this->get_monitor_data();
 			case 'verification-tools':
-				return $this->get_verification_tools_data( $request );
+				return $this->get_verification_tools_data();
 			case 'vaultpress':
-				return $this->get_vaultpress_data( $request );
+				return $this->get_vaultpress_data();
 		}
 	}
 
@@ -690,15 +690,9 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type string $date Date range to restrict results to.
-	 * }
-	 *
 	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
 	 */
-	public function get_akismet_data( WP_REST_Request $data ) {
+	public function get_akismet_data() {
 		if ( ! is_wp_error( $status = $this->akismet_is_active_and_registered() ) ) {
 			return rest_ensure_response( Akismet_Admin::get_stats( Akismet::get_api_key() ) );
 		} else {
