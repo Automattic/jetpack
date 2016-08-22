@@ -63,7 +63,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Fetches a fresh connect URL
-		register_rest_route( 'jetpack/v4', '/connect-url', array(
+		register_rest_route( 'jetpack/v4', '/connection/url', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::build_connect_url',
 			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',

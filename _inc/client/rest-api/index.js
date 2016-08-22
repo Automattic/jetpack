@@ -42,7 +42,7 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		fetchConnectUrl: () => fetch( `${ apiRoot }jetpack/v4/connect-url`, {
+		fetchConnectUrl: () => fetch( `${ apiRoot }jetpack/v4/connection/url`, {
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce
