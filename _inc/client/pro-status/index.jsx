@@ -14,6 +14,7 @@ import { getSiteRawUrl } from 'state/initial-state';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryAkismetData from 'components/data/query-akismet-data';
+import { isDevMode } from 'state/connection';
 import {
 	isFetchingPluginsData,
 	isPluginActive,
@@ -49,6 +50,10 @@ const ProStatus = React.createClass( {
 
 		let getStatus = ( feature, active, installed ) => {
 			let vpData = this.props.getVaultPressData();
+
+			if ( this.props.isDevMode ) {
+				return __( 'Unavailable in Dev Mode' );
+			}
 
 			if ( 'N/A' !== vpData && 'vaultpress' === feature && 0 !== this.props.getScanThreats() ) {
 				return(
@@ -136,7 +141,8 @@ export default connect(
 			sitePlan: () => getSitePlan( state ),
 			fetchingPluginsData: isFetchingPluginsData( state ),
 			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
+			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
+			isDevMode: isDevMode( state )
 		};
 	}
 )( ProStatus );
