@@ -27,9 +27,11 @@ const DashScan = React.createClass( {
 	getContent: function() {
 		const labelName = __( 'Malware Scanning' ),
 			hasSitePlan = false !== this.props.getSitePlan(),
-			vpData = this.props.getVaultPressData(),
+		vpData = this.props.getVaultPressData(),
+
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
 
+		console.log( vpData );
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
 				return (

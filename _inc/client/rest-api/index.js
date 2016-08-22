@@ -100,7 +100,7 @@ function JetpackRestApiClient( root, nonce ) {
 			body: JSON.stringify( newOptionValues )
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		getProtectCount: () => fetch( `${ apiRoot }jetpack/v4/module/protect/count/get`, {
+		getProtectCount: () => fetch( `${ apiRoot }jetpack/v4/module/protect/data`, {
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
@@ -125,7 +125,7 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		getLastDownTime: () => fetch( `${ apiRoot }jetpack/v4/module/monitor/downtime/last`, {
+		getLastDownTime: () => fetch( `${ apiRoot }jetpack/v4/module/monitor/data`, {
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
@@ -133,7 +133,7 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		getAkismetData: () => fetch( `${ apiRoot }jetpack/v4/akismet/stats/get`, {
+		getAkismetData: () => fetch( `${ apiRoot }jetpack/v4/module/akismet/data`, {
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
@@ -141,8 +141,7 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		fetchStatsData: ( range ) => fetch( `${ apiRoot }jetpack/v4/module/stats/get`, {
-			method: 'put',
+		fetchStatsData: ( range ) => fetch( `${ apiRoot }jetpack/v4/module/stats/data`, {
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
