@@ -199,7 +199,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Update miscellaneous setting
-		register_rest_route( 'jetpack/v4', '/setting/update', array(
+		register_rest_route( 'jetpack/v4', '/settings', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::update_setting',
 			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
