@@ -333,7 +333,7 @@ class Jetpack_Core_API_Module_Endpoint
 	 *
 	 * @return bool|WP_Error True if module was updated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public static function update_module( $data ) {
+	public function update_module( $data ) {
 		if ( ! Jetpack::is_module( $data['slug'] ) ) {
 			return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 		}
