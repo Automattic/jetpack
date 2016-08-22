@@ -77,8 +77,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Disconnect site from WordPress.com servers
-		register_rest_route( 'jetpack/v4', '/disconnect/site', array(
-			'methods' => WP_REST_Server::EDITABLE,
+		register_rest_route( 'jetpack/v4', '/connection', array(
+			'methods' => WP_REST_Server::DELETABLE,
 			'callback' => __CLASS__ . '::disconnect_site',
 			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 		) );
