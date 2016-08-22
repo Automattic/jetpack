@@ -42,12 +42,24 @@ import AdminNotices from 'components/admin-notices';
 import SearchPage from 'search/index.jsx';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
+import { getTracksUserData } from 'state/initial-state';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );
+		this.initializeAnalyitics();
+	},
+
+	initializeAnalyitics() {
+		const tracksUser = this.props.tracksUserData;
+		if ( tracksUser ) {
+			analytics.initialize(
+				tracksUser.userid,
+				tracksUser.username
+			);
+		}
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
@@ -195,7 +207,8 @@ export default connect(
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			apiRoot: getApiRootUrl( state ),
-			apiNonce: getApiNonce( state )
+			apiNonce: getApiNonce( state ),
+			tracksUserData: getTracksUserData( state )
 		} );
 	},
 	dispatch => bindActionCreators( { setInitialState }, dispatch )

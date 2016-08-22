@@ -7,15 +7,6 @@ import { Provider } from 'react-redux';
 import { Route, Router, useRouterHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { createHashHistory } from 'history'
-import analytics from 'lib/analytics';
-
-const tracksUser = window.Initial_State.tracksUserData;
-if ( tracksUser ) {
-	analytics.initialize(
-		tracksUser.userid,
-		tracksUser.username
-	);
-}
 
 /**
  * Internal dependencies
