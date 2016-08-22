@@ -24,7 +24,7 @@ import {
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
 } from 'state/action-types';
-import { getModule } from 'state/modules';
+import { getModule } from 'state/modules/reducer';
 import restApi from 'rest-api';
 
 export const fetchModules = () => {
