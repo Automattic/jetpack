@@ -117,10 +117,23 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 	function test_upgrading_sends_options_constants_and_callables() {
 		/** This action is documented in class.jetpack.php */
-		do_action( 'updating_jetpack_version', '4.1', '4.2' );
+		do_action( 'updating_jetpack_version', '4.2', '4.1' );
 
 		$modules = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => 'initial' );
 		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( $modules ) ) > time()-5 );
+	}
+
+	function test_upgrading_from_42_plus_does_not_includes_users_in_initial_sync() {
+
+		$initial_sync_without_users_config = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true );
+		$initial_sync_with_users_config = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => 'initial' );
+
+		do_action( 'updating_jetpack_version', '4.3', '4.2' );
+		$this->assertTrue( Jetpack_Sync_Actions::is_scheduled_full_sync( $initial_sync_without_users_config ) );
+		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync( $initial_sync_with_users_config ) );
+
+		do_action( 'updating_jetpack_version', '4.2', '4.1' );
+		$this->assertTrue( Jetpack_Sync_Actions::is_scheduled_full_sync( $initial_sync_with_users_config ) );
 	}
 
 	function test_schedules_regular_sync() {
