@@ -49,6 +49,15 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
+		unlinkUser: () => fetch( `${ apiRoot }jetpack/v4/connection/user`, {
+			method: 'delete',
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': apiNonce,
+				'Content-type': 'application/json'
+			}
+		} )
+		.then( checkStatus ).then( response => response.json() ),
 		jumpStart: ( action ) => fetch( `${ apiRoot }jetpack/v4/jumpstart/${ action }`, {
 			method: 'post',
 			credentials: 'same-origin',
@@ -175,15 +184,6 @@ function JetpackRestApiClient( root, nonce ) {
 				'Content-type': 'application/json'
 			},
 			body: JSON.stringify( updatedSetting )
-		} )
-		.then( checkStatus ).then( response => response.json() ),
-		unlinkUser: () => fetch( `${ apiRoot }jetpack/v4/unlink`, {
-			method: 'put',
-			credentials: 'same-origin',
-			headers: {
-				'X-WP-Nonce': apiNonce,
-				'Content-type': 'application/json'
-			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		fetchSiteData: () => {

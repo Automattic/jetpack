@@ -84,8 +84,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Disconnect/unlink user from WordPress.com servers
-		register_rest_route( 'jetpack/v4', '/unlink', array(
-			'methods' => WP_REST_Server::EDITABLE,
+		register_rest_route( 'jetpack/v4', '/connection/user', array(
+			'methods' => WP_REST_Server::DELETABLE,
 			'callback' => __CLASS__ . '::unlink_user',
 			'permission_callback' => __CLASS__ . '::link_user_permission_callback',
 			'args' => array(
