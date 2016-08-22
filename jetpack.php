@@ -103,3 +103,5 @@ if ( is_admin() && ! Jetpack::check_identity_crisis() ) {
 */
 
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php' );
+
+Jetpack::init();
