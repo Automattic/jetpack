@@ -31,8 +31,16 @@
 .jp-masthead__logo {
 	width: rem( 166px );
 	height: rem( 29px ); // for IE
-	path {
-		fill: $green-secondary;
+	fill: $green-secondary;
+}
+
+.jp-masthead__logo-link {
+	display: inline-block;
+	outline: none;
+
+	&:focus {
+		line-height: 0; // fixes rectangle gap
+		box-shadow: 0 0 0 2px $blue-light;
 	}
 }
 
