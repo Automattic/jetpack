@@ -911,7 +911,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		if ( ! $vaultpress->is_registered() ) {
 			return rest_ensure_response( array(
 				'code'    => 'not_registered',
-				'message' => esc_html( __( 'You need to register for VaultPress.', 'jetpack' ) )
+				'message' => esc_html__( 'You need to register for VaultPress.', 'jetpack' )
 			) );
 		}
 
