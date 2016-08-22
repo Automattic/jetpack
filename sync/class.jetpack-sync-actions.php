@@ -13,13 +13,13 @@ class Jetpack_Sync_Actions {
 	const INITIAL_SYNC_MULTISITE_INTERVAL = 10;
 
 	static function init() {
-		
+
 		// Add a custom "every minute" cron schedule
 		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
 
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
-		
+
 		// When imports are finished, schedule a full sync
 		add_action( 'import_end', array( __CLASS__, 'schedule_full_sync' ) );
 
@@ -60,7 +60,7 @@ class Jetpack_Sync_Actions {
 		 */
 		if ( apply_filters( 'jetpack_sync_listener_should_load',
 			(
-				'GET' !== $_SERVER['REQUEST_METHOD']
+				( isset( $_SERVER["REQUEST_METHOD"] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] )
 				||
 				is_user_logged_in()
 				||
@@ -84,7 +84,7 @@ class Jetpack_Sync_Actions {
 		 */
 		if ( apply_filters( 'jetpack_sync_sender_should_load',
 			(
-				'POST' === $_SERVER['REQUEST_METHOD']
+				( isset( $_SERVER["REQUEST_METHOD"] ) && 'POST' === $_SERVER['REQUEST_METHOD'] )
 				||
 				current_user_can( 'manage_options' )
 				||
@@ -142,11 +142,11 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function schedule_initial_sync( $new_version = null, $old_version = null ) {
-		$initial_sync_config = array( 
-			'options' => true, 
-			'network_options' => true, 
-			'functions' => true, 
-			'constants' => true, 
+		$initial_sync_config = array(
+			'options' => true,
+			'network_options' => true,
+			'functions' => true,
+			'constants' => true,
 		);
 
 		if ( $old_version && ( version_compare( $old_version, '4.2', '<' ) ) ) {
@@ -164,7 +164,7 @@ class Jetpack_Sync_Actions {
 			$time_offset = 1;
 		}
 
-		self::schedule_full_sync( 
+		self::schedule_full_sync(
 			$initial_sync_config,
 			$time_offset
 		);
@@ -205,7 +205,7 @@ class Jetpack_Sync_Actions {
 	static function is_scheduled_full_sync( $modules = null ) {
 		if ( is_null( $modules ) ) {
 			$crons = _get_cron_array();
-			
+
 			foreach ( $crons as $timestamp => $cron ) {
 				if ( ! empty( $cron['jetpack_sync_full'] ) ) {
 					return true;
@@ -231,7 +231,7 @@ class Jetpack_Sync_Actions {
 		if( ! isset( $schedules["1min"] ) ) {
 			$schedules["1min"] = array(
 				'interval' => 60,
-				'display' => __( 'Every minute' ) 
+				'display' => __( 'Every minute' )
 			);
 		}
 		return $schedules;
@@ -246,7 +246,7 @@ class Jetpack_Sync_Actions {
 		}
 
 		self::initialize_sender();
-		
+
 		// remove shutdown hook - no need to sync twice
 		if ( has_action( 'shutdown', array( self::$sender, 'do_sync' ) ) ) {
 			remove_action( 'shutdown', array( self::$sender, 'do_sync' ) );
@@ -254,7 +254,7 @@ class Jetpack_Sync_Actions {
 
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time();
-			
+
 			if ( $next_sync_time ) {
 				$delay = $next_sync_time - time() + 1;
 				if ( $delay > 15 ) {
