@@ -185,8 +185,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		);
 
 		// Reset all Jetpack options
-		register_rest_route( 'jetpack/v4', '/reset/(?P<options>[a-z\-]+)', array(
-			'methods' => WP_REST_Server::EDITABLE,
+		register_rest_route( 'jetpack/v4', '/(?P<options>[a-z\-]+)', array(
+			'methods' => WP_REST_Server::DELETABLE,
 			'callback' => __CLASS__ . '::reset_jetpack_options',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
