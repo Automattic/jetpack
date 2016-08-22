@@ -108,8 +108,8 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		resetOptions: ( options ) => fetch( `${ apiRoot }jetpack/v4/reset/${ options }`, {
-			method: 'post',
+		resetOptions: ( options ) => fetch( `${ apiRoot }jetpack/v4/options/${ options }`, {
+			method: 'delete',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
