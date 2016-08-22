@@ -58,14 +58,25 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		jumpStart: ( action ) => fetch( `${ apiRoot }jetpack/v4/jumpstart/${ action }`, {
-			method: 'post',
-			credentials: 'same-origin',
-			headers: {
-				'X-WP-Nonce': apiNonce
+		jumpStart: ( action ) => {
+			let active;
+			if ( action === 'activate' ) {
+				active = true
 			}
-		} )
-		.then( checkStatus ).then( response => response.json() ),
+			if ( action === 'deactivate' ) {
+				active = false
+			}
+			return fetch( `${ apiRoot }jetpack/v4/jumpstart`, {
+				method: 'post',
+				credentials: 'same-origin',
+				headers: {
+					'X-WP-Nonce': apiNonce,
+					'Content-type': 'application/json'
+				},
+				body: JSON.stringify( { active } )
+			} )
+			.then( checkStatus ).then( response => response.json() )
+		},
 		fetchModules: () => fetch( `${ apiRoot }jetpack/v4/module/all`, {
 			credentials: 'same-origin',
 			headers: {
