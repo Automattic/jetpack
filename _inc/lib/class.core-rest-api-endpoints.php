@@ -206,18 +206,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Jumpstart
-		register_rest_route( 'jetpack/v4', '/jumpstart/activate', array(
+		register_rest_route( 'jetpack/v4', '/jumpstart', array(
 			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::jumpstart_activate',
+			'callback' => __CLASS__ . '::jumpstart_toggle',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
-
-		register_rest_route( 'jetpack/v4', '/jumpstart/deactivate', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::jumpstart_deactivate',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-		) );
-
 
 		// Updates: get number of plugin updates available
 		register_rest_route( 'jetpack/v4', '/updates/plugins', array(
@@ -717,6 +710,39 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'required_param', esc_html__( 'Missing parameter "type".', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Toggles activation or deactivation of the JumpStart
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 * }
+	 *
+	 * @return bool|WP_Error True if toggling Jumpstart succeeded. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function jumpstart_toggle( $data ) {
+		$param = $data->get_json_params();
+
+		// Exit if no parameters were passed.
+		if ( ! isset( $param[ 'active' ] ) ) {
+			return new WP_Error( 'missing_parameter_active', esc_html__( 'Missing parameter active.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		$validates = self::validate_boolean( $param[ 'active' ], null, 'active' );
+
+		// Exit if `activate` was passed as a non-boolean
+		if ( true !== $validates ) {
+			return $validates;
+		}
+
+		if ( $param[ 'active' ] ) {
+			return self::jumpstart_activate( $data );
+		} else {
+			return self::jumpstart_deactivate( $data );
+		}
 	}
 
 	/**
