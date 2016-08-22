@@ -3,6 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import assign from 'lodash/assign';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -267,7 +268,11 @@ export function getVaultPressData( state ) {
  * @return {int} The number of current security threats found by VaultPress
  */
 export function getVaultPressScanThreatCount( state ) {
-	return state.jetpack.dashboard.vaultPressData.data.security.notice_count;
+	return get(
+		state.jetpack.dashboard.vaultPressData,
+		'data.security.notice_count',
+		0
+	);
 }
 
 /**
