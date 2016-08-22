@@ -20,7 +20,7 @@ function JetpackRestApiClient( root, nonce ) {
 		setApiNonce( newNonce ) {
 			apiNonce = newNonce;
 		},
-		fetchSiteConnectionStatus: () => fetch( `${ apiRoot }jetpack/v4/connection-status`, {
+		fetchSiteConnectionStatus: () => fetch( `${ apiRoot }jetpack/v4/connection`, {
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce

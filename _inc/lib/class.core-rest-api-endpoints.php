@@ -57,7 +57,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		self::$stats_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
 		// Get current connection status of Jetpack
-		register_rest_route( 'jetpack/v4', '/connection-status', array(
+		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::jetpack_connection_status',
 		) );
