@@ -210,6 +210,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::jumpstart_toggle',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'args' => array(
+				'active' => array(
+					'required' => true,
+					'validate_callback' => __CLASS__  . '::validate_boolean',
+				),
+			),
 		) );
 
 		// Updates: get number of plugin updates available
@@ -725,18 +731,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function jumpstart_toggle( $data ) {
 		$param = $data->get_json_params();
-
-		// Exit if no parameters were passed.
-		if ( ! isset( $param[ 'active' ] ) ) {
-			return new WP_Error( 'missing_parameter_active', esc_html__( 'Missing parameter active.', 'jetpack' ), array( 'status' => 400 ) );
-		}
-
-		$validates = self::validate_boolean( $param[ 'active' ], null, 'active' );
-
-		// Exit if `activate` was passed as a non-boolean
-		if ( true !== $validates ) {
-			return $validates;
-		}
 
 		if ( $param[ 'active' ] ) {
 			return self::jumpstart_activate( $data );
