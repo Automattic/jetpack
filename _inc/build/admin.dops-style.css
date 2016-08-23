@@ -984,7 +984,8 @@
     outline: thin dotted; }
 
 button.dops-foldable-card__action {
-  cursor: pointer; }
+  cursor: pointer;
+  outline: 0; }
 
 .dops-foldable-card__main {
   max-width: calc( 100% - 36px);
@@ -1024,7 +1025,7 @@ button.dops-foldable-card__action {
       transform: rotate(180deg); }
   .dops-foldable-card__expand .gridicon:hover {
     fill: #87a6bc; }
-  .dops-foldable-card__expand:hover .gridicon {
+  .dops-foldable-card__expand:focus .gridicon, .dops-foldable-card__expand:hover .gridicon {
     fill: #00aadc; }
 
 .dops-foldable-card__header-text {

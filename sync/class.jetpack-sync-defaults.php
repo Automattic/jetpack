@@ -70,7 +70,6 @@ class Jetpack_Sync_Defaults {
 		'comment_whitelist',
 		'comment_max_links',
 		'moderation_keys',
-		'lang_id',
 		'wga',
 		'disabled_likes',
 		'disabled_reblogs',
@@ -150,6 +149,7 @@ class Jetpack_Sync_Defaults {
 		'wp_version'                       => array( 'Jetpack_Sync_Functions', 'wp_version' ),
 		'get_plugins'                      => array( 'Jetpack_Sync_Functions', 'get_plugins' ),
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
+		'locale'                           => 'get_locale',
 	);
 
 	static $blacklisted_post_types = array(
