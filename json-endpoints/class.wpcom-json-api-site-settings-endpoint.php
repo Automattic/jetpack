@@ -8,6 +8,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
  		'description'       => '(string) Tagline or description of site',
  		'URL'               => '(string) Full URL to the site',
 		'lang'              => '(string) Primary language code of the site',
+		'locale_variant'    => '(string) Locale variant code for the site, if set',
 		'settings'          => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site.',
 	);
 
@@ -111,6 +112,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'URL' :
 				$response[$key] = (string) home_url();
 				break;
+			case 'locale_variant':
+				$blog_variant_id = wpcom_l10n_get_blog_variant_lang_id();
+				if ( $blog_variant_id ) {
+					$response[$key] = (string) WPCom_Languages::get_locale_code_by_id( $blog_variant_id );
+				}
+				break;
 			case 'settings':
 
 				$jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
@@ -175,7 +182,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'comment_max_links'       => (int) get_option( 'comment_max_links' ),
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
-					'lang_id'                 => get_option( 'lang_id' ),
+					'lang_id'                 => wpcom_l10n_get_blog_variant_lang_id_with_fallback(),
 					'wga'                     => get_option( 'wga' ),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
 					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
