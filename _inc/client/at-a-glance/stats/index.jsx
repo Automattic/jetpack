@@ -73,7 +73,7 @@ const DashStats = React.createClass( {
 
 			s.push( {
 				label: chartLabel,
-				value: numberFormat( views ),
+				value: views,
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
