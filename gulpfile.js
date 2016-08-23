@@ -467,7 +467,7 @@ gulp.task( 'languages:extract', [ 'react:build' ], function( callback ) {
 // Default task
 gulp.task(
 	'default',
-	['react:build', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint']
+	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint']
 );
 gulp.task(
 	'watch',
