@@ -192,6 +192,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				 * Note: A category named "0" will not work right.
 				 * https://core.trac.wordpress.org/ticket/9059
 				 */
+				if ( ! is_string( $term ) ) {
+					continue;
+				}
+
 				$term_info = get_term_by( 'name', $term, $taxonomy, ARRAY_A );
 
 				if ( ! $term_info ) {
