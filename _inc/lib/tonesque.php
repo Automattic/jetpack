@@ -37,7 +37,11 @@ class Tonesque {
 	}
 
 	public static function imagecreatefromurl( $image_url ) {
-		return imagecreatefromstring( file_get_contents( $image_url ) );
+		$response = wp_remote_get( $image_url );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		return imagecreatefromstring( wp_remote_retrieve_body( $response ) );
 	}
 
 	/**
