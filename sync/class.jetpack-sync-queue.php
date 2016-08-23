@@ -204,12 +204,12 @@ class Jetpack_Sync_Queue {
 
 		$min_item_id = $max_item_id = $items_with_size[0]->id;
 
-		foreach ( $items_with_size as $item_with_size ) {
+		foreach ( $items_with_size as $id => $item_with_size ) {
 			$total_memory += $item_with_size->value_size;
 
 			// if this is the first item and it exceeds memory, allow loop to continue
 			// we will exit on the next iteration instead
-			if ( $total_memory > $max_memory && count( $item_ids ) > 0 ) {
+			if ( $total_memory > $max_memory && $id > 0 ) {
 				break;
 			}
 
