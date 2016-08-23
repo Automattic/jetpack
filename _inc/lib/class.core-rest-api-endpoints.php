@@ -21,7 +21,7 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
  *
- * @since 4.1.0
+ * @since 4.3.0
  */
 class Jetpack_Core_Json_Api_Endpoints {
 
@@ -38,7 +38,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Declare the Jetpack REST API endpoints.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 */
 	public static function register_endpoints() {
 
@@ -273,7 +273,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Handles dismissing of Jetpack Notices
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return array|wp-error
 	 */
@@ -299,7 +299,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that the user can disconnect the site.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return bool|WP_Error True if user is able to disconnect the site.
 	 */
@@ -315,7 +315,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that the user can get a connect/link URL
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return bool|WP_Error True if user is able to disconnect the site.
 	 */
@@ -331,7 +331,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that a user can use the link endpoint.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return bool|WP_Error True if user is able to link to WordPress.com
 	 */
@@ -347,7 +347,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Verify that a user can get the data about the current user.
 	 * Only those who can connect.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @uses Jetpack::is_user_connected();
 	 *
@@ -365,7 +365,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Verify that a user can use the unlink endpoint.
 	 * Either needs to be an admin of the site, or for them to be currently linked.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @uses Jetpack::is_user_connected();
 	 *
@@ -382,7 +382,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that user can manage Jetpack modules.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return bool Whether user has the capability 'jetpack_manage_modules'.
 	 */
@@ -397,7 +397,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that user can update Jetpack modules.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return bool Whether user has the capability 'jetpack_configure_modules'.
 	 */
@@ -412,7 +412,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that user can view Jetpack admin page.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return bool Whether user has the capability 'jetpack_admin_page'.
 	 */
@@ -427,7 +427,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that user can update Jetpack options.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return bool Whether user has the capability 'jetpack_admin_page'.
 	 */
@@ -442,7 +442,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that user can view Jetpack admin page and can activate plugins.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return bool Whether user has the capability 'jetpack_admin_page' and 'activate_plugins'.
 	 */
@@ -460,7 +460,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Taken from rest_authorization_required_code() in WP-API plugin until is added to core.
 	 * @see https://github.com/WP-API/WP-API/commit/7ba0ae6fe4f605d5ffe4ee85b1cd5f9fb46900a6
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return int
 	 */
@@ -471,7 +471,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get connection status for this Jetpack site.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return bool True if site is connected
 	 */
@@ -493,7 +493,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Disconnects Jetpack from the WordPress.com Servers
 	 *
 	 * @uses Jetpack::disconnect();
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 * @return bool|WP_Error True if Jetpack successfully disconnected.
 	 */
 	public static function disconnect_site() {
@@ -509,7 +509,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Gets a new connect URL with fresh nonce
 	 *
 	 * @uses Jetpack::disconnect();
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 * @return bool|WP_Error True if Jetpack successfully disconnected.
 	 */
 	public static function build_connect_url() {
@@ -524,7 +524,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get miscellaneous settings for this Jetpack installation, like Holiday Snow.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return object $response {
 	 *     Array of miscellaneous settings.
@@ -544,7 +544,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Information about the master/primary user.
 	 * Information about the current user.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return object
 	 */
@@ -563,7 +563,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Update a single miscellaneous setting for this Jetpack installation, like Holiday Snow.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param WP_REST_Request $data
 	 *
@@ -608,7 +608,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * Example: '/unlink?id=1234'
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 * @uses  Jetpack::unlink_user
 	 *
 	 * @param WP_REST_Request $data {
@@ -634,7 +634,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get site data, including for example, the site's current plan.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return array Array of Jetpack modules.
 	 */
@@ -662,7 +662,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Reset Jetpack options
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
@@ -721,7 +721,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Toggles activation or deactivation of the JumpStart
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
@@ -742,7 +742,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Activates a series of valid Jetpack modules and initializes some options.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
@@ -824,7 +824,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Dismisses Jumpstart so user is not prompted to go through it again.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
@@ -856,7 +856,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get the query parameters for module updating.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return array
 	 */
@@ -873,7 +873,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Returns a list of module options that can be updated.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $module Module slug. If empty, it's assumed we're updating a module and we'll try to get its slug.
 	 * @param bool $cache Whether to cache the options or return always fresh.
@@ -1464,7 +1464,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is either a pure boolean or a numeric string that can be mapped to a boolean.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string|bool $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1482,7 +1482,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is a positive integer.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param int $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1500,7 +1500,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter belongs to a list of admitted values.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1528,7 +1528,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter belongs to a list of admitted values.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1553,7 +1553,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is an alphanumeric or empty string (to be able to clear the field).
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1571,7 +1571,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is among the roles allowed for Stats.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string|bool $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1589,7 +1589,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is among the views where the Sharing can be displayed.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string|bool $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1608,7 +1608,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is among the views where the Sharing can be displayed.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string|bool $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1645,7 +1645,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter has enough information to build a custom sharing button.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string|bool $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1678,7 +1678,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is a custom sharing service ID like 'custom-1461976264'.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1707,7 +1707,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is a Twitter username or empty string (to be able to clear the field).
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1725,7 +1725,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is a string.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
@@ -1744,7 +1744,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * If for some reason the roles allowed to see Stats are empty (for example, user tampering with checkboxes),
 	 * return an array with only 'administrator' as the allowed role and save it for 'roles' option.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string|bool $value Value to check.
 	 *
@@ -1760,7 +1760,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get the currently accessed route and return the module slug in it.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $route Regular expression for the endpoint with the module slug to return.
 	 *
@@ -1821,7 +1821,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Fetch current option value and add to array of module options.
 	 * Prepare values of module options that need special handling, like those saved in wpcom.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $module Module slug.
 	 * @return array
@@ -1937,7 +1937,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Splits module options saved as arrays like relatedposts or verification_services_codes into separate options to be returned in the response.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param array  $separate_options Array of options admitted by the module.
 	 * @param array  $grouped_options Option saved as array to be splitted.
@@ -1960,7 +1960,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Perform a casting to the value specified in the option definition.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param mixed $value Value to cast to the proper type.
 	 * @param array $definition Type to cast the value to.
@@ -1998,7 +1998,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get a value not saved locally.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $module Module slug.
 	 * @param string $option Option name.
@@ -2058,7 +2058,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get number of plugin updates available.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return mixed|WP_Error Number of plugin updates available. Otherwise, a WP_Error instance with the corresponding error.
 	 */

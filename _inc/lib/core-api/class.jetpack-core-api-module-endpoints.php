@@ -9,7 +9,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	/**
 	 * List of modules that require WPCOM public access.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 *
 	 * @var array
 	 */
@@ -45,7 +45,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	/**
 	 * If it's a valid Jetpack module, activate it.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
@@ -135,7 +135,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	/**
 	 * Check that the current user has permissions to manage Jetpack modules.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 *
 	 * @return bool
 	 */
@@ -183,7 +183,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	/**
 	 * Activate a list of valid Jetpack modules.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
@@ -323,7 +323,7 @@ class Jetpack_Core_API_Module_Endpoint
 	/**
 	 * If it's a valid Jetpack module and configuration parameters have been sent, update it.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
@@ -622,7 +622,7 @@ class Jetpack_Core_API_Module_Endpoint
 	 * Calls WPCOM through authenticated request to create, regenerate or delete the Post by Email address.
 	 * @todo: When all settings are updated to use endpoints, move this to the Post by Email module and replace __process_ajax_proxy_request.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @param string $endpoint Process to call on WPCOM to create, regenerate or delete the Post by Email address.
 	 * @param string $error	   Error message to return.
@@ -791,7 +791,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Get date of last downtime.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return mixed|WP_Error Number of days since last downtime. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -824,7 +824,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Get services that this site is verified with.
 	 *
-	 * @since 4.1.0
+	 * @since 4.3.0
 	 *
 	 * @return mixed|WP_Error List of services that verified this site. Otherwise, a WP_Error instance with the corresponding error.
 	 */
