@@ -21,7 +21,7 @@ export const dismissJetpackNotice = ( notice ) => {
 				dismissedNotices: dismissedNotices,
 				success: true
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_NOTICES_DISMISS_FAIL,
 				error: error

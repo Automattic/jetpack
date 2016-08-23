@@ -34,7 +34,7 @@ export const jumpStartActivate = () => {
 			analytics.tracks.recordEvent( 'jetpack_wpa_jumpstart_submit', {} );
 			dispatch( removeNotice( 'jumpstart-activate' ) );
 			dispatch( createNotice( 'is-success', __( 'Recommended features active.' ), { id: 'jumpstart-activate' } ) );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JUMPSTART_ACTIVATE_FAIL,
 				error: error
@@ -67,7 +67,7 @@ export const jumpStartSkip = () => {
 				type: JUMPSTART_SKIP_SUCCESS,
 				jumpStart: false
 			} );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JUMPSTART_SKIP_FAIL,
 				error: error

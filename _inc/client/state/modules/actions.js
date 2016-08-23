@@ -24,7 +24,7 @@ import {
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
 } from 'state/action-types';
-import { getModule } from 'state/modules';
+import { getModule } from 'state/modules/reducer';
 import restApi from 'rest-api';
 
 export const fetchModules = () => {
@@ -38,7 +38,7 @@ export const fetchModules = () => {
 				modules: modules
 			} );
 			return modules;
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULES_LIST_FETCH_FAIL,
 				error: error
@@ -58,7 +58,7 @@ export const fetchModule = () => {
 				module: data
 			} );
 			return data;
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_FETCH_FAIL,
 				error: error
@@ -99,7 +99,7 @@ export const activateModule = ( slug ) => {
 				} ),
 				{ id: `module-${ slug }` }
 			) );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_FAIL,
 				module: slug,
@@ -153,7 +153,7 @@ export const deactivateModule = ( slug ) => {
 				} ),
 				{ id: `module-${ slug }` }
 			) );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_FAIL,
 				module: slug,
@@ -209,7 +209,7 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 				} ),
 				{ id: `module-setting-${ slug }` }
 			) );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 				module: slug,
@@ -274,7 +274,7 @@ export const regeneratePostByEmailAddress = () => {
 				} ),
 				{ id: `module-setting-${ slug }` }
 			) );
-		} )['catch']( error => {
+		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 				module: slug,
