@@ -82,7 +82,7 @@ const ProStatus = React.createClass( {
 				}
 			}
 
-			if ( false !== sitePlan ) {
+			if ( sitePlan.product_slug ) {
 				let btnVals = {};
 				if ( 'jetpack_free' !== sitePlan.product_slug ) {
 					btnVals = {
