@@ -177,7 +177,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 			}
 		}
 
-		return $modules;
+		return Jetpack_Core_Json_Api_Endpoints::prepare_modules_for_response( $modules );
 	}
 
 	/**
@@ -310,7 +310,7 @@ class Jetpack_Core_API_Module_Endpoint
 				$module['activated'] = false;
 			}
 
-			return $module;
+			return Jetpack_Core_Json_Api_Endpoints::prepare_modules_for_response( $module );
 		}
 
 		return new WP_Error(
