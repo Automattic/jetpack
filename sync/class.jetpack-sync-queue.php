@@ -196,8 +196,13 @@ class Jetpack_Sync_Queue {
 			OBJECT
 		);
 
+		if ( count( $items_with_size ) === 0 ) {
+			return false;
+		}
+
 		$total_memory = 0;
-		$item_ids     = array();
+
+		$min_item_id = $max_item_id = $items_with_size[0]->id;
 
 		foreach ( $items_with_size as $item_with_size ) {
 			$total_memory += $item_with_size->value_size;
@@ -207,10 +212,20 @@ class Jetpack_Sync_Queue {
 			if ( $total_memory > $max_memory && count( $item_ids ) > 0 ) {
 				break;
 			}
-			$item_ids[] = $item_with_size->id;
+
+			$max_item_id = $item_with_size->id;
 		}
 
-		$items = $this->fetch_items_by_id( $item_ids );
+		$query = $wpdb->prepare( 
+			"SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name >= %s and option_name <= %s ORDER BY option_name ASC",
+			$min_item_id,
+			$max_item_id
+		);
+
+		$items = $wpdb->get_results( $query, OBJECT );
+		foreach ( $items as $item ) {
+			$item->value = maybe_unserialize( $item->value );
+		}
 
 		if ( count( $items ) === 0 ) {
 			$this->delete_checkout_id();
@@ -358,23 +373,6 @@ class Jetpack_Sync_Queue {
 		}
 
 		return $items;
-	}
-
-	private function fetch_items_by_id( $item_ids ) {
-		global $wpdb;
-
-		if ( count( $item_ids ) > 0 ) {
-			$sql   = "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name IN (" . implode( ', ', array_fill( 0, count( $item_ids ), '%s' ) ) . ') ORDER BY option_name ASC';
-			$query = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $item_ids ) );
-			$items = $wpdb->get_results( $query, OBJECT );
-			foreach ( $items as $item ) {
-				$item->value = maybe_unserialize( $item->value );
-			}
-
-			return $items;
-		} else {
-			return array();
-		}
 	}
 
 	private function validate_checkout( $buffer ) {
