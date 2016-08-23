@@ -45,7 +45,7 @@ const DashScan = React.createClass( {
 				return (
 					<DashItem
 						label={ labelName }
-						module="vaultpress"
+						module="scan"
 						status="is-error"
 						statusText={ __( 'Threats found' ) }
 						pro={ true }
@@ -74,7 +74,7 @@ const DashScan = React.createClass( {
 				return (
 					<DashItem
 						label={ labelName }
-						module="vaultpress"
+						module="scan"
 						status="is-working"
 						pro={ true }
 					>
@@ -109,7 +109,7 @@ const DashScan = React.createClass( {
 		return (
 			<DashItem
 				label={ labelName }
-				module="vaultpress"
+				module="scan"
 				className="jp-dash-item__is-inactive"
 				status={ hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive' }
 				pro={ true }

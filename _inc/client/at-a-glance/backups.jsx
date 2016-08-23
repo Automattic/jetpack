@@ -43,7 +43,7 @@ const DashBackups = React.createClass( {
 				return (
 					<DashItem
 						label={ labelName }
-						module="vaultpress"
+						module="backups"
 						status="is-working"
 						className="jp-dash-item__is-active"
 						pro={ true }
@@ -86,7 +86,7 @@ const DashBackups = React.createClass( {
 		return (
 			<DashItem
 				label={ labelName }
-				module="vaultpress"
+				module="backups"
 				className="jp-dash-item__is-inactive"
 				status={ hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive' }
 				pro={ true }
