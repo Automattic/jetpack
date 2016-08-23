@@ -181,8 +181,9 @@ function stats_footer() {
 function stats_get_options() {
 	$options = get_option( 'stats_options' );
 
-	if ( !isset( $options['version'] ) || $options['version'] < STATS_VERSION )
+	if ( ! isset( $options['version'] ) || $options['version'] < STATS_VERSION ) {
 		$options = stats_upgrade_options( $options );
+	}
 
 	return $options;
 }
@@ -204,11 +205,11 @@ function stats_set_option( $option, $value ) {
 
 	$options[$option] = $value;
 
-	stats_set_options($options);
+	return stats_set_options($options);
 }
 
 function stats_set_options($options) {
-	update_option( 'stats_options', $options );
+	return update_option( 'stats_options', $options );
 }
 
 function stats_upgrade_options( $options ) {
@@ -236,7 +237,9 @@ function stats_upgrade_options( $options ) {
 
 	$new_options['version'] = STATS_VERSION;
 
-	stats_set_options( $new_options );
+	if ( !  stats_set_options( $new_options ) ) {
+		return false;
+	}
 
 	stats_update_blog();
 
