@@ -1,6 +1,6 @@
 <?php
 /**
- * This is the base class for every Core API endpoint Jetpack uses.
+ * This is the base class for every Core API endpoint that needs an XMLRPC client.
  *
  */
 abstract class Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
@@ -11,7 +11,7 @@ abstract class Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 * @private
 	 * @var Jetpack_IXR_Client
 	 */
-	private $xmlrpc;
+	protected $xmlrpc;
 
 	/**
 	 * @param Jetpack_IXR_Client $xmlrpc

@@ -9,8 +9,8 @@ var ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
 var IS_HOT_UPDATE = ( process.env.NODE_ENV !== 'production' );
 
 var jsLoader = IS_HOT_UPDATE ?
-	[ require.resolve( 'react-hot-loader' ), require.resolve( 'babel-loader' ) + '?stage=1', require.resolve( 'eslint-loader' ) ] :
-	[ require.resolve( 'babel-loader' ) + '?stage=1', require.resolve( "eslint-loader" ) ];
+	[ require.resolve( 'react-hot-loader' ), require.resolve( 'babel-loader' ), require.resolve( 'eslint-loader' ) ] :
+	[ require.resolve( 'babel-loader' ), require.resolve( "eslint-loader" ) ];
 
 var cssLoader = IS_HOT_UPDATE ?
 	'style!css?sourceMap!autoprefixer!' :
