@@ -222,7 +222,7 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 			dispatch( removeNotice( `module-setting-${ slug }` ) );
 			dispatch( createNotice(
 				'is-error',
-				__( 'Error updating %(slug) settings. %(error)d', {
+				__( 'Error updating %(slug)s settings. %(error)s', {
 					args: {
 						slug: getModule( getState(), slug ).name,
 						error: error
