@@ -74,7 +74,7 @@ export const activateModule = ( slug ) => {
 			type: JETPACK_MODULE_ACTIVATE,
 			module: slug
 		} );
-		dispatch( removeNotice( `module-${ slug }` ) );
+		dispatch( removeNotice( 'module-toggle' ) );
 		dispatch( createNotice(
 			'is-info',
 			__( 'Activating %(slug)s…', {
@@ -82,7 +82,7 @@ export const activateModule = ( slug ) => {
 					slug: getModule( getState(), slug ).name
 				}
 			} ),
-			{ id: `module-${ slug }` }
+			{ id: 'module-toggle' }
 		) );
 		return restApi.activateModule( slug ).then( () => {
 			dispatch( {
@@ -90,7 +90,7 @@ export const activateModule = ( slug ) => {
 				module: slug,
 				success: true
 			} );
-			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( removeNotice( 'module-toggle' ) );
 			dispatch( createNotice(
 				'is-success',
 				__( '%(slug)s has been activated.', {
@@ -98,7 +98,7 @@ export const activateModule = ( slug ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: `module-${ slug }` }
+				{ id: 'module-toggle' }
 			) );
 		} ).catch( error => {
 			dispatch( {
@@ -107,7 +107,7 @@ export const activateModule = ( slug ) => {
 				success: false,
 				error: error
 			} );
-			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( removeNotice( 'module-toggle' ) );
 			dispatch( createNotice(
 				'is-error',
 				__( '%(slug)s failed to activate. %(error)s', {
@@ -116,7 +116,7 @@ export const activateModule = ( slug ) => {
 						error: error
 					}
 				} ),
-				{ id: `module-${ slug }` }
+				{ id: 'module-toggle' }
 			) );
 		} );
 	}
@@ -128,7 +128,7 @@ export const deactivateModule = ( slug ) => {
 			type: JETPACK_MODULE_DEACTIVATE,
 			module: slug
 		} );
-		dispatch( removeNotice( `module-${ slug }` ) );
+		dispatch( removeNotice( 'module-toggle' ) );
 		dispatch( createNotice(
 			'is-info',
 			__( 'Deactivating %(slug)s…', {
@@ -136,7 +136,7 @@ export const deactivateModule = ( slug ) => {
 					slug: getModule( getState(), slug ).name
 				}
 			} ),
-			{ id: `module-${ slug }` }
+			{ id: 'module-toggle' }
 		) );
 		return restApi.deactivateModule( slug ).then( () => {
 			dispatch( {
@@ -144,7 +144,7 @@ export const deactivateModule = ( slug ) => {
 				module: slug,
 				success: true
 			} );
-			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( removeNotice( 'module-toggle' ) );
 			dispatch( createNotice(
 				'is-success',
 				__( '%(slug)s has been deactivated.', {
@@ -152,7 +152,7 @@ export const deactivateModule = ( slug ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: `module-${ slug }` }
+				{ id: 'module-toggle' }
 			) );
 		} ).catch( error => {
 			dispatch( {
@@ -161,7 +161,7 @@ export const deactivateModule = ( slug ) => {
 				success: false,
 				error: error
 			} );
-			dispatch( removeNotice( `module-${ slug }` ) );
+			dispatch( removeNotice( 'module-toggle' ) );
 			dispatch( createNotice(
 				'is-error',
 				__( '%(slug)s failed to deactivate. %(error)d', {
@@ -170,7 +170,7 @@ export const deactivateModule = ( slug ) => {
 						error: error
 					}
 				} ),
-				{ id: `module-${ slug }` }
+				{ id: 'module-toggle' }
 			) );
 		} );
 	}
