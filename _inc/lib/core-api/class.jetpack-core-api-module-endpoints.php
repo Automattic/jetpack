@@ -756,14 +756,15 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 */
 	public function get_stats_data( WP_REST_Request $data ) {
 		// Get parameters to fetch Stats data.
-		$params = $data->get_json_params();
+		$range = $data->get_param( 'range' );
 
 		// If no parameters were passed.
-		$range =
-			is_array( $params )
-			&& isset( $params['range'] )
-			&& in_array( $params['range'], array( 'day', 'week', 'month' ), true ) ?
-				$params['range'] : 'day';
+		if (
+			empty ( $range )
+			|| ! in_array( $range, array( 'day', 'week', 'month' ), true )
+		) {
+			$range = 'day';
+		}
 
 		if ( ! function_exists( 'stats_get_from_restapi' ) ) {
 			require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );

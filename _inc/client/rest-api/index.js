@@ -161,16 +161,15 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		fetchStatsData: ( range ) => fetch( `${ apiRoot }jetpack/v4/module/stats/data`, {
-			credentials: 'same-origin',
-			headers: {
-				'X-WP-Nonce': apiNonce,
-				'Content-type': 'application/json'
-			},
-			body: JSON.stringify( {
-				range: range
-			} )
-		} )
+		fetchStatsData: ( range ) => fetch(
+			`${ apiRoot }jetpack/v4/module/stats/data?range=${ encodeURIComponent( range ) }`,
+			{
+				credentials: 'same-origin',
+				headers: {
+					'X-WP-Nonce': apiNonce
+				}
+			}
+		)
 		.then( checkStatus ).then( response => response.json() ),
 		getPluginUpdates: () => fetch( `${ apiRoot }jetpack/v4/updates/plugins`, {
 			credentials: 'same-origin',
