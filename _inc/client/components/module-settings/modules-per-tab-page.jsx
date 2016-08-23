@@ -58,7 +58,7 @@ export const AllModuleSettings = React.createClass( {
 				return '' === module.configure_url ? (
 					<div>
 						{
-							__( 'Upgrade Jetpack and our state-of-the-art security scanner will hunt out malicious files and report them immediately so that you’re never unaware of what is happening on your website.' )
+							__( 'Upgrade Jetpack and our state-of-the-art security scanner will hunt out malicious files and report them immediately so that you\'re never unaware of what is happening on your website.' )
 						}
 					</div>
 				) : (
@@ -103,7 +103,7 @@ export const AllModuleSettings = React.createClass( {
 					<div>
 						{
 							module.module === 'akismet' ?
-								__( 'Let search engines and visitors know that you are serious about your websites integrity by upgrading Jetpack. Our anti-spam tools will eliminate comment spam, protect your SEO, and make it easier for visitors to stay in touch..' )
+								__( 'Let search engines and visitors know that you are serious about your websites integrity by upgrading Jetpack. Our anti-spam tools will eliminate comment spam, protect your SEO, and make it easier for visitors to stay in touch.' )
 								:
 								__( 'Real-time offsite backups with automated restores deliver peace-of-mind, so you can focus on writing great content and increasing traffic while we protect every aspect of your investment. Upgrade today.' )
 						}
