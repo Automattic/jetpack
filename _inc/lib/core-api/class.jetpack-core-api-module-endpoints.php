@@ -906,7 +906,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	}
 
 	/**
-	 * Get VaultPress site data including, among other things, the date of tge last backup if it was completed.
+	 * Get VaultPress site data including, among other things, the date of the last backup if it was completed.
 	 *
 	 * @since 4.3.0
 	 *
