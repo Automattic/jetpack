@@ -304,6 +304,5 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			$this->assertInternalType( 'object', $post_type );
 			$this->assertObjectNotHasAttribute( 'register_meta_box_cb', $post_type, "{$key} has the register_meta_box_cb attribute, which should be removed since it is a callback" );
 		}
-		
 	}
 }

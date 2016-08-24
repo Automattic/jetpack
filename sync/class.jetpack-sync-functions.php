@@ -20,8 +20,15 @@ class Jetpack_Sync_Functions {
 
 	public static function get_post_types() {
 		global $wp_post_types;
+		$cloned_post_types = array();
 
-		return $wp_post_types;
+		foreach ( (array) $wp_post_types as $key => $post_type ) {
+			$clone = clone( $post_type );
+			unset( $clone->register_meta_box_cb );
+			$cloned_post_types[ $key ] = $clone;
+		}
+
+		return $cloned_post_types;
 	}
 
 	public static function get_post_type_features() {
