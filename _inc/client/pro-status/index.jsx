@@ -55,7 +55,7 @@ const ProStatus = React.createClass( {
 				return __( 'Unavailable in Dev Mode' );
 			}
 
-			if ( 'N/A' !== vpData && 'vaultpress' === feature && 0 !== this.props.getScanThreats() ) {
+			if ( 'N/A' !== vpData && 'scan' === feature && 0 !== this.props.getScanThreats() ) {
 				return(
 					<SimpleNotice
 						showDismiss={ false }
