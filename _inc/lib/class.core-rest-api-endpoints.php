@@ -1990,6 +1990,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				case 'float':
 					return (float) $value;
 					break;
+
+				case 'string':
+					return (string) $value;
+					break;
 			}
 		}
 		return $value;
