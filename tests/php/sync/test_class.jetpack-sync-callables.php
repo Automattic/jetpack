@@ -297,4 +297,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
 	}
+
+	function test_post_types_objects_do_not_have_meta_box_callback() {
+		$post_types = Jetpack_Sync_Functions::get_post_types();
+		foreach ( $post_types as $key => $post_type ) {
+			$this->assertInternalType( 'object', $post_type );
+			$this->assertObjectNotHasAttribute( 'register_meta_box_cb', $post_type, "{$key} has the register_meta_box_cb attribute, which should be removed since it is a callback" );
+		}
+		
+	}
 }
