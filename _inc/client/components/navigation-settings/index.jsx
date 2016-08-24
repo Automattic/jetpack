@@ -17,7 +17,10 @@ injectTapEventPlugin();
  * Internal dependencies
  */
 import { filterSearch } from 'state/search';
-import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
+import {
+	userCanManageModules as _userCanManageModules,
+	userIsSubscriber as _userIsSubscriber
+} from 'state/initial-state';
 
 const NavigationSettings = React.createClass( {
 	openSearch: function() {
@@ -93,6 +96,16 @@ const NavigationSettings = React.createClass( {
 					</NavItem>
 				</NavTabs>
 			);
+		} else if ( this.props.isSubscriber ) {
+			navItems = (
+				<NavTabs selectedText={ this.props.route.name }>
+					<NavItem
+						path="#general"
+						selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
+						{ __( 'General', { context: 'Navigation item.' } ) }
+					</NavItem>
+				</NavTabs>
+			);
 		} else {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
@@ -133,7 +146,8 @@ NavigationSettings.contextTypes = {
 export default connect(
 	( state ) => {
 		return {
-			userCanManageModules: _userCanManageModules( state )
+			userCanManageModules: _userCanManageModules( state ),
+			isSubscriber: _userIsSubscriber( state )
 		};
 	},
 	( dispatch ) => {
