@@ -7,7 +7,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	fs = require( 'fs' ),
 	gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
-	glotpress = require( 'glotpress-js' ),
+	i18n_calypso = require( 'i18n-calypso/cli' ),
 	jshint = require( 'gulp-jshint' ),
 	phplint = require( 'gulp-phplint' ),
 	phpunit = require( 'gulp-phpunit' ),
@@ -18,6 +18,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	sass = require( 'gulp-sass' ),
 	spawn = require( 'child_process' ).spawn,
 	sourcemaps = require( 'gulp-sourcemaps' ),
+	tap = require( 'gulp-tap' ),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
 
@@ -454,14 +455,26 @@ gulp.task( 'languages:cleanup', [ 'languages:build' ], function() {
 	);
 } );
 
-gulp.task( 'languages:extract', [ 'react:build' ], function( callback ) {
-	glotpress( {
-		inputPaths: [ '_inc/build/admin.js' ],
-		output: '_inc/jetpack-strings.php',
-		format: 'php'
-	} );
+gulp.task( 'languages:extract', function( done ) {
+	var paths = [];
 
-	callback();
+	gulp.src( [ '_inc/client/**/*.js', '_inc/client/**/*.jsx' ] )
+		.pipe( tap( function( file ) {
+			paths.push( file.path );
+		} ) )
+		.on( 'end', function() {
+			i18n_calypso( {
+				projectName: 'Jetpack',
+				inputPaths: paths,
+				output: '_inc/jetpack-strings.php',
+				phpArrayName: 'jetpack_strings',
+				format: 'PHP',
+				textdomain: 'jetpack',
+				keywords: [ 'translate', '__' ]
+			} );
+
+			done();
+		} );
 } );
 
 // Default task
