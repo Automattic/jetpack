@@ -29,6 +29,12 @@ export const Footer = React.createClass( {
 		}
 	},
 
+	resetOnClick() {
+		if ( window.confirm( __( 'This will reset all Jetpack options, are you sure?' ) ) ) {
+			this.props.resetOptions()
+		}
+	},
+
 	render() {
 		const classes = classNames(
 			this.props.className,
@@ -37,11 +43,11 @@ export const Footer = React.createClass( {
 
 		const version = this.props.currentVersion;
 		const maybeShowReset = () => {
-			if ( this.props.isDevVersion ) {
+			if ( this.props.isDevVersion && this.props.userCanManageOptions ) {
 				return (
 					<li className="jp-footer__link-item">
 						<a
-							onClick={ this.props.resetOptions }
+							onClick={ this.resetOnClick }
 							className="jp-footer__link">
 							{ __( 'Reset Options (dev versions only)', { context: 'Navigation item.' } ) }
 						</a>
