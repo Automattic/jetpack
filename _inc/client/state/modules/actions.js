@@ -98,7 +98,7 @@ export const activateModule = ( slug ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: 'module-toggle' }
+				{ id: 'module-toggle', duration: 6000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
@@ -152,7 +152,7 @@ export const deactivateModule = ( slug ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: 'module-toggle' }
+				{ id: 'module-toggle', duration: 6000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
