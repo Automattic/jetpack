@@ -17,10 +17,15 @@ class Jetpack_Sync_Functions {
 		$cloned_taxonomies = array();
 
 		foreach ( (array) $wp_taxonomies as $key => $taxonomy ) {
-			$clone = clone( $taxonomy );
-			unset( $clone->update_count_callback );
-			unset( $clone->meta_box_cb );
-			$cloned_taxonomies[ $key ] = $clone;
+			$cloned_taxonomy = new stdClass();
+			foreach( (array) get_object_vars( $taxonomy ) as $var_key => $value ) {
+				if ( in_array( $var_key, array( 'update_count_callback', 'meta_box_cb' ) ) ) {
+					continue;
+				}
+				$cloned_taxonomy->$var_key = $value;
+			}
+
+			$cloned_taxonomies[ $key ] = $cloned_taxonomy;
 		}
 
 		return $cloned_taxonomies;
@@ -31,9 +36,15 @@ class Jetpack_Sync_Functions {
 		$cloned_post_types = array();
 
 		foreach ( (array) $wp_post_types as $key => $post_type ) {
-			$clone = clone( $post_type );
-			unset( $clone->register_meta_box_cb );
-			$cloned_post_types[ $key ] = $clone;
+			$cloned_post_type = new stdClass();
+			foreach ( (array) get_object_vars( $post_type ) as $var_key => $value ) {
+				if ( 'register_meta_box_cb' == $var_key ) {
+					continue;
+				}
+				$cloned_post_type->$var_key = $value;
+			}
+
+			$cloned_post_types[ $key ] = $cloned_post_type;
 		}
 
 		return $cloned_post_types;

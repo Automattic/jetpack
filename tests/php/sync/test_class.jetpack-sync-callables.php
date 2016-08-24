@@ -302,7 +302,37 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$post_types = Jetpack_Sync_Functions::get_post_types();
 		foreach ( $post_types as $key => $post_type ) {
 			$this->assertInternalType( 'object', $post_type );
+
+			// Did we get rid of the expected attribute?
 			$this->assertObjectNotHasAttribute( 'register_meta_box_cb', $post_type, "{$key} has the register_meta_box_cb attribute, which should be removed since it is a callback" );
+
+			// Did we preserve expected attributes?
+			$check_object_vars = array(
+				'labels',
+				'description',
+				'public',
+				'hierarchical',
+				'exclude_from_search',
+				'publicly_queryable',
+				'show_ui',
+				'show_in_menu',
+				'show_in_nav_menus',
+				'show_in_admin_bar',
+				'menu_position',
+				'menu_icon',
+				'capability_type',
+				'map_meta_cap',
+				'rewrite',
+				'query_var',
+				'can_export',
+				'delete_with_user',
+				'cap',
+				'label',
+			);
+
+			foreach ( $check_object_vars as $test ) {
+				$this->assertObjectHasAttribute( $test, $post_type, "Post type does not have expected {$test} attribute." );
+			}
 		}
 	}
 
@@ -310,8 +340,29 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$taxonomies = Jetpack_Sync_Functions::get_taxonomies();
 		foreach ( $taxonomies as $key => $taxonomy ) {
 			$this->assertInternalType( 'object', $taxonomy );
+
+			// Did we get rid of the expected attributes?
 			$this->assertObjectNotHasAttribute( 'update_count_callback', $taxonomy, "{$key} has the update_count_callback attribute, which should be removed since it is a callback" );
 			$this->assertObjectNotHasAttribute( 'meta_box_cb', $taxonomy, "{$key} has the meta_box_cb attribute, which should be removed since it is a callback" );
+
+			// Did we preserve the expected attributes?
+			$check_object_vars = array(
+				'labels',
+				'description',
+				'public',
+				'publicly_queryable',
+				'hierarchical',
+				'show_ui',
+				'show_in_menu',
+				'show_in_nav_menus',
+				'show_tagcloud',
+				'show_in_quick_edit',
+				'show_admin_column',
+				'rewrite',
+			);
+			foreach ( $check_object_vars as $test ) {
+				$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
+			}
 		}
 	}
 }
