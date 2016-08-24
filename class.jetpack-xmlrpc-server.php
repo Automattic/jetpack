@@ -147,8 +147,13 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * verify_secret_1_missing
 	 * verify_secret_1_malformed
-	 * verify_secrets_missing: No longer have verification secrets stored
+	 * verify_secrets_missing: verification secrets are not found in database
+	 * verify_secrets_incomplete: verification secrets are only partially found in database
+	 * verify_secrets_expired: verification secrets have expired
 	 * verify_secrets_mismatch: stored secret_1 does not match secret_1 sent by Jetpack.WordPress.com
+	 * state_missing: required parameter of state not found
+	 * state_malformed: state is not a digit
+	 * invalid_state: state in request does not match the stored state
 	 *
 	 * The 'authorize' and 'register' actions have additional error codes
 	 *
@@ -168,16 +173,21 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		$secrets = Jetpack_Options::get_option( $action );
-		if ( !$secrets || is_wp_error( $secrets ) ) {
+		if ( ! $secrets || is_wp_error( $secrets ) ) {
 			Jetpack_Options::delete_option( $action );
-			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
+			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification secrets not found', 400 ) );
 		}
 
 		@list( $secret_1, $secret_2, $secret_eol, $user_id ) = explode( ':', $secrets );
 
-		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
+		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) ) {
 			Jetpack_Options::delete_option( $action );
-			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
+			return $this->error( new Jetpack_Error( 'verify_secrets_incomplete', 'Verification secrets are incomplete', 400 ) );
+		}
+
+		if ( $secret_eol < time() ) {
+			Jetpack_Options::delete_option( $action );
+			return $this->error( new Jetpack_Error( 'verify_secrets_expired', 'Verification took too long', 400 ) );
 		}
 
 		if ( ! hash_equals( $verify_secret, $secret_1 ) ) {
