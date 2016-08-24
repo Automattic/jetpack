@@ -140,22 +140,45 @@ class Jetpack_Sync_Sender {
 			 * @param array The action parameters
 			 * @param int The ID of the user who triggered the action
 			 */
-			$item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
+			$item_value = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
 			wp_suspend_cache_addition( false );
-			if ( $item[1] === false ) {
+			if ( $item_value === false ) {
 				$skipped_items_ids[] = $key;
 				continue;
 			}
+			if ( $item_value instanceof Traversable ) {
+				$sub_key = 0;
+				foreach ( $item_value as $value ) {
+					$new_item[0] = $item[0];
+					$new_item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], array( $value ), $item[2] );
+					$new_item[2] = $item[2];
+					$new_item[3] = $item[3];
+					$new_item[4] = $item[4];
 
-			$encoded_item = $this->codec->encode( $item );
+					$encoded_item = $this->codec->encode( $new_item );
 
-			$upload_size += strlen( $encoded_item );
+					$upload_size += strlen( $encoded_item );
 
-			if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
-				break;
+					if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
+						break 2;
+					}
+					$sub_key ++;
+					$items_to_send[ $key . '-' . $sub_key ] = $encoded_item;
+				}
+			} else {
+
+				$item[1] = $item_value;
+
+				$encoded_item = $this->codec->encode( $item );
+
+				$upload_size += strlen( $encoded_item );
+
+				if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
+					break;
+				}
+
+				$items_to_send[ $key ] = $encoded_item;
 			}
-
-			$items_to_send[ $key ] = $encoded_item;
 		}
 
 		/**

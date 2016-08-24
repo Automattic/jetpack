@@ -163,7 +163,18 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
-		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->usermeta, 'user_id', $this->get_where_sql( $config ) );
+		if ( is_array( $config ) ) {
+			return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->usermeta, 'user_id', $this->get_where_sql( $config ) );
+		}
+		/**
+		 * Tells the client to sync all users to the server
+		 *
+		 * @since 4.2.3
+		 *
+		 */
+		do_action( 'jetpack_full_sync_users', 0 );
+
+		return $this->estimate_full_sync_actions( $config );
 	}
 
 	public function estimate_full_sync_actions( $config ) {
@@ -210,8 +221,27 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function expand_users( $args ) {
-		$user_ids = $args[0];
-
+		if ( is_array( $args[0] ) ) {
+			$user_ids = $args[0];
+		}
+		if ( is_int( $args[0] ) ) {
+			return $this->get_next_user_ids( $args[0] );
+		}
+		if ( empty( $user_ids ) ) {
+			return false;
+		}
 		return array_map( array( $this, 'sanitize_user_and_expand' ), get_users( array( 'include' => $user_ids ) ) );
+	}
+
+	public function get_next_user_ids( $from ) {
+		global $wpdb;
+		while ( true ) {
+			$ids =  $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND user_id > $from ORDER BY user_id ASC LIMIT " . self::ARRAY_CHUNK_SIZE );
+			if ( is_wp_error( $ids ) || empty( $ids ) ) {
+				return false;
+			}
+			$from = end( $ids );
+			yield $ids;
+		}
 	}
 }
