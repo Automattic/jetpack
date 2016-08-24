@@ -18,7 +18,7 @@
     "distclean": "rm -rf node_modules",
     "build": "npm install && npm run build-client",
     "build-client": "gulp",
-    "build-production": "npm run build-languages && NODE_ENV=production npm run build",
+    "build-production": "npm run clean && npm run build && npm run build-languages && gulp languages:extract && NODE_ENV=production npm run build",
     "build-languages": "gulp languages",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "lint": "eslint _inc/client -c .eslintrc"
@@ -68,6 +68,7 @@
     "gulp-sass": "^2.0.4",
     "gulp-sftp": "^0.1.5",
     "gulp-sourcemaps": "^1.6.0",
+    "gulp-tap": "^0.1.3",
     "gulp-util": "^3.0.6",
     "history": "2.0.0",
     "i18n-calypso": "github:automattic/i18n-calypso",
