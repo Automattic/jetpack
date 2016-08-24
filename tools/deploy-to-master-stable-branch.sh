@@ -41,7 +41,8 @@ echo ""
 
 echo "Building Jetpack"
 npm run distclean
-NODE_ENV=production npm run build
+npm install
+NODE_ENV=production npm run build-client
 echo "Done"
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
