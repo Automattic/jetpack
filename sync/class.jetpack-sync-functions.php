@@ -14,8 +14,16 @@ class Jetpack_Sync_Functions {
 
 	public static function get_taxonomies() {
 		global $wp_taxonomies;
+		$cloned_taxonomies = array();
 
-		return $wp_taxonomies;
+		foreach ( (array) $wp_taxonomies as $key => $taxonomy ) {
+			$clone = clone( $taxonomy );
+			unset( $clone->update_count_callback );
+			unset( $clone->meta_box_cb );
+			$cloned_taxonomies[ $key ] = $clone;
+		}
+
+		return $cloned_taxonomies;
 	}
 
 	public static function get_post_types() {
