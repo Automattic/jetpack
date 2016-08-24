@@ -4,8 +4,6 @@ With Jetpack 4.3, we completely revamped the admin interface. The new dashboard 
 
 We'd like to you to try and test every aspect of that new interface.
 
-**To get started, use the "Disconnect Jetpack" link at the bottom of the Jetpack menu, and then use the "Reset Options" to start from scratch, as a brand new Jetpack user.**
-
 We're looking forward to getting your feedback on the following things:
 
 ### Check for errors
@@ -48,5 +46,7 @@ Try to manage your Jetpack settings in different browsers, with JavaScript enabl
 ### Give us your opinion
 
 Let us know if you experience issues, or get confused when navigating the dashboard, searching for options, discovering a module, changing its settings. If something feels wrong, or is more confusing than it should be, let us know! If you can't find a specific option, or if you're having trouble finding your way around the new navigation, let us know!
+
+**Pro tip: use the "Disconnect Jetpack" link at the bottom of the Jetpack menu, and then use the "Reset Options" to start from scratch, as a brand new Jetpack user.**
 
 You can send us all your feedback via [this form](https://jetpack.com/contact-support/beta-group/). Thank you, and happy testing! ☺️ 🚀
