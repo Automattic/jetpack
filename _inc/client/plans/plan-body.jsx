@@ -51,9 +51,20 @@ const PlanBody = React.createClass( {
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Security Scanning & Backups' ) }</h3>
 							<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place.' ) }</p>
-							<Button href="https://dashboard.vaultpress.com/" className="is-primary">
-								{ __( 'View your security dashboard' ) }
-							</Button>
+							{
+								this.props.isFetchingPluginsData ? '' :
+									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
+									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+										<Button href="https://dashboard.vaultpress.com/" className="is-primary">
+											{ __( 'View your security dashboard' ) }
+										</Button>
+									)
+									: (
+										<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+											{ __( 'Configure VaultPress' ) }
+										</Button>
+									)
+							}
 						</div>
 
 						{
