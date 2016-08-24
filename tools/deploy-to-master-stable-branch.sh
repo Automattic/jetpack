@@ -7,12 +7,14 @@ function exit_build {
     exit 1
 }
 
-# Currently a one-off script to push a built version to GitHub.
+# Currently a one-off script to push a built version to a GitHub branch or tag.
+# If no tag or branch is set as a param, it defaults to 'master-stable' branch.
 # @todo: Setup a webhook to capture merges and automatically built/push.
 
 JETPACK_GIT_DIR=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )
 JETPACK_TMP_DIR="/tmp/jetpack"
 JETPACK_TMP_DIR_2="/tmp/jetpack2"
+TARGET=${1:-master-stable}
 
 cd $JETPACK_GIT_DIR
 
@@ -23,7 +25,14 @@ if [[ -n $( git status -s --porcelain ) ]]; then
  	exit 1
 fi
 
-read -p "You are about to deploy a new build to the master-stable branch. Are you sure? [y/N]" -n 1 -r
+# Make sure we're trying to deploy something that exists.
+if [[ -z $( git branch -r | grep "$TARGET" ) && -z $( git tag | grep "$TARGET" ) ]]; then
+    echo "Branch or Tag $TARGET not found in git repository."
+    echo "Please try again with a valid tag or branch name."
+    exit 1
+fi
+
+read -p "You are about to deploy a new production build to the $TARGET branch or tag. Are you sure? [y/N]" -n 1 -r
 if [[ $REPLY != "y" && $REPLY != "Y" ]]
 then
     exit 1
@@ -32,7 +41,7 @@ echo ""
 
 echo "Building Jetpack"
 npm run distclean
-npm run build
+NODE_ENV=production npm run build
 echo "Done"
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
@@ -50,8 +59,8 @@ for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
 done
 echo "Done!"
 
-echo "Pulling latest from master-stable branch"
-git clone --depth 1 -b master-stable --single-branch git@github.com:Automattic/jetpack.git $JETPACK_TMP_DIR
+echo "Pulling latest from $TARGET branch"
+git clone --depth 1 -b $TARGET --single-branch git@github.com:Automattic/jetpack.git $JETPACK_TMP_DIR
 echo "Done!"
 
 echo "Rsync'ing everything over remote version"
@@ -63,8 +72,8 @@ cd $JETPACK_TMP_DIR
 echo "Finally, Committing and Pushing"
 git add .
 git commit -am 'New build'
-git push origin master-stable
-echo "Done! Branch master-stable has been updated."
+git push origin $TARGET
+echo "Done! Branch $TARGET has been updated."
 
 echo "Cleaning up the mess"
 cd $JETPACK_GIT_DIR
