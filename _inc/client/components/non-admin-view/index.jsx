@@ -7,7 +7,10 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { userCanViewStats as _userCanViewStats } from 'state/initial-state';
+import {
+	userCanViewStats as _userCanViewStats,
+	userIsSubscriber as _userIsSubscriber
+} from 'state/initial-state';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
@@ -47,12 +50,16 @@ const NonAdminView = React.createClass( {
 				pageComponent = <GeneralSettings { ...this.props } />;
 				break;
 			case '/engagement':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Engagement { ...this.props } />;
+				if ( ! this.props.isSubscriber ) {
+					navComponent = <NavigationSettings { ...this.props } />;
+					pageComponent = <Engagement { ...this.props } />;
+				}
 				break;
 			case '/writing':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Writing { ...this.props } />;
+				if ( ! this.props.isSubscriber ) {
+					navComponent = <NavigationSettings { ...this.props } />;
+					pageComponent = <Writing { ...this.props } />;
+				}
 				break;
 
 			default:
@@ -81,6 +88,7 @@ export default connect(
 	( state ) => {
 		return {
 			userCanViewStats: _userCanViewStats( state ),
+			isSubscriber: _userIsSubscriber( state ),
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
 		};
 	}

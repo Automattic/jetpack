@@ -68,7 +68,7 @@ export const Writing = ( props ) => {
 			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] );
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
-		} else if ( adminAndNonAdmin ) {
+		} else if ( isAdmin ) {
 			toggle = <ModuleToggle slug={ element[0] }
 				activated={ isModuleActivated( element[0] ) }
 				toggling={ isTogglingModule( element[0] ) }
