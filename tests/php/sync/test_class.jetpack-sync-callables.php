@@ -305,4 +305,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			$this->assertObjectNotHasAttribute( 'register_meta_box_cb', $post_type, "{$key} has the register_meta_box_cb attribute, which should be removed since it is a callback" );
 		}
 	}
+
+	function test_taxonomies_objects_do_not_have_meta_box_callback() {
+		$taxonomies = Jetpack_Sync_Functions::get_taxonomies();
+		foreach ( $taxonomies as $key => $taxonomy ) {
+			$this->assertInternalType( 'object', $taxonomy );
+			$this->assertObjectNotHasAttribute( 'update_count_callback', $taxonomy, "{$key} has the update_count_callback attribute, which should be removed since it is a callback" );
+			$this->assertObjectNotHasAttribute( 'meta_box_cb', $taxonomy, "{$key} has the meta_box_cb attribute, which should be removed since it is a callback" );
+		}
+	}
 }
