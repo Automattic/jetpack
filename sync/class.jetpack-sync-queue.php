@@ -253,7 +253,7 @@ class Jetpack_Sync_Queue {
 		return true;
 	}
 
-	function close( $buffer, $ids_to_remove = null ) {
+	function close( $buffer, $ids_to_remove = null, $items_to_update = array() ) {
 		$is_valid = $this->validate_checkout( $buffer );
 
 		if ( is_wp_error( $is_valid ) ) {
@@ -268,6 +268,16 @@ class Jetpack_Sync_Queue {
 		}
 
 		global $wpdb;
+
+		// TODO do it in one query;
+		foreach( $items_to_update as $option_name => $option_valule ) {
+			$query = $wpdb->prepare(
+				"UPDATE $wpdb->options SET option_value = %d WHERE option_name = %s",
+				$option_valule,
+				$option_name
+			);
+			$wpdb->query( $query );
+		}
 
 		if ( count( $ids_to_remove ) > 0 ) {
 			$sql   = "DELETE FROM $wpdb->options WHERE option_name IN (" . implode( ', ', array_fill( 0, count( $ids_to_remove ), '%s' ) ) . ')';
