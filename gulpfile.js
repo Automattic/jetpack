@@ -3,7 +3,6 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	check = require( 'gulp-check' ),
 	cleanCSS = require( 'gulp-clean-css' ),
 	concat = require( 'gulp-concat' ),
-	del = require( 'del' ),
 	fs = require( 'fs' ),
 	gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
@@ -11,19 +10,16 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	jshint = require( 'gulp-jshint' ),
 	phplint = require( 'gulp-phplint' ),
 	phpunit = require( 'gulp-phpunit' ),
-	po2json = require( 'gulp-po2json' ),
 	qunit = require( 'gulp-qunit' ),
 	rename = require( 'gulp-rename' ),
 	rtlcss = require( 'gulp-rtlcss' ),
 	sass = require( 'gulp-sass' ),
-	spawn = require( 'child_process' ).spawn,
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	tap = require( 'gulp-tap' ),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
 
-var admincss, frontendcss,
-	language_packs = require( './language-packs.js' );
+var admincss, frontendcss;
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -408,53 +404,6 @@ gulp.task( 'js:qunit', function() {
 	I18n land
 */
 
-gulp.task( 'languages:get', function( callback ) {
-	var process = spawn(
-		'php',
-		[
-			'tools/export-translations.php',
-			'.',
-			'https://translate.wordpress.org/projects/wp-plugins/jetpack/dev'
-		]
-	);
-
-	process.stderr.on( 'data', function( data ) {
-		gutil.log( data.toString() );
-	} );
-	process.stdout.on( 'data', function( data ) {
-		gutil.log( data.toString() );
-	} );
-	process.on( 'exit', function( code ) {
-		if ( 0 !== code ) {
-			gutil.log( 'Failed getting languages: process exited with code ', code );
-		}
-		callback();
-	} );
-} );
-
-gulp.task( 'languages:build', [ 'languages:get' ], function( ) {
-	return gulp.src( [ 'languages/*.po' ] )
-		.pipe( po2json() )
-		.pipe( gulp.dest( 'languages/json/' ) );
-} );
-
-gulp.task( 'languages:cleanup', [ 'languages:build' ], function() {
-	return del(
-		language_packs.map( function( item ) {
-			var locale = item.split( '-' );
-
-			if ( locale.length > 1 ) {
-				locale[1] = locale[1].toUpperCase();
-				locale = locale.join( '_' );
-			} else {
-				locale = locale[0];
-			}
-
-			return './languages/jetpack-' + locale + '.*';
-		} )
-	);
-} );
-
 gulp.task( 'languages:extract', function( done ) {
 	var paths = [];
 
@@ -494,10 +443,6 @@ gulp.task( 'checkstrings', ['check:DIR'] );
 gulp.task(
 	'old-styles',
 	[ 'frontendcss', 'admincss', 'admincss:rtl', 'old-sass', 'old-sass:rtl' ]
-);
-gulp.task(
-	'languages',
-	[ 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
 );
 
 // travis CI tasks.
