@@ -18,7 +18,7 @@ class Jetpack_Sync_Actions {
 		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
 
 		// On jetpack authorization, schedule a full sync
-		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
+		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ), 10, 0 );
 
 		// When imports are finished, schedule a full sync
 		add_action( 'import_end', array( __CLASS__, 'schedule_full_sync' ) );
@@ -65,6 +65,8 @@ class Jetpack_Sync_Actions {
 				is_user_logged_in()
 				||
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+				||
+				defined( '')
 			)
 		) ) {
 			self::initialize_listener();

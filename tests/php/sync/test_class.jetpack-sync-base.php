@@ -145,6 +145,11 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $timestamp > time()-HOUR_IN_SECONDS );
 	}
 
+	function test_schedules_full_sync_on_client_authorized() {
+		do_action( 'jetpack_client_authorized', 'abcd1234' ); // Jetpack_Options::get_option( 'id' )
+		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full' ) !== false );
+	}
+
 	function test_enqueues_full_sync_after_import() {
 		do_action( 'import_end' );
 		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full' ) !== false );
