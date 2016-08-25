@@ -32,7 +32,7 @@ export const DevVersionNotice = React.createClass( {
 					<NoticeAction
 						href="https://jetpack.com/contact-support/beta-group/"
 					>
-						{ __( 'Submit your feedback' ) }
+						{ __( 'Submit Beta feedback' ) }
 					</NoticeAction>
 				</SimpleNotice>
 			);
