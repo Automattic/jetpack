@@ -61,6 +61,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'is_version_controlled'            => Jetpack_Sync_Functions::is_version_controlled(),
 			'taxonomies'                       => Jetpack_Sync_Functions::get_taxonomies(),
 			'post_types'                       => Jetpack_Sync_Functions::get_post_types(),
+			'post_type_features'               => Jetpack_Sync_Functions::get_post_type_features(),
 			'rest_api_allowed_post_types'      => Jetpack_Sync_Functions::rest_api_allowed_post_types(),
 			'rest_api_allowed_public_metadata' => Jetpack_Sync_Functions::rest_api_allowed_public_metadata(),
 			'sso_is_two_step_required'         => Jetpack_SSO_Helpers::is_two_step_required(),
@@ -70,6 +71,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'sso_bypass_default_login_form'    => Jetpack_SSO_Helpers::bypass_login_forward_wpcom(),
 			'wp_version'                       => Jetpack_Sync_Functions::wp_version(),
 			'get_plugins'                      => Jetpack_Sync_Functions::get_plugins(),
+			'active_modules'                   => Jetpack::get_active_modules(),
+			'locale'                           => get_locale(),
 		);
 
 		if ( is_multisite() ) {
@@ -127,6 +130,26 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 	}
 
+	function test_sync_always_sync_changes_to_modules_right_away() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->setSyncClientDefaults();
+		Jetpack::update_active_modules( array( 'stats' ) );
+
+		$this->sender->do_sync();
+		
+		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
+		$this->assertEquals(  array( 'stats' ), $synced_value  );
+
+		$this->server_replica_storage->reset();
+
+		Jetpack::update_active_modules( array( 'json-api' ) );
+		$this->sender->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
+		$this->assertEquals( array( 'json-api' ), $synced_value );
+	}
+
 	function test_scheme_switching_does_not_cause_sync() {
 		$this->setSyncClientDefaults();
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
@@ -148,31 +171,83 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function test_preserve_scheme() {
 		update_option( 'banana', 'http://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://example.com' ), 'http://example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com' ) ), 'http://example.com' );
 
 		// the same host so lets preseve the scheme
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.com' ), 'http://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.com/blog' ), 'http://example.com/blog' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com' ) ), 'http://example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com_blog' ) ), 'http://example.com/blog' );
 
 		// lets change the scheme to https
 		update_option( 'banana', 'https://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://example.com' ), 'https://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://example.com/blog' ), 'https://example.com/blog' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com' ) ), 'https://example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com_blog' ) ), 'https://example.com/blog' );
 
 		// a different host lets preseve the scheme from the host
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'http://site.com' ), 'http://site.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://site.com' ), 'https://site.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://site.com/blog' ), 'https://site.com/blog' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.org' ), 'https://example.org' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_site_com' ) ), 'http://site.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_site_com' ) ), 'https://site.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_site_com_blog' ) ), 'https://site.com/blog' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_example_org' ) ), 'https://example.org' );
 
 		// adding www subdomain reverts to original domain
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://www.example.com', true ), 'https://example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_www_example_com' ), true ), 'https://example.com' );
 		// other subdomains are preserved
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://foo.example.com', true ), 'https://foo.example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_foo_example_com' ), true ), 'https://foo.example.com' );
 
 		// if original domain is www, prefer that
 		update_option( 'banana', 'https://www.example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', 'https://example.com', true ), 'https://www.example.com' );
+		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_example_com' ), true ), 'https://www.example.com' );
+	}
+
+	function return_example_com() {
+		return 'http://example.com';
+	}
+
+	function return_example_com_blog() {
+		return 'http://example.com/blog';
+	}
+
+	function return_https_example_com() {
+		return 'https://example.com';
+	}
+
+	function return_https_example_org() {
+		return 'https://example.org';
+	}
+
+	function return_site_com() {
+		return 'http://site.com';
+	}
+
+	function return_https_site_com() {
+		return 'https://site.com';
+	}
+
+	function return_https_site_com_blog() {
+		return 'https://site.com/blog';
+	}
+
+	function return_https_www_example_com() {
+		return 'https://www.example.com';
+	}
+
+	function return_https_foo_example_com() {
+		return 'https://foo.example.com';
+	}
+
+	function test_ignores_but_preserves_https_value() {
+		$non_https_site_url = site_url();
+
+		$this->assertTrue( !! preg_match( '/^http:/', site_url() ) );
+
+		$_SERVER['HTTPS'] = 'on';
+
+		$this->assertTrue( !! preg_match( '/^https:/', site_url() ) );
+
+		$this->assertEquals( $non_https_site_url, Jetpack_Sync_Functions::preserve_scheme( 'siteurl', 'site_url') );
+
+		$this->assertEquals( $_SERVER['HTTPS'], 'on' );
+
+		unset( $_SERVER['HTTPS'] );
 	}
 
 	function test_subdomain_switching_to_www_does_not_cause_sync() {
@@ -196,6 +271,25 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertEquals( $original_site_url, $this->server_replica_storage->get_callable( 'site_url' ) );
+	}
+
+	function test_only_syncs_if_is_admin_and_not_cron() {
+		// non-admin
+		set_current_screen( 'front' );
+		$this->sender->do_sync();
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
+
+		set_current_screen( 'post-user' );
+
+		// admin but in cron (for some reason)
+		Jetpack_Sync_Settings::set_doing_cron( true );
+
+		$this->sender->do_sync();
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
+		
+		Jetpack_Sync_Settings::set_doing_cron( false );		
+		$this->sender->do_sync();
+		$this->assertEquals( site_url(), $this->server_replica_storage->get_callable( 'site_url' ) );
 	}
 
 	function add_www_subdomain_to_siteurl( $url ) {

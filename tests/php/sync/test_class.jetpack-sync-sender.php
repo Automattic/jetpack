@@ -23,25 +23,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $this->action_timestamp < microtime( true ) );
 	}
 
-	function test_queues_cron_job_if_queue_exceeds_max_buffer() {
-		$this->sender->set_dequeue_max_bytes( 500 ); // bytes
-
-		for ( $i = 0; $i < 20; $i += 1 ) {
-			$this->factory->post->create();
-		}
-
-		$this->sender->do_sync();
-
-		$events = $this->server_event_storage->get_all_events();
-		$this->assertTrue( count( $events ) < 20 );
-
-		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
-
-		// we're making some assumptions here about how fast the test will run...
-		$this->assertTrue( $timestamp >= time() + 59 );
-		$this->assertTrue( $timestamp <= time() + 61 );
-	}
-
 	function test_queue_limits_upload_bytes() {
 		// flush previous stuff in queue
 		$this->sender->do_sync();
@@ -155,34 +136,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		return $randomString;
 	}
 
-	/**
-	 * We have to run this in a separate process so we can set the constant without
-	 * it interfering with other tests. That's also why we have to reconnect the DB
-	 */
-	function test_queues_cron_job_if_is_importing() {
-		$this->markTestIncomplete( "This works but I haven't found a way to undefine the WP_IMPORTING constant when I'm done :(" );
-
-		$queue = $this->sender->get_sync_queue();
-
-		$this->factory->post->create();
-
-		$pre_sync_queue_size = $queue->size();
-		$this->assertTrue( $pre_sync_queue_size > 0 ); // just to be sure stuff got queued
-
-		define( 'WP_IMPORTING', true );
-
-		$this->sender->do_sync();
-
-		// assert that queue hasn't budged
-		$this->assertEquals( $pre_sync_queue_size, $queue->size() );
-
-		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
-
-		// we're making some assumptions here about how fast the test will run...
-		$this->assertTrue( $timestamp >= time() + 59 );
-		$this->assertTrue( $timestamp <= time() + 61 );
-	}
-
 	function test_rate_limit_how_often_sync_runs_with_option() {
 		$this->sender->do_sync();
 
@@ -198,27 +151,34 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		do_action( 'my_action' );
 		do_action( 'my_action' );
 		do_action( 'my_action' );
+		do_action( 'my_action' );
 
 		// now let's try to sync and observe the rate limit
 		$this->sender->do_sync();
 
 		$this->sender->set_sync_wait_time( 2 );
+		$this->sender->set_sync_wait_threshold( 0 ); // wait no matter what
 		$this->assertSame( 2, $this->sender->get_sync_wait_time() );
 
 		$this->assertEquals( 2, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
 		sleep( 3 );
 
-		$this->sender->do_sync();
+		$next_sync_time = $this->sender->get_next_sync_time();
+		$this->assertTrue( $this->sender->do_sync() );
 		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
-		$this->sender->do_sync();
+		// because we synced, next sync time should be further in the future
+		$this->assertTrue( $next_sync_time < $this->sender->get_next_sync_time() );
+
+		// doesn't sync second time
+		$this->assertFalse( $this->sender->do_sync() );
 		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
 		sleep( 3 );
 
-		$this->sender->do_sync();
-		$this->assertEquals( 5, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+		$this->assertTrue( $this->sender->do_sync() );
+		$this->assertEquals( 6, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
 		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
 	}
@@ -256,7 +216,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $user_id, $event->user_id );
 	}
 
-	function test_adds_sent_time_to_action() {
+	function test_sends_sent_time_to_server() {
 		$beginning_of_test = microtime( true );
 
 		$this->factory->post->create();
@@ -275,16 +235,85 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $event->sent_timestamp < microtime( true ) );
 	}
 
-	function test_reset_queue_also_resets_full_sync_lock() {
+	function test_sends_queue_id_to_server() {
+		add_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
+		add_action( 'my_full_sync_action', array( $this->listener, 'full_sync_action_handler' ) );
+
+		do_action( 'my_incremental_action' );
+		do_action( 'my_full_sync_action' );
+
+		$this->sender->do_sync();
+
+		$incremental_event = $this->server_event_storage->get_most_recent_event( 'my_incremental_action' );
+		$full_sync_event = $this->server_event_storage->get_most_recent_event( 'my_full_sync_action' );
+
+		$this->assertEquals( $incremental_event->queue, $this->listener->get_sync_queue()->id );
+		$this->assertEquals( $full_sync_event->queue, $this->listener->get_full_sync_queue()->id );
+
+		remove_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
+		remove_action( 'my_full_sync_action', array( $this->listener, 'full_sync_action_handler' ) );
+	}
+
+	function test_reset_module_also_resets_full_sync_lock() {
 		$full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
 		$full_sync->start();
 		$status = $full_sync->get_status();
-		$this->assertNotNull( $status['started'] );
+		$this->assertTrue( $full_sync->is_started() );
 
-		$this->sender->reset_sync_queue();
-
+		$full_sync->reset_data();
+		
 		$status = $full_sync->get_status();
-		$this->assertNull( $status['started'] );
+		$this->assertFalse( $full_sync->is_started() );
+	}
+
+	function test_waits_one_minute_on_server_error_with_last_item() {
+		remove_all_filters( 'jetpack_sync_send_data' );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithTrailingError' ), 10, 3 );
+
+		$this->factory->post->create();
+		$this->sender->do_sync();
+
+		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 55 );
+	}
+
+	function serverReceiveWithTrailingError( $data, $codec, $sent_timestamp ) {
+		$processed_item_ids = $this->server->receive( $data, null, $sent_timestamp );
+
+		// add an error at the end
+		$processed_item_ids[] = new WP_Error( 'an_error', 'An Error Occurred' );		
+
+		return $processed_item_ids;
+	}
+
+	function test_waits_one_minute_on_server_error_with_entire_request() {
+		remove_all_filters( 'jetpack_sync_send_data' );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithError' ), 10, 3 );
+
+		$this->factory->post->create();
+		$this->sender->do_sync();
+
+		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 55 );
+	}
+
+	function serverReceiveWithError( $data, $codec, $sent_timestamp ) {
+		return new WP_Error( 'an_error', 'An Error Occurred' );
+	}
+
+	function test_delays_next_send_if_exceeded_sync_wait_threshold() {
+		remove_all_filters( 'jetpack_sync_send_data' );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithThreeSecondDelay' ), 10, 3 );
+		$this->sender->set_sync_wait_time( 10 );     // 10 second delay
+		$this->sender->set_sync_wait_threshold( 2 ); // wait no matter what
+
+		$this->factory->post->create();
+		$this->sender->do_sync();
+
+		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 9 );	
+	}
+
+	function serverReceiveWithThreeSecondDelay( $data, $codec, $sent_timestamp ) {
+		sleep( 3 );
+		return array_keys( $data );
 	}
 
 	function action_ran( $data, $codec, $sent_timestamp ) {

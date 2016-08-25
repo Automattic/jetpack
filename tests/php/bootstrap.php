@@ -38,7 +38,6 @@ if ( ! ( in_running_uninstall_group() ) ) {
 }
 
 
-
 require $test_root . '/includes/bootstrap.php';
 
 

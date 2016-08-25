@@ -116,7 +116,7 @@ class JetpackSyncTestObjectFactory {
 		return array(
 			'polldaddy/polldaddy.php'   => array(
 				'Name'        => 'Polldaddy Polls & Ratings',
-				'PluginURI'   => 'http://wordpress.org/extend/plugins/polldaddy/',
+				'PluginURI'   => 'https://wordpress.org/extend/plugins/polldaddy/',
 				'Version'     => '2.0.31',
 				'Description' => 'Create and manage Polldaddy polls and ratings in WordPress',
 				'Author'      => 'Automattic, Inc.',

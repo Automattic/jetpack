@@ -345,6 +345,22 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
 	}
 
+	function test_sync_post_includes_dont_email_post_to_subs_when_subscription_is_not_active() {
+		$active_modules = Jetpack::get_active_modules();
+		Jetpack_Options::update_option( 'active_modules', array() );
+		// Subscription is not an active module
+		$this->assertTrue( ! in_array( 'subscriptions', Jetpack::get_active_modules() ) );
+		$post_id = $this->factory->post->create();
+
+		$this->sender->do_sync();
+
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+
+		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
+
+		Jetpack_Options::update_option( 'active_modules', $active_modules );
+	}
+
 	function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
 
 		add_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
@@ -378,6 +394,63 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 		// no we sync the content and it looks like what we expect to be.
 		$this->assertEquals( $this->post->post_content, $synced_post->post_content );
+	}
+
+	function test_filters_out_blacklisted_post_types() {
+		$args = array(
+			'public' => true,
+			'label'  => 'Snitch'
+		);
+		register_post_type( 'snitch', $args );
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+	}
+
+	function test_post_types_blacklist_can_be_appended_in_settings() {
+		register_post_type( 'filter_me', array( 'public' => true, 'label' => 'Filter Me' ) );
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
+
+		$this->sender->do_sync();
+
+		// first, show that post is being synced
+		$this->assertTrue( !! $this->server_replica_storage->get_post( $post_id ) );
+
+		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+
+		// also assert that the post types blacklist still contains the hard-coded values
+		$setting = Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' );
+
+		$this->assertTrue( in_array( 'filter_me', $setting ) );
+
+		foreach( Jetpack_Sync_Defaults::$blacklisted_post_types as $hardcoded_blacklist_post_type ) {
+			$this->assertTrue( in_array( $hardcoded_blacklist_post_type, $setting ) );
+		}
+	}
+
+	function test_does_not_publicize_blacklisted_post_types() {
+		register_post_type( 'dont_publicize_me', array( 'public' => true, 'label' => 'Filter Me' ) );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'dont_publicize_me' ) );
+
+		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
+
+		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'dont_publicize_me' ) ) );
+
+		$this->assertFalse( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
+
+		$good_post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+
+		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $good_post_id ) ) );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {

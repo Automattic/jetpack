@@ -84,6 +84,27 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->user_id, $event->args[0] );
 		$this->assertEquals( $reassign, $event->args[1] );
 	}
+	
+	// User meta not syncing 
+	public function test_do_not_sync_user_data_on_user_meta_change() {
+		$this->server_event_storage->reset();
+		
+		add_user_meta( $this->user_id, 'session_tokens', 'world', 1 );
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( );
+		$this->assertFalse( $event );
+
+		update_user_meta( $this->user_id, 'session_tokens', 'moon' );
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( );
+		$this->assertFalse( $event );
+
+		delete_user_meta( $this->user_id, 'session_tokens', 'moon' );
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( );
+		$this->assertFalse( $event );
+
+	}
 
 	// Roles syncing
 
@@ -326,6 +347,18 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$user_data_sent_to_server = $event->args[1];
 		$this->assertEquals( 'foobar', $user_data_sent_to_server->data->user_login );
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
+	}
+
+	public function test_deleted_user_during_sync_doesnt_cause_error() {
+		$this->server_event_storage->reset();
+
+		do_action( 'jetpack_sync_save_user', null );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+
+		$this->assertFalse( $event );
 	}
 
 	public function test_maybe_demote_master_user_method() {

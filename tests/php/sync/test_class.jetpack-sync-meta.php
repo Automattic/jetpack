@@ -90,6 +90,37 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
 	}
 
+	public function test_doesnt_sync_blacklisted_meta() {
+		add_post_meta( $this->post_id, 'post_views_count', '100' );
+		add_post_meta( $this->post_id, 'not_post_views_count', '200' );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'post_views_count', true ) );
+		$this->assertEquals( '200', $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'not_post_views_count', true ) );
+	}
+
+	public function test_meta_blacklist_can_be_appended_in_settings() {
+		Jetpack_Sync_Settings::update_settings( array( 'meta_blacklist' => array( 'a_blacklisted_meta_key' ) ) );
+
+		add_post_meta( $this->post_id, 'a_blacklisted_meta_key', 'foo' );
+		add_post_meta( $this->post_id, 'not_a_blacklisted_meta_key', 'bar' );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'a_blacklisted_meta_key', true ) );
+		$this->assertEquals( 'bar', $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'not_a_blacklisted_meta_key', true ) );
+
+		$setting = Jetpack_Sync_Settings::get_setting( 'meta_blacklist' );
+
+		$this->assertTrue( in_array( 'a_blacklisted_meta_key', $setting ) );
+
+		// default blacklist should still be there
+		foreach( Jetpack_Sync_Defaults::$default_blacklist_meta_keys as $hardcoded_blacklist_meta ) {
+			$this->assertTrue( in_array( $hardcoded_blacklist_meta, $setting ) );
+		}
+	}
+
 
 	// TODO:
 	// Add tests for other post meta

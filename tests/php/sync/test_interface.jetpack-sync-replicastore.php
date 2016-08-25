@@ -35,6 +35,13 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	function setUp() {
 		parent::setUp();
 
+		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
+			$this->markTestSkipped(
+				'PHP 5.2 and below does not support ReflectionProperty to the extent that we need.'
+			);
+			return;
+		}
+
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			switch_to_blog( self::$token->blog_id );
 		}
@@ -67,8 +74,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$second_post    = self::$factory->post( 10 );
 		$comment        = self::$factory->comment( 3, $post->ID );
 		$second_comment = self::$factory->comment( 6, $second_post->ID );
-		$option_name    = 'blogdescription';
-		$option_value   = rand();
 
 		// create an instance of each type of replicastore
 		$all_replicastores = array();
@@ -88,17 +93,10 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 			$replicastore->upsert_post( $second_post );
 			$replicastore->upsert_comment( $comment );
 			$replicastore->upsert_comment( $second_comment );
-			$replicastore->update_option( $option_name, $option_value );
 		}
-
-		// just check the option we updated in the replicastores
-		$default_options_whitelist_original               = Jetpack_Sync_Defaults::$default_options_whitelist;
-		Jetpack_Sync_Defaults::$default_options_whitelist = array( 'blogdescription' );
 
 		// ensure the checksums are the same
 		$checksums = array_map( array( $this, 'get_all_checksums' ), $all_replicastores );
-		// set the class property back to the original value;
-		Jetpack_Sync_Defaults::$default_options_whitelist = $default_options_whitelist_original;
 
 		// for helpful debug output in case they don't match
 		$labelled_checksums = array_combine( array_map( 'get_class', $all_replicastores ), $checksums );
@@ -159,6 +157,50 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( $store->comments_checksum( 6, 10 ), $histogram['6'] );
 	}
 
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_does_not_checksum_spam_comments( $store ) {
+		$comment        = self::$factory->comment( 3, 1 );
+		$spam_comment = self::$factory->comment( 6, 1, array( 'comment_approved' => 'spam' ) );
+		$trash_comment = self::$factory->comment( 9, 1, array( 'comment_approved' => 'trash' )  );
+
+		$store->upsert_comment( $comment );
+		$store->upsert_comment( $trash_comment );
+
+		$checksum = $store->comments_checksum();
+
+		// add a spam comment and assert that checksum didn't change
+		$store->upsert_comment( $spam_comment );
+
+		$this->assertEquals( $checksum, $store->comments_checksum() );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_strips_non_ascii_chars_for_checksum( $store ) {
+		$utf8_post = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
+		$ascii_post = self::$factory->post( 1, array( 'post_content' => 'Panam' ) );
+		$utf8_comment = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panamá' ) );
+		$ascii_comment = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panam' ) );
+
+		// generate checksums just for utf8 content
+		$store->upsert_post( $utf8_post );
+		$store->upsert_comment( $utf8_comment );
+
+		$utf8_post_checksum = $store->posts_checksum();
+		$utf8_comment_checksum = $store->comments_checksum();
+
+		// generate checksums just for ascii content
+		$store->upsert_post( $ascii_post );
+		$store->upsert_comment( $ascii_comment );
+
+		$this->assertEquals( $utf8_post_checksum, $store->posts_checksum() );
+		$this->assertEquals( $utf8_comment_checksum, $store->comments_checksum() );
+	}
 
 	/**
 	 * Histograms
@@ -419,7 +461,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_replica_update_option( $store ) {
 		$option_name  = 'blogdescription';
-		$option_value = rand();
+		$option_value = (string) rand();
 		$store->update_option( $option_name, $option_value );
 		$replica_option_value = $store->get_option( $option_name );
 
@@ -432,7 +474,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_replica_delete_option( $store ) {
 		$option_name  = 'test_replicastore_' . rand();
-		$option_value = rand();
+		$option_value = (string) rand();
 		$store->update_option( $option_name, $option_value );
 		$store->delete_option( $option_name );
 		$replica_option_value = $store->get_option( $option_name );
@@ -680,9 +722,9 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$this->assertNull( $store->get_callable( 'is_main_network' ) );
 
-		$store->set_callable( 'is_main_network', 'yes' );
+		$store->set_callable( 'is_main_network', '1' );
 
-		$this->assertEquals( 'yes', $store->get_callable( 'is_main_network' ) );
+		$this->assertEquals( '1', $store->get_callable( 'is_main_network' ) );
 	}
 
 	/**

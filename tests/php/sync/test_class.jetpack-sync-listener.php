@@ -76,4 +76,15 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
 	}
+
+	function test_does_set_silent_flag_true_while_importing() {
+		Jetpack_Sync_Settings::set_importing( true );
+
+		$this->factory->post->create();
+
+		$this->sender->do_sync();
+
+		$this->assertObjectHasAttribute( 'silent', $this->server_event_storage->get_most_recent_event( 'wp_insert_post' ) );
+		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->silent );
+	}
 }

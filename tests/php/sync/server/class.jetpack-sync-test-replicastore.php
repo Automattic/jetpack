@@ -43,7 +43,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->users           = array();
 	}
 
-	function full_sync_start() {
+	function full_sync_start( $config ) {
 		$this->reset();
 	}
 
@@ -77,7 +77,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		// append fields
 		$value = '';
 		foreach ( $this->checksum_fields as $field ) {
-			$value .= $post->{$field};
+			$value .= preg_replace( '/[^\x20-\x7E]/','', $post->{ $field } );
 		}
 		return $carry ^ sprintf( '%u', crc32( $value ) ) + 0;
 	}
@@ -108,7 +108,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	function get_comments( $status = null, $min_id = null, $max_id = null ) {
 		$this->comment_status = $status;
 
-		// valid statuses: 'hold', 'approve', 'spam', or 'trash'.
+		// valid statuses: 'hold', 'approve', 'spam', 'trash', or 'post-trashed.
 		$comments = array_filter( array_values( $this->comments ), array( $this, 'filter_comment_status' ) );
 
 		foreach ( $comments as $i => $comment ) {
@@ -121,7 +121,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function comments_checksum( $min_id = null, $max_id = null ) {
-		return $this->calculate_checksum( $this->comments, 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
+		return $this->calculate_checksum( array_filter( $this->comments, array( $this, 'is_not_spam' ) ), 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
+	}
+
+	function is_not_spam( $comment ) {
+		return $comment->comment_approved !== 'spam';
 	}
 
 	function filter_comment_status( $comment ) {
@@ -134,6 +138,8 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				return 'spam' === $comment->comment_approved;
 			case 'trash':
 				return 'trash' === $comment->comment_approved;
+			case 'post-trashed':
+				return 'post-trashed' === $comment->comment_approved;
 			case 'any':
 				return true;
 			case 'all':
@@ -161,6 +167,21 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function spam_comment( $comment_id ) {
 		$this->comments[ $comment_id ]->comment_approved = 'spam';
+	}
+
+	function trashed_post_comments( $post_id, $statuses ) {
+		$statuses = (array) $statuses;
+		foreach( $statuses as $comment_id => $status ) {
+			$this->comments[ $comment_id ]->comment_approved = 'post-trashed';
+		}
+	}
+
+	function untrashed_post_comments( $post_id ) {
+		$statuses = (array) $this->get_metadata( 'post', $post_id, '_wp_trash_meta_comments_status', true );
+
+		foreach( $statuses as $comment_id => $status ) {
+			$this->comments[ $comment_id ]->comment_approved = $status;
+		}
 	}
 
 	function delete_comment( $comment_id ) {
@@ -489,8 +510,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	function checksum_all() {
 		return array(
 			'posts'    => $this->posts_checksum(),
-			'comments' => $this->comments_checksum(),
-			'options'  => $this->options_checksum(),
+			'comments' => $this->comments_checksum()
 		);
 	}
 
