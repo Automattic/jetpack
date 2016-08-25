@@ -36,6 +36,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 
+		// Enqueue admin page styles in head
+		add_action( 'admin_head', array( $this, 'page_admin_styles' ) );
+
 		// Adding a redirect tag wrapped in browser conditional comments
 		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
 	}
@@ -175,18 +178,22 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		);
 	}
 
+	function page_admin_styles() {
+		$rtl = is_rtl() ? '.rtl' : '';
+		
+		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+	}
+
 	function page_admin_scripts() {
 		if ( $this->is_redirecting ) {
 			return; // No need for scripts on a fallback page
 		}
 
 		$is_dev_mode = Jetpack::is_development_mode();
-		$rtl = is_rtl() ? '.rtl' : '';
 
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
-		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 
 		if ( ! $is_dev_mode ) {
 			// Required for Analytics
