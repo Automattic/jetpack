@@ -477,6 +477,10 @@ class Jetpack {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
 
+		if ( ! wp_next_scheduled( 'jetpack_update_l10n' ) ) {
+			wp_schedule_event( time(), 'weekly', 'jetpack_update_l10n' );
+		}
+
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
@@ -2468,6 +2472,7 @@ p {
 		if ( $network_wide )
 			Jetpack::state( 'network_nag', true );
 
+		Jetpack_I18n::activate();
 		Jetpack::plugin_initialize();
 	}
 	/**
@@ -2511,6 +2516,8 @@ p {
 	 */
 	public static function plugin_deactivation( ) {
 		require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+		Jetpack_I18n::deactivate();
+
 		if( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 			Jetpack_Network::init()->deactivate();
 		} else {
