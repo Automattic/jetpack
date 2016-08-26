@@ -105,7 +105,7 @@ function doRTL( files, done ) {
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
 			console.log( 'main' === files ? 'Dashboard RTL CSS finished.' : 'DOPS Components RTL CSS finished.' );
-			if ( done ) {
+			if ( done && 'function' === typeof done ) {
 				done();
 			}
 		} );
@@ -171,12 +171,11 @@ function doStatic( done ) {
 
 		try {
 			path = __dirname + '/_inc/build/static.js';
-			static_files = [];
 
 			delete require.cache[ path ]; // Making sure NodeJS requires this file every time this is called
 			require( path );
 
-			gulp.src( [ '_inc/build/static*', '!*html' ] )
+			gulp.src( [ '_inc/build/static*' ] )
 				.pipe( tap( function( file ) {
 					fs.unlinkSync( file.path );
 				} ) )
