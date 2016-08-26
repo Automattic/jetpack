@@ -576,11 +576,13 @@ class Jetpack_Subscriptions {
 		$blog_checked     = '';
 
 		// Check for a comment / blog submission and set a cookie to retain the setting and check the boxes.
-		if ( isset( $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash . '_' . $post->ID ] ) )
+		if ( isset( $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash . '_' . $post->ID ] ) ) {
 			$comments_checked = ' checked="checked"';
+		}
 
-		if ( isset( $_COOKIE[ 'jetpack_blog_subscribe_' . self::$hash ] ) )
+		if ( isset( $_COOKIE[ 'jetpack_blog_subscribe_' . self::$hash ] ) ) {
 			$blog_checked = ' checked="checked"';
+		}
 
 		// Some themes call this function, don't show the checkbox again
 		remove_action( 'comment_form', 'subscription_comment_form' );
@@ -715,15 +717,17 @@ class Jetpack_Subscriptions {
 		 */
 		$cookie_domain   = apply_filters( 'jetpack_comment_cookie_domain', COOKIE_DOMAIN );
 
-		if ( $subscribe_to_post && $post_id >= 0 )
+		if ( $subscribe_to_post && $post_id >= 0 ) {
 			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
-		else
+		} else {
 			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, '', time() - 3600, $cookie_path, $cookie_domain );
+		}
 
-		if ( $subscribe_to_blog )
+		if ( $subscribe_to_blog ) {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
-		else
+		} else {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
+		}
 	}
 }
 
