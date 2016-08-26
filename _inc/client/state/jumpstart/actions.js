@@ -18,6 +18,7 @@ import {
 	JUMPSTART_SKIP_FAIL
 } from 'state/action-types';
 import restApi from 'rest-api';
+import { fetchModules } from 'state/modules';
 
 export const jumpStartActivate = () => {
 	return ( dispatch ) => {
@@ -34,6 +35,7 @@ export const jumpStartActivate = () => {
 			analytics.tracks.recordEvent( 'jetpack_wpa_jumpstart_submit', {} );
 			dispatch( removeNotice( 'jumpstart-activate' ) );
 			dispatch( createNotice( 'is-success', __( 'Recommended features active.' ), { id: 'jumpstart-activate' } ) );
+			dispatch( fetchModules() );
 		} ).catch( error => {
 			dispatch( {
 				type: JUMPSTART_ACTIVATE_FAIL,
