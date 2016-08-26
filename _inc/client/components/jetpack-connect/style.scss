@@ -72,7 +72,7 @@
 	&:first-of-type {
 
 		@include breakpoint( ">960px" ) {
-			background: transparent url('../../images/jp-4/long-clouds.svg') 50% 110% no-repeat;
+			background: transparent url('../../images/long-clouds.svg') 50% 110% no-repeat;
 			background-size: 100% 63px;
 			padding-bottom: rem( 50px );
 		}

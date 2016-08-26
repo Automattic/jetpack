@@ -10,7 +10,7 @@
 }
 
 .jp-landing-plans__header {
-	background: $gray-dark url( '../../images/jp-4/particles_bg-white.png' );
+	background: $gray-dark url( '../../images/particles_bg-white.png' );
 
 	@include breakpoint( ">660px" ) {
 		padding: rem( 32px ) 0 0;
@@ -82,7 +82,7 @@
 	flex-basis: 40%;
 }
 
-.jp-landing-plans__header-title, 
+.jp-landing-plans__header-title,
 .jp-landing-plans__header-description {
 	line-height: 1.5;
 
@@ -185,7 +185,7 @@
 	}
 
 	.jp-landing__plan-features-title,
-	.jp-landing__plan-features-text {		
+	.jp-landing__plan-features-text {
 		padding: 0;
 
 		@include breakpoint( ">660px" ) {
