@@ -132,7 +132,7 @@ const Apps = ( props ) => {
 				</div>
 
 				<div className="jp-landing-apps__downloads">
-					<h3 className="jp-landing-apps__subtitle">{ __( 'In your Pocket' ) }</h3>
+					<h3 className="jp-landing-apps__subtitle">{ __( 'In Your Pocket' ) }</h3>
 					<p className="jp-landing-apps__sub-description">{ __( 'Publish content, track stats, moderate comments and so much more from anywhere in the world. Our mobile apps are open source, free and available to you on Apple or Android devices.' ) }</p>
 
 					<p className="jp-landing-apps__btn-container">
@@ -157,7 +157,7 @@ const Apps = ( props ) => {
 							Android</Button>
 					</p>
 
-					<h3 className="jp-landing-apps__subtitle">{ __( 'On your Desktop' ) }</h3>
+					<h3 className="jp-landing-apps__subtitle">{ __( 'On Your Desktop' ) }</h3>
 					<p className="jp-landing-apps__sub-description">{ __( 'A desktop app that gives WordPress a permanent home on your computer. Not to mention the distraction free environment you get writing outside of a web browser.' ) }</p>
 
 					<p className="jp-landing-apps__btn-container">
