@@ -46,7 +46,7 @@ const PlanHeader = React.createClass( {
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">
-							<img src={ imagePath + '/plans/free-plan-icon.jpg' } className="jp-landing__plan-icon" />
+							<img src={ imagePath + '/plans/plan-jetpack-free.svg' } className="jp-landing__plan-icon" />
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Free Jetpack Plan' ) }</h3>
@@ -61,7 +61,7 @@ const PlanHeader = React.createClass( {
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">
-							<img src={ imagePath + '/plans/premium-plan-icon.jpg' } className="jp-landing__plan-icon" />
+							<img src={ imagePath + '/plans/plan-jetpack-premium.svg' } className="jp-landing__plan-icon" />
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Premium plan' ) }</h3>
@@ -76,7 +76,7 @@ const PlanHeader = React.createClass( {
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">
-							<img src={ imagePath + '/plans/pro-plan-icon.jpg' } className="jp-landing__plan-icon" />
+							<img src={ imagePath + '/plans/plan-jetpack-pro.svg' } className="jp-landing__plan-icon" />
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Professional plan' ) }</h3>
@@ -90,7 +90,7 @@ const PlanHeader = React.createClass( {
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">
-							<img src={ imagePath + '/plans/free-plan-icon.jpg' } className="jp-landing__plan-icon" />
+							<img src={ imagePath + '/plans/plan-jetpack-free.svg' } className="jp-landing__plan-icon" />
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on Development Mode' ) }</h3>

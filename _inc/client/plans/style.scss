@@ -211,7 +211,7 @@
 }
 
 .jp-landing__plan-icon {
-	width: rem( 120px ); // replace this png with svg
+	width: rem( 120px );
 
 	@include breakpoint( "<660px" ) {
 		width: rem( 100px );
