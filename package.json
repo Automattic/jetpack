@@ -56,6 +56,7 @@
     "gulp-download-stream": "0.0.13",
     "gulp-jshint": "2.0.0",
     "gulp-live-server": "0.0.28",
+    "gulp-modify": "0.1.1",
     "gulp-open": "^1.0.0",
     "gulp-phplint": "^0.0.6",
     "gulp-phpunit": "^0.14.0",
