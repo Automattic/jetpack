@@ -52,13 +52,13 @@ function onBuild( done ) {
 			children: false
 		} ), '\nJS finished at', Date.now() );
 
-		if ( done ) {
-			doStatic( done );
-		} else {
-			doStatic();
-		}
-
-		doSass();
+		doSass( function() {
+			if ( done ) {
+				doStatic( done );
+			} else {
+				doStatic();
+			}
+		} );
 	};
 }
 
@@ -71,8 +71,8 @@ function getWebpackConfig() {
 	return config;
 }
 
-function doSass() {
-	if ( arguments.length ) {
+function doSass( done ) {
+	if ( arguments.length && typeof arguments[0] !== 'function' ) {
 		console.log( 'Sass file ' + arguments[0].path + ' changed.' );
 	}
 	console.log( 'Building Dashboard CSS bundle...' );
@@ -92,11 +92,11 @@ function doSass() {
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
 			console.log( 'dops-components CSS finished.' );
-			doRTL( 'dops' );
+			doRTL( 'dops', done );
 		} );
 }
 
-function doRTL( files ) {
+function doRTL( files, done ) {
 	gulp.src( 'main' === files ? './_inc/build/style.min.css' : './_inc/build/*dops-style.css' )
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '.rtl' } ) )
@@ -105,6 +105,9 @@ function doRTL( files ) {
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
 			console.log( 'main' === files ? 'Dashboard RTL CSS finished.' : 'DOPS Components RTL CSS finished.' );
+			if ( done ) {
+				done();
+			}
 		} );
 }
 
@@ -141,10 +144,6 @@ gulp.task( 'react:watch', function() {
 	webpack( config ).watch( 100, onBuild() );
 } );
 
-gulp.task( 'react:static', function( done ) {
-	doStatic( done );
-} );
-
 function doStatic( done ) {
 	var path,
 		jsdom = require( 'jsdom' );
@@ -172,18 +171,27 @@ function doStatic( done ) {
 
 		try {
 			path = __dirname + '/_inc/build/static.js';
+			static_files = [];
 
 			delete require.cache[ path ]; // Making sure NodeJS requires this file every time this is called
 			require( path );
 
-			fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
-			fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
-			fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
-			fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
+			gulp.src( [ '_inc/build/static*', '!*html' ] )
+				.pipe( tap( function( file ) {
+					fs.unlinkSync( file.path );
+				} ) )
+				.on( 'end', function() {
+					fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
+					fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
+					fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
+					fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
 
-			if ( done ) {
-				done();
-			}
+					if ( done ) {
+						done();
+					}
+				} );
+
+
 		} catch ( err ) {
 			util.log( util.colors.red( "doStatic errored" ) );
 			util.log( util.colors.red( err.stack ) );
