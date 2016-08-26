@@ -7,6 +7,15 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		return 'users';
 	}
 
+	// this is here to support the backfill API
+	public function get_object_by_id( $object_type, $id ) {
+		if ( $object_type === 'user' && $user = get_user_by( 'id', intval( $id ) ) ) {
+			return $this->sanitize_user_and_expand( $user );
+		}
+
+		return false;
+	}
+
 	public function init_listeners( $callable ) {
 		// users
 		add_action( 'user_register', array( $this, 'save_user_handler' ) );

@@ -11,7 +11,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$this->assertTrue( in_array( 'publicize', $response ) );
 	}
 
-	function test_xmlrpc_get_sync_object() {
+	function test_xmlrpc_get_sync_object_for_post() {
 		$post_id = $this->factory->post->create();
 
 		$server = new Jetpack_XMLRPC_Server();
@@ -31,6 +31,20 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$decoded_object = $codec->decode( $response );
 
 		$this->assertFalse( $decoded_object );	
+	}
+
+	function test_xmlrpc_get_sync_object_for_user() {
+		$user_id = $this->factory->user->create();
+
+		$server = new Jetpack_XMLRPC_Server();
+		$response = $server->sync_object( array( 'users', 'user', $user_id ) );
+
+		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+		$decoded_object = $codec->decode( $response );
+
+		$this->assertFalse( isset( $decoded_object->user_pass ) );
+
+		$this->assertEquals( $user_id, $decoded_object->ID );
 	}
 }
 	
