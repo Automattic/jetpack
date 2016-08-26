@@ -65,8 +65,6 @@ class Jetpack_Sync_Actions {
 				is_user_logged_in()
 				||
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
-				||
-				defined( '')
 			)
 		) ) {
 			self::initialize_listener();
