@@ -103,9 +103,6 @@ const Main = React.createClass( {
 		// Track page views
 		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
-		// On any route change/re-render, jump back to the top of the page
-		window.scrollTo( 0, 0 );
-
 		if ( ! canManageModules ) {
 			return <NonAdminView { ...this.props } />
 		}
@@ -253,7 +250,13 @@ window.wpNavMenuClassChange = function() {
 		subNavItem[0].classList.add( 'current' );
 	}
 
-	jQuery( 'body' ).on( 'click', '.jetpack-js-stop-propagation', function( e ) {
+	const $body = jQuery( 'body' );
+
+	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#security"], .dops-button[href="#professional"]', function() {
+		window.scrollTo( 0, 0 );
+	} );
+
+	$body.on( 'click', '.jetpack-js-stop-propagation', function( e ) {
 		e.stopPropagation();
 	} );
 };
