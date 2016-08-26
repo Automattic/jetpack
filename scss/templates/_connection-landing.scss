@@ -84,8 +84,8 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 
 		@include minbreakpoint(desktop) {
 			background:
-				url('../images/connection-landing/stars-right.svg') no-repeat,
-				url('../images/connection-landing/stars-left.svg') no-repeat,
+				url('../images/stars-right.svg') no-repeat,
+				url('../images/stars-left.svg') no-repeat,
 				$white;
 			background-position: 90% 50%, 10% 50%;
 			background-size: 100px, 125px;

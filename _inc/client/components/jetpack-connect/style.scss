@@ -72,7 +72,7 @@
 	&:first-of-type {
 
 		@include breakpoint( ">960px" ) {
-			background: transparent url('../../images/jp-4/long-clouds.svg') 50% 110% no-repeat;
+			background: transparent url('../../images/long-clouds.svg') 50% 110% no-repeat;
 			background-size: 100% 63px;
 			padding-bottom: rem( 50px );
 		}
@@ -94,8 +94,8 @@
 
 .jp-jetpack-connect__header-img-container {
 	position: absolute;
-		left: 0; 
-		right: 0; 
+		left: 0;
+		right: 0;
 		bottom: 0;
 
 	@include breakpoint( "<960px" ) {
@@ -108,8 +108,8 @@
 	max-width: 100%;
 	z-index: 1001;
 	position: absolute;
-		left: 0; 
-		right: 0; 
+		left: 0;
+		right: 0;
 		bottom: 0;
 	&:first-of-type {
 
@@ -124,14 +124,14 @@
 .jp-jetpack-connect__traffic .jp-jetpack-connect__header {
 	&:first-of-type {
 
-		@include breakpoint( ">960px" ) { 
+		@include breakpoint( ">960px" ) {
 			padding-bottom: rem( 200px );
 			background:
-				url('../../images/jp-4/stars-right.svg') no-repeat,
-				url('../../images/jp-4/stars-left.svg') no-repeat,
+				url('../../images/stars-right.svg') no-repeat,
+				url('../../images/stars-left.svg') no-repeat,
 				$white;
 			background-position: 95% 50%, 5% 50%;
-			background-size: 100px, 125px; 
+			background-size: 100px, 125px;
 		}
 	}
 }
@@ -139,7 +139,7 @@
 .jp-jetpack-connect__interior-container {
 	padding: rem( 16px );
 	background: lighten( $gray, 33% ); // if you alter this, ensure the corresponding svg colors are changed to match
-	
+
 	@include breakpoint( ">960px" ) {
 		padding: rem( 24px ) rem( 16px ) rem( 16px );
 	}
@@ -166,7 +166,7 @@
 	@include breakpoint( ">960px" ) {
 		margin-top: rem( 16px );
 	}
-	@include breakpoint( ">660px" ) { 
+	@include breakpoint( ">660px" ) {
 		flex-wrap: nowrap;
 	}
 	@include breakpoint( "<660px" ) {
@@ -179,13 +179,13 @@
 	text-align: left;
 	background: $white;
 
-	@include breakpoint( ">660px" ) { 
+	@include breakpoint( ">660px" ) {
 		flex-grow: 1;
 		flex-shrink: 0;
 		flex-basis: 33%;
 	}
 
-	@include breakpoint( "<660px" ) { 
+	@include breakpoint( "<660px" ) {
 		flex-basis: 100%;
 		margin-bottom: rem( 8px );
 	}
