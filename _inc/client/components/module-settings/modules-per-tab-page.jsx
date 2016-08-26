@@ -87,15 +87,14 @@ export const AllModuleSettings = React.createClass( {
 			case 'comments':
 				return ( <CommentsSettings module={ module }  /> );
 			case 'subscriptions':
-				return ( <SubscriptionsSettings module={ module }  /> );
-			case 'gravatar-hovercards':
-				return ( <GravatarHovercardsSettings module={ module }  /> );
+				return ( <SubscriptionsSettings module={ module } { ...this.props } /> );
 			case 'likes':
 				return ( <LikesSettings module={ module }  /> );
 			case 'verification-tools':
 				return ( <VerificationToolsSettings module={ module }  /> );
 			case 'sitemaps':
-				return ( <SitemapsSettings module={ module }  /> );
+				return ( <SitemapsSettings module={ module } { ...this.props } /> );
+			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':
 			case 'shortlinks':
