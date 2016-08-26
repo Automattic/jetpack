@@ -2,20 +2,6 @@
 // Main Layout
 // ==========================================================================
 
-.jp-content {
-	background: $clouds;
-	margin: 0;
-	height: auto;
-	min-height: 100%;
-	width: 100%;
-	width: 100%;
-	-webkit-font-smoothing: antialiased;
-
-	.wrapper {
-		background: $clouds;
-	}
-}
-
 .configure .frame.top.fixed {
 	@include breakpoint(tablet){
 		padding-left: 0;

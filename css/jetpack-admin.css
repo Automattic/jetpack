@@ -267,20 +267,6 @@
   padding: 0;
 }
 
-.jp-content {
-  background: #f9f9f9;
-  margin: 0;
-  height: auto;
-  min-height: 100%;
-  width: 100%;
-  width: 100%;
-  -webkit-font-smoothing: antialiased;
-}
-
-.jp-content .wrapper {
-  background: #f9f9f9;
-}
-
 @media (max-width: 782px) {
   .configure .frame.top.fixed {
     padding-left: 0;
@@ -1688,7 +1674,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 
 @media (min-width: 900px) {
   .feature-container .first-header {
-    background: url("../images/connection-landing/stars-right.svg") no-repeat, url("../images/connection-landing/stars-left.svg") no-repeat, #fff;
+    background: url("../images/stars-right.svg") no-repeat, url("../images/stars-left.svg") no-repeat, #fff;
     background-position: 90% 50%, 10% 50%;
     background-size: 100px, 125px;
   }
