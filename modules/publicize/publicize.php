@@ -289,6 +289,8 @@ abstract class Publicize_Base {
 			!did_action( 'wp_ajax_instapost_publish' )
 		&&
 			!did_action( 'wp_ajax_post_reblog' )
+		&&
+			!did_action( 'wp_ajax_press-this-save-post' )
 		) {
 			$submit_post = false;
 		}
