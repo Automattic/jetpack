@@ -22,5 +22,15 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 
 		$this->assertEquals( $post_id, $decoded_object->ID );
 	}
+
+	function test_xmlrpc_sync_object_returns_false_if_missing() {
+		$server = new Jetpack_XMLRPC_Server();
+		$response = $server->sync_object( array( 'posts', 'post', 1000 ) );
+
+		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+		$decoded_object = $codec->decode( $response );
+
+		$this->assertFalse( $decoded_object );	
+	}
 }
 	
