@@ -299,7 +299,7 @@ class Jetpack_Likes {
 	<script type="text/javascript">
 	jQuery( function( $ )  {
 		var table = $( '#social_notifications_like' ).parents( 'table:first' ),
-			header = table.prevAll( 'h3:first' ),
+			header = table.prevAll( 'h2:first' ),
 			newParent = $( '#moderation_notify' ).parent( 'label' ).parent();
 
 		if ( !table.length || !header.length || !newParent.length ) {
