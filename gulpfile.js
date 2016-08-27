@@ -19,6 +19,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	spawn = require( 'child_process' ).spawn,
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	tap = require( 'gulp-tap' ),
+	modify = require('gulp-modify'),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
 
@@ -106,6 +107,37 @@ function doRTL( files ) {
 		.on( 'end', function() {
 			console.log( 'main' === files ? 'Dashboard RTL CSS finished.' : 'DOPS Components RTL CSS finished.' );
 		} );
+}
+
+/* Replace relative paths with new paths */
+function transformRelativePath( relPath, filepath ) {
+	// If wrapped in singly quotes, strip them
+	if ( 0 === relPath.indexOf( '\'' ) ) {
+		relPath = relPath.substr( 1, relPath.length - 2 );
+	}
+
+	// Return the path unmodified if not relative
+	if ( ! ( 0 === relPath.indexOf( './' ) || 0 === relPath.indexOf( '../' ) ) ) {
+		return relPath;
+	}
+
+	// The concat file is in jetpack/css/jetpack.css, so to get to the root we
+	// have to go back one dir
+	var relPieces = relPath.split( '/' ),
+		filePieces = filepath.split( '/' );
+
+	filePieces.pop(); // Pop the css file name
+
+	if ( '.' === relPieces[0] ) {
+		relPieces.shift();
+	}
+
+	while ( '..' === relPieces[0] ) {
+		relPieces.shift();
+		filePieces.pop();
+	}
+
+	return '../' + filePieces.join( '/' ) + '/' + relPieces.join( '/' );
 }
 
 gulp.task( 'sass:build', ['react:build'], doSass );
@@ -280,6 +312,16 @@ gulp.task( 'admincss:rtl', function() {
 // Frontend CSS.  Auto-prefix and minimize.
 gulp.task( 'frontendcss', function() {
 	return gulp.src( frontendcss )
+		.pipe( modify( {
+				fileModifier: function ( file, contents ) {
+					var regex = /url\((.*)\)/g,
+						f = file.path.replace( file.cwd + '/', '');
+					return contents.replace( regex, function ( match, group ) {
+						return 'url(\'' + transformRelativePath( group, f ) + '\')';
+					} );
+				}
+			}
+		) )
 		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
 		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
 		.pipe( concat( 'jetpack.css' ) )
