@@ -384,7 +384,11 @@ class Jetpack_Core_API_Module_Endpoint
 					$monitor = new Jetpack_Monitor();
 
 					// If we got true as response, consider it done.
-					$updated = true === $monitor->update_option_receive_jetpack_monitor_notification( $value );
+					$methods = array();
+					if ( true == $value ) {
+						$methods = array( 'email' );
+					}
+					$updated = true === $monitor->update_option_receive_jetpack_monitor_notification( $methods );
 					break;
 
 				case 'post_by_email_address':
