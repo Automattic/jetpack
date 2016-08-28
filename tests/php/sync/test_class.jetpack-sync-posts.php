@@ -453,6 +453,27 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $good_post_id ) ) );
 	}
 
+	function test_returns_post_object_by_id() {
+		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
+
+		$post_id = $this->factory->post->create();
+
+		$this->sender->do_sync();
+
+		// get the synced object
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$synced_post = $event->args[1];
+
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_post = $codec->decode( $codec->encode(
+			$post_sync_module->get_object_by_id( 'post', $post_id )
+		) );
+
+		$this->assertEquals( $synced_post, $retrieved_post );
+	}
+
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment        = get_post( $attachment_id );
