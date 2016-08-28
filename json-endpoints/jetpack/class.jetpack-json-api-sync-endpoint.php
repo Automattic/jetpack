@@ -181,3 +181,28 @@ class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_
 		return Jetpack_Sync_Settings::get_settings();
 	}
 }
+
+// GET /sites/%s/sync-object
+class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
+	protected function result() {
+		$args = $this->query_args();
+
+		$module_name = $args['module_name'];
+
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-modules.php';
+
+		if ( ! $sync_module = Jetpack_Sync_Modules::get_module( $module_name ) ) {
+			return new WP_Error( 'invalid_module', 'You specified an invalid sync module' );
+		}
+
+		$object_type = $args['object_type'];
+		$object_id   = $args['object_id'];
+
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
+		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+
+		return array(
+			'object' => $codec->encode( $sync_module->get_object_by_id( $object_type, $object_id ) )
+		);
+	}
+}
