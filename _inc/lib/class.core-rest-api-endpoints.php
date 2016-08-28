@@ -1091,8 +1091,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Monitor
 			case 'monitor':
 				$options = array(
-					'monitor_receive_notifications' => array(
+					'monitor_receive_email' => array(
 						'description'        => esc_html__( 'Receive Monitor Email Notifications.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'monitor_receive_wp_note' => array(
+						'description'        => esc_html__( 'Receive Monitor Email Notifications.???', 'jetpack' ),
 						'type'               => 'boolean',
 						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
@@ -1851,7 +1857,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'monitor':
 				// Status of user notifications
-				$options['monitor_receive_notifications']['current_value'] = self::cast_value( self::get_remote_value( 'monitor', 'monitor_receive_notifications' ), $options['monitor_receive_notifications'] );
+				$methods = self::get_remote_value( 'monitor', 'monitor_receive_notifications' );
+				$options['monitor_receive_email']['current_value'] = in_array( 'email', $methods );
+				$options['monitor_receive_wp_note']['current_value'] = in_array( 'wp_note', $methods );
 				break;
 
 			case 'post-by-email':
@@ -2036,7 +2044,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		switch ( $module ) {
 			case 'monitor':
 				$monitor = new Jetpack_Monitor();
-				$value = $monitor->user_receives_notifications( false );
+				$value = $monitor->get_notification_methods( false );
 				break;
 
 			case 'post-by-email':

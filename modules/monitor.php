@@ -52,9 +52,6 @@ class Jetpack_Monitor {
 	public function jetpack_configuration_screen() {
 		$user_data = Jetpack::get_connected_user_data();
 		$methods = $this->get_notification_methods();
-		if ( ! isset( $methods[ (string) $user_data['ID'] ] ) ) {
-			$methods[ $user_data['ID'] ] = array();
-		}
 		$show_methods = array(
 			'email' => esc_html__( 'Receive Monitor Email Notifications.' , 'jetpack'),
 			'wp_note' => esc_html__( 'Receive Monitor WordPress Notifications.' , 'jetpack'),
@@ -79,7 +76,7 @@ class Jetpack_Monitor {
 								<label for="<?php echo $field_id; ?>">
 										<input type="checkbox" name="<?php echo esc_attr( $slug ); ?>"
 											id="<?php echo $field_id; ?>"
-											value="active"<?php checked( in_array( $slug, $methods[ $user_data['ID'] ] ) ); ?> />
+											value="active"<?php checked( in_array( $slug, $methods ) ); ?> />
 									<span><?php echo( $label ) ?></span>
 								</label>
 								<p class="description">
@@ -136,25 +133,19 @@ class Jetpack_Monitor {
 		}
 
 		// To be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
-		// TODO make this work nicely with _inc/lib/class.core-rest-api-endpoints.php.
-		update_option( 'monitor_receive_notifications', 0 < count( $methods ) );
+		update_option( 'monitor_receive_notifications', $methods );
 
 		return true;
 	}
 
 	/**
 	 * Reach out to jetpack.wordpress.com to get list of which notifictation
-	 * methods are turned on for the users.  Returned object looks like:
-	 * 		{
-	 *			<user_id> : [ ...slugs... ],
-	 *			'123' : [ 'email' ],
-	 *			'999' : []
-	 *		}
+	 * methods are turned on for the current user.  Returned object looks like:
+	 *		[ 'email', 'wp_note' ]
 	 *
-	 * Note that user_ids are wordpress.com user_ids.
+	 * @param bool $die_on_error Whether to issue a wp_die when an error occurs or return a WP_Error object.
 	 *
-	 * @param bool $die_on_error
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public function get_notification_methods( $die_on_error = true ) {
 		Jetpack::load_xml_rpc_client();
@@ -162,33 +153,6 @@ class Jetpack_Monitor {
 			'user_id' => get_current_user_id()
 		) );
 		$xml->query( 'jetpack.monitor.getNotificationMethods' );
-
-		if ( $xml->isError() ) {
-			if ( $die_on_error ) {
-				wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
-			} else {
-				return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage(), array( 'status' => 400 ) );
-			}
-		}
-		return $xml->getResponse();
-	}
-
-	/**
-	 * Checks the status of notifications for current Jetpack site user.
-	 *
-	 * @since 2.8
-	 * @since 4.1.0 New parameter $die_on_error.
-	 *
-	 * @param bool $die_on_error Whether to issue a wp_die when an error occurs or return a WP_Error object.
-	 *
-	 * @return boolean|WP_Error
-	 */
-	public function user_receives_notifications( $die_on_error = true ) {
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
-		$xml->query( 'jetpack.monitor.isUserInNotifications' );
 
 		if ( $xml->isError() ) {
 			if ( $die_on_error ) {

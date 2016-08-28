@@ -269,7 +269,7 @@ export let MonitorSettings = React.createClass( {
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
 					<ModuleSettingCheckbox
-						name={ 'monitor_receive_notifications' }
+						name={ 'monitor_receive_email' }
 						{ ...this.props }
 						label={ __( 'Receive Monitor Email Notifications' ) } />
 					<span className="jp-form-setting-explanation">{ __( 'Emails will be sent to ' ) + this.props.adminEmailAddress }. <span>
@@ -282,6 +282,10 @@ export let MonitorSettings = React.createClass( {
 							} )
 						}
 					</span></span>
+					<ModuleSettingCheckbox
+						name={ 'monitor_receive_wp_note' }
+						{ ...this.props }
+						label={ __( 'Receive Monitor WordPress Notifications' ) } />
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }

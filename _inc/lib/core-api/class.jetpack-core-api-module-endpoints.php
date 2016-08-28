@@ -363,6 +363,9 @@ class Jetpack_Core_API_Module_Endpoint
 			'message' => esc_html__( 'The requested Jetpack module was updated.', 'jetpack' ),
 		);
 
+		// Cache monitor notification change instructions here.
+		$monitor_notification_updates = array();
+
 		foreach ( $params as $option => $value ) {
 			// If option is invalid, don't go any further.
 			if ( ! in_array( $option, array_keys( $options ) ) ) {
@@ -380,15 +383,14 @@ class Jetpack_Core_API_Module_Endpoint
 			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $options[ $option ] );
 
 			switch ( $option ) {
-				case 'monitor_receive_notifications':
-					$monitor = new Jetpack_Monitor();
+				case 'monitor_receive_wp_note':
+					$monitor_notification_updates[ 'wp_note' ] = $value;
+					$updated = true;
+					break;
 
-					// If we got true as response, consider it done.
-					$methods = array();
-					if ( true == $value ) {
-						$methods = array( 'email' );
-					}
-					$updated = true === $monitor->update_option_receive_jetpack_monitor_notification( $methods );
+				case 'monitor_receive_email':
+					$monitor_notification_updates[ 'email' ] = $value;
+					$updated = true;
 					break;
 
 				case 'post_by_email_address':
@@ -578,6 +580,21 @@ class Jetpack_Core_API_Module_Endpoint
 			if ( ! $updated ) {
 				$not_updated[ $option ] = $error;
 			}
+		}
+
+		// Apply monitor_notification_* changes all at once, to minimize network traffic.
+		if ( ! empty( $monitor_notification_updates ) ) {
+			$methods = Jetpack_Core_Json_Api_Endpoints::get_remote_value( 'monitor', 'monitor_receive_notifications' );
+			foreach ( $monitor_notification_updates as $slug => $enable ) {
+				if ( $enable ) {
+					$methods[] = $slug;
+				} else {
+					$methods = array_diff( $methods, array( $slug ) );
+				}
+			}
+			$methods = array_unique( $methods );
+			$monitor = new Jetpack_Monitor();
+			$monitor->update_option_receive_jetpack_monitor_notification( $methods );
 		}
 
 		if ( empty( $invalid ) && empty( $not_updated ) ) {
