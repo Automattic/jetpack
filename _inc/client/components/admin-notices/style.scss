@@ -1,0 +1,43 @@
+.jetpack-pagestyles {
+	// Initially hide VaultPress and WooCommerce notices until they're displayed in Jetpack notices area
+	.vp-notice, .woocommerce-message, .wc-connect {
+		display: none;
+	}
+
+	.woocommerce-message.dops-notice {
+		display: block;
+
+		.submit {
+			padding: 0;
+		}
+
+		.skip {
+			color: $gray;
+			opacity: 0.85;
+		}
+
+		.skip:hover {
+			opacity: 1;
+		}
+
+		.notice-dismiss::before {
+			display: none;
+		}
+
+		.dops-notice__text > div {
+			max-width: 620px;
+		}
+
+		.dops-notice__text > a {
+			margin-right: 15px;
+		}
+
+		.dops-notice__moved_text {
+			margin-bottom: 5px;
+		}
+	}
+
+	.dops-notice__action.notice-dismiss {
+		height: 100%;
+	}
+}
