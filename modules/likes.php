@@ -787,8 +787,14 @@ class Jetpack_Likes {
 		$src = sprintf( '//widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $post->ID, $domain, $uniqid );
 		$name = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post->ID, $uniqid );
 		$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post->ID, $uniqid );
+		$headline = sprintf(
+			/** This filter is already documented in modules/sharedaddy/sharing-service.php */
+			apply_filters( 'jetpack_sharing_headline_html', '<h3 class="sd-title">%s</h3>',esc_html__( 'Like this:', 'jetpack' ), 'likes' ),
+			esc_html__( 'Like this:', 'jetpack' )
+		);
 
-		$html  = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'><h3 class='sd-title'>" . esc_html__( 'Like this:', 'jetpack' ) . '</h3>';
+		$html  = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
+		$html .= $headline;
 		$html .= "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . '</span></span> <span class="loading">' . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>';
 		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
 		$html .= '</div>';
