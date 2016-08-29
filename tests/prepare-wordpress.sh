@@ -16,10 +16,11 @@ for WP_SLUG in 'master' 'latest' 'previous'; do
     echo "Preparing $WP_SLUG WordPress...";
 
     cd $CURRENT_DIR/..
-
+    
     case $WP_SLUG in
 	master)
 	    git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
+	    cd /tmp/wordpress-master
 	    composer install
 	    ;;
 	latest)
@@ -29,6 +30,8 @@ for WP_SLUG in 'master' 'latest' 'previous'; do
 	    git clone --depth=1 --branch `php ./$PLUGIN_SLUG/tests/get-wp-version.php --previous` git://develop.git.wordpress.org/ /tmp/wordpress-previous
 	    ;;
     esac
+
+    cd $CURRENT_DIR/..
 
     cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_SLUG/src/wp-content/plugins/$PLUGIN_SLUG"
     cd /tmp/wordpress-$WP_SLUG
