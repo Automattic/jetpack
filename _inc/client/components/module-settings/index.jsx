@@ -113,6 +113,7 @@ RelatedPostsSettings = moduleSettingsForm( RelatedPostsSettings );
 
 export let LikesSettings = React.createClass( {
 	render() {
+		const old_sharing_settings_url = this.props.module.configure_url;
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
@@ -126,6 +127,15 @@ export let LikesSettings = React.createClass( {
 						isSubmitting={ this.props.isSavingAnyOption() }
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
+				<p>
+					{
+						__( '{{a}}Manage Likes visibility from the Sharing Module Settings{{/a}}', {
+							components: {
+								a: <a href={ old_sharing_settings_url } />
+							}
+						} )
+					}
+				</p>
 			</form>
 		)
 	}
