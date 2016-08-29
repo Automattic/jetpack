@@ -164,7 +164,7 @@ export const deactivateModule = ( slug ) => {
 			dispatch( removeNotice( 'module-toggle' ) );
 			dispatch( createNotice(
 				'is-error',
-				__( '%(slug)s failed to deactivate. %(error)d', {
+				__( '%(slug)s failed to deactivate. %(error)s', {
 					args: {
 						slug: getModule( getState(), slug ).name,
 						error: error
@@ -287,7 +287,7 @@ export const regeneratePostByEmailAddress = () => {
 			dispatch( removeNotice( `module-setting-${ slug }` ) );
 			dispatch( createNotice(
 				'is-error',
-				__( 'Error regenerating %(slug) address. %(error)d', {
+				__( 'Error regenerating %(slug)s address. %(error)s', {
 					args: {
 						slug: getModule( getState(), slug ).name,
 						error: error
