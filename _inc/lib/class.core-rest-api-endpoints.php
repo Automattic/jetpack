@@ -880,22 +880,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return array
 	 */
-	public static function get_module_available_options( $module = '', $cache = true ) {
-		if ( $cache ) {
-			static $options;
-		} else {
-			$options = null;
-		}
-
-		if ( isset( $options ) ) {
-			return $options;
-		}
+	public static function get_module_available_options( $module = '' ) {
+		$options = array();
 
 		if ( empty( $module ) ) {
 			$module = self::get_module_requested();
-			if ( empty( $module ) ) {
-				return array();
-			}
 		}
 
 		switch ( $module ) {
@@ -1827,7 +1816,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array
 	 */
 	public static function prepare_options_for_response( $module = '' ) {
-		$options = self::get_module_available_options( $module, false );
+		$options = self::get_module_available_options( $module );
 
 		if ( ! is_array( $options ) || empty( $options ) ) {
 			return $options;
