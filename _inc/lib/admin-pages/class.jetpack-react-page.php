@@ -136,7 +136,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		/** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' );
 
-		echo file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
+		$static_html = file_exists( JETPACK__PLUGIN_DIR . '_inc/build/static.html' ) ? file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' ) : '';
+
+		echo $static_html;
 	}
 
 	function get_i18n_data() {
@@ -180,7 +182,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function page_admin_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
-		
+
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
