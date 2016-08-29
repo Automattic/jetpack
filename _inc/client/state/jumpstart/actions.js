@@ -44,7 +44,7 @@ export const jumpStartActivate = () => {
 			dispatch( removeNotice( 'jumpstart-activate' ) );
 			dispatch( createNotice(
 				'is-error',
-				__( 'Recommended features failed to activate. %(error)d', {
+				__( 'Recommended features failed to activate. %(error)s', {
 					args: {
 						error: error
 					}
