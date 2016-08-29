@@ -96,7 +96,7 @@ export const Engagement = ( props ) => {
 						toggling={ isTogglingModule( element[0] ) }
 						toggleModule={ toggleModule } />;
 		}
-		return (
+		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
 				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
@@ -105,7 +105,6 @@ export const Engagement = ( props ) => {
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
-				disabled={ ! adminAndNonAdmin }
 				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
 					{
 						card: element[0],
@@ -151,7 +150,7 @@ export const Engagement = ( props ) => {
 					}
 				</div>
 			</FoldableCard>
-		);
+		) : false;
 	} );
 	return (
 		<div>

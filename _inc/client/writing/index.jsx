@@ -79,7 +79,7 @@ export const Writing = ( props ) => {
 			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
 		}
 
-		return (
+		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
 				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
@@ -88,7 +88,6 @@ export const Writing = ( props ) => {
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
-				disabled={ ! adminAndNonAdmin }
 				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
 					{
 						card: element[0],
@@ -105,7 +104,7 @@ export const Writing = ( props ) => {
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
 			</FoldableCard>
-		);
+		) : false;
 	} );
 
 	return (
