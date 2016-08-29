@@ -152,4 +152,23 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 	}
+
+	public function test_returns_comment_object_by_id() {
+		$comment_sync_module = Jetpack_Sync_Modules::get_module( "comments" );
+
+		$comment_id = $this->comment_ids[0];
+		
+		// get the synced object
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
+		$synced_comment = $event->args[1];
+
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_comment = $codec->decode( $codec->encode(
+			$comment_sync_module->get_object_by_id( 'comment', $comment_id )
+		) );
+
+		$this->assertEquals( $synced_comment, $retrieved_comment );
+	}
 }
