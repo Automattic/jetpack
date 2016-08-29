@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertEquals( true, $this->action_ran );
-		$this->assertEquals( 'deflate-json', $this->action_codec );
+		$this->assertEquals( 'deflate-json-array', $this->action_codec );
 		$this->assertNotNull( $this->action_timestamp );
 		$this->assertTrue( $this->action_timestamp > $start_test_timestamp );
 		$this->assertTrue( $this->action_timestamp < microtime( true ) );
