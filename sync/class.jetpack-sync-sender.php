@@ -2,7 +2,7 @@
 
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-codec.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
@@ -283,7 +283,7 @@ class Jetpack_Sync_Sender {
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
-		$this->codec      = new Jetpack_Sync_JSON_Deflate_Codec();
+		$this->codec      = new Jetpack_Sync_JSON_Deflate_Array_Codec();
 
 		// saved settings
 		Jetpack_Sync_Settings::set_importing( null );
