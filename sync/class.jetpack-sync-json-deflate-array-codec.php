@@ -8,7 +8,8 @@ require_once dirname( __FILE__ ) . '/interface.jetpack-sync-codec.php';
  */
 class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
 	const CODEC_NAME = "deflate-json-array";
-
+	const MAX_DEPTH = 10;
+	
 	public function name() {
 		return self::CODEC_NAME;
 	}
@@ -31,7 +32,11 @@ class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
 		return $this->json_unwrap( $json );
 	}
 
-	private function json_wrap( &$any ) {
+	private function json_wrap( $any, $depth = 1 ) {
+		if ( $depth > self::MAX_DEPTH ) {
+			return null;
+		}
+
 		if ( is_object( $any ) ) {
 			$any = get_object_vars( $any );
 			$any['__o'] = 1;
@@ -39,14 +44,14 @@ class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
 
 		if ( is_array( $any ) ) {
 			foreach ( $any as $k => $v ) {
-				$any[ $k ] = $this->json_wrap( $v );
+				$any[ $k ] = $this->json_wrap( $v, $depth + 1 );
 			}
 		}
 
 		return $any;
 	}
 
-	private function json_unwrap( &$any ) {
+	private function json_unwrap( $any ) {
 		if ( is_array( $any ) ) {
 			foreach ( $any as $k => $v ) {
 				if ( '__o' === $k ) {
