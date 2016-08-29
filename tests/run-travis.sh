@@ -2,6 +2,15 @@
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
+    echo "Testing on WordPress master..."
+    cd /tmp/wordpress-master/src/wp-content/plugins/$PLUGIN_SLUG
+    if $WP_TRAVISCI; then
+	# Everything is fine
+	:
+    else
+        exit 1
+    fi
+    
     echo "Testing on WordPress stable..."
     cd /tmp/wordpress-latest/src/wp-content/plugins/$PLUGIN_SLUG
     if $WP_TRAVISCI; then
