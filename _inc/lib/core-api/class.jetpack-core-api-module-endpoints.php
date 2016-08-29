@@ -584,17 +584,22 @@ class Jetpack_Core_API_Module_Endpoint
 
 		// Apply monitor_notification_* changes all at once, to minimize network traffic.
 		if ( ! empty( $monitor_notification_updates ) ) {
-			$methods = Jetpack_Core_Json_Api_Endpoints::get_remote_value( 'monitor', 'monitor_receive_notifications' );
+			$methods = Jetpack_Core_Json_Api_Endpoints::get_remote_value( 'monitor', 'monitor_notification_methods' );
+			$user_methods = array();
+			if ( isset( $methods[ get_current_user_id() ] ) ) {
+				$user_methods = $methods[ get_current_user_id() ];
+			}
+
 			foreach ( $monitor_notification_updates as $slug => $enable ) {
 				if ( $enable ) {
-					$methods[] = $slug;
+					$user_methods[] = $slug;
 				} else {
-					$methods = array_diff( $methods, array( $slug ) );
+					$user_methods = array_diff( $user_methods, array( $slug ) );
 				}
 			}
-			$methods = array_unique( $methods );
+
 			$monitor = new Jetpack_Monitor();
-			$monitor->update_option_receive_jetpack_monitor_notification( $methods );
+			$monitor->update_option_receive_jetpack_monitor_notification( $user_methods );
 		}
 
 		if ( empty( $invalid ) && empty( $not_updated ) ) {

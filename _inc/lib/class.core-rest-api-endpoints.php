@@ -1857,9 +1857,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'monitor':
 				// Status of user notifications
-				$methods = self::get_remote_value( 'monitor', 'monitor_receive_notifications' );
-				$options['monitor_receive_email']['current_value'] = in_array( 'email', $methods );
-				$options['monitor_receive_wp_note']['current_value'] = in_array( 'wp_note', $methods );
+				$methods = self::get_remote_value( 'monitor', 'monitor_notification_methods' );
+				$user_methods = array();
+				if ( isset( $methods[ get_current_user_id() ] ) ) {
+					$user_methods = $methods[ get_current_user_id() ];
+				}
+				$options['monitor_receive_email']['current_value'] = in_array( 'email', $user_methods );
+				$options['monitor_receive_wp_note']['current_value'] = in_array( 'wp_note', $user_methods );
 				break;
 
 			case 'post-by-email':

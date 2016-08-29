@@ -118,13 +118,15 @@ class Jetpack_Monitor {
 	 * Tells jetpack.wordpress.com how current user wants to be notified by
 	 * Monitor.
 	 *
-	 * @param $methods
+	 * @param array $methods like [ "email", "wp-note" ].
 	 * @return bool true on success
 	 */
 	public function update_option_receive_jetpack_monitor_notification( $methods ) {
 		Jetpack::load_xml_rpc_client();
+		$user_id = get_current_user_id();
+		$methods = array_unique( $methods );
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
+			'user_id' => $user_id
 		) );
 		$xml->query( 'jetpack.monitor.setNotificationMethods', $methods );
 
@@ -133,7 +135,12 @@ class Jetpack_Monitor {
 		}
 
 		// To be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
-		update_option( 'monitor_receive_notifications', $methods );
+		$options = get_option( 'monitor_notification_methods' );
+		if ( ! is_array( $options ) ) {
+			$options = array();
+		}
+		$options[ $user_id ] = $methods;
+		update_option( 'monitor_notification_methods', $options );
 
 		return true;
 	}
