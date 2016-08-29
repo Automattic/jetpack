@@ -7,7 +7,7 @@ require_once dirname( __FILE__ ) . '/interface.jetpack-sync-codec.php';
  * algorithm to compress objects serialized using json_encode
  */
 class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
-	const CODEC_NAME = "deflate-json";
+	const CODEC_NAME = "deflate-json-array";
 
 	public function name() {
 		return self::CODEC_NAME;
