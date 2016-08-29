@@ -19,6 +19,7 @@ import { resetOptions } from 'state/dev-version';
 import { disconnectSite } from 'state/connection';
 import { getSiteConnectionStatus } from 'state/connection';
 import { isDevMode as _isDevMode } from 'state/connection';
+import { getSiteAdminUrl } from 'state/initial-state';
 
 export const Footer = React.createClass( {
 	displayName: 'Footer',
@@ -62,7 +63,7 @@ export const Footer = React.createClass( {
 				return (
 					<li className="jp-footer__link-item">
 						<a
-							href={ this.props.adminUrl + 'admin.php?page=jetpack-debugger' }
+							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack-debugger' }
 							title={ __( 'Test your site’s compatibility with Jetpack.' ) }
 							className="jp-footer__link">
 							{ __( 'Debug', { context: 'Navigation item. Noun. Links to a debugger tool for Jetpack.' } ) }
@@ -138,7 +139,8 @@ export default connect(
 			userCanDisconnectSite: userCanDisconnectSite( state ),
 			isDevVersion: _isDevVersion( state ),
 			isDevMode: _isDevMode( state ),
-			siteConnectionStatus: getSiteConnectionStatus( state )
+			siteConnectionStatus: getSiteConnectionStatus( state ),
+			siteAdminUrl: getSiteAdminUrl( state )
 		}
 	},
 	( dispatch ) => {
