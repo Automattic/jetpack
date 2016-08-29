@@ -20,6 +20,7 @@ for WP_SLUG in 'master' 'latest' 'previous'; do
     case $WP_SLUG in
 	master)
 	    git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
+	    composer install
 	    ;;
 	latest)
 	    git clone --depth=1 --branch `php ./$PLUGIN_SLUG/tests/get-wp-version.php` git://develop.git.wordpress.org/ /tmp/wordpress-latest
