@@ -209,7 +209,7 @@ export let StatsSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'hide_smile' }
 						{ ...this.props }
-						label={ __( 'Hide the stats smiley face image' ) } />
+						label={ __( 'Hide the stats smiley face image. The image helps collect stats but should still work when hidden.' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
