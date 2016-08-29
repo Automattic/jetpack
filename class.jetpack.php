@@ -214,6 +214,7 @@ class Jetpack {
 		'nextgen-facebook/nextgen-facebook.php',                 // NextGEN Facebook OG
 		'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',
 		                                                         // NextScripts SNAP
+		'og-tags/og-tags.php',                                   // OG Tags
 		'opengraph/opengraph.php',                               // Open Graph
 		'open-graph-protocol-framework/open-graph-protocol-framework.php',
 		                                                         // Open Graph Protocol Framework
