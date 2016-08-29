@@ -50,7 +50,7 @@ export const GeneralSettings = ( props ) => {
 					toggleModule={ toggleModule }
 				/>;
 		}
-		return (
+		return isAdmin ? (
 			<FoldableCard
 				className={ customClasses }
 				header={ getModule( module_slug ).name }
@@ -71,7 +71,7 @@ export const GeneralSettings = ( props ) => {
 					<Button borderless compact href={ getModule( module_slug ).learn_more_button }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
 			</FoldableCard>
-		);
+		) : false;
 	};
 
 	return (
