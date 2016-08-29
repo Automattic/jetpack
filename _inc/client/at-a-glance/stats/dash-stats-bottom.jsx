@@ -92,6 +92,15 @@ const DashStatsBottom = React.createClass( {
 				<div className="jp-at-a-glance__stats-cta-description">
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
+					{ __( '{{button}}View Old Stats{{/button}}', {
+						components: {
+							button:
+								<Button
+									onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_view_old_stats_click', {} ) }
+									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
+								/>
+						}
+					} ) }
 					{ __( '{{button}}View More Stats{{/button}}', {
 						components: {
 							button:

@@ -18,7 +18,10 @@ import analytics from 'lib/analytics';
  */
 import { imagePath } from 'constants';
 import { isDevMode } from 'state/connection';
-import { getInitialStateStatsData } from 'state/initial-state';
+import {
+	getInitialStateStatsData,
+	getSiteAdminUrl
+} from 'state/initial-state';
 import QueryStatsData from 'components/data/query-stats-data';
 import DashStatsBottom from './dash-stats-bottom';
 
@@ -127,7 +130,11 @@ const DashStats = React.createClass( {
 						}
 					</div>
 					<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
-						<DashStatsBottom statsData={ this.props.statsData } siteRawUrl={ this.props.siteRawUrl }/>
+						<DashStatsBottom
+							statsData={ this.props.statsData }
+							siteRawUrl={ this.props.siteRawUrl }
+							siteAdminUrl={ this.props.siteAdminUrl }
+						/>
 					</div>
 				</div>
 			);
