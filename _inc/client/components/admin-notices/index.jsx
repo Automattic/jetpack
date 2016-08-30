@@ -21,13 +21,15 @@ const AdminNotices = React.createClass( {
 			$wcNotice.each( function () {
 				let $notice = jQuery( this ).addClass( 'dops-notice is-basic' ).removeClass( 'updated wc-connect' );
 				$notice.find( '.button-primary' ).addClass( 'dops-notice__action' ).removeClass( 'button-primary' ).detach().appendTo( $notice );
-				$notice.find( 'p' ).first().replaceWith( function () { return jQuery( '<div/>', { html: this.innerHTML, class: 'dops-notice__text' } ); } );
+				$notice.find( 'p' ).not( '.submit' ).wrapAll( '<div class="dops-notice__text"/>' );
 				let $dopsNotice = $notice.find( '.dops-notice__text' );
-				$dopsNotice.append( '<br/>' );
+				$dopsNotice.find( 'p' ).replaceWith( function () { return jQuery( '<div/>', { html: this.innerHTML, class: 'dops-notice__moved_text' } ); } );
+				$dopsNotice.find( 'br' ).remove();
 				$notice.find( '.button-secondary' ).removeClass( 'button-secondary' ).detach().appendTo( $dopsNotice );
 				$notice.find( '.submit' ).remove();
 				$notice.find( '.woocommerce-message-close' ).removeClass( 'woocommerce-message-close' ).addClass( 'dops-notice__action' );
 				$notice.prependTo( $adminNotices ).wrapInner( '<div class="dops-notice__content">' ).show();
+				$notice.find( '.dops-notice__action' ).not( ':first' ).removeClass( 'dops-notice__action' ).detach().appendTo( $notice.find( '.dops-notice__text' ) );
 			} );
 		}
 	},
