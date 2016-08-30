@@ -37,7 +37,7 @@ class Jetpack_Sync_JSON_Deflate_Codec implements iJetpack_Sync_Codec {
 		}
 		
 		if ( ! $skip_assoc && is_array( $any ) && is_string( key( $any ) ) ) {
-			return (object) array( '_PHP_ASSOC' => $this->json_wrap( $any, true, $depth ) );
+			return (object) array( '_PHP_ASSOC' => $this->json_wrap( $any, true, $depth + 1 ) );
 		}
 
 		if ( is_array( $any ) || is_object( $any ) ) {
