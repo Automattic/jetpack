@@ -507,7 +507,7 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 
 		line = line.slice( brace_index + 1, line.lastIndexOf( ')' ) );
 
-		// Splitting the line by comma and getting the first argument
+		// Making the line look like a JSON array to parse it as such later
 		line = [ '[', line.trim(), ']' ].join( '' );
 
 		terms.push( line );
