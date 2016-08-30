@@ -251,4 +251,8 @@
 		margin-right: rem( 8px );
 		fill: $gray-dark;
 	}
+
+	&.button-ios svg {
+		margin-top: rem( -3px ); // to visually, vertically center apple icon
+	}
 }
