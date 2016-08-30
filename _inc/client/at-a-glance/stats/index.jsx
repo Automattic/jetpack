@@ -110,6 +110,7 @@ const DashStats = React.createClass( {
 				} );
 				return (
 					<div className="jp-at-a-glance__stats-inactive">
+						<span>
 							{
 								__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
 									components: {
@@ -117,6 +118,7 @@ const DashStats = React.createClass( {
 									}
 								} )
 							}
+						</span>
 					</div>
 				);
 			}
