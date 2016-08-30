@@ -23,10 +23,24 @@ import {
 	JETPACK_MODULE_DEACTIVATE_SUCCESS,
 	JETPACK_MODULE_UPDATE_OPTIONS,
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
+	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
+	JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG,
+	JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG
 } from 'state/action-types';
 import { getModule } from 'state/modules/reducer';
 import restApi from 'rest-api';
+
+export const setUnsavedOptionFlag = () => {
+	return ( {
+		type: JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG
+	} );
+}
+
+export const clearUnsavedOptionFlag = () => {
+	return ( {
+		type: JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG
+	} );
+}
 
 export const fetchModules = () => {
 	return ( dispatch ) => {

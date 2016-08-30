@@ -2,8 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { withRouter } from 'react-router';
-import { translate as __ } from 'i18n-calypso';
+
 /**
  * Internal dependencies
  */
@@ -11,14 +10,6 @@ import { connectModuleOptions } from 'components/module-settings/connect-module-
 
 export function ModuleSettingsForm( InnerComponent ) {
 	const SettingsForm = React.createClass( {
-		componentWillMount() {
-			this.props.router.listenBefore( () => {
-				if ( this.isDirty() ) {
-					return __( 'There are some unsaved options in the %(module)s settings', { args: { module: this.props.module.name } } );
-				}
-			} );
-		},
-
 		getInitialState() {
 			return {
 				options: {}
@@ -44,6 +35,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 				[ optionName ]: optionValue
 			};
 			this.setState( { options: newOptions } );
+			this.props.setUnsavedOptionFlag();
 			return true;
 		},
 		onSubmit( event ) {
@@ -85,5 +77,5 @@ export function ModuleSettingsForm( InnerComponent ) {
 			);
 		}
 	} );
-	return connectModuleOptions( withRouter( SettingsForm ) );
+	return connectModuleOptions( SettingsForm );
 }
