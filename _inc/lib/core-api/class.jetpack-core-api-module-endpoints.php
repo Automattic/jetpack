@@ -177,6 +177,8 @@ class Jetpack_Core_API_Module_List_Endpoint {
 			}
 		}
 
+		$modules = Jetpack::get_translated_modules( $modules );
+
 		return Jetpack_Core_Json_Api_Endpoints::prepare_modules_for_response( $modules );
 	}
 
