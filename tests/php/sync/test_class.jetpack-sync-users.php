@@ -91,17 +91,17 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		
 		add_user_meta( $this->user_id, 'session_tokens', 'world', 1 );
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event( );
+		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertFalse( $event );
 
 		update_user_meta( $this->user_id, 'session_tokens', 'moon' );
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event( );
+		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertFalse( $event );
 
 		delete_user_meta( $this->user_id, 'session_tokens', 'moon' );
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event( );
+		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertFalse( $event );
 
 	}
@@ -390,6 +390,26 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// don't demote user if the user one the only admin that is connected.
 		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote user if the user is the only connected user.' );
+	}
+
+	public function test_returns_user_object_by_id() {
+		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+
+		// get the synced object
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$synced_user = $event->args[0];
+
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_user = $codec->decode( $codec->encode(
+			$user_sync_module->get_object_by_id( 'user', $this->user_id )
+		) );
+
+		// TODO: this is to address a testing bug, alas :/
+		unset( $retrieved_user->data->allowed_mime_types );
+
+		$this->assertEquals( $synced_user, $retrieved_user );
 	}
 
 	protected function assertUsersEqual( $user1, $user2 ) {

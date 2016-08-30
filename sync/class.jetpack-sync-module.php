@@ -8,6 +8,10 @@ abstract class Jetpack_Sync_Module {
 
 	abstract public function name();
 
+	public function get_object_by_id( $object_type, $id ) {
+		return false;
+	}
+
 	// override these to set up listeners and set/reset data/defaults
 	public function init_listeners( $callable ) {
 	}
