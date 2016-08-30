@@ -312,6 +312,15 @@ class Jetpack_Core_API_Module_Endpoint
 				$module['activated'] = false;
 			}
 
+			$i18n = jetpack_get_module_i18n( $data['slug'] );
+			if ( isset( $module['name'] ) ) {
+				$module['name'] = $i18n['name'];
+			}
+			if ( isset( $module['description'] ) ) {
+				$module['description'] = $i18n['description'];
+				$module['short_description'] = $i18n['description'];
+			}
+
 			return Jetpack_Core_Json_Api_Endpoints::prepare_modules_for_response( $module );
 		}
 
