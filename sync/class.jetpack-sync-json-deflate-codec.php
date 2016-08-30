@@ -31,18 +31,27 @@ class Jetpack_Sync_JSON_Deflate_Codec implements iJetpack_Sync_Codec {
 		return $this->json_unwrap( json_decode( $str ) );
 	}
 
-	private function json_wrap( $any, $skip_assoc = false, $depth = 1 ) {
-		if ( $depth > self::MAX_DEPTH ) {
-			return null;
-		}
+	private function json_wrap( $any, $skip_assoc = false, $seen_nodes = array() ) {
 		
 		if ( ! $skip_assoc && is_array( $any ) && is_string( key( $any ) ) ) {
-			return (object) array( '_PHP_ASSOC' => $this->json_wrap( $any, true, $depth + 1 ) );
+			return (object) array( '_PHP_ASSOC' => $this->json_wrap( $any, true ) );
 		}
 
 		if ( is_array( $any ) || is_object( $any ) ) {
-			foreach ( $any as &$v ) {
-				$v = $this->json_wrap( $v, false, $depth + 1 );
+			foreach ( $any as $k => &$v ) {
+				if ( ( is_array( $v ) || is_object( $v ) ) ) {
+					if ( in_array( $v, $seen_nodes, true ) ) {
+						if ( is_object( $any ) ) {
+							unset( $any->{ $k } );	
+						} else {
+							unset( $any[ $k ] );
+						}
+						continue;
+					} else {
+						$seen_nodes[] = $v;
+					}
+				}
+				$v = $this->json_wrap( $v, false, $seen_nodes );
 			}
 		}
 
