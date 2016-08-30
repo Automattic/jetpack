@@ -239,13 +239,17 @@ StatsSettings = moduleSettingsForm( StatsSettings );
 
 export let ProtectSettings = React.createClass( {
 	render() {
+		const maybeShowIp = this.props.currentIp ?
+			<p>{ __( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } ) }</p> :
+			'';
+
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
 					<FormLegend>{ __( 'Whitelist Management' ) }</FormLegend>
 					<p>{ __( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack.' ) }</p>
 					<small>{ __( 'Make sure to add your most frequently used IP addresses as they can change between your home, office or other locations. Removing an IP address from the list below will remove it from your whitelist.' ) }</small>
-					<p>{ __( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } ) }</p>
+					{ maybeShowIp }
 					<FormLabel>
 						<Textarea
 							name={ 'jetpack_protect_global_whitelist' }
