@@ -28,8 +28,7 @@ class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
 	}
 
 	private function json_unserialize( $str ) {
-		$json = json_decode( $str, true );
-		return $this->json_unwrap( $json );
+		return $this->json_unwrap( json_decode( $str, true ) );
 	}
 
 	private function json_wrap( $any, $depth = 1 ) {

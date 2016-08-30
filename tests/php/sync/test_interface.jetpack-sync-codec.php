@@ -6,7 +6,11 @@
  * @requires PHP 5.3
  */
 
-$sync_dir = dirname( __FILE__ ) . '/../../../sync/';
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	$sync_dir = ABSPATH . 'wp-content/mu-plugins/jetpack/sync/';
+} else {
+	$sync_dir = dirname( __FILE__ ) . '/../../../sync/';	
+}
 
 require_once $sync_dir . 'class.jetpack-sync-json-deflate-codec.php';
 require_once $sync_dir . 'class.jetpack-sync-json-deflate-array-codec.php';
@@ -21,7 +25,7 @@ class WP_Test_iJetpack_Sync_Codec extends PHPUnit_Framework_TestCase {
 	 */
 	public function test_sync_codec_encodes_objects( $codec ) {
 		$object = (object) array(
-			'0' => 'thang',
+			'b' => 'thang',
 			'a' => 'thing',
 		);
 
