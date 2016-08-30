@@ -18,8 +18,7 @@
     "distclean": "rm -rf node_modules",
     "build": "npm install && npm run build-client",
     "build-client": "gulp",
-    "build-production": "npm run clean && npm run build && npm run build-languages && gulp languages:extract && NODE_ENV=production npm run build",
-    "build-languages": "gulp languages",
+    "build-production": "npm run clean && npm run build && gulp languages:extract && NODE_ENV=production npm run build",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "lint": "eslint _inc/client -c .eslintrc"
   },
