@@ -30,13 +30,15 @@ import {
 	isFetchingPluginsData,
 	isPluginActive
 } from 'state/site/plugins';
+import { getCurrentIp } from 'state/initial-state';
 
 export const Page = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
-		getModule
+		getModule,
+		currentIp
 		} = props;
 	var cards = [
 		[ 'scan', __( 'Security Scanning' ), __( 'Automated, comprehensive protection from threats and attacks.' ), 'https://vaultpress.com/jetpack/' ],
@@ -103,7 +105,7 @@ export const Page = ( props ) => {
 			>
 				{
 					isModuleActivated( element[0] ) || isPro ?
-						<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
+						<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } currentIp={ currentIp } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -137,7 +139,8 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
-			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			currentIp: getCurrentIp( state )
 		};
 	},
 	( dispatch ) => {

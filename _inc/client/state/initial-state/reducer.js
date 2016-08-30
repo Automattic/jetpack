@@ -126,3 +126,7 @@ export function getApiRootUrl( state ) {
 export function getTracksUserData( state ) {
 	return get( state.jetpack.initialState, 'tracksUserData' );
 }
+
+export function getCurrentIp( state ) {
+	return get( state.jetpack.initialState, 'currentIp' );
+}
