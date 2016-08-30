@@ -37,13 +37,13 @@ WP-API-compatible [capabilities document](http://v2.wp-api.org/guide/discovery/)
 
 ## API Reference
 
-All endpoints return and accept JSON. Make sure you add the proper content-type to your PUT/POST requests sending JSON objects.
+All endpoints return and accept JSON. Make sure you add the proper `content-type` header to your PUT/POST requests sending JSON objects.
 
 ```
 'Content-type': 'application/json'
 ```
 
-### Jetpack connection related operations
+### Jetpack connection
 
 Operations related to Jetpack's connection to WordPress.com
 
@@ -63,21 +63,21 @@ Fetch the data of the current's user WordPress.com account.
 
 Disconnect the Jetpack installation from WordPress.com servers.
 
-**This endpoint does not take POST parameters**
+**This endpoint does not take Body parameters**
 
 #### POST /wp-json/jetpack/v4/recheck-ssl
 
 Check if the site has SSL enabled.
 
-**This endpoint does not take POST parameters**
+**This endpoint does not take Body parameters**
 
-### Jetpack modules related operations
+### Jetpack modules
 
-#### GET /wp-json/jetpack/v4/modules/
+#### GET /wp-json/jetpack/v4/module/all
 
 Get a list of all Jetpacks modules, its description, other properties and the module's options
 
-#### GET /wp-json/jetpack/v4/modules/:module-slug
+#### GET /wp-json/jetpack/v4/module/:module-slug
 
 Get a single module description and properties by its slug.
 
@@ -85,43 +85,41 @@ Get a single module description and properties by its slug.
 
 * `module-slug`: {String} The identifier of the module to get info about.
 
-#### POST /wp-json/jetpack/v4/module/:module-slug/activate
+#### POST /wp-json/jetpack/v4/module/:module-slug/active
 
-Activate a module by its slug
+Activate or deactivate a module by its slug
 
-
-**URL parameters**
-
-* `module-slug`: {String} The identifier of the module on which to act.
-
-**This endpoint does not take POST parameters**
-
-#### POST /wp-json/jetpack/v4/module/:module-slug/deactivate
-
-Deactivate a module by its slug
-
-**This endpoint does not take POST parameters**
+Accepts a JSON object in the body like:
+```
+{
+	"active": true
+}
+```
 
 **URL parameters**
 
 * `module-slug`: {String} The identifier of the module on which to act.
 
+**Body parameters**
 
-#### POST /wp-json/jetpack/v4/modules/activate
+* `active`: {Boolean} Send false to deactivate the module.
+
+
+#### POST /wp-json/jetpack/v4/module/activate
 
 Activate several modules at a time by their slug
 
-**POST parameters**
+**Body parameters**
 
 * `modules`: {Array} An array of strings of identifiers of the modules to activate
 
 ```
 {
-	modules: [ 'protect', 'monitor', 'likes' ]
+	"modules": [ "protect", "monitor", "likes" ]
 }
 ```
 
-#### POST /wp-json/jetpack/v4/module/:module-slug/update
+#### POST /wp-json/jetpack/v4/module/:module-slug
 
 Update an option's value for a module
 
@@ -129,18 +127,18 @@ Update an option's value for a module
 
 * `module-slug`: {String} The identifier of the module on which to act.
 
-**POST parameters**
+**Body parameters**
 
 * Accepts a simple object with the key of the option to update and the new value.
 
 Accepts a JSON object in the body like:
 ```
 {
-	'option-key': 'new-option-value'
+	"option-key": "new-option-value"
 }
 ```
 
-### Jetpack miscellaneous settings related operations
+### Jetpack miscellaneous settings
 
 ### GET /wp-json/jetpack/v4/settings
 
@@ -150,14 +148,14 @@ Fetch a list of Jetpack settings not related to a particular module.
 
 Update a setting value
 
-**POST parameters**
+**Body parameters**
 
 * Accepts a simple object with the key of the setting to update and the new value.
 
 Accepts a JSON object in the body like:
 ```
 {
-	'setting-key': 'new-setting-value'
+	"setting-key": "new-setting-value"
 }
 ```
 
@@ -165,13 +163,13 @@ Accepts a JSON object in the body like:
 
 Activate Jumpstart turning on some options and settings to a recommended state.
 
-**This endpoint does not take POST parameters**
+**This endpoint does not take Body parameters**
 
 #### POST /wp-json/jetpack/v4/jumpstart/deactivate
 
 Deactivate Jumpstart reverting options to their default state.
 
-**This endpoint does not take POST parameters**
+**This endpoint does not take Body parameters**
 
 #### POST /wp-json/jetpack/v4/reset/:options_or_modules
 
@@ -183,7 +181,7 @@ Reset  Jetpack module options or Jetpack modules activation state to default val
 	* `"options"`: all the modules' options will be re-set to their default values.
 	* `"modules"`: the modules activation state will be reset to their defaults.
 
-	**This endpoint does not take POST parameters**
+	**This endpoint does not take Body parameters**
 
 
 ### Users
@@ -194,7 +192,7 @@ Operations related to the site's users linked to WordPress.com accounts.
 
 Unlink current user from the related WordPress.com account.
 
-**This endpoint does not take POST parameters**
+**This endpoint does not take Body parameters**
 
 ### Site information
 
