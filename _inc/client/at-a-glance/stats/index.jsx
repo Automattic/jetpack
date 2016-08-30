@@ -109,15 +109,17 @@ const DashStats = React.createClass( {
 					console.log( error );
 				} );
 				return (
-					<p>
-						{
-							__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
-								components: {
-									a: <a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
-								}
-							} )
-						}
-					</p>
+					<div className="jp-at-a-glance__stats-inactive">
+						<span>
+							{
+								__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
+									components: {
+										a: <a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
+									}
+								} )
+							}
+						</span>
+					</div>
 				);
 			}
 			let chartData = this.statsChart( this.props.activeTab() );
