@@ -101,7 +101,7 @@ const DashStatsBottom = React.createClass( {
 								/>
 						}
 					} ) }
-					{ __( '{{button}}View More Stats{{/button}}', {
+					{ __( '{{button}}View More Stats on WordPress.com {{/button}}', {
 						components: {
 							button:
 								<Button
