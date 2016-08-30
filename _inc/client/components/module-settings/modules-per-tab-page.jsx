@@ -34,6 +34,14 @@ export const AllModuleSettings = React.createClass( {
 	render() {
 		let { module } = this.props;
 		switch ( module.module ) {
+			case 'omnisearch':
+				return (
+					<div>
+						<span className="jp-form-setting-explanation">{ this.props.module.long_description }</span>
+						<br/>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href='/wp-admin/admin.php?page=omnisearch'>{ __( 'Search your content.' ) }</ExternalLink>
+					</div>
+				);
 			case 'post-by-email':
 				return ( <PostByEmailSettings module={ module } { ...this.props } /> );
 			case 'custom-content-types':
