@@ -56,7 +56,7 @@ const Main = React.createClass( {
 
 		this.props.router.listenBefore( () => {
 			if ( this.props.areThereUnsavedModuleOptions ) {
-				const confirmLeave = confirm( __( 'There are some unsaved options among the modules settings' ) );
+				const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
 				if ( confirmLeave ) {
 					this.props.clearUnsavedOptionFlag();
 				} else {
