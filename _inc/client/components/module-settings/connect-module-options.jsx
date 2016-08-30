@@ -11,7 +11,9 @@ import {
 	getModuleOption,
 	getModuleOptionValidValues,
 	isUpdatingModuleOption,
-	regeneratePostByEmailAddress
+	regeneratePostByEmailAddress,
+	setUnsavedOptionFlag,
+	clearUnsavedOptionFlag
 } from 'state/modules';
 
 import {
@@ -46,6 +48,12 @@ export function connectModuleOptions( Component ) {
 			},
 			regeneratePostByEmailAddress: () => {
 				return dispatch( regeneratePostByEmailAddress() );
+			},
+			setUnsavedOptionFlag: () => {
+				return dispatch( setUnsavedOptionFlag() );
+			},
+			clearUnsavedOptionFlag: () => {
+				return dispatch( clearUnsavedOptionFlag() );
 			}
 		} )
 	)( Component );

@@ -7,6 +7,8 @@ import { bindActionCreators } from 'redux';
 import assign from 'lodash/assign';
 import includes from 'lodash/includes';
 import { createHistory } from 'history';
+import { withRouter } from 'react-router';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -25,6 +27,7 @@ import {
 	getApiNonce,
 	getApiRootUrl
 } from 'state/initial-state';
+import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
 
 import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
@@ -50,6 +53,17 @@ const Main = React.createClass( {
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalyitics();
+
+		this.props.router.listenBefore( () => {
+			if ( this.props.areThereUnsavedModuleOptions ) {
+				const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
+				if ( confirmLeave ) {
+					this.props.clearUnsavedOptionFlag();
+				} else {
+					return false;
+				}
+			}
+		} );
 	},
 
 	initializeAnalyitics() {
@@ -205,11 +219,12 @@ export default connect(
 			siteAdminUrl: getSiteAdminUrl( state ),
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
-			tracksUserData: getTracksUserData( state )
+			tracksUserData: getTracksUserData( state ),
+			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state )
 		} );
 	},
-	dispatch => bindActionCreators( { setInitialState }, dispatch )
-)( Main );
+	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag }, dispatch )
+)( withRouter( Main ) );
 
 /**
  * Hack for changing the sub-nav menu core classes for 'settings' and 'dashboard'

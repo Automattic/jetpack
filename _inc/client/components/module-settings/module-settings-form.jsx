@@ -35,6 +35,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 				[ optionName ]: optionValue
 			};
 			this.setState( { options: newOptions } );
+			this.props.setUnsavedOptionFlag();
 			return true;
 		},
 		onSubmit( event ) {
@@ -43,6 +44,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 				.then( () => {
 					this.setState( { options: {} } )
 				} );
+			this.props.clearUnsavedOptionFlag();
 		},
 		getOptionValue( optionName ) {
 			const currentValue = this.props.getOptionCurrentValue( this.props.module.module, optionName );
