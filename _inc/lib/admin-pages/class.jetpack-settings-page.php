@@ -140,12 +140,19 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		JetpackTracking::record_user_event( 'page_view', array( 'path' => 'wpa_old_settings' ) );
 	}
 
-	// Javascript logic specific to the list table
-	function page_admin_scripts() {
+	/**
+	 * Load styles for static page.
+	 *
+	 * @since 4.3
+	 */
+	function additional_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
-
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/static.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+	}
+
+	// Javascript logic specific to the list table
+	function page_admin_scripts() {
+		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
 	}
 }
