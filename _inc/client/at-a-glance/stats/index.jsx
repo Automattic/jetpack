@@ -109,14 +109,14 @@ const DashStats = React.createClass( {
 					console.log( error );
 				} );
 				return (
-					<div className="jp-at-a-glance__stats-inactive-text">
-						{
-							__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
-								components: {
-									a: <a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
-								}
-							} )
-						}
+					<div className="jp-at-a-glance__stats-inactive">
+							{
+								__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
+									components: {
+										a: <a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
+									}
+								} )
+							}
 					</div>
 				);
 			}
