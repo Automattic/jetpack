@@ -6,6 +6,15 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		return 'comments';
 	}
 
+	public function get_object_by_id( $object_type, $id ) {
+		$comment_id = intval( $id );
+		if ( $object_type === 'comment' && $comment = get_comment( $comment_id ) ) {
+			return $this->filter_comment( $comment );
+		}
+
+		return false;
+	}
+
 	public function init_listeners( $callable ) {
 		add_action( 'wp_insert_comment', $callable, 10, 2 );
 		add_action( 'deleted_comment', $callable );

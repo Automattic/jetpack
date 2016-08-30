@@ -30,6 +30,7 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
 				'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
 				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
+				'jetpack.syncObject'        => array( $this, 'sync_object' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -323,6 +324,21 @@ class Jetpack_XMLRPC_Server {
 	function unlink_user() {
 		Jetpack::log( 'unlink' );
 		return Jetpack::unlink_user();
+	}
+
+	/**
+	 * Returns any object that is able to be synced
+	 */
+	function sync_object( $args ) {
+		// e.g. posts, post, 5
+		list( $module_name, $object_type, $id ) = $args;
+		require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-modules.php';
+		require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-sender.php';
+
+		$sync_module = Jetpack_Sync_Modules::get_module( $module_name );
+		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+
+		return $codec->encode( $sync_module->get_object_by_id( $object_type, $id ) );
 	}
 
 	/**
