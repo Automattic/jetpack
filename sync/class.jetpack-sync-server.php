@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-codec.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec.php';
 
 /**
  * Simple version of a Jetpack Sync Server - just receives arrays of events and
@@ -14,7 +14,7 @@ class Jetpack_Sync_Server {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
-		$this->codec = new Jetpack_Sync_JSON_Deflate_Codec();
+		$this->codec = new Jetpack_Sync_JSON_Deflate_Array_Codec();
 	}
 
 	function set_codec( iJetpack_Sync_Codec $codec ) {
