@@ -109,7 +109,7 @@ const DashStats = React.createClass( {
 					console.log( error );
 				} );
 				return (
-					<p>
+					<div className="jp-at-a-glance__stats-inactive-text">
 						{
 							__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
 								components: {
@@ -117,7 +117,7 @@ const DashStats = React.createClass( {
 								}
 							} )
 						}
-					</p>
+					</div>
 				);
 			}
 			let chartData = this.statsChart( this.props.activeTab() );
