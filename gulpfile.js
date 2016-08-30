@@ -9,14 +9,17 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	gutil = require( 'gulp-util' ),
 	i18n_calypso = require( 'i18n-calypso/cli' ),
 	jshint = require( 'gulp-jshint' ),
+	json_transform = require( 'gulp-json-transform' ),
 	phplint = require( 'gulp-phplint' ),
 	phpunit = require( 'gulp-phpunit' ),
 	po2json = require( 'gulp-po2json' ),
 	qunit = require( 'gulp-qunit' ),
 	rename = require( 'gulp-rename' ),
+	readline = require( 'readline' ),
 	rtlcss = require( 'gulp-rtlcss' ),
 	sass = require( 'gulp-sass' ),
 	spawn = require( 'child_process' ).spawn,
+	stream = require( 'stream' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	tap = require( 'gulp-tap' ),
 	modify = require('gulp-modify'),
@@ -481,10 +484,58 @@ gulp.task( 'languages:get', function( callback ) {
 	} );
 } );
 
-gulp.task( 'languages:build', [ 'languages:get' ], function( ) {
-	return gulp.src( [ 'languages/*.po' ] )
-		.pipe( po2json() )
-		.pipe( gulp.dest( 'languages/json/' ) );
+gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
+	var terms = [];
+	var instream = fs.createReadStream( './_inc/jetpack-strings.php' );
+	var outstream = new stream;
+	outstream.readable = true;
+	outstream.writable = true;
+
+	var rl = readline.createInterface( {
+		input: instream,
+		output: outstream,
+		terminal: false
+	} );
+
+	rl.on( 'line', function( line ) {
+		var brace_index = line.indexOf( '(' );
+
+		// Skipping lines that do not call translation functions
+		if ( -1 === brace_index ) {
+			return;
+		}
+
+		line = line.slice( brace_index + 1, line.lastIndexOf( ')' ) );
+
+		// Splitting the line by comma and getting the first argument
+		line = [ '[', line.trim(), ']' ].join( '' );
+
+		terms.push( line );
+	} ).on( 'close', function() {
+
+		// Extracting only the first argument to the translation function
+		terms = JSON.parse( '[' + terms.join( ',' ) + ']' ).map( function( term ) {
+			return term[0];
+		} );
+
+		gulp.src( [ 'languages/*.po' ] )
+			.pipe( po2json() )
+			.pipe( json_transform( function( data, file ) {
+				var filtered = {
+					'': data['']
+				};
+
+				Object.keys( data ).forEach( function( term ) {
+					if ( -1 !== terms.indexOf( term ) ) {
+						filtered[ term ] = data[ term ];
+					}
+				} );
+
+				return filtered;
+			} ) )
+			.pipe( gulp.dest( 'languages/json/' ) )
+			.on( 'end', done );
+	} );
 } );
 
 gulp.task( 'languages:cleanup', [ 'languages:build' ], function() {
