@@ -136,11 +136,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		/** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' );
 
-		echo file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
+		$static_html = wp_remote_get( esc_url( JETPACK__PLUGIN_URL . '/_inc/build/static.html' ), array( 'sslverify' => false ) );
+		echo 200 == wp_remote_retrieve_response_code( $static_html )
+			? wp_remote_retrieve_body( $static_html )
+			: esc_html__( 'Error fetching page.', 'jetpack' );
 	}
 
 	function get_i18n_data() {
-		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_locale() . '.json' );
+		$locale_data = wp_remote_get( esc_url( JETPACK__PLUGIN_URL . '/languages/json/jetpack-' . get_locale() . '.json' ), array( 'sslverify' => false ) );
+		$locale_data = 200 == wp_remote_retrieve_response_code( $locale_data )
+			? wp_remote_retrieve_body( $locale_data )
+			: false;
 		if ( $locale_data ) {
 			return $locale_data;
 		} else {
@@ -265,6 +271,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
 			'tracksUserData' => $this->jetpack_get_tracks_user_data(),
+			'currentIp' => jetpack_protect_get_ip()
 		) );
 	}
 }

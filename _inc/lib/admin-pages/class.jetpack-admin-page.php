@@ -14,6 +14,13 @@ abstract class Jetpack_Admin_Page {
 	// Render page specific HTML
 	abstract function page_render();
 
+	/**
+	 * Function called after admin_styles to load any additional needed styles.
+	 *
+	 * @since 4.3
+	 */
+	function additional_styles() {}
+
 	function __construct() {
 		$this->jetpack = Jetpack::init();
 	}
@@ -93,6 +100,8 @@ abstract class Jetpack_Admin_Page {
 		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
+
+		$this->additional_styles();
 	}
 
 	function is_wp_version_too_old() {

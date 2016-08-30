@@ -19,10 +19,27 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	// actions to activate/deactivate and configure modules
 	function page_render() {
 		$list_table = new Jetpack_Modules_List_Table;
-		$static_html = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
-		$noscript_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
-		$version_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
-		$ie_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-ie-notice.html' );
+		$build_url = JETPACK__PLUGIN_URL . '/_inc/build/';
+
+		$static_html = wp_remote_get( esc_url( $build_url . 'static.html' ), array( 'sslverify' => false ) );
+		$static_html = 200 == wp_remote_retrieve_response_code( $static_html )
+			? wp_remote_retrieve_body( $static_html )
+			: '';
+
+		$noscript_notice = wp_remote_get( esc_url( $build_url . 'static-noscript-notice.html' ), array( 'sslverify' => false ) );
+		$noscript_notice = 200 == wp_remote_retrieve_response_code( $noscript_notice )
+			? wp_remote_retrieve_body( $noscript_notice )
+			: '';
+
+		$version_notice = wp_remote_get( esc_url( $build_url . 'static-version-notice.html' ), array( 'sslverify' => false ) );
+		$version_notice = 200 == wp_remote_retrieve_response_code( $version_notice )
+			? wp_remote_retrieve_body( $version_notice )
+			: '';
+
+		$ie_notice = wp_remote_get( esc_url( $build_url . 'static-ie-notice.html' ), array( 'sslverify' => false ) );
+		$ie_notice = 200 == wp_remote_retrieve_response_code( $ie_notice )
+			? wp_remote_retrieve_body( $ie_notice )
+			: '';
 
 		$noscript_notice = str_replace(
 			'#HEADER_TEXT#',
@@ -140,12 +157,19 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		JetpackTracking::record_user_event( 'page_view', array( 'path' => 'wpa_old_settings' ) );
 	}
 
-	// Javascript logic specific to the list table
-	function page_admin_scripts() {
+	/**
+	 * Load styles for static page.
+	 *
+	 * @since 4.3
+	 */
+	function additional_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
-
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/static.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+	}
+
+	// Javascript logic specific to the list table
+	function page_admin_scripts() {
+		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
 	}
 }

@@ -8,6 +8,14 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return 'posts';
 	}
 
+	public function get_object_by_id( $object_type, $id ) {
+		if ( $object_type === 'post' && $post = get_post( intval( $id ) ) ) {
+			return $this->filter_post_content_and_add_links( $post );
+		}
+
+		return false;
+	}
+
 	public function set_defaults() {
 	}
 

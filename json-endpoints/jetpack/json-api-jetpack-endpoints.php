@@ -697,6 +697,27 @@ new Jetpack_JSON_API_Sync_Modify_Settings_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/settings'
 ) );
 
+// GET /sites/%s/sync/object
+new Jetpack_JSON_API_Sync_Object( array(
+	'description'     => 'Get an object by ID from one of the sync modules, in the format it would be synced in',
+	'group'           => '__do_not_document',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/sync/object',
+	'stat'            => 'sync-object',
+	'path_labels' => array(
+		'$site'        => '(int|string) The site ID, The site domain'
+	),
+	'query_parameters' => array(
+		'module_name'      => '(string) The sync module ID, e.g. "posts"',
+		'object_type' => '(string) An identified for the object type, e.g. "post"',
+		'object_id'   => '(int|string) The ID of the object',
+	),
+	'response_format' => array(
+		'object' => '(string) The encoded object'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/object/posts/post/5'
+) );
+
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );
 
 new Jetpack_JSON_API_Jetpack_Log_Endpoint( array(
