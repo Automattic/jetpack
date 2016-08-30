@@ -646,15 +646,28 @@ class Jetpack_Core_API_Module_Endpoint
 		}
 
 		// Used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
-		update_option( 'post_by_email_address', $response );
+		update_option( 'post_by_email_address' . get_current_user_id(), $response );
 
 		return $response;
 	}
 
+	/**
+	 * Check if user is allowed to perform the update.
+	 *
+	 * @since 4.3
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return bool
+	 */
 	public function can_request( $request ) {
 		if ( 'GET' === $request->get_method() ) {
 			return current_user_can( 'jetpack_admin_page' );
 		} else {
+			// User is trying to create, regenerate or delete its PbE address.
+			if ( 'post-by-email' === Jetpack_Core_Json_Api_Endpoints::get_module_requested() ) {
+				return current_user_can( 'edit_posts' ) && current_user_can( 'jetpack_admin_page' );
+			}
 			return current_user_can( 'jetpack_configure_modules' );
 		}
 	}

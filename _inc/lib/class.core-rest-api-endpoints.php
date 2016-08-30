@@ -880,22 +880,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return array
 	 */
-	public static function get_module_available_options( $module = '', $cache = true ) {
-		if ( $cache ) {
-			static $options;
-		} else {
-			$options = null;
-		}
-
-		if ( isset( $options ) ) {
-			return $options;
-		}
+	public static function get_module_available_options( $module = '' ) {
+		$options = array();
 
 		if ( empty( $module ) ) {
-			$module = self::get_module_requested( '/module/(?P<slug>[a-z\-]+)/update' );
-			if ( empty( $module ) ) {
-				return array();
-			}
+			$module = self::get_module_requested();
 		}
 
 		switch ( $module ) {
@@ -1766,7 +1755,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return array
 	 */
-	public static function get_module_requested( $route ) {
+	public static function get_module_requested( $route = '/module/(?P<slug>[a-z\-]+)' ) {
 
 		if ( empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
 			return '';
@@ -1827,7 +1816,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array
 	 */
 	public static function prepare_options_for_response( $module = '' ) {
-		$options = self::get_module_available_options( $module, false );
+		$options = self::get_module_available_options( $module );
 
 		if ( ! is_array( $options ) || empty( $options ) ) {
 			return $options;
@@ -2010,6 +1999,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Whether user is receiving notifications or not.
 	 */
 	public static function get_remote_value( $module, $option ) {
+
+		if ( in_array( $module, array( 'post-by-email' ), true ) ) {
+			$option .= get_current_user_id();
+		}
 
 		// If option doesn't exist, 'does_not_exist' will be returned.
 		$value = get_option( $option, 'does_not_exist' );

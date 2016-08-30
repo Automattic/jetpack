@@ -8,6 +8,7 @@ import TextInput from 'components/text-input';
 import Textarea from 'components/textarea';
 import TagsInput from 'components/tags-input';
 import ClipboardButtonInput from 'components/clipboard-button-input';
+import ConnectButton from 'components/connect-button';
 import get from 'lodash/get';
 import Button from 'components/button';
 
@@ -545,11 +546,11 @@ TiledGallerySettings = moduleSettingsForm( TiledGallerySettings );
 
 export let PostByEmailSettings = React.createClass( {
 	regeneratePostByEmailAddress( event ) {
-		event.preventDefault()
+		event.preventDefault();
 		this.props.regeneratePostByEmailAddress();
 	},
 	address() {
-		const currentValue = this.props.getOptionValue( 'post_by_email_address' )
+		const currentValue = this.props.getOptionValue( 'post_by_email_address' );
 		// If the module Post-by-email is enabled BUT it's configured as disabled
 		// Its value is set to false
 		if ( currentValue === false ) {
@@ -559,23 +560,35 @@ export let PostByEmailSettings = React.createClass( {
 	},
 	render() {
 		return (
-			<form>
-				<FormFieldset>
-					<FormLabel>
-						<FormLegend>{ __( 'Email Address' ) }</FormLegend>
-						<ClipboardButtonInput
-							value={ this.address() }
-							copy={ __( 'Copy', { context: 'verb' } ) }
-							copied={ __( 'Copied!' ) }
-							prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
-						/>
-						<FormButton
-							onClick={ this.regeneratePostByEmailAddress } >
-							{ __( 'Regenerate address' ) }
-						</FormButton>
-					</FormLabel>
-				</FormFieldset>
-			</form>
+			this.props.isCurrentUserLinked ?
+				<form>
+					<FormFieldset>
+						<FormLabel>
+							<FormLegend>{ __( 'Email Address' ) }</FormLegend>
+							<ClipboardButtonInput
+								value={ this.address() }
+								copy={ __( 'Copy', { context: 'verb' } ) }
+								copied={ __( 'Copied!' ) }
+								prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+							/>
+							<FormButton
+								onClick={ this.regeneratePostByEmailAddress } >
+								{ __( 'Regenerate address' ) }
+							</FormButton>
+						</FormLabel>
+					</FormFieldset>
+				</form>
+				:
+				<div>
+					{
+						<div className="jp-connection-settings">
+							<div className="jp-connection-settings__headline">{ __( 'Link your account to WordPress.com to start using this feature.' ) }</div>
+							<div className="jp-connection-settings__actions">
+								<ConnectButton connectUser={ true } />
+							</div>
+						</div>
+					}
+				</div>
 		)
 	}
 } );

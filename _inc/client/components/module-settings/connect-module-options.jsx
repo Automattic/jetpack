@@ -19,6 +19,8 @@ import {
 	getAdminEmailAddress
 } from 'state/initial-state';
 
+import { isCurrentUserLinked } from 'state/connection';
+
 /**
  * High order component that connects to Jetpack modules'options
  * redux state selectors and action creators.
@@ -34,7 +36,8 @@ export function connectModuleOptions( Component ) {
 				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
 				getSiteRoles: () => getSiteRoles( state ),
 				isUpdating: ( option_name ) => isUpdatingModuleOption( state, ownProps.module.module, option_name ),
-				adminEmailAddress: getAdminEmailAddress( state )
+				adminEmailAddress: getAdminEmailAddress( state ),
+				isCurrentUserLinked: isCurrentUserLinked( state )
 			}
 		},
 		( dispatch, ownProps ) => ( {
