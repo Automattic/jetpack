@@ -12,7 +12,6 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	$sync_dir = dirname( __FILE__ ) . '/../../../sync/';	
 }
 
-require_once $sync_dir . 'class.jetpack-sync-json-deflate-codec.php';
 require_once $sync_dir . 'class.jetpack-sync-json-deflate-array-codec.php';
 
 class WP_Test_iJetpack_Sync_Codec extends PHPUnit_Framework_TestCase {
@@ -47,6 +46,37 @@ class WP_Test_iJetpack_Sync_Codec extends PHPUnit_Framework_TestCase {
 
 		// basically this function will explode unless there's some checks on infinite recursion
 		$decoded_object = $codec->decode( $codec->encode( $object_a ) );
+	}
+
+	/**
+	 * @dataProvider codec_provider
+	 * @requires PHP 5.3
+	 */
+	public function test_codec_does_not_modify_original_object( $codec ) {
+
+		$object = array(
+			'a' => (object) array(
+				'foo' => 1,
+				'bar' => 2,
+				'baz' => array( 'a', 'b', 'c' ),
+			),
+			'b' => array()
+		);
+
+		// add a circular reference
+		$object['b']['self'] = &$object;
+
+		$copy_of_object = unserialize( serialize( $object ) );
+
+		$decoded_object = $codec->decode( $codec->encode( $object ) );
+
+		// unset the self references, since $copy_of_object will have them but other copies won't
+		unset( $object['b']['self'] );
+		unset( $decoded_object['b']['self'] );
+		unset( $copy_of_object['b']['self'] );
+
+		$this->assertEquals( $copy_of_object, $object );
+		$this->assertEquals( $copy_of_object, $decoded_object );
 	}
 
 	public function codec_provider( $name ) {
