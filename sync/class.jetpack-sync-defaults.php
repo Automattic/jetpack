@@ -198,6 +198,7 @@ class Jetpack_Sync_Defaults {
 		'_wp_page_template',
 		'_publicize_twitter_user',
 		'_wp_trash_meta_comments_status',
+		'_wp_attached_file',
 	);
 
 	static $default_blacklist_meta_keys = array(
