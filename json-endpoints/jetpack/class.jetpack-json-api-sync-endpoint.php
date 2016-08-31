@@ -223,7 +223,7 @@ class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint 
 		$response = $sender->do_sync_for_queue( $queue_name );
 
 		return array(
-			'response' => $response;
+			'response' => $response
 		)
 	}
 }
