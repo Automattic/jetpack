@@ -1457,7 +1457,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string|bool $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
@@ -1475,7 +1475,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param int $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
@@ -1493,7 +1493,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
@@ -1508,7 +1508,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// If it's an associative array, use the keys to check that the value is among those admitted.
 			$enum = ( count( array_filter( array_keys( $args['enum'] ), 'is_string' ) ) > 0 ) ? array_keys( $args['enum'] ) : $args['enum'];
 			if ( ! in_array( $value, $enum ) ) {
-				return new WP_Error( 'invalid_param_value', sprintf( esc_html__( '%s must be one of %s', 'jetpack' ), $param, implode( ', ', $enum ) ) );
+				return new WP_Error( 'invalid_param_value', sprintf(
+					/* Translators: first variable is the parameter passed to endpoint that holds the list item, the second is a list of admitted values. */
+					esc_html__( '%1$s must be one of %2$s', 'jetpack' ), $param, implode( ', ', $enum )
+				) );
 			}
 		}
 		return true;
@@ -1521,7 +1524,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
@@ -1546,7 +1549,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
@@ -1564,13 +1567,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string|bool $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
 	public static function validate_stats_roles( $value, $request, $param ) {
 		if ( ! empty( $value ) && ! array_intersect( self::$stats_roles, $value ) ) {
-			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be %s.', 'jetpack' ), $param, join( ', ', self::$stats_roles ) ) );
+			return new WP_Error( 'invalid_param', sprintf(
+				/* Translators: first variable is the name of a parameter passed to endpoint holding the role that will be checked, the second is a list of roles allowed to see stats. The parameter is checked against this list. */
+				esc_html__( '%1$s must be %2$s.', 'jetpack' ), $param, join( ', ', self::$stats_roles )
+			) );
 		}
 		return true;
 	}
@@ -1582,14 +1588,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string|bool $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
 	public static function validate_sharing_show( $value, $request, $param ) {
 		$views = array( 'index', 'post', 'page', 'attachment', 'jetpack-portfolio' );
 		if ( ! array_intersect( $views, $value ) ) {
-			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be %s.', 'jetpack' ), $param, join( ', ', $views ) ) );
+			return new WP_Error( 'invalid_param', sprintf(
+				/* Translators: first variable is the name of a parameter passed to endpoint holding the post type where Sharing will be displayed, the second is a list of post types where Sharing can be displayed */
+				esc_html__( '%1$s must be %2$s.', 'jetpack' ), $param, join( ', ', $views )
+			) );
 		}
 		return true;
 	}
@@ -1599,9 +1608,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|bool $value Value to check.
+	 * @param string|bool $value {
+	 *     Value to check received by request.
+	 *
+	 *     @type array $visible List of slug of services to share to that are displayed directly in the page.
+	 *     @type array $hidden  List of slug of services to share to that are concealed in a folding menu.
+	 * }
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
@@ -1626,7 +1640,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 			||
 			( ! empty( $value['hidden'] ) && ! array_intersect( $value['hidden'], $services ) ) )
 		{
-			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s visible and hidden items must be a list of %s.', 'jetpack' ), $param, join( ', ', $services ) ) );
+			return new WP_Error( 'invalid_param', sprintf(
+				/* Translators: placeholder 1 is a parameter holding the services passed to endpoint, placeholder 2 is a list of all Jetpack Sharing services */
+				esc_html__( '%1$s visible and hidden items must be a list of %2$s.', 'jetpack' ), $param, join( ', ', $services )
+			) );
 		}
 		return true;
 	}
@@ -1638,7 +1655,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string|bool $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
@@ -1671,7 +1688,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
@@ -1700,7 +1717,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
@@ -1718,7 +1735,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string $value Value to check.
 	 * @param WP_REST_Request $request
-	 * @param string $param
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool
 	 */
