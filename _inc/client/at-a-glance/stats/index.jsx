@@ -213,7 +213,8 @@ const DashStats = React.createClass( {
 	},
 
 	render: function() {
-		if ( ! includes( this.props.moduleList, 'stats' ) ) {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'stats' ) ) {
 			return null;
 		}
 

@@ -54,7 +54,8 @@ const DashPhoton = React.createClass( {
 	},
 
 	render: function() {
-		if ( ! includes( this.props.moduleList, 'photon' ) ) {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'photon' ) ) {
 			return null;
 		}
 

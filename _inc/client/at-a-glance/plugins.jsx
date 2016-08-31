@@ -106,7 +106,8 @@ const DashPluginUpdates = React.createClass( {
 	},
 
 	render: function() {
-		if ( ! includes( this.props.moduleList, 'manage' ) ) {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'manage' ) ) {
 			return null;
 		}
 

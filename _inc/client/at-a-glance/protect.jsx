@@ -74,7 +74,8 @@ const DashProtect = React.createClass( {
 	},
 
 	render: function() {
-		if ( ! includes( this.props.moduleList, 'protect' ) ) {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'protect' ) ) {
 			return null;
 		}
 

@@ -72,7 +72,8 @@ const DashMonitor = React.createClass( {
 	},
 
 	render: function() {
-		if ( ! includes( this.props.moduleList, 'monitor' ) ) {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'monitor' ) ) {
 			return null;
 		}
 

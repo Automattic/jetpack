@@ -52,7 +52,8 @@ const DashSiteVerify = React.createClass( {
 	},
 
 	render: function() {
-		if ( ! includes( this.props.moduleList, 'site-verification' ) ) {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'site-verification' ) ) {
 			return null;
 		}
 
