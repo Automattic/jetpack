@@ -65,7 +65,7 @@ git clone --depth 1 -b $TARGET --single-branch git@github.com:Automattic/jetpack
 echo "Done!"
 
 echo "Rsync'ing everything over remote version"
-rsync -r $JETPACK_TMP_DIR_2/* $JETPACK_TMP_DIR
+rsync -r --delete $JETPACK_TMP_DIR_2/* $JETPACK_TMP_DIR
 echo "Done!"
 
 cd $JETPACK_TMP_DIR
