@@ -5,13 +5,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
  */
 import {
 	isModuleActivated as _isModuleActivated,
-	activateModule
+	activateModule,
+	getModules
 } from 'state/modules';
 
 const DashSiteVerify = React.createClass( {
@@ -50,6 +52,10 @@ const DashSiteVerify = React.createClass( {
 	},
 
 	render: function() {
+		if ( ! includes( this.props.moduleList, 'site-verification' ) ) {
+			return null;
+		}
+
 		return (
 			<div>
 				{ this.getContent() }
@@ -61,7 +67,8 @@ const DashSiteVerify = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
+			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

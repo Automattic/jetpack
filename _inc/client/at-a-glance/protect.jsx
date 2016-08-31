@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -13,7 +14,8 @@ import QueryProtectCount from 'components/data/query-dash-protect';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isFetchingModulesList as _isFetchingModulesList
+	isFetchingModulesList as _isFetchingModulesList,
+	getModules
 } from 'state/modules';
 import {
 	fetchProtectCount,
@@ -72,6 +74,10 @@ const DashProtect = React.createClass( {
 	},
 
 	render: function() {
+		if ( ! includes( this.props.moduleList, 'protect' ) ) {
+			return null;
+		}
+
 		return (
 			<div className="jp-dash-item__interior">
 				<QueryProtectCount />
@@ -87,7 +93,7 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			getProtectCount: () => _getProtectCount( state ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
-			getModule: ( module_name ) => _getModule( state, module_name )
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

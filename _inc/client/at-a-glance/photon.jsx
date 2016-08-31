@@ -5,13 +5,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
  */
 import {
 	isModuleActivated as _isModuleActivated,
-	activateModule
+	activateModule,
+	getModules
 } from 'state/modules';
 import { isDevMode } from 'state/connection';
 
@@ -52,6 +54,10 @@ const DashPhoton = React.createClass( {
 	},
 
 	render: function() {
+		if ( ! includes( this.props.moduleList, 'photon' ) ) {
+			return null;
+		}
+
 		return (
 			<div className="jp-dash-item__interior">
 				{ this.getContent() }
@@ -63,7 +69,8 @@ const DashPhoton = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
+			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {
