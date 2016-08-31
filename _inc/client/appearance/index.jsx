@@ -7,6 +7,7 @@ import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 import analytics from 'lib/analytics';
 
 /**
@@ -25,6 +26,7 @@ import { AllModuleSettings } from 'components/module-settings/modules-per-tab-pa
 import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules } from 'state/initial-state';
 import Settings from 'components/settings';
+import { getModules } from 'state/modules';
 
 export const Page = ( props ) => {
 	let {
@@ -45,6 +47,9 @@ export const Page = ( props ) => {
 		[ 'infinite-scroll', getModule( 'infinite-scroll' ).name, getModule( 'infinite-scroll' ).description, getModule( 'infinite-scroll' ).learn_more_button ],
 		[ 'minileven', getModule( 'minileven' ).name, getModule( 'minileven' ).description, getModule( 'minileven' ).learn_more_button ]
 	].map( ( element ) => {
+		if ( ! includes( Object.keys( props.moduleList ), element[0] ) ) {
+			return null;
+		}
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			toggle = (
 				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
@@ -123,7 +128,8 @@ export default connect(
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			userCanManageModules: userCanManageModules( state )
+			userCanManageModules: userCanManageModules( state ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {
