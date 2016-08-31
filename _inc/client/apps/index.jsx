@@ -31,7 +31,7 @@ const Apps = ( props ) => {
 						<p className="jp-landing-apps__sub-description">{ __( "All the WordPress apps are built for speed. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around." ) }</p>
 					</div>
 					<div className="jp-landing-apps__header-col-right">
-						<img src={ imagePath + '/apps/laptop-90deg-themes.png' } className="jp-landing-apps__header-img" />
+						<img src={ imagePath + '/apps/laptop-90deg-themes2x.jpg' } className="jp-landing-apps__header-img" />
 					</div>
 				</div>
 				<div className="jp-landing-apps__clouds jp-clouds-top">
@@ -42,7 +42,7 @@ const Apps = ( props ) => {
 			<div className="jp-landing-apps__feature-container">
 				<div className="jp-landing-apps__feature">
 					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-						<img src={ imagePath + '/apps/manage2x.png' } />
+						<img src={ imagePath + '/apps/manage2x.jpg' } />
 					</div>
 					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
 						<h3 className="jp-landing__apps-feature-title">{ __( 'Bulk and automatic updates' ) }</h3>
@@ -62,7 +62,7 @@ const Apps = ( props ) => {
 						</Button>
 					</div>
 					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-						<img src={ imagePath + '/apps/editor2x.png' } />
+						<img src={ imagePath + '/apps/editor2x.jpg' } />
 					</div>
 				</div>
 
@@ -70,7 +70,7 @@ const Apps = ( props ) => {
 					canViewStats ? (
 						<div className="jp-landing-apps__feature">
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-								<img src={ imagePath + '/apps/stats2x.png' } />
+								<img src={ imagePath + '/apps/stats2x.jpg' } />
 							</div>
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
 								<h2>{ __( 'Connect with your Visitors' ) }</h2>
@@ -91,7 +91,7 @@ const Apps = ( props ) => {
 							''
 						) : (
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-								<img src={ imagePath + '/apps/community2x.png' } />
+								<img src={ imagePath + '/apps/community2x.jpg' } />
 							</div>
 						)
 					}
@@ -105,7 +105,7 @@ const Apps = ( props ) => {
 					{
 						canViewStats ? (
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-								<img src={ imagePath + '/apps/community2x.png' } />
+								<img src={ imagePath + '/apps/community2x.jpg' } />
 							</div>
 						) : (
 							''
