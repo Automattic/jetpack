@@ -258,7 +258,7 @@ function stats_upgrade_options( $options ) {
 		'roles'        => array( 'administrator' ),
 		'count_roles'  => array(),
 		'blog_id'      => Jetpack_Options::get_option( 'id' ),
-		'do_not_track' => true, // @todo
+		'do_not_track' => false, // Default to not honor DNT
 		'hide_smile'   => true,
 	);
 
