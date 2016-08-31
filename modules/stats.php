@@ -566,7 +566,6 @@ function stats_configuration_load() {
 		$options = stats_get_options();
 		$options['admin_bar']  = isset( $_POST['admin_bar']  ) && $_POST['admin_bar'];
 		$options['hide_smile'] = isset( $_POST['hide_smile'] ) && $_POST['hide_smile'];
-		$options['do_not_track'] = isset( $_POST['do_not_track'] ) && $_POST['do_not_track'];
 
 		$options['roles'] = array( 'administrator' );
 		foreach ( get_editable_roles() as $role => $details )
@@ -637,8 +636,7 @@ function stats_configuration_screen() {
 				<?php
 			}
 			?>
-		</td><tr valign="top"><th scope="row"><?php _e( 'Do Not Track' , 'jetpack' ); ?></th>
-		<td><label><input type='checkbox'<?php checked( isset( $options['do_not_track'] ) && $options['do_not_track'] ); ?> name='do_not_track' id='do_not_track' /> <?php _e( 'Respect DNT header from user.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'Don\'t include tracking code when user doesn\'t want to be tracked.', 'jetpack' ); ?></span></td></tr>
+		</td></tr>
 		</table>
 		<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save configuration', 'jetpack' ) ); ?>' /></p>
 		</form>
