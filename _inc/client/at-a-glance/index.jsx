@@ -26,6 +26,7 @@ import {
 	userCanManageModules,
 	userCanViewStats
 } from 'state/initial-state';
+import { isDevMode } from 'state/connection';
 
 const AtAGlance = React.createClass( {
 	render() {
@@ -33,8 +34,15 @@ const AtAGlance = React.createClass( {
 				<DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath="#security"
-					externalLink={ __( 'Manage security on WordPress.com' ) }
-					externalLinkPath={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+					externalLink={
+						this.props.isDevMode
+						? ''
+						: __( 'Manage security on WordPress.com' )
+					}
+					externalLinkPath={ this.props.isDevMode
+						? ''
+						: 'https://wordpress.com/settings/security/' + this.props.siteRawUrl
+					}
 					externalLinkClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_security_wpcom_click', {} ) }
 				/>,
 			performanceHeader =
@@ -126,7 +134,8 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			userCanManageModules: userCanManageModules( state ),
-			userCanViewStats: userCanViewStats( state )
+			userCanViewStats: userCanViewStats( state ),
+			isDevMode: isDevMode( state )
 		};
 	}
 )( AtAGlance );
