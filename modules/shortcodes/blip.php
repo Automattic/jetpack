@@ -7,8 +7,9 @@
  * */
 
 function blip_embed_to_shortcode( $content ) {
-	if ( ! is_string( $content ) || false === stripos( $content, '/blip.tv/play/' ) )
+	if ( ! is_string( $content ) || false === stripos( $content, '/blip.tv/play/' ) ) {
 		return $content;
+	}
 
 	$regexp = '!<embed((?:\s+\w+="[^"]*")*)\s+src="http(?:\:|&#0*58;)//(blip\.tv/play/[^"]*)"((?:\s+\w+="[^"]*")*)\s*(?:/>|>\s*</embed>)!';
 	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
