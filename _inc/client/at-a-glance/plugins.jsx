@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -15,7 +16,8 @@ import {
 } from 'state/at-a-glance';
 import {
 	isModuleActivated as _isModuleActivated,
-	activateModule
+	activateModule,
+	getModules
 } from 'state/modules';
 import { isDevMode } from 'state/connection';
 
@@ -104,6 +106,11 @@ const DashPluginUpdates = React.createClass( {
 	},
 
 	render: function() {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'manage' ) ) {
+			return null;
+		}
+
 		return (
 			<div>
 				<QueryPluginUpdates />
@@ -117,7 +124,8 @@ export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			getPluginUpdates: () => _getPluginUpdates( state )
+			getPluginUpdates: () => _getPluginUpdates( state ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

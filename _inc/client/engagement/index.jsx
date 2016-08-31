@@ -19,7 +19,8 @@ import {
 	deactivateModule,
 	isActivatingModule,
 	isDeactivatingModule,
-	getModule as _getModule
+	getModule as _getModule,
+	getModules
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
@@ -39,7 +40,8 @@ export const Engagement = ( props ) => {
 		getModule
 	} = props,
 		isAdmin = props.userCanManageModules,
-		sitemapsDesc = getModule( 'sitemaps' ).description;
+		sitemapsDesc = getModule( 'sitemaps' ).description,
+		moduleList = Object.keys( props.moduleList );
 
 	if ( ! props.isSitePublic() ) {
 		sitemapsDesc = <span>
@@ -83,6 +85,9 @@ export const Engagement = ( props ) => {
 		cards = cards.filter( ( element, index ) => cards.indexOf( element ) === index );
 	}
 	cards = cards.map( ( element ) => {
+		if ( ! includes( moduleList, element[0] ) ) {
+			return null;
+		}
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
@@ -175,7 +180,8 @@ export default connect(
 			getSiteRawUrl: () => getSiteRawUrl( state ),
 			getSiteAdminUrl: () => getSiteAdminUrl( state ),
 			isSitePublic: () => isSitePublic( state ),
-			userCanManageModules: _userCanManageModules( state )
+			userCanManageModules: _userCanManageModules( state ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

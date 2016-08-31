@@ -7,6 +7,7 @@ import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 import analytics from 'lib/analytics';
 
 /**
@@ -18,7 +19,8 @@ import {
 	deactivateModule,
 	isActivatingModule,
 	isDeactivatingModule,
-	getModule as _getModule
+	getModule as _getModule,
+	getModules
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
@@ -33,7 +35,8 @@ export const Page = ( props ) => {
 		isTogglingModule,
 		getModule
 	} = props,
-		isAdmin = props.userCanManageModules;
+		isAdmin = props.userCanManageModules,
+		moduleList = Object.keys( props.moduleList );
 
 	var cards = [
 		[ 'tiled-gallery', getModule( 'tiled-gallery' ).name, getModule( 'tiled-gallery' ).description, getModule( 'tiled-gallery' ).learn_more_button ],
@@ -45,6 +48,9 @@ export const Page = ( props ) => {
 		[ 'infinite-scroll', getModule( 'infinite-scroll' ).name, getModule( 'infinite-scroll' ).description, getModule( 'infinite-scroll' ).learn_more_button ],
 		[ 'minileven', getModule( 'minileven' ).name, getModule( 'minileven' ).description, getModule( 'minileven' ).learn_more_button ]
 	].map( ( element ) => {
+		if ( ! includes( moduleList, element[0] ) ) {
+			return null;
+		}
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			toggle = (
 				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
@@ -123,7 +129,8 @@ export default connect(
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			userCanManageModules: userCanManageModules( state )
+			userCanManageModules: userCanManageModules( state ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

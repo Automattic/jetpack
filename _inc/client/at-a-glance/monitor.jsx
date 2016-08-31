@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -13,7 +14,8 @@ import QueryLastDownTime from 'components/data/query-last-downtime';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isFetchingModulesList as _isFetchingModulesList
+	isFetchingModulesList as _isFetchingModulesList,
+	getModules
 } from 'state/modules';
 import { getLastDownTime as _getLastDownTime } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
@@ -70,6 +72,11 @@ const DashMonitor = React.createClass( {
 	},
 
 	render: function() {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'monitor' ) ) {
+			return null;
+		}
+
 		return (
 			<div>
 				<QueryLastDownTime />
@@ -84,7 +91,8 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
-			getLastDownTime: () => _getLastDownTime( state )
+			getLastDownTime: () => _getLastDownTime( state ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

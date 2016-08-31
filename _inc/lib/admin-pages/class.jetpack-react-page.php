@@ -271,7 +271,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
 			'tracksUserData' => $this->jetpack_get_tracks_user_data(),
-			'currentIp' => jetpack_protect_get_ip()
+			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false
 		) );
 	}
 }

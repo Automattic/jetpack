@@ -12,6 +12,7 @@ import Button from 'components/button';
 import Spinner from 'components/spinner';
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -34,7 +35,8 @@ import {
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isFetchingModulesList as _isFetchingModulesList
+	isFetchingModulesList as _isFetchingModulesList,
+	getModules
 } from 'state/modules';
 
 const DashStats = React.createClass( {
@@ -211,6 +213,11 @@ const DashStats = React.createClass( {
 	},
 
 	render: function() {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'stats' ) ) {
+			return null;
+		}
+
 		let range = this.props.activeTab();
 		return (
 			<div>
@@ -230,7 +237,7 @@ export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			getModule: ( module_name ) => _getModule( state, module_name ),
+			moduleList: getModules( state ),
 			isFetchingModules: () => _isFetchingModulesList( state ),
 			activeTab: () => _getActiveStatsTab( state ),
 			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state )

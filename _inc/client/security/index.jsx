@@ -8,6 +8,7 @@ import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
 import SimpleNotice from 'components/notice';
+import includes from 'lodash/includes';
 import analytics from 'lib/analytics';
 
 /**
@@ -21,7 +22,8 @@ import {
 	deactivateModule,
 	isActivatingModule,
 	isDeactivatingModule,
-	getModule as _getModule
+	getModule as _getModule,
+	getModules
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
@@ -39,7 +41,8 @@ export const Page = ( props ) => {
 		isTogglingModule,
 		getModule,
 		currentIp
-		} = props;
+	} = props,
+		moduleList = Object.keys( props.moduleList );
 	var cards = [
 		[ 'scan', __( 'Security Scanning' ), __( 'Automated, comprehensive protection from threats and attacks.' ), 'https://vaultpress.com/jetpack/' ],
 		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
@@ -48,6 +51,9 @@ export const Page = ( props ) => {
 		[ 'backups', __( 'Site Backups' ), __( 'Automatically backup your entire site.' ), 'https://vaultpress.com/jetpack/' ],
 		[ 'sso', getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
 	].map( ( element ) => {
+		if ( ! includes( moduleList, element[0] ) ) {
+			return null;
+		}
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			toggle = (
 				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
@@ -140,7 +146,8 @@ export default connect(
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			currentIp: getCurrentIp( state )
+			currentIp: getCurrentIp( state ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {
