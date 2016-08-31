@@ -21,16 +21,6 @@ defined( 'STATS_DASHBOARD_SERVER' ) or define( 'STATS_DASHBOARD_SERVER', 'dashbo
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
 
-function is_dnt_enabled() {
-	foreach ( $_SERVER as $name => $value ) {
-		if ( 'http_dnt' == strtolower( $name ) && 1 == $value ) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 function stats_load() {
 	global $wp_roles;
 
