@@ -31,7 +31,7 @@ const Apps = ( props ) => {
 						<p className="jp-landing-apps__sub-description">{ __( "All the WordPress apps are built for speed. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around." ) }</p>
 					</div>
 					<div className="jp-landing-apps__header-col-right">
-						<img src={ imagePath + '/apps/laptop-90deg-themes2x.png' } className="jp-landing-apps__header-img" />
+						<img src={ imagePath + '/apps/laptop-90deg-themes2x.jpg' } className="jp-landing-apps__header-img" />
 					</div>
 				</div>
 				<div className="jp-landing-apps__clouds jp-clouds-top">
