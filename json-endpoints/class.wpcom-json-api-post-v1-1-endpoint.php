@@ -43,6 +43,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		'menu_order'        => '(int) (Pages Only) The order pages should appear in.',
 		'page_template'     => '(string) (Pages Only) The page template this page is using.',
 		'publicize_URLs'    => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
+		'terms'             => '(object) Hash of taxonomy names mapping to a hash of terms keyed by term name.',
 		'tags'              => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'        => '(object:category) Hash of categories (keyed by category name) applied to the post.',
 		'attachments'	    => '(object:attachment) Hash of post attachments (keyed by attachment ID). Returns the most recent 20 attachments. Use the `/sites/$site/media` endpoint to query the attachments beyond the default of 20 that are returned here.',
@@ -138,7 +139,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 				$response[$key] = (int) $post->ID;
 				break;
 			case 'site_ID' :
-				$response[$key] = $post->site->blog_id;
+				$response[$key] = $post->site->get_id();
 				break;
 			case 'author' :
 				$response[$key] = $post->get_author();
@@ -229,6 +230,9 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 				break;
 			case 'publicize_URLs' :
 				$response[$key] = $post->get_publicize_urls();
+				break;
+			case 'terms':
+				$response[$key] = $post->get_terms();
 				break;
 			case 'tags' :
 				$response[$key] = $post->get_tags();

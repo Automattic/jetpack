@@ -1,0 +1,93 @@
+.jp-support-card {
+	margin-top: rem( 16px );
+	margin-bottom: 0;
+}
+
+.jp-support-card__description {
+	margin: 0;
+	font-size: rem( 14px);
+	line-height: 1.65;
+	color: $wpui-dark-medium-gray;
+
+	@include breakpoint( "<660px" ) {
+		margin-bottom: 0;
+	}
+}
+
+.jp-support-card__link {
+	font-style: italic;
+
+	@include breakpoint( "<660px" ) {
+		display: block;
+		width: 100%;
+		width: 100%;
+		padding: rem( 10px ) 0;
+		border-top: 1px transparentize( lighten( $gray, 20% ), .5 ) solid;
+
+		&:first-letter {
+			text-transform: capitalize;
+		}
+		&:first-of-type {
+			border-top: 0;
+		}
+	}
+}
+
+.jp-support-card__happiness {
+	margin-bottom: 0;
+	display: flex;
+	flex-flow: row nowrap;
+
+	@include breakpoint( "<660px" ) {
+		padding-bottom: 0;
+
+		.jp-support-card__description:first-of-type {
+			margin-bottom: rem( 16px );
+		}
+	}
+
+}
+
+.jp-support-card__social {
+	background-color: lighten( $gray, 35% );
+	padding: rem( 12px ) rem( 16px);
+
+		@include breakpoint( "<660px" ) {
+			background: $white;
+			margin-top: rem( 16px );
+			padding: 0 rem( 16px );
+	}
+}
+
+.jp-support-card__header {
+	margin: 0 0 rem( 16px ) 0;
+}
+
+.jp-support-card__happiness-engineer {
+
+	@include breakpoint( ">660px" ) {
+		flex-basis: 15%;
+		flex-shrink: 1;
+		flex-grow: 1;
+	}
+
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+
+.jp-support-card__happiness-engineer-img {
+	width: rem( 72px );
+	height: rem( 72px );
+	margin-right: rem( 24px );
+	border-radius: 50%;
+}
+
+.jp-support-card__happiness-contact {
+
+	@include breakpoint( ">660px" ) {
+		flex-basis: 85%;
+		flex-shrink: 1;
+		flex-grow: 1;
+	}
+}

@@ -1,11 +1,18 @@
 <phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true">
+	<php>
+		<const name="PHPUNIT_JETPACK_TESTSUITE" value="true"/>
+	</php>
 	<testsuites>
 		<testsuite name="general">
 			<file>tests/php/test_class.jetpack.php</file>
 			<file>tests/php/test_class.functions.compat.php</file>
 			<file>tests/php/test_class.jetpack-network.php</file>
 			<file>tests/php/test_class.jetpack-client-server.php</file>
+			<file>tests/php/test_class.jetpack-xmlrpc-server.php</file>
 			<file>tests/php/test_class.jetpack-heartbeat.php</file>
+		</testsuite>
+		<testsuite name="core-api">
+			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/core-api</directory>
 		</testsuite>
 		<testsuite name="media">
 			<file>tests/php/test_class.jetpack-media-extractor.php</file>
@@ -27,6 +34,9 @@
 		<testsuite name="infinite-scroll">
 			<directory prefix="test_" suffix=".php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
+		<testsuite name="publicize">
+			<directory prefix="test_" suffix=".php">tests/php/modules/publicize</directory>
+		</testsuite>
 		<testsuite name="sharedaddy">
 			<directory prefix="test_" suffix=".php">tests/php/modules/sharedaddy</directory>
 		</testsuite>
@@ -39,10 +49,20 @@
 		<testsuite name="widgets">
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
+		<testsuite name="sso">
+			<directory prefix="test_" suffix=".php">tests/php/modules/sso</directory>
+		</testsuite>
+		<testsuite name="sync">
+			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
+		</testsuite>
+		<testsuite name="uninstall">
+			<directory prefix="test_" suffix=".php">tests/php/uninstall</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
 			<group>external-http</group>
+			<group>uninstall</group>
 		</exclude>
 	</groups>
 	<filter>

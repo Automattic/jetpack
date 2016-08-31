@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname(__FILE__).'/../../sync/class.jetpack-sync-wp-replicastore.php';
+
 class WP_Test_Jetpack_Heartbeat extends WP_UnitTestCase {
 
 	/**
@@ -38,6 +40,11 @@ class WP_Test_Jetpack_Heartbeat extends WP_UnitTestCase {
 
 		$this->assertNotEmpty( $result );
 		$this->assertArrayHasKey( $prefix . 'version', $result );
+
+		// checksum from our database
+		$store = new Jetpack_Sync_WP_Replicastore();
+		$this->assertArrayHasKey( $prefix . 'sync-checksum', $result );
+		$this->assertEquals( $result["{$prefix}sync-checksum"], json_encode( $store->checksum_all() ) );
 	}
 
 	/**

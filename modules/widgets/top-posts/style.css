@@ -28,7 +28,7 @@
 	margin: 0 2px 4px 0;
 }
 
-.widget-grid-view-image:image:nth-child(even) {
+.widget-grid-view-image:nth-child(even) {
 	float: right;
 }
 

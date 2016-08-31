@@ -2,18 +2,17 @@
 
 /**
  * Module Name: Post by Email
- * Module Description: Publish posts by email, using any device and email client.
+ * Module Description: Publish posts by sending an email.
  * First Introduced: 2.0
  * Sort Order: 14
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
+ * Feature: Writing
  * Additional Search Queries: post by email, email
  */
 
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );
-add_action( 'jetpack_activate_module_post-by-email',   array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
-add_action( 'jetpack_deactivate_module_post-by-email', array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
 
 Jetpack::enable_module_configurable( __FILE__ );
 Jetpack::module_configuration_load( __FILE__, array( 'Jetpack_Post_By_Email', 'configuration_redirect' ) );
@@ -31,11 +30,6 @@ class Jetpack_Post_By_Email {
 
 	function __construct() {
 		add_action( 'init', array( &$this, 'action_init' ) );
-	}
-
-	static function module_toggle() {
-		$jetpack = Jetpack::init();
-		$jetpack->sync->register( 'noop' );
 	}
 
 	static function configuration_redirect() {
@@ -205,6 +199,9 @@ class Jetpack_Post_By_Email {
 		if ( empty( $response ) ) {
 			wp_send_json_error( $error_message );
 		}
+
+		// Will be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
+		update_option( 'post_by_email_address' . get_current_user_id(), $response );
 
 		wp_send_json_success( $response );
 	}

@@ -4,7 +4,7 @@ Plugin Name: Wufoo Shortcode Plugin
 Description: Enables shortcode to embed Wufoo forms. Usage: [wufoo username="chriscoyier" formhash="x7w3w3" autoresize="true" height="458" header="show" ssl="true"]
 Author: Chris Coyier / Wufoo, evansolomon
 
-Based on http://wordpress.org/extend/plugins/wufoo-shortcode/
+Based on https://wordpress.org/extend/plugins/wufoo-shortcode/
 http://wufoo.com/docs/code-manager/wordpress-shortcode-plugin/
 */
 

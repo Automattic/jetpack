@@ -31,17 +31,21 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-embeds-endpoint.p
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomies-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-term-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-post-types-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-post-type-taxonomies-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-roles-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-terms-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-users-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-term-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
@@ -81,6 +85,8 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-customcss.php' 
 // v1.2
 // **********
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-2-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-v1-2-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-v1-2-endpoint.php' );
 
 // Jetpack Only Endpoints
 $json_jetpack_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/jetpack/';
@@ -110,6 +116,27 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'response_format' => WPCOM_JSON_API_GET_Site_Endpoint::$site_format,
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/',
+) );
+
+new WPCOM_JSON_API_GET_Site_V1_2_Endpoint( array(
+	'description' => 'Get information about a site.',
+	'group'	      => 'sites',
+	'stat'        => 'sites:X',
+	'allowed_if_flagged' => true,
+	'method'      => 'GET',
+	'min_version' => '1.2',
+	'path'        => '/sites/%s',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+	),
+
+	'response_format' => WPCOM_JSON_API_GET_Site_V1_2_Endpoint::$site_format,
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/',
 ) );
 
 new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
@@ -198,6 +225,22 @@ new WPCOM_JSON_API_List_Post_Types_Endpoint( array (
 	'response_format' => array(
 		'found'      => '(int) The number of post types found',
 		'post_types' => '(array) A list of available post types',
+	)
+) );
+
+new WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint( array (
+	'description' => 'Get a list of taxonomies associated with a post type.',
+	'group'       => 'taxonomy',
+	'stat'        => 'sites:X:post-types:X:taxonomies',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/post-types/%s/taxonomies',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+		'$post_type' => '(string) Post type',
+	),
+	'response_format' => array(
+		'found'      => '(int) The number of taxonomies found',
+		'taxonomies' => '(array:taxonomy) A list of available taxonomies',
 	)
 ) );
 
@@ -528,7 +571,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'description' => 'Create a post.',
 	'group'       => 'posts',
 	'stat'        => 'posts:new',
-	'new_version' => '1.1',
+	'new_version' => '1.2',
 	'max_version' => '1',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/posts/new',
@@ -595,6 +638,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	'description' => 'Create a post.',
 	'group'       => 'posts',
 	'stat'        => 'posts:new',
+	'new_version' => '1.2',
 	'min_version' => '1.1',
 	'max_version' => '1.1',
 	'method'      => 'POST',
@@ -628,6 +672,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 		'password'  => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'    => "(int) The post ID of the new post's parent.",
 		'type'      => "(string) The post type. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'terms'      => '(object) Mapping of taxonomy to comma-separated list or array of terms (name or id)',
 		'categories' => "(array|string) Comma-separated list or array of categories (name or id)",
 		'tags'       => "(array|string) Comma-separated list or array of tags (name or id)",
 		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
@@ -698,8 +743,10 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 		'password'  => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'    => "(int) The post ID of the new post's parent.",
 		'type'      => "(string) The post type. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'terms'      => '(object) Mapping of taxonomy to comma-separated list or array of term names',
 		'categories' => "(array|string) Comma-separated list or array of category names",
 		'tags'       => "(array|string) Comma-separated list or array of tag names",
+		'terms_by_id'      => '(object) Mapping of taxonomy to comma-separated list or array of term IDs',
 		'categories_by_id' => "(array|string) Comma-separated list or array of category IDs",
 		'tags_by_id'       => "(array|string) Comma-separated list or array of tag IDs",
 		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
@@ -737,7 +784,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'description' => 'Edit a post.',
 	'group'       => 'posts',
 	'stat'        => 'posts:1:POST',
-	'new_version' => '1.1',
+	'new_version' => '1.2',
 	'max_version' => '1',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/posts/%d',
@@ -760,6 +807,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			'private' => 'Privately publish the post.',
 			'draft'   => 'Save the post as a draft.',
 			'pending' => 'Mark the post as pending editorial approval.',
+			'trash'   => 'Set the post as trashed.',
 		),
 		'sticky'    => array(
 			'false'   => 'Post is not marked as sticky.',
@@ -802,6 +850,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	'description' => 'Edit a post.',
 	'group'       => 'posts',
 	'stat'        => 'posts:1:POST',
+	'new_version' => '1.2',
 	'min_version' => '1.1',
 	'max_version' => '1.1',
 	'method'      => 'POST',
@@ -826,6 +875,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			'draft'   => 'Save the post as a draft.',
 			'future'  => 'Schedule the post (alias for publish; you must also set a future date).',
 			'pending' => 'Mark the post as pending editorial approval.',
+			'trash'   => 'Set the post as trashed.',
 		),
 		'sticky'    => array(
 			'false'   => 'Post is not marked as sticky.',
@@ -833,6 +883,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 		),
 		'password'   => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'     => "(int) The post ID of the new post's parent.",
+		'terms'      => '(object) Mapping of taxonomy to comma-separated list or array of terms (name or id)',
 		'categories' => "(array|string) Comma-separated list or array of categories (name or id)",
 		'tags'       => "(array|string) Comma-separated list or array of tags (name or id)",
 		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
@@ -892,6 +943,7 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 			'draft'   => 'Save the post as a draft.',
 			'future'  => 'Schedule the post (alias for publish; you must also set a future date).',
 			'pending' => 'Mark the post as pending editorial approval.',
+			'trash'   => 'Set the post as trashed.',
 		),
 		'sticky'    => array(
 			'false'   => 'Post is not marked as sticky.',
@@ -899,6 +951,8 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 		),
 		'password'   => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'     => "(int) The post ID of the new post's parent.",
+		'terms'      => '(object) Mapping of taxonomy to comma-separated list or array of term names',
+		'terms_by_id' => '(object) Mapping of taxonomy to comma-separated list or array of term IDs',
 		'categories' => "(array|string) Comma-separated list or array of category names",
 		'categories_by_id' => "(array|string) Comma-separated list or array of category IDs",
 		'tags'       => "(array|string) Comma-separated list or array of tag names",
@@ -1909,6 +1963,133 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_List_Terms_Endpoint( array(
+	'description' => 'Get a list of a site\'s terms by taxonomy.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/taxonomies/%s/terms',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+	),
+	'query_parameters' => array(
+		'number'   => '(int=100) The number of terms to return. Limit: 1000.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of terms. Takes precedence over the <code>offset</code> parameter.',
+		'search'   => '(string) Limit response to include only terms whose names or slugs match the provided search query.',
+		'order'    => array(
+			'ASC'  => 'Return terms in ascending order.',
+			'DESC' => 'Return terms in descending order.',
+		),
+		'order_by' => array(
+			'name'  => 'Order by the name of each tag.',
+			'count' => 'Order by the number of posts in each tag.',
+		),
+	),
+	'response_format' => array(
+		'found' => '(int) The number of terms returned.',
+		'terms' => '(array) Array of tag objects.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/taxonomies/post_tags/terms?number=5'
+) );
+
+new WPCOM_JSON_API_Get_Term_Endpoint( array(
+	'description' => 'Get information about a single term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/taxonomies/%s/terms/slug:%s',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+		'$slug'     => '(string) Term slug',
+	),
+	'response_format' => array(
+		'ID'          => '(int) The term ID.',
+		'name'        => '(string) The name of the term.',
+		'slug'        => '(string) The slug of the term.',
+		'description' => '(string) The description of the term.',
+		'post_count'  => '(int) The number of posts using this term.',
+		'parent'      => '(int) The parent ID for the term, if hierarchical.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/taxonomies/post_tag/terms/slug:wordpresscom'
+) );
+
+new WPCOM_JSON_API_Update_Term_Endpoint( array(
+	'description' => 'Create a new term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:new',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/taxonomies/%s/terms/new',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+	),
+	'request_format' => array(
+		'name'        => '(string) Name of the term',
+		'description' => '(string) A description of the term',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/new',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'name' => 'Ribs & Chicken'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Term_Endpoint( array(
+	'description' => 'Edit a term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:1:POST',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/taxonomies/%s/terms/slug:%s',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+		'$slug'     => '(string) The term slug',
+	),
+	'request_format' => array(
+		'name'        => '(string) Name of the term',
+		'description' => '(string) A description of the term',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/slug:testing-term',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'description' => 'The most delicious'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Term_Endpoint( array(
+	'description' => 'Delete a term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:1:delete',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/taxonomies/%s/terms/slug:%s/delete',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+		'$slug'     => '(string) The term slug',
+	),
+	'response_format' => array(
+		'slug'    => '(string) The slug of the deleted term',
+		'success' => '(bool) Whether the operation was successful',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/slug:$term/delete',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
 new WPCOM_JSON_API_List_Roles_Endpoint( array(
 	'description' => 'List the user roles of a site.',
 	'group'       => '__do_not_document',
@@ -1988,7 +2169,7 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 				"nice_name": "apiexamples",
 				"URL": "http://apiexamples.wordpress.com",
 				"avatar_URL": "https://1.gravatar.com/avatar/a2afb7b6c0e23e5d363d8612fb1bd5ad?s=96&d=identicon&r=G",
-				"profile_URL": "http://en.gravatar.com/apiexamples",
+				"profile_URL": "https://en.gravatar.com/apiexamples",
 				"site_ID": 82974409,
 				"roles": [
 					"administrator"
@@ -2227,11 +2408,105 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
 ) );
 
+new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
+	'description' => 'Get detailed settings information about a site.',
+	'group'	      => '__do_not_document',
+	'stat'        => 'sites:X',
+	'min_version'   => '1.2',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/settings',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+	),
+
+	'response_format' => WPCOM_JSON_API_Site_Settings_Endpoint::$site_format,
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/settings?pretty=1',
+) );
+
 new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 	'description' => 'Update settings for a site.',
 	'group'       => '__do_not_document',
 	'stat'        => 'sites:X',
 
+	'method'      => 'POST',
+	'path'        => '/sites/%s/settings',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'request_format'  => array(
+		'blogname'                             => '(string) Blog name',
+		'blogdescription'                      => '(string) Blog description',
+		'default_pingback_flag'                => '(bool) Notify blogs linked from article?',
+		'default_ping_status'                  => '(bool) Allow link notifications from other blogs?',
+		'default_comment_status'               => '(bool) Allow comments on new articles?',
+		'blog_public'                          => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
+		'jetpack_sync_non_public_post_stati'   => '(bool) allow sync of post and pages with non-public posts stati',
+		'jetpack_relatedposts_enabled'         => '(bool) Enable related posts?',
+		'jetpack_relatedposts_show_headline'   => '(bool) Show headline in related posts?',
+		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
+		'jetpack_protect_whitelist'            => '(array) List of IP addresses to whitelist',
+		'infinite_scroll'                      => '(bool) Support infinite scroll of posts?',
+		'default_category'                     => '(int) Default post category',
+		'default_post_format'                  => '(string) Default post format',
+		'require_name_email'                   => '(bool) Require comment authors to fill out name and email?',
+		'comment_registration'                 => '(bool) Require users to be registered and logged in to comment?',
+		'close_comments_for_old_posts'         => '(bool) Automatically close comments on old posts?',
+		'close_comments_days_old'              => '(int) Age at which to close comments',
+		'thread_comments'                      => '(bool) Enable threaded comments?',
+		'thread_comments_depth'                => '(int) Depth to thread comments',
+		'page_comments'                        => '(bool) Break comments into pages?',
+		'comments_per_page'                    => '(int) Number of comments to display per page',
+		'default_comments_page'                => '(string) newest|oldest Which page of comments to display first',
+		'comment_order'                        => '(string) asc|desc Order to display comments within page',
+		'comments_notify'                      => '(bool) Email me when someone comments?',
+		'moderation_notify'                    => '(bool) Email me when a comment is helf for moderation?',
+		'social_notifications_like'            => '(bool) Email me when someone likes my post?',
+		'social_notifications_reblog'          => '(bool) Email me when someone reblogs my post?',
+		'social_notifications_subscribe'       => '(bool) Email me when someone follows my blog?',
+		'comment_moderation'                   => '(bool) Moderate comments for manual approval?',
+		'comment_whitelist'                    => '(bool) Moderate comments unless author has a previously-approved comment?',
+		'comment_max_links'                    => '(int) Moderate comments that contain X or more links',
+		'moderation_keys'                      => '(string) Words or phrases that trigger comment moderation, one per line',
+		'blacklist_keys'                       => '(string) Words or phrases that mark comment spam, one per line',
+		'lang_id'                              => '(int) ID for language blog is written in',
+		'wga'                                  => '(array) Google Analytics Settings',
+		'disabled_likes'                       => '(bool) Are likes globally disabled (they can still be turned on per post)?',
+		'disabled_reblogs'                     => '(bool) Are reblogs disabled on posts?',
+		'jetpack_comment_likes_enabled'        => '(bool) Are comment likes enabled for all comments?',
+		'sharing_button_style'                 => '(string) Style to use for sharing buttons (icon-text, icon, text, or official)',
+		'sharing_label'                        => '(string) Label to use for sharing buttons, e.g. "Share this:"',
+		'sharing_show'                         => '(string|array:string) Post type or array of types where sharing buttons are to be displayed',
+		'sharing_open_links'                   => '(string) Link target for sharing buttons (same or new)',
+		'twitter_via'                          => '(string) Twitter username to include in tweets when people share using the Twitter button',
+		'jetpack-twitter-cards-site-tag'       => '(string) The Twitter username of the owner of the site\'s domain.',
+		'eventbrite_api_token'                 => '(int) The Keyring token ID for an Eventbrite token to associate with the site',
+		'holidaysnow'                          => '(bool) Enable snowfall on front end of site?',
+		'timezone_string'                      => '(string) PHP-compatible timezone string like \'UTC-5\'',
+		'gmt_offset'                           => '(int) Site offset from UTC in hours',
+		'jetpack_testimonial'                  => '(bool) Whether testimonial custom post type is enabled for the site',
+		'jetpack_testimonial_posts_per_page'   => '(int) Number of testimonials to show per page',
+		'jetpack_portfolio'                    => '(bool) Whether portfolio custom post type is enabled for the site',
+		'jetpack_portfolio_posts_per_page'     => '(int) Number of portfolio projects to show per page',
+	),
+
+	'response_format' => array(
+		'updated' => '(array)'
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
+) );
+
+new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
+	'description' => 'Update settings for a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'sites:X',
+	'min_version'   => '1.2',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/settings',
 	'path_labels' => array(
@@ -2274,6 +2549,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'moderation_keys'              => '(string) Words or phrases that trigger comment moderation, one per line',
 		'blacklist_keys'               => '(string) Words or phrases that mark comment spam, one per line',
 		'lang_id'                      => '(int) ID for language blog is written in',
+		'locale'                       => '(string) locale code for language blog is written in',
 		'wga'                          => '(array) Google Analytics Settings',
 		'disabled_likes'               => '(bool) Are likes globally disabled (they can still be turned on per post)?',
 		'disabled_reblogs'             => '(bool) Are reblogs disabled on posts?',
@@ -2285,14 +2561,19 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'twitter_via'                  => '(string) Twitter username to include in tweets when people share using the Twitter button',
 		'jetpack-twitter-cards-site-tag' => '(string) The Twitter username of the owner of the site\'s domain.',
 		'eventbrite_api_token'         => '(int) The Keyring token ID for an Eventbrite token to associate with the site',
-		'holidaysnow'                  => '(bool) Enable snowfall on frontend of site?'
+		'holidaysnow'                  => '(bool) Enable snowfall on front end of site?',
+		'timezone_string'              => '(string) PHP-compatible timezone string like \'UTC-5\'',
+		'gmt_offset'                   => '(int) Site offset from UTC in hours',
+		'seo_meta_description' 		   => '(string) The seo meta description for the site.',
+		'advanced_seo_title_formats'   => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
+		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 	),
 
 	'response_format' => array(
 		'updated' => '(array)'
 	),
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/settings?pretty=1',
 ) );
 
 /**

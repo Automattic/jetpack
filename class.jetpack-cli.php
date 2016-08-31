@@ -215,7 +215,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				_e( "Resetting default modules...\n", "jetpack" );
 				usleep( 500000 ); // Take a breath
 				$default_modules = Jetpack::get_default_modules();
-				Jetpack_Options::update_option( 'active_modules', $default_modules );
+				Jetpack::update_active_modules( $default_modules );
 				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
 
 				// Jumpstart option is special
@@ -224,7 +224,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'modules':
 				$default_modules = Jetpack::get_default_modules();
-				Jetpack_Options::update_option( 'active_modules', $default_modules );
+				Jetpack::update_active_modules( $default_modules );
 				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
 				break;
 			case 'prompt':
@@ -306,7 +306,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'activate_all':
 				$modules = Jetpack::get_available_modules();
-				Jetpack_Options::update_option( 'active_modules', $modules );
+				Jetpack::update_active_modules( $modules );
 				WP_CLI::success( __( 'All modules activated!', 'jetpack' ) );
 				break;
 			case 'deactivate':
@@ -316,7 +316,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::success( sprintf( __( '%s has been deactivated.', 'jetpack' ), $module['name'] ) );
 				break;
 			case 'deactivate_all':
-				Jetpack_Options::update_option( 'active_modules', '' );
+				Jetpack::delete_active_modules();
 				WP_CLI::success( __( 'All modules deactivated!', 'jetpack' ) );
 				break;
 			case 'toggle':

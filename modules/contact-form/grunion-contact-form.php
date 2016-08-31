@@ -109,6 +109,7 @@ class Grunion_Contact_Form_Plugin {
 		if ( is_admin() ) {
 			add_action( 'admin_init',            array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
+			add_action( 'current_screen', array( $this, 'unread_count' ) );
 		}
 
 		// custom post type we'll use to keep copies of the feedback items
@@ -120,7 +121,7 @@ class Grunion_Contact_Form_Plugin {
 				'not_found'          => __( 'No feedback found', 'jetpack' ),
 				'not_found_in_trash' => __( 'No feedback found', 'jetpack' )
 			),
-			'menu_icon'         => GRUNION_PLUGIN_URL . '/images/grunion-menu.png',
+			'menu_icon'         => 'dashicons-feedback',
 			'show_ui'           => TRUE,
 			'show_in_admin_bar' => FALSE,
 			'public'            => FALSE,
@@ -188,6 +189,33 @@ class Grunion_Contact_Form_Plugin {
 	function allow_feedback_rest_api_type( $post_types ) {
 		$post_types[] = 'feedback';
 		return $post_types;
+	}
+
+	/**
+	 * Display the count of new feedback entries received. It's reset when user visits the Feedback screen.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param object $screen Information about the current screen.
+	 */
+	function unread_count( $screen ) {
+		if ( isset( $screen->post_type ) && 'feedback' == $screen->post_type ) {
+			update_option( 'feedback_unread_count', 0 );
+		} else {
+			global $menu;
+			if ( isset( $menu ) && is_array( $menu ) && ! empty( $menu ) ) {
+				foreach ( $menu as $index => $menu_item ) {
+					if ( 'edit.php?post_type=feedback' == $menu_item[2] ) {
+						$unread = get_option( 'feedback_unread_count', 0 );
+						if ( $unread > 0 ) {
+							$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . "</span></span>" : '';
+							$menu[ $index ][0] .= $unread_count;
+						}
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -839,7 +867,7 @@ class Grunion_Contact_Form_Plugin {
 			 * Put all the fields in `$current_row` array.
 			 */
 			foreach ( $fields as $single_field_name ) {
-				$current_row[] = $data[ $single_field_name ][ $i ];
+				$current_row[] = $this->esc_csv( $data[ $single_field_name ][ $i ] );
 			}
 
 			/**
@@ -849,6 +877,30 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		fclose( $output );
+	}
+
+	/**
+	 * Escape a string to be used in a CSV context
+	 *
+	 * Malicious input can inject formulas into CSV files, opening up the possibility for phishing attacks and
+	 * disclosure of sensitive information.
+	 *
+	 * Additionally, Excel exposes the ability to launch arbitrary commands through the DDE protocol.
+	 *
+	 * @see http://www.contextis.com/resources/blog/comma-separated-vulnerabilities/
+	 *
+	 * @param string $field
+	 *
+	 * @return string
+	 */
+	function esc_csv( $field ) {
+		$active_content_triggers = array( '=', '+', '-', '@' );
+
+		if ( in_array( mb_substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
+			$field = "'" . $field;
+		}
+
+		return $field;
 	}
 
 	/**
@@ -1505,22 +1557,29 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( $field_ids['extra'] ) {
 			// array indexed by field label (not field id)
 			$extra_fields = get_post_meta( $feedback_id, '_feedback_extra_fields', true );
-			$extra_field_keys = array_keys( $extra_fields );
 
-			$i = 0;
-			foreach ( $field_ids['extra'] as $field_id ) {
-				$field = $form->fields[$field_id];
-				$field_index = array_search( $field_id, $field_ids['all'] );
+			/**
+			 * Only get data for the compiled form if `$extra_fields` is a valid and non-empty array.
+			 */
+			if ( is_array( $extra_fields ) && ! empty( $extra_fields ) ) {
 
-				$label = $field->get_attribute( 'label' );
+				$extra_field_keys = array_keys( $extra_fields );
 
-				$compiled_form[ $field_index ] = sprintf(
-					'<b>%1$s:</b> %2$s<br /><br />',
-					wp_kses( $label, array() ),
-					nl2br( wp_kses( $extra_fields[$extra_field_keys[$i]], array() ) )
-				);
+				$i = 0;
+				foreach ( $field_ids['extra'] as $field_id ) {
+					$field       = $form->fields[ $field_id ];
+					$field_index = array_search( $field_id, $field_ids['all'] );
 
-				$i++;
+					$label = $field->get_attribute( 'label' );
+
+					$compiled_form[ $field_index ] = sprintf(
+						'<b>%1$s:</b> %2$s<br /><br />',
+						wp_kses( $label, array() ),
+						nl2br( wp_kses( $extra_fields[ $extra_field_keys[ $i ] ], array() ) )
+					);
+
+					$i++;
+				}
 			}
 		}
 
@@ -1897,6 +1956,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr  . ">\r\n" .
 					"Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
 
+		// Build feedback reference
+		$feedback_time  = current_time( 'mysql' );
+		$feedback_title = "{$comment_author} - {$feedback_time}";
+		$feedback_id    = md5( $feedback_title );
+
+		$all_values = array_merge( $all_values, array(
+			'entry_title'     => the_title_attribute( 'echo=0' ),
+			'entry_permalink' => esc_url( get_permalink( get_the_ID() ) ),
+			'feedback_id'     => $feedback_id,
+		) );
+
 		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
 		$url     = $widget ? home_url( '/' ) : get_permalink( $post->ID );
@@ -1906,8 +1976,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$time = date_i18n( $date_time_format, current_time( 'timestamp' ) );
 
 		// keep a copy of the feedback as a custom post type
-		$feedback_time   = current_time( 'mysql' );
-		$feedback_title  = "{$comment_author} - {$feedback_time}";
 		$feedback_status = $is_spam === TRUE ? 'spam' : 'publish';
 
 		foreach ( (array) $akismet_values as $av_key => $av_value ) {
@@ -1939,13 +2007,19 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'post_parent'  => (int) $post->ID,
 			'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
 			'post_content' => addslashes( wp_kses( $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . print_r( $all_values, TRUE ), array() ) ), // so that search will pick up this data
-			'post_name'    => md5( $feedback_title ),
+			'post_name'    => $feedback_id,
 		) );
 
 		// once insert has finished we don't need this filter any more
-		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10, 2 );
+		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
+
+		if ( 'publish' == $feedback_status ) {
+			// Increase count of unread feedback.
+			$unread = get_option( 'feedback_unread_count', 0 ) + 1;
+			update_option( 'feedback_unread_count', $unread );
+		}
 
 		if ( defined( 'AKISMET_VERSION' ) ) {
 			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );

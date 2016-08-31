@@ -565,17 +565,12 @@ new PolldaddyShortcode();
 if ( ! function_exists( 'polldaddy_link' ) ) {
 	// http://polldaddy.com/poll/1562975/?view=results&msg=voted
 	function polldaddy_link( $content ) {
-		return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' language='javascript' charset='utf-8' src='//static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/' target='_blank'>View Poll</a></noscript>\n", $content );
+		return jetpack_preg_replace_outside_tags( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' src='//static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content, 'polldaddy.com/poll' );
 	}
 
 	// higher priority because we need it before auto-link and autop get to it
 	add_filter( 'the_content', 'polldaddy_link', 1 );
 	add_filter( 'the_content_rss', 'polldaddy_link', 1 );
-
-	/** This filter is documented in modules/shortcodes/youtube.php */
-	if ( apply_filters( 'jetpack_comments_allow_oembed', get_option( 'embed_autourls' ) ) ) {
-		add_filter( 'comment_text', 'polldaddy_link', 1 );
-	}
 }
 
 wp_oembed_add_provider( '#http://poll\.fm/.*#i', 'http://polldaddy.com/oembed/', true );

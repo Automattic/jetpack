@@ -28,12 +28,9 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.testAPIUserCode'   => array( $this, 'test_api_user_code' ),
 				'jetpack.featuresAvailable' => array( $this, 'features_available' ),
 				'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
-				'jetpack.getPost'           => array( $this, 'get_post' ),
-				'jetpack.getPosts'          => array( $this, 'get_posts' ),
-				'jetpack.getComment'        => array( $this, 'get_comment' ),
-				'jetpack.getComments'       => array( $this, 'get_comments' ),
 				'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
 				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
+				'jetpack.syncObject'        => array( $this, 'sync_object' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -75,7 +72,27 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	function authorize_xmlrpc_methods() {
-		return array( 'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ) );
+		return array(
+			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+			'jetpack.activateManage'    => array( $this, 'activate_manage' ),
+		);
+	}
+
+	function activate_manage( $request ) {
+		foreach( array( 'secret', 'state' ) as $required ) {
+			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
+				return $this->error( new Jetpack_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ) );
+			}
+		}
+		$verified = $this->verify_action( array( 'activate_manage', $request['secret'], $request['state'] ) );
+		if ( is_a( $verified, 'IXR_Error' ) ) {
+			return $verified;
+		}
+		$activated = Jetpack::activate_module( 'manage', false, false );
+		if ( false === $activated || ! Jetpack::is_module_active( 'manage' ) ) {
+			return $this->error( new Jetpack_Error( 'activation_error', 'There was an error while activating the module.', 500 ) );
+		}
+		return 'active';
 	}
 
 	function remote_authorize( $request ) {
@@ -107,8 +124,14 @@ class Jetpack_XMLRPC_Server {
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result );
 		}
-		
-		return $result;
+		// Creates a new secret, allowing someone to activate the manage module for up to 1 day after authorization.
+		$secrets = Jetpack::init()->generate_secrets( 'activate_manage', DAY_IN_SECONDS );
+		@list( $secret ) = explode( ':', $secrets );
+		$response = array(
+			'result' => $result,
+			'activate_manage' => $secret,
+		);
+		return $response;
 	}
 
 	/**
@@ -125,8 +148,13 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * verify_secret_1_missing
 	 * verify_secret_1_malformed
-	 * verify_secrets_missing: No longer have verification secrets stored
+	 * verify_secrets_missing: verification secrets are not found in database
+	 * verify_secrets_incomplete: verification secrets are only partially found in database
+	 * verify_secrets_expired: verification secrets have expired
 	 * verify_secrets_mismatch: stored secret_1 does not match secret_1 sent by Jetpack.WordPress.com
+	 * state_missing: required parameter of state not found
+	 * state_malformed: state is not a digit
+	 * invalid_state: state in request does not match the stored state
 	 *
 	 * The 'authorize' and 'register' actions have additional error codes
 	 *
@@ -146,16 +174,21 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		$secrets = Jetpack_Options::get_option( $action );
-		if ( !$secrets || is_wp_error( $secrets ) ) {
+		if ( ! $secrets || is_wp_error( $secrets ) ) {
 			Jetpack_Options::delete_option( $action );
-			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
+			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification secrets not found', 400 ) );
 		}
 
 		@list( $secret_1, $secret_2, $secret_eol, $user_id ) = explode( ':', $secrets );
 
-		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
+		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) ) {
 			Jetpack_Options::delete_option( $action );
-			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
+			return $this->error( new Jetpack_Error( 'verify_secrets_incomplete', 'Verification secrets are incomplete', 400 ) );
+		}
+
+		if ( $secret_eol < time() ) {
+			Jetpack_Options::delete_option( $action );
+			return $this->error( new Jetpack_Error( 'verify_secrets_expired', 'Verification took too long', 400 ) );
 		}
 
 		if ( ! hash_equals( $verify_secret, $secret_1 ) ) {
@@ -275,7 +308,7 @@ class Jetpack_XMLRPC_Server {
 			'code'      => (string) $api_user_code,
 		) ), $jetpack_token->secret );
 
-		if ( $hmac !== $verify ) {
+		if ( ! hash_equals( $hmac, $verify ) ) {
 			return false;
 		}
 
@@ -301,6 +334,21 @@ class Jetpack_XMLRPC_Server {
 	function unlink_user() {
 		Jetpack::log( 'unlink' );
 		return Jetpack::unlink_user();
+	}
+
+	/**
+	 * Returns any object that is able to be synced
+	 */
+	function sync_object( $args ) {
+		// e.g. posts, post, 5
+		list( $module_name, $object_type, $id ) = $args;
+		require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-modules.php';
+		require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-sender.php';
+
+		$sync_module = Jetpack_Sync_Modules::get_module( $module_name );
+		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+
+		return $codec->encode( $sync_module->get_object_by_id( $object_type, $id ) );
 	}
 
 	/**
@@ -331,54 +379,6 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		return $modules;
-	}
-
-	function get_post( $id ) {
-		if ( !$id = (int) $id ) {
-			return false;
-		}
-
-		$jetpack = Jetpack::init();
-
-		$post = $jetpack->sync->get_post( $id );
-		return $post;
-	}
-
-	function get_posts( $args ) {
-		list( $post_ids ) = $args;
-		$post_ids = array_map( 'intval', (array) $post_ids );
-		$jp = Jetpack::init();
-		$sync_data = $jp->sync->get_content( array( 'posts' => $post_ids ) );
-
-		return $sync_data;
-	}
-
-	function get_comment( $id ) {
-		if ( !$id = (int) $id ) {
-			return false;
-		}
-
-		$jetpack = Jetpack::init();
-
-		$comment = $jetpack->sync->get_comment( $id );
-		if ( !is_array( $comment ) )
-			return false;
-
-		$post = $jetpack->sync->get_post( $comment['comment_post_ID'] );
-		if ( !$post ) {
-			return false;
-		}
-
-		return $comment;
-	}
-
-	function get_comments( $args ) {
-		list( $comment_ids ) = $args;
-		$comment_ids = array_map( 'intval', (array) $comment_ids );
-		$jp = Jetpack::init();
-		$sync_data = $jp->sync->get_content( array( 'comments' => $comment_ids ) );
-
-		return $sync_data;
 	}
 
 	function update_attachment_parent( $args ) {
@@ -432,7 +432,7 @@ class Jetpack_XMLRPC_Server {
 			// .org mo files are named slightly different from .com, and all we have is this the locale -- try to guess them.
 			$new_locale = $locale;
 			if ( strpos( $locale, '-' ) !== false ) {
-				$pieces = explode( '-', $locale );
+				$locale_pieces = explode( '-', $locale );
 				$new_locale = $locale_pieces[0];
 				$new_locale .= ( ! empty( $locale_pieces[1] ) ) ? '_' . strtoupper( $locale_pieces[1] ) : '';
 			} else {

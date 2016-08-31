@@ -24,9 +24,15 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$args = $this->query_args();
 
-		// API localization occurs after the initial post types have been 
-		// registered, so re-register if localizing response
+		/**
+		 * Whether API responses should be returned in a custom locale.  False
+		 * for Jetpack; may be true for WP.com requests.
+		 *
+		 * @since 3.9.2
+		 */
 		if ( apply_filters( 'rest_api_localize_response', false ) ) {
+			// API localization occurs after the initial post types have been
+			// registered, so re-register if localizing response
 			create_initial_post_types();
 		}
 

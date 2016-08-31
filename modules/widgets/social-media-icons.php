@@ -170,7 +170,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		echo apply_filters( 'jetpack_social_media_icons_widget_output', $html );
 	}
 
-	// backend
+	// back end
 	public function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 		?>

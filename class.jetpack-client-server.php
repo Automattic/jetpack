@@ -12,8 +12,7 @@ class Jetpack_Client_Server {
 	function client_authorize() {
 		$data              = stripslashes_deep( $_GET );
 		$data['auth_type'] = 'client';
-		$jetpack           = $this->get_jetpack();
-		$role              = $jetpack->translate_current_user_to_role();
+		$role              = Jetpack::translate_current_user_to_role();
 		$redirect          = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
 		$this->check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
@@ -28,6 +27,15 @@ class Jetpack_Client_Server {
 		} else {
 			$this->wp_safe_redirect( Jetpack::admin_url() );
 		}
+
+		/**
+		 * Fires after the Jetpack client is authorized to communicate with WordPress.com.
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param int Jetpack Blog ID.
+		 */
+		do_action( 'jetpack_client_authorized', Jetpack_Options::get_option( 'id' ) );
 
 		$this->do_exit();
 	}
@@ -48,7 +56,7 @@ class Jetpack_Client_Server {
 			update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
 
 			//track unique connection
-			$jetpack = Jetpack::init();
+			$jetpack = $this->get_jetpack();;
 
 			$jetpack->stat( 'connections', 'unique-connection' );
 			$jetpack->do_stats( 'server_side' );
@@ -58,14 +66,13 @@ class Jetpack_Client_Server {
 		$jetpack_unique_connection['connected'] += 1;
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 
-		$jetpack = $this->get_jetpack();
-		$role = $jetpack->translate_current_user_to_role();
+		$role = Jetpack::translate_current_user_to_role();
 
 		if ( ! $role ) {
 			return new Jetpack_Error( 'no_role', 'Invalid request.', 400 );
 		}
 
-		$cap = $jetpack->translate_role_to_cap( $role );
+		$cap = Jetpack::translate_role_to_cap( $role );
 		if ( ! $cap ) {
 			return new Jetpack_Error( 'no_cap', 'Invalid request.', 400 );
 		}
@@ -110,27 +117,25 @@ class Jetpack_Client_Server {
 		Jetpack::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
 
 		if ( ! $is_master_user ) {
+			Jetpack::state( 'message', 'linked' );
 			// Don't activate anything since we are just connecting a user.
 			return 'linked';
 		}
 
 		$redirect_on_activation_error = ( 'client' === $data['auth_type'] ) ? true : false;
 		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
-			Jetpack_Options::delete_option( 'active_modules' );
+			Jetpack::delete_active_modules();
 
 			Jetpack::activate_default_modules( 999, 1, $active_modules, $redirect_on_activation_error );
 		} else {
 			Jetpack::activate_default_modules( false, false, array(), $redirect_on_activation_error );
 		}
-
-		// Sync all registers options and constants
-		/** This action is documented in class.jetpack.php */
-		do_action( 'jetpack_sync_all_registered_options' );
-
+		
 		// Start nonce cleaner
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 
+		Jetpack::state( 'message', 'authorized' );
 		return 'authorized';
 	}
 
@@ -158,8 +163,7 @@ class Jetpack_Client_Server {
 	 * @return object|WP_Error
 	 */
 	function get_token( $data ) {
-		$jetpack = $this->get_jetpack();
-		$role = $jetpack->translate_current_user_to_role();
+		$role = Jetpack::translate_current_user_to_role();
 
 		if ( ! $role ) {
 			return new Jetpack_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
@@ -236,11 +240,11 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'scope', 'Malformed Scope', $code );
 		}
 
-		if ( $jetpack->sign_role( $role ) !== $json->scope ) {
+		if ( Jetpack::sign_role( $role ) !== $json->scope ) {
 			return new Jetpack_Error( 'scope', 'Invalid Scope', $code );
 		}
 
-		if ( ! $cap = $jetpack->translate_role_to_cap( $role ) ) {
+		if ( ! $cap = Jetpack::translate_role_to_cap( $role ) ) {
 			return new Jetpack_Error( 'scope', 'No Cap', $code );
 		}
 

@@ -59,6 +59,7 @@ class Jetpack_VideoPress {
 		}
 
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
+		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 	}
 
 	function wp_ajax_videopress_get_upload_token() {
@@ -731,6 +732,114 @@ class Jetpack_VideoPress {
 		return $options;
 	}
 
+	/**
+	 * Adds additional methods the WordPress xmlrpc API for handling VideoPress specific features
+	 *
+	 * @param array $methods
+	 * @return array
+	 */
+	public function xmlrpc_methods( $methods ) {
+
+		$methods['jetpack.createMediaItem'] = array( $this, 'xmlrpc_create_media_item' );
+		$methods['jetpack.updateVideoPressInfo'] = array( $this, 'xmlrpc_update_videopress_info' );
+
+		return $methods;
+	}
+
+	/**
+	 * Endpoint to allow the transcoding session to send updated information about the VideoPress video when it completes a stage of transcoding.
+	 *
+	 * @param array $vp_info
+	 *
+	 * @return array|bool
+	 */
+	public function xmlrpc_update_videopress_info( $vp_info ) {
+
+		$errors = null;
+		foreach ( $vp_info as $vp_item ) {
+			$id = $vp_item['post_id'];
+			$guid = $vp_item['guid'];
+
+			$post = get_post( $id );
+
+			if ( ! $post ) {
+				$errors[] = array(
+					'id' => $id,
+					'error' => 'Post not found',
+				);
+
+				continue;
+			}
+
+			$post->guid = $vp_item['original'];
+			$post->file = $vp_item['original'];
+
+			wp_update_post( $post );
+
+			// Update the vp guid and set it to a dirrect meta property.
+			update_post_meta( $id, 'videopress_guid', $guid );
+
+			$meta = wp_get_attachment_metadata( $post->ID );
+			$meta['width'] = $vp_item['width'];
+			$meta['height'] = $vp_item['height'];
+			$meta['original']['url'] = $vp_item['original'];
+			$meta['videopress'] = $vp_item;
+			$meta['videopress']['url'] = 'https://videopress.com/v/' . $guid;
+
+			// TODO: Add poster updating.
+
+			wp_update_attachment_metadata( $post->ID, $meta );
+		}
+
+		if ( count( $errors ) > 0 ) {
+			return array( 'errors' => $errors );
+
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * This is used by the WPCOM VideoPress uploader in order to create a media item with
+	 * specific meta data about an uploaded file. After this, the transcoding session will
+	 * update the meta information via the xmlrpc_update_videopress_info() method.
+	 *
+	 * Note: This method technically handles the creation of multiple media objects, though
+	 * in practice this is never done.
+	 *
+	 * @param array $media
+	 *
+	 * @return array
+	 */
+	public function xmlrpc_create_media_item( $media ) {
+		$created_items = array();
+
+		foreach ( $media as $media_item ) {
+			$post = array(
+				'post_type'   => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title' => sanitize_title( basename( $media_item['url'] ) ),
+				'post_content' => '',
+			);
+
+			$media_id = wp_insert_post( $post );
+
+			wp_update_attachment_metadata( $media_id, array(
+				'original' => array(
+					'url' => $media_item['url'],
+					'file' => $media_item['file'],
+					'mime_type' => $media_item['type'],
+				),
+			) );
+
+			$created_items[] = array(
+				'id' => $media_id,
+				'post' => get_post( $media_id ),
+			);
+		}
+
+		return array( 'media' => $created_items );
+	}
 }
 
 // Initialize the module.

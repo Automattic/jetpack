@@ -35,7 +35,9 @@ function twentysixteen_infinite_scroll_render() {
  * Enqueue CSS stylesheet with theme styles for Infinite Scroll.
  */
 function twentysixteen_infinite_scroll_enqueue_styles() {
-	wp_enqueue_style( 'infinity-twentysixteen', plugins_url( 'twentysixteen.css', __FILE__ ), array( 'the-neverending-homepage' ), '20151102' );
-	wp_style_add_data( 'infinity-twentysixteen', 'rtl', 'replace' );
+	if ( wp_script_is( 'the-neverending-homepage' ) ) {
+		wp_enqueue_style( 'infinity-twentysixteen', plugins_url( 'twentysixteen.css', __FILE__ ), array( 'the-neverending-homepage' ), '20151102' );
+		wp_style_add_data( 'infinity-twentysixteen', 'rtl', 'replace' );
+	}
 }
 add_action( 'wp_enqueue_scripts', 'twentysixteen_infinite_scroll_enqueue_styles', 25 );

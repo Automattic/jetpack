@@ -65,6 +65,28 @@ abstract class SAL_Post {
 		return (string) $this->post->post_type;
 	}
 
+	public function get_terms() {
+		$taxonomies = get_object_taxonomies( $this->post, 'objects' );
+		$terms = array();
+		foreach ( $taxonomies as $taxonomy ) {
+			if ( ! $taxonomy->public && ! current_user_can( $taxonomy->cap->assign_terms ) ) {
+				continue;
+			}
+
+			$terms[ $taxonomy->name ] = array();
+
+			$taxonomy_terms = wp_get_object_terms( $this->post->ID, $taxonomy->name, array( 'fields' => 'all' ) );
+			foreach ( $taxonomy_terms as $term ) {
+				$formatted_term = $this->format_taxonomy( $term, $taxonomy->name, 'display' );
+				$terms[ $taxonomy->name ][ $term->name ] = $formatted_term;
+			}
+
+			$terms[ $taxonomy->name ] = (object) $terms[ $taxonomy->name ];
+		}
+
+		return (object) $terms;
+	}
+
 	public function get_tags() {
 		$tags = array();
 		$terms = wp_get_post_tags( $this->post->ID );
@@ -181,11 +203,11 @@ abstract class SAL_Post {
 	}
 
 	protected function get_site_link() {
-		return $this->links->get_site_link( $this->site->blog_id );
+		return $this->links->get_site_link( $this->site->get_id() );
 	}
 
 	protected function get_post_link( $path = null ) {
-		return $this->links->get_post_link( $this->site->blog_id, $this->post->ID, $path );
+		return $this->links->get_post_link( $this->site->get_id(), $this->post->ID, $path );
 	}
 
 	public function get_publicize_urls() {
@@ -355,7 +377,7 @@ abstract class SAL_Post {
 			return (object) array(
 				'ID'   => (int) $parent->ID,
 				'type' => (string) $parent->post_type,
-				'link' => (string) $this->links->get_post_link( $this->site->blog_id, $parent->ID ),
+				'link' => (string) $this->links->get_post_link( $this->site->get_id(), $parent->ID ),
 				'title' => $parent_title,
 			);
 		} else {
@@ -441,7 +463,7 @@ abstract class SAL_Post {
 		// TODO factor this out
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$active_blog = get_active_blog_for_user( $user->ID );
-			$site_id     = $active_blog->blog_id;
+			$site_id     = $active_blog->get_id();
 			$profile_URL = "http://en.gravatar.com/{$user->user_login}";
 		} else {
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );
@@ -468,7 +490,7 @@ abstract class SAL_Post {
 		return (object) $author;
 	}
 
-	private function get_avatar_url( $email, $avatar_size = 96 ) {
+	protected function get_avatar_url( $email, $avatar_size = 96 ) {
 		$avatar_url = wpcom_get_avatar_url( $email, $avatar_size, '', true );
 		if ( !$avatar_url || is_wp_error( $avatar_url ) ) {
 			return '';
@@ -511,14 +533,15 @@ abstract class SAL_Post {
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
 
-		if ( 'category' === $taxonomy_type )
+		if ( is_taxonomy_hierarchical( $taxonomy_type ) ) {
 			$response['parent'] = (int) $taxonomy->parent;
+		}
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->links->get_taxonomy_link( $this->site->blog_id, $taxonomy->slug, $taxonomy_type ),
-				'help' => (string) $this->links->get_taxonomy_link( $this->site->blog_id, $taxonomy->slug, $taxonomy_type, 'help' ),
-				'site' => (string) $this->links->get_site_link( $this->site->blog_id ),
+				'self' => (string) $this->links->get_taxonomy_link( $this->site->get_id(), $taxonomy->slug, $taxonomy_type ),
+				'help' => (string) $this->links->get_taxonomy_link( $this->site->get_id(), $taxonomy->slug, $taxonomy_type, 'help' ),
+				'site' => (string) $this->links->get_site_link( $this->site->get_id() ),
 			),
 		);
 
@@ -603,7 +626,7 @@ abstract class SAL_Post {
 
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
-				$info = video_get_info_by_blogpostid( $this->site->blog_id, $media_id );
+				$info = video_get_info_by_blogpostid( $this->site->get_id(), $media_id );
 
 				// Thumbnails
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
@@ -629,9 +652,9 @@ abstract class SAL_Post {
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->links->get_media_link( $this->site->blog_id, $media_id ),
-				'help' => (string) $this->links->get_media_link( $this->site->blog_id, $media_id, 'help' ),
-				'site' => (string) $this->links->get_site_link( $this->site->blog_id ),
+				'self' => (string) $this->links->get_media_link( $this->site->get_id(), $media_id ),
+				'help' => (string) $this->links->get_media_link( $this->site->get_id(), $media_id, 'help' ),
+				'site' => (string) $this->links->get_site_link( $this->site->get_id() ),
 			),
 		);
 
@@ -643,7 +666,7 @@ abstract class SAL_Post {
 		}
 
 		if ( $media_item->post_parent > 0 ) {
-			$response['meta']->links->parent = (string) $this->links->get_post_link( $this->site->blog_id, $media_item->post_parent );
+			$response['meta']->links->parent = (string) $this->links->get_post_link( $this->site->get_id(), $media_item->post_parent );
 		}
 
 		return (object) $response;

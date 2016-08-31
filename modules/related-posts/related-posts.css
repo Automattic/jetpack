@@ -105,6 +105,7 @@
 	left:0;
 	right:0;
 	display:block;
+	border-bottom: 0;
 }
 
 #jp-relatedposts .jp-relatedposts-items p {

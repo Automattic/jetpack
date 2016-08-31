@@ -40,14 +40,21 @@ class SAL_Token {
 	}
 
 	static function from_rest_token( $token ) {
+		$user_id = isset( $token['user_id'] ) ? $token['user_id'] : get_current_user_id();
+		$scope = isset( $token['scope'] ) ? $token['scope'][0] : null;
+		$client_id = isset( $token['client_id'] ) ? $token['client_id'] : null;
+		$external_user_id = isset( $token['external_user_id'] ) ? $token['external_user_id'] : null;
+		$external_user_code = isset( $token['external_user_code'] ) ? $token['external_user_code'] : null;
+		$auth = isset( $token['auth'] ) ? $token['auth'] : null;	
+
 		return new SAL_Token( 
 			$token['blog_id'], 
-			$token['user_id'], 
-			$token['scope'][0], // there's only ever one scope in our current API implementation, auth or global
-			$token['client_id'],
-			$token['external_user_id'], 
-			$token['external_user_code'], 
-			$token['auth']
+			$user_id,
+			$scope, // there's only ever one scope in our current API implementation, auth or global
+			$client_id,
+			$external_user_id, 
+			$external_user_code, 
+			$auth
 		);
 	}
 }

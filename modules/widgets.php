@@ -1,12 +1,13 @@
 <?php
 /**
  * Module Name: Extra Sidebar Widgets
- * Module Description: Add images, Twitter streams, your site’s RSS links, and more to your sidebar.
+ * Module Description: Add images, Twitter streams, and more to your sidebar.
  * Sort Order: 4
  * First Introduced: 1.2
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
+ * Feature: Appearance
  * Additional Search Queries: widget, widgets, facebook, gallery, twitter, gravatar, image, rss
  */
 
@@ -62,6 +63,6 @@ jetpack_load_widgets();
  * @since 4.0.0
  */
 function jetpack_widgets_customizer_assets() {
-	wp_enqueue_script( 'jetpack-customizer-widget-utils', plugins_url( '/widgets/customizer-utils.js', __FILE__ ), array( 'jquery' ) );
+	wp_enqueue_script( 'jetpack-customizer-widget-utils', plugins_url( '/widgets/customizer-utils.js', __FILE__ ), array( 'customize-base' ) );
 }
 add_action( 'customize_preview_init', 'jetpack_widgets_customizer_assets' );

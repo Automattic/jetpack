@@ -72,7 +72,8 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	}
 
 	protected static function get_plugin_id_by_slug( $slug ) {
-		$plugins = get_plugins();
+		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
+		$plugins = apply_filters( 'all_plugins', get_plugins() );
 		if ( ! is_array( $plugins ) ) {
 			return false;
 		}
