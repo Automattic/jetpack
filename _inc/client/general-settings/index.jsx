@@ -53,32 +53,33 @@ export const GeneralSettings = ( props ) => {
 					toggleModule={ toggleModule }
 				/>;
 		}
-		return isAdmin
-			? includes( moduleList, module_slug )
-				? (
-					<FoldableCard
-						className={ customClasses }
-						header={ getModule( module_slug ).name }
-						subheader={ getModule( module_slug ).description }
-						clickableHeaderText={ true }
-						disabled={ ! isAdmin }
-						summary={ isAdmin ? toggle( module_slug ) : '' }
-						expandedSummary={ isAdmin ? toggle( module_slug ) : '' }
-						onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
-							{
-								card: module_slug,
-								path: props.route.path
-							}
-						) }
-					>
-						<div className="jp-form-setting-explanation"><div dangerouslySetInnerHTML={ renderLongDescription( getModule( module_slug ) ) } /></div>
-						<div className="jp-module-settings__read-more">
-							<Button borderless compact href={ getModule( module_slug ).learn_more_button }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
-						</div>
-				</FoldableCard>
-			)
-			: null
-		: false;
+
+		if ( ! isAdmin || ! includes( moduleList, module_slug ) ) {
+			return null;
+		}
+
+		return (
+			<FoldableCard
+				className={ customClasses }
+				header={ getModule( module_slug ).name }
+				subheader={ getModule( module_slug ).description }
+				clickableHeaderText={ true }
+				disabled={ ! isAdmin }
+				summary={ isAdmin ? toggle( module_slug ) : '' }
+				expandedSummary={ isAdmin ? toggle( module_slug ) : '' }
+				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+					{
+						card: module_slug,
+						path: props.route.path
+					}
+				) }
+			>
+				<div className="jp-form-setting-explanation"><div dangerouslySetInnerHTML={ renderLongDescription( getModule( module_slug ) ) } /></div>
+				<div className="jp-module-settings__read-more">
+					<Button borderless compact href={ getModule( module_slug ).learn_more_button }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
+				</div>
+			</FoldableCard>
+		);
 	};
 
 	return (
