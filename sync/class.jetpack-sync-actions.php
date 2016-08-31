@@ -51,7 +51,7 @@ class Jetpack_Sync_Actions {
 		 * Return false to not load sync listener code that monitors common
 		 * WP actions to be serialized.
 		 *
-		 * By default this returns true for non-GET-requests, or requests where the
+		 * By default this returns true for cron jobs, non-GET-requests, or requests where the
 		 * user is logged-in.
 		 *
 		 * @since 4.2.0
@@ -65,6 +65,8 @@ class Jetpack_Sync_Actions {
 				is_user_logged_in()
 				||
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+				||
+				defined( 'DOING_CRON' ) && DOING_CRON
 			)
 		) ) {
 			self::initialize_listener();
@@ -75,7 +77,7 @@ class Jetpack_Sync_Actions {
 		 * Return false to not load sync sender code that serializes pending
 		 * data and sends it to WPCOM for processing.
 		 *
-		 * By default this returns true for POST requests, admin requests, or requests
+		 * By default this returns true for cron jobs, POST requests, admin requests, or requests
 		 * by users who can manage_options.
 		 *
 		 * @since 4.2.0
@@ -91,6 +93,8 @@ class Jetpack_Sync_Actions {
 				is_admin()
 				||
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+				||
+				defined( 'DOING_CRON' ) && DOING_CRON
 			)
 		) ) {
 			self::initialize_sender();
