@@ -206,3 +206,24 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 		);
 	}
 }
+
+class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	protected function result() {
+		$args = $this->input();
+
+		if ( ! isset( $args['queue'] ) ) {
+			return new WP_Error( 'invalid_queue', 'Queue name is required' );
+		}
+
+		$queue_name = $args['queue'];
+
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
+
+		$sender = Jetpack_Sync_Sender::get_instance();
+		$response = $sender->do_sync_for_queue( $queue_name );
+
+		return array(
+			'response' => $response;
+		)
+	}
+}
