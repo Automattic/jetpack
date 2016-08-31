@@ -4,7 +4,7 @@
  *
  * @author Automattic
  */
-
+s
 /**
  * Disable direct access.
  */
@@ -1025,7 +1025,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'validate_callback'  => __CLASS__ . '::validate_list_item',
 					),
 					'social_notifications_like' => array(
-						'description'        => esc_html__( 'Send email notification when someone likes a posts', 'jetpack' ),
+						'description'        => esc_html__( 'Send email notification when someone likes a post', 'jetpack' ),
 						'type'               => 'boolean',
 						'default'            => 1,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
