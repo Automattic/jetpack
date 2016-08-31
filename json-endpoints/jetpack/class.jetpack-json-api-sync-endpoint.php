@@ -220,7 +220,7 @@ class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint 
 		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
 
 		$sender = Jetpack_Sync_Sender::get_instance();
-		$response = $sender->do_sync_for_queue( $queue_name );
+		$response = $sender->do_sync_for_queue( new Jetpack_Sync_Queue( $queue_name ) );
 
 		return array(
 			'response' => $response
