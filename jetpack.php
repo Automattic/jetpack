@@ -18,7 +18,6 @@ define( 'JETPACK__VERSION',            '4.3-rc1' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
-define( 'JETPACK__PLUGIN_URL',         plugins_url( '', __FILE__ ) );
 define( 'JETPACK__PLUGIN_FILE',        __FILE__ );
 
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' )   or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );

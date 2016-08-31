@@ -19,24 +19,24 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	// actions to activate/deactivate and configure modules
 	function page_render() {
 		$list_table = new Jetpack_Modules_List_Table;
-		$build_url = JETPACK__PLUGIN_URL . '/_inc/build/';
+		$build_url = esc_url( plugins_url( '/_inc/build/',  JETPACK__PLUGIN_FILE ) );
 
-		$static_html = wp_remote_get( esc_url( $build_url . 'static.html' ), array( 'sslverify' => false ) );
+		$static_html = wp_remote_get( $build_url . 'static.html', array( 'sslverify' => false ) );
 		$static_html = 200 == wp_remote_retrieve_response_code( $static_html )
 			? wp_remote_retrieve_body( $static_html )
 			: '';
 
-		$noscript_notice = wp_remote_get( esc_url( $build_url . 'static-noscript-notice.html' ), array( 'sslverify' => false ) );
+		$noscript_notice = wp_remote_get( $build_url . 'static-noscript-notice.html', array( 'sslverify' => false ) );
 		$noscript_notice = 200 == wp_remote_retrieve_response_code( $noscript_notice )
 			? wp_remote_retrieve_body( $noscript_notice )
 			: '';
 
-		$version_notice = wp_remote_get( esc_url( $build_url . 'static-version-notice.html' ), array( 'sslverify' => false ) );
+		$version_notice = wp_remote_get( $build_url . 'static-version-notice.html', array( 'sslverify' => false ) );
 		$version_notice = 200 == wp_remote_retrieve_response_code( $version_notice )
 			? wp_remote_retrieve_body( $version_notice )
 			: '';
 
-		$ie_notice = wp_remote_get( esc_url( $build_url . 'static-ie-notice.html' ), array( 'sslverify' => false ) );
+		$ie_notice = wp_remote_get( $build_url . 'static-ie-notice.html', array( 'sslverify' => false ) );
 		$ie_notice = 200 == wp_remote_retrieve_response_code( $ie_notice )
 			? wp_remote_retrieve_body( $ie_notice )
 			: '';
