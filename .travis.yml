@@ -63,6 +63,7 @@ before_script:
     - source ~/.nvm/nvm.sh && nvm install 5
     - export PLUGIN_SLUG=$(basename $(pwd))
     - ./tests/prepare-wordpress.sh
+    - mysql -e "set global wait_timeout = 3600;"
 
 script:
     - ./tests/run-travis.sh
