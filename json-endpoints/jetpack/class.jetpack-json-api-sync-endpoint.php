@@ -224,6 +224,6 @@ class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint 
 
 		return array(
 			'response' => $response
-		)
+		);
 	}
 }
