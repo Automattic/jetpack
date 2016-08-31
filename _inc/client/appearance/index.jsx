@@ -19,14 +19,14 @@ import {
 	deactivateModule,
 	isActivatingModule,
 	isDeactivatingModule,
-	getModule as _getModule
+	getModule as _getModule,
+	getModules
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules } from 'state/initial-state';
 import Settings from 'components/settings';
-import { getModules } from 'state/modules';
 
 export const Page = ( props ) => {
 	let {
@@ -35,7 +35,8 @@ export const Page = ( props ) => {
 		isTogglingModule,
 		getModule
 	} = props,
-		isAdmin = props.userCanManageModules;
+		isAdmin = props.userCanManageModules,
+		moduleList = Object.keys( props.moduleList );
 
 	var cards = [
 		[ 'tiled-gallery', getModule( 'tiled-gallery' ).name, getModule( 'tiled-gallery' ).description, getModule( 'tiled-gallery' ).learn_more_button ],
@@ -47,7 +48,7 @@ export const Page = ( props ) => {
 		[ 'infinite-scroll', getModule( 'infinite-scroll' ).name, getModule( 'infinite-scroll' ).description, getModule( 'infinite-scroll' ).learn_more_button ],
 		[ 'minileven', getModule( 'minileven' ).name, getModule( 'minileven' ).description, getModule( 'minileven' ).learn_more_button ]
 	].map( ( element ) => {
-		if ( ! includes( Object.keys( props.moduleList ), element[0] ) ) {
+		if ( ! includes( moduleList, element[0] ) ) {
 			return null;
 		}
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),

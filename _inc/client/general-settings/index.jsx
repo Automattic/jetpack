@@ -7,6 +7,7 @@ import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 import analytics from 'lib/analytics';
 
 /**
@@ -20,7 +21,8 @@ import {
 	deactivateModule,
 	isActivatingModule,
 	isDeactivatingModule,
-	getModule as _getModule
+	getModule as _getModule,
+	getModules
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { userCanManageModules } from 'state/initial-state';
@@ -31,8 +33,9 @@ export const GeneralSettings = ( props ) => {
 		isModuleActivated,
 		isTogglingModule,
 		getModule
-		} = props;
-	let isAdmin = props.userCanManageModules;
+	} = props,
+		isAdmin = props.userCanManageModules,
+		moduleList = Object.keys( props.moduleList );
 
 	const moduleCard = ( module_slug ) => {
 		var unavailableInDevMode = props.isUnavailableInDevMode( module_slug ),
@@ -50,28 +53,32 @@ export const GeneralSettings = ( props ) => {
 					toggleModule={ toggleModule }
 				/>;
 		}
-		return isAdmin ? (
-			<FoldableCard
-				className={ customClasses }
-				header={ getModule( module_slug ).name }
-				subheader={ getModule( module_slug ).description }
-				clickableHeaderText={ true }
-				disabled={ ! isAdmin }
-				summary={ isAdmin ? toggle( module_slug ) : '' }
-				expandedSummary={ isAdmin ? toggle( module_slug ) : '' }
-				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
-					{
-						card: module_slug,
-						path: props.route.path
-					}
-				) }
-			>
-				<div className="jp-form-setting-explanation"><div dangerouslySetInnerHTML={ renderLongDescription( getModule( module_slug ) ) } /></div>
-				<div className="jp-module-settings__read-more">
-					<Button borderless compact href={ getModule( module_slug ).learn_more_button }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
-				</div>
-			</FoldableCard>
-		) : false;
+		return isAdmin
+			? includes( moduleList, module_slug )
+				? (
+					<FoldableCard
+						className={ customClasses }
+						header={ getModule( module_slug ).name }
+						subheader={ getModule( module_slug ).description }
+						clickableHeaderText={ true }
+						disabled={ ! isAdmin }
+						summary={ isAdmin ? toggle( module_slug ) : '' }
+						expandedSummary={ isAdmin ? toggle( module_slug ) : '' }
+						onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+							{
+								card: module_slug,
+								path: props.route.path
+							}
+						) }
+					>
+						<div className="jp-form-setting-explanation"><div dangerouslySetInnerHTML={ renderLongDescription( getModule( module_slug ) ) } /></div>
+						<div className="jp-module-settings__read-more">
+							<Button borderless compact href={ getModule( module_slug ).learn_more_button }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
+						</div>
+				</FoldableCard>
+			)
+			: null
+		: false;
 	};
 
 	return (
@@ -109,7 +116,8 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			userCanManageModules: userCanManageModules( state )
+			userCanManageModules: userCanManageModules( state ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {
