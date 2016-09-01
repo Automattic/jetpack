@@ -106,7 +106,7 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	}
 
 	function filter_meta( $args ) {
-		if ( $this->is_meta_key_allowed( $args[2] ) ) {
+		if ( ! $this->is_meta_key_allowed( $args[2] ) ) {
 			return false;
 		}
 
