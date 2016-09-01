@@ -55,11 +55,11 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 
 	function test_white_listed_constant_doesnt_get_synced_twice() {
 		$this->constant_module->set_constants_whitelist( array( 'TEST_ABC' ) );
-		define( 'TEST_ABC', microtime( true ) );
+		define( 'TEST_ABC', 'FOO' );
 		$this->sender->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_constant( 'TEST_ABC' );
-		$this->assertEquals( sprintf( "%.2f", TEST_ABC ), sprintf( "%.2f", $synced_value ) );
+		$this->assertEquals( 'FOO', $synced_value );
 
 		$this->server_replica_storage->reset();
 
