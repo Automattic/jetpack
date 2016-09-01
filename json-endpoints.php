@@ -2551,7 +2551,6 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'markdown_supported'            => '(bool) Whether markdown is supported for this site',
 		'wpcom_publish_posts_with_markdown' => '(bool) Whether markdown is enabled for posts',
 		'wpcom_publish_comments_with_markdown' => '(bool) Whether markdown is enabled for comments',
-		'site_icon'                    => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 	),
 
 	'response_format' => array(
