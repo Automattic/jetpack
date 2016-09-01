@@ -37,7 +37,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 
 		// Enqueue admin page styles in head
-		add_action( 'admin_head', array( $this, 'page_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_styles' ) );
 
 		// Adding a redirect tag wrapped in browser conditional comments
 		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
