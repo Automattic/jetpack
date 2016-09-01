@@ -196,13 +196,13 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 		}
 
 		$object_type = $args['object_type'];
-		$object_id   = $args['object_id'];
+		$object_ids  = $args['object_ids'];
 
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
 
 		return array(
-			'object' => $codec->encode( $sync_module->get_object_by_id( $object_type, $object_id ) )
+			'objects' => $codec->encode( $sync_module->get_objects_by_id( $object_type, $object_ids ) )
 		);
 	}
 }
