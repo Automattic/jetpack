@@ -10,7 +10,7 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import { imagePath } from 'constants';
-import { userCanViewStats } from 'state/initial-state';
+import { userCanViewStats, userCanManagePlugins, userCanEditPosts } from 'state/initial-state';
 
 const Apps = ( props ) => {
 	let canViewStats = props.userCanViewStats;
@@ -40,33 +40,48 @@ const Apps = ( props ) => {
 			</div>
 
 			<div className="jp-landing-apps__feature-container">
-				<div className="jp-landing-apps__feature">
-					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-						<img src={ imagePath + '/apps/manage2x.jpg' } />
-					</div>
-					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
-						<h3 className="jp-landing__apps-feature-title">{ __( 'Bulk and automatic updates' ) }</h3>
-						<p className="jp-landing__apps-feature-text">{ __( 'Most security flaws are found in outdated plugins. Use our Web and Desktop apps to turn on auto-updates or update plugins manually for all your websites in one convenient place.' ) }</p>
-						<Button href={ 'https://wordpress.com/plugins/' + props.siteRawUrl }	className="is-primary">
-							{ __( 'Manage Plugins' ) }
-						</Button>
-					</div>
-				</div>
-
-				<div className="jp-landing-apps__feature">
-					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
-						<h3 className="jp-landing__apps-feature-title">{ __( 'Focus on your Writing' ) }</h3>
-						<p className="jp-landing__apps-feature-text">{ __( 'Our new editor is lightning fast, optimized for writers and eliminates distractions, giving you the ability to focus on your work.' ) }</p>
-						<Button href={ 'https://wordpress.com/post/' + props.siteRawUrl }	className="is-primary">
-							{ __( 'Try the New Editor' ) }
-						</Button>
-					</div>
-					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-						<img src={ imagePath + '/apps/editor2x.jpg' } />
-					</div>
-				</div>
 
 				{
+					// Manage Plugins
+
+					props.userCanManagePlugins
+					?	<div className="jp-landing-apps__feature">
+							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
+								<img src={ imagePath + '/apps/manage2x.jpg' } />
+							</div>
+							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
+								<h3 className="jp-landing__apps-feature-title">{ __( 'Bulk and automatic updates' ) }</h3>
+								<p className="jp-landing__apps-feature-text">{ __( 'Most security flaws are found in outdated plugins. Use our Web and Desktop apps to turn on auto-updates or update plugins manually for all your websites in one convenient place.' ) }</p>
+								<Button href={ 'https://wordpress.com/plugins/' + props.siteRawUrl }	className="is-primary">
+									{ __( 'Manage Plugins' ) }
+								</Button>
+							</div>
+						</div>
+					: null
+				}
+
+				{
+					// Calypso Editor
+
+					props.userCanEditPosts
+					?	<div className="jp-landing-apps__feature">
+							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
+								<h3 className="jp-landing__apps-feature-title">{ __( 'Focus on your Writing' ) }</h3>
+								<p className="jp-landing__apps-feature-text">{ __( 'Our new editor is lightning fast, optimized for writers and eliminates distractions, giving you the ability to focus on your work.' ) }</p>
+								<Button href={ 'https://wordpress.com/post/' + props.siteRawUrl }	className="is-primary">
+									{ __( 'Try the New Editor' ) }
+								</Button>
+							</div>
+							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
+								<img src={ imagePath + '/apps/editor2x.jpg' } />
+							</div>
+						</div>
+					: null
+				}
+
+				{
+					// Stats
+
 					canViewStats ? (
 						<div className="jp-landing-apps__feature">
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
@@ -87,6 +102,8 @@ const Apps = ( props ) => {
 
 				<div className="jp-landing-apps__feature">
 					{
+						// Community
+
 						canViewStats ? (
 							''
 						) : (
@@ -184,7 +201,9 @@ const Apps = ( props ) => {
 export default connect(
 	( state ) => {
 		return {
-			userCanViewStats: userCanViewStats( state )
+			userCanViewStats: userCanViewStats( state ),
+			userCanManagePlugins: userCanManagePlugins( state ),
+			userCanEditPosts: userCanEditPosts( state )
 		};
 	}
 )( Apps );

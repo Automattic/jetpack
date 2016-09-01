@@ -397,7 +397,7 @@ function jetpack_master_user_data() {
 	return $master_user_data;
 }
 
-/*
+/**
  * Gather data about the current user.
  *
  * @since 4.1.0
@@ -428,6 +428,10 @@ function jetpack_current_user_data() {
 			'edit_posts'         => current_user_can( 'edit_posts' ),
 			'manage_options'     => current_user_can( 'manage_options' ),
 			'view_stats'		 => current_user_can( 'view_stats' ),
+			'manage_plugins'	 => current_user_can( 'install_plugins' )
+									&& current_user_can( 'activate_plugins' )
+									&& current_user_can( 'update_plugins' )
+									&& current_user_can( 'delete_plugins' ),
 		),
 	);
 
