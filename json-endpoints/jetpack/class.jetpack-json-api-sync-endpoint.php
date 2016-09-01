@@ -182,7 +182,7 @@ class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_
 	}
 }
 
-// GET /sites/%s/sync-object
+// GET /sites/%s/sync/object
 class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
 		$args = $this->query_args();
