@@ -718,6 +718,24 @@ new Jetpack_JSON_API_Sync_Object( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/object/posts/post/5'
 ) );
 
+// POST /sites/%s/sync/now
+new Jetpack_JSON_API_Sync_Now_Endpoint( array(
+	'description'     => 'Force immediate sync of top items on a queue',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/sync/now',
+	'stat'            => 'sync-now',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'queue'  => '(string) sync or full_sync',
+	),
+	'response_format' => array(
+		'response' => '(array) The response from the server'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/now?queue=full_sync'
+) );
+
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );
 
 new Jetpack_JSON_API_Jetpack_Log_Endpoint( array(
