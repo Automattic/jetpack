@@ -708,14 +708,32 @@ new Jetpack_JSON_API_Sync_Object( array(
 		'$site'        => '(int|string) The site ID, The site domain'
 	),
 	'query_parameters' => array(
-		'module_name'      => '(string) The sync module ID, e.g. "posts"',
-		'object_type' => '(string) An identified for the object type, e.g. "post"',
-		'object_id'   => '(int|string) The ID of the object',
+		'module_name'    => '(string) The sync module ID, e.g. "posts"',
+		'object_type'    => '(string) An identified for the object type, e.g. "post"',
+		'object_ids'     => '(array) The IDs of the objects',
 	),
 	'response_format' => array(
-		'object' => '(string) The encoded object'
+		'objects' => '(string) The encoded objects'
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/object/posts/post/5'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/object?module_name=posts&object_type=post&object_ids[]=1&object_ids[]=2&object_ids[]=3'
+) );
+
+// POST /sites/%s/sync/now
+new Jetpack_JSON_API_Sync_Now_Endpoint( array(
+	'description'     => 'Force immediate sync of top items on a queue',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/sync/now',
+	'stat'            => 'sync-now',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'queue'  => '(string) sync or full_sync',
+	),
+	'response_format' => array(
+		'response' => '(array) The response from the server'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/now?queue=full_sync'
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );

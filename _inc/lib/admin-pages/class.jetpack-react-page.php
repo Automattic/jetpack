@@ -37,7 +37,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 
 		// Enqueue admin page styles in head
-		add_action( 'admin_head', array( $this, 'page_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_styles' ) );
 
 		// Adding a redirect tag wrapped in browser conditional comments
 		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
@@ -397,7 +397,7 @@ function jetpack_master_user_data() {
 	return $master_user_data;
 }
 
-/*
+/**
  * Gather data about the current user.
  *
  * @since 4.1.0
@@ -428,6 +428,10 @@ function jetpack_current_user_data() {
 			'edit_posts'         => current_user_can( 'edit_posts' ),
 			'manage_options'     => current_user_can( 'manage_options' ),
 			'view_stats'		 => current_user_can( 'view_stats' ),
+			'manage_plugins'	 => current_user_can( 'install_plugins' )
+									&& current_user_can( 'activate_plugins' )
+									&& current_user_can( 'update_plugins' )
+									&& current_user_can( 'delete_plugins' ),
 		),
 	);
 
