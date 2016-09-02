@@ -137,7 +137,7 @@ export const AllModuleSettings = React.createClass( {
 			case 'sharedaddy':
 			default:
 				if ( 'publicize' === module.module ) {
-					module.configure_url = '/wp-admin/options-general.php?page=sharing';
+					module.configure_url = this.props.adminUrl + 'options-general.php?page=sharing';
 				}
 				return (
 					<div>

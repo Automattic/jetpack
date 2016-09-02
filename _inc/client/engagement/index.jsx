@@ -119,7 +119,7 @@ export const Engagement = ( props ) => {
 			>
 				{
 					isModuleActive ?
-						<AllModuleSettings module={ getModule( element[0] ) } /> :
+						<AllModuleSettings module={ getModule( element[0] ) } adminUrl={ props.getSiteAdminUrl() } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
