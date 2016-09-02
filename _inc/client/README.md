@@ -5,25 +5,10 @@ This UI is built on React, redux and the fetch API.
 
 ### Data fetching
 
-The data is being made available to the UI by usage of the WordPress REST API.
-Jetpack extends the Core API adding some specific methods.
+The data is being made available to the UI by usage of the **Jetpack HTTP API**.
+Jetpack extends the Core API adding some specific endpoints.
 
-#### API Authentication
-
-The API requests rely on [cookie-based authentication and a specific nonce](http://v2.wp-api.org/guide/authentication/#cookie-authentication)
-for requests to be authorized.
-
-The nonce is being served on the Jetpack admin page by usage of the [wp_localize_script](https://codex.wordpress.org/Function_Reference/wp_localize_script) mechanism for passing values from PHP code to the JS scope.
-
-This nonce is created with the action `wp_rest`.
-
-The nonce and the API root URL are made available on
-
-```
-window.Initial_State.WP_API_nonce;
-window.Initial_State.WP_API_root;
-```
-
+You may find additional reference for the Jetpack's HTTP API on the [rest-api.md](../../rest-api.md) file.
 
 ## Internal API
 
@@ -50,7 +35,7 @@ window.Initial_State.WP_API_root;
 
 Action types dispatched during the UI lifecycle are listed in `state/action-types.js`.
 
-####How to use selectors and actions creators from a component file
+#### How to use selectors and actions creators from a component file
 
 ```javascript
 import { getModules, isModuleActivated, activateModule } from 'state/modules';
