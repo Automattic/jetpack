@@ -64,7 +64,7 @@ class Tonesque {
 			}
 		}
 
-		// If it's a local path in our WordPress install (no snooping around the filesystem):
+		// If it's a local path in our WordPress install:
 		if ( file_exists( $image_url ) ) {
 			list( $ext, $type ) = wp_check_filetype( $image_url );
 			if ( wp_startswith( $type, 'image/' ) ) {
