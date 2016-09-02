@@ -254,7 +254,11 @@ class VideoPress_Video {
 		if ( empty( $expires_header ) || ! is_string( $expires_header ) )
 			return false;
 
-		if ( version_compare( PHP_VERSION, '5.3.0' ) >= 0 && class_exists( 'DateTime' ) && class_exists( 'DateTimeZone' ) ) {
+		if (
+			class_exists( 'DateTime' )
+			&& class_exists( 'DateTimeZone' )
+			&& method_exists( 'DateTime', 'createFromFormat' )
+		) {
 			$expires_date = DateTime::createFromFormat( 'D, d M Y H:i:s T', $expires_header, new DateTimeZone( 'UTC' ) );
 			if ( $expires_date instanceOf DateTime )
 				return date_format( $expires_date, 'U' );
