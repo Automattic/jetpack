@@ -42,14 +42,15 @@ class Jetpack {
 		'jetpack-slideshow',
 		'presentations',
 		'jetpack-subscriptions',
+		'jetpack-responsive-videos-style',
+		'jetpack-social-menu',
 		'tiled-gallery',
-		'widget-conditions',
 		'jetpack_display_posts_widget',
 		'gravatar-profile-widget',
-		'widget-grid-and-list',
-		'jetpack-widgets',
 		'goodreads-widget',
 		'jetpack_social_media_icons_widget',
+		'jetpack-top-posts-widget',
+		'jetpack_image_widget',
 	);
 
 	public $plugins_to_deactivate = array(
@@ -214,6 +215,7 @@ class Jetpack {
 		'nextgen-facebook/nextgen-facebook.php',                 // NextGEN Facebook OG
 		'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',
 		                                                         // NextScripts SNAP
+		'og-tags/og-tags.php',                                   // OG Tags
 		'opengraph/opengraph.php',                               // Open Graph
 		'open-graph-protocol-framework/open-graph-protocol-framework.php',
 		                                                         // Open Graph Protocol Framework
