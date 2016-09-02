@@ -283,7 +283,7 @@ frontendcss = [
 	'modules/widgets/goodreads/css/goodreads.css',
 	'modules/widgets/social-media-icons/style.css',
 	'modules/widgets/top-posts/style.css',
-	'modules/widgets/widgets.css' // TODO Moved to image-widget/style.css
+	'modules/widgets/image-widget/style.css'
 ];
 
 gulp.task( 'old-styles:watch', function() {

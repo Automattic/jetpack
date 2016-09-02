@@ -308,7 +308,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		switch ( $display ) {
 		case 'list' :
 		case 'grid' :
-			wp_enqueue_style( 'widget-grid-and-list' );
 			foreach ( $posts as &$post ) {
 				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true ) );
 				$post['image'] = $image['src'];
