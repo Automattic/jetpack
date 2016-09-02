@@ -255,8 +255,7 @@ class VideoPress_Video {
 			return false;
 
 		if (
-			class_exists( 'DateTime' )
-			&& class_exists( 'DateTimeZone' )
+			class_exists( 'DateTimeZone' )
 			&& method_exists( 'DateTime', 'createFromFormat' )
 		) {
 			$expires_date = DateTime::createFromFormat( 'D, d M Y H:i:s T', $expires_header, new DateTimeZone( 'UTC' ) );
