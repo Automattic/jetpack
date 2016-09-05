@@ -613,7 +613,7 @@ export let CustomContentTypesSettings = React.createClass( {
 				'' :
 				<Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href="/wp-admin/edit.php?post_type=jetpack-portfolio"
+					href={ this.props.siteAdminUrl + '/wp-admin/edit.php?post_type=jetpack-portfolio' }
 					compact={ true }
 				>{ __( 'Configure Portfolios' ) }</Button>;
 		};
@@ -623,7 +623,7 @@ export let CustomContentTypesSettings = React.createClass( {
 				'' :
 				<Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href="/wp-admin/edit.php?post_type=jetpack-testimonial"
+					href={ this.props.siteAdminUrl + '/wp-admin/edit.php?post_type=jetpack-testimonial' }
 					compact={ true }
 				>{ __( 'Configure Testimonials' ) }</Button>;
 		};
