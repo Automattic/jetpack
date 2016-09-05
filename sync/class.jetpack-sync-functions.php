@@ -30,6 +30,15 @@ class Jetpack_Sync_Functions {
 		return $_wp_post_type_features;
 	}
 
+	public static function get_hosting_provider() {
+		if ( defined( 'GD_SYSTEM_PLUGIN_DIR' ) || class_exists( '\\WPaaS\\Plugin' ) ) {
+			return "gd-managed-wp";
+		} elseif ( defined( 'MM_BASE_DIR' ) ) {
+			return "bh";
+		} 
+		return "unknown";
+	}
+
 	public static function rest_api_allowed_post_types() {
 		/** This filter is already documented in class.json-api-endpoints.php */
 		return apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'revision' ) );
