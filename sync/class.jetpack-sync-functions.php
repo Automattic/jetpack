@@ -32,11 +32,11 @@ class Jetpack_Sync_Functions {
 
 	public static function get_hosting_provider() {
 		if ( defined( 'GD_SYSTEM_PLUGIN_DIR' ) || class_exists( '\\WPaaS\\Plugin' ) ) {
-			return "gd-managed-wp";
+			return 'gd-managed-wp';
 		} elseif ( defined( 'MM_BASE_DIR' ) ) {
-			return "bh";
+			return 'bh';
 		} 
-		return "unknown";
+		return 'unknown';
 	}
 
 	public static function rest_api_allowed_post_types() {
