@@ -220,6 +220,7 @@ class Jetpack_Sync_Defaults {
 		'mip_post_views_count',
 		'esml_socialcount_LAST_UPDATED',
 		'wprss_last_update_items',
+		'wp_automatic_cache',
 	);
 
 	// TODO: move this to server? - these are theme support values
