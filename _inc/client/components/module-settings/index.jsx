@@ -609,7 +609,7 @@ PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 export let CustomContentTypesSettings = React.createClass( {
 	render() {
 		let portfolioConfigure = () => {
-			return ! this.props.getOptionValue( 'jetpack_portfolio' ) ?
+			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_portfolio' ) ?
 				'' :
 				<Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
@@ -619,7 +619,7 @@ export let CustomContentTypesSettings = React.createClass( {
 		};
 
 		let testimonialConfigure = () => {
-			return ! this.props.getOptionValue( 'jetpack_testimonial' ) ?
+			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_testimonial' ) ?
 				'' :
 				<Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
