@@ -35,11 +35,13 @@ function JetpackRestApiClient( root, nonce ) {
 		} )
 		.then( response => response.json() ),
 		disconnectSite: () => fetch( `${ apiRoot }jetpack/v4/connection`, {
-			method: 'delete',
+			method: 'post',
 			credentials: 'same-origin',
 			headers: {
-				'X-WP-Nonce': apiNonce
-			}
+				'X-WP-Nonce': apiNonce,
+				'Content-type': 'application/json'
+			},
+			body: JSON.stringify( { isActive: false } )
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		fetchConnectUrl: () => fetch( `${ apiRoot }jetpack/v4/connection/url`, {
@@ -50,12 +52,13 @@ function JetpackRestApiClient( root, nonce ) {
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		unlinkUser: () => fetch( `${ apiRoot }jetpack/v4/connection/user`, {
-			method: 'delete',
+			method: 'post',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
 				'Content-type': 'application/json'
-			}
+			},
+			body: JSON.stringify( { linked: false } )
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		jumpStart: ( action ) => {
@@ -129,12 +132,13 @@ function JetpackRestApiClient( root, nonce ) {
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		resetOptions: ( options ) => fetch( `${ apiRoot }jetpack/v4/options/${ options }`, {
-			method: 'delete',
+			method: 'post',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
 				'Content-type': 'application/json'
-			}
+			},
+			body: JSON.stringify( { reset: true } )
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		getVaultPressData: () => fetch( `${ apiRoot }jetpack/v4/module/vaultpress/data`, {
@@ -211,12 +215,13 @@ function JetpackRestApiClient( root, nonce ) {
 			} );
 		},
 		dismissJetpackNotice: ( notice ) => fetch( `${ apiRoot }jetpack/v4/notice/${ notice }`, {
-			method: 'delete',
+			method: 'post',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
 				'Content-type': 'application/json'
-			}
+			},
+			body: JSON.stringify( { dismissed: true } )
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		fetchPluginsData: () => fetch( `${ apiRoot }jetpack/v4/plugins`, {
