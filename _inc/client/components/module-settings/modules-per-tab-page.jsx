@@ -19,7 +19,6 @@ import {
 	MinilevenSettings,
 	CarouselSettings,
 	InfiniteScrollSettings,
-	GravatarHovercardsSettings,
 	TiledGallerySettings,
 	PostByEmailSettings,
 	CustomContentTypesSettings,
