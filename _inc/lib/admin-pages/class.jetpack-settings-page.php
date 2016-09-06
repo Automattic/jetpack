@@ -156,7 +156,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	 */
 	function additional_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
-		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/static.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
 
