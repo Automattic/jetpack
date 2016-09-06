@@ -165,7 +165,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	/**
 	 * Load styles for static page.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 */
 	function additional_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';

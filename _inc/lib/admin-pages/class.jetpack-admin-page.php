@@ -17,7 +17,7 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Function called after admin_styles to load any additional needed styles.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 */
 	function additional_styles() {}
 
