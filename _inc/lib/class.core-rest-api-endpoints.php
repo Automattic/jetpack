@@ -80,7 +80,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::disconnect_site',
-			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
+			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback'
 		) );
 
 		// Disconnect/unlink user from WordPress.com servers
@@ -496,8 +496,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @since 4.3.0
 	 * @return bool|WP_Error True if Jetpack successfully disconnected.
 	 */
-	public static function disconnect_site() {
-		if ( Jetpack::is_active() ) {
+	public static function disconnect_site( $data ) {
+		$param = $data->get_json_params();
+
+		if ( Jetpack::is_active() && $param['isActive'] === false ) {
 			Jetpack::disconnect();
 			return rest_ensure_response( array( 'code' => 'success' ) );
 		}
