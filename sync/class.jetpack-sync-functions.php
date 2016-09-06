@@ -33,9 +33,16 @@ class Jetpack_Sync_Functions {
 	public static function get_hosting_provider() {
 		if ( defined( 'GD_SYSTEM_PLUGIN_DIR' ) || class_exists( '\\WPaaS\\Plugin' ) ) {
 			return 'gd-managed-wp';
-		} elseif ( defined( 'MM_BASE_DIR' ) ) {
+		}
+		if ( defined( 'MM_BASE_DIR' ) ) {
 			return 'bh';
 		} 
+		if ( defined( 'IS_PRESSABLE' ) ) {
+			return 'pressable';
+		} 
+		if ( function_exists( 'is_wpe' ) || function_exists( 'is_wpe_snapshot' ) ) {
+			return 'wpe';
+		}
 		return 'unknown';
 	}
 
