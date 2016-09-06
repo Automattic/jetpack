@@ -173,6 +173,14 @@ class Jetpack_Subscriptions {
 		}
 
 		/**
+		 * If we're updating the post, let's make sure the flag to not send to subscribers
+		 * is set to minimize the chances of sending posts multiple times.
+		 */
+		if ( 'publish' == $old_status ) {
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+		}
+
+		/**
 		 * Array of categories that will never trigger subscription emails.
 		 *
 		 * Will not send subscription emails from any post from within these categories.
