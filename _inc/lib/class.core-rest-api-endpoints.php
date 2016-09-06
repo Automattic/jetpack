@@ -85,7 +85,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Disconnect/unlink user from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/connection/user', array(
-			'methods' => WP_REST_Server::DELETABLE,
+			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::unlink_user',
 			'permission_callback' => __CLASS__ . '::link_user_permission_callback',
 			'args' => array(
@@ -622,7 +622,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if user successfully unlinked.
 	 */
 	public static function unlink_user( $data ) {
-		if ( isset( $data['id'] ) && Jetpack::unlink_user( $data['id'] ) ) {
+		$param = $data->get_json_params();
+
+		if ( isset( $param['linked'] ) && $param['linked'] === false && isset( $data['id'] ) && Jetpack::unlink_user( $data['id'] ) ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'
