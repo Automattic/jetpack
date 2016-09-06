@@ -221,6 +221,7 @@ class Jetpack_Sync_Defaults {
 		'esml_socialcount_LAST_UPDATED',
 		'wprss_last_update_items',
 		'wp_automatic_cache',
+		'snapTW',
 	);
 
 	// TODO: move this to server? - these are theme support values
