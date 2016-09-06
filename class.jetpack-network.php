@@ -167,10 +167,10 @@ class Jetpack_Network {
 			return;
 		}
 
-		$sites = wp_get_sites();
+		$sites = get_sites();
 
 		foreach ( $sites as $s ) {
-			switch_to_blog( $s['blog_id'] );
+			switch_to_blog( $s->blog_id );
 			$active_plugins = get_option( 'active_plugins' );
 
 			/*
