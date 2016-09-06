@@ -49,7 +49,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 *
 	 * Works in Dev Mode or when user is connected.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 */
 	function jetpack_add_dashboard_sub_nav_item() {
 		if ( Jetpack::is_development_mode() || Jetpack::is_active() ) {
@@ -65,7 +65,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * If user is allowed to see the Jetpack Admin, add Settings sub-link.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
 		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) ) {
@@ -186,7 +186,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function page_admin_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
-		
+
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
