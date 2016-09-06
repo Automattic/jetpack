@@ -227,7 +227,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Dismiss Jetpack Notices
 		register_rest_route( 'jetpack/v4', '/notice/(?P<notice>[a-z\-_]+)', array(
-			'methods' => WP_REST_Server::DELETABLE,
+			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::dismiss_notice',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
@@ -279,7 +279,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function dismiss_notice( $data ) {
 		$notice = $data['notice'];
-		if ( isset( $notice ) && ! empty( $notice ) ) {
+		$param = $data->get_json_params();
+
+		if ( isset( $param['dismissed'] ) && $param['dismissed'] === true && isset( $notice ) && ! empty( $notice ) ) {
 			switch( $notice ) {
 				case 'feedback_dash_request':
 				case 'welcome':
