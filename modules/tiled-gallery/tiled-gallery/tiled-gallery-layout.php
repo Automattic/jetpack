@@ -42,6 +42,15 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 			extract( $context );
 		}
 
+		/**
+		 * Filters the Tiled Gallery template path
+		 *
+		 * @since 4.2.3
+		 *
+		 * @param string $path Template path.
+		 * @param string $path Template name.
+		 * @param array $context Context array passed to the template.
+		 */
 		require apply_filters( 'jetpack_tiled_gallery_template', dirname( __FILE__ ) . "/templates/$name.php", $name, $context ) ;
 	}
 
@@ -54,6 +63,15 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 			extract( $context );
 		}
 
+		/**
+		 * Filters the Tiled Gallery partial path
+		 *
+		 * @since 4.2.3
+		 *
+		 * @param string $path Partial path.
+		 * @param string $path Partial name.
+		 * @param array $context Context array passed to the partial.
+		 */
 		require apply_filters( 'jetpack_tiled_gallery_partial', dirname( __FILE__ ) . "/templates/partials/$name.php", $name, $context ) ;
 	}
 
