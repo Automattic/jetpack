@@ -161,7 +161,7 @@ class Jetpack_SSO_Helpers {
 	 * Instead of accessing JETPACK__API_BASE within the method directly, we set it as the
 	 * default for $api_base due to restrictions with testing constants in our tests.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.0
 	 *
 	 * @param array $hosts
 	 * @param string $api_base

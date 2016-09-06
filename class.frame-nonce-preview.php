@@ -9,7 +9,7 @@ class Jetpack_Frame_Nonce_Preview {
 	/**
 	 * Returns the single instance of the Jetpack_Frame_Nonce_Preview object
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.0
 	 *
 	 * @return Jetpack_Frame_Nonce_Preview
 	 **/
@@ -30,7 +30,7 @@ class Jetpack_Frame_Nonce_Preview {
 	/**
 	 * Verify that frame nonce exists, and if so, validate the nonce by calling WP.com.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.0
 	 *
 	 * @return bool
 	 */
@@ -53,7 +53,7 @@ class Jetpack_Frame_Nonce_Preview {
 	/**
 	 * Conditionally add a hook on posts_results if this is the main query, a preview, and singular.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.0
 	 *
 	 * @param WP_Query $query
 	 *
@@ -74,7 +74,7 @@ class Jetpack_Frame_Nonce_Preview {
 	/**
 	 * Conditionally set the first post to 'publish' if the frame nonce is valid and there is a post.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.0
 	 *
 	 * @param array $posts
 	 *

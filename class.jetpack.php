@@ -1169,7 +1169,7 @@ class Jetpack {
 		 *
 		 * This filter is especially useful for tests.
 		 *
-		 * @since 4.4.0
+		 * @since 4.3.0
 		 *
 		 * @param bool $development_version Is this a develoment version of Jetpack?
 		 */
