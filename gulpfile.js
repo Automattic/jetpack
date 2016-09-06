@@ -340,6 +340,9 @@ gulp.task( 'frontendcss', function() {
 			'*/\n'
 		) )
 		.pipe( gulp.dest( 'css' ) )
+		.pipe( rtlcss() )
+		.pipe( rename( { suffix: '-rtl' } ) )
+		.pipe( gulp.dest( 'css' ) )
 		.on( 'end', function() {
 			console.log( 'Front end modules CSS finished.' );
 		} );
