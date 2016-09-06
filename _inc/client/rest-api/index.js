@@ -92,7 +92,7 @@ function JetpackRestApiClient( root, nonce ) {
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		activateModule: ( slug ) => fetch( `${ apiRoot }jetpack/v4/module/${ slug }/active`, {
-			method: 'put',
+			method: 'post',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
@@ -102,7 +102,7 @@ function JetpackRestApiClient( root, nonce ) {
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		deactivateModule: ( slug ) => fetch( `${ apiRoot }jetpack/v4/module/${ slug }/active`, {
-			method: 'put',
+			method: 'post',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
@@ -111,7 +111,7 @@ function JetpackRestApiClient( root, nonce ) {
 			body: JSON.stringify( { active: false } )
 		} ),
 		updateModuleOptions: ( slug, newOptionValues ) => fetch( `${ apiRoot }jetpack/v4/module/${ slug }`, {
-			method: 'put',
+			method: 'post',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
