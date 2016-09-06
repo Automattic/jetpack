@@ -42,7 +42,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 			extract( $context );
 		}
 
-		require dirname( __FILE__ ) . "/templates/$name.php";
+		require apply_filters( 'jetpack_tiled_gallery_template', dirname( __FILE__ ) . "/templates/$name.php", $name, $context ) ;
 	}
 
 	private function partial( $name, $context = null ) {
@@ -54,7 +54,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 			extract( $context );
 		}
 
-		require dirname( __FILE__ ) . "/templates/partials/$name.php";
+		require apply_filters( 'jetpack_tiled_gallery_partial', dirname( __FILE__ ) . "/templates/partials/$name.php", $name, $context ) ;
 	}
 
 	protected function get_container_extra_data() {
