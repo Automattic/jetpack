@@ -8,6 +8,7 @@ import assign from 'lodash/assign';
 /**
  * Internal dependencies
  */
+import decodeEntities from 'lib/browser';
 import {
 	JETPACK_SET_INITIAL_STATE,
 	JETPACK_MODULES_LIST_FETCH,
@@ -29,6 +30,19 @@ import {
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
+			Object.keys( action.initialState.getModules || {} ).map( function( slug ) {
+				let module = action.initialState.getModules[ slug ];
+
+				action.initialState.getModules[ slug ] = assign(
+					module,
+					{
+						name: decodeEntities( module.name ),
+						description: decodeEntities( module.description ),
+						short_description: decodeEntities( module.short_description ),
+						long_description: decodeEntities( module.long_description )
+					}
+				);
+			} );
 			return assign( {}, action.initialState.getModules );
 		case JETPACK_MODULES_LIST_RECEIVE:
 			return assign( {}, state, action.modules );
