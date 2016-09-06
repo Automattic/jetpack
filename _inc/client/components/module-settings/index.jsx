@@ -609,21 +609,21 @@ PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 export let CustomContentTypesSettings = React.createClass( {
 	render() {
 		let portfolioConfigure = () => {
-			return ! this.props.getOptionValue( 'jetpack_portfolio' ) ?
+			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_portfolio' ) ?
 				'' :
 				<Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href="/wp-admin/edit.php?post_type=jetpack-portfolio"
+					href={ this.props.siteAdminUrl + '/wp-admin/edit.php?post_type=jetpack-portfolio' }
 					compact={ true }
 				>{ __( 'Configure Portfolios' ) }</Button>;
 		};
 
 		let testimonialConfigure = () => {
-			return ! this.props.getOptionValue( 'jetpack_testimonial' ) ?
+			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_testimonial' ) ?
 				'' :
 				<Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href="/wp-admin/edit.php?post_type=jetpack-testimonial"
+					href={ this.props.siteAdminUrl + '/wp-admin/edit.php?post_type=jetpack-testimonial' }
 					compact={ true }
 				>{ __( 'Configure Testimonials' ) }</Button>;
 		};
