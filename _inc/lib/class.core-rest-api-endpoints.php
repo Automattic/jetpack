@@ -186,7 +186,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Reset all Jetpack options
 		register_rest_route( 'jetpack/v4', '/options/(?P<options>[a-z\-]+)', array(
-			'methods' => WP_REST_Server::DELETABLE,
+			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::reset_jetpack_options',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
@@ -677,7 +677,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if options were reset. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function reset_jetpack_options( $data ) {
-		if ( isset( $data['options'] ) ) {
+		$param = $data->get_json_params();
+
+		if ( isset( $param['reset'] ) && $param['reset'] === true && isset( $data['options'] ) ) {
 			$data = $data['options'];
 
 			switch( $data ) {
