@@ -75,6 +75,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.3 =
+
+* Release date: September 6th, 2016
+
+**Exciting Performance and UI Improvements:**
+
+* We have launched the all new React powered interface, a year in the making, designed to give you better control of your favorite Jetpack features.
+
 = 4.2.2 =
 
 * Release date: August 19th, 2016
