@@ -222,6 +222,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/module/all' ) );
 		$modules = $response->get_data();
 
+		// Preparing translated fields for JSON encoding by transforming all HTML entities to
+		// respective characters.
+		foreach( $modules as $slug => $data ) {
+			$modules[ $slug ]['name'] = html_entity_decode( $data['name'] );
+			$modules[ $slug ]['description'] = html_entity_decode( $data['description'] );
+			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'] );
+			$modules[ $slug ]['long_description'] = html_entity_decode( $data['long_description'] );
+		}
+
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
