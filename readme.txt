@@ -85,19 +85,20 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes:**
 
+* Admin Page: fix error when Admin Page resources could not be fetched with `wp_remote_get`. #5096
 * Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled. #5094
-* Add deprecated PHP file back, to avoid generating Fatal Errors on sites with aggressive caching. #5098
-* Make sure concatenated CSS is generated for RTL languages. #5095
-* To improve sync performance, add snapTW to the list of post meta data that won't be synchronized for each post. That meta data can be 45mb+ per post. #5092
 * Admin Page: make sure all translated strings are encoded properly. #5101
 * Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests. #5100
-* Verification tools: in the Settings card, use appropriate link for each service. #5106
-* Subscriptions: ensure that no email is sent when updating a published post. #5099
-* Admin Page: fix error when Admin Page resources could not be fetched with `wp_remote_get`. #5096
 * General: Add a fallback method of computing a random integer for cases where random_int throws an exception, preventing fatal errors on specific configurations. #5108
+* General: Add deprecated PHP file back, to avoid generating Fatal Errors on sites with aggressive caching. #5098
+* General: Ensure concatenated CSS is generated for RTL languages. #5095
 * General: Sync data on the host being used by any given site so that we can provide better support when things break.  #5086
 * Security: Ensure that all options are included on the security tab #5113
 * Stats: fix display for sites with pretty permalinks disabled #5114
+* Subscriptions: ensure that no email is sent when updating a published post. #5099
+* Sync: To improve performance, add snapTW to the list of post meta data that won't be synchronized for each post. That meta data can be 45mb+ per post. #5092
+* Verification tools: in the Settings card, use appropriate link for each service. #5106
+
 
 = 4.3 =
 
