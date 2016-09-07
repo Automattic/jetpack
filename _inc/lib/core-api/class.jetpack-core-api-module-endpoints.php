@@ -675,8 +675,9 @@ class Jetpack_Core_API_Module_Endpoint
 		if ( 'GET' === $request->get_method() ) {
 			return current_user_can( 'jetpack_admin_page' );
 		} else {
-			// User is trying to create, regenerate or delete its PbE address.
-			if ( 'post-by-email' === Jetpack_Core_Json_Api_Endpoints::get_module_requested() ) {
+			$module = Jetpack_Core_Json_Api_Endpoints::get_module_requested();
+			// User is trying to create, regenerate or delete its PbE || ATD settings.
+			if ( 'post-by-email' === $module || 'after-the-deadline' === $module ) {
 				return current_user_can( 'edit_posts' ) && current_user_can( 'jetpack_admin_page' );
 			}
 			return current_user_can( 'jetpack_configure_modules' );
