@@ -17,7 +17,7 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Function called after admin_styles to load any additional needed styles.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 */
 	function additional_styles() {}
 
@@ -41,7 +41,7 @@ abstract class Jetpack_Admin_Page {
 		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
-		
+
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
 

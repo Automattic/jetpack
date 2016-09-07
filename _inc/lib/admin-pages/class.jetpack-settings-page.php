@@ -19,32 +19,19 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	// actions to activate/deactivate and configure modules
 	function page_render() {
 		$list_table = new Jetpack_Modules_List_Table;
-		$build_url = esc_url( plugins_url( '/_inc/build/',  JETPACK__PLUGIN_FILE ) );
 
-		$static_html = wp_remote_get( $build_url . 'static.html' );
-		if ( 200 == wp_remote_retrieve_response_code( $static_html ) ) {
-			$static_html = wp_remote_retrieve_body( $static_html );
-		} else {
+		$static_html = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
+
+		// If static.html isn't there, there's nothing else we can do.
+		if ( false === $static_html ) {
 			esc_html_e( 'Error fetching static.html.', 'jetpack' );
-
-			// If static.html isn't there, there's nothing else we can do.
 			return;
 		}
 
-		$noscript_notice = wp_remote_get( $build_url . 'static-noscript-notice.html' );
-		$noscript_notice = 200 == wp_remote_retrieve_response_code( $noscript_notice )
-			? wp_remote_retrieve_body( $noscript_notice )
-			: '';
-
-		$version_notice = wp_remote_get( $build_url . 'static-version-notice.html' );
-		$version_notice = 200 == wp_remote_retrieve_response_code( $version_notice )
-			? wp_remote_retrieve_body( $version_notice )
-			: '';
-
-		$ie_notice = wp_remote_get( $build_url . 'static-ie-notice.html' );
-		$ie_notice = 200 == wp_remote_retrieve_response_code( $ie_notice )
-			? wp_remote_retrieve_body( $ie_notice )
-			: '';
+		// We have static.html so let's continue trying to fetch the others
+		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
+		$version_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
+		$ie_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-ie-notice.html' );
 
 		$noscript_notice = str_replace(
 			'#HEADER_TEXT#',
@@ -159,17 +146,17 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			$static_html
 		);
 
-		JetpackTracking::record_user_event( 'page_view', array( 'path' => 'wpa_old_settings' ) );
+		JetpackTracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_settings' ) );
 	}
 
 	/**
 	 * Load styles for static page.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 */
 	function additional_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
-		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/static.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
 
