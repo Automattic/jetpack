@@ -166,7 +166,7 @@ function JetpackRestApiClient( root, nonce ) {
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		fetchStatsData: ( range ) => fetch(
-			`${ apiRoot }jetpack/v4/module/stats/data?range=${ encodeURIComponent( range ) }`,
+			`${ apiRoot }jetpack/v4/module/stats/data/${ encodeURIComponent( range ) }`,
 			{
 				credentials: 'same-origin',
 				headers: {
