@@ -79,10 +79,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Release date: September 7, 2016
 
-**Enhancements**
+**Support Enhancements**
 
-* Sync data on the host being used by any given site so that we can provide better support when things break.
-* Update inline docs to match version numbers. #5089
+* We're now syncing data about hosts so that we can provide better support when needed.
+* Minor update to inline docs to match version numbers.
 
 **Bug Fixes:**
 
