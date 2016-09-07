@@ -7,6 +7,7 @@ Fixes #
 
 *
 
+<!-- Add the following only if this is meant to be in changelog -->
 #### Proposed changelog entry for your changes:
 
 
