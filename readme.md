@@ -122,7 +122,7 @@ The Jetpack Pit Crew is comprised of @dereksmart, @samhotchkiss, @zinigor, @elio
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
-@georgestephanis, @jeffgolenski, @jessefriedman, @richardmuscat, @justinkropp, @aliso, @allendav, @alternatekev, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @enejb, @eoigal, @ethitter, @gibrown, @hugobaeta, @jasmussen, @jblz, @jkudish, @johnjamesjacoby, @justinshreve, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @pento, @rase-, @roccotripaldi, @skeltoac, @stephdau, @tmoorewp, @Viper007Bond, @xyu and @yoavf.
+@georgestephanis, @jeffgolenski, @jessefriedman, @richardmuscat, @justinkropp, @aliso, @allendav, @alternatekev, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @enejb, @eoigal, @ethitter, @gibrown, @hugobaeta, @jasmussen, @jblz, @jkudish, @johnjamesjacoby, @justinshreve, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @rase-, @roccotripaldi, @skeltoac, @stephdau, @tmoorewp, @Viper007Bond, @xyu and @yoavf.
 
 Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, @kraftbj, @chaselivingston, @jenhooks, @aheckler, @ntpixels, @macmanx2, @lschuyler, @seejacobscott, @davoraltman, @lamdayap, @rachelsquirrel, @scarstocea, @stefmattana, @jamilabreu, @cena, @v18, @bikedorkjon, @drpottex, @gregwp, @annezazuu, and @danjjohnson.
 
