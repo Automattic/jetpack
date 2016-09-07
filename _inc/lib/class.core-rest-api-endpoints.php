@@ -281,7 +281,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$notice = $data['notice'];
 		$param = $data->get_json_params();
 
-		if ( isset( $param['dismissed'] ) && $param['dismissed'] === true && isset( $notice ) && ! empty( $notice ) ) {
+		if ( isset( $param['dismissed'] ) && $param['dismissed'] === true
+		&& isset( $notice ) && ! empty( $notice ) ) {
 			switch( $notice ) {
 				case 'feedback_dash_request':
 				case 'welcome':
@@ -626,7 +627,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function unlink_user( $data ) {
 		$param = $data->get_json_params();
 
-		if ( isset( $param['linked'] ) && $param['linked'] === false && isset( $data['id'] ) && Jetpack::unlink_user( $data['id'] ) ) {
+		if ( isset( $param['linked'] ) && $param['linked'] === false
+		&& isset( $data['id'] ) && Jetpack::unlink_user( $data['id'] ) ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'
