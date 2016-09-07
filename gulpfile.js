@@ -283,7 +283,7 @@ frontendcss = [
 	'modules/widgets/goodreads/css/goodreads.css',
 	'modules/widgets/social-media-icons/style.css',
 	'modules/widgets/top-posts/style.css',
-	'modules/widgets/widgets.css' // TODO Moved to image-widget/style.css
+	'modules/widgets/image-widget/style.css'
 ];
 
 gulp.task( 'old-styles:watch', function() {
@@ -339,6 +339,9 @@ gulp.task( 'frontendcss', function() {
 			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
 			'*/\n'
 		) )
+		.pipe( gulp.dest( 'css' ) )
+		.pipe( rtlcss() )
+		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( 'css' ) )
 		.on( 'end', function() {
 			console.log( 'Front end modules CSS finished.' );

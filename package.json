@@ -1,6 +1,6 @@
 {
   "name": "Jetpack",
-  "version": "4.3.0-rc1",
+  "version": "4.3.0",
   "description": "[Jetpack](http://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
   "homepage": "http://jetpack.com",
   "author": "Automattic",
@@ -55,6 +55,7 @@
     "gulp-concat": "^2.6.0",
     "gulp-download-stream": "0.0.13",
     "gulp-jshint": "2.0.0",
+    "gulp-json-transform": "^0.4.2",
     "gulp-live-server": "0.0.28",
     "gulp-modify": "0.1.1",
     "gulp-open": "^1.0.0",
@@ -96,7 +97,6 @@
     "babel-register": "^6.8.0",
     "chai": "^3.5.0",
     "commander": "2.3.0",
-    "gulp-json-transform": "^0.4.2",
     "mocha": "^2.4.5",
     "mockery": "^1.4.1",
     "nock": "^7.2.2",

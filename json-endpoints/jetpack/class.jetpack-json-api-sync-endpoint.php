@@ -41,8 +41,8 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 // GET /sites/%s/sync/status
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-modules.php';
-		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 
 		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
 		$sender      = Jetpack_Sync_Sender::get_instance();
@@ -65,7 +65,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 // GET /sites/%s/data-check
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 
 		$sender     = Jetpack_Sync_Sender::get_instance();
 		$sync_queue = $sender->get_sync_queue();
@@ -85,7 +85,7 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 			return $result;
 		}
 
-		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-wp-replicastore.php';
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -101,7 +101,7 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 // GET /sites/%s/data-histogram
 class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 
 		$sender     = Jetpack_Sync_Sender::get_instance();
 		$sync_queue = $sender->get_sync_queue();
@@ -129,7 +129,7 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 			$columns = null; // go with defaults
 		}
 
-		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-wp-replicastore.php';
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -147,7 +147,7 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 	protected function result() {
 		$args = $this->input();
 
-		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-settings.php';
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-settings.php';
 
 		$sync_settings = Jetpack_Sync_Settings::get_settings();
 
@@ -176,33 +176,58 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 // GET /sites/%s/sync/settings
 class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-settings.php';
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-settings.php';
 
 		return Jetpack_Sync_Settings::get_settings();
 	}
 }
 
-// GET /sites/%s/sync-object
+// GET /sites/%s/sync/object
 class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
 		$args = $this->query_args();
 
 		$module_name = $args['module_name'];
 
-		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-modules.php';
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
 
 		if ( ! $sync_module = Jetpack_Sync_Modules::get_module( $module_name ) ) {
 			return new WP_Error( 'invalid_module', 'You specified an invalid sync module' );
 		}
 
 		$object_type = $args['object_type'];
-		$object_id   = $args['object_id'];
+		$object_ids  = $args['object_ids'];
 
-		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
 
 		return array(
-			'object' => $codec->encode( $sync_module->get_object_by_id( $object_type, $object_id ) )
+			'objects' => $codec->encode( $sync_module->get_objects_by_id( $object_type, $object_ids ) )
+		);
+	}
+}
+
+class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	protected function result() {
+		$args = $this->input();
+
+		if ( ! isset( $args['queue'] ) ) {
+			return new WP_Error( 'invalid_queue', 'Queue name is required', 400 );
+		}
+
+		if ( ! in_array( $args['queue'], array( 'sync', 'full_sync' ) ) ) {
+			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', 400 );
+		}
+
+		$queue_name = $args['queue'];
+
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
+
+		$sender = Jetpack_Sync_Sender::get_instance();
+		$response = $sender->do_sync_for_queue( new Jetpack_Sync_Queue( $queue_name ) );
+
+		return array(
+			'response' => $response
 		);
 	}
 }

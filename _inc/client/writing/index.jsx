@@ -19,7 +19,8 @@ import {
 	deactivateModule,
 	isActivatingModule,
 	isDeactivatingModule,
-	getModule as _getModule
+	getModule as _getModule,
+	getModules
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
@@ -33,8 +34,9 @@ export const Writing = ( props ) => {
 		isTogglingModule,
 		getModule,
 		userCanManageModules
-	} = props;
-	let isAdmin = userCanManageModules;
+	} = props,
+		isAdmin = userCanManageModules,
+		moduleList = Object.keys( props.moduleList );
 	/**
 	 * Array of modules that directly map to a card for rendering
 	 * @type {Array}
@@ -62,6 +64,9 @@ export const Writing = ( props ) => {
 		cards = cards.filter( ( element, index ) => cards.indexOf( element ) === index );
 	}
 	cards = cards.map( ( element, i ) => {
+		if ( ! includes( moduleList, element[0] ) ) {
+			return null;
+		}
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
@@ -96,7 +101,7 @@ export const Writing = ( props ) => {
 				) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ getModule( element[0] ) } /> :
+					<AllModuleSettings module={ getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -128,7 +133,8 @@ export default connect(
 			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			userCanManageModules: _userCanManageModules( state )
+			userCanManageModules: _userCanManageModules( state ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

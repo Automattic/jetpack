@@ -233,12 +233,12 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		if ( $activated_count > 0 ) {
 			$activated_last = array_pop( $activated );
 			$activated_text = $activated_count > 1 ? sprintf(
-				/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
-				__( '%s and %s', 'jetpack' ),
+				/* Translators: first variable is a list followed by the last item, which is the second variable. Example: dog, cat and bird. */
+				__( '%1$s and %2$s', 'jetpack' ),
 				join( ', ', $activated ), $activated_last ) : $activated_last;
 
 			$error = sprintf(
-				/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
+				/* Translators: the variable is a module name. */
 				_n( 'The module %s was activated.', 'The modules %s were activated.', $activated_count, 'jetpack' ),
 				$activated_text ) . ' ';
 		}
@@ -247,12 +247,12 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		if ( count( $failed ) > 0 ) {
 			$failed_last = array_pop( $failed );
 			$failed_text = $failed_count > 1 ? sprintf(
-				/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
-				__( '%s and %s', 'jetpack' ),
+				/* Translators: first variable is a list followed by the last item, which is the second variable. Example: dog, cat and bird. */
+				__( '%1$s and %2$s', 'jetpack' ),
 				join( ', ', $failed ), $failed_last ) : $failed_last;
 
 			$error = sprintf(
-				/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
+				/* Translators: the variable is a module name. */
 				_n( 'The module %s failed to be activated.', 'The modules %s failed to be activated.', $failed_count, 'jetpack' ),
 				$failed_text ) . ' ';
 		}

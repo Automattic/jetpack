@@ -37,7 +37,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 
 		// Enqueue admin page styles in head
-		add_action( 'admin_head', array( $this, 'page_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_styles' ) );
 
 		// Adding a redirect tag wrapped in browser conditional comments
 		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
@@ -49,7 +49,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 *
 	 * Works in Dev Mode or when user is connected.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 */
 	function jetpack_add_dashboard_sub_nav_item() {
 		if ( Jetpack::is_development_mode() || Jetpack::is_active() ) {
@@ -65,7 +65,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * If user is allowed to see the Jetpack Admin, add Settings sub-link.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
 		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) ) {
@@ -136,14 +136,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		/** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' );
 
-		$static_html = wp_remote_get( esc_url( JETPACK__PLUGIN_URL . '/_inc/build/static.html' ), array( 'sslverify' => false ) );
+		$static_html = wp_remote_get( esc_url( plugins_url( '/_inc/build/static.html', JETPACK__PLUGIN_FILE ) ) );
 		echo 200 == wp_remote_retrieve_response_code( $static_html )
 			? wp_remote_retrieve_body( $static_html )
-			: esc_html__( 'Error fetching page.', 'jetpack' );
+			: esc_html__( 'Error fetching static.html.', 'jetpack' );
 	}
 
 	function get_i18n_data() {
-		$locale_data = wp_remote_get( esc_url( JETPACK__PLUGIN_URL . '/languages/json/jetpack-' . get_locale() . '.json' ), array( 'sslverify' => false ) );
+		$locale_data = wp_remote_get( esc_url( plugins_url( '/languages/json/jetpack-' . get_locale() . '.json', JETPACK__PLUGIN_FILE ) ) );
 		$locale_data = 200 == wp_remote_retrieve_response_code( $locale_data )
 			? wp_remote_retrieve_body( $locale_data )
 			: false;
@@ -186,7 +186,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function page_admin_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
-		
+
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
@@ -271,7 +271,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
 			'tracksUserData' => $this->jetpack_get_tracks_user_data(),
-			'currentIp' => jetpack_protect_get_ip()
+			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false
 		) );
 	}
 }
@@ -397,7 +397,7 @@ function jetpack_master_user_data() {
 	return $master_user_data;
 }
 
-/*
+/**
  * Gather data about the current user.
  *
  * @since 4.1.0
@@ -428,6 +428,10 @@ function jetpack_current_user_data() {
 			'edit_posts'         => current_user_can( 'edit_posts' ),
 			'manage_options'     => current_user_can( 'manage_options' ),
 			'view_stats'		 => current_user_can( 'view_stats' ),
+			'manage_plugins'	 => current_user_can( 'install_plugins' )
+									&& current_user_can( 'activate_plugins' )
+									&& current_user_can( 'update_plugins' )
+									&& current_user_can( 'delete_plugins' ),
 		),
 	);
 
