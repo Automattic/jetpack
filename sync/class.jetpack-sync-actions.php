@@ -266,7 +266,7 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = self::$sender->do_sync();
-		} while ( $result );
+		} while ( $result && ! is_wp_error( $result ) );
 	}
 
 	static function initialize_listener() {
