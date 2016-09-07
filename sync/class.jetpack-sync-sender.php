@@ -111,7 +111,7 @@ class Jetpack_Sync_Sender {
 
 		if ( is_wp_error( $buffer ) ) {
 			// another buffer is currently sending
-			return false;
+			return $buffer;
 		}
 
 		$upload_size   = 0;
