@@ -94,6 +94,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Verification tools: in the Settings card, use appropriate link for each service. #5106
 * Subscriptions: ensure that no email is sent when updating a published post. #5099
 * Admin Page: fix error when Admin Page resources could not be fetched with `wp_remote_get`. #5096
+* General: Add a fallback method of computing a random integer for cases where random_int throws an exception, preventing fatal errors on specific configurations. #5108
 
 = 4.3 =
 
