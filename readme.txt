@@ -97,6 +97,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: Add a fallback method of computing a random integer for cases where random_int throws an exception, preventing fatal errors on specific configurations. #5108
 * General: Sync data on the host being used by any given site so that we can provide better support when things break.  #5086
 * Security: Ensure that all options are included on the security tab #5113
+* Stats: fix display for sites with pretty permalinks disabled #5114
 
 = 4.3 =
 
