@@ -80,7 +80,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::disconnect_site',
-			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback'
+			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 		) );
 
 		// Disconnect/unlink user from WordPress.com servers
@@ -281,8 +281,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$notice = $data['notice'];
 		$param = $data->get_json_params();
 
-		if ( isset( $param['dismissed'] ) && $param['dismissed'] === true
-		&& isset( $notice ) && ! empty( $notice ) ) {
+		if ( ! isset( $param['dismissed'] ) || $param['dismissed'] !== true ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Invalid parameter "dismissed".', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		if ( isset( $notice ) && ! empty( $notice ) ) {
 			switch( $notice ) {
 				case 'feedback_dash_request':
 				case 'welcome':
@@ -502,7 +505,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function disconnect_site( $data ) {
 		$param = $data->get_json_params();
 
-		if ( Jetpack::is_active() && $param['isActive'] === false ) {
+		if ( ! isset( $param['isActive'] ) || $param['isActive'] !== false ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		if ( Jetpack::is_active() ) {
 			Jetpack::disconnect();
 			return rest_ensure_response( array( 'code' => 'success' ) );
 		}
@@ -627,8 +634,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function unlink_user( $data ) {
 		$param = $data->get_json_params();
 
-		if ( isset( $param['linked'] ) && $param['linked'] === false
-		&& isset( $data['id'] ) && Jetpack::unlink_user( $data['id'] ) ) {
+		if ( ! isset( $param['linked'] ) || $param['linked'] !== false ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		if ( isset( $data['id'] ) && Jetpack::unlink_user( $data['id'] ) ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'
@@ -683,7 +693,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function reset_jetpack_options( $data ) {
 		$param = $data->get_json_params();
 
-		if ( isset( $param['reset'] ) && $param['reset'] === true && isset( $data['options'] ) ) {
+		if ( ! isset( $param['reset'] ) || $param['reset'] !== true ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		if ( isset( $data['options'] ) ) {
 			$data = $data['options'];
 
 			switch( $data ) {
