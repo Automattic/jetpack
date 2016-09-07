@@ -3,7 +3,7 @@ Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, an
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 4.3
 Requires at least: 4.5
-Tested up to: 4.6
+Tested up to: 4.6.1
 
 Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
 
@@ -79,19 +79,26 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Release date:
 
-**Enhancements**
+**Support Enhancements**
 
-* Update inline docs to match version numbers. #5089
+* We're now syncing data about hosts so that we can provide better support when needed.
+* Quick update to inline docs to match version numbers.
 
 **Bug Fixes:**
 
-* Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled. #5094
-* Add deprecated PHP file back, to avoid generating Fatal Errors on sites with aggressive caching. #5098
-* Make sure concatenated CSS is generated for RTL languages. #5095
-* To improve sync performance, add snapTW to the list of post meta data that won't be synchronized for each post. That meta data can be 45mb+ per post. #5092
-* Admin Page: make sure all translated strings are encoded properly. #5101
-* Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests. #5100
-* Verification tools: in the Settings card, use appropriate link for each service. #5106
+* Admin Page: fix error when Admin Page resources could not be fetched with `wp_remote_get` due to unique host configurations.
+* Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled.
+* Admin Page: make sure all translated strings are encoded properly.
+* Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests.
+* General: Improve random number generation for compatibility with more hosts.
+* General: Add deprecated PHP file (class.jetpack-landing-page.php) back as an empty file, to avoid generating fatal errors on sites with aggressive caching.
+* General: Ensure concatenated CSS is generated for RTL languages.
+* Security: Ensure that all options are included on the security tab.
+* Stats: fix display for sites with pretty permalinks disabled.
+* Subscriptions: ensure that no email is sent when updating a published post.
+* Sync: To improve performance, add snapTW to the list of post meta data that won't be synchronized for each post.
+* Verification Tools: in the Settings card, use appropriate link for each service.
+
 
 = 4.3 =
 
