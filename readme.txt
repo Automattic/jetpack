@@ -89,6 +89,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Add deprecated PHP file back, to avoid generating Fatal Errors on sites with aggressive caching. #5098
 * Make sure concatenated CSS is generated for RTL languages. #5095
 * To improve sync performance, add snapTW to the list of post meta data that won't be synchronized for each post. That meta data can be 45mb+ per post. #5092
+* Admin Page: make sure all translated strings are encoded properly. #5101
 
 = 4.3 =
 
