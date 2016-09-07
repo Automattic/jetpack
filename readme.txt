@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stefmattana, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 4.2.2
+Stable tag: 4.3
 Requires at least: 4.5
 Tested up to: 4.6
 
@@ -74,6 +74,21 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+
+= 4.3.1 =
+
+* Release date:
+
+**Enhancements**
+
+* Update inline docs to match version numbers. #5089
+
+**Bug Fixes:**
+
+* Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled. #5094
+* Add deprecated PHP file back, to avoid generating Fatal Errors on sites with aggressive caching. #5098
+* Make sure concatenated CSS is generated for RTL languages. #5095
+* To improve sync performance, add snapTW to the list of post meta data that won't be synchronized for each post. That meta data can be 45mb+ per post. #5092
 
 = 4.3 =
 
