@@ -460,7 +460,7 @@ export let VerificationToolsSettings = React.createClass( {
 				<FormFieldset>
 					<p className="jp-form-setting-explanation">
 						{
-							__( 'Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a}}Bing Webmaster Center{{/a}} and {{a}}Pinterest Site Verification{{/a}}.', {
+							__( 'Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a1}}Bing Webmaster Center{{/a1}} and {{a2}}Pinterest Site Verification{{/a2}}.', {
 								components: {
 									a: <a href="https://www.google.com/webmasters/tools/" target="_blank" />,
 									a1: <a href="http://www.bing.com/webmaster/" target="_blank" />,
