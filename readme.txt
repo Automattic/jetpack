@@ -91,6 +91,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * To improve sync performance, add snapTW to the list of post meta data that won't be synchronized for each post. That meta data can be 45mb+ per post. #5092
 * Admin Page: make sure all translated strings are encoded properly. #5101
 * Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests. #5100
+* Verification tools: in the Settings card, use appropriate link for each service. #5106
 
 = 4.3 =
 
