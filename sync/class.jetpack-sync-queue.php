@@ -38,16 +38,7 @@ class Jetpack_Sync_Queue {
 	function __construct( $id ) {
 		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 		$this->row_iterator = 0;
-
-		try {
-			$this->random_int = random_int( 1, 1000000 );
-		} catch ( Exception $ex ) {
-
-			// This exception can mean that PHP doesn't have
-			// access to /dev/urandom, so falling back to OpenSSL
-			// pseudorandom bytes implementation
-			$this->random_int = intval( bin2hex( openssl_random_pseudo_bytes( 128 ) ), 16 );
-		}
+		$this->random_int = mt_rand( 1, 1000000 );
 	}
 
 	function add( $item ) {
