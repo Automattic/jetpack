@@ -360,7 +360,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	$blog_id = stats_get_option( 'blog_id' );
 	$domain = Jetpack::build_raw_urls( get_home_url() );
 
-	JetpackTracking::record_user_event( 'page_view', array( 'path' => 'wpa_old_stats' ) );
+	JetpackTracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_stats' ) );
 
 	if ( ! $main_chart_only && !isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
 		$nojs_url = add_query_arg( 'nojs', '1' );
