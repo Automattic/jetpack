@@ -93,6 +93,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests. #5100
 * Verification tools: in the Settings card, use appropriate link for each service. #5106
 * Subscriptions: ensure that no email is sent when updating a published post. #5099
+* Admin Page: fix error when Admin Page resources could not be fetched with `wp_remote_get`. #5096
 
 = 4.3 =
 
