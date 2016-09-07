@@ -77,7 +77,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.3.1 =
 
-* Release date:
+* Release date: September 7, 2016
 
 **Support Enhancements**
 
