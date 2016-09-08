@@ -102,6 +102,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests.
 * Admin Page: fewer calls to the database means faster load time.
 * Admin Page: search icon no longer overlaps the global notices.
+* Admin Page: make sure that non-admins can also modify Spellchecking settings.
 * General: Improve random number generation for compatibility with more hosts.
 * General: Add deprecated PHP file (class.jetpack-landing-page.php) back as an empty file, to avoid generating fatal errors on sites with aggressive caching.
 * General: Ensure concatenated CSS is generated for RTL languages.
