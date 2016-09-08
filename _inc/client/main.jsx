@@ -18,7 +18,7 @@ import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
-import { getJumpStartStatus } from 'state/jumpstart';
+import { getJumpStartStatus, isJumpstarting } from 'state/jumpstart';
 import { getSiteConnectionStatus } from 'state/connection';
 import {
 	setInitialState,
@@ -77,14 +77,14 @@ const Main = React.createClass( {
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
-		return nextProps.jetpack.connection.status !== this.props.jetpack.connection.status ||
-			nextProps.jetpack.jumpstart.status.showJumpStart !== this.props.jumpStartStatus ||
+		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
+			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
 			nextProps.route.path !== this.props.route.path;
 	},
 
 	componentWillReceiveProps( nextProps ) {
-		if ( nextProps.jetpack.jumpstart.status.showJumpStart !== this.props.jetpack.jumpstart.status.showJumpStart ||
-			nextProps.jetpack.jumpstart.status.isJumpstarting !== this.props.jetpack.jumpstart.status.isJumpstarting ) {
+		if ( nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
+			nextProps.isJumpstarting !== this.props.isJumpstarting ) {
 			this.handleJumpstart( nextProps );
 		}
 	},
@@ -98,14 +98,14 @@ const Main = React.createClass( {
 	 */
 	handleJumpstart( nextProps ) {
 		const history = createHistory();
-		const willShowJumpStart = nextProps.jetpack.jumpstart.status.showJumpStart;
-		const willBeJumpstarting = nextProps.jetpack.jumpstart.status.isJumpstarting;
+		const willShowJumpStart = nextProps.jumpStartStatus;
+		const willBeJumpstarting = nextProps.isJumpstarting;
 
-		if ( ! this.props.showJumpStart && willShowJumpStart ) {
+		if ( ! this.props.jumpStartStatus && willShowJumpStart ) {
 			window.location.hash = 'jumpstart';
 			history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 		}
-		if ( ! this.props.jetpack.jumpstart.showJumpStart && ! willShowJumpStart && ! willBeJumpstarting ) {
+		if ( ! this.props.jumpStartStatus && ! willShowJumpStart && ! willBeJumpstarting ) {
 			history.push( window.location.pathname + '?page=jetpack#/dashboard' );
 		}
 	},
@@ -212,9 +212,9 @@ const Main = React.createClass( {
 
 export default connect(
 	state => {
-		// This is tricky. We're passing the whole state as props of the main component
 		return  {
 			jumpStartStatus: getJumpStartStatus( state ),
+			isJumpstarting: isJumpstarting( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
