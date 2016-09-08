@@ -281,7 +281,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'jetpack_holiday_snow_enabled' => function_exists( 'jetpack_holiday_snow_option_name' ) ? jetpack_holiday_snow_option_name() : false,
 			),
 			'userData' => array(
-				'othersLinked' => Jetpack::get_other_linked_admins(),
+//				'othersLinked' => Jetpack::get_other_linked_admins(),
 				'currentUser'  => jetpack_current_user_data(),
 			),
 			'locale' => $this->get_i18n_data(),
