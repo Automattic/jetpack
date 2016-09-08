@@ -380,8 +380,8 @@ EXPECTED;
 		) );
 
 		$other_admins = Jetpack::get_other_linked_admins();
-		$this->assertNotFalse( $other_admins );
-		$this->assertNotFalse( get_transient( 'jetpack_other_linked_admins' ) );
+		$this->assertInternalType( 'int', $other_admins );
+		$this->assertInternalType( 'int', get_transient( 'jetpack_other_linked_admins' ) );
 	}
 
 	public function test_promoting_admin_clears_other_linked_admins_transient() {
