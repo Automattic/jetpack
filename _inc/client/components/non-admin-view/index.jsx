@@ -19,6 +19,7 @@ import Engagement from 'engagement/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
+import { getSiteConnectionStatus } from 'state/connection';
 
 const NonAdminView = React.createClass( {
 	componentWillMount: function() {
@@ -26,7 +27,8 @@ const NonAdminView = React.createClass( {
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
-		return nextProps.jetpack.connection.status !== this.props.jetpack.connection.status || nextProps.route.path !== this.props.route.path;
+		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
+			nextProps.route.path !== this.props.route.path;
 	},
 
 	renderMainContent: function( route ) {
@@ -84,10 +86,17 @@ const NonAdminView = React.createClass( {
 
 } );
 
+NonAdminView.propTypes = {
+	userCanViewStats: React.PropTypes.bool.isRequired,
+	isSubscriber: React.PropTypes.bool.isRequired,
+	siteConnectionStatus: React.PropTypes.any.isRequired
+}
+
 export default connect(
 	( state ) => {
 		return {
 			userCanViewStats: _userCanViewStats( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isSubscriber: _userIsSubscriber( state ),
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
 		};
