@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Stats: fix display for sites with pretty permalinks disabled.
 * Subscriptions: ensure that no email is sent when updating a published post.
 * Sync: To improve performance, add snapTW to the list of post meta data that won't be synchronized for each post.
+* Sync: do not schedule a full sync after each import.
 * Verification Tools: in the Settings card, use appropriate link for each service.
 
 
