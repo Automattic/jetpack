@@ -361,6 +361,61 @@ EXPECTED;
 		remove_action( 'jetpack_deactivate_module_stats', array( __CLASS__, 'track_deactivated_modules' ) );
 	}
 
+	public function test_get_other_linked_admins_one_admin_returns_false() {
+		delete_transient( 'jetpack_other_linked_admins' );
+		$other_admins = Jetpack::get_other_linked_admins();
+		$this->assertFalse( $other_admins );
+		$this->assertEquals( 0, get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	public function test_get_other_linked_admins_more_than_one_not_false() {
+		delete_transient( 'jetpack_other_linked_admins' );
+		$master_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$connected_admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+
+		Jetpack_Options::update_option( 'master_user', $master_user );
+		Jetpack_Options::update_option( 'user_tokens', array(
+			$connected_admin => 'apple.a.' . $connected_admin,
+			$master_user     => 'kiwi.a.' . $master_user
+		) );
+
+		$other_admins = Jetpack::get_other_linked_admins();
+		$this->assertNotFalse( $other_admins );
+		$this->assertNotFalse( get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	public function test_promoting_admin_clears_other_linked_admins_transient() {
+		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
+		$editor_user = $this->factory->user->create( array( 'role' => 'editor' ) );
+		wp_update_user( array( 'ID' => $editor_user, 'role' => 'administrator' ) );
+
+		$this->assertEquals( 0, get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	public function test_demoting_admin_clear_other_linked_admins_transiet() {
+		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
+		$admin_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_update_user( array( 'ID' => $admin_user, 'role' => 'editor' ) );
+
+		$this->assertEquals( 0, get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	function test_changing_non_admin_roles_does_not_clear_other_linked_admins_transient() {
+		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
+		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+
+		foreach ( array( 'contributor', 'author', 'editor' ) as $role ) {
+			wp_update_user( array( 'ID' => $user_id, 'role' => $role) );
+		}
+
+		$this->assertEquals( 2, get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	function test_other_linked_admins_transient_set_to_zero_returns_false() {
+		set_transient( 'jetpack_other_linked_admins', 0, HOUR_IN_SECONDS );
+		$this->assertFalse( Jetpack::get_other_linked_admins() );
+	}
+
 	static function reset_tracking_of_module_activation() {
 		self::$activated_modules = array();
 		self::$deactivated_modules = array();
