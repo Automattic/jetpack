@@ -78,7 +78,7 @@ const Main = React.createClass( {
 
 	shouldComponentUpdate: function( nextProps ) {
 		return nextProps.jetpack.connection.status !== this.props.jetpack.connection.status ||
-			nextProps.jetpack.jumpstart.status.showJumpStart !== getJumpStartStatus( this.props ) ||
+			nextProps.jetpack.jumpstart.status.showJumpStart !== this.props.jumpStartStatus ||
 			nextProps.route.path !== this.props.route.path;
 	},
 
@@ -111,7 +111,7 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
-		const showJumpStart = getJumpStartStatus( this.props );
+		const showJumpStart = this.props.jumpStartStatus;
 		const canManageModules = window.Initial_State.userData.currentUser.permissions.manage_modules;
 
 		// Track page views
@@ -198,7 +198,7 @@ const Main = React.createClass( {
 						<JetpackNotices { ...this.props } />
 						{ this.renderMainContent( this.props.route.path ) }
 						{
-							this.props.getJumpStartStatus || '/apps' === this.props.route.path ?
+							this.props.jumpStartStatus || '/apps' === this.props.route.path ?
 							null :
 							<SupportCard { ...this.props } />
 						}
@@ -214,7 +214,7 @@ export default connect(
 	state => {
 		// This is tricky. We're passing the whole state as props of the main component
 		return  {
-			getJumpStartStatus: getJumpStartStatus( state ),
+			jumpStartStatus: getJumpStartStatus( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			apiRoot: getApiRootUrl( state ),
