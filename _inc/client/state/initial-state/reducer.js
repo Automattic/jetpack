@@ -37,7 +37,7 @@ export function getHappinessGravatarIds( state ) {
  * @return {bool} true if dev version
  */
 export function isDevVersion( state ) {
-	return state.jetpack.initialState.isDevVersion;
+	return !! state.jetpack.initialState.isDevVersion;
 }
 
 /**
