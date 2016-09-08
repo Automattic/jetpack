@@ -30,7 +30,7 @@ const ConnectionSettings = React.createClass( {
 			? null
 			: <ConnectButton connectUser={ true } />;
 
-		return isDevMode( this.props ) ?
+		return this.props.isDevMode ?
 			(
 				<div>
 					{
@@ -76,9 +76,21 @@ const ConnectionSettings = React.createClass( {
 	}
 } );
 
+ConnectionSettings.propTypes = {
+	isDevMode: React.PropTypes.bool.isRequired,
+	userCanDisconnectSite: React.PropTypes.bool.isRequired,
+	userIsMaster: React.PropTypes.bool.isRequired,
+	isLinked: React.PropTypes.bool.isRequired,
+	userWpComLogin: React.PropTypes.any.isRequired,
+	userWpComEmail: React.PropTypes.any.isRequired,
+	userWpComAvatar: React.PropTypes.any.isRequired,
+	username: React.PropTypes.any.isRequired
+};
+
 export default connect(
 	( state ) => {
 		return {
+			isDevMode: isDevMode( state ),
 			userCanDisconnectSite: _userCanDisconnectSite( state ),
 			userIsMaster: _userIsMaster( state ),
 			userWpComLogin: _getUserWpComLogin( state ),
