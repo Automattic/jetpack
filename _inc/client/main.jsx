@@ -213,7 +213,7 @@ const Main = React.createClass( {
 export default connect(
 	state => {
 		// This is tricky. We're passing the whole state as props of the main component
-		return assign( {}, state, {
+		return  {
 			getJumpStartStatus: getJumpStartStatus( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
@@ -221,7 +221,7 @@ export default connect(
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state )
-		} );
+		};
 	},
 	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag }, dispatch )
 )( withRouter( Main ) );
