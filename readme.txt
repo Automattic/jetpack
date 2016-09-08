@@ -75,6 +75,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.3.2 =
+
+**Enhancements**
+
+**Bug Fixes:**
+
+* Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
+
 = 4.3.1 =
 
 * Release date: September 7, 2016
@@ -175,4 +183,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * The PHP warnings of Sitemaps stylesheets have been eliminated.
 * We’ve done away with the warnings that appeared when Tonesque processes a file which claims to be one filetype, but is actually another.
 * We’ve exterminated PHP notices that appeared when using Random Redirect, as well as when the author wasn't set.
-
