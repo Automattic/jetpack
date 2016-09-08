@@ -121,7 +121,7 @@ const Main = React.createClass( {
 			return <NonAdminView { ...this.props } />
 		}
 
-		if ( ! getSiteConnectionStatus( this.props ) ) {
+		if ( ! this.props.siteConnectionStatus ) {
 			return <JetpackConnect { ...this.props } />
 		}
 
@@ -215,6 +215,7 @@ export default connect(
 		// This is tricky. We're passing the whole state as props of the main component
 		return  {
 			jumpStartStatus: getJumpStartStatus( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			apiRoot: getApiRootUrl( state ),
