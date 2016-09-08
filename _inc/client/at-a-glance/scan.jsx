@@ -26,8 +26,8 @@ import { isDevMode } from 'state/connection';
 const DashScan = React.createClass( {
 	getContent: function() {
 		const labelName = __( 'Malware Scanning' ),
-			hasSitePlan = false !== this.props.getSitePlan(),
-			vpData = this.props.getVaultPressData(),
+			hasSitePlan = false !== this.props.sitePlan,
+			vpData = this.props.vaultPressData,
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
@@ -40,7 +40,7 @@ const DashScan = React.createClass( {
 			}
 
 			// Check for threats
-			const threats = this.props.getScanThreats();
+			const threats = this.props.scanThreats;
 			if ( threats !== 0 ) {
 				return (
 					<DashItem
@@ -116,7 +116,7 @@ const DashScan = React.createClass( {
 			>
 				<p className="jp-dash-item__description">
 					{
-						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
+						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' ) :
 							upgradeOrActivateText()
 					}
 				</p>
@@ -134,14 +134,22 @@ const DashScan = React.createClass( {
 	}
 } );
 
+DashScan.propTypes = {
+	vaultPressData: React.PropTypes.any.isRequired,
+	scanThreats: React.PropTypes.any.isRequired,
+	isDevMode: React.PropTypes.bool.isRequired,
+	sitePlan: React.PropTypes.object.isRequired
+}
+
 export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
-			getVaultPressData: () => _getVaultPressData( state ),
-			getScanThreats: () => _getVaultPressScanThreatCount( state ),
-			getSitePlan: () => getSitePlan( state ),
+			vaultPressData: _getVaultPressData( state ),
+			scanThreats: _getVaultPressScanThreatCount( state ),
+			sitePlan: getSitePlan( state ),
+			isDevMode: isDevMode( state ),
 			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
 		};
 	},
