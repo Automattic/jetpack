@@ -21,6 +21,7 @@ import { imagePath } from 'constants';
 import { isDevMode } from 'state/connection';
 import {
 	getInitialStateStatsData,
+	getSiteRawUrl,
 	getSiteAdminUrl
 } from 'state/initial-state';
 import QueryStatsData from 'components/data/query-stats-data';
@@ -150,7 +151,7 @@ const DashStats = React.createClass( {
 					</div>
 					<div className="jp-at-a-glance__stats-inactive-text">
 						{
-							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
+							this.props.isDevMode ? __( 'Unavailable in Dev Mode' ) :
 							__( '{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
 								components: {
 									a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />,
@@ -160,7 +161,7 @@ const DashStats = React.createClass( {
 						}
 					</div>
 						{
-							isDevMode( this.props ) ? '' : (
+							this.props.isDevMode ? '' : (
 								<div className="jp-at-a-glance__stats-inactive-button">
 									<Button
 										onClick={ this.props.activateStats }
@@ -225,13 +226,20 @@ const DashStats = React.createClass( {
 				<DashSectionHeader label={ __( 'Site Stats' ) }>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
-				<Card className={ 'jp-at-a-glance__stats-card ' + ( isDevMode( this.props ) ? 'is-inactive' : '' ) }>
+				<Card className={ 'jp-at-a-glance__stats-card ' + ( this.props.isDevMode ? 'is-inactive' : '' ) }>
 					{ this.renderStatsArea() }
 				</Card>
 			</div>
 		);
 	}
 } );
+
+DashStats.propTypes = {
+	isDevMode: React.PropTypes.bool.isRequired,
+	siteRawUrl: React.PropTypes.string.isRequired,
+	siteAdminUrl: React.PropTypes.string.isRequired,
+	statsData: React.PropTypes.any.isRequired
+};
 
 export default connect(
 	( state ) => {
@@ -240,6 +248,7 @@ export default connect(
 			moduleList: getModules( state ),
 			isFetchingModules: () => _isFetchingModulesList( state ),
 			activeTab: () => _getActiveStatsTab( state ),
+			isDevMode: isDevMode( state ),
 			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state )
 		};
 	},
