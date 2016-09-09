@@ -151,6 +151,11 @@ const DashAkismet = React.createClass( {
 	}
 } );
 
+DashAkismet.propTypes = {
+	siteRawUrl: React.PropTypes.string.isRequired,
+	siteAdminUrl: React.PropTypes.string.isRequired
+};
+
 export default connect(
 	( state ) => {
 		return {

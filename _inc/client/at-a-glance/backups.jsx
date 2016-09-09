@@ -89,8 +89,7 @@ const DashBackups = React.createClass( {
 				module="backups"
 				className="jp-dash-item__is-inactive"
 				status={ hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive' }
-				pro={ true }
-			>
+				pro={ true } >
 				<p className="jp-dash-item__description">
 					{
 						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' ) :
@@ -114,6 +113,7 @@ const DashBackups = React.createClass( {
 DashBackups.propTypes = {
 	vaultPressData: React.PropTypes.any.isRequired,
 	isDevMode: React.PropTypes.bool.isRequired,
+	siteRawUrl: React.PropTypes.string.isRequired,
 	sitePlan: React.PropTypes.object.isRequired
 };
 

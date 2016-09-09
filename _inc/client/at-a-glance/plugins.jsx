@@ -118,6 +118,8 @@ const DashPluginUpdates = React.createClass( {
 
 DashPluginUpdates.propTypes = {
 	isDevMode: React.PropTypes.bool.isRequired,
+	siteRawUrl: React.PropTypes.string.isRequired,
+	siteAdminUrl: React.PropTypes.string.isRequired,
 	pluginUpdates: React.PropTypes.any.isRequired
 };
 

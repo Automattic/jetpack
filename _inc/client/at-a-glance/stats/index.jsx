@@ -21,6 +21,7 @@ import { imagePath } from 'constants';
 import { isDevMode } from 'state/connection';
 import {
 	getInitialStateStatsData,
+	getSiteRawUrl,
 	getSiteAdminUrl
 } from 'state/initial-state';
 import QueryStatsData from 'components/data/query-stats-data';
@@ -234,7 +235,10 @@ const DashStats = React.createClass( {
 } );
 
 DashStats.propTypes = {
-	isDevMode: React.PropTypes.bool.isRequired
+	isDevMode: React.PropTypes.bool.isRequired,
+	siteRawUrl: React.PropTypes.string.isRequired,
+	siteAdminUrl: React.PropTypes.string.isRequired,
+	statsData: React.PropTypes.any.isRequired
 };
 
 export default connect(

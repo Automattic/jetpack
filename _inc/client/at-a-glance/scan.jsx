@@ -48,8 +48,7 @@ const DashScan = React.createClass( {
 						module="scan"
 						status="is-error"
 						statusText={ __( 'Threats found' ) }
-						pro={ true }
-					>
+						pro={ true } >
 						<h3>{
 							__(
 								'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
@@ -76,8 +75,7 @@ const DashScan = React.createClass( {
 						label={ labelName }
 						module="scan"
 						status="is-working"
-						pro={ true }
-					>
+						pro={ true } >
 						<p className="jp-dash-item__description">
 							{ __( "No threats found, you're good to go!" ) }
 						</p>
@@ -112,8 +110,7 @@ const DashScan = React.createClass( {
 				module="scan"
 				className="jp-dash-item__is-inactive"
 				status={ hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive' }
-				pro={ true }
-			>
+				pro={ true } >
 				<p className="jp-dash-item__description">
 					{
 						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' ) :
@@ -138,6 +135,7 @@ DashScan.propTypes = {
 	vaultPressData: React.PropTypes.any.isRequired,
 	scanThreats: React.PropTypes.any.isRequired,
 	isDevMode: React.PropTypes.bool.isRequired,
+	siteRawUrl: React.PropTypes.string.isRequired,
 	sitePlan: React.PropTypes.object.isRequired
 }
 
