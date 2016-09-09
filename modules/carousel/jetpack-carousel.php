@@ -227,6 +227,19 @@ class Jetpack_Carousel {
 						$localize_strings['stats'] = '';
 					}
 				}
+
+				/**
+				 * Filter if Jetpack should disable stats collection on carousel views
+				 *
+				 * @module carousel
+				 *
+				 * @since 4.3.2
+				 *
+				 * @param bool Disable Jetpack Carousel stat collection. Default false.
+				 */
+				if ( apply_filters( 'jetpack_disable_carousel_stats', false ) ) {
+					$localize_strings['stats'] = '';
+				}
 			}
 
 			/**
