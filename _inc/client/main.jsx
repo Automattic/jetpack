@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import assign from 'lodash/assign';
 import includes from 'lodash/includes';
 import { createHistory } from 'history';
 import { withRouter } from 'react-router';
@@ -122,7 +121,7 @@ const Main = React.createClass( {
 		}
 
 		if ( ! this.props.siteConnectionStatus ) {
-			return <JetpackConnect { ...this.props } />
+			return <JetpackConnect />
 		}
 
 		if ( showJumpStart ) {
@@ -130,53 +129,53 @@ const Main = React.createClass( {
 				const history = createHistory();
 				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 			} else if ( '/jumpstart' === route ) {
-				return <JumpStart { ...this.props } />
+				return <JumpStart />
 			}
 		}
 
 		let pageComponent,
-			navComponent = <Navigation { ...this.props } />;
+			navComponent = <Navigation route={ this.props.route }/>;
 		switch ( route ) {
 			case '/dashboard':
-				pageComponent = <AtAGlance { ...this.props } />;
+				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/apps':
-				pageComponent = <Apps siteRawUrl={ this.props.siteRawUrl } { ...this.props } />;
+				pageComponent = <Apps siteRawUrl={ this.props.siteRawUrl } />;
 				break;
 			case '/professional':
-				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } { ...this.props } />;
+				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/settings':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <GeneralSettings { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <GeneralSettings route={ this.props.route } />;
 				break;
 			case '/general':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <GeneralSettings { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <GeneralSettings route={ this.props.route } />;
 				break;
 			case '/engagement':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Engagement { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Engagement route={ this.props.route } />;
 				break;
 			case '/security':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Security { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Security route={ this.props.route } />;
 				break;
 			case '/appearance':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Appearance { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Appearance route={ this.props.route } />;
 				break;
 			case '/writing':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Writing { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/search':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <SearchPage { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <SearchPage siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 
 			default:
-				pageComponent = <AtAGlance { ...this.props } />;
+				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 		}
 
 		window.wpNavMenuClassChange();
@@ -192,18 +191,18 @@ const Main = React.createClass( {
 	render: function() {
 		return (
 			<div>
-				<Masthead { ...this.props } />
+				<Masthead/>
 					<div className="jp-lower">
-						<AdminNotices { ...this.props } />
-						<JetpackNotices { ...this.props } />
+						<AdminNotices />
+						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }
 						{
 							this.props.jumpStartStatus || '/apps' === this.props.route.path ?
 							null :
-							<SupportCard { ...this.props } />
+							<SupportCard />
 						}
 					</div>
-				<Footer { ...this.props } />
+				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 			</div>
 		);
 	}

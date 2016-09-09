@@ -190,7 +190,7 @@ const JetpackNotices = React.createClass( {
 		return (
 			<div>
 				<QueryConnectUrl />
-				<NoticesList { ...this.props } />
+				<NoticesList />
 				<JetpackStateNotices />
 				<DevVersionNotice isDevVersion={ this.props.isDevVersion } />
 				<DevModeNotice

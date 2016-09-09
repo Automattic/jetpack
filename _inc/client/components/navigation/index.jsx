@@ -72,6 +72,10 @@ const Navigation = React.createClass( {
 	}
 } );
 
+Navigation.propTypes = {
+	route: React.PropTypes.object.isRequired
+};
+
 export default connect(
 	( state ) => {
 		return {
