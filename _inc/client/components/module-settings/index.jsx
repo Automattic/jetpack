@@ -283,6 +283,10 @@ export let ProtectSettings = React.createClass( {
 	}
 } );
 
+ProtectSettings.propTypes = {
+	currentIp: React.PropTypes.string.isRequired
+};
+
 ProtectSettings = moduleSettingsForm( ProtectSettings );
 
 export let MonitorSettings = React.createClass( {
@@ -604,6 +608,10 @@ export let PostByEmailSettings = React.createClass( {
 	}
 } );
 
+PostByEmailSettings.propTypes = {
+	isCurrentUserLinked: React.PropTypes.bool.isRequired
+};
+
 PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 
 export let CustomContentTypesSettings = React.createClass( {
@@ -653,6 +661,10 @@ export let CustomContentTypesSettings = React.createClass( {
 		)
 	}
 } );
+
+CustomContentTypesSettings.propTypes = {
+	siteAdminUrl: React.PropTypes.string.isRequired
+};
 
 CustomContentTypesSettings = moduleSettingsForm( CustomContentTypesSettings );
 
