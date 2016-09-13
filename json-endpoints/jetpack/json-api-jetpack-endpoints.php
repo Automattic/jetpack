@@ -666,6 +666,7 @@ $sync_settings_response = array(
 	'post_types_blacklist' => '(array|string|bool=false) List of post types to exclude from sync. Send "empty" to unset.',
 	'meta_blacklist'       => '(array|string|bool=false) List of meta keys to exclude from sync. Send "empty" to unset.',
 	'disable'              => '(int|bool=false) Set to 1 or true to disable sync entirely.',
+	'render_filtered_content' => '(int|bool=true) Set to 1 or true to render filtered content.',
 );
 
 // GET /sites/%s/sync/settings

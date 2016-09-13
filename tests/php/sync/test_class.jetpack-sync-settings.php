@@ -13,6 +13,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 				'max_queue_size',
 				'max_queue_lag',
 				'disable',
+				'render_filtered_content',
 			) as $key
 		) {
 			$this->assertTrue( isset( $settings[ $key ] ) );
