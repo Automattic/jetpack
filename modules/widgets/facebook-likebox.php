@@ -10,13 +10,16 @@ function jetpack_facebook_likebox_init() {
 }
 
 /**
- * Facebook Like Box widget class
+ * Facebook Page Plugin (formely known as the Like Box)
  * Display a Facebook Page Plugin as a widget (replaces the old like box plugin)
  * https://developers.facebook.com/docs/plugins/page-plugin
  */
 class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 	private $default_height       = 580;
+	private $default_width        = 340;
+	private $max_width            = 500;
+	private $min_width            = 180;
 	private $max_height           = 9999;
 	private $min_height           = 130;
 
@@ -32,12 +35,26 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			 *
 			 * @param string $widget_name Widget title.
 			 */
-			apply_filters( 'jetpack_widget_name', __( 'Facebook Like Box', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', __( 'Facebook Page Plugin', 'jetpack' ) ),
 			array(
 				'classname' => 'widget_facebook_likebox',
-				'description' => __( 'Display a Facebook Like Box to connect visitors to your Facebook Page', 'jetpack' )
+				'description' => __( 'Use the Facebook Page Plugin to connect visitors to your Facebook Page', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
+
+		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		}
+	}
+
+	/**
+	 * Enqueue scripts.
+	 */
+	public function enqueue_scripts() {
+		wp_enqueue_script( 'jetpack-facebook-embed' );
+		wp_enqueue_style( 'jetpack_facebook_likebox', plugins_url( 'facebook-likebox/style.css', __FILE__ ) );
+		wp_style_add_data( 'jetpack_facebook_likebox', 'jetpack-inline', true );
 	}
 
 	function widget( $args, $instance ) {
@@ -45,9 +62,6 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		extract( $args );
 
 		$like_args = $this->normalize_facebook_args( $instance['like_args'] );
-
-		wp_enqueue_style( 'jetpack_facebook_likebox', plugins_url( 'facebook-likebox/style.css', __FILE__ ) );
-		wp_style_add_data( 'jetpack_facebook_likebox', 'jetpack-inline', true );
 
 		if ( empty( $like_args['href'] ) || ! $this->is_valid_facebook_url( $like_args['href'] ) ) {
 			if ( current_user_can('edit_theme_options') ) {
@@ -66,16 +80,6 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		$like_args['show_faces'] = (bool) $like_args['show_faces'] ? 'true'  : 'false';
 		$like_args['stream']     = (bool) $like_args['stream']     ? 'true'  : 'false';
 		$like_args['cover']      = (bool) $like_args['cover']      ? 'false' : 'true';
-
-		$locale = $this->get_locale();
-
-		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
-		$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
-		if ( is_numeric( $fb_app_id ) ) {
-			$fb_app_id = '&appId=' . $fb_app_id;
-		} else {
-			$fb_app_id = '';
-		}
 
 		echo $before_widget;
 
@@ -102,11 +106,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		?>
 		<div id="fb-root"></div>
-		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-show-posts="<?php echo esc_attr( $like_args['stream'] ); ?>">
+		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-width="<?php echo intval( $like_args['width'] ); ?>"  data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-show-posts="<?php echo esc_attr( $like_args['stream'] ); ?>">
 		<div class="fb-xfbml-parse-ignore"><blockquote cite="<?php echo esc_url( $page_url ); ?>"><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a></blockquote></div>
 		</div>
-		<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo esc_html( $locale ); ?>/sdk.js#xfbml=1<?php echo $fb_app_id; ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
 		<?php
+		wp_enqueue_script( 'jetpack-facebook-embed' );
 		echo $after_widget;
 
 		/** This action is already documented in modules/widgets/gravatar-profile.php */
@@ -124,6 +128,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		// Set up widget values
 		$instance['like_args'] = array(
 			'href'        => trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),
+			'width'       => (int) $new_instance['width'],
 			'height'      => (int) $new_instance['height'],
 			'show_faces'  => isset( $new_instance['show_faces'] ),
 			'stream'      => isset( $new_instance['stream'] ),
@@ -156,6 +161,13 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 				<input type="text" name="<?php echo $this->get_field_name( 'href' ); ?>" id="<?php echo $this->get_field_id( 'href' ); ?>" value="<?php echo esc_url( $like_args['href'] ); ?>" class="widefat" />
 				<br />
 				<small><?php _e( 'The widget only works with Facebook Pages.', 'jetpack' ); ?></small>
+			</label>
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'width' ); ?>">
+				<?php _e( 'Width', 'jetpack' ); ?>
+				<input type="number" class="smalltext" min="1" max="999" maxlength="3" name="<?php echo $this->get_field_name( 'width' ); ?>" id="<?php echo $this->get_field_id( 'width' ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="text-align: center;" />px
 			</label>
 		</p>
 
@@ -198,6 +210,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	function get_default_args() {
 		$defaults = array(
 			'href'        => '',
+			'width'       => $this->default_width,
 			'height'      => $this->default_height,
 			'show_faces'  => 'true',
 			'stream'      => '',
@@ -227,6 +240,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			$args['href'] = '';
 		}
 
+		$args['width']      = $this->normalize_int_value(  (int) $args['width'], $this->default_width,   $this->max_width,  $this->min_width );
 		$args['height']     = $this->normalize_int_value(  (int) $args['height'], $this->default_height, $this->max_height, $this->min_height );
 		$args['show_faces'] = (bool) $args['show_faces'];
 		$args['stream']     = (bool) $args['stream'];
@@ -270,36 +284,20 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		return $value;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	function guess_locale_from_lang( $lang ) {
-		if ( 'en' == $lang || 'en_US' == $lang || !$lang ) {
-			return 'en_US';
-		}
-
-		if ( !class_exists( 'GP_Locales' ) ) {
-			if ( !defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || !file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
-				return false;
-			}
-
-			require JETPACK__GLOTPRESS_LOCALES_PATH;
-		}
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// WP.com: get_locale() returns 'it'
-			$locale = GP_Locales::by_slug( $lang );
-		} else {
-			// Jetpack: get_locale() returns 'it_IT';
-			$locale = GP_Locales::by_field( 'facebook_locale', $lang );
-		}
-
-		if ( ! $locale || empty( $locale->facebook_locale ) ) {
-			return 'en_US'; // Facebook requires a locale when pulling their SDK.
-		}
-
-		return $locale->facebook_locale;
+		_deprecated_function( __METHOD__, '4.0.0', 'Jetpack::guess_locale_from_lang()' );
+		Jetpack::$instance->get_locale_from_lang( $lang );
 	}
 
+	/**
+	 * @deprecated
+	 */
 	function get_locale() {
-		return $this->guess_locale_from_lang( get_locale() );
+		_deprecated_function( __METHOD__, '4.0.0', 'Jetpack::get_locale()' );
+		Jetpack::$instance->get_locale();
 	}
 }
 

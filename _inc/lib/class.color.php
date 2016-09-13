@@ -419,7 +419,7 @@ class Jetpack_Color {
 		}
 		$rgb = $rgb_new;
 
-		//Observer. = 2°, Illuminant = D65
+		// Observer. = 2Â°, Illuminant = D65
 		$xyz = array(
 			'x' => ($rgb['red'] * 0.4124) + ($rgb['green'] * 0.3576) + ($rgb['blue'] * 0.1805),
 			'y' => ($rgb['red'] * 0.2126) + ($rgb['green'] * 0.7152) + ($rgb['blue'] * 0.0722),
@@ -536,8 +536,12 @@ class Jetpack_Color {
 	}
 
 	public function toLuminosity() {
-		extract( $this->toRgbInt() );
-		return 0.2126 * pow( $red / 255, 2.2 ) + 0.7152 * pow( $green / 255, 2.2 ) + 0.0722 * pow( $blue / 255, 2.2);
+		$lum = array();
+		foreach( $this->toRgbInt() as $slot => $value ) {
+			$chan = $value / 255;
+			$lum[ $slot ] = ( $chan <= 0.03928 ) ? $chan / 12.92 : pow( ( ( $chan + 0.055 ) / 1.055 ), 2.4 );
+		}
+		return 0.2126 * $lum['red'] + 0.7152 * $lum['green'] + 0.0722 * $lum['blue'];
 	}
 
 	/**
@@ -547,7 +551,7 @@ class Jetpack_Color {
 	 * @param  Jetpack_Color  $color Another color
 	 * @return float
 	 */
-	public function getDistanceLuminosityFrom(Jetpack_Color $color) {
+	public function getDistanceLuminosityFrom( Jetpack_Color $color ) {
 		$L1 = $this->toLuminosity();
 		$L2 = $color->toLuminosity();
 		if ( $L1 > $L2 ) {
@@ -559,9 +563,10 @@ class Jetpack_Color {
 	}
 
 	public function getMaxContrastColor() {
-		$lum = $this->toLuminosity();
+		$withBlack = $this->getDistanceLuminosityFrom( new Jetpack_Color( '#000') );
+		$withWhite = $this->getDistanceLuminosityFrom( new Jetpack_Color( '#fff') );
 		$color = new Jetpack_Color;
-		$hex = ( $lum >= 0.5 ) ? '000000' : 'ffffff';
+		$hex = ( $withBlack >= $withWhite ) ? '#000000' : '#ffffff';
 		return $color->fromHex( $hex );
 	}
 

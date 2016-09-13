@@ -23,7 +23,6 @@ class Jetpack_Options {
 				'wpcc_options',
 				'relatedposts',
 				'file_data',
-				'security_report',
 				'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
 				'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
 				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
@@ -40,6 +39,8 @@ class Jetpack_Options {
 		case 'private' :
 			return array(
 				'register',
+				'authorize',
+				'activate_manage',
 				'blog_token',                  // (string) The Client Secret/Blog Token of this site.
 				'user_token',                  // (string) The User Token of this site. (deprecated)
 				'user_tokens'                  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
@@ -61,8 +62,6 @@ class Jetpack_Options {
 			'identity_crisis_whitelist',    // (array)  An array of options, each having an array of the values whitelisted for it.
 			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
-			'last_security_report',         // (int)    The timestamp of the last security report that was run.
-			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
 			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
 			'hide_jitm'                     // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
 		);
@@ -119,6 +118,26 @@ class Jetpack_Options {
 		return $default;
 	}
 
+	/**
+	 * Returns the requested option, and ensures it's autoloaded in the future.
+	 * This does _not_ adjust the prefix in any way (does not prefix jetpack_%)
+	 *
+	 * @param string $name Option name
+	 * @param mixed $default (optional)
+	 *
+	 * @return mixed|void
+	 */
+	public static function get_option_and_ensure_autoload( $name, $default ) {
+		$value = get_option( $name );
+
+		if ( $value === false && $default !== false ) {
+			update_option( $name, $default );
+			$value = $default;
+		}
+
+		return $value;
+	}
+
 	private static function update_grouped_option( $group, $name, $value ) {
 		$options = get_option( self::$grouped_options[ $group ] );
 		if ( ! is_array( $options ) ) {
@@ -147,14 +166,7 @@ class Jetpack_Options {
 		 */
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( self::is_valid( $name, 'non_compact' ) ) {
-			/**
-			 * Allowing update_option to change autoload status only shipped in WordPress v4.2
-			 * @link https://github.com/WordPress/WordPress/commit/305cf8b95
-			 */
-			if ( version_compare( $GLOBALS['wp_version'], '4.2', '>=' ) ) {
-				return update_option( "jetpack_$name", $value, $autoload );
-			}
-			return update_option( "jetpack_$name", $value );
+			return update_option( "jetpack_$name", $value, $autoload );
 		}
 
 		foreach ( array_keys( self::$grouped_options ) as $group ) {

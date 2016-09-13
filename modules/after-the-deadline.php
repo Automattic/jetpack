@@ -1,12 +1,13 @@
 <?php
 /**
  * Module Name: Spelling and Grammar
- * Module Description: Check your spelling, style, and grammar with the After the Deadline proofreading service.
+ * Module Description: Check your spelling, style, and grammar.
  * Sort Order: 6
  * First Introduced: 1.1
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
+ * Feature: Writing
  * Additional Search Queries: after the deadline, afterthedeadline, spell, spellchecker, spelling, grammar, proofreading, style, language, cliche
  */
 
@@ -48,7 +49,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		exit;
 	}
 	function AtD_update_setting( $user_id, $name, $value ) {
-		update_user_meta( $user_id, $name, $value );
+		return update_user_meta( $user_id, $name, $value );
 	}
 	function AtD_get_setting( $user_id, $name, $single = true ) {
 		return get_user_meta( $user_id, $name, $single );
@@ -130,7 +131,7 @@ function register_AtD_button( $buttons ) {
 function add_AtD_tinymce_plugin( $plugin_array ) {
 	$plugin = ATD_TINYMCE_4 ? 'plugin' : 'editor_plugin';
 
-	$plugin_array['AtD'] = plugins_url( 'after-the-deadline/tinymce/' . $plugin . '.js?v=' . ATD_VERSION, __FILE__ );
+	$plugin_array['AtD'] = add_query_arg( 'v', ATD_VERSION, plugins_url( 'after-the-deadline/tinymce/' . $plugin . '.js', __FILE__ ) );
 	return $plugin_array;
 }
 

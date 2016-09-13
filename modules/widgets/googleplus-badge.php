@@ -42,13 +42,14 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', __( 'Google+ Badge', 'jetpack' ) ),
 			array(
 				'classname'   => 'widget_googleplus_badge',
-				'description' => __( 'Display a Google+ Badge to connect visitors to your Google+', 'jetpack' )
+				'description' => __( 'Display a Google+ Badge to connect visitors to your Google+', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
-		if ( is_active_widget( '', '', 'googleplus-badge' ) ) {
+		if ( is_active_widget( '', '', 'googleplus-badge' ) || is_customize_preview() ) {
 			add_action( 'wp_print_styles',   array( $this, 'enqueue_script' ) );
 			add_filter( 'script_loader_tag', array( $this, 'replace_script_tag' ), 10, 2 );
 		}

@@ -21,11 +21,6 @@ class bbPress_Jetpack_REST_API {
 	}
 
 	function allow_bbpress_post_types( $allowed_post_types ) {
-
-		// only run for REST API requests
-		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
-			return $allowed_post_types;
-
 		$allowed_post_types[] = 'forum';
 		$allowed_post_types[] = 'topic';
 		$allowed_post_types[] = 'reply';
@@ -33,11 +28,6 @@ class bbPress_Jetpack_REST_API {
 	}
 
 	function allow_bbpress_public_metadata( $allowed_meta_keys ) {
-
-		// only run for REST API requests
-		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
-			return $allowed_meta_keys;
-
 		$allowed_meta_keys[] = '_bbp_forum_id';
 		$allowed_meta_keys[] = '_bbp_topic_id';
 		$allowed_meta_keys[] = '_bbp_status';

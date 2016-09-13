@@ -4,9 +4,9 @@
 
 var AtD_qtbutton, autosave;
 /* convienence method to restore the text area from the preview div */
-function AtD_restore_text_area()
-{
+function AtD_restore_text_area() {
 	var content;
+
 	/* swap the preview div for the textarea, notice how I have to restore the appropriate class/id/style attributes */
 	if( jQuery('#atd-content').get(0) ) {
 		AtD.remove('atd-content');
@@ -18,6 +18,22 @@ function AtD_restore_text_area()
 
 	if ( navigator.appName === 'Microsoft Internet Explorer' ) {
 		content = content.replace(/<BR.*?class.*?atd_remove_me.*?>/gi, '\n');
+	}
+
+	// Remove emoji replacement images
+	if ( typeof window.twemoji !== 'undefined' ) {
+		content = content.replace( /<img [^>]+>/g, function( img ) {
+			// The images should have class containing 'emoji'
+			if ( img.indexOf( 'emoji' ) !== -1 ) {
+				var alt = img.match( /alt="([^"]+)"/ );
+
+				if ( alt && alt[1] && window.twemoji.test( alt[1] ) ) {
+					return alt[1];
+				}
+			}
+
+			return img;
+		});
 	}
 
 	// jQuery('#content').replaceWith( AtD.content_canvas );
@@ -64,6 +80,7 @@ function AtD_restore_if_proofreading() {
 	}
 }
 
+/* exported AtD_unbind_proofreader_listeners */
 function AtD_unbind_proofreader_listeners() {
 	jQuery('#save-post, #post-preview, #publish, #edButtonPreview').unbind('focus', AtD_restore_if_proofreading );
 	jQuery('#add_poll, #add_image, #add_video, #add_audio, #add_media').unbind('click', AtD_restore_if_proofreading );
@@ -94,7 +111,7 @@ function AtD_check(button) {
 		AtD_qtbutton = button;
 	}
 
-	if ( !jQuery('#content').size() ) {
+	if ( !jQuery('#content').length ) {
 		if ( 'undefined' !== typeof callback ) {
 			callback( 0 );
 		}

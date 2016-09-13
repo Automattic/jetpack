@@ -1,6 +1,11 @@
 <?php
-if ( ! class_exists( 'Jetpack_Media_Summary' ) && defined('IS_WPCOM') && IS_WPCOM )
-	include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
+if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
+	if ( defined('IS_WPCOM') && IS_WPCOM ) {
+		include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
+	} else {
+		jetpack_require_lib( 'class.media-summary' );
+	}
+}
 
 /**
  * Better OG Image Tags for Image Post Formats

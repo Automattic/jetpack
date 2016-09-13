@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: Jetpack Carousel
-Plugin URL: http://wordpress.com/
+Plugin URL: https://wordpress.com/
 Description: Transform your standard image galleries into an immersive full-screen experience.
 Version: 0.1
 Author: Automattic
@@ -82,7 +82,7 @@ class Jetpack_Carousel {
 		 *
 		 * @since 1.6.0
 		 *
-		 * @param bool false Should Carousel be disabled? Default to fase.
+		 * @param bool false Should Carousel be disabled? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_maybe_disable', false );
 	}
@@ -132,8 +132,11 @@ class Jetpack_Carousel {
 			// Bail because someone is overriding the [gallery] shortcode.
 			remove_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			remove_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ) );
-			// Display message that carousel has bailed, if user is super_admin
-			if ( is_super_admin() ) {
+			// Display message that carousel has bailed, if user is super_admin, and if we're not on WordPress.com.
+			if (
+				is_super_admin() &&
+				! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			) {
 				add_filter( 'post_gallery', array( $this, 'display_bail_message' ) );
 			}
 			return $output;
@@ -149,7 +152,7 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_thumbnails_shown' );
 
 		if ( $this->first_run ) {
-			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery.spin' ), $this->asset_version( '20140505' ), true );
+			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery.spin' ), $this->asset_version( '20160325' ), true );
 
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted)
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
@@ -163,9 +166,9 @@ class Jetpack_Carousel {
 				'lang'                 => strtolower( substr( get_locale(), 0, 2 ) ),
 				'ajaxurl'              => set_url_scheme( admin_url( 'admin-ajax.php' ) ),
 				'nonce'                => wp_create_nonce( 'carousel_nonce' ),
-				'display_exif'         => $this->test_1or0_option( get_option( 'carousel_display_exif' ), true ),
-				'display_geo'          => $this->test_1or0_option( get_option( 'carousel_display_geo' ), true ),
-				'background_color'     => $this->carousel_background_color_sanitize( get_option( 'carousel_background_color' ) ),
+				'display_exif'         => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) ),
+				'display_geo'          => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_geo', true ) ),
+				'background_color'     => $this->carousel_background_color_sanitize( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_background_color', '' ) ),
 				'comment'              => __( 'Comment', 'jetpack' ),
 				'post_comment'         => __( 'Post Comment', 'jetpack' ),
 				'write_comment'        => __( 'Write a Comment...', 'jetpack' ),
@@ -205,6 +208,24 @@ class Jetpack_Carousel {
 							. '<fieldset><label for="url">' . __( 'Website', 'jetpack' ) . '</label> '
 							. '<input type="text" name="url" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-url-field" /></fieldset>';
 						}
+				}
+			}
+
+			/**
+			 * Handle WP stats for images in full-screen.
+			 * Build string with tracking info.
+			 */
+			if ( in_array( 'stats', Jetpack::get_active_modules() ) && ! Jetpack::is_development_mode() ) {
+				$localize_strings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
+
+				// Set the stats as empty if user is logged in but logged-in users shouldn't be tracked.
+				if ( is_user_logged_in() && function_exists( 'stats_get_options' ) ) {
+					$stats_options = stats_get_options();
+					$track_loggedin_users = isset( $stats_options['reg_users'] ) ? (bool) $stats_options['reg_users'] : false;
+
+					if ( ! $track_loggedin_users ) {
+						$localize_strings['stats'] = '';
+					}
 				}
 			}
 
@@ -327,17 +348,10 @@ class Jetpack_Carousel {
 		if ( isset( $post ) ) {
 			$blog_id = (int) get_current_blog_id();
 
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				$likes_blog_id = $blog_id;
-			} else {
-				$likes_blog_id = Jetpack_Options::get_option( 'id' );
-			}
-
 			$extra_data = array(
 				'data-carousel-extra' => array(
 					'blog_id' => $blog_id,
 					'permalink' => get_permalink( $post->ID ),
-					'likes_blog_id' => $likes_blog_id
 					)
 				);
 

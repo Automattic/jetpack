@@ -16,7 +16,7 @@ Author URI: http://automattic.com/
  * http://www.opensource.org/licenses/gpl-license.php
  *
  * This is an add-on for WordPress
- * http://wordpress.org/
+ * https://wordpress.org/
  *
  * **********************************************************************
  * This program is free software; you can redistribute it and/or modify
@@ -311,7 +311,7 @@ class WPCom_Markdown {
 	 * @return boolean
 	 */
 	public function is_posting_enabled() {
-		return (bool) get_option( self::POST_OPTION, '' );
+		return (bool) Jetpack_Options::get_option_and_ensure_autoload( self::POST_OPTION, '' );
 	}
 
 	/**
@@ -319,7 +319,7 @@ class WPCom_Markdown {
 	 * @return boolean
 	 */
 	public function is_commenting_enabled() {
-		return (bool) get_option( self::COMMENT_OPTION, '' );
+		return (bool) Jetpack_Options::get_option_and_ensure_autoload( self::COMMENT_OPTION, '' );
 	}
 
 	/**

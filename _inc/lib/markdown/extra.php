@@ -2949,7 +2949,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 			$text .= "<hr". $this->empty_element_suffix ."\n";
 			$text .= "<ol>\n\n";
 
-			$attr = " rev=\"footnote\"";
+			$attr = "";
 			if ($this->fn_backlink_class != "") {
 				$class = $this->fn_backlink_class;
 				$class = $this->encodeAttribute($class);
@@ -3018,7 +3018,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 				$ref_count_mark = $this->footnotes_ref_count[$node_id] += 1;
 			}
 
-			$attr = " rel=\"footnote\"";
+			$attr = "";
 			if ($this->fn_link_class != "") {
 				$class = $this->fn_link_class;
 				$class = $this->encodeAttribute($class);

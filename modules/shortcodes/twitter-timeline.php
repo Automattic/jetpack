@@ -1,31 +1,51 @@
 <?php
 add_shortcode( 'twitter-timeline', 'twitter_timeline_shortcode' );
 
-function twitter_timeline_shortcode( $attr ) {
-
+function twitter_timeline_shortcode( $atts ) {
 	$default_atts = array(
-		'username'         => '',
-		'id'               => '',
-		'height'           => 282,
-		'width'            => 450,
-
+		'username' => '',
+		'id'       => '',
+		'width'    => '450',
+		'height'   => '282',
 	);
 
-	$attr = shortcode_atts( $default_atts, $attr, 'twitter-timeline' );
+	$atts = shortcode_atts( $default_atts, $atts, 'twitter-timeline' );
 
-	if ( $attr['username'] != preg_replace( '/[^A-Za-z0-9_]+/', '', $attr['username'] ) )
-		return '<!--' . __( 'Invalid username', 'jetpack' ) . '-->';
+	$atts['username'] = preg_replace( '/[^A-Za-z0-9_]+/', '', $atts['username'] );
 
-	if ( ! is_numeric( $attr['id'] ) )
-		return '<!--' . __( 'Invalid id', 'jetpack' ) . '-->';
+	if ( empty( $atts['username'] ) && ! is_numeric( $atts['id'] ) ) {
+		return '<!-- ' . __( 'Must specify Twitter Timeline id or username.', 'jetpack' ) . ' -->';
+	}
 
-	$tweets_by = sprintf( __( 'Tweets by @%s', 'jetpack' ), $attr['username'] );
-	$output = '<a class="twitter-timeline" width="' . (int)$attr['width'] . '" height="' . (int)$attr['height'] . '" href="' . esc_url( 'https://twitter.com/'. $attr['username'] ) . '" data-widget-id="' . esc_attr( $attr['id'] ) . '">' . esc_html( $tweets_by ) . '</a>';
-	add_action( 'wp_footer', 'twitter_timeline_js' );
+	$output = '<a class="twitter-timeline"';
+
+	if ( is_numeric( $atts['width'] ) ) {
+		$output .= ' data-width="' . esc_attr( $atts['width'] ) . '"';
+	}
+	if ( is_numeric( $atts['height'] ) ) {
+		$output .= ' data-height="' . esc_attr( $atts['height'] ) . '"';
+	}
+	if ( is_numeric( $atts['id'] ) ) {
+		$output .= ' data-widget-id="' . esc_attr( $atts['id'] ) . '"';
+	}
+	if ( ! empty( $atts['username'] ) ) {
+		$output .= ' href="' . esc_url( 'https://twitter.com/' . $atts['username'] ) . '"';
+	}
+
+	$output .= '>';
+
+	$output .= sprintf( __( 'Tweets by @%s', 'jetpack' ), $atts['username'] );
+
+	$output .= '</a>';
+
+	wp_enqueue_script( 'jetpack-twitter-timeline' );
 
 	return $output;
 }
 
 function twitter_timeline_js() {
-	echo '<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>';
+	if ( is_customize_preview() ) {
+		wp_enqueue_script( 'jetpack-twitter-timeline' );
+	}
 }
+add_action( 'wp_enqueue_scripts', 'twitter_timeline_js' );

@@ -76,7 +76,6 @@ presentation unless overridden by individual slides.
 */
 
 if ( ! class_exists( 'Presentations' ) ) :
-
 class Presentations {
 
 	private $presentation_settings;
@@ -88,23 +87,24 @@ class Presentations {
 	 */
 	function __construct() {
 		// Bail without 3.0.
-		if ( ! function_exists( '__return_false' ) )
+		if ( ! function_exists( '__return_false' ) ) {
 			return;
+		}
 
-		$this->presentation_initialized = false;
+		$this->presentation_initialized   = false;
 		$this->scripts_and_style_included = false;
 
 		// Registers shortcodes
 		add_action( 'wp_head', array( &$this, 'add_scripts' ), 1 );
 
 		add_shortcode( 'presentation', array( &$this, 'presentation_shortcode' ) );
-		add_shortcode( 'slide',        array( &$this, 'slide_shortcode'        ) );
+		add_shortcode( 'slide',        array( &$this, 'slide_shortcode' ) );
 	}
 
 	function add_scripts() {
 		$this->scripts_and_style_included = false;
 
-		if ( empty( $GLOBALS['posts'] ) || !is_array( $GLOBALS['posts'] ) ) {
+		if ( empty( $GLOBALS['posts'] ) || ! is_array( $GLOBALS['posts'] ) ) {
 			return;
 		}
 
@@ -115,45 +115,40 @@ class Presentations {
 			}
 		}
 
-		if ( ! $this->scripts_and_style_included )
+		if ( ! $this->scripts_and_style_included ) {
 			return;
+		}
 
 		$plugin = plugin_dir_url( __FILE__ );
 		// Add CSS
-		wp_enqueue_style('presentations', $plugin . 'css/style.css');
+		wp_enqueue_style( 'presentations', $plugin . 'css/style.css' );
 		// Add JavaScript
-		wp_enqueue_script('jquery');
-		wp_enqueue_script('jmpress',
-			$plugin . 'js/jmpress.min.js',
-			array('jquery'),
-			'0.4.5',
-			true);
-		wp_enqueue_script('presentations',
-			$plugin . 'js/main.js',
-			array('jquery', 'jmpress'),
-			false,
-			true);
+		wp_enqueue_script( 'jquery' );
+		wp_enqueue_script( 'jmpress', $plugin . 'js/jmpress.min.js', array( 'jquery' ), '0.4.5', true );
+		wp_enqueue_script( 'presentations', $plugin . 'js/main.js', array( 'jquery', 'jmpress' ), false, true );
 	}
 
-	function presentation_shortcode( $atts, $content='' ) {
+	function presentation_shortcode( $atts, $content = '' ) {
 		// Mark that we've found a valid [presentation] shortcode
 		$this->presentation_initialized = true;
 
-		$atts = shortcode_atts( array(
-			'duration'    => '',
-			'height'      => '',
-			'width'       => '',
-			'bgcolor'     => '',
-			'bgimg'       => '',
-			'autoplay'    => '',
+		$atts = shortcode_atts(
+			array(
+				'duration'    => '',
+				'height'      => '',
+				'width'       => '',
+				'bgcolor'     => '',
+				'bgimg'       => '',
+				'autoplay'    => '',
 
-			// Settings
-			'transition'  => '',
-			'scale'       => '',
-			'rotate'      => '',
-			'fade'        => '',
-			'fadebullets' => '',
-		), $atts, 'presentation' );
+				// Settings
+				'transition'  => '',
+				'scale'       => '',
+				'rotate'      => '',
+				'fade'        => '',
+				'fadebullets' => '',
+			), $atts, 'presentation'
+		);
 
 		$this->presentation_settings = array(
 			'transition'  => 'down',
@@ -162,51 +157,60 @@ class Presentations {
 			'fade'        => 'on',
 			'fadebullets' => 0,
 			'last'        => array(
-				'x'       => 0,
-				'y'       => 0,
-				'scale'   => 1,
-				'rotate'  => 0,
+				'x'      => 0,
+				'y'      => 0,
+				'scale'  => 1,
+				'rotate' => 0,
 			),
 		);
 
 		// Set the presentation-wide settings
-		if ( '' != trim( $atts['transition'] ) )
+		if ( '' != trim( $atts['transition'] ) ) {
 			$this->presentation_settings['transition'] = $atts['transition'];
+		}
 
-		if ( '' != trim( $atts['scale'] ) )
+		if ( '' != trim( $atts['scale'] ) ) {
 			$this->presentation_settings['scale'] = floatval( $atts['scale'] );
+		}
 
-		if ( '' != trim( $atts['rotate'] ) )
+		if ( '' != trim( $atts['rotate'] ) ) {
 			$this->presentation_settings['rotate'] = floatval( $atts['rotate'] );
+		}
 
-		if ( '' != trim( $atts['fade'] ) )
+		if ( '' != trim( $atts['fade'] ) ) {
 			$this->presentation_settings['fade'] = $atts['fade'];
+		}
 
-		if ( '' != trim( $atts['fadebullets'] ) )
+		if ( '' != trim( $atts['fadebullets'] ) ) {
 			$this->presentation_settings['fadebullets'] = $atts['fadebullets'];
+		}
 
 		// Set any settings the slides don't care about
-		if ( '' != trim( $atts['duration'] ) )
+		if ( '' != trim( $atts['duration'] ) ) {
 			$duration = floatval( $atts['duration'] ) . 's';
-		else
+		} else {
 			$duration = '1s';
+		}
 
 		// Autoplay durations are set in milliseconds
-		if ( '' != trim( $atts['autoplay'] ) )
+		if ( '' != trim( $atts['autoplay'] ) ) {
 			$autoplay = floatval( $atts['autoplay'] ) * 1000;
-		else
-			$autoplay = 0; // No autoplay
+		} else {
+			$autoplay = 0;
+		} // No autoplay
 
 		// Set the presentation size as specified or with some nicely sized dimensions
-		if ( '' != trim( $atts['width'] ) )
+		if ( '' != trim( $atts['width'] ) ) {
 			$this->presentation_settings['width'] = intval( $atts['width'] );
-		else
+		} else {
 			$this->presentation_settings['width'] = 480;
+		}
 
-		if ( '' != trim( $atts['height'] ) )
+		if ( '' != trim( $atts['height'] ) ) {
 			$this->presentation_settings['height'] = intval( $atts['height'] );
-		else
+		} else {
 			$this->presentation_settings['height'] = 370;
+		}
 
 		// Hide the content by default in case the scripts fail
 		$style = 'display: none; width: ' . $this->presentation_settings['width'] . 'px; height: ' . $this->presentation_settings['height'] . 'px;';
@@ -223,99 +227,115 @@ class Presentations {
 
 		// Not supported message style is inlined incase the style sheet doesn't get included
 		$out = "<section class='presentation-wrapper'>";
-		$out.= "<p class='not-supported-msg' style='display: inherit; padding: 25%; text-align: center;'>";
-		$out.= __( 'This slideshow could not be started. Try refreshing the page or viewing it in another browser.' , 'jetpack' ) . '</p>';
+		$out .= "<p class='not-supported-msg' style='display: inherit; padding: 25%; text-align: center;'>";
+		$out .= __( 'This slideshow could not be started. Try refreshing the page or viewing it in another browser.', 'jetpack' ) . '</p>';
 
 		// Bail out unless the scripts were added
 		if ( $this->scripts_and_style_included ) {
-			$out.= sprintf(
+			$out .= sprintf(
 				'<div class="presentation" duration="%s" data-autoplay="%s" style="%s">',
 				esc_attr( $duration ),
 				esc_attr( $autoplay ),
 				esc_attr( $style )
 			);
-			$out.= "<div class='nav-arrow-left'></div>";
-			$out.= "<div class='nav-arrow-right'></div>";
-			$out.= "<div class='nav-fullscreen-button'></div>";
+			$out .= "<div class='nav-arrow-left'></div>";
+			$out .= "<div class='nav-arrow-right'></div>";
+			$out .= "<div class='nav-fullscreen-button'></div>";
 
 			if ( $autoplay ) {
-				$out.= "<div class='autoplay-overlay' style='display: none'><p class='overlay-msg'>";
-				$out.= __( 'Click to autoplay the presentation!' , 'jetpack' );
-				$out.= "</p></div>";
+				$out .= '<div class="autoplay-overlay" style="display: none;"><p class="overlay-msg">';
+				$out .= __( 'Click to autoplay the presentation!', 'jetpack' );
+				$out .= '</p></div>';
 			}
 
-			$out.= do_shortcode( $content );
+			$out .= do_shortcode( $content );
 		}
 
-		$out.= "</section>";
+		$out .= '</section>';
 
 		$this->presentation_initialized = false;
+
 		return $out;
 	}
 
 	function slide_shortcode( $atts, $content = '' ) {
 		// Bail out unless wrapped by a [presentation] shortcode
-		if ( ! $this->presentation_initialized )
+		if ( ! $this->presentation_initialized ) {
 			return $content;
+		}
 
-		$atts = shortcode_atts( array(
-			'transition' => '',
-			'scale'      => '',
-			'rotate'     => '',
-			'fade'       => '',
-			'fadebullets'=> '',
-			'bgcolor'    => '',
-			'bgimg'      => '',
-		), $atts, 'slide' );
+		$atts = shortcode_atts(
+			array(
+				'transition'  => '',
+				'scale'       => '',
+				'rotate'      => '',
+				'fade'        => '',
+				'fadebullets' => '',
+				'bgcolor'     => '',
+				'bgimg'       => '',
+			), $atts, 'slide'
+		);
 
 		// Determine positioning based on transition
-		if ( '' == trim( $atts['transition'] ) )
+		if ( '' == trim( $atts['transition'] ) ) {
 			$atts['transition'] = $this->presentation_settings['transition'];
+		}
 
 		// Setting the content scale
-		if ( '' == trim( $atts['scale'] ) )
+		if ( '' == trim( $atts['scale'] ) ) {
 			$atts['scale'] = $this->presentation_settings['scale'];
+		}
 
-		if( '' == trim( $atts['scale'] ) )
+		if ( '' == trim( $atts['scale'] ) ) {
 			$scale = 1;
-		else
+		} else {
 			$scale = floatval( $atts['scale'] );
+		}
 
-		if ( $scale < 0 )
+		if ( $scale < 0 ) {
 			$scale *= -1;
+		}
 
 		// Setting the content rotation
-		if ( '' == trim( $atts['rotate'] ) )
+		if ( '' == trim( $atts['rotate'] ) ) {
 			$atts['rotate'] = $this->presentation_settings['rotate'];
+		}
 
-		if( '' == trim( $atts['rotate'] ) )
+		if ( '' == trim( $atts['rotate'] ) ) {
 			$rotate = 0;
-		else
+		} else {
 			$rotate = floatval( $atts['rotate'] );
+		}
 
 		// Setting if the content should fade
-		if ( '' == trim( $atts['fade'] ) )
+		if ( '' == trim( $atts['fade'] ) ) {
 			$atts['fade'] = $this->presentation_settings['fade'];
+		}
 
-		if ( 'on' == $atts['fade'] || 'true' == $atts['fade'] )
+		if ( 'on' == $atts['fade'] || 'true' == $atts['fade'] ) {
 			$fade = 'fade';
-		else
+		} else {
 			$fade = '';
+		}
 
 		// Setting if bullets should fade on step changes
-		if ( '' == trim( $atts['fadebullets'] ) )
+		if ( '' == trim( $atts['fadebullets'] ) ) {
 			$atts['fadebullets'] = $this->presentation_settings['fadebullets'];
+		}
 
-		if ( 'on' == $atts['fadebullets'] || 'true' == $atts['fadebullets'] )
+		if ( 'on' == $atts['fadebullets'] || 'true' == $atts['fadebullets'] ) {
 			$fadebullets = 'fadebullets';
-		else
+		} else {
 			$fadebullets = '';
+		}
 
-		$coords = $this->get_coords( array(
-			'transition' => $atts['transition'],
-			'scale'      => $scale,
-			'rotate'     => $rotate,
-		));
+		$coords = $this->get_coords(
+			array(
+				'transition' => $atts['transition'],
+				'scale'      => $scale,
+				'rotate'     => $rotate,
+			)
+		);
 
 		$x = $coords['x'];
 		$y = $coords['y'];
@@ -342,31 +362,33 @@ class Presentations {
 			esc_attr( $style )
 		);
 
-		$out.= "<div class='slide-content'>";
-		$out.= do_shortcode( $content );
-		$out.= "</div></div>";
+		$out .= '<div class="slide-content">';
+		$out .= do_shortcode( $content );
+		$out .= '</div></div>';
+
 		return $out;
 	}
 
 	/**
 	 * Determines the position of the next slide based on the position and scaling of the previous slide.
 	 *
-	 * @param array $args: an array with the following key-value pairs
-	 *           string $transition: the transition name, "up", "down", "left", or "right"
-	 *           float $scale: the scale of the next slide (used to determine the position of the slide after that)
+	 * @param array $args : an array with the following key-value pairs
+	 *                    string $transition: the transition name, "up", "down", "left", or "right"
+	 *                    float $scale: the scale of the next slide (used to determine the position of the slide after that)
 	 *
 	 * @return array with the 'x' and 'y' coordinates of the slide
 	 */
 	function get_coords( $args ) {
-		if ( 0 == $args['scale'] )
+		if ( 0 == $args['scale'] ) {
 			$args['scale'] = 1;
+		}
 
 		$width  = $this->presentation_settings['width'];
 		$height = $this->presentation_settings['height'];
 		$last   = $this->presentation_settings['last'];
 		$scale  = $last['scale'];
 
-		$next     = array(
+		$next = array(
 			'x'      => $last['x'],
 			'y'      => $last['y'],
 			'scale'  => $args['scale'],
@@ -375,7 +397,7 @@ class Presentations {
 
 		// All angles are measured from the vertical axis, so everything is backwards!
 		$diagAngle = atan2( $width, $height );
-		$diagonal = sqrt( pow( $width, 2 ) + pow( $height, 2 ) );
+		$diagonal  = sqrt( pow( $width, 2 ) + pow( $height, 2 ) );
 
 		// We offset the angles by the angle formed by the diagonal so that
 		// we can multiply the sines directly against the diagonal length
@@ -383,21 +405,21 @@ class Presentations {
 		$phi   = deg2rad( $next['rotate'] ) - $diagAngle;
 
 		// We start by displacing by the slide dimensions
-		$totalHorizDisp = $width  * $scale;
+		$totalHorizDisp = $width * $scale;
 		$totalVertDisp  = $height * $scale;
 
 		// If the previous slide was rotated, we add the incremental offset from the rotation
 		// Namely the difference between the regular dimension (no rotation) and the component
 		// of the diagonal for that angle
-		$totalHorizDisp += ( ( ( abs( sin( $theta ) ) * $diagonal) - $width ) / 2) * $scale;
-		$totalVertDisp  += ( ( ( abs( cos( $theta ) ) * $diagonal) - $height) / 2) * $scale;
+		$totalHorizDisp += ( ( ( abs( sin( $theta ) ) * $diagonal ) - $width ) / 2 ) * $scale;
+		$totalVertDisp += ( ( ( abs( cos( $theta ) ) * $diagonal ) - $height ) / 2 ) * $scale;
 
 		// Similarly, we check if the current slide has been rotated and add whatever additional
 		// offset has been added. This is so that two rotated corners don't clash with each other.
 		// Note: we are checking the raw angle relative to the vertical axis, NOT the diagonal angle.
-		if ( $next['rotate'] % 180 != 0 ){
-			$totalHorizDisp += ( abs( ( sin( $phi ) * $diagonal ) - $width  ) / 2) * $next['scale'];
-			$totalVertDisp  += ( abs( ( cos( $phi ) * $diagonal ) - $height ) / 2) * $next['scale'];
+		if ( 0 !== $next['rotate'] % 180 ) {
+			$totalHorizDisp += ( abs( ( sin( $phi ) * $diagonal ) - $width ) / 2 ) * $next['scale'];
+			$totalVertDisp += ( abs( ( cos( $phi ) * $diagonal ) - $height ) / 2 ) * $next['scale'];
 		}
 
 		switch ( trim( $args['transition'] ) ) {
@@ -423,6 +445,7 @@ class Presentations {
 		}
 
 		$this->presentation_settings['last'] = $next;
+
 		return $next;
 	}
 }

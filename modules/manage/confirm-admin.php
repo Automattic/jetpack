@@ -22,8 +22,13 @@ switch( $section ) {
 		$link_title = __( 'Manage Your Plugins', 'jetpack' );
 		break;
 
+	case 'plugins-setup':
+		$link = 'https://wordpress.com/plugins/setup/' . $normalized_site_url;
+		$link_title = __( 'Back to Plan Setup', 'jetpack' );
+		break;
+
 	case 'themes':
-		$link = 'https://wordpress.com/plugins/' . $normalized_site_url;
+		$link = 'https://wordpress.com/design/' . $normalized_site_url;
 		$link_title = __( 'Manage Your Themes', 'jetpack' );
 		break;
 
@@ -93,12 +98,12 @@ switch( $section ) {
 	</div>
 	<h1 class="manage__title"><span class="genericon genericon-checkmark"></span><?php esc_html_e( __( 'Jetpack Manage Enabled', 'jetpack' ) ); ?></h1>
 	<p class="manage__description">
-		<?php esc_html_e( $description ); ?>
+		<?php echo esc_html( $description ); ?>
 	</p>
 	<p class="manage__description">
 		<a class="manage__link"  href="<?php echo esc_url( $link ); ?>">
 			<span class="genericon genericon-previous"></span>
-			<?php esc_html_e( $link_title ); ?>
+			<?php echo esc_html( $link_title ); ?>
 		</a>
 	</p>
 </div>

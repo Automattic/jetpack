@@ -2,12 +2,13 @@
 
 /**
  * Module Name: Custom Content Types
- * Module Description: Organize and display different types of content on your site, separate from posts and pages.
+ * Module Description: Organize and display different types of content on your site.
  * First Introduced: 3.1
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Writing
  * Sort Order: 34
+ * Feature: Writing
  * Additional Search Queries: cpt, custom post types, portfolio, portfolios, testimonial, testimonials
  */
 
@@ -44,7 +45,7 @@ function jetpack_cpt_section_callback() {
 	?>
 	<p>
 		<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack' ); ?>
-		<a target="_blank" href="http://jetpack.me/support/custom-content-types/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
+		<a target="_blank" href="http://jetpack.com/support/custom-content-types/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
 	</p>
 	<?php
 }

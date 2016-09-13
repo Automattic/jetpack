@@ -2,21 +2,21 @@
 
 /**
  * Module Name: Mobile Theme
- * Module Description: Optimize your site with a mobile-friendly theme for smartphones.
+ * Module Description: Optimize your site for smartphones and tablets.
  * Sort Order: 21
  * Recommendation Order: 11
  * First Introduced: 1.8
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Appearance, Mobile, Recommended
- * Feature: Recommended
+ * Feature: Appearance
  * Additional Search Queries: mobile, theme, minileven
  */
 
 function jetpack_load_minileven() {
 	include dirname( __FILE__ ) . "/minileven/minileven.php";
 
-	if ( get_option( 'wp_mobile_app_promos' ) != '1' )
+	if ( Jetpack_Options::get_option_and_ensure_autoload( 'wp_mobile_app_promos', '0' ) != '1' )
 		remove_action( 'wp_mobile_theme_footer', 'jetpack_mobile_app_promo' );
 }
 
@@ -100,8 +100,8 @@ function minileven_configuration_screen() {
 	</form>
 	<h3><?php _e( 'Mobile Apps', 'jetpack' ); ?></h3>
 	<p><?php _e( 'Take WordPress with you.', 'jetpack' ); ?></p>
-	<a href="http://wordpress.org/extend/mobile/"><img src="<?php echo plugin_dir_url( __FILE__ ); ?>/minileven/images/wp-app-devices.png" width="332" height="73" /></a>
-	<p><?php printf( __( 'We have apps for <a href="%s">iOS (iPhone, iPad, iPod Touch)</a>, <a href="%s">Android</a>, <a href="%s">BlackBerry</a>, and <a href="%s">more</a>!', 'jetpack' ), 'http://ios.wordpress.org/', 'http://android.wordpress.org/', 'http://blackberry.wordpress.org/', 'http://wordpress.org/mobile/' ); ?></p>
+	<a href="https://wordpress.org/mobile/" target="_blank"><img src="<?php echo plugin_dir_url( __FILE__ ); ?>/minileven/images/wp-app-devices.png" width="332" height="73" /></a>
+	<p><?php printf( __( 'We have apps for <a href="%s" target="_blank">iOS (iPhone, iPad, iPod Touch) and Android</a>!', 'jetpack' ), 'https://apps.wordpress.org/' ); ?></p>
 	<?php
 }
 
@@ -129,6 +129,8 @@ function minileven_enabled( $wp_mobile_disable_option ) {
 	return true;
 }
 
-add_filter( 'option_wp_mobile_disable', 'minileven_enabled' );
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	add_filter( 'option_wp_mobile_disable', 'minileven_enabled' );
+}
 
 jetpack_load_minileven();

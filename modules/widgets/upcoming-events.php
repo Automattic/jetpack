@@ -8,6 +8,7 @@ class Upcoming_Events_Widget extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', __( 'Upcoming Events', 'jetpack' ) ),
 			array(
 				'description' => __( 'Display upcoming events from an iCalendar feed.', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 		if ( is_active_widget( false, false, $this->id_base ) ) {

@@ -30,10 +30,10 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 			// Status is either "disabled" or the visibility value
 			$response['visibility'] = $this->get_button_visibility( $button );
 		}
-
-		if ( ! empty( $button->genericon ) ) {
+		
+		if ( ! empty( $button->icon ) ) {
 			// Only pre-defined sharing buttons include genericon
-			$response['genericon'] = $button->genericon;
+			$response['genericon'] = $button->icon;
 		}
 
 		if ( method_exists( $button, 'get_options' ) ) {
@@ -255,6 +255,10 @@ class WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Shar
 		}
 
 		$all_buttons = $this->sharing_service->get_all_services_blog();
+
+		if ( ! isset( $input['sharing_buttons'] ) ) {
+			$input['sharing_buttons'] = array();
+		}
 
 		// We do a first pass of all buttons to verify that no validation
 		// issues exist before continuing to update

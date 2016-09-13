@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Photos and Videos, Appearance, Recommended
- * Feature: Recommended, Jumpstart, Performance-Security
+ * Feature: Recommended, Jumpstart, Appearance
  * Additional Search Queries: photon, image, cdn, performance, speed
  */
 

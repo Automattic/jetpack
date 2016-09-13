@@ -1,4 +1,9 @@
 <?php
+
+if ( class_exists( 'GP_Locale' ) ) {
+	return;
+}
+
 class GP_Locale {
 	public $english_name;
 	public $native_name;
@@ -52,7 +57,7 @@ class GP_Locale {
 
 	public function combined_name() {
 		/* translators: combined name for locales: 1: name in English, 2: native name */
-		return sprintf( _x( '%1$s/%2$s', 'locales' ), $this->english_name, $this->native_name );
+		return sprintf( _x( '%1$s/%2$s', 'locales', 'jetpack' ), $this->english_name, $this->native_name );
 	}
 
 	public function numbers_for_index( $index, $how_many = 3, $test_up_to = 1000 ) {
@@ -554,7 +559,6 @@ class GP_Locales {
 		$en_au->wp_locale = 'en_AU';
 		$en_au->slug = 'en-au';
 		$en_au->google_code = 'en';
-		$en_au->facebook_locale = 'en_AU';
 
 		$en_ca = new GP_Locale();
 		$en_ca->english_name = 'English (Canada)';
@@ -566,7 +570,6 @@ class GP_Locales {
 		$en_ca->wp_locale = 'en_CA';
 		$en_ca->slug = 'en-ca';
 		$en_ca->google_code = 'en';
-		$en_ca->facebook_locale = 'en_CA';
 
 		$en_gb = new GP_Locale();
 		$en_gb->english_name = 'English (UK)';

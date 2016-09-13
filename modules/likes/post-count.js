@@ -19,9 +19,11 @@ var wpPostLikeCount = wpPostLikeCount || {};
 		},
 
 		showCount: function( post_id, count ) {
-			$( '#post-like-count-' + post_id ).find( '.comment-count' ).hide();
-			$( '#post-like-count-' + post_id ).find( '.comment-count' ).text( count );
-			$( '#post-like-count-' + post_id ).find( '.comment-count' ).fadeIn();
+			if ( count > 0 ) {
+				$( '#post-like-count-' + post_id ).find( '.comment-count' ).hide();
+				$( '#post-like-count-' + post_id ).find( '.comment-count' ).text( count );
+				$( '#post-like-count-' + post_id ).find( '.comment-count' ).fadeIn();
+			}
 		},
 
 		getCounts: function() {

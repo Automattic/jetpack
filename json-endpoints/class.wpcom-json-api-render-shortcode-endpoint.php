@@ -41,10 +41,4 @@ class WPCOM_JSON_API_Render_Shortcode_Endpoint extends WPCOM_JSON_API_Render_End
 
 		return $return;
 	}
-
-	function do_shortcode( $shortcode ) {
-		$result = do_shortcode( $shortcode );
-		return $result;
-	}
-
 }

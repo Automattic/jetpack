@@ -229,6 +229,14 @@ class The_Neverending_Home_Page {
 				}
 			}
 
+			// If IS is set to click, and if the site owner changed posts_per_page, let's use that
+			if (
+				'click' == $settings['type']
+				&& ( '10' !== get_option( 'posts_per_page' ) )
+			) {
+				$settings['posts_per_page'] = (int) get_option( 'posts_per_page' );
+			}
+
 			// Force display of the click handler and attendant bits when the type isn't `click`
 			if ( 'click' !== $settings['type'] ) {
 				$settings['click_handle'] = true;
@@ -247,7 +255,8 @@ class The_Neverending_Home_Page {
 			self::$settings = apply_filters( 'infinite_scroll_settings', $settings );
 		}
 
-		return (object) self::$settings;
+		/** This filter is already documented in modules/infinite-scroll/infinity.php */
+		return (object) apply_filters( 'infinite_scroll_settings', self::$settings );
 	}
 
 	/**
@@ -275,14 +284,28 @@ class The_Neverending_Home_Page {
 	 * Has infinite scroll been triggered?
 	 */
 	static function got_infinity() {
-		return isset( $_GET[ 'infinity' ] );
+		/**
+		 * Filter the parameter used to check if Infinite Scroll has been triggered.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 3.9.0
+		 *
+		 * @param bool isset( $_GET[ 'infinity' ] ) Return true if the "infinity" parameter is set.
+		 */
+		return apply_filters( 'infinite_scroll_got_infinity', isset( $_GET[ 'infinity' ] ) );
 	}
 
 	/**
 	 * Is this guaranteed to be the last batch of posts?
 	 */
 	static function is_last_batch() {
-		return (bool) ( count( self::wp_query()->posts ) < self::get_settings()->posts_per_page );
+		$post_type = get_post_type();
+		$entries = wp_count_posts( empty( $post_type ) ? 'post' : $post_type )->publish;
+		if ( self::wp_query()->get( 'paged' ) && self::wp_query()->get( 'paged' ) > 1 ) {
+			$entries -= self::get_settings()->posts_per_page * self::wp_query()->get( 'paged' );
+		}
+		return $entries <= self::get_settings()->posts_per_page;
 	}
 
 	/**
@@ -313,7 +336,7 @@ class The_Neverending_Home_Page {
 			return;
 
 		// Add the setting field [infinite_scroll] and place it in Settings > Reading
-		add_settings_field( self::$option_name_enabled, '<span id="infinite-scroll-options">' . __( 'To infinity and beyond', 'jetpack' ) . '</span>', array( $this, 'infinite_setting_html' ), 'reading' );
+		add_settings_field( self::$option_name_enabled, '<span id="infinite-scroll-options">' . esc_html__( 'Infinite Scroll Behavior', 'jetpack' ) . '</span>', array( $this, 'infinite_setting_html' ), 'reading' );
 		register_setting( 'reading', self::$option_name_enabled, 'esc_attr' );
 	}
 
@@ -328,7 +351,8 @@ class The_Neverending_Home_Page {
 		if ( self::get_settings()->footer_widgets || 'click' == self::get_settings()->requested_type ) {
 			echo '<label>' . $notice . '</label>';
 		} else {
-			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . __( 'Scroll Infinitely', 'jetpack' ) . '</br><small>' . sprintf( __( '(Shows %s posts on each load)', 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) . '</small>' . '</label>';
+			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
+			echo '<p class="description">' . sprintf( esc_html__( 'Shows %s posts on each load.', 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) . '</p>';
 		}
 	}
 
@@ -350,18 +374,25 @@ class The_Neverending_Home_Page {
 		if ( empty( $id ) )
 			return;
 
+		// Add our scripts.
+		wp_register_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '4.0.0', true );
+
+		// Add our default styles.
+		wp_register_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20140422' );
+
 		// Make sure there are enough posts for IS
-		if ( 'click' == self::get_settings()->type && self::is_last_batch() )
+		if ( self::is_last_batch() ) {
 			return;
+		}
 
 		// Add a class to the body.
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		// Add our scripts.
-		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), 20141016, true );
+		wp_enqueue_script( 'the-neverending-homepage' );
 
 		// Add our default styles.
-		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20140422' );
+		wp_enqueue_style( 'the-neverending-homepage' );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_spinner_scripts' ) );
 
@@ -716,6 +747,7 @@ class The_Neverending_Home_Page {
 				}
 			}
 		}
+
 		unset( $post_type );
 
 		// Base JS settings
@@ -765,7 +797,7 @@ class The_Neverending_Home_Page {
 		$js_settings = apply_filters( 'infinite_scroll_js_settings', $js_settings );
 
 		/**
-		 * Fires before Infinite Scroll outputs inline Javascript in the head.
+		 * Fires before Infinite Scroll outputs inline JavaScript in the head.
 		 *
 		 * @module infinite-scroll
 		 *
@@ -1089,6 +1121,7 @@ class The_Neverending_Home_Page {
 	 * @return string or null
 	 */
 	function query() {
+		global $wp_customize;
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
@@ -1239,7 +1272,11 @@ class The_Neverending_Home_Page {
 			$results['type'] = 'empty';
 		}
 
-		echo wp_json_encode(
+		if ( is_customize_preview() ) {
+			$wp_customize->remove_preview_signature();
+		}
+
+		wp_send_json(
 			/**
 			 * Filter the Infinite Scroll results.
 			 *
@@ -1253,7 +1290,6 @@ class The_Neverending_Home_Page {
 			 */
 			apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() )
 		);
-		die;
 	}
 
 	/**
@@ -1357,8 +1393,9 @@ class The_Neverending_Home_Page {
 	 */
 	public static function archive_supports_infinity() {
 		$supported = current_theme_supports( 'infinite-scroll' ) && ( is_home() || is_archive() || is_search() );
-		// Disable infinite scroll in customizer previews
-		if ( isset( $_REQUEST[ 'wp_customize' ] ) && 'on' === $_REQUEST[ 'wp_customize' ] ) {
+
+		// Disable when previewing a non-active theme in the customizer
+		if ( is_customize_preview() && ! $GLOBALS['wp_customize']->is_theme_active() ) {
 			return false;
 		}
 
@@ -1405,7 +1442,7 @@ class The_Neverending_Home_Page {
 	 */
 	private function default_footer() {
 		$credits = sprintf(
-			'<a href="http://wordpress.org/" rel="generator">%1$s</a> ',
+			'<a href="https://wordpress.org/" target="_blank" rel="generator">%1$s</a> ',
 			__( 'Proudly powered by WordPress', 'jetpack' )
 		);
 		$credits .= sprintf(
@@ -1427,7 +1464,7 @@ class The_Neverending_Home_Page {
 		<div id="infinite-footer">
 			<div class="container">
 				<div class="blog-info">
-					<a id="infinity-blog-title" href="<?php echo home_url( '/' ); ?>" rel="home">
+					<a id="infinity-blog-title" href="<?php echo home_url( '/' ); ?>" target="_blank" rel="home">
 						<?php bloginfo( 'name' ); ?>
 					</a>
 				</div>
@@ -1518,149 +1555,3 @@ if ( The_Neverending_Home_Page::got_infinity() ) {
 	// Don't load the admin bar when doing the AJAX response.
 	show_admin_bar( false );
 }
-
-/**
- * Include the wp_json_encode functions for pre-wordpress-4.1
- */
-
-if ( ! function_exists( 'wp_json_encode' ) ) :
-	/**
-	 * Encode a variable into JSON, with some sanity checks.
-	 *
-	 * @since 4.1.0
-	 *
-	 * @param mixed $data    Variable (usually an array or object) to encode as JSON.
-	 * @param int   $options Optional. Options to be passed to json_encode(). Default 0.
-	 * @param int   $depth   Optional. Maximum depth to walk through $data. Must be
-	 *                       greater than 0. Default 512.
-	 * @return bool|string The JSON encoded string, or false if it cannot be encoded.
-	 */
-	function wp_json_encode( $data, $options = 0, $depth = 512 ) {
-		/*
-		 * json_encode() has had extra params added over the years.
-		 * $options was added in 5.3, and $depth in 5.5.
-		 * We need to make sure we call it with the correct arguments.
-		 */
-		if ( version_compare( PHP_VERSION, '5.5', '>=' ) ) {
-			$args = array( $data, $options, $depth );
-		} elseif ( version_compare( PHP_VERSION, '5.3', '>=' ) ) {
-			$args = array( $data, $options );
-		} else {
-			$args = array( $data );
-		}
-
-		$json = call_user_func_array( 'json_encode', $args );
-
-		// If json_encode() was successful, no need to do more sanity checking.
-		// ... unless we're in an old version of PHP, and json_encode() returned
-		// a string containing 'null'. Then we need to do more sanity checking.
-		if ( false !== $json && ( version_compare( PHP_VERSION, '5.5', '>=' ) || false === strpos( $json, 'null' ) ) )  {
-			return $json;
-		}
-
-		try {
-			$args[0] = _wp_json_sanity_check( $data, $depth );
-		} catch ( Exception $e ) {
-			return false;
-		}
-
-		return call_user_func_array( 'json_encode', $args );
-	}
-endif;
-
-if ( ! function_exists( '_wp_json_sanity_check' ) ) :
-	/**
-	 * Perform sanity checks on data that shall be encoded to JSON.
-	 *
-	 * @see wp_json_encode()
-	 *
-	 * @since 4.1.0
-	 * @access private
-	 * @internal
-	 *
-	 * @param mixed $data  Variable (usually an array or object) to encode as JSON.
-	 * @param int   $depth Maximum depth to walk through $data. Must be greater than 0.
-	 * @return mixed The sanitized data that shall be encoded to JSON.
-	 */
-	function _wp_json_sanity_check( $data, $depth ) {
-		if ( $depth < 0 ) {
-			throw new Exception( 'Reached depth limit' );
-		}
-
-		if ( is_array( $data ) ) {
-			$output = array();
-			foreach ( $data as $id => $el ) {
-				// Don't forget to sanitize the ID!
-				if ( is_string( $id ) ) {
-					$clean_id = _wp_json_convert_string( $id );
-				} else {
-					$clean_id = $id;
-				}
-
-				// Check the element type, so that we're only recursing if we really have to.
-				if ( is_array( $el ) || is_object( $el ) ) {
-					$output[ $clean_id ] = _wp_json_sanity_check( $el, $depth - 1 );
-				} elseif ( is_string( $el ) ) {
-					$output[ $clean_id ] = _wp_json_convert_string( $el );
-				} else {
-					$output[ $clean_id ] = $el;
-				}
-			}
-		} elseif ( is_object( $data ) ) {
-			$output = new stdClass;
-			foreach ( $data as $id => $el ) {
-				if ( is_string( $id ) ) {
-					$clean_id = _wp_json_convert_string( $id );
-				} else {
-					$clean_id = $id;
-				}
-
-				if ( is_array( $el ) || is_object( $el ) ) {
-					$output->$clean_id = _wp_json_sanity_check( $el, $depth - 1 );
-				} elseif ( is_string( $el ) ) {
-					$output->$clean_id = _wp_json_convert_string( $el );
-				} else {
-					$output->$clean_id = $el;
-				}
-			}
-		} elseif ( is_string( $data ) ) {
-			return _wp_json_convert_string( $data );
-		} else {
-			return $data;
-		}
-
-		return $output;
-	}
-endif;
-
-if ( ! function_exists( '_wp_json_convert_string' ) ) :
-	/**
-	 * Convert a string to UTF-8, so that it can be safely encoded to JSON.
-	 *
-	 * @see _wp_json_sanity_check()
-	 *
-	 * @since 4.1.0
-	 * @access private
-	 * @internal
-	 *
-	 * @param string $string The string which is to be converted.
-	 * @return string The checked string.
-	 */
-	function _wp_json_convert_string( $string ) {
-		static $use_mb = null;
-		if ( is_null( $use_mb ) ) {
-			$use_mb = function_exists( 'mb_convert_encoding' );
-		}
-
-		if ( $use_mb ) {
-			$encoding = mb_detect_encoding( $string, mb_detect_order(), true );
-			if ( $encoding ) {
-				return mb_convert_encoding( $string, 'UTF-8', $encoding );
-			} else {
-				return mb_convert_encoding( $string, 'UTF-8', 'UTF-8' );
-			}
-		} else {
-			return wp_check_invalid_utf8( $string, true );
-		}
-	}
-endif;

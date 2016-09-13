@@ -2,18 +2,17 @@
 
 /**
  * Module Name: Post by Email
- * Module Description: Publish posts by email, using any device and email client.
+ * Module Description: Publish posts by sending an email.
  * First Introduced: 2.0
  * Sort Order: 14
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
+ * Feature: Writing
  * Additional Search Queries: post by email, email
  */
 
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );
-add_action( 'jetpack_activate_module_post-by-email',   array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
-add_action( 'jetpack_deactivate_module_post-by-email', array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
 
 Jetpack::enable_module_configurable( __FILE__ );
 Jetpack::module_configuration_load( __FILE__, array( 'Jetpack_Post_By_Email', 'configuration_redirect' ) );
@@ -31,11 +30,6 @@ class Jetpack_Post_By_Email {
 
 	function __construct() {
 		add_action( 'init', array( &$this, 'action_init' ) );
-	}
-
-	static function module_toggle() {
-		$jetpack = Jetpack::init();
-		$jetpack->sync->register( 'noop' );
 	}
 
 	static function configuration_redirect() {
@@ -57,6 +51,13 @@ class Jetpack_Post_By_Email {
 
 	function profile_scripts() {
 		wp_enqueue_script( 'post-by-email', plugins_url( 'post-by-email/post-by-email.js', __FILE__ ), array( 'jquery' ) );
+		wp_localize_script( 'post-by-email', 'pbeVars', array(
+			'nonces' => array(
+				'enable'     => wp_create_nonce( 'jetpack.createPostByEmailAddress' ),
+				'regenerate' => wp_create_nonce( 'jetpack.regeneratePostByEmailAddress' ),
+				'disable'    => wp_create_nonce( 'jetpack.deletePostByEmailAddress' ),
+			),
+		));
 		wp_enqueue_style( 'post-by-email', plugins_url( 'post-by-email/post-by-email.css', __FILE__ ) );
 		wp_style_add_data( 'post-by-email', 'jetpack-inline', true );
 		// Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
@@ -104,7 +105,7 @@ class Jetpack_Post_By_Email {
 					<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
 						<p id="jp-pbe-email-wrapper">
 							<input type="text" id="jp-pbe-email" value="<?php echo esc_attr( $email ); ?>" readonly="readonly" class="regular-text" />
-							<span class="description"><a target="_blank" href="http://jetpack.me/support/post-by-email/"><?php esc_html_e( 'More information', 'jetpack' ); ?></a></span>
+							<span class="description"><a target="_blank" href="http://jetpack.com/support/post-by-email/"><?php esc_html_e( 'More information', 'jetpack' ); ?></a></span>
 						</p>
 						<p>
 							<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" class="button" value="<?php esc_attr_e( 'Regenerate Address', 'jetpack' ); ?> " />
@@ -151,86 +152,57 @@ class Jetpack_Post_By_Email {
 	}
 
 	function create_post_by_email_address() {
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id(),
-		) );
-		$xml->query( 'jetpack.createPostByEmailAddress' );
-
-		if ( $xml->isError() ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => __( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
-			) );
-			die();
-		}
-
-		$response = $xml->getResponse();
-		if ( empty( $response ) ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => __( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
-			) );
-			die();
-		}
-
-		echo $response;
-		die();
+		self::__process_ajax_proxy_request(
+			'jetpack.createPostByEmailAddress',
+			__( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
+		);
 	}
 
 	function regenerate_post_by_email_address() {
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id(),
-		) );
-		$xml->query( 'jetpack.regeneratePostByEmailAddress' );
-
-		if ( $xml->isError() ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => __( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
-			) );
-			die();
-		}
-
-		$response = $xml->getResponse();
-		if ( empty( $response ) ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => __( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
-			) );
-			die();
-		}
-
-		echo $response;
-		die();
+		self::__process_ajax_proxy_request(
+			'jetpack.regeneratePostByEmailAddress',
+			__( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
+		);
 	}
 
 	function delete_post_by_email_address() {
+		self::__process_ajax_proxy_request(
+			'jetpack.deletePostByEmailAddress',
+			__( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
+		);
+	}
+
+	/**
+	 * Backend function to abstract the xmlrpc function calls to wpcom.
+	 *
+	 * @param $endpoint
+	 * @param $error_message
+	 */
+	function __process_ajax_proxy_request( $endpoint, $error_message ) {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( $error_message );
+		}
+		if ( empty( $_REQUEST['pbe_nonce'] ) || ! wp_verify_nonce( $_REQUEST['pbe_nonce'], $endpoint ) ) {
+			wp_send_json_error( $error_message );
+		}
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );
-		$xml->query( 'jetpack.deletePostByEmailAddress' );
+		$xml->query( $endpoint );
 
 		if ( $xml->isError() ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => __( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
-			) );
-			die();
+			wp_send_json_error( $error_message );
 		}
 
 		$response = $xml->getResponse();
 		if ( empty( $response ) ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => __( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
-			) );
-			die();
+			wp_send_json_error( $error_message );
 		}
 
-		echo $response;
-		die();
+		// Will be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
+		update_option( 'post_by_email_address' . get_current_user_id(), $response );
+
+		wp_send_json_success( $response );
 	}
 }

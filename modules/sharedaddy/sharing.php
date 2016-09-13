@@ -23,10 +23,16 @@ class Sharing_Admin {
 	}
 
 	public function sharing_head() {
-		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL.'admin-sharing.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 2 );
-		wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, JETPACK__VERSION );
-		wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing.css', false, JETPACK__VERSION );
-		wp_enqueue_style( 'genericons' );
+		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL . 'admin-sharing.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 2 );
+		$postfix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		if ( is_rtl() ) {
+			wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL . 'admin-sharing-rtl' . $postfix . '.css', false, JETPACK__VERSION );
+		} else {
+			wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL . 'admin-sharing' . $postfix . '.css', false, JETPACK__VERSION );
+		}
+		wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL . 'sharing.css', false, JETPACK__VERSION );
+
+		wp_enqueue_style( 'social-logos' );
 		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 4 );
 
 		add_thickbox();
@@ -159,7 +165,7 @@ class Sharing_Admin {
 
 		if ( false == function_exists( 'mb_stripos' ) ) {
 			echo '<div id="message" class="updated fade"><h3>' . __( 'Warning! Multibyte support missing!', 'jetpack' ) . '</h3>';
-			echo "<p>" . sprintf( __( 'This plugin will work without it, but multibyte support is used <a href="%s">if available</a>. You may see minor problems with Tweets and other sharing services.', 'jetpack' ), "http://www.php.net/manual/en/mbstring.installation.php" ) . '</p></div>';
+			echo "<p>" . sprintf( __( 'This plugin will work without it, but multibyte support is used <a href="%s" target="_blank">if available</a>. You may see minor problems with Tweets and other sharing services.', 'jetpack' ), "http://www.php.net/manual/en/mbstring.installation.php" ) . '</p></div>';
 		}
 
 		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' )
