@@ -190,8 +190,7 @@ export let SubscriptionsSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'stc_enabled' }
 						{ ...this.props }
-						label={ __( 'Show a "follow comments" option in the comment form.' ) +
-							' (Currently does not work)' } />
+						label={ __( 'Show a "follow comments" option in the comment form.' ) } />
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }
