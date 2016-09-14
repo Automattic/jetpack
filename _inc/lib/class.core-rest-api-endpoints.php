@@ -1452,7 +1452,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'do_not_track' => array(
 						'description'        => esc_html__( 'Do not track.', 'jetpack' ),
 						'type'               => 'boolean',
-						'default'            => 1,
+						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
 					),
 					'hide_smile' => array(
