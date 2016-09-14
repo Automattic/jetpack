@@ -27,11 +27,10 @@ const JumpStart = React.createClass( {
 
 	render: function() {
 		const trackLearnMore = () => analytics.tracks.recordEvent( 'jetpack_jumpstart_learn_more', {} );
-		let jumpstartModules = this.props.jumpstartFeatures( this.props ).map( ( module ) => (
+		let jumpstartModules = this.props.jumpstartFeatures.map( ( module ) => (
 			<div
 				className="jp-jumpstart__feature-list-column"
-				key={ `module-card_${ module.name }` /* https://fb.me/react-warning-keys */ }
-			>
+				key={ `module-card_${ module.name }` /* https://fb.me/react-warning-keys */ } >
 				<div className="jp-jumpstart__feature-content">
 					<h4
 						className="jp-jumpstart__feature-content-title"
@@ -50,7 +49,7 @@ const JumpStart = React.createClass( {
 				</h1>
 				<Card className="jp-jumpstart__cta-container">
 					<Card className="jp-jumpstart__cta">
-						{ this.props.jumpstarting( this.props ) ? <Spinner /> : null }
+						{ this.props.isJumpstarting ? <Spinner /> : null }
 						<p className="jp-jumpstart__description">
 							{ __( "Quickly enhance your site by activating Jetpack's recommended features." ) }
 						</p>
@@ -91,8 +90,8 @@ const JumpStart = React.createClass( {
 export default connect(
 	state => {
 		return {
-			jumpstarting: () => _isJumpstarting( state ),
-			jumpstartFeatures: () => _getModulesByFeature( state, 'Jumpstart' )
+			isJumpstarting: _isJumpstarting( state ),
+			jumpstartFeatures: _getModulesByFeature( state, 'Jumpstart' )
 		};
 	},
 	dispatch => bindActionCreators( { jumpStartActivate, jumpStartSkip }, dispatch )

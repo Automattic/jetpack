@@ -78,14 +78,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Disconnect site from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/connection', array(
-			'methods' => WP_REST_Server::DELETABLE,
+			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::disconnect_site',
 			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 		) );
 
 		// Disconnect/unlink user from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/connection/user', array(
-			'methods' => WP_REST_Server::DELETABLE,
+			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::unlink_user',
 			'permission_callback' => __CLASS__ . '::link_user_permission_callback',
 			'args' => array(
@@ -186,7 +186,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Reset all Jetpack options
 		register_rest_route( 'jetpack/v4', '/options/(?P<options>[a-z\-]+)', array(
-			'methods' => WP_REST_Server::DELETABLE,
+			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::reset_jetpack_options',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
@@ -227,7 +227,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Dismiss Jetpack Notices
 		register_rest_route( 'jetpack/v4', '/notice/(?P<notice>[a-z\-_]+)', array(
-			'methods' => WP_REST_Server::DELETABLE,
+			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::dismiss_notice',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
@@ -279,6 +279,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function dismiss_notice( $data ) {
 		$notice = $data['notice'];
+		$param = $data->get_json_params();
+
+		if ( ! isset( $param['dismissed'] ) || $param['dismissed'] !== true ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Invalid parameter "dismissed".', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
 		if ( isset( $notice ) && ! empty( $notice ) ) {
 			switch( $notice ) {
 				case 'feedback_dash_request':
@@ -496,7 +502,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @since 4.3.0
 	 * @return bool|WP_Error True if Jetpack successfully disconnected.
 	 */
-	public static function disconnect_site() {
+	public static function disconnect_site( $data ) {
+		$param = $data->get_json_params();
+
+		if ( ! isset( $param['isActive'] ) || $param['isActive'] !== false ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
 		if ( Jetpack::is_active() ) {
 			Jetpack::disconnect();
 			return rest_ensure_response( array( 'code' => 'success' ) );
@@ -620,6 +632,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if user successfully unlinked.
 	 */
 	public static function unlink_user( $data ) {
+		$param = $data->get_json_params();
+
+		if ( ! isset( $param['linked'] ) || $param['linked'] !== false ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
 		if ( isset( $data['id'] ) && Jetpack::unlink_user( $data['id'] ) ) {
 			return rest_ensure_response(
 				array(
@@ -673,6 +691,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if options were reset. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function reset_jetpack_options( $data ) {
+		$param = $data->get_json_params();
+
+		if ( ! isset( $param['reset'] ) || $param['reset'] !== true ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
 		if ( isset( $data['options'] ) ) {
 			$data = $data['options'];
 

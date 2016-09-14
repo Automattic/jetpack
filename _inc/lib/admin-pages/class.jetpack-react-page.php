@@ -136,21 +136,33 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		/** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' );
 
-		$static_html = wp_remote_get( esc_url( plugins_url( '/_inc/build/static.html', JETPACK__PLUGIN_FILE ) ) );
-		echo 200 == wp_remote_retrieve_response_code( $static_html )
-			? wp_remote_retrieve_body( $static_html )
-			: esc_html__( 'Error fetching static.html.', 'jetpack' );
+		// Try fetching by patch
+		$static_html = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
+
+		if ( false === $static_html ) {
+
+			// If we still have nothing, display an error
+			esc_html_e( 'Error fetching static.html.', 'jetpack' );
+		} else {
+
+			// We got the static.html so let's display it
+			echo $static_html;
+		}
 	}
 
 	function get_i18n_data() {
-		$locale_data = wp_remote_get( esc_url( plugins_url( '/languages/json/jetpack-' . get_locale() . '.json', JETPACK__PLUGIN_FILE ) ) );
-		$locale_data = 200 == wp_remote_retrieve_response_code( $locale_data )
-			? wp_remote_retrieve_body( $locale_data )
-			: false;
-		if ( $locale_data ) {
-			return $locale_data;
-		} else {
+
+		// Try fetching by patch
+		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_locale() . '.json' );
+
+		if ( false === $locale_data ) {
+
+			// Return empty if we have nothing to return so it doesn't fail when parsed in JS
 			return '{}';
+		} else {
+
+			// We got the json file so let's return it
+			return $locale_data;
 		}
 	}
 
@@ -221,6 +233,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/module/all' ) );
 		$modules = $response->get_data();
+
+		// Preparing translated fields for JSON encoding by transforming all HTML entities to
+		// respective characters.
+		foreach( $modules as $slug => $data ) {
+			$modules[ $slug ]['name'] = html_entity_decode( $data['name'] );
+			$modules[ $slug ]['description'] = html_entity_decode( $data['description'] );
+			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'] );
+			$modules[ $slug ]['long_description'] = html_entity_decode( $data['long_description'] );
+		}
 
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(

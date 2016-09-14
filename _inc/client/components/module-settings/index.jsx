@@ -190,8 +190,7 @@ export let SubscriptionsSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'stc_enabled' }
 						{ ...this.props }
-						label={ __( 'Show a "follow comments" option in the comment form.' ) +
-							' (Currently does not work)' } />
+						label={ __( 'Show a "follow comments" option in the comment form.' ) } />
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }
@@ -282,6 +281,10 @@ export let ProtectSettings = React.createClass( {
 		)
 	}
 } );
+
+ProtectSettings.propTypes = {
+	currentIp: React.PropTypes.string.isRequired
+};
 
 ProtectSettings = moduleSettingsForm( ProtectSettings );
 
@@ -460,7 +463,7 @@ export let VerificationToolsSettings = React.createClass( {
 				<FormFieldset>
 					<p className="jp-form-setting-explanation">
 						{
-							__( 'Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a}}Bing Webmaster Center{{/a}} and {{a}}Pinterest Site Verification{{/a}}.', {
+							__( 'Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a1}}Bing Webmaster Center{{/a1}} and {{a2}}Pinterest Site Verification{{/a2}}.', {
 								components: {
 									a: <a href="https://www.google.com/webmasters/tools/" target="_blank" />,
 									a1: <a href="http://www.bing.com/webmaster/" target="_blank" />,
@@ -604,6 +607,10 @@ export let PostByEmailSettings = React.createClass( {
 	}
 } );
 
+PostByEmailSettings.propTypes = {
+	isCurrentUserLinked: React.PropTypes.bool.isRequired
+};
+
 PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 
 export let CustomContentTypesSettings = React.createClass( {
@@ -653,6 +660,10 @@ export let CustomContentTypesSettings = React.createClass( {
 		)
 	}
 } );
+
+CustomContentTypesSettings.propTypes = {
+	siteAdminUrl: React.PropTypes.string.isRequired
+};
 
 CustomContentTypesSettings = moduleSettingsForm( CustomContentTypesSettings );
 

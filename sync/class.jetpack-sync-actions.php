@@ -20,9 +20,6 @@ class Jetpack_Sync_Actions {
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ), 10, 0 );
 
-		// When imports are finished, schedule a full sync
-		add_action( 'import_end', array( __CLASS__, 'schedule_full_sync' ) );
-
 		// When importing via cron, do not sync
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 

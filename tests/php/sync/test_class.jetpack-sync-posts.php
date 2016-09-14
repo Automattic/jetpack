@@ -294,6 +294,22 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( trim( $post_on_server->post_content_filtered ), 'bar' );
 	}
 
+	function test_sync_disabled_post_filtered_content() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 0 ) );
+
+		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
+		$this->post->post_content = "[foo]";
+
+		wp_update_post( $this->post );
+		$this->sender->do_sync();
+
+		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( $post_on_server->post_content, '[foo]' );
+		$this->assertTrue( empty( $post_on_server->post_content_filtered ) );
+
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+	}
+
 	function test_sync_post_filtered_excerpt_was_filtered() {
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_excerpt = "[foo]";
