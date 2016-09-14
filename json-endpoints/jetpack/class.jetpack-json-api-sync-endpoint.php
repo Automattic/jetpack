@@ -48,6 +48,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 		$sender      = Jetpack_Sync_Sender::get_instance();
 		$queue       = $sender->get_sync_queue();
 		$full_queue  = $sender->get_full_sync_queue();
+		$next_sync_time = $sender->get_next_sync_time() - microtime( true );
 
 		return array_merge(
 			$sync_module->get_status(),
@@ -56,7 +57,8 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 				'queue_size'      => $queue->size(),
 				'queue_lag'       => $queue->lag(),
 				'full_queue_size' => $full_queue->size(),
-				'full_queue_lag'  => $full_queue->lag()
+				'full_queue_lag'  => $full_queue->lag(),
+				'next_sync_time'  => $next_sync_time,
 			)
 		);
 	}
