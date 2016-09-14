@@ -606,10 +606,11 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'config' => '(array) Configuration of the last full sync',
 		'queue_size' => '(int) Number of items in the  sync queue',
 		'queue_lag' => '(float) Time delay of the oldest item in the sync queue',
+		'queue_next_sync' => '(float) Time in seconds before trying to sync again',
 		'full_queue_size' => '(int) Number of items in the full sync queue',
 		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue',
+		'full_queue_next_sync' => '(float) Time in seconds before trying to sync the full sync queue again',
 		'is_scheduled' => '(bool) Is a full sync scheduled via cron?',
-		'next_sync_time' => '(float) Time in seconds before trying to sync again',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
 ) );
