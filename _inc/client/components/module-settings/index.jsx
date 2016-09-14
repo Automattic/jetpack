@@ -240,6 +240,13 @@ export let StatsSettings = React.createClass( {
 						isSubmitting={ this.props.isSavingAnyOption() }
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
+				<FormFieldset>
+					<FormLegend>{ __( 'Do Not Track' ) }</FormLegend>
+					<ModuleSettingCheckbox
+						name={ 'do_not_track' }
+						{ ...this.props }
+						label={ __( 'Don\'t include tracking code when user doesn\'t want to be tracked.' ) } />
+				</FormFieldset>
 			</form>
 		);
 	}
