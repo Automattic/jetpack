@@ -99,7 +99,7 @@ const DashItem = React.createClass( {
 				</Button>
 			;
 
-			toggle = <ProStatus proFeature={ this.props.module } />;
+			toggle = <ProStatus proFeature={ this.props.module } siteAdminUrl={ this.props.siteAdminUrl } />;
 		}
 
 		return (

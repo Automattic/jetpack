@@ -70,14 +70,16 @@ const ProStatus = React.createClass( {
 			if ( 'akismet' === feature ) {
 				const akismetData = this.props.getAkismetData();
 				if ( 'invalid_key' === akismetData ) {
-					return(
-						<SimpleNotice
-							showDismiss={ false }
-							status='is-warning'
-							isCompact={ true }
-						>
-							{ __( 'Invalid Key' ) }
-						</SimpleNotice>
+					return (
+						<a href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } >
+							<SimpleNotice
+								showDismiss={ false }
+								status='is-warning'
+								isCompact={ true }
+							>
+								{ __( 'Invalid Key' ) }
+							</SimpleNotice>
+						</a>
 					);
 				}
 			}

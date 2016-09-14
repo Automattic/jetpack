@@ -108,7 +108,7 @@ export const SearchResults = ( {
 				module: element[0],
 				configure_url: ''
 			};
-			toggle = <ProStatus proFeature={ element[0] } />;
+			toggle = <ProStatus proFeature={ element[0] } siteAdminUrl={ siteAdminUrl } />;
 
 			// Add a "pro" button next to the header title
 			element[1] = <span>
