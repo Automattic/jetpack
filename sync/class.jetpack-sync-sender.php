@@ -55,11 +55,6 @@ class Jetpack_Sync_Sender {
 		return update_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name, $time, true );
 	}
 
-	public function do_all_sync() {
-		$this->do_full_sync();
-		$this->do_sync();
-	}
-
 	public function do_full_sync() {
 		return $this->do_sync_and_set_delays( $this->full_sync_queue );
 	}
