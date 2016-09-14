@@ -48,11 +48,11 @@ class Jetpack_Sync_Sender {
 	}
 
 	public function get_next_sync_time( $queue_name ) {
-		return (double) get_option( self::NEXT_SYNC_TIME_OPTION_NAME.'_'.$queue_name, 0 );
+		return (double) get_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name, 0 );
 	}
 
 	public function set_next_sync_time( $time, $queue_name ) {
-		return update_option( self::NEXT_SYNC_TIME_OPTION_NAME.'_'.$queue_name, $time, true );
+		return update_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name, $time, true );
 	}
 
 	public function do_all_sync() {
@@ -73,7 +73,7 @@ class Jetpack_Sync_Sender {
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			return false;
 		}
-		
+
 		// don't sync if we are throttled
 		if ( $this->get_next_sync_time( $queue->id ) > microtime( true ) ) {
 			return false;
@@ -128,8 +128,8 @@ class Jetpack_Sync_Sender {
 		$items         = $buffer->get_items();
 
 		// set up current screen to avoid errors rendering content
-		require_once(ABSPATH . 'wp-admin/includes/class-wp-screen.php');
-		require_once(ABSPATH . 'wp-admin/includes/screen.php');
+		require_once( ABSPATH . 'wp-admin/includes/class-wp-screen.php' );
+		require_once( ABSPATH . 'wp-admin/includes/screen.php' );
 		set_current_screen( 'sync' );
 
 		$skipped_items_ids = array();
@@ -196,7 +196,7 @@ class Jetpack_Sync_Sender {
 			// returning a WP_Error is a sign to the caller that we should wait a while
 			// before syncing again
 			return new WP_Error( 'server_error' );
-			
+
 		} else {
 
 			// detect if the last item ID was an error
@@ -229,9 +229,9 @@ class Jetpack_Sync_Sender {
 			// before syncing again
 			if ( $had_wp_error ) {
 				return $wp_error;
-			} 
+			}
 		}
-		
+
 		return true;
 	}
 
@@ -290,9 +290,9 @@ class Jetpack_Sync_Sender {
 	}
 
 	function set_defaults() {
-		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
+		$this->sync_queue      = new Jetpack_Sync_Queue( 'sync' );
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
-		$this->codec      = new Jetpack_Sync_JSON_Deflate_Array_Codec();
+		$this->codec           = new Jetpack_Sync_JSON_Deflate_Array_Codec();
 
 		// saved settings
 		Jetpack_Sync_Settings::set_importing( null );
