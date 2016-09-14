@@ -164,12 +164,12 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		sleep( 3 );
 
-		$next_sync_time = $this->sender->get_next_sync_time();
+		$next_sync_time = $this->sender->get_next_sync_time( 'sync' );
 		$this->assertTrue( $this->sender->do_sync() );
 		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
 		// because we synced, next sync time should be further in the future
-		$this->assertTrue( $next_sync_time < $this->sender->get_next_sync_time() );
+		$this->assertTrue( $next_sync_time < $this->sender->get_next_sync_time( 'sync' ) );
 
 		// doesn't sync second time
 		$this->assertFalse( $this->sender->do_sync() );
@@ -243,6 +243,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		do_action( 'my_full_sync_action' );
 
 		$this->sender->do_sync();
+		$this->sender->do_full_sync();
 
 		$incremental_event = $this->server_event_storage->get_most_recent_event( 'my_incremental_action' );
 		$full_sync_event = $this->server_event_storage->get_most_recent_event( 'my_full_sync_action' );
@@ -273,7 +274,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 55 );
+		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 55 );
 	}
 
 	function serverReceiveWithTrailingError( $data, $codec, $sent_timestamp ) {
@@ -292,7 +293,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 55 );
+		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 55 );
 	}
 
 	function serverReceiveWithError( $data, $codec, $sent_timestamp ) {
@@ -308,7 +309,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 9 );	
+		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 9 );	
 	}
 
 	function serverReceiveWithThreeSecondDelay( $data, $codec, $sent_timestamp ) {
