@@ -70,13 +70,17 @@ const DashItem = React.createClass( {
 			if ( 'manage' === this.props.module ) {
 				if ( 'is-warning' === this.props.status ) {
 					toggle = (
-						<SimpleNotice
-							showDismiss={ false }
-							status={ this.props.status }
-							isCompact={ true }
-						>
-							{ __( 'Updates Needed' ) }
-						</SimpleNotice>
+						<a href={ this.props.isModuleActivated( 'manage' )
+							? 'https://wordpress.com/plugins/' + this.props.siteRawUrl
+							: this.props.siteAdminUrl + 'plugins.php' } >
+							<SimpleNotice
+								showDismiss={ false }
+								status={ this.props.status }
+								isCompact={ true }
+							>
+								{ __( 'Updates Needed' ) }
+							</SimpleNotice>
+						</a>
 					);
 				}
 				if ( 'is-working' === this.props.status ) {
