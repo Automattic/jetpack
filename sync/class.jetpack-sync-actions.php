@@ -37,10 +37,16 @@ class Jetpack_Sync_Actions {
 		// cron hooks
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
+		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
 
 		if ( ! wp_next_scheduled( 'jetpack_sync_cron' ) ) {
 			// Schedule a job to send pending queue items once a minute
 			wp_schedule_event( time(), '1min', 'jetpack_sync_cron' );
+		}
+
+		if ( ! wp_next_scheduled( 'jetpack_sync_full_cron' ) ) {
+			// Schedule a job to send pending queue items once a minute
+			wp_schedule_event( time(), '1min', 'jetpack_sync_full_cron' );
 		}
 
 		/**
@@ -254,7 +260,7 @@ class Jetpack_Sync_Actions {
 		}
 
 		do {
-			$next_sync_time = self::$sender->get_next_sync_time();
+			$next_sync_time = self::$sender->get_next_sync_time( 'sync' );
 
 			if ( $next_sync_time ) {
 				$delay = $next_sync_time - time() + 1;
@@ -266,6 +272,34 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = self::$sender->do_sync();
+		} while ( $result );
+	}
+
+	static function do_cron_full_sync() {
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		self::initialize_sender();
+
+		// remove shutdown hook - no need to sync twice
+		if ( has_action( 'shutdown', array( self::$sender, 'do_sync' ) ) ) {
+			remove_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+		}
+
+		do {
+			$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
+
+			if ( $next_sync_time ) {
+				$delay = $next_sync_time - time() + 1;
+				if ( $delay > 15 ) {
+					break;
+				} elseif ( $delay > 0 ) {
+					sleep( $delay );
+				}
+			}
+
+			$result = self::$sender->do_full_sync();
 		} while ( $result );
 	}
 
