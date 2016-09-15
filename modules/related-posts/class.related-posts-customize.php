@@ -40,10 +40,10 @@ class Jetpack_Related_Posts_Customize {
 		$wp_customize->add_section( $this->prefix,
 			array(
 				'title' 	  => esc_html__( 'Related Posts', 'jetpack' ),
-				'description' => esc_html__( 'Customize common related post elements.', 'jetpack' ),
+				'description' => esc_html__( 'Customize related post elements.', 'jetpack' ),
 				'capability'  => 'edit_theme_options',
 				'priority' 	  => 89,
-				'active_callback' => __CLASS__ . '::is_single',
+
 			)
 		);
 
@@ -66,6 +66,7 @@ class Jetpack_Related_Posts_Customize {
 				'type' 	      => isset( $field['control_type'] ) ? $field['control_type'] : 'text',
 				'section' 	  => $this->prefix,
 				'priority' 	  => 10,
+				'active_callback' => __CLASS__ . '::is_single',
 			);
 			switch ( $field['control_type'] ) {
 				case 'text':
@@ -78,6 +79,10 @@ class Jetpack_Related_Posts_Customize {
 						$control_settings['choices'] = $field['choices'];
 						$wp_customize->add_control( new WP_Customize_Control( $wp_customize, $key, $control_settings ) );
 					}
+					break;
+				case 'message':
+					$control_settings['active_callback'] = __CLASS__ . '::is_not_single';
+					$wp_customize->add_control( new Jetpack_Message_Control( $wp_customize, $key, $control_settings ) );
 					break;
 			}
 		}
@@ -112,6 +117,17 @@ class Jetpack_Related_Posts_Customize {
 	 */
 	public static function is_single() {
 		return is_single();
+	}
+
+	/**
+	 * Check that we're not in a single post view.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @return bool
+	 */
+	public static function is_not_single() {
+		return ! is_single();
 	}
 
 	/**
@@ -155,10 +171,32 @@ class Jetpack_Related_Posts_Customize {
 				'setting_type' => 'option',
 				'transport'    => $transport,
 			),
+			'rp_message' => array(
+				'description'  => esc_html__( 'Please visit a single post view to reveal the customization options.', 'jetpack' ),
+				'control_type' => 'message',
+			),
 		)
 		);
 	}
 
 } // class end
 
+/**
+ * Control that displays a message in Customizer.
+ *
+ * @since 4.4
+ */
+class Jetpack_Message_Control extends WP_Customize_Control {
+
+	/**
+	 * Render the message.
+	 *
+	 * @since 4.4
+	 */
+	public function render_content() {
+		echo '<p class="description">' . esc_html( $this->description ) . '</p>';
+	}
+} // class end
+
+// Initialize controls
 new Jetpack_Related_Posts_Customize;
