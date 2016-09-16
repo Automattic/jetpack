@@ -628,23 +628,10 @@ class Jetpack_SSO {
 		) );
 		$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id );
 
-		if ( $xml->isError() ) {
-			$error_message = sanitize_text_field(
-				sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() )
-			);
-			JetpackTracking::record_user_event( 'sso_login_failed', array(
-				'error_message' => $error_message
-			) );
-			wp_die( $error_message );
-		}
-
-		$user_data = $xml->getResponse();
-
-		if ( empty( $user_data ) ) {
-			JetpackTracking::record_user_event( 'sso_login_failed', array(
-				'error_message' => 'invalid_response_data'
-			) );
-			wp_die( __( 'Error, invalid response data.', 'jetpack' ) );
+		if ( $xml->is_error() || empty( $user_data = $xml->getResponse() ) ) {
+			add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+			add_filter( 'login_message', array( $this, 'error_invalid_response_data' ) );
+			return;
 		}
 
 		$user_data = (object) $user_data;
@@ -1055,6 +1042,25 @@ class Jetpack_SSO {
 	 */
 	public function error_msg_identity_crisis( $message ) {
 		$error = esc_html__( 'Logging in with WordPress.com is not currently available because this site is experiencing connection problems.', 'jetpack' );
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
+		return $message;
+	}
+
+	/**
+	 * Error message that is displayed when we are not able to verify the SSO nonce due to an XML error or
+	 * failed validation. In either case, we prompt the user to try again or log in with username and password.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param $message
+	 *
+	 * @return string
+	 */
+	public function error_invalid_response_data( $message ) {
+		$error = esc_html__(
+			'There was an error logging you in via WordPress.com, please try again or try logging in with your username and password.',
+			'jetpack'
+		);
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
 		return $message;
 	}
