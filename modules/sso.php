@@ -415,7 +415,7 @@ class Jetpack_SSO {
 					JetpackTracking::record_user_event( 'sso_login_redirect_failed', array(
 						'error_message' => 'identity_crisis'
 					) );
-					wp_die( __( "Error: This site's Jetpack connection is currently experiencing problems.", 'jetpack' ) );
+					add_filter( 'login_message', array( $this, 'error_msg_identity_crisis' ) );
 				} else {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
@@ -435,6 +435,11 @@ class Jetpack_SSO {
 	 * up the hooks required to display the SSO form.
 	 */
 	public function display_sso_login_form() {
+		if ( Jetpack::check_identity_crisis() ) {
+			add_filter( 'login_message', array( $this, 'error_msg_identity_crisis' ) );
+			return;
+		}
+
 		$sso_nonce = self::request_initial_nonce();
 		if ( is_wp_error( $sso_nonce ) ) {
 			return;
@@ -1036,6 +1041,21 @@ class Jetpack_SSO {
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
 
+		return $message;
+	}
+
+	/**
+	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param $message
+	 *
+	 * @return string
+	 */
+	public function error_msg_identity_crisis( $message ) {
+		$error = esc_html__( 'Logging in with WordPress.com is not currently available because this site is experiencing connection problems.', 'jetpack' );
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
 		return $message;
 	}
 
