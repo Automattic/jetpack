@@ -702,7 +702,8 @@ class Jetpack_SSO {
 						JetpackTracking::record_user_event( 'sso_login_failed', array(
 							'error_message' => 'could_not_create_username'
 						) );
-						wp_die( __( "Error: Couldn't create suitable username.", 'jetpack' ) );
+						add_filter( 'login_message', array( $this, 'error_unable_to_create_user' ) );
+						return;
 					}
 				}
 
@@ -1059,6 +1060,25 @@ class Jetpack_SSO {
 	public function error_invalid_response_data( $message ) {
 		$error = esc_html__(
 			'There was an error logging you in via WordPress.com, please try again or try logging in with your username and password.',
+			'jetpack'
+		);
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
+		return $message;
+	}
+
+	/**
+	 * Error message that is displayed when we were not able to automatically create an account for a user
+	 * after a user has logged in via SSO. By default, this message is triggered after trying to create an account 5 times.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param $message
+	 *
+	 * @return string
+	 */
+	public function error_unable_to_create_user( $message ) {
+		$error = esc_html__(
+			'There was an error creating a user for you. Please contact the administrator of your site.',
 			'jetpack'
 		);
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
