@@ -628,7 +628,7 @@ class Jetpack_SSO {
 		) );
 		$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id );
 
-		if ( $xml->is_error() || empty( $user_data = $xml->getResponse() ) ) {
+		if ( $xml->isError() || empty( $user_data = $xml->getResponse() ) ) {
 			add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
 			add_filter( 'login_message', array( $this, 'error_invalid_response_data' ) );
 			return;
