@@ -117,8 +117,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 		/** This filter is already documented in core. wp-includes/post-template.php */
-		$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
-		$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
+		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) ) {
+			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
+			$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );	
+		}
 		$post->permalink               = get_permalink( $post->ID );
 		$post->shortlink               = wp_get_shortlink( $post->ID );
 		$post->dont_email_post_to_subs = Jetpack::is_module_active( 'subscriptions' ) ?
