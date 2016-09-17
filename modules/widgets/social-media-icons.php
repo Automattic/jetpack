@@ -83,7 +83,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			wp_enqueue_style( 'genericons' );
 		}
 
-		$index = 10;
+		$index = 11;
 		$html = array();
 
 		$alt_text = esc_attr__( 'View %1$s&#8217;s profile on %2$s', 'jetpack' );
@@ -100,7 +100,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				continue;
 			}
 
-			$index += 10;
+			$index += 11;
 
 			if (
 				$service === 'googleplus'
