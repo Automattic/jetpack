@@ -56,7 +56,9 @@ class Jetpack_RelatedPosts_Module {
 		}
 
 		// Load Customizer controls.
-		require_once 'related-posts/class.related-posts-customize.php';
+		if ( class_exists( 'WP_Customize_Manager' ) ) {
+			require_once 'related-posts/class.related-posts-customize.php';
+		}
 	}
 
 	/**

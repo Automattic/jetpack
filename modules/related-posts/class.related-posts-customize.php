@@ -1,4 +1,10 @@
 <?php
+
+// Exit if file is accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class to include elements to modify Related Posts look in Customizer.
  *
