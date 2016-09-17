@@ -8,9 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class to include elements to modify Related Posts look in Customizer.
  *
- * @since 4.2.0
+ * @since 4.4.0
  */
-
 class Jetpack_Related_Posts_Customize {
 
 	/**
@@ -28,7 +27,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Class initialization.
 	 *
-	 * @since 4.2.0
+	 * @since 4.4.0
 	 */
 	function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
@@ -37,7 +36,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Initialize Customizer controls.
 	 *
-	 * @since 4.2.0
+	 * @since 4.4.0
 	 *
 	 * @param WP_Customize_Manager $wp_customize Customizer instance.
 	 */
@@ -108,7 +107,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Callback that outputs the headline based on user choice.
 	 *
-	 * @since 4.2.0
+	 * @since 4.4.0
 	 */
 	public static function render_callback() {
 		echo Jetpack_RelatedPosts::init()->get_headline();
@@ -117,7 +116,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Check that we're in a single post view.
 	 *
-	 * @since 4.2.0
+	 * @since 4.4.0
 	 *
 	 * @return bool
 	 */
@@ -128,7 +127,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Check that we're not in a single post view.
 	 *
-	 * @since 4.2.0
+	 * @since 4.4.0
 	 *
 	 * @return bool
 	 */
@@ -139,7 +138,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Return list of options to modify.
 	 *
-	 * @since 4.2.0
+	 * @since 4.4.0
 	 */
 	function get_options( $wp_customize ) {
 		$transport = isset( $wp_customize->selective_refresh ) ? 'postMessage' : 'refresh';
@@ -190,14 +189,14 @@ class Jetpack_Related_Posts_Customize {
 /**
  * Control that displays a message in Customizer.
  *
- * @since 4.4
+ * @since 4.4.0
  */
 class Jetpack_Message_Control extends WP_Customize_Control {
 
 	/**
 	 * Render the message.
 	 *
-	 * @since 4.4
+	 * @since 4.4.0
 	 */
 	public function render_content() {
 		echo '<p class="description">' . esc_html( $this->description ) . '</p>';
