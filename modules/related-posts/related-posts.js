@@ -11,11 +11,20 @@
 		/**
 		 * Utility get related posts JSON endpoint from URLs
 		 *
-		 * @param string URL (optional)
-		 * @return string endpoint URL
+		 * @param  {string} URL (optional)
+		 * @return {string} Endpoint URL
 		 */
 		getEndpointURL: function( URL ) {
-			var locationObject = document.location;
+			var locationObject,
+				is_customizer = 'undefined' !== typeof wp && wp.customize && wp.customize.settings && wp.customize.settings.url && wp.customize.settings.url.self;
+
+			// If we're in Customizer, write the correct URL.
+			if ( is_customizer ) {
+					locationObject = document.createElement( 'a' );
+					locationObject.href = wp.customize.settings.url.self;
+			} else {
+				locationObject = document.location;
+			}
 
 			if ( 'string' === typeof( URL ) && URL.match( /^https?:\/\// ) ) {
 				locationObject = document.createElement( 'a' );
@@ -25,6 +34,10 @@
 			var args = 'relatedposts=1';
 			if ( $( '#jp-relatedposts' ).data( 'exclude' ) ) {
 				args += '&relatedposts_exclude=' + $( '#jp-relatedposts' ).data( 'exclude' );
+			}
+
+			if ( is_customizer ) {
+				args += '&jetpackrpcustomize=1';
 			}
 
 			var pathname = locationObject.pathname;
@@ -189,19 +202,6 @@
 
 		var endpointURL = jprp.getEndpointURL(),
 			$relatedPosts = $( '#jp-relatedposts' );
-
-		// If we're in Customizer, write the correct URL.
-		if ( 'undefined' !== typeof wp && wp.customize ) {
-			if ( -1 !== endpointURL.indexOf( '?url=' ) ) {
-				endpointURL = decodeURIComponent( endpointURL.split( '?url=' )[1] ).replace( '&relatedposts=', '?relatedposts=' );
-			} else {
-				if ( wp.customize.settings && wp.customize.settings.url && wp.customize.settings.url.self ) {
-					var currentURL = document.createElement( 'a' );
-					currentURL.href = document.location.href;
-					endpointURL = endpointURL.replace( currentURL.pathname, wp.customize.settings.url.self ).replace( '&relatedposts=', '?relatedposts=' );
-				}
-			}
-		}
 
 		$.getJSON( endpointURL, function( response ) {
 			if ( 0 === response.items.length || 0 === $relatedPosts.length ) {
