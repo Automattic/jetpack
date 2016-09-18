@@ -344,7 +344,7 @@ EOT;
 			checked( $options['show_date'], true, false ),
 			esc_html__( 'Show entry date', 'jetpack' ),
 			checked( $options['show_context'], true, false ),
-			esc_html__( "Show context (category or tag)", 'jetpack' ),
+			esc_html__( 'Show context (category or tag)', 'jetpack' ),
 			esc_html__( 'Preview:', 'jetpack' )
 		);
 
@@ -777,14 +777,83 @@ EOT;
 		header( 'Content-type: application/json; charset=utf-8' ); // JSON can only be UTF-8
 		send_nosniff_header();
 
-		$related_posts = $this->get_for_post_id(
-			get_the_ID(),
-			array(
-				'exclude_post_ids' => $excludes,
-			)
-		);
-
 		$options = $this->get_options();
+
+		if ( isset( $_GET['jetpackrpcustomize'] ) ) {
+
+			// If we're in the customizer, add dummy content.
+			$date_now = current_time( get_option( 'date_format' ) );
+			$related_posts = array(
+				array(
+					'id'       => - 1,
+					'url'      => 'https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&h=200&crop=1',
+					'url_meta' => array(
+						'origin'   => 0,
+						'position' => 0
+					),
+					'title'    => esc_html__( 'Big iPhone/iPad Update Now Available', 'jetpack' ),
+					'date'     => $date_now,
+					'format'   => false,
+					'excerpt'  => esc_html__( 'It is that time of the year when devices are shiny again.', 'jetpack' ),
+					'rel'      => 'nofollow',
+					'context'  => esc_html__( '"In Mobile"', 'jetpack' ),
+					'img'      => array(
+						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&h=200&crop=1',
+						'width'  => 350,
+						'height' => 200
+					),
+					'classes'  => array()
+				),
+				array(
+					'id'       => - 1,
+					'url'      => 'https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&h=200&crop=1',
+					'url_meta' => array(
+						'origin'   => 0,
+						'position' => 0
+					),
+					'title'    => esc_html__( 'The WordPress for Android App Gets a Big Facelift', 'jetpack' ),
+					'date'     => $date_now,
+					'format'   => false,
+					'excerpt'  => esc_html__( 'Writing is new again in Android with the new WordPress app.' ),
+					'rel'      => 'nofollow',
+					'context'  => esc_html__( '"In Mobile"', 'jetpack' ),
+					'img'      => array(
+						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&h=200&crop=1',
+						'width'  => 350,
+						'height' => 200
+					),
+					'classes'  => array()
+				),
+				array(
+					'id'       => - 1,
+					'url'      => 'https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&h=200&crop=1',
+					'url_meta' => array(
+						'origin'   => 0,
+						'position' => 0
+					),
+					'title'    => esc_html__( 'Upgrade Focus, VideoPress for weddings', 'jetpack' ),
+					'date'     => $date_now,
+					'format'   => false,
+					'excerpt'  => esc_html__( 'Weddings are in the spotlight now with VideoPress for weddings.' ),
+					'rel'      => 'nofollow',
+					'context'  => esc_html__( '"In Mobile"', 'jetpack' ),
+					'img'      => array(
+						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&h=200&crop=1',
+						'width'  => 350,
+						'height' => 200
+					),
+					'classes'  => array()
+				),
+			);
+			$options['size'] = 3;
+		} else {
+			$related_posts = $this->get_for_post_id(
+				get_the_ID(),
+				array(
+					'exclude_post_ids' => $excludes,
+				)
+			);
+		}
 
 		$response = array(
 			'version' => self::VERSION,
