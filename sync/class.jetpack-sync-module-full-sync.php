@@ -138,7 +138,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	function update_sent_progress_action( $actions ) {
 
 		// quick way to map to first items with an array of arrays
-		$actions_with_counts = array_count_values( array_map( 'reset', $actions ) );
+		$actions_with_counts = array_count_values( array_filter( array_map( array( $this, 'get_action_name' ), $actions ) ) );
 
 		if ( ! $this->is_started() || $this->is_finished() ) {
 			return;
@@ -167,6 +167,13 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
 			$this->update_status_option( 'finished', time() );
 		}
+	}
+
+	public function get_action_name( $queue_item ) {
+		if ( is_array( $queue_item ) && isset( $queue_item[0] ) ) {
+			return $queue_item[0];
+		}
+		return false;
 	}
 
 	public function is_started() {
