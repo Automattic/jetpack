@@ -2625,6 +2625,7 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'seo_meta_description' 		   => '(string) The seo meta description for the site.',
 		'advanced_seo_title_formats'   => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
+		'podcasting_archive'           => '(string) The post category, if any, used for publishing podcasts'
 	),
 
 	'response_format' => array(
