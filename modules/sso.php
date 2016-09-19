@@ -682,48 +682,27 @@ class Jetpack_SSO {
 
 		// If we've still got nothing, create the user.
 		if ( empty( $user ) && ( get_option( 'users_can_register' ) || Jetpack_SSO_Helpers::new_user_override() ) ) {
-			// If not matching by email we still need to verify the email does not exist
-			// or this blows up
 			/**
+			 * If not matching by email we still need to verify the email does not exist
+			 * or this blows up
+			 *
 			 * If match_by_email is true, we know the email doesn't exist, as it would have
 			 * been found in the first pass.  If get_user_by( 'email' ) doesn't find the
 			 * user, then we know that email is unused, so it's safe to add.
 			 */
 			if ( Jetpack_SSO_Helpers::match_by_email() || ! get_user_by( 'email', $user_data->email ) ) {
-				$username = $user_data->login;
-
-				if ( username_exists( $username ) ) {
-					$username = $user_data->login . '_' . $user_data->ID;
-				}
-
-				$tries = 0;
-				while ( username_exists( $username ) ) {
-					$username = $user_data->login . '_' . $user_data->ID . '_' . mt_rand();
-					if ( $tries++ >= 5 ) {
-						JetpackTracking::record_user_event( 'sso_login_failed', array(
-							'error_message' => 'could_not_create_username'
-						) );
-						add_filter( 'login_message', array( $this, 'error_unable_to_create_user' ) );
-						return;
-					}
+				$user = Jetpack_SSO_Helpers::generate_user( $user_data );
+				if ( ! $user ) {
+					JetpackTracking::record_user_event( 'sso_login_failed', array(
+						'error_message' => 'could_not_create_username'
+					) );
+					add_filter( 'login_message', array( $this, 'error_unable_to_create_user' ) );
+					return;
 				}
 
 				$user_found_with = Jetpack_SSO_Helpers::new_user_override()
 					? 'user_created_new_user_override'
 					: 'user_created_users_can_register';
-
-				$password = wp_generate_password( 20 );
-				$user_id  = wp_create_user( $username, $password, $user_data->email );
-				$user     = get_userdata( $user_id );
-
-				$user->display_name = $user_data->display_name;
-				$user->first_name   = $user_data->first_name;
-				$user->last_name    = $user_data->last_name;
-				$user->url          = $user_data->url;
-				$user->description  = $user_data->description;
-				wp_update_user( $user );
-
-				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 			} else {
 				JetpackTracking::record_user_event( 'sso_login_failed', array(
 					'error_message' => 'error_msg_email_already_exists'
