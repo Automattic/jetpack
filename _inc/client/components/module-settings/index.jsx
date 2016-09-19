@@ -49,69 +49,6 @@ export let SharedaddySettings = React.createClass( {
 
 SharedaddySettings = moduleSettingsForm( SharedaddySettings );
 
-export let RelatedPostsSettings = React.createClass( {
-	renderPreviews() {
-		const show_headline = this.props.getOptionValue( 'show_headline' );
-		const show_thumbnails = this.props.getOptionValue( 'show_thumbnails' );
-		const previews = [ {
-			url: 'https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&h=200&crop=1',
-			text: __( 'Big iPhone/iPad Update Now Available' )
-		}, {
-			url: 'https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&h=200&crop=1',
-			text: __( 'The WordPress for Android App Gets a Big Facelift' )
-		}, {
-			url: 'https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&h=200&crop=1',
-			text: __( 'Upgrade Focus: VideoPress For Weddings' )
-		} ];
-
-		return (
-			<div className="jp-related-posts-preview">
-				{
-					show_headline ?
-						<div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div> :
-						''
-				}
-				{
-					previews.map( ( preview, i ) => (
-						<span key={ `preview_${ i }` } className="jp-related-posts-preview__item" >
-							{
-								show_thumbnails ? <img src={ preview.url } /> : ''
-							}
-							<span><a href="#/engagement"> { preview.text } </a></span>
-						</span>
-					) )
-				}
-			</div>
-		);
-	},
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<ModuleSettingCheckbox
-						name={ 'show_headline' }
-						label={ __( 'Show a "Related" header to more clearly separate the related section from posts' ) }
-						{ ...this.props } />
-					<ModuleSettingCheckbox
-						name={ 'show_thumbnails' }
-						label={ __( 'Use a large and visually striking layout' ) }
-						{ ...this.props } />
-					<div className="jp-related-posts-settings__preview-label">{ __( 'Preview' ) }</div>
-					<Card>
-						{ this.renderPreviews() }
-					</Card>
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		);
-	}
-} );
-
-RelatedPostsSettings = moduleSettingsForm( RelatedPostsSettings );
-
 export let LikesSettings = React.createClass( {
 	render() {
 		const old_sharing_settings_url = this.props.module.configure_url;

@@ -796,7 +796,7 @@ EOT;
 					'format'   => false,
 					'excerpt'  => esc_html__( 'It is that time of the year when devices are shiny again.', 'jetpack' ),
 					'rel'      => 'nofollow',
-					'context'  => esc_html__( '"In Mobile"', 'jetpack' ),
+					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
 					'img'      => array(
 						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&h=200&crop=1',
 						'width'  => 350,
@@ -816,7 +816,7 @@ EOT;
 					'format'   => false,
 					'excerpt'  => esc_html__( 'Writing is new again in Android with the new WordPress app.' ),
 					'rel'      => 'nofollow',
-					'context'  => esc_html__( '"In Mobile"', 'jetpack' ),
+					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
 					'img'      => array(
 						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&h=200&crop=1',
 						'width'  => 350,
@@ -836,7 +836,7 @@ EOT;
 					'format'   => false,
 					'excerpt'  => esc_html__( 'Weddings are in the spotlight now with VideoPress for weddings.' ),
 					'rel'      => 'nofollow',
-					'context'  => esc_html__( '"In Mobile"', 'jetpack' ),
+					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
 					'img'      => array(
 						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&h=200&crop=1',
 						'width'  => 350,
