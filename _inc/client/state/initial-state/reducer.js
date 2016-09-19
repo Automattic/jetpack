@@ -152,3 +152,14 @@ export function getTracksUserData( state ) {
 export function getCurrentIp( state ) {
 	return get( state.jetpack.initialState, 'currentIp' );
 }
+
+/**
+ * Returns a permalink to the last published entry of 'post' type.
+ *
+ * @param {Object} state Global state tree
+ *
+ * @return {String} URL to last published post.
+ */
+export function getLastPostUrl( state ) {
+	return get( state.jetpack.initialState, 'lastPostUrl' );
+}

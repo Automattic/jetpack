@@ -45,10 +45,9 @@ class Jetpack_Related_Posts_Customize {
 		$wp_customize->add_section( $this->prefix,
 			array(
 				'title' 	  => esc_html__( 'Related Posts', 'jetpack' ),
-				'description' => esc_html__( 'Customize related post elements.', 'jetpack' ),
+				'description' => '',
 				'capability'  => 'edit_theme_options',
 				'priority' 	  => 89,
-
 			)
 		);
 
@@ -71,7 +70,7 @@ class Jetpack_Related_Posts_Customize {
 				'type' 	      => isset( $field['control_type'] ) ? $field['control_type'] : 'text',
 				'section' 	  => $this->prefix,
 				'priority' 	  => 10,
-				'active_callback' => __CLASS__ . '::is_single',
+				'active_callback' => isset( $field['active_callback'] ) ? $field['active_callback'] : __CLASS__ . '::is_single',
 			);
 			switch ( $field['control_type'] ) {
 				case 'text':
@@ -86,7 +85,6 @@ class Jetpack_Related_Posts_Customize {
 					}
 					break;
 				case 'message':
-					$control_settings['active_callback'] = __CLASS__ . '::is_not_single';
 					$wp_customize->add_control( new Jetpack_Message_Control( $wp_customize, $key, $control_settings ) );
 					break;
 			}
@@ -144,43 +142,48 @@ class Jetpack_Related_Posts_Customize {
 		$transport = isset( $wp_customize->selective_refresh ) ? 'postMessage' : 'refresh';
 		return apply_filters(
 			'jetpack_related_posts_customize_options', array(
-			'show_headline'   => array(
-				'label'        => esc_html__( 'Show a "Related" header', 'jetpack' ),
-				'description'  => esc_html__( 'This helps to clearly separate the related posts from post content.', 'jetpack' ),
-				'control_type' => 'checkbox',
-				'default'      => 1,
-				'setting_type' => 'option',
-				'transport'    => $transport,
-			),
-			'show_thumbnails' => array(
-				'label'        => esc_html__( 'Show thumbnails', 'jetpack' ),
-				'description'  => esc_html__( 'Use a large and visually striking layout.', 'jetpack' ),
-				'control_type' => 'checkbox',
-				'default'      => 1,
-				'setting_type' => 'option',
-				'transport'    => $transport,
-			),
-			'show_date' => array(
-				'label'        => esc_html__( 'Show date', 'jetpack' ),
-				'description'  => esc_html__( 'Display date when entry was published.', 'jetpack' ),
-				'control_type' => 'checkbox',
-				'default'      => 1,
-				'setting_type' => 'option',
-				'transport'    => $transport,
-			),
-			'show_context' => array(
-				'label'        => esc_html__( 'Show context', 'jetpack' ),
-				'description'  => esc_html__( "Display entry's category or tag.", 'jetpack' ),
-				'control_type' => 'checkbox',
-				'default'      => 1,
-				'setting_type' => 'option',
-				'transport'    => $transport,
-			),
-			'rp_message' => array(
-				'description'  => esc_html__( 'Please visit a single post view to reveal the customization options.', 'jetpack' ),
-				'control_type' => 'message',
-			),
-		)
+				'show_headline'       => array(
+					'label'        => esc_html__( 'Show a "Related" header', 'jetpack' ),
+					'description'  => esc_html__( 'This helps to clearly separate the related posts from post content.', 'jetpack' ),
+					'control_type' => 'checkbox',
+					'default'      => 1,
+					'setting_type' => 'option',
+					'transport'    => $transport,
+				),
+				'show_thumbnails'     => array(
+					'label'        => esc_html__( 'Show thumbnails', 'jetpack' ),
+					'description'  => esc_html__( 'Use a large and visually striking layout.', 'jetpack' ),
+					'control_type' => 'checkbox',
+					'default'      => 1,
+					'setting_type' => 'option',
+					'transport'    => $transport,
+				),
+				'show_date'           => array(
+					'label'        => esc_html__( 'Show date', 'jetpack' ),
+					'description'  => esc_html__( 'Display date when entry was published.', 'jetpack' ),
+					'control_type' => 'checkbox',
+					'default'      => 1,
+					'setting_type' => 'option',
+					'transport'    => $transport,
+				),
+				'show_context'        => array(
+					'label'        => esc_html__( 'Show context', 'jetpack' ),
+					'description'  => esc_html__( "Display entry's category or tag.", 'jetpack' ),
+					'control_type' => 'checkbox',
+					'default'      => 1,
+					'setting_type' => 'option',
+					'transport'    => $transport,
+				),
+				'rp_msg_go_to_single' => array(
+					'description'     => esc_html__( 'Please visit a single post view to reveal the customization options.', 'jetpack' ),
+					'control_type'    => 'message',
+					'active_callback' => __CLASS__ . '::is_not_single',
+				),
+				'rp_msg_example'      => array(
+					'description'  => esc_html__( 'Please note that the related posts displayed now are only for previewing purposes.', 'jetpack' ),
+					'control_type' => 'message',
+				),
+			)
 		);
 	}
 
