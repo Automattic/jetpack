@@ -88,6 +88,9 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-logo-endpo
 // Homepage Settings
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-homepage-endpoint.php' );
 
+// Publicize
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
+
 // **********
 // v1.2
 // **********
@@ -3021,7 +3024,7 @@ new WPCOM_JSON_API_Update_Site_Homepage_Endpoint( array (
 		'$site' => '(string) Site ID or domain.',
 	),
 	'request_format'  => array(
-		'is_page_on_front' => '(bool) Thue if we will use a page as the homepage; false to use a blog page as the homepage.',
+		'is_page_on_front' => '(bool) True if we will use a page as the homepage; false to use a blog page as the homepage.',
 		'page_on_front_id' => '(int) Optional. The ID of the page to use as the homepage if is_page_on_front is true.',
 		'page_for_posts_id' => '(int) Optional. The ID of the page to use as the blog page if is_page_on_front is true.',
 	),
@@ -3167,3 +3170,36 @@ new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint( array (
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
 ) );
+
+
+new WPCOM_JSON_API_Publicize_Endpoint( array(
+	'description' => 'Share a post.',
+	'group'       => '__do_not_document',
+	'stat'        => 'publicize:new',
+	'min_version' => '1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/post/%d/publicize',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$post_id' => '(int) Post ID',
+	),
+
+	'request_format'  => array(
+		'message'  => '(string) The custom message that gets publicized',
+		'skipped_connections' => '(array) List of publicize account ids that we don\'t want publicize to'
+	),
+
+	'response_format' => array(
+		'success' => '(bool) Whether the operation was successful',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'message'   => 'Hello World',
+		)
+	)
+ ) );
