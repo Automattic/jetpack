@@ -80,15 +80,24 @@ function stats_enqueue_dashboard_head() {
 function stats_honor_dnt_header_for_stats() {
 	$options = stats_get_options();
 
-	if ( true === $options['do_not_track'] )
+	if ( true === $options['do_not_track'] ) {
 		return true;
+	}
 
 	return false;
 }
 
 function is_dnt_enabled() {
-	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) )
+	/**
+	 * Filter the option which decides honor DNT or not.
+	 *
+	 * @module stats
+	 *
+	 * @return true if config honors DNT and client doesn't want to tracked, false if not.
+	 */
+	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) ) {
 		return false;
+	}
 
 	foreach ( $_SERVER as $name => $value ) {
 		if ( 'http_dnt' == strtolower( $name ) && 1 == $value ) {
