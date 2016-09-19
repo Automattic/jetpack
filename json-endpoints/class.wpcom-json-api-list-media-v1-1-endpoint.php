@@ -98,8 +98,6 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$response = array();
 
-		$media_posts = $media->posts; 
-
 		// @start-hide-in-jetpack                   
 		// gm2016 - image classification hack
 		// fetches images from image classification and merges results
@@ -107,17 +105,18 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 			jetpack_require_lib( 'classification/class-user-image-classification');
 			if ( User_Image_Classification::is_valid_blog( $blog_id ) ) {
 				$images = User_Image_Classification::get_images_classified( $args['search'] );
-				$media_posts = array_merge( $media_posts, $images );
+				$media->posts = array_merge( $media->posts, $images );
+				$media->found_posts = $media->found_posts + count( $images );
 			}
 		}
 		// @end-hide-in-jetpack 	
 
-		foreach ( $media_posts as $item ) {
+		foreach ( $media->posts as $item ) {
 			$response[] = $this->get_media_item_v1_1( $item->ID );
 		}
 
 		$return = array(
-			'found' => (int) count( $response ),
+			'found' => (int) $media->found_posts,
 			'media' => $response
 		);
 
