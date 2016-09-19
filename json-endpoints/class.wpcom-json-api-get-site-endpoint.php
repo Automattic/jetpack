@@ -92,6 +92,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'seo_meta_description',
 		'advanced_seo_title_formats',
 		'verification_services_codes',
+		'podcasting_archive',
 	);
 
 	protected static $jetpack_response_field_additions = array( 
@@ -449,6 +450,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'verification_services_codes' :
 					$options[ $key ] = $site->get_verification_services_codes();
+					break;
+				case 'podcasting_archive':
+					$options[ $key ] = $site->get_podcasting_archive();
 					break;
 			}
 		}
