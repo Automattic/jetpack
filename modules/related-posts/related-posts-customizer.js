@@ -1,28 +1,30 @@
 /**
  * Adds functionality for Related Posts controls in Customizer.
  */
+(function( api ) {
+	'use strict';
 
+	api( 'jetpack_relatedposts[show_headline]', function( showHeadlineSetting ) {
 
-wp.customize( 'jetpack_relatedposts[show_headline]', function( setting ) {
+		var setupHeadlineControl = function( headlineControl ) {
+			var setActiveState, isDisplayed;
 
-	var setupControl = function( control ) {
+			isDisplayed = function() {
+				return showHeadlineSetting.get();
+			};
 
-		var setActiveState, isDisplayed;
+			setActiveState = function() {
+				headlineControl.active.set( isDisplayed() );
+			};
 
-		isDisplayed = function() {
-			return setting.get();
+			headlineControl.active.validate = isDisplayed;
+
+			setActiveState();
+
+			showHeadlineSetting.bind( setActiveState );
 		};
 
-		setActiveState = function() {
-			control.active.set( isDisplayed() );
-		};
+		api.control( 'jetpack_relatedposts[headline]', setupHeadlineControl );
+	} );
 
-		control.active.validate = isDisplayed;
-
-		setActiveState();
-
-		setting.bind( setActiveState );
-	};
-
-	wp.customize.control( 'jetpack_relatedposts[headline]', setupControl );
-} );
+})( wp.customize );
