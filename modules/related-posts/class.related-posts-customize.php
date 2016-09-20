@@ -31,6 +31,7 @@ class Jetpack_Related_Posts_Customize {
 	 */
 	function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
+		add_action( 'customize_controls_enqueue_scripts', array( $this, 'customize_controls_enqueue_scripts' ) );
 	}
 
 	/**
@@ -137,16 +138,28 @@ class Jetpack_Related_Posts_Customize {
 	 * Return list of options to modify.
 	 *
 	 * @since 4.4.0
+	 *
+	 * @param object $wp_customize Instance of WP Customizer
+	 *
+	 * @return mixed|void
 	 */
 	function get_options( $wp_customize ) {
 		$transport = isset( $wp_customize->selective_refresh ) ? 'postMessage' : 'refresh';
 		return apply_filters(
 			'jetpack_related_posts_customize_options', array(
 				'show_headline'       => array(
-					'label'        => esc_html__( 'Show a "Related" header', 'jetpack' ),
+					'label'        => esc_html__( 'Show a headline', 'jetpack' ),
 					'description'  => esc_html__( 'This helps to clearly separate the related posts from post content.', 'jetpack' ),
 					'control_type' => 'checkbox',
 					'default'      => 1,
+					'setting_type' => 'option',
+					'transport'    => $transport,
+				),
+				'headline'       => array(
+					'label'        => '',
+					'description'  => esc_html__( 'Enter text to use as headline.', 'jetpack' ),
+					'control_type' => 'text',
+					'default'      => esc_html__( 'Related', 'jetpack' ),
 					'setting_type' => 'option',
 					'transport'    => $transport,
 				),
@@ -197,6 +210,15 @@ class Jetpack_Related_Posts_Customize {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Enqueue assets for Customizer controls.
+	 *
+	 * @since 4.4.0
+	 */
+	function customize_controls_enqueue_scripts() {
+		wp_enqueue_script( 'jetpack_related-posts-customizer', plugins_url( 'related-posts-customizer.js', __FILE__ ), array( 'customize-controls' ), JETPACK__VERSION);
 	}
 
 } // class end
