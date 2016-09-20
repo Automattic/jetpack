@@ -98,7 +98,7 @@
 				}
 				html += '</p>';
 			} );
-			return '<div class="jp-relatedposts-items jp-relatedposts-items-minimal">' + html + '</div>';
+			return '<div class="jp-relatedposts-items jp-relatedposts-items-minimal jp-relatedposts-' + options.layout + ' ">' + html + '</div>';
 		},
 
 		generateVisualHtml: function( posts, options ) {
@@ -136,7 +136,7 @@
 				}
 				html += '</div>';
 			} );
-			return '<div class="jp-relatedposts-items jp-relatedposts-items-visual">' + html + '</div>';
+			return '<div class="jp-relatedposts-items jp-relatedposts-items-visual jp-relatedposts-' + options.layout + ' ">' + html + '</div>';
 		},
 
 		/**
@@ -218,10 +218,12 @@
 				showThumbnails = wp.customize.instance( 'jetpack_relatedposts[show_thumbnails]' ).get();
 				options.showDate = wp.customize.instance( 'jetpack_relatedposts[show_date]' ).get();
 				options.showContext = wp.customize.instance( 'jetpack_relatedposts[show_context]' ).get();
+				options.layout = wp.customize.instance( 'jetpack_relatedposts[layout]' ).get();
 			} else {
 				showThumbnails = response.show_thumbnails;
 				options.showDate = response.show_date;
 				options.showContext = response.show_context;
+				options.layout = response.layout;
 			}
 
 			html = ! showThumbnails ? jprp.generateMinimalHtml( response.items, options ) : jprp.generateVisualHtml( response.items, options );

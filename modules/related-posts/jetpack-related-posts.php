@@ -270,6 +270,9 @@ EOT;
 			if ( ! isset( $this->_options['show_context'] ) ) {
 				$this->_options['show_context'] = true;
 			}
+			if ( ! isset( $this->_options['layout'] ) ) {
+				$this->_options['layout'] = 'grid';
+			}
 			if ( empty( $this->_options['size'] ) || (int)$this->_options['size'] < 1 )
 				$this->_options['size'] = 3;
 
@@ -289,7 +292,7 @@ EOT;
 	}
 
 	/**
-	 * Parses input and returnes normalized options array.
+	 * Parses input and returns normalized options array.
 	 *
 	 * @param array $input
 	 * @uses self::get_options
@@ -307,6 +310,7 @@ EOT;
 			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' == $input['show_thumbnails'] );
 			$current['show_date'] = ( isset( $input['show_date'] ) && '1' == $input['show_date'] );
 			$current['show_context'] = ( isset( $input['show_context'] ) && '1' == $input['show_context'] );
+			$current['layout'] = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
 		} else {
 			$current['enabled'] = false;
 		}
@@ -873,6 +877,7 @@ EOT;
 			'show_thumbnails' => (bool) $options['show_thumbnails'],
 			'show_date' => (bool) $options['show_date'],
 			'show_context' => (bool) $options['show_context'],
+			'layout' => (string) $options['layout'],
 			'items' => array(),
 		);
 
