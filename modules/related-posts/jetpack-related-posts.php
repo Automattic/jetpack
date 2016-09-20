@@ -150,7 +150,7 @@ class Jetpack_RelatedPosts {
 		if ( $options['show_headline'] ) {
 			$headline = sprintf(
 				'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
-				esc_html__( 'Related', 'jetpack' )
+				esc_html( $options['headline'] )
 			);
 		} else {
 			$headline = '';
@@ -260,6 +260,9 @@ EOT;
 			if ( ! isset( $this->_options['layout'] ) ) {
 				$this->_options['layout'] = 'grid';
 			}
+			if ( ! isset( $this->_options['headline'] ) ) {
+				$this->_options['headline'] = esc_html__( 'Related', 'jetpack' );
+			}
 			if ( empty( $this->_options['size'] ) || (int)$this->_options['size'] < 1 )
 				$this->_options['size'] = 3;
 
@@ -298,6 +301,7 @@ EOT;
 			$current['show_date'] = ( isset( $input['show_date'] ) && '1' == $input['show_date'] );
 			$current['show_context'] = ( isset( $input['show_context'] ) && '1' == $input['show_context'] );
 			$current['layout'] = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
+			$current['headline'] = isset( $input['headline'] ) ? $input['headline'] : esc_html__( 'Related', 'jetpack' );
 		} else {
 			$current['enabled'] = false;
 		}
@@ -865,6 +869,7 @@ EOT;
 			'show_date' => (bool) $options['show_date'],
 			'show_context' => (bool) $options['show_context'],
 			'layout' => (string) $options['layout'],
+			'headline' => (string) $options['headline'],
 			'items' => array(),
 		);
 

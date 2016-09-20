@@ -6,7 +6,7 @@
  * First Introduced: 2.9
  * Sort Order: 29
  * Recommendation Order: 9
- * Requires Connection: Yes
+ * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Recommended
  * Feature: Engagement, Jumpstart
