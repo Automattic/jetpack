@@ -174,12 +174,24 @@ class Jetpack_Related_Posts_Customize {
 					'setting_type' => 'option',
 					'transport'    => $transport,
 				),
-				'rp_msg_go_to_single' => array(
+				'layout'        => array(
+					'label'        => esc_html__( 'Layout', 'jetpack' ),
+					'description'  => esc_html__( 'Arrange entries in different layouts.', 'jetpack' ),
+					'control_type' => 'select',
+					'choices'	   => array(
+						'grid' => esc_html__( 'Grid', 'jetpack' ),
+						'list' => esc_html__( 'List', 'jetpack' ),
+					),
+					'default'      => 'grid',
+					'setting_type' => 'option',
+					'transport'    => $transport,
+				),
+				'msg_go_to_single' => array(
 					'description'     => esc_html__( 'Please visit a single post view to reveal the customization options.', 'jetpack' ),
 					'control_type'    => 'message',
 					'active_callback' => __CLASS__ . '::is_not_single',
 				),
-				'rp_msg_example'      => array(
+				'msg_example'      => array(
 					'description'  => esc_html__( 'Please note that the related posts displayed now are only for previewing purposes.', 'jetpack' ),
 					'control_type' => 'message',
 				),
