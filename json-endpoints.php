@@ -3178,6 +3178,7 @@ new WPCOM_JSON_API_Publicize_Endpoint( array(
 	'stat'        => 'publicize:new',
 	'min_version' => '1',
 	'method'      => 'POST',
+	'force'       => 'wpcom',
 	'path'        => '/sites/%s/post/%d/publicize',
 	'path_labels' => array(
 		'$site' => '(int|string) Site ID or domain',
