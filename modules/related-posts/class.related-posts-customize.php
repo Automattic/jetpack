@@ -73,20 +73,21 @@ class Jetpack_Related_Posts_Customize {
 				'priority' 	  => 10,
 				'active_callback' => isset( $field['active_callback'] ) ? $field['active_callback'] : __CLASS__ . '::is_single',
 			);
+			$control_id = "$this->prefix[$key]";
 			switch ( $field['control_type'] ) {
 				case 'text':
 				case 'checkbox':
 				default:
-					$wp_customize->add_control( new WP_Customize_Control( $wp_customize, $key, $control_settings ) );
+					$wp_customize->add_control( new WP_Customize_Control( $wp_customize, $control_id, $control_settings ) );
 					break;
 				case 'select':
 					if ( isset( $field['choices'] ) ) {
 						$control_settings['choices'] = $field['choices'];
-						$wp_customize->add_control( new WP_Customize_Control( $wp_customize, $key, $control_settings ) );
+						$wp_customize->add_control( new WP_Customize_Control( $wp_customize, $control_id, $control_settings ) );
 					}
 					break;
 				case 'message':
-					$wp_customize->add_control( new Jetpack_Message_Control( $wp_customize, $key, $control_settings ) );
+					$wp_customize->add_control( new Jetpack_Message_Control( $wp_customize, $control_id, $control_settings ) );
 					break;
 			}
 		}
