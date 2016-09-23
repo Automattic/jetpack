@@ -17,6 +17,7 @@ class Jetpack_Sync_Settings {
 		'post_types_blacklist' => true,
 		'meta_blacklist'       => true,
 		'disable'              => true,
+		'max_dequeue_time'     => true,
 		'render_filtered_content' => true,
 	);
 

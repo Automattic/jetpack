@@ -18,6 +18,7 @@ class Jetpack_Sync_Sender {
 	private $dequeue_max_bytes;
 	private $upload_max_bytes;
 	private $upload_max_rows;
+	private $max_dequeue_time;
 	private $sync_wait_time;
 	private $sync_wait_threshold;
 	private $sync_queue;
@@ -93,6 +94,9 @@ class Jetpack_Sync_Sender {
 
 	public function do_sync_for_queue( $queue ) {
 
+		// track how long we've been processing so we can avoid request timeouts
+		$start_time = microtime( true );
+
 		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
 
 		if ( $queue->size() === 0 ) {
@@ -160,6 +164,10 @@ class Jetpack_Sync_Sender {
 			}
 
 			$items_to_send[ $key ] = $encoded_item;
+
+			if ( microtime(true) - $start_time > $this->max_dequeue_time ) {
+				break;
+			}
 		}
 
 		/**
@@ -284,6 +292,11 @@ class Jetpack_Sync_Sender {
 		return $this->sync_wait_threshold;
 	}
 
+	// in seconds
+	function set_max_dequeue_time( $seconds ) {
+		$this->max_dequeue_time = $seconds;
+	}
+
 	function set_defaults() {
 		$this->sync_queue      = new Jetpack_Sync_Queue( 'sync' );
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
@@ -295,6 +308,7 @@ class Jetpack_Sync_Sender {
 		$this->set_dequeue_max_bytes( $settings['dequeue_max_bytes'] );
 		$this->set_upload_max_bytes( $settings['upload_max_bytes'] );
 		$this->set_upload_max_rows( $settings['upload_max_rows'] );
+		$this->set_max_dequeue_time( $settings['max_dequeue_time'] );
 		$this->set_sync_wait_time( $settings['sync_wait_time'] );
 		$this->set_sync_wait_threshold( $settings['sync_wait_threshold'] );
 	}
