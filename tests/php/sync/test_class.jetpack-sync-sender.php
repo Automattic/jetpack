@@ -284,7 +284,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$next_sync_time = $this->sender->get_next_sync_time( 'sync' );
-
 		$this->assertTrue( $next_sync_time > time() + 5 );
 		$this->assertTrue( $next_sync_time < time() + 15 );
 	}

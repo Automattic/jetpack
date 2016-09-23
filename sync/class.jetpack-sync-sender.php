@@ -96,34 +96,9 @@ class Jetpack_Sync_Sender {
 		return $sync_result;
 	}
 
-	public function do_sync_for_queue( $queue ) {
-
+	public function get_items_to_send( $buffer, $encode = true ) {
 		// track how long we've been processing so we can avoid request timeouts
 		$start_time = microtime( true );
-
-		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
-
-		if ( $queue->size() === 0 ) {
-			return false;
-		}
-
-		// now that we're sure we are about to sync, try to
-		// ignore user abort so we can avoid getting into a
-		// bad state
-		if ( function_exists( 'ignore_user_abort' ) ) {
-			ignore_user_abort( true );
-		}
-
-		$buffer = $queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
-
-		if ( ! $buffer ) {
-			// buffer has no items
-			return false;
-		}
-
-		if ( is_wp_error( $buffer ) ) {
-			return $buffer;
-		}
 
 		$upload_size   = 0;
 		$items_to_send = array();
@@ -158,7 +133,7 @@ class Jetpack_Sync_Sender {
 				continue;
 			}
 
-			$encoded_item = $this->codec->encode( $item );
+			$encoded_item = $encode ? $this->codec->encode( $item ) : $item;
 
 			$upload_size += strlen( $encoded_item );
 
@@ -172,6 +147,38 @@ class Jetpack_Sync_Sender {
 				break;
 			}
 		}
+
+		return array( $items_to_send, $skipped_items_ids, $items );
+	}
+
+	public function do_sync_for_queue( $queue ) {
+
+		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
+
+		if ( $queue->size() === 0 ) {
+			return false;
+		}
+
+		// now that we're sure we are about to sync, try to
+		// ignore user abort so we can avoid getting into a
+		// bad state
+		if ( function_exists( 'ignore_user_abort' ) ) {
+			ignore_user_abort( true );
+		}
+
+		$buffer = $queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
+
+		if ( ! $buffer ) {
+			// buffer has no items
+			return false;
+		}
+
+		if ( is_wp_error( $buffer ) ) {
+			// another buffer is currently sending
+			return false;
+		}
+
+		list( $items_to_send, $skipped_items_ids, $items ) = $this->get_items_to_send( $buffer );
 
 		/**
 		 * Fires when data is ready to send to the server.
