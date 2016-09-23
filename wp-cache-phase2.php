@@ -260,6 +260,12 @@ function wp_cache_ob_callback( $buffer ) {
 	} elseif ( $_SERVER["REQUEST_METHOD"] == 'POST' || !empty( $_POST ) || get_option( 'gzipcompression' ) ) {
 		wp_cache_debug( 'Not caching POST request.', 5 );
 		$cache_this_page = false;
+	} elseif ( $_SERVER["REQUEST_METHOD"] == 'PUT' ) {
+		wp_cache_debug( 'Not caching PUT request.', 5 );
+		$cache_this_page = false;
+	} elseif ( $_SERVER["REQUEST_METHOD"] == 'DELETE' ) {
+		wp_cache_debug( 'Not caching DELETE request.', 5 );
+		$cache_this_page = false;
 	} elseif ( $wp_cache_object_cache && !empty( $_GET ) ) {
 		wp_cache_debug( 'Not caching GET request while object cache storage enabled.', 5 );
 		$cache_this_page = false;
