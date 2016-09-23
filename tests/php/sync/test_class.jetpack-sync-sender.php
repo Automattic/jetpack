@@ -312,6 +312,22 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 9 );	
 	}
 
+	function test_default_value_for_max_execution_time() {
+		// test with strings, non-strings, 0 and null
+
+		ini_set( 'max_execution_time', '30' );
+		$this->assertEquals( 10, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+
+		ini_set( 'max_execution_time', 65 );
+		$this->assertEquals( 21, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+
+		ini_set( 'max_execution_time', '0' );
+		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+
+		ini_set( 'max_execution_time', null );
+		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+	}
+
 	function test_limits_execution_time_of_do_sync() {
 		// disable sync callables
 		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );

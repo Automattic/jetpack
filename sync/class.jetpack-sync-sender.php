@@ -308,9 +308,9 @@ class Jetpack_Sync_Sender {
 		$this->set_dequeue_max_bytes( $settings['dequeue_max_bytes'] );
 		$this->set_upload_max_bytes( $settings['upload_max_bytes'] );
 		$this->set_upload_max_rows( $settings['upload_max_rows'] );
-		$this->set_max_dequeue_time( $settings['max_dequeue_time'] );
 		$this->set_sync_wait_time( $settings['sync_wait_time'] );
 		$this->set_sync_wait_threshold( $settings['sync_wait_threshold'] );
+		$this->set_max_dequeue_time( Jetpack_Sync_Defaults::get_max_sync_execution_time() );
 	}
 
 	function reset_data() {

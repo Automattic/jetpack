@@ -257,12 +257,22 @@ class Jetpack_Sync_Defaults {
 		return false;
 	}
 
+	static function get_max_sync_execution_time() {
+		$max_exec_time = intval( ini_get( 'max_execution_time' ) );
+		if ( $max_exec_time === 0 ) {
+			// 0 actually means "unlimited", but let's not treat it that way
+		    $max_exec_time = 60;
+		}
+		return floor( $max_exec_time / 3 );
+	}
+
 	static $default_network_options_whitelist = array(
 		'site_name',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'active_sitewide_plugins',
 	);
+
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
@@ -271,7 +281,6 @@ class Jetpack_Sync_Defaults {
 	static $default_sync_wait_threshold = 5; // only wait before next send if the current send took more than X seconds
 	static $default_max_queue_size = 1000;
 	static $default_max_queue_lag = 900; // 15 minutes
-	static $default_max_dequeue_time = 15; // 15 seconds
 	static $default_queue_max_writes_sec = 100; // 100 rows a second
 	static $default_post_types_blacklist = array();
 	static $default_meta_blacklist = array();
