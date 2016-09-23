@@ -312,6 +312,56 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 9 );	
 	}
 
+	function test_default_value_for_max_execution_time() {
+		// test with strings, non-strings, 0 and null
+
+		ini_set( 'max_execution_time', '30' );
+		$this->assertEquals( 10, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+
+		ini_set( 'max_execution_time', 65 );
+		$this->assertEquals( 21, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+
+		ini_set( 'max_execution_time', '0' );
+		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+
+		ini_set( 'max_execution_time', null );
+		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+	}
+
+	function test_limits_execution_time_of_do_sync() {
+		// disable sync callables
+		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
+		$this->sender->do_sync();
+
+		$this->assertEquals( 0, $this->sender->get_sync_queue()->size() );
+
+		$this->sender->set_max_dequeue_time( 4 );
+
+		add_filter( 'jetpack_sync_before_send_super_slow_action', array( $this, 'before_send_super_slow_action' ), 10, 2 );
+
+		// register the action to be synced
+		add_action( 'super_slow_action', array( $this->listener, 'action_handler' ) );
+
+		// it should only dequeue 2 of these, because each takes 3 seconds to process, and 3*2 = 6, which is > 4
+		do_action( 'super_slow_action' );
+		do_action( 'super_slow_action' );
+		do_action( 'super_slow_action' );
+
+		$this->assertEquals( 3, $this->sender->get_sync_queue()->size() );
+
+		$this->sender->do_sync();
+
+		// should have aborted after 2 actions
+		$this->assertEquals( 1, $this->sender->get_sync_queue()->size() );
+
+		remove_filter( 'jetpack_sync_before_send_super_slow_action', array( $this, 'before_send_super_slow_action' ) );
+	}
+
+	function before_send_super_slow_action( $args, $user_id ) {
+		sleep( 3 );
+		return $args;
+	}
+
 	function serverReceiveWithThreeSecondDelay( $data, $codec, $sent_timestamp ) {
 		sleep( 3 );
 		return array_keys( $data );
