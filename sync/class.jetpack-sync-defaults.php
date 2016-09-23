@@ -261,7 +261,7 @@ class Jetpack_Sync_Defaults {
 		$max_exec_time = intval( ini_get( 'max_execution_time' ) );
 		if ( $max_exec_time === 0 ) {
 			// 0 actually means "unlimited", but let's not treat it that way
-		    $max_exec_time = 60;
+			$max_exec_time = 60;
 		}
 		return floor( $max_exec_time / 3 );
 	}
