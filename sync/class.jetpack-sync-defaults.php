@@ -257,12 +257,22 @@ class Jetpack_Sync_Defaults {
 		return false;
 	}
 
+	static function get_max_sync_execution_time() {
+		$max_exec_time = intval( ini_get( 'max_execution_time' ) );
+		if ( 0 === $max_exec_time ) {
+			// 0 actually means "unlimited", but let's not treat it that way
+			$max_exec_time = 60;
+		}
+		return floor( $max_exec_time / 3 );
+	}
+
 	static $default_network_options_whitelist = array(
 		'site_name',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'active_sitewide_plugins',
 	);
+
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
