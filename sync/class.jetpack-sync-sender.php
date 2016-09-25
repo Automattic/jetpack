@@ -140,22 +140,46 @@ class Jetpack_Sync_Sender {
 			 * @param array The action parameters
 			 * @param int The ID of the user who triggered the action
 			 */
-			$item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
+			$item_value = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
 			wp_suspend_cache_addition( false );
-			if ( $item[1] === false ) {
+			if ( $item_value === false ) {
 				$skipped_items_ids[] = $key;
 				continue;
 			}
+			if ( $item_value instanceof Traversable ) {
+				foreach ( $item_value as $value ) {
+					$new_item[0] = $item[0];
 
-			$encoded_item = $this->codec->encode( $item );
+					$new_item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], array( $value ), $item[2] );
+					$new_item[2] = $item[2];
+					$new_item[3] = $item[3];
+					$new_item[4] = $item[4];
 
-			$upload_size += strlen( $encoded_item );
+					$encoded_item = $this->codec->encode( $new_item );
 
-			if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
-				break;
+					$upload_size += strlen( $encoded_item );
+
+					if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
+						break 2;
+					}
+
+					$last_item = end( $value );
+					$items_to_send[ $key . '-from-' . $last_item ] = $encoded_item;
+				}
+			} else {
+
+				$item[1] = $item_value;
+
+				$encoded_item = $this->codec->encode( $item );
+
+				$upload_size += strlen( $encoded_item );
+
+				if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
+					break;
+				}
+
+				$items_to_send[ $key ] = $encoded_item;
 			}
-
-			$items_to_send[ $key ] = $encoded_item;
 		}
 
 		/**
@@ -197,6 +221,16 @@ class Jetpack_Sync_Sender {
 				$wp_error = array_pop( $processed_item_ids );
 			}
 
+			$items_to_update = array();
+			$last_processed_item_id = end( $processed_item_ids );
+
+			if ( preg_match( '/^jpsq_full_sync-(\d+\.\d+)-(\d+)-(\d+)-(\d+)$/', $last_processed_item_id, $matches ) ) {
+				// detect if it was an item that we expanded during sending
+				$parent_item_key = chop( $last_processed_item_id, '-' . $matches[4] );
+				$items_to_update[ $parent_item_key ] = $items[ $parent_item_key ];
+				$items_to_update[ $parent_item_key ][1] = $matches[4];
+			}
+
 			// also checkin any items that were skipped
 			if ( count( $skipped_items_ids ) > 0 ) {
 				$processed_item_ids = array_merge( $processed_item_ids, $skipped_items_ids );
@@ -214,7 +248,7 @@ class Jetpack_Sync_Sender {
 			 */
 			do_action( 'jetpack_sync_processed_actions', $processed_items );
 
-			$queue->close( $buffer, $processed_item_ids );
+			$queue->close( $buffer, $processed_item_ids, $items_to_update );
 
 			// returning a WP_Error is a sign to the caller that we should wait a while
 			// before syncing again
