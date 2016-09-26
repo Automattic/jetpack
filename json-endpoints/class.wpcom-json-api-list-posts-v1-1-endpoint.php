@@ -69,7 +69,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		if ( isset( $args['type'] ) &&
-			   ! in_array( $args['type'], array( 'post', 'page', 'revision', 'any' ) ) &&
+			   ! in_array( $args['type'], array( 'post', 'revision', 'any' ) ) &&
 			   defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->load_theme_functions();
 		}
