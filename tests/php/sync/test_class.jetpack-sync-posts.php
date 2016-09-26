@@ -377,6 +377,33 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Options::update_option( 'active_modules', $active_modules );
 	}
 
+	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
+		$post_id = $this->factory->post->create();
+		$attachment_id = $this->factory->post->create( array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'image/png',
+		) );
+		add_post_meta( $attachment_id, '_wp_attached_file', '2016/09/test_image.png' );
+		set_post_thumbnail( $post_id, $attachment_id );
+
+		$this->sender->do_sync();
+
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+		$this->assertObjectHasAttribute( 'featured_image', $post_on_server );
+		$this->assertInternalType( 'string', $post_on_server->featured_image );
+		$this->assertContains( 'test_image.png', $post_on_server->featured_image );
+	}
+
+	function test_sync_post_not_includes_feature_image_meta_when_featured_image_not_set() {
+		$post_id = $this->factory->post->create();
+
+		$this->sender->do_sync();
+
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+		$this->assertObjectNotHasAttribute( 'featured_image', $post_on_server );
+
+	}
+
 	function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
 
 		add_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
