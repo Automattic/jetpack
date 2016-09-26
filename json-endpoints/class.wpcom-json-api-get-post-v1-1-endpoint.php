@@ -20,7 +20,7 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_End
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM &&
-				! in_array( get_post_type( $post_id ), array( false, 'post', 'page', 'revision' ) ) ) {
+				! in_array( get_post_type( $post_id ), array( false, 'post', 'revision' ) ) ) {
 			$this->load_theme_functions();
 		}
 
