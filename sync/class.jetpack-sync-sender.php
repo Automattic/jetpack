@@ -320,8 +320,13 @@ class Jetpack_Sync_Sender {
 			$module->reset_data();
 		}
 
+		// leave if the user was running having an older version of Jetpack (4.2)
 		delete_option( self::SYNC_THROTTLE_OPTION_NAME );
 		delete_option( self::NEXT_SYNC_TIME_OPTION_NAME );
+
+		foreach ( array( 'sync', 'full_sync' ) as $queue_name ) {
+			delete_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name );
+		}
 
 		Jetpack_Sync_Settings::reset_data();
 	}
