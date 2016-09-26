@@ -55,8 +55,9 @@ class Jetpack_Related_Posts_Customize {
 		$selective_options = array();
 
 		foreach ( $this->get_options( $wp_customize ) as $key => $field ) {
-			$selective_options[] = "$this->prefix[$key]";
-			$wp_customize->add_setting( "$this->prefix[$key]",
+			$control_id = "$this->prefix[$key]";
+			$selective_options[] = $control_id;
+			$wp_customize->add_setting( $control_id,
 				array(
 					'default' 	 => isset( $field['default'] ) ? $field['default'] : '',
 					'type' 		 => isset( $field['setting_type'] ) ? $field['setting_type'] : 'option',
@@ -67,13 +68,12 @@ class Jetpack_Related_Posts_Customize {
 			$control_settings = array(
 				'label' 	  => isset( $field['label'] ) ? $field['label'] : '',
 				'description' => isset( $field['description'] ) ? $field['description'] : '',
-				'settings' 	  => "$this->prefix[$key]",
+				'settings' 	  => $control_id,
 				'type' 	      => isset( $field['control_type'] ) ? $field['control_type'] : 'text',
 				'section' 	  => $this->prefix,
 				'priority' 	  => 10,
 				'active_callback' => isset( $field['active_callback'] ) ? $field['active_callback'] : __CLASS__ . '::is_single',
 			);
-			$control_id = "$this->prefix[$key]";
 			switch ( $field['control_type'] ) {
 				case 'text':
 				case 'checkbox':

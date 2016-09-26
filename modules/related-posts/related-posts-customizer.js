@@ -10,7 +10,7 @@
 			var setActiveState, isDisplayed;
 
 			isDisplayed = function() {
-				return showHeadlineSetting.get();
+				return showHeadlineSetting.findControls()[0].active.get() && showHeadlineSetting.get();
 			};
 
 			setActiveState = function() {
