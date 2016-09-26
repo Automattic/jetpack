@@ -13,6 +13,7 @@ package.json
 gulpfile.js
 node_modules
 languages/jetpack.pot
+LICENSE.txt
 _inc/lib/icalendar-reader.php
 modules/shortcodes/upcoming-events.php
 modules/widgets/upcoming-events.php
