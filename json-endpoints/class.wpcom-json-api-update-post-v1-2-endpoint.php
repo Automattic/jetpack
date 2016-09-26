@@ -690,6 +690,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$type = get_post_type( $post_id );
 		}
 
-		return ! empty( $type ) && ! in_array( $type, array( 'post', 'page', 'revision' ) );
+		return ! empty( $type ) && ! in_array( $type, array( 'post', 'revision' ) );
 	}
 }
