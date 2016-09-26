@@ -142,7 +142,7 @@ const Main = React.createClass( {
 			case '/apps':
 				pageComponent = <Apps siteRawUrl={ this.props.siteRawUrl } />;
 				break;
-			case '/professional':
+			case '/plans':
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/settings':
@@ -244,7 +244,7 @@ window.wpNavMenuClassChange = function() {
 		'#/',
 		'#/dashboard',
 		'#/apps',
-		'#/professional'
+		'#/plans'
 	];
 
 	// Clear currents
@@ -267,7 +267,7 @@ window.wpNavMenuClassChange = function() {
 
 	const $body = jQuery( 'body' );
 
-	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#security"], .dops-button[href="#professional"]', function() {
+	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#security"], .dops-button[href="#plans"]', function() {
 		window.scrollTo( 0, 0 );
 	} );
 

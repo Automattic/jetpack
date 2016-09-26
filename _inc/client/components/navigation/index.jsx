@@ -34,8 +34,8 @@ const Navigation = React.createClass( {
 						{ __( 'Apps', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
-						path="#professional"
-						selected={ this.props.route.path === '/professional' }>
+						path="#plans"
+						selected={ this.props.route.path === '/plans' }>
 						{ __( 'Plans', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
