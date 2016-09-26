@@ -13,7 +13,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function setUp() {
 		parent::setUp();
+		Jetpack_Sync_Settings::update_settings( array( 'real_time_full_sync' => 1 ) );
 		$this->full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
+	}
+
+	function tearDown() {
+		Jetpack_Sync_Settings::update_settings( array( 'real_time_full_sync' => 0 ) );
 	}
 
 	function test_enqueues_sync_start_action() {
@@ -58,28 +63,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$cancelled_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_cancelled' );
 
 		$this->assertTrue( $cancelled_event !== false );
-	}
-
-	function test_full_sync_lock_has_one_hour_timeout() {
-		$this->started_sync_count = 0;
-
-		add_action( 'jetpack_full_sync_start', array( $this, 'count_full_sync_start' ) );
-
-		$this->full_sync->start();
-
-		$this->assertEquals( 1, $this->started_sync_count );
-
-		// fake the last sync being over an hour ago
-		$prefix = Jetpack_Sync_Module_Full_Sync::STATUS_OPTION_PREFIX;
-		update_option( "{$prefix}_started", time() - 3700 );
-
-		$this->full_sync->start();
-
-		$this->assertEquals( 2, $this->started_sync_count );
-	}
-
-	function count_full_sync_start() {
-		$this->started_sync_count += 1;
 	}
 
 	function test_full_sync_can_select_modules() {
