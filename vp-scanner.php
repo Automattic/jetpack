@@ -93,53 +93,192 @@ function vp_is_interesting_file($file) {
 }
 
 /**
+ * Uses the PHP tokenizer to split a file into 3 arrays: PHP code with no comments,
+ * PHP code with comments, and HTML/JS code.
+ *
+ * @param string $file The file path to read and parse
+ * @return array An array with 3 arrays of lines
+ */
+function split_file_to_php_html( $file ) {
+	$source = file_get_contents( $file );
+	$tokens = token_get_all( $source );
+
+	$ret = array( 'php' => array(), 'php-with-comments' => array(), 'html' => array() );
+	$current_line = 0;
+	$mode = 'html'; // need to see an open tag to switch to PHP mode
+
+	foreach ( $tokens as $token ) {
+		if ( ! is_array( $token ) ) {
+			// single character, can't switch our mode; just add it and continue
+			// if it's PHP, should go into both versions; mode 'php' will do that
+			add_text_to_parsed( $ret, $mode, $current_line, $token );
+			$current_line += substr_count( $token, "\n" );
+		} else {
+			// more complex tokens is the interesting case
+			list( $id, $text, $line ) = $token;
+			
+			if ( 'php' === $mode ) {
+				// we're in PHP code
+
+				// might be a comment
+				if ( T_COMMENT === $id || T_DOC_COMMENT === $id ) {
+					// add it to the PHP with comments array only
+					add_text_to_parsed( $ret, 'php-with-comments', $current_line, $text );
+
+					// make sure to count newlines in comments 
+					$current_line += substr_count( $text, "\n" );
+					continue;
+				}
+
+				// otherwise add it to both the PHP array and the with comments array
+				add_text_to_parsed( $ret, $mode, $current_line, $text );
+
+				// then see if we're breaking out
+				if ( T_CLOSE_TAG === $id ) {
+					$mode = 'html';
+				}
+			} else if ( 'html' === $mode ) {
+				// we're in HTML code
+
+				// if we see an open tag, switch to PHP
+				if ( T_OPEN_TAG === $id || T_OPEN_TAG_WITH_ECHO === $id ) {
+					$mode = 'php';
+				}
+
+				// add to the HTML array (or PHP if it was an open tag)
+				// if it is PHP, this will add it to both arrays, which is what we want
+				add_text_to_parsed( $ret, $mode, $current_line, $text );
+			}
+			$current_line += substr_count( $text, "\n" );
+		}
+	}
+
+	return $ret;
+}
+
+/**
+ * Helper function for split_file_to_php_html; adds a chunk of text to the arrays we'll return.
+ * @param array $parsed The array containing all the languages we'll return
+ * @param string $prefix The prefix for the languages we want to add this text to
+ * @param int $line_number The line number that this text goes on
+ * @param string $text The text to add
+ */
+function add_text_to_parsed( &$parsed, $prefix, $line_number, $text ) {
+	foreach ( $parsed as $lang => $lines ) {
+		// add the line to all the parsed arrays that start with $prefix
+		// this means calling add_line_to_parsed( $ret, 'php', $line ) will add to both 'php' and 'php-with-comments'
+		// but calling add_line_to_parsed( $ret, 'php-with-comments', $line ) will only add to 'php-with-comments'
+		if ( strpos( $lang, $prefix ) === 0 ) {
+			if ( ! isset( $parsed[ $lang ][ $line_number ] ) ) {
+				$parsed[ $lang ][ $line_number ] = '';
+			}
+			$parsed[ $lang ][ $line_number ] .= $text;
+		}
+	}
+}
+
+/**
  * Scans a file with the registered signatures. To report a security notice for a specified signature, all its regular
  * expressions should result in a match.
  * @param $file the filename to be scanned.
  * @param null $tmp_file used if the file to be scanned doesn't exist or if the filename doesn't match vp_is_interesting_file().
  * @return array|bool false if no matched signature is found. A list of matched signatures otherwise.
  */
-function vp_scan_file($file, $tmp_file = null) {
+function vp_scan_file( $file, $tmp_file = null, $use_parser = false ) {
 	$real_file = vp_get_real_file_path( $file, $tmp_file );
 	$file_size = file_exists( $real_file ) ? @filesize( $real_file ) : 0;
-	if ( !is_readable( $real_file ) || !$file_size || $file_size > apply_filters( 'scan_max_file_size', 3 * 1024 * 1024 ) ) // don't scan empty or files larger than 3MB.
+	if ( !is_readable( $real_file ) || !$file_size || $file_size > apply_filters( 'scan_max_file_size', 3 * 1024 * 1024 ) ) { // don't scan empty or files larger than 3MB.
 		return false;
+	}
 
 	$file_content = null;
+	$file_parsed = null;
 	$skip_file = apply_filters_ref_array( 'pre_scan_file', array ( false, $file, $real_file, &$file_content ) );
-	if ( false !== $skip_file ) // maybe detect malware without regular expressions.
+	if ( false !== $skip_file ) { // maybe detect malware without regular expressions.
 		return $skip_file;
+	}
 
-	if ( !vp_is_interesting_file( $file ) ) // only scan relevant files.
+	if ( !vp_is_interesting_file( $file ) ) { // only scan relevant files.
 		return false;
+	}
 
-	if ( !isset( $GLOBALS['vp_signatures'] ) )
+	if ( !isset( $GLOBALS['vp_signatures'] ) ) {
 		$GLOBALS['vp_signatures'] = array();
+	}
 
 	$found = array ();
 	foreach ( $GLOBALS['vp_signatures'] as $signature ) {
-		if ( !is_object( $signature ) || !isset( $signature->patterns ) )
+		if ( !is_object( $signature ) || !isset( $signature->patterns ) ) {
 			continue;
+		}
 		// if there is no filename_regex, we assume it's the same of vp_is_interesting_file().
 		if ( empty( $signature->filename_regex ) || preg_match( '#' . addcslashes( $signature->filename_regex, '#' ) . '#i', $file ) ) {
-			if ( null === $file_content || !is_array( $file_content ) )
+			if ( null === $file_content || !is_array( $file_content ) ) {
 				$file_content = file( $real_file );
+
+				if ( $use_parser ) {
+					$file_parsed = split_file_to_php_html( $real_file );
+				}
+			}
 
 			$is_vulnerable = true;
 			$matches = array ();
 			if ( is_array( $file_content ) && ( $signature->patterns ) && is_array( $signature->patterns ) ) {
-				reset( $signature->patterns );
-				while ( $is_vulnerable && list( , $pattern ) = each( $signature->patterns ) ) {
-					if ( ! $match = preg_grep( '#' . addcslashes( $pattern, '#' ) . '#im', $file_content ) ) {
-						$is_vulnerable = false;
-						break;
+				if ( ! $use_parser ) {
+					reset( $signature->patterns );
+					while ( $is_vulnerable && list( , $pattern ) = each( $signature->patterns ) ) {
+						if ( ! $match = preg_grep( '#' . addcslashes( $pattern, '#' ) . '#im', $file_content ) ) {
+							$is_vulnerable = false;
+							break;
+						}
+						$matches += $match;
 					}
-					$matches += $match;
+				} else {
+					// use the language specified in the signature if it has one
+					if ( ! empty( $signature->target_language ) && array_key_exists( $signature->target_language, $file_parsed ) ) {
+						$code = $file_parsed[ $signature->target_language ];
+					} else {
+						$code = $file_content;
+					}
+					// same code as the '! $use_parser' branch above
+					reset( $signature->patterns );
+					while ( $is_vulnerable && list( , $pattern ) = each( $signature->patterns ) ) {
+						if ( ! $match = preg_grep( '#' . addcslashes( $pattern, '#' ) . '#im', $code ) ) {
+							$is_vulnerable = false;
+							break;
+						}
+						$matches += $match;
+					}
 				}
 			} else {
 				$is_vulnerable = false;
 			}
-			$debug_data = array( 'matches' => $matches );
+
+			// convert the matched line to an array of details showing context around the lines
+			$lines = array();
+			if ( $use_parser ) {
+				$lines_parsed = array();
+				$line_indices_parsed = array_keys( $code );
+			}
+			foreach ( $matches as $line => $text ) {
+				$lines = array_merge( $lines, range( $line - 1, $line + 1 ) );
+				if ( $use_parser ) {
+					$idx = array_search( $line, $line_indices_parsed );
+					$lines_parsed = array_merge( $lines_parsed, array( $line_indices_parsed[ $idx - 1 ], $line_indices_parsed[ $idx ], $line_indices_parsed[ $idx + 1 ] ) );
+				}
+			}
+			$details = array_intersect_key( $file_content, array_flip( $lines ) );
+			if ( $use_parser ) {
+				$details_parsed = array_intersect_key( $code, array_flip( $lines_parsed ) );
+			}
+
+			// provide both 'matches' and 'details', as some places want 'matches'
+			// this matches the old behavior, which would add 'details' to some items, without replacing 'matches'
+			$debug_data = array( 'matches' => $matches, 'details' => $details  );
+			if ( $use_parser ) {
+				$debug_data['details_parsed'] = $details_parsed;
+			}
+
 			// Additional checking needed?
 			if ( method_exists( $signature, 'get_detailed_scanner' ) && $scanner = $signature->get_detailed_scanner() )
 				$is_vulnerable = $scanner->scan( $is_vulnerable, $file, $real_file, $file_content, $debug_data );
