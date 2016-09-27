@@ -115,7 +115,7 @@ export const SearchResults = ( {
 				{ element[1] }
 				<Button
 					compact={ true }
-					href="#professional"
+					href="#/plan"
 				>
 					{ __( 'Pro' ) }
 				</Button>
