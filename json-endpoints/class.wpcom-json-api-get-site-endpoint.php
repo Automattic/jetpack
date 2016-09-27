@@ -443,7 +443,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'advanced_seo_title_formats':
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						if ( WPCOM_Store::has_business_plan() ) {
+						if ( A8C\SEO\Helpers\is_enabled_advanced_seo() ) {
 							$options[ $key ] = $site->get_advanced_seo_title_formats();
 						}
 					}
