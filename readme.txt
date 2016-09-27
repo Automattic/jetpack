@@ -79,6 +79,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Staging Mode: added Kinsta staging URLs to the list of URLs that automatically turn on Staging Mode. #5209
+
 **Bug Fixes:**
 
 * Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
