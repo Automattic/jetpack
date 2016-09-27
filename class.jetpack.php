@@ -5258,6 +5258,7 @@ p {
 		$known_staging = array(
 			'urls' => array(
 				'#\.staging\.wpengine\.com$#i', // WP Engine
+				'#\.staging\.kinsta\.com$#i',   // Kinsta.com
 				),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',      // WP Engine
