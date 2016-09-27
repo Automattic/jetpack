@@ -76,7 +76,7 @@ export const Page = ( props ) => {
 				{ element[1] }
 				<Button
 					compact={ true }
-					href="#/plan"
+					href="#/plans"
 				>
 					{ __( 'Pro' ) }
 				</Button>

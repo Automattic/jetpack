@@ -267,7 +267,7 @@ window.wpNavMenuClassChange = function() {
 
 	const $body = jQuery( 'body' );
 
-	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#security"], .dops-button[href="#plans"]', function() {
+	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#/security"], .dops-button[href="#/plans"]', function() {
 		window.scrollTo( 0, 0 );
 	} );
 
