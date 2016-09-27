@@ -433,8 +433,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'advanced_seo_title_formats':
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						if ( ! WPCOM_Store::has_business_plan() ) {
-							return new WP_Error( 'unauthorized', __( 'Advanced SEO can only be set on sites that have a business plan.' ), 403 );
+						if ( ! A8C\SEO\Helpers\is_enabled_advanced_seo() ) {
+							return new WP_Error( 'unauthorized', __( 'Advanced SEO is not enabled for this site.' ), 403 );
 						}
 
 						if ( ! A8C\SEO\Titles\are_valid_title_formats( $value ) ) {
