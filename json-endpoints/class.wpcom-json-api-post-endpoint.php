@@ -425,7 +425,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					// Only business plan subscribers can view custom meta description
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						if ( 'advanced_seo_description' == $meta['meta_key'] and ! WPCOM_Store::has_business_plan() ) {
+						if ( 'advanced_seo_description' == $meta['meta_key'] && ! A8C\SEO\Helpers\is_enabled_advanced_seo() ) {
 							$show = false;
 						}
 					}
