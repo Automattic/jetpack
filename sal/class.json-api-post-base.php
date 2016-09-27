@@ -133,7 +133,7 @@ abstract class SAL_Post {
 					);
 
 			// Only business plan subscribers can view custom meta description
-			if ( 'advanced_seo_description' == $meta_key and ! WPCOM_Store::has_business_plan() ) {
+			if ( 'advanced_seo_description' == $meta_key && ! A8C\SEO\Helpers\is_enabled_advanced_seo() ) {
 				$show = false;
 			}
 			
