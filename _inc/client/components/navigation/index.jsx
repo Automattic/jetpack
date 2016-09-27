@@ -24,18 +24,18 @@ const Navigation = React.createClass( {
 			navTabs = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
-						path="#dashboard"
+						path="#/dashboard"
 						selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
-						path="#apps"
+						path="#/apps"
 						selected={ this.props.route.path === '/apps' }>
 						{ __( 'Apps', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
-						path="#professional"
-						selected={ this.props.route.path === '/professional' }>
+						path="#/plans"
+						selected={ this.props.route.path === '/plans' }>
 						{ __( 'Plans', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
@@ -45,7 +45,7 @@ const Navigation = React.createClass( {
 			if ( this.props.userCanViewStats || this.props.isModuleActivated( 'protect' ) ) {
 				dashboard = (
 					<NavItem
-						path="#dashboard"
+						path="#/dashboard"
 						selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
@@ -55,7 +55,7 @@ const Navigation = React.createClass( {
 				<NavTabs selectedText={ this.props.route.name }>
 					{ dashboard }
 					<NavItem
-						path="#apps"
+						path="#/apps"
 						selected={ this.props.route.path === '/apps' }>
 						{ __( 'Apps', { context: 'Navigation item.' } ) }
 					</NavItem>
