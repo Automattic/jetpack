@@ -531,8 +531,8 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 				}
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-					if ( 'advanced_seo_description' == $meta->key and ! WPCOM_Store::has_business_plan() ) {
-						return new WP_Error( 'unauthorized', __( 'Advanced SEO can only be set on sites that have a business plan.' ), 403 );
+					if ( 'advanced_seo_description' == $meta->key && ! A8C\SEO\Helpers\is_enabled_advanced_seo() ) {
+						return new WP_Error( 'unauthorized', __( 'Advanced SEO is not enabled for this site.' ), 403 );
 					}
 				}
 
