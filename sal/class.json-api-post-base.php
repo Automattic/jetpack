@@ -282,12 +282,12 @@ abstract class SAL_Post {
 		$metadata = wp_get_attachment_metadata( $attachment->ID );
 
 		$result = array(
-			'ID'		=> (int) $attachment->ID,
-			'URL'           => (string) wp_get_attachment_url( $attachment->ID ),
-			'guid'		=> (string) $attachment->guid,
-			'mime_type'	=> (string) $attachment->post_mime_type,
-			'width'		=> (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
-			'height'	=> (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
+			'ID'        => (int) $attachment->ID,
+			'URL'       => (string) wp_get_attachment_url( $attachment->ID ),
+			'guid'      => (string) $attachment->guid,
+			'mime_type' => (string) $attachment->post_mime_type,
+			'width'     => (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
+			'height'    => (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
 		);
 
 		if ( isset( $metadata['duration'] ) ) {
