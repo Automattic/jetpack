@@ -17,7 +17,6 @@ class Jetpack_Sync_Defaults {
 		'tag_base',
 		'comment_moderation',
 		'default_comment_status',
-		'jetpack_site_icon_url',
 		'page_on_front',
 		'rss_use_excerpt',
 		'subscription_options',
@@ -151,6 +150,7 @@ class Jetpack_Sync_Defaults {
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
+		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
 	);
 
 	static $blacklisted_post_types = array(
