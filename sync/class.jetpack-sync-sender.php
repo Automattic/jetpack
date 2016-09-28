@@ -11,7 +11,6 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
  */
 class Jetpack_Sync_Sender {
 
-	const SYNC_THROTTLE_OPTION_NAME = 'jetpack_sync_min_wait';
 	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
 	const WPCOM_ERROR_SYNC_DELAY = 60;
 
@@ -319,11 +318,7 @@ class Jetpack_Sync_Sender {
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->reset_data();
 		}
-
-		// leave if the user was running having an older version of Jetpack (4.2)
-		delete_option( self::SYNC_THROTTLE_OPTION_NAME );
-		delete_option( self::NEXT_SYNC_TIME_OPTION_NAME );
-
+		
 		foreach ( array( 'sync', 'full_sync' ) as $queue_name ) {
 			delete_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name );
 		}
