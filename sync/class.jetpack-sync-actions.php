@@ -11,6 +11,7 @@ class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
 	const INITIAL_SYNC_MULTISITE_INTERVAL = 10;
+	const DEFAULT_SYNC_CRON_INTERVAL = '1min';
 
 	static function init() {
 
@@ -39,15 +40,7 @@ class Jetpack_Sync_Actions {
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
 		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
 
-		if ( ! wp_next_scheduled( 'jetpack_sync_cron' ) ) {
-			// Schedule a job to send pending queue items once a minute
-			wp_schedule_event( time(), '1min', 'jetpack_sync_cron' );
-		}
-
-		if ( ! wp_next_scheduled( 'jetpack_sync_full_cron' ) ) {
-			// Schedule a job to send pending queue items once a minute
-			wp_schedule_event( time(), '1min', 'jetpack_sync_full_cron' );
-		}
+		self::init_sync_cron_jobs();
 
 		/**
 		 * Fires on every request before default loading sync listener code.
@@ -314,6 +307,56 @@ class Jetpack_Sync_Actions {
 
 		// bind the sending process
 		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 4 );
+	}
+
+	static function sanitize_filtered_sync_cron_schedule( $schedule ) {
+		$schedule = sanitize_key( $schedule );
+		$schedules = wp_get_schedules();
+
+		// Make sure that the schedule has actually been registered using the `cron_intervals` filter.
+		if ( isset( $schedules[ $schedule ] ) ) {
+			return $schedule;
+		}
+
+		return self::DEFAULT_SYNC_CRON_INTERVAL;
+	}
+
+	static function maybe_schedule_sync_cron( $schedule, $hook ) {
+		if ( ! $hook ) {
+			return;
+		}
+		$schedule = self::sanitize_filtered_sync_cron_schedule( $schedule );
+
+		if ( ! wp_next_scheduled( $hook ) ) {
+			// Schedule a job to send pending queue items once a minute
+			wp_schedule_event( time(), $schedule, $hook );
+		} else if ( $schedule != wp_get_schedule( $hook ) ) {
+			// If the schedule has changed, update the schedule
+			wp_clear_scheduled_hook( $hook );
+			wp_schedule_event( time(), $schedule, $hook );
+		}
+	}
+
+	static function init_sync_cron_jobs() {
+		/**
+		 * Allows overriding of the default incremental sync cron schedule which defaults to once per minute.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string '1min'
+		 */
+		$incremental_sync_cron_schedule = apply_filters( 'jetpack_sync_incremental_sync_interval', '1min' );
+		self::maybe_schedule_sync_cron( $incremental_sync_cron_schedule, 'jetpack_sync_cron' );
+
+		/**
+		 * Allows overriding of the full sync cron schedule which defaults to once per minute.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string '1min'
+		 */
+		$full_sync_cron_schedule = apply_filters( 'jetpack_sync_full_sync_interval', '1min' );
+		self::maybe_schedule_sync_cron( $full_sync_cron_schedule, 'jetpack_sync_full_cron' );
 	}
 }
 
