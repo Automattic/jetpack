@@ -89,6 +89,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Send full and incremental queues separately so that a failure in one doesn't block the other. #5172
 * Invoke full sync after enqueue. #5190
 * Limit dequeue time to 1/3 of PHP's max execution time to prevent long renders clogging sync. #5194
+* UI: Update professional slug to plans in the new Jetpack React UI. #5206
 
 **Support Enhancements**
 
