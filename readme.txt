@@ -85,6 +85,13 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
 * Internationalization: added fallback so that a warning isn't thrown if translations don't exist.  #5166
+* Send full and incremental queues separately so that a failure in one doesn't block the other. #5172
+* Invoke full sync after enqueue. #5190
+* Limit dequeue time to 1/3 of PHP's max execution time to prevent long renders clogging sync. #5194
+
+**Support Enhancements**
+
+* Add option to disable rendering of filtered content during sync. #5171
 
 = 4.3.1 =
 
