@@ -117,19 +117,34 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) ) {
-			remove_filter( 'the_content', array( Jetpack_Likes::init(), 'post_likes' ), 30 );
-			remove_filter( 'the_content', array( Jetpack_RelatedPosts::init(), 'filter_add_target_to_dom' ), 40 );
-			remove_filter( 'the_content', array( Jetpack_RelatedPosts::init(), 'test_for_shortcode' ), 0 );
-			remove_filter( 'the_content', 'sharing_display', 19 );
+			$filters = array(
+				array( 'the_content', array( Jetpack_Likes::init(), 'post_likes' ), 30 ),
+				array( 'the_content', array( Jetpack_RelatedPosts::init(), 'filter_add_target_to_dom' ), 40 ),
+				array( 'the_content', array( Jetpack_RelatedPosts::init(), 'test_for_shortcode' ), 0 ),
+				array( 'the_content', 'sharing_display', 19 ),
+				array( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30 ),
+				array( 'the_excerpt', 'sharing_display', 19 ),
+			);
+
+			$filters_to_unhook = array();
+			foreach ( $filters as $filter ) {
+				if ( has_filter( $filter[0], $filter[1] ) ) {
+					$filters_to_unhook[] = $filter;
+				}
+			}
+
+			foreach ( $filters_to_unhook as $filter ) {
+				call_user_func_array( 'remove_filter', $filter );
+			}
 
 			/** This filter is already documented in core. wp-includes/post-template.php */
 			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
-
-			remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30 );
-			remove_filter( 'the_excerpt', 'sharing_display', 19 );
-
 			/** This filter is already documented in core. wp-includes/post-template.php */
 			$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
+
+			foreach ( $filters_to_unhook as $filter ) {
+				call_user_func_array( 'add_filter', $filter );
+			}
 		}
 
 		if ( has_post_thumbnail( $post->ID ) ) {
