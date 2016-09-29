@@ -253,10 +253,17 @@ class Jetpack_Debugger {
 				<p class="jetpack-show-contact-form"><?php echo sprintf( __( 'If none of these help you find a solution, <a href="%s">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ), Jetpack::admin_url( array( 'page' => 'jetpack-debugger', 'contact' => true ) ) ); ?>
 				</p>
 				<?php endif; ?>
+				<hr />
 				<?php if ( Jetpack::is_active() ) : ?>
-					<hr />
 					<div id="connected-user-details">
 						<p><?php printf( __( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ), esc_html( Jetpack::get_master_user_email() ) ); ?></p>
+					</div>
+				<?php else : ?>
+					<div id="dev-mode-details">
+						<p><?php printf(
+							__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
+							'https://jetpack.com/support/development-mode/'
+						); ?></p>
 					</div>
 				<?php endif; ?>
 			</div>
