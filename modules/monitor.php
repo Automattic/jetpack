@@ -89,6 +89,7 @@ class Jetpack_Monitor {
 									);
 								}
 								?></p>
+								<p>&nbsp;</p>
 							<?php } ?>
 						</td>
 					</tr>
