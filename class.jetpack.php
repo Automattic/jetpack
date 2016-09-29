@@ -2818,13 +2818,11 @@ p {
 	 */
 	public static function get_additional_stat_data( $prefix = '' ) {
 		global $wpdb;
-		$id = get_current_blog_id();
-		$blog_prefix = $wpdb->get_blog_prefix( $id );
-
 		$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
 		$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
-		$return["{$prefix}users"]          = $wpdb->get_var( "SELECT COUNT(USER_ID) FROM $wpdb->usermeta WHERE meta_key = '{$blog_prefix}capabilities'" );
+		$return["{$prefix}users"]          = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities'" );
 		$return["{$prefix}site-count"]     = 0;
+
 		if ( function_exists( 'get_blog_count' ) ) {
 			$return["{$prefix}site-count"] = get_blog_count();
 		}
