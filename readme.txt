@@ -91,6 +91,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Limit dequeue time to 1/3 of PHP's max execution time to prevent long renders clogging sync. #5194
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Sync: Delete sync options when resetting the sync. #5204
+* Sync: Remove unused code that that caused PHP notice. #5195
 
 **Support Enhancements**
 
