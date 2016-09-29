@@ -188,7 +188,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'verification-tools' => array(
 				'name' => _x( 'Site Verification', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Verify your site or domain with Google Search Console, Pinterest, and others.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Verify your site or domain with Google Search Console, Pinterest, and Bing.', 'Module Description', 'jetpack' ),
 			),
 
 			'videopress' => array(

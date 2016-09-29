@@ -17,7 +17,6 @@ class Jetpack_Sync_Defaults {
 		'tag_base',
 		'comment_moderation',
 		'default_comment_status',
-		'jetpack_site_icon_url',
 		'page_on_front',
 		'rss_use_excerpt',
 		'subscription_options',
@@ -151,6 +150,7 @@ class Jetpack_Sync_Defaults {
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
+		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
 	);
 
 	static $blacklisted_post_types = array(
@@ -257,12 +257,22 @@ class Jetpack_Sync_Defaults {
 		return false;
 	}
 
+	static function get_max_sync_execution_time() {
+		$max_exec_time = intval( ini_get( 'max_execution_time' ) );
+		if ( 0 === $max_exec_time ) {
+			// 0 actually means "unlimited", but let's not treat it that way
+			$max_exec_time = 60;
+		}
+		return floor( $max_exec_time / 3 );
+	}
+
 	static $default_network_options_whitelist = array(
 		'site_name',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'active_sitewide_plugins',
 	);
+
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
@@ -275,6 +285,7 @@ class Jetpack_Sync_Defaults {
 	static $default_post_types_blacklist = array();
 	static $default_meta_blacklist = array();
 	static $default_disable = 0; // completely disable sending data to wpcom
+	static $default_render_filtered_content = 1; // render post_filtered_content
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
 }

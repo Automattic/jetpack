@@ -152,18 +152,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function get_i18n_data() {
 
-		// Try fetching by patch
-		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_locale() . '.json' );
+		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_locale() . '.json';
 
-		if ( false === $locale_data ) {
-
-			// Return empty if we have nothing to return so it doesn't fail when parsed in JS
-			return '{}';
-		} else {
-
-			// We got the json file so let's return it
-			return $locale_data;
+		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
+			$locale_data = @file_get_contents( $i18n_json );
+			if ( $locale_data ) {
+				return $locale_data;
+			}
 		}
+
+		// Return empty if we have nothing to return so it doesn't fail when parsed in JS
+		return '{}';
 	}
 
 	/**
@@ -281,7 +280,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'jetpack_holiday_snow_enabled' => function_exists( 'jetpack_holiday_snow_option_name' ) ? jetpack_holiday_snow_option_name() : false,
 			),
 			'userData' => array(
-				'othersLinked' => jetpack_get_other_linked_users(),
+//				'othersLinked' => Jetpack::get_other_linked_admins(),
 				'currentUser'  => jetpack_current_user_data(),
 			),
 			'locale' => $this->get_i18n_data(),
@@ -359,37 +358,6 @@ function jetpack_show_jumpstart() {
 	}
 
 	return true;
-}
-
-/*
- * Checks to see if there are any other users available to become primary
- * Users must both:
- * - Be linked to wpcom
- * - Be an admin
- *
- * @return mixed False if no other users are linked, Int if there are.
- */
-function jetpack_get_other_linked_users() {
-	// If only one admin
-	$all_users = count_users();
-	if ( 2 > $all_users['avail_roles']['administrator'] ) {
-		return false;
-	}
-
-	$users = get_users();
-	$available = array();
-	// If no one else is linked to dotcom
-	foreach ( $users as $user ) {
-		if ( isset( $user->caps['administrator'] ) && Jetpack::is_user_connected( $user->ID ) ) {
-			$available[] = $user->ID;
-		}
-	}
-
-	if ( 2 > count( $available ) ) {
-		return false;
-	}
-
-	return count( $available );
 }
 
 /*

@@ -20,9 +20,6 @@ class Jetpack_Sync_Actions {
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ), 10, 0 );
 
-		// When imports are finished, schedule a full sync
-		add_action( 'import_end', array( __CLASS__, 'schedule_full_sync' ) );
-
 		// When importing via cron, do not sync
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
@@ -40,10 +37,16 @@ class Jetpack_Sync_Actions {
 		// cron hooks
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
+		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
 
 		if ( ! wp_next_scheduled( 'jetpack_sync_cron' ) ) {
 			// Schedule a job to send pending queue items once a minute
 			wp_schedule_event( time(), '1min', 'jetpack_sync_cron' );
+		}
+
+		if ( ! wp_next_scheduled( 'jetpack_sync_full_cron' ) ) {
+			// Schedule a job to send pending queue items once a minute
+			wp_schedule_event( time(), '1min', 'jetpack_sync_full_cron' );
 		}
 
 		/**
@@ -228,7 +231,7 @@ class Jetpack_Sync_Actions {
 
 		self::initialize_listener();
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
-		self::do_cron_sync(); // immediately run a cron sync, which sends pending data
+		self::do_cron_full_sync(); // immediately run a cron full sync, which sends pending data
 	}
 
 	static function minute_cron_schedule( $schedules ) {
@@ -257,7 +260,7 @@ class Jetpack_Sync_Actions {
 		}
 
 		do {
-			$next_sync_time = self::$sender->get_next_sync_time();
+			$next_sync_time = self::$sender->get_next_sync_time( 'sync' );
 
 			if ( $next_sync_time ) {
 				$delay = $next_sync_time - time() + 1;
@@ -269,6 +272,34 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = self::$sender->do_sync();
+		} while ( $result );
+	}
+
+	static function do_cron_full_sync() {
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		self::initialize_sender();
+
+		// remove shutdown hook - no need to sync twice
+		if ( has_action( 'shutdown', array( self::$sender, 'do_sync' ) ) ) {
+			remove_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+		}
+
+		do {
+			$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
+
+			if ( $next_sync_time ) {
+				$delay = $next_sync_time - time() + 1;
+				if ( $delay > 15 ) {
+					break;
+				} elseif ( $delay > 0 ) {
+					sleep( $delay );
+				}
+			}
+
+			$result = self::$sender->do_full_sync();
 		} while ( $result );
 	}
 
@@ -286,9 +317,18 @@ class Jetpack_Sync_Actions {
 	}
 }
 
-// Allow other plugins to add filters before we initialize the actions.
-// Load the listeners if before modules get loaded so that we can capture version changes etc.
-add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
+/**
+ * If the site is using alternate cron, we need to init the listener and sender before cron
+ * runs. So, we init at a priority of 9.
+ * 
+ * If the site is using a regular cron job, we init at a priority of 90 which gives plugins a chance
+ * to add filters before we initialize.
+ */
+if ( defined( 'ALTERNATE_WP_CRON' ) && ALTERNATE_WP_CRON ) {
+	add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 9 );
+} else {
+	add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
+}
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'schedule_initial_sync' ), 10, 2 );
