@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stefmattana, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 4.3
+Stable tag: 4.3.1
 Requires at least: 4.5
 Tested up to: 4.6.1
 
@@ -75,9 +75,20 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.3.2 =
+
+**Enhancements**
+
+* Staging Mode: added Kinsta staging URLs to the list of URLs that automatically turn on Staging Mode. #5209
+
+**Bug Fixes:**
+
+* Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
+* Internationalization: added fallback so that a warning isn't thrown if translations don't exist.  #5166
+
 = 4.3.1 =
 
-* Release date: September 7, 2016
+* Release date: September 8, 2016
 
 **Support Enhancements**
 
@@ -90,7 +101,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled.
 * Admin Page: make sure all translated strings are encoded properly.
 * Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests.
-* Admin Page: less calls to the database means faster load time.
+* Admin Page: fewer calls to the database means faster load time.
+* Admin Page: search icon no longer overlaps the global notices.
+* Admin Page: make sure that non-admins can also modify Spellchecking settings.
 * General: Improve random number generation for compatibility with more hosts.
 * General: Add deprecated PHP file (class.jetpack-landing-page.php) back as an empty file, to avoid generating fatal errors on sites with aggressive caching.
 * General: Ensure concatenated CSS is generated for RTL languages.
@@ -98,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Stats: fix display for sites with pretty permalinks disabled.
 * Subscriptions: ensure that no email is sent when updating a published post.
 * Sync: To improve performance, add snapTW to the list of post meta data that won't be synchronized for each post.
+* Sync: do not schedule a full sync after each import.
 * Verification Tools: in the Settings card, use appropriate link for each service.
 
 
@@ -176,4 +190,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * The PHP warnings of Sitemaps stylesheets have been eliminated.
 * We’ve done away with the warnings that appeared when Tonesque processes a file which claims to be one filetype, but is actually another.
 * We’ve exterminated PHP notices that appeared when using Random Redirect, as well as when the author wasn't set.
-
