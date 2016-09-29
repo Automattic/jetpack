@@ -116,8 +116,16 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
-		/** This filter is already documented in core. wp-includes/post-template.php */
 		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) ) {
+
+			remove_filter( 'the_content', array( Jetpack_Likes::init(), 'post_likes' ), 30 );
+			remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30 );
+			remove_filter( 'the_content', array( Jetpack_RelatedPosts::init(), 'filter_add_target_to_dom' ), 40 );
+			remove_filter( 'the_content', array( Jetpack_RelatedPosts::init(), 'test_for_shortcode' ), 0 );
+			remove_filter( 'the_content', 'sharing_display', 19 );
+			remove_filter( 'the_excerpt', 'sharing_display', 19 );
+
+			/** This filter is already documented in core. wp-includes/post-template.php */
 			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
 			$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
 		}
