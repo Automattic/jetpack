@@ -84,6 +84,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug Fixes:**
 
 * Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
+* Internationalization: added fallback so that a warning isn't thrown if translations don't exist.  #5166
 
 = 4.3.1 =
 
