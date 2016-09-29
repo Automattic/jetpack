@@ -142,8 +142,12 @@ class Jetpack_Widget_Conditions {
 				?>
 				<option value=""><?php _e( 'All taxonomy pages', 'jetpack' ); ?></option>
 				<?php
-
-				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
+				/**
+				 * Filters args passed to get_taxonomies.
+				 * @see https://developer.wordpress.org/reference/functions/get_taxonomies/
+				 * @param array jetpack_widget_visibility_tax_args
+				 */
+				$taxonomies = get_taxonomies( apply_filters( 'jetpack_widget_visibility_tax_args', array( '_builtin' => false ) ), 'objects' );
 				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
 
 				$parts = explode( '_tax_', $minor );
