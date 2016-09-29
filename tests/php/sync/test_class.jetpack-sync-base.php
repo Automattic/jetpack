@@ -25,6 +25,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected $sender;
 
 	protected $server;
+	protected $server_replicator;
 	protected $server_replica_storage;
 	protected $server_event_storage;
 
