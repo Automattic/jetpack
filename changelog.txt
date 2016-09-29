@@ -1,5 +1,11 @@
 == Changelog ==
 
+= 4.3.2 =
+
+* Release date: September 30, 2016
+
+**Bug Fixes:**
+
 = 4.3.1 =
 
 * Release date: September 8, 2016
