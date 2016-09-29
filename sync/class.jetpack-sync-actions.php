@@ -343,9 +343,9 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @since 4.4.0
 		 *
-		 * @param string '1min'
+		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL
 		 */
-		$incremental_sync_cron_schedule = apply_filters( 'jetpack_sync_incremental_sync_interval', '1min' );
+		$incremental_sync_cron_schedule = apply_filters( 'jetpack_sync_incremental_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL );
 		self::maybe_schedule_sync_cron( $incremental_sync_cron_schedule, 'jetpack_sync_cron' );
 
 		/**
@@ -353,9 +353,9 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @since 4.4.0
 		 *
-		 * @param string '1min'
+		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL
 		 */
-		$full_sync_cron_schedule = apply_filters( 'jetpack_sync_full_sync_interval', '1min' );
+		$full_sync_cron_schedule = apply_filters( 'jetpack_sync_full_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL );
 		self::maybe_schedule_sync_cron( $full_sync_cron_schedule, 'jetpack_sync_full_cron' );
 	}
 }
