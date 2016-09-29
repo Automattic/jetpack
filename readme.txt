@@ -80,6 +80,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Staging Mode: added Kinsta staging URLs to the list of URLs that automatically turn on Staging Mode. #5209
+* Sync: Add next_sync_time to sync status endpoint. #5173
 
 **Bug Fixes:**
 
