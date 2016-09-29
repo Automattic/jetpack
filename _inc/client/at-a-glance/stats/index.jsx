@@ -12,13 +12,18 @@ import Button from 'components/button';
 import Spinner from 'components/spinner';
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
  */
 import { imagePath } from 'constants';
 import { isDevMode } from 'state/connection';
-import { getInitialStateStatsData } from 'state/initial-state';
+import {
+	getInitialStateStatsData,
+	getSiteRawUrl,
+	getSiteAdminUrl
+} from 'state/initial-state';
 import QueryStatsData from 'components/data/query-stats-data';
 import DashStatsBottom from './dash-stats-bottom';
 
@@ -31,7 +36,8 @@ import {
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isFetchingModulesList as _isFetchingModulesList
+	isFetchingModulesList as _isFetchingModulesList,
+	getModules
 } from 'state/modules';
 
 const DashStats = React.createClass( {
@@ -106,15 +112,17 @@ const DashStats = React.createClass( {
 					console.log( error );
 				} );
 				return (
-					<p>
-						{
-							__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
-								components: {
-									a: <a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
-								}
-							} )
-						}
-					</p>
+					<div className="jp-at-a-glance__stats-inactive">
+						<span>
+							{
+								__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
+									components: {
+										a: <a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
+									}
+								} )
+							}
+						</span>
+					</div>
 				);
 			}
 			let chartData = this.statsChart( this.props.activeTab() );
@@ -127,7 +135,11 @@ const DashStats = React.createClass( {
 						}
 					</div>
 					<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
-						<DashStatsBottom statsData={ this.props.statsData } siteRawUrl={ this.props.siteRawUrl }/>
+						<DashStatsBottom
+							statsData={ this.props.statsData }
+							siteRawUrl={ this.props.siteRawUrl }
+							siteAdminUrl={ this.props.siteAdminUrl }
+						/>
 					</div>
 				</div>
 			);
@@ -139,7 +151,7 @@ const DashStats = React.createClass( {
 					</div>
 					<div className="jp-at-a-glance__stats-inactive-text">
 						{
-							isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
+							this.props.isDevMode ? __( 'Unavailable in Dev Mode' ) :
 							__( '{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
 								components: {
 									a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />,
@@ -149,7 +161,7 @@ const DashStats = React.createClass( {
 						}
 					</div>
 						{
-							isDevMode( this.props ) ? '' : (
+							this.props.isDevMode ? '' : (
 								<div className="jp-at-a-glance__stats-inactive-button">
 									<Button
 										onClick={ this.props.activateStats }
@@ -202,6 +214,11 @@ const DashStats = React.createClass( {
 	},
 
 	render: function() {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'stats' ) ) {
+			return null;
+		}
+
 		let range = this.props.activeTab();
 		return (
 			<div>
@@ -209,7 +226,7 @@ const DashStats = React.createClass( {
 				<DashSectionHeader label={ __( 'Site Stats' ) }>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
-				<Card className={ 'jp-at-a-glance__stats-card ' + ( isDevMode( this.props ) ? 'is-inactive' : '' ) }>
+				<Card className={ 'jp-at-a-glance__stats-card ' + ( this.props.isDevMode ? 'is-inactive' : '' ) }>
 					{ this.renderStatsArea() }
 				</Card>
 			</div>
@@ -217,13 +234,21 @@ const DashStats = React.createClass( {
 	}
 } );
 
+DashStats.propTypes = {
+	isDevMode: React.PropTypes.bool.isRequired,
+	siteRawUrl: React.PropTypes.string.isRequired,
+	siteAdminUrl: React.PropTypes.string.isRequired,
+	statsData: React.PropTypes.any.isRequired
+};
+
 export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			getModule: ( module_name ) => _getModule( state, module_name ),
+			moduleList: getModules( state ),
 			isFetchingModules: () => _isFetchingModulesList( state ),
 			activeTab: () => _getActiveStatsTab( state ),
+			isDevMode: isDevMode( state ),
 			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state )
 		};
 	},

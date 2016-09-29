@@ -131,8 +131,8 @@ export function getSiteConnectionStatus( state ) {
  * @return {bool|object} False if site is not in Dev Mode. If it is, returns an object with information about the Dev Mode.
  */
 export function getSiteDevMode( state ) {
-	if ( state.jetpack.connection.status.siteConnected.devMode.isActive ) {
-		return state.jetpack.connection.status.siteConnected.devMode;
+	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'devMode', 'isActive'] ) ) {
+		return get( state.jetpack.connection.status, [ 'siteConnected', 'devMode'] );
 	}
 	return false;
 }

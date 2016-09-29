@@ -177,6 +177,8 @@ class Jetpack_Core_API_Module_List_Endpoint {
 			}
 		}
 
+		$modules = Jetpack::get_translated_modules( $modules );
+
 		return Jetpack_Core_Json_Api_Endpoints::prepare_modules_for_response( $modules );
 	}
 
@@ -231,12 +233,12 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		if ( $activated_count > 0 ) {
 			$activated_last = array_pop( $activated );
 			$activated_text = $activated_count > 1 ? sprintf(
-				/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
-				__( '%s and %s', 'jetpack' ),
+				/* Translators: first variable is a list followed by the last item, which is the second variable. Example: dog, cat and bird. */
+				__( '%1$s and %2$s', 'jetpack' ),
 				join( ', ', $activated ), $activated_last ) : $activated_last;
 
 			$error = sprintf(
-				/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
+				/* Translators: the variable is a module name. */
 				_n( 'The module %s was activated.', 'The modules %s were activated.', $activated_count, 'jetpack' ),
 				$activated_text ) . ' ';
 		}
@@ -245,12 +247,12 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		if ( count( $failed ) > 0 ) {
 			$failed_last = array_pop( $failed );
 			$failed_text = $failed_count > 1 ? sprintf(
-				/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
-				__( '%s and %s', 'jetpack' ),
+				/* Translators: first variable is a list followed by the last item, which is the second variable. Example: dog, cat and bird. */
+				__( '%1$s and %2$s', 'jetpack' ),
 				join( ', ', $failed ), $failed_last ) : $failed_last;
 
 			$error = sprintf(
-				/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
+				/* Translators: the variable is a module name. */
 				_n( 'The module %s failed to be activated.', 'The modules %s failed to be activated.', $failed_count, 'jetpack' ),
 				$failed_text ) . ' ';
 		}
@@ -308,6 +310,15 @@ class Jetpack_Core_API_Module_Endpoint
 				&& Jetpack::is_development_mode()
 			) {
 				$module['activated'] = false;
+			}
+
+			$i18n = jetpack_get_module_i18n( $data['slug'] );
+			if ( isset( $module['name'] ) ) {
+				$module['name'] = $i18n['name'];
+			}
+			if ( isset( $module['description'] ) ) {
+				$module['description'] = $i18n['description'];
+				$module['short_description'] = $i18n['description'];
 			}
 
 			return Jetpack_Core_Json_Api_Endpoints::prepare_modules_for_response( $module );
@@ -672,15 +683,29 @@ class Jetpack_Core_API_Module_Endpoint
 		}
 
 		// Used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
-		update_option( 'post_by_email_address', $response );
+		update_option( 'post_by_email_address' . get_current_user_id(), $response );
 
 		return $response;
 	}
 
+	/**
+	 * Check if user is allowed to perform the update.
+	 *
+	 * @since 4.3
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return bool
+	 */
 	public function can_request( $request ) {
 		if ( 'GET' === $request->get_method() ) {
 			return current_user_can( 'jetpack_admin_page' );
 		} else {
+			$module = Jetpack_Core_Json_Api_Endpoints::get_module_requested();
+			// User is trying to create, regenerate or delete its PbE || ATD settings.
+			if ( 'post-by-email' === $module || 'after-the-deadline' === $module ) {
+				return current_user_can( 'edit_posts' ) && current_user_can( 'jetpack_admin_page' );
+			}
 			return current_user_can( 'jetpack_configure_modules' );
 		}
 	}

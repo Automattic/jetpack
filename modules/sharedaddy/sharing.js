@@ -72,7 +72,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			}
 
 			for ( url in data ) {
-				if ( ! data.hasOwnProperty( url ) || ! data[ url ].share.share_count ) {
+				if ( ! data.hasOwnProperty( url ) || ! data[ url ].share || ! data[ url ].share.share_count ) {
 					continue;
 				}
 

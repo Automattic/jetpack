@@ -8,6 +8,7 @@ import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
 import SimpleNotice from 'components/notice';
+import includes from 'lodash/includes';
 import analytics from 'lib/analytics';
 
 /**
@@ -21,7 +22,8 @@ import {
 	deactivateModule,
 	isActivatingModule,
 	isDeactivatingModule,
-	getModule as _getModule
+	getModule as _getModule,
+	getModules
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
@@ -37,7 +39,8 @@ export const Page = ( props ) => {
 		isModuleActivated,
 		isTogglingModule,
 		getModule
-		} = props;
+	} = props,
+		moduleList = Object.keys( props.moduleList );
 	var cards = [
 		[ 'scan', __( 'Security Scanning' ), __( 'Automated, comprehensive protection from threats and attacks.' ), 'https://vaultpress.com/jetpack/' ],
 		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
@@ -57,6 +60,10 @@ export const Page = ( props ) => {
 			isPro = 'scan' === element[0] || 'akismet' === element[0] || 'backups' === element[0],
 			proProps = {};
 
+		if ( ! includes( moduleList, element[0] ) && ! isPro ) {
+			return null;
+		}
+
 		if ( isPro ) {
 			proProps = {
 				module: element[0],
@@ -69,7 +76,7 @@ export const Page = ( props ) => {
 				{ element[1] }
 				<Button
 					compact={ true }
-					href="#professional"
+					href="#/plans"
 				>
 					{ __( 'Pro' ) }
 				</Button>
@@ -137,7 +144,8 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
-			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

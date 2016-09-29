@@ -360,8 +360,6 @@ function stats_reports_page( $main_chart_only = false ) {
 	$blog_id = stats_get_option( 'blog_id' );
 	$domain = Jetpack::build_raw_urls( get_home_url() );
 
-	JetpackTracking::record_user_event( 'page_view', array( 'path' => 'wpa_old_stats' ) );
-
 	if ( ! $main_chart_only && !isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
 		$nojs_url = add_query_arg( 'nojs', '1' );
 		$http = is_ssl() ? 'https' : 'http';
@@ -481,6 +479,11 @@ echo esc_url(
 		$body = stats_convert_admin_urls( $body );
 		echo $body;
 	}
+
+	if ( isset( $_GET['page'] ) && 'stats' === $_GET['page'] && ! isset( $_GET['chart'] ) ) {
+		JetpackTracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_stats' ) );
+	}
+
 	if ( isset( $_GET['noheader'] ) )
 		die;
 }

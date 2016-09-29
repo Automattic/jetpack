@@ -10,7 +10,7 @@
 }
 
 .jp-landing-plans__header {
-	background: $gray-dark url( '../../images/particles_bg-white.png' );
+	background: $gray-dark;
 
 	@include breakpoint( ">660px" ) {
 		padding: rem( 32px ) 0 0;

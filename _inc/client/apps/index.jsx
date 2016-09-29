@@ -10,7 +10,7 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import { imagePath } from 'constants';
-import { userCanViewStats } from 'state/initial-state';
+import { userCanViewStats, userCanManagePlugins, userCanEditPosts } from 'state/initial-state';
 
 const Apps = ( props ) => {
 	let canViewStats = props.userCanViewStats;
@@ -31,7 +31,7 @@ const Apps = ( props ) => {
 						<p className="jp-landing-apps__sub-description">{ __( "All the WordPress apps are built for speed. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around." ) }</p>
 					</div>
 					<div className="jp-landing-apps__header-col-right">
-						<img src={ imagePath + '/apps/laptop-90deg-themes.png' } className="jp-landing-apps__header-img" />
+						<img src={ imagePath + '/apps/laptop-90deg-themes2x.jpg' } className="jp-landing-apps__header-img" />
 					</div>
 				</div>
 				<div className="jp-landing-apps__clouds jp-clouds-top">
@@ -40,37 +40,52 @@ const Apps = ( props ) => {
 			</div>
 
 			<div className="jp-landing-apps__feature-container">
-				<div className="jp-landing-apps__feature">
-					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-						<img src={ imagePath + '/apps/manage2x.png' } />
-					</div>
-					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
-						<h3 className="jp-landing__apps-feature-title">{ __( 'Bulk and automatic updates' ) }</h3>
-						<p className="jp-landing__apps-feature-text">{ __( 'Most security flaws are found in outdated plugins. Use our Web and Desktop apps to turn on auto-updates or update plugins manually for all your websites in one convenient place.' ) }</p>
-						<Button href={ 'https://wordpress.com/plugins/' + props.siteRawUrl }	className="is-primary">
-							{ __( 'Manage Plugins' ) }
-						</Button>
-					</div>
-				</div>
-
-				<div className="jp-landing-apps__feature">
-					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
-						<h3 className="jp-landing__apps-feature-title">{ __( 'Focus on your Writing' ) }</h3>
-						<p className="jp-landing__apps-feature-text">{ __( 'Our new editor is lightning fast, optimized for writers and eliminates distractions, giving you the ability to focus on your work.' ) }</p>
-						<Button href={ 'https://wordpress.com/post/' + props.siteRawUrl }	className="is-primary">
-							{ __( 'Try the New Editor' ) }
-						</Button>
-					</div>
-					<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-						<img src={ imagePath + '/apps/editor2x.png' } />
-					</div>
-				</div>
 
 				{
+					// Manage Plugins
+
+					props.userCanManagePlugins
+					?	<div className="jp-landing-apps__feature">
+							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
+								<img src={ imagePath + '/apps/manage2x.jpg' } />
+							</div>
+							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
+								<h3 className="jp-landing__apps-feature-title">{ __( 'Bulk and automatic updates' ) }</h3>
+								<p className="jp-landing__apps-feature-text">{ __( 'Most security flaws are found in outdated plugins. Use our Web and Desktop apps to turn on auto-updates or update plugins manually for all your websites in one convenient place.' ) }</p>
+								<Button href={ 'https://wordpress.com/plugins/' + props.siteRawUrl }	className="is-primary">
+									{ __( 'Manage Plugins' ) }
+								</Button>
+							</div>
+						</div>
+					: null
+				}
+
+				{
+					// Calypso Editor
+
+					props.userCanEditPosts
+					?	<div className="jp-landing-apps__feature">
+							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
+								<h3 className="jp-landing__apps-feature-title">{ __( 'Focus on your Writing' ) }</h3>
+								<p className="jp-landing__apps-feature-text">{ __( 'Our new editor is lightning fast, optimized for writers and eliminates distractions, giving you the ability to focus on your work.' ) }</p>
+								<Button href={ 'https://wordpress.com/post/' + props.siteRawUrl }	className="is-primary">
+									{ __( 'Try the New Editor' ) }
+								</Button>
+							</div>
+							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
+								<img src={ imagePath + '/apps/editor2x.jpg' } />
+							</div>
+						</div>
+					: null
+				}
+
+				{
+					// Stats
+
 					canViewStats ? (
 						<div className="jp-landing-apps__feature">
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-								<img src={ imagePath + '/apps/stats2x.png' } />
+								<img src={ imagePath + '/apps/stats2x.jpg' } />
 							</div>
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-desc">
 								<h2>{ __( 'Connect with your Visitors' ) }</h2>
@@ -87,11 +102,13 @@ const Apps = ( props ) => {
 
 				<div className="jp-landing-apps__feature">
 					{
+						// Community
+
 						canViewStats ? (
 							''
 						) : (
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-								<img src={ imagePath + '/apps/community2x.png' } />
+								<img src={ imagePath + '/apps/community2x.jpg' } />
 							</div>
 						)
 					}
@@ -105,7 +122,7 @@ const Apps = ( props ) => {
 					{
 						canViewStats ? (
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-								<img src={ imagePath + '/apps/community2x.png' } />
+								<img src={ imagePath + '/apps/community2x.jpg' } />
 							</div>
 						) : (
 							''
@@ -137,7 +154,7 @@ const Apps = ( props ) => {
 
 					<p className="jp-landing-apps__btn-container">
 						<Button href="http://itunes.apple.com/us/app/wordpress/id335703880?mt=8" title={ __( 'WordPress.com in the App Store' ) } className="jp-app-button button-ios">
-							<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><path d="M74.7,62.2c-3.5-3.2-5.2-7.2-5.3-12.1c-0.1-6.2,2.8-11.1,8.5-14.5c-3.2-4.5-8-7.1-14.4-7.6c-2.4-0.2-5.2,0.3-8.7,1.5
+							<svg width="28" height="28" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><path d="M74.7,62.2c-3.5-3.2-5.2-7.2-5.3-12.1c-0.1-6.2,2.8-11.1,8.5-14.5c-3.2-4.5-8-7.1-14.4-7.6c-2.4-0.2-5.2,0.3-8.7,1.5
 		c-3.6,1.3-5.7,2-6.4,2c-0.8,0-2.8-0.6-5.7-1.7c-3-1.1-5.4-1.7-7.2-1.7c-3.4,0.1-6.5,0.9-9.4,2.6c-2.9,1.7-5.2,4-6.9,7
 		C17.1,41.5,16,45.9,16,51c0,4.4,0.8,9,2.4,13.8c1.5,4.4,3.5,8.2,5.8,11.6c2.2,3.1,4,5.3,5.5,6.6c2.3,2.1,4.6,3.2,6.9,3.1
 		c1.5-0.1,3.5-0.6,6-1.6c2.5-1,4.8-1.5,6.9-1.5c2,0,4.3,0.5,6.7,1.5c2.4,1,4.5,1.5,6.2,1.5c2.4-0.1,4.7-1,6.8-3
@@ -184,7 +201,9 @@ const Apps = ( props ) => {
 export default connect(
 	( state ) => {
 		return {
-			userCanViewStats: userCanViewStats( state )
+			userCanViewStats: userCanViewStats( state ),
+			userCanManagePlugins: userCanManagePlugins( state ),
+			userCanEditPosts: userCanEditPosts( state )
 		};
 	}
 )( Apps );

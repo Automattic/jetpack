@@ -34,26 +34,34 @@ export const AllModuleSettings = React.createClass( {
 	render() {
 		let { module } = this.props;
 		switch ( module.module ) {
+			case 'omnisearch':
+				return (
+					<div>
+						<span className="jp-form-setting-explanation">{ this.props.module.long_description }</span>
+						<br/>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href='/wp-admin/admin.php?page=omnisearch'>{ __( 'Search your content.' ) }</ExternalLink>
+					</div>
+				);
 			case 'post-by-email':
-				return ( <PostByEmailSettings module={ module } { ...this.props } /> );
+				return ( <PostByEmailSettings module={ module }  /> );
 			case 'custom-content-types':
-				return ( <CustomContentTypesSettings module={ module } { ...this.props } /> );
+				return ( <CustomContentTypesSettings module={ module }  /> );
 			case 'after-the-deadline':
-				return ( <AfterTheDeadlineSettings module={ module } { ...this.props } /> );
+				return ( <AfterTheDeadlineSettings module={ module }  /> );
 			case 'markdown':
-				return ( <MarkdownSettings module={ module } { ...this.props } /> );
+				return ( <MarkdownSettings module={ module }  /> );
 			case 'tiled-gallery':
-				return ( <TiledGallerySettings module={ module } { ...this.props } /> );
+				return ( <TiledGallerySettings module={ module }  /> );
 			case 'minileven':
-				return ( <MinilevenSettings module={ module } { ...this.props } /> );
+				return ( <MinilevenSettings module={ module }  /> );
 			case 'carousel':
-				return ( <CarouselSettings module={ module } { ...this.props } /> );
+				return ( <CarouselSettings module={ module }  /> );
 			case 'infinite-scroll':
-				return ( <InfiniteScrollSettings module={ module } { ...this.props } /> );
+				return ( <InfiniteScrollSettings module={ module }  /> );
 			case 'protect':
-				return ( <ProtectSettings module={ module } { ...this.props } /> );
+				return ( <ProtectSettings module={ module }  /> );
 			case 'monitor':
-				return ( <MonitorSettings module={ module } { ...this.props } /> );
+				return ( <MonitorSettings module={ module }  /> );
 			case 'scan':
 				return '' === module.configure_url ? (
 					<div>
@@ -71,23 +79,23 @@ export const AllModuleSettings = React.createClass( {
 					</div>
 				);
 			case 'sso':
-				return ( <SingleSignOnSettings module={ module } { ...this.props } /> );
+				return ( <SingleSignOnSettings module={ module }  /> );
 			case 'stats':
-				return ( <StatsSettings module={ module } { ...this.props } /> );
+				return ( <StatsSettings module={ module }  /> );
 			case 'related-posts':
-				return ( <RelatedPostsSettings module={ module } { ...this.props } /> );
+				return ( <RelatedPostsSettings module={ module }  /> );
 			case 'comments':
-				return ( <CommentsSettings module={ module } { ...this.props } /> );
+				return ( <CommentsSettings module={ module }  /> );
 			case 'subscriptions':
-				return ( <SubscriptionsSettings module={ module } { ...this.props } /> );
+				return ( <SubscriptionsSettings module={ module }  /> );
 			case 'gravatar-hovercards':
-				return ( <GravatarHovercardsSettings module={ module } { ...this.props } /> );
+				return ( <GravatarHovercardsSettings module={ module }  /> );
 			case 'likes':
-				return ( <LikesSettings module={ module } { ...this.props } /> );
+				return ( <LikesSettings module={ module }  /> );
 			case 'verification-tools':
-				return ( <VerificationToolsSettings module={ module } { ...this.props } /> );
+				return ( <VerificationToolsSettings module={ module }  /> );
 			case 'sitemaps':
-				return ( <SitemapsSettings module={ module } { ...this.props } /> );
+				return ( <SitemapsSettings module={ module }  /> );
 			case 'contact-form':
 			case 'latex':
 			case 'shortlinks':
@@ -128,6 +136,9 @@ export const AllModuleSettings = React.createClass( {
 			case 'publicize':
 			case 'sharedaddy':
 			default:
+				if ( 'publicize' === module.module ) {
+					module.configure_url = this.props.adminUrl + 'options-general.php?page=sharing';
+				}
 				return (
 					<div>
 						{

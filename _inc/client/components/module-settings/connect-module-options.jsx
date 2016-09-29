@@ -11,13 +11,17 @@ import {
 	getModuleOption,
 	getModuleOptionValidValues,
 	isUpdatingModuleOption,
-	regeneratePostByEmailAddress
+	regeneratePostByEmailAddress,
+	setUnsavedOptionFlag,
+	clearUnsavedOptionFlag
 } from 'state/modules';
-
+import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getSiteRoles,
 	getAdminEmailAddress
 } from 'state/initial-state';
+
+import { isCurrentUserLinked } from 'state/connection';
 
 /**
  * High order component that connects to Jetpack modules'options
@@ -34,7 +38,10 @@ export function connectModuleOptions( Component ) {
 				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
 				getSiteRoles: () => getSiteRoles( state ),
 				isUpdating: ( option_name ) => isUpdatingModuleOption( state, ownProps.module.module, option_name ),
-				adminEmailAddress: getAdminEmailAddress( state )
+				adminEmailAddress: getAdminEmailAddress( state ),
+				currentIp: getCurrentIp( state ),
+				siteAdminUrl: getSiteAdminUrl( state ),
+				isCurrentUserLinked: isCurrentUserLinked( state )
 			}
 		},
 		( dispatch, ownProps ) => ( {
@@ -43,6 +50,12 @@ export function connectModuleOptions( Component ) {
 			},
 			regeneratePostByEmailAddress: () => {
 				return dispatch( regeneratePostByEmailAddress() );
+			},
+			setUnsavedOptionFlag: () => {
+				return dispatch( setUnsavedOptionFlag() );
+			},
+			clearUnsavedOptionFlag: () => {
+				return dispatch( clearUnsavedOptionFlag() );
 			}
 		} )
 	)( Component );

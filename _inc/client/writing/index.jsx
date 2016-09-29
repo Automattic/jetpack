@@ -19,7 +19,8 @@ import {
 	deactivateModule,
 	isActivatingModule,
 	isDeactivatingModule,
-	getModule as _getModule
+	getModule as _getModule,
+	getModules
 } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
@@ -33,8 +34,9 @@ export const Writing = ( props ) => {
 		isTogglingModule,
 		getModule,
 		userCanManageModules
-	} = props;
-	let isAdmin = userCanManageModules;
+	} = props,
+		isAdmin = userCanManageModules,
+		moduleList = Object.keys( props.moduleList );
 	/**
 	 * Array of modules that directly map to a card for rendering
 	 * @type {Array}
@@ -62,6 +64,9 @@ export const Writing = ( props ) => {
 		cards = cards.filter( ( element, index ) => cards.indexOf( element ) === index );
 	}
 	cards = cards.map( ( element, i ) => {
+		if ( ! includes( moduleList, element[0] ) ) {
+			return null;
+		}
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
@@ -79,7 +84,7 @@ export const Writing = ( props ) => {
 			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
 		}
 
-		return (
+		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
 				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
@@ -88,7 +93,6 @@ export const Writing = ( props ) => {
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
-				disabled={ ! adminAndNonAdmin }
 				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
 					{
 						card: element[0],
@@ -97,7 +101,7 @@ export const Writing = ( props ) => {
 				) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ getModule( element[0] ) } /> :
+					<AllModuleSettings module={ getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -105,7 +109,7 @@ export const Writing = ( props ) => {
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
 			</FoldableCard>
-		);
+		) : false;
 	} );
 
 	return (
@@ -129,7 +133,8 @@ export default connect(
 			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			userCanManageModules: _userCanManageModules( state )
+			userCanManageModules: _userCanManageModules( state ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

@@ -8,6 +8,14 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return 'posts';
 	}
 
+	public function get_object_by_id( $object_type, $id ) {
+		if ( $object_type === 'post' && $post = get_post( intval( $id ) ) ) {
+			return $this->filter_post_content_and_add_links( $post );
+		}
+
+		return false;
+	}
+
 	public function set_defaults() {
 	}
 
@@ -109,8 +117,18 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 		/** This filter is already documented in core. wp-includes/post-template.php */
-		$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
-		$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
+		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) ) {
+			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
+			$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
+		}
+
+		if ( has_post_thumbnail( $post->ID ) ) {
+			$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
+			if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) ) {
+				$post->featured_image = $image_attributes[0];
+			}
+		}
+
 		$post->permalink               = get_permalink( $post->ID );
 		$post->shortlink               = wp_get_shortlink( $post->ID );
 		$post->dont_email_post_to_subs = Jetpack::is_module_active( 'subscriptions' ) ?

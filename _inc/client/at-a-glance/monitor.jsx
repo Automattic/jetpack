@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -13,7 +14,7 @@ import QueryLastDownTime from 'components/data/query-last-downtime';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isFetchingModulesList as _isFetchingModulesList
+	getModules
 } from 'state/modules';
 import { getLastDownTime as _getLastDownTime } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
@@ -23,7 +24,7 @@ const DashMonitor = React.createClass( {
 		const labelName = __( 'Downtime Monitoring' );
 
 		if ( this.props.isModuleActivated( 'monitor' ) ) {
-			const lastDowntime = this.props.getLastDownTime();
+			const lastDowntime = this.props.lastDownTime;
 
 			if ( lastDowntime === 'N/A' ) {
 				return (
@@ -57,7 +58,7 @@ const DashMonitor = React.createClass( {
 			>
 				<p className="jp-dash-item__description">
 					{
-						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
+						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' ) :
 						__( '{{a}}Activate Monitor{{/a}} to receive notifications if your site goes down.', {
 							components: {
 								a: <a href="javascript:void(0)" onClick={ this.props.activateMonitor } />
@@ -70,6 +71,11 @@ const DashMonitor = React.createClass( {
 	},
 
 	render: function() {
+		const moduleList = Object.keys( this.props.moduleList );
+		if ( ! includes( moduleList, 'monitor' ) ) {
+			return null;
+		}
+
 		return (
 			<div>
 				<QueryLastDownTime />
@@ -79,12 +85,18 @@ const DashMonitor = React.createClass( {
 	}
 } );
 
+DashMonitor.propTypes = {
+	lastDownTime: React.PropTypes.any.isRequired,
+	isDevMode: React.PropTypes.bool.isRequired
+};
+
 export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isFetchingModulesList: () => _isFetchingModulesList( state ),
-			getLastDownTime: () => _getLastDownTime( state )
+			lastDownTime: _getLastDownTime( state ),
+			isDevMode: isDevMode( state ),
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

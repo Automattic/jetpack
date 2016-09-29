@@ -37,7 +37,7 @@ export function getHappinessGravatarIds( state ) {
  * @return {bool} true if dev version
  */
 export function isDevVersion( state ) {
-	return state.jetpack.initialState.isDevVersion;
+	return !! state.jetpack.initialState.isDevVersion;
 }
 
 /**
@@ -87,6 +87,28 @@ export function userCanManageOptions( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_options', false );
 }
 
+/**
+ * Return true if user can edit posts, usually admins, editors, authors and contributors.
+ *
+ * @param {Object} state Global state tree
+ *
+ * @return {bool} Whether user can edit posts.
+ */
+export function userCanEditPosts( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
+}
+
+/**
+ * Return true if user can manage plugins, which means being able to install, activate, update and delete plugins.
+ *
+ * @param {Object} state Global state tree
+ *
+ * @return {bool} Whether user can manage plugins.
+ */
+export function userCanManagePlugins( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_plugins', false );
+}
+
 export function userCanDisconnectSite( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'disconnect', false );
 }
@@ -125,4 +147,8 @@ export function getApiRootUrl( state ) {
 
 export function getTracksUserData( state ) {
 	return get( state.jetpack.initialState, 'tracksUserData' );
+}
+
+export function getCurrentIp( state ) {
+	return get( state.jetpack.initialState, 'currentIp' );
 }

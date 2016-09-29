@@ -25,11 +25,11 @@ import { isDevMode } from 'state/connection';
 const DashBackups = React.createClass( {
 	getContent: function() {
 		const labelName = __( 'Backups' ),
-			hasSitePlan = false !== this.props.getSitePlan(),
+			hasSitePlan = false !== this.props.sitePlan,
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
-			const vpData = this.props.getVaultPressData();
+			const vpData = this.props.vaultPressData;
 
 			if ( vpData === 'N/A' ) {
 				return (
@@ -89,11 +89,10 @@ const DashBackups = React.createClass( {
 				module="backups"
 				className="jp-dash-item__is-inactive"
 				status={ hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive' }
-				pro={ true }
-			>
+				pro={ true } >
 				<p className="jp-dash-item__description">
 					{
-						isDevMode( this.props ) ? __( 'Unavailable in Dev Mode.' ) :
+						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' ) :
 							upgradeOrActivateText()
 					}
 				</p>
@@ -111,13 +110,21 @@ const DashBackups = React.createClass( {
 	}
 } );
 
+DashBackups.propTypes = {
+	vaultPressData: React.PropTypes.any.isRequired,
+	isDevMode: React.PropTypes.bool.isRequired,
+	siteRawUrl: React.PropTypes.string.isRequired,
+	sitePlan: React.PropTypes.object.isRequired
+};
+
 export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
-			getVaultPressData: () => _getVaultPressData( state ),
-			getSitePlan: () => getSitePlan( state ),
+			vaultPressData: _getVaultPressData( state ),
+			sitePlan: getSitePlan( state ),
+			isDevMode: isDevMode( state ),
 			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
 		};
 	},

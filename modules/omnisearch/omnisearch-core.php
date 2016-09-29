@@ -189,7 +189,7 @@ class Jetpack_Omnisearch {
 			'form_class'         => null,
 			'search_class'       => null,
 			'search_id'          => null,
-			'search_value'       => isset( $_REQUEST['s'] ) ? $_REQUEST['s'] : null,
+			'search_value'       => isset( $_REQUEST['s'] ) ? wp_unslash( $_REQUEST['s'] ) : null,
 			'search_placeholder' => __( 'Search Everything', 'jetpack' ),
 			'submit_class'       => 'button',
 			'submit_value'       => __( 'Search', 'jetpack' ),

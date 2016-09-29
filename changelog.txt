@@ -1,5 +1,38 @@
 == Changelog ==
 
+= 4.3.1 =
+
+* Release date: September 7, 2016
+
+**Enhancements**
+
+* Sync data on the host being used by any given site so that we can provide better support when things break.
+* Update inline docs to match version numbers. #5089
+
+**Bug Fixes:**
+
+* Admin Page: fix error when Admin Page resources could not be fetched with `wp_remote_get` due to unique host configurations.
+* Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled.
+* Admin Page: make sure all translated strings are encoded properly.
+* Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests.
+* General: Improve random number generation for compatibility with more hosts.
+* General: Add deprecated PHP file (class.jetpack-landing-page.php) back as an empty file, to avoid generating fatal errors on sites with aggressive caching.
+* General: Ensure concatenated CSS is generated for RTL languages.
+* Security: Ensure that all options are included on the security tab.
+* Stats: fix display for sites with pretty permalinks disabled.
+* Subscriptions: ensure that no email is sent when updating a published post.
+* Sync: To improve performance, add snapTW to the list of post meta data that won't be synchronized for each post.
+* Verification Tools: in the Settings card, use appropriate link for each service.
+
+
+= 4.3 =
+
+* Release date: September 6th, 2016
+
+**Exciting Performance and UI Improvements:**
+
+* We have launched the all new React powered interface, a year in the making, designed to give you better control of your favorite Jetpack features.
+
 = 4.2.2 =
 
 * Release date: August 19th, 2016

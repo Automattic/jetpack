@@ -4,9 +4,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import assign from 'lodash/assign';
 import includes from 'lodash/includes';
 import { createHistory } from 'history';
+import { withRouter } from 'react-router';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -16,7 +17,7 @@ import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
-import { getJumpStartStatus } from 'state/jumpstart';
+import { getJumpStartStatus, isJumpstarting } from 'state/jumpstart';
 import { getSiteConnectionStatus } from 'state/connection';
 import {
 	setInitialState,
@@ -25,6 +26,7 @@ import {
 	getApiNonce,
 	getApiRootUrl
 } from 'state/initial-state';
+import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
 
 import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
@@ -50,6 +52,17 @@ const Main = React.createClass( {
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalyitics();
+
+		this.props.router.listenBefore( () => {
+			if ( this.props.areThereUnsavedModuleOptions ) {
+				const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
+				if ( confirmLeave ) {
+					this.props.clearUnsavedOptionFlag();
+				} else {
+					return false;
+				}
+			}
+		} );
 	},
 
 	initializeAnalyitics() {
@@ -63,14 +76,14 @@ const Main = React.createClass( {
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
-		return nextProps.jetpack.connection.status !== this.props.jetpack.connection.status ||
-			nextProps.jetpack.jumpstart.status.showJumpStart !== getJumpStartStatus( this.props ) ||
+		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
+			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
 			nextProps.route.path !== this.props.route.path;
 	},
 
 	componentWillReceiveProps( nextProps ) {
-		if ( nextProps.jetpack.jumpstart.status.showJumpStart !== this.props.jetpack.jumpstart.status.showJumpStart ||
-			nextProps.jetpack.jumpstart.status.isJumpstarting !== this.props.jetpack.jumpstart.status.isJumpstarting ) {
+		if ( nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
+			nextProps.isJumpstarting !== this.props.isJumpstarting ) {
 			this.handleJumpstart( nextProps );
 		}
 	},
@@ -84,34 +97,31 @@ const Main = React.createClass( {
 	 */
 	handleJumpstart( nextProps ) {
 		const history = createHistory();
-		const willShowJumpStart = nextProps.jetpack.jumpstart.status.showJumpStart;
-		const willBeJumpstarting = nextProps.jetpack.jumpstart.status.isJumpstarting;
+		const willShowJumpStart = nextProps.jumpStartStatus;
+		const willBeJumpstarting = nextProps.isJumpstarting;
 
-		if ( ! this.props.showJumpStart && willShowJumpStart ) {
+		if ( ! this.props.jumpStartStatus && willShowJumpStart ) {
 			window.location.hash = 'jumpstart';
 			history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 		}
-		if ( ! this.props.jetpack.jumpstart.showJumpStart && ! willShowJumpStart && ! willBeJumpstarting ) {
+		if ( ! this.props.jumpStartStatus && ! willShowJumpStart && ! willBeJumpstarting ) {
 			history.push( window.location.pathname + '?page=jetpack#/dashboard' );
 		}
 	},
 
 	renderMainContent: function( route ) {
-		const showJumpStart = getJumpStartStatus( this.props );
+		const showJumpStart = this.props.jumpStartStatus;
 		const canManageModules = window.Initial_State.userData.currentUser.permissions.manage_modules;
 
 		// Track page views
 		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
-		// On any route change/re-render, jump back to the top of the page
-		window.scrollTo( 0, 0 );
-
 		if ( ! canManageModules ) {
 			return <NonAdminView { ...this.props } />
 		}
 
-		if ( ! getSiteConnectionStatus( this.props ) ) {
-			return <JetpackConnect { ...this.props } />
+		if ( ! this.props.siteConnectionStatus ) {
+			return <JetpackConnect />
 		}
 
 		if ( showJumpStart ) {
@@ -119,53 +129,53 @@ const Main = React.createClass( {
 				const history = createHistory();
 				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 			} else if ( '/jumpstart' === route ) {
-				return <JumpStart { ...this.props } />
+				return <JumpStart />
 			}
 		}
 
 		let pageComponent,
-			navComponent = <Navigation { ...this.props } />;
+			navComponent = <Navigation route={ this.props.route }/>;
 		switch ( route ) {
 			case '/dashboard':
-				pageComponent = <AtAGlance { ...this.props } />;
+				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/apps':
-				pageComponent = <Apps siteRawUrl={ this.props.siteRawUrl } { ...this.props } />;
+				pageComponent = <Apps siteRawUrl={ this.props.siteRawUrl } />;
 				break;
-			case '/professional':
-				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } { ...this.props } />;
+			case '/plans':
+				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/settings':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <GeneralSettings { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <GeneralSettings route={ this.props.route } />;
 				break;
 			case '/general':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <GeneralSettings { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <GeneralSettings route={ this.props.route } />;
 				break;
 			case '/engagement':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Engagement { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Engagement route={ this.props.route } />;
 				break;
 			case '/security':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Security { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Security route={ this.props.route } />;
 				break;
 			case '/appearance':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Appearance { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Appearance route={ this.props.route } />;
 				break;
 			case '/writing':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <Writing { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/search':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <SearchPage { ...this.props } />;
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <SearchPage siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 
 			default:
-				pageComponent = <AtAGlance { ...this.props } />;
+				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 		}
 
 		window.wpNavMenuClassChange();
@@ -181,18 +191,18 @@ const Main = React.createClass( {
 	render: function() {
 		return (
 			<div>
-				<Masthead { ...this.props } />
+				<Masthead/>
 					<div className="jp-lower">
-						<AdminNotices { ...this.props } />
-						<JetpackNotices { ...this.props } />
+						<AdminNotices />
+						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }
 						{
-							this.props.getJumpStartStatus || '/apps' === this.props.route.path ?
+							this.props.jumpStartStatus || '/apps' === this.props.route.path ?
 							null :
-							<SupportCard { ...this.props } />
+							<SupportCard />
 						}
 					</div>
-				<Footer { ...this.props } />
+				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 			</div>
 		);
 	}
@@ -201,18 +211,20 @@ const Main = React.createClass( {
 
 export default connect(
 	state => {
-		// This is tricky. We're passing the whole state as props of the main component
-		return assign( {}, state, {
-			getJumpStartStatus: getJumpStartStatus( state ),
+		return  {
+			jumpStartStatus: getJumpStartStatus( state ),
+			isJumpstarting: isJumpstarting( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
-			tracksUserData: getTracksUserData( state )
-		} );
+			tracksUserData: getTracksUserData( state ),
+			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state )
+		};
 	},
-	dispatch => bindActionCreators( { setInitialState }, dispatch )
-)( Main );
+	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag }, dispatch )
+)( withRouter( Main ) );
 
 /**
  * Hack for changing the sub-nav menu core classes for 'settings' and 'dashboard'
@@ -232,7 +244,7 @@ window.wpNavMenuClassChange = function() {
 		'#/',
 		'#/dashboard',
 		'#/apps',
-		'#/professional'
+		'#/plans'
 	];
 
 	// Clear currents
@@ -253,7 +265,13 @@ window.wpNavMenuClassChange = function() {
 		subNavItem[0].classList.add( 'current' );
 	}
 
-	jQuery( 'body' ).on( 'click', '.jetpack-js-stop-propagation', function( e ) {
+	const $body = jQuery( 'body' );
+
+	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#/security"], .dops-button[href="#/plans"]', function() {
+		window.scrollTo( 0, 0 );
+	} );
+
+	$body.on( 'click', '.jetpack-js-stop-propagation', function( e ) {
 		e.stopPropagation();
 	} );
 };

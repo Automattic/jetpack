@@ -19,6 +19,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		parent::setUp();
 
 		$this->callable_module = Jetpack_Sync_Modules::get_module( "functions" );
+		set_current_screen( 'post-user' ); // this only works in is_admin()
 	}
 
 	function test_white_listed_function_is_synced() {
@@ -72,7 +73,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'wp_version'                       => Jetpack_Sync_Functions::wp_version(),
 			'get_plugins'                      => Jetpack_Sync_Functions::get_plugins(),
 			'active_modules'                   => Jetpack::get_active_modules(),
+			'hosting_provider'                 => Jetpack_Sync_Functions::get_hosting_provider(),
 			'locale'                           => get_locale(),
+			'site_icon_url'                    => Jetpack_Sync_Functions::site_icon_url(),
 		);
 
 		if ( is_multisite() ) {
@@ -287,11 +290,41 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
 		
-		Jetpack_Sync_Settings::set_doing_cron( false );		
+		Jetpack_Sync_Settings::set_doing_cron( false );
 		$this->sender->do_sync();
 		$this->assertEquals( site_url(), $this->server_replica_storage->get_callable( 'site_url' ) );
 	}
 
+	function test_site_icon_url_returns_false_when_no_site_icon() {
+		delete_option( 'jetpack_site_icon_url' );
+		$this->sender->do_sync();
+		$this->assertFalse( $this->server_replica_storage->get_callable( 'site_icon_url' ) );
+	}
+
+	function test_site_icon_url_returns_core_site_icon_url_when_set() {
+		$attachment_id = $this->factory->post->create( array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'image/png',
+		) );
+		add_post_meta( $attachment_id, '_wp_attached_file', '2016/09/core_site_icon_url.png' );
+		update_option( 'site_icon', $attachment_id );
+		update_option( 'jetpack_site_icon_url', 'http://website.com/wp-content/uploads/2016/09/jetpack_site_icon.png' );
+
+		$this->sender->do_sync();
+
+		$this->assertContains( 'core_site_icon_url', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
+
+		delete_option( 'site_icon' );
+	}
+
+	function test_site_icon_url_fallback_to_jetpack_site_icon_url() {
+		delete_option( 'site_icon' );
+		update_option( 'jetpack_site_icon_url', 'http://website.com/wp-content/uploads/2016/09/jetpack_site_icon.png' );
+		$this->sender->do_sync();
+
+		$this->assertContains( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
+	}
+	
 	function add_www_subdomain_to_siteurl( $url ) {
 		$parsed_url = parse_url( $url );
 

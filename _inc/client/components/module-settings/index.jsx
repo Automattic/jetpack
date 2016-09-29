@@ -8,6 +8,7 @@ import TextInput from 'components/text-input';
 import Textarea from 'components/textarea';
 import TagsInput from 'components/tags-input';
 import ClipboardButtonInput from 'components/clipboard-button-input';
+import ConnectButton from 'components/connect-button';
 import get from 'lodash/get';
 import Button from 'components/button';
 
@@ -113,6 +114,7 @@ RelatedPostsSettings = moduleSettingsForm( RelatedPostsSettings );
 
 export let LikesSettings = React.createClass( {
 	render() {
+		const old_sharing_settings_url = this.props.module.configure_url;
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
@@ -126,6 +128,15 @@ export let LikesSettings = React.createClass( {
 						isSubmitting={ this.props.isSavingAnyOption() }
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
+				<p>
+					{
+						__( '{{a}}Manage Likes visibility from the Sharing Module Settings{{/a}}', {
+							components: {
+								a: <a href={ old_sharing_settings_url } />
+							}
+						} )
+					}
+				</p>
 			</form>
 		)
 	}
@@ -179,8 +190,7 @@ export let SubscriptionsSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'stc_enabled' }
 						{ ...this.props }
-						label={ __( 'Show a "follow comments" option in the comment form.' ) +
-							' (Currently does not work)' } />
+						label={ __( 'Show a "follow comments" option in the comment form.' ) } />
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }
@@ -209,7 +219,7 @@ export let StatsSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'hide_smile' }
 						{ ...this.props }
-						label={ __( 'Hide the stats smiley face image' ) } />
+						label={ __( 'Hide the stats smiley face image. The image helps collect stats but should still work when hidden.' ) } />
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
@@ -239,10 +249,17 @@ StatsSettings = moduleSettingsForm( StatsSettings );
 
 export let ProtectSettings = React.createClass( {
 	render() {
+		const maybeShowIp = this.props.currentIp ?
+			<p>{ __( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } ) }</p> :
+			'';
+
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
+					<FormLegend>{ __( 'Whitelist Management' ) }</FormLegend>
+					<p>{ __( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack.' ) }</p>
+					<small>{ __( 'Make sure to add your most frequently used IP addresses as they can change between your home, office or other locations. Removing an IP address from the list below will remove it from your whitelist.' ) }</small>
+					{ maybeShowIp }
 					<FormLabel>
 						<Textarea
 							name={ 'jetpack_protect_global_whitelist' }
@@ -250,7 +267,11 @@ export let ProtectSettings = React.createClass( {
 							onChange={ this.props.onOptionChange }
 							value={ this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local } />
 					</FormLabel>
-					<span className="jp-form-setting-explanation">{ __( 'List the IP addresses or IP address ranges.' ) }</span>
+					<span className="jp-form-setting-explanation">{ __( 'IPv4 and IPv6 are acceptable. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
+						components: {
+							br: <br/>
+						}
+					} ) }</span>
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }
@@ -260,6 +281,10 @@ export let ProtectSettings = React.createClass( {
 		)
 	}
 } );
+
+ProtectSettings.propTypes = {
+	currentIp: React.PropTypes.string.isRequired
+};
 
 ProtectSettings = moduleSettingsForm( ProtectSettings );
 
@@ -442,7 +467,7 @@ export let VerificationToolsSettings = React.createClass( {
 				<FormFieldset>
 					<p className="jp-form-setting-explanation">
 						{
-							__( 'Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a}}Bing Webmaster Center{{/a}} and {{a}}Pinterest Site Verification{{/a}}.', {
+							__( 'Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a1}}Bing Webmaster Center{{/a1}} and {{a2}}Pinterest Site Verification{{/a2}}.', {
 								components: {
 									a: <a href="https://www.google.com/webmasters/tools/" target="_blank" />,
 									a1: <a href="http://www.bing.com/webmaster/" target="_blank" />,
@@ -539,11 +564,11 @@ TiledGallerySettings = moduleSettingsForm( TiledGallerySettings );
 
 export let PostByEmailSettings = React.createClass( {
 	regeneratePostByEmailAddress( event ) {
-		event.preventDefault()
+		event.preventDefault();
 		this.props.regeneratePostByEmailAddress();
 	},
 	address() {
-		const currentValue = this.props.getOptionValue( 'post_by_email_address' )
+		const currentValue = this.props.getOptionValue( 'post_by_email_address' );
 		// If the module Post-by-email is enabled BUT it's configured as disabled
 		// Its value is set to false
 		if ( currentValue === false ) {
@@ -553,47 +578,63 @@ export let PostByEmailSettings = React.createClass( {
 	},
 	render() {
 		return (
-			<form>
-				<FormFieldset>
-					<FormLabel>
-						<FormLegend>{ __( 'Email Address' ) }</FormLegend>
-						<ClipboardButtonInput
-							value={ this.address() }
-							copy={ __( 'Copy', { context: 'verb' } ) }
-							copied={ __( 'Copied!' ) }
-							prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
-						/>
-						<FormButton
-							onClick={ this.regeneratePostByEmailAddress } >
-							{ __( 'Regenerate address' ) }
-						</FormButton>
-					</FormLabel>
-				</FormFieldset>
-			</form>
+			this.props.isCurrentUserLinked ?
+				<form>
+					<FormFieldset>
+						<FormLabel>
+							<FormLegend>{ __( 'Email Address' ) }</FormLegend>
+							<ClipboardButtonInput
+								value={ this.address() }
+								copy={ __( 'Copy', { context: 'verb' } ) }
+								copied={ __( 'Copied!' ) }
+								prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+							/>
+							<FormButton
+								onClick={ this.regeneratePostByEmailAddress } >
+								{ __( 'Regenerate address' ) }
+							</FormButton>
+						</FormLabel>
+					</FormFieldset>
+				</form>
+				:
+				<div>
+					{
+						<div className="jp-connection-settings">
+							<div className="jp-connection-settings__headline">{ __( 'Link your account to WordPress.com to start using this feature.' ) }</div>
+							<div className="jp-connection-settings__actions">
+								<ConnectButton connectUser={ true } />
+							</div>
+						</div>
+					}
+				</div>
 		)
 	}
 } );
+
+PostByEmailSettings.propTypes = {
+	isCurrentUserLinked: React.PropTypes.bool.isRequired
+};
 
 PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 
 export let CustomContentTypesSettings = React.createClass( {
 	render() {
 		let portfolioConfigure = () => {
-			return ! this.props.getOptionValue( 'jetpack_portfolio' ) ?
+			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_portfolio' ) ?
 				'' :
 				<Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href="/wp-admin/edit.php?post_type=jetpack-portfolio"
+					href={ this.props.siteAdminUrl + '/wp-admin/edit.php?post_type=jetpack-portfolio' }
 					compact={ true }
 				>{ __( 'Configure Portfolios' ) }</Button>;
 		};
 
 		let testimonialConfigure = () => {
-			return ! this.props.getOptionValue( 'jetpack_testimonial' ) ?
+			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_testimonial' ) ?
 				'' :
 				<Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href="/wp-admin/edit.php?post_type=jetpack-testimonial"
+					href={ this.props.siteAdminUrl + '/wp-admin/edit.php?post_type=jetpack-testimonial' }
 					compact={ true }
 				>{ __( 'Configure Testimonials' ) }</Button>;
 		};
@@ -623,6 +664,10 @@ export let CustomContentTypesSettings = React.createClass( {
 		)
 	}
 } );
+
+CustomContentTypesSettings.propTypes = {
+	siteAdminUrl: React.PropTypes.string.isRequired
+};
 
 CustomContentTypesSettings = moduleSettingsForm( CustomContentTypesSettings );
 

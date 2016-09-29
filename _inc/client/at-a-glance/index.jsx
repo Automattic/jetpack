@@ -26,15 +26,28 @@ import {
 	userCanManageModules,
 	userCanViewStats
 } from 'state/initial-state';
+import { isDevMode } from 'state/connection';
 
 const AtAGlance = React.createClass( {
 	render() {
+		const urls = {
+			siteAdminUrl: this.props.siteAdminUrl,
+			siteRawUrl: this.props.siteRawUrl
+		};
+
 		let securityHeader =
 				<DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath="#security"
-					externalLink={ __( 'Manage security on WordPress.com' ) }
-					externalLinkPath={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+					externalLink={
+						this.props.isDevMode
+						? ''
+						: __( 'Manage security on WordPress.com' )
+					}
+					externalLinkPath={ this.props.isDevMode
+						? ''
+						: 'https://wordpress.com/settings/security/' + this.props.siteRawUrl
+					}
 					externalLinkClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_security_wpcom_click', {} ) }
 				/>,
 			performanceHeader =
@@ -48,8 +61,8 @@ const AtAGlance = React.createClass( {
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
-					<DashStats { ...this.props } />
-					<FeedbackDashRequest { ...this.props } />
+					<DashStats { ...urls } />
+					<FeedbackDashRequest />
 
 					{
 						// Site Security
@@ -57,26 +70,26 @@ const AtAGlance = React.createClass( {
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashProtect { ...this.props } />
+							<DashProtect />
 						</div>
 						<div className="jp-at-a-glance__right">
-							<DashScan { ...this.props } />
+							<DashScan siteRawUrl={ this.props.siteRawUrl } />
 						</div>
 					</div>
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashBackups { ...this.props } />
+							<DashBackups siteRawUrl={ this.props.siteRawUrl } />
 						</div>
 						<div className="jp-at-a-glance__right">
-							<DashMonitor { ...this.props } />
+							<DashMonitor />
 						</div>
 					</div>
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashAkismet { ...this.props } />
+							<DashAkismet { ...urls } />
 						</div>
 						<div className="jp-at-a-glance__right">
-							<DashPluginUpdates { ...this.props } />
+							<DashPluginUpdates { ...urls }/>
 						</div>
 					</div>
 
@@ -86,7 +99,7 @@ const AtAGlance = React.createClass( {
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashPhoton { ...this.props } />
+							<DashPhoton />
 						</div>
 					</div>
 				</div>
@@ -94,12 +107,12 @@ const AtAGlance = React.createClass( {
 		} else {
 			let stats = '';
 			if ( this.props.userCanViewStats ) {
-				stats = <DashStats { ...this.props } />;
+				stats = <DashStats { ...urls } />;
 			}
 
 			let protect = '';
 			if ( this.props.isModuleActivated( 'protect' ) ) {
-				protect = <DashProtect { ...this.props } />;
+				protect = <DashProtect />;
 			}
 
 			let nonAdminAAG = '';
@@ -126,7 +139,8 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			userCanManageModules: userCanManageModules( state ),
-			userCanViewStats: userCanViewStats( state )
+			userCanViewStats: userCanViewStats( state ),
+			isDevMode: isDevMode( state )
 		};
 	}
 )( AtAGlance );

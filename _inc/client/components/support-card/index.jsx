@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import sample from 'lodash/sample';
 import { translate as __ } from 'i18n-calypso';
@@ -12,7 +13,7 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import { getHappinessGravatarIds } from 'state/initial-state';
 
-export default React.createClass( {
+const SupportCard = React.createClass( {
 	displayName: 'SupportCard',
 
 	render() {
@@ -21,7 +22,7 @@ export default React.createClass( {
 			'jp-support-card'
 		);
 
-		const randomGravID = sample( getHappinessGravatarIds( this.props ) );
+		const randomGravID = sample( this.props.happinessGravatarIds );
 
 		return (
 			<div className={ classes }>
@@ -116,3 +117,16 @@ export default React.createClass( {
 		);
 	}
 } );
+
+SupportCard.propTypes = {
+	className: React.PropTypes.string,
+	happinessGravatarIds: React.PropTypes.array.isRequired
+};
+
+export default connect(
+	state => {
+		return {
+			happinessGravatarIds: getHappinessGravatarIds( state )
+		}
+	}
+)( SupportCard );

@@ -38,7 +38,7 @@ class Jetpack_Sync_Queue {
 	function __construct( $id ) {
 		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 		$this->row_iterator = 0;
-		$this->random_int = random_int( 1, 1000000 );
+		$this->random_int = mt_rand( 1, 1000000 );
 	}
 
 	function add( $item ) {

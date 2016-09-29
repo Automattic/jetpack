@@ -606,9 +606,11 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'config' => '(array) Configuration of the last full sync',
 		'queue_size' => '(int) Number of items in the  sync queue',
 		'queue_lag' => '(float) Time delay of the oldest item in the sync queue',
+		'queue_next_sync' => '(float) Time in seconds before trying to sync again',
 		'full_queue_size' => '(int) Number of items in the full sync queue',
 		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue',
-		'is_scheduled' => '(bool) Is a full sync scheduled via cron?'
+		'full_queue_next_sync' => '(float) Time in seconds before trying to sync the full sync queue again',
+		'is_scheduled' => '(bool) Is a full sync scheduled via cron?',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
 ) );
@@ -666,6 +668,7 @@ $sync_settings_response = array(
 	'post_types_blacklist' => '(array|string|bool=false) List of post types to exclude from sync. Send "empty" to unset.',
 	'meta_blacklist'       => '(array|string|bool=false) List of meta keys to exclude from sync. Send "empty" to unset.',
 	'disable'              => '(int|bool=false) Set to 1 or true to disable sync entirely.',
+	'render_filtered_content' => '(int|bool=true) Set to 1 or true to render filtered content.',
 );
 
 // GET /sites/%s/sync/settings
@@ -695,6 +698,45 @@ new Jetpack_JSON_API_Sync_Modify_Settings_Endpoint( array(
 	'request_format' => $sync_settings_response,
 	'response_format' => $sync_settings_response,
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/settings'
+) );
+
+// GET /sites/%s/sync/object
+new Jetpack_JSON_API_Sync_Object( array(
+	'description'     => 'Get an object by ID from one of the sync modules, in the format it would be synced in',
+	'group'           => '__do_not_document',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/sync/object',
+	'stat'            => 'sync-object',
+	'path_labels' => array(
+		'$site'        => '(int|string) The site ID, The site domain'
+	),
+	'query_parameters' => array(
+		'module_name'    => '(string) The sync module ID, e.g. "posts"',
+		'object_type'    => '(string) An identified for the object type, e.g. "post"',
+		'object_ids'     => '(array) The IDs of the objects',
+	),
+	'response_format' => array(
+		'objects' => '(string) The encoded objects'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/object?module_name=posts&object_type=post&object_ids[]=1&object_ids[]=2&object_ids[]=3'
+) );
+
+// POST /sites/%s/sync/now
+new Jetpack_JSON_API_Sync_Now_Endpoint( array(
+	'description'     => 'Force immediate sync of top items on a queue',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/sync/now',
+	'stat'            => 'sync-now',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'queue'  => '(string) sync or full_sync',
+	),
+	'response_format' => array(
+		'response' => '(array) The response from the server'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/now?queue=full_sync'
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );

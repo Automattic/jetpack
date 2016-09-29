@@ -37,7 +37,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 
 		// Enqueue admin page styles in head
-		add_action( 'admin_head', array( $this, 'page_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_styles' ) );
 
 		// Adding a redirect tag wrapped in browser conditional comments
 		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
@@ -49,7 +49,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 *
 	 * Works in Dev Mode or when user is connected.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 */
 	function jetpack_add_dashboard_sub_nav_item() {
 		if ( Jetpack::is_development_mode() || Jetpack::is_active() ) {
@@ -65,7 +65,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * If user is allowed to see the Jetpack Admin, add Settings sub-link.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
 		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) ) {
@@ -136,15 +136,33 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		/** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' );
 
-		echo file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
+		// Try fetching by patch
+		$static_html = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
+
+		if ( false === $static_html ) {
+
+			// If we still have nothing, display an error
+			esc_html_e( 'Error fetching static.html.', 'jetpack' );
+		} else {
+
+			// We got the static.html so let's display it
+			echo $static_html;
+		}
 	}
 
 	function get_i18n_data() {
+
+		// Try fetching by patch
 		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_locale() . '.json' );
-		if ( $locale_data ) {
-			return $locale_data;
-		} else {
+
+		if ( false === $locale_data ) {
+
+			// Return empty if we have nothing to return so it doesn't fail when parsed in JS
 			return '{}';
+		} else {
+
+			// We got the json file so let's return it
+			return $locale_data;
 		}
 	}
 
@@ -180,7 +198,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function page_admin_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
-		
+
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
@@ -215,6 +233,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/module/all' ) );
 		$modules = $response->get_data();
+
+		// Preparing translated fields for JSON encoding by transforming all HTML entities to
+		// respective characters.
+		foreach( $modules as $slug => $data ) {
+			$modules[ $slug ]['name'] = html_entity_decode( $data['name'] );
+			$modules[ $slug ]['description'] = html_entity_decode( $data['description'] );
+			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'] );
+			$modules[ $slug ]['long_description'] = html_entity_decode( $data['long_description'] );
+		}
 
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
@@ -254,7 +281,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'jetpack_holiday_snow_enabled' => function_exists( 'jetpack_holiday_snow_option_name' ) ? jetpack_holiday_snow_option_name() : false,
 			),
 			'userData' => array(
-				'othersLinked' => jetpack_get_other_linked_users(),
+//				'othersLinked' => Jetpack::get_other_linked_admins(),
 				'currentUser'  => jetpack_current_user_data(),
 			),
 			'locale' => $this->get_i18n_data(),
@@ -265,6 +292,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
 			'tracksUserData' => $this->jetpack_get_tracks_user_data(),
+			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false
 		) );
 	}
 }
@@ -334,37 +362,6 @@ function jetpack_show_jumpstart() {
 }
 
 /*
- * Checks to see if there are any other users available to become primary
- * Users must both:
- * - Be linked to wpcom
- * - Be an admin
- *
- * @return mixed False if no other users are linked, Int if there are.
- */
-function jetpack_get_other_linked_users() {
-	// If only one admin
-	$all_users = count_users();
-	if ( 2 > $all_users['avail_roles']['administrator'] ) {
-		return false;
-	}
-
-	$users = get_users();
-	$available = array();
-	// If no one else is linked to dotcom
-	foreach ( $users as $user ) {
-		if ( isset( $user->caps['administrator'] ) && Jetpack::is_user_connected( $user->ID ) ) {
-			$available[] = $user->ID;
-		}
-	}
-
-	if ( 2 > count( $available ) ) {
-		return false;
-	}
-
-	return count( $available );
-}
-
-/*
  * Gather data about the master user.
  *
  * @since 4.1.0
@@ -390,7 +387,7 @@ function jetpack_master_user_data() {
 	return $master_user_data;
 }
 
-/*
+/**
  * Gather data about the current user.
  *
  * @since 4.1.0
@@ -421,6 +418,10 @@ function jetpack_current_user_data() {
 			'edit_posts'         => current_user_can( 'edit_posts' ),
 			'manage_options'     => current_user_can( 'manage_options' ),
 			'view_stats'		 => current_user_can( 'view_stats' ),
+			'manage_plugins'	 => current_user_can( 'install_plugins' )
+									&& current_user_can( 'activate_plugins' )
+									&& current_user_can( 'update_plugins' )
+									&& current_user_can( 'delete_plugins' ),
 		),
 	);
 

@@ -294,6 +294,22 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( trim( $post_on_server->post_content_filtered ), 'bar' );
 	}
 
+	function test_sync_disabled_post_filtered_content() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 0 ) );
+
+		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
+		$this->post->post_content = "[foo]";
+
+		wp_update_post( $this->post );
+		$this->sender->do_sync();
+
+		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( $post_on_server->post_content, '[foo]' );
+		$this->assertTrue( empty( $post_on_server->post_content_filtered ) );
+
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+	}
+
 	function test_sync_post_filtered_excerpt_was_filtered() {
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_excerpt = "[foo]";
@@ -359,6 +375,33 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
 
 		Jetpack_Options::update_option( 'active_modules', $active_modules );
+	}
+
+	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
+		$post_id = $this->factory->post->create();
+		$attachment_id = $this->factory->post->create( array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'image/png',
+		) );
+		add_post_meta( $attachment_id, '_wp_attached_file', '2016/09/test_image.png' );
+		set_post_thumbnail( $post_id, $attachment_id );
+
+		$this->sender->do_sync();
+
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+		$this->assertObjectHasAttribute( 'featured_image', $post_on_server );
+		$this->assertInternalType( 'string', $post_on_server->featured_image );
+		$this->assertContains( 'test_image.png', $post_on_server->featured_image );
+	}
+
+	function test_sync_post_not_includes_feature_image_meta_when_featured_image_not_set() {
+		$post_id = $this->factory->post->create();
+
+		$this->sender->do_sync();
+
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+		$this->assertObjectNotHasAttribute( 'featured_image', $post_on_server );
+
 	}
 
 	function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
@@ -451,6 +494,27 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$good_post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
 
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $good_post_id ) ) );
+	}
+
+	function test_returns_post_object_by_id() {
+		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
+
+		$post_id = $this->factory->post->create();
+
+		$this->sender->do_sync();
+
+		// get the synced object
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$synced_post = $event->args[1];
+
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_post = $codec->decode( $codec->encode(
+			$post_sync_module->get_object_by_id( 'post', $post_id )
+		) );
+
+		$this->assertEquals( $synced_post, $retrieved_post );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {

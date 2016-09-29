@@ -21,11 +21,10 @@ import {
 
 const DashAkismet = React.createClass( {
 	activateManageAndRedirect: function( e ) {
-		const props = this.props;
 		e.preventDefault();
 
 		this.props.activateModule( 'manage' )
-			.then( window.location = 'https://wordpress.com/plugins/akismet/' + props.siteRawUrl )
+			.then( window.location = 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl )
 			.catch( console.log( 'Error: unable to activate Manage' ) );
 	},
 
@@ -151,6 +150,11 @@ const DashAkismet = React.createClass( {
 		);
 	}
 } );
+
+DashAkismet.propTypes = {
+	siteRawUrl: React.PropTypes.string.isRequired,
+	siteAdminUrl: React.PropTypes.string.isRequired
+};
 
 export default connect(
 	( state ) => {

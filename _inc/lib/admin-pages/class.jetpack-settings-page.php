@@ -19,10 +19,19 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	// actions to activate/deactivate and configure modules
 	function page_render() {
 		$list_table = new Jetpack_Modules_List_Table;
-		$static_html = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
-		$noscript_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
-		$version_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
-		$ie_notice = file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-ie-notice.html' );
+
+		$static_html = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
+
+		// If static.html isn't there, there's nothing else we can do.
+		if ( false === $static_html ) {
+			esc_html_e( 'Error fetching static.html.', 'jetpack' );
+			return;
+		}
+
+		// We have static.html so let's continue trying to fetch the others
+		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
+		$version_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
+		$ie_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-ie-notice.html' );
 
 		$noscript_notice = str_replace(
 			'#HEADER_TEXT#',
@@ -137,15 +146,22 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			$static_html
 		);
 
-		JetpackTracking::record_user_event( 'page_view', array( 'path' => 'wpa_old_settings' ) );
+		JetpackTracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_settings' ) );
+	}
+
+	/**
+	 * Load styles for static page.
+	 *
+	 * @since 4.3.0
+	 */
+	function additional_styles() {
+		$rtl = is_rtl() ? '.rtl' : '';
+		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
 
 	// Javascript logic specific to the list table
 	function page_admin_scripts() {
-		$rtl = is_rtl() ? '.rtl' : '';
-
 		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
-		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/static.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
 }

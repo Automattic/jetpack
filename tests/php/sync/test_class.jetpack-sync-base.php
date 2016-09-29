@@ -150,11 +150,6 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full' ) !== false );
 	}
 
-	function test_enqueues_full_sync_after_import() {
-		do_action( 'import_end' );
-		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full' ) !== false );
-	}
-
 	function test_is_scheduled_full_sync_works_with_different_args() {
 		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );
 
@@ -185,5 +180,16 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		// users sync should have overridden posts sync
 		$this->assertFalse( wp_next_scheduled( 'jetpack_sync_full', array( array( 'posts' => true ) ) ) );
 		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( array( 'users' => true ) ) ) >= time() + 199 );
+	}
+
+	function test_sends_updating_jetpack_version_event() {
+		/** This action is documented in class.jetpack.php */
+		do_action( 'updating_jetpack_version', '4.3', '4.2.1' );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'updating_jetpack_version' );
+		$this->assertEquals( '4.3', $event->args[0] );
+		$this->assertEquals( '4.2.1', $event->args[1] );
 	}
 }

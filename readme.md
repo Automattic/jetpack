@@ -70,9 +70,27 @@ Known Issues:
 
 4. Open `/wp-admin/admin.php?page=jetpack` in your browser.
 
+#### Production build
+
+The production build will generate minified files without duplicated code (resulting from dependencies) and also will generate the matching sourcemap files and language files.
+
+```
+npm run build-production
+```
+
 #### Development build
 
-Running `npm run watch` instead of `npm run build` will build all the code and continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly. Before running `npm run watch` you may need to `npm install` the npm dependencies first.
+The development build will create a build without minifying or deduping code.
+
+```
+npm run build
+```
+
+#### Development build with changes monitoring (watch)
+
+Running `npm run watch` instead of `npm run build` will build all the code and continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
+
+**Before running `npm run watch` you may need to `npm install` the npm dependencies first if you didn't do it already**.
 
 Clone this repository inside your Plugins directory.
 
@@ -104,7 +122,7 @@ The Jetpack Pit Crew is comprised of @dereksmart, @samhotchkiss, @zinigor, @elio
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
-@georgestephanis, @jeffgolenski, @jessefriedman, @richardmuscat, @justinkropp, @aliso, @allendav, @alternatekev, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @enejb, @eoigal, @ethitter, @gibrown, @hugobaeta, @jasmussen, @jblz, @jkudish, @johnjamesjacoby, @justinshreve, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @pento, @rase-, @roccotripaldi, @skeltoac, @stephdau, @tmoorewp, @Viper007Bond, @xyu and @yoavf.
+@georgestephanis, @jeffgolenski, @jessefriedman, @richardmuscat, @justinkropp, @aliso, @allendav, @alternatekev, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @enejb, @eoigal, @ethitter, @gibrown, @hugobaeta, @jasmussen, @jblz, @jkudish, @johnjamesjacoby, @justinshreve, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @rase-, @roccotripaldi, @skeltoac, @stephdau, @tmoorewp, @Viper007Bond, @xyu and @yoavf.
 
 Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, @kraftbj, @chaselivingston, @jenhooks, @aheckler, @ntpixels, @macmanx2, @lschuyler, @seejacobscott, @davoraltman, @lamdayap, @rachelsquirrel, @scarstocea, @stefmattana, @jamilabreu, @cena, @v18, @bikedorkjon, @drpottex, @gregwp, @annezazuu, and @danjjohnson.
 
