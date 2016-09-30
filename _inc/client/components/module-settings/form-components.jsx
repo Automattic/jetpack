@@ -23,7 +23,7 @@ export const ModuleSettingCheckbox = React.createClass( {
 					name={ props.name }
 					checked={ !! props.getOptionValue( props.name ) }
 					value={ !! props.getOptionValue( props.name ) }
-					disabled={ props.isUpdating( props.name ) }
+					disabled={ props.isUpdating( props.name ) || props.disabled }
 					onChange= { props.onOptionChange } />
 				<span>{ ( props.label ) }</span>
 			</FormLabel>
@@ -50,6 +50,27 @@ export const ModuleSettingRadios = React.createClass( {
 					</FormLabel>
 				) )
 				}
+			</div>
+		);
+	}
+} );
+
+export const ModuleSettingSelect = React.createClass( {
+	render() {
+		let props = this.props;
+		let validValues = this.props.validValues;
+		return (
+			<div>
+				<select
+					name={ props.name }
+					disabled={ props.isUpdating( props.name ) }
+					onChange={ props.onOptionChange } >
+				{
+				Object.keys( validValues ).map( ( key ) => (
+					<option value={ key }>{ ( validValues[ key ] ) }</option>
+				) )
+				}
+				</select>
 			</div>
 		);
 	}
