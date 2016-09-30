@@ -35,7 +35,7 @@
 }
 
 .jp-form-setting-explanation {
-	color: $gray;
+	color: darken( $gray, 20% );
 	display: block;
 	margin: rem( 5px ) 0 0 0;
 	font-size: rem( 13px );
