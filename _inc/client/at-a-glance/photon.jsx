@@ -27,7 +27,7 @@ const DashPhoton = React.createClass( {
 					label={ labelName }
 					module="photon"
 					status="is-working" >
-					<p className="jp-dash-item__description">{ __( 'Jetpack is improving and optimising your image speed.' ) }</p>
+					<p className="jp-dash-item__description">{ __( 'Jetpack is improving and optimizing your image speed.' ) }</p>
 				</DashItem>
 			);
 		}
