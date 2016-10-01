@@ -62,7 +62,7 @@ __( "Loading…", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:36
 __( "Downtime Monitoring", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:23
 __( "{{a}}Activate Photon{{/a}} to enhance the performance and speed of your images.", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:43
 __( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:42
-__( "Jetpack is improving and optimising your image speed.", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:29
+__( "Jetpack is improving and optimizing your image speed.", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:29
 __( "Image Performance %(photon)s", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:20
 __( "{{a}}Activate Manage{{/a}} to turn on auto updates and manage your plugins from WordPress.com.", "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:99
 __( "All plugins are up-to-date. Awesome work!", "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:98
