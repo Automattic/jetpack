@@ -636,9 +636,9 @@ class Jetpack_Likes {
 		// add_filter( 'comment_text', array( &$this, 'comment_likes' ), 10, 2 );
 
 		if ( $this->in_jetpack ) {
-			add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
-			add_filter( 'the_excerpt', array( &$this, 'post_likes' ), 30, 1 );
-
+			$this->register_content_hooks();
+			add_action( 'jetpack_sync_before_send', array( &$this, 'unregister_content_hooks' ) );
+			add_action( 'jetpack_sync_after_send', array( &$this, 'register_content_hooks' ) );
 		} else {
 			add_filter( 'post_flair', array( &$this, 'post_likes' ), 30, 1 );
 			add_filter( 'post_flair_block_css', array( $this, 'post_flair_service_enabled_like' ) );
@@ -649,6 +649,16 @@ class Jetpack_Likes {
 			wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize', 'jquery_inview' ), JETPACK__VERSION, true );
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
 		}
+	}
+
+	function register_content_hooks() {
+		add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
+		add_filter( 'the_excerpt', array( &$this, 'post_likes' ), 30, 1 );
+	}
+
+	function unregister_content_hooks() {
+		remove_filter( 'the_content', array( &$this, 'post_likes' ), 30 );
+		remove_filter( 'the_excerpt', array( &$this, 'post_likes' ), 30 );
 	}
 
 	/**
