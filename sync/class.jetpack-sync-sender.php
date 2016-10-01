@@ -13,6 +13,7 @@ class Jetpack_Sync_Sender {
 
 	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
 	const WPCOM_ERROR_SYNC_DELAY = 60;
+	const QUEUE_LOCKED_SYNC_DELAY = 10;
 
 	private $dequeue_max_bytes;
 	private $upload_max_bytes;
@@ -81,7 +82,11 @@ class Jetpack_Sync_Sender {
 		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
 
 		if ( is_wp_error( $sync_result ) ) {
-			$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY, $queue->id );
+			if ( 'unclosed_buffer' === $sync_result->get_error_code() ) {
+				$this->set_next_sync_time( time() + self::QUEUE_LOCKED_SYNC_DELAY, $queue->id );
+			} else {
+				$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY, $queue->id );
+			}
 			$sync_result = false;
 		} elseif ( $exceeded_sync_wait_threshold ) {
 			// if we actually sent data and it took a while, wait before sending again
@@ -117,8 +122,7 @@ class Jetpack_Sync_Sender {
 		}
 
 		if ( is_wp_error( $buffer ) ) {
-			// another buffer is currently sending
-			return false;
+			return $buffer;
 		}
 
 		$upload_size   = 0;

@@ -277,6 +277,21 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 55 );
 	}
 
+	function test_waits_ten_seconds_on_queue_lock_with_last_item() {
+		// remove_all_filters( 'jetpack_sync_send_data' );
+		// add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithLock' ), 10, 3 );
+
+		$this->sender->get_sync_queue()->lock(0);
+
+		$this->factory->post->create();
+		$this->sender->do_sync();
+
+		$next_sync_time = $this->sender->get_next_sync_time( 'sync' );
+
+		$this->assertTrue( $next_sync_time > time() + 5 );
+		$this->assertTrue( $next_sync_time < time() + 15 );
+	}
+
 	function serverReceiveWithTrailingError( $data, $codec, $sent_timestamp ) {
 		$processed_item_ids = $this->server->receive( $data, null, $sent_timestamp );
 
