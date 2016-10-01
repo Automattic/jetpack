@@ -89,6 +89,16 @@ class Jetpack_Sync_Sender {
 
 		$sync_result = $this->do_sync_for_queue( $queue );
 
+		/**
+		 * Fires after do_sync_for_queue( $queue );
+		 *
+		 * @since 4.3.2
+		 *
+		 * @param string The queue name
+		 * @param array  The sync result
+		 */
+		do_action( 'jetpack_sync_after_send', $queue->id, $sync_result );
+
 		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
 		
 		if ( is_wp_error( $sync_result ) ) {
