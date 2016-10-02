@@ -325,18 +325,55 @@ class Jetpack_Sync_Queue {
 	}
 
 	private function get_checkout_id() {
-		return get_transient( $this->get_checkout_transient_name() );
+		global $wpdb;
+		$checkout_value = $wpdb->get_var( 
+			$wpdb->prepare(
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s", 
+				$this->get_lock_option_name()
+			)
+		);
+
+		if ( $checkout_value ) {
+			list( $checkout_id, $timestamp ) = explode( ':', $checkout_value );
+			if ( $timestamp > time() ) {
+				return $checkout_id;
+			}
+		}
+
+		return false;
 	}
 
 	private function set_checkout_id( $checkout_id ) {
-		return set_transient( $this->get_checkout_transient_name(), $checkout_id, 5 * 60 ); // 5 minute timeout
+		global $wpdb;
+
+		$expires = time() + ( 5 * 60 );
+		$updated_num = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s", 
+				"$checkout_id:$expires",
+				$this->get_lock_option_name()
+			)
+		);
+
+		if ( ! $updated_num ) {
+			$wpdb->query(
+				$updated_num = $wpdb->prepare(
+					"INSERT INTO $wpdb->options ( option_name, option_value ) VALUES ( %s, %s )", 
+					$this->get_lock_option_name(),
+					"$checkout_id:$expires"
+				)
+			);
+		}
+
+		return $updated_num;
 	}
 
 	private function delete_checkout_id() {
-		delete_transient( $this->get_checkout_transient_name() );
+		global $wpdb;
+		$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s", $this->get_lock_option_name() ) );
 	}
 
-	private function get_checkout_transient_name() {
+	private function get_lock_option_name() {
 		return "jpsq_{$this->id}_checkout";
 	}
 
