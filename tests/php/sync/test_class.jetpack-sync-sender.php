@@ -278,9 +278,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_waits_ten_seconds_on_queue_lock_with_last_item() {
-		// remove_all_filters( 'jetpack_sync_send_data' );
-		// add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithLock' ), 10, 3 );
-
 		$this->sender->get_sync_queue()->lock(0);
 
 		$this->factory->post->create();
