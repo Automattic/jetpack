@@ -2554,6 +2554,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'markdown_supported'            => '(bool) Whether markdown is supported for this site',
 		'wpcom_publish_posts_with_markdown' => '(bool) Whether markdown is enabled for posts',
 		'wpcom_publish_comments_with_markdown' => '(bool) Whether markdown is enabled for comments',
+		'amp_is_enabled'   => '(bool) Whether AMP is enabled for this site',
 	),
 
 	'response_format' => array(
@@ -2628,6 +2629,7 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'seo_meta_description' 		   => '(string) The seo meta description for the site.',
 		'advanced_seo_title_formats'   => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
+		'amp_is_enabled'                  => '(bool) Whether AMP is enabled for this site',
 		'podcasting_archive'           => '(string) The post category, if any, used for publishing podcasts'
 	),
 
