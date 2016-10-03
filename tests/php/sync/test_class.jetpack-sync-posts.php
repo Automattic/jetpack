@@ -518,14 +518,16 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_contact_form_shortcode_from_fitered_content() {
-		// Since the filter is not there any more the sync should happen as expected.
-		$this->post->post_content = 'This post has a contact form:[contact-form][contact-field label=\'Name\' type=\'name\' required=\'1\'/][contact-field label=\'Email\' type=\'email\' required=\'1\'/][contact-field label=\'Website\' type=\'url\'/][contact-field label=\'Comment\' type=\'textarea\' required=\'1\'/][/contact-form]';
+		$this->post->post_content = '<p>This post has a contact form:[contact-form][contact-field label=\'Name\' type=\'name\' required=\'1\'/][contact-field label=\'Email\' type=\'email\' required=\'1\'/][contact-field label=\'Website\' type=\'url\'/][contact-field label=\'Comment\' type=\'textarea\' required=\'1\'/][/contact-form]</p>';
 
+		Grunion_Contact_Form_Plugin::init();
+		
 		wp_update_post( $this->post );
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
-		$this->assertEquals( $synced_post->post_content, 'This post has a contact form' );
+
+		$this->assertEquals( "<p>This post has a contact form:</p>\n", $synced_post->post_content_filtered );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {
