@@ -200,6 +200,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'markdown_supported'      => true,
 					'wpcom_publish_posts_with_markdown' => (bool) WPCom_Markdown::is_posting_enabled(),
 					'wpcom_publish_comments_with_markdown' => (bool) WPCom_Markdown::is_commenting_enabled(),
+					'amp_is_supported' => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
+					'amp_is_enabled' => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -260,6 +262,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		 * @param array $input Associative array of site settings to be updated.
 		 */
 		$input = apply_filters( 'rest_api_update_site_settings', $this->input() );
+
+		$blog_id = get_current_blog_id();
 
 		$jetpack_relatedposts_options = array();
 		$sharing_options = array();
@@ -463,6 +467,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'amp_is_enabled':
+					if ( function_exists( 'wpcom_update_amp_enabled' ) ) {
+						$saved = wpcom_update_amp_enabled( $blog_id, $value );
+						if ( $saved ) {
+							$updated[ $key ] = (bool) $value;
+						}
+					}
+					break;
+
 				default:
 					//allow future versions of this endpoint to support additional settings keys
 					if ( has_filter( 'site_settings_endpoint_update_' . $key ) ) {
@@ -524,5 +537,4 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		);
 
 	}
-
 }
