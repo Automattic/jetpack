@@ -89,7 +89,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'headstart',
 		'headstart_is_fresh',
 		'ak_vp_bundle_enabled',
-		'seo_meta_description',
+		'advanced_seo_front_page_description',
 		'advanced_seo_title_formats',
 		'verification_services_codes',
 		'podcasting_archive',
@@ -438,8 +438,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'ak_vp_bundle_enabled' :
 					$options[ $key ] = $site->get_ak_vp_bundle_enabled();
 					break;
-				case 'seo_meta_description' :
-					$options[ $key ] = $site->get_seo_meta_description();
+				case 'advanced_seo_front_page_description' :
+					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+						$options[ $key ] = $site->get_advanced_seo_front_page_description();
+					}
 					break;
 				case 'advanced_seo_title_formats':
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
