@@ -288,5 +288,5 @@ class Jetpack_Sync_Defaults {
 	static $default_render_filtered_content = 1; // render post_filtered_content
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
-	static $default_sync_queue_lock_timeout = 2 * MINUTE_IN_SECONDS;
+	static $default_sync_queue_lock_timeout = 120; // 2 minutes
 }
