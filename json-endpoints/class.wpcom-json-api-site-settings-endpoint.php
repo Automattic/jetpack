@@ -420,18 +420,37 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
-				case 'seo_meta_description':
-					if ( ! is_string( $value ) ) {
-						continue;
-					}
+				case 'advanced_seo_front_page_description':
+					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+						// allow valid subscriptions and also the grandfathered accounts
+						// from the initial deployment (see below)
+						if ( ! ( A8C\SEO\Helpers\is_enabled_advanced_seo() || get_option( 'seo_meta_description' ) ) ) {
+							return new WP_Error( 'unauthorized', __( 'Advanced SEO is not enabled for this site.' ), 403 );
+						}
 
-					$seo_description = sanitize_text_field( $value );
+						if ( ! is_string( $value ) ) {
+							return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.' ), 400 );
+						}
 
-					// The seo meta description should be shorter than 300 characters
-					$seo_description = substr( $seo_description, 0, 300 );
+						$front_page_description = sanitize_text_field( $value );
 
-					if ( update_option( $key, $seo_description ) ) {
-						$updated[ $key ] = $seo_description;
+						// The seo front page meta description should be shorter than 300 characters
+						$front_page_description = mb_substr( $front_page_description, 0, 300 );
+
+						$can_set_meta = A8C\SEO\Helpers\is_enabled_advanced_seo();
+						$has_old_meta = ! empty( get_option( 'seo_meta_description' ) );
+						$is_grandfathered = $has_old_meta && ! $can_set_meta;
+						$option_name = $is_grandfathered ? 'seo_meta_description' : 'advanced_seo_front_page_description';
+
+						$did_update = update_option( $option_name, $front_page_description );
+
+						if ( $did_update ) {
+							$updated['advanced_seo_front_page_description'] = $front_page_description;
+						}
+
+						if ( $did_update && $has_old_meta && $can_set_meta ) {
+							delete_option( 'seo_meta_description' );
+						}
 					}
 					break;
 
