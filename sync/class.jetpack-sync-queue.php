@@ -346,7 +346,7 @@ class Jetpack_Sync_Queue {
 	private function set_checkout_id( $checkout_id ) {
 		global $wpdb;
 
-		$expires = time() + ( 5 * 60 );
+		$expires = time() + Jetpack_Sync_Defaults::$default_sync_queue_lock_timeout;
 		$updated_num = $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s", 
@@ -356,8 +356,8 @@ class Jetpack_Sync_Queue {
 		);
 
 		if ( ! $updated_num ) {
-			$wpdb->query(
-				$updated_num = $wpdb->prepare(
+			$updated_num = $wpdb->query(
+				$wpdb->prepare(
 					"INSERT INTO $wpdb->options ( option_name, option_value ) VALUES ( %s, %s )", 
 					$this->get_lock_option_name(),
 					"$checkout_id:$expires"
