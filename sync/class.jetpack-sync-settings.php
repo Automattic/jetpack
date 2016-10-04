@@ -131,7 +131,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function is_syncing() {
-		return is_null( self::$is_syncing ) ? false : self::$is_syncing;
+		return (bool) self::$is_syncing;
 	}
 
 	static function set_is_syncing( $is_syncing ) {
