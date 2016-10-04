@@ -191,6 +191,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack-twitter-cards-site-tag' => (string) get_option( 'jetpack-twitter-cards-site-tag' ),
 					'eventbrite_api_token'    => $eventbrite_api_token,
 					'holidaysnow'             => $holiday_snow,
+					'hello_vote_enabled'      => (bool) get_option( 'hello_vote_enabled' ),
 					'gmt_offset'              => get_option( 'gmt_offset' ),
 					'timezone_string'         => get_option( 'timezone_string' ),
 					'jetpack_testimonial'     => (bool) get_option( 'jetpack_testimonial', '0' ),
@@ -398,6 +399,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					} else if ( function_exists( 'jetpack_holiday_snow_option_name' ) && update_option( jetpack_holiday_snow_option_name(), 'letitsnow' ) ) {
 						$updated[ $key ] = true;
+					}
+					break;
+
+				case 'hello_vote_enabled':
+					$coerce_value = (bool) $value;
+					if ( update_option( $key, $coerce_value ) ) {
+						$updated[ $key ] = $coerce_value;
 					}
 					break;
 
