@@ -739,6 +739,25 @@ new Jetpack_JSON_API_Sync_Now_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/now?queue=full_sync'
 ) );
 
+// POST /sites/%s/sync/unlock
+new Jetpack_JSON_API_Sync_Unlock_Endpoint( array(
+	'description'     => 'Unlock the queue in case it gets locked by a process.',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/sync/unlock',
+	'group'           => '__do_not_document',
+	'stat'            => 'sync-unlock',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'queue'      => '(string) sync or full_sync',
+	),
+	'response_format' => array(
+		'success' => '(bool) Unlocking the queue successful?'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/unlock'
+) );
+
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );
 
 new Jetpack_JSON_API_Jetpack_Log_Endpoint( array(

@@ -221,15 +221,41 @@ class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint 
 			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', 400 );
 		}
 
-		$queue_name = $args['queue'];
-
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 
 		$sender = Jetpack_Sync_Sender::get_instance();
-		$response = $sender->do_sync_for_queue( new Jetpack_Sync_Queue( $queue_name ) );
+		$response = $sender->do_sync_for_queue( new Jetpack_Sync_Queue( $args['queue'] ) );
 
 		return array(
 			'response' => $response
+		);
+	}
+}
+
+class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	protected function result() {
+		$args = $this->input();
+
+		if ( ! isset( $args['queue'] ) ) {
+			return new WP_Error( 'invalid_queue', 'Queue name is required', 400 );
+		}
+
+		if ( ! in_array( $args['queue'], array( 'sync', 'full_sync' ) ) ) {
+			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', 400 );
+		}
+
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-queue.php';
+		$queue = new Jetpack_Sync_Queue( $args['queue'] );
+
+		// If false it means that there was no lock to delete.
+		$response = $queue->unlock();
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return array(
+			'success' => $response
 		);
 	}
 }

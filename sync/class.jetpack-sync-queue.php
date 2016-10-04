@@ -321,7 +321,7 @@ class Jetpack_Sync_Queue {
 	}
 
 	function unlock() {
-		$this->delete_checkout_id();
+		return $this->delete_checkout_id();
 	}
 
 	private function get_checkout_id() {
@@ -371,13 +371,14 @@ class Jetpack_Sync_Queue {
 	private function delete_checkout_id() {
 		global $wpdb;
 		// rather than delete, which causes fragmentation, we update in place
-		$wpdb->query( 
+		return $wpdb->query(
 			$wpdb->prepare( 
 				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s", 
 				"0:0",
 				$this->get_lock_option_name() 
 			) 
 		);
+
 	}
 
 	private function get_lock_option_name() {
