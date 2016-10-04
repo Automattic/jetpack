@@ -531,6 +531,12 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_likes_from_fitered_content() {
+		// initial sync sets the screen to 'sync', then `is_admin` returns `true`
+		set_current_screen( 'front' );
+
+		// force likes to be appended to the_content
+		add_filter( 'wpl_is_likes_visible', '__return_true' );
+
 		require_once JETPACK__PLUGIN_DIR . 'modules/likes.php';
 		$jpl = Jetpack_Likes::init();
 		$jpl->action_init();
@@ -538,6 +544,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->post->post_content = 'The new post content';
 
 		wp_update_post( $this->post );
+
+		$this->assertContains( 'div class=\'sharedaddy', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
 
