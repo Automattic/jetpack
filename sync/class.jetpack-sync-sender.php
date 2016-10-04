@@ -77,6 +77,7 @@ class Jetpack_Sync_Sender {
 
 		$start_time = microtime( true );
 
+		Jetpack_Sync_Settings::set_is_syncing( true );
 		/**
 		 * Fires before do_sync_for_queue( $queue );
 		 * Could be used to unhook actions and filters before sync
@@ -98,6 +99,8 @@ class Jetpack_Sync_Sender {
 		 * @param array  The sync result
 		 */
 		do_action( 'jetpack_sync_after_send', $queue->id, $sync_result );
+
+		Jetpack_Sync_Settings::set_is_syncing( false );
 
 		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
 		
