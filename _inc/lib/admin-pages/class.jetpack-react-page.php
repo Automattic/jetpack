@@ -257,6 +257,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),
 				),
 				'isPublic'	=> '1' == get_option( 'blog_public' ),
+				'isInIdentityCrisis' => Jetpack_Options::get_option( 'sync_error_idc' ),
 			),
 			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion' => Jetpack::is_development_version(),
