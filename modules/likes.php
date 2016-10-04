@@ -968,7 +968,7 @@ class Jetpack_Likes {
 	 * similar logic and filters apply here, too.
 	 */
 	function is_likes_visible() {
-		if ( get_current_screen()->id === 'sync' ) {
+		if ( Jetpack_Sync_Settings::is_syncing() ) {
 			return false;
 		}
 
