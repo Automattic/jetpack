@@ -214,8 +214,12 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
 
+		Jetpack_Sync_Settings::set_is_syncing( true );
+		$objects = $codec->encode( $sync_module->get_objects_by_id( $object_type, $object_ids ) );
+		Jetpack_Sync_Settings::set_is_syncing( false );
+
 		return array(
-			'objects' => $codec->encode( $sync_module->get_objects_by_id( $object_type, $object_ids ) )
+			'objects' => $objects,
 		);
 	}
 }
@@ -262,7 +266,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 		$sender = Jetpack_Sync_Sender::get_instance();
-		
+
 		// let's delete the checkin state
 		if ( $args['force'] ) {
 			$queue->unlock();
@@ -280,6 +284,10 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		}
 
 		list( $items_to_send, $skipped_items_ids, $items ) = $sender->get_items_to_send( $buffer, $args['encode'] );
+
+		Jetpack_Sync_Settings::set_is_syncing( true );
+		$sender->do_sync_for_queue( new Jetpack_Sync_Queue( $queue_name ) );
+		Jetpack_Sync_Settings::set_is_syncing( false );
 
 		return array(
 			'buffer_id'      => $buffer->id,
