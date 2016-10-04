@@ -535,6 +535,24 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$jpl = Jetpack_Likes::init();
 		$jpl->action_init();
 
+		$this->post->post_content = 'The new post content';
+
+		wp_update_post( $this->post );
+
+		$this->sender->do_sync();
+
+		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
+
+		$this->assertEquals( '<p>' . $synced_post->post_content . "</p>\n", $synced_post->post_content_filtered );
+	}
+
+	function test_remove_sharedaddy_from_fitered_content() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+
+		$this->post->post_content = 'The new post content';
+
+		wp_update_post( $this->post );
+
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );

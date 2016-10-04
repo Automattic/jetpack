@@ -22,6 +22,7 @@ class Jetpack_Sync_Settings {
 
 	static $is_importing;
 	static $is_doing_cron;
+	static $is_syncing;
 
 	static $settings_cache = array(); // some settings can be expensive to compute - let's cache them
 
