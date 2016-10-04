@@ -78,27 +78,8 @@ class Jetpack_Sync_Sender {
 		$start_time = microtime( true );
 
 		Jetpack_Sync_Settings::set_is_syncing( true );
-		/**
-		 * Fires before do_sync_for_queue( $queue );
-		 * Could be used to unhook actions and filters before sync
-		 *
-		 * @since 4.3.2
-		 *
-		 * @param string The queue name
-		 */
-		do_action( 'jetpack_sync_before_send', $queue->id );
 
 		$sync_result = $this->do_sync_for_queue( $queue );
-
-		/**
-		 * Fires after do_sync_for_queue( $queue );
-		 *
-		 * @since 4.3.2
-		 *
-		 * @param string The queue name
-		 * @param array  The sync result
-		 */
-		do_action( 'jetpack_sync_after_send', $queue->id, $sync_result );
 
 		Jetpack_Sync_Settings::set_is_syncing( false );
 
