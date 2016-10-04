@@ -10,8 +10,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 
+		$user_id = $this->factory->user->create();
+
 		// create a post
-		$post_id    = $this->factory->post->create();
+		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id ) );
 		$this->post = get_post( $post_id );
 
 		$this->sender->do_sync();
@@ -517,12 +519,15 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $synced_post, $retrieved_post );
 	}
 
-	function test_remove_contact_form_shortcode_from_fitered_content() {
-		$this->post->post_content = '<p>This post has a contact form:[contact-form][contact-field label=\'Name\' type=\'name\' required=\'1\'/][contact-field label=\'Email\' type=\'email\' required=\'1\'/][contact-field label=\'Website\' type=\'url\'/][contact-field label=\'Comment\' type=\'textarea\' required=\'1\'/][/contact-form]</p>';
+	function test_remove_contact_form_shortcode_from_filtered_content() {
+		$this->post->post_content = '<p>This post has a contact form:[contact-form][contact-field label=\'Name\' type=\'name\' required=\'1\'/][/contact-form]</p>';
 
 		Grunion_Contact_Form_Plugin::init();
 
 		wp_update_post( $this->post );
+
+		$this->assertContains( '<form action=', apply_filters( 'the_content', $this->post->post_content ) );
+
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
@@ -530,7 +535,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( "<p>This post has a contact form:</p>\n", $synced_post->post_content_filtered );
 	}
 
-	function test_remove_likes_from_fitered_content() {
+	function test_remove_likes_from_filtered_content() {
 		// initial sync sets the screen to 'sync', then `is_admin` returns `true`
 		set_current_screen( 'front' );
 
@@ -554,7 +559,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '<p>' . $synced_post->post_content . "</p>\n", $synced_post->post_content_filtered );
 	}
 
-	function test_remove_sharedaddy_from_fitered_content() {
+	function test_remove_sharedaddy_from_filtered_content() {
 		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
 
 		$this->post->post_content = 'The new post content';
@@ -568,24 +573,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '<p>' . $synced_post->post_content . "</p>\n", $synced_post->post_content_filtered );
 	}
 
-	function test_remove_related_posts_from_fitered_content() {
-		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
-		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
-
-		Jetpack_RelatedPosts::init()->action_frontend_init();
-
-		$this->post->post_content = '[jetpack-related-posts]';
-
-		wp_update_post( $this->post );
-
-		$this->sender->do_sync();
-
-		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
-
-		$this->assertEquals( "\n", $synced_post->post_content_filtered );
-	}
-
-	function test_remove_related_posts_from_fitered_content_add_related_posts() {
+	function test_remove_related_posts_from_filtered_content() {
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
 
@@ -597,10 +585,31 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		$this->assertContains( '<div id=\'jp-relatedposts\'', apply_filters( 'the_content', $this->post->post_content ) );
+
 		$this->sender->do_sync();
 		
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "<p>hello</p>\n\n", $synced_post->post_content_filtered );
+	}
+
+	function test_remove_related_posts_shortcode_from_filtered_content() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
+
+		Jetpack_RelatedPosts::init()->action_frontend_init();
+
+		$this->post->post_content = '[jetpack-related-posts]';
+
+		wp_update_post( $this->post );
+
+		$this->assertContains( '<!-- Jetpack Related Posts is not supported in this context. -->', apply_filters( 'the_content', $this->post->post_content ) );
+
+		$this->sender->do_sync();
+
+		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
+
+		$this->assertEquals( "\n", $synced_post->post_content_filtered );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {
