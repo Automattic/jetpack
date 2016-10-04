@@ -283,10 +283,8 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 			return new WP_Error( 'buffer_non-object', 'Buffer is not an object', 400 );
 		}
 
-		list( $items_to_send, $skipped_items_ids, $items ) = $sender->get_items_to_send( $buffer, $args['encode'] );
-
 		Jetpack_Sync_Settings::set_is_syncing( true );
-		$sender->do_sync_for_queue( new Jetpack_Sync_Queue( $queue_name ) );
+		list( $items_to_send, $skipped_items_ids, $items ) = $sender->get_items_to_send( $buffer, $args['encode'] );
 		Jetpack_Sync_Settings::set_is_syncing( false );
 
 		return array(
