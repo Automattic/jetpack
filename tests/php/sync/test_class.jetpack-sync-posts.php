@@ -560,6 +560,23 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '<p>' . $synced_post->post_content . "</p>\n", $synced_post->post_content_filtered );
 	}
 
+	function test_remove_related_posts_from_fitered_content() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
+
+		Jetpack_RelatedPosts::init()->action_frontend_init();
+
+		$this->post->post_content = '[jetpack-related-posts]';
+
+		wp_update_post( $this->post );
+
+		$this->sender->do_sync();
+
+		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
+
+		$this->assertEquals( "\n", $synced_post->post_content_filtered );
+	}
+
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment        = get_post( $attachment_id );
