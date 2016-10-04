@@ -372,7 +372,7 @@ class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-queue.php';
 		$queue = new Jetpack_Sync_Queue( $args['queue'] );
 
-		// If false it means that there was no lock to delete.
+		// False means that there was no lock to delete.
 		$response = $queue->unlock();
 		return array(
 			'success' => $response
