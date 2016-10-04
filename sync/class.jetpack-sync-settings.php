@@ -128,4 +128,12 @@ class Jetpack_Sync_Settings {
 
 		return defined( 'DOING_CRON' ) && DOING_CRON;
 	}
+
+	static function is_syncing() {
+		return is_null( self::$is_syncing ) ? false : self::$is_syncing;
+	}
+
+	static function set_is_syncing( $is_syncing ) {
+		self::$is_syncing = $is_syncing;
+	}
 }
