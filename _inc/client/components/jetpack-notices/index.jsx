@@ -12,7 +12,7 @@ import NoticesList from 'components/global-notices';
  * Internal dependencies
  */
 import JetpackStateNotices from './state-notices';
-import { getSiteConnectionStatus, getSiteDevMode, isStaging } from 'state/connection';
+import { getSiteConnectionStatus, getSiteDevMode, isStaging, isInIdentityCrisis } from 'state/connection';
 import { isDevVersion } from 'state/initial-state';
 import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
@@ -183,6 +183,32 @@ UserUnlinked.propTypes = {
 	siteConnected: React.PropTypes.bool.isRequired
 };
 
+export const IdentityCrisis = React.createClass( {
+	displayName: 'IdentityCrisis',
+
+	render() {
+		if ( this.props.isInIdentityCrisis ) {
+			const text = __( 'Are you feeling like yourself? Seems like you are having a crisis' );
+
+			return (
+				<SimpleNotice
+					showDismiss={ false }
+					status="is-error"
+				>
+					{ text }
+				</SimpleNotice>
+			);
+		}
+
+		return false;
+	}
+
+} );
+
+IdentityCrisis.propTypes = {
+	isInIdentityCrisis: React.PropTypes.bool.isRequired
+};
+
 const JetpackNotices = React.createClass( {
 	displayName: 'JetpackNotices',
 
@@ -197,6 +223,7 @@ const JetpackNotices = React.createClass( {
 					siteConnectionStatus={ this.props.siteConnectionStatus }
 					siteDevMode={ this.props.siteDevMode } />
 				<StagingSiteNotice isStaging={ this.props.isStaging } />
+				<IdentityCrisis isInIdentityCrisis={ this.props.isInIdentityCrisis } />
 				<DismissableNotices />
 				<UserUnlinked
 					connectUrl={ this.props.connectUrl }
@@ -213,7 +240,9 @@ export default connect(
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isDevVersion: isDevVersion( state ),
 			siteDevMode: getSiteDevMode( state ),
-			isStaging: isStaging( state )
+			isStaging: isStaging( state ),
+			isInIdentityCrisis: isInIdentityCrisis( state )
+
 		};
 	}
 )( JetpackNotices );
