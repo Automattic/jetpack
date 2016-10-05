@@ -70,7 +70,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 		) {
 			return new WP_Error(
 				'rest_cannot_publish',
-				__( 'This module requires your site to be set to publicly accessible.', 'jetpack' ),
+				esc_html__( 'This module requires your site to be set to publicly accessible.', 'jetpack' ),
 				array( 'status' => 424 )
 			);
 		}
@@ -989,3 +989,27 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		return current_user_can( 'jetpack_admin_page' );
 	}
 }
+
+/**
+ * Actions performed only when Gravatar Hovercards is activated through the endpoint call.
+ *
+ * @since 4.3.1
+ */
+function jetpack_do_after_gravatar_hovercards_activation() {
+
+	// When Gravatar Hovercards is activated, enable them automatically.
+	update_option( 'gravatar_disable_hovercards', 'enabled' );
+}
+add_action( 'jetpack_activate_module_gravatar-hovercards', 'jetpack_do_after_gravatar_hovercards_activation' );
+
+/**
+ * Actions performed only when Gravatar Hovercards is activated through the endpoint call.
+ *
+ * @since 4.3.1
+ */
+function jetpack_do_after_gravatar_hovercards_deactivation() {
+
+	// When Gravatar Hovercards is deactivated, disable them automatically.
+	update_option( 'gravatar_disable_hovercards', 'disabled' );
+}
+add_action( 'jetpack_deactivate_module_gravatar-hovercards', 'jetpack_do_after_gravatar_hovercards_deactivation' );

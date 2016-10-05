@@ -434,28 +434,6 @@ export let MinilevenSettings = React.createClass( {
 
 MinilevenSettings = moduleSettingsForm( MinilevenSettings );
 
-export let GravatarHovercardsSettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<FormLegend>{ __( 'View people\'s profiles when you mouse over their Gravatars' ) }</FormLegend>
-					<ModuleSettingRadios
-						name={ 'gravatar_disable_hovercards' }
-						{ ...this.props }
-						validValues={ this.props.validValues( 'gravatar_disable_hovercards' ) } />
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-GravatarHovercardsSettings = moduleSettingsForm( GravatarHovercardsSettings );
-
 export let VerificationToolsSettings = React.createClass( {
 	render() {
 		return (
