@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Shortcodes: Return early if no string is passed #4797
 * Admin: Fix CPT configuration links #5153
 * Admin: Add width/height attributes to HE avatars #5109
+* Markdown: Add class to footnotes #4595
 * Admin: Remove unneeded extra option in Gravatar Hovercard Settings #4997
 * Widgets: Fix top posts attachment page behavior #5079
 
