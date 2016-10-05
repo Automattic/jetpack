@@ -467,12 +467,6 @@ class Jetpack_SSO {
 			// Otherwise, if it's already set, purge it.
 			setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 		}
-
-		if ( ! empty( $_GET['rememberme'] ) ) {
-			setcookie( 'jetpack_sso_remember_me', '1', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
-		} elseif ( ! empty( $_COOKIE['jetpack_sso_remember_me'] ) ) {
-			setcookie( 'jetpack_sso_remember_me', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
-		}
 	}
 
 	/**
@@ -730,23 +724,9 @@ class Jetpack_SSO {
 			// Cache the user's details, so we can present it back to them on their user screen
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
 
-			$remember = false;
-			if ( ! empty( $_COOKIE['jetpack_sso_remember_me'] ) ) {
-				$remember = true;
-				// And then purge it
-				setcookie( 'jetpack_sso_remember_me', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
-			}
-			/**
-			 * Filter the remember me value.
-			 *
-			 * @module sso
-			 *
-			 * @since 2.8.0
-			 *
-			 * @param bool $remember Is the remember me option checked?
-			 */
-			$remember = apply_filters( 'jetpack_remember_login', $remember );
-			wp_set_auth_cookie( $user->ID, $remember );
+			add_filter( 'auth_cookie_expiration',    array( 'Jetpack_SSO_Helpers', 'extend_auth_cookie_expiration_for_sso' ) );
+			wp_set_auth_cookie( $user->ID, true );
+			remove_filter( 'auth_cookie_expiration', array( 'Jetpack_SSO_Helpers', 'extend_auth_cookie_expiration_for_sso' ) );
 
 			/** This filter is documented in core/src/wp-includes/user.php */
 			do_action( 'wp_login', $user->user_login, $user );
