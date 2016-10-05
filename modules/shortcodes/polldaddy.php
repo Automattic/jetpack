@@ -1,6 +1,6 @@
 <?php
 
-if ( !class_exists( 'PolldaddyShortcode' ) ) {
+if ( ! class_exists( 'PolldaddyShortcode' ) ) {
 	/**
 * Class wrapper for polldaddy shortcodes
 */
@@ -82,7 +82,7 @@ CONTAINER;
 	 */
 	function polldaddy_embed_to_shortcode( $content ) {
 
-		if ( false === strpos( $content, 'polldaddy.com/p/' ) ) {
+		if ( ! is_string( $content ) || false === strpos( $content, 'polldaddy.com/p/' ) ) {
 			return $content;
 		}
 
