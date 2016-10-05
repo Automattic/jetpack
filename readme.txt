@@ -86,6 +86,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Add checkout and close api endpoints. #5192
 * Sync: Add next_sync_time to sync status endpoint. #5173
 * Sync: Add unlock queue api endpoint. #5246
+* Sync: Send home and siteurl options with each sync. #5261
 
 **Bug Fixes:**
 
