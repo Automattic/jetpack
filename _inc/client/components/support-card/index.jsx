@@ -32,6 +32,8 @@ const SupportCard = React.createClass( {
 							src={ 'https://secure.gravatar.com/avatar/' + randomGravID }
 							alt={ __( 'Jetpack Happiness Engineer' ) }
 							className="jp-support-card__happiness-engineer-img"
+							width="72"
+							height="72"
 						/>
 					</div>
 					<div className="jp-support-card__happiness-contact">
