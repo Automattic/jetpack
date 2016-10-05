@@ -126,7 +126,7 @@ class Jetpack_Sync_Actions {
 			'queue'     => $queue_id,       // sync or full_sync
 		);
 
-		if ( Jetpack::sync_idc_optin() || Jetpack::is_development_version() ) {
+		if ( Jetpack::sync_idc_optin() ) {
 			$query_args['home']    = get_home_url(); // Send home url option to check for Identity Crisis server-side
 			$query_args['siteurl'] = get_site_url(); // Send home url option to check for Identity Crisis server-side
 		}

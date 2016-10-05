@@ -270,15 +270,6 @@ EXPECTED;
 	public function pre_test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl( $errors ){
 		$this->assertCount( 0, $errors );
 	}
-
-	/**
-	 * @author roccotrip
-	 * @covers Jetpack::sync_idc_optin
-	 * @since 4.4.0
-	 */
-	public function test_sync_idc_optin_will_not_sync_unless_filter_is_set() {
-		
-	}
 	
 	/**
 	 * @author tonykova

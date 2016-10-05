@@ -5326,7 +5326,7 @@ p {
 		 *
 		 * @param bool
 		 */
-		$default = ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) ? JETPACK_SYNC_IDC_OPTIN : false;
+		$default = ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) ? JETPACK_SYNC_IDC_OPTIN : self::is_development_version();
 		return (bool) apply_filters( 'jetpack_sync_idc_optin', $default );
 	}
 
