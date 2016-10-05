@@ -8,8 +8,6 @@ class Jetpack_Sync_Defaults {
 	static $default_options_whitelist = array(
 		'stylesheet',
 		'blogname',
-		'home',
-		'siteurl',
 		'blogdescription',
 		'blog_charset',
 		'permalink_structure',
