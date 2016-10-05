@@ -79,39 +79,38 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Admin: Make the user confirm navigating away when there are unsaved settings #5085
+* Carousel: Add filter to disable stats collection. #5154
 * Staging Mode: added Kinsta staging URLs to the list of URLs that automatically turn on Staging Mode. #5209
+* Stats: Improve response time for initial stat load. #5247
+* Sync: Add checkout and close api endpoints. #5192
 * Sync: Add next_sync_time to sync status endpoint. #5173
 * Sync: Add unlock queue api endpoint. #5246
-* Sync: Add checkout and close api endpoints. #5192
-* Stats: Improve response time for initial stat load. #5247
-* Carousel: Add filter to disable stats collection. #5154
-* Admin: Make the user confirm navigating away when there are unsaved settings #5085
-
 
 **Bug Fixes:**
 
-* Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
+* Admin: Add width/height attributes to HE avatars #5109
+* Admin: check that a json language file like jetpack-en_US.json is readable before loading its contents and thus avoid a PHP warning. #5166
+* Admin: Fix CPT configuration links #5153
+* Admin: remove form legend for default Tiled Gallery settings #5230
+* Admin: Remove unneeded extra option in Gravatar Hovercard Settings #4997
+* Admin: Use correct link to contact Jetpack #5165
 * Internationalization: added fallback so that a warning isn't thrown if translations don't exist.  #5166
-* Send full and incremental queues separately so that a failure in one doesn't block the other. #5172
+* Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
 * Invoke full sync after enqueue. #5190
 * Limit dequeue time to 1/3 of PHP's max execution time to prevent long renders clogging sync. #5194
-* UI: Update professional slug to plans in the new Jetpack React UI. #5206
-* Sync: Delete sync options when resetting the sync. #5204
-* Sync: Remove unused code that that caused PHP notice. #5195
-* Sync: Re-add stats to sync. #5207
-* Sync: Unhook Likes, Related Post, and Sharing from content_filtered #5224
-* Admin: remove form legend for default Tiled Gallery settings #5230
-* Admin: Use correct link to contact Jetpack #5165
+* Markdown: Add class to footnotes #4595
+* Omnisearch: Remove splashes from search query. #4701
+* Send full and incremental queues separately so that a failure in one doesn't block the other. #5172
 * Sharing: Fix JS enqueue order #5072
 * Shortcodes: Return early if no string is passed #4797
-* Admin: Fix CPT configuration links #5153
-* Admin: Add width/height attributes to HE avatars #5109
-* Markdown: Add class to footnotes #4595
-* Admin: Remove unneeded extra option in Gravatar Hovercard Settings #4997
+* Sync: Delete sync options when resetting the sync. #5204
+* Sync: Re-add stats to sync. #5207
+* Sync: Remove unused code that that caused PHP notice. #5195
+* Sync: Unhook Likes, Related Post, and Sharing from content_filtered #5224
+* UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Widgets: Fix top posts attachment page behavior #5079
 
-* Omnisearch: Remove splashes from search query. #4701
-* Admin: check that a json language file like jetpack-en_US.json is readable before loading its contents and thus avoid a PHP warning. #5166
 
 **Support Enhancements**
 
