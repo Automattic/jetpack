@@ -52,6 +52,11 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 // GET /sites/%s/sync/status
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-settings.php';
+		if ( ! empty( Jetpack_Sync_Settings::get_setting( 'disable' ) ) ) {
+			return new WP_Error( 'sync_disabled', 'Sync has been disabled', 403 );
+		}
+
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 
