@@ -538,6 +538,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_contact_form_shortcode_from_filtered_content() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
+
 		$this->post->post_content = '<p>This post has a contact form:[contact-form][contact-field label=\'Name\' type=\'name\' required=\'1\'/][/contact-form]</p>';
 
 		Grunion_Contact_Form_Plugin::init();
