@@ -85,6 +85,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Add checkout and close api endpoints. #5192
 * Stats: Improve response time for initial stat load. #5247
 * Carousel: Add filter to disable stats collection. #5154
+* Admin: Make the user confirm navigating away when there are unsaved settings #5085
+
 
 **Bug Fixes:**
 
