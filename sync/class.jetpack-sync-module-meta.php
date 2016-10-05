@@ -70,14 +70,12 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	}
 
 	public function init_listeners( $callable ) {
-
-
 		foreach ( $this->meta_types as $meta_type ) {
-			$whitelist_handler = array( $this, 'filter_meta_' . $meta_type );
 			add_action( "added_{$meta_type}_meta", $callable, 10, 4 );
 			add_action( "updated_{$meta_type}_meta", $callable, 10, 4 );
 			add_action( "deleted_{$meta_type}_meta", $callable, 10, 4 );
 
+			$whitelist_handler = array( $this, 'filter_meta_' . $meta_type );
 			add_filter( "jetpack_sync_before_enqueue_added_{$meta_type}_meta", $whitelist_handler );
 			add_filter( "jetpack_sync_before_enqueue_updated_{$meta_type}_meta", $whitelist_handler );
 			add_filter( "jetpack_sync_before_enqueue_deleted_{$meta_type}_meta", $whitelist_handler );
@@ -106,7 +104,7 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 		return true;
 	}
 
-	function is_object_allowed( $object_id ) {
+	function is_post_type_allowed( $object_id ) {
 		$post = get_post( $object_id );
 		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
@@ -115,7 +113,7 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	}
 
 	function filter_meta_post( $args ) {
-		if ( ! $this->is_object_allowed( $args[1] ) ) {
+		if ( ! $this->is_post_type_allowed( $args[1] ) ) {
 			return false;
 		}
 		return $this->filter_meta( $args );
@@ -129,7 +127,6 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 		if ( ! $this->is_meta_key_allowed( $args[2] ) ) {
 			return false;
 		}
-
 		return $args;
 	}
 }
