@@ -77,7 +77,11 @@ class Jetpack_Sync_Sender {
 
 		$start_time = microtime( true );
 
+		Jetpack_Sync_Settings::set_is_syncing( true );
+
 		$sync_result = $this->do_sync_for_queue( $queue );
+
+		Jetpack_Sync_Settings::set_is_syncing( false );
 
 		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
 		

@@ -968,6 +968,10 @@ class Jetpack_Likes {
 	 * similar logic and filters apply here, too.
 	 */
 	function is_likes_visible() {
+		if ( Jetpack_Sync_Settings::is_syncing() ) {
+			return false;
+		}
+
 		global $post, $wp_current_filter; // Used to apply 'sharing_show' filter
 
 		// @todo: Remove this block when 4.5 is the minimum
