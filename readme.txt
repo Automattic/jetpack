@@ -102,8 +102,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Unhook Likes, Related Post, and Sharing from content_filtered #5224
 * Admin: remove form legend for default Tiled Gallery settings #5230
 * Admin: Use correct link to contact Jetpack #5165
+* Sharing: Fix JS enqueue order #5072
 * Admin: Fix CPT configuration links #5153
 * Admin: Add width/height attributes to HE avatars #5109
+* Widgets: Fix top posts attachment page behavior #5079
 
 * Omnisearch: Remove splashes from search query. #4701
 * Admin: check that a json language file like jetpack-en_US.json is readable before loading its contents and thus avoid a PHP warning. #5166
