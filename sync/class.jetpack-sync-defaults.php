@@ -222,6 +222,7 @@ class Jetpack_Sync_Defaults {
 		'wprss_last_update_items',
 		'wp_automatic_cache',
 		'snapTW',
+		'data', // securpress - bummer to blacklist something so general, but necessary
 	);
 
 	// TODO: move this to server? - these are theme support values
