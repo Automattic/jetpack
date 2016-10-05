@@ -10,7 +10,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	static $activated_modules = array();
 	static $deactivated_modules = array();
-	
+
 	/**
 	 * @author blobaugh
 	 * @covers Jetpack::init
@@ -413,6 +413,30 @@ EXPECTED;
 	function test_other_linked_admins_transient_set_to_zero_returns_false() {
 		set_transient( 'jetpack_other_linked_admins', 0, HOUR_IN_SECONDS );
 		$this->assertFalse( Jetpack::get_other_linked_admins() );
+	}
+
+	function test_idc_optin_defaults_to_development_version() {
+		add_filter( 'jetpack_development_version', '__return_true' );
+		$this->assertTrue( Jetpack::sync_idc_optin() );
+		remove_filter( 'jetpack_development_version', '__return_true' );
+	}
+
+	function test_idc_optin_filter_overrides_development_version() {
+		add_filter( 'jetpack_development_version', '__return_true' );
+		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
+		$this->assertFalse( Jetpack::sync_idc_optin() );
+		remove_filter( 'jetpack_development_version', '__return_true' );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
+	}
+
+	function test_idc_optin_casts_to_bool() {
+		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+		$this->assertTrue( Jetpack::sync_idc_optin() );
+		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+	}
+
+	function __return_string_1() {
+		return '1';
 	}
 
 	static function reset_tracking_of_module_activation() {
