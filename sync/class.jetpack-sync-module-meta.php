@@ -104,8 +104,8 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 		return true;
 	}
 
-	function is_post_type_allowed( $object_id ) {
-		$post = get_post( $object_id );
+	function is_post_type_allowed( $post_id ) {
+		$post = get_post( $post_id );
 		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
 		}
