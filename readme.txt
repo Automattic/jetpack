@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: Fix JS enqueue order #5072
 * Admin: Fix CPT configuration links #5153
 * Admin: Add width/height attributes to HE avatars #5109
+* Admin: Remove unneeded extra option in Gravatar Hovercard Settings #4997
 * Widgets: Fix top posts attachment page behavior #5079
 
 * Omnisearch: Remove splashes from search query. #4701
