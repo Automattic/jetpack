@@ -10,7 +10,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	static $activated_modules = array();
 	static $deactivated_modules = array();
-
+	
 	/**
 	 * @author blobaugh
 	 * @covers Jetpack::init
@@ -271,7 +271,15 @@ EXPECTED;
 		$this->assertCount( 0, $errors );
 	}
 
-
+	/**
+	 * @author roccotrip
+	 * @covers Jetpack::sync_idc_optin
+	 * @since 4.4.0
+	 */
+	public function test_sync_idc_optin_will_not_sync_unless_filter_is_set() {
+		
+	}
+	
 	/**
 	 * @author tonykova
 	 * @covers Jetpack::implode_frontend_css

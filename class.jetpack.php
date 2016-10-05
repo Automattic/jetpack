@@ -5319,15 +5319,15 @@ p {
 	public static function sync_idc_optin() {
 		/**
 		 * Allows sites to optin to IDC mitigation which blocks the site from syncing to WordPress.com when the home
-		 * URL or site URL do not match what WordPress.com expects.
-		 * The default value is either false, or the value of JETPACK_SYNC_IDC_OPTIN constant if set
+		 * URL or site URL do not match what WordPress.com expects. The default value is either false, or the value of
+		 * JETPACK_SYNC_IDC_OPTIN constant if set.
 		 *
 		 * @since 4.4.0
 		 *
 		 * @param bool
 		 */
 		$default = ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) ? JETPACK_SYNC_IDC_OPTIN : false;
-		return apply_filters( 'jetpack_sync_idc_optin', $default );
+		return (bool) apply_filters( 'jetpack_sync_idc_optin', $default );
 	}
 
 	/**
