@@ -368,6 +368,43 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'jetpack_sync_before_send_super_slow_action', array( $this, 'before_send_super_slow_action' ) );
 	}
 
+	function test_doesnt_log_actions_during_sync_send() {
+		// plugins like snitch and secupress create posts during http requests,
+		// which can result in recursive sync, or at least syncing a TON of data
+		// so we try to unhook right before send, and rehook right after
+
+		$args = array(
+			'public' => true,
+			'label'  => 'HttpListener'
+		);
+		register_post_type( 'http_listener', $args );
+
+		// register a trivial action we use to force sync
+		add_action( 'my_action', array( $this->listener, 'action_handler' ) ); 
+
+		// log http_listener during send data, since in test we're not sending real HTTP requests
+		add_filter( 'jetpack_sync_send_data', array( $this, 'create_http_listener_post_and_return_processed_ids' ), 10, 1 );
+
+		// hopefully no http_listener events created here
+		do_action( 'my_action' );
+		$this->sender->do_sync();
+
+		$this->server_event_storage->reset();
+
+		// do a trivial data change, then check we didn't enqueue a http_listener post
+		do_action( 'my_action' );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+
+		$this->assertFalse( $event );
+	}
+
+	function create_http_listener_post_and_return_processed_ids( $data ) {
+		$post_id = $this->factory->post->create( array( 'post_type' => 'http_listener' ) );
+		return array_keys( $data );
+	}
+
 	function before_send_super_slow_action( $args, $user_id ) {
 		sleep( 3 );
 		return $args;
