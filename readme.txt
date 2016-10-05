@@ -84,6 +84,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Add unlock queue api endpoint. #5246
 * Sync: Add checkout and close api endpoints. #5192
 * Stats: Improve response time for initial stat load. #5247
+* Carousel: Add filter to disable stats collection. #5154
 
 **Bug Fixes:**
 
