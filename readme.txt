@@ -92,6 +92,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Sync: Delete sync options when resetting the sync. #5204
 * Sync: Remove unused code that that caused PHP notice. #5195
+* Sync: Unhook Likes, Related Post, and Sharing from content_filtered #5224
 * Omnisearch: Remove splashes from search query. #4701
 * Admin: check that a json language file like jetpack-en_US.json is readable before loading its contents and thus avoid a PHP warning. #5166
 
