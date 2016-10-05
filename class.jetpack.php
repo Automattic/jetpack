@@ -5310,6 +5310,27 @@ p {
 	}
 
 	/**
+	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
+	 * If set to true, the site will be put into staging mode.
+	 *
+	 * @since 4.4.0
+	 * @return bool
+	 */
+	public static function sync_idc_optin() {
+		/**
+		 * Allows sites to optin to IDC mitigation which blocks the site from syncing to WordPress.com when the home
+		 * URL or site URL do not match what WordPress.com expects.
+		 * The default value is either false, or the value of JETPACK_SYNC_IDC_OPTIN constant if set
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool
+		 */
+		$default = ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) ? JETPACK_SYNC_IDC_OPTIN : false;
+		return apply_filters( 'jetpack_sync_idc_optin', $default );
+	}
+
+	/**
 	 * Maybe Use a .min.css stylesheet, maybe not.
 	 *
 	 * Hooks onto `plugins_url` filter at priority 1, and accepts all 3 args.
