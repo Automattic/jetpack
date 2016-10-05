@@ -795,23 +795,28 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
 		}
 
-		$response = array(
-			'general' => stats_get_from_restapi(),
-		);
-
 		switch ( $range ) {
-			case 'day':
-				$response['day'] = stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' );
-				break;
-			case 'week':
-				$response['week'] = stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' );
-				break;
-			case 'month':
-				$response['month'] = stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' );
-				break;
-		}
 
-		return rest_ensure_response( $response );
+			// This is always called first on page load
+			case 'day':
+				$initial_stats = stats_get_from_restapi();
+				return rest_ensure_response( array(
+					'general' => $initial_stats,
+
+					// Build data for 'day' as if it was stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' );
+					'day' => isset( $initial_stats->visits )
+						? $initial_stats->visits
+						: array(),
+				) );
+			case 'week':
+				return rest_ensure_response( array(
+					'week' => stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' ),
+				) );
+			case 'month':
+				return rest_ensure_response( array(
+					'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
+				) );
+		}
 	}
 
 	/**
