@@ -88,6 +88,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Add unlock queue api endpoint. #5246
 * Sync: Send home and siteurl options with each sync. #5261
 
+
 **Bug Fixes:**
 
 * Admin: Add width/height attributes to HE avatars #5109
@@ -109,8 +110,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Re-add stats to sync. #5207
 * Sync: Remove unused code that that caused PHP notice. #5195
 * Sync: Unhook Likes, Related Post, and Sharing from content_filtered #5224
+* Sync: Do not sync post meta related to post_types that are blacklisted. #5258
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Widgets: Fix top posts attachment page behavior #5079
+
 
 
 **Support Enhancements**
