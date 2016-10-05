@@ -215,7 +215,17 @@ class Jetpack_Carousel {
 			 * Handle WP stats for images in full-screen.
 			 * Build string with tracking info.
 			 */
-			if ( in_array( 'stats', Jetpack::get_active_modules() ) && ! Jetpack::is_development_mode() ) {
+
+			/**
+			 * Filter if Jetpack should enable stats collection on carousel views
+			 *
+			 * @module carousel
+			 *
+			 * @since 4.3.2
+			 *
+			 * @param bool Enable Jetpack Carousel stat collection. Default false.
+			 */
+			if ( apply_filters( 'jetpack_enable_carousel_stats', false ) && in_array( 'stats', Jetpack::get_active_modules() ) && ! Jetpack::is_development_mode() ) {
 				$localize_strings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
 
 				// Set the stats as empty if user is logged in but logged-in users shouldn't be tracked.

@@ -173,6 +173,10 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function get_target_html() {
+		if ( Jetpack_Sync_Settings::is_syncing() ) {
+			return '';
+		}
+
 		$options = $this->get_options();
 
 		if ( $options['show_headline'] ) {
@@ -214,6 +218,9 @@ EOT;
 	 * @returns string
 	 */
 	public function get_target_html_unsupported() {
+		if ( Jetpack_Sync_Settings::is_syncing() ) {
+			return '';
+		}
 		return "\n\n<!-- Jetpack Related Posts is not supported in this context. -->\n\n";
 	}
 

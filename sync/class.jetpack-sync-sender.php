@@ -77,10 +77,14 @@ class Jetpack_Sync_Sender {
 
 		$start_time = microtime( true );
 
+		Jetpack_Sync_Settings::set_is_syncing( true );
+
 		$sync_result = $this->do_sync_for_queue( $queue );
 
-		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
+		Jetpack_Sync_Settings::set_is_syncing( false );
 
+		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
+		
 		if ( is_wp_error( $sync_result ) ) {
 			if ( 'unclosed_buffer' === $sync_result->get_error_code() ) {
 				$this->set_next_sync_time( time() + self::QUEUE_LOCKED_SYNC_DELAY, $queue->id );
@@ -96,46 +100,17 @@ class Jetpack_Sync_Sender {
 		return $sync_result;
 	}
 
-	public function do_sync_for_queue( $queue ) {
-
+	public function get_items_to_send( $buffer, $encode = true ) {
 		// track how long we've been processing so we can avoid request timeouts
 		$start_time = microtime( true );
-
-		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
-
-		if ( $queue->size() === 0 ) {
-			return false;
-		}
-
-		// now that we're sure we are about to sync, try to
-		// ignore user abort so we can avoid getting into a
-		// bad state
-		if ( function_exists( 'ignore_user_abort' ) ) {
-			ignore_user_abort( true );
-		}
-
-		$buffer = $queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
-
-		if ( ! $buffer ) {
-			// buffer has no items
-			return false;
-		}
-
-		if ( is_wp_error( $buffer ) ) {
-			return $buffer;
-		}
-
 		$upload_size   = 0;
 		$items_to_send = array();
 		$items         = $buffer->get_items();
-
 		// set up current screen to avoid errors rendering content
 		require_once( ABSPATH . 'wp-admin/includes/class-wp-screen.php' );
 		require_once( ABSPATH . 'wp-admin/includes/screen.php' );
 		set_current_screen( 'sync' );
-
 		$skipped_items_ids = array();
-
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
 		foreach ( $items as $key => $item ) {
@@ -157,21 +132,42 @@ class Jetpack_Sync_Sender {
 				$skipped_items_ids[] = $key;
 				continue;
 			}
-
-			$encoded_item = $this->codec->encode( $item );
-
+			$encoded_item = $encode ? $this->codec->encode( $item ) : $item;
 			$upload_size += strlen( $encoded_item );
-
 			if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
 				break;
 			}
-
 			$items_to_send[ $key ] = $encoded_item;
-
 			if ( microtime(true) - $start_time > $this->max_dequeue_time ) {
 				break;
 			}
 		}
+
+		return array( $items_to_send, $skipped_items_ids, $items );
+	}
+
+	public function do_sync_for_queue( $queue ) {
+
+		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
+		if ( $queue->size() === 0 ) {
+			return false;
+		}
+		// now that we're sure we are about to sync, try to
+		// ignore user abort so we can avoid getting into a
+		// bad state
+		if ( function_exists( 'ignore_user_abort' ) ) {
+			ignore_user_abort( true );
+		}
+		$buffer = $queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
+		if ( ! $buffer ) {
+			// buffer has no items
+			return false;
+		}
+		if ( is_wp_error( $buffer ) ) {
+			return $buffer;
+		}
+
+		list( $items_to_send, $skipped_items_ids, $items ) = $this->get_items_to_send( $buffer, true );
 
 		/**
 		 * Fires when data is ready to send to the server.
@@ -185,40 +181,33 @@ class Jetpack_Sync_Sender {
 		 * @param double $time The current time
 		 * @param string $queue The queue used to send ('sync' or 'full_sync')
 		 */
+		Jetpack_Sync_Settings::set_is_sending( true );
 		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id );
-
+		Jetpack_Sync_Settings::set_is_sending( false );
+		
 		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {
 			$checked_in_item_ids = $queue->checkin( $buffer );
-
 			if ( is_wp_error( $checked_in_item_ids ) ) {
 				error_log( 'Error checking in buffer: ' . $checked_in_item_ids->get_error_message() );
 				$queue->force_checkin();
 			}
-
 			if ( is_wp_error( $processed_item_ids ) ) {
 				return $processed_item_ids;
 			}
-
 			// returning a WP_Error is a sign to the caller that we should wait a while
 			// before syncing again
 			return new WP_Error( 'server_error' );
-
 		} else {
-
 			// detect if the last item ID was an error
 			$had_wp_error = is_wp_error( end( $processed_item_ids ) );
-
 			if ( $had_wp_error ) {
 				$wp_error = array_pop( $processed_item_ids );
 			}
-
 			// also checkin any items that were skipped
 			if ( count( $skipped_items_ids ) > 0 ) {
 				$processed_item_ids = array_merge( $processed_item_ids, $skipped_items_ids );
 			}
-
 			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
-
 			/**
 			 * Allows us to keep track of all the actions that have been sent.
 			 * Allows us to calculate the progress of specific actions.
@@ -228,16 +217,13 @@ class Jetpack_Sync_Sender {
 			 * @param array $processed_actions The actions that we send successfully.
 			 */
 			do_action( 'jetpack_sync_processed_actions', $processed_items );
-
 			$queue->close( $buffer, $processed_item_ids );
-
 			// returning a WP_Error is a sign to the caller that we should wait a while
 			// before syncing again
 			if ( $had_wp_error ) {
 				return $wp_error;
 			}
 		}
-
 		return true;
 	}
 

@@ -119,12 +119,19 @@ class Jetpack_Sync_Actions {
 	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id ) {
 		Jetpack::load_xml_rpc_client();
 
-		$url = add_query_arg( array(
-			'sync'      => '1', // add an extra parameter to the URL so we can tell it's a sync action
-			'codec'     => $codec_name, // send the name of the codec used to encode the data
+		$query_args = array(
+			'sync'      => '1',             // add an extra parameter to the URL so we can tell it's a sync action
+			'codec'     => $codec_name,     // send the name of the codec used to encode the data
 			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
-			'queue'     => $queue_id, // sync or full_sync
-		), Jetpack::xmlrpc_api_url() );
+			'queue'     => $queue_id,       // sync or full_sync
+		);
+
+		if ( Jetpack::sync_idc_optin() ) {
+			$query_args['home']    = get_home_url(); // Send home url option to check for Identity Crisis server-side
+			$query_args['siteurl'] = get_site_url(); // Send home url option to check for Identity Crisis server-side
+		}
+
+		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
 
 		$rpc = new Jetpack_IXR_Client( array(
 			'url'     => $url,

@@ -2817,10 +2817,12 @@ p {
 	 * Get additional stat data to sync to WPCOM
 	 */
 	public static function get_additional_stat_data( $prefix = '' ) {
+		global $wpdb;
 		$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
 		$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
-		$return["{$prefix}users"]          = count_users();
+		$return["{$prefix}users"]          = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities'" );
 		$return["{$prefix}site-count"]     = 0;
+
 		if ( function_exists( 'get_blog_count' ) ) {
 			$return["{$prefix}site-count"] = get_blog_count();
 		}
@@ -5305,6 +5307,27 @@ p {
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+	}
+
+	/**
+	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
+	 * If set to true, the site will be put into staging mode.
+	 *
+	 * @since 4.4.0
+	 * @return bool
+	 */
+	public static function sync_idc_optin() {
+		/**
+		 * Allows sites to optin to IDC mitigation which blocks the site from syncing to WordPress.com when the home
+		 * URL or site URL do not match what WordPress.com expects. The default value is either false, or the value of
+		 * JETPACK_SYNC_IDC_OPTIN constant if set.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool
+		 */
+		$default = ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) ? JETPACK_SYNC_IDC_OPTIN : self::is_development_version();
+		return (bool) apply_filters( 'jetpack_sync_idc_optin', $default );
 	}
 
 	/**

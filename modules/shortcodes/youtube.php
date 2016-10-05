@@ -28,8 +28,9 @@
 // <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0"></iframe>
 
 function youtube_embed_to_short_code( $content ) {
-	if ( false === strpos( $content, 'youtube.com' ) )
+	if ( ! is_string( $content ) || false === strpos( $content, 'youtube.com' ) ) {
 		return $content;
+	}
 
 	//older codes
 	$regexp = '!<object width="\d+" height="\d+"><param name="movie" value="https?://www\.youtube\.com/v/([^"]+)"></param>(?:<param name="\w+" value="[^"]*"></param>)*<embed src="https?://www\.youtube\.com/v/(.+)" type="application/x-shockwave-flash"(?: \w+="[^"]*")* width="\d+" height="\d+"></embed></object>!i';

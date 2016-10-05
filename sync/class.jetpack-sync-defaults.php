@@ -8,8 +8,6 @@ class Jetpack_Sync_Defaults {
 	static $default_options_whitelist = array(
 		'stylesheet',
 		'blogname',
-		'home',
-		'siteurl',
 		'blogdescription',
 		'blog_charset',
 		'permalink_structure',
@@ -156,6 +154,7 @@ class Jetpack_Sync_Defaults {
 	static $blacklisted_post_types = array(
 		'ai1ec_event',
 		'snitch',
+		'secupress_log_action',
 	);
 
 	static $default_post_checksum_columns = array(
