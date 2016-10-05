@@ -104,6 +104,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Support Enhancements**
 
 * Add option to disable rendering of filtered content during sync. #5171
+* Remove feedback prompt. #5232
 
 = 4.3.1 =
 
