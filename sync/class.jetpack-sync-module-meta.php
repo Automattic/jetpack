@@ -70,9 +70,10 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	}
 
 	public function init_listeners( $callable ) {
-		$whitelist_handler = array( $this, 'filter_meta' );
+
 
 		foreach ( $this->meta_types as $meta_type ) {
+			$whitelist_handler = array( $this, 'filter_meta_' . $meta_type );
 			add_action( "added_{$meta_type}_meta", $callable, 10, 4 );
 			add_action( "updated_{$meta_type}_meta", $callable, 10, 4 );
 			add_action( "deleted_{$meta_type}_meta", $callable, 10, 4 );
@@ -103,6 +104,25 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 		}
 
 		return true;
+	}
+
+	function is_object_allowed( $object_id ) {
+		$post = get_post( $object_id );
+		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
+			return false;
+		}
+		return true;
+	}
+
+	function filter_meta_post( $args ) {
+		if ( ! $this->is_object_allowed( $args[1] ) ) {
+			return false;
+		}
+		return $this->filter_meta( $args );
+	}
+
+	function filter_meta_comment( $args ) {
+		return $this->filter_meta( $args );
 	}
 
 	function filter_meta( $args ) {
