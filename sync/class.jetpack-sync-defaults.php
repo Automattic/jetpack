@@ -155,6 +155,7 @@ class Jetpack_Sync_Defaults {
 		'ai1ec_event',
 		'snitch',
 		'secupress_log_action',
+		'http',
 	);
 
 	static $default_post_checksum_columns = array(
@@ -222,6 +223,7 @@ class Jetpack_Sync_Defaults {
 		'wprss_last_update_items',
 		'wp_automatic_cache',
 		'snapTW',
+		'data', // securpress - bummer to blacklist something so general, but necessary
 	);
 
 	// TODO: move this to server? - these are theme support values
