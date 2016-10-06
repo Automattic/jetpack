@@ -29,10 +29,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
 
 		// Setup a new current user with specified capability
-		$user = $this->factory->user->create_and_get( array(
-			'user_login' => 'user_view_jpr',
-			'user_pass'  => 'pass_view_jpr',
-		) );
+		$user = $this->create_and_get_user();
 
 		// Add Jetpack capability
 		$user->add_cap( 'jetpack_admin_page' );
@@ -74,10 +71,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
 		// Setup a new current user with specified capability
-		$user = $this->factory->user->create_and_get( array(
-			'user_login' => 'user_connect_url',
-			'user_pass'  => 'password_connect_url',
-		) );
+		$user = $this->create_and_get_user();
 
 		// Add Jetpack capability
 		$user->add_cap( 'jetpack_connect_user' );
@@ -108,10 +102,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::disconnect_site_permission_callback() );
 
-		$user = $this->factory->user->create_and_get( array(
-			'user_login' => 'user_disconnect_url',
-			'user_pass'  => 'password_disconnect_url',
-		) );
+		$user = $this->create_and_get_user();
 
 		// Add Jetpack capability
 		$user->add_cap( 'jetpack_disconnect' );
@@ -144,10 +135,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
 
-		$user = $this->factory->user->create_and_get( array(
-			'user_login' => 'user_no_activate_plugins',
-			'user_pass'  => 'password_no_activate_plugins',
-		) );
+		$user = $this->create_and_get_user();
 
 		// Add Jetpack capability
 		$user->add_cap( 'jetpack_admin_page' );
@@ -181,10 +169,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::unlink_user_permission_callback() );
 
 		// Create a user
-		$user = $this->factory->user->create_and_get( array(
-			'user_login' => 'user_connected',
-			'user_pass'  => 'password_unlink_url',
-		) );
+		$user = $this->create_and_get_user();
 
 		// Add Jetpack capability
 		$user->add_cap( 'jetpack_connect_user' );
@@ -214,10 +199,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::configure_modules_permission_check() );
 
 		// Create a user
-		$user = $this->factory->user->create_and_get( array(
-			'user_login' => 'user_mcmodules',
-			'user_pass'  => 'pass_mcmodules',
-		) );
+		$user = $this->create_and_get_user();
 
 		// Add Jetpack capability
 		$user->add_cap( 'jetpack_manage_modules' );
@@ -240,6 +222,87 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// User has the capability and is connected so this should work this time
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check() );
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::configure_modules_permission_check() );
+	}
+
+	/**
+	 * Get Jetpack connection status.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return array
+	 */
+	private function get_jetpack_connection_status() {
+		$status = Jetpack_Core_Json_Api_Endpoints::jetpack_connection_status();
+		return isset( $status->data ) ? $status->data : array();
+	}
+
+	/**
+	 * Create and get a user using WP factory.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param string $role
+	 *
+	 * @return array
+	 */
+	private function create_and_get_user( $role = '' ) {
+		return $this->factory->user->create_and_get( array(
+			'role' => empty( $role ) ? 'subscriber' : $role,
+		) );
+	}
+
+	/**
+	 * Test information about connection status.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_jetpack_connection_status() {
+
+		// Create a user
+		$user = $this->create_and_get_user( 'administrator' );
+
+		// Mock a connection
+		Jetpack_Options::update_option( 'master_user', $user->ID );
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+
+		// Fetch connection status data
+		$status = $this->get_jetpack_connection_status();
+
+		// Site is connected and not in Dev Mode
+		$this->assertTrue( $status['isActive'] );
+		$this->assertFalse( $status['isStaging'] );
+		$this->assertFalse( $status['devMode']['isActive'] );
+
+		// Test in Staging Mode
+		add_filter( 'jetpack_is_staging_site', '__return_true' );
+
+		// Fetch connection status data
+		$status = $this->get_jetpack_connection_status();
+
+		$this->assertTrue( $status['isStaging'] );
+
+		remove_filter( 'jetpack_is_staging_site', '__return_true' );
+
+		// Test also in Dev Mode
+		add_filter( 'jetpack_development_mode', '__return_true' );
+
+		// Fetch connection status data again
+		$status = $this->get_jetpack_connection_status();
+
+		// Site is still connected! But is now also in Dev Mode
+		$this->assertTrue( $status['isActive'] );
+		$this->assertTrue( $status['devMode']['isActive'] );
+
+		// Disconnecting now
+		Jetpack::disconnect( true );
+
+		// Fetch connection status data one more time
+		$status = $this->get_jetpack_connection_status();
+
+		// Site is disconnected now
+		$this->assertFalse( $status['isActive'] );
+
+		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
 
 } // class end
