@@ -2033,6 +2033,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		array_push(
 			$message,
 			"", // Empty line left intentionally
+			'<hr />',
 			__( 'Time:', 'jetpack' ) . ' ' . $time . '<br />',
 			__( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . '<br />',
 			__( 'Contact Form URL:', 'jetpack' ) . " " . $url . '<br />'
