@@ -632,6 +632,68 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( "\n", $synced_post->post_content_filtered );
 	}
 
+	function test_embed_is_disabled_on_the_content_filter_during_sync() {
+		$content =
+'Check out this cool video:
+
+http://www.youtube.com/watch?v=dQw4w9WgXcQ
+
+That was a cool video.';
+
+		$oembeded =
+'<p>Check out this cool video:</p>
+<p><iframe width="660" height="371" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" allowfullscreen></iframe></p>
+<p>That was a cool video.</p>'. "\n";
+
+		$filtered = '<p>Check out this cool video:</p>
+<p>http://www.youtube.com/watch?v=dQw4w9WgXcQ</p>
+<p>That was a cool video.</p>'. "\n";
+
+		$this->post->post_content = $content;
+
+		wp_update_post( $this->post );
+
+		$this->assertContains( $oembeded, apply_filters( 'the_content', $this->post->post_content ) );
+		$this->sender->do_sync();
+		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
+
+		$this->assertEquals( $filtered, $synced_post->post_content_filtered );
+
+		// do we get the same result after the sync?
+		$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ) );
+	}
+
+	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
+		$content =
+			'Check out this cool video:
+
+[embed width="123" height="456"]http://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]
+
+That was a cool video.';
+
+		$oembeded =
+			'<p>Check out this cool video:</p>
+<p><iframe width="200" height="113" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" allowfullscreen></iframe></p>
+<p>That was a cool video.</p>'. "\n";
+
+		$filtered = '<p>Check out this cool video:</p>
+<p>[embed width=&#8221;123&#8243; height=&#8221;456&#8243;]http://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]</p>
+<p>That was a cool video.</p>'. "\n";
+
+		$this->post->post_content = $content;
+
+		wp_update_post( $this->post );
+
+		$this->assertContains( $oembeded, apply_filters( 'the_content', $this->post->post_content ) );
+		$this->sender->do_sync();
+
+		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( $filtered, $synced_post->post_content_filtered );
+
+		// do we get the same result after the sync?
+		$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ) );
+	}
+
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment        = get_post( $attachment_id );
