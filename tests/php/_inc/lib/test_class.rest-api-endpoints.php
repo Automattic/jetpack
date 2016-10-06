@@ -19,6 +19,50 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test permission to see if users can view Jetpack admin screen.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_jetpack_admin_page() {
+
+		// Current user doesn't have credentials, so checking permissions should fail
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
+
+		// Setup a new current user with specified capability
+		$user = $this->factory->user->create_and_get( array(
+			'user_login' => 'user_view_jpr',
+			'user_pass'  => 'pass_view_jpr',
+		) );
+
+		// Add Jetpack capability
+		$user->add_cap( 'jetpack_admin_page' );
+
+		// Setup global variables so this is the current user
+		wp_set_current_user( $user->ID );
+
+		// User has capability so this should work this time
+		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
+
+		// It should not work in Dev Mode
+		add_filter( 'jetpack_development_mode', '__return_true' );
+
+		// Subscribers only have access to connect, which is not available in Dev Mode so this should fail
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
+
+		// Set user as admin
+		$user->set_role( 'administrator' );
+
+		// Reset user and setup globals again to reflect the role change.
+		wp_set_current_user( 0 );
+		wp_set_current_user( $user->ID );
+
+		// Admins have acces to everything, to this should work
+		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
+
+		remove_filter( 'jetpack_development_mode', '__return_true' );
+	}
+
+	/**
 	 * Test permission to connect Jetpack site or link user.
 	 *
 	 * @since 4.4.0
@@ -67,13 +111,22 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$user = $this->factory->user->create_and_get( array(
 			'user_login' => 'user_disconnect_url',
 			'user_pass'  => 'password_disconnect_url',
-			'role'       => 'administrator',
 		) );
 
 		// Add Jetpack capability
 		$user->add_cap( 'jetpack_disconnect' );
 
 		// Setup global variables so this is the current user
+		wp_set_current_user( $user->ID );
+
+		// User is not admin, so this should still fail
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check() );
+
+		// Set user as admin
+		$user->set_role( 'administrator' );
+
+		// Reset user and setup globals again to reflect the role change.
+		wp_set_current_user( 0 );
 		wp_set_current_user( $user->ID );
 
 		// User has capability so this should work this time
@@ -147,6 +200,46 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// User has the capability and is connected so this should work this time
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::unlink_user_permission_callback() );
+	}
+
+	/**
+	 * Test permission to manage and configure Jetpack modules.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_manage_configure_modules_permission_check() {
+
+		// Current user doesn't have credentials, so checking permissions should fail
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check() );
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::configure_modules_permission_check() );
+
+		// Create a user
+		$user = $this->factory->user->create_and_get( array(
+			'user_login' => 'user_mcmodules',
+			'user_pass'  => 'pass_mcmodules',
+		) );
+
+		// Add Jetpack capability
+		$user->add_cap( 'jetpack_manage_modules' );
+		$user->add_cap( 'jetpack_configure_modules' );
+
+		// Setup global variables so this is the current user
+		wp_set_current_user( $user->ID );
+
+		// User is not admin, so this should still fail
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check() );
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::configure_modules_permission_check() );
+
+		// Set user as admin
+		$user->set_role( 'administrator' );
+
+		// Reset user and setup globals again to reflect the role change.
+		wp_set_current_user( 0 );
+		wp_set_current_user( $user->ID );
+
+		// User has the capability and is connected so this should work this time
+		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check() );
+		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::configure_modules_permission_check() );
 	}
 
 } // class end
