@@ -2597,6 +2597,7 @@ p {
 				'master_user',
 				'time_diff',
 				'fallback_no_verify_ssl_certs',
+				'sync_error_idc',
 			)
 		);
 
@@ -5292,6 +5293,16 @@ p {
 				if ( defined( $constant ) && constant( $constant ) ) {
 					$is_staging = true;
 				}
+			}
+		}
+
+		// Last, let's check if sync is erroring due to an IDC. If so, set the site to staging mode.
+		if ( ! $is_staging ) {
+			$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+			if ( $sync_error && $sync_error === get_home_url() ) {
+				$is_staging = true;
+			} else if ( $sync_error ) {
+				Jetpack_Options::delete_option( 'sync_error_idc' );
 			}
 		}
 

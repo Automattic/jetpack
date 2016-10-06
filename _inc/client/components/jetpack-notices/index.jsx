@@ -52,21 +52,36 @@ export const StagingSiteNotice = React.createClass( {
 
 	render() {
 		if ( this.props.isStaging ) {
-			const text = __( 'You are running Jetpack on a {{a}}staging server{{/a}}.',
-				{
-					components: {
-						a: <a href="https://jetpack.com/support/staging-sites/" target="_blank" />
+			const isIDC = this.props.isInIdentityCrisis;
+			const stagingSiteSupportLink = <a href="https://jetpack.com/support/staging-sites/" target="_blank" />;
+
+			let props = {
+				text: 	__( 'You are running Jetpack on a {{a}}staging server{{/a}}.',
+					{
+						components: {
+							a: stagingSiteSupportLink
+						}
 					}
-				}
-			);
+				),
+				status: 'is-basic',
+				showDismiss: false
+			};
+
+			if ( isIDC ) {
+				props.text = __(
+					'Your site was automatically put in staging mode because we think this is a ' +
+					'{{a}}staging server{{/a}}.',
+					{
+						components: {
+							a: stagingSiteSupportLink
+						}
+					}
+				);
+				props.status = 'is-info';
+			}
 
 			return (
-				<SimpleNotice
-					showDismiss={ false }
-					status="is-basic"
-				>
-					{ text }
-				</SimpleNotice>
+				<SimpleNotice { ... props } />
 			);
 		}
 
@@ -76,7 +91,8 @@ export const StagingSiteNotice = React.createClass( {
 } );
 
 StagingSiteNotice.propTypes = {
-	isStaging: React.PropTypes.bool.isRequired
+	isStaging: React.PropTypes.bool.isRequired,
+	isInIdentityCrisis: React.PropTypes.bool.isRequired
 };
 
 export const DevModeNotice = React.createClass( {
@@ -183,32 +199,6 @@ UserUnlinked.propTypes = {
 	siteConnected: React.PropTypes.bool.isRequired
 };
 
-export const IdentityCrisis = React.createClass( {
-	displayName: 'IdentityCrisis',
-
-	render() {
-		if ( this.props.isInIdentityCrisis ) {
-			const text = __( 'Are you feeling like yourself? Seems like you are having a crisis' );
-
-			return (
-				<SimpleNotice
-					showDismiss={ false }
-					status="is-error"
-				>
-					{ text }
-				</SimpleNotice>
-			);
-		}
-
-		return false;
-	}
-
-} );
-
-IdentityCrisis.propTypes = {
-	isInIdentityCrisis: React.PropTypes.bool.isRequired
-};
-
 const JetpackNotices = React.createClass( {
 	displayName: 'JetpackNotices',
 
@@ -222,8 +212,9 @@ const JetpackNotices = React.createClass( {
 				<DevModeNotice
 					siteConnectionStatus={ this.props.siteConnectionStatus }
 					siteDevMode={ this.props.siteDevMode } />
-				<StagingSiteNotice isStaging={ this.props.isStaging } />
-				<IdentityCrisis isInIdentityCrisis={ this.props.isInIdentityCrisis } />
+				<StagingSiteNotice
+					isStaging={ this.props.isStaging }
+					isInIdentityCrisis={ this.props.isInIdentityCrisis } />
 				<DismissableNotices />
 				<UserUnlinked
 					connectUrl={ this.props.connectUrl }
