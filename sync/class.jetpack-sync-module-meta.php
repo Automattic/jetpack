@@ -93,15 +93,17 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	}
 
 	function set_post_meta_whitelist( $post_meta ) {
-		$this->post_meta_whitelist = $post_meta;
+
+		$this->post_meta_whitelist = (array) $post_meta;
 	}
 
 	function get_post_meta_whitelist() {
 		return $this->post_meta_whitelist;
 	}
 
-	function is_whitelisted_post_meta( $option ) {
-		return in_array( $option, $this->post_meta_whitelist );
+	function is_whitelisted_post_meta( $meta_key ) {
+
+		return in_array( $meta_key, $this->post_meta_whitelist );
 	}
 
 	// Comment Meta
@@ -110,53 +112,27 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	}
 
 	function set_comment_meta_whitelist( $comment_meta ) {
-		$this->comment_meta_whitelist = $comment_meta;
+		$this->comment_meta_whitelist = (array) $comment_meta;
 	}
 
 	function get_comment_meta_whitelist() {
 		return $this->comment_meta_whitelist;
 	}
 
-	function is_whitelisted_comment_meta( $option ) {
-		return in_array( $option, $this->comment_meta_whitelist );
-	}
-
-
-	/**
-	 * Should we allow the meta key to be synced?
-	 *
-	 * @param string $meta_key The meta key.
-	 *
-	 * @return bool
-	 */
-	function is_meta_key_allowed( $meta_key ) {
-		if ( '_' === $meta_key[0] &&
-		     ! in_array( $meta_key, Jetpack_Sync_Defaults::$default_whitelist_meta_keys ) &&
-		     ! wp_startswith( $meta_key, '_wpas_skip_' )
-		) {
-			return false;
-		}
-
-		if ( in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'meta_blacklist' ) ) ) {
-			return false;
-		}
-
-		return true;
+	function is_whitelisted_comment_meta( $meta_key ) {
+		return in_array( $meta_key, $this->comment_meta_whitelist );
 	}
 
 	function is_post_type_allowed( $post_id ) {
 		$post = get_post( $post_id );
-		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
-			return false;
-		}
-		return true;
+		return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
 	}
 
 	function filter_meta_post( $args ) {
-		if ( ! $this->is_post_type_allowed( $args[1] ) ) {
+		if ( ! $this->is_whitelisted_post_meta( $args[2] ) ) {
 			return false;
 		}
-		return ( $this->is_whitelisted_comment_meta( $args[2] ) ? $args : false );
+		return ( $this->is_post_type_allowed( $args[1] ) ? $args : false );
 	}
 
 	function filter_meta_comment( $args ) {

@@ -91,17 +91,24 @@ abstract class Jetpack_Sync_Module {
 		if ( ! $table ) {
 			return array();
 		}
-
-		$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', Jetpack_Sync_Defaults::$default_whitelist_meta_keys ) ) . "'";
-		$public_meta_blacklist_sql = "'" . implode( "','", array_map( 'esc_sql', Jetpack_Sync_Defaults::$default_blacklist_meta_keys ) ) . "'";
+		$private_meta_whitelist_sql = '';
+		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
+		
+		switch( $meta_type ) {
+			case 'post':
+				$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_module->get_post_meta_whitelist() ) ) . "'";
+				break;
+			case 'comment':
+				$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_module->get_comment_meta_whitelist() ) ) . "'";
+				break;
+		}
 
 		return array_map( 
 			array( $this, 'unserialize_meta' ), 
 			$wpdb->get_results( 
 				"SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )'.
-				" AND ( ( meta_key LIKE '\_%' AND meta_key IN ( $private_meta_whitelist_sql ) )".
-				" OR ( meta_key NOT LIKE '\_%' AND meta_key NOT IN ( $public_meta_blacklist_sql ) ) )",
-				OBJECT ) 
+				" AND meta_key IN ( $private_meta_whitelist_sql ) "
+				, OBJECT )
 		);
 	}
 
