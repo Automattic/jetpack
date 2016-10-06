@@ -155,6 +155,7 @@ class Jetpack_Sync_Defaults {
 		'ai1ec_event',
 		'snitch',
 		'secupress_log_action',
+		'http',
 	);
 
 	static $default_post_checksum_columns = array(
