@@ -2,9 +2,15 @@
 
 class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	private $meta_types = array( 'post', 'comment' );
+	private $post_meta_whitelist = array();
 
 	public function name() {
 		return 'meta';
+	}
+
+	public function set_defaults() {
+		$this->update_post_meta_whitelist();
+		$this->update_comment_meta_whitelist();
 	}
 
 	/**
@@ -81,6 +87,40 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 			add_filter( "jetpack_sync_before_enqueue_deleted_{$meta_type}_meta", $whitelist_handler );
 		}
 	}
+	// POST Meta
+	function update_post_meta_whitelist() {
+		$this->post_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_post_meta_keys;
+	}
+
+	function set_post_meta_whitelist( $post_meta ) {
+		$this->post_meta_whitelist = $post_meta;
+	}
+
+	function get_post_meta_whitelist() {
+		return $this->post_meta_whitelist;
+	}
+
+	function is_whitelisted_post_meta( $option ) {
+		return in_array( $option, $this->post_meta_whitelist );
+	}
+
+	// Comment Meta
+	function update_comment_meta_whitelist() {
+		$this->comment_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_comment_meta_keys;
+	}
+
+	function set_comment_meta_whitelist( $comment_meta ) {
+		$this->comment_meta_whitelist = $comment_meta;
+	}
+
+	function get_comment_meta_whitelist() {
+		return $this->comment_meta_whitelist;
+	}
+
+	function is_whitelisted_comment_meta( $option ) {
+		return in_array( $option, $this->comment_meta_whitelist );
+	}
+
 
 	/**
 	 * Should we allow the meta key to be synced?
@@ -116,17 +156,11 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 		if ( ! $this->is_post_type_allowed( $args[1] ) ) {
 			return false;
 		}
-		return $this->filter_meta( $args );
+		return ( $this->is_whitelisted_comment_meta( $args[2] ) ? $args : false );
 	}
 
 	function filter_meta_comment( $args ) {
-		return $this->filter_meta( $args );
+		return ( $this->is_whitelisted_comment_meta( $args[2] ) ? $args : false );
 	}
-
-	function filter_meta( $args ) {
-		if ( ! $this->is_meta_key_allowed( $args[2] ) ) {
-			return false;
-		}
-		return $args;
-	}
+	
 }
