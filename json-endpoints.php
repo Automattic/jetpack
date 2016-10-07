@@ -2493,6 +2493,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'jetpack_testimonial_posts_per_page'   => '(int) Number of testimonials to show per page',
 		'jetpack_portfolio'                    => '(bool) Whether portfolio custom post type is enabled for the site',
 		'jetpack_portfolio_posts_per_page'     => '(int) Number of portfolio projects to show per page',
+		'site_icon'                            => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 	),
 
 	'response_format' => array(
