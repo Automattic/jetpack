@@ -661,14 +661,14 @@ That was a cool video.';
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $this->post->post_content ) );
+		$this->assertContains( $oembeded, apply_filters( 'the_content', $this->post->post_content ), '$oembeded is NOT the same as filtered $this->post->post_content' );
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 
-		$this->assertEquals( $filtered, $synced_post->post_content_filtered );
+		$this->assertEquals( $filtered, $synced_post->post_content_filtered, '$filtered is NOT the same as $synced_post->post_content_filtered' );
 
 		// do we get the same result after the sync?
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ) );
+		$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ), '$oembeded is NOT the same as filtered $filtered' );
 	}
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
@@ -681,7 +681,7 @@ That was a cool video.';
 [embed width="123" height="456"]http://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]
 
 That was a cool video.';
-		
+
 		if ( version_compare( $wp_version, '4.7-alpha', '<' ) ) {
 			$oembeded =
 				'<p>Check out this cool video:</p>
@@ -702,14 +702,14 @@ That was a cool video.';
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $this->post->post_content ) );
+		$this->assertContains( $oembeded, apply_filters( 'the_content', $this->post->post_content ), '$oembeded is NOT the same as filtered $this->post->post_content' );
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
-		$this->assertEquals( $filtered, $synced_post->post_content_filtered );
+		$this->assertEquals( $filtered, $synced_post->post_content_filtered, '$filtered is NOT the same as $synced_post->post_content_filtered' );
 
 		// do we get the same result after the sync?
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ) );
+		$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ), '$oembeded is NOT the same as filtered $filtered' );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {
