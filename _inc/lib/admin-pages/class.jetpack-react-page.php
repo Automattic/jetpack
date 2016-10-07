@@ -152,18 +152,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function get_i18n_data() {
 
-		// Try fetching by patch
-		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_locale() . '.json' );
+		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_locale() . '.json';
 
-		if ( false === $locale_data ) {
-
-			// Return empty if we have nothing to return so it doesn't fail when parsed in JS
-			return '{}';
-		} else {
-
-			// We got the json file so let's return it
-			return $locale_data;
+		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
+			$locale_data = @file_get_contents( $i18n_json );
+			if ( $locale_data ) {
+				return $locale_data;
+			}
 		}
+
+		// Return empty if we have nothing to return so it doesn't fail when parsed in JS
+		return '{}';
 	}
 
 	/**

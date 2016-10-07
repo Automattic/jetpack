@@ -8,8 +8,6 @@ class Jetpack_Sync_Defaults {
 	static $default_options_whitelist = array(
 		'stylesheet',
 		'blogname',
-		'home',
-		'siteurl',
 		'blogdescription',
 		'blog_charset',
 		'permalink_structure',
@@ -156,6 +154,8 @@ class Jetpack_Sync_Defaults {
 	static $blacklisted_post_types = array(
 		'ai1ec_event',
 		'snitch',
+		'secupress_log_action',
+		'http',
 	);
 
 	static $default_post_checksum_columns = array(
@@ -223,6 +223,7 @@ class Jetpack_Sync_Defaults {
 		'wprss_last_update_items',
 		'wp_automatic_cache',
 		'snapTW',
+		'data', // securpress - bummer to blacklist something so general, but necessary
 	);
 
 	// TODO: move this to server? - these are theme support values
@@ -288,4 +289,5 @@ class Jetpack_Sync_Defaults {
 	static $default_render_filtered_content = 1; // render post_filtered_content
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
+	static $default_sync_queue_lock_timeout = 120; // 2 minutes
 }

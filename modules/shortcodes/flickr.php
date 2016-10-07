@@ -17,7 +17,7 @@
  */
 
 function flickr_embed_to_shortcode( $content ) {
-	if ( false === stripos( $content, '/www.flickr.com/apps/video/stewart.swf' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, '/www.flickr.com/apps/video/stewart.swf' ) ) {
 		return $content;
 	}
 

@@ -22,6 +22,8 @@ class Jetpack_Sync_Settings {
 
 	static $is_importing;
 	static $is_doing_cron;
+	static $is_syncing;
+	static $is_sending;
 
 	static $settings_cache = array(); // some settings can be expensive to compute - let's cache them
 
@@ -101,6 +103,8 @@ class Jetpack_Sync_Settings {
 		}
 		self::set_importing( null );
 		self::set_doing_cron( null );
+		self::set_is_syncing( null );
+		self::set_is_sending( null );
 	}
 
 	static function set_importing( $is_importing ) {
@@ -127,5 +131,21 @@ class Jetpack_Sync_Settings {
 		}
 
 		return defined( 'DOING_CRON' ) && DOING_CRON;
+	}
+
+	static function is_syncing() {
+		return (bool) self::$is_syncing;
+	}
+
+	static function set_is_syncing( $is_syncing ) {
+		self::$is_syncing = $is_syncing;
+	}
+
+	static function is_sending() {
+		return (bool) self::$is_sending;
+	}
+
+	static function set_is_sending( $is_sending ) {
+		self::$is_sending = $is_sending;
 	}
 }

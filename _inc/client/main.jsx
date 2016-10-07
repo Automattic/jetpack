@@ -53,16 +53,38 @@ const Main = React.createClass( {
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalyitics();
 
-		this.props.router.listenBefore( () => {
-			if ( this.props.areThereUnsavedModuleOptions ) {
-				const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
-				if ( confirmLeave ) {
-					this.props.clearUnsavedOptionFlag();
-				} else {
-					return false;
-				}
+		// Handles refresh, closing and navigating away from Jetpack's Admin Page
+		window.addEventListener( 'beforeunload', this.onBeforeUnload );
+		// Handles transition between routes handled by react-router
+		this.props.router.listenBefore( this.routerWillLeave );
+	},
+
+	/*
+	 * Returns a string if there are unsaved module settings thus showing a confirm dialog to the user
+	 * according to the `beforeunload` event handling specification
+	 */
+	onBeforeUnload( e ) {
+		const dialogText = __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' );
+		if ( this.props.areThereUnsavedModuleOptions ) {
+			e.returnValue = dialogText;
+			return dialogText;
+		}
+	},
+
+	/*
+ 	 * Shows a confirmation dialog if there are unsaved module settings.
+ 	 *
+ 	 * Return true or false according to the history.listenBefore specification which is part of react-router
+	 */
+	routerWillLeave() {
+		if ( this.props.areThereUnsavedModuleOptions ) {
+			const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
+			if ( confirmLeave ) {
+				this.props.clearUnsavedOptionFlag();
+			} else {
+				return false;
 			}
-		} );
+		}
 	},
 
 	initializeAnalyitics() {

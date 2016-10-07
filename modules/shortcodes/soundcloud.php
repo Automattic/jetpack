@@ -248,7 +248,7 @@ function soundcloud_flash_widget( $options ) {
  * @return string Parsed content.
  */
 function jetpack_soundcloud_embed_reversal( $content ) {
-	if ( false === stripos( $content, 'w.soundcloud.com/player' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'w.soundcloud.com/player' ) ) {
 		return $content;
 	}
 

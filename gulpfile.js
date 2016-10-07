@@ -16,6 +16,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	qunit = require( 'gulp-qunit' ),
 	rename = require( 'gulp-rename' ),
 	readline = require( 'readline' ),
+	request = require( 'request' ),
 	rtlcss = require( 'gulp-rtlcss' ),
 	sass = require( 'gulp-sass' ),
 	spawn = require( 'child_process' ).spawn,
@@ -27,7 +28,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	webpack = require( 'webpack' );
 
 var admincss, frontendcss,
-	language_packs = require( './language-packs.js' );
+	meta = require( './package.json' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -541,20 +542,30 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 	} );
 } );
 
-gulp.task( 'languages:cleanup', [ 'languages:build' ], function() {
-	return del(
-		language_packs.map( function( item ) {
-			var locale = item.split( '-' );
+gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
+	var language_packs = [];
 
-			if ( locale.length > 1 ) {
-				locale[1] = locale[1].toUpperCase();
-				locale = locale.join( '_' );
-			} else {
-				locale = locale[0];
+	request(
+		'https://api.wordpress.org/translations/plugins/1.0/?slug=jetpack&version=' + meta.version,
+		function ( error, response, body ) {
+			if ( error || 200 !== response.statusCode ) {
+				done( 'Failed to reach wordpress.org translation API: ' + error );
 			}
 
-			return './languages/jetpack-' + locale + '.*';
-		} )
+			body = JSON.parse( body );
+
+			body.translations.forEach( function( language ) {
+				language_packs.push( './languages/jetpack-' + language.language + '.*' );
+			} );
+
+			gutil.log( 'Cleaning up languages for which Jetpack has language packs:' );
+			del( language_packs ).then( function( paths ) {
+				paths.forEach( function( item ) {
+					gutil.log( item );
+				} );
+				done();
+			} );
+		}
 	);
 } );
 
