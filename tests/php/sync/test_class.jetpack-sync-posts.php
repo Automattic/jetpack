@@ -666,9 +666,10 @@ That was a cool video.';
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 
 		$this->assertEquals( $filtered, $synced_post->post_content_filtered, '$filtered is NOT the same as $synced_post->post_content_filtered' );
-
-		// do we get the same result after the sync?
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ), '$oembeded is NOT the same as filtered $filtered' );
+		if ( version_compare( $wp_version, '4.6', '>=' ) ) {
+			// do we get the same result after the sync?
+			$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ), '$oembeded is NOT the same as filtered $filtered' );
+		}
 	}
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
