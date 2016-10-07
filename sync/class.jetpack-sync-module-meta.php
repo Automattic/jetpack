@@ -98,8 +98,7 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	}
 
 	function is_whitelisted_post_meta( $meta_key ) {
-
-		return in_array( $meta_key, $this->post_meta_whitelist );
+		return in_array( $meta_key, $this->post_meta_whitelist ) || wp_startswith( $meta_key, '_wpas_skip_' );
 	}
 
 	// Comment Meta

@@ -151,6 +151,14 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
 	}
 
+	public function test_syncs_wpas_skip_meta() {
+		$this->setSyncClientDefaults();
+		add_post_meta( $this->post_id, '_wpas_skip_1234', '1' );
+		$this->sender->do_sync();
+
+		$this->assertOptionIsSynced( '_wpas_skip_1234', '1', 'post', $this->post_id );
+	}
+
 	function assertOptionIsSynced( $meta_key, $value, $type, $object_id ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_metadata( $type, $object_id, $meta_key, true ) );
 	}
