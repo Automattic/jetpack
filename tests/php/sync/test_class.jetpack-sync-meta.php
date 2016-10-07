@@ -102,60 +102,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_whitelisted_post_meta() {
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
-		$white_listed_post_meta = array(
-			'_feedback_akismet_values',
-			'_feedback_email',
-			'_feedback_extra_fields',
-			'_g_feedback_shortcode',
-			'_jetpack_author',
-			'_jetpack_author_email',
-			'_jetpack_dont_email_post_to_subs',
-			'_jetpack_post_author_external_id',
-			'_jetpack_post_thumbnail',
-			'_jetpack_related_posts_cache_()',
-			'_menu_item_classes',
-			'_menu_item_menu_item_parent',
-			'_menu_item_object',
-			'_menu_item_object_id',
-			'_menu_item_orphaned',
-			'_menu_item_type',
-			'_menu_item_xfn',
-			'_publicize_done_external',
-			'_publicize_facebook_user',
-			'_publicize_pending',
-			'_publicize_twitter_user',
-			'_thumbnail_id',
-			'_wp_attached_file',
-			'_wp_attachment_backup_sizes',
-			'_wp_attachment_backup_sizes',
-			'_wp_attachment_context',
-			'_wp_attachment_image_alt',
-			'_wp_attachment_is_custom_background',
-			'_wp_attachment_is_custom_header',
-			'_wp_attachment_metadata',
-			'_wp_desired_post_slug',
-			'_wp_old_slug',
-			'_wp_page_template',
-			'_wp_trash_meta_comments_status',
-			'_wp_trash_meta_status',
-			'_wp_trash_meta_time',
-			'_wpas_done_all',
-			'_wpas_mess',
-			'content_width',
-			'custom_css_add',
-			'custom_css_preprocessor',
-			'enclosure',
-			'imagedata',
-			'nova_price',
-			'publicize_results',
-			'sharing_disabled',
-			'sharing_disabled',
-			'switch_like_status',
-			'videopress_guid',
-			'vimeo_poster_image',
-		);
-
-
+		$white_listed_post_meta = Jetpack_Sync_Defaults::$default_whitelist_post_meta_keys;
 
 		// update all the opyions.
 		foreach ( $white_listed_post_meta as $meta_key ) {
@@ -180,18 +127,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_whitelisted_comment_meta() {
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
-		$white_listed_comment_meta = array(
-			'akismet_result',
-			'akismet_error',
-			'akismet_user',
-			'akismet_user_result',
-			'akismet_rechecking',
-			'akismet_as_submitted',
-			'akismet_delayed_moderation_email',
-			'hc_avatar',
-			'_wp_trash_meta_time',
-			'_wp_trash_meta_status'
-		);
+		$white_listed_comment_meta = Jetpack_Sync_Defaults::$default_whitelist_comment_meta_keys;
 
 		$comment_ids = $this->factory->comment->create_post_comments( $this->post_id );
 
