@@ -513,4 +513,80 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseData( array( 'code' => 'success' ), $response );
 	}
 
+	/**
+	 * Test connection url build when there's no blog token or id.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_build_connect_url_no_blog_token_id() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Build URL to compare scheme and host with the one in response
+		$admin_url = parse_url( admin_url() );
+
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'connection/url' );
+
+		// Success, URL was built
+		$this->assertResponseStatus( 200, $response );
+
+		// Format data to test it
+		$response->data = parse_url( $response->data );
+		parse_str( $response->data['query'], $response->data['query'] );
+
+		// It has a nonce
+		$this->assertTrue( isset( $response->data['query']['_wpnonce'] ) );
+		unset( $response->data['query']['_wpnonce'] );
+
+		// The URL was properly built
+		$this->assertResponseData(
+			array(
+				'scheme' => $admin_url['scheme'],
+				'host'   => $admin_url['host'],
+				'path'   => '/wp-admin/admin.php',
+				'query'  =>
+					array(
+						'page'     => 'jetpack',
+						'action'   => 'register',
+					)
+			), $response
+		);
+	}
+
+	/**
+	 * Test connection url build when there's a blog token or id.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_build_connect_url_blog_token_and_id() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Mock site already registered
+		Jetpack_Options::update_option( 'blog_token', 'h0n3y.b4dg3r' );
+		Jetpack_Options::update_option( 'id', '42' );
+
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'connection/url' );
+
+		// Success, URL was built
+		$this->assertResponseStatus( 200, $response );
+
+		$response->data = parse_url( $response->data );
+		parse_str( $response->data['query'], $response->data['query'] );
+		unset( $response->data['query'] );
+		$this->assertResponseData(
+			array(
+				'scheme' => 'https',
+				'host'   => 'jetpack.wordpress.com',
+				'path'   => '/jetpack.authorize/1/',
+			), $response
+		);
+	}
+
 } // class end
