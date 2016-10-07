@@ -16,6 +16,102 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		parent::setUp();
 
 		require_once dirname( __FILE__ ) . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
+
+		global $wp_rest_server;
+		$this->server = $wp_rest_server = new WP_REST_Server;
+		do_action( 'rest_api_init' );
+	}
+
+	/**
+	 * Clean environment for REST API endpoints test.
+	 *
+	 * @since 4.4.0
+	 */
+	public function tearDown() {
+		parent::tearDown();
+
+		global $wp_rest_server;
+		$wp_rest_server = null;
+	}
+
+	/**
+	 * Get Jetpack connection status.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return array
+	 */
+	protected function get_jetpack_connection_status() {
+		$status = Jetpack_Core_Json_Api_Endpoints::jetpack_connection_status();
+		return isset( $status->data ) ? $status->data : array();
+	}
+
+	/**
+	 * Create and get a user using WP factory.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param string $role
+	 *
+	 * @return array
+	 */
+	protected function create_and_get_user( $role = '' ) {
+		return $this->factory->user->create_and_get( array(
+			'role' => empty( $role ) ? 'subscriber' : $role,
+		) );
+	}
+
+	/**
+	 * Creates a WP_REST_Request and returns it.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param string $route  REST API path to be append to /jetpack/v4/
+	 * @param array  $params When present, parameters are added to request in JSON format
+	 * @param string $method Request method to use, GET or POST
+	 *
+	 * @return WP_REST_Response
+	 */
+	protected function create_and_get_request( $route = '', $params = array(), $method = 'GET' ) {
+		$request = new WP_REST_Request( $method, "/jetpack/v4/$route" );
+		$request->set_header( 'content-type', 'application/json' );
+		if ( ! empty( $params ) ) {
+			$request->set_body( json_encode( $params ) );
+		}
+		return $this->server->dispatch( $request );
+	}
+
+	/**
+	 * Check response status code.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param $status
+	 * @param $response
+	 */
+	protected function assertResponseStatus( $status, $response ) {
+		$this->assertEquals( $status, $response->get_status() );
+	}
+
+	/**
+	 * Check response data.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param $data
+	 * @param $response
+	 */
+	protected function assertResponseData( $data, $response ) {
+		$response_data = $response->get_data();
+		$tested_data   = array();
+		foreach ( $data as $key => $value ) {
+			if ( isset( $response_data[$key] ) ) {
+				$tested_data[$key] = $response_data[$key];
+			} else {
+				$tested_data[$key] = null;
+			}
+		}
+		$this->assertEquals( $data, $tested_data );
 	}
 
 	/**
@@ -225,33 +321,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Get Jetpack connection status.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return array
-	 */
-	private function get_jetpack_connection_status() {
-		$status = Jetpack_Core_Json_Api_Endpoints::jetpack_connection_status();
-		return isset( $status->data ) ? $status->data : array();
-	}
-
-	/**
-	 * Create and get a user using WP factory.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @param string $role
-	 *
-	 * @return array
-	 */
-	private function create_and_get_user( $role = '' ) {
-		return $this->factory->user->create_and_get( array(
-			'role' => empty( $role ) ? 'subscriber' : $role,
-		) );
-	}
-
-	/**
 	 * Test information about connection status.
 	 *
 	 * @since 4.4.0
@@ -303,6 +372,82 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertFalse( $status['isActive'] );
 
 		remove_filter( 'jetpack_development_mode', '__return_true' );
+	}
+
+	/**
+	 * Test site disconnection with not authenticated user
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_disconnect_site_noauth() {
+
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'connection', array(), 'POST' );
+
+		// Fails because user is not authenticated
+		$this->assertResponseStatus( 401, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_user_permission_jetpack_disconnect' ), $response );
+	}
+
+	/**
+	 * Test site disconnection with authenticated user and disconnected site
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_disconnect_site_auth_noparam() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'connection', array(), 'POST' );
+
+		// Fails because user is authenticated but missing a param
+		$this->assertResponseStatus( 404, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_param' ), $response );
+	}
+
+	/**
+	 * Test site disconnection with authenticated user and disconnected site
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_disconnect_site_auth_param_notconnected() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'connection', array( 'isActive' => false ), 'POST' );
+
+		// Fails because user is authenticated but site is not connected
+		$this->assertResponseStatus( 400, $response );
+		$this->assertResponseData( array( 'code' => 'disconnect_failed' ), $response );
+	}
+
+	/**
+	 * Test site disconnection with authenticated user and connected site
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_disconnect_site_auth_param_connected() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Mock a connection
+		Jetpack_Options::update_option( 'master_user', $user->ID );
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'connection', array( 'isActive' => false ), 'POST' );
+
+		// Success, authenticated user and connected site
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( array( 'code' => 'success' ), $response );
 	}
 
 } // class end
