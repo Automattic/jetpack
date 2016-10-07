@@ -15,8 +15,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		parent::setUp();
 
-		require_once dirname( __FILE__ ) . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
-
 		global $wp_rest_server;
 		$this->server = $wp_rest_server = new WP_REST_Server;
 		do_action( 'rest_api_init' );
@@ -32,6 +30,15 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		global $wp_rest_server;
 		$wp_rest_server = null;
+	}
+
+	/**
+	 * Loads the REST API endpoints to test their methods directly.
+	 *
+	 * @since 4.4.0
+	 */
+	protected function load_rest_endpoints_direct() {
+		require_once dirname( __FILE__ ) . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
 	}
 
 	/**
@@ -119,7 +126,9 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 */
-	public function test_jetpack_admin_page() {
+	public function test_jetpack_admin_page_permission() {
+
+		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
@@ -162,6 +171,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_connection_permission() {
 
+		$this->load_rest_endpoints_direct();
+
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
@@ -194,6 +205,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 4.4.0
 	 */
 	public function test_disconnection_permission() {
+
+		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::disconnect_site_permission_callback() );
@@ -228,6 +241,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_plugin_activation_permission() {
 
+		$this->load_rest_endpoints_direct();
+
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
 
@@ -261,6 +276,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_admin_user_unlink_permission() {
 
+		$this->load_rest_endpoints_direct();
+
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::unlink_user_permission_callback() );
 
@@ -288,7 +305,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 */
-	public function test_manage_configure_modules_permission_check() {
+	public function test_manage_configure_modules_permission() {
 
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check() );
@@ -327,49 +344,95 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_connection_status() {
 
-		// Create a user
-		$user = $this->create_and_get_user( 'administrator' );
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		wp_set_current_user( $user->ID );
 
 		// Mock a connection
 		Jetpack_Options::update_option( 'master_user', $user->ID );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 
-		// Fetch connection status data
-		$status = $this->get_jetpack_connection_status();
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'connection' );
 
-		// Site is connected and not in Dev Mode
-		$this->assertTrue( $status['isActive'] );
-		$this->assertFalse( $status['isStaging'] );
-		$this->assertFalse( $status['devMode']['isActive'] );
+		// Success, authenticated user and connected site
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( array(
+			'isActive'  => true,
+			'isStaging' => false,
+			'devMode'   => array(
+				'isActive' => false,
+				'constant' => false,
+				'url'      => false,
+				'filter'   => false,
+			),
+		), $response );
+	}
 
-		// Test in Staging Mode
+	/**
+	 * Test information about connection status in staging mode.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_jetpack_connection_status_staging() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		wp_set_current_user( $user->ID );
+
+		// Mock a connection
+		Jetpack_Options::update_option( 'master_user', $user->ID );
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+
 		add_filter( 'jetpack_is_staging_site', '__return_true' );
 
-		// Fetch connection status data
-		$status = $this->get_jetpack_connection_status();
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'connection' );
 
-		$this->assertTrue( $status['isStaging'] );
+		// Success, authenticated user and connected site
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( array(
+			'isActive'  => true,
+			'isStaging' => true,
+			'devMode'   => array(
+				'isActive' => false,
+				'constant' => false,
+				'url'      => false,
+				'filter'   => false,
+			),
+		), $response );
 
 		remove_filter( 'jetpack_is_staging_site', '__return_true' );
+	}
 
-		// Test also in Dev Mode
+	/**
+	 * Test information about connection status in dev mode.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_jetpack_connection_status_dev() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		wp_set_current_user( $user->ID );
+
 		add_filter( 'jetpack_development_mode', '__return_true' );
 
-		// Fetch connection status data again
-		$status = $this->get_jetpack_connection_status();
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'connection' );
 
-		// Site is still connected! But is now also in Dev Mode
-		$this->assertTrue( $status['isActive'] );
-		$this->assertTrue( $status['devMode']['isActive'] );
-
-		// Disconnecting now
-		Jetpack::disconnect( true );
-
-		// Fetch connection status data one more time
-		$status = $this->get_jetpack_connection_status();
-
-		// Site is disconnected now
-		$this->assertFalse( $status['isActive'] );
+		// Success, authenticated user and connected site
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( array(
+			'isActive'  => false,
+			'isStaging' => false,
+			'devMode'   => array(
+				'isActive' => true,
+				'constant' => false,
+				'url'      => false,
+				'filter'   => true,
+			),
+		), $response );
 
 		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
