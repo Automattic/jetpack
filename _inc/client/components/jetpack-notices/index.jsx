@@ -53,35 +53,28 @@ export const StagingSiteNotice = React.createClass( {
 	render() {
 		if ( this.props.isStaging ) {
 			const isIDC = this.props.isInIdentityCrisis;
-			const stagingSiteSupportLink = <a href="https://jetpack.com/support/staging-sites/" target="_blank" />;
+			let stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/';
 
 			let props = {
-				text: 	__( 'You are running Jetpack on a {{a}}staging server{{/a}}.',
-					{
-						components: {
-							a: stagingSiteSupportLink
-						}
-					}
-				),
+				text: 	__( 'You are running Jetpack on a staging server.' ),
 				status: 'is-basic',
 				showDismiss: false
 			};
 
 			if ( isIDC ) {
-				props.text = __(
-					'Your site was automatically put in staging mode because we think this is a ' +
-					'{{a}}staging server{{/a}}.',
-					{
-						components: {
-							a: stagingSiteSupportLink
-						}
-					}
-				);
+				props.text = __( 'Your site was automatically put in staging mode because we think this is a staging server.' );
 				props.status = 'is-info';
+				stagingSiteSupportLink = 'https://jetpack.com/support/identity-crisis';
 			}
 
 			return (
-				<SimpleNotice { ... props } />
+				<SimpleNotice { ... props }>
+					<NoticeAction
+						href={ stagingSiteSupportLink }
+					>
+						{ __( 'More Info' ) }
+					</NoticeAction>
+				</SimpleNotice>
 			);
 		}
 
