@@ -223,6 +223,9 @@ class Jetpack_Sync_Defaults {
 
 	static $default_whitelist_comment_meta_keys = array(
 		'hc_avatar',
+		'hc_post_as',
+		'hc_wpcom_id_sig',
+		'hc_foreign_user_id'
 	);
 
 	// TODO: move this to server? - these are theme support values
