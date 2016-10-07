@@ -10,7 +10,7 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 
 	public function set_defaults() {
 		$this->post_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_post_meta_keys;
-		$this->comment_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_comment_meta_keys
+		$this->comment_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_comment_meta_keys;
 	}
 
 	/**
