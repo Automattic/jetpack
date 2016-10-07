@@ -78,6 +78,23 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Returns an option value as the result of the callable being applied to 
+	 * it if a value is set, otherwise null.
+	 *
+	 * @param (string) $option_name Option name
+	 * @param (callable) $cast_callable Callable to invoke on option value
+	 * @return (int|null) Numeric option value or null
+	 */
+	protected function get_cast_option_value_or_null( $option_name, $cast_callable ) {
+		$option_value = get_option( $option_name, null );
+		if ( is_null( $option_value ) ) {
+			return $option_value;
+		}
+
+		return call_user_func( $cast_callable, $option_value );
+	}
+
+	/**
 	 * Collects the necessary information to return for a get settings response.
 	 *
 	 * @return (array)
@@ -134,11 +151,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					)
 				);
 
-				$eventbrite_api_token = (int) get_option( 'eventbrite_api_token' );
-				if ( 0 === $eventbrite_api_token ) {
-					$eventbrite_api_token = null;
-				}
-
 				$holiday_snow = false;
 				if ( function_exists( 'jetpack_holiday_snow_option_name' ) ) {
 					$holiday_snow = (bool) get_option( jetpack_holiday_snow_option_name() );
@@ -189,7 +201,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
 					'twitter_via'             => (string) get_option( 'twitter_via' ),
 					'jetpack-twitter-cards-site-tag' => (string) get_option( 'jetpack-twitter-cards-site-tag' ),
-					'eventbrite_api_token'    => $eventbrite_api_token,
+					'eventbrite_api_token'    => $this->get_cast_option_value_or_null( 'eventbrite_api_token', 'intval' ),
 					'holidaysnow'             => $holiday_snow,
 					'hello_vote_enabled'      => (bool) get_option( 'hello_vote_enabled' ),
 					'gmt_offset'              => get_option( 'gmt_offset' ),
@@ -201,8 +213,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'markdown_supported'      => true,
 					'wpcom_publish_posts_with_markdown' => (bool) WPCom_Markdown::is_posting_enabled(),
 					'wpcom_publish_comments_with_markdown' => (bool) WPCom_Markdown::is_commenting_enabled(),
-					'amp_is_supported' => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
-					'amp_is_enabled' => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
+					'amp_is_supported'        => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
+					'amp_is_enabled'          => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
+					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -499,6 +512,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$saved = wpcom_update_amp_enabled( $blog_id, $value );
 						if ( $saved ) {
 							$updated[ $key ] = (bool) $value;
+						}
+					}
+					break;
+
+				case 'site_icon':
+					// settings are stored as deletable numeric (all empty
+					// values as delete intent), validated as media image
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( delete_option( $key ) ) {
+							$updated[ $key ] = null;
+						}
+					} else if ( is_numeric( $value ) ) {
+						$coerce_value = (int) $value;
+						if ( wp_attachment_is_image( $coerce_value ) && update_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
 						}
 					}
 					break;
