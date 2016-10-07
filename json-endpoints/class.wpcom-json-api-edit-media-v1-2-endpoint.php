@@ -1,10 +1,4 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- */
 
 jetpack_require_lib( 'class.media' );
 
@@ -15,7 +9,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 	 *
 	 * @param  {Number} $media_id - post media ID
 	 * @param  {Object} $attrs - `attrs` parameter sent from the client in the request body
-	 * @return
+	 * @return bool|WP_Error `WP_Error` on failure. `true` on success.
 	 */
 	private function update_by_attrs_parameter( $media_id, $attrs ) {
 		$insert = array();
@@ -37,7 +31,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 			$insert['ID'] = $media_id;
 			$update_action = wp_update_post( (object) $insert );
 			if ( is_wp_error( $update_action ) ) {
-				return $update_action;
+				$update_action;
 			}
 		}
 
@@ -60,14 +54,11 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 			// Before updating metadata, ensure that the item is audio
 			$item = $this->get_media_item_v1_1( $media_id );
 			if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
-				$update_action = wp_update_attachment_metadata( $media_id, $id3_meta );
-				if ( is_wp_error( $update_action ) ) {
-					return $update_action;
-				}
+				wp_update_attachment_metadata( $media_id, $id3_meta );
 			}
 		}
 
-		return $post_update_action;
+		return $update_action;
 	}
 
 	/**
