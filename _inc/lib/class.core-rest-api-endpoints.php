@@ -518,15 +518,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Gets a new connect URL with fresh nonce
+	 * Gets a new connect raw URL with fresh nonce.
 	 *
 	 * @uses Jetpack::disconnect();
 	 * @since 4.3.0
-	 * @return bool|WP_Error True if Jetpack successfully disconnected.
+	 * @return string|WP_Error A raw URL if the connection URL could be built; error message otherwise.
 	 */
 	public static function build_connect_url() {
-		if ( require_once( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
-			$url = Jetpack::init()->build_connect_url( true, false, false );
+		$url = Jetpack::init()->build_connect_url( true, false, false );
+		if ( $url ) {
 			return rest_ensure_response( $url );
 		}
 
