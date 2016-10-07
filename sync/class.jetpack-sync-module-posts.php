@@ -88,9 +88,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	function remove_embed() {
 		global $wp_embed;
 		remove_filter( 'the_content', array( $wp_embed, 'run_shortcode' ), 8 );
-		// Shortcode placeholder for strip_shortcodes()
-		remove_shortcode( 'embed', array( $wp_embed, 'shortcode' ) );
-		remove_shortcode( 'embed', '__return_false' );
+		// remove the embed shortcode since we would do the part later.
+		remove_shortcode( 'embed' );
 		// Attempts to embed all URLs in a post
 		remove_filter( 'the_content', array( $wp_embed, 'autoembed' ), 8 );
 	}
