@@ -206,6 +206,7 @@ class Jetpack_Sync_Defaults {
 		'_wp_attachment_is_custom_header',
 		'_wp_attachment_metadata',
 		'_wp_page_template',
+		'_wp_trash_meta_comments_status',
 		'_wpas_mess',
 		'content_width',
 		'custom_css_add',
