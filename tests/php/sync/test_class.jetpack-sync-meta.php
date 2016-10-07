@@ -112,7 +112,6 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 			'_jetpack_dont_email_post_to_subs',
 			'_jetpack_post_author_external_id',
 			'_jetpack_post_thumbnail',
-			'_jetpack_related_posts_cache_()',
 			'_menu_item_classes',
 			'_menu_item_menu_item_parent',
 			'_menu_item_object',

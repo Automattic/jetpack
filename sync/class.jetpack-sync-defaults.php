@@ -182,25 +182,6 @@ class Jetpack_Sync_Defaults {
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
 
-
-	static $default_whitelist_meta_keys = array(
-		'_thumbnail_id',
-		'_wpas_mess',
-		'_wpas_skip_',
-		'_g_feedback_shortcode',
-		'_feedback_extra_fields',
-		'_feedback_akismet_values',
-		'_publicize_facebook_user',
-		'_wp_attachment_image_alt',
-		'_jetpack_post_thumbnail',
-		'_thumbnail_id',
-		'_wp_attachment_metadata',
-		'_wp_page_template',
-		'_publicize_twitter_user',
-		'_wp_trash_meta_comments_status',
-		'_wp_attached_file',
-	);
-
 	static $default_whitelist_post_meta_keys = array(
 	//	'_edit_last',
 	//	'_edit_lock',
@@ -213,7 +194,7 @@ class Jetpack_Sync_Defaults {
 		'_jetpack_dont_email_post_to_subs',
 		'_jetpack_post_author_external_id',
 		'_jetpack_post_thumbnail',
-		'_jetpack_related_posts_cache_()',
+	//	'_jetpack_related_posts_cache_',
 		'_menu_item_classes',
 		'_menu_item_menu_item_parent',
 		'_menu_item_object',
@@ -269,30 +250,6 @@ class Jetpack_Sync_Defaults {
 		'hc_avatar',
 		'_wp_trash_meta_time',
 		'_wp_trash_meta_status'
-	);
-
-	static $default_blacklist_meta_keys = array(
-		'post_views_count',
-		'Views',
-		'tve_leads_impressions',
-		'views',
-		'scc_share_count_crawldate',
-		'wprss_last_update',
-		'wprss_feed_is_updating',
-		'snapFB',
-		'syndication_item_hash',
-		'phonenumber_spellings',
-		'tmac_last_id',
-		'opanda_imperessions',
-		'administer_stats',
-		'spec_ads_views',
-		'snp_views',
-		'mip_post_views_count',
-		'esml_socialcount_LAST_UPDATED',
-		'wprss_last_update_items',
-		'wp_automatic_cache',
-		'snapTW',
-		'data', // securpress - bummer to blacklist something so general, but necessary
 	);
 
 	// TODO: move this to server? - these are theme support values
