@@ -9,8 +9,8 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	}
 
 	public function set_defaults() {
-		$this->update_post_meta_whitelist();
-		$this->update_comment_meta_whitelist();
+		$this->post_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_post_meta_keys;
+		$this->comment_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_comment_meta_keys
 	}
 
 	/**
@@ -88,10 +88,6 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 		}
 	}
 	// POST Meta
-	function update_post_meta_whitelist() {
-		$this->post_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_post_meta_keys;
-	}
-
 	function set_post_meta_whitelist( $post_meta ) {
 
 		$this->post_meta_whitelist = (array) $post_meta;
@@ -107,10 +103,6 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	}
 
 	// Comment Meta
-	function update_comment_meta_whitelist() {
-		$this->comment_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_comment_meta_keys;
-	}
-
 	function set_comment_meta_whitelist( $comment_meta ) {
 		$this->comment_meta_whitelist = (array) $comment_meta;
 	}
