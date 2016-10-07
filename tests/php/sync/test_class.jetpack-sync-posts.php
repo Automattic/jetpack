@@ -633,6 +633,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_embed_is_disabled_on_the_content_filter_during_sync() {
+		global $wp_version;
 		$content =
 'Check out this cool video:
 
@@ -640,11 +641,18 @@ http://www.youtube.com/watch?v=dQw4w9WgXcQ
 
 That was a cool video.';
 
-		$oembeded =
-'<p>Check out this cool video:</p>
+		if ( version_compare( $wp_version, '4.7-alpha', '<' ) ) {
+			$oembeded =
+			'<p>Check out this cool video:</p>
+<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' width=\'660\' height=\'402\' src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
+<p>That was a cool video.</p>'. "\n";
+		} else {
+			$oembeded =
+			'<p>Check out this cool video:</p>
 <p><iframe width="660" height="371" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" allowfullscreen></iframe></p>
 <p>That was a cool video.</p>'. "\n";
-
+		}
+		
 		$filtered = '<p>Check out this cool video:</p>
 <p>http://www.youtube.com/watch?v=dQw4w9WgXcQ</p>
 <p>That was a cool video.</p>'. "\n";
@@ -664,17 +672,27 @@ That was a cool video.';
 	}
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
+
+		global $wp_version;
+		
 		$content =
 			'Check out this cool video:
 
 [embed width="123" height="456"]http://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]
 
 That was a cool video.';
-
-		$oembeded =
-			'<p>Check out this cool video:</p>
+		
+		if ( version_compare( $wp_version, '4.7-alpha', '<' ) ) {
+			$oembeded =
+				'<p>Check out this cool video:</p>
+<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' width=\'660\' height=\'402\' src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
+<p>That was a cool video.</p>'. "\n";
+		} else {
+			$oembeded =
+				'<p>Check out this cool video:</p>
 <p><iframe width="200" height="113" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" allowfullscreen></iframe></p>
 <p>That was a cool video.</p>'. "\n";
+		}
 
 		$filtered = '<p>Check out this cool video:</p>
 <p>[embed width=&#8221;123&#8243; height=&#8221;456&#8243;]http://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]</p>
