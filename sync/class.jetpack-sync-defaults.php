@@ -271,28 +271,6 @@ class Jetpack_Sync_Defaults {
 		'_wp_trash_meta_status'
 	);
 
-	static $default_blacklist_meta_keys = array(
-		'post_views_count',
-		'Views',
-		'tve_leads_impressions',
-		'views',
-		'scc_share_count_crawldate',
-		'wprss_last_update',
-		'wprss_feed_is_updating',
-		'snapFB',
-		'syndication_item_hash',
-		'phonenumber_spellings',
-		'tmac_last_id',
-		'opanda_imperessions',
-		'administer_stats',
-		'spec_ads_views',
-		'snp_views',
-		'mip_post_views_count',
-		'esml_socialcount_LAST_UPDATED',
-		'wprss_last_update_items',
-		'wp_automatic_cache',
-		'snapTW',
-		'data', // securpress - bummer to blacklist something so general, but necessary
 	);
 
 	// TODO: move this to server? - these are theme support values
@@ -353,7 +331,6 @@ class Jetpack_Sync_Defaults {
 	static $default_max_queue_lag = 900; // 15 minutes
 	static $default_queue_max_writes_sec = 100; // 100 rows a second
 	static $default_post_types_blacklist = array();
-	static $default_meta_blacklist = array();
 	static $default_disable = 0; // completely disable sending data to wpcom
 	static $default_render_filtered_content = 1; // render post_filtered_content
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
