@@ -1111,7 +1111,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
 					),
 					'monitor_receive_wp_note' => array(
-						'description'        => esc_html__( 'Receive Monitor Email Notifications.???', 'jetpack' ),
+						'description'        => esc_html__( 'Receive Monitor Email Notifications.', 'jetpack' ),
 						'type'               => 'boolean',
 						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',

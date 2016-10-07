@@ -310,7 +310,7 @@ export let MonitorSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'monitor_receive_wp_note' }
 						{ ...this.props }
-						label={ __( 'Receive Monitor WordPress Notifications' ) } />
+						label={ __( 'Receive Monitor WordPress.com Notifications' ) } />
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }

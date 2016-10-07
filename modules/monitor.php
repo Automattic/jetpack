@@ -54,7 +54,7 @@ class Jetpack_Monitor {
 		$methods = $this->get_notification_methods();
 		$show_methods = array(
 			'email' => esc_html__( 'Receive Monitor Email Notifications.' , 'jetpack'),
-			'wp_note' => esc_html__( 'Receive Monitor WordPress Notifications.' , 'jetpack'),
+			'wp_note' => esc_html__( 'Receive Monitor WordPress.com Notifications.' , 'jetpack'),
 		);
 		?>
 		<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
