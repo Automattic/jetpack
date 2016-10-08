@@ -581,16 +581,28 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_remove_sharedaddy_from_filtered_content() {
 		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
-
+		set_current_screen( 'front' );
+		add_filter( 'sharing_show', '__return_true' );
+		add_filter( 'sharing_enabled', array( $this, 'enable_services' ) );
 		$this->post->post_content = 'The new post content';
 
 		wp_update_post( $this->post );
 
+		$this->assertContains( 'class="sharedaddy sd-sharing-enabled"', apply_filters( 'the_content', $this->post->post_content ) );
+		
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 
 		$this->assertEquals( '<p>' . $synced_post->post_content . "</p>\n", $synced_post->post_content_filtered );
+	}
+
+	function enable_services() {
+		return array( 'all' => array( 'print'  => new Share_Print( 'print', array( ) ) ),
+		              'visible' => array( 'print'  => new Share_Print( 'print', array( ) ) ),
+			'hidden' => array()
+
+		);
 	}
 
 	function test_remove_related_posts_from_filtered_content() {
