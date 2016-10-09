@@ -7,6 +7,33 @@
  * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps.
  */
 
+class Jetpack_Sitemap_Manager {
+
+	private static $__instance = null;
+
+	/**
+	 * Singleton implementation
+	 *
+	 * @return object
+	 */
+	public static function instance() {
+		if ( null === self::$__instance ) {
+			self::$__instance = new Jetpack_Sitemap_Manager();
+		}
+
+		return self::$__instance;
+	}
+
+	/**
+	 * Constructor.
+	 */
+	private function __construct() {
+
+	}
+
+}
+
+Jetpack_Sitemap_Manager::instance();
 
 /**
  * Convert a MySQL datetime string to an ISO 8601 string.
