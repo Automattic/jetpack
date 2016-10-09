@@ -25,12 +25,26 @@ class Jetpack_Sitemap_Manager {
 	}
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 */
 	private function __construct() {
 
+		/* Register jetpack_sitemap post type */
+		add_action( 'init', 'create_sitemap_post_type' );
+		function create_sitemap_post_type() {
+			register_post_type(
+				'jetpack_sitemap',
+				array(
+					'labels' => array(
+					'name' => __( 'Sitemaps' ),
+					'singular_name' => __( 'Sitemap' )
+				),
+				'public' => true,
+				'has_archive' => true,
+				)
+			);
+		}
 	}
-
 }
 
 Jetpack_Sitemap_Manager::instance();
