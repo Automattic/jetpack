@@ -22,6 +22,8 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
+require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
+
 class Jetpack {
 	public $xmlrpc_server = null;
 
@@ -428,7 +430,6 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -474,7 +475,13 @@ class Jetpack {
 
 			// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
 			add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
-		} elseif ( is_admin() && isset( $_POST['action'] ) && 'jetpack_upload_file' == $_POST['action'] ) {
+		} elseif (
+			is_admin() &&
+			isset( $_POST['action'] ) && (
+				'jetpack_upload_file' == $_POST['action'] ||
+				'jetpack_update_file' == $_POST['action']
+			)
+		) {
 			$this->require_jetpack_authentication();
 			$this->add_remote_request_handlers();
 		} else {
@@ -3173,12 +3180,19 @@ p {
 
 	function add_remote_request_handlers() {
 		add_action( 'wp_ajax_nopriv_jetpack_upload_file', array( $this, 'remote_request_handlers' ) );
+		add_action( 'wp_ajax_nopriv_jetpack_update_file', array( $this, 'remote_request_handlers' ) );
 	}
 
 	function remote_request_handlers() {
+		$action = current_filter();
+
 		switch ( current_filter() ) {
 		case 'wp_ajax_nopriv_jetpack_upload_file' :
 			$response = $this->upload_handler();
+			break;
+
+		case 'wp_ajax_nopriv_jetpack_update_file' :
+			$response = $this->upload_handler( true );
 			break;
 		default :
 			$response = new Jetpack_Error( 'unknown_handler', 'Unknown Handler', 400 );
@@ -3210,7 +3224,16 @@ p {
 		die( json_encode( (object) $response ) );
 	}
 
-	function upload_handler() {
+	/**
+	 * Uploads a file gotten from the global $_FILES.
+	 * If `$update_media_item` is true and `post_id` is defined
+	 * the attachment file of the media item (gotten through of the post_id)
+	 * will be updated instead of add a new one.
+	 * 
+	 * @param  boolean $update_media_item - update media attachment
+	 * @return array - An array describing the uploadind files process
+	 */
+	function upload_handler( $update_media_item = false ) {
 		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 			return new Jetpack_Error( 405, get_status_header_desc( 405 ), 405 );
 		}
@@ -3265,6 +3288,37 @@ p {
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
 				$post_id = 0;
 			}
+
+			if ( $update_media_item ) {
+				if ( ! isset( $post_id ) || $post_id === 0 ) {
+					return new Jetpack_Error( 'invalid_input', 'Media ID must be defined.', 400 );
+				}
+
+				$media_array = $_FILES['media'];
+
+				$file_array['name'] = $media_array['name'][0]; 
+				$file_array['type'] = $media_array['type'][0]; 
+				$file_array['tmp_name'] = $media_array['tmp_name'][0]; 
+				$file_array['error'] = $media_array['error'][0]; 
+				$file_array['size'] = $media_array['size'][0];
+
+				$edited_media_item = Jetpack_Media::edit_media_file( $post_id, $file_array );
+
+				if ( is_wp_error( $edited_media_item ) ) {
+					return $edited_media_item;
+				}
+
+				$response = (object) array(
+					'id'   => (string) $post_id,
+					'file' => (string) $edited_media_item->post_title,
+					'url'  => (string) wp_get_attachment_url( $post_id ),
+					'type' => (string) $edited_media_item->post_mime_type,
+					'meta' => (array) wp_get_attachment_metadata( $post_id ),
+				);
+
+				return (array) array( $response );
+			}
+
 			$attachment_id = media_handle_upload(
 				'.jetpack.upload.',
 				$post_id,
