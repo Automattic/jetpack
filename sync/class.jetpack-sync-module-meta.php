@@ -2,15 +2,9 @@
 
 class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	private $meta_types = array( 'post', 'comment' );
-	private $post_meta_whitelist = array();
 
 	public function name() {
 		return 'meta';
-	}
-
-	public function set_defaults() {
-		$this->post_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_post_meta_keys;
-		$this->comment_meta_whitelist = Jetpack_Sync_Defaults::$default_whitelist_comment_meta_keys;
 	}
 
 	/**
@@ -88,30 +82,22 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 		}
 	}
 	// POST Meta
-	function set_post_meta_whitelist( $post_meta ) {
-
-		$this->post_meta_whitelist = (array) $post_meta;
-	}
-
 	function get_post_meta_whitelist() {
-		return $this->post_meta_whitelist;
+		return Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' );
 	}
 
 	function is_whitelisted_post_meta( $meta_key ) {
-		return in_array( $meta_key, $this->post_meta_whitelist ) || wp_startswith( $meta_key, '_wpas_skip_' );
+		// _wpas_skip_ is used by publicize
+		return in_array( $meta_key, $this->get_post_meta_whitelist() ) || wp_startswith( $meta_key, '_wpas_skip_' );
 	}
 
 	// Comment Meta
-	function set_comment_meta_whitelist( $comment_meta ) {
-		$this->comment_meta_whitelist = (array) $comment_meta;
-	}
-
 	function get_comment_meta_whitelist() {
-		return $this->comment_meta_whitelist;
+		return Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' );
 	}
 
 	function is_whitelisted_comment_meta( $meta_key ) {
-		return in_array( $meta_key, $this->comment_meta_whitelist );
+		return in_array( $meta_key, $this->get_comment_meta_whitelist() );
 	}
 
 	function is_post_type_allowed( $post_id ) {
