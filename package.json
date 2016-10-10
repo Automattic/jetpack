@@ -24,6 +24,7 @@
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "./node_modules/.bin/grunt addtextdomain",
     "build-pot": "./node_modules/.bin/grunt makepot"
+    "test-gui":    "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui"
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
@@ -76,6 +77,7 @@
     "history": "2.0.0",
     "i18n-calypso": "github:automattic/i18n-calypso",
     "jsdom": "^9.2.1",
+    "jsdom-global": "^2.1.0",
     "jshint": "2.9.1",
     "jshint-stylish": "~2.1.0",
     "lodash": "^4.9.0",
@@ -103,10 +105,13 @@
     "grunt": "^0.4.2",
     "grunt-wp-i18n": "~0.4.6",
     "gulp-uglify": "^2.0.0",
+    "enzyme": "^2.4.1",
     "mocha": "^2.4.5",
     "mockery": "^1.4.1",
     "nock": "^7.2.2",
     "qunitjs": "~1.20.0",
+    "react-addons-test-utils": "^0.14.8",
+    "redux-test-utils": "^0.1.1",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
     "sinon-qunit": "~2.0.0",

@@ -31,9 +31,22 @@ mocha.suite.afterAll( boot.after );
 
 // we could also discover all the tests using a glob?
 if ( program.args.length ) {
-	program.args.forEach( function( file ) {
-		mocha.addFile( file );
-	} );
+
+	// Test interface components
+	if ( 1 === program.args.length && 'gui' === program.args[0] ) {
+		// Fixes error "@import unexpected token"
+		require.extensions['.scss'] = () => false;
+		require.extensions['.css'] = require.extensions['.scss'];
+
+		// Fixes error "window is not defined"
+		require('jsdom-global')();
+
+		mocha.addFile( path.join( __dirname, 'load-suite-gui.js' ) );
+	} else {
+		program.args.forEach( function( file ) {
+			mocha.addFile( file );
+		} );
+	}
 } else {
 	mocha.addFile( path.join( __dirname, 'load-suite.js' ) );
 }
