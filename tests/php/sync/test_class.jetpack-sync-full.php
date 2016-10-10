@@ -366,8 +366,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_sends_all_post_meta() {
 		$post_id = $this->factory->post->create();
-		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
-		$meta_module->set_post_meta_whitelist( array( 'test_meta_key', 'test_meta_array' ) );
+
+		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( 'test_meta_key', 'test_meta_array' ) ) );
 
 		add_post_meta( $post_id, 'test_meta_key', 'foo' );
 		add_post_meta( $post_id, 'test_meta_array', array( 'foo', 'bar' ) );
@@ -388,13 +388,16 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
 		$this->assertEquals( array( 'foo', 'bar' ), $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_array', true ) );
+
+		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( ) ) );
+
 	}
 
 	function test_full_sync_doesnt_sends_forbiden_private_or_public_post_meta() {
 		$post_id = $this->factory->post->create();
 		
 		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
-		$meta_module->set_post_meta_whitelist( array( '_wp_attachment_metadata', 'a_public_meta' ) );
+		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( 'a_public_meta' ) ) );
 
 		// forbidden private meta
 		add_post_meta( $post_id, '_test_meta_key', 'foo1' );
@@ -428,7 +431,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'snapTW', true ) );
 		$this->assertEquals( 'foo4', $this->server_replica_storage->get_metadata( 'post', $post_id, '_wp_attachment_metadata', true ) );
 		$this->assertEquals( 'foo5', $this->server_replica_storage->get_metadata( 'post', $post_id, 'a_public_meta', true ) );
-
+		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( ) ) );
 	}
 
 	function test_full_sync_sends_all_post_terms() {
@@ -455,8 +458,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$comment_ids = $this->factory->comment->create_post_comments( $post_id );
 		$comment_id  = $comment_ids[0];
 
-		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
-		$meta_module->set_comment_meta_whitelist( array( 'test_meta_key' ) );
+		Jetpack_Sync_Settings::update_settings( array( 'comment_meta_whitelist' => array( 'test_meta_key' ) ) );
 
 		add_comment_meta( $comment_id, 'test_meta_key', 'foo' );
 
@@ -473,6 +475,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'comment', $comment_id, 'test_meta_key', true ) );
+		Jetpack_Sync_Settings::update_settings( array( 'comment_meta_whitelist' => array( ) ) );
 	}
 
 	function test_full_sync_sends_theme_info() {

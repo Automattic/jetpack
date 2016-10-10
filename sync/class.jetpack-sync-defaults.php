@@ -182,7 +182,7 @@ class Jetpack_Sync_Defaults {
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
 
-	static $default_whitelist_post_meta_keys = array(
+	static $default_post_meta_whitelist = array(
 		'_feedback_akismet_values',
 		'_feedback_email',
 		'_feedback_extra_fields',
@@ -221,7 +221,7 @@ class Jetpack_Sync_Defaults {
 		'vimeo_poster_image',
 	);
 
-	static $default_whitelist_comment_meta_keys = array(
+	static $default_comment_meta_whitelist = array(
 		'hc_avatar',
 		'hc_post_as',
 		'hc_wpcom_id_sig',

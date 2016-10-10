@@ -17,6 +17,8 @@ class Jetpack_Sync_Settings {
 		'post_types_blacklist' => true,
 		'disable'              => true,
 		'render_filtered_content' => true,
+		'post_meta_whitelist' => true,
+		'comment_meta_whitelist' => true,
 	);
 
 	static $is_importing;
@@ -58,9 +60,16 @@ class Jetpack_Sync_Settings {
 			$value = intval( $value );
 		}
 
-		// specifically for the post_types blacklist, we want to include the hardcoded settings
-		if ( $setting === 'post_types_blacklist' ) {
-			$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$blacklisted_post_types ) );
+		switch( $setting ) {
+			case 'post_types_blacklist':
+				$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$blacklisted_post_types ) );
+				break;
+			case 'post_meta_whitelist':
+				$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$default_post_meta_whitelist ) );
+				break;
+			case 'comment_meta_whitelist':
+				$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$default_comment_meta_whitelist ) );
+				break;
 		}
 
 		self::$settings_cache[ $setting ] = $value;
