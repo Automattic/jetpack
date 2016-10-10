@@ -112,11 +112,21 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
 		$this->assertEquals( 1, $unique_histograms_count, 'Post histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 
+		$histograms              = array_map( array( $this, 'get_all_post_meta_histograms' ), $all_replicastores );
+		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
+		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
+		$this->assertEquals( 1, $unique_histograms_count, 'Post meta histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
+
 		// compare comment histograms
 		$histograms              = array_map( array( $this, 'get_all_comment_histograms' ), $all_replicastores );
 		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
 		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
 		$this->assertEquals( 1, $unique_histograms_count, 'Comment histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
+
+		$histograms              = array_map( array( $this, 'get_all_comment_meta_histograms' ), $all_replicastores );
+		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
+		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
+		$this->assertEquals( 1, $unique_histograms_count, 'Comment meta histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 	}
 
 	function get_all_checksums( $replicastore ) {
@@ -127,8 +137,16 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		return $replicastore->checksum_histogram( 'posts', 10 );
 	}
 
+	function get_all_post_meta_histograms( $replicastore ) {
+		return $replicastore->checksum_histogram( 'post_meta', 10 );
+	}
+
 	function get_all_comment_histograms( $replicastore ) {
 		return $replicastore->checksum_histogram( 'comments', 10 );
+	}
+
+	function get_all_comment_meta_histograms( $replicastore ) {
+		return $replicastore->checksum_histogram( 'comment_meta', 10 );
 	}
 
 	/**
