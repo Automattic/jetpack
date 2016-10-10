@@ -2575,6 +2575,35 @@ p {
 		}
 	}
 
+	/*
+	 * This will clear all the options that the Jetpack connection needs to survive.
+	 *
+	 * This should only be used if:
+	 * 1. wpcom thinks the site is disconnected, AND there are left-over connection options in the local DB.
+	 * (i.e. connection errors like invalid client_id)
+	 *
+	 * 2. An IDC was detected (the site's url has changed), and wpcom was not updated with the new URL changes.
+	 * You would then use this before connecting to spin up a NEW shadow site using this new URL (rather than
+	 * move the connection from the old URL).
+	 *
+	 * @return bool True if success, False if not.
+	 */
+	public static function clear_all_connection_options() {
+		return Jetpack_Options::delete_option(
+			array(
+				'id',
+				'register',
+				'blog_token',
+				'user_token',
+				'user_tokens',
+				'master_user',
+				'time_diff',
+				'fallback_no_verify_ssl_certs',
+				'authorize',
+			)
+		);
+	}
+
 	/**
 	 * Disconnects from the Jetpack servers.
 	 * Forgets all connection details and tells the Jetpack servers to do the same.

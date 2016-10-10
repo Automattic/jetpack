@@ -435,6 +435,26 @@ EXPECTED;
 		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
 	}
 
+	function test_clear_all_connection_options_clears_all_connection_options() {
+		Jetpack_Options::update_options(
+			array(
+				'id' => 'testConnectionOption_id',
+				'register' => 'testConnectionOption_register',
+				'blog_token' => 'testConnectionOption_blog_token',
+				'user_token' => 'testConnectionOption_user_token',
+				'user_tokens' => array(
+					'1' => 'testConnectionOption_user_tokens1',
+					'2' => 'testConnectionOption_user_tokens2',
+				),
+				'master_user' => 'testConnectionOption_master_user',
+				'time_diff' => 'testConnectionOption_time_diff',
+				'fallback_no_verify_ssl_certs' => 'testConnectionOption_fallback',
+				'authorize' => 'testConnectionOption_authorize',
+			)
+		);
+		$this->assertTrue( Jetpack::clear_all_connection_options() );
+	}
+
 	function __return_string_1() {
 		return '1';
 	}
