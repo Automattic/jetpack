@@ -598,10 +598,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function enable_services() {
-		return array( 'all' => array( 'print'  => new Share_Print( 'print', array( ) ) ),
-		              'visible' => array( 'print'  => new Share_Print( 'print', array( ) ) ),
-			'hidden' => array()
-
+		return array(
+			'all' => array( 'print'  => new Share_Print( 'print', array( ) ) ),
+			'visible' => array( 'print'  => new Share_Print( 'print', array( ) ) ),
+			'hidden' => array(),
 		);
 	}
 
