@@ -137,8 +137,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
+
+		$post_type = get_post_type_object( $post->post_type );
 		/** This filter is already documented in core. wp-includes/post-template.php */
-		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) ) {
+		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public  ) {
 			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
 			$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
 		}

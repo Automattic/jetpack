@@ -684,6 +684,22 @@ That was a cool video.';
 		}
 	}
 
+	function test_do_not_sync_non_public_post_types_filtered_post_content() {
+		$args = array(
+			'public' => false,
+			'label'  => 'Non Public'
+		);
+		register_post_type( 'non_public', $args );
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'non_public' ) );
+
+		$this->sender->do_sync();
+		$synced_post = $this->server_replica_storage->get_post( $post_id );
+
+		$this->assertEquals( '', $synced_post->post_content_filtered );
+		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
+	}
+
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
 
 		global $wp_version;
