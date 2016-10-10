@@ -182,48 +182,50 @@ class Jetpack_Sync_Defaults {
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
 
-
-	static $default_whitelist_meta_keys = array(
-		'_wp_attachment_metadata',
-		'_thumbnail_id',
-		'_wpas_mess',
-		'_wpas_skip_',
-		'_g_feedback_shortcode',
-		'_feedback_extra_fields',
+	static $default_whitelist_post_meta_keys = array(
 		'_feedback_akismet_values',
-		'_publicize_facebook_user',
-		'_wp_attachment_image_alt',
+		'_feedback_email',
+		'_feedback_extra_fields',
+		'_g_feedback_shortcode',
 		'_jetpack_post_thumbnail',
+		'_menu_item_classes',
+		'_menu_item_menu_item_parent',
+		'_menu_item_object',
+		'_menu_item_object_id',
+		'_menu_item_orphaned',
+		'_menu_item_type',
+		'_menu_item_xfn',
+		'_publicize_facebook_user',
+		'_publicize_twitter_user',
 		'_thumbnail_id',
+		'_wp_attached_file',
+		'_wp_attachment_backup_sizes',
+		'_wp_attachment_context',
+		'_wp_attachment_image_alt',
+		'_wp_attachment_is_custom_background',
+		'_wp_attachment_is_custom_header',
 		'_wp_attachment_metadata',
 		'_wp_page_template',
-		'_publicize_twitter_user',
 		'_wp_trash_meta_comments_status',
-		'_wp_attached_file',
+		'_wpas_mess',
+		'content_width',
+		'custom_css_add',
+		'custom_css_preprocessor',
+		'enclosure',
+		'imagedata',
+		'nova_price',
+		'publicize_results',
+		'sharing_disabled',
+		'switch_like_status',
+		'videopress_guid',
+		'vimeo_poster_image',
 	);
 
-	static $default_blacklist_meta_keys = array(
-		'post_views_count',
-		'Views',
-		'tve_leads_impressions',
-		'views',
-		'scc_share_count_crawldate',
-		'wprss_last_update',
-		'wprss_feed_is_updating',
-		'snapFB',
-		'syndication_item_hash',
-		'phonenumber_spellings',
-		'tmac_last_id',
-		'opanda_imperessions',
-		'administer_stats',
-		'spec_ads_views',
-		'snp_views',
-		'mip_post_views_count',
-		'esml_socialcount_LAST_UPDATED',
-		'wprss_last_update_items',
-		'wp_automatic_cache',
-		'snapTW',
-		'data', // securpress - bummer to blacklist something so general, but necessary
+	static $default_whitelist_comment_meta_keys = array(
+		'hc_avatar',
+		'hc_post_as',
+		'hc_wpcom_id_sig',
+		'hc_foreign_user_id'
 	);
 
 	// TODO: move this to server? - these are theme support values
@@ -284,7 +286,6 @@ class Jetpack_Sync_Defaults {
 	static $default_max_queue_lag = 900; // 15 minutes
 	static $default_queue_max_writes_sec = 100; // 100 rows a second
 	static $default_post_types_blacklist = array();
-	static $default_meta_blacklist = array();
 	static $default_disable = 0; // completely disable sending data to wpcom
 	static $default_render_filtered_content = 1; // render post_filtered_content
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again

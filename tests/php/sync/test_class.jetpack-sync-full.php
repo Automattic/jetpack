@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $initial_full_sync_queue_size + 1, $this->sender->get_full_sync_queue()->size() );
 		$this->sender->do_full_sync();
-		
+
 		$cancelled_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_cancelled' );
 
 		$this->assertTrue( $cancelled_event !== false );
@@ -366,6 +366,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_sends_all_post_meta() {
 		$post_id = $this->factory->post->create();
+		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
+		$meta_module->set_post_meta_whitelist( array( 'test_meta_key', 'test_meta_array' ) );
+
 		add_post_meta( $post_id, 'test_meta_key', 'foo' );
 		add_post_meta( $post_id, 'test_meta_array', array( 'foo', 'bar' ) );
 
@@ -389,6 +392,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_doesnt_sends_forbiden_private_or_public_post_meta() {
 		$post_id = $this->factory->post->create();
+		
+		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
+		$meta_module->set_post_meta_whitelist( array( '_wp_attachment_metadata', 'a_public_meta' ) );
+
 		// forbidden private meta
 		add_post_meta( $post_id, '_test_meta_key', 'foo1' );
 		add_post_meta( $post_id, '_test_meta_array', array( 'foo2', 'bar' ) );
@@ -400,13 +407,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		add_post_meta( $post_id, 'a_public_meta', 'foo5' );
 
 		$this->sender->do_sync();
-
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_key', true ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_array', true ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'snapTW', true ) );
 		$this->assertEquals( 'foo4', $this->server_replica_storage->get_metadata( 'post', $post_id, '_wp_attachment_metadata', true ) );
 		$this->assertEquals( 'foo5', $this->server_replica_storage->get_metadata( 'post', $post_id, 'a_public_meta', true ) );
-
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
@@ -418,13 +423,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
-
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_key', true ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_array', true ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'snapTW', true ) );
 		$this->assertEquals( 'foo4', $this->server_replica_storage->get_metadata( 'post', $post_id, '_wp_attachment_metadata', true ) );
 		$this->assertEquals( 'foo5', $this->server_replica_storage->get_metadata( 'post', $post_id, 'a_public_meta', true ) );
-		
+
 	}
 
 	function test_full_sync_sends_all_post_terms() {
@@ -450,6 +454,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$post_id     = $this->factory->post->create();
 		$comment_ids = $this->factory->comment->create_post_comments( $post_id );
 		$comment_id  = $comment_ids[0];
+
+		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
+		$meta_module->set_comment_meta_whitelist( array( 'test_meta_key' ) );
+
 		add_comment_meta( $comment_id, 'test_meta_key', 'foo' );
 
 		$this->sender->do_sync();
@@ -488,14 +496,14 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'twentyfourteen', $this->server_replica_storage->get_option( 'stylesheet' ) );
 		$local_option = get_option( 'theme_mods_twentyfourteen' );
 		$remote_option = $this->server_replica_storage->get_option( 'theme_mods_twentyfourteen' );
-		
+
 		if ( isset( $local_option[0] ) ) {
 			// this is a spurious value that sometimes gets set during tests, and is
 			// actively removed before sending to WPCOM
 			// it appears to be due to a bug which sets array( false ) as the default value for theme_mods
 			unset( $local_option[0] );
 		}
-		
+
 		$this->assertEquals( $local_option, $remote_option );
 
 		$synced_theme_caps_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_theme_data' );
@@ -912,9 +920,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_doesnt_exceed_options_write_rate_limit() {
 		Jetpack_Sync_Settings::update_settings( array( 'queue_max_writes_sec' => 2 ) );
-		
+
 		foreach( range( 1, 2100 ) as $i ) { // 200 items+
-			$this->factory->user->create();	
+			$this->factory->user->create();
 		}
 
 		$start_time = microtime( true );
@@ -933,11 +941,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'dont_sync_users' ) );
 
 		foreach( range( 1, 3 ) as $i ) {
-			$this->factory->user->create();	
+			$this->factory->user->create();
 		}
-		
+
 		$this->full_sync->start( array( 'users' => true ) );
-		
+
 		$this->sender->do_full_sync();
 		$this->sender->do_full_sync();
 		$this->sender->do_full_sync();
@@ -1035,7 +1043,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$this->factory->user->create();
 			$this->factory->comment->create_post_comments( $post_id, 2 );
 		}
-		
+
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
 			$estimate    = $module->estimate_full_sync_actions( true );
