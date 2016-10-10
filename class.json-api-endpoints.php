@@ -1898,6 +1898,16 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return wpcom_get_sal_platform( $this->api->token_details );
 	}
 
+	function get_revision_history( $media_id ) {
+		$snapshot_array = get_post_meta( $media_id, '_wp_revision_history', true );
+
+		if ( ! $snapshot_array ) {
+			return array();
+		}
+
+		return $snapshot_array;
+	}
+
 	/**
 	 * Return endpoint response
 	 *
