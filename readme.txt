@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Widgets: Fix top posts attachment page behavior #5079
 * Don't enqueue changes during send phase - prevents infinite loop caused by plugins that add content when outbound http requests fire #5264
+* API: fix permissions check for plugin information retrieval #5294
 
 **Support Enhancements**
 
