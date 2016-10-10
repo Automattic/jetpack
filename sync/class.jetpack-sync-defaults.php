@@ -163,9 +163,19 @@ class Jetpack_Sync_Defaults {
 		'post_modified',
 	); 
 
+	static $default_post_meta_checksum_columns = array(
+		'meta_id',
+		'meta_value'
+	); 
+
 	static $default_comment_checksum_columns = array(
 		'comment_ID',
 		'comment_content',
+	); 
+
+	static $default_comment_meta_checksum_columns = array(
+		'meta_id',
+		'meta_value'
 	); 
 
 	static $default_option_checksum_columns = array(

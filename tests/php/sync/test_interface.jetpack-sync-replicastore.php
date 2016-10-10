@@ -142,19 +142,37 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$second_comment = self::$factory->comment( 6, $second_post->ID );
 
 		$store->upsert_post( $post );
+		$store->upsert_metadata( 'post', $post->ID, 'imagedata', 'bar', 1 );
+		$store->upsert_metadata( 'post', $post->ID, 'publicize_results', 'baz', 2 );
 		$store->upsert_post( $second_post );
+		$store->upsert_metadata( 'post', $second_post->ID, 'imagedata', 'bar', 5 );
+		$store->upsert_metadata( 'post', $second_post->ID, 'publicize_results', 'baz', 10 );
 		$store->upsert_comment( $comment );
+		$store->upsert_metadata( 'comment', $comment->comment_ID, 'hc_avatar', 'bar', 1 );
+		$store->upsert_metadata( 'comment', $comment->comment_ID, 'hc_post_as', 'baz', 4 );
 		$store->upsert_comment( $second_comment );
+		$store->upsert_metadata( 'comment', $second_comment->comment_ID, 'hc_avatar', 'boo', 7 );
+		$store->upsert_metadata( 'comment', $second_comment->comment_ID, 'hc_post_as', 'bee', 10 );
 
 		// test posts checksum with ID range
 		$histogram = $store->checksum_histogram( 'posts', 2 );
 		$this->assertEquals( $store->posts_checksum( 0, 5 ), $histogram['5'] );
 		$this->assertEquals( $store->posts_checksum( 6, 10 ), $histogram['10'] );
 
+		// test postmeta checksum with ID range
+		$histogram = $store->checksum_histogram( 'post_meta', 2 );
+		$this->assertEquals( $store->post_meta_checksum( 2, 2 ), $histogram['2'] );
+		$this->assertEquals( $store->post_meta_checksum( 5, 6 ), $histogram['5'] );
+
 		// test comments checksum with ID range
 		$histogram = $store->checksum_histogram( 'comments', 2 );
 		$this->assertEquals( $store->comments_checksum( 0, 5 ), $histogram['3'] );
 		$this->assertEquals( $store->comments_checksum( 6, 10 ), $histogram['6'] );
+
+		// test commentmeta checksum with ID range
+		$histogram = $store->checksum_histogram( 'comment_meta', 2 );
+		$this->assertEquals( $store->comment_meta_checksum( 3, 4 ), $histogram['4'] );
+		$this->assertEquals( $store->comment_meta_checksum( 7, 8 ), $histogram['7'] );
 	}
 
 	/**

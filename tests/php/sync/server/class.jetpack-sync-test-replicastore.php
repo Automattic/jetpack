@@ -73,6 +73,10 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return $this->calculate_checksum( $this->posts, 'ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_post_checksum_columns );
 	}
 
+	function post_meta_checksum( $min_id = null, $max_id = null ) {
+		return null;
+	}
+
 	private function reduce_checksum( $carry, $post ) {
 		// append fields
 		$value = '';
@@ -122,6 +126,10 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function comments_checksum( $min_id = null, $max_id = null ) {
 		return $this->calculate_checksum( array_filter( $this->comments, array( $this, 'is_not_spam' ) ), 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
+	}
+
+	function comment_meta_checksum( $min_id = null, $max_id = null ) {
+		return null;
 	}
 
 	function is_not_spam( $comment ) {
