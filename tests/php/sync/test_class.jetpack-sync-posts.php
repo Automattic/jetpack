@@ -403,7 +403,32 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
 		$this->assertObjectNotHasAttribute( 'featured_image', $post_on_server );
+	}
 
+	function test_do_not_sync_non_existant_post_types() {
+		$args = array(
+			'public' => true,
+			'label'  => 'unregister post type'
+		);
+		register_post_type( 'unregister_post_type', $args );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'unregister_post_type' ) );
+		unregister_post_type( 'unregister_post_type' );
+		
+		$this->sender->do_sync();
+		$synced_post = $this->server_replica_storage->get_post( $post_id );
+
+		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
+		$this->assertEquals( '', $synced_post->post_content_filtered );
+		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
+
+		// Also works for post type that was never registed
+		$post_id = $this->factory->post->create( array( 'post_type' => 'does_not_exist' ) );
+		$this->sender->do_sync();
+		$synced_post = $this->server_replica_storage->get_post( $post_id );
+
+		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
+		$this->assertEquals( '', $synced_post->post_content_filtered );
+		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
 	}
 
 	function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
@@ -428,8 +453,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( strtotime( $this->post->post_modified ) <= strtotime( $post->post_modified ) );
 		$this->assertTrue( strtotime( $this->post->post_modified_gmt ) <= strtotime( $post->post_modified_gmt ) );
 		$this->assertEquals( 'jetpack_sync_blocked', $post->post_status );
-		$this->assertFalse( isset( $post->post_content ) );
-		$this->assertFalse( isset( $post->post_excerpt ) );
+
 
 		// Since the filter is not there any more the sync should happen as expected.
 		$this->post->post_content = "foo bar";
@@ -682,6 +706,23 @@ That was a cool video.';
 			// do we get the same result after the sync?
 			$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ), '$oembeded is NOT the same as filtered $filtered' );
 		}
+	}
+
+	function test_do_not_sync_non_public_post_types_filtered_post_content() {
+		$args = array(
+			'public' => false,
+			'label'  => 'Non Public'
+		);
+		register_post_type( 'non_public', $args );
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'non_public' ) );
+
+		$this->sender->do_sync();
+		$synced_post = $this->server_replica_storage->get_post( $post_id );
+
+		$this->assertEquals( '', $synced_post->post_content_filtered );
+		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
+
 	}
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {

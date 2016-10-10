@@ -107,6 +107,18 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	function filter_post_content_and_add_links( $post_object ) {
 		global $post;
 		$post = $post_object;
+
+		// return non existant post 
+		$post_type = get_post_type_object( $post->post_type );
+		if ( empty( $post_type) || ! is_object( $post_type ) ) {
+			$non_existant_post                    = new stdClass();
+			$non_existant_post->ID                = $post->ID;
+			$non_existant_post->post_modified     = $post->post_modified;
+			$non_existant_post->post_modified_gmt = $post->post_modified_gmt;
+			$non_existant_post->post_status       = 'jetpack_sync_non_registered_post_type';
+			
+			return $non_existant_post;
+		}
 		/**
 		 * Filters whether to prevent sending post data to .com
 		 *
@@ -137,8 +149,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
+		
 		/** This filter is already documented in core. wp-includes/post-template.php */
-		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) ) {
+		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public  ) {
+
 			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
 			$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
 		}
