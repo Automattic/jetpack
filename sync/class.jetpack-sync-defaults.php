@@ -182,7 +182,7 @@ class Jetpack_Sync_Defaults {
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
 
-	static $default_post_meta_whitelist = array(
+	static $post_meta_whitelist = array(
 		'_feedback_akismet_values',
 		'_feedback_email',
 		'_feedback_extra_fields',
@@ -221,7 +221,7 @@ class Jetpack_Sync_Defaults {
 		'vimeo_poster_image',
 	);
 
-	static $default_comment_meta_whitelist = array(
+	static $comment_meta_whitelist = array(
 		'hc_avatar',
 		'hc_post_as',
 		'hc_wpcom_id_sig',
@@ -286,6 +286,8 @@ class Jetpack_Sync_Defaults {
 	static $default_max_queue_lag = 900; // 15 minutes
 	static $default_queue_max_writes_sec = 100; // 100 rows a second
 	static $default_post_types_blacklist = array();
+	static $default_post_meta_whitelist = array();
+	static $default_comment_meta_whitelist = array();
 	static $default_disable = 0; // completely disable sending data to wpcom
 	static $default_render_filtered_content = 1; // render post_filtered_content
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again

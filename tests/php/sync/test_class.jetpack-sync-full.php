@@ -388,9 +388,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
 		$this->assertEquals( array( 'foo', 'bar' ), $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_array', true ) );
-
-		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( ) ) );
-
 	}
 
 	function test_full_sync_doesnt_sends_forbiden_private_or_public_post_meta() {
@@ -431,7 +428,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'snapTW', true ) );
 		$this->assertEquals( 'foo4', $this->server_replica_storage->get_metadata( 'post', $post_id, '_wp_attachment_metadata', true ) );
 		$this->assertEquals( 'foo5', $this->server_replica_storage->get_metadata( 'post', $post_id, 'a_public_meta', true ) );
-		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( ) ) );
 	}
 
 	function test_full_sync_sends_all_post_terms() {
@@ -475,7 +471,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'comment', $comment_id, 'test_meta_key', true ) );
-		Jetpack_Sync_Settings::update_settings( array( 'comment_meta_whitelist' => array( ) ) );
 	}
 
 	function test_full_sync_sends_theme_info() {

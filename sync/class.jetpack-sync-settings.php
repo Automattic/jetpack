@@ -59,17 +59,25 @@ class Jetpack_Sync_Settings {
 		if ( is_numeric( $value ) ) {
 			$value = intval( $value );
 		}
-
+		$default_array_value = null;
 		switch( $setting ) {
 			case 'post_types_blacklist':
-				$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$blacklisted_post_types ) );
+				$default_array_value = Jetpack_Sync_Defaults::$blacklisted_post_types;
 				break;
 			case 'post_meta_whitelist':
-				$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$default_post_meta_whitelist ) );
+				$default_array_value = Jetpack_Sync_Defaults::$post_meta_whitelist;
 				break;
 			case 'comment_meta_whitelist':
-				$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$default_comment_meta_whitelist ) );
+				$default_array_value = Jetpack_Sync_Defaults::$comment_meta_whitelist;
 				break;
+		}
+
+		if ( $default_array_value ) {
+			if ( is_array( $value ) ) {
+				$value = array_unique( array_merge( $value, $default_array_value ) );
+			} else {
+				$value = $default_array_value;
+			}
 		}
 
 		self::$settings_cache[ $setting ] = $value;

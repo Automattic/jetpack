@@ -7,13 +7,14 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
 	protected $meta_module;
 
-	protected $whitelisted_post_meta = 'content_width';
+	protected $whitelisted_post_meta = 'foobar';
 
 	public function setUp() {
 		parent::setUp();
 
 		// create a post
 		$this->meta_module = Jetpack_Sync_Modules::get_module( "meta" );
+		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
 		$this->post_id = $this->factory->post->create();
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		$this->sender->do_sync();
@@ -36,7 +37,6 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, $this->whitelisted_post_meta );
-		error_log( print_r( $meta_key_array,1 ));
 		$this->assertEquals( array( 'foo', 'bar' ), $meta_key_array );
 	}
 
@@ -129,7 +129,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array() ) );
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
-		$white_listed_post_meta = Jetpack_Sync_Defaults::$default_post_meta_whitelist;
+		$white_listed_post_meta = Jetpack_Sync_Defaults::$post_meta_whitelist;
 
 		// update all the opyions.
 		foreach ( $white_listed_post_meta as $meta_key ) {
@@ -155,7 +155,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Sync_Settings::update_settings( array( 'comment_meta_whitelist' => array() ) );
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
-		$white_listed_comment_meta = Jetpack_Sync_Defaults::$default_comment_meta_whitelist;
+		$white_listed_comment_meta = Jetpack_Sync_Defaults::$comment_meta_whitelist;
 
 		$comment_ids = $this->factory->comment->create_post_comments( $this->post_id );
 
