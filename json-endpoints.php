@@ -94,6 +94,11 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php
 // **********
 // v1.2
 // **********
+
+// Media
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-v1-2-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-v1-2-endpoint.php' );
+
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-2-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-v1-2-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-v1-2-endpoint.php' );
@@ -1313,6 +1318,52 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_Get_Media_v1_2_Endpoint( array(
+	'description' => 'Get a single media item (by ID).',
+	'group'       => 'media',
+	'stat'        => 'media:1',
+	'min_version' => '1.2',
+	'max_version' => '1.2',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/media/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$media_ID' => '(int) The ID of the media item',
+	),
+	'response_format' => array(
+		'ID'               => '(int) The ID of the media item',
+		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
+		'post_ID'          => '(int) ID of the post this media is attached to',
+		'author_ID'        => '(int) ID of the user who uploaded the media',
+		'URL'              => '(string) URL to the file',
+		'guid'             => '(string) Unique identifier',
+		'file'             => '(string) Filename',
+		'extension'        => '(string) File extension',
+		'mime_type'        => '(string) File MIME type',
+		'title'            => '(string) Filename',
+		'caption'          => '(string) User-provided caption of the file',
+		'description'      => '(string) Description of the file',
+		'alt'              => '(string)  Alternative text for image files.',
+		'thumbnails'       => '(object) Media item thumbnail URL options',
+		'height'           => '(int) (Image & video only) Height of the media item',
+		'width'            => '(int) (Image & video only) Width of the media item',
+		'length'           => '(int) (Video & audio only) Duration of the media item, in seconds',
+		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
+		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
+		'videopress_processing_done'  => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.',
+		'revision_history' => '(array) An array of snapshots of the previous images of this Media.' .
+                                'Each item has useful data such as `URL`, `date, `extension`, `width` and `height`,' .
+		                        '`mime_type` and the `thumbnails` array.'
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.2/sites/82974409/media/934',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	)
+) );
+
 new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 	'description' => 'Upload a new media item.',
 	'group'       => 'media',
@@ -1509,6 +1560,76 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_Update_Media_v1_2_Endpoint( array(
+	'description' => 'Edit basic information about a media item.',
+	'group'       => 'media',
+	'stat'        => 'media:1:POST',
+	'min_version' => '1.2',
+	'max_version' => '1.2',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$media_ID' => '(int) The ID of the media item',
+	),
+
+	'request_format' => array(
+		'parent_id'   => '(int) ID of the post this media is attached to',
+		'title'       => '(string) The file name.',
+		'caption'     => '(string) File caption.',
+		'description' => '(HTML) Description of the file.',
+		'alt'         => "(string) Alternative text for image files.",
+		'artist'      => "(string) Audio Only. Artist metadata for the audio track.",
+		'album'       => "(string) Audio Only. Album metadata for the audio track.",
+		'media'       => "(object) An object file to attach to the post. To upload media, " .
+		                   "the entire request should be multipart/form-data encoded. " .
+		                   "Multiple media items will be displayed in a gallery. Accepts " .
+		                   "jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. " .
+		                   "Audio and Video may also be available. See <code>allowed_file_types</code> " .
+		                   "in the options response of the site endpoint. " .
+		                   "<br /><br /><strong>Example</strong>:<br />" .
+		 				   "<code>curl \<br />--form 'title=Image' \<br />--form 'media=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'attrs'       => "(object) An Object of attributes (`title`, `description` and `caption`) " .
+		                   "are supported to assign to the media uploaded via the `media` or `media_url`",
+		'media_url'   => "(string) An URL of the image to attach to a post.",
+	),
+
+	'response_format' => array(
+		'ID'               => '(int) The ID of the media item',
+		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
+		'post_ID'          => '(int) ID of the post this media is attached to',
+		'author_ID'        => '(int) ID of the user who uploaded the media',
+		'URL'              => '(string) URL to the file',
+		'guid'             => '(string) Unique identifier',
+		'file'             => '(string) File name',
+		'extension'        => '(string) File extension',
+		'mime_type'        => '(string) File mime type',
+		'title'            => '(string) File name',
+		'caption'          => '(string) User provided caption of the file',
+		'description'      => '(string) Description of the file',
+		'alt'              => '(string)  Alternative text for image files.',
+		'thumbnails'       => '(object) Media item thumbnail URL options',
+		'height'           => '(int) (Image & video only) Height of the media item',
+		'width'            => '(int) (Image & video only) Width of the media item',
+		'length'           => '(int) (Video & audio only) Duration of the media item, in seconds',
+		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
+		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
+		'videopress_processing_done'  => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.',
+		'revision_history' => '(array) An array of snapshots of the previous images of this Media.' .
+                                'Each item has useful data such as `URL`, `date, `extension`, `width` and `height`,' .
+		                        '`mime_type` and the `thumbnails` array.'
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.2/sites/82974409/media/446',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'title' => 'Updated Title'
+		)
+	)
+) );
 
 new WPCOM_JSON_API_Delete_Media_Endpoint( array(
 	'description' => 'Delete a piece of media.',
@@ -2632,7 +2753,7 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'advanced_seo_front_page_description' => '(string) The seo meta description for the site.',
 		'advanced_seo_title_formats'   => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
-		'amp_is_enabled'                  => '(bool) Whether AMP is enabled for this site',
+		'amp_is_enabled'               => '(bool) Whether AMP is enabled for this site',
 		'podcasting_archive'           => '(string) The post category, if any, used for publishing podcasts'
 	),
 
@@ -3176,7 +3297,6 @@ new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint( array (
 	),
 ) );
 
-
 new WPCOM_JSON_API_Publicize_Endpoint( array(
 	'description' => 'Share a post.',
 	'group'       => '__do_not_document',
@@ -3207,5 +3327,5 @@ new WPCOM_JSON_API_Publicize_Endpoint( array(
 		'body' => array(
 			'message'   => 'Hello World',
 		)
-	)
+	)	
  ) );
