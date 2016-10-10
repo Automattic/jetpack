@@ -86,7 +86,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'page_on_front',
 		'page_for_posts',
 		'headstart',
-		'ak_vp_bundle_enabled'
+		'ak_vp_bundle_enabled',
+		'advanced_seo_front_page_description',
+		'advanced_seo_title_formats',
 	);
 
 	protected static $jetpack_response_field_additions = array( 
@@ -285,6 +287,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'plan' :
 				$response[ $key ] = $this->site->get_plan();
+				break;
+			case 'advanced_seo_front_page_description' :
+				$options[ $key ] = $this->site->get_advanced_seo_front_page_description();
+				break;
+			case 'advanced_seo_title_formats':
+				$options[ $key ] = $this->site->get_advanced_seo_title_formats();
 				break;
 		}
 

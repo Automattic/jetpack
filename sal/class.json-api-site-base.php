@@ -504,6 +504,14 @@ abstract class SAL_Site {
 		return get_option( 'headstart' );
 	}
 
+	public function get_advanced_seo_front_page_description() {
+		return get_option( 'advanced_seo_front_page_description', '' );
+	}
+
+	public function get_advanced_seo_title_formats() {
+		return get_option( 'advanced_seo_title_formats', array() );
+	}
+
 	function get_wordpress_version() {
 		global $wp_version;
 		return $wp_version;

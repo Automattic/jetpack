@@ -68,19 +68,10 @@ function get_custom_title( $default_title = '' ) {
 
 	$title_formats = get_option( 'advanced_seo_title_formats' );
 
-
-	//error_log( update_option('advanced_seo_title_formats', json_decode('{"pages":[{"type":"string","value":"Page title: ["},{"type":"token","value":"page_title"},{"type":"string","value":"] and Site name: ["},{"type":"token","value":"site_name"},{"type":"string","value":"]"}],"posts":[{"type":"string","value":"Post title: ["},{"type":"token","value":"post_title"},{"type":"string","value":"] and Site name: ["},{"type":"token","value":"site_name"},{"type":"string","value":"]"}],"front_page":[{"type":"string","value":"Site name: ["},{"type":"token","value":"site_name"},{"type":"string","value":"] and Tagline: ["},{"type":"token","value":"tagline"},{"type":"string","value":"] and sanitize after:"}],"archives":[{"type":"string","value":"Archive date: ["},{"type":"token","value":"date"},{"type":"string","value":"]"}],"groups":[{"type":"string","value":"Group title: ["},{"type":"token","value":"group_title"},{"type":"string","value":"]"}]}', TRUE )));
-	//error_log('********************** TESSSEETTT ******************');
-	//var_dump($title_formats);
-	error_log(var_export($title_formats, true));
-	//die();
-
 	// Keep default title if user has not defined custom title for this page type
 	if ( empty( $title_formats[ $page_type ] ) ) {
 		return $default_title;
 	}
-
-	error_log('********************** TESSSEETTT ******************');
 
 	if ( ! is_enabled_advanced_seo() ) {
 		return $default_title;

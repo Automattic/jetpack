@@ -212,6 +212,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
 					'jetpack_portfolio_posts_per_page' => (int) get_option( 'jetpack_portfolio_posts_per_page', '10' ),
 					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
+					'advanced_seo_front_page_description' => get_option( 'advanced_seo_front_page_description', '' ),
+					'advanced_seo_title_formats' => get_option( 'advanced_seo_title_formats', array() ),
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -450,6 +452,26 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							$updated[ $key ] = $coerce_value;
 						}
 					}
+					break;
+
+				case 'advanced_seo_front_page_description':
+					$front_page_description = sanitize_text_field( $value );
+
+					// The seo front page meta description should be shorter than 300 characters
+					$front_page_description = mb_substr( $front_page_description, 0, 300 );
+
+					if ( update_option( $key, $front_page_description ) ) {
+						$updated[ $key ] = $front_page_description;
+					}
+					break;
+
+				case 'advanced_seo_title_formats':
+					$new_title_formats = update_title_formats( $value );
+
+					if ( update_option( $key, $new_title_formats ) ) {
+						$updated[ $key ] = $new_title_formats;
+					}
+
 					break;
 
 				default:
