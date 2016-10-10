@@ -140,7 +140,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		/** This filter is already documented in core. wp-includes/post-template.php */
 		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) ) {
 			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
-			$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
+			$post->post_excerpt_filtered   = apply_filters( 'the_excerpt', $post->post_excerpt );
 		}
 
 		$this->add_embed();

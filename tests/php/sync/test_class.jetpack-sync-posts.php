@@ -644,6 +644,34 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( "\n", $synced_post->post_content_filtered );
 	}
 
+	function test_that_we_apply_the_right_filters_to_post_content_and_excerpt() {
+		add_filter( 'the_content', array( $this, 'the_content_filter' ), 1000 );
+		add_filter( 'the_excerpt', array( $this, 'the_excerpt_filter' ), 1000 );
+
+		$this->post->post_content = 'hello';
+		$this->post->post_excerpt = 'world';
+
+		wp_update_post( $this->post );
+
+		$this->sender->do_sync();
+
+		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
+
+		$this->assertEquals( 'the_content', $synced_post->post_content_filtered );
+		$this->assertEquals( 'the_excerpt', $synced_post->post_excerpt_filtered );
+
+		add_filter( 'the_content', array( $this, 'the_content_filter' ) );
+		add_filter( 'the_excerpt', array( $this, 'the_excerpt_filter' ) );
+	}
+	
+	function the_content_filter( $content ) {
+		return 'the_content';
+	}
+
+	function the_excerpt_filter( $content ) {
+		return 'the_excerpt';
+	}
+	
 	function test_embed_is_disabled_on_the_content_filter_during_sync() {
 		global $wp_version;
 		$content =
