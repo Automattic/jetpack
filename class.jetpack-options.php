@@ -203,6 +203,7 @@ class Jetpack_Options {
 	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
 	 *
 	 * @param string|array $names
+	 * @return boolean
 	 */
 	public static function delete_option( $names ) {
 		$result = true;
