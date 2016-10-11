@@ -741,6 +741,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 							'message' => esc_html__( 'Connection options cleared.', 'jetpack' ),
 						) );
 					}
+
+					return new WP_Error(
+						'invalid_option_name',
+						esc_html__( 'Reset connection options failed. Likely due to an invalid option name.', 'jetpack' ),
+						array( 'status' => 400 )
+					);
 					break;
 
 				default:
