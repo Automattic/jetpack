@@ -31,6 +31,7 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
 				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
 				'jetpack.syncObject'        => array( $this, 'sync_object' ),
+				'jetpack.idcUrlValidation'  => array( $this, 'validate_urls_for_idc_mitigation' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -349,6 +350,20 @@ class Jetpack_XMLRPC_Server {
 		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
 
 		return $codec->encode( $sync_module->get_object_by_id( $object_type, $id ) );
+	}
+
+	/**
+	 * Returns the home URL and site URL for the current site which can be used on the WPCOM side for
+	 * IDC mitigation to decide whether sync should be allowed if the home and siteurl values differ between WPCOM
+	 * and the remote Jetpack site.
+	 *
+	 * @return array
+	 */
+	function validate_urls_for_idc_mitigation() {
+		return array(
+			'home'    => get_home_url(),
+			'siteurl' => get_site_url(),
+		);
 	}
 
 	/**
