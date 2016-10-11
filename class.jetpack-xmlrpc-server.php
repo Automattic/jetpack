@@ -217,7 +217,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Wrapper for wp_authenticate( $username, $password );
 	 *
-	 * @return WP_User|IXR_Error
+	 * @return WP_User|bool
 	 */
 	function login() {
 		Jetpack::init()->require_jetpack_authentication();
@@ -240,7 +240,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Returns the current error as an IXR_Error
 	 *
-	 * @return null|IXR_Error
+	 * @return bool|IXR_Error
 	 */
 	function error( $error = null ) {
 		if ( !is_null( $error ) ) {
@@ -266,7 +266,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Just authenticates with the given Jetpack credentials.
 	 *
-	 * @return bool|IXR_Error
+	 * @return string The current Jetpack version number
 	 */
 	function test_connection() {
 		return JETPACK__VERSION;
@@ -354,7 +354,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Returns what features are available. Uses the slug of the module files.
 	 *
-	 * @return array|IXR_Error
+	 * @return array
 	 */
 	function features_available() {
 		$raw_modules = Jetpack::get_available_modules();
@@ -369,7 +369,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Returns what features are enabled. Uses the slug of the modules files.
 	 *
-	 * @return array|IXR_Error
+	 * @return array
 	 */
 	function features_enabled() {
 		$raw_modules = Jetpack::get_active_modules();
