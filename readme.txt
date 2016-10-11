@@ -97,6 +97,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin: remove form legend for default Tiled Gallery settings #5230
 * Admin: Remove unneeded extra option in Gravatar Hovercard Settings #4997
 * Admin: Use correct link to contact Jetpack #5165
+* API: fix permissions check for plugin information retrieval #5294
+* Don't enqueue changes during send phase - prevents infinite loop caused by plugins that add content when outbound http requests fire #5264
 * Internationalization: added fallback so that a warning isn't thrown if translations don't exist.  #5166
 * Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
 * Invoke full sync after enqueue. #5190
@@ -106,20 +108,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Send full and incremental queues separately so that a failure in one doesn't block the other. #5172
 * Sharing: Fix JS enqueue order #5072
 * Shortcodes: Return early if no string is passed #4797
+* Sync: Add whitelist for post and comment meta. #5276
+* Sync: Add whitelist for post_meta and comment_meta to settings. #5296
 * Sync: Delete sync options when resetting the sync. #5204
+* Sync: Disable oembed when syncing. #5277
+* Sync: Do not sync non public post types filtered post content and excerpt. #5288
+* Sync: Do not sync non registered post types. #5288
+* Sync: Do not sync post meta related to post_types that are blacklisted. #5258
 * Sync: Re-add stats to sync. #5207
 * Sync: Remove unused code that that caused PHP notice. #5195
 * Sync: Unhook Likes, Related Post, and Sharing from content_filtered #5224 and #5285
-* Sync: Do not sync post meta related to post_types that are blacklisted. #5258
-* Sync: Add whitelist for post and comment meta. #5276
-* Sync: Add whitelist for post_meta and comment_meta to settings. #5296
-* Sync: Do not sync non public post types filtered post content and excerpt. #5288
-* Sync: Do not sync non registered post types. #5288
-* Sync: Disable oembed when syncing. #5277
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Widgets: Fix top posts attachment page behavior #5079
-* Don't enqueue changes during send phase - prevents infinite loop caused by plugins that add content when outbound http requests fire #5264
-* API: fix permissions check for plugin information retrieval #5294
+
 
 **Support Enhancements**
 
