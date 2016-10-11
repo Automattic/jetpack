@@ -113,6 +113,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Do not sync post meta related to post_types that are blacklisted. #5258
 * Sync: Add whitelist for post and comment meta. #5276
 * Sync: Add whitelist for post_meta and comment_meta to settings. #5296
+* Sync: Do not sync non public post types filtered post content and excerpt. #5288
+* Sync: Do not sync non registered post types. #5288
 * Sync: Disable oembed when syncing. #5277
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Widgets: Fix top posts attachment page behavior #5079
