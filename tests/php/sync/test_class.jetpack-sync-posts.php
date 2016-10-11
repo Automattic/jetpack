@@ -321,7 +321,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( $post_on_server->post_excerpt, '[foo]' );
-		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ), 'bar' );
+		// The excerpt by default should not contain shortcodes so we do not expand them.
+		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ), '[foo]' );
 	}
 
 	function test_sync_changed_post_password() {
