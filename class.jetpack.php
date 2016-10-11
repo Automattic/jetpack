@@ -4711,11 +4711,7 @@ p {
 		global $wpdb;
 
 		$sql = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
-		if ( method_exists ( $wpdb , 'esc_like' ) ) {
-			$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
-		} else {
-			$sql_args = array( like_escape( 'jetpack_nonce_' ) . '%' );
-		}
+		$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
 
 		if ( true !== $all ) {
 			$sql .= ' AND CAST( `option_value` AS UNSIGNED ) < %d';
