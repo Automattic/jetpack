@@ -353,7 +353,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		if ( $exists ) {
 			$wpdb->update( $table, array(
 				'meta_key'   => $meta_key,
-				'meta_value' => serialize( $meta_value ),
+				'meta_value' => maybe_serialize( $meta_value ),
 			), array( 'meta_id' => $meta_id ) );
 		} else {
 			$object_id_field = $type . '_id';
@@ -361,7 +361,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				'meta_id'        => $meta_id,
 				$object_id_field => $object_id,
 				'meta_key'       => $meta_key,
-				'meta_value'     => serialize( $meta_value ),
+				'meta_value'     => maybe_serialize( $meta_value ),
 			) );
 		}
 
@@ -589,9 +589,14 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function checksum_all() {
+		$post_meta_checksum = $this->checksum_histogram( 'post_meta', 1 );
+		$comment_meta_checksum = $this->checksum_histogram( 'comment_meta', 1 );
+
 		return array(
 			'posts'    => $this->posts_checksum(),
-			'comments' => $this->comments_checksum()
+			'comments' => $this->comments_checksum(),
+			'post_meta'=> reset( $post_meta_checksum ),
+			'comment_meta'=> reset( $comment_meta_checksum ),
 		);
 	}
 
@@ -611,10 +616,11 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				}
 				break;
 			case "post_meta":
-				$object_count = $this->post_count( null, $start_id, $end_id );
 				$object_table = $wpdb->postmeta;
-				$id_field     = 'meta_id';
 				$where_sql    = Jetpack_Sync_Settings::get_whitelisted_post_meta_sql();
+				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
+				$id_field     = 'meta_id';
+				
 				if ( empty( $columns ) ) {
 					$columns  = Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
 				}
@@ -629,10 +635,10 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				}
 				break;
 			case "comment_meta":
-				$object_count = $this->post_count( null, $start_id, $end_id );
 				$object_table = $wpdb->commentmeta;
-				$id_field     = 'meta_id';
 				$where_sql    = Jetpack_Sync_Settings::get_whitelisted_comment_meta_sql();
+				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
+				$id_field     = 'meta_id';
 				if ( empty( $columns ) ) {
 					$columns  = Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
 				}
@@ -709,7 +715,6 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				FROM $table
 				WHERE $where_sql
 ENDSQL;
-
 		$result = $wpdb->get_var( $query );
 
 		if ( $wpdb->last_error ) {
@@ -718,6 +723,20 @@ ENDSQL;
 
 		return $result;
 
+	}
+
+	private function meta_count( $table, $where_sql, $min_id, $max_id ) {
+		global $wpdb;
+
+		if ( $min_id != null ) {
+			$where_sql .= ' AND meta_id >= ' . intval( $min_id );
+		}
+
+		if ( $max_id != null ) {
+			$where_sql .= ' AND meta_id <= ' . intval( $max_id );
+		}
+
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where_sql" );
 	}
 
 	/**

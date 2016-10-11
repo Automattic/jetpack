@@ -90,9 +90,17 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// insert the same data into all of them
 		foreach ( $all_replicastores as $replicastore ) {
 			$replicastore->upsert_post( $post );
+			$replicastore->upsert_metadata( 'post', $post->ID, 'imagedata', 'bar', 1 );
+			$replicastore->upsert_metadata( 'post', $post->ID, 'publicize_results', 'baz', 2 );
 			$replicastore->upsert_post( $second_post );
+			$replicastore->upsert_metadata( 'post', $second_post->ID, 'imagedata', 'bar', 5 );
+			$replicastore->upsert_metadata( 'post', $second_post->ID, 'publicize_results', 'baz', 10 );
 			$replicastore->upsert_comment( $comment );
+			$replicastore->upsert_metadata( 'comment', $comment->comment_ID, 'hc_avatar', 'bar', 1 );
+			$replicastore->upsert_metadata( 'comment', $comment->comment_ID, 'hc_post_as', 'baz', 4 );
 			$replicastore->upsert_comment( $second_comment );
+			$replicastore->upsert_metadata( 'comment', $second_comment->comment_ID, 'hc_avatar', 'boo', 7 );
+			$replicastore->upsert_metadata( 'comment', $second_comment->comment_ID, 'hc_post_as', 'bee', 10 );
 		}
 
 		// ensure the checksums are the same
