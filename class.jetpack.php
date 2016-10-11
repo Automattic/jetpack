@@ -5317,7 +5317,13 @@ p {
 	 * @return bool
 	 */
 	public static function sync_idc_optin() {
-		$default = ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) ? JETPACK_SYNC_IDC_OPTIN : self::is_development_version();
+		if ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
+			$default = JETPACK_SYNC_IDC_OPTIN;
+		} else if ( defined( 'SUNRISE' ) ) {
+			$default = SUNRISE;
+		} else {
+			$default = self::is_development_version();
+		}
 
 		/**
 		 * Allows sites to optin to IDC mitigation which blocks the site from syncing to WordPress.com when the home
