@@ -94,6 +94,11 @@ const NavigationSettings = React.createClass( {
 						selected={ this.props.route.path === '/writing' }>
 						{ __( 'Writing', { context: 'Navigation item.' } ) }
 					</NavItem>
+					<NavItem
+						path="#traffic"
+						selected={ this.props.route.path === '/traffic' }>
+						{ __( 'Traffic', { context: 'Navigation item.' } ) }
+					</NavItem>
 				</NavTabs>
 			);
 		} else if ( this.props.isSubscriber ) {

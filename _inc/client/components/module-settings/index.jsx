@@ -31,6 +31,9 @@ import {
 
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 
+import SharingLabelEditor from 'components/module-settings/sharing/label-editor';
+import SharingPreview from 'components/module-settings/sharing/preview';
+
 export let SharedaddySettings = React.createClass( {
 	render() {
 		return (
@@ -817,3 +820,32 @@ export let SitemapsSettings = React.createClass( {
 } );
 
 SitemapsSettings = moduleSettingsForm( SitemapsSettings );
+
+export let SharingSettings = React.createClass( {
+	displayName: 'Sharing',
+
+	getSelectedText() {
+		var selected = find( this.getFilters(), { path: this.props.path } );
+		if ( selected ) {
+			return selected.title;
+		}
+
+		return '';
+	},
+
+	render() {
+		return (
+			<div>
+				<SharingLabelEditor />
+				<SharingPreview
+					style={ this.props.getOptionValue( 'button_style' ) }
+					label={ this.props.getOptionValue( 'sharing_label' ) }
+					buttons={ this.props.getOptionValue( 'sharing_services' ) }
+					showLike={ this.props.getOptionValue( 'show_like' ) }
+				/>
+			</div>
+		);
+	}
+} );
+
+SharingSettings = moduleSettingsForm( SharingSettings );

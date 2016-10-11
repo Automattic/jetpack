@@ -253,12 +253,18 @@ class Sharing_Service {
 		// Format each button in the response
 		$response = array();
 		foreach ( $buttons as $button ) {
+			$visibility =
+				isset( $enabled_services[ 'visible' ][ $button->get_id() ] ) ?
+				'visible' : false;
+			$enabled = ( $visibility || isset ( $enabled_services[ 'hidden' ][ $button->get_id() ] ) );
+
 			$response[] = array(
 				'ID'           => $button->get_id(),
 				'name'         => $button->get_name(),
 				'shortname'    => $button->shortname,
 				'custom'       => is_a( $button, 'Share_Custom' ),
-				'enabled'      => isset( $enabled_services[ 'visible' ][ $button->get_id() ] ),
+				'enabled'      => $enabled,
+				'visibility'   => $visibility,
 			);
 		}
 

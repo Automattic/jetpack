@@ -71,7 +71,7 @@ export const Traffic = ( props ) => {
 					) }
 			>
 				{ isModuleActivated( 'sharedaddy' ) ?
-				  <AllModuleSettings module={ module } /> :
+				  <AllModuleSettings module={ module } siteAdminUrl={ props.siteAdminUrl } /> :
 				  // Render the long_description if module is deactivated
 				  <div dangerouslySetInnerHTML={ renderLongDescription( module ) } />
 				}

@@ -34,6 +34,7 @@ import Security from 'security/index.jsx';
 import Appearance from 'appearance/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import Writing from 'writing/index.jsx';
+import Traffic from 'traffic/index.jsx';
 import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
 import Footer from 'components/footer';
@@ -168,6 +169,10 @@ const Main = React.createClass( {
 			case '/writing':
 				navComponent = <NavigationSettings route={ this.props.route } />;
 				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
+				break;
+			case '/traffic':
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Traffic route={ this.props.route } />;
 				break;
 			case '/search':
 				navComponent = <NavigationSettings route={ this.props.route } />;

@@ -26,7 +26,8 @@ import {
 	AfterTheDeadlineSettings,
 	MarkdownSettings,
 	VerificationToolsSettings,
-	SitemapsSettings
+	SitemapsSettings,
+	SharingSettings
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
 
@@ -96,6 +97,8 @@ export const AllModuleSettings = React.createClass( {
 				return ( <VerificationToolsSettings module={ module }  /> );
 			case 'sitemaps':
 				return ( <SitemapsSettings module={ module }  /> );
+			case 'sharedaddy':
+				return ( <SharingSettings module={ module } /> );
 			case 'contact-form':
 			case 'latex':
 			case 'shortlinks':
@@ -134,7 +137,6 @@ export const AllModuleSettings = React.createClass( {
 			case 'custom-css':
 			case 'widgets':
 			case 'publicize':
-			case 'sharedaddy':
 			default:
 				if ( 'publicize' === module.module ) {
 					module.configure_url = this.props.adminUrl + 'options-general.php?page=sharing';
