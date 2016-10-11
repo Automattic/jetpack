@@ -4711,11 +4711,7 @@ p {
 		global $wpdb;
 
 		$sql = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
-		if ( method_exists ( $wpdb , 'esc_like' ) ) {
-			$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
-		} else {
-			$sql_args = array( like_escape( 'jetpack_nonce_' ) . '%' );
-		}
+		$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
 
 		if ( true !== $all ) {
 			$sql .= ' AND CAST( `option_value` AS UNSIGNED ) < %d';
@@ -5317,6 +5313,14 @@ p {
 	 * @return bool
 	 */
 	public static function sync_idc_optin() {
+		if ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
+			$default = JETPACK_SYNC_IDC_OPTIN;
+		} else if ( defined( 'SUNRISE' ) ) {
+			$default = SUNRISE;
+		} else {
+			$default = self::is_development_version();
+		}
+
 		/**
 		 * Allows sites to optin to IDC mitigation which blocks the site from syncing to WordPress.com when the home
 		 * URL or site URL do not match what WordPress.com expects. The default value is either false, or the value of
@@ -5326,7 +5330,6 @@ p {
 		 *
 		 * @param bool
 		 */
-		$default = ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) ? JETPACK_SYNC_IDC_OPTIN : self::is_development_version();
 		return (bool) apply_filters( 'jetpack_sync_idc_optin', $default );
 	}
 

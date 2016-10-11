@@ -128,7 +128,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 *
 		 * @since 4.2.0
 		 */
-		do_action( 'jetpack_full_sync_end', $store->checksum_all() );
+		do_action( 'jetpack_full_sync_end', '' );
 
 		$this->disable_queue_rate_limit();
 

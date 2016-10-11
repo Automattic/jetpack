@@ -17,8 +17,9 @@ class Tonesque {
 	private $color = '';
 
 	function __construct( $image_url ) {
-		if ( ! class_exists( 'Jetpack_Color' ) )
+		if ( ! class_exists( 'Jetpack_Color' ) ) {
 			jetpack_require_lib( 'class.color' );
+		}
 
 		$this->image_url = esc_url_raw( $image_url );
 		$this->image_url = trim( $this->image_url );
@@ -37,7 +38,48 @@ class Tonesque {
 	}
 
 	public static function imagecreatefromurl( $image_url ) {
-		return imagecreatefromstring( file_get_contents( $image_url ) );
+		$data = null;
+
+		// If it's a URL:
+		if ( preg_match( '#^https?://#i', $image_url ) ) {
+			// If it's a url pointing to a local media library url:
+			$content_url = content_url();
+			$_image_url  = set_url_scheme( $image_url );
+			if ( wp_startswith( $_image_url, $content_url ) ) {
+				$_image_path = str_replace( $content_url, ABSPATH . 'wp-content', $_image_url );
+				if ( file_exists( $_image_path ) ) {
+					$filetype = wp_check_filetype( $_image_path );
+					$ext = $filetype['ext'];
+					$type = $filetype['type'];
+
+					if ( wp_startswith( $type, 'image/' ) ) {
+						$data = file_get_contents( $_image_path );
+					}
+				}
+			}
+
+			if ( empty( $data ) ) {
+				$response = wp_remote_get( $image_url );
+				if ( is_wp_error( $response ) ) {
+					return $response;
+				}
+				$data = wp_remote_retrieve_body( $response );
+			}
+		}
+
+		// If it's a local path in our WordPress install:
+		if ( file_exists( $image_url ) ) {
+			$filetype = wp_check_filetype( $image_url );
+			$ext = $filetype['ext'];
+			$type = $filetype['type'];
+
+			if ( wp_startswith( $type, 'image/' ) ) {
+				$data = file_get_contents( $image_url );
+			}
+		}
+
+		// Now turn it into an image and return it.
+		return imagecreatefromstring( $data );
 	}
 
 	/**

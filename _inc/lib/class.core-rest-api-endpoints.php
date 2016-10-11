@@ -453,7 +453,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Whether user has the capability 'jetpack_admin_page' and 'activate_plugins'.
 	 */
 	public static function activate_plugins_permission_check() {
-		if ( current_user_can( 'jetpack_admin_page', 'activate_plugins' ) ) {
+		if ( current_user_can( 'jetpack_admin_page' ) && current_user_can( 'activate_plugins' ) ) {
 			return true;
 		}
 

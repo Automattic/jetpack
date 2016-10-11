@@ -81,52 +81,39 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 			add_filter( "jetpack_sync_before_enqueue_deleted_{$meta_type}_meta", $whitelist_handler );
 		}
 	}
+	// POST Meta
+	function get_post_meta_whitelist() {
+		return Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' );
+	}
 
-	/**
-	 * Should we allow the meta key to be synced?
-	 *
-	 * @param string $meta_key The meta key.
-	 *
-	 * @return bool
-	 */
-	function is_meta_key_allowed( $meta_key ) {
-		if ( '_' === $meta_key[0] &&
-		     ! in_array( $meta_key, Jetpack_Sync_Defaults::$default_whitelist_meta_keys ) &&
-		     ! wp_startswith( $meta_key, '_wpas_skip_' )
-		) {
-			return false;
-		}
+	function is_whitelisted_post_meta( $meta_key ) {
+		// _wpas_skip_ is used by publicize
+		return in_array( $meta_key, $this->get_post_meta_whitelist() ) || wp_startswith( $meta_key, '_wpas_skip_' );
+	}
 
-		if ( in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'meta_blacklist' ) ) ) {
-			return false;
-		}
+	// Comment Meta
+	function get_comment_meta_whitelist() {
+		return Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' );
+	}
 
-		return true;
+	function is_whitelisted_comment_meta( $meta_key ) {
+		return in_array( $meta_key, $this->get_comment_meta_whitelist() );
 	}
 
 	function is_post_type_allowed( $post_id ) {
 		$post = get_post( $post_id );
-		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
-			return false;
-		}
-		return true;
+		return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
 	}
 
 	function filter_meta_post( $args ) {
-		if ( ! $this->is_post_type_allowed( $args[1] ) ) {
+		if ( ! $this->is_whitelisted_post_meta( $args[2] ) ) {
 			return false;
 		}
-		return $this->filter_meta( $args );
+		return ( $this->is_post_type_allowed( $args[1] ) ? $args : false );
 	}
 
 	function filter_meta_comment( $args ) {
-		return $this->filter_meta( $args );
+		return ( $this->is_whitelisted_comment_meta( $args[2] ) ? $args : false );
 	}
-
-	function filter_meta( $args ) {
-		if ( ! $this->is_meta_key_allowed( $args[2] ) ) {
-			return false;
-		}
-		return $args;
-	}
+	
 }

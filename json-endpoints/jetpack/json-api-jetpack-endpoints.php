@@ -649,6 +649,7 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
 		'start_id' => '(int=0) Starting ID for the range',
 		'end_id' => '(int=null) Ending ID for the range',
 		'columns' => '(string) Columns to checksum',
+		'strip_non_ascii', '(bool=true) Strip non-ascii characters from all columns',
 	),
 	'response_format' => array(
 		'histogram' => '(array) Associative array of histograms by ID range, e.g. "500-999" => "abcd1234"'
@@ -666,7 +667,8 @@ $sync_settings_response = array(
 	'max_queue_lag'        => '(int|bool=false) Maximum queue lag in seconds used to prevent the DB from filling up. Needs to also meet the max_queue_size limit.',
 	'queue_max_writes_sec' => '(int|bool=false) Maximum writes per second to allow to the queue during full sync.',
 	'post_types_blacklist' => '(array|string|bool=false) List of post types to exclude from sync. Send "empty" to unset.',
-	'meta_blacklist'       => '(array|string|bool=false) List of meta keys to exclude from sync. Send "empty" to unset.',
+	'post_meta_whitelist'  => '(array|string|bool=false) List of post meta to be included in sync. Send "empty" to unset.',
+	'comment_meta_whitelist' => '(array|string|bool=false) List of comment meta to be included in sync. Send "empty" to unset.',
 	'disable'              => '(int|bool=false) Set to 1 or true to disable sync entirely.',
 	'render_filtered_content' => '(int|bool=true) Set to 1 or true to render filtered content.',
 );

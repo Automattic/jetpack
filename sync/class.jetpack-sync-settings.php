@@ -15,9 +15,10 @@ class Jetpack_Sync_Settings {
 		'max_queue_lag'        => true,
 		'queue_max_writes_sec' => true,
 		'post_types_blacklist' => true,
-		'meta_blacklist'       => true,
 		'disable'              => true,
 		'render_filtered_content' => true,
+		'post_meta_whitelist' => true,
+		'comment_meta_whitelist' => true,
 	);
 
 	static $is_importing;
@@ -58,15 +59,25 @@ class Jetpack_Sync_Settings {
 		if ( is_numeric( $value ) ) {
 			$value = intval( $value );
 		}
-
-		// specifically for the post_types blacklist, we want to include the hardcoded settings
-		if ( $setting === 'post_types_blacklist' ) {
-			$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$blacklisted_post_types ) );
+		$default_array_value = null;
+		switch( $setting ) {
+			case 'post_types_blacklist':
+				$default_array_value = Jetpack_Sync_Defaults::$blacklisted_post_types;
+				break;
+			case 'post_meta_whitelist':
+				$default_array_value = Jetpack_Sync_Defaults::$post_meta_whitelist;
+				break;
+			case 'comment_meta_whitelist':
+				$default_array_value = Jetpack_Sync_Defaults::$comment_meta_whitelist;
+				break;
 		}
 
-		// ditto for meta blacklist
-		if ( $setting === 'meta_blacklist' ) {
-			$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$default_blacklist_meta_keys ) );
+		if ( $default_array_value ) {
+			if ( is_array( $value ) ) {
+				$value = array_unique( array_merge( $value, $default_array_value ) );
+			} else {
+				$value = $default_array_value;
+			}
 		}
 
 		self::$settings_cache[ $setting ] = $value;
@@ -93,6 +104,18 @@ class Jetpack_Sync_Settings {
 	// returns escapted SQL that can be injected into a WHERE clause
 	static function get_blacklisted_post_types_sql() {
 		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
+	}
+
+	static function get_whitelisted_post_meta_sql() {
+		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ) ) . '\')';
+	}
+
+	static function get_whitelisted_comment_meta_sql() {
+		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
+	}
+
+	static function get_comments_filter_sql() {
+		return "comment_approved <> 'spam'";
 	}
 
 	static function reset_data() {
