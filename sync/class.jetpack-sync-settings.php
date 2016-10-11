@@ -106,6 +106,18 @@ class Jetpack_Sync_Settings {
 		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
 	}
 
+	static function get_whitelisted_post_meta_sql() {
+		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ) ) . '\')';
+	}
+
+	static function get_whitelisted_comment_meta_sql() {
+		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
+	}
+
+	static function get_comments_filter_sql() {
+		return "comment_approved <> 'spam'";
+	}
+
 	static function reset_data() {
 		$valid_settings       = self::$valid_settings;
 		self::$settings_cache = array();

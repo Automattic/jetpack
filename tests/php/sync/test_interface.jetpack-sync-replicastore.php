@@ -90,9 +90,17 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// insert the same data into all of them
 		foreach ( $all_replicastores as $replicastore ) {
 			$replicastore->upsert_post( $post );
+			$replicastore->upsert_metadata( 'post', $post->ID, 'imagedata', 'bar', 1 );
+			$replicastore->upsert_metadata( 'post', $post->ID, 'publicize_results', 'baz', 2 );
 			$replicastore->upsert_post( $second_post );
+			$replicastore->upsert_metadata( 'post', $second_post->ID, 'imagedata', 'bar', 5 );
+			$replicastore->upsert_metadata( 'post', $second_post->ID, 'publicize_results', 'baz', 10 );
 			$replicastore->upsert_comment( $comment );
+			$replicastore->upsert_metadata( 'comment', $comment->comment_ID, 'hc_avatar', 'bar', 1 );
+			$replicastore->upsert_metadata( 'comment', $comment->comment_ID, 'hc_post_as', 'baz', 4 );
 			$replicastore->upsert_comment( $second_comment );
+			$replicastore->upsert_metadata( 'comment', $second_comment->comment_ID, 'hc_avatar', 'boo', 7 );
+			$replicastore->upsert_metadata( 'comment', $second_comment->comment_ID, 'hc_post_as', 'bee', 10 );
 		}
 
 		// ensure the checksums are the same
@@ -112,11 +120,21 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
 		$this->assertEquals( 1, $unique_histograms_count, 'Post histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 
+		$histograms              = array_map( array( $this, 'get_all_post_meta_histograms' ), $all_replicastores );
+		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
+		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
+		$this->assertEquals( 1, $unique_histograms_count, 'Post meta histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
+
 		// compare comment histograms
 		$histograms              = array_map( array( $this, 'get_all_comment_histograms' ), $all_replicastores );
 		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
 		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
 		$this->assertEquals( 1, $unique_histograms_count, 'Comment histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
+
+		$histograms              = array_map( array( $this, 'get_all_comment_meta_histograms' ), $all_replicastores );
+		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
+		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
+		$this->assertEquals( 1, $unique_histograms_count, 'Comment meta histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 	}
 
 	function get_all_checksums( $replicastore ) {
@@ -127,8 +145,16 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		return $replicastore->checksum_histogram( 'posts', 10 );
 	}
 
+	function get_all_post_meta_histograms( $replicastore ) {
+		return $replicastore->checksum_histogram( 'post_meta', 10 );
+	}
+
 	function get_all_comment_histograms( $replicastore ) {
 		return $replicastore->checksum_histogram( 'comments', 10 );
+	}
+
+	function get_all_comment_meta_histograms( $replicastore ) {
+		return $replicastore->checksum_histogram( 'comment_meta', 10 );
 	}
 
 	/**
@@ -142,19 +168,45 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$second_comment = self::$factory->comment( 6, $second_post->ID );
 
 		$store->upsert_post( $post );
+		$store->upsert_metadata( 'post', $post->ID, 'imagedata', 'bar', 1 );
+		$store->upsert_metadata( 'post', $post->ID, 'publicize_results', 'baz', 2 );
 		$store->upsert_post( $second_post );
+		$store->upsert_metadata( 'post', $second_post->ID, 'imagedata', 'bar', 5 );
+		$store->upsert_metadata( 'post', $second_post->ID, 'publicize_results', 'baz', 10 );
 		$store->upsert_comment( $comment );
+		$store->upsert_metadata( 'comment', $comment->comment_ID, 'hc_avatar', 'bar', 1 );
+		$store->upsert_metadata( 'comment', $comment->comment_ID, 'hc_post_as', 'baz', 4 );
 		$store->upsert_comment( $second_comment );
+		$store->upsert_metadata( 'comment', $second_comment->comment_ID, 'hc_avatar', 'boo', 7 );
+		$store->upsert_metadata( 'comment', $second_comment->comment_ID, 'hc_post_as', 'bee', 10 );
 
 		// test posts checksum with ID range
 		$histogram = $store->checksum_histogram( 'posts', 2 );
 		$this->assertEquals( $store->posts_checksum( 0, 5 ), $histogram['5'] );
 		$this->assertEquals( $store->posts_checksum( 6, 10 ), $histogram['10'] );
 
+		// test postmeta checksum with ID range
+		$histogram = $store->checksum_histogram( 'post_meta', 2 );
+
+		// temporary hack due to missing post_meta_checksum implementation in the test replicastore
+		if ( 'Jetpack_Sync_Test_Replicastore' != get_class( $store ) ) {
+			$this->assertEquals( $store->post_meta_checksum( 1, 2 ), $histogram['1-2'] );
+			$this->assertEquals( $store->post_meta_checksum( 5, 10 ), $histogram['5-10'] );	
+		}		
+
 		// test comments checksum with ID range
 		$histogram = $store->checksum_histogram( 'comments', 2 );
 		$this->assertEquals( $store->comments_checksum( 0, 5 ), $histogram['3'] );
 		$this->assertEquals( $store->comments_checksum( 6, 10 ), $histogram['6'] );
+
+		// test commentmeta checksum with ID range
+		$histogram = $store->checksum_histogram( 'comment_meta', 2 );
+
+		// temporary hack due to missing comment_meta_checksum implementation in the test replicastore
+		if ( 'Jetpack_Sync_Test_Replicastore' != get_class( $store ) ) {
+			$this->assertEquals( $store->comment_meta_checksum( 1, 4 ), $histogram['1-4'] );
+			$this->assertEquals( $store->comment_meta_checksum( 7, 10 ), $histogram['7-10'] );
+		}
 	}
 
 	/**
