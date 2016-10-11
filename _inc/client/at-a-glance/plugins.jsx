@@ -25,7 +25,7 @@ const DashPluginUpdates = React.createClass( {
 	activateAndRedirect: function( e ) {
 		e.preventDefault();
 		this.props.activateManage()
-			.then( window.location = 'https://wordpress.com/plugins/' + props.siteRawUrl )
+			.then( window.location = 'https://wordpress.com/plugins/' + this.props.siteRawUrl )
 			.catch( console.log( 'Error activating Manage' ) );
 	},
 
