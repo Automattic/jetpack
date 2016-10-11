@@ -193,7 +193,7 @@ function wpcom_vimeo_embed_url_init() {
 add_action( 'init', 'wpcom_vimeo_embed_url_init' );
 
 function vimeo_embed_to_shortcode( $content ) {
-	if ( false === stripos( $content, 'player.vimeo.com/video/' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'player.vimeo.com/video/' ) ) {
 		return $content;
 	}
 

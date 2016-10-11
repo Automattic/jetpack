@@ -142,6 +142,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled.
 * Admin Page: make sure all translated strings are encoded properly.
 * Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests.
+<<<<<<< HEAD
+=======
+* Admin Page: fewer calls to the database means faster load time.
+>>>>>>> master
 * Admin Page: search icon no longer overlaps the global notices.
 * Admin Page: make sure that non-admins can also modify Spellchecking settings.
 * General: Improve random number generation for compatibility with more hosts.

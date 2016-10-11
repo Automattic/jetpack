@@ -29,7 +29,7 @@ const JetpackConnect = React.createClass( {
 					</p>
 					<ConnectButton />
 					<p>
-						<a href={ this.props.connectUrl( this.props ) } className="jp-jetpack-connect__link">
+						<a href={ this.props.connectUrl } className="jp-jetpack-connect__link">
 							{ __( 'No account? Create one for free…' ) }
 						</a>
 					</p>
@@ -229,7 +229,7 @@ const JetpackConnect = React.createClass( {
 export default connect(
 	state => {
 		return {
-			connectUrl: () => _getConnectUrl( state )
+			connectUrl: _getConnectUrl( state )
 		}
 	}
 )( JetpackConnect );

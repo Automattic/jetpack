@@ -453,7 +453,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Whether user has the capability 'jetpack_admin_page' and 'activate_plugins'.
 	 */
 	public static function activate_plugins_permission_check() {
-		if ( current_user_can( 'jetpack_admin_page', 'activate_plugins' ) ) {
+		if ( current_user_can( 'jetpack_admin_page' ) && current_user_can( 'activate_plugins' ) ) {
 			return true;
 		}
 
@@ -564,7 +564,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		require_once( JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php' );
 
 		$response = array(
-			'othersLinked' => jetpack_get_other_linked_users(),
+//			'othersLinked' => Jetpack::get_other_linked_admins(),
 			'currentUser'  => jetpack_current_user_data(),
 		);
 		return rest_ensure_response( $response );

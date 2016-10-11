@@ -23,16 +23,15 @@ import { isDevMode } from 'state/connection';
 
 const DashPluginUpdates = React.createClass( {
 	activateAndRedirect: function( e ) {
-		const props = this.props;
 		e.preventDefault();
 		this.props.activateManage()
-			.then( window.location = 'https://wordpress.com/plugins/' + props.siteRawUrl )
+			.then( window.location = 'https://wordpress.com/plugins/' + this.props.siteRawUrl )
 			.catch( console.log( 'Error activating Manage' ) );
 	},
 
 	getContent: function() {
 		const labelName = __( 'Plugin Updates' );
-		const pluginUpdates = this.props.getPluginUpdates();
+		const pluginUpdates = this.props.pluginUpdates;
 		const manageActive = this.props.isModuleActivated( 'manage' );
 		const ctaLink = manageActive ?
 			'https://wordpress.com/plugins/' + this.props.siteRawUrl :
@@ -43,8 +42,7 @@ const DashPluginUpdates = React.createClass( {
 				<DashItem
 					label={ labelName }
 					module="manage"
-					status="is-working"
-				>
+					status="is-working" >
 					<QueryPluginUpdates />
 					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 				</DashItem>
@@ -56,8 +54,7 @@ const DashPluginUpdates = React.createClass( {
 				<DashItem
 					label={ labelName }
 					module="manage"
-					status="is-warning"
-				>
+					status="is-warning" >
 					<h2 className="jp-dash-item__count">
 						{
 							__( '%(number)s plugin', '%(number)s plugins', {
@@ -78,7 +75,7 @@ const DashPluginUpdates = React.createClass( {
 							} )
 						}
 						{
-							isDevMode( this.props ) ? '' :
+							this.props.isDevMode ? '' :
 							manageActive ?
 								__( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } ) :
 								__( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="javascript:void(0)" /> } } )
@@ -92,8 +89,7 @@ const DashPluginUpdates = React.createClass( {
 			<DashItem
 				label={ labelName }
 				module="manage"
-				status={ manageActive ? 'is-working' : 'is-inactive' }
-			>
+				status={ manageActive ? 'is-working' : 'is-inactive' } >
 				<p className="jp-dash-item__description">
 					{
 						manageActive ?
@@ -120,11 +116,19 @@ const DashPluginUpdates = React.createClass( {
 	}
 } );
 
+DashPluginUpdates.propTypes = {
+	isDevMode: React.PropTypes.bool.isRequired,
+	siteRawUrl: React.PropTypes.string.isRequired,
+	siteAdminUrl: React.PropTypes.string.isRequired,
+	pluginUpdates: React.PropTypes.any.isRequired
+};
+
 export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			getPluginUpdates: () => _getPluginUpdates( state ),
+			pluginUpdates: _getPluginUpdates( state ),
+			isDevMode: isDevMode( state ),
 			moduleList: getModules( state )
 		};
 	},

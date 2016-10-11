@@ -32,15 +32,13 @@ import {
 	isFetchingPluginsData,
 	isPluginActive
 } from 'state/site/plugins';
-import { getCurrentIp } from 'state/initial-state';
 
 export const Page = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
-		getModule,
-		currentIp
+		getModule
 	} = props,
 		moduleList = Object.keys( props.moduleList );
 	var cards = [
@@ -78,7 +76,7 @@ export const Page = ( props ) => {
 				{ element[1] }
 				<Button
 					compact={ true }
-					href="#professional"
+					href="#/plans"
 				>
 					{ __( 'Pro' ) }
 				</Button>
@@ -112,7 +110,7 @@ export const Page = ( props ) => {
 			>
 				{
 					isModuleActivated( element[0] ) || isPro ?
-						<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } currentIp={ currentIp } /> :
+						<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -147,7 +145,6 @@ export default connect(
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			currentIp: getCurrentIp( state ),
 			moduleList: getModules( state )
 		};
 	},

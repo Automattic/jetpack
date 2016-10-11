@@ -270,8 +270,7 @@ EXPECTED;
 	public function pre_test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl( $errors ){
 		$this->assertCount( 0, $errors );
 	}
-
-
+	
 	/**
 	 * @author tonykova
 	 * @covers Jetpack::implode_frontend_css
@@ -359,6 +358,85 @@ EXPECTED;
 
 		remove_action( 'jetpack_activate_module_stats', array( __CLASS__, 'track_activated_modules' ) );
 		remove_action( 'jetpack_deactivate_module_stats', array( __CLASS__, 'track_deactivated_modules' ) );
+	}
+
+	public function test_get_other_linked_admins_one_admin_returns_false() {
+		delete_transient( 'jetpack_other_linked_admins' );
+		$other_admins = Jetpack::get_other_linked_admins();
+		$this->assertFalse( $other_admins );
+		$this->assertEquals( 0, get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	public function test_get_other_linked_admins_more_than_one_not_false() {
+		delete_transient( 'jetpack_other_linked_admins' );
+		$master_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$connected_admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+
+		Jetpack_Options::update_option( 'master_user', $master_user );
+		Jetpack_Options::update_option( 'user_tokens', array(
+			$connected_admin => 'apple.a.' . $connected_admin,
+			$master_user     => 'kiwi.a.' . $master_user
+		) );
+
+		$other_admins = Jetpack::get_other_linked_admins();
+		$this->assertInternalType( 'int', $other_admins );
+		$this->assertInternalType( 'int', get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	public function test_promoting_admin_clears_other_linked_admins_transient() {
+		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
+		$editor_user = $this->factory->user->create( array( 'role' => 'editor' ) );
+		wp_update_user( array( 'ID' => $editor_user, 'role' => 'administrator' ) );
+
+		$this->assertEquals( 0, get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	public function test_demoting_admin_clear_other_linked_admins_transiet() {
+		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
+		$admin_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_update_user( array( 'ID' => $admin_user, 'role' => 'editor' ) );
+
+		$this->assertEquals( 0, get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	function test_changing_non_admin_roles_does_not_clear_other_linked_admins_transient() {
+		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
+		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+
+		foreach ( array( 'contributor', 'author', 'editor' ) as $role ) {
+			wp_update_user( array( 'ID' => $user_id, 'role' => $role) );
+		}
+
+		$this->assertEquals( 2, get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	function test_other_linked_admins_transient_set_to_zero_returns_false() {
+		set_transient( 'jetpack_other_linked_admins', 0, HOUR_IN_SECONDS );
+		$this->assertFalse( Jetpack::get_other_linked_admins() );
+	}
+
+	function test_idc_optin_defaults_to_development_version() {
+		add_filter( 'jetpack_development_version', '__return_true' );
+		$this->assertTrue( Jetpack::sync_idc_optin() );
+		remove_filter( 'jetpack_development_version', '__return_true' );
+	}
+
+	function test_idc_optin_filter_overrides_development_version() {
+		add_filter( 'jetpack_development_version', '__return_true' );
+		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
+		$this->assertFalse( Jetpack::sync_idc_optin() );
+		remove_filter( 'jetpack_development_version', '__return_true' );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
+	}
+
+	function test_idc_optin_casts_to_bool() {
+		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+		$this->assertTrue( Jetpack::sync_idc_optin() );
+		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+	}
+
+	function __return_string_1() {
+		return '1';
 	}
 
 	static function reset_tracking_of_module_activation() {
