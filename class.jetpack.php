@@ -2617,17 +2617,7 @@ p {
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.deregister' );
 
-		Jetpack_Options::delete_option(
-			array(
-				'register',
-				'blog_token',
-				'user_token',
-				'user_tokens',
-				'master_user',
-				'time_diff',
-				'fallback_no_verify_ssl_certs',
-			)
-		);
+		self::clear_all_connection_options();
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
