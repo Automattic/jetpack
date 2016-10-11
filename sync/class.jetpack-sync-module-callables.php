@@ -23,8 +23,11 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
 
-		// always send change to active modules right away
-		add_action( 'update_option_jetpack_active_modules', array( $this, 'unlock_sync_callable' ) );
+		// For some options, we should always send the change right away!
+		$always_send_updates_to_these_options = array( 'jetpack_active_modules', 'home', 'siteurl' );
+		foreach( $always_send_updates_to_these_options as $option ) {
+			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
+		}
 
 		// get_plugins and wp_version
 		// gets fired when new code gets installed, updates etc.
