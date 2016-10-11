@@ -593,19 +593,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Unlinks a user from the WordPress.com Servers.
-	 * Default $data['id'] will default to current_user_id if no value is given.
-	 *
-	 * Example: '/unlink?id=1234'
+	 * Unlinks current user from the WordPress.com Servers.
 	 *
 	 * @since 4.3.0
 	 * @uses  Jetpack::unlink_user
-	 *
-	 * @param WP_REST_Request $data {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type int $id ID of user to unlink.
-	 * }
 	 *
 	 * @return bool|WP_Error True if user successfully unlinked.
 	 */
