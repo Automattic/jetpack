@@ -229,6 +229,42 @@ class Sharing_Service {
 		return $blog;
 	}
 
+	public function get_formatted_services() {
+
+		$visibilities = array( 'visible', 'hidden' );
+
+		// Discover enabled services
+		$buttons = array();
+		$enabled_services = $this->get_blog_services();
+		$all_services = $this->get_all_services_blog();
+
+		// Include buttons of desired visibility
+		foreach ( $visibilities as $visibility ) {
+			$buttons = array_merge( $buttons, $enabled_services[ $visibility ] );
+		}
+
+		// Append the remaining buttons to the end of the array
+		foreach ( $all_services as $id => $button ) {
+			if ( ! array_key_exists( $id, $buttons ) ) {
+				$buttons[ $id ] = $button;
+			}
+		}
+
+		// Format each button in the response
+		$response = array();
+		foreach ( $buttons as $button ) {
+			$response[] = array(
+				'ID'           => $button->get_id(),
+				'name'         => $button->get_name(),
+				'shortname'    => $button->shortname,
+				'custom'       => is_a( $button, 'Share_Custom' ),
+				'enabled'      => isset( $enabled_services[ 'visible' ][ $button->get_id() ] ),
+			);
+		}
+
+		return $response;
+	}
+
 	public function get_service( $service_name ) {
 		$services = $this->get_blog_services();
 

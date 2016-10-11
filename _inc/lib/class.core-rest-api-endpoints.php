@@ -1915,7 +1915,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 				}
 				$sharer = new Sharing_Service();
 				$options = self::split_options( $options, $sharer->get_global_options() );
-				$options['sharing_services']['current_value'] = $sharer->get_blog_services();
+
+				$options['sharing_services']['current_value'] = $sharer->get_formatted_services();
 				break;
 
 			case 'site-icon':
