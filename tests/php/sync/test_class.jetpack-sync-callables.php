@@ -153,6 +153,43 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( array( 'json-api' ), $synced_value );
 	}
 
+	function test_sync_always_sync_changes_to_home_siteurl_right_away() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->setSyncClientDefaults();
+
+		$original_home_option    = get_option( 'home' );
+		$original_siteurl_option = get_option( 'siteurl' );
+
+		// Let's see if the original values get synced
+		$this->sender->do_sync();
+		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+
+		$this->assertEquals( $original_home_option, $synced_home_url );
+		$this->assertEquals( $original_siteurl_option, $synced_site_url );
+
+		$this->server_replica_storage->reset();
+
+		$updated_home_option    = 'http://syncrocks.com';
+		$updated_siteurl_option = 'http://syncrocks.com';
+
+		update_option( 'home', $updated_home_option );
+		update_option( 'siteurl', $updated_siteurl_option );
+
+		$this->sender->do_sync();
+
+		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+
+		$this->assertEquals( $updated_home_option, $synced_home_url );
+		$this->assertEquals( $updated_siteurl_option, $synced_site_url );
+
+		// Cleanup
+		update_option( 'home', $original_home_option );
+		update_option( 'siteurl', $original_siteurl_option );
+	}
+
 	function test_scheme_switching_does_not_cause_sync() {
 		$this->setSyncClientDefaults();
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
