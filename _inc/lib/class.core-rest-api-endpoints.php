@@ -88,12 +88,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::unlink_user',
 			'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
-			'args' => array(
-				'id' => array(
-					'default' => get_current_user_id(),
-					'validate_callback' => __CLASS__  . '::validate_posint',
-				),
-			),
 		) );
 
 		// Get current site data
@@ -362,7 +356,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if user is able to unlink.
 	 */
 	public static function unlink_user_permission_callback() {
-		if ( current_user_can( 'jetpack_connect' ) && Jetpack::is_user_connected( get_current_user_id() ) ) {
+		if ( current_user_can( 'jetpack_connect_user' ) && Jetpack::is_user_connected( get_current_user_id() ) ) {
 			return true;
 		}
 
@@ -622,7 +616,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		if ( isset( $data['id'] ) && Jetpack::unlink_user( $data['id'] ) ) {
+		if ( Jetpack::unlink_user() ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'
