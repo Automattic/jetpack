@@ -452,7 +452,7 @@ EXPECTED;
 			Jetpack_Options::update_option( $option, 'fake.test-value123' );
 		}
 
-		Jetpack::clear_all_connection_options();
+		Jetpack::clear_all_connection_options( false );
 
 		$cleared_options = true;
 		foreach ( $options_to_delete as $option ) {

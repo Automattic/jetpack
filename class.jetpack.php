@@ -2586,9 +2586,14 @@ p {
 	 * You would then use this before connecting to spin up a NEW shadow site using this new URL (rather than
 	 * move the connection from the old URL).
 	 *
+	 * @param bool $check_idc If false, it will skip the check if in IDC
 	 * @return bool True if success, False if not.
 	 */
-	public static function clear_all_connection_options() {
+	public static function clear_all_connection_options( $check_idc = true ) {
+		if ( $check_idc && get_home_url() !== Jetpack_Options::get_option( 'sync_error_idc' ) ) {
+			return false; // No IDC here... don't mess up connection by deleting options.
+		}
+
 		return Jetpack_Options::delete_option(
 			array(
 				'id',
@@ -2617,7 +2622,7 @@ p {
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.deregister' );
 
-		self::clear_all_connection_options();
+		self::clear_all_connection_options( false );
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
