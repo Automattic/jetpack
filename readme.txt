@@ -88,6 +88,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Add next_sync_time to sync status endpoint. #5173
 * Sync: Add unlock queue api endpoint. #5246
 * Sync: Send home and siteurl options with each sync. #5261
+* Sync: Use SQL for queue lock as transients have had caching and infinite timeout issues. #5239
 
 
 **Bug Fixes:**
