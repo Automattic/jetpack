@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Do not sync non public post types filtered post content and excerpt. #5288
 * Sync: Do not sync non registered post types. #5288
 * Sync: Disable oembed when syncing. #5277
+* Sync: fix issues on sites running an alternate Cron system. #5157
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Widgets: Fix top posts attachment page behavior #5079
 * Don't enqueue changes during send phase - prevents infinite loop caused by plugins that add content when outbound http requests fire #5264
