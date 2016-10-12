@@ -203,7 +203,7 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 	),
 
 	'response_format' => array(
-		'formats' => '(array) A list of supported post formats. id => label.',
+		'formats' => '(object) An object of supported post formats, each key a supported format slug mapped to its display string.',
 	)
 ) );
 
