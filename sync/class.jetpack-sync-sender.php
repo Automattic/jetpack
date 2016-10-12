@@ -75,8 +75,6 @@ class Jetpack_Sync_Sender {
 			return false;
 		}
 
-		set_time_limit( 0 );
-
 		$start_time = microtime( true );
 
 		Jetpack_Sync_Settings::set_is_syncing( true );
