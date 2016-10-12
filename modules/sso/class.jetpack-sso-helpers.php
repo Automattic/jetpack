@@ -197,7 +197,7 @@ class Jetpack_SSO_Helpers {
 		 *
 		 * @module sso
 		 *
-		 * @since 4.4.0
+		 * @since 4.3.2
 		 *
 		 * @param int 5 By default, SSO will attempt to random generate a user up to 5 times.
 		 */

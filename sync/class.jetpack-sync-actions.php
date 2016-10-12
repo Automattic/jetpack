@@ -348,7 +348,7 @@ class Jetpack_Sync_Actions {
 		/**
 		 * Allows overriding of the default incremental sync cron schedule which defaults to once per minute.
 		 *
-		 * @since 4.4.0
+		 * @since 4.3.2
 		 *
 		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL
 		 */
@@ -358,7 +358,7 @@ class Jetpack_Sync_Actions {
 		/**
 		 * Allows overriding of the full sync cron schedule which defaults to once per minute.
 		 *
-		 * @since 4.4.0
+		 * @since 4.3.2
 		 *
 		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL
 		 */

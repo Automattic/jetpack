@@ -1015,7 +1015,7 @@ class Jetpack_SSO {
 	/**
 	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.2
 	 *
 	 * @param $message
 	 *
@@ -1031,7 +1031,7 @@ class Jetpack_SSO {
 	 * Error message that is displayed when we are not able to verify the SSO nonce due to an XML error or
 	 * failed validation. In either case, we prompt the user to try again or log in with username and password.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.2
 	 *
 	 * @param $message
 	 *
@@ -1050,7 +1050,7 @@ class Jetpack_SSO {
 	 * Error message that is displayed when we were not able to automatically create an account for a user
 	 * after a user has logged in via SSO. By default, this message is triggered after trying to create an account 5 times.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.2
 	 *
 	 * @param $message
 	 *
