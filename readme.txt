@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Send full and incremental queues separately so that a failure in one doesn't block the other. #5172
 * Sharing: Fix JS enqueue order #5072
 * Shortcodes: Return early if no string is passed #4797
+* SSO: audit usage of wp_die(). #5179
 * Sync: Delete sync options when resetting the sync. #5204
 * Sync: Re-add stats to sync. #5207
 * Sync: Remove unused code that that caused PHP notice. #5195
