@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Internationalization: added fallback so that a warning isn't thrown if translations don't exist.  #5166
 * Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
 * Invoke full sync after enqueue. #5190
-* Identity Crisis: better handle sites with duplicated information, like staging or cloned sites. #5293
+* Identity Crisis: better handle sites with duplicated information, like staging or cloned sites. #5293, #5306
 * Limit dequeue time to 1/3 of PHP's max execution time to prevent long renders clogging sync. #5194
 * Markdown: Add class to footnotes #4595
 * Omnisearch: Remove splashes from search query. #4701
