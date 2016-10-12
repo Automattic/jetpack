@@ -98,6 +98,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin: remove form legend for default Tiled Gallery settings #5230
 * Admin: Remove unneeded extra option in Gravatar Hovercard Settings #4997
 * Admin: Use correct link to contact Jetpack #5165
+* Admin: only track one view event per page load of the old stats page. #5185 
 * Internationalization: added fallback so that a warning isn't thrown if translations don't exist.  #5166
 * Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
 * Invoke full sync after enqueue. #5190
