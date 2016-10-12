@@ -19,6 +19,7 @@ class Jetpack_Sync_Settings {
 		'render_filtered_content' => true,
 		'post_meta_whitelist' => true,
 		'comment_meta_whitelist' => true,
+		'avoid_wp_cron'        => true,
 	);
 
 	static $is_importing;
