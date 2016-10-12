@@ -50,16 +50,11 @@ class Jetpack_Sitemap_Manager {
 
 		/* Route URLs */
 		add_action( 'init', function () {
-			add_rewrite_rule(
-				'^zsitemap\.xml?',
-				'index.php?type=jetpack-sitemap&name=sitemap',
-				'top'
-			);
-			add_rewrite_rule(
-				'^zsitemap([1-9][0-9]*)\.xml?',
-				'index.php?type=jetpack-sitemap&name=sitemap$matches[1]',
-				'top'
-			);
+			if ( preg_match( '/^\/new-sitemap([1-9][0-9]*)?\.xml$/', $_SERVER['REQUEST_URI']) ) {
+				header('Content-Type: text/xml; charset=UTF-8');
+				echo "<xml>subsequent sitemaps!</xml>\n";
+				die();
+			}
 		});
 	}
 }
