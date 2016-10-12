@@ -1017,9 +1017,9 @@ class Jetpack_SSO {
 	 *
 	 * @since 4.3.2
 	 *
-	 * @param $message
+	 * @param string $message All other notices that will be displayed in the login form.
 	 *
-	 * @return string
+	 * @return string         An HTML string that includes the identity crisis error notice.
 	 */
 	public function error_msg_identity_crisis( $message ) {
 		$error = esc_html__( 'Logging in with WordPress.com is not currently available because this site is experiencing connection problems.', 'jetpack' );
@@ -1033,9 +1033,9 @@ class Jetpack_SSO {
 	 *
 	 * @since 4.3.2
 	 *
-	 * @param $message
+	 * @param string $message All other notices that will be displayed in the login form.
 	 *
-	 * @return string
+	 * @return string         An HTML string that includes the invalid response data error notice.
 	 */
 	public function error_invalid_response_data( $message ) {
 		$error = esc_html__(
@@ -1052,9 +1052,9 @@ class Jetpack_SSO {
 	 *
 	 * @since 4.3.2
 	 *
-	 * @param $message
+	 * @param string $message All other notices that will be displayed in the login form.
 	 *
-	 * @return string
+	 * @return string         An HTML string that includes the unable to create user error notice.
 	 */
 	public function error_unable_to_create_user( $message ) {
 		$error = esc_html__(
