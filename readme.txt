@@ -94,6 +94,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Use SQL for queue lock as transients have had caching and infinite timeout issues. #5239
 * Sync: Don’t log hooked actions during send phase. #5264
 * Sync: Add the ability to run checksum histograms for post meta and comment meta. #5299
+* Sync: correctly synchronize the Site Icon URL. #5213
 
 
 **Bug Fixes:**
