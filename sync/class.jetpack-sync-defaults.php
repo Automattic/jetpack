@@ -120,6 +120,7 @@ class Jetpack_Sync_Defaults {
 		'WP_ACCESSIBLE_HOSTS',
 		'JETPACK__VERSION',
 		'IS_PRESSABLE',
+		'DISABLE_WP_CRON',
 	);
 
 	static $default_callable_whitelist = array(

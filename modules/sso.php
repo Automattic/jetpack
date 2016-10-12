@@ -1015,11 +1015,11 @@ class Jetpack_SSO {
 	/**
 	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.2
 	 *
-	 * @param $message
+	 * @param string $message All other notices that will be displayed in the login form.
 	 *
-	 * @return string
+	 * @return string         An HTML string that includes the identity crisis error notice.
 	 */
 	public function error_msg_identity_crisis( $message ) {
 		$error = esc_html__( 'Logging in with WordPress.com is not currently available because this site is experiencing connection problems.', 'jetpack' );
@@ -1031,11 +1031,11 @@ class Jetpack_SSO {
 	 * Error message that is displayed when we are not able to verify the SSO nonce due to an XML error or
 	 * failed validation. In either case, we prompt the user to try again or log in with username and password.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.2
 	 *
-	 * @param $message
+	 * @param string $message All other notices that will be displayed in the login form.
 	 *
-	 * @return string
+	 * @return string         An HTML string that includes the invalid response data error notice.
 	 */
 	public function error_invalid_response_data( $message ) {
 		$error = esc_html__(
@@ -1050,11 +1050,11 @@ class Jetpack_SSO {
 	 * Error message that is displayed when we were not able to automatically create an account for a user
 	 * after a user has logged in via SSO. By default, this message is triggered after trying to create an account 5 times.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.2
 	 *
-	 * @param $message
+	 * @param string $message All other notices that will be displayed in the login form.
 	 *
-	 * @return string
+	 * @return string         An HTML string that includes the unable to create user error notice.
 	 */
 	public function error_unable_to_create_user( $message ) {
 		$error = esc_html__(

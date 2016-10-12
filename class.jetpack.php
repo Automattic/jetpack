@@ -5309,7 +5309,7 @@ p {
 	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
 	 * If set to true, the site will be put into staging mode.
 	 *
-	 * @since 4.4.0
+	 * @since 4.3.2
 	 * @return bool
 	 */
 	public static function sync_idc_optin() {
@@ -5326,9 +5326,9 @@ p {
 		 * URL or site URL do not match what WordPress.com expects. The default value is either false, or the value of
 		 * JETPACK_SYNC_IDC_OPTIN constant if set.
 		 *
-		 * @since 4.4.0
+		 * @since 4.3.2
 		 *
-		 * @param bool
+		 * @param bool $default Whether the site is opted in to IDC mitigation.
 		 */
 		return (bool) apply_filters( 'jetpack_sync_idc_optin', $default );
 	}
