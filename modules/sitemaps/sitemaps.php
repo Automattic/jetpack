@@ -11,6 +11,8 @@ class Jetpack_Sitemap_Manager {
 
 	private static $__instance = null;
 
+
+
 	/**
 	 * Singleton implementation
 	 *
@@ -24,30 +26,46 @@ class Jetpack_Sitemap_Manager {
 		return self::$__instance;
 	}
 
+
+
 	/**
 	 * Constructor
 	 */
 	private function __construct() {
-
 		/* Register jetpack_sitemap post type */
-		add_action( 'init', 'create_sitemap_post_type' );
-		function create_sitemap_post_type() {
+		add_action( 'init', function () {
 			register_post_type(
 				'jetpack_sitemap',
 				array(
 					'labels' => array(
-					'name' => __( 'Sitemaps' ),
-					'singular_name' => __( 'Sitemap' )
-				),
-				'public' => true,
-				'has_archive' => true,
+						'name' => __( 'Sitemaps' ),
+						'singular_name' => __( 'Sitemap' ),
+					),
+					'public' => true,
+					'has_archive' => true,
+					'rewrite' => array('slug' => 'jetpack-sitemap'),
 				)
 			);
-		}
+		});
+
+		/* Route URLs */
+		add_action( 'init', function () {
+			add_rewrite_rule(
+				'^zsitemap\.xml?',
+				'index.php?type=jetpack-sitemap&name=sitemap',
+				'top'
+			);
+			add_rewrite_rule(
+				'^zsitemap([1-9][0-9]*)\.xml?',
+				'index.php?type=jetpack-sitemap&name=sitemap$matches[1]',
+				'top'
+			);
+		});
 	}
 }
 
 Jetpack_Sitemap_Manager::instance();
+
 
 /**
  * Convert a MySQL datetime string to an ISO 8601 string.
