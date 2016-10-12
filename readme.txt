@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: add delay to the synchronization process if the queue is locked. #5238
 * Sync: add SecuPress to sync blacklist to avoid recursive syncing and large meta data syncing. #5257, #5269
 * Sync: Update the post_excerpt_filtered to use the_excerpt filter instead of the_content. #5298
+* Sync: Allow filtering of cron job interval to send data to WordPress.com. #5229
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Widgets: Fix top posts attachment page behavior #5079
 * Don't enqueue changes during send phase - prevents infinite loop caused by plugins that add content when outbound http requests fire #5264
