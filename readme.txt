@@ -122,7 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Disable oembed when syncing. #5277
 * Sync: fix issues on sites running an alternate Cron system. #5157
 * Sync: add delay to the synchronization process if the queue is locked. #5238
-* Sync: add SecuPress to sync blacklist to avoid recursive syncing. #5257
+* Sync: add SecuPress to sync blacklist to avoid recursive syncing and large meta data syncing. #5257, #5269
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Widgets: Fix top posts attachment page behavior #5079
 * Don't enqueue changes during send phase - prevents infinite loop caused by plugins that add content when outbound http requests fire #5264
