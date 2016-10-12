@@ -184,6 +184,7 @@ class Jetpack_Sync_Actions {
 
 		if ( Jetpack_Sync_Settings::get_setting( 'avoid_wp_cron' ) ) {
 			// run queuing inline
+			set_time_limit( 0 );
 			self::do_full_sync( $modules );
 			return false;
 		}
