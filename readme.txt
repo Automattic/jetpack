@@ -82,6 +82,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin: Make the user confirm navigating away when there are unsaved settings #5085
 * Admin: improve overall performance when accessing elements in the new Admin page. #5152
 * Carousel: Exclude carousel views from stats by default, and add `jetpack_enable_carousel_stats` filter to enable them. #5154
+* General: don't check if esc_like exists anymore since it was introduced in WP 4.0. #5275
 * Staging Mode: added Kinsta staging URLs to the list of URLs that automatically turn on Staging Mode. #5209
 * Stats: Improve response time for initial stat load. #5247
 * Sync: Add checkout and close api endpoints. #5192
