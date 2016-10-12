@@ -272,6 +272,9 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 		$sender = Jetpack_Sync_Sender::get_instance();
 
+		// try to give ourselves as much time as possible
+		set_time_limit( 0 );
+
 		// let's delete the checkin state
 		if ( $args['force'] ) {
 			$queue->unlock();
