@@ -67,6 +67,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 			$sync_module->get_status(),
 			array(
 				'is_scheduled'          => Jetpack_Sync_Actions::is_scheduled_full_sync(),
+				'cron_size'             => count( $cron_timestamps ),
 				'oldest_scheduled_age'  => $cron_age,
 				'queue_size'            => $queue->size(),
 				'queue_lag'             => $queue->lag(),
