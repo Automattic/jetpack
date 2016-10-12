@@ -125,6 +125,23 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( array( 'users' => true ) ) ) >= time() + 199 );
 	}
 
+	function test_can_avoid_wp_cron_when_scheduling_full_sync() {
+		$this->assertEquals( 0, Jetpack_Sync_Settings::get_setting( 'avoid_wp_cron' ) );
+
+		Jetpack_Sync_Settings::update_settings( array( 'avoid_wp_cron' => 1 ) );
+
+		$this->assertEquals( 1, Jetpack_Sync_Settings::get_setting( 'avoid_wp_cron' ) );
+
+		Jetpack_Sync_Actions::schedule_full_sync();
+
+		// assert that a sync was not scheduled...
+		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );
+
+		// but that one was enqueued instead
+		$this->sender->do_sync();
+		$this->assertTrue( !! $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' ) );
+	}
+
 	function test_sends_updating_jetpack_version_event() {
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.3', '4.2.1' );
