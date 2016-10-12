@@ -70,6 +70,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 				'full_queue_size'       => $full_queue->size(),
 				'full_queue_lag'        => $full_queue->lag(),
 				'full_queue_next_sync'  => ( $sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
+				'cron_size'             => count( _get_cron_array() ),
 			)
 		);
 	}
