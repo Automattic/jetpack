@@ -98,7 +98,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin: remove form legend for default Tiled Gallery settings #5230
 * Admin: Remove unneeded extra option in Gravatar Hovercard Settings #4997
 * Admin: Use correct link to contact Jetpack #5165
-* Admin: only track one view event per page load of the old stats page. #5185 
+* Admin: only track one view event per page load of the old stats page. #5185
 * Internationalization: added fallback so that a warning isn't thrown if translations don't exist.  #5166
 * Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
 * Invoke full sync after enqueue. #5190
@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Do not sync non registered post types. #5288
 * Sync: Disable oembed when syncing. #5277
 * Sync: fix issues on sites running an alternate Cron system. #5157
+* Sync: add delay to the synchronization process if the queue is locked. #5238
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Widgets: Fix top posts attachment page behavior #5079
 * Don't enqueue changes during send phase - prevents infinite loop caused by plugins that add content when outbound http requests fire #5264
