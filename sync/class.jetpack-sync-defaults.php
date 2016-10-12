@@ -121,6 +121,8 @@ class Jetpack_Sync_Defaults {
 		'JETPACK__VERSION',
 		'IS_PRESSABLE',
 		'DISABLE_WP_CRON',
+		'ALTERNATE_WP_CRON',
+		'WP_CRON_LOCK_TIMEOUT',
 	);
 
 	static $default_callable_whitelist = array(
