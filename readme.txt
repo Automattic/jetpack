@@ -89,6 +89,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Add unlock queue api endpoint. #5246
 * Sync: Send home and siteurl options with each sync. #5261
 * Sync: Use SQL for queue lock as transients have had caching and infinite timeout issues. #5239
+* Sync: Don’t log hooked actions during send phase. #5264
 
 
 **Bug Fixes:**
@@ -121,7 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Disable oembed when syncing. #5277
 * Sync: fix issues on sites running an alternate Cron system. #5157
 * Sync: add delay to the synchronization process if the queue is locked. #5238
-* Sync: add SecuPress to sync blacklist to avoid recursive syncing. #5257 
+* Sync: add SecuPress to sync blacklist to avoid recursive syncing. #5257
 * UI: Update professional slug to plans in the new Jetpack React UI. #5206
 * Widgets: Fix top posts attachment page behavior #5079
 * Don't enqueue changes during send phase - prevents infinite loop caused by plugins that add content when outbound http requests fire #5264
