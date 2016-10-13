@@ -85,10 +85,40 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return $args;
 	}
 
+	function remove_embed() {
+		global $wp_embed;
+		remove_filter( 'the_content', array( $wp_embed, 'run_shortcode' ), 8 );
+		// remove the embed shortcode since we would do the part later.
+		remove_shortcode( 'embed' );
+		// Attempts to embed all URLs in a post
+		remove_filter( 'the_content', array( $wp_embed, 'autoembed' ), 8 );
+	}
+
+	function add_embed() {
+		global $wp_embed;
+		add_filter( 'the_content', array( $wp_embed, 'run_shortcode' ), 8 );
+		// Shortcode placeholder for strip_shortcodes()
+		add_shortcode( 'embed', '__return_false' );
+		// Attempts to embed all URLs in a post
+		add_filter( 'the_content', array( $wp_embed, 'autoembed' ), 8 );
+	}
+
 	// Expands wp_insert_post to include filtered content
 	function filter_post_content_and_add_links( $post_object ) {
 		global $post;
 		$post = $post_object;
+
+		// return non existant post 
+		$post_type = get_post_type_object( $post->post_type );
+		if ( empty( $post_type) || ! is_object( $post_type ) ) {
+			$non_existant_post                    = new stdClass();
+			$non_existant_post->ID                = $post->ID;
+			$non_existant_post->post_modified     = $post->post_modified;
+			$non_existant_post->post_modified_gmt = $post->post_modified_gmt;
+			$non_existant_post->post_status       = 'jetpack_sync_non_registered_post_type';
+			
+			return $non_existant_post;
+		}
 		/**
 		 * Filters whether to prevent sending post data to .com
 		 *
@@ -113,12 +143,29 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			return $blocked_post;
 		}
 
+		// lets not do oembed just yet.
+		$this->remove_embed();
+
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
+		
 		/** This filter is already documented in core. wp-includes/post-template.php */
-		$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
-		$post->post_excerpt_filtered   = apply_filters( 'the_content', $post->post_excerpt );
+		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public  ) {
+
+			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
+			$post->post_excerpt_filtered   = apply_filters( 'the_excerpt', $post->post_excerpt );
+		}
+
+		$this->add_embed();
+
+		if ( has_post_thumbnail( $post->ID ) ) {
+			$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
+			if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) ) {
+				$post->featured_image = $image_attributes[0];
+			}
+		}
+
 		$post->permalink               = get_permalink( $post->ID );
 		$post->shortlink               = wp_get_shortlink( $post->ID );
 		$post->dont_email_post_to_subs = Jetpack::is_module_active( 'subscriptions' ) ?

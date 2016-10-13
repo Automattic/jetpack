@@ -14,7 +14,6 @@ import QueryProtectCount from 'components/data/query-dash-protect';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isFetchingModulesList as _isFetchingModulesList,
 	getModules
 } from 'state/modules';
 import {
@@ -26,7 +25,7 @@ import { isDevMode } from 'state/connection';
 const DashProtect = React.createClass( {
 	getContent: function() {
 		if ( this.props.isModuleActivated( 'protect' ) ) {
-			const protectCount = this.props.getProtectCount();
+			const protectCount = this.props.protectCount;
 
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
 				return (
@@ -62,7 +61,7 @@ const DashProtect = React.createClass( {
 				className="jp-dash-item__is-inactive"
 			>
 				<p className="jp-dash-item__description">{
-					isDevMode( this.props ) ? __( 'Unavailable in Dev Mode' ) :
+					this.props.isDevMode ? __( 'Unavailable in Dev Mode' ) :
 					__( '{{a}}Activate Protect{{/a}} to keep your site protected from malicious login attempts.', {
 						components: {
 							a: <a href="javascript:void(0)" onClick={ this.props.activateProtect } />
@@ -88,12 +87,17 @@ const DashProtect = React.createClass( {
 	}
 } );
 
+DashProtect.propTypes = {
+	isDevMode: React.PropTypes.bool.isRequired,
+	protectCount: React.PropTypes.any.isRequired
+};
+
 export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			getProtectCount: () => _getProtectCount( state ),
-			isFetchingModulesList: () => _isFetchingModulesList( state ),
+			protectCount: _getProtectCount( state ),
+			isDevMode: isDevMode( state ),
 			moduleList: getModules( state )
 		};
 	},

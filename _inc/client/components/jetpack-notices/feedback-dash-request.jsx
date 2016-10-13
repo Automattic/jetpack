@@ -31,7 +31,7 @@ const FeedbackDashRequest = React.createClass( {
 					text={ __( 'What would you like to see on your Jetpack Dashboard?' ) }
 				>
 					<NoticeAction
-						href="https://jetpack.com/contact"
+						href="https://jetpack.com/contact-support/"
 					>
 						{ __( 'Let us know!' ) }
 					</NoticeAction>

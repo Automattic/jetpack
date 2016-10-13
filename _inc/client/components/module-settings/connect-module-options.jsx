@@ -15,7 +15,7 @@ import {
 	setUnsavedOptionFlag,
 	clearUnsavedOptionFlag
 } from 'state/modules';
-
+import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getSiteRoles,
 	getAdminEmailAddress
@@ -39,6 +39,8 @@ export function connectModuleOptions( Component ) {
 				getSiteRoles: () => getSiteRoles( state ),
 				isUpdating: ( option_name ) => isUpdatingModuleOption( state, ownProps.module.module, option_name ),
 				adminEmailAddress: getAdminEmailAddress( state ),
+				currentIp: getCurrentIp( state ),
+				siteAdminUrl: getSiteAdminUrl( state ),
 				isCurrentUserLinked: isCurrentUserLinked( state )
 			}
 		},

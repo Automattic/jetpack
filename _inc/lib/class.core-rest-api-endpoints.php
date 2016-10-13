@@ -87,13 +87,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/connection/user', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::unlink_user',
-			'permission_callback' => __CLASS__ . '::link_user_permission_callback',
-			'args' => array(
-				'id' => array(
-					'default' => get_current_user_id(),
-					'validate_callback' => __CLASS__  . '::validate_posint',
-				),
-			),
+			'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
 		) );
 
 		// Get current site data
@@ -335,21 +329,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Verify that a user can use the link endpoint.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @return bool|WP_Error True if user is able to link to WordPress.com
-	 */
-	public static function link_user_permission_callback() {
-		if ( current_user_can( 'jetpack_connect_user' ) ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_user_permission_link_user', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
-	}
-
-	/**
 	 * Verify that a user can get the data about the current user.
 	 * Only those who can connect.
 	 *
@@ -364,12 +343,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_unlink_user', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_user_connection_data', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
-	 * Verify that a user can use the unlink endpoint.
-	 * Either needs to be an admin of the site, or for them to be currently linked.
+	 * Verify that a user can use the /connection/user endpoint. Has to be a registered user and be currently linked.
 	 *
 	 * @since 4.3.0
 	 *
@@ -378,7 +356,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if user is able to unlink.
 	 */
 	public static function unlink_user_permission_callback() {
-		if ( current_user_can( 'jetpack_connect' ) || Jetpack::is_user_connected( get_current_user_id() ) ) {
+		if ( current_user_can( 'jetpack_connect_user' ) && Jetpack::is_user_connected( get_current_user_id() ) ) {
 			return true;
 		}
 
@@ -453,7 +431,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Whether user has the capability 'jetpack_admin_page' and 'activate_plugins'.
 	 */
 	public static function activate_plugins_permission_check() {
-		if ( current_user_can( 'jetpack_admin_page', 'activate_plugins' ) ) {
+		if ( current_user_can( 'jetpack_admin_page' ) && current_user_can( 'activate_plugins' ) ) {
 			return true;
 		}
 
@@ -564,7 +542,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		require_once( JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php' );
 
 		$response = array(
-			'othersLinked' => jetpack_get_other_linked_users(),
+//			'othersLinked' => Jetpack::get_other_linked_admins(),
 			'currentUser'  => jetpack_current_user_data(),
 		);
 		return rest_ensure_response( $response );
@@ -615,19 +593,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Unlinks a user from the WordPress.com Servers.
-	 * Default $data['id'] will default to current_user_id if no value is given.
-	 *
-	 * Example: '/unlink?id=1234'
+	 * Unlinks current user from the WordPress.com Servers.
 	 *
 	 * @since 4.3.0
 	 * @uses  Jetpack::unlink_user
-	 *
-	 * @param WP_REST_Request $data {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type int $id ID of user to unlink.
-	 * }
 	 *
 	 * @return bool|WP_Error True if user successfully unlinked.
 	 */
@@ -638,7 +607,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		if ( isset( $data['id'] ) && Jetpack::unlink_user( $data['id'] ) ) {
+		if ( Jetpack::unlink_user() ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'

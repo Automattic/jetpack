@@ -428,6 +428,8 @@ class Jetpack {
 			Jetpack_Network::init();
 		}
 
+		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
+
 		// Unlink user before deleting the user from .com
 		add_action( 'deleted_user', array( $this, 'unlink_user' ), 10, 1 );
 		add_action( 'remove_user_from_blog', array( $this, 'unlink_user' ), 10, 1 );
@@ -912,6 +914,58 @@ class Jetpack {
 	 */
 	static function network_enable_administration_menus( $option = null ) {
 		return get_site_option( 'menu_items' );
+	}
+
+	/**
+	 * If a user has been promoted to or demoted from admin, we need to clear the
+	 * jetpack_other_linked_admins transient.
+	 *
+	 * @param $user_id
+	 * @param $role
+	 * @param $old_roles
+	 */
+	function maybe_clear_other_linked_admins_transient( $user_id, $role, $old_roles ) {
+		if ( 'administrator' == $role || ( is_array( $old_roles ) && in_array( 'administrator', $old_roles ) )
+		) {
+			delete_transient( 'jetpack_other_linked_admins' );
+		}
+	}
+
+	/**
+	 * Checks to see if there are any other users available to become primary
+	 * Users must both:
+	 * - Be linked to wpcom
+	 * - Be an admin
+	 *
+	 * @return mixed False if no other users are linked, Int if there are.
+	 */
+	static function get_other_linked_admins() {
+		$other_linked_users = get_transient( 'jetpack_other_linked_admins' );
+
+		if ( false === $other_linked_users ) {
+			$admins = get_users( array( 'role' => 'administrator' ) );
+			if ( count( $admins ) > 1 ) {
+				$available = array();
+				foreach ( $admins as $admin ) {
+					if ( Jetpack::is_user_connected( $admin->ID ) ) {
+						$available[] = $admin->ID;
+					}
+				}
+
+				$count_connected_admins = count( $available );
+				if ( count( $available ) > 1 ) {
+					$other_linked_users = $count_connected_admins;
+				} else {
+					$other_linked_users = 0;
+				}
+			} else {
+				$other_linked_users = 0;
+			}
+
+			set_transient( 'jetpack_other_linked_admins', $other_linked_users, HOUR_IN_SECONDS );
+		}
+
+		return ( 0 === $other_linked_users ) ? false : $other_linked_users;
 	}
 
 	/**
@@ -2763,10 +2817,12 @@ p {
 	 * Get additional stat data to sync to WPCOM
 	 */
 	public static function get_additional_stat_data( $prefix = '' ) {
+		global $wpdb;
 		$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
 		$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
-		$return["{$prefix}users"]          = count_users();
+		$return["{$prefix}users"]          = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities'" );
 		$return["{$prefix}site-count"]     = 0;
+
 		if ( function_exists( 'get_blog_count' ) ) {
 			$return["{$prefix}site-count"] = get_blog_count();
 		}
@@ -4655,11 +4711,7 @@ p {
 		global $wpdb;
 
 		$sql = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
-		if ( method_exists ( $wpdb , 'esc_like' ) ) {
-			$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
-		} else {
-			$sql_args = array( like_escape( 'jetpack_nonce_' ) . '%' );
-		}
+		$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
 
 		if ( true !== $all ) {
 			$sql .= ' AND CAST( `option_value` AS UNSIGNED ) < %d';
@@ -5204,6 +5256,7 @@ p {
 		$known_staging = array(
 			'urls' => array(
 				'#\.staging\.wpengine\.com$#i', // WP Engine
+				'#\.staging\.kinsta\.com$#i',   // Kinsta.com
 				),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',      // WP Engine
@@ -5250,6 +5303,34 @@ p {
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+	}
+
+	/**
+	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
+	 * If set to true, the site will be put into staging mode.
+	 *
+	 * @since 4.3.2
+	 * @return bool
+	 */
+	public static function sync_idc_optin() {
+		if ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
+			$default = JETPACK_SYNC_IDC_OPTIN;
+		} else if ( defined( 'SUNRISE' ) ) {
+			$default = SUNRISE;
+		} else {
+			$default = self::is_development_version();
+		}
+
+		/**
+		 * Allows sites to optin to IDC mitigation which blocks the site from syncing to WordPress.com when the home
+		 * URL or site URL do not match what WordPress.com expects. The default value is either false, or the value of
+		 * JETPACK_SYNC_IDC_OPTIN constant if set.
+		 *
+		 * @since 4.3.2
+		 *
+		 * @param bool $default Whether the site is opted in to IDC mitigation.
+		 */
+		return (bool) apply_filters( 'jetpack_sync_idc_optin', $default );
 	}
 
 	/**

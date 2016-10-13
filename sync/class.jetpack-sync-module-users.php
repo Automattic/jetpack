@@ -64,7 +64,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function sanitize_user( $user ) {
 		// this create a new user object and stops the passing of the object by reference.
 		$user = unserialize( serialize( $user ) );
-		unset( $user->data->user_pass );
+
+		if ( is_object( $user->data ) ) {
+			unset( $user->data->user_pass );
+		}
 
 		return $user;
 	}

@@ -415,7 +415,7 @@ class Jetpack_SSO {
 					JetpackTracking::record_user_event( 'sso_login_redirect_failed', array(
 						'error_message' => 'identity_crisis'
 					) );
-					wp_die( __( "Error: This site's Jetpack connection is currently experiencing problems.", 'jetpack' ) );
+					add_filter( 'login_message', array( $this, 'error_msg_identity_crisis' ) );
 				} else {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
@@ -435,6 +435,11 @@ class Jetpack_SSO {
 	 * up the hooks required to display the SSO form.
 	 */
 	public function display_sso_login_form() {
+		if ( Jetpack::check_identity_crisis() ) {
+			add_filter( 'login_message', array( $this, 'error_msg_identity_crisis' ) );
+			return;
+		}
+
 		$sso_nonce = self::request_initial_nonce();
 		if ( is_wp_error( $sso_nonce ) ) {
 			return;
@@ -623,23 +628,11 @@ class Jetpack_SSO {
 		) );
 		$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id );
 
-		if ( $xml->isError() ) {
-			$error_message = sanitize_text_field(
-				sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() )
-			);
-			JetpackTracking::record_user_event( 'sso_login_failed', array(
-				'error_message' => $error_message
-			) );
-			wp_die( $error_message );
-		}
-
-		$user_data = $xml->getResponse();
-
+		$user_data = $xml->isError() ? false : $xml->getResponse();
 		if ( empty( $user_data ) ) {
-			JetpackTracking::record_user_event( 'sso_login_failed', array(
-				'error_message' => 'invalid_response_data'
-			) );
-			wp_die( __( 'Error, invalid response data.', 'jetpack' ) );
+			add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+			add_filter( 'login_message', array( $this, 'error_invalid_response_data' ) );
+			return;
 		}
 
 		$user_data = (object) $user_data;
@@ -689,47 +682,27 @@ class Jetpack_SSO {
 
 		// If we've still got nothing, create the user.
 		if ( empty( $user ) && ( get_option( 'users_can_register' ) || Jetpack_SSO_Helpers::new_user_override() ) ) {
-			// If not matching by email we still need to verify the email does not exist
-			// or this blows up
 			/**
+			 * If not matching by email we still need to verify the email does not exist
+			 * or this blows up
+			 *
 			 * If match_by_email is true, we know the email doesn't exist, as it would have
 			 * been found in the first pass.  If get_user_by( 'email' ) doesn't find the
 			 * user, then we know that email is unused, so it's safe to add.
 			 */
 			if ( Jetpack_SSO_Helpers::match_by_email() || ! get_user_by( 'email', $user_data->email ) ) {
-				$username = $user_data->login;
-
-				if ( username_exists( $username ) ) {
-					$username = $user_data->login . '_' . $user_data->ID;
-				}
-
-				$tries = 0;
-				while ( username_exists( $username ) ) {
-					$username = $user_data->login . '_' . $user_data->ID . '_' . mt_rand();
-					if ( $tries++ >= 5 ) {
-						JetpackTracking::record_user_event( 'sso_login_failed', array(
-							'error_message' => 'could_not_create_username'
-						) );
-						wp_die( __( "Error: Couldn't create suitable username.", 'jetpack' ) );
-					}
+				$user = Jetpack_SSO_Helpers::generate_user( $user_data );
+				if ( ! $user ) {
+					JetpackTracking::record_user_event( 'sso_login_failed', array(
+						'error_message' => 'could_not_create_username'
+					) );
+					add_filter( 'login_message', array( $this, 'error_unable_to_create_user' ) );
+					return;
 				}
 
 				$user_found_with = Jetpack_SSO_Helpers::new_user_override()
 					? 'user_created_new_user_override'
 					: 'user_created_users_can_register';
-
-				$password = wp_generate_password( 20 );
-				$user_id  = wp_create_user( $username, $password, $user_data->email );
-				$user     = get_userdata( $user_id );
-
-				$user->display_name = $user_data->display_name;
-				$user->first_name   = $user_data->first_name;
-				$user->last_name    = $user_data->last_name;
-				$user->url          = $user_data->url;
-				$user->description  = $user_data->description;
-				wp_update_user( $user );
-
-				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 			} else {
 				JetpackTracking::record_user_event( 'sso_login_failed', array(
 					'error_message' => 'error_msg_email_already_exists'
@@ -1036,6 +1009,59 @@ class Jetpack_SSO {
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
 
+		return $message;
+	}
+
+	/**
+	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
+	 *
+	 * @since 4.3.2
+	 *
+	 * @param string $message All other notices that will be displayed in the login form.
+	 *
+	 * @return string         An HTML string that includes the identity crisis error notice.
+	 */
+	public function error_msg_identity_crisis( $message ) {
+		$error = esc_html__( 'Logging in with WordPress.com is not currently available because this site is experiencing connection problems.', 'jetpack' );
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
+		return $message;
+	}
+
+	/**
+	 * Error message that is displayed when we are not able to verify the SSO nonce due to an XML error or
+	 * failed validation. In either case, we prompt the user to try again or log in with username and password.
+	 *
+	 * @since 4.3.2
+	 *
+	 * @param string $message All other notices that will be displayed in the login form.
+	 *
+	 * @return string         An HTML string that includes the invalid response data error notice.
+	 */
+	public function error_invalid_response_data( $message ) {
+		$error = esc_html__(
+			'There was an error logging you in via WordPress.com, please try again or try logging in with your username and password.',
+			'jetpack'
+		);
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
+		return $message;
+	}
+
+	/**
+	 * Error message that is displayed when we were not able to automatically create an account for a user
+	 * after a user has logged in via SSO. By default, this message is triggered after trying to create an account 5 times.
+	 *
+	 * @since 4.3.2
+	 *
+	 * @param string $message All other notices that will be displayed in the login form.
+	 *
+	 * @return string         An HTML string that includes the unable to create user error notice.
+	 */
+	public function error_unable_to_create_user( $message ) {
+		$error = esc_html__(
+			'There was an error creating a user for you. Please contact the administrator of your site.',
+			'jetpack'
+		);
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
 		return $message;
 	}
 

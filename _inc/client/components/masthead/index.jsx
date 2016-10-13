@@ -2,16 +2,18 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
 import { getSiteConnectionStatus } from 'state/connection';
+import { getCurrentVersion } from 'state/initial-state';
 
 const Masthead = React.createClass( {
 	render: function() {
-		let devNotice = getSiteConnectionStatus( this.props ) === 'dev'
+		let devNotice = this.props.siteConnectionStatus === 'dev'
 			? <code>[Dev Mode]</code>
 			: '';
 
@@ -36,14 +38,6 @@ const Masthead = React.createClass( {
 								</span>
 							</a>
 						</li>
-						<li className="jp-masthead__link-li">
-							<a href={ 'http://surveys.jetpack.me/research-plugin?rel=' + this.props.jetpack.initialState.currentVersion } target="_blank" className="jp-masthead__link">
-								<span className="dashicons dashicons-admin-comments" title={ __( 'Send us Feedback' ) } />
-								<span>
-									{ __( 'Send us Feedback' ) }
-								</span>
-							</a>
-						</li>
 					</ul>
 				</div>
 			</div>
@@ -51,4 +45,11 @@ const Masthead = React.createClass( {
 	}
 } );
 
-module.exports = Masthead;
+export default connect(
+	state => {
+		return {
+			siteConnectionStatus: getSiteConnectionStatus( state ),
+			currentVersion: getCurrentVersion( state )
+		};
+	}
+)( Masthead );

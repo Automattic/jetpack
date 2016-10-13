@@ -8,8 +8,6 @@ class Jetpack_Sync_Defaults {
 	static $default_options_whitelist = array(
 		'stylesheet',
 		'blogname',
-		'home',
-		'siteurl',
 		'blogdescription',
 		'blog_charset',
 		'permalink_structure',
@@ -17,7 +15,6 @@ class Jetpack_Sync_Defaults {
 		'tag_base',
 		'comment_moderation',
 		'default_comment_status',
-		'jetpack_site_icon_url',
 		'page_on_front',
 		'rss_use_excerpt',
 		'subscription_options',
@@ -123,6 +120,9 @@ class Jetpack_Sync_Defaults {
 		'WP_ACCESSIBLE_HOSTS',
 		'JETPACK__VERSION',
 		'IS_PRESSABLE',
+		'DISABLE_WP_CRON',
+		'ALTERNATE_WP_CRON',
+		'WP_CRON_LOCK_TIMEOUT',
 	);
 
 	static $default_callable_whitelist = array(
@@ -151,11 +151,14 @@ class Jetpack_Sync_Defaults {
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
+		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
 	);
 
 	static $blacklisted_post_types = array(
 		'ai1ec_event',
 		'snitch',
+		'secupress_log_action',
+		'http',
 	);
 
 	static $default_post_checksum_columns = array(
@@ -163,9 +166,19 @@ class Jetpack_Sync_Defaults {
 		'post_modified',
 	); 
 
+	static $default_post_meta_checksum_columns = array(
+		'meta_id',
+		'meta_value'
+	); 
+
 	static $default_comment_checksum_columns = array(
 		'comment_ID',
 		'comment_content',
+	); 
+
+	static $default_comment_meta_checksum_columns = array(
+		'meta_id',
+		'meta_value'
 	); 
 
 	static $default_option_checksum_columns = array(
@@ -182,47 +195,50 @@ class Jetpack_Sync_Defaults {
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
 
-
-	static $default_whitelist_meta_keys = array(
-		'_wp_attachment_metadata',
-		'_thumbnail_id',
-		'_wpas_mess',
-		'_wpas_skip_',
-		'_g_feedback_shortcode',
-		'_feedback_extra_fields',
+	static $post_meta_whitelist = array(
 		'_feedback_akismet_values',
-		'_publicize_facebook_user',
-		'_wp_attachment_image_alt',
+		'_feedback_email',
+		'_feedback_extra_fields',
+		'_g_feedback_shortcode',
 		'_jetpack_post_thumbnail',
+		'_menu_item_classes',
+		'_menu_item_menu_item_parent',
+		'_menu_item_object',
+		'_menu_item_object_id',
+		'_menu_item_orphaned',
+		'_menu_item_type',
+		'_menu_item_xfn',
+		'_publicize_facebook_user',
+		'_publicize_twitter_user',
 		'_thumbnail_id',
+		'_wp_attached_file',
+		'_wp_attachment_backup_sizes',
+		'_wp_attachment_context',
+		'_wp_attachment_image_alt',
+		'_wp_attachment_is_custom_background',
+		'_wp_attachment_is_custom_header',
 		'_wp_attachment_metadata',
 		'_wp_page_template',
-		'_publicize_twitter_user',
 		'_wp_trash_meta_comments_status',
-		'_wp_attached_file',
+		'_wpas_mess',
+		'content_width',
+		'custom_css_add',
+		'custom_css_preprocessor',
+		'enclosure',
+		'imagedata',
+		'nova_price',
+		'publicize_results',
+		'sharing_disabled',
+		'switch_like_status',
+		'videopress_guid',
+		'vimeo_poster_image',
 	);
 
-	static $default_blacklist_meta_keys = array(
-		'post_views_count',
-		'Views',
-		'tve_leads_impressions',
-		'views',
-		'scc_share_count_crawldate',
-		'wprss_last_update',
-		'wprss_feed_is_updating',
-		'snapFB',
-		'syndication_item_hash',
-		'phonenumber_spellings',
-		'tmac_last_id',
-		'opanda_imperessions',
-		'administer_stats',
-		'spec_ads_views',
-		'snp_views',
-		'mip_post_views_count',
-		'esml_socialcount_LAST_UPDATED',
-		'wprss_last_update_items',
-		'wp_automatic_cache',
-		'snapTW',
+	static $comment_meta_whitelist = array(
+		'hc_avatar',
+		'hc_post_as',
+		'hc_wpcom_id_sig',
+		'hc_foreign_user_id'
 	);
 
 	// TODO: move this to server? - these are theme support values
@@ -257,12 +273,22 @@ class Jetpack_Sync_Defaults {
 		return false;
 	}
 
+	static function get_max_sync_execution_time() {
+		$max_exec_time = intval( ini_get( 'max_execution_time' ) );
+		if ( 0 === $max_exec_time ) {
+			// 0 actually means "unlimited", but let's not treat it that way
+			$max_exec_time = 60;
+		}
+		return floor( $max_exec_time / 3 );
+	}
+
 	static $default_network_options_whitelist = array(
 		'site_name',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'active_sitewide_plugins',
 	);
+
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
@@ -273,8 +299,12 @@ class Jetpack_Sync_Defaults {
 	static $default_max_queue_lag = 900; // 15 minutes
 	static $default_queue_max_writes_sec = 100; // 100 rows a second
 	static $default_post_types_blacklist = array();
-	static $default_meta_blacklist = array();
+	static $default_post_meta_whitelist = array();
+	static $default_comment_meta_whitelist = array();
 	static $default_disable = 0; // completely disable sending data to wpcom
+	static $default_avoid_wp_cron = 0; // don't use cron to enqueue full syncs - do it inline. Warning: Can time out for larger sites!
+	static $default_render_filtered_content = 1; // render post_filtered_content
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
+	static $default_sync_queue_lock_timeout = 120; // 2 minutes
 }

@@ -77,71 +77,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.3.2 =
 
-**Enhancements**
 
-* Admin: Make the user confirm navigating away when there are unsaved settings #5085
-* Admin: improve overall performance when accessing elements in the new Admin page. #5152
-* Admin: Implement a redirection to WordPress.com Site plugins page for managing plugins after enabling the Manage module from the Jetpack Dashboard. #5245
-* Carousel: Exclude carousel views from stats by default, and add `jetpack_enable_carousel_stats` filter to enable them. #5154
-* General: don't check if esc_like exists anymore since it was introduced in WP 4.0. #5275
-* Shortcodes: FLickr: remove the size parameter as it is not used anywhere. #5302
-* Staging Mode: added Kinsta staging URLs to the list of URLs that automatically turn on Staging Mode. #5209
-* Stats: Improve response time for initial stat load. #5247
-* Sync: Add checkout and close api endpoints. #5192
-* Sync: Add next_sync_time to sync status endpoint. #5173
-* Sync: Add unlock queue api endpoint. #5246
-* Sync: Send home and siteurl options with each sync. #5261
-* Sync: Use SQL for queue lock as transients have had caching and infinite timeout issues. #5239
-* Sync: Don’t log hooked actions during send phase. #5264
-* Sync: Add the ability to run checksum histograms for post meta and comment meta. #5299
-* Sync: correctly synchronize the Site Icon URL. #5213
-
-
-**Bug Fixes:**
-
-* Admin: Add width/height attributes to HE avatars #5109
-* Admin: check that a json language file like jetpack-en_US.json is readable before loading its contents and thus avoid a PHP warning. #5166
-* Admin: Fix CPT configuration links #5153
-* Admin: remove form legend for default Tiled Gallery settings #5230
-* Admin: Remove unneeded extra option in Gravatar Hovercard Settings #4997
-* Admin: Use correct link to contact Jetpack #5165
-* Admin: only track one view event per page load of the old stats page. #5185
-* Internationalization: added fallback so that a warning isn't thrown if translations don't exist.  #5166
-* Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
-* Invoke full sync after enqueue. #5190
-* Identity Crisis: better handle sites with duplicated information, like staging or cloned sites. #5293, #5306, #5305
-* Limit dequeue time to 1/3 of PHP's max execution time to prevent long renders clogging sync. #5194
-* Markdown: Add class to footnotes #4595
-* Omnisearch: Remove splashes from search query. #4701
-* Send full and incremental queues separately so that a failure in one doesn't block the other. #5172
-* Sharing: Fix JS enqueue order #5072
-* Shortcodes: Return early if no string is passed #4797
-* SSO: audit usage of wp_die(). #5179
-* Sync: Delete sync options when resetting the sync. #5204
-* Sync: Re-add stats to sync. #5207
-* Sync: Remove unused code that that caused PHP notice. #5195
-* Sync: Unhook Likes, Related Post, and Sharing from content_filtered #5224 and #5285
-* Sync: Do not sync post meta related to post_types that are blacklisted. #5258
-* Sync: Add whitelist for post and comment meta. #5276
-* Sync: Add whitelist for post_meta and comment_meta to settings. #5296
-* Sync: Do not sync non public post types filtered post content and excerpt. #5288
-* Sync: Do not sync non registered post types. #5288
-* Sync: Disable oembed when syncing. #5277
-* Sync: fix issues on sites running an alternate Cron system. #5157
-* Sync: add delay to the synchronization process if the queue is locked. #5238
-* Sync: add SecuPress to sync blacklist to avoid recursive syncing and large meta data syncing. #5257, #5269
-* Sync: Update the post_excerpt_filtered to use the_excerpt filter instead of the_content. #5298
-* Sync: Allow filtering of cron job interval to send data to WordPress.com. #5229
-* Sync: Better synchronization of Featured Images. #5205
-* UI: Update professional slug to plans in the new Jetpack React UI. #5206
-* Widgets: Fix top posts attachment page behavior #5079
-* Don't enqueue changes during send phase - prevents infinite loop caused by plugins that add content when outbound http requests fire #5264
-* API: fix permissions check for plugin information retrieval #5294
-
-**Support Enhancements**
-
-* Add option to disable rendering of filtered content during sync. #5171
-* Remove feedback prompt. #5232
 
 = 4.3.1 =
 
@@ -158,6 +94,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled.
 * Admin Page: make sure all translated strings are encoded properly.
 * Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests.
+* Admin Page: fewer calls to the database means faster load time.
 * Admin Page: search icon no longer overlaps the global notices.
 * Admin Page: make sure that non-admins can also modify Spellchecking settings.
 * General: Improve random number generation for compatibility with more hosts.
