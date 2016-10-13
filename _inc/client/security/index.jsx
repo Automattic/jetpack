@@ -32,6 +32,7 @@ import {
 	isFetchingPluginsData,
 	isPluginActive
 } from 'state/site/plugins';
+import { getSiteAdminUrl } from 'state/initial-state';
 
 export const Page = ( props ) => {
 	let {
@@ -145,7 +146,8 @@ export default connect(
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			moduleList: getModules( state )
+			moduleList: getModules( state ),
+			siteAdminUrl: getSiteAdminUrl( state )
 		};
 	},
 	( dispatch ) => {
