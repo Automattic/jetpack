@@ -86,6 +86,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Stats are now responding faster.
 * There were several improvements and repairs made to sync including additional endpoints, performance enhancements, whitelisted data, better decision making around when to sync information, and more.
 * Markdown now has a CSS class on footnotes.
+* Site stats have been restored to the Jetpack submenu.
 
 **Improved Compatibility:**
 
