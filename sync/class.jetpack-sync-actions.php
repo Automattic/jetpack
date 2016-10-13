@@ -182,6 +182,13 @@ class Jetpack_Sync_Actions {
 			return false;
 		}
 
+		if ( Jetpack_Sync_Settings::get_setting( 'avoid_wp_cron' ) ) {
+			// run queuing inline
+			set_time_limit( 0 );
+			self::do_full_sync( $modules );
+			return false;
+		}
+
 		if ( self::is_scheduled_full_sync() ) {
 			self::unschedule_all_full_syncs();
 		}
