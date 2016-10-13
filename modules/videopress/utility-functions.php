@@ -99,6 +99,7 @@ function videopress_get_attachment_id_by_url( $url ) {
 		}
 
 	}
+
 	return false;
 }
 
@@ -202,3 +203,54 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	}
 	WP_CLI::add_command( 'videopress', 'VideoPress_CLI' );
 }
+
+/**
+ * Return an absolute URI for a given filename and guid on the CDN.
+ * No check is performed to ensure the guid exists or the file is present. Simple centralized string builder.
+ *
+ * @param string $guid     VideoPress identifier
+ * @param string $filename name of file associated with the guid (video file name or thumbnail file name)
+ *
+ * @return string Absolute URL of VideoPress file for the given guid.
+ */
+function videopress_cdn_file_url( $guid, $filename ) {
+	return "https://videos.files.wordpress.com/{$guid}/{$filename}";
+}
+
+/**
+ * Get an array of the transcoding status for the given video post.
+ *
+ * @param int $post_id
+ * @return array|bool Returns an array of statuses if this is a VideoPress post, otherwise it returns false.
+ */
+function videopress_get_transcoding_status( $post_id ) {
+	$meta = wp_get_attachment_metadata( $post_id );
+
+	// If this has not been processed by videopress, we can skip the rest.
+	if ( !$meta || ! isset( $meta['videopress'] ) ) {
+		return false;
+	}
+
+	$info = (object) $meta['videopress'];
+
+	$status = array(
+		'std_mp4' => isset( $info->files_status['std']['mp4'] ) ? $info->files_status['std']['mp4'] : null,
+		'std_ogg' => isset( $info->files_status['std']['ogg'] ) ? $info->files_status['std']['ogg'] : null,
+		'dvd_mp4' => isset( $info->files_status['dvd']['mp4'] ) ? $info->files_status['dvd']['mp4'] : null,
+		'hd_mp4'  => isset( $info->files_status['hd']['mp4'] )  ? $info->files_status['hd']['mp4']  : null,
+	);
+
+	return $status;
+}
+
+/**
+ * Get the direct url to the video.
+ *
+ * @param string $guid
+ *
+ * @return string
+ */
+function videopress_build_url( $guid ) {
+	return 'https://videopress.com/v/' . $guid;
+}
+

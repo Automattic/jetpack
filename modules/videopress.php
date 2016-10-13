@@ -17,4 +17,5 @@ include_once dirname( __FILE__ ) . '/videopress/videopress.php';
 
 if ( is_admin() ) {
 	include_once dirname(__FILE__) . '/videopress/editor-media-view.php';
+	require dirname( __FILE__ ) . '/videopress/videopress-edit-attachment.php';
 }
