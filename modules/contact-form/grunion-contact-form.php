@@ -1268,7 +1268,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$attributes['id'] = 'widget-' . $attributes['widget'];
 			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack' ), $default_subject );
 		} else if ( $post ) {
-			$attributes['id'] = $post->ID;
+			$attributes['id'] = apply_filters('grunion_contact_form_get_post_id', $post->ID, $_POST['contact-form-id'] );
 			$default_subject = sprintf( _x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack' ), $default_subject, Grunion_Contact_Form_Plugin::strip_tags( $post->post_title ) );
 			$post_author = get_userdata( $post->post_author );
 			$default_to .= $post_author->user_email;
@@ -1785,7 +1785,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				return false;
 			}
 		} else {
-			if ( $post->ID != $_POST['contact-form-id'] ) {
+			if ( apply_filters('grunion_contact_form_check_post_id', $post->ID != $_POST['contact-form-id'], $post->ID, $_POST['contact-form-id'] ) ) {
 				return false;
 			}
 		}
