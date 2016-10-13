@@ -83,8 +83,11 @@ class Nova_Restaurant {
 
 		$this->menu_item_loop_markup = $this->default_menu_item_loop_markup;
 
-		// Only output our Menu Item Loop Markup on a real blog view.  Not feeds, XML-RPC, admin, etc.
-		add_filter( 'template_include', array( $this, 'setup_menu_item_loop_markup__in_filter' ) );
+		// Allow disabling the Menu Item Loop Markup (for example on singular Menu Item page)
+		if ( apply_filters( 'nova_menu_item_loop_markup_enabled', true ) ) {
+			// Only output our Menu Item Loop Markup on a real blog view.  Not feeds, XML-RPC, admin, etc.
+			add_filter( 'template_include', array( $this, 'setup_menu_item_loop_markup__in_filter' ) );
+		}
 
 		add_filter( 'enter_title_here',       array( $this, 'change_default_title' ) );
 		add_filter( 'post_updated_messages',  array( $this, 'updated_messages'     ) );
@@ -861,8 +864,15 @@ class Nova_Restaurant {
 		}
 
 		foreach ( array_keys( $_POST['nova_title'] ) as $key ) :
-			// $_POST is already slashed
-			$post_details = array(
+			/**
+			 * Allow filtering the data before the post is created.
+			 * Useful for switching 'post_content' for 'post_excerpt', for example.
+			 * You can actually filter the data via 'wp_insert_post_data' filter,
+			 * but this is easier, more convenient way.
+			 *
+			 * $_POST is already slashed
+			 */
+			$post_details = apply_filters( 'nova_menu_edit_many_items_post_details', array(
 				'post_status'  => 'publish',
 				'post_type'    => self::MENU_ITEM_POST_TYPE,
 				'post_content' => $_POST['nova_content'][$key],
@@ -871,7 +881,7 @@ class Nova_Restaurant {
 					self::MENU_ITEM_LABEL_TAX => $_POST['nova_labels'][$key],
 					self::MENU_TAX            => $_POST['nova_menu_tax'],
 				),
-			);
+			), $key );
 
 			$post_id = wp_insert_post( $post_details );
 			if ( !$post_id || is_wp_error( $post_id ) ) {
@@ -1185,25 +1195,31 @@ class Nova_Restaurant {
 	/**
 	 * Outputs a Menu Item Markup element opening tag
 	 *
+	 * Allow filtering for better output control.
+	 *
 	 * @param string $field - Menu Item Markup settings field
 	 */
 	function menu_item_loop_open_element( $field ) {
 		$markup = $this->get_menu_item_loop_markup();
-		echo '<' . tag_escape( $markup["{$field}_tag"] ) .  $this->menu_item_loop_class( $markup["{$field}_class"] ) . ">\n";
+		echo apply_filters( 'nova_menu_item_loop_markup_open', '<' . tag_escape( $markup["{$field}_tag"] ) .  $this->menu_item_loop_class( $markup["{$field}_class"] ) . ">\n", $field, $markup, $this->menu_item_loop_current_term );
 	}
 
 	/**
 	 * Outputs a Menu Item Markup element closing tag
 	 *
+	 * Allow filtering for better output control.
+	 *
 	 * @param string $field - Menu Item Markup settings field
 	 */
 	function menu_item_loop_close_element( $field ) {
 		$markup = $this->get_menu_item_loop_markup();
-		echo '</' . tag_escape( $markup["{$field}_tag"] ) . ">\n";
+		echo apply_filters( 'nova_menu_item_loop_markup_close', '</' . tag_escape( $markup["{$field}_tag"] ) . ">\n", $field, $markup, $this->menu_item_loop_current_term );
 	}
 
 	/**
 	 * Returns a Menu Item Markup element's class attribute
+	 *
+	 * Allow filtering for better output control.
 	 *
 	 * @param string $class
 	 * @return string HTML class attribute with leading whitespace
@@ -1213,7 +1229,7 @@ class Nova_Restaurant {
 			return '';
 		}
 
-		return ' class="' . esc_attr( $class ) . '"';
+		return apply_filters( 'nova_menu_item_loop_markup_class', ' class="' . esc_attr( $class ) . '"', $class, $this->menu_item_loop_current_term );
 	}
 }
 
