@@ -35,6 +35,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'youtube_username'   => '',
 			'vimeo_username'     => '',
 			'googleplus_username' => '',
+			'wordpress_username' => '',
 		);
 
 		$this->services = array(
@@ -47,6 +48,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'youtube'    => array( 'YouTube', 'https://www.youtube.com/%s/' ),
 			'vimeo'      => array( 'Vimeo', 'https://vimeo.com/%s/' ),
 			'googleplus' => array( 'Google+', 'https://plus.google.com/u/0/%s/' ),
+			'wordpress'  => array(  'WordPress.org', 'https://profiles.wordpress.org/%s/'),
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
@@ -81,7 +83,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			wp_enqueue_style( 'genericons' );
 		}
 
-		$index = 10;
+		$index = 11;
 		$html = array();
 
 		$alt_text = esc_attr__( 'View %1$s&#8217;s profile on %2$s', 'jetpack' );
@@ -98,7 +100,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				continue;
 			}
 
-			$index += 10;
+			$index += 11;
 
 			if (
 				$service === 'googleplus'
