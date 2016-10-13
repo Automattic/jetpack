@@ -142,7 +142,10 @@ class Jetpack_Sync_Actions {
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 
 		if ( ! $result ) {
+			Jetpack_Options::update_option( 'sync_error_idc', get_home_url() );
 			return $rpc->get_jetpack_error();
+		} else {
+			Jetpack_Options::delete_option( 'sync_error_idc' );
 		}
 
 		return $rpc->getResponse();

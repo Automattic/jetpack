@@ -5295,6 +5295,10 @@ p {
 			}
 		}
 
+		if ( Jetpack::get_option( 'sync_error_idc' ) === get_home_url() && self::sync_idc_optin() ) {
+			$is_staging = true;
+		}
+
 		/**
 		 * Filters is_staging_site check.
 		 *
@@ -5303,6 +5307,25 @@ p {
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+	}
+
+	/*
+	 * Returns the value of the jetpack_sync_idc_optin filter.
+	 * If set to true, the site will be put into staging mode.
+	 *
+	 * @since 4.4.0
+	 * @return bool
+	 */
+	public static function sync_idc_optin() {
+		/**
+		 * Allows sites to optin to IDC mitigation which blocks the site from syncing to WordPress.com when the home
+		 * URL or site URL do not match what WordPress.com expects.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool false
+		 */
+		return apply_filters( 'jetpack_sync_idc_optin', false );
 	}
 
 	/**

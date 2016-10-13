@@ -218,6 +218,16 @@ export function isStaging( state ) {
 }
 
 /**
+ * Checks if the site is currently in an Identity Crisis.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {boolean} True if site is in IDC. False otherwise.
+ */
+export function isInIdentityCrisis( state ) {
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'isInIdentityCrisis' ], false );
+}
+
+/**
  * Checks if the module requires connection.
  *
  * @param  {Object}  state Global state tree
