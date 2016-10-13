@@ -77,55 +77,38 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.3.2 =
 
+* Release date: October 13, 2016
+
 **Enhancements**
 
-* Admin: Make the user confirm navigating away when there are unsaved settings #5085
-* Carousel: Exclude carousel views from stats by default, and add `jetpack_enable_carousel_stats` filter to enable them. #5154
-* Staging Mode: added Kinsta staging URLs to the list of URLs that automatically turn on Staging Mode. #5209
-* Stats: Improve response time for initial stat load. #5247
-* Sync: Add checkout and close api endpoints. #5192
-* Sync: Add next_sync_time to sync status endpoint. #5173
-* Sync: Add unlock queue api endpoint. #5246
-* Sync: Send home and siteurl options with each sync. #5261
+* Unsaved changes were getting lost when users were navigating away from settings so we put in a confirmation message to prevent this from happening.
+* We've stopped counting carousel views in stats by default, you can use the `jetpack_enable_carousel_stats` filter to enable counting them again.
+* Stats are now responding faster.
+* There were several improvements and repairs made to sync including additional endpoints, performance enhancements, whitelisted data, better decision making around when to sync information, and more.
 
+**Improved Compatibility:**
+
+* We've improved compatibility with Kinsta by automatically turning on Staging Mode for Jetpack when in a staging environment.
 
 **Bug Fixes:**
 
-* Admin: Add width/height attributes to HE avatars #5109
-* Admin: check that a json language file like jetpack-en_US.json is readable before loading its contents and thus avoid a PHP warning. #5166
-* Admin: Fix CPT configuration links #5153
-* Admin: remove form legend for default Tiled Gallery settings #5230
-* Admin: Remove unneeded extra option in Gravatar Hovercard Settings #4997
-* Admin: Use correct link to contact Jetpack #5165
-* API: fix permissions check for plugin information retrieval #5294
-* Don't enqueue changes during send phase - prevents infinite loop caused by plugins that add content when outbound http requests fire #5264
-* Internationalization: added fallback so that a warning isn't thrown if translations don't exist.  #5166
-* Internationalization: added Moroccan Arabic translation, switched to language packs for Croatian, Spanish (Chile) and Greek. #5140
-* Invoke full sync after enqueue. #5190
-* Limit dequeue time to 1/3 of PHP's max execution time to prevent long renders clogging sync. #5194
-* Markdown: Add class to footnotes #4595
-* Omnisearch: Remove splashes from search query. #4701
-* Send full and incremental queues separately so that a failure in one doesn't block the other. #5172
-* Sharing: Fix JS enqueue order #5072
-* Shortcodes: Return early if no string is passed #4797
-* Sync: Add whitelist for post and comment meta. #5276
-* Sync: Add whitelist for post_meta and comment_meta to settings. #5296
-* Sync: Delete sync options when resetting the sync. #5204
-* Sync: Disable oembed when syncing. #5277
-* Sync: Do not sync non public post types filtered post content and excerpt. #5288
-* Sync: Do not sync non registered post types. #5288
-* Sync: Do not sync post meta related to post_types that are blacklisted. #5258
-* Sync: Re-add stats to sync. #5207
-* Sync: Remove unused code that that caused PHP notice. #5195
-* Sync: Unhook Likes, Related Post, and Sharing from content_filtered #5224 and #5285
-* UI: Update professional slug to plans in the new Jetpack React UI. #5206
-* Widgets: Fix top posts attachment page behavior #5079
+* Several fixes have been made to sync to repair issues with Publicize, Notifications, and Subscriptions.
+* We removed PHP warnings by checking to make sure json language files like jetpack-en_US.json are readable before we load them.
+* We found an unused option in Gravatar Hovercard settings and removed it.
+* The correct support link is now being used to make it easier for you to connect with the Jetpack team if you need us.
+* The permissions check for plugin information retrieval was fixed as well.
+* Some plugins were adding content on outbound http requests causing an infinite loop we fixed this right up.
+* We removed some warnings that were occurring when translations didn't exist by adding a fallback.
+* We've added Moroccan Arabic translations, and switched to language packs for Croatian, Spanish (Chile) and Greek.
+* Sync was running into issues so we've limited dequeue time to 1/3 of PHP's max execution time, which has unclogged the problem.
+* Markdown now has a class on footnotes.
+* We're now sending full and incremental queues separately so that a failure in one doesn't block the other.
+* There was a JavaScript enqueuing error with our Sharing feature that has been repaired.
+* The Top Posts widget now includes the ability to list attachment (media) pages.
+* We weren't building CPT links correctly resulting in bad navigation, which is now fixed.
+* We removed the form legend for default Tiled Gallery settings as it doesn't relate.
+* With shortcodes we now return early from processing them if no string is passed, as they are required.
 
-
-**Support Enhancements**
-
-* Add option to disable rendering of filtered content during sync. #5171
-* Remove feedback prompt. #5232
 
 = 4.3.1 =
 
@@ -142,10 +125,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled.
 * Admin Page: make sure all translated strings are encoded properly.
 * Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests.
-<<<<<<< HEAD
-=======
-* Admin Page: fewer calls to the database means faster load time.
->>>>>>> master
 * Admin Page: search icon no longer overlaps the global notices.
 * Admin Page: make sure that non-admins can also modify Spellchecking settings.
 * General: Improve random number generation for compatibility with more hosts.
