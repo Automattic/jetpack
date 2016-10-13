@@ -77,6 +77,37 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.3.2 =
 
+* Release date: October 13, 2016
+
+**Enhancements**
+
+* Unsaved changes were getting lost when users were navigating away from settings so we put in a confirmation message to prevent this from happening.
+* We've stopped counting carousel views in stats by default, you can use the `jetpack_enable_carousel_stats` filter to enable counting them again.
+* Stats are now responding faster.
+* There were several improvements and repairs made to sync including additional endpoints, performance enhancements, whitelisted data, better decision making around when to sync information, and more.
+* Markdown now has a CSS class on footnotes.
+
+**Improved Compatibility:**
+
+* We've improved compatibility with Kinsta by automatically turning on Staging Mode for Jetpack when in a staging environment.
+
+**Bug Fixes:**
+
+* Several fixes have been made to sync to repair issues with Publicize, Notifications, and Subscriptions.
+* We removed PHP warnings by checking to make sure json language files like jetpack-en_US.json are readable before we load them.
+* We found an unused option in Gravatar Hovercard settings and removed it.
+* The correct support link is now being used to make it easier for you to connect with the Jetpack team if you need us.
+* The permissions check for plugin information retrieval was fixed as well.
+* Some plugins were adding content on outbound http requests causing an infinite loop we fixed this right up.
+* We removed some warnings that were occurring when translations didn't exist by adding a fallback.
+* We've added Moroccan Arabic translations, and switched to language packs for Croatian, Spanish (Chile) and Greek.
+* Sync was running into issues so we've limited dequeue time to 1/3 of PHP's max execution time, which has unclogged the problem.
+* We're now sending full and incremental queues separately so that a failure in one doesn't block the other.
+* There was a JavaScript enqueuing error with our Sharing feature that has been repaired.
+* The Top Posts widget now includes the ability to list attachment (media) pages.
+* We weren't building CPT links correctly resulting in bad navigation, which is now fixed.
+* We removed the form legend for default Tiled Gallery settings as it doesn't relate.
+* With shortcodes we now return early from processing them if no string is passed, as they are required.
 
 
 = 4.3.1 =
@@ -94,7 +125,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled.
 * Admin Page: make sure all translated strings are encoded properly.
 * Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests.
-* Admin Page: fewer calls to the database means faster load time.
 * Admin Page: search icon no longer overlaps the global notices.
 * Admin Page: make sure that non-admins can also modify Spellchecking settings.
 * General: Improve random number generation for compatibility with more hosts.
