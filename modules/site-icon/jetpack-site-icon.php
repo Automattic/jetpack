@@ -31,14 +31,18 @@ class Jetpack_Site_Icon {
 		'image/png'
 	);
 
-	public static $site_icon_sizes = array(
-		256,
-		128,
-		80,
-		64,
+	public static $apple_icon_sizes = array(
+		180,
+	);
+
+	public static $other_icon_sizes = array(
+		96,
 		32,
 		16,
 	);
+
+	// Defined in self::init()
+	public static $site_icon_sizes;
 
 	static $instance = false;
 
@@ -46,6 +50,9 @@ class Jetpack_Site_Icon {
 	 * Singleton
 	 */
 	public static function init() {
+		// Because PHP can't parse non-trivial expressions in initializers
+		self::$site_icon_sizes = array_merge( self::$apple_icon_sizes, self::$other_icon_sizes );
+		
 		if ( ! self::$instance ){
 			self::$instance = new Jetpack_Site_Icon;
 			self::$instance->register_hooks();
@@ -121,14 +128,20 @@ class Jetpack_Site_Icon {
 			return;
 		}
 
-		$url_114 = jetpack_site_icon_url( null,  114 );
-		$url_72  = jetpack_site_icon_url( null,  72 );
-		$url_32  = jetpack_site_icon_url( null,  32 );
-		if( $url_32 ) {
-			echo '<link rel="icon" href="'.esc_url( $url_32 ) .'" sizes="32x32" />' . "\n";
-			echo '<link rel="apple-touch-icon-precomposed" href="'. esc_url( $url_114 ) .'">' . "\n";
-			// windows tiles
-			echo '<meta name="msapplication-TileImage" content="' . esc_url( $url_114 ) . '"/>' . "\n";
+		if ( jetpack_has_site_icon() ) {
+			echo '<!-- Jetpack Site Icons -->' . "\n";
+			
+			// Apple icons
+			foreach ( self::$apple_icon_sizes as $size ) {
+				${ 'url_' . $size } = jetpack_site_icon_url( null, $size );
+				echo '<link rel="apple-touch-icon" sizes="' . $size . 'x' . $size . '" href="' . ${ 'url_' . $size } . '">' . "\n";
+			}
+			
+			// Other icons
+			foreach ( self::$other_icon_sizes as $size ) {
+				${ 'url_' . $size } = jetpack_site_icon_url( null, $size );
+				echo '<link rel="icon" type="image/png" href="' . ${ 'url_' . $size } . '" sizes="' . $size . 'x' . $size . '">' . "\n";
+			}
 		}
 
 	}
