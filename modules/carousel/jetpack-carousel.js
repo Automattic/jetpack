@@ -8,7 +8,7 @@ jQuery(document).ready(function($) {
 	var overlay, comments, gallery, container, nextButton, previousButton, info, transitionBegin,
 	caption, resizeTimeout, photo_info, close_hint, commentInterval, lastSelectedSlide,
 	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85,
-	last_known_location_hash = '', imageMeta, titleAndDescription, commentForm, leftColWrapper, scrollPos;
+	last_known_location_hash = '', imageMeta, titleAndDescription, commentForm, leftColWrapper, scrollPos, numImagesOpened = 0;
 
 	if ( window.innerWidth <= 760 ) {
 		screenPadding = Math.round( ( window.innerWidth / 760 ) * 110 );
@@ -389,10 +389,9 @@ jQuery(document).ready(function($) {
 					$(window).scrollTop(scroll);
 				})
 				.bind('jp_carousel.afterClose', function(){
-					if ( history.pushState ) {
-						history.pushState('', document.title, window.location.pathname + window.location.search);
-					} else {
-						window.location.hash = '';
+					if ( history.go ) {
+						history.go(-numImagesOpened);
+						numImagesOpened = 0;
 					}
 					last_known_location_hash = '';
 					gallery.opened = false;
@@ -707,6 +706,7 @@ jQuery(document).ready(function($) {
 			});
 
 			window.location.hash = last_known_location_hash = '#jp-carousel-' + attachmentId;
+			numImagesOpened++;
 		},
 
 		slides : function(){
