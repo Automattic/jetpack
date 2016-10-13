@@ -34,7 +34,7 @@ function stats_load() {
 
 	add_action( 'wp_head', 'stats_admin_bar_head', 100 );
 
-	add_action( 'wp_head', 'stats_hide_smile_css' );
+	add_action( 'wp_enqueue_scripts', 'stats_hide_smile_css' );
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
@@ -620,8 +620,7 @@ function stats_configuration_screen() {
 function stats_hide_smile_css() {
 	$options = stats_get_options();
 	if ( isset( $options['hide_smile'] ) && $options['hide_smile'] ) {
-	?>
-<style type='text/css'>img#wpstats{display:none}</style><?php
+		wp_add_inline_style( 'jetpack_css', 'img#wpstats{display:none}' );
 	}
 }
 
