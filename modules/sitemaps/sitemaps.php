@@ -38,12 +38,12 @@ class Jetpack_Sitemap_Manager {
 				'jetpack_sitemap',
 				array(
 					'labels' => array(
-						'name' => __( 'Sitemaps' ),
+						'name'          => __( 'Sitemaps' ),
 						'singular_name' => __( 'Sitemap' ),
 					),
-					'public' => true,
+					'public'      => true,
 					'has_archive' => true,
-					'rewrite' => array('slug' => 'jetpack-sitemap'),
+					'rewrite'     => array('slug' => 'jetpack-sitemap'),
 				)
 			);
 		});
@@ -54,6 +54,8 @@ class Jetpack_Sitemap_Manager {
 				header('Content-Type: text/xml; charset=UTF-8');
 				echo "<xml>subsequent sitemaps!</xml>\n";
 				die();
+			} else {
+				return;
 			}
 		});
 	}
