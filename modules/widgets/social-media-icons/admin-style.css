@@ -1,0 +1,14 @@
+
+
+fieldset.social-media-icons-widget {
+	border: solid 1px #e5e5e5;
+    padding: 0em 1em;
+    margin-bottom: 1em;
+    background: #fafafa;
+}
+
+fieldset.social-media-icons-widget legend {
+    padding: 0.25em 0.5em;
+    border: solid 1px #e5e5e5;
+    background-color: #fff;
+}
