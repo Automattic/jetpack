@@ -12,7 +12,6 @@ class Jetpack_Sitemap_Manager {
 	private static $__instance = null;
 
 
-
 	/**
 	 * Singleton implementation
 	 *
@@ -48,16 +47,108 @@ class Jetpack_Sitemap_Manager {
 			);
 		});
 
-		/* Route URLs */
-		add_action( 'init', function () {
+		/**
+		 * Handle sitemap URLs
+		 *
+		 * Capture URLs of the form "example.com/new-sitemapNUM.xml" where
+		 * NUM is either the empty string or a positive decimal integer.
+		 */
+		add_action( 'init', function () { 
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
 			if ( preg_match( '/^\/new-sitemap([1-9][0-9]*)?\.xml$/', $_SERVER['REQUEST_URI']) ) {
-				header('Content-Type: text/xml; charset=UTF-8');
-				echo "<xml>subsequent sitemaps!</xml>\n";
-				die();
-			} else {
-				return;
+				// Get the post corresponding to the requested sitemap.
+				$the_sitemap_post = get_page_by_title(
+					substr($_SERVER['REQUEST_URI'], 5, -4),
+					'OBJECT',
+					'jetpack_sitemap'
+				);
+
+				// If the requested post does not exist, return.
+				// Otherwise serve the post's content as XML.
+				if (null === $the_sitemap_post) {
+					return;
+				} else {
+					header('Content-Type: text/xml; charset=UTF-8');
+					echo $the_sitemap_post->post_content;
+					echo $this->generate_sitemap_by_position_and_start_ID(1, 500)['content'];
+					die();
+				}
 			}
+
+			// URL did not match regex.
+			return;
 		});
+	}
+
+	/**
+	 * Retrieve an array of posts sorted by ID.
+	 *
+	 * Returns the smallest $num_posts posts (measured by ID) which are larger than $from_ID.
+	 *
+	 * @module sitemaps
+	 *
+	 * @param int $from_ID The post ID to start
+	 */
+	private function get_published_posts_after_ID ( $from_ID, $num_posts ) {
+		global $wpdb;
+
+		$query_string = "
+			SELECT DISTINCT ID, post_type, post_modified_gmt, comment_count
+				FROM $wpdb->posts
+				WHERE post_status='publish' AND ID>$from_ID
+				ORDER BY ID ASC
+				LIMIT $num_posts;
+		";
+
+		return $wpdb->get_results( $query_string );
+	}
+
+
+	/**
+	 *
+	 */
+	private function generate_sitemap_by_position_and_start_ID ( $sitemap_position, $from_ID ) {
+		$buffer = '';
+		$buffer_size_in_bytes = 0;
+		$buffer_size_in_items = 0;
+		$buffer_too_big = False;
+		$current_post_ID = $from_ID;
+
+		while ( False == $buffer_too_big ) {
+			$posts = $this->get_published_posts_after_ID($current_post_ID, 1000);
+
+			if (null == $posts) {
+				break;
+			}
+
+			foreach ($posts as $post) {
+				$current_item_XML = $this->post_to_sitemap_item($post);
+	
+				// Update size of buffer
+				$buffer_size_in_bytes += mb_strlen($current_item_XML);
+				$buffer_size_in_items += 1;
+
+				if ( $buffer_size_in_bytes < 10^6 && $buffer_size_in_items < 2000 ) {
+					$current_post_ID = $post->ID;
+					$buffer .= $current_item_XML;
+				} else {
+					$buffer_too_big = True;
+					break;
+				}
+			}
+		}
+
+		return array(
+      'content'      => $buffer,
+      'last_post_ID' => $current_post_ID,
+    );
+	}
+
+	/**
+	 *
+	 */
+	private function post_to_sitemap_item ( $post ) {
+		return $post->ID . "\n";
 	}
 }
 
