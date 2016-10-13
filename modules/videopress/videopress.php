@@ -51,30 +51,63 @@ class Jetpack_VideoPress {
 			add_action( 'wp_ajax_save-attachment-compat', array( $this, 'wp_ajax_save_attachment' ), -1 );
 			add_action( 'wp_ajax_delete-post', array( $this, 'wp_ajax_delete_post' ), -1 );
 
+
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		}
 
 		if ( $this->can( 'upload_videos' ) && $options['blog_id'] ) {
 			add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
+			add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
 		}
 
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
+
+		// Add media list filters. These help keep bad videopress posts from appearing in the feed.
+		add_filter( 'ajax_query_attachments_args', array( $this, 'ajax_query_attachments_args' ), 10, 1 );
+		add_action( 'pre_get_posts', array( $this, 'media_list_table_query' ) );
+
+		VideoPress_Scheduler::init();
 	}
 
+	/**
+	 * Ajax method that is used by the VideoPress uploader to get a token to upload a file to the wpcom api.
+	 *
+	 * @return void
+	 */
 	function wp_ajax_videopress_get_upload_token() {
-		if ( ! $this->can( 'upload_videos' ) )
-			return wp_send_json_error();
+		if ( ! $this->can( 'upload_videos' ) ) {
+			wp_send_json_error();
+			return;
+		}
 
-		$result = $this->query( 'jetpack.vpGetUploadToken' );
-		if ( is_wp_error( $result ) )
-			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+		$options = $this->get_options();
 
-		$response = $result;
-		if ( empty( $response['videopress_blog_id'] ) || empty( $response['videopress_token'] ) || empty( $response[ 'videopress_action_url' ] ) )
-			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+		$args = array(
+			'method'  => 'POST',
+		);
 
-		return wp_send_json_success( $response );
+		$endpoint = "sites/{$options['id']}/media/token";
+		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+			return;
+		}
+
+		$response = json_decode( $result['body'], true );
+
+		if ( empty( $response['upload_blog_id'] ) || empty( $response['upload_token'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+			return;
+		}
+
+		$title = sanitize_title( basename( $_POST['filename'] ) );
+
+		$response['upload_action_url'] = self::make_media_upload_path( $response['upload_blog_id'] );
+		$response['upload_media_id'] = $this->create_new_media_item( $title );
+
+		wp_send_json_success( $response );
 	}
 
 	/**
@@ -102,6 +135,10 @@ class Jetpack_VideoPress {
 		}
 
 		$options = array_merge( $defaults, $options );
+
+		// Add in the site id to the VideoPress options. Added at the bottom the ensure this cannot be overridden.
+		$options['id'] = Jetpack_Options::get_option( 'id' );
+
 		return $options;
 	}
 
@@ -576,6 +613,7 @@ class Jetpack_VideoPress {
 		if ( did_action( 'videopress_enqueue_admin_scripts' ) )
 			return;
 
+		wp_enqueue_script( 'videopress-uploader', plugins_url( 'js/videopress-uploader.js', __FILE__) , array( 'jquery', 'wp-plupload' ), $this->version );
 		wp_enqueue_script( 'videopress-admin', plugins_url( 'js/videopress-admin.js', __FILE__ ), array( 'jquery', 'media-views', 'media-models' ), $this->version );
 		wp_enqueue_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
 
@@ -780,15 +818,24 @@ class Jetpack_VideoPress {
 			update_post_meta( $id, 'videopress_guid', $guid );
 
 			$meta = wp_get_attachment_metadata( $post->ID );
+
+			$current_poster = get_post_meta( $id, '_thumbnail_id' );
+
 			$meta['width'] = $vp_item['width'];
 			$meta['height'] = $vp_item['height'];
 			$meta['original']['url'] = $vp_item['original'];
 			$meta['videopress'] = $vp_item;
 			$meta['videopress']['url'] = 'https://videopress.com/v/' . $guid;
 
-			// TODO: Add poster updating.
+			if ( ! $current_poster && isset( $vp_item['poster'] ) && ! empty( $vp_item['poster'] ) ) {
+				$thumbnail_id = videopress_download_poster_image( $vp_item['poster'], $id );
+				update_post_meta( $id, '_thumbnail_id', $thumbnail_id );
+			}
 
 			wp_update_attachment_metadata( $post->ID, $meta );
+
+			// update the meta to tell us that we're processing or complete
+			update_post_meta( $id, 'videopress_status', $this->is_video_finished_processing( $post->ID ) ? 'complete' : 'processing' );
 		}
 
 		if ( count( $errors ) > 0 ) {
@@ -815,30 +862,173 @@ class Jetpack_VideoPress {
 		$created_items = array();
 
 		foreach ( $media as $media_item ) {
-			$post = array(
-				'post_type'   => 'attachment',
-				'post_mime_type' => 'video/videopress',
-				'post_title' => sanitize_title( basename( $media_item['url'] ) ),
-				'post_content' => '',
-			);
 
-			$media_id = wp_insert_post( $post );
+			$media_id = $this->create_new_media_item( sanitize_title( basename( $media_item[ 'url' ] ) ) );
 
 			wp_update_attachment_metadata( $media_id, array(
 				'original' => array(
 					'url' => $media_item['url'],
-					'file' => $media_item['file'],
-					'mime_type' => $media_item['type'],
 				),
 			) );
 
 			$created_items[] = array(
-				'id' => $media_id,
+				'id'   => $media_id,
 				'post' => get_post( $media_id ),
 			);
 		}
 
 		return array( 'media' => $created_items );
+	}
+
+	/**
+	 * @param string $title
+	 * @return int|WP_Error
+	 */
+	public function create_new_media_item( $title ) {
+		$post = array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'video/videopress',
+			'post_title'     => $title,
+			'post_content'   => '',
+		);
+
+		$media_id = wp_insert_post( $post );
+
+		add_post_meta( $media_id, 'videopress_status', 'new' );
+
+		return $media_id;
+	}
+	/**
+	 * Get the upload api path.
+	 *
+	 * @param int $blog_id The id of the blog we're uploading to.
+	 * @return string
+	 */
+	protected function make_media_upload_path( $blog_id ) {
+		return sprintf(
+			'https://%s/rest/v1.1/sites/%s/videos/new',
+			JETPACK__WPCOM_JSON_API_HOST,
+			$blog_id
+		);
+	}
+
+	/**
+	 * Modify the default plupload config to turn on videopress specific filters.
+	 */
+	public function videopress_pluploder_config( $config ) {
+
+		if ( ! isset( $config['filters']['max_file_size'] ) ) {
+			$config['filters']['max_file_size'] = wp_max_upload_size() . 'b';
+		}
+
+		$config['filters']['videopress_check_uploads'] = $config['filters']['max_file_size'];
+
+		// We're doing our own check in the videopress_check_uploads filter.
+		unset( $config['filters']['max_file_size'] );
+
+		return $config;
+	}
+
+	/**
+	 * Media Grid:
+	 * Filter out any videopress video posters that we've downloaded,
+	 * so that they don't seem to display twice.
+	 *
+	 * @param array $args
+	 * @return array
+	 */
+	public function ajax_query_attachments_args( $args ) {
+
+		$args['meta_query'] = $this->add_status_check_to_meta_query( isset( $args['meta_query'] ) ? $args['meta_query'] : array() );
+
+		return $args;
+	}
+
+	/**
+	 * Media List:
+	 * Do the same as ^^ but for the list view.
+	 *
+	 * @param WP_Query $query
+	 * @return array
+	 */
+	public function media_list_table_query( $query ) {
+		if ( is_admin() && $query->is_main_query() && ( 'upload' === get_current_screen()->id ) ) {
+			$meta_query = $this->add_status_check_to_meta_query( $query->get( 'meta_query' ) );
+
+			$query->set( 'meta_query', $meta_query );
+		}
+	}
+
+	/**
+	 * Add the a videopress_status check to the meta query and if it has a `videopress_status` only include those with
+	 * a status of 'completed' or 'processing'.
+	 *
+	 * @param array $meta_query
+	 *
+	 * @return array
+	 */
+	protected function add_status_check_to_meta_query( $meta_query ) {
+
+		if ( ! is_array( $meta_query ) ) {
+			$meta_query = array();
+		}
+
+		$meta_query[] = array(
+			array(
+				'relation' => 'OR',
+				array(
+					'key'     => 'videopress_status',
+					'value'   => array( 'completed', 'processing' ),
+					'compare' => 'IN',
+				),
+				array(
+					'key'     => 'videopress_status',
+					'compare' => 'NOT EXISTS',
+				),
+			),
+		);
+
+		return $meta_query;
+	}
+
+	/**
+	 * Check to see if a video has completed processing.
+	 *
+	 * @param int $post_id
+	 *
+	 * @return bool
+	 */
+	public function is_video_finished_processing( $post_id ) {
+		$post = get_post( $post_id );
+
+		if ( is_wp_error( $post ) ) {
+			return false;
+		}
+
+		$meta = wp_get_attachment_metadata( $post->ID );
+
+		if ( ! isset( $meta['videopress'] ) || ! is_array( $meta['videopress'] ) ) {
+			return false;
+		}
+
+		// These are explicitly declared to avoid doing unnecessary loops across two levels of arrays.
+		if ( isset( $meta['videopress']['files_status']['hd'] ) && $meta['videopress']['files_status']['hd'] != 'DONE' ) {
+			return false;
+		}
+
+		if ( isset( $meta['videopress']['files_status']['dvd'] ) && $meta['videopress']['files_status']['dvd'] != 'DONE' ) {
+			return false;
+		}
+
+		if ( isset( $meta['videopress']['files_status']['std']['mp4'] ) && $meta['videopress']['files_status']['std']['mp4'] != 'DONE' ) {
+			return false;
+		}
+
+		if ( isset( $meta['videopress']['files_status']['std']['ogg'] ) && $meta['videopress']['files_status']['std']['ogg'] != 'DONE' ) {
+			return false;
+		}
+
+		return true;
 	}
 }
 
