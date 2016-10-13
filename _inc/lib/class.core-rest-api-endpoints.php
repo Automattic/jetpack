@@ -703,6 +703,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 					) );
 					break;
 
+				case 'connection' :
+					if ( Jetpack::clear_all_connection_options() ) {
+						return rest_ensure_response( array(
+							'code' => 'success',
+							'message' => esc_html__( 'Connection options cleared.', 'jetpack' ),
+						) );
+					}
+
+					return new WP_Error(
+						'invalid_option_name',
+						esc_html__( 'Reset connection options failed. Likely due to an invalid option name.', 'jetpack' ),
+						array( 'status' => 400 )
+					);
+					break;
+
 				default:
 					return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 			}
