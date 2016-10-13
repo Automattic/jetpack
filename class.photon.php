@@ -165,6 +165,11 @@ class Jetpack_Photon {
 					$src = $src_orig = $lazy_load_src[1];
 				}
 
+				elseif ( preg_match( '#data-lazy-original=["|\'](.+?)["|\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
+					$placeholder_src = $placeholder_src_orig = $src;
+					$src = $src_orig = $lazy_load_src[1];
+				}
+
 				// Check if image URL should be used with Photon
 				if ( self::validate_image_url( $src ) ) {
 					// Find the width and height attributes
