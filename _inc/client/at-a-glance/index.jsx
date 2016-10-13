@@ -18,7 +18,6 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
-import FeedbackDashRequest from 'components/jetpack-notices/feedback-dash-request';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
@@ -62,7 +61,6 @@ const AtAGlance = React.createClass( {
 					<QuerySitePlugins />
 					<QuerySite />
 					<DashStats { ...urls } />
-					<FeedbackDashRequest />
 
 					{
 						// Site Security
