@@ -18,7 +18,7 @@
 	width: 30px;
 	height: 107%;
 	height: calc( 100% + 2px );
-	font: normal 22px/1 Genericons !important;
+	font: normal 22px/1 dashicons !important;
 	text-shadow: none;
 }
 @media screen and (min-width: 783px) {

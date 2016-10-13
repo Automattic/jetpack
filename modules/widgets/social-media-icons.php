@@ -59,11 +59,11 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		wp_enqueue_style( 'jetpack_social_media_icons_widget' );
 	}
 
-	private function check_genericons() {
+	private function check_social_icons() {
 		global $wp_styles;
 
 		foreach ( $wp_styles->queue as $handle ) {
-			if ( false !== stristr( $handle, 'genericons' ) ) {
+			if ( false !== stristr( $handle, 'social-logos' ) ) {
 				return $handle;
 			}
 		}
@@ -77,8 +77,8 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$instance['title'] = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
 
-		if ( ! $this->check_genericons() ) {
-			wp_enqueue_style( 'genericons' );
+		if ( ! $this->check_social_icons() ) {
+			wp_enqueue_style( 'social-logos' );
 		}
 
 		$index = 10;

@@ -136,10 +136,10 @@
 	padding-left: 30px;
 }
 
-.jetpack-sso.button .genericon-wordpress {
+.jetpack-sso.button .dashicons-wordpress-alt {
 	position: absolute;
 		left: 0;
-		top: -3px;
+		top: -4px;
 	font-size: 24px;
 }
 
