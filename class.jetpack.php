@@ -5297,15 +5297,8 @@ p {
 		}
 
 		// Last, let's check if sync is erroring due to an IDC. If so, set the site to staging mode.
-		if ( ! $is_staging && ( $sync_error = Jetpack_Options::get_option( 'sync_error_idc' ) ) ) {
-			 if ( ! self::sync_idc_optin() || $sync_error !== get_home_url() ) {
-				// If the values do not match, or the site is no longer opted in,
-				// delete the `jetpack_sync_error_idc` option
-				Jetpack_Options::delete_option( 'sync_error_idc' );
-			} else {
-				// If the value stored in $sync_error is the same as get_home_url(), then put the site in staging.
-				$is_staging = true;
-			}
+		if ( ! $is_staging && self::validate_sync_error_idc_option() ) {
+			$is_staging = true;
 		}
 
 		/**
@@ -5316,6 +5309,35 @@ p {
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+	}
+
+	/**
+	 * Checks whether the sync_error_idc option is valid or not, and if not, will do cleanup.
+	 *
+	 * @return bool
+	 */
+	public static function validate_sync_error_idc_option() {
+		$is_valid = false;
+		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+		if ( $sync_error && $sync_error == get_home_url() ) {
+			$is_valid = true;
+		}
+
+		/**
+		 * Filters whether the sync_error_idc option is valid.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool $is_valid If the sync_error_idc is valid or not.
+		 */
+		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
+
+		if ( ! $is_valid && $sync_error ) {
+			// Since the option exists, and did not validate, delete it
+			Jetpack_Options::delete_option( 'sync_error_idc' );
+		}
+
+		return $is_valid;
 	}
 
 	/**
