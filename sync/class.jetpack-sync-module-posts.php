@@ -187,4 +187,33 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$this->get_term_relationships( $post_ids ),
 		);
 	}
+
+	/**
+	 * Attempt to backfill up to the last 1,000 posts with $meta_key.
+	 *
+	 * Backfilling is necessary after adding meta keys to the whitelist.
+	 *
+	 * @param $meta_key
+	 *
+	 * @return array|bool
+	 */
+	public function backfill_posts_with_meta_key_config( $meta_key ) {
+		global $wpdb;
+		if ( ! $meta_key ) {
+			return false;
+		}
+
+		$post_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s LIMIT 1000 ORDER BY post_id DESC",
+				$meta_key
+			)
+		);
+
+		if ( empty( $post_ids ) ){
+			return false;
+		}
+
+		return $post_ids;
+	}
 }

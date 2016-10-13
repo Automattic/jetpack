@@ -74,6 +74,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			$modules['users'] = $user_module->get_initial_sync_user_config();
 		}
 
+		if( isset( $modules['posts'] ) && isset( $modules['posts']['meta'] ) ) {
+			$posts_module = Jetpack_Sync_Modules::get_module( 'posts' );
+			$modules['posts'] = $posts_module->backfill_posts_with_meta_key_config( $modules['posts']['meta'] );
+		}
+
 		// by default, all modules are fully enabled
 		if ( count( $modules ) === 0 ) {
 			$default_module_config = true;

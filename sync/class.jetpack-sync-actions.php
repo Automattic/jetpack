@@ -160,6 +160,10 @@ class Jetpack_Sync_Actions {
 			$initial_sync_config['users'] = 'initial';
 		}
 
+		if ( $old_version && version_compare( $old_version, '4.2.3', '<' ) && version_compare( $old_version, '4.2', '>=' ) ) {
+			$initial_sync_config['posts'] = array( 'meta' => '_wp_attached_file' );
+		}
+
 		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
 		wp_functionality_constants();
