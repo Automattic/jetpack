@@ -253,13 +253,13 @@ div.jp-carousel-buttons a:hover {
 	background-color: black;
 	background-color: rgba(0,0,0,0.8);
 	display: block;
-	height: 22px;
-	font: 400 24px/1 "Helvetica Neue", sans-serif !important;
-	line-height: 22px;
+	height: 50px;
+	font: 400 36px/1 "Helvetica Neue", sans-serif !important;
+	line-height: 36px;
 	margin: 0 0 0 0.4em;
 	text-align: center;
 	vertical-align: middle;
-	width: 22px;
+	width: 50px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
