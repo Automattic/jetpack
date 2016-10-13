@@ -54,13 +54,19 @@ Known Issues:
 **Start Development**
 
 1. Make sure you have `git`, `node`, and `npm` installed and a working WordPress installation.
-2. Clone this repository locally inside your `/wp-content/plugins` directory.
+2. Make sure you have `gulp` installed globally.
+
+	```
+	npm install -g gulp
+	```
+
+3. Clone this repository locally inside your `/wp-content/plugins` directory.
 
 	```
 	git clone https://github.com/Automattic/jetpack.git
 	```
 
-3. Make sure the Jetpack plugin is active and run
+4. Make sure the Jetpack plugin is active and run
 
 	```
 	npm run build
