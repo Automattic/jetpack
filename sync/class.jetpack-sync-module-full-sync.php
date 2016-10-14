@@ -12,8 +12,6 @@
  * - we fire a trigger for the entire array which the Jetpack_Sync_Listener then serializes and queues.
  */
 
-require_once 'class.jetpack-sync-wp-replicastore.php';
-
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
 	const FULL_SYNC_TIMEOUT = 3600;
@@ -43,8 +41,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// remove all evidence of previous full sync items and status
 		$this->reset_data();
-
-		$this->enable_queue_rate_limit();
 
 		if ( $was_already_running ) {
 			/**
@@ -101,6 +97,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			}
 		}
 
+		$this->continue_enqueuing();
+
+		return true;
+	}
+
+	function continue_enqueuing() {
+		$this->enable_queue_rate_limit();
+		
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name   = $module->name();
 			$module_config = $modules[ $module_name ];
@@ -119,8 +123,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		$this->update_status_option( 'queue_finished', time() );
 
-		$store = new Jetpack_Sync_WP_Replicastore();
-
 		/**
 		 * Fires when a full sync ends. This action is serialized
 		 * and sent to the server with checksums so that we can confirm the
@@ -131,8 +133,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_end', '' );
 
 		$this->disable_queue_rate_limit();
-
-		return true;
 	}
 
 	function update_sent_progress_action( $actions ) {
