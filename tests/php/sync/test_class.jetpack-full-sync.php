@@ -6,6 +6,7 @@ class WP_Test_Jetpack_Full_Sync extends WP_Test_Jetpack_Sync_Base {
 		$post_id = $this->factory->post->create();
 		$post = get_post( $post_id );
 
+		Jetpack_Full_Sync::start();
 		Jetpack_Full_Sync::do_sync();
 
 		$post = Jetpack_Sync_Modules::get_module( 'posts' )->filter_post_content_and_add_links( $post );
