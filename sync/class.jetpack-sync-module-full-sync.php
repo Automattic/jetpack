@@ -36,7 +36,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'update_sent_progress_action' ) );
 	}
 
-	function start( $modules = null ) {
+	function start( $module_configs = null ) {
 		$was_already_running = $this->is_started() && ! $this->is_finished();
 
 		// remove all evidence of previous full sync items and status
@@ -57,21 +57,21 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 *
 		 * @since 4.2.0
 		 */
-		do_action( 'jetpack_full_sync_start', $modules );
+		do_action( 'jetpack_full_sync_start', $module_configs );
 		$this->update_status_option( 'started', time() );
 
 		// configure modules
-		if ( ! is_array( $modules ) ) {
-			$modules = array();
+		if ( ! is_array( $module_configs ) ) {
+			$module_configs = array();
 		}
 
-		if ( isset( $modules['users'] ) && 'initial' === $modules['users'] ) {
+		if ( isset( $module_configs['users'] ) && 'initial' === $module_configs['users'] ) {
 			$user_module = Jetpack_Sync_Modules::get_module( 'users' );
-			$modules['users'] = $user_module->get_initial_sync_user_config();
+			$module_configs['users'] = $user_module->get_initial_sync_user_config();
 		}
 
 		// by default, all modules are fully enabled
-		if ( count( $modules ) === 0 ) {
+		if ( count( $module_configs ) === 0 ) {
 			$default_module_config = true;
 		} else {
 			$default_module_config = false;
@@ -80,12 +80,12 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		// set default configuration, calculate totals, and save configuration if totals > 0
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
-			if ( ! isset( $modules[ $module_name ] ) ) {
-				$modules[ $module_name ] = $default_module_config;
+			if ( ! isset( $module_configs[ $module_name ] ) ) {
+				$module_configs[ $module_name ] = $default_module_config;
 			}
 
 			// check if this module is enabled
-			if ( ! ( $module_config = $modules[ $module_name ] ) ) {
+			if ( ! ( $module_config = $module_configs[ $module_name ] ) ) {
 				continue;
 			}
 
@@ -97,17 +97,17 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			}
 		}
 
-		$this->continue_enqueuing();
+		$this->continue_enqueuing( $module_configs );
 
 		return true;
 	}
 
-	function continue_enqueuing() {
+	function continue_enqueuing( $module_configs ) {
 		$this->enable_queue_rate_limit();
-		
+
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name   = $module->name();
-			$module_config = $modules[ $module_name ];
+			$module_config = $module_configs[ $module_name ];
 
 			// check if this module is enabled
 			if ( ! $module_config ) {
