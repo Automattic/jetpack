@@ -5354,10 +5354,8 @@ p {
 	public static function sync_idc_optin() {
 		if ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
 			$default = JETPACK_SYNC_IDC_OPTIN;
-		} else if ( defined( 'SUNRISE' ) ) {
-			$default = SUNRISE;
 		} else {
-			$default = self::is_development_version();
+			$default = false;
 		}
 
 		/**
