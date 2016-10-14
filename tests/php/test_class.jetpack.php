@@ -435,6 +435,28 @@ EXPECTED;
 		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
 	}
 
+	function test_sync_error_idc_validation_returns_false_if_no_option() {
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+	}
+
+	function test_sync_error_idc_validation_returns_true_when_option_matches_expected() {
+		Jetpack_Options::update_option( 'sync_error_idc', get_home_url() );
+		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+	}
+
+	function test_sync_error_idc_validation_cleans_up_when_validation_fails() {
+		Jetpack_Options::update_option( 'sync_error_idc', 'http://nonsenseurl.com' );
+		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+	}
+
+	function test_is_staging_site_true_when_sync_error_idc_is_valid() {
+		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
+		$this->assertTrue( Jetpack::is_staging_site() );
+		remove_filter( 'jetpack_sync_error_idc_validation', '__return_false' );
+	}
+
 	function __return_string_1() {
 		return '1';
 	}
