@@ -29,7 +29,6 @@ class Jetpack_SSO {
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_action( 'init',                   array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
-		add_action( 'admin_enqueue_scripts',  array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'login_form_logout',      array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
 		add_action( 'wp_login',               array( 'Jetpack_SSO', 'clear_wpcom_profile_cookies' ) );
 		add_action( 'jetpack_unlinked_user',  array( $this, 'delete_connection_for_user') );
@@ -76,7 +75,6 @@ class Jetpack_SSO {
 		<?php
 	}
 
-
 	/**
 	 * When the default login form is hidden, this method is called on the 'authenticate' filter with a priority of 30.
 	 * This method disables the ability to submit the default login form.
@@ -113,7 +111,6 @@ class Jetpack_SSO {
 			exit;
 		}
 	}
-
 
 	/**
 	 * Adds additional methods the WordPress xmlrpc API for handling SSO specific features
@@ -166,19 +163,6 @@ class Jetpack_SSO {
 		}
 
 		wp_enqueue_script( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
-	}
-
-	/**
-	 * Enqueue styles neceessary for Jetpack SSO on users' profiles
-	 */
-	public function admin_enqueue_scripts() {
-		$screen = get_current_screen();
-
-		if ( empty( $screen ) || ! in_array( $screen->base, array( 'edit-user', 'profile' ) ) ) {
-			return;
-		}
-
-		wp_enqueue_style( 'jetpack-sso-profile', plugins_url( 'modules/sso/jetpack-sso-profile.css', JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION );
 	}
 
 	/**
