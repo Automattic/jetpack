@@ -9,7 +9,10 @@
 
 class Jetpack_Sitemap_Manager {
 
+	const SITEMAP_MAX_BYTES = 1000000;  // 10 MB
+	const SITEMAP_MAX_ITEMS = 150; // 50k
 	private static $__instance = null;
+
 
 
 	/**
@@ -27,11 +30,15 @@ class Jetpack_Sitemap_Manager {
 
 
 
+
+
 	/**
 	 * Constructor
 	 */
 	private function __construct() {
-		/* Register jetpack_sitemap post type */
+		/*
+		 * Register jetpack_sitemap post type
+		 */
 		add_action( 'init', function () {
 			register_post_type(
 				'jetpack_sitemap',
@@ -53,7 +60,7 @@ class Jetpack_Sitemap_Manager {
 		 * Capture URLs of the form "example.com/new-sitemapNUM.xml" where
 		 * NUM is either the empty string or a positive decimal integer.
 		 */
-		add_action( 'init', function () { 
+		add_action( 'init', function () {
 			/** This filter is documented in modules/sitemaps/sitemaps.php */
 			if ( preg_match( '/^\/new-sitemap([1-9][0-9]*)?\.xml$/', $_SERVER['REQUEST_URI']) ) {
 				// Get the post corresponding to the requested sitemap.
@@ -68,9 +75,8 @@ class Jetpack_Sitemap_Manager {
 				if (null === $the_sitemap_post) {
 					return;
 				} else {
-					header('Content-Type: text/xml; charset=UTF-8');
+					header('Content-Type: application/xml; charset=UTF-8');
 					echo $the_sitemap_post->post_content;
-					echo $this->generate_sitemap_by_position_and_start_ID(1, 500)['content'];
 					die();
 				}
 			}
@@ -78,7 +84,17 @@ class Jetpack_Sitemap_Manager {
 			// URL did not match regex.
 			return;
 		});
+
+		// (@@@) for testing
+		$this->delete_all_sitemaps();
+		$this->generate_all_sitemaps();
+
+		return;
 	}
+
+
+
+
 
 	/**
 	 * Retrieve an array of posts sorted by ID.
@@ -87,13 +103,14 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @module sitemaps
 	 *
-	 * @param int $from_ID The post ID to start
+	 * @param int $from_ID Greatest lower bound of retrieved post IDs.
+	 * @param int $num_posts Largest number of posts to retrieve.
 	 */
 	private function get_published_posts_after_ID ( $from_ID, $num_posts ) {
 		global $wpdb;
 
 		$query_string = "
-			SELECT DISTINCT ID, post_type, post_modified_gmt, comment_count
+			SELECT DISTINCT ID, post_type, post_modified_gmt
 				FROM $wpdb->posts
 				WHERE post_status='publish' AND ID>$from_ID
 				ORDER BY ID ASC
@@ -104,55 +121,185 @@ class Jetpack_Sitemap_Manager {
 	}
 
 
+
+
+
 	/**
+	 * Build and store a sitemap.
 	 *
+	 * Side effect: Create/update a jetpack_sitemap post.
+	 *
+	 * @param int $sitemap_position The number of the current sitemap.
+	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
 	 */
-	private function generate_sitemap_by_position_and_start_ID ( $sitemap_position, $from_ID ) {
+	private function generate_sitemap ( $sitemap_position, $from_ID ) {
 		$buffer = '';
 		$buffer_size_in_bytes = 0;
 		$buffer_size_in_items = 0;
-		$buffer_too_big = False;
 		$current_post_ID = $from_ID;
 
+		// Flags
+		$buffer_too_big = False;
+		$any_posts_remaining = True;
+
+		$open_xml = <<<XML
+<?xml version='1.0' encoding='UTF-8'?>
+<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n
+XML;
+
+		$close_xml = <<<XML
+</urlset>\n
+XML;
+
+		// Add header part to buffer.
+		$buffer .= $open_xml;
+		$buffer_size_in_bytes += mb_strlen($open_xml) + mb_strlen($close_xml);
+
+		// Until the buffer is too large,
 		while ( False == $buffer_too_big ) {
+			// Retrieve a batch of posts (in order)
 			$posts = $this->get_published_posts_after_ID($current_post_ID, 1000);
 
+			// If there were no posts to get, make note. Otherwise,
 			if (null == $posts) {
+				$any_posts_remaining = False;
 				break;
 			}
 
+			// For each post in the batch,
 			foreach ($posts as $post) {
+				// Generate the sitemap XML for the post.
 				$current_item_XML = $this->post_to_sitemap_item($post);
 	
-				// Update size of buffer
+				// Update the size of the buffer.
 				$buffer_size_in_bytes += mb_strlen($current_item_XML);
 				$buffer_size_in_items += 1;
 
-				if ( $buffer_size_in_bytes < 10^6 && $buffer_size_in_items < 2000 ) {
+				// If adding this item to the buffer doesn't make it too large,
+				if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
+				     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
+					// Add it and update the current post ID. Otherwise,
 					$current_post_ID = $post->ID;
 					$buffer .= $current_item_XML;
 				} else {
+					// Note that the buffer is too large and stop looping through posts.
 					$buffer_too_big = True;
 					break;
 				}
 			}
 		}
 
+		// Close the 'urlset' tag.
+		$buffer .= $close_xml;
+
+		// Store the buffer as the content of a jetpack_sitemap post.
+		$this->set_contents_of_sitemap_post($sitemap_position, $buffer);
+
+		// Now current_post_ID is the ID of the last post successfully added to the buffer.
 		return array(
-      'content'      => $buffer,
-      'last_post_ID' => $current_post_ID,
+      'last_post_ID'   => $current_post_ID,
+			'any_posts_left' => $any_posts_remaining
     );
 	}
+
+
+
+	private function generate_all_sitemaps () {
+		$last_post_ID = 0;
+		$current_sitemap_position = 1;
+		$any_posts_left = True;
+
+		while ( True == $any_posts_left ) {
+			$result = $this->generate_sitemap($current_sitemap_position, $last_post_ID);
+
+			if ( True == $result['any_posts_left'] ) {
+				$last_post_ID = $result['last_post_ID'];
+				$current_sitemap_position += 1;
+			} else {
+				$any_posts_left = False;
+			}
+		}
+
+		return;
+	}
+
+
+
+
 
 	/**
 	 *
 	 */
 	private function post_to_sitemap_item ( $post ) {
-		return $post->ID . "\n";
+		$url = get_permalink($post->ID);
+
+		$xml = <<<XML
+<url>
+ <loc>$url</loc>
+ <lastmod></lastmod>
+</url>
+
+XML;
+
+		return $xml;
+	}
+
+
+
+
+
+	/**
+	 * Store a string in the contents of a jetpack_sitemap post.
+	 *
+	 * @param int $sitemap_position Position of the sitemap being stored.
+	 * @param string $the_contents The sitemap being stored.
+	 */
+	private function set_contents_of_sitemap_post ($sitemap_position, $the_contents) {
+		$the_sitemap_post = get_page_by_title(
+			'sitemap' . $sitemap_position,
+			'OBJECT',
+			'jetpack_sitemap'
+		);
+
+		if ( null == $the_sitemap_post ) {
+			wp_insert_post(array(
+				'post_title'   => 'sitemap' . $sitemap_position,
+				'post_content' => $the_contents,
+				'post_type'    => 'jetpack_sitemap',
+			));
+		} else {
+			wp_insert_post(array(
+				'ID'           => $the_sitemap_post->ID,
+				'post_title'   => 'sitemap' . $sitemap_position,
+				'post_content' => $the_contents,
+				'post_type'    => 'jetpack_sitemap',
+			));
+		}
+
+		return;
+	}
+
+
+	private function delete_all_sitemaps () {
+		global $wpdb;
+		$sitemaps = $wpdb->get_results("
+			SELECT *
+			  FROM $wpdb->posts
+			  WHERE post_type = 'jetpack_sitemap'
+		");
+
+		foreach ( $sitemaps as $post ) {
+			wp_delete_post($post->ID);
+		}
+
+		return;
 	}
 }
 
 Jetpack_Sitemap_Manager::instance();
+
+
+
 
 
 /**
