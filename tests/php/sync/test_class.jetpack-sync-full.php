@@ -805,8 +805,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$posts = $synced_posts_event->args[0];
 
 		$this->assertEquals( 2, count( $posts ) );
-		$this->assertEquals( $sync_post_id, $posts[0]->ID );
-		$this->assertEquals( $sync_post_id_2, $posts[1]->ID );
+		$this->assertEquals( $sync_post_id_2, $posts[0]->ID );
+		$this->assertEquals( $sync_post_id, $posts[1]->ID );
 
 		$sync_status = $this->full_sync->get_status();
 		$this->assertEquals( array( $sync_post_id, $sync_post_id_2 ), $sync_status['config']['posts'] );

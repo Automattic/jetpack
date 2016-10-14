@@ -58,19 +58,21 @@ abstract class Jetpack_Sync_Module {
 		return false;
 	}
 
-	protected function enqueue_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql ) {
+	protected function enqueue_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $limit = null ) {
 		global $wpdb;
 
 		if ( ! $where_sql ) {
 			$where_sql = '1 = 1';
 		}
 
-		$items_per_page = 1000;
-		$page           = 1;
-		$chunk_count    = 0;
-		$previous_id    = 0;
-		$listener       = Jetpack_Sync_Listener::get_instance();
-		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} > {$previous_id} ORDER BY {$id_field} ASC LIMIT {$items_per_page}" ) ) {
+		$items_per_page   = 1000;
+		$page             = 1;
+		$chunk_count      = 0;
+		$previous_max_id  = '~0'; //aka 18446744073709551615, max MySQL BIGINT(20) unsigned
+		$listener         = Jetpack_Sync_Listener::get_instance();
+
+		// count down from max_id to min_id so we get newest posts/comments/etc first
+		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_max_id} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
 			// Request posts in groups of N for efficiency
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
 
@@ -78,7 +80,7 @@ abstract class Jetpack_Sync_Module {
 
 			$chunk_count += count( $chunked_ids );
 			$page += 1;
-			$previous_id = end( $ids );
+			$previous_max_id = end( $ids );
 		}
 
 		return $chunk_count;

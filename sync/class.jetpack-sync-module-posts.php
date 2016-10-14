@@ -180,6 +180,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		$posts = array_filter( array_map( array( 'WP_Post', 'get_instance' ), $post_ids ) );
 		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
+		$posts = array_values( $posts ); // reindex in case posts were deleted
 
 		return array(
 			$posts,
