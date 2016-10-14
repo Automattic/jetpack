@@ -193,4 +193,18 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->factory->user->create( array( 'user_login' => $this->user_data->login ) );
 		$this->assertFalse( Jetpack_SSO_Helpers::generate_user( $this->user_data ) );
 	}
+
+	function test_extend_auth_cookie_casts_to_int() {
+		add_filter( 'jetpack_sso_auth_cookie_expirtation', array( $this, '__return_string_value' ) );
+		$this->assertSame( intval( $this->__return_string_value() ), Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
+		remove_filter( 'jetpack_sso_auth_cookie_expirtation', array( $this, '__return_string_value' ) );
+	}
+
+	function test_extend_auth_cookie_default_value_greater_than_default() {
+		$this->assertGreaterThan( 2 * DAY_IN_SECONDS, Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
+	}
+
+	function __return_string_value() {
+		return '1';
+	}
 }
