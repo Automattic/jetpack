@@ -375,11 +375,8 @@ class Jetpack_SSO {
 				$this->handle_login();
 				$this->display_sso_login_form();
 			} else {
-				if ( Jetpack::check_identity_crisis() ) {
-					JetpackTracking::record_user_event( 'sso_login_redirect_failed', array(
-						'error_message' => 'identity_crisis'
-					) );
-					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_msg_identity_crisis' ) );
+				if ( Jetpack::is_staging_site() ) {
+					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
 				} else {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
@@ -399,8 +396,8 @@ class Jetpack_SSO {
 	 * up the hooks required to display the SSO form.
 	 */
 	public function display_sso_login_form() {
-		if ( Jetpack::check_identity_crisis() ) {
-			add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_msg_identity_crisis' ) );
+		if ( Jetpack::is_staging_site() ) {
+			add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
 			return;
 		}
 
