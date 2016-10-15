@@ -80,9 +80,14 @@ class Jetpack_Sitemap_Manager {
 		 */
 		add_action( 'init', function () {
 			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			if ( preg_match( '/^\/new-sitemap([1-9][0-9]*)?\.xml$/', $_SERVER['REQUEST_URI']) ) {
 
-				// Retrieve the sitemap content
+			// Regular expressions for URL routing
+			$sitemap_regex       = '/^\/new-sitemap([1-9][0-9]*)?\.xml$/';
+			$sitemap_index_regex = '/^\/new-sitemap-index([1-9][0-9]*)?\.xml$/';
+
+			if ( preg_match( $sitemap_regex, $_SERVER['REQUEST_URI']) ) {
+				// Matched sitemap regex
+
 				$the_content = $this->get_contents_of_post_by_title_and_type(
 					substr($_SERVER['REQUEST_URI'], 5, -4),
 					'jp_sitemap'
@@ -97,8 +102,9 @@ class Jetpack_Sitemap_Manager {
 				echo $the_content;
 				die();
 
-			} else if ( preg_match( '/^\/new-sitemap-index([1-9][0-9]*)?\.xml$/', $_SERVER['REQUEST_URI']) ) {
-				// Retrieve the sitemap content
+			} else if ( preg_match( $sitemap_index_regex, $_SERVER['REQUEST_URI']) ) {
+				// Matched sitemap index regex
+
 				$the_content = $this->get_contents_of_post_by_title_and_type(
 					substr($_SERVER['REQUEST_URI'], 5, -4),
 					'jp_sitemap_index'
@@ -114,7 +120,7 @@ class Jetpack_Sitemap_Manager {
 				die();
 			}
 
-			// URL did not match regex.
+			// URL did not match any patterns here.
 			return;
 		});
 
@@ -124,9 +130,6 @@ class Jetpack_Sitemap_Manager {
 
 		return;
 	}
-
-
-
 
 
 
