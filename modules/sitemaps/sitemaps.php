@@ -110,7 +110,7 @@ class Jetpack_Sitemap_Manager {
 		global $wpdb;
 
 		$query_string = "
-			SELECT DISTINCT ID, post_type, post_modified_gmt
+			SELECT *
 				FROM $wpdb->posts
 				WHERE post_status='publish' AND ID>$from_ID
 				ORDER BY ID ASC
@@ -231,7 +231,7 @@ XML;
 	 *
 	 */
 	private function post_to_sitemap_item ( $post ) {
-		$url = get_permalink($post->ID);
+		$url = get_permalink($post);
 
 		$xml = <<<XML
 <url>
