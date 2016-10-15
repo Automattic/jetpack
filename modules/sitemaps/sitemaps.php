@@ -199,7 +199,7 @@ XML;
 		return array(
 			'last_post_ID'   => $current_post_ID,
 			'any_posts_left' => $any_posts_remaining
-    );
+		);
 	}
 
 
