@@ -197,7 +197,7 @@ XML;
 
 		// Now current_post_ID is the ID of the last post successfully added to the buffer.
 		return array(
-      'last_post_ID'   => $current_post_ID,
+			'last_post_ID'   => $current_post_ID,
 			'any_posts_left' => $any_posts_remaining
     );
 	}
