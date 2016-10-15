@@ -11,7 +11,7 @@ class Jetpack_Sitemap_Manager {
 
 	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
 	const SITEMAP_MAX_BYTES = 1000000;  // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 150;      // 50k
+	const SITEMAP_MAX_ITEMS = 50000;      // 50k
 
 
 
@@ -19,9 +19,7 @@ class Jetpack_Sitemap_Manager {
 	 * Constructor
 	 */
 	public function __construct() {
-		/*
-		 * Register jetpack_sitemap post type
-		 */
+		/** Register jp_sitemap post type */
 		add_action( 'init', function () {
 			register_post_type(
 				'jp_sitemap',
@@ -37,9 +35,7 @@ class Jetpack_Sitemap_Manager {
 			);
 		}); 
 
-		/*
-		 * Register jetpack_sitemap_index post type
-		 */
+		/** Register jp_sitemap_index post type */
 		add_action( 'init', function () {
 			register_post_type(
 				'jp_sitemap_index',
@@ -55,12 +51,7 @@ class Jetpack_Sitemap_Manager {
 			);
 		});
 
-		/**
-		 * Handle sitemap URLs
-		 *
-		 * Capture URLs of the form "example.com/new-sitemapNUM.xml" where
-		 * NUM is either the empty string or a positive decimal integer.
-		 */
+		/** Handle sitemap URLs */
 		add_action( 'init', function () {
 			/** This filter is documented in modules/sitemaps/sitemaps.php */
 
@@ -131,6 +122,7 @@ class Jetpack_Sitemap_Manager {
 		$buffer_size_in_bytes = 0;
 		$buffer_size_in_items = 0;
 		$current_post_ID = $from_ID;
+		$most_recent_modification = '1970-01-01T00:00Z'; // Epoch
 
 		// Flags
 		$buffer_too_big = False;
@@ -163,7 +155,7 @@ XML;
 			// For each post in the batch,
 			foreach ($posts as $post) {
 				// Generate the sitemap XML for the post.
-				$current_item_XML = $this->post_to_sitemap_item($post);
+				$current_item = $this->post_to_sitemap_item($post);
 	
 				// Update the size of the buffer.
 				$buffer_size_in_bytes += mb_strlen($current_item_XML);
@@ -174,7 +166,11 @@ XML;
 				     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
 					// Add it and update the current post ID. Otherwise,
 					$current_post_ID = $post->ID;
-					$buffer .= $current_item_XML;
+					$buffer .= $current_item['xml'];
+					if ( strtotime($most_recent_modification)
+					       < strtotime($current_item['last_modified']) ) {
+						$most_recent_modification = $current_item['last_modified'];
+					}
 				} else {
 					// Note that the buffer is too large and stop looping through posts.
 					$buffer_too_big = True;
@@ -190,7 +186,8 @@ XML;
 		$this->set_contents_of_post_by_title_and_type(
 			'sitemap' . $sitemap_position,
 			'jp_sitemap',
-			$buffer
+			$buffer,
+			$most_recent_modification
 		);
 
 		// Now current_post_ID is the ID of the last post successfully added to the buffer.
@@ -208,19 +205,20 @@ XML;
 	 *
 	 * Side effect: Create/update a jp_sitemap_index post.
 	 *
-	 * @param int $sitemap_index_position The number of the current sitemap index.
-	 * @param int $from Position of the first sitemap to be included.
-	 * @param int $to Position of the last sitemap.
+	 * @param int $sitemap_position The number of the current sitemap index.
+	 * @param int $from_ID The greatest lower bound of the IDs of the sitemaps to be included.
+	 * @param string $previous_timestamp Last modification time of previous sitemap.
 	 */
-	private function generate_sitemap_index ( $sitemap_index_position, $from, $to ) {
+	private function generate_sitemap_index ( $sitemap_index_position, $from_ID, $previous_timestamp ) {
 		$buffer = '';
 		$buffer_size_in_bytes = 0;
 		$buffer_size_in_items = 0;
-		$current_sitemap_position = $from;
+		$current_post_ID = $from_ID;
+		$most_recent_modification = '1970-01-01T00:00Z'; // Epoch
 
 		// Flags
 		$buffer_too_big = False;
-		$any_sitemaps_remaining = True;
+		$any_posts_remaining = True;
 
 		$open_xml = <<<XML
 <?xml version='1.0' encoding='UTF-8'?>
@@ -231,53 +229,84 @@ XML;
 </sitemapindex>\n
 XML;
 
+		$next_index_url = site_url() . '/new-sitemap-index' . ($sitemap_index_position - 1) . '.xml';
+		$forward_pointer = <<<XML
+  <sitemap>
+    <loc>$next_index_url</loc>
+		<lastmod>$previous_timestamp</lastmod>
+  </sitemap>\n
+XML;
+
 		// Add header part to buffer.
 		$buffer .= $open_xml;
 		$buffer_size_in_bytes += mb_strlen($open_xml) + mb_strlen($close_xml);
 
+		// Add pointer to the previous sitemap index (unless we're at the first one)
+		if ( 1 != $sitemap_index_position ) {
+			$buffer .= $forward_pointer;
+			$buffer_size_in_items += 1;
+			$buffer_size_in_bytes += mb_strlen($forward_pointer);
+		}
+
 		// Until the buffer is too large,
 		while ( False == $buffer_too_big ) {
+			// Retrieve a batch of posts (in order)
+			$posts = $this->get_sitemap_posts_after_ID($current_post_ID, 1000);
 
-			// If there are no sitemaps left, make note. Otherwise,
-			if ( $from > $to ) {
-				$any_sitemaps_remaining = False;
+			// If there were no posts to get, make note. Otherwise,
+			if (null == $posts) {
+				$any_posts_remaining = False;
 				break;
 			}
 
-			// Generate the sitemap index XML for the sitemap.
-			$current_item_XML = "<sitemap>$current_sitemap_position</sitemap>\n";
+			// For each post in the batch,
+			foreach ($posts as $post) {
+				// Generate the sitemap XML for the post.
+				$current_item = $this->sitemap_to_index_item($post);
 
-			// Update the size of the buffer.
-			$buffer_size_in_bytes += mb_strlen($current_item_XML);
-			$buffer_size_in_items += 1;
+				// Update the size of the buffer.
+				$buffer_size_in_items += 1;
+				$buffer_size_in_bytes += mb_strlen($current_item_XML);
 
-			// If adding this item to the buffer doesn't make it too large,
-			if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
-			     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
-				// Add it and update the current post ID. Otherwise,
-				$current_sitemap_position += 1;
-				$buffer .= $current_item_XML;
-			} else {
-				// Note that the buffer is too large.
-				$buffer_too_big = True;
-				break;
+				// If adding this item to the buffer doesn't make it too large,
+				if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
+				     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
+					// Add it and update the current post ID. Otherwise,
+					$current_post_ID = $post->ID;
+					$buffer .= $current_item['xml'];
+					if ( strtotime($most_recent_modification)
+					       < strtotime($current_item['last_modified']) ) {
+						$most_recent_modification = $current_item['last_modified'];
+					}
+				} else {
+					// Note that the buffer is too large and stop looping through posts.
+					$buffer_too_big = True;
+					break;
+				}
 			}
 		}
 
 		// Close the 'urlset' tag.
 		$buffer .= $close_xml;
 
-		// Store the buffer as the content of a jp_sitemap_index post.
+		// Store the buffer as the content of a jetpack_sitemap post.
 		$this->set_contents_of_post_by_title_and_type(
 			'sitemap-index' . $sitemap_index_position,
 			'jp_sitemap_index',
-			$buffer
+			$buffer,
+			$most_recent_modification
 		);
+
+		//
+		if ( strtotime($most_recent_modification) < strtotime($previous_timestamp) ) {
+			$most_recent_modification = $previous_timestamp;
+		}
 
 		// Now current_post_ID is the ID of the last post successfully added to the buffer.
 		return array(
-			'last_sitemap_position' => $current_sitemap_position + 1,
-			'any_sitemaps_left'     => $any_sitemaps_remaining
+			'last_post_ID'   => $current_post_ID,
+			'any_posts_left' => $any_posts_remaining,
+		  'last_modified'  => $most_recent_modification
 		);
 	}
 
@@ -285,7 +314,13 @@ XML;
 
 
 
+
+
+
+
 	private function generate_all_sitemaps () {
+		/* Sitemaps */
+
 		$last_post_ID = 0;
 		$current_sitemap_position = 1;
 
@@ -303,21 +338,56 @@ XML;
 			}
 		}
 
-		// Generate the sitemap indices
+		// If there's only one sitemap, make that the root.
+		if ( 1 == $current_sitemap_position ) {
+			$foo = $this->get_contents_of_post_by_title_and_type('sitemap1', 'jp_sitemap');
+			$this->set_contents_of_post_by_title_and_type(
+				'sitemap',
+				'jp_sitemap',
+				$foo,
+				''
+			);
+			return;
+		}
+
+		/* Sitemap Indices */
+
+		$last_sitemap_ID = 0;
 		$current_sitemap_index_position = 1;
-		$from = 1;
-		$to = $current_sitemap_position;
+		$most_recent_modification = '01-01-1970T00:00:00';
+
+		// Generate the sitemaps
 		$any_sitemaps_left = True;
 
 		while ( True == $any_sitemaps_left ) {
-			$result = $this->generate_sitemap_index($current_sitemap_index_position, $from, $to);
+			$result = $this->generate_sitemap_index($current_sitemap_index_position, $last_sitemap_ID, $most_recent_modification);
 
-			if ( True == $result['any_sitemaps_left'] ) {
-				$from = $result['last_sitemap_position'];
+			if ( True == $result['any_posts_left'] ) {
+				$last_sitemap_ID = $result['last_post_ID'];
 				$current_sitemap_index_position += 1;
+				$most_recent_modification = $result['last_modified'];
 			} else {
 				$any_sitemaps_left = False;
 			}
+		}
+
+		// If there's only one sitemap index, make that the root.
+		if ( 1 == $current_sitemap_index_position ) {
+			$foo = $this->get_contents_of_post_by_title_and_type('sitemap-index1', 'jp_sitemap_index');
+			$this->set_contents_of_post_by_title_and_type(
+				'sitemap',
+				'jp_sitemap',
+				$foo,
+				''
+			);
+		} else {
+			$foo = $this->get_contents_of_post_by_title_and_type('sitemap-index' . $current_sitemap_index_position, 'jp_sitemap_index');
+			$this->set_contents_of_post_by_title_and_type(
+				'sitemap',
+				'jp_sitemap',
+				$foo,
+				''
+			);
 		}
 
 		return;
@@ -338,20 +408,55 @@ XML;
 	 */
 	private function post_to_sitemap_item ( $post ) {
 		$url = get_permalink($post);
+		$lastmod = str_replace( ' ', 'T', $post->post_modified_gmt) . 'Z';
+
+		// Spec requires the URL to be <=2048 bytes.
+		// In practice this constraint is unlikely to be violated.
+		if ( mb_strlen($url) > 100 ) {
+			$url = site_url() . '/?p=' . $post->ID; 
+		}
 
 		$xml = <<<XML
 <url>
  <loc>$url</loc>
- <lastmod></lastmod>
-</url>
-
+ <lastmod>$lastmod</lastmod>
+</url>\n
 XML;
 
-		return $xml;
+		return array(
+			'xml'           => $xml,
+			'last_modified' => $lastmod
+		);
 	}
 
 
 
+	/**
+	 * Construct the sitemap url entry for a WP_Post.
+	 *
+	 * @link http://www.sitemaps.org/protocol.html#urldef The sitemap protocol document.
+	 *
+	 * @param WP_Post $post The post to be processed.
+	 *
+	 * @return string An XML fragment representing the post URL.
+	 */
+	private function sitemap_to_index_item ( $post ) {
+		$url = site_url() . '/' . $post->post_title . '.xml';
+		$lastmod = str_replace( ' ', 'T', $post->post_date) . 'Z';
+
+		$xml = <<<XML
+<sitemap>
+ <loc>$url</loc>
+ <lastmod>$lastmod</lastmod>
+</sitemap>
+
+XML;
+
+		return array(
+			'xml'           => $xml,
+			'last_modified' => $lastmod
+		);
+	}
 
 
 
@@ -393,7 +498,8 @@ XML;
 	/**
 	 * Retrieve an array of posts sorted by ID.
 	 *
-	 * Returns the smallest $num_posts posts (measured by ID) which are larger than $from_ID.
+	 * Returns the smallest $num_posts posts (measured by ID)
+	 * which are larger than $from_ID.
 	 *
 	 * @module sitemaps
 	 *
@@ -407,6 +513,33 @@ XML;
 			SELECT *
 				FROM $wpdb->posts
 				WHERE post_status='publish' AND ID>$from_ID
+				ORDER BY ID ASC
+				LIMIT $num_posts;
+		";
+
+		return $wpdb->get_results( $query_string );
+	}
+
+
+
+	/**
+	 * Retrieve an array of sitemap posts sorted by ID.
+	 *
+	 * Returns the smallest $num_posts sitemap posts (measured by ID)
+	 * which are larger than $from_ID.
+	 *
+	 * @module sitemaps
+	 *
+	 * @param int $from_ID Greatest lower bound of retrieved sitemap post IDs.
+	 * @param int $num_posts Largest number of sitemap posts to retrieve.
+	 */
+	private function get_sitemap_posts_after_ID ( $from_ID, $num_posts ) {
+		global $wpdb;
+
+		$query_string = "
+			SELECT *
+				FROM $wpdb->posts
+				WHERE post_type='jp_sitemap' AND ID>$from_ID
 				ORDER BY ID ASC
 				LIMIT $num_posts;
 		";
@@ -452,8 +585,9 @@ XML;
 	 * @param string $title Post title.
 	 * @param string $type Post type.
 	 * @param string $the_contents The string being stored.
+	 * @param string $the_timestamp Timestamp
 	 */
-	private function set_contents_of_post_by_title_and_type ($title, $type, $the_contents) {
+	private function set_contents_of_post_by_title_and_type ($title, $type, $the_contents, $the_timestamp) {
 		$the_post = get_page_by_title( $title, 'OBJECT', $type );
 
 		if ( null == $the_post ) {
@@ -462,6 +596,7 @@ XML;
 				'post_title'   => $title,
 				'post_content' => $the_contents,
 				'post_type'    => $type,
+				'post_date'    => $the_timestamp,
 			));
 		} else {
 			// Post does exist.
@@ -470,6 +605,7 @@ XML;
 				'post_title'   => $title,
 				'post_content' => $the_contents,
 				'post_type'    => $type,
+				'post_date'    => $the_timestamp,
 			));
 		}
 
