@@ -9,33 +9,16 @@
 
 class Jetpack_Sitemap_Manager {
 
-	const SITEMAP_MAX_BYTES = 1000000;  // 10 MB
-	const SITEMAP_MAX_ITEMS = 150; // 50k
-	private static $__instance = null;
-
-
-
-	/**
-	 * Singleton implementation
-	 *
-	 * @return object
-	 */
-	public static function instance() {
-		if ( null === self::$__instance ) {
-			self::$__instance = new Jetpack_Sitemap_Manager();
-		}
-
-		return self::$__instance;
-	}
-
-
+	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
+	const SITEMAP_MAX_BYTES = 1000000;  // 10485760 (10MB)
+	const SITEMAP_MAX_ITEMS = 150;      // 50k
 
 
 
 	/**
 	 * Constructor
 	 */
-	private function __construct() {
+	public function __construct() {
 		/*
 		 * Register jetpack_sitemap post type
 		 */
@@ -284,7 +267,7 @@ XML;
 		// Close the 'urlset' tag.
 		$buffer .= $close_xml;
 
-		// Store the buffer as the content of a jetpack_sitemap post.
+		// Store the buffer as the content of a jp_sitemap_index post.
 		$this->set_contents_of_post_by_title_and_type(
 			'sitemap-index' . $sitemap_index_position,
 			'jp_sitemap_index',
@@ -406,6 +389,7 @@ XML;
 	 * Querying the Database
 	 */
 
+
 	/**
 	 * Retrieve an array of posts sorted by ID.
 	 *
@@ -494,7 +478,7 @@ XML;
 
 }	// End Jetpack_Sitemap_Manager class
 
-Jetpack_Sitemap_Manager::instance();
+new Jetpack_Sitemap_Manager;
 
 
 
