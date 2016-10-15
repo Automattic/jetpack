@@ -41,7 +41,7 @@ class Jetpack_Sitemap_Manager {
 		 */
 		add_action( 'init', function () {
 			register_post_type(
-				'jetpack_sitemap',
+				'jp_sitemap',
 				array(
 					'labels' => array(
 						'name'          => __( 'Sitemaps' ),
@@ -50,6 +50,24 @@ class Jetpack_Sitemap_Manager {
 					'public'      => true,
 					'has_archive' => true,
 					'rewrite'     => array('slug' => 'jetpack-sitemap'),
+				)
+			);
+		}); 
+
+		/*
+		 * Register jetpack_sitemap_index post type
+		 */
+		add_action( 'init', function () {
+			register_post_type(
+				'jp_sitemap_index',
+				array(
+					'labels' => array(
+						'name'          => __( 'Sitemap Indices' ),
+						'singular_name' => __( 'Sitemap Index' ),
+					),
+					'public'      => true,
+					'has_archive' => true,
+					'rewrite'     => array('slug' => 'jetpack-sitemap-index'),
 				)
 			);
 		});
@@ -67,7 +85,24 @@ class Jetpack_Sitemap_Manager {
 				$the_sitemap_post = get_page_by_title(
 					substr($_SERVER['REQUEST_URI'], 5, -4),
 					'OBJECT',
-					'jetpack_sitemap'
+					'jp_sitemap'
+				);
+
+				// If the requested post does not exist, return.
+				// Otherwise serve the post's content as XML.
+				if (null === $the_sitemap_post) {
+					return;
+				} else {
+					header('Content-Type: application/xml; charset=UTF-8');
+					echo $the_sitemap_post->post_content;
+					die();
+				}
+			} else if ( preg_match( '/^\/new-sitemap-index([1-9][0-9]*)?\.xml$/', $_SERVER['REQUEST_URI']) ) {
+				// Get the post corresponding to the requested sitemap.
+				$the_sitemap_post = get_page_by_title(
+					substr($_SERVER['REQUEST_URI'], 5, -4),
+					'OBJECT',
+					'jp_sitemap_index'
 				);
 
 				// If the requested post does not exist, return.
@@ -127,7 +162,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Build and store a sitemap.
 	 *
-	 * Side effect: Create/update a jetpack_sitemap post.
+	 * Side effect: Create/update a jp_sitemap post.
 	 *
 	 * @param int $sitemap_position The number of the current sitemap.
 	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
@@ -193,7 +228,11 @@ XML;
 		$buffer .= $close_xml;
 
 		// Store the buffer as the content of a jetpack_sitemap post.
-		$this->set_contents_of_sitemap_post($sitemap_position, $buffer);
+		$this->set_contents_of_post_by_title_and_type(
+			'sitemap' . $sitemap_position,
+			'jp_sitemap',
+			$buffer
+		);
 
 		// Now current_post_ID is the ID of the last post successfully added to the buffer.
 		return array(
@@ -204,9 +243,94 @@ XML;
 
 
 
+
+	/**
+	 * Build and store a sitemap index.
+	 *
+	 * Side effect: Create/update a jp_sitemap_index post.
+	 *
+	 * @param int $sitemap_index_position The number of the current sitemap index.
+	 * @param int $from Position of the first sitemap to be included.
+	 * @param int $to Position of the last sitemap.
+	 */
+	private function generate_sitemap_index ( $sitemap_index_position, $from, $to ) {
+		$buffer = '';
+		$buffer_size_in_bytes = 0;
+		$buffer_size_in_items = 0;
+		$current_sitemap_position = $from;
+
+		// Flags
+		$buffer_too_big = False;
+		$any_sitemaps_remaining = True;
+
+		$open_xml = <<<XML
+<?xml version='1.0' encoding='UTF-8'?>
+<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n
+XML;
+
+		$close_xml = <<<XML
+</sitemapindex>\n
+XML;
+
+		// Add header part to buffer.
+		$buffer .= $open_xml;
+		$buffer_size_in_bytes += mb_strlen($open_xml) + mb_strlen($close_xml);
+
+		// Until the buffer is too large,
+		while ( False == $buffer_too_big ) {
+
+			// If there are no sitemaps left, make note. Otherwise,
+			if ( $from > $to ) {
+				$any_sitemaps_remaining = False;
+				break;
+			}
+
+			// Generate the sitemap index XML for the sitemap.
+			$current_item_XML = "<sitemap>$current_sitemap_position</sitemap>\n";
+
+			// Update the size of the buffer.
+			$buffer_size_in_bytes += mb_strlen($current_item_XML);
+			$buffer_size_in_items += 1;
+
+			// If adding this item to the buffer doesn't make it too large,
+			if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
+			     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
+				// Add it and update the current post ID. Otherwise,
+				$current_sitemap_position += 1;
+				$buffer .= $current_item_XML;
+			} else {
+				// Note that the buffer is too large.
+				$buffer_too_big = True;
+				break;
+			}
+		}
+
+		// Close the 'urlset' tag.
+		$buffer .= $close_xml;
+
+		// Store the buffer as the content of a jetpack_sitemap post.
+		$this->set_contents_of_post_by_title_and_type(
+			'sitemap-index' . $sitemap_index_position,
+			'jp_sitemap_index',
+			$buffer
+		);
+
+		// Now current_post_ID is the ID of the last post successfully added to the buffer.
+		return array(
+			'last_sitemap_position' => $current_sitemap_position + 1,
+			'any_sitemaps_left'     => $any_sitemaps_remaining
+		);
+	}
+
+
+
+
+
 	private function generate_all_sitemaps () {
 		$last_post_ID = 0;
 		$current_sitemap_position = 1;
+
+		// Generate the sitemaps
 		$any_posts_left = True;
 
 		while ( True == $any_posts_left ) {
@@ -220,6 +344,23 @@ XML;
 			}
 		}
 
+		// Generate the sitemap indices
+		$current_sitemap_index_position = 1;
+		$from = 1;
+		$to = $current_sitemap_position;
+		$any_sitemaps_left = True;
+
+		while ( True == $any_sitemaps_left ) {
+			$result = $this->generate_sitemap_index($current_sitemap_index_position, $from, $to);
+
+			if ( True == $result['any_sitemaps_left'] ) {
+				$from = $result['last_sitemap_position'];
+				$current_sitemap_index_position += 1;
+			} else {
+				$any_sitemaps_left = False;
+			}
+		}
+
 		return;
 	}
 
@@ -228,7 +369,13 @@ XML;
 
 
 	/**
+	 * Construct the sitemap url entry for a WP_Post.
 	 *
+	 * @link http://www.sitemaps.org/protocol.html#urldef The sitemap protocol document.
+	 *
+	 * @param WP_Post $post The post to be processed.
+	 *
+	 * @return string An XML fragment representing the post URL.
 	 */
 	private function post_to_sitemap_item ( $post ) {
 		$url = get_permalink($post);
@@ -249,30 +396,31 @@ XML;
 
 
 	/**
-	 * Store a string in the contents of a jetpack_sitemap post.
+	 * Store a string in the contents of a post with given title and type.
+	 * If the post does not exist, create it.
+	 * If the post does exist, the old contents are overwritten.
 	 *
-	 * @param int $sitemap_position Position of the sitemap being stored.
-	 * @param string $the_contents The sitemap being stored.
+	 * @param string $title Title of the post.
+	 * @param string $type The type of the post.
+	 * @param string $the_contents The string being stored.
 	 */
-	private function set_contents_of_sitemap_post ($sitemap_position, $the_contents) {
-		$the_sitemap_post = get_page_by_title(
-			'sitemap' . $sitemap_position,
-			'OBJECT',
-			'jetpack_sitemap'
-		);
+	private function set_contents_of_post_by_title_and_type ($title, $type, $the_contents) {
+		$the_post = get_page_by_title( $title, 'OBJECT', $type );
 
-		if ( null == $the_sitemap_post ) {
+		if ( null == $the_post ) {
+			// Post does not exist.
 			wp_insert_post(array(
-				'post_title'   => 'sitemap' . $sitemap_position,
+				'post_title'   => $title,
 				'post_content' => $the_contents,
-				'post_type'    => 'jetpack_sitemap',
+				'post_type'    => $type,
 			));
 		} else {
+			// Post does exist.
 			wp_insert_post(array(
 				'ID'           => $the_sitemap_post->ID,
-				'post_title'   => 'sitemap' . $sitemap_position,
+				'post_title'   => $title,
 				'post_content' => $the_contents,
-				'post_type'    => 'jetpack_sitemap',
+				'post_type'    => $type,
 			));
 		}
 
@@ -280,15 +428,28 @@ XML;
 	}
 
 
+
+
+
 	private function delete_all_sitemaps () {
 		global $wpdb;
 		$sitemaps = $wpdb->get_results("
 			SELECT *
 			  FROM $wpdb->posts
-			  WHERE post_type = 'jetpack_sitemap'
+			  WHERE post_type = 'jp_sitemap'
 		");
 
 		foreach ( $sitemaps as $post ) {
+			wp_delete_post($post->ID);
+		}
+
+		$sitemap_indices = $wpdb->get_results("
+			SELECT *
+			  FROM $wpdb->posts
+			  WHERE post_type = 'jp_sitemap_index'
+		");
+
+		foreach ( $sitemap_indices as $post ) {
 			wp_delete_post($post->ID);
 		}
 
