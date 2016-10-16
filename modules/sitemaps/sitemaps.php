@@ -56,14 +56,14 @@ class Jetpack_Sitemap_Manager {
 			/** This filter is documented in modules/sitemaps/sitemaps.php */
 
 			// Regular expressions for URL routing
-			$sitemap_regex       = '/^\/new-sitemap([1-9][0-9]*)?\.xml$/';
-			$sitemap_index_regex = '/^\/new-sitemap-index([1-9][0-9]*)?\.xml$/';
+			$sitemap_regex       = '/^\/sitemap([1-9][0-9]*)?\.xml$/';
+			$sitemap_index_regex = '/^\/sitemap-index([1-9][0-9]*)?\.xml$/';
 
 			if ( preg_match( $sitemap_regex, $_SERVER['REQUEST_URI']) ) {
 				// Matched sitemap regex
 
 				$the_content = $this->get_contents_of_post_by_title_and_type(
-					substr($_SERVER['REQUEST_URI'], 5, -4),
+					substr($_SERVER['REQUEST_URI'], 1, -4),
 					'jp_sitemap'
 				);
 
@@ -80,7 +80,7 @@ class Jetpack_Sitemap_Manager {
 				// Matched sitemap index regex
 
 				$the_content = $this->get_contents_of_post_by_title_and_type(
-					substr($_SERVER['REQUEST_URI'], 5, -4),
+					substr($_SERVER['REQUEST_URI'], 1, -4),
 					'jp_sitemap_index'
 				);
 
