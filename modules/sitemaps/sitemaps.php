@@ -11,7 +11,7 @@ class Jetpack_Sitemap_Manager {
 
 	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
 	const SITEMAP_MAX_BYTES = 1000000;  // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 50000;      // 50k
+	const SITEMAP_MAX_ITEMS = 10;      // 50k
 
 
 
@@ -98,9 +98,25 @@ class Jetpack_Sitemap_Manager {
 			return;
 		});
 
+		// Add cron schedule
+		add_filter( 'cron_schedules', function ($schedules) {
+			$schedules['minutely'] = array(
+				'interval' => 60,
+				'display'  => __('Every Minute')
+			);
+			return $schedules;
+		});
+
+		add_action( 'jp_sitemap_cron_hook', function () {
+			$this->delete_all_sitemaps();
+			$this->generate_all_sitemaps();
+		});
+
 		// (@@@) for testing
-		$this->delete_all_sitemaps();
-		$this->generate_all_sitemaps();
+
+		if( !wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
+			wp_schedule_event( time(), 'minutely', 'jp_sitemap_cron_hook' );
+		}
 
 		return;
 	}
@@ -158,7 +174,7 @@ XML;
 				$current_item = $this->post_to_sitemap_item($post);
 	
 				// Update the size of the buffer.
-				$buffer_size_in_bytes += mb_strlen($current_item_XML);
+				$buffer_size_in_bytes += mb_strlen($current_item['xml']);
 				$buffer_size_in_items += 1;
 
 				// If adding this item to the buffer doesn't make it too large,
@@ -266,7 +282,7 @@ XML;
 
 				// Update the size of the buffer.
 				$buffer_size_in_items += 1;
-				$buffer_size_in_bytes += mb_strlen($current_item_XML);
+				$buffer_size_in_bytes += mb_strlen($current_item['xml']);
 
 				// If adding this item to the buffer doesn't make it too large,
 				if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
@@ -412,7 +428,7 @@ XML;
 
 		// Spec requires the URL to be <=2048 bytes.
 		// In practice this constraint is unlikely to be violated.
-		if ( mb_strlen($url) > 100 ) {
+		if ( mb_strlen($url) > 2048 ) {
 			$url = site_url() . '/?p=' . $post->ID; 
 		}
 
@@ -564,7 +580,7 @@ XML;
 		if (null == $the_post) {
 			return '';
 		} else {
-			return $the_post->post_content;
+			return wp_specialchars_decode($the_post->post_content, ENT_QUOTES);
 		}
 	}
 
@@ -594,7 +610,7 @@ XML;
 			// Post does not exist.
 			wp_insert_post(array(
 				'post_title'   => $title,
-				'post_content' => $the_contents,
+				'post_content' => esc_html($the_contents),
 				'post_type'    => $type,
 				'post_date'    => $the_timestamp,
 			));
@@ -603,7 +619,7 @@ XML;
 			wp_insert_post(array(
 				'ID'           => $the_sitemap_post->ID,
 				'post_title'   => $title,
-				'post_content' => $the_contents,
+				'post_content' => esc_html($the_contents),
 				'post_type'    => $type,
 				'post_date'    => $the_timestamp,
 			));
