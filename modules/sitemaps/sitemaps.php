@@ -11,7 +11,7 @@ class Jetpack_Sitemap_Manager {
 
 	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
 	const SITEMAP_MAX_BYTES = 1000000;  // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 10;      // 50k
+	const SITEMAP_MAX_ITEMS = 1000;      // 50k
 
 
 
@@ -108,11 +108,11 @@ class Jetpack_Sitemap_Manager {
 		});
 
 		add_action( 'jp_sitemap_cron_hook', function () {
-			$this->delete_all_sitemaps();
 			$this->generate_all_sitemaps();
 		});
 
 		// (@@@) for testing
+		//$this->delete_all_sitemaps();
 
 		if( !wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
 			wp_schedule_event( time(), 'minutely', 'jp_sitemap_cron_hook' );
@@ -247,10 +247,10 @@ XML;
 
 		$next_index_url = site_url() . '/new-sitemap-index' . ($sitemap_index_position - 1) . '.xml';
 		$forward_pointer = <<<XML
-  <sitemap>
-    <loc>$next_index_url</loc>
-		<lastmod>$previous_timestamp</lastmod>
-  </sitemap>\n
+<sitemap>
+ <loc>$next_index_url</loc>
+ <lastmod>$previous_timestamp</lastmod>
+</sitemap>\n
 XML;
 
 		// Add header part to buffer.
@@ -617,7 +617,7 @@ XML;
 		} else {
 			// Post does exist.
 			wp_insert_post(array(
-				'ID'           => $the_sitemap_post->ID,
+				'ID'           => $the_post->ID,
 				'post_title'   => $title,
 				'post_content' => esc_html($the_contents),
 				'post_type'    => $type,
@@ -634,7 +634,7 @@ new Jetpack_Sitemap_Manager;
 
 
 
-
+class Old_Jetpack_Sitemap_Manager {
 
 /**
  * Convert a MySQL datetime string to an ISO 8601 string.
@@ -1407,4 +1407,6 @@ function jetpack_sitemap_initialize() {
 }
 
 // Initialize sitemaps once themes can filter the initialization.
-add_action( 'after_setup_theme', 'jetpack_sitemap_initialize' );
+// add_action( 'after_setup_theme', 'jetpack_sitemap_initialize' );
+
+}
