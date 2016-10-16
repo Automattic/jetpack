@@ -10,8 +10,8 @@
 class Jetpack_Sitemap_Manager {
 
 	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
-	const SITEMAP_MAX_BYTES = 1000000;  // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 1000;      // 50k
+	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
+	const SITEMAP_MAX_ITEMS = 50000;    // 50k
 
 
 
@@ -19,6 +19,22 @@ class Jetpack_Sitemap_Manager {
 	 * Constructor
 	 */
 	public function __construct() {
+		/** Register jp_sitemap_master post type */
+		add_action( 'init', function () {
+			register_post_type(
+				'jp_sitemap_master',
+				array(
+					'labels' => array(
+						'name'          => __( 'Sitemap Masters' ),
+						'singular_name' => __( 'Sitemap Master' ),
+					),
+					'public'      => true,
+					'has_archive' => true,
+					'rewrite'     => array('slug' => 'jetpack-sitemap-master'),
+				)
+			);
+		}); 
+
 		/** Register jp_sitemap post type */
 		add_action( 'init', function () {
 			register_post_type(
@@ -56,10 +72,28 @@ class Jetpack_Sitemap_Manager {
 			/** This filter is documented in modules/sitemaps/sitemaps.php */
 
 			// Regular expressions for URL routing
-			$sitemap_regex       = '/^\/sitemap([1-9][0-9]*)?\.xml$/';
-			$sitemap_index_regex = '/^\/sitemap-index([1-9][0-9]*)?\.xml$/';
+			$sitemap_master_regex = '/^\/sitemap\.xml$/';
+			$sitemap_regex        = '/^\/sitemap-[1-9][0-9]*\.xml$/';
+			$sitemap_index_regex  = '/^\/sitemap-index-([1-9][0-9]*)?\.xml$/';
 
-			if ( preg_match( $sitemap_regex, $_SERVER['REQUEST_URI']) ) {
+			if ( preg_match( $sitemap_master_regex, $_SERVER['REQUEST_URI']) ) {
+				// Matched sitemap master regex
+
+				$the_content = $this->get_contents_of_post_by_title_and_type(
+					'sitemap',
+					'jp_sitemap_master'
+				);
+
+				header('Content-Type: application/xml; charset=UTF-8');
+
+				if ('' == $the_content) {
+					http_response_code(404);
+				}
+
+				echo $the_content;
+				die();
+
+			} else if ( preg_match( $sitemap_regex, $_SERVER['REQUEST_URI']) ) {
 				// Matched sitemap regex
 
 				$the_content = $this->get_contents_of_post_by_title_and_type(
@@ -112,7 +146,7 @@ class Jetpack_Sitemap_Manager {
 		});
 
 		// (@@@) for testing
-		//$this->delete_all_sitemaps();
+		// $this->delete_all_sitemaps();
 
 		if( !wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
 			wp_schedule_event( time(), 'minutely', 'jp_sitemap_cron_hook' );
@@ -200,7 +234,7 @@ XML;
 
 		// Store the buffer as the content of a jetpack_sitemap post.
 		$this->set_contents_of_post_by_title_and_type(
-			'sitemap' . $sitemap_position,
+			'sitemap-' . $sitemap_position,
 			'jp_sitemap',
 			$buffer,
 			$most_recent_modification
@@ -307,7 +341,7 @@ XML;
 
 		// Store the buffer as the content of a jetpack_sitemap post.
 		$this->set_contents_of_post_by_title_and_type(
-			'sitemap-index' . $sitemap_index_position,
+			'sitemap-index-' . $sitemap_index_position,
 			'jp_sitemap_index',
 			$buffer,
 			$most_recent_modification
@@ -356,10 +390,10 @@ XML;
 
 		// If there's only one sitemap, make that the root.
 		if ( 1 == $current_sitemap_position ) {
-			$foo = $this->get_contents_of_post_by_title_and_type('sitemap1', 'jp_sitemap');
+			$foo = $this->get_contents_of_post_by_title_and_type('sitemap-1', 'jp_sitemap');
 			$this->set_contents_of_post_by_title_and_type(
 				'sitemap',
-				'jp_sitemap',
+				'jp_sitemap_master',
 				$foo,
 				''
 			);
@@ -389,10 +423,10 @@ XML;
 
 		// If there's only one sitemap index, make that the root.
 		if ( 1 == $current_sitemap_index_position ) {
-			$foo = $this->get_contents_of_post_by_title_and_type('sitemap-index1', 'jp_sitemap_index');
+			$foo = $this->get_contents_of_post_by_title_and_type('sitemap-index-1', 'jp_sitemap_index');
 			$this->set_contents_of_post_by_title_and_type(
 				'sitemap',
-				'jp_sitemap',
+				'jp_sitemap_master',
 				$foo,
 				''
 			);
@@ -400,7 +434,7 @@ XML;
 			$foo = $this->get_contents_of_post_by_title_and_type('sitemap-index' . $current_sitemap_index_position, 'jp_sitemap_index');
 			$this->set_contents_of_post_by_title_and_type(
 				'sitemap',
-				'jp_sitemap',
+				'jp_sitemap_master',
 				$foo,
 				''
 			);
@@ -479,6 +513,7 @@ XML;
 
 	private function delete_all_sitemaps () {
 		global $wpdb;
+
 		$sitemaps = $wpdb->get_results("
 			SELECT *
 			  FROM $wpdb->posts
