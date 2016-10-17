@@ -13,6 +13,7 @@ Official guideline resources:
 
 - Facebook: https://www.facebookbrand.com
 - Twitter: https://about.twitter.com/company/brand-assets
+- Instagram: https://www.instagram-brand.com
 - LinkedIn: https://brand.linkedin.com
 - Google+: https://developers.google.com/+/branding-guidelines and http://gplus-brand.appspot.com
 - Pinterest: https://business.pinterest.com/en/brand-guidelines
