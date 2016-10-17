@@ -1229,7 +1229,7 @@ class Jetpack {
 		 */
 		return (bool) apply_filters(
 			'jetpack_development_version',
-			! preg_match( '/^\d+(\.\d+)+$/', JETPACK__VERSION )
+			! preg_match( '/^\d+(\.\d+)+$/', Jetpack_Constants::get_constant( 'JETPACK__VERSION' ) )
 		);
 	}
 

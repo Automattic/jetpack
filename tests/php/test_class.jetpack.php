@@ -451,6 +451,31 @@ EXPECTED;
 		remove_filter( 'jetpack_sync_error_idc_validation', '__return_false' );
 	}
 
+	function test_is_dev_version_true_with_alpha() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3.1-alpha' );
+		$this->assertTrue( Jetpack::is_development_version() );
+	}
+
+	function test_is_dev_version_true_with_beta() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3-beta2' );
+		$this->assertTrue( Jetpack::is_development_version() );
+	}
+
+	function test_is_dev_version_true_with_rc() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3-rc2' );
+		$this->assertTrue( Jetpack::is_development_version() );
+	}
+
+	function test_is_dev_version_false_with_number_dot_number() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3' );
+		$this->assertFalse( Jetpack::is_development_version() );
+	}
+
+	function test_is_dev_version_false_with_number_dot_number_dot_number() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3.1' );
+		$this->assertFalse( Jetpack::is_development_version() );
+	}
+
 	function __return_string_1() {
 		return '1';
 	}
