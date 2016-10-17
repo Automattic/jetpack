@@ -931,7 +931,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_exceed_options_write_rate_limit() {
-		Jetpack_Sync_Settings::update_settings( array( 'queue_max_writes_sec' => 2 ) );
+		// need to bump max_enqueue_full_sync too because otherwise we quit early!
+		Jetpack_Sync_Settings::update_settings( array( 'queue_max_writes_sec' => 2, 'max_enqueue_full_sync' => 3000 ) );
 
 		foreach( range( 1, 2100 ) as $i ) { // 200 items+
 			$this->factory->user->create();
