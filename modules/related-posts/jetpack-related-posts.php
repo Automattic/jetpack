@@ -1295,7 +1295,7 @@ EOT;
 	/**
 	 * Add Related Posts to the REST API Post response.
 	 *
-	 * @since 4.0.0
+	 * @since 4.4.0
 	 *
 	 * @action rest_api_init
 	 * @uses register_rest_field, self::rest_get_related_posts
@@ -1315,7 +1315,7 @@ EOT;
 	/**
 	 * Build an array of Related Posts.
 	 *
-	 * @since 4.0.0
+	 * @since 4.4.0
 	 *
 	 * @param array $object Details of current post.
 	 * @param string $field_name Name of field.
