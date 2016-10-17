@@ -4,15 +4,6 @@
 	padding-bottom: 92px;
 }
 
-.jetpack-sso .message {
-	margin-top: 20px;
-}
-
-.jetpack-sso #login .message:first-child,
-.jetpack-sso #login h1 + .message {
-	margin-top: 0;
-}
-
 .jetpack-sso-repositioned #loginform {
 	padding-bottom: 26px;
 }
