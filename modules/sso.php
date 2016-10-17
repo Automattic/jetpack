@@ -161,20 +161,37 @@ class Jetpack_SSO {
 		// Always add the jetpack-sso class so that we can add SSO specific styling even when the SSO form isn't being displayed.
 		$classes[] = 'jetpack-sso';
 
-		/**
-		 * Should we show the SSO login form?
-		 *
-		 * $_GET['jetpack-sso-default-form'] is used to provide a fallback in case JavaScript is not enabled.
-		 *
-		 * The default_to_sso_login() method allows us to dynamically decide whether we show the SSO login form or not.
-		 * The SSO module uses the method to display the default login form if we can not find a user to log in via SSO.
-		 * But, the method could be filtered by a site admin to always show the default login form if that is preferred.
-		 */
-		if ( empty( $_GET['jetpack-sso-show-default-form'] ) && Jetpack_SSO_Helpers::show_sso_login() ) {
-			$classes[] = 'jetpack-sso-form-display';
+		if ( ! Jetpack::is_staging_site() ) {
+			/**
+			 * Should we show the SSO login form?
+			 *
+			 * $_GET['jetpack-sso-default-form'] is used to provide a fallback in case JavaScript is not enabled.
+			 *
+			 * The default_to_sso_login() method allows us to dynamically decide whether we show the SSO login form or not.
+			 * The SSO module uses the method to display the default login form if we can not find a user to log in via SSO.
+			 * But, the method could be filtered by a site admin to always show the default login form if that is preferred.
+			 */
+			if ( empty( $_GET['jetpack-sso-show-default-form'] ) && Jetpack_SSO_Helpers::show_sso_login() ) {
+				$classes[] = 'jetpack-sso-form-display';
+			}
 		}
 
 		return $classes;
+	}
+
+	public function print_inline_admin_css() {
+		?>
+			<style>
+				.jetpack-sso .message {
+					margin-top: 20px;
+				}
+
+				.jetpack-sso #login .message:first-child,
+				.jetpack-sso #login h1 + .message {
+					margin-top: 0;
+				}
+			</style>
+		<?php
 	}
 
 	/**
@@ -396,6 +413,9 @@ class Jetpack_SSO {
 	 * up the hooks required to display the SSO form.
 	 */
 	public function display_sso_login_form() {
+		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
+		add_action( 'login_head',       array( $this, 'print_inline_admin_css' ) );
+
 		if ( Jetpack::is_staging_site() ) {
 			add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
 			return;
@@ -407,7 +427,6 @@ class Jetpack_SSO {
 		}
 
 		add_action( 'login_form',            array( $this, 'login_form' ) );
-		add_filter( 'login_body_class',      array( $this, 'login_body_class' ) );
 		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 	}
 
