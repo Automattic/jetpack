@@ -34,7 +34,7 @@ class Jetpack_Constants {
 
 	/**
 	 * Attempts to retrieve the "constant" from Jetpack_Constants, and if it hasn't been set,
-	 * then attempst to get the constant with the constant() function.
+	 * then attempts to get the constant with the constant() function.
 	 *
 	 * @param $name
 	 *
