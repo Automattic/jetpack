@@ -1229,7 +1229,7 @@ class Jetpack {
 		 */
 		return (bool) apply_filters(
 			'jetpack_development_version',
-			! preg_match( '/^\d+(\.\d+)+$/', JETPACK__VERSION )
+			! preg_match( '/^\d+(\.\d+)+$/', Jetpack_Constants::get_constant( 'JETPACK__VERSION' ) )
 		);
 	}
 
@@ -2584,9 +2584,13 @@ p {
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 		Jetpack::clean_nonces( true );
 
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.deregister' );
+		// If the site is in an IDC because sync is not allowed,
+		// let's make sure to not disconnect the production site.
+		if ( ! self::validate_sync_error_idc_option() ) {
+			Jetpack::load_xml_rpc_client();
+			$xml = new Jetpack_IXR_Client();
+			$xml->query( 'jetpack.deregister' );
+		}
 
 		Jetpack_Options::delete_option(
 			array(
@@ -2597,6 +2601,7 @@ p {
 				'master_user',
 				'time_diff',
 				'fallback_no_verify_ssl_certs',
+				'sync_error_idc',
 			)
 		);
 
@@ -5295,6 +5300,11 @@ p {
 			}
 		}
 
+		// Last, let's check if sync is erroring due to an IDC. If so, set the site to staging mode.
+		if ( ! $is_staging && self::validate_sync_error_idc_option() ) {
+			$is_staging = true;
+		}
+
 		/**
 		 * Filters is_staging_site check.
 		 *
@@ -5303,6 +5313,35 @@ p {
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+	}
+
+	/**
+	 * Checks whether the sync_error_idc option is valid or not, and if not, will do cleanup.
+	 *
+	 * @return bool
+	 */
+	public static function validate_sync_error_idc_option() {
+		$is_valid = false;
+		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+		if ( $sync_error && $sync_error == get_home_url() ) {
+			$is_valid = true;
+		}
+
+		/**
+		 * Filters whether the sync_error_idc option is valid.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool $is_valid If the sync_error_idc is valid or not.
+		 */
+		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
+
+		if ( ! $is_valid && $sync_error ) {
+			// Since the option exists, and did not validate, delete it
+			Jetpack_Options::delete_option( 'sync_error_idc' );
+		}
+
+		return $is_valid;
 	}
 
 	/**
@@ -5315,10 +5354,8 @@ p {
 	public static function sync_idc_optin() {
 		if ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
 			$default = JETPACK_SYNC_IDC_OPTIN;
-		} else if ( defined( 'SUNRISE' ) ) {
-			$default = SUNRISE;
 		} else {
-			$default = self::is_development_version();
+			$default = false;
 		}
 
 		/**

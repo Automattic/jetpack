@@ -124,11 +124,13 @@ class Jetpack_Sync_Actions {
 			'codec'     => $codec_name,     // send the name of the codec used to encode the data
 			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
 			'queue'     => $queue_id,       // sync or full_sync
+			'home'      => get_home_url(),  // Send home url option to check for Identity Crisis server-side
+			'siteurl'   => get_site_url(),  // Send siteurl option to check for Identity Crisis server-side
 		);
 
+		// Has the site opted in to IDC mitigation?
 		if ( Jetpack::sync_idc_optin() ) {
-			$query_args['home']    = get_home_url(); // Send home url option to check for Identity Crisis server-side
-			$query_args['siteurl'] = get_site_url(); // Send home url option to check for Identity Crisis server-side
+			$query_args['idc'] = true;
 		}
 
 		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
@@ -142,7 +144,12 @@ class Jetpack_Sync_Actions {
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 
 		if ( ! $result ) {
-			return $rpc->get_jetpack_error();
+			$error = $rpc->get_jetpack_error();
+			if ( 'jetpack_url_mismatch' === $error->get_error_code() ) {
+				Jetpack_Options::update_option( 'sync_error_idc', get_home_url() );
+			}
+			
+			return $error;
 		}
 
 		return $rpc->getResponse();
