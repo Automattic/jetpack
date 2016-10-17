@@ -57,7 +57,12 @@ If you're having trouble installing 6.x, [nvm](https://www.npmjs.com/package/nvm
 	git clone https://github.com/Automattic/jetpack.git
 	```
 
-3. Make sure the Jetpack plugin is active and run
+3. Install [yarn](https://www.npmjs.com/package/yarn) package.
+    ```
+    npm install -g yarn
+    ```
+
+4. Make sure the Jetpack plugin is active and run
 
 	```
 	npm run build
@@ -65,7 +70,7 @@ If you're having trouble installing 6.x, [nvm](https://www.npmjs.com/package/nvm
 
 	This will install npm dependencies and then build the files.
 
-4. Open `/wp-admin/admin.php?page=jetpack` in your browser.
+5. Open `/wp-admin/admin.php?page=jetpack` in your browser.
 
 #### Production build
 
