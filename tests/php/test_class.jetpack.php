@@ -415,12 +415,6 @@ EXPECTED;
 		$this->assertFalse( Jetpack::get_other_linked_admins() );
 	}
 
-	function test_idc_optin_defaults_to_development_version() {
-		add_filter( 'jetpack_development_version', '__return_true' );
-		$this->assertTrue( Jetpack::sync_idc_optin() );
-		remove_filter( 'jetpack_development_version', '__return_true' );
-	}
-
 	function test_idc_optin_filter_overrides_development_version() {
 		add_filter( 'jetpack_development_version', '__return_true' );
 		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
