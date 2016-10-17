@@ -6,20 +6,21 @@ class Jetpack_Sync_Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
 	static $valid_settings = array(
-		'dequeue_max_bytes'    => true,
-		'upload_max_bytes'     => true,
-		'upload_max_rows'      => true,
-		'sync_wait_time'       => true,
-		'sync_wait_threshold'  => true,
-		'max_queue_size'       => true,
-		'max_queue_lag'        => true,
-		'queue_max_writes_sec' => true,
-		'post_types_blacklist' => true,
-		'disable'              => true,
+		'dequeue_max_bytes'       => true,
+		'upload_max_bytes'        => true,
+		'upload_max_rows'         => true,
+		'sync_wait_time'          => true,
+		'sync_wait_threshold'     => true,
+		'max_queue_size'          => true,
+		'max_queue_lag'           => true,
+		'queue_max_writes_sec'    => true,
+		'post_types_blacklist'    => true,
+		'disable'                 => true,
 		'render_filtered_content' => true,
-		'post_meta_whitelist' => true,
-		'comment_meta_whitelist' => true,
-		'avoid_wp_cron'        => true,
+		'post_meta_whitelist'     => true,
+		'comment_meta_whitelist'  => true,
+		'avoid_wp_cron'           => true,
+		'max_enqueue_full_sync'   => true,
 	);
 
 	static $is_importing;

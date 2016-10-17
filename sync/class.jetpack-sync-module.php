@@ -28,9 +28,9 @@ abstract class Jetpack_Sync_Module {
 	public function reset_data() {
 	}
 
-	public function enqueue_full_sync_actions( $config ) {
-		// in subclasses, return the number of items enqueued
-		return 0;
+	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
+		// in subclasses, return the number of actions enqueued, and next module state (true == done)
+		return array( 0, true );
 	}
 
 	public function estimate_full_sync_actions( $config ) {
@@ -58,7 +58,7 @@ abstract class Jetpack_Sync_Module {
 		return false;
 	}
 
-	protected function enqueue_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $limit = null ) {
+	protected function enqueue_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $max_items_to_enqueue, $state ) {
 		global $wpdb;
 
 		if ( ! $where_sql ) {
@@ -68,13 +68,22 @@ abstract class Jetpack_Sync_Module {
 		$items_per_page   = 1000;
 		$page             = 1;
 		$chunk_count      = 0;
-		$previous_max_id  = '~0'; //aka 18446744073709551615, max MySQL BIGINT(20) unsigned
+		$previous_max_id  = $state ? $state : '~0';
 		$listener         = Jetpack_Sync_Listener::get_instance();
 
 		// count down from max_id to min_id so we get newest posts/comments/etc first
 		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_max_id} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
 			// Request posts in groups of N for efficiency
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
+
+			// if we hit our row limit, process and return
+			if ( $chunk_count + count( $chunked_ids ) > $max_items_to_enqueue ) {
+				$remaining_items_count = $max_items_to_enqueue - $chunk_count;
+				$remaining_items = array_slice( $chunked_ids, 0, $remaining_items_count );
+
+				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items );
+				return array( $remaining_items_count + $chunk_count, end( $remaining_items ) );
+			}
 
 			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids );
 
@@ -83,7 +92,7 @@ abstract class Jetpack_Sync_Module {
 			$previous_max_id = end( $ids );
 		}
 
-		return $chunk_count;
+		return array( $chunk_count, true );
 	}
 
 	protected function get_metadata( $ids, $meta_type ) {

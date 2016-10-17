@@ -702,8 +702,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$should_be_status['config']['network_options'] = 1;
 		}
 
-		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
-		$this->assertEquals( $full_sync_status['config'], $should_be_status['config'] );
+		$this->assertEquals( $should_be_status['queue'], $full_sync_status['queue'] );
+		$this->assertEquals( $should_be_status['config'], $full_sync_status['config'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
 		$this->assertNull( $full_sync_status['sent_started'] );
@@ -1044,9 +1044,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module_name = $module->name();
-			$estimate    = $module->estimate_full_sync_actions( true );
-			$actual      = $module->enqueue_full_sync_actions( true );
+			$module_name            = $module->name();
+			$estimate               = $module->estimate_full_sync_actions( true );
+			list( $actual, $state ) = $module->enqueue_full_sync_actions( true, 100, false );
 
 			$this->assertSame( $estimate, $actual );
 		}
@@ -1091,6 +1091,33 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				)
 			)
 		);
+	}
+
+	function test_full_sync_enqueues_limited_number_of_items() {
+		Jetpack_Sync_Settings::update_settings( array( 'max_enqueue_full_sync' => 2 ) );
+
+		global $wpdb;
+
+		// enough posts for three queue items
+		$synced_post_ids = array();
+		foreach( range( 0, 25 ) as $number ) {
+			$synced_post_ids[] = $this->factory->post->create();
+		}
+
+		$this->full_sync->start( array( 'posts' => true ) );
+
+		// test number of items in full sync queue - should be 4 (= full_sync_start + 2xposts + full_sync_end)
+		$this->assertEquals( 4, $this->sender->get_full_sync_queue()->size() );
+
+		$this->full_sync->continue_enqueuing();
+
+		$this->assertEquals( 5, $this->sender->get_full_sync_queue()->size() );
+
+		// assert that all our created posts got synced
+		// foreach( $synced_post_ids as $post_id ) {
+		// 	error_log(print_r($this->server_replica_storage->get_post( $post_id ), 1 );
+		// 	$this->assertNotSame( false, $this->server_replica_storage->get_post( $post_id ) );
+		// }
 	}
 
 	function _do_cron() {

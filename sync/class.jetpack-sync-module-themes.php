@@ -26,7 +26,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		do_action( 'jetpack_sync_current_theme_support' , $this->get_theme_support_info() );
 	}
 
-	public function enqueue_full_sync_actions( $config ) {
+	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		/**
 		 * Tells the client to sync all theme data to the server
 		 *
@@ -35,7 +35,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		 * @param boolean Whether to expand theme data (should always be true)
 		 */
 		do_action( 'jetpack_full_sync_theme_data', true );
-		return 1; // The number of actions enqueued
+
+		// The number of actions enqueued, and next module state (true == done)
+		return array( 1, true );
 	}
 
 	public function estimate_full_sync_actions( $config ) {
