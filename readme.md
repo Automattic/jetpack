@@ -40,16 +40,13 @@ Developers of all levels can help — whether you can barely recognize a filter 
 
 The javascript and CSS components of this plugin's admin interface need to be built in order to get the runtime bundle (`_inc/build/admin.js`)
 
-**Recommended Dependencies and Known Issues**
+**Recommended Dependencies**
 
 Recommended environment:
-- Node 5.x (preferably 5.11 or 5.10)
+- Node 6.x
 - npm 3.8.x
 
-If you're having trouble installing 5.x, [nvm](https://www.npmjs.com/package/nvm) is a nice tool for node version management :)
-
-Known Issues:
-- Does not work with Node 6.x nor 4.x.
+If you're having trouble installing 6.x, [nvm](https://www.npmjs.com/package/nvm) is a nice tool for node version management :)
 
 **Start Development**
 
