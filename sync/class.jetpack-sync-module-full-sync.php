@@ -109,7 +109,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 *
 		 * @since 4.2.0
 		 */
-		do_action( 'jetpack_full_sync_start', $module_configs );
+		do_action( 'jetpack_full_sync_start', $full_sync_config );
 
 		$this->continue_enqueuing( $full_sync_config, $enqueue_status );
 

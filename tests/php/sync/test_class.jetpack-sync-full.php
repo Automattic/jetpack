@@ -598,14 +598,27 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_start_sends_configuration() {
+		$post_ids = $this->factory->post->create_many( 3 );
+
 		// this is so that on WPCOM we can tell what has been synchronized in the past
 		add_action( 'jetpack_full_sync_start', array( $this, 'record_full_sync_start_config' ), 10, 1 );
 
+		$standard_config = array( 
+			'constants' => true,
+    		'functions' => true,
+    		'options' => true,
+    		'terms' => true,
+    		'themes' => true,
+    		'users' => true,
+    		'updates' => true,
+    		'posts' => true
+		);
+
 		$this->full_sync->start();
 
-		$this->assertEquals( null, $this->full_sync_start_config );
+		$this->assertEquals( $standard_config, $this->full_sync_start_config );
 
-		$custom_config = array( 'posts' => array( 1, 2, 3, ) );
+		$custom_config = array( 'posts' => $post_ids );
 
 		$this->full_sync->start( $custom_config );
 
