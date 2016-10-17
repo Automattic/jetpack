@@ -27,3 +27,4 @@ _inc/build/static.dops-style.css.map
 _inc/build/static.dops-style.rtl.css.map
 _inc/build/style.min.rtl.css.map
 .codeclimate.yml
+yarn.lock
