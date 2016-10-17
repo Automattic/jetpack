@@ -789,7 +789,7 @@ class Jetpack_Likes {
 		$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post->ID, $uniqid );
 		$headline = sprintf(
 			/** This filter is already documented in modules/sharedaddy/sharing-service.php */
-			apply_filters( 'jetpack_sharing_headline_html', '<h3 class="sd-title">%s</h3>',esc_html__( 'Like this:', 'jetpack' ), 'likes' ),
+			apply_filters( 'jetpack_sharing_headline_html', '<h3 class="sd-title">%s</h3>', esc_html__( 'Like this:', 'jetpack' ), 'likes' ),
 			esc_html__( 'Like this:', 'jetpack' )
 		);
 
