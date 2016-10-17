@@ -24,6 +24,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	tap = require( 'gulp-tap' ),
 	modify = require('gulp-modify'),
+	uglify = require('gulp-uglify'),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
 
@@ -57,6 +58,16 @@ function onBuild( done ) {
 			children: false
 		} ), '\nJS finished at', Date.now() );
 
+		if ( 'production' === process.env.NODE_ENV ) {
+			gutil.log( 'Uglifying JS...' );
+			gulp.src( '_inc/build/admin.js' )
+				.pipe( uglify() )
+				.pipe( gulp.dest( '_inc/build' ) )
+				.on( 'end', function() {
+					gutil.log( 'Your JS is now uglified!' );
+				} );;
+		}
+
 		doSass( function() {
 			if ( done ) {
 				doStatic( done );
@@ -70,7 +81,6 @@ function onBuild( done ) {
 function getWebpackConfig() {
 	// clone and extend webpackConfig
 	var config = Object.create( require( './webpack.config.js' ) );
-	config.devtool = 'sourcemap';
 	config.debug = true;
 
 	return config;
@@ -158,16 +168,6 @@ gulp.task( 'react:build', function( done ) {
 	var config = getWebpackConfig();
 
 	if ( 'production' === process.env.NODE_ENV ) {
-		config.plugins = config.plugins.concat(
-			new webpack.optimize.DedupePlugin(),
-			new webpack.optimize.UglifyJsPlugin( {
-				compress: {
-					warnings: false
-				}
-			} )
-		);
-
-		config.devtool = 'source-map';
 		config.debug = false;
 	}
 
