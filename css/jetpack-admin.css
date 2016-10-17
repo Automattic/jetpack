@@ -253,6 +253,14 @@
   font-style: normal;
 }
 
+.nav-horizontal:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
 .nav-horizontal a {
   display: inline-block;
 }

@@ -29,7 +29,6 @@ var webpackConfig = {
 		path: path.join( __dirname, '_inc/build' ),
 		filename: "[name].js"
 	},
-	devtool: '#source-map',
 	module: {
 
 		// Webpack loaders are applied when a resource is matches the test case
