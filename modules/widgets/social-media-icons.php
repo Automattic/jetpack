@@ -35,6 +35,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'youtube_username'   => '',
 			'vimeo_username'     => '',
 			'googleplus_username' => '',
+			'flickr_username'    => '',
 		);
 
 		$this->services = array(
@@ -47,6 +48,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'youtube'    => array( 'YouTube', 'https://www.youtube.com/%s/' ),
 			'vimeo'      => array( 'Vimeo', 'https://vimeo.com/%s/' ),
 			'googleplus' => array( 'Google+', 'https://plus.google.com/u/0/%s/' ),
+			'flickr'     => array( 'Flickr', 'https://www.flickr.com/photos/%s/' ),
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
