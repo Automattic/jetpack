@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-full-sync.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
@@ -57,7 +58,11 @@ class Jetpack_Sync_Sender {
 	}
 
 	public function do_full_sync() {
-		return $this->do_sync_and_set_delays( $this->full_sync_queue );
+		if ( Jetpack_Sync_Settings::get_setting( 'real_time_full_sync' ) ) {
+			return Jetpack_Full_Sync::do_sync();
+		} else {
+			return $this->do_sync_and_set_delays( $this->full_sync_queue );
+		}
 	}
 
 	public function do_sync() {

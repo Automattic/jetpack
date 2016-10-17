@@ -16,6 +16,7 @@ class Jetpack_Sync_Settings {
 		'queue_max_writes_sec' => true,
 		'post_types_blacklist' => true,
 		'disable'              => true,
+		'real_time_full_sync'  => true,
 		'render_filtered_content' => true,
 		'post_meta_whitelist' => true,
 		'comment_meta_whitelist' => true,

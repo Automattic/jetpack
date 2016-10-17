@@ -378,7 +378,6 @@ class Jetpack_Sync_Queue {
 				$this->get_lock_option_name() 
 			) 
 		);
-
 	}
 
 	private function get_lock_option_name() {
