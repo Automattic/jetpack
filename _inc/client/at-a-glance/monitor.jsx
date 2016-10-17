@@ -10,13 +10,11 @@ import includes from 'lodash/includes';
 /**
  * Internal dependencies
  */
-import QueryLastDownTime from 'components/data/query-last-downtime';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
 	getModules
 } from 'state/modules';
-import { getLastDownTime as _getLastDownTime } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 
 const DashMonitor = React.createClass( {
@@ -24,21 +22,6 @@ const DashMonitor = React.createClass( {
 		const labelName = __( 'Downtime Monitoring' );
 
 		if ( this.props.isModuleActivated( 'monitor' ) ) {
-			const lastDowntime = this.props.lastDownTime;
-
-			if ( lastDowntime === 'N/A' ) {
-				return (
-					<DashItem
-						label={ labelName }
-						module="monitor"
-						status="is-working"
-					>
-						<QueryLastDownTime />
-						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
-					</DashItem>
-				);
-			}
-
 			return (
 				<DashItem
 					label={ labelName }
@@ -78,7 +61,6 @@ const DashMonitor = React.createClass( {
 
 		return (
 			<div>
-				<QueryLastDownTime />
 				{ this.getContent() }
 			</div>
 		);
@@ -86,7 +68,6 @@ const DashMonitor = React.createClass( {
 } );
 
 DashMonitor.propTypes = {
-	lastDownTime: React.PropTypes.any.isRequired,
 	isDevMode: React.PropTypes.bool.isRequired
 };
 
@@ -94,7 +75,6 @@ export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			lastDownTime: _getLastDownTime( state ),
 			isDevMode: isDevMode( state ),
 			moduleList: getModules( state )
 		};
