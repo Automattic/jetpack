@@ -88,7 +88,7 @@ class Jetpack_Debugger {
 		$human_readable_sync_status = array();
 		foreach( $sync_statuses  as $sync_status => $sync_status_value ) {
 			$human_readable_sync_status[ $sync_status ] =
-				in_array( $sync_status, array( 'started', 'queue_finished', 'sent_started', 'finished' ) )
+				in_array( $sync_status, array( 'started', 'queue_finished', 'send_started', 'finished' ) )
 				? date( 'r', $sync_status_value ) : $sync_status_value ;
 		}
 

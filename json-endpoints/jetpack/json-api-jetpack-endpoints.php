@@ -598,7 +598,7 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 	'response_format' => array(
 		'started' => '(int|null) The unix timestamp when the last sync started',
 		'queue_finished' => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
-		'sent_started' => '(int|null) The unix timestamp when the last sent process started',
+		'send_started' => '(int|null) The unix timestamp when the last sent process started',
 		'finished' => '(int|null) The unix timestamp when the last sync finished',
 		'total'  => '(array) Count of actions that could be sent',
 		'queue'  => '(array) Count of actions that have been added to the queue',

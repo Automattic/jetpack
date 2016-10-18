@@ -669,7 +669,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			array(
 				'started'        => null,
 				'queue_finished' => null,
-				'sent_started'   => null,
+				'send_started'   => null,
 				'finished'       => null,
 				'total'          => array(),
 				'sent'           => array(),
@@ -719,7 +719,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $should_be_status['config'], $full_sync_status['config'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
-		$this->assertNull( $full_sync_status['sent_started'] );
+		$this->assertNull( $full_sync_status['send_started'] );
 		$this->assertNull( $full_sync_status['finished'] );
 		$this->assertInternalType( 'array', $full_sync_status['sent'] );
 	}
@@ -765,7 +765,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
-		$this->assertInternalType( 'int', $full_sync_status['sent_started'] );
+		$this->assertInternalType( 'int', $full_sync_status['send_started'] );
 		$this->assertInternalType( 'int', $full_sync_status['finished'] );
 	}
 
@@ -1041,7 +1041,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $full_sync_status['total'], $should_be_status['total'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
-		$this->assertInternalType( 'int', $full_sync_status['sent_started'] );
+		$this->assertInternalType( 'int', $full_sync_status['send_started'] );
 		$this->assertInternalType( 'int', $full_sync_status['finished'] );
 
 		// Reset all the defaults

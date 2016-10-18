@@ -185,7 +185,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_start'] ) ) {
-			$this->update_status_option( 'sent_started', time() );
+			$this->update_status_option( 'send_started', time() );
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
@@ -228,7 +228,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$status = array(
 			'started'        => $this->get_status_option( 'started' ),
 			'queue_finished' => $this->get_status_option( 'queue_finished' ),
-			'sent_started'   => $this->get_status_option( 'sent_started' ),
+			'send_started'   => $this->get_status_option( 'send_started' ),
 			'finished'       => $this->get_status_option( 'finished' ),
 			'sent'           => array(),
 			'queue'          => array(),
@@ -274,7 +274,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$prefix = self::STATUS_OPTION_PREFIX;		
 		delete_option( "{$prefix}_started" );		
 		delete_option( "{$prefix}_queue_finished" );		
-		delete_option( "{$prefix}_sent_started" );		
+		delete_option( "{$prefix}_send_started" );		
 		delete_option( "{$prefix}_finished" );		
 		
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
@@ -337,11 +337,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				$name
 			)
 		);
-		// error_log("updated $name: $updated_num for ".$wpdb->last_query." - ".$wpdb->last_error);
+
 		if ( ! $updated_num ) {
 			$updated_num = $wpdb->query(
 				$wpdb->prepare(
-					"INSERT IGNORE INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )", 
+					"INSERT INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )", 
 					$name,
 					$serialized_value
 				)
