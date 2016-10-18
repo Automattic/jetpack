@@ -11,7 +11,7 @@ class Jetpack_Sitemap_Manager {
 
 	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
 	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 10;    // 50k
+	const SITEMAP_MAX_ITEMS = 5000;    // 50k
 
 
 
@@ -160,7 +160,7 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 
-			// URL did not match any patterns here.
+			// URL did not match any sitemap patterns.
 			return;
 		});
 	}
@@ -214,21 +214,17 @@ class Jetpack_Sitemap_Manager {
 		$buffer_too_big = False;
 		$any_posts_remaining = True;
 
-		$open_xml = <<<XML
-<?xml version='1.0' encoding='UTF-8'?>
-<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n
-XML;
+		$open_xml =
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n";
 
-		$close_xml = <<<XML
-</urlset>\n
-XML;
+		$close_xml =
+			"</urlset>\n";
 
-		$site_url = site_url();
-		$main_url = <<<XML
-<url>
- <loc>$site_url</loc>
-</url>\n
-XML;
+		$main_url =
+			"<url>\n" .
+			" <loc>" . site_url() . "</loc>\n" .
+			"</url>\n";
 
 		// Add header part to buffer.
 		$buffer .= $open_xml;
@@ -320,22 +316,19 @@ XML;
 		$buffer_too_big = False;
 		$any_posts_remaining = True;
 
-		$open_xml = <<<XML
-<?xml version='1.0' encoding='UTF-8'?>
-<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n
-XML;
+		$open_xml =
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n";
 
-		$close_xml = <<<XML
-</sitemapindex>\n
-XML;
+		$close_xml =
+			"</sitemapindex>\n";
 
-		$next_index_url = site_url() . '/sitemap-index-' . ($sitemap_index_position - 1) . '.xml';
-		$forward_pointer = <<<XML
-<sitemap>
- <loc>$next_index_url</loc>
- <lastmod>$previous_timestamp</lastmod>
-</sitemap>\n
-XML;
+		$prev_index = $sitemap_index_position - 1;
+		$forward_pointer =
+			"<sitemap>\n" .
+ 			" <loc>" . site_url() . "/sitemap-index-$prev_index.xml</loc>\n" .
+			" <lastmod>$previous_timestamp</lastmod>\n" .
+			"</sitemap>\n";
 
 		// Add header part to buffer.
 		$buffer .= $open_xml;
@@ -436,15 +429,12 @@ XML;
 
 		// If there's only one sitemap, make that the root.
 		if ( 1 == $current_sitemap_position ) {
-			$foo = $this->get_contents_of_post('sitemap-1', 'jp_sitemap');
-			$this->set_contents_of_post(
-				'sitemap',
-				'jp_sitemap_master',
-				$foo,
-				''
-			);
+			$this->clone_to_master_sitemap('sitemap-1', 'jp_sitemap');
+			$this->delete_sitemaps_after_number(1);
 			return;
 		}
+
+		$this->delete_sitemaps_after_number($current_sitemap_position);
 
 		/* Sitemap Indices */
 
@@ -467,24 +457,23 @@ XML;
 			}
 		}
 
-		// If there's only one sitemap index, make that the root.
-		if ( 1 == $current_sitemap_index_position ) {
-			$foo = $this->get_contents_of_post('sitemap-index-1', 'jp_sitemap_index');
-			$this->set_contents_of_post(
-				'sitemap',
-				'jp_sitemap_master',
-				$foo,
-				''
-			);
-		} else {
-			$foo = $this->get_contents_of_post('sitemap-index-' . $current_sitemap_index_position, 'jp_sitemap_index');
-			$this->set_contents_of_post(
-				'sitemap',
-				'jp_sitemap_master',
-				$foo,
-				''
-			);
-		}
+		$this->clone_to_master_sitemap(
+			'sitemap-index-' . $current_sitemap_index_position,
+			'jp_sitemap_index'
+		);
+
+		return;
+	}
+
+
+
+	private function clone_to_master_sitemap ( $title, $type ) {
+		$this->set_contents_of_post(
+			'sitemap',
+			'jp_sitemap_master',
+			$this->get_contents_of_post($title, $type),
+			''
+		);
 
 		return;
 	}
@@ -554,6 +543,10 @@ XML;
 		);
 	}
 
+
+	private function sitemap_xsl_content() {
+		return '';
+	}
 
 
 
@@ -672,6 +665,25 @@ XML;
 	/*
 	 * Manipulating the Database
 	 */
+
+
+	private function delete_sitemaps_after_number( $position ) {
+		$any_left = True;
+		$i = $position + 1;
+
+		while ( True == $any_left ) {
+			$the_post = get_page_by_title( 'sitemap-' . $i, 'OBJECT', 'jp_sitemap' );
+
+			if ( null == $the_post ) {
+				$any_left = False;
+			} else {
+				wp_delete_post($the_post->ID);
+				$i += 1;
+			}
+		}
+
+		return;
+	}
 
 
 	/**
