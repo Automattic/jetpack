@@ -47,45 +47,38 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			do_action( 'jetpack_full_sync_cancelled' );
 		}
 
-		// TODO: migrate old status options to new single status array
-		// OR separate sent-status from enqueue status
 		$this->update_status_option( 'started', time() );
+		$this->update_status_option( 'params', $module_configs );
+
 		$enqueue_status = array();
 		$full_sync_config = array();
 
-		// configure modules
+		// default value is full sync
 		if ( ! is_array( $module_configs ) ) {
 			$module_configs = array();
-		}
-
-		if ( isset( $module_configs['users'] ) && 'initial' === $module_configs['users'] ) {
-			$user_module = Jetpack_Sync_Modules::get_module( 'users' );
-			$module_configs['users'] = $user_module->get_initial_sync_user_config();
-		}
-
-		// by default, all modules are fully enabled
-		if ( count( $module_configs ) === 0 ) {
-			$default_module_config = true;
-		} else {
-			$default_module_config = false;
+			foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+				$module_configs[ $module->name() ] = true;
+			}
 		}
 
 		// set default configuration, calculate totals, and save configuration if totals > 0
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
-			if ( ! isset( $module_configs[ $module_name ] ) ) {
-				$module_configs[ $module_name ] = $default_module_config;
+			$module_config = isset( $module_configs[ $module_name ] ) ? $module_configs[ $module_name ] : false;
+			
+			if ( ! $module_config ) {
+				continue;
+			}
+
+			if ( 'users' === $module_name && 'initial' === $module_config ) {
+				$module_config = $module->get_initial_sync_user_config();
 			}
 
 			$enqueue_status[ $module_name ] = false;
 
-			// check if this module is enabled
-			if ( ! ( $module_config = $module_configs[ $module_name ] ) ) {
-				continue;
-			}
-
 			$total_items = $module->estimate_full_sync_actions( $module_config );
 
+			// if there's information to process, configure this module
 			if ( ! is_null( $total_items ) && $total_items > 0 ) {
 				$full_sync_config[ $module_name ] = $module_config;
 				$enqueue_status[ $module_name ] = array(
@@ -228,7 +221,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			'finished'       => $this->get_status_option( 'finished' ),
 			'sent'           => array(),
 			'queue'          => array(),
-			'config'         => array(),
+			'config'         => $this->get_status_option( 'params' ),
 			'total'          => array(),
 		);
 
@@ -238,13 +231,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$name = $module->name();
 
-			if ( ! isset( $module_config[ $name ] ) ) {
-				continue;
-			} else if ( $config = $module_config[ $name ] ) {
-				$status[ 'config' ][ $name ] = $config;
-			}
-
-			if ( false === $enqueue_status[ $name ] ) {
+			if ( ! isset( $enqueue_status[ $name ] ) ) {
 				continue;
 			}
 
@@ -268,7 +255,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	public function clear_status() {		
 		$prefix = self::STATUS_OPTION_PREFIX;		
-		delete_option( "{$prefix}_started" );		
+		delete_option( "{$prefix}_started" );
+		delete_option( "{$prefix}_params" );
 		delete_option( "{$prefix}_queue_finished" );		
 		delete_option( "{$prefix}_send_started" );		
 		delete_option( "{$prefix}_finished" );		

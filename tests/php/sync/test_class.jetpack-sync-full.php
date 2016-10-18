@@ -674,7 +674,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'total'          => array(),
 				'sent'           => array(),
 				'queue'          => array(),
-				'config'         => array(),
+				'config'         => null,
 			)
 		);
 	}
@@ -698,17 +698,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'     => 1,
 				'terms'     => 1,
 			),
-			'config' => array(
-				'constants' => true,
-				'functions' => true,
-				'options'   => true,
-				'posts'     => true,
-				'comments'  => true,
-				'themes'    => true,
-				'updates'   => true,
-				'users'     => true,
-				'terms'     => true,
-			)
+			'config' => null
 		);
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
@@ -1080,15 +1070,18 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
 		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
 
+		$expected_sync_config = array( 
+			'options' => true, 
+			'network_options' => true,
+			'functions' => true, 
+			'constants' => true, 
+			'users' => 'initial'
+		);
+
 		$full_sync_status = $this->full_sync->get_status();
 		$this->assertEquals(
-			$full_sync_status[ 'config' ],
-			array(
-				'options' => true,
-				'functions' => true,
-				'constants' => true,
-				'users' => $user_ids,
-			)
+			$expected_sync_config,
+			$full_sync_status[ 'config' ]
 		);
 	}
 

@@ -26,9 +26,10 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		$expected_sync_config = array( 
 			'options' => true, 
+			'network_options' => true,
 			'functions' => true, 
 			'constants' => true, 
-			'users' => $wpdb->get_col( "SELECT ID FROM $wpdb->users ORDER BY ID ASC" )
+			'users' => 'initial'
 		);
 
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
@@ -38,11 +39,8 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 	function test_upgrading_from_42_plus_does_not_includes_users_in_initial_sync() {
 
-		global $wpdb;
-		$user_ids = $wpdb->get_col( "SELECT ID FROM $wpdb->users ORDER BY ID ASC" );
-
-		$initial_sync_without_users_config = array( 'options' => true, 'functions' => true, 'constants' => true );
-		$initial_sync_with_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'users' => $user_ids );
+		$initial_sync_without_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true );
+		$initial_sync_with_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true, 'users' => 'initial' );
 
 		do_action( 'updating_jetpack_version', '4.3', '4.2' );
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
