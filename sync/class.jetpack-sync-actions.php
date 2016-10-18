@@ -19,7 +19,7 @@ class Jetpack_Sync_Actions {
 		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
 
 		// On jetpack authorization, schedule a full sync
-		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ), 10, 0 );
+		add_action( 'jetpack_client_authorized', array( __CLASS__, 'do_full_sync' ), 10, 0 );
 
 		// When importing via cron, do not sync
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
@@ -176,74 +176,19 @@ class Jetpack_Sync_Actions {
 			$time_offset = 1;
 		}
 
-		self::schedule_full_sync(
-			$initial_sync_config,
-			$time_offset
-		);
-	}
-
-	static function schedule_full_sync( $modules = null, $time_offset = 1 ) {
-		if ( ! self::sync_allowed() ) {
-			return false;
-		}
-
-		if ( Jetpack_Sync_Settings::get_setting( 'avoid_wp_cron' ) ) {
-			// run queuing inline
-			set_time_limit( 0 );
-			self::do_full_sync( $modules );
-			return false;
-		}
-
-		if ( self::is_scheduled_full_sync() ) {
-			self::unschedule_all_full_syncs();
-		}
-
-		if ( $modules ) {
-			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full', array( $modules ) );
-		} else {
-			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full' );
-		}
-
-		if ( $time_offset === 1 ) {
-			spawn_cron();
-		}
-
-		return true;
-	}
-
-	static function unschedule_all_full_syncs() {
-		foreach ( _get_cron_array() as $timestamp => $cron ) {
-			if ( ! empty( $cron['jetpack_sync_full'] ) ) {
-				foreach( $cron['jetpack_sync_full'] as $key => $config ) {
-					wp_unschedule_event( $timestamp, 'jetpack_sync_full', $config['args'] );
-				}
-			}
-		}
-	}
-
-	static function is_scheduled_full_sync( $modules = null ) {
-		if ( is_null( $modules ) ) {
-			$crons = _get_cron_array();
-
-			foreach ( $crons as $timestamp => $cron ) {
-				if ( ! empty( $cron['jetpack_sync_full'] ) ) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		return !! wp_next_scheduled( 'jetpack_sync_full', array( $modules ) );
+		self::do_full_sync( $initial_sync_config );
 	}
 
 	static function do_full_sync( $modules = null ) {
 		if ( ! self::sync_allowed() ) {
-			return;
+			return false;
 		}
 
 		self::initialize_listener();
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
 		self::do_cron_full_sync(); // immediately run a cron full sync, which sends pending data
+
+		return true;
 	}
 
 	static function minute_cron_schedule( $schedules ) {
