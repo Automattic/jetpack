@@ -247,10 +247,6 @@ class Jetpack_Sync_Actions {
 			remove_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 		}
 
-		$full_sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-
-		$full_sync_module->enable_queue_rate_limit();
-
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
 
@@ -265,8 +261,6 @@ class Jetpack_Sync_Actions {
 
 			$result = self::$sender->do_full_sync();
 		} while ( $result );
-
-		$full_sync_module->disable_queue_rate_limit();
 	}
 
 	static function initialize_listener() {
