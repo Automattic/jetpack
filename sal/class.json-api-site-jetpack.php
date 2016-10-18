@@ -157,6 +157,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return A8C_SEO_Title::get_custom_title_formats();
 	}
 
+	function get_verification_services_codes() {
+		return get_option( 'verification_services_codes', null );
+	}
+
 	/**
 	 * Post functions
 	 */

@@ -2497,6 +2497,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'site_icon'                            => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 		'advanced_seo_front_page_description'  => '(string) The seo meta description for the site.',
 		'advanced_seo_title_formats'           => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
+		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 	),
 
 	'response_format' => array(

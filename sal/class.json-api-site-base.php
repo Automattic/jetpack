@@ -92,6 +92,8 @@ abstract class SAL_Site {
 
 	abstract public function get_advanced_seo_title_formats();
 
+	abstract public function get_verification_services_codes();
+
 	abstract public function before_render();
 
 	abstract public function after_render( &$response );

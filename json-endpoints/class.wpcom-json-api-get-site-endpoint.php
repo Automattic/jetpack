@@ -89,6 +89,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'ak_vp_bundle_enabled',
 		'advanced_seo_front_page_description',
 		'advanced_seo_title_formats',
+		'verification_services_codes',
 	);
 
 	protected static $jetpack_response_field_additions = array( 
@@ -440,6 +441,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( A8C_SEO::is_enabled_advanced_seo() ) {
 						$options[ $key ] = $this->site->get_advanced_seo_title_formats();
 					}
+					break;
+				case 'verification_services_codes' :
+					$options[ $key ] = $site->get_verification_services_codes();
 					break;
 			}
 		}
