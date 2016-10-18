@@ -5360,13 +5360,13 @@ p {
 	 */
 	public static function get_sync_error_idc_option() {
 		$options = array(
-			'home'    => get_option( 'home' ),
-			'siteurl' => get_option( 'siteurl' ),
+			'home'    => get_home_url(),
+			'siteurl' => get_site_url(),
 		);
 
 		$returned_values = array();
 		foreach( $options as $key => $option ) {
-			$parsed_url = parse_url( trailingslashit( $option ) );
+			$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $option ) ) );
 
 			if ( ! $parsed_url ) {
 				$returned_values[ $key ] = $option;

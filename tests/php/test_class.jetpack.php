@@ -509,6 +509,25 @@ EXPECTED;
 		update_option( 'siteurl', $original_siteurl );
 	}
 
+	function test_get_sync_idc_option_with_ip_address_in_option() {
+		$original_home    = get_option( 'home' );
+		$original_siteurl = get_option( 'siteurl' );
+
+		update_option( 'home', 'http://72.182.131.109/~wordpress' );
+		update_option( 'siteurl', 'http://72.182.131.109/~wordpress/wp' );
+
+		$expected = array(
+			'home' => '72.182.131.109/~wordpress/',
+			'siteurl' => '72.182.131.109/~wordpress/wp/'
+		);
+
+		$this->assertSame( $expected, Jetpack::get_sync_error_idc_option() );
+
+		// Cleanup
+		update_option( 'home', $original_home );
+		update_option( 'siteurl', $original_siteurl );
+	}
+
 	function __return_string_1() {
 		return '1';
 	}
