@@ -156,7 +156,7 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
-	static function schedule_initial_sync( $new_version = null, $old_version = null ) {
+	static function do_initial_sync( $new_version = null, $old_version = null ) {
 		$initial_sync_config = array(
 			'options' => true,
 			'network_options' => true,
@@ -166,17 +166,6 @@ class Jetpack_Sync_Actions {
 
 		if ( $old_version && ( version_compare( $old_version, '4.2', '<' ) ) ) {
 			$initial_sync_config['users'] = 'initial';
-		}
-
-		// we need this function call here because we have to run this function
-		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
-		wp_functionality_constants();
-
-		if ( is_multisite() ) {
-			// stagger initial syncs for multisite blogs so they don't all pile on top of each other
-			$time_offset = ( rand() / getrandmax() ) * self::INITIAL_SYNC_MULTISITE_INTERVAL * get_blog_count();
-		} else {
-			$time_offset = 1;
 		}
 
 		self::do_full_sync( $initial_sync_config );
@@ -341,4 +330,4 @@ if ( defined( 'ALTERNATE_WP_CRON' ) && ALTERNATE_WP_CRON ) {
 }
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'schedule_initial_sync' ), 10, 2 );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
