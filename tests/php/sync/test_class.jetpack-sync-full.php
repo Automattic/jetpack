@@ -1094,15 +1094,15 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
 		Jetpack_Sync_Actions::schedule_initial_sync( '4.2', '4.1' );
-		$this->assertTrue(
-			!! Jetpack_Sync_Actions::is_scheduled_full_sync(
-				array(
-					'options' => true,
-					'network_options' => true,
-					'functions' => true,
-					'constants' => true,
-					'users' => 'initial',
-				)
+
+		$full_sync_status = $this->full_sync->get_status();
+		$this->assertEquals(
+			$full_sync_status[ 'config' ],
+			array(
+				'options' => true,
+				'functions' => true,
+				'constants' => true,
+				'users' => $user_ids,
 			)
 		);
 	}
