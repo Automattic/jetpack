@@ -263,7 +263,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$full_sync->reset_data();
 		
-		$status = $full_sync->get_status();
+		// $status = $full_sync->get_status();
 		$this->assertFalse( $full_sync->is_started() );
 	}
 

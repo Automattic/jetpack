@@ -160,7 +160,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				return;
 			}
 		}
-		
+
 		$this->disable_queue_rate_limit();
 		$this->set_enqueue_status( $enqueue_status );
 		$this->update_status_option( 'queue_finished', time() );
@@ -270,9 +270,20 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		return $status;
 	}
 
+	public function clear_status() {		
+		$prefix = self::STATUS_OPTION_PREFIX;		
+		delete_option( "{$prefix}_started" );		
+		delete_option( "{$prefix}_queue_finished" );		
+		delete_option( "{$prefix}_sent_started" );		
+		delete_option( "{$prefix}_finished" );		
+		
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			delete_option( "{$prefix}_{$module->name()}_sent" );		
+		}
+	}
+
 	public function reset_data() {
-		// $this->set_config( null ); // setting to null is quicker than deleting and re-adding
-		// $this->set_status( null ); // TODO: not sure if clearing these is really necessary...
+		$this->clear_status();
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 		$listener = Jetpack_Sync_Listener::get_instance();
 		$listener->get_full_sync_queue()->reset();
