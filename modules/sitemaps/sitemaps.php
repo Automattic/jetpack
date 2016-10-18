@@ -223,9 +223,23 @@ XML;
 </urlset>\n
 XML;
 
+		$site_url = site_url();
+		$main_url = <<<XML
+<url>
+ <loc>$site_url</loc>
+</url>\n
+XML;
+
 		// Add header part to buffer.
 		$buffer .= $open_xml;
 		$buffer_size_in_bytes += mb_strlen($open_xml) + mb_strlen($close_xml);
+
+		// Add entry for the main page (only if we're at the first one)
+		if ( 1 == $sitemap_position ) {
+			$buffer .= $main_url;
+			$buffer_size_in_items += 1;
+			$buffer_size_in_bytes += mb_strlen($main_url);
+		}
 
 		// Until the buffer is too large,
 		while ( False == $buffer_too_big ) {
@@ -315,7 +329,7 @@ XML;
 </sitemapindex>\n
 XML;
 
-		$next_index_url = site_url() . '/new-sitemap-index' . ($sitemap_index_position - 1) . '.xml';
+		$next_index_url = site_url() . '/sitemap-index-' . ($sitemap_index_position - 1) . '.xml';
 		$forward_pointer = <<<XML
 <sitemap>
  <loc>$next_index_url</loc>
