@@ -138,13 +138,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				continue;
 			}
 
-			if ( 0 >= $remaining_items_to_enqueue ) {
-				// drop out, we're not allowed to process more items than this
-				$this->disable_queue_rate_limit();
-				$this->set_enqueue_status( $enqueue_status );
-				return;
-			}
-
 			// skip module if not configured for this sync or module is done
 			if ( ! $configs[ $module_name ] || ! $enqueue_status[ $module_name ] || true === $enqueue_status[ $module_name ][ 2 ] ) {
 				continue;
@@ -159,8 +152,15 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				$enqueue_status[ $module_name ][ 1 ] += $items_enqueued;
 				$remaining_items_to_enqueue -= $items_enqueued;
 			}
-		}
 
+			if ( 0 >= $remaining_items_to_enqueue ) {
+				// drop out, we're not allowed to process more items than this
+				$this->disable_queue_rate_limit();
+				$this->set_enqueue_status( $enqueue_status );
+				return;
+			}
+		}
+		
 		$this->disable_queue_rate_limit();
 		$this->set_enqueue_status( $enqueue_status );
 		$this->update_status_option( 'queue_finished', time() );

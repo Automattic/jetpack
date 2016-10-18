@@ -95,6 +95,7 @@ class Jetpack_Sync_Actions {
 		) ) {
 			self::initialize_sender();
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
 		}
 
 	}

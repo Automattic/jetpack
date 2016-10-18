@@ -1121,7 +1121,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start( array( 'posts' => true ) );
 
 		// test number of items in full sync queue - should be 4 (= full_sync_start + 2xposts + full_sync_end)
-		$this->assertEquals( 4, $this->sender->get_full_sync_queue()->size() );
+		$this->assertEquals( 3, $this->sender->get_full_sync_queue()->size() );
 
 		$this->full_sync->continue_enqueuing();
 

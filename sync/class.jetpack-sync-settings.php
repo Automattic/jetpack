@@ -11,6 +11,7 @@ class Jetpack_Sync_Settings {
 		'upload_max_rows'         => true,
 		'sync_wait_time'          => true,
 		'sync_wait_threshold'     => true,
+		'enqueue_wait_time'       => true,
 		'max_queue_size'          => true,
 		'max_queue_lag'           => true,
 		'queue_max_writes_sec'    => true,

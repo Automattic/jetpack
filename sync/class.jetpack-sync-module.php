@@ -82,7 +82,9 @@ abstract class Jetpack_Sync_Module {
 				$remaining_items = array_slice( $chunked_ids, 0, $remaining_items_count );
 
 				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items );
-				return array( $remaining_items_count + $chunk_count, end( $remaining_items ) );
+
+				$last_chunk = end( $remaining_items );
+				return array( $remaining_items_count + $chunk_count, end( $last_chunk ) );
 			}
 
 			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids );
