@@ -1,5 +1,4 @@
 <?php
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -101,11 +100,13 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function sync_allowed() {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' ) && Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
 	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
 		}
@@ -114,6 +115,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function set_is_importing_true() {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		Jetpack_Sync_Settings::set_importing( true );
 	}
 
