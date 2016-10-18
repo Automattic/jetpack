@@ -5322,7 +5322,9 @@ p {
 	public static function validate_sync_error_idc_option() {
 		$is_valid = false;
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
-		if ( $sync_error && $sync_error == get_home_url() ) {
+
+		// Does the stored sync_error_idc option match what we now generate?
+		if ( $sync_error && empty( array_diff_assoc( $sync_error, self::get_sync_error_idc_option() ) ) ) {
 			$is_valid = true;
 		}
 

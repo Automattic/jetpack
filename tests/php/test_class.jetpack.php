@@ -435,12 +435,26 @@ EXPECTED;
 	}
 
 	function test_sync_error_idc_validation_returns_true_when_option_matches_expected() {
-		Jetpack_Options::update_option( 'sync_error_idc', get_home_url() );
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
 		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
 	}
 
 	function test_sync_error_idc_validation_cleans_up_when_validation_fails() {
-		Jetpack_Options::update_option( 'sync_error_idc', 'http://nonsenseurl.com' );
+		Jetpack_Options::update_option( 'sync_error_idc', array(
+			'home'    => 'coolsite.com/',
+			'siteurl' => 'coolsite.com/wp/',
+		) );
+
+		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+	}
+
+	function test_sync_error_idc_validation_cleans_up_when_part_of_validation_fails() {
+		$test = Jetpack::get_sync_error_idc_option();
+		$test['siteurl'] = 'coolsite.com/wp/';
+		Jetpack_Options::update_option( 'sync_error_idc', $test );
+
 		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
 	}
