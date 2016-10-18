@@ -58,7 +58,7 @@ function jetpack_og_tags() {
 		$site_type              = Jetpack_Options::get_option_and_ensure_autoload( 'open_graph_protocol_site_type', '' );
 		$tags['og:type']        = ! empty( $site_type ) ? $site_type : 'website';
 		$tags['og:title']       = get_bloginfo( 'name' );
-		$tags['og:description'] = get_option( 'advanced_seo_front_page_description' ) ?: get_bloginfo( 'description' );
+		$tags['og:description'] = A8C_SEO::get_front_page_meta_description() ?: get_bloginfo( 'description' );
 
 		$front_page_id = get_option( 'page_for_posts' );
 		if ( 'page' == get_option( 'show_on_front' ) && $front_page_id && is_home() )

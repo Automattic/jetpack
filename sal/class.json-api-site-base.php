@@ -88,6 +88,10 @@ abstract class SAL_Site {
 
 	abstract public function get_ak_vp_bundle_enabled();
 
+	abstract public function get_advanced_seo_front_page_description();
+
+	abstract public function get_advanced_seo_title_formats();
+
 	abstract public function before_render();
 
 	abstract public function after_render( &$response );
@@ -502,14 +506,6 @@ abstract class SAL_Site {
 
 	function is_headstart() {
 		return get_option( 'headstart' );
-	}
-
-	public function get_advanced_seo_front_page_description() {
-		return get_option( 'advanced_seo_front_page_description', '' );
-	}
-
-	public function get_advanced_seo_title_formats() {
-		return get_option( 'advanced_seo_title_formats', array() );
 	}
 
 	function get_wordpress_version() {

@@ -455,23 +455,35 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'advanced_seo_front_page_description':
-					$front_page_description = sanitize_text_field( $value );
+					if ( ! A8C_SEO::is_enabled_advanced_seo() && ! A8C_SEO::is_grandfathered_front_page_meta() ) {
+						return new WP_Error( 'unauthorized', __( 'Advanced SEO is not enabled for this site.' ), 403 );
+					}
 
-					// The seo front page meta description should be shorter than 300 characters
-					$front_page_description = mb_substr( $front_page_description, 0, 300 );
+					if ( ! is_string( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.' ), 400 );
+					}
 
-					if ( update_option( $key, $front_page_description ) ) {
-						$updated[ $key ] = $front_page_description;
+					$new_description = A8C_SEO::update_front_page_meta_description( $value );
+
+					if ( ! empty( $new_description ) ) {
+						$updated[ $key ] = $new_description;
 					}
 					break;
 
 				case 'advanced_seo_title_formats':
-					$new_title_formats = update_title_formats( $value );
-
-					if ( update_option( $key, $new_title_formats ) ) {
-						$updated[ $key ] = $new_title_formats;
+					if ( ! A8C_SEO::is_enabled_advanced_seo() ) {
+						return new WP_Error( 'unauthorized', __( 'Advanced SEO is not enabled for this site.' ), 403 );
 					}
 
+					if ( ! A8C_SEO_Title::are_valid_title_formats( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.' ), 400 );
+					}
+
+					$new_title_formats = A8C_SEO_Title::update_title_formats( $value );
+
+					if ( ! empty( $new_title_formats ) ) {
+						$updated[ $key ] = $new_title_formats;
+					}
 					break;
 
 				default:

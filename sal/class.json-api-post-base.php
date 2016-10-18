@@ -131,7 +131,12 @@ abstract class SAL_Post {
 					|| 
 						current_user_can( 'edit_post_meta', $this->post->ID , $meta_key )
 					);
-			
+
+			// Only business plan subscribers can view custom meta description
+			if ( A8C_SEO_Posts::DESCRIPTION_META_KEY == $meta_key && ! A8C_SEO::is_enabled_advanced_seo() ) {
+				$show = false;
+			}
+
 			if ( $show ) {
 				$metadata[] = array(
 					'id'    => $meta['meta_id'],
