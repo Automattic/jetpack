@@ -335,7 +335,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		if ( ! $updated_num ) {
 			$updated_num = $wpdb->query(
 				$wpdb->prepare(
-					"INSERT INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )", 
+					"INSERT IGNORE INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )", 
 					$name,
 					$serialized_value
 				)
