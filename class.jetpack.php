@@ -5348,6 +5348,8 @@ p {
 	/**
 	 * Gets the value that is to be saved in the jetpack_sync_error_idc option.
 	 *
+	 * @since 4.4.0
+	 *
 	 * @return array {
 	 *     @type string 'home'    The current home URL.
 	 *     @type string 'siteurl' The current site URL.
