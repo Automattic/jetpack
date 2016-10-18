@@ -20,6 +20,11 @@ class WP_Test_Jetpack_Constants extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_Constants::is_defined( 'JETPACK__VERSION' ) );
 	}
 
+	function test_jetpack_options_is_defined_when_constant_set_to_null() {
+		Jetpack_Constants::set_constant( 'TEST', null );
+		$this->assertTrue( Jetpack_Constants::is_defined( 'TEST' ) );
+	}
+
 	// Jetpack_Constants::get_constant()
 
 	function test_jetpack_options_default_to_constant() {
@@ -34,6 +39,11 @@ class WP_Test_Jetpack_Constants extends WP_UnitTestCase {
 		$test_version = '1.0.0';
 		Jetpack_Constants::set_constant( 'JETPACK__VERSION', $test_version );
 		$this->assertEquals( Jetpack_Constants::get_constant( 'JETPACK__VERSION' ), $test_version );
+	}
+
+	function test_jetpack_constants_override_to_null_gets_null() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', null );
+		$this->assertNull( Jetpack_Constants::get_constant( 'JETPACK__VERSION' ) );
 	}
 
 	// Jetpack_Constants::set_constant()
@@ -65,5 +75,14 @@ class WP_Test_Jetpack_Constants extends WP_UnitTestCase {
 
 		$this->assertCount( 1, Jetpack_Constants::$set_constants );
 		$this->assertContains( 'SECOND', array_keys( Jetpack_Constants::$set_constants ) );
+	}
+
+	function test_jetpack_constants_can_clear_single_constant_when_null() {
+		Jetpack_Constants::set_constant( 'TEST', null );
+		$this->assertCount( 1, Jetpack_Constants::$set_constants );
+
+		Jetpack_Constants::clear_single_constant( 'TEST' );
+
+		$this->assertEmpty( Jetpack_Constants::$set_constants );
 	}
 }
