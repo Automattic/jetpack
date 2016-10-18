@@ -434,7 +434,7 @@ EXPECTED;
 		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
 	}
 
-	function test_sync_error_idc_validation_returns_true_when_option_matches_expected() {
+	function _returns_true_when_option_matches_expected() {
 		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
 		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
 		Jetpack_Options::delete_option( 'sync_error_idc' );
