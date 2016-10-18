@@ -1,12 +1,7 @@
-/**
- * List of all the GUI tests to run.
- *
- * @type {string[]}
- */
-const tests = [
-	'main'
-];
+var glob = require( 'glob' );
 
-tests.forEach( testName => {
-	require( `tests/${testName}` );
-} );
+require( 'test/main.js' );
+
+glob.sync( '**/test/component.js' ).forEach( file => {
+	require( file.replace( '_inc/client/', '' ) );
+});
