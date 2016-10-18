@@ -302,7 +302,6 @@ class Jetpack_Sync_Defaults {
 	static $default_post_meta_whitelist = array();
 	static $default_comment_meta_whitelist = array();
 	static $default_disable = 0; // completely disable sending data to wpcom
-	static $default_avoid_wp_cron = 0; // don't use cron to enqueue full syncs - do it inline. Warning: Can time out for larger sites!
 	static $default_render_filtered_content = 1; // render post_filtered_content
 	static $default_max_enqueue_full_sync = 100; // max number of items to enqueue at a time when running full sync
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again

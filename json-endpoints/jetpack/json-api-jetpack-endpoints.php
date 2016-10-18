@@ -672,7 +672,6 @@ $sync_settings_response = array(
 	'comment_meta_whitelist' => '(array|string|bool=false) List of comment meta to be included in sync. Send "empty" to unset.',
 	'disable'              => '(int|bool=false) Set to 1 or true to disable sync entirely.',
 	'render_filtered_content' => '(int|bool=true) Set to 1 or true to render filtered content.',
-	'avoid_wp_cron'        => '(int|bool=false) Set to 1 or true to avoid running wp-cron for enqueuing full syncs.',
 );
 
 // GET /sites/%s/sync/settings
