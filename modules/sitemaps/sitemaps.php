@@ -11,7 +11,7 @@ class Jetpack_Sitemap_Manager {
 
 	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
 	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 50;    // 50k
+	const SITEMAP_MAX_ITEMS = 10;    // 50k
 
 
 
@@ -131,7 +131,7 @@ class Jetpack_Sitemap_Manager {
 			if ( preg_match( $sitemap_master_regex, $_SERVER['REQUEST_URI']) ) {
 				serve_raw_and_die(
 					'application/xml',
-					$this->get_contents_of_post_by_title_and_type(
+					$this->get_contents_of_post(
 						'sitemap',
 						'jp_sitemap_master'
 					)
@@ -142,7 +142,7 @@ class Jetpack_Sitemap_Manager {
 			if ( preg_match( $sitemap_regex, $_SERVER['REQUEST_URI']) ) {
 				serve_raw_and_die(
 					'application/xml',
-					$this->get_contents_of_post_by_title_and_type(
+					$this->get_contents_of_post(
 						substr($_SERVER['REQUEST_URI'], 1, -4),
 						'jp_sitemap'
 					)
@@ -153,7 +153,7 @@ class Jetpack_Sitemap_Manager {
 			if ( preg_match( $sitemap_index_regex, $_SERVER['REQUEST_URI']) ) {
 				serve_raw_and_die(
 					'application/xml',
-					$this->get_contents_of_post_by_title_and_type(
+					$this->get_contents_of_post(
 						substr($_SERVER['REQUEST_URI'], 1, -4),
 						'jp_sitemap_index'
 					)
@@ -269,7 +269,7 @@ XML;
 		$buffer .= $close_xml;
 
 		// Store the buffer as the content of a jetpack_sitemap post.
-		$this->set_contents_of_post_by_title_and_type(
+		$this->set_contents_of_post(
 			'sitemap-' . $sitemap_position,
 			'jp_sitemap',
 			$buffer,
@@ -376,7 +376,7 @@ XML;
 		$buffer .= $close_xml;
 
 		// Store the buffer as the content of a jetpack_sitemap post.
-		$this->set_contents_of_post_by_title_and_type(
+		$this->set_contents_of_post(
 			'sitemap-index-' . $sitemap_index_position,
 			'jp_sitemap_index',
 			$buffer,
@@ -395,10 +395,6 @@ XML;
 		  'last_modified'  => $most_recent_modification
 		);
 	}
-
-
-
-
 
 
 
@@ -426,8 +422,8 @@ XML;
 
 		// If there's only one sitemap, make that the root.
 		if ( 1 == $current_sitemap_position ) {
-			$foo = $this->get_contents_of_post_by_title_and_type('sitemap-1', 'jp_sitemap');
-			$this->set_contents_of_post_by_title_and_type(
+			$foo = $this->get_contents_of_post('sitemap-1', 'jp_sitemap');
+			$this->set_contents_of_post(
 				'sitemap',
 				'jp_sitemap_master',
 				$foo,
@@ -459,16 +455,16 @@ XML;
 
 		// If there's only one sitemap index, make that the root.
 		if ( 1 == $current_sitemap_index_position ) {
-			$foo = $this->get_contents_of_post_by_title_and_type('sitemap-index-1', 'jp_sitemap_index');
-			$this->set_contents_of_post_by_title_and_type(
+			$foo = $this->get_contents_of_post('sitemap-index-1', 'jp_sitemap_index');
+			$this->set_contents_of_post(
 				'sitemap',
 				'jp_sitemap_master',
 				$foo,
 				''
 			);
 		} else {
-			$foo = $this->get_contents_of_post_by_title_and_type('sitemap-index' . $current_sitemap_index_position, 'jp_sitemap_index');
-			$this->set_contents_of_post_by_title_and_type(
+			$foo = $this->get_contents_of_post('sitemap-index-' . $current_sitemap_index_position, 'jp_sitemap_index');
+			$this->set_contents_of_post(
 				'sitemap',
 				'jp_sitemap_master',
 				$foo,
@@ -645,7 +641,7 @@ XML;
 	 *
 	 * @return string Contents of the specified post, or the empty string.
 	 */
-	private function get_contents_of_post_by_title_and_type ($title, $type) {
+	private function get_contents_of_post ($title, $type) {
 		$the_post = get_page_by_title($title, 'OBJECT', $type);
 
 		if (null == $the_post) {
@@ -671,28 +667,28 @@ XML;
 	 *
 	 * @param string $title Post title.
 	 * @param string $type Post type.
-	 * @param string $the_contents The string being stored.
-	 * @param string $the_timestamp Timestamp
+	 * @param string $contents The string being stored.
+	 * @param string $timestamp Timestamp
 	 */
-	private function set_contents_of_post_by_title_and_type ($title, $type, $the_contents, $the_timestamp) {
+	private function set_contents_of_post ($title, $type, $contents, $timestamp) {
 		$the_post = get_page_by_title( $title, 'OBJECT', $type );
 
 		if ( null == $the_post ) {
 			// Post does not exist.
 			wp_insert_post(array(
 				'post_title'   => $title,
-				'post_content' => esc_html($the_contents),
+				'post_content' => esc_html($contents),
 				'post_type'    => $type,
-				'post_date'    => $the_timestamp,
+				'post_date'    => $timestamp,
 			));
 		} else {
 			// Post does exist.
 			wp_insert_post(array(
 				'ID'           => $the_post->ID,
 				'post_title'   => $title,
-				'post_content' => esc_html($the_contents),
+				'post_content' => esc_html($contents),
 				'post_type'    => $type,
-				'post_date'    => $the_timestamp,
+				'post_date'    => $timestamp,
 			));
 		}
 
