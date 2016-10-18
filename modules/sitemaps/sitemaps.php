@@ -19,7 +19,26 @@ class Jetpack_Sitemap_Manager {
 	 * Constructor
 	 */
 	public function __construct() {
-		/** Register jp_sitemap_master post type */
+		// Register post types for data storage
+		$this->register_post_types();
+
+		// Add sitemap URL handler
+		$this->add_sitemap_url_handler();
+
+		// Add generator to wp_cron task list
+		$this->schedule_sitemap_generation();
+
+		return;
+	}
+
+
+  /**
+	 * Add init actions to register sitemap post types for data storage.
+	 * Should only be called once, in the constructor.
+	 */
+	private function register_post_types () {
+		// Register 'jp_sitemap_master' post type
+		// Should only have one instance, with the contents of the main sitemap.xml file.
 		add_action( 'init', function () {
 			register_post_type(
 				'jp_sitemap_master',
@@ -35,7 +54,7 @@ class Jetpack_Sitemap_Manager {
 			);
 		}); 
 
-		/** Register jp_sitemap post type */
+		// Register 'jp_sitemap' post type
 		add_action( 'init', function () {
 			register_post_type(
 				'jp_sitemap',
@@ -51,7 +70,7 @@ class Jetpack_Sitemap_Manager {
 			);
 		}); 
 
-		/** Register jp_sitemap_index post type */
+		// Register 'jp_sitemap_index' post type
 		add_action( 'init', function () {
 			register_post_type(
 				'jp_sitemap_index',
@@ -67,7 +86,15 @@ class Jetpack_Sitemap_Manager {
 			);
 		});
 
-		/** Handle sitemap URLs */
+		return;
+	}
+
+
+	/**
+	 * Add init action to capture sitemap url requests and serve sitemap xml.
+	 * Should only be called once, in the constructor.
+	 */
+	private function add_sitemap_url_handler () {
 		add_action( 'init', function () {
 			/** This filter is documented in modules/sitemaps/sitemaps.php */
 
@@ -76,6 +103,7 @@ class Jetpack_Sitemap_Manager {
 			$sitemap_regex        = '/^\/sitemap-[1-9][0-9]*\.xml$/';
 			$sitemap_index_regex  = '/^\/sitemap-index-([1-9][0-9]*)?\.xml$/';
 
+			// Catch master sitemap
 			if ( preg_match( $sitemap_master_regex, $_SERVER['REQUEST_URI']) ) {
 				// Matched sitemap master regex
 
@@ -92,8 +120,10 @@ class Jetpack_Sitemap_Manager {
 
 				echo $the_content;
 				die();
+			}
 
-			} else if ( preg_match( $sitemap_regex, $_SERVER['REQUEST_URI']) ) {
+			// Catch sitemap
+			if ( preg_match( $sitemap_regex, $_SERVER['REQUEST_URI']) ) {
 				// Matched sitemap regex
 
 				$the_content = $this->get_contents_of_post_by_title_and_type(
@@ -109,8 +139,10 @@ class Jetpack_Sitemap_Manager {
 
 				echo $the_content;
 				die();
+			}
 
-			} else if ( preg_match( $sitemap_index_regex, $_SERVER['REQUEST_URI']) ) {
+			// Catch sitemap index
+			if ( preg_match( $sitemap_index_regex, $_SERVER['REQUEST_URI']) ) {
 				// Matched sitemap index regex
 
 				$the_content = $this->get_contents_of_post_by_title_and_type(
@@ -131,7 +163,10 @@ class Jetpack_Sitemap_Manager {
 			// URL did not match any patterns here.
 			return;
 		});
+	}
 
+
+	private function schedule_sitemap_generation () {
 		// Add cron schedule
 		add_filter( 'cron_schedules', function ($schedules) {
 			$schedules['minutely'] = array(
@@ -196,13 +231,13 @@ XML;
 			// Retrieve a batch of posts (in order)
 			$posts = $this->get_published_posts_after_ID($current_post_ID, 1000);
 
-			// If there were no posts to get, make note. Otherwise,
+			// If there were no posts to get, make note and quit trying to fill the buffer.
 			if (null == $posts) {
 				$any_posts_remaining = False;
 				break;
 			}
 
-			// For each post in the batch,
+			// Otherwise, for each post in the batch,
 			foreach ($posts as $post) {
 				// Generate the sitemap XML for the post.
 				$current_item = $this->post_to_sitemap_item($post);
@@ -214,7 +249,7 @@ XML;
 				// If adding this item to the buffer doesn't make it too large,
 				if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
 				     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
-					// Add it and update the current post ID. Otherwise,
+					// Add it and update the current post ID.
 					$current_post_ID = $post->ID;
 					$buffer .= $current_item['xml'];
 					if ( strtotime($most_recent_modification)
@@ -222,7 +257,7 @@ XML;
 						$most_recent_modification = $current_item['last_modified'];
 					}
 				} else {
-					// Note that the buffer is too large and stop looping through posts.
+					// Otherwise, note that the buffer is too large and stop looping through posts.
 					$buffer_too_big = True;
 					break;
 				}
