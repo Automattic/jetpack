@@ -113,6 +113,10 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function continue_enqueuing( $configs = null, $enqueue_status = null ) {
+		if ( $this->get_status_option( 'queue_finished' ) ) {
+			return;
+		}
+
 		if ( ! $configs ) {
 			$configs = $this->get_config();
 		}
@@ -126,12 +130,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();
 
-			if ( ! isset( $configs[ $module_name ] ) ) {
-				continue;
-			}
-
 			// skip module if not configured for this sync or module is done
-			if ( ! $configs[ $module_name ] || ! $enqueue_status[ $module_name ] || true === $enqueue_status[ $module_name ][ 2 ] ) {
+			if ( ! isset( $configs[ $module_name ] ) 
+				|| // no module config
+					! $configs[ $module_name ] 
+				|| // no enqueue status
+					! $enqueue_status[ $module_name ] 
+				|| // finished enqueuing
+					true === $enqueue_status[ $module_name ][ 2 ] ) {
 				continue;
 			}
 

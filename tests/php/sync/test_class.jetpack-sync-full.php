@@ -1112,11 +1112,16 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 5, $this->sender->get_full_sync_queue()->size() );
 
-		// assert that all our created posts got synced
-		// foreach( $synced_post_ids as $post_id ) {
-		// 	error_log(print_r($this->server_replica_storage->get_post( $post_id ), 1 );
-		// 	$this->assertNotSame( false, $this->server_replica_storage->get_post( $post_id ) );
-		// }
+		// should not keep adding full_sync_end or other items afterward
+		$queue_size = $this->sender->get_full_sync_queue()->size();
+
+		// continuing to enqueue shouldn't add more items
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( $queue_size, $this->sender->get_full_sync_queue()->size() );
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( $queue_size, $this->sender->get_full_sync_queue()->size() );
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( $queue_size, $this->sender->get_full_sync_queue()->size() );
 	}
 
 	function _do_cron() {
