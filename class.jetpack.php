@@ -5344,6 +5344,34 @@ p {
 	}
 
 	/**
+	 * Gets the value that is to be saved in the jetpack_sync_error_idc option.
+	 *
+	 * @return array {
+	 *     @type string 'home'    The current home URL.
+	 *     @type string 'siteurl' The current site URL.
+	 * }
+	 */
+	public static function get_sync_error_idc_option() {
+		$options = array(
+			'home'    => get_option( 'home' ),
+			'siteurl' => get_option( 'siteurl' ),
+		);
+
+		$returned_values = array();
+		foreach( $options as $key => $option ) {
+			$parsed_url = parse_url( trailingslashit( $option ) );
+
+			if ( ! $parsed_url ) {
+				$returned_values[ $key ] = $option;
+			}
+
+			$returned_values[ $key ] = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
+		}
+
+		return $returned_values;
+	}
+
+	/**
 	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
 	 * If set to true, the site will be put into staging mode.
 	 *
