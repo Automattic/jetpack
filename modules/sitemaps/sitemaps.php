@@ -11,7 +11,7 @@ class Jetpack_Sitemap_Manager {
 
 	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
 	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 50000;    // 50k
+	const SITEMAP_MAX_ITEMS = 50;    // 50k
 
 
 
@@ -32,9 +32,12 @@ class Jetpack_Sitemap_Manager {
 	}
 
 
+
   /**
 	 * Add init actions to register sitemap post types for data storage.
 	 * Should only be called once, in the constructor.
+	 *
+	 * Side effect: add 'register_post_type' actions to 'init'.
 	 */
 	private function register_post_types () {
 		// Register 'jp_sitemap_master' post type
@@ -90,29 +93,31 @@ class Jetpack_Sitemap_Manager {
 	}
 
 
+
 	/**
 	 * Add init action to capture sitemap url requests and serve sitemap xml.
 	 * Should only be called once, in the constructor.
+	 *
+	 * Side effect: add action to 'init' which detects sitemap-related URLs
 	 */
 	private function add_sitemap_url_handler () {
 		add_action( 'init', function () {
 			/** This filter is documented in modules/sitemaps/sitemaps.php */
 
-			// Regular expressions for URL routing
+			// Regular expressions for sitemap URL routing
 			$sitemap_master_regex = '/^\/sitemap\.xml$/';
 			$sitemap_regex        = '/^\/sitemap-[1-9][0-9]*\.xml$/';
 			$sitemap_index_regex  = '/^\/sitemap-index-([1-9][0-9]*)?\.xml$/';
+			$sitemap_style_regex  = '/^\/sitemap\.xsl$/';
 
-			// Catch master sitemap
-			if ( preg_match( $sitemap_master_regex, $_SERVER['REQUEST_URI']) ) {
-				// Matched sitemap master regex
-
-				$the_content = $this->get_contents_of_post_by_title_and_type(
-					'sitemap',
-					'jp_sitemap_master'
-				);
-
-				header('Content-Type: application/xml; charset=UTF-8');
+			/**
+			 * Echo a raw string of given content-type.
+			 *
+			 * @param string $the_content_type The content type to be served.
+			 * @param string $the_content The string to be echoed.
+			 */
+			function serve_raw_and_die($the_content_type, $the_content) {
+				header('Content-Type: ' . $the_content_type . '; charset=UTF-8');
 
 				if ('' == $the_content) {
 					http_response_code(404);
@@ -120,50 +125,46 @@ class Jetpack_Sitemap_Manager {
 
 				echo $the_content;
 				die();
+			}
+
+			// Catch master sitemap
+			if ( preg_match( $sitemap_master_regex, $_SERVER['REQUEST_URI']) ) {
+				serve_raw_and_die(
+					'application/xml',
+					$this->get_contents_of_post_by_title_and_type(
+						'sitemap',
+						'jp_sitemap_master'
+					)
+				);
 			}
 
 			// Catch sitemap
 			if ( preg_match( $sitemap_regex, $_SERVER['REQUEST_URI']) ) {
-				// Matched sitemap regex
-
-				$the_content = $this->get_contents_of_post_by_title_and_type(
-					substr($_SERVER['REQUEST_URI'], 1, -4),
-					'jp_sitemap'
+				serve_raw_and_die(
+					'application/xml',
+					$this->get_contents_of_post_by_title_and_type(
+						substr($_SERVER['REQUEST_URI'], 1, -4),
+						'jp_sitemap'
+					)
 				);
-
-				header('Content-Type: application/xml; charset=UTF-8');
-
-				if ('' == $the_content) {
-					http_response_code(404);
-				}
-
-				echo $the_content;
-				die();
 			}
 
 			// Catch sitemap index
 			if ( preg_match( $sitemap_index_regex, $_SERVER['REQUEST_URI']) ) {
-				// Matched sitemap index regex
-
-				$the_content = $this->get_contents_of_post_by_title_and_type(
-					substr($_SERVER['REQUEST_URI'], 1, -4),
-					'jp_sitemap_index'
+				serve_raw_and_die(
+					'application/xml',
+					$this->get_contents_of_post_by_title_and_type(
+						substr($_SERVER['REQUEST_URI'], 1, -4),
+						'jp_sitemap_index'
+					)
 				);
-
-				header('Content-Type: application/xml; charset=UTF-8');
-
-				if ('' == $the_content) {
-					http_response_code(404);
-				}
-
-				echo $the_content;
-				die();
 			}
 
 			// URL did not match any patterns here.
 			return;
 		});
 	}
+
 
 
 	private function schedule_sitemap_generation () {
@@ -704,6 +705,10 @@ new Jetpack_Sitemap_Manager;
 
 
 
+
+// TODO: Delete Old_Jetpack_Sitemap_Manager
+//  make sure it's not used elsewhere (grr global scope)
+//  and that we've subsumed the functionality
 class Old_Jetpack_Sitemap_Manager {
 
 /**
