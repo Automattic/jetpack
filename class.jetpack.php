@@ -5351,8 +5351,8 @@ p {
 	 * @return bool
 	 */
 	public static function sync_idc_optin() {
-		if ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
-			$default = JETPACK_SYNC_IDC_OPTIN;
+		if ( Jetpack_Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
+			$default = Jetpack_Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
 		} else {
 			$default = false;
 		}

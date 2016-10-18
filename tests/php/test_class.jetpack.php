@@ -11,6 +11,10 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	static $activated_modules = array();
 	static $deactivated_modules = array();
 
+	function tearDown() {
+		Jetpack_Constants::clear_constants();
+	}
+
 	/**
 	 * @author blobaugh
 	 * @covers Jetpack::init
@@ -415,6 +419,10 @@ EXPECTED;
 		$this->assertFalse( Jetpack::get_other_linked_admins() );
 	}
 
+	function test_idc_optin_defaults_to_false() {
+		$this->assertFalse( Jetpack::sync_idc_optin() );
+	}
+
 	function test_idc_optin_filter_overrides_development_version() {
 		add_filter( 'jetpack_development_version', '__return_true' );
 		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
@@ -426,7 +434,24 @@ EXPECTED;
 	function test_idc_optin_casts_to_bool() {
 		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
 		$this->assertTrue( Jetpack::sync_idc_optin() );
-		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+		remove_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+	}
+
+	function test_idc_optin_true_when_constant_true() {
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
+		$this->assertTrue( Jetpack::sync_idc_optin() );
+	}
+
+	function test_idc_optin_false_when_constant_false() {
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
+		$this->assertFalse( Jetpack::sync_idc_optin() );
+	}
+
+	function test_idc_optin_filter_overrides_constant() {
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
+		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
+		$this->assertFalse( Jetpack::sync_idc_optin() );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
 	}
 
 	function test_sync_error_idc_validation_returns_false_if_no_option() {
