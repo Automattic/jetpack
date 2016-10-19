@@ -963,13 +963,14 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_full_sync();
 		$full_sync_status = $this->full_sync->get_status();
-		$this->assertEquals( 0, $full_sync_status['finished'] );
+		$this->assertSame( null, $full_sync_status['finished'] );
 
 		$this->sender->do_full_sync();
 		$full_sync_status = $this->full_sync->get_status();
-		$this->assertEquals( 0, $full_sync_status['finished'] );
+		$this->assertSame( null, $full_sync_status['finished'] );
 
 		$this->sender->do_full_sync();
+		$this->sender->do_full_sync(); // juuuust in case - otherwise we use too many bytes for multisite
 
 		$full_sync_status = $this->full_sync->get_status();
 
@@ -1011,7 +1012,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
 			$should_be_status['sent']['network_options']  = 1;
-			$should_be_status['total']['network_options']  = 1;
+			$should_be_status['total']['network_options'] = 1;
 		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
