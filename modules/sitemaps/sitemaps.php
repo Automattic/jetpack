@@ -11,7 +11,7 @@ class Jetpack_Sitemap_Manager {
 
 	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
 	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 20;    // 50k
+	const SITEMAP_MAX_ITEMS = 10;    // 50k
 
 
 
@@ -167,6 +167,13 @@ class Jetpack_Sitemap_Manager {
 
 
 
+
+
+	/**
+	 * Add actions to schedule sitemap generation.
+	 *
+	 * Should only be called once, in the constructor.
+	 */
 	private function schedule_sitemap_generation () {
 		// Add cron schedule
 		add_filter( 'cron_schedules', function ($schedules) {
@@ -197,15 +204,15 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: Create/update a jp_sitemap post.
 	 *
-	 * @param int $sitemap_position The number of the current sitemap.
+	 * @param int $sitemap_number The number of the current sitemap.
 	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
 	 */
-	private function generate_sitemap ( $sitemap_position, $from_ID ) {
+	private function generate_sitemap ( $sitemap_number, $from_ID ) {
 		$buffer = '';
 		$buffer_size_in_bytes = 0;
 		$buffer_size_in_items = 0;
 		$current_post_ID = $from_ID;
-		$most_recent_modification = '1970-01-01T00:00Z'; // Epoch
+		$last_modified = '1970-01-01T00:00Z'; // Epoch
 
 		// Flags
 		$buffer_too_big = False;
@@ -228,7 +235,7 @@ class Jetpack_Sitemap_Manager {
 		$buffer_size_in_bytes += mb_strlen($open_xml) + mb_strlen($close_xml);
 
 		// Add entry for the main page (only if we're at the first one)
-		if ( 1 == $sitemap_position ) {
+		if ( 1 == $sitemap_number ) {
 			$buffer .= $main_url;
 			$buffer_size_in_items += 1;
 			$buffer_size_in_bytes += mb_strlen($main_url);
@@ -260,9 +267,8 @@ class Jetpack_Sitemap_Manager {
 					// Add it and update the current post ID.
 					$current_post_ID = $post->ID;
 					$buffer .= $current_item['xml'];
-					if ( strtotime($most_recent_modification)
-					       < strtotime($current_item['last_modified']) ) {
-						$most_recent_modification = $current_item['last_modified'];
+					if ( strtotime($last_modified) < strtotime($current_item['last_modified']) ) {
+						$last_modified = $current_item['last_modified'];
 					}
 				} else {
 					// Otherwise, note that the buffer is too large and stop looping through posts.
@@ -275,12 +281,12 @@ class Jetpack_Sitemap_Manager {
 		// Close the 'urlset' tag.
 		$buffer .= $close_xml;
 
-		// Store the buffer as the content of a jetpack_sitemap post.
+		// Store the buffer as the content of a jp_sitemap post.
 		$this->set_contents_of_post(
-			'sitemap-' . $sitemap_position,
+			'sitemap-' . $sitemap_number,
 			'jp_sitemap',
 			$buffer,
-			$most_recent_modification
+			$last_modified
 		);
 
 		// Now current_post_ID is the ID of the last post successfully added to the buffer.
@@ -298,16 +304,16 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: Create/update a jp_sitemap_index post.
 	 *
-	 * @param int $sitemap_position The number of the current sitemap index.
+	 * @param int $sitemap_index_position The number of the current sitemap index.
 	 * @param int $from_ID The greatest lower bound of the IDs of the sitemaps to be included.
-	 * @param string $previous_timestamp Last modification time of previous sitemap.
+	 * @param string $timestamp Last modification time of previous sitemap.
 	 */
-	private function generate_sitemap_index ( $sitemap_index_position, $from_ID, $previous_timestamp ) {
+	private function generate_sitemap_index ( $sitemap_index_position, $from_ID, $timestamp ) {
 		$buffer = '';
 		$buffer_size_in_bytes = 0;
 		$buffer_size_in_items = 0;
 		$current_post_ID = $from_ID;
-		$most_recent_modification = '1970-01-01T00:00Z'; // Epoch
+		$last_modified = $timestamp;
 
 		// Flags
 		$buffer_too_big = False;
@@ -324,7 +330,7 @@ class Jetpack_Sitemap_Manager {
 		$forward_pointer =
 			"<sitemap>\n" .
  			" <loc>" . site_url() . "/sitemap-index-$prev_index.xml</loc>\n" .
-			" <lastmod>$previous_timestamp</lastmod>\n" .
+			" <lastmod>$timestamp</lastmod>\n" .
 			"</sitemap>\n";
 
 		// Add header part to buffer.
@@ -364,9 +370,8 @@ class Jetpack_Sitemap_Manager {
 					// Add it and update the current post ID. Otherwise,
 					$current_post_ID = $post->ID;
 					$buffer .= $current_item['xml'];
-					if ( strtotime($most_recent_modification)
-					       < strtotime($current_item['last_modified']) ) {
-						$most_recent_modification = $current_item['last_modified'];
+					if ( strtotime($last_modified) < strtotime($current_item['last_modified']) ) {
+						$last_modified = $current_item['last_modified'];
 					}
 				} else {
 					// Note that the buffer is too large and stop looping through posts.
@@ -379,24 +384,19 @@ class Jetpack_Sitemap_Manager {
 		// Close the 'urlset' tag.
 		$buffer .= $close_xml;
 
-		// Store the buffer as the content of a jetpack_sitemap post.
+		// Store the buffer as the content of a jp_sitemap_index post.
 		$this->set_contents_of_post(
 			'sitemap-index-' . $sitemap_index_position,
 			'jp_sitemap_index',
 			$buffer,
-			$most_recent_modification
+			$last_modified
 		);
-
-		// Report the most recent timestamp seen
-		if ( strtotime($most_recent_modification) < strtotime($previous_timestamp) ) {
-			$most_recent_modification = $previous_timestamp;
-		}
 
 		// Now current_post_ID is the ID of the last post successfully added to the buffer.
 		return array(
 			'last_post_ID'   => $current_post_ID,
 			'any_posts_left' => $any_posts_remaining,
-		  'last_modified'  => $most_recent_modification
+		  'last_modified'  => $last_modified
 		);
 	}
 
@@ -407,17 +407,17 @@ class Jetpack_Sitemap_Manager {
 	private function generate_all_sitemaps () {
 		/* Sitemaps */
 
-		$last_post_ID = 0;
+		$post_ID = 0;
 		$sitemap_number = 1;
 
 		// Generate the sitemaps
 		$any_posts_left = True;
 
 		while ( True == $any_posts_left ) {
-			$result = $this->generate_sitemap($sitemap_number, $last_post_ID);
+			$result = $this->generate_sitemap($sitemap_number, $post_ID);
 
 			if ( True == $result['any_posts_left'] ) {
-				$last_post_ID = $result['last_post_ID'];
+				$post_ID = $result['last_post_ID'];
 				$sitemap_number += 1;
 			} else {
 				$any_posts_left = False;
@@ -437,18 +437,18 @@ class Jetpack_Sitemap_Manager {
 
 		$last_sitemap_ID = 0;
 		$sitemap_index_number = 1;
-		$most_recent_modification = '01-01-1970T00:00:00';
+		$last_modified = '01-01-1970T00:00:00'; // Epoch
 
 		// Generate the sitemaps
 		$any_sitemaps_left = True;
 
 		while ( True == $any_sitemaps_left ) {
-			$result = $this->generate_sitemap_index($sitemap_index_number, $last_sitemap_ID, $most_recent_modification);
+			$result = $this->generate_sitemap_index($sitemap_index_number, $last_sitemap_ID, $last_modified);
 
 			if ( True == $result['any_posts_left'] ) {
 				$last_sitemap_ID = $result['last_post_ID'];
 				$sitemap_index_number += 1;
-				$most_recent_modification = $result['last_modified'];
+				$last_modified = $result['last_modified'];
 			} else {
 				$any_sitemaps_left = False;
 			}
