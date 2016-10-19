@@ -5322,8 +5322,13 @@ p {
 	public static function validate_sync_error_idc_option() {
 		$is_valid = false;
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
-		if ( $sync_error && $sync_error == get_home_url() ) {
-			$is_valid = true;
+
+		// Does the stored sync_error_idc option match what we now generate?
+		if ( $sync_error ) {
+			$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option() );
+			if ( empty( $error_diff ) ) {
+				$is_valid = true;
+			}
 		}
 
 		/**
@@ -5341,6 +5346,37 @@ p {
 		}
 
 		return $is_valid;
+	}
+
+	/**
+	 * Gets the value that is to be saved in the jetpack_sync_error_idc option.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return array {
+	 *     @type string 'home'    The current home URL.
+	 *     @type string 'siteurl' The current site URL.
+	 * }
+	 */
+	public static function get_sync_error_idc_option() {
+		$options = array(
+			'home'    => get_home_url(),
+			'siteurl' => get_site_url(),
+		);
+
+		$returned_values = array();
+		foreach( $options as $key => $option ) {
+			$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $option ) ) );
+
+			if ( ! $parsed_url ) {
+				$returned_values[ $key ] = $option;
+				continue;
+			}
+
+			$returned_values[ $key ] = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
+		}
+
+		return $returned_values;
 	}
 
 	/**

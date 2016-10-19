@@ -146,7 +146,10 @@ class Jetpack_Sync_Actions {
 		if ( ! $result ) {
 			$error = $rpc->get_jetpack_error();
 			if ( 'jetpack_url_mismatch' === $error->get_error_code() ) {
-				Jetpack_Options::update_option( 'sync_error_idc', get_home_url() );
+				Jetpack_Options::update_option(
+					'sync_error_idc',
+					Jetpack::get_sync_error_idc_option()
+				);
 			}
 			
 			return $error;
