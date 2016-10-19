@@ -160,7 +160,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'verification_services_codes'          => 'pineapple',
 			'users_can_register'                   => '1',
 			'active_plugins'                       => array( 'pineapple' ),
-			'uninstall_plugins'                    => 'banana'
+			'uninstall_plugins'                    => 'banana',
+			'advanced_seo_front_page_description'  => 'banana',
+			'advanced_seo_title_formats'           => array( 'posts' => array( 'type' => 'string', 'value' => 'test' ) ),
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

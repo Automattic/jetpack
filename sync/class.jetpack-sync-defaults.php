@@ -106,7 +106,6 @@ class Jetpack_Sync_Defaults {
 		'uninstall_plugins',
 		'advanced_seo_front_page_description',
 		'advanced_seo_title_formats',
-		'verification_services_codes',
 	);
 
 	static $default_constants_whitelist = array(
