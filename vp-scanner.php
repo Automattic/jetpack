@@ -163,17 +163,31 @@ function split_file_to_php_html( $file ) {
  * @param int $line_number The line number that this text goes on
  * @param string $text The text to add
  */
-function add_text_to_parsed( &$parsed, $prefix, $line_number, $text ) {
-	foreach ( $parsed as $lang => $lines ) {
-		// add the line to all the parsed arrays that start with $prefix
-		// this means calling add_line_to_parsed( $ret, 'php', $line ) will add to both 'php' and 'php-with-comments'
-		// but calling add_line_to_parsed( $ret, 'php-with-comments', $line ) will only add to 'php-with-comments'
-		if ( strpos( $lang, $prefix ) === 0 ) {
-			if ( ! isset( $parsed[ $lang ][ $line_number ] ) ) {
-				$parsed[ $lang ][ $line_number ] = '';
-			}
-			$parsed[ $lang ][ $line_number ] .= $text;
+function add_text_to_parsed( &$parsed, $prefix, $start_line_number, $all_text ) {
+	$line_number = $start_line_number;
+
+	// whitespace tokens may span multiple lines; we need to split them up so that the indentation goes on the next line
+	foreach ( explode( "\n", $all_text ) as $fragment ) {
+		// if explode gives us back an empty bit, that was just a \n without anything around it
+		if ( empty( $fragment ) ) {
+			$text = "\n";
+		} else {
+			$text = $fragment;
 		}
+
+		foreach ( $parsed as $lang => $lines ) {
+			// add the line to all the parsed arrays that start with $prefix
+			// this means calling add_line_to_parsed( $ret, 'php', $line ) will add to both 'php' and 'php-with-comments'
+			// but calling add_line_to_parsed( $ret, 'php-with-comments', $line ) will only add to 'php-with-comments'
+			if ( strpos( $lang, $prefix ) === 0 ) {
+				if ( ! isset( $parsed[ $lang ][ $line_number ] ) ) {
+					$parsed[ $lang ][ $line_number ] = '';
+				}
+				$parsed[ $lang ][ $line_number ] .= $text;
+			}
+		}
+		// the caller will also update their line number based on the number of \n characters in the text
+		$line_number++;
 	}
 }
 
