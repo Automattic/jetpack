@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Each title format is an array of arrays containing two values:
  *  - type
@@ -29,19 +30,27 @@
  *  Tokens are replaced with their corresponding values for current site.
  *  Empty array signals that we are not overriding the default title for particular page type.
  */
-class A8C_SEO_Title {
-	/*
-	 * Site option named used to store custom title formats.
+
+/**
+ * Class containing utility static methods for managing SEO custom title formats.
+ */
+class Jetpack_SEO_Titles {
+	/**
+	 * Site option name used to store custom title formats.
 	 */
 	const TITLE_FORMATS_OPTION = 'advanced_seo_title_formats';
 
 	/**
 	 * Retrieves custom title formats from site option.
 	 *
-	 * @return array Array of custom title formats, or empty array if option is not set.
+	 * @return array Array of custom title formats, or empty array.
 	 */
 	public static function get_custom_title_formats() {
-		return get_option( self::TITLE_FORMATS_OPTION, array() );
+		if( Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+			return get_option( self::TITLE_FORMATS_OPTION, array() );
+		}
+
+		return array();
 	}
 
 	/**
@@ -51,11 +60,11 @@ class A8C_SEO_Title {
 	 */
 	public static function get_allowed_tokens() {
 		return array(
-			'front_page' => [ 'site_name', 'tagline' ],
-			'posts'      => [ 'site_name', 'tagline', 'post_title' ],
-			'pages'      => [ 'site_name', 'tagline', 'page_title' ],
-			'groups'     => [ 'site_name', 'tagline', 'group_title' ],
-			'archives'   => [ 'site_name', 'tagline', 'date' ],
+			'front_page' => array( 'site_name', 'tagline' ),
+			'posts'      => array( 'site_name', 'tagline', 'post_title' ),
+			'pages'      => array( 'site_name', 'tagline', 'page_title' ),
+			'groups'     => array( 'site_name', 'tagline', 'group_title' ),
+			'archives'   => array( 'site_name', 'tagline', 'date' ),
 		);
 	}
 
@@ -67,34 +76,39 @@ class A8C_SEO_Title {
 	 * @return string Custom title with replaced tokens or default title.
 	 */
 	public static function get_custom_title( $default_title = '' ) {
-		// Don't filter title for unsupported themes
+		// Don't filter title for unsupported themes.
 		if ( self::is_conflicted_theme() ) {
 			return $default_title;
 		}
 
 		$page_type = self::get_page_type();
 
-		// Keep default title if invalid page type is supplied
+		// Keep default title if invalid page type is supplied.
 		if ( empty( $page_type ) ) {
 			return $default_title;
 		}
 
 		$title_formats = self::get_custom_title_formats();
 
-		// Keep default title if user has not defined custom title for this page type
+		// Keep default title if user has not defined custom title for this page type.
 		if ( empty( $title_formats[ $page_type ] ) ) {
 			return $default_title;
 		}
 
-		if ( ! A8C_SEO::is_enabled_advanced_seo() ) {
+		if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
 			return $default_title;
 		}
 
-		$custom_title = array_reduce( $title_formats[ $page_type ], function ( $title, $item ) {
-			return $title .= ( 'token' === $item['type'] )
-				? self::get_token_value( $item['value'] )
-				: $item['value'];
-		}, '' );
+		$custom_title = '';
+		$format_array = $title_formats[ $page_type ];
+
+		foreach ( $format_array as $item ) {
+			if ( 'token' == $item['type'] ) {
+				$custom_title .= self::get_token_value( $item['value'] );
+			} else {
+				$custom_title .= $item['value'];
+			}
+		}
 
 		return esc_html( $custom_title );
 	}
@@ -142,11 +156,11 @@ class A8C_SEO_Title {
 			return 'front_page';
 		}
 
-		if ( is_category() or is_tag() ) {
+		if ( is_category() || is_tag() ) {
 			return 'groups';
 		}
 
-		if ( is_archive() ) {
+		if ( is_archive() && ! is_author() ) {
 			return 'archives';
 		}
 
@@ -168,30 +182,19 @@ class A8C_SEO_Title {
 	 * @return bool True if current theme sets custom title, false otherwise.
 	 */
 	public static function is_conflicted_theme() {
-		$conflicted_themes = array(
-			'premium/eight'         => true,
-			'premium/just-desserts' => true,
-			'premium/on-demand'     => true,
-			'premium/pinboard'      => true,
-			'premium/react'         => true,
-			'premium/shelf'         => true,
-			'premium/simfo'         => true,
-			'premium/standard'      => true,
-			'premium/traction'      => true,
-			'premium/designfolio'   => true,
-			'premium/gigawatt'      => true,
-			'premium/gridspace'     => true,
-			'premium/blog-simple'   => true,
-			'premium/everyday'      => true,
-			'premium/elemin'        => true,
-			'premium/basic-maths'   => true,
-			'premium/funki'         => true,
-			'pub/sidespied'         => true,
-			'pub/newsworthy'        => true,
-			'pub/hum'               => true,
-			'pub/twentyten'         => true,
-			'pub/twentyeleven'      => true,
-		);
+		/**
+		 * Can be used to specify a list of themes that use their own custom title format.
+		 *
+		 * If current site is using one of the themes listed as conflicting,
+		 * Jetpack SEO custom title formats will be disabled.
+		 *
+		 * @module seo-tools
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param array List of conflicted theme names. Defaults to empty array.
+		 */
+		$conflicted_themes = apply_filters( 'jetpack_seo_custom_title_conflicted_themes', array() );
 
 		return isset( $conflicted_themes[ get_option( 'template' ) ] );
 	}
@@ -223,7 +226,7 @@ class A8C_SEO_Title {
 			}
 
 			foreach ( $format_array as $item ) {
-				if ( empty( $item['type'] ) or empty( $item['value'] ) ) {
+				if ( empty( $item['type'] ) || empty( $item['value'] ) ) {
 					return false;
 				}
 
@@ -244,16 +247,16 @@ class A8C_SEO_Title {
 	 *
 	 * @param array $new_formats Array containing new title formats.
 	 *
-	 * @return array $result Array of updated title formats.
+	 * @return array $result Array of updated title formats, or empty array if no update was performed.
 	 */
 	public static function update_title_formats( $new_formats ) {
-		// Empty array signals that custom title shouldn't be used
+		// Empty array signals that custom title shouldn't be used.
 		$empty_formats = array(
-			'front_page' => [ ],
-			'posts'      => [ ],
-			'pages'      => [ ],
-			'groups'     => [ ],
-			'archives'   => [ ],
+			'front_page' => array(),
+			'posts'      => array(),
+			'pages'      => array(),
+			'groups'     => array(),
+			'archives'   => array(),
 		);
 
 		$previous_formats = self::get_custom_title_formats();

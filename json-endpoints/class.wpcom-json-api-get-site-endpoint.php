@@ -87,9 +87,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'page_for_posts',
 		'headstart',
 		'ak_vp_bundle_enabled',
-		'advanced_seo_front_page_description',
-		'advanced_seo_title_formats',
 		'verification_services_codes',
+		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION,
+		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION,
 	);
 
 	protected static $jetpack_response_field_additions = array( 
@@ -432,15 +432,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'ak_vp_bundle_enabled' :
 					$options[ $key ] = $site->get_ak_vp_bundle_enabled();
 					break;
-				case 'advanced_seo_front_page_description' :
-					if ( A8C_SEO::is_enabled_advanced_seo() || A8C_SEO::is_grandfathered_front_page_meta() ) {
-						$options[ $key ] = $this->site->get_advanced_seo_front_page_description();
-					}
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION :
+					$options[ $key ] = $site->get_jetpack_seo_front_page_description();
 					break;
-				case 'advanced_seo_title_formats':
-					if ( A8C_SEO::is_enabled_advanced_seo() ) {
-						$options[ $key ] = $this->site->get_advanced_seo_title_formats();
-					}
+				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION :
+					$options[ $key ] = $site->get_jetpack_seo_title_formats();
 					break;
 				case 'verification_services_codes' :
 					$options[ $key ] = $site->get_verification_services_codes();

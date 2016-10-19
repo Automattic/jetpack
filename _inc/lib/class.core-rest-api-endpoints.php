@@ -1492,6 +1492,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_alphanum',
 				'jp_group'          => 'verification-tools',
 			),
+			'yandex' => array(
+				'description'        => esc_html__( 'Yandex Site Verification', 'jetpack' ),
+				'type'               => 'string',
+				'default'            => '',
+				'validate_callback'  => __CLASS__ . '::validate_alphanum',
+				'jp_group'          => 'verification-tools',
+			),
 
 			// Stats
 			'admin_bar' => array(

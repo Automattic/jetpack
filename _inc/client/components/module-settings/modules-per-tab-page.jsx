@@ -79,6 +79,12 @@ export const AllModuleSettings = React.createClass( {
 				);
 			case 'sso':
 				return ( <SingleSignOnSettings module={ module }  /> );
+			case 'seo-tools':
+				return (
+					<div>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href='https://wordpress.com/settings/seo/'>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
+					</div>
+				);
 			case 'stats':
 				return ( <StatsSettings module={ module }  /> );
 			case 'related-posts':

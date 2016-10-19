@@ -212,8 +212,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
 					'jetpack_portfolio_posts_per_page' => (int) get_option( 'jetpack_portfolio_posts_per_page', '10' ),
 					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
-					'advanced_seo_front_page_description' => get_option( 'advanced_seo_front_page_description', '' ),
-					'advanced_seo_title_formats' => get_option( 'advanced_seo_title_formats', array() ),
+					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
+					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -454,32 +454,32 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
-				case 'advanced_seo_front_page_description':
-					if ( ! A8C_SEO::is_enabled_advanced_seo() && ! A8C_SEO::is_grandfathered_front_page_meta() ) {
-						return new WP_Error( 'unauthorized', __( 'Advanced SEO is not enabled for this site.' ), 403 );
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_grandfathered_front_page_meta() ) {
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'Jetpack' ), 403 );
 					}
 
 					if ( ! is_string( $value ) ) {
-						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.' ), 400 );
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.', 'Jetpack' ), 400 );
 					}
 
-					$new_description = A8C_SEO::update_front_page_meta_description( $value );
+					$new_description = Jetpack_SEO_Utils::update_front_page_meta_description( $value );
 
 					if ( ! empty( $new_description ) ) {
 						$updated[ $key ] = $new_description;
 					}
 					break;
 
-				case 'advanced_seo_title_formats':
-					if ( ! A8C_SEO::is_enabled_advanced_seo() ) {
-						return new WP_Error( 'unauthorized', __( 'Advanced SEO is not enabled for this site.' ), 403 );
+				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION:
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'Jetpack' ), 403 );
 					}
 
-					if ( ! A8C_SEO_Title::are_valid_title_formats( $value ) ) {
-						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.' ), 400 );
+					if ( ! Jetpack_SEO_Titles::are_valid_title_formats( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.', 'Jetpack' ), 400 );
 					}
 
-					$new_title_formats = A8C_SEO_Title::update_title_formats( $value );
+					$new_title_formats = Jetpack_SEO_Titles::update_title_formats( $value );
 
 					if ( ! empty( $new_title_formats ) ) {
 						$updated[ $key ] = $new_title_formats;

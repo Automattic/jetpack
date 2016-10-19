@@ -19,7 +19,9 @@ $tools = array(
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
 	'theme-tools.php',
-	'seo.php',
+	'seo-tools/jetpack-seo-utils.php',
+	'seo-tools/jetpack-seo-titles.php',
+	'seo-tools/jetpack-seo-posts.php',
 );
 
 /**
