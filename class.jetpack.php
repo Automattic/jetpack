@@ -5324,7 +5324,7 @@ p {
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 
 		// Does the stored sync_error_idc option match what we now generate?
-		if ( $sync_error && empty( $error_diff ) ) {
+		if ( $sync_error ) {
 			$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option() );
 			if ( empty( $error_diff ) ) {
 				$is_valid = true;
@@ -5370,6 +5370,7 @@ p {
 
 			if ( ! $parsed_url ) {
 				$returned_values[ $key ] = $option;
+				continue;
 			}
 
 			$returned_values[ $key ] = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
