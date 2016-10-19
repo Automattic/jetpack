@@ -106,7 +106,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function continue_enqueuing( $configs = null, $enqueue_status = null ) {
-		if ( $this->get_status_option( 'queue_finished' ) ) {
+		if ( ! $this->is_started() || $this->get_status_option( 'queue_finished' ) ) {
 			return;
 		}
 

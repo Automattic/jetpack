@@ -1117,6 +1117,14 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $queue_size, $this->sender->get_full_sync_queue()->size() );
 	}
 
+	function test_full_sync_continue_does_nothing_if_no_sync_started() {
+		$full_sync_queue_size_before = $this->sender->get_full_sync_queue()->size();
+		
+		$this->full_sync->continue_enqueuing();
+
+		$this->assertEquals( $full_sync_queue_size_before, $this->sender->get_full_sync_queue()->size() );
+	}
+
 	function _do_cron() {
 		$_GET['check'] = wp_hash( '187425' );
 		require( ABSPATH . '/wp-cron.php' );
