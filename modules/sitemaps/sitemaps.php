@@ -211,12 +211,12 @@ class Jetpack_Sitemap_Manager {
 		$buffer = '';
 		$buffer_size_in_bytes = 0;
 		$buffer_size_in_items = 0;
-		$current_post_ID = $from_ID;
+		$last_post_ID = $from_ID;
 		$last_modified = '1970-01-01T00:00Z'; // Epoch
 
 		// Flags
 		$buffer_too_big = False;
-		$any_posts_remaining = True;
+		$any_posts_left = True;
 
 		$open_xml =
 			"<?xml version='1.0' encoding='UTF-8'?>\n" .
@@ -244,11 +244,11 @@ class Jetpack_Sitemap_Manager {
 		// Until the buffer is too large,
 		while ( False == $buffer_too_big ) {
 			// Retrieve a batch of posts (in order)
-			$posts = $this->get_published_posts_after_ID($current_post_ID, 1000);
+			$posts = $this->get_published_posts_after_ID($last_post_ID, 1000);
 
 			// If there were no posts to get, make note and quit trying to fill the buffer.
 			if (null == $posts) {
-				$any_posts_remaining = False;
+				$any_posts_left = False;
 				break;
 			}
 
@@ -265,7 +265,7 @@ class Jetpack_Sitemap_Manager {
 				if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
 				     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
 					// Add it and update the current post ID.
-					$current_post_ID = $post->ID;
+					$last_post_ID = $post->ID;
 					$buffer .= $current_item['xml'];
 					if ( strtotime($last_modified) < strtotime($current_item['last_modified']) ) {
 						$last_modified = $current_item['last_modified'];
@@ -289,10 +289,10 @@ class Jetpack_Sitemap_Manager {
 			$last_modified
 		);
 
-		// Now current_post_ID is the ID of the last post successfully added to the buffer.
+		// Now last_post_ID is the ID of the last post successfully added to the buffer.
 		return array(
-			'last_post_ID'   => $current_post_ID,
-			'any_posts_left' => $any_posts_remaining
+			'last_post_ID'   => $last_post_ID,
+			'any_posts_left' => $any_posts_left
 		);
 	}
 
@@ -313,12 +313,12 @@ class Jetpack_Sitemap_Manager {
 		$buffer = '';
 		$buffer_size_in_bytes = 0;
 		$buffer_size_in_items = 0;
-		$current_post_ID = $from_ID;
+		$last_sitemap_ID = $from_ID;
 		$last_modified = $timestamp;
 
 		// Flags
 		$buffer_too_big = False;
-		$any_posts_remaining = True;
+		$any_sitemaps_left = True;
 
 		$open_xml =
 			"<?xml version='1.0' encoding='UTF-8'?>\n" .
@@ -348,11 +348,11 @@ class Jetpack_Sitemap_Manager {
 		// Until the buffer is too large,
 		while ( False == $buffer_too_big ) {
 			// Retrieve a batch of posts (in order)
-			$posts = $this->get_sitemap_posts_after_ID($current_post_ID, 1000);
+			$posts = $this->get_sitemap_posts_after_ID($last_sitemap_ID, 1000);
 
 			// If there were no posts to get, make note. Otherwise,
 			if (null == $posts) {
-				$any_posts_remaining = False;
+				$any_sitemaps_left = False;
 				break;
 			}
 
@@ -369,7 +369,7 @@ class Jetpack_Sitemap_Manager {
 				if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
 				     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
 					// Add it and update the current post ID. Otherwise,
-					$current_post_ID = $post->ID;
+					$last_sitemap_ID = $post->ID;
 					$buffer .= $current_item['xml'];
 					if ( strtotime($last_modified) < strtotime($current_item['last_modified']) ) {
 						$last_modified = $current_item['last_modified'];
@@ -393,10 +393,10 @@ class Jetpack_Sitemap_Manager {
 			$last_modified
 		);
 
-		// Now current_post_ID is the ID of the last sitemap successfully added to the buffer.
+		// Now last_sitemap_ID is the ID of the last sitemap successfully added to the buffer.
 		return array(
-			'last_sitemap_ID'   => $current_post_ID,
-			'any_sitemaps_left' => $any_posts_remaining,
+			'last_sitemap_ID'   => $last_sitemap_ID,
+			'any_sitemaps_left' => $any_sitemaps_left,
 		  'last_modified'     => $last_modified
 		);
 	}
