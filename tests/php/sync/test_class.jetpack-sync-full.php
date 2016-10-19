@@ -605,14 +605,14 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$standard_config = array( 
 			'constants' => true,
-    		'functions' => true,
-    		'options' => true,
-    		'network_options' => true,
-    		'terms' => true,
-    		'themes' => true,
-    		'users' => true,
-    		'updates' => true,
-    		'posts' => true
+			'functions' => true,
+			'options' => true,
+			'network_options' => true,
+			'terms' => true,
+			'themes' => true,
+			'users' => true,
+			'updates' => true,
+			'posts' => true
 		);
 
 		$this->full_sync->start();
