@@ -129,7 +129,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 					! $configs[ $module_name ] 
 				|| // no enqueue status
 					! $enqueue_status[ $module_name ] 
-				|| // finished enqueuing
+				|| // finished enqueuing this module
 					true === $enqueue_status[ $module_name ][ 2 ] ) {
 				continue;
 			}
@@ -144,15 +144,17 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				$remaining_items_to_enqueue -= $items_enqueued;
 			}
 
+			// stop processing if we've reached our limit of items to enqueue
 			if ( 0 >= $remaining_items_to_enqueue ) {
-				// drop out, we're not allowed to process more items than this
 				$this->set_enqueue_status( $enqueue_status );
 				return;
 			}
 		}
 		
 		$this->set_enqueue_status( $enqueue_status );
-		$this->update_status_option( 'queue_finished', time() );
+
+		// setting autoload to true means that it's faster to check whether we should continue enqueuing
+		$this->update_status_option( 'queue_finished', time(), true );
 
 		/**
 		 * Fires when a full sync ends. This action is serialized
@@ -286,9 +288,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		return is_numeric( $value ) ? intval( $value ) : $value;
 	}
 
-	private function update_status_option( $name, $value ) {
+	private function update_status_option( $name, $value, $autoload = false ) {
 		$prefix = self::STATUS_OPTION_PREFIX;
-		update_option( "{$prefix}_{$name}", $value, false );
+		update_option( "{$prefix}_{$name}", $value, $autoload );
 	}
 
 	private function set_enqueue_status( $new_status ) {
