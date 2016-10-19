@@ -28,7 +28,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/
 	 */
-	const SITEMAP_MAX_ITEMS = 101; // 50k
+	const SITEMAP_MAX_ITEMS = 5000; // 50k
 
 
 
@@ -292,7 +292,7 @@ class Jetpack_Sitemap_Manager {
 			}
 		}
 
-		// Close the 'urlset' tag.
+		// Once the buffer is full, add the footer part.
 		$buffer .= $close_xml;
 
 		// Store the buffer as the content of a jp_sitemap post.
@@ -303,7 +303,10 @@ class Jetpack_Sitemap_Manager {
 			$last_modified
 		);
 
-		// Now last_post_ID is the ID of the last post successfully added to the buffer.
+		/*
+		 * Now report back with the ID of the last post ID to be
+		 * successfully added and whether there are any posts left.
+		 */
 		return array(
 			'last_post_ID'   => $last_post_ID,
 			'any_posts_left' => $any_posts_left
@@ -348,7 +351,7 @@ class Jetpack_Sitemap_Manager {
 			" <lastmod>$timestamp</lastmod>\n" .
 			"</sitemap>\n";
 
-		// Add header part to buffer.
+		// Add header part to buffer (and account for the size of the footer).
 		$buffer .= $open_xml;
 		$buffer_size_in_bytes += mb_strlen($open_xml) + mb_strlen($close_xml);
 
@@ -364,13 +367,13 @@ class Jetpack_Sitemap_Manager {
 			// Retrieve a batch of posts (in order)
 			$posts = $this->get_sitemap_posts_after_ID($last_sitemap_ID, 1000);
 
-			// If there were no posts to get, make note. Otherwise,
+			// If there were no posts to get, make a note.
 			if (null == $posts) {
 				$any_sitemaps_left = False;
 				break;
 			}
 
-			// For each post in the batch,
+			// Otherwise, for each post in the batch,
 			foreach ($posts as $post) {
 				// Generate the sitemap XML for the post.
 				$current_item = $this->sitemap_to_index_item($post);
@@ -396,7 +399,7 @@ class Jetpack_Sitemap_Manager {
 			}
 		}
 
-		// Close the 'urlset' tag.
+		// Once the buffer is full, add the footer part.
 		$buffer .= $close_xml;
 
 		// Store the buffer as the content of a jp_sitemap_index post.
@@ -407,7 +410,11 @@ class Jetpack_Sitemap_Manager {
 			$last_modified
 		);
 
-		// Now last_sitemap_ID is the ID of the last sitemap successfully added to the buffer.
+		/*
+		 * Now report back with the ID of the last sitemap post ID to
+		 * be successfully added, whether there are any sitemap posts
+		 * left, and the most recent modification time seen.
+		 */
 		return array(
 			'last_sitemap_ID'   => $last_sitemap_ID,
 			'any_sitemaps_left' => $any_sitemaps_left,
