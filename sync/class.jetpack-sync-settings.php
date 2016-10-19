@@ -21,6 +21,7 @@ class Jetpack_Sync_Settings {
 		'post_meta_whitelist'     => true,
 		'comment_meta_whitelist'  => true,
 		'max_enqueue_full_sync'   => true,
+		'max_queue_size_full_sync'=> true,
 	);
 
 	static $is_importing;

@@ -110,6 +110,18 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			return;
 		}
 
+		// if full sync queue is full, don't enqueue more items
+		$max_queue_size_full_sync = Jetpack_Sync_Settings::get_setting( 'max_queue_size_full_sync' );
+		$full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
+		
+		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
+
+		if ( $available_queue_slots <= 0 ) {
+			return;
+		} else {
+			$remaining_items_to_enqueue = min( Jetpack_Sync_Settings::get_setting( 'max_enqueue_full_sync' ), $available_queue_slots );
+		}
+
 		if ( ! $configs ) {
 			$configs = $this->get_config();
 		}
@@ -117,8 +129,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		if ( ! $enqueue_status ) {
 			$enqueue_status = $this->get_enqueue_status();
 		}
-
-		$remaining_items_to_enqueue = Jetpack_Sync_Settings::get_setting( 'max_enqueue_full_sync' );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_name = $module->name();

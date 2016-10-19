@@ -1091,10 +1091,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		global $wpdb;
 
 		// enough posts for three queue items
-		$synced_post_ids = array();
-		foreach( range( 0, 25 ) as $number ) {
-			$synced_post_ids[] = $this->factory->post->create();
-		}
+		$synced_post_ids = $this->factory->post->create_many( 25 );
 
 		$this->full_sync->start( array( 'posts' => true ) );
 
@@ -1123,6 +1120,43 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->continue_enqueuing();
 
 		$this->assertEquals( $full_sync_queue_size_before, $this->sender->get_full_sync_queue()->size() );
+	}
+
+	function test_full_sync_stops_enqueuing_at_max_queue_size() {
+		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 2, 'max_enqueue_full_sync' => 10 ) );
+
+		// this should become three items
+		$synced_post_ids = $this->factory->post->create_many( 25 );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+
+		// full_sync_start plus 10 posts
+		$this->assertEquals( 2, $this->sender->get_full_sync_queue()->size() );
+
+		// attempting to continue enqueuing shouldn't work because the queue is at max size
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( 2, $this->sender->get_full_sync_queue()->size() );
+
+		// flush the queue
+		$this->sender->do_full_sync();
+
+		$this->assertEquals( 0, $this->sender->get_full_sync_queue()->size() );
+
+		// continue enqueuing and hit the limit again - 2 more sets of posts (10 and 5)
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( 2, $this->sender->get_full_sync_queue()->size() );
+
+		$this->sender->do_full_sync();
+
+		// last one - this time just sending full_sync_end
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( 1, $this->sender->get_full_sync_queue()->size() );
+
+		$this->sender->do_full_sync();
+
+		// full sync is done, continuing should do nothing
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( 0, $this->sender->get_full_sync_queue()->size() );		
 	}
 
 	function _do_cron() {
