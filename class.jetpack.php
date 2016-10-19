@@ -5323,8 +5323,8 @@ p {
 		$is_valid = false;
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 
-		// Does the stored sync_error_idc option match what we now generate?
-		if ( $sync_error ) {
+		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
+		if ( $sync_error && self::sync_idc_optin() ) {
 			$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option() );
 			if ( empty( $error_diff ) ) {
 				$is_valid = true;
