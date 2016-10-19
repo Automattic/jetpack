@@ -11,7 +11,7 @@ class Jetpack_Sitemap_Manager {
 
 	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
 	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 10;    // 50k
+	const SITEMAP_MAX_ITEMS = 101;    // 50k
 
 
 
@@ -299,6 +299,7 @@ class Jetpack_Sitemap_Manager {
 
 
 
+
 	/**
 	 * Build and store a sitemap index.
 	 *
@@ -392,11 +393,11 @@ class Jetpack_Sitemap_Manager {
 			$last_modified
 		);
 
-		// Now current_post_ID is the ID of the last post successfully added to the buffer.
+		// Now current_post_ID is the ID of the last sitemap successfully added to the buffer.
 		return array(
-			'last_post_ID'   => $current_post_ID,
-			'any_posts_left' => $any_posts_remaining,
-		  'last_modified'  => $last_modified
+			'last_sitemap_ID'   => $current_post_ID,
+			'any_sitemaps_left' => $any_posts_remaining,
+		  'last_modified'     => $last_modified
 		);
 	}
 
@@ -404,17 +405,20 @@ class Jetpack_Sitemap_Manager {
 
 
 
+	/**
+	 * Build a fresh tree of sitemaps.
+	 */
 	private function generate_all_sitemaps () {
-		/* Sitemaps */
-
 		$post_ID = 0;
 		$sitemap_number = 1;
-
-		// Generate the sitemaps
 		$any_posts_left = True;
 
+		// Generate sitemaps until no posts remain.
 		while ( True == $any_posts_left ) {
-			$result = $this->generate_sitemap($sitemap_number, $post_ID);
+			$result = $this->generate_sitemap(
+				$sitemap_number,
+				$post_ID
+			);
 
 			if ( True == $result['any_posts_left'] ) {
 				$post_ID = $result['last_post_ID'];
@@ -424,29 +428,32 @@ class Jetpack_Sitemap_Manager {
 			}
 		}
 
-		// Clean up old sitemaps
+		// Clean up old sitemaps.
 		$this->delete_sitemaps_after_number($sitemap_number);
 
 		// If there's only one sitemap, make that the root.
 		if ( 1 == $sitemap_number ) {
 			$this->clone_to_master_sitemap('sitemap-1', 'jp_sitemap');
+			$this->delete_sitemap_indices_after_number(0);
 			return;
 		}
 
-		/* Sitemap Indices */
-
-		$last_sitemap_ID = 0;
+		// Otherwise, we have to generate sitemap indices.
+		$sitemap_ID = 0;
 		$sitemap_index_number = 1;
 		$last_modified = '01-01-1970T00:00:00'; // Epoch
-
-		// Generate the sitemaps
 		$any_sitemaps_left = True;
 
+		// Generate sitemap indices until no sitemaps remain.
 		while ( True == $any_sitemaps_left ) {
-			$result = $this->generate_sitemap_index($sitemap_index_number, $last_sitemap_ID, $last_modified);
+			$result = $this->generate_sitemap_index(
+				$sitemap_index_number,
+				$sitemap_ID,
+				$last_modified
+			);
 
-			if ( True == $result['any_posts_left'] ) {
-				$last_sitemap_ID = $result['last_post_ID'];
+			if ( True == $result['any_sitemaps_left'] ) {
+				$sitemap_ID = $result['last_sitemap_ID'];
 				$sitemap_index_number += 1;
 				$last_modified = $result['last_modified'];
 			} else {
@@ -454,30 +461,13 @@ class Jetpack_Sitemap_Manager {
 			}
 		}
 
+		// Clean up old sitemap indices.
+		$this->delete_sitemap_indices_after_number($sitemap_index_number);
+
+		// Make the last sitemap index the root.
 		$this->clone_to_master_sitemap(
 			'sitemap-index-' . $sitemap_index_number,
 			'jp_sitemap_index'
-		);
-
-		return;
-	}
-
-
-
-
-
-	/**
-	 * Clone the contents of a specified post to the master sitemap.
-	 *
-	 * @param string @title Title of the post to clone.
-	 * @param string @type Type of the post to clone.
-	 */
-	private function clone_to_master_sitemap ( $title, $type ) {
-		$this->set_contents_of_post(
-			'sitemap',
-			'jp_sitemap_master',
-			$this->get_contents_of_post($title, $type),
-			''
 		);
 
 		return;
@@ -643,9 +633,10 @@ XML;
 	 * Manipulating the Database
 	 */
 
+
 	/**
-	 * Delete jp_sitemap posts sitemap-i, sitemap-(i+1), ... until the first
-	 * nonexistent post is found.
+	 * Delete jp_sitemap posts sitemap-(p+1), sitemap-(p+2), ...
+	 * until the first nonexistent post is found.
 	 *
 	 * @param int @position Number before the first sitemap to be deleted. 
 	 */
@@ -668,9 +659,10 @@ XML;
 	}
 
 
+
 	/**
-	 * Delete jp_sitemap posts sitemap-index-i, sitemap-index-(i+1), ... until the first
-	 * nonexistent post is found.
+	 * Delete jp_sitemap posts sitemap-index-(p+1), sitemap-index-(p+2), ...
+	 * until the first nonexistent post is found.
 	 *
 	 * @param int @position Number before the first sitemap index to be deleted. 
 	 */
@@ -691,6 +683,7 @@ XML;
 
 		return;
 	}
+
 
 
 	/**
@@ -724,6 +717,25 @@ XML;
 				'post_date'    => $timestamp,
 			));
 		}
+
+		return;
+	}
+
+
+
+	/**
+	 * Clone the contents of a specified post to the master sitemap.
+	 *
+	 * @param string @title Title of the post to clone.
+	 * @param string @type Type of the post to clone.
+	 */
+	private function clone_to_master_sitemap ( $title, $type ) {
+		$this->set_contents_of_post(
+			'sitemap',
+			'jp_sitemap_master',
+			$this->get_contents_of_post($title, $type),
+			''
+		);
 
 		return;
 	}
