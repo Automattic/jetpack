@@ -111,8 +111,6 @@
     "mockery": "^1.4.1",
     "nock": "^7.2.2",
     "qunitjs": "~1.20.0",
-    "react-addons-test-utils": "^0.14.8",
-    "redux-test-utils": "^0.1.1",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
     "sinon-qunit": "~2.0.0",

@@ -2,68 +2,32 @@
  * External dependencies
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import { expect } from 'chai';
-import { mount } from 'enzyme';
-import { createMockStore } from 'redux-test-utils';
+import { shallow } from 'enzyme';
 
 /**
  * Internal dependencies
  */
-import Masthead from '../index.jsx';
+import { Masthead } from '../index';
 
 describe( 'Masthead', () => {
 
-	let state = {
-		jetpack: {
-			initialState: {
-				currentVersion: '4.3.2'
-			},
-			connection: {
-				status: {
-					siteConnected: {
-						isActive: true,
-						devMode: {
-							isActive: false
-						}
-					}
-				}
-			}
-		}
-	};
+	let component = shallow( <Masthead /> );
 
-	const component = mount( <Masthead />, {
-		context: {
-			store: createMockStore( state )
-		}
-	} );
-
-	it( 'should render main nav', () => {
+	it( 'renders main nav', () => {
 		expect( component.find( 'Masthead' ) ).to.exist;
 	} );
 
-	it( 'should find selector .jp-masthead in main nav', () => {
+	it( 'finds selector .jp-masthead in main nav', () => {
 		expect( component.find( '.jp-masthead' ) ).to.have.length( 1 );
 	} );
 
-	it( 'should display the Dev Mode badge when connected', () => {
+	it( 'does not display the Dev Mode badge when connected', () => {
 		expect( component.find( 'code' ) ).to.have.length( 0 );
 	} );
 
-	it( 'should display the badge in Dev Mode', () => {
-
-		// Mock Dev Mode
-		state.jetpack.connection.status.siteConnected = {
-			isActive: false,
-			devMode: {
-				isActive: true
-			}
-		};
-		const componentDevMode = mount( <Masthead />, {
-			context: {
-				store: createMockStore( state )
-			}
-		} );
-		expect( componentDevMode.find( 'code' ) ).to.have.length( 1 );
+	it( 'displays the badge in Dev Mode', () => {
+		component = shallow( <Masthead siteConnectionStatus="dev"/> );
+		expect( component.find( 'code' ) ).to.have.length( 1 );
 	} );
 } );
