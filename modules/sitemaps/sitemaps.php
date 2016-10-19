@@ -124,7 +124,7 @@ class Jetpack_Sitemap_Manager {
 			// Regular expressions for sitemap URL routing
 			$sitemap_master_regex = '/^\/sitemap\.xml$/';
 			$sitemap_regex        = '/^\/sitemap-[1-9][0-9]*\.xml$/';
-			$sitemap_index_regex  = '/^\/sitemap-index-([1-9][0-9]*)?\.xml$/';
+			$sitemap_index_regex  = '/^\/sitemap-index-[1-9][0-9]*\.xml$/';
 			$sitemap_style_regex  = '/^\/sitemap\.xsl$/';
 
 			/**
