@@ -94,13 +94,6 @@ class Jetpack_Debugger {
 
 		$debug_info .= "\r\n". sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) );
 
-		$next_schedules = wp_next_scheduled( 'jetpack_sync_full' );
-		if( $next_schedules ) {
-			$debug_info .= "\r\n". sprintf( esc_html__( 'Next Jetpack Full Sync Schedule: `%1$s`', 'jetpack' ), date( 'r', $next_schedules ) );
-		} else {
-			$debug_info .= "\r\n". esc_html__( "Next Jetpack Full Sync Schedule: Not Scheduled", 'jetpack' );
-		}
-
 		require_once JETPACK__PLUGIN_DIR. 'sync/class.jetpack-sync-sender.php';
 
 		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
