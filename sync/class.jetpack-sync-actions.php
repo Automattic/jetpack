@@ -178,7 +178,6 @@ class Jetpack_Sync_Actions {
 
 		self::initialize_listener();
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
-		self::do_cron_full_sync(); // immediately run a cron full sync, which sends pending data
 
 		return true;
 	}
