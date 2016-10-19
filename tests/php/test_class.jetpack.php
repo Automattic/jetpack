@@ -484,6 +484,14 @@ EXPECTED;
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
 	}
 
+	function test_sync_error_idc_validation_returns_false_and_cleans_up_when_opted_out() {
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
+
+		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+	}
+
 	function test_is_staging_site_true_when_sync_error_idc_is_valid() {
 		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
 		$this->assertTrue( Jetpack::is_staging_site() );
