@@ -64,8 +64,8 @@ class Jetpack_Sitemap_Manager {
 				'jp_sitemap_master',
 				array(
 					'labels' => array(
-						'name'          => __( 'Sitemap Masters' ),
-						'singular_name' => __( 'Sitemap Master' ),
+						'name'          => __( 'Sitemap Masters', 'jetpack' ),
+						'singular_name' => __( 'Sitemap Master', 'jetpack' ),
 					),
 					'public'      => true,
 					'has_archive' => true,
@@ -80,8 +80,8 @@ class Jetpack_Sitemap_Manager {
 				'jp_sitemap',
 				array(
 					'labels' => array(
-						'name'          => __( 'Sitemaps' ),
-						'singular_name' => __( 'Sitemap' ),
+						'name'          => __( 'Sitemaps', 'jetpack' ),
+						'singular_name' => __( 'Sitemap', 'jetpack' ),
 					),
 					'public'      => true,
 					'has_archive' => true,
@@ -96,8 +96,8 @@ class Jetpack_Sitemap_Manager {
 				'jp_sitemap_index',
 				array(
 					'labels' => array(
-						'name'          => __( 'Sitemap Indices' ),
-						'singular_name' => __( 'Sitemap Index' ),
+						'name'          => __( 'Sitemap Indices', 'jetpack' ),
+						'singular_name' => __( 'Sitemap Index', 'jetpack' ),
 					),
 					'public'      => true,
 					'has_archive' => true,
