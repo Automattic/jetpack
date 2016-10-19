@@ -607,13 +607,16 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			'constants' => true,
 			'functions' => true,
 			'options' => true,
-			'network_options' => true,
 			'terms' => true,
 			'themes' => true,
 			'users' => true,
 			'updates' => true,
 			'posts' => true
 		);
+
+		if ( is_multisite() ) {
+			$standard_config['network_options'] = true;
+		}
 
 		$this->full_sync->start();
 
