@@ -181,9 +181,6 @@ class Jetpack_Sitemap_Manager {
 			$this->generate_all_sitemaps();
 		});
 
-		// (@@@) for testing
-		// $this->delete_all_sitemaps();
-
 		if( !wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
 			wp_schedule_event( time(), 'minutely', 'jp_sitemap_cron_hook' );
 		}
@@ -546,34 +543,6 @@ XML;
 
 	private function sitemap_xsl_content() {
 		return '';
-	}
-
-
-
-	private function delete_all_sitemaps () {
-		global $wpdb;
-
-		$sitemaps = $wpdb->get_results("
-			SELECT *
-			  FROM $wpdb->posts
-			  WHERE post_type = 'jp_sitemap'
-		");
-
-		foreach ( $sitemaps as $post ) {
-			wp_delete_post($post->ID);
-		}
-
-		$sitemap_indices = $wpdb->get_results("
-			SELECT *
-			  FROM $wpdb->posts
-			  WHERE post_type = 'jp_sitemap_index'
-		");
-
-		foreach ( $sitemap_indices as $post ) {
-			wp_delete_post($post->ID);
-		}
-
-		return;
 	}
 
 
