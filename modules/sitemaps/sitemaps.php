@@ -45,6 +45,11 @@ class Jetpack_Sitemap_Manager {
 		// Add generator to wp_cron task list
 		$this->schedule_sitemap_generation();
 
+		// Add sitemap to robots.txt
+		add_action('do_robotstxt', function () {
+			echo 'Sitemap: ' . site_url() . '/sitemap.xml' . PHP_EOL;
+		}, 20);
+
 		return;
 	}
 
@@ -770,4 +775,4 @@ class Jetpack_Sitemap_Manager {
 
 } // End Jetpack_Sitemap_Manager class
 
-new Jetpack_Sitemap_Manager;
+new Jetpack_Sitemap_Manager();
