@@ -607,6 +607,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			'constants' => true,
     		'functions' => true,
     		'options' => true,
+    		'network_options' => true,
     		'terms' => true,
     		'themes' => true,
     		'users' => true,
@@ -702,7 +703,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		);
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
-			$should_be_status['config']['network_options'] = 1;
 		}
 
 		$this->assertEquals( $should_be_status['queue'], $full_sync_status['queue'] );
