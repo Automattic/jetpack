@@ -7,11 +7,28 @@
  * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps.
  */
 
+
+
+/**
+ * Governs the generation, storage, and serving of sitemaps.
+ */
 class Jetpack_Sitemap_Manager {
 
-	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
+	/**
+	 * Maximum size (in bytes) of a sitemap xml file.
+	 *
+	 * @link http://www.sitemaps.org/
+	 */
 	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 101;    // 50k
+
+
+
+	/**
+	 * Maximum size (in items) of a sitemap xml file.
+	 *
+	 * @link http://www.sitemaps.org/
+	 */
+	const SITEMAP_MAX_ITEMS = 101; // 50k
 
 
 
@@ -167,11 +184,8 @@ class Jetpack_Sitemap_Manager {
 
 
 
-
-
 	/**
 	 * Add actions to schedule sitemap generation.
-	 *
 	 * Should only be called once, in the constructor.
 	 */
 	private function schedule_sitemap_generation () {
@@ -368,14 +382,14 @@ class Jetpack_Sitemap_Manager {
 				// If adding this item to the buffer doesn't make it too large,
 				if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
 				     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
-					// Add it and update the current post ID. Otherwise,
+					// Add it and update the last sitemap ID.
 					$last_sitemap_ID = $post->ID;
 					$buffer .= $current_item['xml'];
 					if ( strtotime($last_modified) < strtotime($current_item['last_modified']) ) {
 						$last_modified = $current_item['last_modified'];
 					}
 				} else {
-					// Note that the buffer is too large and stop looping through posts.
+					// Otherwise, note that the buffer is too large and stop looping through posts.
 					$buffer_too_big = True;
 					break;
 				}
@@ -480,7 +494,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Construct the sitemap url entry for a WP_Post.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#urldef The sitemap protocol document.
+	 * @link http://www.sitemaps.org/protocol.html#urldef
 	 *
 	 * @param WP_Post $post The post to be processed.
 	 *
@@ -488,59 +502,65 @@ class Jetpack_Sitemap_Manager {
 	 */
 	private function post_to_sitemap_item ( $post ) {
 		$url = get_permalink($post);
-		$lastmod = str_replace( ' ', 'T', $post->post_modified_gmt) . 'Z';
 
-		// Spec requires the URL to be <=2048 bytes.
-		// In practice this constraint is unlikely to be violated.
+		/*
+		 * Must use W3C Datetime format per the spec.
+		 * https://www.w3.org/TR/NOTE-datetime
+		 */ 
+		$last_modified = str_replace( ' ', 'T', $post->post_modified_gmt) . 'Z';
+
+		/*
+		 * Spec requires the URL to be <=2048 bytes.
+		 * In practice this constraint is unlikely to be violated.
+		 */
 		if ( mb_strlen($url) > 2048 ) {
 			$url = site_url() . '/?p=' . $post->ID; 
 		}
 
-		$xml = <<<XML
-<url>
- <loc>$url</loc>
- <lastmod>$lastmod</lastmod>
-</url>\n
-XML;
+		$xml =
+			"<url>\n" .
+			" <loc>$url</loc>\n" .
+			" <lastmod>$last_modified</lastmod>\n" .
+			"</url>\n";
 
 		return array(
 			'xml'           => $xml,
-			'last_modified' => $lastmod
+			'last_modified' => $last_modified
 		);
 	}
 
 
 
 	/**
-	 * Construct the sitemap url entry for a WP_Post.
+	 * Construct the sitemap index url entry for a sitemap post.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#urldef The sitemap protocol document.
+	 * @link http://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
 	 *
-	 * @param WP_Post $post The post to be processed.
+	 * @param WP_Post $post The sitemap post to be processed.
 	 *
 	 * @return string An XML fragment representing the post URL.
 	 */
 	private function sitemap_to_index_item ( $post ) {
 		$url = site_url() . '/' . $post->post_title . '.xml';
-		$lastmod = str_replace( ' ', 'T', $post->post_date) . 'Z';
 
-		$xml = <<<XML
-<sitemap>
- <loc>$url</loc>
- <lastmod>$lastmod</lastmod>
-</sitemap>
+		/*
+		 * Must use W3C Datetime format per the spec.
+		 * https://www.w3.org/TR/NOTE-datetime
+		 * Also recall that we stored the most recent modification time
+		 * among all the posts in this sitemap in post_date.
+		 */
+		$last_modified = str_replace( ' ', 'T', $post->post_date) . 'Z';
 
-XML;
+		$xml =
+			"<sitemap>\n" .
+			" <loc>$url</loc>\n" .
+			" <lastmod>$last_modified</lastmod>\n" .
+			"</sitemap>\n";
 
 		return array(
 			'xml'           => $xml,
-			'last_modified' => $lastmod
+			'last_modified' => $last_modified
 		);
-	}
-
-
-	private function sitemap_xsl_content() {
-		return '';
 	}
 
 
