@@ -9,7 +9,6 @@
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
-	const INITIAL_SYNC_MULTISITE_INTERVAL = 10;
 	const DEFAULT_SYNC_CRON_INTERVAL = '1min';
 
 	static function init() {
