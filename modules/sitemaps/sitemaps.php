@@ -11,7 +11,7 @@ class Jetpack_Sitemap_Manager {
 
 	/** @see http://www.sitemaps.org/ The sitemap protocol spec */
 	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
-	const SITEMAP_MAX_ITEMS = 5000;    // 50k
+	const SITEMAP_MAX_ITEMS = 20;    // 50k
 
 
 
@@ -387,7 +387,7 @@ class Jetpack_Sitemap_Manager {
 			$most_recent_modification
 		);
 
-		//
+		// Report the most recent timestamp seen
 		if ( strtotime($most_recent_modification) < strtotime($previous_timestamp) ) {
 			$most_recent_modification = $previous_timestamp;
 		}
@@ -408,46 +408,46 @@ class Jetpack_Sitemap_Manager {
 		/* Sitemaps */
 
 		$last_post_ID = 0;
-		$current_sitemap_position = 1;
+		$sitemap_number = 1;
 
 		// Generate the sitemaps
 		$any_posts_left = True;
 
 		while ( True == $any_posts_left ) {
-			$result = $this->generate_sitemap($current_sitemap_position, $last_post_ID);
+			$result = $this->generate_sitemap($sitemap_number, $last_post_ID);
 
 			if ( True == $result['any_posts_left'] ) {
 				$last_post_ID = $result['last_post_ID'];
-				$current_sitemap_position += 1;
+				$sitemap_number += 1;
 			} else {
 				$any_posts_left = False;
 			}
 		}
 
+		// Clean up old sitemaps
+		$this->delete_sitemaps_after_number($sitemap_number);
+
 		// If there's only one sitemap, make that the root.
-		if ( 1 == $current_sitemap_position ) {
+		if ( 1 == $sitemap_number ) {
 			$this->clone_to_master_sitemap('sitemap-1', 'jp_sitemap');
-			$this->delete_sitemaps_after_number(1);
 			return;
 		}
-
-		$this->delete_sitemaps_after_number($current_sitemap_position);
 
 		/* Sitemap Indices */
 
 		$last_sitemap_ID = 0;
-		$current_sitemap_index_position = 1;
+		$sitemap_index_number = 1;
 		$most_recent_modification = '01-01-1970T00:00:00';
 
 		// Generate the sitemaps
 		$any_sitemaps_left = True;
 
 		while ( True == $any_sitemaps_left ) {
-			$result = $this->generate_sitemap_index($current_sitemap_index_position, $last_sitemap_ID, $most_recent_modification);
+			$result = $this->generate_sitemap_index($sitemap_index_number, $last_sitemap_ID, $most_recent_modification);
 
 			if ( True == $result['any_posts_left'] ) {
 				$last_sitemap_ID = $result['last_post_ID'];
-				$current_sitemap_index_position += 1;
+				$sitemap_index_number += 1;
 				$most_recent_modification = $result['last_modified'];
 			} else {
 				$any_sitemaps_left = False;
@@ -455,7 +455,7 @@ class Jetpack_Sitemap_Manager {
 		}
 
 		$this->clone_to_master_sitemap(
-			'sitemap-index-' . $current_sitemap_index_position,
+			'sitemap-index-' . $sitemap_index_number,
 			'jp_sitemap_index'
 		);
 
@@ -464,6 +464,14 @@ class Jetpack_Sitemap_Manager {
 
 
 
+
+
+	/**
+	 * Clone the contents of a specified post to the master sitemap.
+	 *
+	 * @param string @title Title of the post to clone.
+	 * @param string @type Type of the post to clone.
+	 */
 	private function clone_to_master_sitemap ( $title, $type ) {
 		$this->set_contents_of_post(
 			'sitemap',
@@ -635,13 +643,43 @@ XML;
 	 * Manipulating the Database
 	 */
 
-
+	/**
+	 * Delete jp_sitemap posts sitemap-i, sitemap-(i+1), ... until the first
+	 * nonexistent post is found.
+	 *
+	 * @param int @position Number before the first sitemap to be deleted. 
+	 */
 	private function delete_sitemaps_after_number( $position ) {
 		$any_left = True;
 		$i = $position + 1;
 
 		while ( True == $any_left ) {
 			$the_post = get_page_by_title( 'sitemap-' . $i, 'OBJECT', 'jp_sitemap' );
+
+			if ( null == $the_post ) {
+				$any_left = False;
+			} else {
+				wp_delete_post($the_post->ID);
+				$i += 1;
+			}
+		}
+
+		return;
+	}
+
+
+	/**
+	 * Delete jp_sitemap posts sitemap-index-i, sitemap-index-(i+1), ... until the first
+	 * nonexistent post is found.
+	 *
+	 * @param int @position Number before the first sitemap index to be deleted. 
+	 */
+	private function delete_sitemap_indices_after_number( $position ) {
+		$any_left = True;
+		$i = $position + 1;
+
+		while ( True == $any_left ) {
+			$the_post = get_page_by_title( 'sitemap-index-' . $i, 'OBJECT', 'jp_sitemap_index' );
 
 			if ( null == $the_post ) {
 				$any_left = False;
