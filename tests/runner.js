@@ -4,6 +4,7 @@ require( 'babel-register' )( {
 } );
 
 const program = require( 'commander' ),
+	glob = require( 'glob' ),
 	Mocha = require( 'mocha' ),
 	path = require( 'path' ),
 	boot = require( './boot-test' );
@@ -29,26 +30,36 @@ if ( program.grep ) {
 mocha.suite.beforeAll( boot.before );
 mocha.suite.afterAll( boot.after );
 
-// we could also discover all the tests using a glob?
 if ( program.args.length ) {
 
 	// Test interface components
 	if ( 1 === program.args.length && 'gui' === program.args[0] ) {
-		// Fixes error "@import unexpected token"
+		// Don't load styles for testing
 		require.extensions['.scss'] = () => false;
 		require.extensions['.css'] = require.extensions['.scss'];
 
-		// Fixes error "window is not defined"
+		// Define a dom so we can have window and all else
 		require('jsdom-global')();
 
-		mocha.addFile( path.join( __dirname, 'load-suite-gui.js' ) );
+		window.Initial_State = {
+			userData: {},
+			dismissedNotices: {}
+		};
+		mocha.addFile( '_inc/client/test/main.js' );
+
+		glob.sync( '_inc/client/**/test/component.js' ).forEach( file => {
+			mocha.addFile( file );
+		});
+
 	} else {
 		program.args.forEach( function( file ) {
 			mocha.addFile( file );
 		} );
 	}
 } else {
-	mocha.addFile( path.join( __dirname, 'load-suite.js' ) );
+	glob.sync( '_inc/client/state/**/test/*.js' ).forEach( file => {
+		mocha.addFile( file );
+	});
 }
 
 mocha.run( function( failures ) {
