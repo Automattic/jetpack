@@ -26,7 +26,20 @@ import {
 } from 'state/action-types';
 import { getModulesThatRequireConnection } from 'state/modules';
 
-export const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
+export const initialConnectionState = {
+	isActive : false,
+	isPublic : false,
+	isStaging: false,
+	devMode: {
+		isActive: false,
+		constant: false,
+		filter  : false,
+		url     : false
+	},
+	isInIdentityCrisis: false
+};
+
+export const status = ( state = { siteConnected: initialConnectionState }, action ) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_STATUS_FETCH:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
@@ -48,7 +61,18 @@ export const connectUrl = ( state = '', action ) => {
 	}
 };
 
-export const user = ( state = window.Initial_State.userData, action ) => {
+export const initialUserDataState = {
+	currentUser: {
+		username   : '',
+		gravatar   : '',
+		isConnected: false,
+		isMaster   : false,
+		permissions: {},
+		wpcomUser  : {}
+	}
+};
+
+export const user = ( state = initialUserDataState, action ) => {
 	switch ( action.type ) {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.userConnectionData );
