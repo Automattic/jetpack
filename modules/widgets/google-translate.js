@@ -1,0 +1,16 @@
+function googleTranslateElementInit() {
+    var lang = 'en';
+    var langRegex = /[?&#]lang=([a-z]+)/;
+    if ( typeof _wp_google_translate_widget === 'object' && typeof _wp_google_translate_widget.lang === 'string' ) {
+        lang = _wp_google_translate_widget.lang;
+    }
+    var langParam = window.location.href.match( langRegex );
+    if ( langParam ) {
+        window.location.href = window.location.href.replace( langRegex, '' ).replace( /#googtrans\([a-zA-Z|]+\)/, '' ) + '#googtrans(' + lang + '|' + langParam[ 1 ] + ')';
+    }
+    var element = new google.translate.TranslateElement( {
+        pageLanguage: lang,
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+    }, "google_translate_element" );
+}
