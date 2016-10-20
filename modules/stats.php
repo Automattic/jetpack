@@ -140,14 +140,16 @@ function stats_map_meta_caps( $caps, $cap, $user_id, $args ) {
 function stats_template_redirect() {
 	global $current_user, $stats_footer;
 
-	if ( is_feed() || is_robots() || is_trackback() || is_preview() )
+	if ( is_feed() || is_robots() || is_trackback() || is_preview() ) {
 		return;
+	}
 
 	// Should we be counting this user's views?
 	if ( ! empty( $current_user->ID ) ) {
 		$count_roles = stats_get_option( 'count_roles' );
-		if ( ! array_intersect( $current_user->roles, $count_roles ) )
+		if ( ! array_intersect( $current_user->roles, $count_roles ) ) {
 			return;
+		}
 	}
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
@@ -192,7 +194,6 @@ function stats_build_view_data() {
 		// 2. Set show_on_front = page
 		// 3. Set page_on_front = something
 		// 4. Visit https://example.com/
-
 		$queried_object = ( isset( $wp_the_query->queried_object ) ) ? $wp_the_query->queried_object : null;
 		$queried_object_id = ( isset( $wp_the_query->queried_object_id ) ) ? $wp_the_query->queried_object_id : null;
 		$post = $wp_the_query->get_queried_object_id();
@@ -254,36 +255,38 @@ function stats_get_options() {
 function stats_get_option( $option ) {
 	$options = stats_get_options();
 
-	if ( 'blog_id' === $option )
+	if ( 'blog_id' === $option ) {
 		return Jetpack_Options::get_option( 'id' );
+	}
 
-	if ( isset( $options[$option] ) )
-		return $options[$option];
+	if ( isset( $options[ $option ] ) ) {
+		return $options[ $option ];
+	}
 
 	return null;
 }
 
 /**
- * stats_set_option function.
+ * Stats Set Options.
  *
  * @access public
- * @param mixed $option
- * @param mixed $value
+ * @param mixed $option Option.
+ * @param mixed $value Value.
  * @return void
  */
 function stats_set_option( $option, $value ) {
 	$options = stats_get_options();
 
-	$options[$option] = $value;
+	$options[ $option ] = $value;
 
-	return stats_set_options($options);
+	return stats_set_options( $options );
 }
 
 /**
- * stats_set_options function.
+ * Stats Set Options.
  *
  * @access public
- * @param mixed $options
+ * @param mixed $options Options.
  * @return void
  */
 function stats_set_options($options) {
@@ -291,10 +294,10 @@ function stats_set_options($options) {
 }
 
 /**
- * stats_upgrade_options function.
+ * Stats Upgrade Options.
  *
  * @access public
- * @param mixed $options
+ * @param mixed $options Options.
  * @return void
  */
 function stats_upgrade_options( $options ) {
@@ -308,17 +311,19 @@ function stats_upgrade_options( $options ) {
 	);
 
 	if ( isset( $options['reg_users'] ) ) {
-		if ( ! function_exists( 'get_editable_roles' ) )
+		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
-		if ( $options['reg_users'] )
+		}
+		if ( $options['reg_users'] ) {
 			$options['count_roles'] = array_keys( get_editable_roles() );
+		}
 		unset( $options['reg_users'] );
 	}
 
-	if ( is_array( $options ) && ! empty( $options ) )
+	if ( is_array( $options ) && ! empty( $options ) ) {
 		$new_options = array_merge( $defaults, $options );
-	else
-		$new_options = $defaults;
+	} else { $new_options = $defaults;
+	}
 
 	$new_options['version'] = STATS_VERSION;
 
@@ -350,8 +355,9 @@ function stats_array( $kvs ) {
 	 */
 	$kvs = apply_filters( 'stats_array', $kvs );
 	$kvs = array_map( 'addslashes', $kvs );
-	foreach ( $kvs as $k => $v )
+	foreach ( $kvs as $k => $v ) {
 		$jskvs[] = "$k:'$v'";
+	}
 	return join( ',', $jskvs );
 }
 
@@ -414,7 +420,7 @@ function stats_reports_load() {
 	} else if ( ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) ) {
 			// Normal page load.  Load page content via JS.
 			add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
-		}
+	}
 }
 
 /**
@@ -436,6 +442,7 @@ function stats_reports_css() {
 </style>
 <?php
 }
+
 
 /**
  * Detect if JS is on.  If so, remove cookie so next page load is via JS.
@@ -477,15 +484,17 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 }
 
 /**
- * stats_reports_page function.
+ * Stats Report Page.
  *
  * @access public
- * @param bool $main_chart_only (default: false)
+ * @param bool $main_chart_only (default: false) Main Chart Only.
  * @return void
  */
 function stats_reports_page( $main_chart_only = false ) {
-	if ( isset( $_GET['dashboard'] ) )
+
+	if ( isset( $_GET['dashboard'] ) ) {
 		return stats_dashboard_widget_content();
+	}
 
 	$blog_id = stats_get_option( 'blog_id' );
 	$domain = Jetpack::build_raw_urls( get_home_url() );
@@ -493,11 +502,10 @@ function stats_reports_page( $main_chart_only = false ) {
 	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
 		$nojs_url = add_query_arg( 'nojs', '1' );
 		$http = is_ssl() ? 'https' : 'http';
-		// Loading message
-		// No JS fallback message
+		// Loading message. No JS fallback message.
 ?>
 <div class="wrap">
-	<h2><?php esc_html_e( 'Site Stats', 'jetpack'); ?> <?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?><a style="font-size:13px;" href="<?php echo esc_url( admin_url('admin.php?page=jetpack&configure=stats') ); ?>"><?php esc_html_e( 'Configure', 'jetpack'); ?></a><?php endif; ?></h2>
+	<h2><?php esc_html_e( 'Site Stats', 'jetpack' ); ?> <?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?><a style="font-size:13px;" href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack&configure=stats' ) ); ?>"><?php esc_html_e( 'Configure', 'jetpack' ); ?></a><?php endif; ?></h2>
 </div>
 <div id="stats-loading-wrap" class="wrap">
 <p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php
@@ -513,7 +521,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			 */
 			apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" )
 		); ?>" /></p>
-<p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo $domain; ?>" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
+<p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo esc_attr( $domain ); ?>" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
 <p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
 <a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without JavaScript', 'jetpack' ); ?></a>.</p>
 </div>
@@ -1382,7 +1390,7 @@ function stats_dashboard_widget_content() {
 }
 
 /**
- * stats_print_wp_remote_error function.
+ * Stats Print WP Remote Error.
  *
  * @access public
  * @param mixed $get Get.
@@ -1410,24 +1418,24 @@ function stats_print_wp_remote_error( $get, $url ) {
 	Page URL: "http<?php echo (is_ssl()?'s':'') . '://' . esc_html( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ); ?>"
 	API URL: "<?php echo esc_url( $url ); ?>"
 <?php
-	if ( is_wp_error( $get ) ) {
-		foreach ( $get->get_error_codes() as $code ) {
-			foreach ( $get->get_error_messages( $code ) as $message ) {
+if ( is_wp_error( $get ) ) {
+	foreach ( $get->get_error_codes() as $code ) {
+		foreach ( $get->get_error_messages( $code ) as $message ) {
 ?>
-	<?php print $code . ': "' . $message . '"' ?>
+<?php print $code . ': "' . $message . '"' ?>
 
 <?php
-			}
 		}
-	} else {
-		$get_code = wp_remote_retrieve_response_code( $get );
-		$content_length = strlen( wp_remote_retrieve_body( $get ) );
+	}
+} else {
+	$get_code = wp_remote_retrieve_response_code( $get );
+	$content_length = strlen( wp_remote_retrieve_body( $get ) );
 ?>
-	Response code: "<?php print $get_code ?>"
-	Content length: "<?php print $content_length ?>"
+Response code: "<?php print $get_code ?>"
+Content length: "<?php print $content_length ?>"
 
 <?php
-	}
+}
 	?></pre>
 	</div>
 	<?php
@@ -1437,8 +1445,8 @@ function stats_print_wp_remote_error( $get, $url ) {
  * Get stats from WordPress.com
  *
  * @param string $table The stats which you want to retrieve: postviews, or searchterms
- * @param array $args {
- *     An associative array of arguments.
+ * @param array  $args {
+ *      An associative array of arguments.
  *
  *      @type bool    $end        The last day of the desired time frame. Format is 'Y-m-d' (e.g. 2007-05-01)
  *                                and default timezone is UTC date. Default value is Now.
@@ -1475,43 +1483,50 @@ function stats_get_csv( $table, $args = null ) {
 
 	// Get cache.
 	$stats_cache = get_option( 'stats_cache' );
-	if ( !$stats_cache || ! is_array( $stats_cache ) )
+	if ( ! $stats_cache || ! is_array( $stats_cache ) ) {
 		$stats_cache = array();
+	}
 
 	// Return or expire this key.
-	if ( isset( $stats_cache[$key] ) ) {
-		$time = key( $stats_cache[$key] );
-		if ( time() - $time < 300 )
-			return $stats_cache[$key][$time];
-		unset( $stats_cache[$key] );
+	if ( isset( $stats_cache[ $key ] ) ) {
+		$time = key( $stats_cache[ $key ] );
+		if ( time() - $time < 300 ) {
+			return $stats_cache[ $key ][ $time ];
+		}
+		unset( $stats_cache[ $key ] );
 	}
 
 	$stats_rows = array();
 	do {
-		if ( ! $stats = stats_get_remote_csv( $stats_csv_url ) )
+		if ( ! $stats = stats_get_remote_csv( $stats_csv_url ) ) {
 			break;
+		}
 
 		$labels = array_shift( $stats );
 
-		if ( 0 === stripos( $labels[0], 'error' ) )
+		if ( 0 === stripos( $labels[0], 'error' ) ) {
 			break;
+		}
 
 		$stats_rows = array();
-		for ( $s = 0; isset( $stats[$s] ); $s++ ) {
+		for ( $s = 0; isset( $stats[ $s ] ); $s++ ) {
 			$row = array();
-			foreach ( $labels as $col => $label )
-				$row[$label] = $stats[$s][$col];
+			foreach ( $labels as $col => $label ) {
+				$row[ $label ] = $stats[ $s ][ $col ];
+			}
 			$stats_rows[] = $row;
 		}
 	} while ( 0 );
 
 	// Expire old keys.
-	foreach ( $stats_cache as $k => $cache )
-		if ( ! is_array( $cache ) || 300 < time() - key($cache) )
-			unset( $stats_cache[$k] );
+	foreach ( $stats_cache as $k => $cache ) {
+		if ( ! is_array( $cache ) || 300 < time() - key( $cache ) ) {
+			unset( $stats_cache[ $k ] );
+		}
+	}
 
 		// Set cache.
-		$stats_cache[$key] = array( time() => $stats_rows );
+		$stats_cache[ $key ] = array( time() => $stats_rows );
 	update_option( 'stats_cache', $stats_cache );
 
 	return $stats_rows;
@@ -1550,15 +1565,16 @@ function stats_str_getcsv( $csv ) {
 		$lines = str_getcsv( $csv, "\n" );
 		return array_map( 'str_getcsv', $lines );
 	}
-	if ( ! $temp = tmpfile() ) // The tmpfile() automatically unlinks.
+	if ( ! $temp = tmpfile() ) { // The tmpfile() automatically unlinks.
 		return false;
+	}
 
 	$data = array();
 
 	fwrite( $temp, $csv, strlen( $csv ) );
 	fseek( $temp, 0 );
-	while ( false !== $row = fgetcsv( $temp, 2000 ) )
-		$data[] = $row;
+	while ( false !== $row = fgetcsv( $temp, 2000 ) ) {		$data[] = $row;
+	}
 	fclose( $temp );
 
 	return $data;
@@ -1580,7 +1596,7 @@ function jetpack_stats_api_path( $resource = '' ) {
  *
  * @link: https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
  * @access public
- * @param array $args (default: array())  The args that are passed to the endpoint.
+ * @param array  $args (default: array())  The args that are passed to the endpoint.
  * @param string $resource (default: '') Optional sub-endpoint following /stats/.
  * @return array|WP_Error.
  */
