@@ -168,12 +168,8 @@ function add_text_to_parsed( &$parsed, $prefix, $start_line_number, $all_text ) 
 
 	// whitespace tokens may span multiple lines; we need to split them up so that the indentation goes on the next line
 	foreach ( explode( "\n", $all_text ) as $fragment ) {
-		// if explode gives us back an empty bit, that was just a \n without anything around it
-		if ( empty( $fragment ) ) {
-			$text = "\n";
-		} else {
-			$text = $fragment;
-		}
+		// each line needs to end with a newline to match the behavior of file()
+		$text = $fragment . "\n";
 
 		foreach ( $parsed as $lang => $lines ) {
 			// add the line to all the parsed arrays that start with $prefix
@@ -278,7 +274,19 @@ function vp_scan_file( $file, $tmp_file = null, $use_parser = false ) {
 				$lines = array_merge( $lines, range( $line - 1, $line + 1 ) );
 				if ( $use_parser ) {
 					$idx = array_search( $line, $line_indices_parsed );
-					$lines_parsed = array_merge( $lines_parsed, array( $line_indices_parsed[ $idx - 1 ], $line_indices_parsed[ $idx ], $line_indices_parsed[ $idx + 1 ] ) );
+
+					// we might be looking at the first or last line; for the non-parsed case, array_intersect_key
+					// handles this transparently below; for the parsed case, since we have another layer of
+					// indirection, we have to handle that case here
+					$idx_around = array();
+					if ( isset( $line_indices_parsed[ $idx - 1 ] ) ) {
+						$idx_around[] = $line_indices_parsed[ $idx - 1 ];
+					}
+					$idx_around[] = $line_indices_parsed[ $idx ];
+					if ( isset( $line_indices_parsed[ $idx + 1 ] ) ) {
+						$idx_around[] = $line_indices_parsed[ $idx + 1 ];
+					}
+					$lines_parsed = array_merge( $lines_parsed, $idx_around );
 				}
 			}
 			$details = array_intersect_key( $file_content, array_flip( $lines ) );
