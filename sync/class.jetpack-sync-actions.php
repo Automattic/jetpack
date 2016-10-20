@@ -1,5 +1,4 @@
 <?php
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -10,7 +9,6 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
-	const INITIAL_SYNC_MULTISITE_INTERVAL = 10;
 	const DEFAULT_SYNC_CRON_INTERVAL = '1min';
 
 	static function init() {
@@ -19,7 +17,7 @@ class Jetpack_Sync_Actions {
 		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
 
 		// On jetpack authorization, schedule a full sync
-		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ), 10, 0 );
+		add_action( 'jetpack_client_authorized', array( __CLASS__, 'do_full_sync' ), 10, 0 );
 
 		// When importing via cron, do not sync
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
@@ -95,16 +93,19 @@ class Jetpack_Sync_Actions {
 		) ) {
 			self::initialize_sender();
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
 		}
 
 	}
 
 	static function sync_allowed() {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' ) && Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
 	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
 		}
@@ -113,6 +114,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function set_is_importing_true() {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		Jetpack_Sync_Settings::set_importing( true );
 	}
 
@@ -158,7 +160,7 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
-	static function schedule_initial_sync( $new_version = null, $old_version = null ) {
+	static function do_initial_sync( $new_version = null, $old_version = null ) {
 		$initial_sync_config = array(
 			'options' => true,
 			'network_options' => true,
@@ -170,85 +172,18 @@ class Jetpack_Sync_Actions {
 			$initial_sync_config['users'] = 'initial';
 		}
 
-		// we need this function call here because we have to run this function
-		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
-		wp_functionality_constants();
-
-		if ( is_multisite() ) {
-			// stagger initial syncs for multisite blogs so they don't all pile on top of each other
-			$time_offset = ( rand() / getrandmax() ) * self::INITIAL_SYNC_MULTISITE_INTERVAL * get_blog_count();
-		} else {
-			$time_offset = 1;
-		}
-
-		self::schedule_full_sync(
-			$initial_sync_config,
-			$time_offset
-		);
-	}
-
-	static function schedule_full_sync( $modules = null, $time_offset = 1 ) {
-		if ( ! self::sync_allowed() ) {
-			return false;
-		}
-
-		if ( Jetpack_Sync_Settings::get_setting( 'avoid_wp_cron' ) ) {
-			// run queuing inline
-			set_time_limit( 0 );
-			self::do_full_sync( $modules );
-			return false;
-		}
-
-		if ( self::is_scheduled_full_sync() ) {
-			self::unschedule_all_full_syncs();
-		}
-
-		if ( $modules ) {
-			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full', array( $modules ) );
-		} else {
-			wp_schedule_single_event( time() + $time_offset, 'jetpack_sync_full' );
-		}
-
-		if ( $time_offset === 1 ) {
-			spawn_cron();
-		}
-
-		return true;
-	}
-
-	static function unschedule_all_full_syncs() {
-		foreach ( _get_cron_array() as $timestamp => $cron ) {
-			if ( ! empty( $cron['jetpack_sync_full'] ) ) {
-				foreach( $cron['jetpack_sync_full'] as $key => $config ) {
-					wp_unschedule_event( $timestamp, 'jetpack_sync_full', $config['args'] );
-				}
-			}
-		}
-	}
-
-	static function is_scheduled_full_sync( $modules = null ) {
-		if ( is_null( $modules ) ) {
-			$crons = _get_cron_array();
-
-			foreach ( $crons as $timestamp => $cron ) {
-				if ( ! empty( $cron['jetpack_sync_full'] ) ) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		return !! wp_next_scheduled( 'jetpack_sync_full', array( $modules ) );
+		self::do_full_sync( $initial_sync_config );
 	}
 
 	static function do_full_sync( $modules = null ) {
 		if ( ! self::sync_allowed() ) {
-			return;
+			return false;
 		}
 
 		self::initialize_listener();
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
-		self::do_cron_full_sync(); // immediately run a cron full sync, which sends pending data
+
+		return true;
 	}
 
 	static function minute_cron_schedule( $schedules ) {
@@ -398,4 +333,4 @@ if ( defined( 'ALTERNATE_WP_CRON' ) && ALTERNATE_WP_CRON ) {
 }
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'schedule_initial_sync' ), 10, 2 );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );

@@ -55,8 +55,6 @@ class Jetpack_Sync_Queue {
 			) );
 			$added      = ( 0 !== $rows_added );
 		}
-
-		do_action( 'jpsq_item_added' );
 	}
 
 	// Attempts to insert all the items in a single SQL query. May be subject to query size limits!
@@ -79,8 +77,6 @@ class Jetpack_Sync_Queue {
 		if ( count( $items ) === $rows_added ) {
 			return new WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
-
-		do_action( 'jpsq_items_added', $rows_added );
 	}
 
 	// Peek at the front-most item on the queue without checking it out

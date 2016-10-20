@@ -21,6 +21,7 @@ class Jetpack_Sync_Sender {
 	private $max_dequeue_time;
 	private $sync_wait_time;
 	private $sync_wait_threshold;
+	private $enqueue_wait_time;
 	private $sync_queue;
 	private $full_sync_queue;
 	private $codec;
@@ -57,7 +58,22 @@ class Jetpack_Sync_Sender {
 	}
 
 	public function do_full_sync() {
+		$this->continue_full_sync_enqueue();
 		return $this->do_sync_and_set_delays( $this->full_sync_queue );
+	}
+
+	private function continue_full_sync_enqueue() {
+		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+			return false;
+		}
+
+		if ( $this->get_next_sync_time( 'full-sync-enqueue' ) > microtime( true ) ) {
+			return false;
+		}
+
+		Jetpack_Sync_Modules::get_module( 'full-sync' )->continue_enqueuing();
+
+		$this->set_next_sync_time( time() + $this->get_enqueue_wait_time(), 'full-sync-enqueue' );
 	}
 
 	public function do_sync() {
@@ -272,6 +288,14 @@ class Jetpack_Sync_Sender {
 		return $this->sync_wait_time;
 	}
 
+	function set_enqueue_wait_time( $seconds ) {
+		$this->enqueue_wait_time = $seconds;
+	}
+
+	function get_enqueue_wait_time() {
+		return $this->enqueue_wait_time;
+	}
+
 	// in seconds
 	function set_sync_wait_threshold( $seconds ) {
 		$this->sync_wait_threshold = $seconds;
@@ -298,6 +322,7 @@ class Jetpack_Sync_Sender {
 		$this->set_upload_max_bytes( $settings['upload_max_bytes'] );
 		$this->set_upload_max_rows( $settings['upload_max_rows'] );
 		$this->set_sync_wait_time( $settings['sync_wait_time'] );
+		$this->set_sync_wait_time( $settings['enqueue_wait_time'] );
 		$this->set_sync_wait_threshold( $settings['sync_wait_threshold'] );
 		$this->set_max_dequeue_time( Jetpack_Sync_Defaults::get_max_sync_execution_time() );
 	}
