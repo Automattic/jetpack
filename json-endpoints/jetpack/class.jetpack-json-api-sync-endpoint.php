@@ -60,13 +60,13 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 		$queue       = $sender->get_sync_queue();
 		$full_queue  = $sender->get_full_sync_queue();
 		$cron_timestamps = array_keys( _get_cron_array() );
-		$cron_age = microtime( true ) - $cron_timestamps[0];
+		$next_cron = $cron_timestamps[0] - time();
 
 		return array_merge(
 			$sync_module->get_status(),
 			array(
 				'cron_size'             => count( $cron_timestamps ),
-				'oldest_cron'           => $cron_age,
+				'next_cron'             => $next_cron,
 				'queue_size'            => $queue->size(),
 				'queue_lag'             => $queue->lag(),
 				'queue_next_sync'       => ( $sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
