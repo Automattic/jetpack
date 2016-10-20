@@ -62,52 +62,60 @@ class Jetpack_Sitemap_Manager {
 	 * Side effect: add 'register_post_type' actions to 'init'.
 	 */
 	private function register_post_types () {
-		// Register 'jp_sitemap_master' post type
-		// Should only have one instance, with the contents of the main sitemap.xml file.
-		add_action( 'init', function () {
+		function register_sitemap_data ($type_name, $label, $slug) {
 			register_post_type(
-				'jp_sitemap_master',
+				$type_name,
 				array(
-					'labels' => array(
-						'name'          => __( 'Sitemap Masters', 'jetpack' ),
-						'singular_name' => __( 'Sitemap Master', 'jetpack' ),
-					),
+					'labels'      => array('name' => $label),
 					'public'      => true,
 					'has_archive' => true,
-					'rewrite'     => array('slug' => 'jetpack-sitemap-master'),
+					'rewrite'     => array('slug' => $slug),
 				)
 			);
-		}); 
+			return;
+		}
+
+		// Register 'jp_sitemap_master' post type
+		add_action( 'init', function () {
+			register_sitemap_data(
+				'jp_sitemap_master',
+				'Sitemap Master',
+				'jetpack-sitemap-master');
+		});
 
 		// Register 'jp_sitemap' post type
 		add_action( 'init', function () {
-			register_post_type(
+			register_sitemap_data(
 				'jp_sitemap',
-				array(
-					'labels' => array(
-						'name'          => __( 'Sitemaps', 'jetpack' ),
-						'singular_name' => __( 'Sitemap', 'jetpack' ),
-					),
-					'public'      => true,
-					'has_archive' => true,
-					'rewrite'     => array('slug' => 'jetpack-sitemap'),
-				)
+				'Sitemap',
+				'jetpack-sitemap'
 			);
-		}); 
+		});
 
 		// Register 'jp_sitemap_index' post type
 		add_action( 'init', function () {
-			register_post_type(
+			register_sitemap_data(
 				'jp_sitemap_index',
-				array(
-					'labels' => array(
-						'name'          => __( 'Sitemap Indices', 'jetpack' ),
-						'singular_name' => __( 'Sitemap Index', 'jetpack' ),
-					),
-					'public'      => true,
-					'has_archive' => true,
-					'rewrite'     => array('slug' => 'jetpack-sitemap-index'),
-				)
+				'Sitemap Index',
+				'jetpack-sitemap-index'
+			);
+		});
+
+		// Register 'jp_img_sitemap' post type
+		add_action( 'init', function () {
+			register_sitemap_data(
+				'jp_img_sitemap',
+				'Image Sitemap',
+				'jetpack-image-sitemap'
+			);
+		});
+
+		// Register 'jp_img_sitemap_index' post type
+		add_action( 'init', function () {
+			register_sitemap_data(
+				'jp_img_sitemap_index',
+				'Image Sitemap Index',
+				'jetpack-image-sitemap-index'
 			);
 		});
 
@@ -127,11 +135,16 @@ class Jetpack_Sitemap_Manager {
 			/** This filter is documented in modules/sitemaps/sitemaps.php */
 
 			// Regular expressions for sitemap URL routing
-			$sitemap_master_regex       = '/^\/sitemap\.xml$/';
-			$sitemap_regex              = '/^\/sitemap-[1-9][0-9]*\.xml$/';
-			$sitemap_index_regex        = '/^\/sitemap-index-[1-9][0-9]*\.xml$/';
-			$sitemap_style_regex        = '/^\/sitemap\.xsl$/';
-			$sitemap_index_style_regex  = '/^\/sitemap-index\.xsl$/';
+			$regex = array(
+				'master'        => '/^\/sitemap\.xml$/',
+				'sitemap'       => '/^\/sitemap-[1-9][0-9]*\.xml$/',
+				'index'         => '/^\/sitemap-index-[1-9][0-9]*\.xml$/',
+				'sitemap-style' => '/^\/sitemap\.xsl$/',
+				'index-style'   => '/^\/sitemap-index\.xsl$/',
+				'image'         => '/^\/image-sitemap-[1-9][0-9]*\.xml$/',
+				'image-index'   => '/^\/image-sitemap-index-[1-9][0-9]*\.xml$/',
+				'image-style'   => '/^\/image-sitemap\.xsl$/',
+			);
 
 			/**
 			 * Echo a raw string of given content-type.
@@ -150,8 +163,8 @@ class Jetpack_Sitemap_Manager {
 				die();
 			}
 
-			// Catch master sitemap
-			if ( preg_match( $sitemap_master_regex, $_SERVER['REQUEST_URI']) ) {
+			// Catch master sitemap xml
+			if ( preg_match( $regex['master'], $_SERVER['REQUEST_URI']) ) {
 				serve_raw_and_die(
 					'application/xml',
 					$this->get_contents_of_post(
@@ -161,8 +174,8 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 
-			// Catch sitemap
-			if ( preg_match( $sitemap_regex, $_SERVER['REQUEST_URI']) ) {
+			// Catch sitemap xml
+			if ( preg_match( $regex['sitemap'], $_SERVER['REQUEST_URI']) ) {
 				serve_raw_and_die(
 					'application/xml',
 					$this->get_contents_of_post(
@@ -172,8 +185,8 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 
-			// Catch sitemap index
-			if ( preg_match( $sitemap_index_regex, $_SERVER['REQUEST_URI']) ) {
+			// Catch sitemap index xml
+			if ( preg_match( $regex['index'], $_SERVER['REQUEST_URI']) ) {
 				serve_raw_and_die(
 					'application/xml',
 					$this->get_contents_of_post(
@@ -183,19 +196,41 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 
-			// Catch sitemap style
-			if ( preg_match( $sitemap_style_regex, $_SERVER['REQUEST_URI']) ) {
+			// Catch sitemap xsl
+			if ( preg_match( $regex['sitemap-style'], $_SERVER['REQUEST_URI']) ) {
 				serve_raw_and_die(
 					'text/xml',
 					$this->sitemap_xsl()
 				);
 			}
 
-			// Catch sitemap index style
-			if ( preg_match( $sitemap_index_style_regex, $_SERVER['REQUEST_URI']) ) {
+			// Catch sitemap index xsl
+			if ( preg_match( $regex['index-style'], $_SERVER['REQUEST_URI']) ) {
 				serve_raw_and_die(
 					'text/xml',
 					$this->sitemap_index_xsl()
+				);
+			}
+
+			// Catch image sitemap xml
+			if ( preg_match( $regex['image'], $_SERVER['REQUEST_URI']) ) {
+				serve_raw_and_die(
+					'application/xml',
+					$this->get_contents_of_post(
+						substr($_SERVER['REQUEST_URI'], 1, -4),
+						'jp_img_sitemap'
+					)
+				);
+			}
+
+			// Catch image sitemap index xml
+			if ( preg_match( $regex['image-index'], $_SERVER['REQUEST_URI']) ) {
+				serve_raw_and_die(
+					'application/xml',
+					$this->get_contents_of_post(
+						substr($_SERVER['REQUEST_URI'], 1, -4),
+						'jp_img_sitemap_index'
+					)
 				);
 			}
 
@@ -607,7 +642,7 @@ class Jetpack_Sitemap_Manager {
 						'jetpack'
 					),
 					'http://jetpack.com/',
-					'https://www.google.com',
+					'https://www.google.com/',
 					'https://www.bing.com/'
 				)
 			),
@@ -719,11 +754,11 @@ XSL;
 			ent2ncr(
 				sprintf(
 					__(
-						'This is an XML Sitemap Index generated by <a href="%s" target="_blank">Jetpack</a>, meant to be consumed by search engines like <a href="%s" target="_blank">Google</a> or <a href="%s" target="_blank">Bing</a>.',
+						'This is an XML Sitemap Index generated by <a href="%1$s" target="_blank">Jetpack</a>, meant to be consumed by search engines like <a href="%2$s" target="_blank">Google</a> or <a href="%3$s" target="_blank">Bing</a>.',
 						'jetpack'
 					),
 					'http://jetpack.com/',
-					'https://www.google.com',
+					'https://www.google.com/',
 					'https://www.bing.com/'
 				)
 			),
@@ -792,7 +827,7 @@ $css
         <th>$header_url</th>
         <th>$header_lastmod</th>
       </tr>
-      <xsl:for-each select="sitemap:sitemapindex/sitemap:sitemap">
+      <xsl:for-each select='sitemap:sitemapindex/sitemap:sitemap'>
         <tr>
           <xsl:choose>
             <xsl:when test='position() mod 2 != 1'>
@@ -829,7 +864,8 @@ XSL;
 
 
 	/**
-	 *
+	 * The CSS to be included in sitemap xsl stylesheets;
+	 * factored out for uniformity.
 	 */
 	private function sitemap_xsl_css () {
 		return <<<CSS
