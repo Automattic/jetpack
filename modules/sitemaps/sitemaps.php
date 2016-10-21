@@ -28,7 +28,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/
 	 */
-	const SITEMAP_MAX_ITEMS = 20; // 50k
+	const SITEMAP_MAX_ITEMS = 5000; // 50k
 
 
 
@@ -279,48 +279,42 @@ class Jetpack_Sitemap_Manager {
 	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
 	 */
 	private function generate_sitemap ( $sitemap_number, $from_ID ) {
-		$buffer = '';
-		$buffer_size_in_bytes = 0;
-		$buffer_size_in_items = 0;
 		$last_post_ID = $from_ID;
-		$last_modified = '1970-01-01T00:00Z'; // Epoch
+		$any_posts_left = true;
 
-		// Flags
-		$buffer_too_big = False;
-		$any_posts_left = True;
+		$buffer = new Jetpack_Sitemap_Buffer(
+			self::SITEMAP_MAX_ITEMS,
+			self::SITEMAP_MAX_BYTES,
 
-		$open_xml =
+			/* open tag */
 			"<?xml version='1.0' encoding='UTF-8'?>\n" .
 			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap.xsl" . "'?>\n" .
-			"<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n";
+			"<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n",
 
-		$close_xml =
-			"</urlset>\n";
+			/* close tag */
+			"</urlset>\n",
 
-		$main_url =
-			"<url>\n" .
-			" <loc>" . site_url() . "</loc>\n" .
-			"</url>\n";
-
-		// Add header part to buffer.
-		$buffer .= $open_xml;
-		$buffer_size_in_bytes += mb_strlen($open_xml) + mb_strlen($close_xml);
+			/* epoch */
+			'1970-01-01T00:00Z'
+		);
 
 		// Add entry for the main page (only if we're at the first one)
 		if ( 1 == $sitemap_number ) {
-			$buffer .= $main_url;
-			$buffer_size_in_items += 1;
-			$buffer_size_in_bytes += mb_strlen($main_url);
+			$buffer->try_to_add_item(
+				"<url>\n" .
+				" <loc>" . site_url() . "</loc>\n" .
+				"</url>\n"
+			);
 		}
 
 		// Until the buffer is too large,
-		while ( False == $buffer_too_big ) {
-			// Retrieve a batch of posts (in order)
+		while ( false == $buffer->is_full() ) {
+			// Retrieve a batch of posts (in order).
 			$posts = $this->get_published_posts_after_ID($last_post_ID, 1000);
 
 			// If there were no posts to get, make note and quit trying to fill the buffer.
 			if (null == $posts) {
-				$any_posts_left = False;
+				$any_posts_left = false;
 				break;
 			}
 
@@ -328,37 +322,25 @@ class Jetpack_Sitemap_Manager {
 			foreach ($posts as $post) {
 				// Generate the sitemap XML for the post.
 				$current_item = $this->post_to_sitemap_item($post);
-	
-				// Update the size of the buffer.
-				$buffer_size_in_bytes += mb_strlen($current_item['xml']);
-				$buffer_size_in_items += 1;
 
-				// If adding this item to the buffer doesn't make it too large,
-				if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
-				     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
-					// Add it and update the current post ID.
+				// If we can add it to the buffer,
+				if ( true == $buffer->try_to_add_item($current_item['xml']) ) {
+					// Update the current post ID and timestamp.
 					$last_post_ID = $post->ID;
-					$buffer .= $current_item['xml'];
-					if ( strtotime($last_modified) < strtotime($current_item['last_modified']) ) {
-						$last_modified = $current_item['last_modified'];
-					}
+					$buffer->view_time($current_item['last_modified']);
 				} else {
-					// Otherwise, note that the buffer is too large and stop looping through posts.
-					$buffer_too_big = True;
+					// Otherwise stop looping through posts.
 					break;
 				}
 			}
 		}
 
-		// Once the buffer is full, add the footer part.
-		$buffer .= $close_xml;
-
 		// Store the buffer as the content of a jp_sitemap post.
 		$this->set_contents_of_post(
 			'sitemap-' . $sitemap_number,
 			'jp_sitemap',
-			$buffer,
-			$last_modified
+			$buffer->contents(),
+			$buffer->last_modified()
 		);
 
 		/*
@@ -1142,27 +1124,35 @@ new Jetpack_Sitemap_Manager();
 
 
 
+
+
 class Jetpack_Sitemap_Buffer {
 	private $item_capacity;
 	private $byte_capacity;
 	private $footer_text;
 	private $buffer;
+	private $is_full_flag; // True if we've tried to add something and failed.
+	private $timestamp;
 
 	public function __construct(
 		$item_limit = 10,
-		$byte_limit = 10485760,
+		$byte_limit = 10485760, // 10MB
 		$header = '',
-		$footer = ''
+		$footer = '',
+		$time
 	) {
 		$this->item_capacity = $item_limit;
 		$this->byte_capacity = $byte_limit - mb_strlen($open) - mb_strlen($close);
 		$this->footer_text = $footer;
 		$this->buffer = $header;
+		$this->is_full_flag = false;
+		$this->timestamp = $time;
 		return;
 	}
 
 	public function try_to_add_item($item) {
 		if ($this->item_capacity - 1 <= 0 || $this->byte_capacity - mb_strlen($item) <= 0) {
+			$this->is_full_flag = true;
 			return false;
 		} else {
 			$this->item_capacity -= 1;
@@ -1174,5 +1164,20 @@ class Jetpack_Sitemap_Buffer {
 
 	public function contents() {
 		return $this->buffer . $this->footer_text;
+	}
+
+	public function is_full() {
+		return $this->is_full_flag;
+	}
+
+	public function view_time($new_time) {
+		if ( strtotime($this->timestamp) < strtotime($new_time) ) {
+			$this->timestamp = $newtime;
+		}
+		return;
+	}
+
+	public function last_modified() {
+		return $this->timestamp;
 	}
 }
