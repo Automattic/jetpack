@@ -28,7 +28,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/
 	 */
-	const SITEMAP_MAX_ITEMS = 50000; // 50k
+	const SITEMAP_MAX_ITEMS = 10; // 50k
 
 
 
@@ -370,7 +370,7 @@ class Jetpack_Sitemap_Manager {
 		$last_sitemap_ID = $from_ID;
 		$any_sitemaps_left = true;
 
-		$bufr = new Jetpack_Sitemap_Buffer(
+		$buffer = new Jetpack_Sitemap_Buffer(
 			self::SITEMAP_MAX_ITEMS,
 			self::SITEMAP_MAX_BYTES,
 
@@ -390,7 +390,7 @@ class Jetpack_Sitemap_Manager {
 		// Add pointer to the previous sitemap index (unless we're at the first one)
 		if ( 1 != $sitemap_index_position ) {
 			$i = $sitemap_index_position - 1;
-			$bufr->try_to_add_item(
+			$buffer->try_to_add_item(
 				"<sitemap>\n" .
  				" <loc>" . site_url() . "/sitemap-index-$i.xml</loc>\n" .
 				" <lastmod>$timestamp</lastmod>\n" .
@@ -399,7 +399,7 @@ class Jetpack_Sitemap_Manager {
 		}
 
 		// Until the buffer is too large,
-		while ( false == $bufr->is_full() ) {
+		while ( false == $buffer->is_full() ) {
 			// Retrieve a batch of posts (in order)
 			$posts = $this->get_sitemap_posts_after_ID($last_sitemap_ID, 1000);
 
@@ -415,10 +415,10 @@ class Jetpack_Sitemap_Manager {
 				$current_item = $this->sitemap_to_index_item($post);
 
 				// If adding this item to the buffer doesn't make it too large,
-				if ( true == $bufr->try_to_add_item($current_item['xml']) ) {
+				if ( true == $buffer->try_to_add_item($current_item['xml']) ) {
 					// Add it and update the last sitemap ID.
 					$last_sitemap_ID = $post->ID;
-					$bufr->view_time($current_item['last_modified']);
+					$buffer->view_time($current_item['last_modified']);
 				} else {
 					// Otherwise stop looping through posts.
 					break;
@@ -430,8 +430,8 @@ class Jetpack_Sitemap_Manager {
 		$this->set_contents_of_post(
 			'sitemap-index-' . $sitemap_index_position,
 			'jp_sitemap_index',
-			$bufr->contents(),
-			$bufr->last_modified()
+			$buffer->contents(),
+			$buffer->last_modified()
 		);
 
 		/*
@@ -442,7 +442,7 @@ class Jetpack_Sitemap_Manager {
 		return array(
 			'last_sitemap_ID'   => $last_sitemap_ID,
 			'any_sitemaps_left' => $any_sitemaps_left,
-		  'last_modified'     => $bufr->last_modified()
+		  'last_modified'     => $buffer->last_modified()
 		);
 	}
 
