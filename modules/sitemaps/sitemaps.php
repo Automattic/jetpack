@@ -1139,3 +1139,40 @@ CSS;
 } // End Jetpack_Sitemap_Manager class
 
 new Jetpack_Sitemap_Manager();
+
+
+
+class Jetpack_Sitemap_Buffer {
+	private $item_capacity;
+	private $byte_capacity;
+	private $footer_text;
+	private $buffer;
+
+	public function __construct(
+		$item_limit = 10,
+		$byte_limit = 10485760,
+		$header = '',
+		$footer = ''
+	) {
+		$this->item_capacity = $item_limit;
+		$this->byte_capacity = $byte_limit - mb_strlen($open) - mb_strlen($close);
+		$this->footer_text = $footer;
+		$this->buffer = $header;
+		return;
+	}
+
+	public function try_to_add_item($item) {
+		if ($this->item_capacity - 1 <= 0 || $this->byte_capacity - mb_strlen($item) <= 0) {
+			return false;
+		} else {
+			$this->item_capacity -= 1;
+			$this->byte_capacity -= mb_strlen($item);
+			$this->buffer .= $item;
+			return true;
+		}
+	}
+
+	public function contents() {
+		return $this->buffer . $this->footer_text;
+	}
+}
