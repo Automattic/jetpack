@@ -28,7 +28,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/
 	 */
-	const SITEMAP_MAX_ITEMS = 5000; // 50k
+	const SITEMAP_MAX_ITEMS = 5; // 50k
 
 
 
@@ -295,7 +295,7 @@ class Jetpack_Sitemap_Manager {
 			"</urlset>\n",
 
 			/* epoch */
-			'1970-01-01T00:00Z'
+			strtotime('1970-01-01 00:00:00')
 		);
 
 		// Add entry for the main page (only if we're at the first one)
@@ -364,54 +364,48 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @param int $sitemap_index_position The number of the current sitemap index.
 	 * @param int $from_ID The greatest lower bound of the IDs of the sitemaps to be included.
-	 * @param string $timestamp Last modification time of previous sitemap.
+	 * @param string $timestamp Last modification time of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	private function generate_sitemap_index ( $sitemap_index_position, $from_ID, $timestamp ) {
-		$buffer = '';
-		$buffer_size_in_bytes = 0;
-		$buffer_size_in_items = 0;
 		$last_sitemap_ID = $from_ID;
-		$last_modified = $timestamp;
+		$any_sitemaps_left = true;
 
-		// Flags
-		$buffer_too_big = False;
-		$any_sitemaps_left = True;
+		$bufr = new Jetpack_Sitemap_Buffer(
+			self::SITEMAP_MAX_ITEMS,
+			self::SITEMAP_MAX_BYTES,
 
-		$open_xml =
+			/* open tag */
 			"<?xml version='1.0' encoding='UTF-8'?>\n" .
 			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
 			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap-index.xsl" . "'?>\n" .
-			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n";
+			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n",
 
-		$close_xml =
-			"</sitemapindex>\n";
+			/* close tag */
+			"</sitemapindex>\n",
 
-		$prev_index = $sitemap_index_position - 1;
-		$forward_pointer =
-			"<sitemap>\n" .
- 			" <loc>" . site_url() . "/sitemap-index-$prev_index.xml</loc>\n" .
-			" <lastmod>$timestamp</lastmod>\n" .
-			"</sitemap>\n";
-
-		// Add header part to buffer (and account for the size of the footer).
-		$buffer .= $open_xml;
-		$buffer_size_in_bytes += mb_strlen($open_xml) + mb_strlen($close_xml);
+			/* initial last_modified value */
+			$timestamp
+		);
 
 		// Add pointer to the previous sitemap index (unless we're at the first one)
 		if ( 1 != $sitemap_index_position ) {
-			$buffer .= $forward_pointer;
-			$buffer_size_in_items += 1;
-			$buffer_size_in_bytes += mb_strlen($forward_pointer);
+			$i = $sitemap_index_position - 1;
+			$bufr->try_to_add_item(
+				"<sitemap>\n" .
+ 				" <loc>" . site_url() . "/sitemap-index-$i.xml</loc>\n" .
+				" <lastmod>$timestamp</lastmod>\n" .
+				"</sitemap>\n"
+			);
 		}
 
 		// Until the buffer is too large,
-		while ( False == $buffer_too_big ) {
+		while ( false == $bufr->is_full() ) {
 			// Retrieve a batch of posts (in order)
 			$posts = $this->get_sitemap_posts_after_ID($last_sitemap_ID, 1000);
 
 			// If there were no posts to get, make a note.
 			if (null == $posts) {
-				$any_sitemaps_left = False;
+				$any_sitemaps_left = false;
 				break;
 			}
 
@@ -420,36 +414,24 @@ class Jetpack_Sitemap_Manager {
 				// Generate the sitemap XML for the post.
 				$current_item = $this->sitemap_to_index_item($post);
 
-				// Update the size of the buffer.
-				$buffer_size_in_items += 1;
-				$buffer_size_in_bytes += mb_strlen($current_item['xml']);
-
 				// If adding this item to the buffer doesn't make it too large,
-				if ( $buffer_size_in_items <= self::SITEMAP_MAX_ITEMS &&
-				     $buffer_size_in_bytes <= self::SITEMAP_MAX_BYTES ) {
+				if ( true == $bufr->try_to_add_item($current_item['xml']) ) {
 					// Add it and update the last sitemap ID.
 					$last_sitemap_ID = $post->ID;
-					$buffer .= $current_item['xml'];
-					if ( strtotime($last_modified) < strtotime($current_item['last_modified']) ) {
-						$last_modified = $current_item['last_modified'];
-					}
+					$bufr->view_time($current_item['last_modified']);
 				} else {
-					// Otherwise, note that the buffer is too large and stop looping through posts.
-					$buffer_too_big = True;
+					// Otherwise stop looping through posts.
 					break;
 				}
 			}
 		}
 
-		// Once the buffer is full, add the footer part.
-		$buffer .= $close_xml;
-
 		// Store the buffer as the content of a jp_sitemap_index post.
 		$this->set_contents_of_post(
 			'sitemap-index-' . $sitemap_index_position,
 			'jp_sitemap_index',
-			$buffer,
-			$last_modified
+			$bufr->contents(),
+			$bufr->last_modified()
 		);
 
 		/*
@@ -460,7 +442,7 @@ class Jetpack_Sitemap_Manager {
 		return array(
 			'last_sitemap_ID'   => $last_sitemap_ID,
 			'any_sitemaps_left' => $any_sitemaps_left,
-		  'last_modified'     => $last_modified
+		  'last_modified'     => $bufr->last_modified()
 		);
 	}
 
@@ -504,18 +486,18 @@ class Jetpack_Sitemap_Manager {
 		// Otherwise, we have to generate sitemap indices.
 		$sitemap_ID = 0;
 		$sitemap_index_number = 1;
-		$last_modified = '01-01-1970T00:00:00'; // Epoch
+		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
 		$any_sitemaps_left = True;
 
 		// Generate sitemap indices until no sitemaps remain.
-		while ( True == $any_sitemaps_left ) {
+		while ( true == $any_sitemaps_left ) {
 			$result = $this->generate_sitemap_index(
 				$sitemap_index_number,
 				$sitemap_ID,
 				$last_modified
 			);
 
-			if ( True == $result['any_sitemaps_left'] ) {
+			if ( true == $result['any_sitemaps_left'] ) {
 				$sitemap_ID = $result['last_sitemap_ID'];
 				$sitemap_index_number += 1;
 				$last_modified = $result['last_modified'];
@@ -556,7 +538,7 @@ class Jetpack_Sitemap_Manager {
 		 * Must use W3C Datetime format per the spec.
 		 * https://www.w3.org/TR/NOTE-datetime
 		 */ 
-		$last_modified = str_replace( ' ', 'T', $post->post_modified_gmt) . 'Z';
+		$last_modified = str_replace( ' ', 'T', $post->post_date) . 'Z';
 
 		/*
 		 * Spec requires the URL to be <=2048 bytes.
@@ -574,7 +556,7 @@ class Jetpack_Sitemap_Manager {
 
 		return array(
 			'xml'           => $xml,
-			'last_modified' => $last_modified
+			'last_modified' => $post->post_date
 		);
 	}
 
@@ -608,7 +590,7 @@ class Jetpack_Sitemap_Manager {
 
 		return array(
 			'xml'           => $xml,
-			'last_modified' => $last_modified
+			'last_modified' => $post->post_date
 		);
 	}
 
@@ -1072,7 +1054,7 @@ CSS;
 	 * @param string $title Post title.
 	 * @param string $type Post type.
 	 * @param string $contents The string being stored.
-	 * @param string $timestamp Timestamp
+	 * @param string $timestamp Timestamp in 'TTTT-MM-DD hh:mm:ss' format
 	 */
 	private function set_contents_of_post ($title, $type, $contents, $timestamp) {
 		$the_post = get_page_by_title( $title, 'OBJECT', $type );
@@ -1083,7 +1065,7 @@ CSS;
 				'post_title'   => $title,
 				'post_content' => esc_html($contents),
 				'post_type'    => $type,
-				'post_date'    => $timestamp,
+				'post_date'    => date('Y-m-d H:i:s', strtotime($timestamp))
 			));
 		} else {
 			// Post does exist.
@@ -1092,7 +1074,7 @@ CSS;
 				'post_title'   => $title,
 				'post_content' => esc_html($contents),
 				'post_type'    => $type,
-				'post_date'    => $timestamp,
+				'post_date'    => date('Y-m-d H:i:s', strtotime($timestamp))
 			));
 		}
 
@@ -1135,7 +1117,7 @@ class Jetpack_Sitemap_Buffer {
 	private $footer_text;
 	private $buffer;
 	private $is_full_flag; // True if we've tried to add something and failed.
-	private $timestamp;
+	private $timestamp; // 'YYYY-MM-DD hh:mm:ss'
 
 	public function __construct(
 		$item_limit = 50000,    // 50k
@@ -1154,7 +1136,7 @@ class Jetpack_Sitemap_Buffer {
 	}
 
 	public function try_to_add_item($item) {
-		if ($this->item_capacity - 1 <= 0 || $this->byte_capacity - mb_strlen($item) <= 0) {
+		if ($this->item_capacity <= 0 || $this->byte_capacity - mb_strlen($item) <= 0) {
 			$this->is_full_flag = true;
 			return false;
 		} else {
@@ -1175,7 +1157,7 @@ class Jetpack_Sitemap_Buffer {
 
 	public function view_time($new_time) {
 		if ( strtotime($this->timestamp) < strtotime($new_time) ) {
-			$this->timestamp = $newtime;
+			$this->timestamp = $new_time;
 		}
 		return;
 	}
