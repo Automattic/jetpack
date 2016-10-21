@@ -496,7 +496,7 @@ class Share_Email extends Sharing_Source {
 
 			<?php endif; ?>
 			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" />
-			<script> document.getElementById('jetpack-source_f_name').value = ''; </script>
+			<script>jQuery( document ).ready( function(){ document.getElementById('jetpack-source_f_name').value = '' });</script>
 			<?php
 				/**
 				 * Fires when the Email sharing dialog is loaded.
