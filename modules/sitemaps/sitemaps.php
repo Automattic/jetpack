@@ -28,7 +28,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/
 	 */
-	const SITEMAP_MAX_ITEMS = 5; // 50k
+	const SITEMAP_MAX_ITEMS = 50000; // 50k
 
 
 
