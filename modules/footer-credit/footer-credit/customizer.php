@@ -12,19 +12,19 @@
 */
 function footercredits_register( $wp_customize ) {
 	// only provide option to certain theme / site types
-	if ( wpcom_is_vip_theme() || is_automattic() || wpcom_is_a8c_theme() ) {
-		return;
-	}
+//	if ( wpcom_is_vip_theme() || is_automattic() || wpcom_is_a8c_theme() ) {
+//		return;
+//	}
 
 	class WP_Customize_Footercredit_Select extends WP_Customize_Control {
 		public $type = 'footercredit_select';
 
 		public function enqueue() {
-			$plan = WPCOM_Store::get_subscribed_bundle_product_id_for_blog();
-			if ( ! in_array( $plan, array( WPCOM_BUSINESS_BUNDLE ) ) ) {
+//			$plan = WPCOM_Store::get_subscribed_bundle_product_id_for_blog();
+//			if ( ! in_array( $plan, array( WPCOM_BUSINESS_BUNDLE ) ) ) {
 				wp_enqueue_script( 'footercredit-control', plugins_url( 'js/control.js', __FILE__ ), array( 'jquery' ), false, true );
 				wp_enqueue_style( 'footercredit-control-styles', plugins_url( 'css/control.css', __FILE__ ), array() );
-			}
+//			}
 		}
 
 		public function render_content() {

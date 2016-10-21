@@ -211,9 +211,9 @@ function better_wpcom_link_workarounds_init() {
 add_action( 'init', 'better_wpcom_link_workarounds_init' );
 
 // Enable filters Infinite Scroll footer conntent, except VIP sites.
-if ( ! wpcom_is_vip() ) {
+//if ( ! wpcom_is_vip() ) {
 	add_filter( 'infinite_scroll_credit', 'wpcom_better_footer_links' );
-}
+//}
 
 /**
  * Filters the default footer credits regex.
