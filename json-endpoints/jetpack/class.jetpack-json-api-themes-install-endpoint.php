@@ -48,6 +48,18 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			return new WP_Error( 'missing_themes', __( 'No themes found.', 'jetpack' ) );
 		}
 		foreach( $this->themes as $index => $theme ) {
+			$prefixed_theme = explode( 'wpcom:', $theme );
+			if ( $prefixed_theme ) {
+				// install from wpcom
+				$wpcom_theme_slug = $prefixed_theme[0];
+
+				if ( self::is_installed_theme( $wpcom_theme_slug ) ) {
+					return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
+				}
+				$url = "https://public-api.wordpress.com/rest/v1/themes/download/$wpcom_theme_slug";
+				$this->download_links[ $theme ] = $url;
+				continue;
+			}
 
 			if ( self::is_installed_theme( $theme ) ) {
 				return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
