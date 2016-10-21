@@ -18,7 +18,7 @@ class Google_Translate_Widget extends WP_Widget {
 			__( 'Google Translate (Jetpack)', 'jetpack' ), 
 			array( 'description' => __( 'Automatic translation of your site content', 'jetpack' ), ) 
 		);
-		wp_register_script( 'google-translate-init', plugins_url( 'google-translate.js', __FILE__ ) );
+		wp_register_script( 'google-translate-init', plugins_url( 'google-translate/google-translate.js', __FILE__ ) );
 		wp_register_script( 'google-translate', '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit', [ 'google-translate-init' ] );
 	}
 
