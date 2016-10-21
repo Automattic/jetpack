@@ -1,0 +1,22 @@
+.footercredit-upgrade-link {
+	display: block;
+	margin-top: 8px;
+	padding: 9px 5px 8px 8px;
+	background: #fff;
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+	border-left: 3px solid #f0b849;
+	color: #2e4453;
+}
+
+.footercredit-upgrade-link .dashicons {
+	background: #f0b849;
+	border-radius: 50%;
+	color: #fff;
+	font-size: 12px;
+	margin-right: 2px;
+}
+
+.footercredit-upgrade-link .dashicons:before {
+	position: relative;
+	top: 3px;
+}
