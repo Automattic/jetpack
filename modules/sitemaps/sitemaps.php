@@ -364,7 +364,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @param int $sitemap_index_position The number of the current sitemap index.
 	 * @param int $from_ID The greatest lower bound of the IDs of the sitemaps to be included.
-	 * @param string $timestamp Last modification time of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
+	 * @param string $timestamp Timestamp of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	private function generate_sitemap_index ( $sitemap_index_position, $from_ID, $timestamp ) {
 		$last_sitemap_ID = $from_ID;
@@ -1146,7 +1146,7 @@ class Jetpack_Sitemap_Buffer {
 		$time
 	) {
 		$this->item_capacity = $item_limit;
-		$this->byte_capacity = $byte_limit - mb_strlen($open) - mb_strlen($close);
+		$this->byte_capacity = $byte_limit - mb_strlen($header) - mb_strlen($footer);
 		$this->footer_text = $footer;
 		$this->buffer = $header;
 		$this->is_full_flag = false;
