@@ -17,7 +17,7 @@ import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
 import { userCanViewStats as _userCanViewStats } from 'state/initial-state';
 
-const Navigation = React.createClass( {
+export const Navigation = React.createClass( {
 	render: function() {
 		let navTabs;
 		if ( this.props.userCanManageModules ) {
