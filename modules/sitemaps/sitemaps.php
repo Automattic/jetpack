@@ -24,7 +24,7 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
-	 * Maximum size (in items) of a sitemap xml file.
+	 * Maximum size (in url nodes) of a sitemap xml file.
 	 *
 	 * @link http://www.sitemaps.org/
 	 */
@@ -665,7 +665,7 @@ class Jetpack_Sitemap_Manager {
 
 		$css = $this->sitemap_xsl_css();
 
-		$xsl = <<<XSL
+		return <<<XSL
 <?xml version='1.0' encoding='UTF-8'?>
 <xsl:stylesheet version='2.0'
   xmlns:html='http://www.w3.org/TR/REC-html40'
@@ -690,6 +690,7 @@ $css
   <div id='content'>
     <table>
       <tr>
+        <th>#</th>
         <th>$header_url</th>
         <th>$header_lastmod</th>
       </tr>
@@ -700,6 +701,9 @@ $css
               <xsl:attribute name="class">odd</xsl:attribute>
             </xsl:when>
           </xsl:choose>
+          <td>
+            <xsl:value-of select = "position()" />
+          </td>
           <td>
             <xsl:variable name='itemURL'>
               <xsl:value-of select='sitemap:loc'/>
@@ -723,8 +727,6 @@ $css
 </xsl:template>
 </xsl:stylesheet>\n
 XSL;
-
-		return $xsl;
 	}
 
 
@@ -781,7 +783,7 @@ XSL;
 
 		$css = $this->sitemap_xsl_css();
 
-		$xsl = <<<XSL
+		return <<<XSL
 <?xml version='1.0' encoding='UTF-8'?>
 <xsl:stylesheet version='2.0'
   xmlns:html='http://www.w3.org/TR/REC-html40'
@@ -839,8 +841,6 @@ $css
 </xsl:template>
 </xsl:stylesheet>\n
 XSL;
-
-		return $xsl;
 	}
 
 
@@ -1126,6 +1126,9 @@ new Jetpack_Sitemap_Manager();
 
 
 
+/**
+ *
+ */
 class Jetpack_Sitemap_Buffer {
 	private $item_capacity;
 	private $byte_capacity;
@@ -1135,7 +1138,7 @@ class Jetpack_Sitemap_Buffer {
 	private $timestamp;
 
 	public function __construct(
-		$item_limit = 10,
+		$item_limit = 50000,    // 50k
 		$byte_limit = 10485760, // 10MB
 		$header = '',
 		$footer = '',
