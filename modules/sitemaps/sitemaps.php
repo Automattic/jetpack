@@ -803,6 +803,7 @@ $css
   <div id='content'>
     <table>
       <tr>
+        <th>#</th>
         <th>$header_url</th>
         <th>$header_lastmod</th>
       </tr>
@@ -813,6 +814,9 @@ $css
               <xsl:attribute name="class">odd</xsl:attribute>
             </xsl:when>
           </xsl:choose>
+          <td>
+            <xsl:value-of select = "position()" />
+          </td>
           <td>
             <xsl:variable name='itemURL'>
               <xsl:value-of select='sitemap:loc'/>
