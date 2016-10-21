@@ -46,6 +46,8 @@ class Jetpack_Carousel {
 			add_action( 'wp_ajax_nopriv_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
 			add_action( 'wp_ajax_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
+			// TODO: add setting checkbox for "single_image_linked_to_self", check for it here
+			add_filter( 'image_send_to_editor', array( $this, 'handle_single_image' ), 10, 8 );
 		} else {
 			if ( ! $this->in_jetpack ) {
 				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) )
@@ -71,6 +73,16 @@ class Jetpack_Carousel {
 		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
 			Jetpack::enable_module_configurable( dirname( dirname( __FILE__ ) ) . '/carousel.php' );
 			Jetpack::module_configuration_load( dirname( dirname( __FILE__ ) ) . '/carousel.php', array( $this, 'jetpack_configuration_load' ) );
+		}
+	}
+
+	function handle_single_image( $html, $id, $caption, $title, $align, $url, $size, $alt ) {
+		$url_without_extension = substr( $url, 0, strrpos( $url, '.' ) );
+		if( $url && strpos( $html, "src=\"$url_without_extension" ) !== false ) {
+			// image links to itself when img src contains same location as $url (a href value)
+			return "[gallery columns=\"1\" size=\"{$size}\" ids=\"{$id}\"]";
+		} else {
+			return $html;
 		}
 	}
 
