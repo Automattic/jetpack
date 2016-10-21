@@ -76,6 +76,11 @@ class Jetpack_RelatedPosts {
 		if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 			jetpack_require_lib( 'class.media-summary' );
 		}
+
+		// Add Related Posts to the REST API Post response.
+		if ( function_exists( 'register_rest_field' ) ) {
+			add_action( 'rest_api_init',  array( $this, 'rest_register_related_posts' ) );
+		}
 	}
 
 	/**
@@ -1309,6 +1314,49 @@ EOT;
 			$this->_allow_feature_toggle = apply_filters( 'jetpack_relatedposts_filter_allow_feature_toggle', false );
 		}
 		return $this->_allow_feature_toggle;
+	}
+
+	/**
+	 * ===================================================
+	 * FUNCTIONS EXPOSING RELATED POSTS IN THE WP REST API
+	 * ===================================================
+	 */
+
+	/**
+	 * Add Related Posts to the REST API Post response.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @action rest_api_init
+	 * @uses register_rest_field, self::rest_get_related_posts
+	 * @return null
+	 */
+	public function rest_register_related_posts() {
+		register_rest_field( 'post',
+			'jetpack-related-posts',
+			array(
+				'get_callback' => array( $this, 'rest_get_related_posts' ),
+				'update_callback' => null,
+				'schema'          => null,
+			)
+		);
+	}
+
+	/**
+	 * Build an array of Related Posts.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param array $object Details of current post.
+	 * @param string $field_name Name of field.
+	 * @param WP_REST_Request $request Current request
+	 *
+	 * @uses self::get_for_post_id
+	 *
+	 * @return array
+	 */
+	public function rest_get_related_posts( $object, $field_name, $request ) {
+		return $this->get_for_post_id( $object['id'], array() );
 	}
 }
 
