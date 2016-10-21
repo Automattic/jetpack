@@ -1,5 +1,30 @@
 <?php
 
+if( ! function_exists ( 'wpcom_is_vip' ) ){
+	function wpcom_is_vip() {
+		return false;
+	}
+}
+if( ! function_exists ( 'wpcom_is_pub_theme' ) ){
+	function wpcom_is_pub_theme() {
+		return false;
+	}
+}
+if( ! function_exists ( 'wpcom_is_premium_theme' ) ){
+	function wpcom_is_premium_theme() {
+		return false;
+	}
+}
+if( ! function_exists ( 'wpcom_is_vip_theme' ) ){
+	function wpcom_is_vip_theme() {
+		return false;
+	}
+}
+if( ! function_exists ( 'wpcom_is_a8c_theme' ) ){
+	function wpcom_is_a8c_theme() {
+		return false;
+	}
+}
 /**
  * Create an output buffer to capture the HTML content of the footer.php theme
  * template. Used to change links, text, run a/b tests. Etc.
