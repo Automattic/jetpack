@@ -28,7 +28,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/
 	 */
-	const SITEMAP_MAX_ITEMS = 10; // 50k
+	const SITEMAP_MAX_ITEMS = 50000; // 50k
 
 
 
@@ -474,12 +474,20 @@ class Jetpack_Sitemap_Manager {
 		}
 
 		// Clean up old sitemaps.
-		$this->delete_sitemaps_after_number($sitemap_number);
+		$this->delete_numbered_posts_after(
+			'sitemap-',
+			$sitemap_number,
+			'jp_sitemap'
+		);
 
 		// If there's only one sitemap, make that the root.
 		if ( 1 == $sitemap_number ) {
 			$this->clone_to_master_sitemap('sitemap-1', 'jp_sitemap');
-			$this->delete_sitemap_indices_after_number(0);
+			$this->delete_numbered_posts_after(
+				'sitemap-index-',
+				0,
+				'jp_sitemap_index'
+			);
 			return;
 		}
 
@@ -507,7 +515,11 @@ class Jetpack_Sitemap_Manager {
 		}
 
 		// Clean up old sitemap indices.
-		$this->delete_sitemap_indices_after_number($sitemap_index_number);
+		$this->delete_numbered_posts_after(
+			'sitemap-index-',
+			$sitemap_index_number,
+			'jp_sitemap_index'
+		);
 
 		// Make the last sitemap index the root.
 		$this->clone_to_master_sitemap(
@@ -994,45 +1006,20 @@ CSS;
 	 * Manipulating the Database
 	 */
 
-
 	/**
-	 * Delete jp_sitemap posts sitemap-(p+1), sitemap-(p+2), ...
+	 * Delete numbered posts prefix-(p+1), prefix-(p+2), ...
 	 * until the first nonexistent post is found.
 	 *
-	 * @param int @position Number before the first sitemap to be deleted. 
+	 * @param string $prefix Post name prefix.
+	 * @param int $position Number before the first sitemap to be deleted.
+	 * @param string $type Post type.
 	 */
-	private function delete_sitemaps_after_number( $position ) {
+	private function delete_numbered_posts_after( $prefix, $position, $type ) {
 		$any_left = True;
 		$i = $position + 1;
 
 		while ( True == $any_left ) {
-			$the_post = get_page_by_title( 'sitemap-' . $i, 'OBJECT', 'jp_sitemap' );
-
-			if ( null == $the_post ) {
-				$any_left = False;
-			} else {
-				wp_delete_post($the_post->ID);
-				$i += 1;
-			}
-		}
-
-		return;
-	}
-
-
-
-	/**
-	 * Delete jp_sitemap posts sitemap-index-(p+1), sitemap-index-(p+2), ...
-	 * until the first nonexistent post is found.
-	 *
-	 * @param int @position Number before the first sitemap index to be deleted. 
-	 */
-	private function delete_sitemap_indices_after_number( $position ) {
-		$any_left = True;
-		$i = $position + 1;
-
-		while ( True == $any_left ) {
-			$the_post = get_page_by_title( 'sitemap-index-' . $i, 'OBJECT', 'jp_sitemap_index' );
+			$the_post = get_page_by_title( $prefix . $i, 'OBJECT', $type );
 
 			if ( null == $the_post ) {
 				$any_left = False;
