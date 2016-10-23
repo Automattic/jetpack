@@ -409,6 +409,183 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
+	 * Build and store a single sitemap index.
+	 *
+	 * Side effect: Create/update a jp_sitemap_index post.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param int $number The number of the current sitemap index.
+	 * @param int $from_ID The greatest lower bound of the IDs of the sitemaps to be included.
+	 * @param string $timestamp Timestamp of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
+	 */
+	private function build_one_page_sitemap_index ( $number, $from_ID, $timestamp ) {
+		$last_sitemap_ID = $from_ID;
+		$any_sitemaps_left = true;
+
+		$buffer = new Jetpack_Sitemap_Buffer(
+			self::SITEMAP_MAX_ITEMS,
+			self::SITEMAP_MAX_BYTES,
+
+			/* open tag */
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap-index.xsl" . "'?>\n" .
+			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n",
+
+			/* close tag */
+			"</sitemapindex>\n",
+
+			/* initial last_modified value */
+			$timestamp
+		);
+
+		// Add pointer to the previous sitemap index (unless we're at the first one)
+		if ( 1 != $number ) {
+			$i = $number - 1;
+			$buffer->try_to_add_item(
+				"<sitemap>\n" .
+ 				" <loc>" . site_url() . "/sitemap-index-$i.xml</loc>\n" .
+				" <lastmod>" . str_replace( ' ', 'T', $timestamp) . 'Z' . "</lastmod>\n" .
+				"</sitemap>\n"
+			);
+		}
+
+		// Until the buffer is too large,
+		while ( false == $buffer->is_full() ) {
+			// Retrieve a batch of posts (in order)
+			$posts = $this->get_sitemap_posts_after_ID($last_sitemap_ID, 1000);
+
+			// If there were no posts to get, make a note.
+			if (null == $posts) {
+				$any_sitemaps_left = false;
+				break;
+			}
+
+			// Otherwise, for each post in the batch,
+			foreach ($posts as $post) {
+				// Generate the sitemap XML for the post.
+				$current_item = $this->sitemap_to_index_item($post);
+
+				// If adding this item to the buffer doesn't make it too large,
+				if ( true == $buffer->try_to_add_item($current_item['xml']) ) {
+					// Add it and update the last sitemap ID.
+					$last_sitemap_ID = $post->ID;
+					$buffer->view_time($current_item['last_modified']);
+				} else {
+					// Otherwise stop looping through posts.
+					break;
+				}
+			}
+		}
+
+		// Store the buffer as the content of a jp_sitemap_index post.
+		$this->set_contents_of_post(
+			'sitemap-index-' . $number,
+			'jp_sitemap_index',
+			$buffer->contents(),
+			$buffer->last_modified()
+		);
+
+		/*
+		 * Now report back with the ID of the last sitemap post ID to
+		 * be successfully added, whether there are any sitemap posts
+		 * left, and the most recent modification time seen.
+		 */
+		return array(
+			'last_sitemap_ID'   => $last_sitemap_ID,
+			'any_sitemaps_left' => $any_sitemaps_left,
+		  'last_modified'     => $buffer->last_modified()
+		);
+	}
+
+
+
+	/**
+	 * Build and store all page sitemap indices.
+	 *
+	 * Side effect: Create/update jp_sitemap_index posts sitemap-index-1, sitemap-index-2, etc.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @return The number of page sitemap indices generated.
+	 */
+	private function build_all_page_sitemap_indices () {
+		$sitemap_ID = 0;
+		$sitemap_index_number = 1;
+		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
+		$any_sitemaps_left = True;
+
+		// Generate sitemap indices until no sitemaps remain.
+		while ( true == $any_sitemaps_left ) {
+			$result = $this->build_one_page_sitemap_index(
+				$sitemap_index_number,
+				$sitemap_ID,
+				$last_modified
+			);
+
+			if ( true == $result['any_sitemaps_left'] ) {
+				$sitemap_ID = $result['last_sitemap_ID'];
+				$sitemap_index_number += 1;
+				$last_modified = $result['last_modified'];
+			} else {
+				$any_sitemaps_left = False;
+			}
+		}
+
+		// Clean up old sitemap indices.
+		$this->delete_numbered_posts_after(
+			'sitemap-index-',
+			$sitemap_index_number,
+			'jp_sitemap_index'
+		);
+
+		return array(
+			'filename'      => '/sitemap-index-' . $sitemap_index_number . '.xml',
+			'last_modified' => str_replace( ' ', 'T', $last_modified) . 'Z',
+		);
+	}
+
+
+
+	/**
+	 * Build the page sitemap tree structure.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @return array $args {
+	 *     @type string filename The filename of the root page sitemap.
+	 *     @type string last_modified The timestamp of the root page sitemap.
+	 * }
+	 */
+	private function build_page_sitemap_tree () {
+		$num_sitemaps = $this->build_all_page_sitemaps();
+
+		// If there's only one sitemap, make that the root.
+		if ( 1 == $num_sitemaps ) {
+			$this->delete_numbered_posts_after(
+				'sitemap-index-',
+				0,
+				'jp_sitemap_index'
+			);
+
+			$last_modified = post_date(get_page_by_title('sitemap-1', 'OBJECT', 'jp_sitemap'));
+
+			return array(
+				'filename'      => '/sitemap-1.xml',
+				'last_modified' => str_replace( ' ', 'T', $last_modified) . 'Z',
+			);
+		}
+
+		// Otherwise, we have to generate sitemap indices.
+		return $this->build_all_page_sitemap_indices();
+	}
+
+
+
+
+
+	/**
 	 * Build and store a single image sitemap.
 	 *
 	 * Side effect: Create/update a jp_img_sitemap post.
@@ -531,144 +708,6 @@ class Jetpack_Sitemap_Manager {
 
 
 
-	/**
-	 * Build and store a single sitemap index.
-	 *
-	 * Side effect: Create/update a jp_sitemap_index post.
-	 *
-	 * @since 4.5.0
-	 *
-	 * @param int $number The number of the current sitemap index.
-	 * @param int $from_ID The greatest lower bound of the IDs of the sitemaps to be included.
-	 * @param string $timestamp Timestamp of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
-	 */
-	private function build_one_page_sitemap_index ( $number, $from_ID, $timestamp ) {
-		$last_sitemap_ID = $from_ID;
-		$any_sitemaps_left = true;
-
-		$buffer = new Jetpack_Sitemap_Buffer(
-			self::SITEMAP_MAX_ITEMS,
-			self::SITEMAP_MAX_BYTES,
-
-			/* open tag */
-			"<?xml version='1.0' encoding='UTF-8'?>\n" .
-			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
-			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap-index.xsl" . "'?>\n" .
-			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n",
-
-			/* close tag */
-			"</sitemapindex>\n",
-
-			/* initial last_modified value */
-			$timestamp
-		);
-
-		// Add pointer to the previous sitemap index (unless we're at the first one)
-		if ( 1 != $number ) {
-			$i = $number - 1;
-			$buffer->try_to_add_item(
-				"<sitemap>\n" .
- 				" <loc>" . site_url() . "/sitemap-index-$i.xml</loc>\n" .
-				" <lastmod>$timestamp</lastmod>\n" .
-				"</sitemap>\n"
-			);
-		}
-
-		// Until the buffer is too large,
-		while ( false == $buffer->is_full() ) {
-			// Retrieve a batch of posts (in order)
-			$posts = $this->get_sitemap_posts_after_ID($last_sitemap_ID, 1000);
-
-			// If there were no posts to get, make a note.
-			if (null == $posts) {
-				$any_sitemaps_left = false;
-				break;
-			}
-
-			// Otherwise, for each post in the batch,
-			foreach ($posts as $post) {
-				// Generate the sitemap XML for the post.
-				$current_item = $this->sitemap_to_index_item($post);
-
-				// If adding this item to the buffer doesn't make it too large,
-				if ( true == $buffer->try_to_add_item($current_item['xml']) ) {
-					// Add it and update the last sitemap ID.
-					$last_sitemap_ID = $post->ID;
-					$buffer->view_time($current_item['last_modified']);
-				} else {
-					// Otherwise stop looping through posts.
-					break;
-				}
-			}
-		}
-
-		// Store the buffer as the content of a jp_sitemap_index post.
-		$this->set_contents_of_post(
-			'sitemap-index-' . $number,
-			'jp_sitemap_index',
-			$buffer->contents(),
-			$buffer->last_modified()
-		);
-
-		/*
-		 * Now report back with the ID of the last sitemap post ID to
-		 * be successfully added, whether there are any sitemap posts
-		 * left, and the most recent modification time seen.
-		 */
-		return array(
-			'last_sitemap_ID'   => $last_sitemap_ID,
-			'any_sitemaps_left' => $any_sitemaps_left,
-		  'last_modified'     => $buffer->last_modified()
-		);
-	}
-
-
-
-	/**
-	 * Build and store all page sitemap indices.
-	 *
-	 * Side effect: Create/update jp_sitemap_index posts sitemap-index-1, sitemap-index-2, etc.
-	 *
-	 * @since 4.5.0
-	 *
-	 * @return The number of page sitemap indices generated.
-	 */
-	private function build_all_page_sitemap_indices () {
-		$sitemap_ID = 0;
-		$sitemap_index_number = 1;
-		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
-		$any_sitemaps_left = True;
-
-		// Generate sitemap indices until no sitemaps remain.
-		while ( true == $any_sitemaps_left ) {
-			$result = $this->build_one_page_sitemap_index(
-				$sitemap_index_number,
-				$sitemap_ID,
-				$last_modified
-			);
-
-			if ( true == $result['any_sitemaps_left'] ) {
-				$sitemap_ID = $result['last_sitemap_ID'];
-				$sitemap_index_number += 1;
-				$last_modified = $result['last_modified'];
-			} else {
-				$any_sitemaps_left = False;
-			}
-		}
-
-		// Clean up old sitemap indices.
-		$this->delete_numbered_posts_after(
-			'sitemap-index-',
-			$sitemap_index_number,
-			'jp_sitemap_index'
-		);
-
-		return $sitemap_index_number;
-	}
-
-
-
-
 
 	/**
 	 * Build a fresh tree of sitemaps.
@@ -678,30 +717,29 @@ class Jetpack_Sitemap_Manager {
 	private function generate_all_sitemaps () {
 		$log = new Jetpack_Sitemap_Logger('begin generation');
 
-		$img_sitemap_number = $this->build_all_image_sitemaps();
+		$this->build_all_image_sitemaps();
 
-		$num_sitemaps = $this->build_all_page_sitemaps();
+		$page = $this->build_page_sitemap_tree();
 
-		// If there's only one sitemap, make that the root.
-		if ( 1 == $num_sitemaps ) {
-			$this->clone_to_master_sitemap('sitemap-1', 'jp_sitemap');
-			$this->delete_numbered_posts_after(
-				'sitemap-index-',
-				0,
-				'jp_sitemap_index'
-			);
+		$master = 
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap-index.xsl" . "'?>\n" .
+			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n" .
+			" <sitemap>\n" .
+			"  <loc>" . site_url() . $page['filename'] . "</loc>\n" .
+			"  <lastmod>" . $page['last_modified'] . "</lastmod>\n" .
+			" </sitemap>\n" .
+			" <sitemap>\n" .
+			"  <loc>" . site_url() . "/image-sitemap-blah" . "</loc>\n" .
+			" </sitemap>\n" .
+			"</sitemapindex>\n";
 
-			$log->time('end generation');
-			return;
-		}
-
-		// Otherwise, we have to generate sitemap indices.
-		$sitemap_index_number = $this->build_all_page_sitemap_indices();
-
-		// Make the last sitemap index the root.
-		$this->clone_to_master_sitemap(
-			'sitemap-index-' . $sitemap_index_number,
-			'jp_sitemap_index'
+		$this->set_contents_of_post(
+			'sitemap',
+			'jp_sitemap_master',
+			$master,
+			''
 		);
 
 		$log->time('end generation');
