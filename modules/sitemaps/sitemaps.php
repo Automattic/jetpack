@@ -34,7 +34,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @since 4.5.0
 	 */
-	const SITEMAP_MAX_ITEMS = 20; // 50k
+	const SITEMAP_MAX_ITEMS = 5; // 50k
 
 
 
@@ -986,7 +986,20 @@ class Jetpack_Sitemap_Manager {
 	private function image_post_to_sitemap_item ( $post ) {
 		$url = wp_get_attachment_url($post->ID);
 
+		$title = esc_html($post->post_title);
+		if ( '' != $title ) {
+			$title = "  <image:title>$title</image:title>\n";
+		}
+
+		$caption = esc_html($post->post_excerpt);
+		if ( '' != $caption ) {
+			$caption = "  <image:caption>$caption</image:caption>\n";
+		}
+
 		$parent_url = get_permalink(get_post($post->post_parent));
+		if ( '' == $parent_url ) {
+			$parent_url = get_permalink($post);
+		}
 
 		/*
 		 * Spec requires the URL to be <=2048 bytes.
@@ -1001,6 +1014,8 @@ class Jetpack_Sitemap_Manager {
 			" <loc>$parent_url</loc>\n" .
 			" <image:image>\n" .
 			"  <image:loc>$url</image:loc>\n" .
+			$title .
+			$caption .
 			" </image:image>\n" .
 			"</url>\n";
 
@@ -1342,6 +1357,8 @@ XSL;
 		$header_url = esc_html( ent2ncr( __( 'Page URL', 'jetpack' ) ) );
 		$header_image_url = esc_html( ent2ncr( __( 'Image URL', 'jetpack' ) ) );
 		$header_thumbnail = esc_html( ent2ncr( __( 'Thumbnail', 'jetpack' ) ) );
+		$header_title = esc_html( ent2ncr( __( 'Title', 'jetpack' ) ) );
+		$header_caption = esc_html( ent2ncr( __( 'Caption', 'jetpack' ) ) );
 
 		$generated_by = wp_kses(
 			sprintf(
@@ -1388,6 +1405,8 @@ $css
         <th>#</th>
         <th>$header_url</th>
         <th>$header_image_url</th>
+        <th>$header_title</th>
+        <th>$header_caption</th>
 				<th>$header_thumbnail</th>
       </tr>
       <xsl:for-each select="sitemap:urlset/sitemap:url">
@@ -1417,7 +1436,15 @@ $css
             </a>
           </td>
           <td>
-            <img class='thumbnail' src='{\$itemURL}'/>
+            <xsl:value-of select='image:image/image:title'/>
+          </td>
+          <td>
+            <xsl:value-of select='image:image/image:caption'/>
+          </td>
+          <td>
+            <a href='{\$itemURL}'>
+              <img class='thumbnail' src='{\$itemURL}'/>
+            </a>
           </td>
         </tr>
       </xsl:for-each>
