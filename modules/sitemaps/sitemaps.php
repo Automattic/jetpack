@@ -47,6 +47,7 @@ class Jetpack_Sitemap_Manager {
 
 		// Add sitemap to robots.txt
 		add_action('do_robotstxt', function () {
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
 			echo 'Sitemap: ' . site_url() . '/sitemap.xml' . PHP_EOL;
 		}, 20);
 
@@ -75,43 +76,36 @@ class Jetpack_Sitemap_Manager {
 			return;
 		}
 
-		// Register 'jp_sitemap_master' post type
 		add_action( 'init', function () {
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			// Register 'jp_sitemap_master' post type
 			register_sitemap_data(
 				'jp_sitemap_master',
 				'Sitemap Master',
 				'jetpack-sitemap-master');
-		});
 
-		// Register 'jp_sitemap' post type
-		add_action( 'init', function () {
+			// Register 'jp_sitemap' post type
 			register_sitemap_data(
 				'jp_sitemap',
 				'Sitemap',
 				'jetpack-sitemap'
 			);
-		});
 
-		// Register 'jp_sitemap_index' post type
-		add_action( 'init', function () {
+			// Register 'jp_sitemap_index' post type
 			register_sitemap_data(
 				'jp_sitemap_index',
 				'Sitemap Index',
 				'jetpack-sitemap-index'
 			);
-		});
 
-		// Register 'jp_img_sitemap' post type
-		add_action( 'init', function () {
+			// Register 'jp_img_sitemap' post type
 			register_sitemap_data(
 				'jp_img_sitemap',
 				'Image Sitemap',
 				'jetpack-image-sitemap'
 			);
-		});
 
-		// Register 'jp_img_sitemap_index' post type
-		add_action( 'init', function () {
+			// Register 'jp_img_sitemap_index' post type
 			register_sitemap_data(
 				'jp_img_sitemap_index',
 				'Image Sitemap Index',
@@ -256,6 +250,7 @@ class Jetpack_Sitemap_Manager {
 		});
 
 		add_action( 'jp_sitemap_cron_hook', function () {
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
 			$this->generate_all_sitemaps();
 		});
 
@@ -271,7 +266,7 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
-	 * Build and store a sitemap.
+	 * Build and store a single sitemap.
 	 *
 	 * Side effect: Create/update a jp_sitemap post.
 	 *
@@ -358,7 +353,7 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
-	 * Build and store a sitemap index.
+	 * Build and store a single sitemap index.
 	 *
 	 * Side effect: Create/update a jp_sitemap_index post.
 	 *
@@ -1108,11 +1103,12 @@ new Jetpack_Sitemap_Manager();
 
 /**
  * Models a list of strings such that
- *   (1) the list must have a bounded number of entries,
- *   (2) the concatenation of the strings must have bounded
- *         length (including some header and footer strings), and
- *   (3) each item has a timestamp, and we need to keep track
- *         of the latest timestamp of the items in the list.
+ *
+ * 1. the list must have a bounded number of entries,
+ * 2. the concatenation of the strings must have bounded
+ *      length (including some header and footer strings), and
+ * 3. each item has a timestamp, and we need to keep track
+ *      of the latest timestamp of the items in the list.
  *
  * Sitemaps (per the protocol) are essentially lists of XML fragments;
  * lists which are subject to size constraints. This class abstracts
@@ -1224,8 +1220,17 @@ class Jetpack_Sitemap_Logger {
 	 * for the messages written by an individual generation phase.
 	 */
 	private $key;
+
+	/**
+	 * The birth time of this object in microseconds.
+	 */
 	private $starttime;
 
+	/**
+	 * Initializes a new logger object.
+	 *
+	 * @param string $message A message string to be written to the debug log on initialization.
+	 */
 	public function __construct($message) {
 		$this->key = wp_generate_password(5, false);
 		$this->starttime = microtime(true);
@@ -1233,11 +1238,21 @@ class Jetpack_Sitemap_Logger {
 		return;
 	}
 
+	/**
+	 * Writes a string to the debug log, including the logger's ID string.
+	 *
+	 * @param string $message The string to be written to the log.
+	 */
 	public function report($message) {
 		error_log( 'jp-sitemap-' .  $this->key . ': ' . $message );
 		return;
 	}
 
+	/**
+	 * Writes the elapsed lifetime of the logger to the debug log, with an optional message.
+	 *
+	 * @param string $message The optional message string.
+	 */
 	public function time($message = '') {
 		$time = (microtime(true) - $this->starttime);
 		$this->report($message . ' ' . $time . ' seconds elsapsed');
