@@ -70,6 +70,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: add 'register_post_type' actions to 'init'.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 */
 	private function register_post_types () {
@@ -135,6 +136,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: add action to 'init' which detects sitemap-related URLs
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 */
 	private function add_sitemap_url_handler () {
@@ -259,6 +261,9 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Add actions to schedule sitemap generation.
 	 * Should only be called once, in the constructor.
+	 *
+	 * @access private
+	 * @since 4.5.0
 	 */
 	private function schedule_sitemap_generation () {
 		// Add cron schedule
@@ -291,6 +296,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: Create/update a jp_sitemap post.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param int $number The number of the current sitemap.
@@ -378,6 +384,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: Create/update jp_sitemap posts sitemap-1, sitemap-2, etc.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @return The number of page sitemaps generated.
@@ -421,6 +428,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: Create/update a jp_sitemap_index post.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param int $number The number of the current sitemap index.
@@ -514,6 +522,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: Create/update jp_sitemap_index posts sitemap-index-1, sitemap-index-2, etc.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @return The number of page sitemap indices generated.
@@ -559,6 +568,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Build the page sitemap tree structure.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @return array $args {
@@ -598,6 +608,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: Create/update a jp_img_sitemap post.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param int $number The number of the current sitemap.
@@ -678,6 +689,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: Create/update jp_img_sitemap posts image-sitemap-1, image-sitemap-2, etc.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @return The number of image sitemaps generated.
@@ -719,6 +731,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: Create/update a jp_img_sitemap_index post.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param int $number The number of the current image sitemap index.
@@ -813,6 +826,7 @@ class Jetpack_Sitemap_Manager {
 	 * Side effect: Create/update jp_img_sitemap_index posts
 	 * image-sitemap-index-1, image-sitemap-index-2, etc.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @return The number of image sitemap indices generated.
@@ -848,7 +862,7 @@ class Jetpack_Sitemap_Manager {
 		);
 
 		return array(
-			'filename'      => '/image-sitemap-index-' . $sitemap_index_number . '.xml',
+			'filename' => '/image-sitemap-index-' . $sitemap_index_number . '.xml',
 		);
 	}
 
@@ -857,6 +871,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Build the image sitemap tree structure.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @return array $args {
@@ -892,6 +907,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Build a fresh tree of sitemaps.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 */
 	private function generate_all_sitemaps () {
@@ -935,6 +951,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/protocol.html#urldef
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param WP_Post $post The post to be processed.
@@ -977,6 +994,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/protocol.html#urldef
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param WP_Post $post The image post to be processed.
@@ -1032,6 +1050,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param WP_Post $post The sitemap post to be processed.
@@ -1068,6 +1087,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param WP_Post $post The image sitemap post to be processed.
@@ -1101,6 +1121,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Returns the xsl of a sitemap xml file as a string.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @return string The contents of the xsl file.
@@ -1227,6 +1248,7 @@ XSL;
 	/**
 	 * Returns the xsl of a sitemap index xml file as a string.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @return string The contents of the xsl file.
@@ -1352,6 +1374,7 @@ XSL;
 	/**
 	 * Returns the xsl of an image sitemap xml file as a string.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @return string The contents of the xsl file.
@@ -1502,6 +1525,7 @@ XSL;
 	 * The CSS to be included in sitemap xsl stylesheets;
 	 * factored out for uniformity.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 */
 	private function sitemap_xsl_css () {
@@ -1595,6 +1619,7 @@ CSS;
 	 * More precisely, returns the smallest $num_posts posts
 	 * (measured by ID) which are larger than $from_ID.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param int $from_ID Greatest lower bound of retrieved post IDs.
@@ -1624,6 +1649,7 @@ CSS;
 	 * More precisely, returns the smallest $num_posts image posts
 	 * (measured by ID) which are larger than $from_ID.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param int $from_ID Greatest lower bound of retrieved image post IDs.
@@ -1655,6 +1681,7 @@ CSS;
 	 * Returns the smallest $num_posts sitemap posts (measured by ID)
 	 * which are larger than $from_ID.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param int $from_ID Greatest lower bound of retrieved sitemap post IDs.
@@ -1684,6 +1711,7 @@ CSS;
 	 * Returns the smallest $num_posts image sitemap posts (measured by ID)
 	 * which are larger than $from_ID.
 	 *
+	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param int $from_ID Greatest lower bound of retrieved image sitemap post IDs.
