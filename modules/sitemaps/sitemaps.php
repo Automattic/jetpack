@@ -11,6 +11,8 @@
 
 /**
  * Governs the generation, storage, and serving of sitemaps.
+ *
+ * @since 4.5.0
  */
 class Jetpack_Sitemap_Manager {
 
@@ -18,6 +20,8 @@ class Jetpack_Sitemap_Manager {
 	 * Maximum size (in bytes) of a sitemap xml file.
 	 *
 	 * @link http://www.sitemaps.org/
+	 *
+	 * @since 4.5.0
 	 */
 	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
 
@@ -27,6 +31,8 @@ class Jetpack_Sitemap_Manager {
 	 * Maximum size (in url nodes) of a sitemap xml file.
 	 *
 	 * @link http://www.sitemaps.org/
+	 *
+	 * @since 4.5.0
 	 */
 	const SITEMAP_MAX_ITEMS = 50000; // 50k
 
@@ -34,6 +40,8 @@ class Jetpack_Sitemap_Manager {
 
 	/**
 	 * Constructor
+	 *
+	 * @since 4.5.0
 	 */
 	public function __construct() {
 		// Register post types for data storage
@@ -61,6 +69,8 @@ class Jetpack_Sitemap_Manager {
 	 * Should only be called once, in the constructor.
 	 *
 	 * Side effect: add 'register_post_type' actions to 'init'.
+	 *
+	 * @since 4.5.0
 	 */
 	private function register_post_types () {
 		function register_sitemap_data ($type_name, $label, $slug) {
@@ -78,6 +88,7 @@ class Jetpack_Sitemap_Manager {
 
 		add_action( 'init', function () {
 			/** This filter is documented in modules/sitemaps/sitemaps.php */
+
 			// Register 'jp_sitemap_master' post type
 			register_sitemap_data(
 				'jp_sitemap_master',
@@ -123,6 +134,8 @@ class Jetpack_Sitemap_Manager {
 	 * Should only be called once, in the constructor.
 	 *
 	 * Side effect: add action to 'init' which detects sitemap-related URLs
+	 *
+	 * @since 4.5.0
 	 */
 	private function add_sitemap_url_handler () {
 		add_action( 'init', function () {
@@ -270,6 +283,8 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * Side effect: Create/update a jp_sitemap post.
 	 *
+	 * @since 4.5.0
+	 *
 	 * @param int $sitemap_number The number of the current sitemap.
 	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
 	 */
@@ -356,6 +371,8 @@ class Jetpack_Sitemap_Manager {
 	 * Build and store a single sitemap index.
 	 *
 	 * Side effect: Create/update a jp_sitemap_index post.
+	 *
+	 * @since 4.5.0
 	 *
 	 * @param int $sitemap_index_position The number of the current sitemap index.
 	 * @param int $from_ID The greatest lower bound of the IDs of the sitemaps to be included.
@@ -447,6 +464,8 @@ class Jetpack_Sitemap_Manager {
 
 	/**
 	 * Build a fresh tree of sitemaps.
+	 *
+	 * @since 4.5.0
 	 */
 	private function generate_all_sitemaps () {
 		$log = new Jetpack_Sitemap_Logger('begin generation');
@@ -540,6 +559,8 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/protocol.html#urldef
 	 *
+	 * @since 4.5.0
+	 *
 	 * @param WP_Post $post The post to be processed.
 	 *
 	 * @return string An XML fragment representing the post URL.
@@ -580,6 +601,8 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @link http://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
 	 *
+	 * @since 4.5.0
+	 *
 	 * @param WP_Post $post The sitemap post to be processed.
 	 *
 	 * @return string An XML fragment representing the post URL.
@@ -608,6 +631,13 @@ class Jetpack_Sitemap_Manager {
 	}
 
 
+	/**
+	 * Returns the xsl of a sitemap xml file as a string.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @return string The contents of the xsl file.
+	 */
 	private function sitemap_xsl() {
 		$title = esc_html( ent2ncr( __( 'XML Sitemap', 'jetpack' ) ) );
 
@@ -727,6 +757,13 @@ XSL;
 
 
 
+	/**
+	 * Returns the xsl of a sitemap index xml file as a string.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @return string The contents of the xsl file.
+	 */
 	private function sitemap_index_xsl() {
 		$title = esc_html( ent2ncr( __( 'XML Sitemap Index', 'jetpack' ) ) );
 
@@ -848,6 +885,8 @@ XSL;
 	/**
 	 * The CSS to be included in sitemap xsl stylesheets;
 	 * factored out for uniformity.
+	 *
+	 * @since 4.5.0
 	 */
 	private function sitemap_xsl_css () {
 		return <<<CSS
@@ -936,10 +975,12 @@ CSS;
 	 * More precisely, returns the smallest $num_posts posts
 	 * (measured by ID) which are larger than $from_ID.
 	 *
-	 * @module sitemaps
+	 * @since 4.5.0
 	 *
 	 * @param int $from_ID Greatest lower bound of retrieved post IDs.
 	 * @param int $num_posts Largest number of posts to retrieve.
+	 *
+	 * @return array The posts.
 	 */
 	private function get_published_posts_after_ID ( $from_ID, $num_posts ) {
 		global $wpdb;
@@ -963,10 +1004,12 @@ CSS;
 	 * Returns the smallest $num_posts sitemap posts (measured by ID)
 	 * which are larger than $from_ID.
 	 *
-	 * @module sitemaps
+	 * @since 4.5.0
 	 *
 	 * @param int $from_ID Greatest lower bound of retrieved sitemap post IDs.
 	 * @param int $num_posts Largest number of sitemap posts to retrieve.
+	 *
+	 * @return array The sitemap posts.
 	 */
 	private function get_sitemap_posts_after_ID ( $from_ID, $num_posts ) {
 		global $wpdb;
@@ -1041,6 +1084,7 @@ CSS;
 
 	/**
 	 * Store a string in the contents of a post with given title and type.
+	 *
 	 * If the post does not exist, create it.
 	 * If the post does exist, the old contents are overwritten.
 	 *
@@ -1102,6 +1146,8 @@ new Jetpack_Sitemap_Manager();
 
 
 /**
+ * A buffer for constructing sitemap xml files.
+ *
  * Models a list of strings such that
  *
  * 1. the list must have a bounded number of entries,
@@ -1151,6 +1197,8 @@ class Jetpack_Sitemap_Buffer {
 	 * Append an item to the buffer, if there is room for it.
 	 * If not, we set is_full_flag to true.
 	 *
+	 * @since 4.5.0
+	 *
 	 * @param string $item The item to be added.
 	 *
 	 * @return bool True if the append succeeded, False if not.
@@ -1170,6 +1218,8 @@ class Jetpack_Sitemap_Buffer {
 	/**
 	 * Retrieve the contents of the buffer.
 	 *
+	 * @since 4.5.0
+	 *
 	 * @return string The contents of the buffer (with the footer included).
 	 */
 	public function contents() {
@@ -1179,6 +1229,8 @@ class Jetpack_Sitemap_Buffer {
 	/**
 	 * Detect whether the buffer is full.
 	 *
+	 * @since 4.5.0
+	 *
 	 * @return bool True if the buffer is full, false otherwise.
 	 */
 	public function is_full() {
@@ -1187,6 +1239,8 @@ class Jetpack_Sitemap_Buffer {
 
 	/**
 	 * Update the timestamp of the buffer.
+	 *
+	 * @since 4.5.0
 	 *
 	 * @param string $new_time A datetime string in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
@@ -1199,6 +1253,8 @@ class Jetpack_Sitemap_Buffer {
 
 	/**
 	 * Retrieve the timestamp of the buffer.
+	 *
+	 * @since 4.5.0
 	 *
 	 * @return string A datetime string in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
@@ -1213,21 +1269,31 @@ class Jetpack_Sitemap_Buffer {
 
 /**
  * Handles logging errors and debug messages for sitemap generator.
+ *
+ * Side effect: writes a string to the PHP error log.
  */
 class Jetpack_Sitemap_Logger {
 	/**
 	 * A unique-ish string for each logger, enabling us to grep
 	 * for the messages written by an individual generation phase.
+	 *
+	 * @since 4.5.0
 	 */
 	private $key;
 
 	/**
 	 * The birth time of this object in microseconds.
+	 *
+	 * @since 4.5.0
 	 */
 	private $starttime;
 
 	/**
 	 * Initializes a new logger object.
+	 *
+	 * Side effect: writes a string to the PHP error log.
+	 *
+	 * @since 4.5.0
 	 *
 	 * @param string $message A message string to be written to the debug log on initialization.
 	 */
@@ -1241,6 +1307,10 @@ class Jetpack_Sitemap_Logger {
 	/**
 	 * Writes a string to the debug log, including the logger's ID string.
 	 *
+	 * Side effect: writes a string to the PHP error log.
+	 *
+	 * @since 4.5.0
+	 *
 	 * @param string $message The string to be written to the log.
 	 */
 	public function report($message) {
@@ -1250,6 +1320,10 @@ class Jetpack_Sitemap_Logger {
 
 	/**
 	 * Writes the elapsed lifetime of the logger to the debug log, with an optional message.
+	 *
+	 * Side effect: writes a string to the PHP error log.
+	 *
+	 * @since 4.5.0
 	 *
 	 * @param string $message The optional message string.
 	 */
