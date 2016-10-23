@@ -34,7 +34,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @since 4.5.0
 	 */
-	const SITEMAP_MAX_ITEMS = 5; // 50k
+	const SITEMAP_MAX_ITEMS = 50000; // 50k
 
 
 
@@ -771,7 +771,7 @@ class Jetpack_Sitemap_Manager {
 			// Otherwise, for each post in the batch,
 			foreach ($posts as $post) {
 				// Generate the sitemap XML for the post.
-				$current_item = $this->sitemap_to_index_item($post);
+				$current_item = $this->image_sitemap_to_index_item($post);
 
 				// If adding this item to the buffer doesn't make it too large,
 				if ( true == $buffer->try_to_add_item($current_item['xml']) ) {
@@ -1060,6 +1060,42 @@ class Jetpack_Sitemap_Manager {
 			'last_modified' => $post->post_date
 		);
 	}
+
+
+
+	/**
+	 * Construct the image sitemap index url entry for an image sitemap post.
+	 *
+	 * @link http://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param WP_Post $post The image sitemap post to be processed.
+	 *
+	 * @return string An XML fragment representing the post URL.
+	 */
+	private function image_sitemap_to_index_item ( $post ) {
+		$url = site_url() . '/' . $post->post_title . '.xml';
+
+		/*
+		 * Must use W3C Datetime format per the spec.
+		 * https://www.w3.org/TR/NOTE-datetime
+		 * Also recall that we stored the most recent modification time
+		 * among all the posts in this sitemap in post_date.
+		 */
+		$last_modified = str_replace( ' ', 'T', $post->post_date) . 'Z';
+
+		$xml =
+			"<sitemap>\n" .
+			" <loc>$url</loc>\n" .
+			"</sitemap>\n";
+
+		return array(
+			'xml'           => $xml,
+			'last_modified' => $post->post_date
+		);
+	}
+
 
 
 	/**
