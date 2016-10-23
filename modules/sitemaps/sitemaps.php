@@ -454,6 +454,8 @@ class Jetpack_Sitemap_Manager {
 	 * Build a fresh tree of sitemaps.
 	 */
 	private function generate_all_sitemaps () {
+		$log = new Jetpack_Sitemap_Logger('begin generation');
+
 		$post_ID = 0;
 		$sitemap_number = 1;
 		$any_posts_left = True;
@@ -488,6 +490,8 @@ class Jetpack_Sitemap_Manager {
 				0,
 				'jp_sitemap_index'
 			);
+
+			$log->time('end generation');
 			return;
 		}
 
@@ -526,6 +530,8 @@ class Jetpack_Sitemap_Manager {
 			'sitemap-index-' . $sitemap_index_number,
 			'jp_sitemap_index'
 		);
+
+		$log->time('end generation');
 
 		return;
 	}
@@ -1202,5 +1208,39 @@ class Jetpack_Sitemap_Buffer {
 	 */
 	public function last_modified() {
 		return $this->timestamp;
+	}
+}
+
+
+
+
+
+/**
+ * Handles logging errors and debug messages for sitemap generator.
+ */
+class Jetpack_Sitemap_Logger {
+	/**
+	 * A unique-ish string for each logger, enabling us to grep
+	 * for the messages written by an individual generation phase.
+	 */
+	private $key;
+	private $starttime;
+
+	public function __construct($message) {
+		$this->key = wp_generate_password(5, false);
+		$this->starttime = microtime(true);
+		$this->report($message);
+		return;
+	}
+
+	public function report($message) {
+		error_log( 'jp-sitemap-' .  $this->key . ': ' . $message );
+		return;
+	}
+
+	public function time($message = '') {
+		$time = (microtime(true) - $this->starttime);
+		$this->report($message . ' ' . $time . ' seconds elsapsed');
+		return;
 	}
 }
