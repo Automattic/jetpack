@@ -1339,8 +1339,9 @@ XSL;
 			)
 		);
 
-		$header_url = esc_html( ent2ncr( __( 'URL', 'jetpack' ) ) );
-		$header_lastmod = esc_html( ent2ncr( __( 'Last Modified', 'jetpack' ) ) );
+		$header_url = esc_html( ent2ncr( __( 'Page URL', 'jetpack' ) ) );
+		$header_image_url = esc_html( ent2ncr( __( 'Image URL', 'jetpack' ) ) );
+		$header_thumbnail = esc_html( ent2ncr( __( 'Thumbnail', 'jetpack' ) ) );
 
 		$generated_by = wp_kses(
 			sprintf(
@@ -1386,7 +1387,8 @@ $css
       <tr>
         <th>#</th>
         <th>$header_url</th>
-        <th>$header_lastmod</th>
+        <th>$header_image_url</th>
+				<th>$header_thumbnail</th>
       </tr>
       <xsl:for-each select="sitemap:urlset/sitemap:url">
         <tr>
@@ -1399,15 +1401,23 @@ $css
             <xsl:value-of select = "position()" />
           </td>
           <td>
-            <xsl:variable name='itemURL'>
+            <xsl:variable name='pageURL'>
               <xsl:value-of select='sitemap:loc'/>
             </xsl:variable>
-            <a href='{\$itemURL}'>
+            <a href='{\$pageURL}'>
               <xsl:value-of select='sitemap:loc'/>
             </a>
           </td>
+          <xsl:variable name='itemURL'>
+            <xsl:value-of select='image:image/image:loc'/>
+          </xsl:variable>
           <td>
-            <xsl:value-of select='sitemap:lastmod'/>
+            <a href='{\$itemURL}'>
+              <xsl:value-of select='image:image/image:loc'/>
+            </a>
+          </td>
+          <td>
+            <img class='thumbnail' src='{\$itemURL}'/>
           </td>
         </tr>
       </xsl:for-each>
@@ -1499,6 +1509,10 @@ XSL;
 
     #description a:hover, #footer a:hover {
       border-bottom: none;
+    }
+
+    img.thumbnail {
+      height: 75px;
     }
 CSS;
 	}
