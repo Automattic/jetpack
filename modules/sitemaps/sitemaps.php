@@ -78,7 +78,7 @@ class Jetpack_Sitemap_Manager {
 				$type_name,
 				array(
 					'labels'      => array('name' => $label),
-					'public'      => false, // Set to true to aid debugging
+					'public'      => true, // Set to true to aid debugging
 					'has_archive' => false,
 					'rewrite'     => array('slug' => $slug),
 				)
@@ -368,6 +368,88 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
+	 * Build and store a single image sitemap.
+	 *
+	 * Side effect: Create/update a jp_img_sitemap post.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param int $sitemap_number The number of the current sitemap.
+	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
+	 */
+	private function generate_image_sitemap ( $sitemap_number, $from_ID ) {
+		$last_post_ID = $from_ID;
+		$any_posts_left = true;
+
+		$buffer = new Jetpack_Sitemap_Buffer(
+			self::SITEMAP_MAX_ITEMS,
+			self::SITEMAP_MAX_BYTES,
+
+			/* open tag */
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap.xsl" . "'?>\n" .
+			"<urlset\n" .
+			"  xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'\n" .
+			"  xmlns:image='http://www.google.com/schemas/sitemap-image/1.1'>\n",
+
+			/* close tag */
+			"</urlset>\n",
+
+			/* epoch */
+			strtotime('1970-01-01 00:00:00')
+		);
+
+		// Until the buffer is too large,
+		while ( false == $buffer->is_full() ) {
+			// Retrieve a batch of posts (in order).
+			$posts = $this->get_image_posts_after_ID($last_post_ID, 1000);
+
+			// If there were no posts to get, make note and quit trying to fill the buffer.
+			if (null == $posts) {
+				$any_posts_left = false;
+				break;
+			}
+
+			// Otherwise, for each post in the batch,
+			foreach ($posts as $post) {
+				// Generate the sitemap XML for the post.
+				$current_item = $this->image_post_to_sitemap_item($post);
+
+				// If we can add it to the buffer,
+				if ( true == $buffer->try_to_add_item($current_item['xml']) ) {
+					// Update the current post ID and timestamp.
+					$last_post_ID = $post->ID;
+					$buffer->view_time($current_item['last_modified']);
+				} else {
+					// Otherwise stop looping through posts.
+					break;
+				}
+			}
+		}
+
+		// Store the buffer as the content of a jp_sitemap post.
+		$this->set_contents_of_post(
+			'image-sitemap-' . $sitemap_number,
+			'jp_img_sitemap',
+			$buffer->contents(),
+			$buffer->last_modified()
+		);
+
+		/*
+		 * Now report back with the ID of the last post ID to be
+		 * successfully added and whether there are any posts left.
+		 */
+		return array(
+			'last_post_ID'   => $last_post_ID,
+			'any_posts_left' => $any_posts_left
+		);
+	}
+
+
+
+
+
+	/**
 	 * Build and store a single sitemap index.
 	 *
 	 * Side effect: Create/update a jp_sitemap_index post.
@@ -469,6 +551,34 @@ class Jetpack_Sitemap_Manager {
 	 */
 	private function generate_all_sitemaps () {
 		$log = new Jetpack_Sitemap_Logger('begin generation');
+
+
+		$image_ID = 0;
+		$img_sitemap_number = 1;
+		$any_images_left = True;
+
+		// Generate image sitemaps until no posts remain.
+		while ( True == $any_images_left ) {
+			$result = $this->generate_image_sitemap(
+				$img_sitemap_number,
+				$image_ID
+			);
+
+			if ( True == $result['any_posts_left'] ) {
+				$image_ID = $result['last_post_ID'];
+				$img_sitemap_number += 1;
+			} else {
+				$any_images_left = False;
+			}
+		}
+
+		// Clean up old sitemaps.
+		$this->delete_numbered_posts_after(
+			'image-sitemap-',
+			$img_sitemap_number,
+			'jp_img_sitemap'
+		);
+
 
 		$post_ID = 0;
 		$sitemap_number = 1;
@@ -586,6 +696,46 @@ class Jetpack_Sitemap_Manager {
 			"<url>\n" .
 			" <loc>$url</loc>\n" .
 			" <lastmod>$last_modified</lastmod>\n" .
+			"</url>\n";
+
+		return array(
+			'xml'           => $xml,
+			'last_modified' => $post->post_date
+		);
+	}
+
+
+
+	/**
+	 * Construct the image sitemap url entry for a WP_Post of image type.
+	 *
+	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param WP_Post $post The image post to be processed.
+	 *
+	 * @return string An XML fragment representing the post URL.
+	 */
+	private function image_post_to_sitemap_item ( $post ) {
+		$url = wp_get_attachment_url($post->ID);
+
+		$parent_url = get_permalink(get_post($post->post_parent));
+
+		/*
+		 * Spec requires the URL to be <=2048 bytes.
+		 * In practice this constraint is unlikely to be violated.
+		 */
+		if ( mb_strlen($url) > 2048 ) {
+			$url = site_url() . '/?p=' . $post->ID; 
+		}
+
+		$xml =
+			"<url>\n" .
+			" <loc>$parent_url</loc>\n" .
+			" <image:image>\n" .
+			"  <image:loc>$url</image:loc>\n" .
+			" </image:image>\n" .
 			"</url>\n";
 
 		return array(
@@ -989,6 +1139,37 @@ CSS;
 			SELECT *
 				FROM $wpdb->posts
 				WHERE post_status='publish' AND ID>$from_ID
+				ORDER BY ID ASC
+				LIMIT $num_posts;
+		";
+
+		return $wpdb->get_results( $query_string );
+	}
+
+
+
+	/**
+	 * Retrieve an array of image posts sorted by ID.
+	 *
+	 * More precisely, returns the smallest $num_posts image posts
+	 * (measured by ID) which are larger than $from_ID.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param int $from_ID Greatest lower bound of retrieved image post IDs.
+	 * @param int $num_posts Largest number of image posts to retrieve.
+	 *
+	 * @return array The posts.
+	 */
+	private function get_image_posts_after_ID ( $from_ID, $num_posts ) {
+		global $wpdb;
+
+		$query_string = "
+			SELECT *
+				FROM $wpdb->posts
+				WHERE post_type='attachment'
+								AND post_mime_type IN ('image/jpeg','image/png','image/gif')
+								AND ID>$from_ID
 				ORDER BY ID ASC
 				LIMIT $num_posts;
 		";
