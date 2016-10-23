@@ -3852,6 +3852,17 @@ p {
 				? get_site_icon_url()
 				: false;
 
+			/**
+			 * Filter the type of authorization.
+			 * 'calypso' completes authorization on wordpress.com/jetpack/connect
+			 * while 'jetpack' ( or any other value ) completes the authorization at jetpack.wordpress.com.
+			 *
+			 * @since 4.3.3
+			 *
+			 * @param string $auth_type Defaults to 'calypso', can also be 'jetpack'.
+			 */
+			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
+
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
@@ -3870,7 +3881,7 @@ p {
 					'user_login'    => $user->user_login,
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
-					'auth_type'     => 'calypso',
+					'auth_type'     => $auth_type,
 					'secret'        => $secret,
 					'locale'        => isset( $gp_locale->slug ) ? $gp_locale->slug : '',
 					'blogname'      => get_option( 'blogname' ),
@@ -5323,8 +5334,8 @@ p {
 		$is_valid = false;
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 
-		// Does the stored sync_error_idc option match what we now generate?
-		if ( $sync_error ) {
+		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
+		if ( $sync_error && self::sync_idc_optin() ) {
 			$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option() );
 			if ( empty( $error_diff ) ) {
 				$is_valid = true;

@@ -34,7 +34,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 			$modules = null;
 		}
 
-		return array( 'scheduled' => Jetpack_Sync_Actions::schedule_full_sync( $modules ) );
+		return array( 'started' => Jetpack_Sync_Actions::do_full_sync( $modules ) );
 	}
 
 	protected function validate_queue( $query ) {
@@ -59,14 +59,12 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 		$sender      = Jetpack_Sync_Sender::get_instance();
 		$queue       = $sender->get_sync_queue();
 		$full_queue  = $sender->get_full_sync_queue();
-
 		$cron_timestamps = array_keys( _get_cron_array() );
 		$cron_age = microtime( true ) - $cron_timestamps[0];
 
 		return array_merge(
 			$sync_module->get_status(),
 			array(
-				'is_scheduled'          => Jetpack_Sync_Actions::is_scheduled_full_sync(),
 				'cron_size'             => count( $cron_timestamps ),
 				'oldest_cron'           => $cron_age,
 				'queue_size'            => $queue->size(),

@@ -425,7 +425,7 @@ class Publicize extends Publicize_Base {
 	 */
 	function save_publicized( $post_ID, $post, $update ) {
 		// Only do this when a post transitions to being published
-		if ( get_post_meta( $post->ID, $this->PENDING ) ) {
+		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
 			$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
 			if ( ! empty( $connected_services ) ) {
 				/**

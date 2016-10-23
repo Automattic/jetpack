@@ -598,14 +598,31 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_start_sends_configuration() {
+		$post_ids = $this->factory->post->create_many( 3 );
+
 		// this is so that on WPCOM we can tell what has been synchronized in the past
 		add_action( 'jetpack_full_sync_start', array( $this, 'record_full_sync_start_config' ), 10, 1 );
 
+		$standard_config = array( 
+			'constants' => true,
+			'functions' => true,
+			'options' => true,
+			'terms' => true,
+			'themes' => true,
+			'users' => true,
+			'updates' => true,
+			'posts' => true
+		);
+
+		if ( is_multisite() ) {
+			$standard_config['network_options'] = true;
+		}
+
 		$this->full_sync->start();
 
-		$this->assertEquals( null, $this->full_sync_start_config );
+		$this->assertEquals( $standard_config, $this->full_sync_start_config );
 
-		$custom_config = array( 'posts' => array( 1, 2, 3, ) );
+		$custom_config = array( 'posts' => $post_ids );
 
 		$this->full_sync->start( $custom_config );
 
@@ -656,12 +673,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			array(
 				'started'        => null,
 				'queue_finished' => null,
-				'sent_started'   => null,
+				'send_started'   => null,
 				'finished'       => null,
 				'total'          => array(),
 				'sent'           => array(),
 				'queue'          => array(),
-				'config'         => array(),
+				'config'         => null,
 			)
 		);
 	}
@@ -685,28 +702,17 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'     => 1,
 				'terms'     => 1,
 			),
-			'config' => array(
-				'constants' => true,
-				'functions' => true,
-				'options'   => true,
-				'posts'     => true,
-				'comments'  => true,
-				'themes'    => true,
-				'updates'   => true,
-				'users'     => true,
-				'terms'     => true,
-			)
+			'config' => null
 		);
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
-			$should_be_status['config']['network_options'] = 1;
 		}
 
-		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
-		$this->assertEquals( $full_sync_status['config'], $should_be_status['config'] );
+		$this->assertEquals( $should_be_status['queue'], $full_sync_status['queue'] );
+		$this->assertEquals( $should_be_status['config'], $full_sync_status['config'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
-		$this->assertNull( $full_sync_status['sent_started'] );
+		$this->assertNull( $full_sync_status['send_started'] );
 		$this->assertNull( $full_sync_status['finished'] );
 		$this->assertInternalType( 'array', $full_sync_status['sent'] );
 	}
@@ -752,7 +758,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
-		$this->assertInternalType( 'int', $full_sync_status['sent_started'] );
+		$this->assertInternalType( 'int', $full_sync_status['send_started'] );
 		$this->assertInternalType( 'int', $full_sync_status['finished'] );
 	}
 
@@ -805,8 +811,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$posts = $synced_posts_event->args[0];
 
 		$this->assertEquals( 2, count( $posts ) );
-		$this->assertEquals( $sync_post_id, $posts[0]->ID );
-		$this->assertEquals( $sync_post_id_2, $posts[1]->ID );
+		$this->assertEquals( $sync_post_id_2, $posts[0]->ID );
+		$this->assertEquals( $sync_post_id, $posts[1]->ID );
 
 		$sync_status = $this->full_sync->get_status();
 		$this->assertEquals( array( $sync_post_id, $sync_post_id_2 ), $sync_status['config']['posts'] );
@@ -917,20 +923,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $keep_user_id, $users[ $existing_user_count ]->ID );
 	}
 
-	function test_full_sync_doesnt_exceed_options_write_rate_limit() {
-		Jetpack_Sync_Settings::update_settings( array( 'queue_max_writes_sec' => 2 ) );
-
-		foreach( range( 1, 2100 ) as $i ) { // 200 items+
-			$this->factory->user->create();
-		}
-
-		$start_time = microtime( true );
-
-		$this->full_sync->start();
-
-		$this->assertTrue( microtime( true ) > ( $start_time + 2.0 ) );
-	}
-
 	function test_full_sync_has_correct_sent_count_even_if_some_actions_unsent() {
 		// if actions get filtered out after dequeue, this can lead to the sent count 
 		// not matching the queued count - we should make sure the count is incremented even for late-deleted items
@@ -971,13 +963,14 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_full_sync();
 		$full_sync_status = $this->full_sync->get_status();
-		$this->assertEquals( 0, $full_sync_status['finished'] );
+		$this->assertSame( null, $full_sync_status['finished'] );
 
 		$this->sender->do_full_sync();
 		$full_sync_status = $this->full_sync->get_status();
-		$this->assertEquals( 0, $full_sync_status['finished'] );
+		$this->assertSame( null, $full_sync_status['finished'] );
 
 		$this->sender->do_full_sync();
+		$this->sender->do_full_sync(); // juuuust in case - otherwise we use too many bytes for multisite
 
 		$full_sync_status = $this->full_sync->get_status();
 
@@ -1019,7 +1012,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
 			$should_be_status['sent']['network_options']  = 1;
-			$should_be_status['total']['network_options']  = 1;
+			$should_be_status['total']['network_options'] = 1;
 		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
@@ -1027,7 +1020,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $full_sync_status['total'], $should_be_status['total'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
-		$this->assertInternalType( 'int', $full_sync_status['sent_started'] );
+		$this->assertInternalType( 'int', $full_sync_status['send_started'] );
 		$this->assertInternalType( 'int', $full_sync_status['finished'] );
 
 		// Reset all the defaults
@@ -1044,9 +1037,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module_name = $module->name();
-			$estimate    = $module->estimate_full_sync_actions( true );
-			$actual      = $module->enqueue_full_sync_actions( true );
+			$module_name            = $module->name();
+			$estimate               = $module->estimate_full_sync_actions( true );
+			list( $actual, $state ) = $module->enqueue_full_sync_actions( true, 100, false );
 
 			$this->assertSame( $estimate, $actual );
 		}
@@ -1079,18 +1072,95 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
-		Jetpack_Sync_Actions::schedule_initial_sync( '4.2', '4.1' );
-		$this->assertTrue(
-			!! Jetpack_Sync_Actions::is_scheduled_full_sync(
-				array(
-					'options' => true,
-					'network_options' => true,
-					'functions' => true,
-					'constants' => true,
-					'users' => 'initial',
-				)
-			)
+		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
+
+		$expected_sync_config = array( 
+			'options' => true, 
+			'network_options' => true,
+			'functions' => true, 
+			'constants' => true, 
+			'users' => 'initial'
 		);
+
+		$full_sync_status = $this->full_sync->get_status();
+		$this->assertEquals(
+			$expected_sync_config,
+			$full_sync_status[ 'config' ]
+		);
+	}
+
+	function test_full_sync_enqueues_limited_number_of_items() {
+		Jetpack_Sync_Settings::update_settings( array( 'max_enqueue_full_sync' => 2 ) );
+
+		global $wpdb;
+
+		// enough posts for three queue items
+		$synced_post_ids = $this->factory->post->create_many( 25 );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+
+		// test number of items in full sync queue - should be 4 (= full_sync_start + 2xposts + full_sync_end)
+		$this->assertEquals( 3, $this->sender->get_full_sync_queue()->size() );
+
+		$this->full_sync->continue_enqueuing();
+
+		$this->assertEquals( 5, $this->sender->get_full_sync_queue()->size() );
+
+		// should not keep adding full_sync_end or other items afterward
+		$queue_size = $this->sender->get_full_sync_queue()->size();
+
+		// continuing to enqueue shouldn't add more items
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( $queue_size, $this->sender->get_full_sync_queue()->size() );
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( $queue_size, $this->sender->get_full_sync_queue()->size() );
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( $queue_size, $this->sender->get_full_sync_queue()->size() );
+	}
+
+	function test_full_sync_continue_does_nothing_if_no_sync_started() {
+		$full_sync_queue_size_before = $this->sender->get_full_sync_queue()->size();
+		
+		$this->full_sync->continue_enqueuing();
+
+		$this->assertEquals( $full_sync_queue_size_before, $this->sender->get_full_sync_queue()->size() );
+	}
+
+	function test_full_sync_stops_enqueuing_at_max_queue_size() {
+		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 2, 'max_enqueue_full_sync' => 10 ) );
+
+		// this should become three items
+		$synced_post_ids = $this->factory->post->create_many( 25 );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+
+		// full_sync_start plus 10 posts
+		$this->assertEquals( 2, $this->sender->get_full_sync_queue()->size() );
+
+		// attempting to continue enqueuing shouldn't work because the queue is at max size
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( 2, $this->sender->get_full_sync_queue()->size() );
+
+		// flush the queue
+		$this->sender->do_full_sync();
+
+		$this->assertEquals( 0, $this->sender->get_full_sync_queue()->size() );
+
+		// continue enqueuing and hit the limit again - 2 more sets of posts (10 and 5)
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( 2, $this->sender->get_full_sync_queue()->size() );
+
+		$this->sender->do_full_sync();
+
+		// last one - this time just sending full_sync_end
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( 1, $this->sender->get_full_sync_queue()->size() );
+
+		$this->sender->do_full_sync();
+
+		// full sync is done, continuing should do nothing
+		$this->full_sync->continue_enqueuing();
+		$this->assertEquals( 0, $this->sender->get_full_sync_queue()->size() );		
 	}
 
 	function _do_cron() {
