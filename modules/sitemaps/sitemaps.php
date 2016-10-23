@@ -285,10 +285,10 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @since 4.5.0
 	 *
-	 * @param int $sitemap_number The number of the current sitemap.
+	 * @param int $number The number of the current sitemap.
 	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
 	 */
-	private function build_one_page_sitemap ( $sitemap_number, $from_ID ) {
+	private function build_one_page_sitemap ( $number, $from_ID ) {
 		$last_post_ID = $from_ID;
 		$any_posts_left = true;
 
@@ -309,7 +309,7 @@ class Jetpack_Sitemap_Manager {
 		);
 
 		// Add entry for the main page (only if we're at the first one)
-		if ( 1 == $sitemap_number ) {
+		if ( 1 == $number ) {
 			$buffer->try_to_add_item(
 				"<url>\n" .
 				" <loc>" . site_url() . "</loc>\n" .
@@ -347,7 +347,7 @@ class Jetpack_Sitemap_Manager {
 
 		// Store the buffer as the content of a jp_sitemap post.
 		$this->set_contents_of_post(
-			'sitemap-' . $sitemap_number,
+			'sitemap-' . $number,
 			'jp_sitemap',
 			$buffer->contents(),
 			$buffer->last_modified()
@@ -394,7 +394,7 @@ class Jetpack_Sitemap_Manager {
 			}
 		}
 
-		// Clean up old sitemaps.
+		// Clean up old page sitemaps.
 		$this->delete_numbered_posts_after(
 			'sitemap-',
 			$sitemap_number,
@@ -415,10 +415,10 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @since 4.5.0
 	 *
-	 * @param int $sitemap_number The number of the current sitemap.
+	 * @param int $number The number of the current sitemap.
 	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
 	 */
-	private function build_one_image_sitemap ( $sitemap_number, $from_ID ) {
+	private function build_one_image_sitemap ( $number, $from_ID ) {
 		$last_post_ID = $from_ID;
 		$any_posts_left = true;
 
@@ -470,7 +470,7 @@ class Jetpack_Sitemap_Manager {
 
 		// Store the buffer as the content of a jp_sitemap post.
 		$this->set_contents_of_post(
-			'image-sitemap-' . $sitemap_number,
+			'image-sitemap-' . $number,
 			'jp_img_sitemap',
 			$buffer->contents(),
 			$buffer->last_modified()
@@ -517,7 +517,7 @@ class Jetpack_Sitemap_Manager {
 			}
 		}
 
-		// Clean up old sitemaps.
+		// Clean up old image sitemaps.
 		$this->delete_numbered_posts_after(
 			'image-sitemap-',
 			$img_sitemap_number,
@@ -538,11 +538,11 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @since 4.5.0
 	 *
-	 * @param int $sitemap_index_position The number of the current sitemap index.
+	 * @param int $number The number of the current sitemap index.
 	 * @param int $from_ID The greatest lower bound of the IDs of the sitemaps to be included.
 	 * @param string $timestamp Timestamp of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
-	private function build_one_page_sitemap_index ( $sitemap_index_position, $from_ID, $timestamp ) {
+	private function build_one_page_sitemap_index ( $number, $from_ID, $timestamp ) {
 		$last_sitemap_ID = $from_ID;
 		$any_sitemaps_left = true;
 
@@ -564,8 +564,8 @@ class Jetpack_Sitemap_Manager {
 		);
 
 		// Add pointer to the previous sitemap index (unless we're at the first one)
-		if ( 1 != $sitemap_index_position ) {
-			$i = $sitemap_index_position - 1;
+		if ( 1 != $number ) {
+			$i = $number - 1;
 			$buffer->try_to_add_item(
 				"<sitemap>\n" .
  				" <loc>" . site_url() . "/sitemap-index-$i.xml</loc>\n" .
@@ -604,7 +604,7 @@ class Jetpack_Sitemap_Manager {
 
 		// Store the buffer as the content of a jp_sitemap_index post.
 		$this->set_contents_of_post(
-			'sitemap-index-' . $sitemap_index_position,
+			'sitemap-index-' . $number,
 			'jp_sitemap_index',
 			$buffer->contents(),
 			$buffer->last_modified()
