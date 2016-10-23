@@ -577,7 +577,7 @@ class Jetpack_Sitemap_Manager {
 				'jp_sitemap_index'
 			);
 
-			$last_modified = post_date(get_page_by_title('sitemap-1', 'OBJECT', 'jp_sitemap'));
+			$last_modified = get_page_by_title('sitemap-1', 'OBJECT', 'jp_sitemap')->post_date;
 
 			return array(
 				'filename'      => '/sitemap-1.xml',
