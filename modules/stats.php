@@ -91,7 +91,7 @@ function stats_enqueue_dashboard_head() {
  *
  * @access public
  * @param mixed $version Version.
- * @return void
+ * @return $version Version.
  */
 function stats_ignore_db_version( $version ) {
 	if (
@@ -175,7 +175,7 @@ END;
  * Stats Build View Data.
  *
  * @access public
- * @return void
+ * @return Array.
  */
 function stats_build_view_data() {
 	global $wp_the_query;
@@ -193,7 +193,7 @@ function stats_build_view_data() {
 		// 1. Set home_url = https://example.com/
 		// 2. Set show_on_front = page
 		// 3. Set page_on_front = something
-		// 4. Visit https://example.com/
+		// 4. Visit https://example.com/ !
 		$queried_object = ( isset( $wp_the_query->queried_object ) ) ? $wp_the_query->queried_object : null;
 		$queried_object_id = ( isset( $wp_the_query->queried_object_id ) ) ? $wp_the_query->queried_object_id : null;
 		$post = $wp_the_query->get_queried_object_id();
@@ -230,10 +230,10 @@ function stats_footer() {
 }
 
 /**
- * stats_get_options function.
+ * Stats Get Options.
  *
  * @access public
- * @return void
+ * @return Options.
  */
 function stats_get_options() {
 	$options = get_option( 'stats_options' );
@@ -250,7 +250,7 @@ function stats_get_options() {
  *
  * @access public
  * @param mixed $option Option.
- * @return void
+ * @return Options|null.
  */
 function stats_get_option( $option ) {
 	$options = stats_get_options();
@@ -272,7 +272,7 @@ function stats_get_option( $option ) {
  * @access public
  * @param mixed $option Option.
  * @param mixed $value Value.
- * @return void
+ * @return Options.
  */
 function stats_set_option( $option, $value ) {
 	$options = stats_get_options();
@@ -287,9 +287,9 @@ function stats_set_option( $option, $value ) {
  *
  * @access public
  * @param mixed $options Options.
- * @return void
+ * @return Update Options.
  */
-function stats_set_options($options) {
+function stats_set_options( $options ) {
 	return update_option( 'stats_options', $options );
 }
 
@@ -298,7 +298,7 @@ function stats_set_options($options) {
  *
  * @access public
  * @param mixed $options Options.
- * @return void
+ * @return New Options.
  */
 function stats_upgrade_options( $options ) {
 	$defaults = array(
@@ -337,11 +337,11 @@ function stats_upgrade_options( $options ) {
 }
 
 /**
- * stats_array function.
+ * Stats Array.
  *
  * @access public
- * @param mixed $kvs
- * @return void
+ * @param mixed $kvs KVS.
+ * @return Array.
  */
 function stats_array( $kvs ) {
 	/**
@@ -362,7 +362,7 @@ function stats_array( $kvs ) {
 }
 
 /**
- * Admin Pages
+ * Admin Pages.
  *
  * @access public
  * @return void
@@ -386,17 +386,17 @@ function stats_admin_menu() {
 }
 
 /**
- * stats_admin_path function.
+ * Stats Admin Path.
  *
  * @access public
- * @return void
+ * @return Stats Admin Path.
  */
 function stats_admin_path() {
 	return Jetpack::module_configuration_url( __FILE__ );
 }
 
 /**
- * stats_reports_load function.
+ * Stats Reports Load.
  *
  * @access public
  * @return void
@@ -410,12 +410,12 @@ function stats_reports_load() {
 
 	if ( isset( $_GET['nojs'] ) && $_GET['nojs'] ) {
 		$parsed = parse_url( admin_url() );
-		// Remember user doesn't want JS
-		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'] ); // 2 days
+		// Remember user doesn't want JS.
+		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'] ); // 2 days.
 	}
 
 	if ( isset( $_COOKIE['stnojs'] ) && $_COOKIE['stnojs'] ) {
-		// Detect if JS is on.  If so, remove cookie so next page load is via JS
+		// Detect if JS is on.  If so, remove cookie so next page load is via JS.
 		add_action( 'admin_print_footer_scripts', 'stats_js_remove_stnojs_cookie' );
 	} else if ( ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) ) {
 			// Normal page load.  Load page content via JS.
@@ -424,7 +424,7 @@ function stats_reports_load() {
 }
 
 /**
- * stats_reports_css function.
+ * Stats Reports CSS.
  *
  * @access public
  * @return void
@@ -627,10 +627,10 @@ function stats_reports_page( $main_chart_only = false ) {
 }
 
 /**
- * stats_convert_admin_urls function.
+ * Stats Convert Admin Urls.
  *
  * @access public
- * @param mixed $html
+ * @param mixed $html HTML.
  * @return void
  */
 function stats_convert_admin_urls( $html ) {
@@ -654,7 +654,7 @@ function stats_convert_image_urls( $html ) {
  * Stats Convert Chart URLs.
  *
  * @access public
- * @param mixed $html
+ * @param mixed $html HTML.
  * @return void
  */
 function stats_convert_chart_urls( $html ) {
@@ -809,7 +809,7 @@ function stats_configuration_screen() {
 }
 
 /**
- * Stats Hide Smile
+ * Stats Hide Smile.
  *
  * @access public
  * @return void
@@ -991,14 +991,17 @@ function stats_register_dashboard_widget() {
  */
 function stats_dashboard_widget_options() {
 	$defaults = array( 'chart' => 1, 'top' => 1, 'search' => 7 );
-	if ( ( ! $options = get_option( 'stats_dashboard_widget' ) ) || ! is_array( $options ) )
+	if ( ( ! $options = get_option( 'stats_dashboard_widget' ) ) || ! is_array( $options ) ) {
 		$options = array();
+	}
 
 	// Ignore obsolete option values.
 	$intervals = array( 1, 7, 31, 90, 365 );
-	foreach ( array( 'top', 'search' ) as $key )
-		if ( isset( $options[$key] ) && !in_array( $options[$key], $intervals ) )
-			unset( $options[$key] );
+	foreach ( array( 'top', 'search' ) as $key ) {
+		if ( isset( $options[ $key ] ) && ! in_array( $options[ $key ], $intervals ) ) {
+			unset( $options[ $key ] );
+		}
+	}
 
 		return array_merge( $defaults, $options );
 }
@@ -1030,13 +1033,14 @@ function stats_dashboard_widget_control() {
 	$options = stats_dashboard_widget_options();
 
 	if ( 'post' === strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['widget_id'] ) && 'dashboard_stats' === $_POST['widget_id'] ) {
-		if ( isset( $periods[ $_POST['chart'] ] ) )
+		if ( isset( $periods[ $_POST['chart'] ] ) ) {
 			$options['chart'] = $_POST['chart'];
+		}
 		foreach ( array( 'top', 'search' ) as $key ) {
-			if ( isset( $intervals[ $_POST[$key] ] ) )
-				$options[$key] = $_POST[$key];
-			else
-				$options[$key] = $defaults[$key];
+			if ( isset( $intervals[ $_POST[ $key ] ] ) ) {
+				$options[ $key ] = $_POST[ $key ];
+			} else { $options[ $key ] = $defaults[ $key ];
+			}
 		}
 		update_option( 'stats_dashboard_widget', $options );
 	}
@@ -1405,14 +1409,14 @@ function stats_print_wp_remote_error( $get, $url ) {
 	if ( $error !== $previous_error ) {
 ?>
 	<div class="wrap">
-	<p><?php _e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
+	<p><?php esc_attr_e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
 	</div>
 <?php
 		return;
 	}
 ?>
 	<div class="wrap">
-	<p><?php printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s" target="_blank">contact support</a>. In your report please include the information below.', 'jetpack' ), 'https://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
+	<p><?php printf( esc_attr_e( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s" target="_blank">contact support</a>. In your report please include the information below.', 'jetpack' ), 'https://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
 	<pre>
 	User Agent: "<?php echo esc_html( $_SERVER['HTTP_USER_AGENT'] ); ?>"
 	Page URL: "http<?php echo (is_ssl()?'s':'') . '://' . esc_html( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ); ?>"
@@ -1444,7 +1448,7 @@ Content length: "<?php print $content_length ?>"
 /**
  * Get stats from WordPress.com
  *
- * @param string $table The stats which you want to retrieve: postviews, or searchterms
+ * @param string $table The stats which you want to retrieve: postviews, or searchterms.
  * @param array  $args {
  *      An associative array of arguments.
  *
@@ -1533,11 +1537,11 @@ function stats_get_csv( $table, $args = null ) {
 }
 
 /**
- * stats_get_remote_csv function.
+ * Stats get remote CSV.
  *
  * @access public
  * @param mixed $url URL.
- * @return void
+ * @return Stats,
  */
 function stats_get_remote_csv( $url ) {
 	$method = 'GET';
@@ -1558,7 +1562,7 @@ function stats_get_remote_csv( $url ) {
  *
  * @access public
  * @param mixed $csv CSV.
- * @return void
+ * @return $data Data.
  */
 function stats_str_getcsv( $csv ) {
 	if ( function_exists( 'str_getcsv' ) ) {
