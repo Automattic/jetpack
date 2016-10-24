@@ -5171,61 +5171,58 @@ p {
 	/**
 	 * Checks to make sure that local options have the same values as remote options.  Will cache the results for up to 24 hours.
 	 *
-	 * @param bool $force_recheck Whether to ignore any cached transient and manually re-check.
-	 *
 	 * @return array An array of options that do not match.  If everything is good, it will evaluate to false.
 	 */
-	public static function check_identity_crisis( $force_recheck = false ) {
+	public static function check_identity_crisis() {
 		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() )
 			return false;
 
-		if ( $force_recheck || false === ( $errors = get_transient( 'jetpack_has_identity_crisis' ) ) ) {
-			$options_to_check = self::identity_crisis_options_to_check();
-			$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
-			$errors        = array();
 
-			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+		$options_to_check = self::identity_crisis_options_to_check();
+		$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
+		$errors        = array();
 
-				// If it's not the same as the local value...
-				if ( $cloud_value !== get_option( $cloud_key ) ) {
+		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
 
-					// Break out if we're getting errors.  We are going to check the error keys later when we alert.
-					if ( 'error_code' == $cloud_key ) {
-						$errors[ $cloud_key ] = $cloud_value;
-						break;
-					}
+			// If it's not the same as the local value...
+			if ( $cloud_value !== get_option( $cloud_key ) ) {
 
-					$parsed_cloud_value = parse_url( $cloud_value );
-					// If the current options is an IP address
-					if ( filter_var( $parsed_cloud_value['host'], FILTER_VALIDATE_IP ) ) {
-						// Give the new value a Jetpack to fly in to the clouds
+				// Break out if we're getting errors.  We are going to check the error keys later when we alert.
+				if ( 'error_code' == $cloud_key ) {
+					$errors[ $cloud_key ] = $cloud_value;
+					break;
+				}
+
+				$parsed_cloud_value = parse_url( $cloud_value );
+				// If the current options is an IP address
+				if ( filter_var( $parsed_cloud_value['host'], FILTER_VALIDATE_IP ) ) {
+					// Give the new value a Jetpack to fly in to the clouds
+					continue;
+				}
+
+				// And it's not been added to the whitelist...
+				if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
+					/*
+					 * This should be a temporary hack until a cleaner solution is found.
+					 *
+					 * The siteurl and home can be set to use http in General > Settings
+					 * however some constants can be defined that can force https in wp-admin
+					 * when this happens wpcom can confuse wporg with a fake identity
+					 * crisis with a mismatch of http vs https when it should be allowed.
+					 * we need to check that here.
+					 *
+					 * @see https://github.com/Automattic/jetpack/issues/1006
+					 */
+					if ( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
+						&& ( substr( $cloud_value, 0, 8 ) == "https://" )
+						&& Jetpack::init()->is_ssl_required_to_visit_site() ) {
+						// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
 						continue;
 					}
 
-					// And it's not been added to the whitelist...
-					if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
-						/*
-						 * This should be a temporary hack until a cleaner solution is found.
-						 *
-						 * The siteurl and home can be set to use http in General > Settings
-						 * however some constants can be defined that can force https in wp-admin
-						 * when this happens wpcom can confuse wporg with a fake identity
-						 * crisis with a mismatch of http vs https when it should be allowed.
-						 * we need to check that here.
-						 *
-						 * @see https://github.com/Automattic/jetpack/issues/1006
-						 */
-						if ( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
-							&& ( substr( $cloud_value, 0, 8 ) == "https://" )
-							&& Jetpack::init()->is_ssl_required_to_visit_site() ) {
-							// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
-							continue;
-						}
 
-
-						// Then kick an error!
-						$errors[ $cloud_key ] = $cloud_value;
-					}
+					// Then kick an error!
+					$errors[ $cloud_key ] = $cloud_value;
 				}
 			}
 		}
@@ -5236,9 +5233,8 @@ p {
 		 * @since 2.3.2
 		 *
 		 * @param array $errors Array of Identity Crisis errors.
-		 * @param bool $force_recheck Ignore any cached transient and manually re-check. Default to false.
 		 */
-		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
+		return apply_filters( 'jetpack_has_identity_crisis', $errors );
 	}
 
 	/**

@@ -150,7 +150,7 @@ class Jetpack_Debugger {
 		$tests['HTTPS']['fail_message'] = esc_html__( 'Your site isn’t securely reaching the Jetpack servers.', 'jetpack' );
 
 		$identity_crisis_message = '';
-		if ( $identity_crisis = Jetpack::check_identity_crisis( true ) ) {
+		if ( $identity_crisis = Jetpack::check_identity_crisis() ) {
 			foreach( $identity_crisis as $key => $value ) {
 				$identity_crisis_message .= sprintf( __( 'Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!', 'jetpack' ), $key, (string) get_option( $key ), $value ) . "\r\n";
 			}
