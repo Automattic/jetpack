@@ -97,7 +97,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php
 
 // Media
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-v1-2-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-v1-2-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-edit-media-v1-2-endpoint.php' );
 
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-2-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-v1-2-endpoint.php' );
@@ -1351,9 +1351,10 @@ new WPCOM_JSON_API_Get_Media_v1_2_Endpoint( array(
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
 		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 		'videopress_processing_done'  => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.',
-		'revision_history' => '(array) An array of snapshots of the previous images of this Media.' .
-                                'Each item has useful data such as `URL`, `date, `extension`, `width` and `height`,' .
-		                        '`mime_type` and the `thumbnails` array.'
+		'revision_history' => '(object) An object with `items` and `original` keys. ' .
+		                        '`original` is an object with data about the original image. ' .
+		                        '`items` is an array of snapshots of the previous images of this Media. ' .
+		                        'Each item has the `URL`, `file, `extension`, `date`, and `mime_type` fields.'
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1.2/sites/82974409/media/934',
@@ -1560,14 +1561,14 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 	)
 ) );
 
-new WPCOM_JSON_API_Update_Media_v1_2_Endpoint( array(
-	'description' => 'Edit basic information about a media item.',
+new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint( array(
+	'description' => 'Edit a media item.',
 	'group'       => 'media',
 	'stat'        => 'media:1:POST',
-	'min_version' => '1.2',
+	'min_version' => '1',
 	'max_version' => '1.2',
 	'method'      => 'POST',
-	'path'        => '/sites/%s/media/%d',
+	'path'        => '/sites/%s/media/%d/edit',
 	'path_labels' => array(
 		'$site'    => '(int|string) Site ID or domain',
 		'$media_ID' => '(int) The ID of the media item',
@@ -1615,9 +1616,10 @@ new WPCOM_JSON_API_Update_Media_v1_2_Endpoint( array(
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
 		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 		'videopress_processing_done'  => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.',
-		'revision_history' => '(array) An array of snapshots of the previous images of this Media.' .
-                                'Each item has useful data such as `URL`, `date, `extension`, `width` and `height`,' .
-		                        '`mime_type` and the `thumbnails` array.'
+		'revision_history' => '(object) An object with `items` and `original` keys. ' .
+		                        '`original` is an object with data about the original image. ' .
+		                        '`items` is an array of snapshots of the previous images of this Media. ' .
+		                        'Each item has the `URL`, `file, `extension`, `date`, and `mime_type` fields.'
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1.2/sites/82974409/media/446',
