@@ -40,6 +40,15 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 		wp_update_themes();
 
 		foreach ( $this->themes as $theme ) {
+			/**
+			 * Pre-upgrade action
+			 * 
+			 * @since 3.9.3
+			 * 
+			 * @param object $theme WP_Theme object
+			 * @param array $themes Array of theme objects
+			 */
+			do_action('jetpack_pre_theme_upgrade', $theme, $this->themes);
 			// Objects created inside the for loop to clean the messages for each theme
 			$skin = new Automatic_Upgrader_Skin();
 			$upgrader = new Theme_Upgrader( $skin );

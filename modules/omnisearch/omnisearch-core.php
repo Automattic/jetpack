@@ -42,7 +42,7 @@ class Jetpack_Omnisearch {
 		 *
 		 * Can be used to add your own Omnisearch provider.
 		 *
-		 * @module minileven
+		 * @module omnisearch
 		 *
 		 * @since 2.3.2
 		 */
@@ -68,7 +68,7 @@ class Jetpack_Omnisearch {
 
 	function jetpack_admin_menu() {
 		remove_submenu_page( 'index.php', 'omnisearch' );
-		$this->slug = add_submenu_page( 'jetpack', __( 'Omnisearch', 'jetpack' ), __( 'Omnisearch', 'jetpack' ), 'edit_posts', 'omnisearch', array( $this, 'omnisearch_page' ) );
+		$this->slug = add_submenu_page( null, __( 'Omnisearch', 'jetpack' ), __( 'Omnisearch', 'jetpack' ), 'edit_posts', 'omnisearch', array( $this, 'omnisearch_page' ) );
 		add_action( "admin_print_styles-{$this->slug}", array( $this, 'admin_print_styles_jetpack' ) );
 	}
 
@@ -93,7 +93,7 @@ class Jetpack_Omnisearch {
 			/**
 			 * Filter the results returned for a given Omnisearch search query.
 			 *
-			 * @module minileven
+			 * @module omnisearch
 			 *
 			 * @since 2.3.0
 			 *
@@ -105,7 +105,7 @@ class Jetpack_Omnisearch {
 		/**
 		 * Filter the number of results displayed for each Omnisearch searched section.
 		 *
-		 * @module minileven
+		 * @module omnisearch
 		 *
 		 * @since 2.3.0
 		 *
@@ -146,7 +146,14 @@ class Jetpack_Omnisearch {
 	}
 
 	function admin_bar_search( $wp_admin_bar ) {
-		if( ! is_admin() || ! current_user_can( 'edit_posts' ) )
+		if(
+			! is_admin() ||
+			! current_user_can( 'edit_posts' ) ||
+			(
+				function_exists( 'wpcom_use_wpadmin_flows' ) &&
+				! wpcom_use_wpadmin_flows()
+			)
+		)
 			return;
 
 		$form = self::get_omnisearch_form( array(
@@ -182,7 +189,7 @@ class Jetpack_Omnisearch {
 			'form_class'         => null,
 			'search_class'       => null,
 			'search_id'          => null,
-			'search_value'       => isset( $_REQUEST['s'] ) ? $_REQUEST['s'] : null,
+			'search_value'       => isset( $_REQUEST['s'] ) ? wp_unslash( $_REQUEST['s'] ) : null,
 			'search_placeholder' => __( 'Search Everything', 'jetpack' ),
 			'submit_class'       => 'button',
 			'submit_value'       => __( 'Search', 'jetpack' ),
@@ -213,7 +220,7 @@ class Jetpack_Omnisearch {
 		/**
 		 * Filters the Omnisearch search form output.
 		 *
-		 * @module minileven
+		 * @module omnisearch
 		 *
 		 * @since 2.3.0
 		 *

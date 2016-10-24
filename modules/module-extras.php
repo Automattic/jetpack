@@ -14,6 +14,7 @@ $tools = array(
 	'theme-tools/responsive-videos.php',
 	'theme-tools/site-logo.php',
 	'theme-tools/site-breadcrumbs.php',
+	'theme-tools/social-menu.php',
 	'custom-post-types/comics.php',
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
@@ -27,7 +28,7 @@ $tools = array(
  *
  * @param array $tools Array of extra tools to include.
  */
-$jetpack_tools_to_include = apply_filters( 'jetpack-tools-to-include', $tools );
+$jetpack_tools_to_include = apply_filters( 'jetpack_tools_to_include', $tools );
 
 if ( ! empty( $jetpack_tools_to_include ) ) {
 	foreach ( $jetpack_tools_to_include as $tool ) {

@@ -42,13 +42,14 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', __( 'Google+ Badge', 'jetpack' ) ),
 			array(
 				'classname'   => 'widget_googleplus_badge',
-				'description' => __( 'Display a Google+ Badge to connect visitors to your Google+', 'jetpack' )
+				'description' => __( 'Display a Google+ Badge to connect visitors to your Google+', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
-		if ( is_active_widget( '', '', 'googleplus-badge' ) ) {
+		if ( is_active_widget( '', '', 'googleplus-badge' ) || is_customize_preview() ) {
 			add_action( 'wp_print_styles',   array( $this, 'enqueue_script' ) );
 			add_filter( 'script_loader_tag', array( $this, 'replace_script_tag' ), 10, 2 );
 		}
@@ -88,13 +89,8 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			return;
 		}
 
-
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
-
-		if ( empty( $title ) ) {
-			$title = esc_html__( 'Google+', 'jetpack' );
-		}
 
 		echo $args['before_widget'];
 		echo $args['before_title'] . esc_html( $title ) . $args['after_title'];

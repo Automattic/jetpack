@@ -272,7 +272,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = (object) array(
 						'ID'   => (int) $parent->ID,
 						'type' => (string) $parent->post_type,
-						'link' => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $parent->ID ),
+						'link' => (string) $this->links->get_post_link( $this->api->get_blog_id_for_output(), $parent->ID ),
 						'title' => $parent_title,
 					);
 				} else {
@@ -316,13 +316,13 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (int) $this->api->post_like_count( $blog_id, $post->ID );
 				break;
 			case 'i_like'     :
-				$response[$key] = (int) $this->api->is_liked( $blog_id, $post->ID );
+				$response[$key] = (bool) $this->api->is_liked( $blog_id, $post->ID );
 				break;
 			case 'is_reblogged':
-				$response[$key] = (int) $this->api->is_reblogged( $blog_id, $post->ID );
+				$response[$key] = (bool) $this->api->is_reblogged( $blog_id, $post->ID );
 				break;
 			case 'is_following':
-				$response[$key] = (int) $this->api->is_following( $blog_id );
+				$response[$key] = (bool) $this->api->is_following( $blog_id );
 				break;
 			case 'global_ID':
 				$response[$key] = (string) $this->api->add_global_ID( $blog_id, $post->ID );
@@ -443,7 +443,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				foreach ( (array) has_meta( $post_id ) as $meta ) {
 					// Don't expose protected fields.
 					$show = false;
-					if ( $this->is_metadata_public( $meta['meta_key'] ) )
+					if ( WPCOM_JSON_API_Metadata::is_public( $meta['meta_key'] ) )
 						$show = true;
 					if ( current_user_can( 'edit_post_meta', $post_id , $meta['meta_key'] ) )
 						$show = true;
@@ -467,13 +467,11 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'meta' :
 				$response[$key] = (object) array(
 					'links' => (object) array(
-						'self'    => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID ),
-						'help'    => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID, 'help' ),
-						'site'    => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
-//						'author'  => (string) $this->get_user_link( $post->post_author ),
-//						'via'     => (string) $this->get_post_link( $reblog_origin_blog_id, $reblog_origin_post_id ),
-						'replies' => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID, 'replies/' ),
-						'likes'   => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID, 'likes/' ),
+						'self'    => (string) $this->links->get_post_link( $this->api->get_blog_id_for_output(), $post->ID ),
+						'help'    => (string) $this->links->get_post_link( $this->api->get_blog_id_for_output(), $post->ID, 'help' ),
+						'site'    => (string) $this->links->get_site_link( $this->api->get_blog_id_for_output() ),
+						'replies' => (string) $this->links->get_post_link( $this->api->get_blog_id_for_output(), $post->ID, 'replies/' ),
+						'likes'   => (string) $this->links->get_post_link( $this->api->get_blog_id_for_output(), $post->ID, 'likes/' ),
 					),
 				);
 				break;
@@ -632,7 +630,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$result['duration'] = (int) $metadata['duration'];
 		}
 
-		/** This filter is documented in class.jetpack-sync.php */
 		return (object) apply_filters( 'get_attachment', $result );
 	}
 
@@ -665,7 +662,11 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'invalid_post', 'Invalid post', 400 );
 		}
 
-		$posts = get_posts( array( 'name' => $name ) );
+		$posts = get_posts( array(
+			'name' => $name,
+			'numberposts' => 1,
+			'post_type' => $this->_get_whitelisted_post_types(),
+		) );
 
 		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {
 			$page = get_page_by_path( $name );

@@ -148,12 +148,25 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		remove_action( 'upgrader_process_complete', 'wp_version_check' );
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
+		$result = false;
+
 		foreach ( $this->plugins as $plugin ) {
 
 			if ( ! in_array( $plugin, $plugin_updates_needed ) ) {
 				$this->log[ $plugin ][] = __( 'No update needed', 'jetpack' );
 				continue;
 			}
+
+			/**
+			 * Pre-upgrade action
+			 * 
+			 * @since 3.9.3
+			 * 
+			 * @param array $plugin Plugin data
+			 * @param array $plugin Array of plugin objects
+			 * @param bool $updated_attempted false for the first update, true subsequently
+			 */
+			do_action('jetpack_pre_plugin_upgrade', $plugin, $this->plugins, $update_attempted);
 
 			$update_attempted = true;
 

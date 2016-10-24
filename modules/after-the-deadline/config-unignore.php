@@ -128,7 +128,7 @@ else
 </script>
    <input type="hidden" name="AtD_ignored_phrases" id="AtD_ignored_phrases" value="<?php echo esc_attr( $ignores ); ?>">
 
-          <p style="font-weight: bold"><?php _e( 'Ignored Phrases', 'jetpack' ); ?></font>
+          <p style="font-weight: bold"><?php _e( 'Ignored Phrases', 'jetpack' ); ?></p>
 
           <p><?php _e( 'Identify words and phrases to ignore while proofreading your posts and pages:', 'jetpack' ); ?></p>
 

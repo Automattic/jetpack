@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Sharing
- * Module Description: Visitors can share your content.
+ * Module Description: Allow visitors to share your content.
  * Jumpstart Description: Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.
  * Sort Order: 7
  * Recommendation Order: 6
@@ -10,7 +10,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
- * Feature: Recommended, Jumpstart, Traffic
+ * Feature: Engagement, Jumpstart
  * Additional Search Queries: share, sharing, sharedaddy, buttons, icons, email, facebook, twitter, google+, linkedin, pinterest, pocket, press this, print, reddit, tumblr
  */
 

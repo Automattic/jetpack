@@ -14,6 +14,13 @@ abstract class Jetpack_Admin_Page {
 	// Render page specific HTML
 	abstract function page_render();
 
+	/**
+	 * Function called after admin_styles to load any additional needed styles.
+	 *
+	 * @since 4.3.0
+	 */
+	function additional_styles() {}
+
 	function __construct() {
 		$this->jetpack = Jetpack::init();
 	}
@@ -34,8 +41,6 @@ abstract class Jetpack_Admin_Page {
 		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
-
-		add_action( "admin_footer-$hook",        array( $this, 'module_modal_js_template' ) );
 
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
@@ -60,12 +65,9 @@ abstract class Jetpack_Admin_Page {
 		}
 	}
 
-	// Render the page with a common top and bottom part, and page specific
-	// content
+	// Render the page with a common top and bottom part, and page specific content
 	function render() {
-		$this->admin_page_top();
 		$this->page_render();
-		$this->admin_page_bottom();
 	}
 
 	function admin_help() {
@@ -75,11 +77,6 @@ abstract class Jetpack_Admin_Page {
 	function admin_page_load() {
 		// This is big.  For the moment, just call the existing one.
 		$this->jetpack->admin_page_load();
-	}
-
-	// Load underscore template for the landing page and settings page modal
-	function module_modal_js_template() {
-		Jetpack::init()->load_view( 'admin/module-modal-template.php' );
 	}
 
 	function admin_page_top() {
@@ -100,10 +97,15 @@ abstract class Jetpack_Admin_Page {
 	function admin_styles() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
-		wp_enqueue_style( 'jetpack-google-fonts', '//fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
-
 		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
+
+		$this->additional_styles();
+	}
+
+	function is_wp_version_too_old() {
+		global $wp_version;
+		return ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) );
 	}
 }

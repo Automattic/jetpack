@@ -25,11 +25,12 @@ class Jetpack_Image_Widget extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Image', 'jetpack' ) ),
 			array(
 				'classname' => 'widget_image',
-				'description' => __( 'Display an image in your sidebar', 'jetpack' )
+				'description' => __( 'Display an image in your sidebar', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 
-		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) ) {
+		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 	}
@@ -52,9 +53,8 @@ class Jetpack_Image_Widget extends WP_Widget {
 	* @param array $instance Saved values from database.
 	*/
 	public function widget( $args, $instance ) {
-		extract( $args );
 
-		echo $before_widget;
+		echo $args['before_widget'];
 
 		$instance = wp_parse_args( $instance, array(
 			'title' => '',
@@ -64,37 +64,49 @@ class Jetpack_Image_Widget extends WP_Widget {
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
-		if ( $title )
-			echo $before_title . esc_html( $title ) . $after_title;
+		if ( $title ) {
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+		}
 
 		if ( '' != $instance['img_url'] ) {
 
 			$output = '<img src="' . esc_attr( $instance['img_url'] ) .'" ';
-			if ( '' != $instance['alt_text'] )
+
+			if ( '' != $instance['alt_text'] ) {
 				$output .= 'alt="' . esc_attr( $instance['alt_text'] ) .'" ';
-			if ( '' != $instance['img_title'] )
+			}
+			if ( '' != $instance['img_title'] ) {
 				$output .= 'title="' . esc_attr( $instance['img_title'] ) .'" ';
-			if ( '' == $instance['caption'] )
+			}
+			if ( '' == $instance['caption'] ) {
 				$output .= 'class="align' . esc_attr( $instance['align'] ) . '" ';
-			if ( '' != $instance['img_width'] )
+			}
+			if ( '' != $instance['img_width'] ) {
 				$output .= 'width="' . esc_attr( $instance['img_width'] ) .'" ';
-			if ( '' != $instance['img_height'] )
+			}
+			if ( '' != $instance['img_height'] ) {
 				$output .= 'height="' . esc_attr( $instance['img_height'] ) .'" ';
+			}
 			$output .= '/>';
-			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) )
+			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) ) {
 				$output = '<a target="_blank" href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
-			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) )
+			}
+			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) ) {
 				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
+			}
 			if ( '' != $instance['caption'] ) {
 				/** This filter is documented in core/src/wp-includes/default-widgets.php */
-				$caption = apply_filters( 'widget_text', $instance['caption'] );
-				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'"]' . $output . ' ' . $caption . '[/caption]'; // wp_kses_post caption on update
+				$caption   = apply_filters( 'widget_text', $instance['caption'] );
+				$img_width = ( ! empty( $instance['img_width'] ) ? 'style="width: ' . esc_attr( $instance['img_width'] ) .'px"' : '' );
+				$output    = '<figure ' . $img_width .' class="wp-caption align' .  esc_attr( $instance['align'] ) . '">
+					' . $output . '
+					<figcaption class="wp-caption-text">' . $caption . '</figcaption>
+				</figure>'; // wp_kses_post caption on update
 			}
-
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		}
 
-		echo "\n" . $after_widget;
+		echo "\n" . $args['after_widget'];
 	}
 
 	/**
@@ -128,10 +140,33 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$instance['img_title']         = strip_tags( $new_instance['img_title'] );
 		$instance['caption']           = wp_kses( stripslashes($new_instance['caption'] ), $allowed_caption_html );
 		$instance['align']             = $new_instance['align'];
-		$instance['img_width']         = absint( $new_instance['img_width'] );
-		$instance['img_height']        = absint( $new_instance['img_height'] );
 		$instance['link']              = esc_url( $new_instance['link'], null, 'display' );
 		$instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
+
+		$new_img_width  = absint( $new_instance['img_width'] );
+		$new_img_height = absint( $new_instance['img_height'] );
+
+		if ( ! empty( $instance['img_url'] ) && '' == $new_img_width && '' == $new_img_height ) {
+			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
+			$tmp_file = download_url( $instance['img_url'], 10 );
+			if ( ! is_wp_error( $tmp_file ) ) {
+				$size = getimagesize( $tmp_file );
+
+				$width = $size[0];
+				$instance['img_width'] = absint( $width );
+
+				$height = $size[1];
+				$instance['img_height'] = absint( $height );
+
+				unlink( $tmp_file );
+			} else {
+				$instance['img_width']  = $new_img_width;
+				$instance['img_height'] = $new_img_height;
+			}
+		} else {
+			$instance['img_width']  = $new_img_width;
+			$instance['img_height'] = $new_img_height;
+		}
 
 		return $instance;
 	}
@@ -156,30 +191,6 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$img_width         = esc_attr( $instance['img_width'] );
 		$img_height        = esc_attr( $instance['img_height'] );
 		$link_target_blank = checked( $instance['link_target_blank'], true, false );
-
-		if ( !empty( $instance['img_url'] ) ) {
-			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
-			$tmp_file = download_url( $instance['img_url'], 10 );
-			if ( ! is_wp_error( $tmp_file ) ) {
-				$size = getimagesize( $tmp_file );
-
-				if ( '' == $instance['img_width'] ) {
-					$width = $size[0];
-					$img_width = $width;
-				} else {
-					$img_width = absint( $instance['img_width'] );
-				}
-
-				if ( '' == $instance['img_height'] ) {
-					$height = $size[1];
-					$img_height = $height;
-				} else {
-					$img_height = absint( $instance['img_height'] );
-				}
-
-				unlink( $tmp_file );
-			}
-		}
 
 		$link = esc_url( $instance['link'], null, 'display' );
 

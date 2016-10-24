@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Subscriptions
- * Module Description: Allow users to subscribe to your posts and comments and receive notifications via email.
+ * Module Description: Notify your readers of new posts and comments by email.
  * Jumpstart Description: Give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.
  * Sort Order: 9
  * Recommendation Order: 8
@@ -9,29 +9,11 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Social
- * Feature: Jumpstart
+ * Feature: Engagement, Jumpstart
  * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup
  */
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
-
-Jetpack_Sync::sync_options(
-	__FILE__,
-	'home',
-	'blogname',
-	'siteurl',
-	'page_on_front',
-	'permalink_structure',
-	'category_base',
-	'rss_use_excerpt',
-	'subscription_options',
-	'stb_enabled',
-	'stc_enabled',
-	'tag_base'
-);
-
-Jetpack_Sync::sync_posts( __FILE__ );
-Jetpack_Sync::sync_comments( __FILE__ );
 
 function jetpack_subscriptions_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
@@ -188,6 +170,14 @@ class Jetpack_Subscriptions {
 		}
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
+		}
+
+		/**
+		 * If we're updating the post, let's make sure the flag to not send to subscribers
+		 * is set to minimize the chances of sending posts multiple times.
+		 */
+		if ( 'publish' == $old_status ) {
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
 
 		/**
@@ -594,11 +584,13 @@ class Jetpack_Subscriptions {
 		$blog_checked     = '';
 
 		// Check for a comment / blog submission and set a cookie to retain the setting and check the boxes.
-		if ( isset( $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash ] ) && $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash ] == $post->ID )
+		if ( isset( $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash . '_' . $post->ID ] ) ) {
 			$comments_checked = ' checked="checked"';
+		}
 
-		if ( isset( $_COOKIE[ 'jetpack_blog_subscribe_' . self::$hash ] ) )
+		if ( isset( $_COOKIE[ 'jetpack_blog_subscribe_' . self::$hash ] ) ) {
 			$blog_checked = ' checked="checked"';
+		}
 
 		// Some themes call this function, don't show the checkbox again
 		remove_action( 'comment_form', 'subscription_comment_form' );
@@ -607,7 +599,7 @@ class Jetpack_Subscriptions {
 
 		$str = '';
 
-		if ( FALSE === has_filter( 'comment_form', 'show_subscription_checkbox' ) && 1 == get_option( 'stc_enabled', 1 ) && empty( $post->post_password ) ) {
+		if ( FALSE === has_filter( 'comment_form', 'show_subscription_checkbox' ) && 1 == get_option( 'stc_enabled', 1 ) && empty( $post->post_password ) && 'post' == get_post_type() ) {
 			// Subscribe to comments checkbox
 			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $comments_checked . ' /> ';
 			$comment_sub_text = __( 'Notify me of follow-up comments by email.', 'jetpack' );
@@ -667,13 +659,14 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
+		$comment = get_comment( $comment_id );
+
 		// Set cookies for this post/comment
-		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), isset( $_REQUEST['subscribe_blog'] ) );
+		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), $comment->comment_post_ID, isset( $_REQUEST['subscribe_blog'] ) );
 
 		if ( !isset( $_REQUEST['subscribe_comments'] ) && !isset( $_REQUEST['subscribe_blog'] ) )
 			return;
 
-		$comment  = get_comment( $comment_id );
 		$post_ids = array();
 
 		if ( isset( $_REQUEST['subscribe_comments'] ) )
@@ -699,12 +692,17 @@ class Jetpack_Subscriptions {
 	 * Jetpack_Subscriptions::set_cookies()
 	 *
 	 * Set a cookie to save state on the comment and post subscription checkboxes.
+	 *
+	 * @param bool $subscribe_to_post Whether the user chose to subscribe to subsequent comments on this post.
+	 * @param int $post_id If $subscribe_to_post is true, the post ID they've subscribed to.
+	 * @param bool $subscribe_to_blog Whether the user chose to subscribe to all new posts on the blog.
 	 */
-	function set_cookies( $comments = true, $posts = true ) {
-		global $post;
+	function set_cookies( $subscribe_to_post = false, $post_id = null, $subscribe_to_blog = false ) {
+		$post_id = intval( $post_id );
 
 		/** This filter is already documented in core/wp-includes/comment-functions.php */
 		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime',       30000000 );
+
 		/**
 		 * Filter the Jetpack Comment cookie path.
 		 *
@@ -715,6 +713,7 @@ class Jetpack_Subscriptions {
 		 * @param string COOKIEPATH Cookie path.
 		 */
 		$cookie_path     = apply_filters( 'jetpack_comment_cookie_path',   COOKIEPATH );
+
 		/**
 		 * Filter the Jetpack Comment cookie domain.
 		 *
@@ -726,15 +725,17 @@ class Jetpack_Subscriptions {
 		 */
 		$cookie_domain   = apply_filters( 'jetpack_comment_cookie_domain', COOKIE_DOMAIN );
 
-		if ( $comments )
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash, $post->ID, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
-		else
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
+		if ( $subscribe_to_post && $post_id >= 0 ) {
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
+		} else {
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, '', time() - 3600, $cookie_path, $cookie_domain );
+		}
 
-		if ( $posts )
+		if ( $subscribe_to_blog ) {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
-		else
+		} else {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
+		}
 	}
 }
 
@@ -880,9 +881,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			Custom functionality for safari and IE
 			 */
 			(function( d ) {
-				// Creates placeholders for IE
+				// In case the placeholder functionality is available we remove labels
 				if ( ( 'placeholder' in d.createElement( 'input' ) ) ) {
-					var label = d.getElementById( 'jetpack-subscribe-label' );
+					var label = d.querySelector( 'label[for=subscribe-field-<?php echo $widget_id; ?>]' );
 						label.style.clip 	 = 'rect(1px, 1px, 1px, 1px)';
 						label.style.position = 'absolute';
 						label.style.height   = '1px';

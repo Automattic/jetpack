@@ -18,7 +18,10 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'wpcom_social_media_icons_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Social Media Icons', 'jetpack' ) ),
-			array( 'description' => __( 'A simple widget that displays social media icons.', 'jetpack' ), )
+			array(
+				'description' => __( 'A simple widget that displays social media icons.', 'jetpack' ),
+				'customize_selective_refresh' => true,
+			)
 		);
 
 		$this->defaults = array(
@@ -32,6 +35,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'youtube_username'   => '',
 			'vimeo_username'     => '',
 			'googleplus_username' => '',
+			'flickr_username'    => '',
 		);
 
 		$this->services = array(
@@ -44,9 +48,10 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'youtube'    => array( 'YouTube', 'https://www.youtube.com/%s/' ),
 			'vimeo'      => array( 'Vimeo', 'https://vimeo.com/%s/' ),
 			'googleplus' => array( 'Google+', 'https://plus.google.com/u/0/%s/' ),
+			'flickr'     => array( 'Flickr', 'https://www.flickr.com/photos/%s/' ),
 		);
 
-		if ( is_active_widget( false, false, $this->id_base ) ) {
+		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 	}
@@ -167,7 +172,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		echo apply_filters( 'jetpack_social_media_icons_widget_output', $html );
 	}
 
-	// backend
+	// back end
 	public function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 		?>

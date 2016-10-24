@@ -19,11 +19,10 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		$jpms = Jetpack_Network::init();
 
 		$url = $jpms->get_url( 'network_admin_page' );
-
-		$expected_url = 'http://example.org/wp-admin/network/admin.php?page=jetpack';
+		$expected_url = '/wp-admin/network/admin.php?page=jetpack';
 
 		$this->assertInternalType( 'string', $url );
-		$this->assertEquals( $expected_url, $url );
+		$this->assertStringEndsWith( $expected_url, $url );
 	}
 
 	/**
@@ -46,11 +45,11 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		$jpms = Jetpack_Network::init();
 
 		$url = $jpms->get_url(  array( 'name' => 'subsiteregister', 'site_id' => 123 ) );
-
-		$expected_url = 'http://example.org/wp-admin/network/admin.php?page=jetpack&action=subsiteregister&site_id=123';
+		$expected_url = '/wp-admin/network/admin.php?page=jetpack&action=subsiteregister&site_id=123';
 
 		$this->assertInternalType( 'string', $url );
-		$this->assertEquals( $expected_url, $url );
+		$this->assertStringEndsWith( $expected_url, $url );
+
 	}
 
 	/**
@@ -73,11 +72,10 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		$jpms = Jetpack_Network::init();
 
 		$url = $jpms->get_url(  array( 'name' => 'subsitedisconnect', 'site_id' => 123 ) );
-
-		$expected_url = 'http://example.org/wp-admin/network/admin.php?page=jetpack&action=subsitedisconnect&site_id=123';
+		$expected_url = '/wp-admin/network/admin.php?page=jetpack&action=subsitedisconnect&site_id=123';
 
 		$this->assertInternalType( 'string', $url );
-		$this->assertEquals( $expected_url, $url );
+		$this->assertStringEndsWith( $expected_url, $url );
 	}
 
 	/**
@@ -111,7 +109,6 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		$this->assertInternalType( 'string', $classes );
 		$this->assertContains( 'network-admin', $classes );
 	}
-
 
 } // end class
 endif;

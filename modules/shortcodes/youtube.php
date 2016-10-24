@@ -28,8 +28,9 @@
 // <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0"></iframe>
 
 function youtube_embed_to_short_code( $content ) {
-	if ( false === strpos( $content, 'youtube.com' ) )
+	if ( ! is_string( $content ) || false === strpos( $content, 'youtube.com' ) ) {
 		return $content;
+	}
 
 	//older codes
 	$regexp = '!<object width="\d+" height="\d+"><param name="movie" value="https?://www\.youtube\.com/v/([^"]+)"></param>(?:<param name="\w+" value="[^"]*"></param>)*<embed src="https?://www\.youtube\.com/v/(.+)" type="application/x-shockwave-flash"(?: \w+="[^"]*")* width="\d+" height="\d+"></embed></object>!i';
@@ -104,7 +105,7 @@ add_filter( 'pre_kses', 'youtube_embed_to_short_code' );
  * @return string The content with embeds instead of URLs
  */
 function youtube_link( $content ) {
-	return preg_replace_callback( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content );
+	return jetpack_preg_replace_callback_outside_tags( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content, 'youtube.com/' );
 }
 
 /**
@@ -177,14 +178,17 @@ function youtube_id( $url ) {
 	$input_w = ( isset( $qargs['w'] ) && intval( $qargs['w'] ) ) ? intval( $qargs['w'] ) : 0;
 	$input_h = ( isset( $qargs['h'] ) && intval( $qargs['h'] ) ) ? intval( $qargs['h'] ) : 0;
 
-	$default_width = get_option('embed_size_w');
+	// If we have $content_width, use it.
+	if ( ! empty( $content_width ) ) {
+		$default_width = $content_width;
+	} else {
+		// Otherwise get default width from the old, now deprecated embed_size_w option.
+		$default_width = get_option('embed_size_w');
+	}
 
+	// If we don't know those 2 values use a hardcoded width.h
 	if ( empty( $default_width ) ) {
-		if ( ! empty( $content_width ) ) {
-			$default_width = $content_width;
-		} else {
-			$default_width = 640;
-		}
+		$default_width = 640;
 	}
 
 	if ( $input_w > 0 && $input_h > 0 ) {
@@ -292,22 +296,32 @@ function youtube_id( $url ) {
 	if ( apply_filters( 'jetpack_youtube_allow_autoplay', false ) && isset( $qargs['autoplay'] ) )
 		$autoplay = '&autoplay=' . (int)$qargs['autoplay'];
 
-	$alignmentcss = 'text-align:center;';
-	if ( isset( $qargs['align'] ) ) {
-		switch ( $qargs['align'] ) {
-			case 'left':
-				$alignmentcss = "float:left; width:{$w}px; height:{$h}px; margin-right:10px; margin-bottom: 10px;";
-				break;
-			case 'right':
-				$alignmentcss = "float:right; width:{$w}px; height:{$h}px; margin-left:10px; margin-bottom: 10px;";
-				break;
-		}
+	if ( ( isset( $url['path'] ) && '/videoseries' == $url['path'] ) || isset( $qargs['list'] ) ) {
+		$html = "<iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) ) . "' allowfullscreen='true' style='border:0;'></iframe>";
+	} else {
+		$html = "<iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt$autohide&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$theme$autoplay{$cc}{$cc_lang}" ) ) . "' allowfullscreen='true' style='border:0;'></iframe>";
 	}
 
-	if ( ( isset( $url['path'] ) && '/videoseries' == $url['path'] ) || isset( $qargs['list'] ) ) {
-		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) ) . "' frameborder='0' allowfullscreen='true'></iframe></span>";
-	} else {
-		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt$autohide&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$theme$autoplay{$cc}{$cc_lang}" ) ) . "' frameborder='0' allowfullscreen='true'></iframe></span>";
+	// Let's do some alignment wonder in a span, unless we're producing a feed
+	if ( ! is_feed() ) {
+		$alignmentcss = 'text-align:center;';
+		if ( isset( $qargs['align'] ) ) {
+			switch ( $qargs['align'] ) {
+				case 'left':
+					$alignmentcss = "float:left; width:{$w}px; height:{$h}px; margin-right:10px; margin-bottom: 10px;";
+					break;
+				case 'right':
+					$alignmentcss = "float:right; width:{$w}px; height:{$h}px; margin-left:10px; margin-bottom: 10px;";
+					break;
+			}
+		}
+
+		$html = sprintf(
+			'<span class="embed-youtube" style="%s display: block;">%s</span>',
+			esc_attr( $alignmentcss ),
+			$html
+		);
+
 	}
 
 	/**
@@ -353,10 +367,25 @@ add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
  *
  * @param int get_option('embed_autourls') Option to automatically embed all plain text URLs.
  */
-if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls') ) ) {
+if ( ! is_admin() && apply_filters( 'jetpack_comments_allow_oembed', true ) ) {
 	// We attach wp_kses_post to comment_text in default-filters.php with priority of 10 anyway, so the iframe gets filtered out.
-	if ( ! is_admin() ) {
-		// Higher priority because we need it before auto-link and autop get to it
-		add_filter( 'comment_text', 'youtube_link', 1 );
-	}
+	// Higher priority because we need it before auto-link and autop get to it
+	add_filter( 'comment_text', 'youtube_link', 1 );
 }
+
+/**
+ * Core changes to do_shortcode (https://core.trac.wordpress.org/changeset/34747) broke "improper" shortcodes
+ * with the format [shortcode=http://url.com].
+ *
+ * This removes the "=" from the shortcode so it can be parsed.
+ *
+ * @see https://github.com/Automattic/jetpack/issues/3121
+ */
+function jetpack_fix_youtube_shortcode_display_filter( $content ) {
+	if ( strpos( $content, '[youtube=' ) !== false ) {
+		$content = preg_replace( '@\[youtube=(.*?)\]@', '[youtube $1]', $content );
+	}
+
+	return $content;
+}
+add_filter( 'the_content', 'jetpack_fix_youtube_shortcode_display_filter', 7 );

@@ -36,12 +36,17 @@ JetpackSlideshow.prototype.init = function() {
 		img.title = typeof( imageInfo.title ) !== 'undefined' ? imageInfo.title : '';
 		img.alt = typeof( imageInfo.alt ) !== 'undefined' ? imageInfo.alt : '';
 		img.align = 'middle';
+		img.setAttribute('itemprop','image');
 		img.nopin = 'nopin';
 		var caption = document.createElement( 'div' );
 		caption.className = 'slideshow-slide-caption';
+		caption.setAttribute('itemprop','caption description');
 		caption.innerHTML = imageInfo.caption;
 		var container = document.createElement('div');
 		container.className = 'slideshow-slide';
+		container.setAttribute('itemprop','associatedMedia');
+		container.setAttribute('itemscope','');
+		container.setAttribute('itemtype','https://schema.org/ImageObject');
 
 		// Hide loading image once first image has loaded.
 		if ( i === 0 ) {
@@ -72,7 +77,7 @@ JetpackSlideshow.prototype.makeZeroWidthSpan = function() {
 	emptySpan.className = 'slideshow-line-height-hack';
 	// Having a NBSP makes IE act weird during transitions, but other
 	// browsers ignore a text node with a space in it as whitespace.
-	if (jQuery.browser.msie) {
+	if ( -1 !== window.navigator.userAgent.indexOf( 'MSIE ' ) ) {
 		emptySpan.appendChild( document.createTextNode(' ') );
 	} else {
 		emptySpan.innerHTML = '&nbsp;';

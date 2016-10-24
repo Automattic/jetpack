@@ -152,15 +152,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			return $avatar;
 		}
 
-		if ( false === strpos( $comment->comment_author_url, '/www.facebook.com/' ) && false === strpos( $comment->comment_author_url, '/twitter.com/' ) ) {
-			// It's neither FB nor Twitter - bail
-			return $avatar;
-		}
-
-		// It's a FB or Twitter avatar
+		// Detect whether it's a Facebook or Twitter avatar
 		$foreign_avatar = get_comment_meta( $comment->comment_ID, 'hc_avatar', true );
-		if ( empty( $foreign_avatar ) ) {
-			// Can't find the avatar details - bail
+		$foreign_avatar_hostname = parse_url( $foreign_avatar, PHP_URL_HOST );
+		if ( ! $foreign_avatar_hostname ||
+				! preg_match( '/\.?(graph\.facebook\.com|twimg\.com)$/', $foreign_avatar_hostname ) ) {
 			return $avatar;
 		}
 
@@ -257,7 +253,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			 */
 			'greeting_reply'       => apply_filters( 'jetpack_comment_form_prompt_reply', __( 'Leave a Reply to %s' , 'jetpack' ) ),
 			'color_scheme'         => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
-			'lang'                 => get_bloginfo( 'language' ),
+			'lang'                 => get_locale(),
 			'jetpack_version'      => JETPACK__VERSION,
 		);
 
@@ -279,8 +275,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		$params['sig']    = $signature;
-		$url_origin       = set_url_scheme( 'http://jetpack.wordpress.com' );
-		$url              = "{$url_origin}/jetpack-comment/?" . http_build_query( $params );
+		$url              = "https://jetpack.wordpress.com/jetpack-comment/?" . http_build_query( $params );
 		$url              = "{$url}#parent=" . urlencode( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
 		$this->signed_url = $url;
 		$height           = $params['comment_registration'] || is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not allowing guest commenting
@@ -295,9 +290,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		<div id="respond" class="comment-respond">
 			<h3 id="reply-title" class="comment-reply-title"><?php comment_form_title( esc_html( $params['greeting'] ), esc_html( $params['greeting_reply'] ) ); ?> <small><?php cancel_comment_reply_link( esc_html__( 'Cancel reply' , 'jetpack') ); ?></small></h3>
-			<div id="commentform" class="comment-form">
-				<iframe src="<?php echo esc_url( $url ); ?>" allowtransparency="<?php echo $transparent; ?>" style="width:100%; height: <?php echo $height; ?>px;border:0px;" frameBorder="0" scrolling="no" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
-			</div>
+			<form id="commentform" class="comment-form">
+				<iframe src="<?php echo esc_url( $url ); ?>" allowtransparency="<?php echo $transparent; ?>" style="width:100%; height: <?php echo $height; ?>px;border:0;" frameBorder="0" scrolling="no" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
+			</form>
 		</div>
 
 		<?php // Below is required for comment reply JS to work ?>
@@ -313,7 +308,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function watch_comment_parent() {
-		$url_origin = set_url_scheme( 'http://jetpack.wordpress.com' );
+		$url_origin = 'https://jetpack.wordpress.com';
 	?>
 
 		<!--[if IE]>

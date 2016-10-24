@@ -35,10 +35,10 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 			array( 'check_admin_referer', 'wp_safe_redirect', 'do_exit' )
 		);
 
-		$client_server->authorize();
+		$result = $client_server->authorize();
 
-		$this->assertNotEquals( 'no_role', Jetpack::state( 'error' ) );
-		$this->assertNotEquals( 'no_cap', Jetpack::state( 'error' ) );
+		$this->assertNotEquals( 'no_role', $result->get_error_code() );
+		$this->assertNotEquals( 'no_cap', $result->get_error_code() );
 	}
 
 	/**
@@ -58,9 +58,9 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 			array( 'check_admin_referer', 'wp_safe_redirect', 'do_exit' )
 		);
 
-		$client_server->authorize();
+		$result = $client_server->authorize();
 
-		$this->assertEquals( 'no_role', Jetpack::state( 'error' ) );
+		$this->assertEquals( 'no_role', $result->get_error_code() );
 	}
 
 	/**
@@ -80,12 +80,9 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 			array( 'check_admin_referer', 'wp_safe_redirect', 'do_exit' )
 		);
 
-		$data_error = 'test_error';
-		$_GET[ 'error' ] = $data_error;
+		$result = $client_server->authorize( array( 'error' => 'test_error' ) );
 
-		$client_server->authorize();
-
-		$this->assertEquals( $data_error, Jetpack::state( 'error' ) );
+		$this->assertEquals( 'test_error', $result->get_error_code() );
 	}
 
 	/**

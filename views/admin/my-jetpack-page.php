@@ -1,5 +1,3 @@
-<div class="clouds-sm"></div>
-
 <div class="page-content landing">
 	<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
 
@@ -95,7 +93,7 @@
 			<?php if ( current_user_can( 'jetpack_disconnect' ) ) : ?>
 				<div class="j-row my-jetpack-actions">
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
-						<h4><?php _e( 'Jetpack Primary User', 'jetpack' ); ?><a title="<?php esc_attr_e( 'Learn about what being the Primary User means.', 'jetpack' ); ?>" class="dashicons dashicons-editor-help what-is-primary" href="https://jetpack.me/support/primary-user" target="_blank"></a></h4>
+						<h4><?php _e( 'Jetpack Primary User', 'jetpack' ); ?><a title="<?php esc_attr_e( 'Learn about what being the Primary User means.', 'jetpack' ); ?>" class="dashicons dashicons-editor-help what-is-primary" href="https://jetpack.com/support/primary-user" target="_blank"></a></h4>
 						<?php
 						// Only show dropdown if there are other admins
 						$all_users    = count_users();
@@ -106,6 +104,7 @@
 									<?php
 									$all_users = get_users();
 
+									$user_options = '';
 									foreach ( $all_users as $user ) {
 										if ( Jetpack::is_user_connected( $user->ID ) && $user->caps['administrator'] ) {
 											if ( $user->ID == Jetpack_Options::get_option( 'master_user' ) ) {
@@ -132,7 +131,14 @@
 							</form>
 						<?php else : ?>
 							<p>{{{ data.masterUser.masterUser.data.user_login }}} <?php echo $primary_text; ?></p>
-							<p><em><?php _e( 'Create additional admins to change primary user.', 'jetpack' ); ?></em></p>
+							<p><em><?php
+								echo wp_kses(
+									sprintf(
+										__( 'Create <a href="%s" title="Go to Users → All Users">additional Administrators</a> to change primary user.', 'jetpack' ),
+										admin_url( 'users.php' ) ),
+									array( 'a' => array( 'href' => true, 'title' => true ) )
+								);
+								?></p>
 						<?php endif; ?>
 					</div>
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
@@ -144,14 +150,22 @@
 				<div id="jetpack-disconnect-content">
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<h2><?php _e( 'Disconnecting Jetpack', 'jetpack' ); ?></h2>
-							<p><?php _e( 'Before you completely disconnect Jetpack is there anything we can do to help?', 'jetpack' ); ?></p>
-							<?php if ( ! Jetpack::jetpack_is_staging_site() ) : ?>
+
+							<?php if ( ! Jetpack::is_staging_site() ) : ?>
+								<h2><?php _e( 'Disconnecting Jetpack', 'jetpack' ); ?></h2>
+								<p><?php _e( 'Before you completely disconnect Jetpack is there anything we can do to help?', 'jetpack' ); ?></p>
 								<a class="button" id="confirm-disconnect" title="<?php esc_attr_e( 'Disconnect Jetpack', 'jetpack' ); ?>" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>"><?php _e( 'Confirm Disconnect', 'jetpack' ); ?></a>
-								<a class="button primary" id="support-no-disconnect" target="_blank" title="<?php esc_attr_e( 'Jetpack Support', 'jetpack' ); ?>" href="http://jetpack.me/contact-support/"><?php esc_html_e( 'I Need Support', 'jetpack' ); ?></a>
+								<a class="button primary" id="support-no-disconnect" target="_blank" title="<?php esc_attr_e( 'Jetpack Support', 'jetpack' ); ?>" href="http://jetpack.com/contact-support/"><?php esc_html_e( 'I Need Support', 'jetpack' ); ?></a>
 							<?php else : ?>
+								<h2><?php _e( 'Can not disconnect Jetpack', 'jetpack' ); ?></h2>
+								<p><?php
+									printf(
+										__( 'Disconnecting is not possible while in staging mode.<br /><a href="%s" target="_blank">Learn more about how staging sites work</a>.', 'jetpack' ),
+										'https://jetpack.com/support/why-cant-i-disconnect-my-site/'
+									);
+								?></p>
 								<input type="button" class="button" disabled="disabled" id="confirm-disconnect" value="<?php _e( 'Confirm Disconnect', 'jetpack' ); ?>">
-								<a class="button primary" id="support-no-disconnect" target="_blank" title="<?php esc_attr_e( 'Jetpack Support', 'jetpack' ); ?>" href="https://jetpack.me/support/why-cant-i-disconnect-my-site/"><?php esc_html_e( 'I Need Support', 'jetpack' ); ?></a>
+								<a class="button primary" id="support-no-disconnect" target="_blank" title="<?php esc_attr_e( 'Jetpack Support', 'jetpack' ); ?>" href="https://jetpack.com/support/why-cant-i-disconnect-my-site/"><?php esc_html_e( 'I Need Support', 'jetpack' ); ?></a>
 							<?php endif; ?>
 							<a class="cancel-disconnect" id="cancel-disconnect" target="_blank" title="<?php esc_attr_e( 'cancel', 'jetpack' ); ?>" href="#"><?php esc_html_e( 'cancel', 'jetpack' ); ?></a>
 

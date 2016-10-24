@@ -55,6 +55,19 @@ class Jetpack_Data {
 			return new WP_Error( 'fail_domain_empty', sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is empty.', 'jetpack' ), $domain ) );
 		}
 
+		/**
+		 * Skips the usuable domain check when connecting a site.
+		 *
+		 * Allows site administrators with domains that fail gethostname-based checks to pass the request to WP.com
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param bool If the check should be skipped. Default false.
+		 */
+		if ( apply_filters( 'jetpack_skip_usuable_domain_check', false ) ) {
+			return true;
+		}
+
 		// None of the explicit localhosts.
 		$forbidden_domains = array(
 			'wordpress.com',

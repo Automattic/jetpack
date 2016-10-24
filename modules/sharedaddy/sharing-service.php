@@ -44,17 +44,20 @@ class Sharing_Service {
 		// if you update this list, please update the REST API tests
 		// in bin/tests/api/suites/SharingTest.php
 		$services = array(
-			'email'         => 'Share_Email',
-			'print'         => 'Share_Print',
-			'facebook'      => 'Share_Facebook',
-			'linkedin'      => 'Share_LinkedIn',
-			'reddit'        => 'Share_Reddit',
-			'twitter'       => 'Share_Twitter',
-			'press-this'    => 'Share_PressThis',
-			'google-plus-1' => 'Share_GooglePlus1',
-			'tumblr'        => 'Share_Tumblr',
-			'pinterest'     => 'Share_Pinterest',
-			'pocket'        => 'Share_Pocket',
+			'email'             => 'Share_Email',
+			'print'             => 'Share_Print',
+			'facebook'          => 'Share_Facebook',
+			'linkedin'          => 'Share_LinkedIn',
+			'reddit'            => 'Share_Reddit',
+			'twitter'           => 'Share_Twitter',
+			'press-this'        => 'Share_PressThis',
+			'google-plus-1'     => 'Share_GooglePlus1',
+			'tumblr'            => 'Share_Tumblr',
+			'pinterest'         => 'Share_Pinterest',
+			'pocket'            => 'Share_Pocket',
+			'telegram'          => 'Share_Telegram',
+			'jetpack-whatsapp'  => 'Jetpack_Share_WhatsApp',
+			'skype'             => 'Share_Skype',
 		);
 
 		if ( $include_custom ) {
@@ -159,7 +162,7 @@ class Sharing_Service {
 			'currently_enabled' => $this->get_blog_services()
 		) );
 
-		update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
+		return update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
 	}
 
 	public function get_blog_services() {
@@ -499,13 +502,13 @@ function sharing_add_footer() {
 	global $jetpack_sharing_counts;
 
 	/**
-	 * Filter all Javascript output by the sharing module.
+	 * Filter all JavaScript output by the sharing module.
 	 *
 	 * @module sharedaddy
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param bool true Control whether the sharing module should add any Javascript to the site. Default to true.
+	 * @param bool true Control whether the sharing module should add any JavaScript to the site. Default to true.
 	 */
 	if ( apply_filters( 'sharing_js', true ) && sharing_maybe_enqueue_scripts() ) {
 
@@ -556,7 +559,7 @@ function sharing_add_header() {
 
 	if ( count( $enabled['all'] ) > 0 && sharing_maybe_enqueue_scripts() ) {
 		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), JETPACK__VERSION );
-		wp_enqueue_style( 'genericons' );
+		wp_enqueue_style( 'social-logos' );
 	}
 
 }
@@ -579,6 +582,9 @@ add_action( 'template_redirect', 'sharing_process_requests', 9 );
 
 function sharing_display( $text = '', $echo = false ) {
 	global $post, $wp_current_filter;
+	if ( Jetpack_Sync_Settings::is_syncing() ) {
+		return $text;
+	}
 
 	if ( empty( $post ) )
 		return $text;
@@ -678,8 +684,23 @@ function sharing_display( $text = '', $echo = false ) {
 
 			// Wrapper
 			$sharing_content .= '<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-' . $global['button_style'] . ' sd-sharing">';
-			if ( $global['sharing_label'] != '' )
-				$sharing_content .= '<h3 class="sd-title">' . $global['sharing_label'] . '</h3>';
+			if ( $global['sharing_label'] != '' ) {
+				$sharing_content .= sprintf(
+					/**
+					 * Filter the sharing buttons' headline structure.
+					 *
+					 * @module sharing
+					 *
+					 * @since 4.4.0
+					 *
+					 * @param string $sharing_headline Sharing headline structure.
+					 * @param string $global['sharing_label'] Sharing title.
+					 * @param string $sharing Module name.
+					 */
+					apply_filters( 'jetpack_sharing_headline_html', '<h3 class="sd-title">%s</h3>', $global['sharing_label'], 'sharing' ),
+					esc_html( $global['sharing_label'] )
+				);
+			}
 			$sharing_content .= '<div class="sd-content"><ul>';
 
 			// Visible items

@@ -54,7 +54,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		);
 
 		wp_localize_script( 'jetpack-modules-list-table', 'jetpackModulesData', array(
-			'modules' => $this->all_items,
+			'modules' => Jetpack::get_translated_modules( $this->all_items ),
 			'i18n'    => array(
 				'search_placeholder' => __( 'Search Modules…', 'jetpack' ),
 			),
@@ -103,7 +103,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
 					</th>
 					<td class='name column-name'>
-						<span class='info'><a href="#">{{{ item.name }}}</a></span>
+						<span class='info'><a href="{{{item.learn_more_button}}}" target="blank">{{{ item.name }}}</a></span>
 						<div class="row-actions">
 						<# if ( item.configurable ) { #>
 							<span class='configure'>{{{ item.configurable }}}</span>
@@ -150,6 +150,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				continue;
 			}
 			$key           = sanitize_title( $title );
+			if ( 'centralized-management' === $key && Jetpack::is_module_active( 'manage' ) ) {
+				continue;
+			}
 			$display_title = esc_html( wptexturize( $title ) );
 			$url           = esc_url( add_query_arg( 'module_tag', urlencode( $title ) ) );
 			$current       = '';
@@ -267,7 +270,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 	function column_name( $item ) {
 		$actions = array(
-			'info' => sprintf( '<a href="%s">%s</a>', esc_url( '#' ), esc_html__( 'Module Info', 'jetpack' ) ),
+			'info' => sprintf( '<a href="%s" target="blank">%s</a>', esc_url( $item['learn_more_button'] ), esc_html__( 'Feature Info', 'jetpack' ) ),
 		);
 
 		if ( ! empty( $item['configurable'] ) ) {
@@ -306,13 +309,8 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		/** This action is documented in class.jetpack-admin.php */
 		do_action( 'jetpack_learn_more_button_' . $item['module'] );
 		echo '<div id="more-info-' . $item['module'] . '" class="more-info">';
-		if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $item['module'] ) ) {
-			/** This action is documented in class.jetpack-admin.php */
-			do_action( 'jetpack_module_more_info_connected_' . $item['module'] );
-		} else {
-			/** This action is documented in class.jetpack-admin.php */
-			do_action( 'jetpack_module_more_info_' . $item['module'] );
-		}
+		/** This action is documented in class.jetpack-admin.php */
+		do_action( 'jetpack_module_more_info_' . $item['module'] );
 		echo '</div>';
 		return ob_get_clean();
 	}

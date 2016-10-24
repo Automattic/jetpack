@@ -1,14 +1,19 @@
 <?php
 
 require_once( dirname( __FILE__ ) . '/json-api-config.php' );
+require_once( dirname( __FILE__ ) . '/sal/class.json-api-links.php' );
+require_once( dirname( __FILE__ ) . '/sal/class.json-api-metadata.php' );
+require_once( dirname( __FILE__ ) . '/sal/class.json-api-date.php' );
 
 // Endpoint
 abstract class WPCOM_JSON_API_Endpoint {
 	// The API Object
 	public $api;
 
+	// The link-generating utility class
+	public $links;
+
 	public $pass_wpcom_user_details = false;
-	public $can_use_user_details_instead_of_blog_membership = false;
 
 	// One liner.
 	public $description;
@@ -45,7 +50,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		),
 		'http_envelope' => array(
 			'false' => '',
-			'true'  => 'Some environments (like in-browser Javascript or Flash) block or divert responses with a non-200 HTTP status code.  Setting this parameter will force the HTTP status code to always be 200.  The JSON response is wrapped in an "envelope" containing the "real" HTTP status code and headers.',
+			'true'  => 'Some environments (like in-browser JavaScript or Flash) block or divert responses with a non-200 HTTP status code.  Setting this parameter will force the HTTP status code to always be 200.  The JSON response is wrapped in an "envelope" containing the "real" HTTP status code and headers.',
 		),
 		'pretty' => array(
 			'false' => '',
@@ -68,6 +73,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// Is this endpoint still allowed if the site in question is flagged?
 	public $allowed_if_flagged = false;
+
+	// Is this endpoint allowed if the site is red flagged?
+	public $allowed_if_red_flagged = false;
 
 	/**
 	 * @var string Version of the API
@@ -113,6 +121,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$defaults = array(
 			'in_testing'           => false,
 			'allowed_if_flagged'   => false,
+			'allowed_if_red_flagged' => false,
 			'description'          => '',
 			'group'	               => '',
 			'method'               => 'GET',
@@ -133,7 +142,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'example_response'     => '',
 			'required_scope'       => '',
 			'pass_wpcom_user_details' => false,
-			'can_use_user_details_instead_of_blog_membership' => false,
 			'custom_fields_filtering' => false,
 			'allow_cross_origin_request' => false,
 			'allow_unauthorized_request' => false,
@@ -145,6 +153,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->in_testing  = $args['in_testing'];
 
 		$this->allowed_if_flagged = $args['allowed_if_flagged'];
+		$this->allowed_if_red_flagged = $args['allowed_if_red_flagged'];
 
 		$this->description = $args['description'];
 		$this->group       = $args['group'];
@@ -162,7 +171,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
-		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
 
 		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
 		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
@@ -191,6 +199,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		$this->api = WPCOM_JSON_API::init(); // Auto-add to WPCOM_JSON_API
+		$this->links = WPCOM_JSON_API_Links::getInstance();
 
 		/** Example Request/Response ******************************************/
 
@@ -330,7 +339,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Casts $value according to $type.
 	 * Handles fallbacks for certain values of $type when $value is not that $type
-	 * Currently, only handles fallback between string <-> array (two way), from string -> false (one way), and from object -> false (one way)
+	 * Currently, only handles fallback between string <-> array (two way), from string -> false (one way), and from object -> false (one way),
+	 * and string -> object (one way)
 	 *
 	 * Handles "child types" - array:URL, object:category
 	 * array:URL means an array of URLs
@@ -351,8 +361,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return[$key] = (string) esc_url_raw( $value );
 			break;
 		case 'string' :
-			// Fallback string -> array
-			if ( is_array( $value ) ) {
+			// Fallback string -> array, or for string -> object
+			if ( is_array( $value ) || is_object( $value ) ) {
 				if ( !empty( $types[0] ) ) {
 					$next_type = array_shift( $types );
 					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
@@ -376,11 +386,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 			break;
 		case 'media' :
 			if ( is_array( $value ) ) {
-				if ( isset( $value['name'] ) ) {
+				if ( isset( $value['name'] ) && is_array( $value['name'] ) ) {
 					// It's a $_FILES array
 					// Reformat into array of $_FILES items
-
 					$files = array();
+
 					foreach ( $value['name'] as $k => $v ) {
 						$files[$k] = array();
 						foreach ( array_keys( $value ) as $file_key ) {
@@ -637,6 +647,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'genericon'        => '(string) The Genericon unicode character for the custom style sharing button icon',
 				'preview_smart'    => '(string) An HTML snippet of a rendered sharing button smart preview',
 				'preview_smart_js' => '(string) An HTML snippet of the page-wide initialization scripts used for rendering the sharing button smart preview'
+			);
+			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
+		case 'taxonomy':
+			$docs = array(
+				'name'         => '(string) The taxonomy slug',
+				'label'        => '(string) The taxonomy human-readable name',
+				'labels'       => '(object) Mapping of labels for the taxonomy',
+				'description'  => '(string) The taxonomy description',
+				'hierarchical' => '(bool) Whether the taxonomy is hierarchical',
+				'public'       => '(bool) Whether the taxonomy is public',
+				'capabilities' => '(object) Mapping of current user capabilities for the taxonomy',
 			);
 			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
@@ -1009,7 +1031,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$first_name  = '';
 			$last_name   = '';
 			$URL         = $author->comment_author_url;
-			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
+			$avatar_URL  = $this->api->get_avatar_url( $author );
+			$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
 			$site_id     = -1;
 
@@ -1019,7 +1042,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$$field = str_replace( '&amp;', '&', $$field );
 			}
 		} else {
-			if ( isset( $author->post_author ) ) {
+			if ( isset( $author->user_id ) && $author->user_id ) {
+				$author = $author->user_id;
+			} elseif ( isset( $author->user_email ) ) {
+				$author = $author->ID;
+			} elseif ( isset( $author->post_author ) ) {
 				// then $author is a Post Object.
 				if ( 0 == $author->post_author )
 					return null;
@@ -1047,10 +1074,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 				} else {
 					$author = $author->post_author;
 				}
-			} elseif ( isset( $author->user_id ) && $author->user_id ) {
-				$author = $author->user_id;
-			} elseif ( isset( $author->user_email ) ) {
-				$author = $author->ID;
 			}
 
 			if ( ! isset( $ID ) ) {
@@ -1072,14 +1095,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
 				$active_blog = get_active_blog_for_user( $ID );
 				$site_id     = $active_blog->blog_id;
-				$profile_URL = "http://en.gravatar.com/{$login}";
+				$profile_URL = "https://en.gravatar.com/{$login}";
 			} else {
-				$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
+				$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 				$site_id     = -1;
 			}
-		}
 
-		$avatar_URL = $this->api->get_avatar_url( $email );
+			$avatar_URL = $this->api->get_avatar_url( $email );
+		}
 
 		$email = $show_email ? (string) $email : false;
 
@@ -1128,9 +1151,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
-				'help' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id, 'help' ),
-				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
+				'self' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
+				'help' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_id, 'help' ),
+				'site' => (string) $this->links->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
 
@@ -1153,6 +1176,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'guid'         => $media_item->guid,
 			'date'         => (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
 			'post_ID'      => $media_item->post_parent,
+			'author_ID'    => (int) $media_item->post_author,
 			'file'         => $file,
 			'mime_type'    => $media_item->post_mime_type,
 			'extension'    => $ext,
@@ -1169,12 +1193,29 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$response['height'] = $metadata['height'];
 				$response['width'] = $metadata['width'];
 			}
-			if ( is_array( $metadata['sizes'] ) ) {
-			      	foreach ( $metadata['sizes'] as $size => $size_details ) {
-			      	      	$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
-			      	}
+
+			if ( isset( $metadata['sizes'] ) ) {
+				/**
+				 * Filter the thumbnail sizes available for each attachment ID.
+				 *
+				 * @module json-api
+				 *
+				 * @since 3.9.0
+				 *
+				 * @param array $metadata['sizes'] Array of thumbnail sizes available for a given attachment ID.
+				 * @param string $media_id Attachment ID.
+				 */
+				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_id );
+				if ( is_array( $sizes ) ) {
+					foreach ( $sizes as $size => $size_details ) {
+						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+					}
+				}
 			}
-			$response['exif']   = $metadata['image_meta'];
+
+			if ( isset( $metadata['image_meta'] ) ) {
+				$response['exif'] = $metadata['image_meta'];
+			}
 		}
 
 		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
@@ -1222,21 +1263,21 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
-				'help' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id, 'help' ),
-				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
+				'self' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
+				'help' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_id, 'help' ),
+				'site' => (string) $this->links->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
 
 		// add VideoPress link to the meta
 		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
-				$response['meta']->links->videopress = (string) $this->get_link( '/videos/%s', $response['videopress_guid'], '' );
+				$response['meta']->links->videopress = (string) $this->links->get_link( '/videos/%s', $response['videopress_guid'], '' );
 			}
 		}
 
 		if ( $media_item->post_parent > 0 ) {
-			$response['meta']->links->parent = (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $media_item->post_parent );
+			$response['meta']->links->parent = (string) $this->links->get_post_link( $this->api->get_blog_id_for_output(), $media_item->post_parent );
 		}
 
 		return (object) $response;
@@ -1277,14 +1318,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
 
-		if ( 'category' === $taxonomy_type )
+		if ( is_taxonomy_hierarchical( $taxonomy_type ) ) {
 			$response['parent'] = (int) $taxonomy->parent;
+		}
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type ),
-				'help' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type, 'help' ),
-				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
+				'self' => (string) $this->links->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type ),
+				'help' => (string) $this->links->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type, 'help' ),
+				'site' => (string) $this->links->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
 
@@ -1300,47 +1342,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return string
 	 */
 	function format_date( $date_gmt, $date = null ) {
-		$timestamp_gmt = strtotime( "$date_gmt+0000" );
-
-		if ( null === $date ) {
-			$timestamp = $timestamp_gmt;
-			$hours     = $minutes = $west = 0;
-		} else {
-			$date_time = date_create( "$date+0000" );
-			if ( $date_time ) {
-				$timestamp = date_format(  $date_time, 'U' );
-			} else {
-				$timestamp = 0;
-			}
-
-			// "0000-00-00 00:00:00" == -62169984000
-			if ( -62169984000 == $timestamp_gmt ) {
-				// WordPress sets post_date=now, post_date_gmt="0000-00-00 00:00:00" for all drafts
-				// WordPress sets post_modified=now, post_modified_gmt="0000-00-00 00:00:00" for new drafts
-
-				// Try to guess the correct offset from the blog's options.
-				$timezone_string = get_option( 'timezone_string' );
-
-				if ( $timezone_string && $date_time ) {
-					$timezone = timezone_open( $timezone_string );
-					if ( $timezone ) {
-						$offset = $timezone->getOffset( $date_time );
-					}
-				} else {
-					$offset = 3600 * get_option( 'gmt_offset' );
-				}
-			} else {
-				$offset = $timestamp - $timestamp_gmt;
-			}
-
-			$west      = $offset < 0;
-			$offset    = abs( $offset );
-			$hours     = (int) floor( $offset / 3600 );
-			$offset   -= $hours * 3600;
-			$minutes   = (int) floor( $offset / 60 );
-		}
-
-		return (string) gmdate( 'Y-m-d\\TH:i:s', $timestamp ) . sprintf( '%s%02d:%02d', $west ? '-' : '+', $hours, $minutes );
+		return WPCOM_JSON_API_Date::format_date( $date_gmt, $date );
 	}
 
 	/**
@@ -1404,15 +1406,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( defined( 'REST_API_THEME_FUNCTIONS_LOADED' ) )
 			return;
 
+		// VIP context loading is handled elsewhere, so bail to prevent
+		// duplicate loading. See `switch_to_blog_and_validate_user()`
+		if ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) {
+			return;
+		}
+
 		define( 'REST_API_THEME_FUNCTIONS_LOADED', true );
 
 		// the theme info we care about is found either within functions.php or one of the jetpack files.
 		$function_files = array( '/functions.php', '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php' );
 
 		$copy_dirs = array( get_template_directory() );
-		if ( wpcom_is_vip() ) {
-			$copy_dirs[] = WP_CONTENT_DIR . '/themes/vip/plugins/';
-		}
 
 		// Is this a child theme? Load the child theme's functions file.
 		if ( get_stylesheet_directory() !== get_template_directory() && wpcom_is_child_theme() ) {
@@ -1509,225 +1514,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		return false;
 	}
-
-	/**
-	 * Try to find the closest supported version of an endpoint to the current endpoint
-	 *
-	 * For example, if we were looking at the path /animals/panda:
-	 * - if the current endpoint is v1.3 and there is a v1.3 of /animals/%s available, we return 1.3
-	 * - if the current endpoint is v1.3 and there is no v1.3 of /animals/%s known, we fall back to the
-	 *   maximum available version of /animals/%s, e.g. 1.1
-	 *
-	 * This method is used in get_link() to construct meta links for API responses.
-	 *
-	 * @param $path string The current endpoint path, relative to the version
-	 * @param $method string Request method used to access the endpoint path
-	 * @return string The current version, or otherwise the maximum version available
-	 */
-	function get_closest_version_of_endpoint( $path, $request_method = 'GET' ) {
-
-		$path = untrailingslashit( $path );
-
-		// /help is a special case - always use the current request version
-		if ( wp_endswith( $path, '/help' ) ) {
-			return $this->api->version;
-		}
-
-		$endpoint_path_versions = $this->get_endpoint_path_versions();
-		$last_path_segment = $this->get_last_segment_of_relative_path( $path );
-		$max_version_found = null;
-
-		foreach ( $endpoint_path_versions as $endpoint_last_path_segment => $endpoints ) {
-
-			// Does the last part of the path match the path key? (e.g. 'posts')
-			// If the last part contains a placeholder (e.g. %s), we want to carry on
-			if ( $last_path_segment != $endpoint_last_path_segment && ! strstr( $endpoint_last_path_segment, '%' ) ) {
-				continue;
-			}
-
-			foreach ( $endpoints as $endpoint ) {
-				// Does the request method match?
-				if ( ! in_array( $request_method, $endpoint['request_methods'] ) ) {
-					continue;
-				}
-
-				$endpoint_path = untrailingslashit( $endpoint['path'] );
-				$endpoint_path_regex = str_replace( array( '%s', '%d' ), array( '([^/?&]+)', '(\d+)' ), $endpoint_path );
-
-				if ( ! preg_match( "#^$endpoint_path_regex\$#", $path, $matches ) ) {
-					continue;
-				}
-
-				// Make sure the endpoint exists at the same version
-				if ( version_compare( $this->api->version, $endpoint['min_version'], '>=') &&
-					 version_compare( $this->api->version, $endpoint['max_version'], '<=') ) {
-					return $this->api->version;
-				}
-
-				// If the endpoint doesn't exist at the same version, record the max version we found
-				if ( empty( $max_version_found ) || version_compare( $max_version_found, $endpoint['max_version'], '<' ) ) {
-					$max_version_found = $endpoint['max_version'];
-				}
-			}
-		}
-
-		// If the endpoint version is less than the requested endpoint version, return the max version found
-		if ( ! empty( $max_version_found ) ) {
-			return $max_version_found;
-		}
-
-		// Otherwise, use the API version of the current request
-		return $this->api->version;
-	}
-
-	/**
-	 * Get an array of endpoint paths with their associated versions
-	 *
-	 * The result is cached for 30 minutes.
-	 *
-	 * @return array Array of endpoint paths, min_versions and max_versions, keyed by last segment of path
-	 **/
-	protected function get_endpoint_path_versions() {
-
-		// Do we already have the result of this method in the cache?
-		$cache_result = get_transient( 'endpoint_path_versions' );
-
-		if ( ! empty ( $cache_result ) ) {
-			return $cache_result;
-		}
-
-		/*
-		 * Create a map of endpoints and their min/max versions keyed by the last segment of the path (e.g. 'posts')
-		 * This reduces the search space when finding endpoint matches in get_closest_version_of_endpoint()
-		 */
-		$endpoint_path_versions = array();
-
-		foreach ( $this->api->endpoints as $key => $endpoint_objects ) {
-
-			// The key contains a serialized path, min_version and max_version
-			list( $path, $min_version, $max_version ) = unserialize( $key );
-
-			// Grab the last component of the relative path to use as the top-level key
-			$last_path_segment = $this->get_last_segment_of_relative_path( $path );
-
-			$endpoint_path_versions[ $last_path_segment ][] = array(
-				'path' => $path,
-				'min_version' => $min_version,
-				'max_version' => $max_version,
-				'request_methods' => array_keys( $endpoint_objects )
-			);
-		}
-
-		set_transient(
-			'endpoint_path_versions',
-			$endpoint_path_versions,
-			(HOUR_IN_SECONDS / 2)
-		);
-
-		return $endpoint_path_versions;
-	}
-
-	/**
-	 * Grab the last segment of a relative path
-	 *
-	 * @param string $path Path
-	 * @return string Last path segment
-	 */
-	protected function get_last_segment_of_relative_path( $path) {
-		$path_parts = array_filter( explode( '/', $path ) );
-
-		if ( empty( $path_parts ) ) {
-			return null;
-		}
-
-		return end( $path_parts );
-	}
-
-	/**
-	 * Generate a URL to an endpoint
-	 *
-	 * Used to construct meta links in API responses
-	 *
-	 * @param mixed $args Optional arguments to be appended to URL
-	 * @return string Endpoint URL
-	 **/
-	function get_link() {
-		$args   = func_get_args();
-		$format = array_shift( $args );
-		$base = WPCOM_JSON_API__BASE;
-
-		$path = array_pop( $args );
-
-		if ( $path ) {
-			$path = '/' . ltrim( $path, '/' );
-		}
-
-		$args[] = $path;
-
-		// Escape any % in args before using sprintf
-		$escaped_args = array();
-		foreach ( $args as $arg_key => $arg_value ) {
-			$escaped_args[ $arg_key ] = str_replace( '%', '%%', $arg_value );
-		}
-
-		$relative_path = vsprintf( "$format%s", $escaped_args );
-
-		if ( ! wp_startswith( $relative_path, '.' ) ) {
-			// Generic version. Match the requested version as best we can
-			$api_version = $this->get_closest_version_of_endpoint( $relative_path );
-			$base        = substr( $base, 0, - 1 ) . $api_version;
-		}
-
-		// escape any % in the relative path before running it through sprintf again
-		$relative_path = str_replace( '%', '%%', $relative_path );
-		// http, WPCOM_JSON_API__BASE, ...    , path
-		// %s  , %s                  , $format, %s
-		return esc_url_raw( sprintf( "%s://%s$relative_path", $this->api->public_api_scheme, $base ) );
-	}
-
-	function get_me_link( $path = '' ) {
-		return $this->get_link( '/me', $path );
-	}
-
-	function get_taxonomy_link( $blog_id, $taxonomy_id, $taxonomy_type, $path = '' ) {
-		if ( 'category' === $taxonomy_type )
-			return $this->get_link( '/sites/%d/categories/slug:%s', $blog_id, $taxonomy_id, $path );
-		else
-			return $this->get_link( '/sites/%d/tags/slug:%s', $blog_id, $taxonomy_id, $path );
-	}
-
-	function get_media_link( $blog_id, $media_id, $path = '' ) {
-		return $this->get_link( '/sites/%d/media/%d', $blog_id, $media_id, $path );
-	}
-
-	function get_site_link( $blog_id, $path = '' ) {
-		return $this->get_link( '/sites/%d', $blog_id, $path );
-	}
-
-	function get_post_link( $blog_id, $post_id, $path = '' ) {
-		return $this->get_link( '/sites/%d/posts/%d', $blog_id, $post_id, $path );
-	}
-
-	function get_comment_link( $blog_id, $comment_id, $path = '' ) {
-		return $this->get_link( '/sites/%d/comments/%d', $blog_id, $comment_id, $path );
-	}
-
-	function get_publicize_connection_link( $blog_id, $publicize_connection_id, $path = '' ) {
-		return $this->get_link( '.1/sites/%d/publicize-connections/%d', $blog_id, $publicize_connection_id, $path );
-	}
-
-	function get_publicize_connections_link( $keyring_token_id, $path = '' ) {
-		return $this->get_link( '.1/me/publicize-connections/?keyring_connection_ID=%d', $keyring_token_id, $path );
-	}
-
-	function get_keyring_connection_link( $keyring_token_id, $path = '' ) {
-		return $this->get_link( '.1/me/keyring-connections/%d', $keyring_token_id, $path );
-	}
-
-	function get_external_service_link( $external_service, $path = '' ) {
-		return $this->get_link( '.1/meta/external-services/%s', $external_service, $path );
-	}
-
 
 	/**
 	* Check whether a user can view or edit a post type
@@ -1864,21 +1650,49 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$attrs = $media_attrs[$index];
 				$insert = array();
 
-				if ( ! empty( $attrs['title'] ) ) {
+				// Attributes: Title, Caption, Description
+
+				if ( isset( $attrs['title'] ) ) {
 					$insert['post_title'] = $attrs['title'];
 				}
 
-				if ( ! empty( $attrs['caption'] ) )
+				if ( isset( $attrs['caption'] ) ) {
 					$insert['post_excerpt'] = $attrs['caption'];
+				}
 
-				if ( ! empty( $attrs['description'] ) )
+				if ( isset( $attrs['description'] ) ) {
 					$insert['post_content'] = $attrs['description'];
+				}
 
-				if ( empty( $insert ) )
-					continue;
+				if ( ! empty( $insert ) ) {
+					$insert['ID'] = $media_id;
+					wp_update_post( (object) $insert );
+				}
 
-				$insert['ID'] = $media_id;
-				wp_update_post( (object) $insert );
+				// Attributes: Alt
+
+				if ( isset( $attrs['alt'] ) ) {
+					$alt = wp_strip_all_tags( $attrs['alt'], true );
+					update_post_meta( $media_id, '_wp_attachment_image_alt', $alt );
+				}
+
+				// Attributes: Artist, Album
+
+				$id3_meta = array();
+
+				foreach ( array( 'artist', 'album' ) as $key ) {
+					if ( isset( $attrs[ $key ] ) ) {
+						$id3_meta[ $key ] = wp_strip_all_tags( $attrs[ $key ], true );
+					}
+				}
+
+				if ( ! empty( $id3_meta ) ) {
+					// Before updating metadata, ensure that the item is audio
+					$item = $this->get_media_item_v1_1( $media_id );
+					if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
+						wp_update_attachment_metadata( $media_id, $id3_meta );
+					}
+				}
 			}
 		}
 
@@ -1886,7 +1700,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	}
 
-	function handle_media_sideload( $url, $parent_post_id = 0 ) {
+	function handle_media_sideload( $url, $parent_post_id = 0, $type = 'any' ) {
 		if ( ! function_exists( 'download_url' ) || ! function_exists( 'media_handle_sideload' ) )
 			return false;
 
@@ -1900,7 +1714,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return $tmp;
 		}
 
-		if ( ! file_is_displayable_image( $tmp ) ) {
+		// First check to see if we get a mime-type match by file, otherwise, check to
+		// see if WordPress supports this file as an image. If neither, then it is not supported.
+		if ( ! $this->is_file_supported_for_sideloading( $tmp ) && 'image' === $type && ! file_is_displayable_image( $tmp ) ) {
 			@unlink( $tmp );
 			return false;
 		}
@@ -1923,6 +1739,62 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		return $id;
+	}
+
+	/**
+	 * Checks that the mime type of the specified file is among those in a filterable list of mime types.
+	 *
+	 * @param string $file Path to file to get its mime type.
+	 *
+	 * @return bool
+	 */
+	protected function is_file_supported_for_sideloading( $file ) {
+		if ( class_exists( 'finfo' ) ) { // php 5.3+
+			$finfo = new finfo( FILEINFO_MIME );
+			$mime = explode( '; ', $finfo->file( $file ) );
+			$type = $mime[0];
+
+		} elseif ( function_exists( 'mime_content_type' ) ) { // PHP 5.2
+			$type = mime_content_type( $file );
+
+		} else {
+			return false;
+		}
+
+		/**
+		 * Filter the list of supported mime types for media sideloading.
+		 *
+		 * @since 4.0.0
+		 *
+		 * @module json-api
+		 *
+		 * @param array $supported_mime_types Array of the supported mime types for media sideloading.
+		 */
+		$supported_mime_types = apply_filters( 'jetpack_supported_media_sideload_types', array(
+			'image/png',
+			'image/jpeg',
+			'image/gif',
+			'image/bmp',
+			'video/quicktime',
+			'video/mp4',
+			'video/mpeg',
+			'video/ogg',
+			'video/3gpp',
+			'video/3gpp2',
+			'video/h261',
+			'video/h262',
+			'video/h264',
+			'video/x-msvideo',
+			'video/x-ms-wmv',
+			'video/x-ms-asf',
+		) );
+
+		// If the type returned was not an array as expected, then we know we don't have a match.
+		if ( ! is_array( $supported_mime_types ) ) {
+			return false;
+		}
+
+		return in_array( $type, $supported_mime_types );
 	}
 
 	function allow_video_uploads( $mimes ) {
@@ -2005,6 +1877,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	function allows_unauthorized_requests( $origin, $complete_access_origins  ) {
 		return 'GET' == $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins ) );
+	}
+
+	function get_platform() {
+		return wpcom_get_sal_platform( $this->api->token_details );
 	}
 
 	/**

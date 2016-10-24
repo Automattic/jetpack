@@ -7,17 +7,9 @@
  * Requires Connection: Yes
  * Auto Activate: Public
  * Module Tags: Writing
- * Feature: Traffic
+ * Feature: Engagement
  * Additional Search Queries: google, seo, firehose, search, broadcast, broadcasting
  */
-
-Jetpack_Sync::sync_posts( __FILE__ );
-Jetpack_Sync::sync_comments( __FILE__ );
-
-function jetpack_enhanced_distribution_activate() {
-	Jetpack::check_privacy( __FILE__ );
-}
-
 
 // In case it's active prior to upgrading to 1.9
 function jetpack_enhanced_distribution_before_activate_default_modules() {
@@ -31,7 +23,6 @@ function jetpack_enhanced_distribution_before_activate_default_modules() {
 	Jetpack::check_privacy( __FILE__ );
 }
 
-add_action( 'jetpack_activate_module_enhanced-distribution', 'jetpack_enhanced_distribution_activate' );
 add_action( 'jetpack_before_activate_default_modules', 'jetpack_enhanced_distribution_before_activate_default_modules' );
 
 /**
@@ -51,5 +42,26 @@ if ( isset( $_GET['get_freshly_pressed_data'] ) ) {
 				'message' => 'Not Singular',
 			) );
 		}
+	}
+}
+
+add_action( 'rss_head',  'jetpack_enhanced_distribution_feed_id' );
+add_action( 'rss_item',  'jetpack_enhanced_distribution_post_id' );
+add_action( 'rss2_head', 'jetpack_enhanced_distribution_feed_id' );
+add_action( 'rss2_item', 'jetpack_enhanced_distribution_post_id' );
+
+function jetpack_enhanced_distribution_feed_id(){
+	(int) $id = Jetpack_Options::get_option( 'id' );
+	if ( $id > 0 ) {
+		$output = sprintf( '<site xmlns="com-wordpress:feed-additions:1">%d</site>', $id );
+		echo $output;
+	}
+}
+
+function jetpack_enhanced_distribution_post_id(){
+	$id = get_the_ID();
+	if ( $id ) {
+		$output = sprintf( '<post-id xmlns="com-wordpress:feed-additions:1">%d</post-id>', $id );
+		echo $output;
 	}
 }

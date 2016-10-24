@@ -1,15 +1,4 @@
 <?php
-
-function grunion_menu_alter() {
-	if( is_rtl() ){
-		wp_enqueue_style( 'grunion-menu-alter', plugins_url( 'css/rtl/menu-alter-rtl.css', __FILE__ ) );
-	} else {
-		wp_enqueue_style( 'grunion-menu-alter', plugins_url( 'css/menu-alter.css', __FILE__ ) );
-	}
-}
-
-add_action( 'admin_enqueue_scripts', 'grunion_menu_alter' );
-
 /**
  * Add a contact form button to the post composition screen
  */
@@ -45,6 +34,9 @@ function grunion_display_form_view() {
 add_action( 'admin_print_styles', 'grunion_admin_css' );
 function grunion_admin_css() {
 	global $current_screen;
+	if ( is_null( $current_screen ) ) {
+		return;
+	}
 	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'jetpack_page_omnisearch', 'dashboard_page_omnisearch' ) ) ) {
 		return;
 	}
@@ -82,13 +74,6 @@ function grunion_admin_css() {
 color: #D98500;
 }
 
-#icon-edit.icon32-posts-feedback, #icon-post.icon32-posts-feedback { background: url("<?php echo GRUNION_PLUGIN_URL; ?>images/grunion-menu-big.png") no-repeat !important; }
-@media only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
-	#icon-edit.icon32-posts-feedback, #icon-post.icon32-posts-feedback { background: url("<?php echo GRUNION_PLUGIN_URL; ?>images/grunion-menu-big-2x.png") no-repeat !important; background-size: 30px 31px !important; }
-}
-
-#icon-edit.icon32-posts-feedback { background-position: 2px 2px !important; }
-
 </style>
 
 <?php
@@ -105,6 +90,10 @@ add_action( 'admin_head', 'grunion_add_bulk_edit_option' );
 function grunion_add_bulk_edit_option() {
 
 	$screen = get_current_screen();
+
+	if ( is_null( $screen ) ) {
+		return;
+	}
 
 	if ( 'edit-feedback' != $screen->id ) {
 		return;
@@ -142,6 +131,10 @@ function grunion_add_bulk_edit_option() {
 add_action( 'admin_head', 'grunion_add_empty_spam_button' );
 function grunion_add_empty_spam_button() {
 	$screen = get_current_screen();
+
+	if ( is_null( $screen ) ) {
+		return;
+	}
 
 	// Only add to feedback, only to spam view
 	if ( 'edit-feedback' != $screen->id
@@ -287,10 +280,10 @@ function grunion_manage_post_columns( $col, $post_id ) {
 
 	switch ( $col ) {
 		case 'feedback_from':
-			$author_name  = $content_fields['_feedback_author'];
-			$author_email = $content_fields['_feedback_author_email'];
-			$author_url   = $content_fields['_feedback_author_url'];
-			$author_ip    = $content_fields['_feedback_ip'];
+			$author_name  = isset( $content_fields['_feedback_author'] ) ? $content_fields['_feedback_author'] : '';
+			$author_email = isset( $content_fields['_feedback_author_email'] ) ? $content_fields['_feedback_author_email'] : '';
+			$author_url   = isset( $content_fields['_feedback_author_url'] ) ? $content_fields['_feedback_author_url'] : '';
+			$author_ip    = isset( $content_fields['_feedback_ip'] ) ? $content_fields['_feedback_ip'] : '';
 			$form_url     = isset( $post->post_parent ) ? get_permalink( $post->post_parent ) : null;
 
 			$author_name_line = '';
@@ -303,7 +296,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 
 			$author_email_line = '';
 			if ( !empty( $author_email ) ) {
-				$author_email_line = sprintf( "<a href='%1\$s'>%2\$s</a><br />", esc_url( "mailto:" . $author_email ) , esc_html( $author_email ) );
+				$author_email_line = sprintf( "<a href='%1\$s' target='_blank'>%2\$s</a><br />", esc_url( "mailto:" . $author_email ) , esc_html( $author_email ) );
 			}
 
 			$author_url_line = '';
@@ -323,9 +316,12 @@ function grunion_manage_post_columns( $col, $post_id ) {
 
 		case 'feedback_message':
 			$post_type_object = get_post_type_object( $post->post_type );
-			echo '<strong>';
-			echo esc_html( $content_fields['_feedback_subject'] );
-			echo '</strong><br />';
+			if ( isset( $content_fields['_feedback_subject'] ) ) {
+				echo '<strong>';
+				echo esc_html( $content_fields['_feedback_subject'] );
+				echo '</strong>';
+				echo '<br />';
+			}
 			echo sanitize_text_field( get_the_content( '' ) );
 			echo '<br />';
 

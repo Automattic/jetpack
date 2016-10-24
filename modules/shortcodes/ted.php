@@ -18,42 +18,47 @@ function jetpack_shortcode_get_ted_id( $atts ) {
 }
 
 add_shortcode( 'ted', 'shortcode_ted' );
-function shortcode_ted( $atts, $content = '' ) {
+function shortcode_ted( $atts ) {
 	global $wp_embed;
 
 	$defaults = array(
-			'id'          => '',
-			'width'       => '',
-			'height'      => '',
-			'lang'        => 'en',
-		);
-	$atts = shortcode_atts( $defaults, $atts, 'ted' );
+		'id'     => '',
+		'width'  => '',
+		'height' => '',
+		'lang'   => 'en',
+	);
+	$atts     = shortcode_atts( $defaults, $atts, 'ted' );
 
-	if ( empty( $atts['id'] ) )
+	if ( empty( $atts['id'] ) ) {
 		return '<!-- Missing TED ID -->';
+	}
 
-	if ( preg_match( "#^[\d]+$#", $atts['id'], $matches ) )
+	$url = '';
+	if ( preg_match( '#^[\d]+$#', $atts['id'], $matches ) ) {
 		$url = 'http://ted.com/talks/view/id/' . $matches[0];
-	elseif ( preg_match( "#^https?://(www\.)?ted\.com/talks/view/id/[0-9]+$#", $atts['id'], $matches ) )
+	} elseif ( preg_match( '#^https?://(www\.)?ted\.com/talks/view/id/[0-9]+$#', $atts['id'], $matches ) ) {
 		$url = $matches[0];
+	}
 
 	unset( $atts['id'] );
 
 	$args = array();
-	if ( is_numeric( $atts['width'] ) )
+	if ( is_numeric( $atts['width'] ) ) {
 		$args['width'] = $atts['width'];
-	else if ( $embed_size_w = get_option( 'embed_size_w' ) )
+	} else if ( $embed_size_w = get_option( 'embed_size_w' ) ) {
 		$args['width'] = $embed_size_w;
-	else if ( ! empty( $GLOBALS['content_width'] ) )
-		$args['width'] = (int)$GLOBALS['content_width'];
-	else
+	} else if ( ! empty( $GLOBALS['content_width'] ) ) {
+		$args['width'] = (int) $GLOBALS['content_width'];
+	} else {
 		$args['width'] = 500;
+	}
 
 	// Default to a 16x9 aspect ratio if there's no height set
-	if ( is_numeric( $atts['height'] ) )
+	if ( is_numeric( $atts['height'] ) ) {
 		$args['height'] = $atts['height'];
-	else
+	} else {
 		$args['height'] = $args['width'] * 0.5625;
+	}
 
 	if ( ! empty( $atts['lang'] ) ) {
 		$args['lang'] = sanitize_key( $atts['lang'] );
@@ -61,6 +66,7 @@ function shortcode_ted( $atts, $content = '' ) {
 	}
 	$retval = $wp_embed->shortcode( $args, $url );
 	remove_filter( 'oembed_fetch_url', 'ted_filter_oembed_fetch_url', 10 );
+
 	return $retval;
 }
 

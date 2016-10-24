@@ -17,8 +17,9 @@ function jetpack_shortcode_get_youtube_id( $url ) {
 */
 function jetpack_get_youtube_id( $url ) {
 	// Do we have an $atts array?  Get first att
-	if ( is_array( $url ) )
-		$url = $url[0];
+	if ( is_array( $url ) ) {
+		$url = reset( $url );
+	}
 
 	$url = youtube_sanitize_url( $url );
 	$url = parse_url( $url );

@@ -1,7 +1,7 @@
 <?php
 /**
  * Jetpack Compatibility File
- * See: http://jetpack.me/
+ * See: http://jetpack.com/
  */
 
 function twentyfifteen_jetpack_setup() {

@@ -119,7 +119,7 @@ class Jetpack_Widget_Conditions {
 				<optgroup label="<?php esc_attr_e( 'Post type:', 'jetpack' ); ?>">
 					<?php
 
-					$post_types = get_post_types( array( 'public' => true ), 'objects' );
+					$post_types = get_post_types( array( 'public' => true, '_builtin' => true ), 'objects' );
 
 					foreach ( $post_types as $post_type ) {
 						?>
@@ -172,6 +172,55 @@ class Jetpack_Widget_Conditions {
 				</optgroup>
 				<?php
 				}
+			break;
+
+			case 'post_type':
+				?>
+				<optgroup label="<?php echo esc_attr_x( 'Single post:', 'a heading for a list of custom post types', 'jetpack' ); ?>">
+					<?php
+
+					$post_types = get_post_types( array( 'public' => true, '_builtin' => false ), 'objects' );
+
+					foreach ( $post_types as $post_type ) {
+						?>
+						<option
+								value="<?php echo esc_attr( 'post_type-' . $post_type->name ); ?>"
+								<?php selected( 'post_type-' . $post_type->name, $minor ); ?>>
+							<?php echo esc_html( $post_type->labels->singular_name ); ?>
+						</option>
+						<?php
+					}
+
+					?>
+				</optgroup>
+				<optgroup label="<?php echo esc_attr_x( 'Archive page:', 'a heading for a list of custom post archive pages', 'jetpack' ); ?>">
+					<?php
+
+					$post_types = get_post_types( array( 'public' => true, '_builtin' => false ), 'objects' );
+
+					foreach ( $post_types as $post_type ) {
+						?>
+						<option
+								value="<?php echo esc_attr( 'post_type_archive-' . $post_type->name ); ?>"
+								<?php selected( 'post_type_archive-' . $post_type->name, $minor ); ?>>
+							<?php
+								echo sprintf(
+									/* translators: %s is a plural name of the custom post type, i.e. testimonials */
+									_x(
+										'Archive of %s',
+										'a label in the list of custom post type archive pages',
+										'jetpack'
+									),
+									$post_type->labels->name
+								);
+							?>
+						</option>
+						<?php
+					}
+
+					?>
+				</optgroup>
+				<?php
 			break;
 		}
 	}
@@ -252,6 +301,7 @@ class Jetpack_Widget_Conditions {
 					<?php
 
 					foreach ( $conditions['rules'] as $rule ) {
+						$rule = wp_parse_args( $rule, array( 'major' => '', 'minor' => '', 'has_children' => '' ) );
 						?>
 						<div class="condition">
 							<div class="selection alignleft">
@@ -268,7 +318,7 @@ class Jetpack_Widget_Conditions {
 									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
 									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
-
+									<option value="post_type" <?php selected( "post_type", $rule['major'] ); ?>><?php echo esc_html_x( 'Post Type', 'Example: the user is viewing a custom post type archive.', 'jetpack' ); ?></option>
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 										<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
@@ -311,6 +361,10 @@ class Jetpack_Widget_Conditions {
 	 * @return array Modified settings.
 	 */
 	public static function widget_update( $instance, $new_instance, $old_instance ) {
+		if ( empty( $_POST['conditions'] ) ) {
+			return $instance;
+		}
+
 		$conditions = array();
 		$conditions['action'] = $_POST['conditions']['action'];
 		$conditions['rules'] = array();
@@ -376,6 +430,9 @@ class Jetpack_Widget_Conditions {
 
 		foreach ( $widget_areas as $widget_area => $widgets ) {
 			if ( empty( $widgets ) )
+				continue;
+
+			if ( ! is_array( $widgets ) )
 				continue;
 
 			if ( 'wp_inactive_widgets' == $widget_area )
@@ -510,7 +567,8 @@ class Jetpack_Widget_Conditions {
 									$condition_result = $wp_query->is_posts_page;
 								} else {
 									// $rule['minor'] is a page ID
-									$condition_result = is_page( $rule['minor'] );
+									$condition_result = is_page() && ( $rule['minor'] == get_the_ID() );
+
 									// Check if $rule['minor'] is parent of page ID
 									if ( ! $condition_result && isset( $rule['has_children'] ) && $rule['has_children'] )
 										$condition_result = wp_get_post_parent_id( get_the_ID() ) == $rule['minor'];
@@ -527,7 +585,7 @@ class Jetpack_Widget_Conditions {
 								$condition_result = true;
 							} else {
 								$tag = get_tag( $rule['minor'] );
-								if ( $tag && is_tag( $tag->slug ) ) {
+								if ( $tag && ! is_wp_error( $tag ) && is_tag( $tag->slug ) ) {
 									$condition_result = true;
 								}
 							}
@@ -561,8 +619,7 @@ class Jetpack_Widget_Conditions {
 					break;
 					case 'role':
 						if( is_user_logged_in() ) {
-							global $current_user;
-							get_currentuserinfo();
+							$current_user = wp_get_current_user();
 
 							$user_roles = $current_user->roles;
 
@@ -574,6 +631,13 @@ class Jetpack_Widget_Conditions {
 
 						} else {
 							$condition_result = false;
+						}
+					break;
+					case 'post_type':
+						if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
+							$condition_result = is_singular( substr( $rule['minor'], 10 ) );
+						} elseif ( substr( $rule['minor'], 0, 18 ) == 'post_type_archive-' ) {
+							$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
 						}
 					break;
 					case 'taxonomy':

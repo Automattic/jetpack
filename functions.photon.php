@@ -12,6 +12,21 @@
 function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	$image_url = trim( $image_url );
 
+	if ( class_exists( 'Jetpack') ) {
+		/**
+		 * Disables Photon URL processing for local development
+	 	 *
+	 	 * @module photon
+	 	 *
+	 	 * @since 4.1.0
+	 	 *
+	 	 * @param bool false Result of Jetpack::is_development_mode.
+	 	 */
+		if ( true === apply_filters( 'jetpack_photon_development_mode', Jetpack::is_development_mode() ) ) {
+			return $image_url;
+		}
+	}
+
 	/**
 	 * Allow specific image URls to avoid going through Photon.
 	 *
@@ -39,7 +54,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 * @param array|string $args Array of Photon arguments.
 	 * @param string|null $scheme Image scheme. Default to null.
 	 */
-	$image_url = apply_filters( 'jetpack_photon_pre_image_url', $image_url, $args,      $scheme );
+	$image_url = apply_filters( 'jetpack_photon_pre_image_url', $image_url, $args, $scheme );
 	/**
 	 * Filter the original Photon image parameters before Photon is applied to an image.
 	 *
@@ -51,7 +66,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 * @param string $image_url Image URL.
 	 * @param string|null $scheme Image scheme. Default to null.
 	 */
-	$args      = apply_filters( 'jetpack_photon_pre_args',      $args,      $image_url, $scheme );
+	$args = apply_filters( 'jetpack_photon_pre_args', $args, $image_url, $scheme );
 
 	if ( empty( $image_url ) )
 		return $image_url;
@@ -154,6 +169,10 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 			// You can pass a query string for complicated requests but where you still want CDN subdomain help, etc.
 			$photon_url .= '?' . $args;
 		}
+	}
+
+	if ( isset( $image_url_parts['scheme'] ) && 'https' == $image_url_parts['scheme'] ) {
+		$photon_url = add_query_arg( array( 'ssl' => 1 ), $photon_url );
 	}
 
 	return jetpack_photon_url_scheme( $photon_url, $scheme );

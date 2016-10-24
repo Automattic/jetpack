@@ -48,9 +48,8 @@ jQuery( function( $ ) {
 		}
 	}
 
-	$( 'a.display-options' ).each( function() {
-		var $displayOptionsButton = $( this ),
-			$widget = $displayOptionsButton.closest( 'div.widget' );
+	function moveWidgetVisibilityButton( $widget ) {
+		var $displayOptionsButton = $widget.find( 'a.display-options' ).first();
 		$displayOptionsButton.insertBefore( $widget.find( 'input.widget-control-save' ) );
 
 		// Widgets with no configurable options don't show the Save button's container.
@@ -61,7 +60,16 @@ jQuery( function( $ ) {
 					.remove()
 					.css( 'float', 'left' )
 					.prependTo( $displayOptionsButton.parent() );
+	}
 
+	$( '.widget' ).each( function() {
+		moveWidgetVisibilityButton( $( this ) );
+	} );
+
+	$( document ).on( 'widget-added', function( e, $widget ) {
+		if ( $widget.find( 'div.widget-control-actions a.display-options' ).length === 0 ) {
+			moveWidgetVisibilityButton( $widget );
+		}
 	} );
 
 	widgets_shell.on( 'click.widgetconditions', 'a.add-condition', function( e ) {
