@@ -42,7 +42,7 @@ class Google_Translate_Widget extends WP_Widget {
 			if ( ! empty( $title ) ) {
 				echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
 			}
-			wp_localize_script( 'google-translate-init', '_wp_google_translate_widget', array( lang => get_locale() ) );
+			wp_localize_script( 'google-translate-init', '_wp_google_translate_widget', array( 'lang' => get_locale() ) );
 			wp_enqueue_script( 'google-translate-init' );
 			wp_enqueue_script( 'google-translate' );
 			echo '<div id="google_translate_element"></div>';
