@@ -7,6 +7,15 @@
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 	/**
+	 * Used to store an instance of the WP_REST_Server.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @var WP_REST_Server
+	 */
+	private $server;
+
+	/**
 	 * Setup environment for REST API endpoints test.
 	 *
 	 * @since 4.4.0
@@ -60,7 +69,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @param string $role
 	 *
-	 * @return array
+	 * @return WP_User
 	 */
 	protected function create_and_get_user( $role = '' ) {
 		return $this->factory->user->create_and_get( array(
@@ -99,8 +108,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param $status
-	 * @param $response
+	 * @param integer          $status
+	 * @param WP_REST_Response $response
 	 */
 	protected function assertResponseStatus( $status, $response ) {
 		$this->assertEquals( $status, $response->get_status() );
@@ -111,8 +120,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param $data
-	 * @param $response
+	 * @param array            $data
+	 * @param WP_REST_Response $response
 	 */
 	protected function assertResponseData( $data, $response ) {
 		$response_data = $response->get_data();
