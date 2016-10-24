@@ -5157,81 +5157,22 @@ p {
 	}
 
 	/**
-	 * Fetch the filtered array of options that we should compare to determine an identity crisis.
+	 * Checks if the site is currently in an identity crisis.
 	 *
-	 * @return array An array of options to check.
-	 */
-	public static function identity_crisis_options_to_check() {
-		return array(
-			'siteurl',
-			'home',
-		);
-	}
-
-	/**
-	 * Checks to make sure that local options have the same values as remote options.  Will cache the results for up to 24 hours.
-	 *
-	 * @return array An array of options that do not match.  If everything is good, it will evaluate to false.
+	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
 	 */
 	public static function check_identity_crisis() {
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() )
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;
-
-
-		$options_to_check = self::identity_crisis_options_to_check();
-		$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
-		$errors        = array();
-
-		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
-
-			// If it's not the same as the local value...
-			if ( $cloud_value !== get_option( $cloud_key ) ) {
-
-				// Break out if we're getting errors.  We are going to check the error keys later when we alert.
-				if ( 'error_code' == $cloud_key ) {
-					$errors[ $cloud_key ] = $cloud_value;
-					break;
-				}
-
-				$parsed_cloud_value = parse_url( $cloud_value );
-				// If the current options is an IP address
-				if ( filter_var( $parsed_cloud_value['host'], FILTER_VALIDATE_IP ) ) {
-					// Give the new value a Jetpack to fly in to the clouds
-					continue;
-				}
-
-				/*
-				 * This should be a temporary hack until a cleaner solution is found.
-				 *
-				 * The siteurl and home can be set to use http in General > Settings
-				 * however some constants can be defined that can force https in wp-admin
-				 * when this happens wpcom can confuse wporg with a fake identity
-				 * crisis with a mismatch of http vs https when it should be allowed.
-				 * we need to check that here.
-				 *
-				 * @see https://github.com/Automattic/jetpack/issues/1006
-				 */
-				if ( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
-				     && ( substr( $cloud_value, 0, 8 ) == "https://" )
-				     && Jetpack::init()->is_ssl_required_to_visit_site() ) {
-					// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
-					continue;
-				}
-
-
-				// Then kick an error!
-				$errors[ $cloud_key ] = $cloud_value;
-			}
 		}
 
-		/**
-		 * Filters the errors returned when checking for an Identity Crisis.
-		 *
-		 * @since 2.3.2
-		 *
-		 * @param array $errors Array of Identity Crisis errors.
-		 */
-		return apply_filters( 'jetpack_has_identity_crisis', $errors );
+		$crisis_options = false;
+		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
+		if ( is_array( $options = Jetpack_Options::get_option( 'sync_error_idc' ) ) ) {
+			$crisis_options = array_diff_assoc( $options, self::get_sync_error_idc_option() );
+		}
+
+		return $crisis_options;
 	}
 
 	/**
@@ -5552,6 +5493,7 @@ p {
 			'add_option_jetpack_is_main_network'                     => null,
 			'add_option_jetpack_main_network_site'                   => null,
 			'jetpack_sync_all_registered_options'                    => null,
+			'jetpack_has_identity_crisis'                            => 'jetpack_sync_error_idc_validation',
 		);
 
 		// This is a silly loop depth. Better way?
@@ -5624,24 +5566,6 @@ p {
 		}
 
 		return $css;
-	}
-
-	/**
-	 * This method checks to see if SSL is required by the site in
-	 * order to visit it in some way other than only setting the
-	 * https value in the home or siteurl values.
-	 *
-	 * @since 3.2
-	 * @return boolean
-	 **/
-	private function is_ssl_required_to_visit_site() {
-		global $wp_version;
-		$ssl = is_ssl();
-
-		if ( force_ssl_admin() ) {
-			$ssl = true;
-		}
-		return $ssl;
 	}
 
 	/**
