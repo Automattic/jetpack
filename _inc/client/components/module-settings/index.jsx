@@ -77,7 +77,7 @@ export let RelatedPostsSettings = React.createClass( {
 							{
 								show_thumbnails ? <img src={ preview.url } /> : ''
 							}
-							<span><a href="#/engagement"> { preview.text } </a></span>
+							<span><a href="#/discussion"> { preview.text } </a></span>
 						</span>
 					) )
 				}

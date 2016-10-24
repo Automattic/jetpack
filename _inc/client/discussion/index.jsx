@@ -25,32 +25,50 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
-import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
+import {
+	getSiteAdminUrl,
+	getSiteRawUrl,
+	isSitePublic,
+	userCanManageModules as _userCanManageModules
+} from 'state/initial-state';
 
-export const Writing = ( props ) => {
+export const Discussion = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
-		getModule,
-		userCanManageModules
+		getModule
 	} = props,
-		isAdmin = userCanManageModules,
+		isAdmin = props.userCanManageModules,
+		sitemapsDesc = getModule( 'sitemaps' ).description,
 		moduleList = Object.keys( props.moduleList );
+
+	if ( ! props.isSitePublic() ) {
+		sitemapsDesc = <span>
+			{ sitemapsDesc }
+			{ <p className="jp-form-setting-explanation">
+				{ __( 'Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
+					components: {
+						a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
+					}
+				} ) }
+			</p> }
+		</span>;
+	}
+
 	/**
 	 * Array of modules that directly map to a card for rendering
 	 * @type {Array}
 	 */
 	let cards = [
-		[ 'markdown', getModule( 'markdown' ).name, getModule( 'markdown' ).description, getModule( 'markdown' ).learn_more_button ],
-		[ 'after-the-deadline', getModule( 'after-the-deadline' ).name, getModule( 'after-the-deadline' ).description, getModule( 'after-the-deadline' ).learn_more_button ],
-		[ 'photon', getModule( 'photon' ).name, getModule( 'photon' ).description, getModule( 'photon' ).learn_more_button ],
-		[ 'custom-content-types', getModule( 'custom-content-types' ).name, getModule( 'custom-content-types' ).description, getModule( 'custom-content-types' ).learn_more_button ],
-		[ 'infinite-scroll', getModule( 'infinite-scroll' ).name, getModule( 'infinite-scroll' ).description, getModule( 'infinite-scroll' ).learn_more_button ],
-		[ 'minileven', getModule( 'minileven' ).name, getModule( 'minileven' ).description, getModule( 'minileven' ).learn_more_button ],
-		[ 'post-by-email', getModule( 'post-by-email' ).name, getModule( 'post-by-email' ).description, getModule( 'post-by-email' ).learn_more_button ]
-		],
-		nonAdminAvailable = [ 'after-the-deadline', 'post-by-email' ];
+		[ 'comments', getModule( 'comments' ).name, getModule( 'comments' ).description, getModule( 'comments' ).learn_more_button ],
+		[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description, getModule( 'subscriptions' ).learn_more_button ],
+		[ 'sitemaps', getModule( 'sitemaps' ).name, sitemapsDesc, getModule( 'sitemaps' ).learn_more_button ],
+		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
+		[ 'related-posts', getModule( 'related-posts' ).name, getModule( 'related-posts' ).description, getModule( 'related-posts' ).learn_more_button ],
+		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
+	],
+		nonAdminAvailable = [ 'publicize' ];
 	// Put modules available to non-admin user at the top of the list.
 	if ( ! isAdmin ) {
 		let cardsCopy = cards.slice();
@@ -61,27 +79,23 @@ export const Writing = ( props ) => {
 		} );
 		cards = cards.filter( ( element, index ) => cards.indexOf( element ) === index );
 	}
-	cards = cards.map( ( element, i ) => {
+	cards = cards.map( ( element ) => {
 		if ( ! includes( moduleList, element[0] ) ) {
 			return null;
 		}
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
-			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] );
+			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] ),
+			isModuleActive = isModuleActivated( element[0] );
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
 		} else if ( isAdmin ) {
 			toggle = <ModuleToggle slug={ element[0] }
-				activated={ isModuleActivated( element[0] ) }
-				toggling={ isTogglingModule( element[0] ) }
-				toggleModule={ toggleModule } />;
+						activated={ isModuleActivated( element[0] ) }
+						toggling={ isTogglingModule( element[0] ) }
+						toggleModule={ toggleModule } />;
 		}
-
-		if ( 1 === element.length ) {
-			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
-		}
-
 		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
@@ -98,18 +112,46 @@ export const Writing = ( props ) => {
 					}
 				) }
 			>
-				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } /> :
-					// Render the long_description if module is deactivated
-					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
+				{
+					isModuleActive ?
+						<AllModuleSettings module={ getModule( element[0] ) } adminUrl={ props.getSiteAdminUrl() } /> :
+						// Render the long_description if module is deactivated
+						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<div className="jp-module-settings__read-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
+					{
+						'stats' === element[0] && isModuleActive ? (
+							<span>
+								<span className="jp-module-settings__more-sep" />
+								<span className="jp-module-settings__more-text">{
+									__( 'View {{a}}All Stats{{/a}}', {
+										components: {
+											a: <a href={ props.getSiteAdminUrl() + 'admin.php?page=stats' } />
+										}
+									} )
+								}</span>
+							</span>
+						) : ''
+					}
+					{
+						'subscriptions' === element[0] && isModuleActive ? (
+							<span>
+								<span className="jp-module-settings__more-sep" />
+								<span className="jp-module-settings__more-text">{
+									__( 'View your {{a}}Email Followers{{/a}}', {
+										components: {
+											a: <a href={ 'https://wordpress.com/people/email-followers/' + props.getSiteRawUrl() } />
+										}
+									} )
+								}</span>
+							</span>
+						) : ''
+					}
 				</div>
 			</FoldableCard>
 		) : false;
 	} );
-
 	return (
 		<div>
 			{ cards }
@@ -127,10 +169,12 @@ export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isTogglingModule: ( module_name ) =>
-			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
+			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
+			getSiteRawUrl: () => getSiteRawUrl( state ),
+			getSiteAdminUrl: () => getSiteAdminUrl( state ),
+			isSitePublic: () => isSitePublic( state ),
 			userCanManageModules: _userCanManageModules( state ),
 			moduleList: getModules( state )
 		};
@@ -144,4 +188,4 @@ export default connect(
 			}
 		};
 	}
-)( Writing );
+)( Discussion );
