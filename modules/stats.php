@@ -1577,7 +1577,8 @@ function stats_str_getcsv( $csv ) {
 
 	fwrite( $temp, $csv, strlen( $csv ) );
 	fseek( $temp, 0 );
-	while ( false !== $row = fgetcsv( $temp, 2000 ) ) {		$data[] = $row;
+	while ( false !== $row = fgetcsv( $temp, 2000 ) ) {		
+		$data[] = $row;
 	}
 	fclose( $temp );
 
