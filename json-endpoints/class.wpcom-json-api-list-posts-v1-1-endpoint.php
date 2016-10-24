@@ -331,6 +331,8 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 				}
 
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					if ( !isset( $return[$key] ) )
+						$return[$key] = new stdClass;
 					$return[$key]->wpcom = true;
 				}
 
