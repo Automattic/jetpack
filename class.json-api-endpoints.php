@@ -1743,7 +1743,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 		);
 
 		$id = media_handle_sideload( $file_array, $parent_post_id );
-		@unlink( $tmp );
+		if ( file_exists( $tmp ) ) {
+			@unlink( $tmp );
+		}
 
 		if ( is_wp_error( $id ) ) {
 			return $id;
@@ -1896,16 +1898,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	function get_platform() {
 		return wpcom_get_sal_platform( $this->api->token_details );
-	}
-
-	function get_revision_history( $media_id ) {
-		$snapshot_array = get_post_meta( $media_id, '_wp_revision_history', true );
-
-		if ( ! $snapshot_array ) {
-			return array();
-		}
-
-		return $snapshot_array;
 	}
 
 	/**
