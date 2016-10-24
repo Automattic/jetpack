@@ -96,7 +96,7 @@ function stats_enqueue_dashboard_head() {
 function stats_ignore_db_version( $version ) {
 	if (
 		is_admin() &&
-		`isset( $_GET['page'] ) && 'stats' === $_GET['page'] &&
+		isset( $_GET['page'] ) && 'stats' === $_GET['page'] &&
 		0 === isset( $_GET['chart'] ) && strpos( $_GET['chart'], 'admin-bar-hours' )
 	) {
 		global $wp_db_version;
