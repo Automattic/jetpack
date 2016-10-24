@@ -5200,30 +5200,27 @@ p {
 					continue;
 				}
 
-				// And it's not been added to the whitelist...
-				if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
-					/*
-					 * This should be a temporary hack until a cleaner solution is found.
-					 *
-					 * The siteurl and home can be set to use http in General > Settings
-					 * however some constants can be defined that can force https in wp-admin
-					 * when this happens wpcom can confuse wporg with a fake identity
-					 * crisis with a mismatch of http vs https when it should be allowed.
-					 * we need to check that here.
-					 *
-					 * @see https://github.com/Automattic/jetpack/issues/1006
-					 */
-					if ( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
-						&& ( substr( $cloud_value, 0, 8 ) == "https://" )
-						&& Jetpack::init()->is_ssl_required_to_visit_site() ) {
-						// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
-						continue;
-					}
-
-
-					// Then kick an error!
-					$errors[ $cloud_key ] = $cloud_value;
+				/*
+				 * This should be a temporary hack until a cleaner solution is found.
+				 *
+				 * The siteurl and home can be set to use http in General > Settings
+				 * however some constants can be defined that can force https in wp-admin
+				 * when this happens wpcom can confuse wporg with a fake identity
+				 * crisis with a mismatch of http vs https when it should be allowed.
+				 * we need to check that here.
+				 *
+				 * @see https://github.com/Automattic/jetpack/issues/1006
+				 */
+				if ( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
+				     && ( substr( $cloud_value, 0, 8 ) == "https://" )
+				     && Jetpack::init()->is_ssl_required_to_visit_site() ) {
+					// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
+					continue;
 				}
+
+
+				// Then kick an error!
+				$errors[ $cloud_key ] = $cloud_value;
 			}
 		}
 
@@ -5235,22 +5232,6 @@ p {
 		 * @param array $errors Array of Identity Crisis errors.
 		 */
 		return apply_filters( 'jetpack_has_identity_crisis', $errors );
-	}
-
-	/**
-	 * Checks whether a value is already whitelisted.
-	 *
-	 * @param string $key The option name that we're checking the value for.
-	 * @param string $value The value that we're curious to see if it's on the whitelist.
-	 *
-	 * @return bool Whether the value is whitelisted.
-	 */
-	public static function is_identity_crisis_value_whitelisted( $key, $value ) {
-		$whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist', array() );
-		if ( ! empty( $whitelist[ $key ] ) && is_array( $whitelist[ $key ] ) && in_array( $value, $whitelist[ $key ] ) ) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
