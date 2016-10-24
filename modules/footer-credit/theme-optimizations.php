@@ -7,7 +7,7 @@ if( ! function_exists ( 'wpcom_is_vip' ) ){
 }
 if( ! function_exists ( 'wpcom_is_pub_theme' ) ){
 	function wpcom_is_pub_theme() {
-		return false;
+		return true;
 	}
 }
 if( ! function_exists ( 'wpcom_is_premium_theme' ) ){
@@ -237,7 +237,7 @@ add_action( 'init', 'better_wpcom_link_workarounds_init' );
 
 // Enable filters Infinite Scroll footer conntent, except VIP sites.
 //if ( ! wpcom_is_vip() ) {
-	add_filter( 'infinite_scroll_credit', 'wpcom_better_footer_links' );
+//	add_filter( 'infinite_scroll_credit', 'wpcom_better_footer_links' );
 //}
 
 /**
