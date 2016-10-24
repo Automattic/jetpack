@@ -321,7 +321,7 @@ class Jetpack_JITM {
 			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<div class="jp-emblem">
-				<?php echo self::get_jp_emblem(); ?>
+				<?php echo Jetpack::get_jp_emblem(); ?>
 			</div>
 			<p class="msg">
 				<?php esc_html_e( 'Backups are recommended to protect your site before you make any changes.', 'jetpack' ); ?>
@@ -351,7 +351,7 @@ class Jetpack_JITM {
 			<a href="#" data-module="akismet" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<div class="jp-emblem">
-				<?php echo self::get_jp_emblem(); ?>
+				<?php echo Jetpack::get_jp_emblem(); ?>
 			</div>
 			<p class="msg">
 				<?php esc_html_e( "Spam affects your site's legitimacy, protect your site with Akismet.", 'jetpack' ); ?>
@@ -381,7 +381,7 @@ class Jetpack_JITM {
 			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<div class="jp-emblem">
-				<?php echo self::get_jp_emblem(); ?>
+				<?php echo Jetpack::get_jp_emblem(); ?>
 			</div>
 			<p class="msg">
 				<?php esc_html_e( "Great job! Now let's make sure your hard work is never lost, backup everything with VaultPress.", 'jetpack' ); ?>
