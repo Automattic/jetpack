@@ -414,7 +414,7 @@ class Sharing_Admin {
 							<input type="text" name="sharing_url" id="new_sharing_url" size="40" />
 
 							<p><?php _e( 'You can add the following variables to your service sharing URL:', 'jetpack' ); ?><br/>
-							<code>%post_title%</code>, <code>%post_url%</code>, <code>%post_full_url%</code>, <code>%post_excerpt%</code>, <code>%post_tags%</code></p>
+							<code>%post_id%</code>, <code>%post_title%</code>, <code>%post_slug%</code>, <code>%post_url%</code>, <code>%post_full_url%</code>, <code>%post_excerpt%</code>, <code>%post_tags%</code>, <code>%site_url%</code></p>
 						</td>
 					</tr>
 					<tr valign="top">

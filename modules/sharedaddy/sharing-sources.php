@@ -1202,9 +1202,12 @@ class Share_Custom extends Sharing_Advanced_Source {
 
 	public function process_request( $post, array $post_data ) {
 		$url = str_replace( '&amp;', '&', $this->url );
+		$url = str_replace( '%post_id%', rawurlencode( $post->ID ), $url );
 		$url = str_replace( '%post_url%', rawurlencode( $this->get_share_url( $post->ID ) ), $url );
 		$url = str_replace( '%post_full_url%', rawurlencode( get_permalink( $post->ID ) ), $url );
 		$url = str_replace( '%post_title%', rawurlencode( $this->get_share_title( $post->ID ) ), $url );
+		$url = str_replace( '%site_url%', rawurlencode( site_url() ), $url );
+		$url = str_replace( '%post_slug%', rawurlencode( $post->post_name ), $url );
 
 		if ( strpos( $url, '%post_tags%' ) !== false ) {
 			$tags   = get_the_tags( $post->ID );
