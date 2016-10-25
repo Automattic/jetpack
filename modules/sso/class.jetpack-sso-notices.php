@@ -171,13 +171,31 @@ class Jetpack_SSO_Notices {
 	 * @param string $message
 	 * @return string
 	 */
-	static function cant_find_user( $message ) {
+	public static function cant_find_user( $message ) {
 		$error = esc_html__(
 			"We couldn't find your account. If you already have an account, make sure you have connected to WordPress.com.",
 			'jetpack'
 		);
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
 
+		return $message;
+	}
+
+	/**
+	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param $message
+	 *
+	 * @return string
+	 */
+	public static function sso_not_allowed_in_staging( $message ) {
+		$error = esc_html__(
+			'Logging in with WordPress.com is disabled for sites that are in staging mode.',
+			'jetpack'
+		);
+		$message .= sprintf( '<p class="message">%s</p>', $error );
 		return $message;
 	}
 }

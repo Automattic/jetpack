@@ -228,6 +228,7 @@ class Jetpack {
 		'social-discussions/social-discussions.php',             // Social Discussions
 		'social-sharing-toolkit/social_sharing_toolkit.php',     // Social Sharing Toolkit
 		'socialize/socialize.php',                               // Socialize
+		'squirrly-seo/squirrly.php',                             // SEO by SQUIRRLY™
 		'only-tweet-like-share-and-google-1/tweet-like-plusone.php',
 		                                                         // Tweet, Like, Google +1 and Share
 		'wordbooker/wordbooker.php',                             // Wordbooker
@@ -3852,6 +3853,17 @@ p {
 				? get_site_icon_url()
 				: false;
 
+			/**
+			 * Filter the type of authorization.
+			 * 'calypso' completes authorization on wordpress.com/jetpack/connect
+			 * while 'jetpack' ( or any other value ) completes the authorization at jetpack.wordpress.com.
+			 *
+			 * @since 4.3.3
+			 *
+			 * @param string $auth_type Defaults to 'calypso', can also be 'jetpack'.
+			 */
+			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
+
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
@@ -3870,9 +3882,9 @@ p {
 					'user_login'    => $user->user_login,
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
-					'auth_type'     => 'calypso',
+					'auth_type'     => $auth_type,
 					'secret'        => $secret,
-					'locale'        => isset( $gp_locale->slug ) ? $gp_locale->slug : '',
+					'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
 					'blogname'      => get_option( 'blogname' ),
 					'site_url'      => site_url(),
 					'home_url'      => home_url(),
@@ -5322,8 +5334,13 @@ p {
 	public static function validate_sync_error_idc_option() {
 		$is_valid = false;
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
-		if ( $sync_error && $sync_error == get_home_url() ) {
-			$is_valid = true;
+
+		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
+		if ( $sync_error && self::sync_idc_optin() ) {
+			$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option() );
+			if ( empty( $error_diff ) ) {
+				$is_valid = true;
+			}
 		}
 
 		/**
@@ -5344,6 +5361,37 @@ p {
 	}
 
 	/**
+	 * Gets the value that is to be saved in the jetpack_sync_error_idc option.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return array {
+	 *     @type string 'home'    The current home URL.
+	 *     @type string 'siteurl' The current site URL.
+	 * }
+	 */
+	public static function get_sync_error_idc_option() {
+		$options = array(
+			'home'    => get_home_url(),
+			'siteurl' => get_site_url(),
+		);
+
+		$returned_values = array();
+		foreach( $options as $key => $option ) {
+			$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $option ) ) );
+
+			if ( ! $parsed_url ) {
+				$returned_values[ $key ] = $option;
+				continue;
+			}
+
+			$returned_values[ $key ] = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
+		}
+
+		return $returned_values;
+	}
+
+	/**
 	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
 	 * If set to true, the site will be put into staging mode.
 	 *
@@ -5351,8 +5399,8 @@ p {
 	 * @return bool
 	 */
 	public static function sync_idc_optin() {
-		if ( defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
-			$default = JETPACK_SYNC_IDC_OPTIN;
+		if ( Jetpack_Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
+			$default = Jetpack_Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
 		} else {
 			$default = false;
 		}

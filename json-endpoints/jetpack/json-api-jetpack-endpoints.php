@@ -581,7 +581,7 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 		'users'    => '(string) Comma-delimited list of user IDs to sync',
 	),
 	'response_format' => array(
-		'scheduled' => '(bool) Whether or not the synchronisation was scheduled'
+		'started' => '(bool) Whether or not the synchronisation was started'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
@@ -598,7 +598,7 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 	'response_format' => array(
 		'started' => '(int|null) The unix timestamp when the last sync started',
 		'queue_finished' => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
-		'sent_started' => '(int|null) The unix timestamp when the last sent process started',
+		'send_started' => '(int|null) The unix timestamp when the last sent process started',
 		'finished' => '(int|null) The unix timestamp when the last sync finished',
 		'total'  => '(array) Count of actions that could be sent',
 		'queue'  => '(array) Count of actions that have been added to the queue',
@@ -610,8 +610,8 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'full_queue_size' => '(int) Number of items in the full sync queue',
 		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue',
 		'full_queue_next_sync' => '(float) Time in seconds before trying to sync the full sync queue again',
-		'is_scheduled' => '(bool) Is a full sync scheduled via cron?',
-		'cron_size'     => '(int) Size of the current cron array',
+		'cron_size' => '(int) Size of the current cron array',
+		'oldest_cron' => '(int) Age in seconds of the oldest scheduled cron job - a good indicator if cron isn\'t running',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
 ) );
@@ -672,7 +672,8 @@ $sync_settings_response = array(
 	'comment_meta_whitelist' => '(array|string|bool=false) List of comment meta to be included in sync. Send "empty" to unset.',
 	'disable'              => '(int|bool=false) Set to 1 or true to disable sync entirely.',
 	'render_filtered_content' => '(int|bool=true) Set to 1 or true to render filtered content.',
-	'avoid_wp_cron'        => '(int|bool=false) Set to 1 or true to avoid running wp-cron for enqueuing full syncs.',
+	'max_enqueue_full_sync'   => '(int|bool=false) Maximum number of rows to enqueue during each full sync process',
+	'max_queue_size_full_sync'=> '(int|bool=false) Maximum queue size that full sync is allowed to use',
 );
 
 // GET /sites/%s/sync/settings
