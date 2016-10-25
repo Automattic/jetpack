@@ -91,11 +91,11 @@ class Jetpack_Image_Widget extends WP_Widget {
 				$output .= 'height="' . esc_attr( $instance['img_height'] ) .'" ';
 			}
 			$output .= '/>';
-			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) ) {
-				$output = '<a target="_blank" href="' . esc_url( $instance['link'] ) . '">' . $output . '</a>';
-			}
-			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) ) {
-				$output = '<a href="' . esc_url( $instance['link'] ) . '">' . $output . '</a>';
+			if ( '' != $instance['link'] ) {
+				$target = ! empty( $instance['link_target_blank'] )
+					? 'target="_blank"'
+					: '';
+				$output = '<a ' . $target . ' href="' . esc_url( $instance['link'] ) . '">' . $output . '</a>';
 			}
 			if ( '' != $instance['caption'] ) {
 				/** This filter is documented in core/src/wp-includes/default-widgets.php */
