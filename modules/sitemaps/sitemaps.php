@@ -39,6 +39,17 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
+	 * Maximum size (in url nodes) of a news sitemap xml file.
+	 *
+	 * @link https://support.google.com/news/publisher/answer/74288?hl=en
+	 *
+	 * @since 4.5.0
+	 */
+	const NEWS_SITEMAP_MAX_ITEMS = 1000; // 1k
+
+
+
+	/**
 	 * Constructor
 	 *
 	 * @since 4.5.0
@@ -153,6 +164,7 @@ class Jetpack_Sitemap_Manager {
 				'image'         => '/^\/image-sitemap-[1-9][0-9]*\.xml$/',
 				'image-index'   => '/^\/image-sitemap-index-[1-9][0-9]*\.xml$/',
 				'image-style'   => '/^\/image-sitemap\.xsl$/',
+				'news'          => '/^\/news-sitemap\.xml$/',
 			);
 
 			/**
@@ -248,6 +260,14 @@ class Jetpack_Sitemap_Manager {
 				serve_raw_and_die(
 					'text/xml',
 					$this->image_sitemap_xsl()
+				);
+			}
+
+			// Catch news sitemap xml
+			if ( preg_match( $regex['news'], $_SERVER['REQUEST_URI']) ) {
+				serve_raw_and_die(
+					'text/xml',
+					$this->news_sitemap_xml()
 				);
 			}
 
@@ -911,6 +931,52 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
+	 * Build the news sitemap xml.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @return string The news sitemap xml.
+	 */
+	private function news_sitemap_xml () {
+		$buffer = new Jetpack_Sitemap_Buffer(
+			self::NEWS_SITEMAP_MAX_ITEMS,
+			self::SITEMAP_MAX_BYTES,
+
+			/* open tag */
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap.xsl'?>\n" .
+			"<urlset\n" .
+			"  xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'\n" .
+			"  xmlns:news='http://www.google.com/schemas/sitemap-news/0.9'>\n",
+
+			/* close tag */
+			"</urlset>\n",
+
+			/* epoch */
+			strtotime('1970-01-01 00:00:00')
+		);
+
+		// Retrieve the 1000 most recent posts.
+		$posts = $this->get_most_recent_posts(1000);
+
+		// For each post in the batch,
+		foreach ($posts as $post) {
+			// Generate the sitemap XML for the post.
+			$current_item = $this->post_to_news_sitemap_item($post);
+
+			// Try to add it to the buffer.
+			if ( false == $buffer->try_to_add_item($current_item['xml']) ) {
+				break;
+			}
+		}
+
+		return $buffer->contents();
+	}
+
+
+
+	/**
 	 * Build the image sitemap tree structure.
 	 *
 	 * @access private
@@ -1112,6 +1178,69 @@ class Jetpack_Sitemap_Manager {
 		return array(
 			'xml'           => $xml,
 			'last_modified' => $post->post_date
+		);
+	}
+
+
+
+	/**
+	 * Construct the sitemap url entry for a WP_Post.
+	 *
+	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param WP_Post $post The post to be processed.
+	 *
+	 * @return string An XML fragment representing the post URL.
+	 */
+	private function post_to_news_sitemap_item ( $post ) {
+		$url = get_permalink($post);
+
+		/*
+		 * Spec requires the URL to be <=2048 bytes.
+		 * In practice this constraint is unlikely to be violated.
+		 */
+		if ( mb_strlen($url) > 2048 ) {
+			$url = site_url() . '/?p=' . $post->ID; 
+		}
+
+		/*
+		 * Must use W3C Datetime format per the spec.
+		 * https://www.w3.org/TR/NOTE-datetime
+		 */ 
+		$last_modified = str_replace( ' ', 'T', $post->post_date) . 'Z';
+
+		$title = esc_html($post->post_title);
+
+		$name = esc_html(get_bloginfo('name'));
+
+		// Unless it's zh-cn for Simplified Chinese or zh-tw for Traditional Chinese,
+		// trim national variety so an ISO 639 language code as required by Google.
+		$language = strtolower( get_locale() );
+		if ( in_array( $language, array( 'zh_tw', 'zh_cn' ) ) ) {
+			$language = str_replace( '_', '-', $language );
+		} else {
+			$language = preg_replace( '/(_.*)$/i', '', $language );
+		}
+
+		$xml =
+			"<url>\n" .
+			" <loc>$url</loc>\n" .
+			" <news:news>\n" .
+			"  <news:publication>\n" .
+			"   <news:name>$name</news:name>\n" .
+			"   <news:language>$language</news:language>\n" .
+			"  </news:publication>\n" .
+			"  <news:title>$title</news:title>\n" .
+			"  <news:publication_date>$last_modified</news:publication_date>\n" .
+			"  <news:genres>Blog</news:genres>\n" .
+			" </news:news>\n" .
+			"</url>\n";
+
+		return array(
+			'xml' => $xml
 		);
 	}
 
@@ -1726,6 +1855,34 @@ CSS;
 				FROM $wpdb->posts
 				WHERE post_type='jp_img_sitemap' AND ID>$from_ID
 				ORDER BY ID ASC
+				LIMIT $num_posts;
+		";
+
+		return $wpdb->get_results( $query_string );
+	}
+
+
+
+	/**
+	 * Retrieve an array of published posts from the last 2 days.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param int $num_posts Largest number of posts to retrieve.
+	 *
+	 * @return array The posts.
+	 */
+	private function get_most_recent_posts ( $num_posts ) {
+		global $wpdb;
+
+		$two_days_ago = date('Y-m-d', strtotime('-2 days'));
+
+		$query_string = "
+			SELECT *
+				FROM $wpdb->posts
+				WHERE post_status='publish' AND post_date >= '$two_days_ago'
+				ORDER BY post_date DESC
 				LIMIT $num_posts;
 		";
 
