@@ -48,7 +48,7 @@ class Jetpack_Sitemap_Manager {
 	 * @link http://www.sitemaps.org/
 	 * @since 4.5.0
 	 */
-	const SITEMAP_MAX_ITEMS = 50000; // 50k
+	const SITEMAP_MAX_ITEMS = 10; // 50k
 
 
 
@@ -63,9 +63,11 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
-	 * Minimum number of seconds between generations.
+	 * Number of seconds between sitemap generations.
+	 *
+	 * @since 4.5.0
 	 */
-	const SITEMAP_INTERVAL = 60*60*24;
+	const SITEMAP_INTERVAL = 60;
 
 
 
