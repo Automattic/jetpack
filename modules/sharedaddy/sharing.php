@@ -33,7 +33,7 @@ class Sharing_Admin {
 		wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL . 'sharing.css', false, JETPACK__VERSION );
 
 		wp_enqueue_style( 'social-logos' );
-		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 4 );
+		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array(), 4 );
 		add_thickbox();
 	}
 
@@ -167,7 +167,7 @@ class Sharing_Admin {
 
 		if ( false == function_exists( 'mb_stripos' ) ) {
 			echo '<div id="message" class="updated fade"><h3>' . __( 'Warning! Multibyte support missing!', 'jetpack' ) . '</h3>';
-			echo "<p>" . sprintf( __( 'This plugin will work without it, but multibyte support is used <a href="%s" target="_blank">if available</a>. You may see minor problems with Tweets and other sharing services.', 'jetpack' ), "http://www.php.net/manual/en/mbstring.installation.php" ) . '</p></div>';
+			echo '<p>' . sprintf( __( 'This plugin will work without it, but multibyte support is used <a href="%s" target="_blank">if available</a>. You may see minor problems with Tweets and other sharing services.', 'jetpack' ), 'http://www.php.net/manual/en/mbstring.installation.php' ) . '</p></div>';
 		}
 
 		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' ) {
@@ -286,15 +286,17 @@ class Sharing_Admin {
 								<?php if ( count( $enabled['hidden'] ) > 0 ) : ?>
 								<div class="sharing-hidden">
 									<div class="inner" style="display: none; <?php echo count( $enabled['hidden'] ) == 1 ? 'width:150px;' : ''; ?>">
-									<?php if ( count( $enabled['hidden'] ) == 1 ) : ?>
-										<ul style="background-image:none;">
-									<?php else : ?>
-										<ul>
-									<?php endif; ?>
+										<?php if ( count( $enabled['hidden'] ) == 1 ) : ?>
+											<ul style="background-image:none;">
+										<?php else : ?>
+											<ul>
+										<?php endif; ?>
 
-									<?php foreach ( $enabled['hidden'] as $id => $service ) {
+										<?php
+										foreach ( $enabled['hidden'] as $id => $service ) {
 											$this->output_preview( $service );
-}?>
+										}
+										?>
 										</ul>
 									</div>
 								</div>
@@ -363,21 +365,24 @@ class Sharing_Admin {
 					echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' );
 					?>
 						<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
-						<td>
-						<?php
-							$br = false;
-						foreach ( $shows as $show ) :
-							if ( 'index' == $show ) {
-								$label = __( 'Front Page, Archive Pages, and Search Results', 'jetpack' );
-							} else {
-								$post_type_object = get_post_type_object( $show );
-								$label = $post_type_object->labels->name;
-							}
-						?>
-						<?php if ( $br ) { echo '<br />';} ?><label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
-						<?php	$br = true;
-endforeach; ?>
-						</td>
+							<td>
+								<?php
+								$br = false;
+								foreach ( $shows as $show ) :
+									if ( 'index' == $show ) {
+										$label = __( 'Front Page, Archive Pages, and Search Results', 'jetpack' );
+									} else {
+										$post_type_object = get_post_type_object( $show );
+										$label = $post_type_object->labels->name;
+									}
+								?>
+								<?php if ( $br ) { echo '<br />';} ?>
+								<label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
+								<?php
+								$br = true;
+									endforeach;
+								?>
+							</td>
 					<?php
 					/**
 					 * Filters the HTML at the end of the "Show button on" row.
@@ -427,7 +432,7 @@ endforeach; ?>
 							<input type="text" name="sharing_url" id="new_sharing_url" size="40" />
 
 							<p><?php _e( 'You can add the following variables to your service sharing URL:', 'jetpack' ); ?><br/>
-							<code>%post_id%</code>, <code>%post_title%</code>, <code>%post_slug%</code>, <code>%post_url%</code>, <code>%post_full_url%</code>, <code>%post_excerpt%</code>, <code>%post_tags%</code>, <code>%site_url%</code></p>
+							<code>%post_id%</code>, <code>%post_title%</code>, <code>%post_slug%</code>, <code>%post_url%</code>, <code>%post_full_url%</code>, <code>%post_excerpt%</code>, <code>%post_tags%</code>, <code>%home_url%</code></p>
 						</td>
 					</tr>
 					<tr valign="top">
