@@ -339,7 +339,7 @@ class Jetpack_Sitemap_Manager {
 	 * @since 4.5.0
 	 */
 	private function build_all_sitemaps () {
-		$log = new Jetpack_Sitemap_Logger('begin generation');
+		$log = new Jetpack_Sitemap_Logger('begin sitemap generation');
 
 		$page = $this->build_page_sitemap_tree();
 		$image = $this->build_image_sitemap_tree();
@@ -365,7 +365,7 @@ class Jetpack_Sitemap_Manager {
 			''
 		);
 
-		$log->time('end generation');
+		$log->time('end sitemap generation');
 
 		return;
 	}
@@ -500,8 +500,7 @@ class Jetpack_Sitemap_Manager {
 		// Until the buffer is too large,
 		while ( false == $buffer->is_full() ) {
 			// Retrieve a batch of posts (in order).
-			$posts = $this->get_published_posts_after_ID($last_post_ID, 1000);
-
+			$posts = $this->query_posts_after_ID($last_post_ID, 1000);
 			// If there were no posts to get, make note and quit trying to fill the buffer.
 			if (null == $posts) {
 				$any_posts_left = false;
@@ -644,7 +643,7 @@ class Jetpack_Sitemap_Manager {
 		// Until the buffer is too large,
 		while ( false == $buffer->is_full() ) {
 			// Retrieve a batch of posts (in order)
-			$posts = $this->get_sitemap_posts_after_ID($last_sitemap_ID, 1000);
+			$posts = $this->query_page_sitemaps_after_ID($last_sitemap_ID, 1000);
 
 			// If there were no posts to get, make a note.
 			if (null == $posts) {
@@ -808,7 +807,7 @@ class Jetpack_Sitemap_Manager {
 		// Until the buffer is too large,
 		while ( false == $buffer->is_full() ) {
 			// Retrieve a batch of posts (in order).
-			$posts = $this->get_image_posts_after_ID($last_post_ID, 1000);
+			$posts = $this->query_images_after_ID($last_post_ID, 1000);
 
 			// If there were no posts to get, make note and quit trying to fill the buffer.
 			if (null == $posts) {
@@ -952,7 +951,7 @@ class Jetpack_Sitemap_Manager {
 		// Until the buffer is too large,
 		while ( false == $buffer->is_full() ) {
 			// Retrieve a batch of posts (in order)
-			$posts = $this->get_image_sitemap_posts_after_ID($last_sitemap_ID, 1000);
+			$posts = $this->query_image_sitemaps_after_ID($last_sitemap_ID, 1000);
 
 			// If there were no posts to get, make a note.
 			if (null == $posts) {
@@ -1010,6 +1009,8 @@ class Jetpack_Sitemap_Manager {
 	 * @return string The news sitemap xml.
 	 */
 	private function news_sitemap_xml () {
+		$log = new Jetpack_Sitemap_Logger('begin news sitemap generation');
+
 		$buffer = new Jetpack_Sitemap_Buffer(
 			self::NEWS_SITEMAP_MAX_ITEMS,
 			self::SITEMAP_MAX_BYTES,
@@ -1029,7 +1030,7 @@ class Jetpack_Sitemap_Manager {
 		);
 
 		// Retrieve the 1000 most recent posts.
-		$posts = $this->get_most_recent_posts(1000);
+		$posts = $this->query_most_recent_posts(1000);
 
 		// For each post in the batch,
 		foreach ($posts as $post) {
@@ -1041,6 +1042,8 @@ class Jetpack_Sitemap_Manager {
 				break;
 			}
 		}
+
+		$log->time('end news sitemap generation');
 
 		return $buffer->contents();
 	}
@@ -1930,7 +1933,7 @@ CSS;
 	 *
 	 * @return array The posts.
 	 */
-	private function get_published_posts_after_ID ( $from_ID, $num_posts ) {
+	private function query_posts_after_ID ( $from_ID, $num_posts ) {
 		global $wpdb;
 
 		$query_string = "
@@ -1960,7 +1963,7 @@ CSS;
 	 *
 	 * @return array The posts.
 	 */
-	private function get_image_posts_after_ID ( $from_ID, $num_posts ) {
+	private function query_images_after_ID ( $from_ID, $num_posts ) {
 		global $wpdb;
 
 		$query_string = "
@@ -1979,7 +1982,7 @@ CSS;
 
 
 	/**
-	 * Retrieve an array of sitemap posts sorted by ID.
+	 * Retrieve an array of page sitemap posts sorted by ID.
 	 *
 	 * Returns the smallest $num_posts sitemap posts (measured by ID)
 	 * which are larger than $from_ID.
@@ -1992,7 +1995,7 @@ CSS;
 	 *
 	 * @return array The sitemap posts.
 	 */
-	private function get_sitemap_posts_after_ID ( $from_ID, $num_posts ) {
+	private function query_page_sitemaps_after_ID ( $from_ID, $num_posts ) {
 		global $wpdb;
 
 		$query_string = "
@@ -2018,11 +2021,11 @@ CSS;
 	 * @since 4.5.0
 	 *
 	 * @param int $from_ID Greatest lower bound of retrieved image sitemap post IDs.
-	 * @param int $num_posts Largest number of sitemap posts to retrieve.
+	 * @param int $num_posts Largest number of image sitemap posts to retrieve.
 	 *
 	 * @return array The sitemap posts.
 	 */
-	private function get_image_sitemap_posts_after_ID ( $from_ID, $num_posts ) {
+	private function query_image_sitemaps_after_ID ( $from_ID, $num_posts ) {
 		global $wpdb;
 
 		$query_string = "
@@ -2048,7 +2051,7 @@ CSS;
 	 *
 	 * @return array The posts.
 	 */
-	private function get_most_recent_posts ( $num_posts ) {
+	private function query_most_recent_posts ( $num_posts ) {
 		global $wpdb;
 
 		$two_days_ago = date('Y-m-d', strtotime('-2 days'));
