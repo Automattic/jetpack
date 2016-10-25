@@ -63,6 +63,13 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
+	 * Minimum number of seconds between generations.
+	 */
+	const SITEMAP_INTERVAL = 60*60*24;
+
+
+
+	/**
 	 * @since 4.5.0
 	 */
 	public function __construct() {
@@ -309,8 +316,8 @@ class Jetpack_Sitemap_Manager {
 	private function schedule_sitemap_generation () {
 		// Add cron schedule
 		add_filter( 'cron_schedules', function ($schedules) {
-			$schedules['minutely'] = array(
-				'interval' => 60,
+			$schedules['sitemap-interval'] = array(
+				'interval' => self::SITEMAP_INTERVAL,
 				'display'  => __('Every Minute')
 			);
 			return $schedules;
@@ -322,7 +329,7 @@ class Jetpack_Sitemap_Manager {
 		});
 
 		if( !wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
-			wp_schedule_event( time(), 'minutely', 'jp_sitemap_cron_hook' );
+			wp_schedule_event( time(), 'sitemap-interval', 'jp_sitemap_cron_hook' );
 		}
 
 		return;
