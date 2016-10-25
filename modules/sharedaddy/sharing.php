@@ -380,7 +380,7 @@ class Sharing_Admin {
 								<label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
 								<?php
 								$br = true;
-									endforeach;
+								endforeach;
 								?>
 							</td>
 					<?php
