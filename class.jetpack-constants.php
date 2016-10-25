@@ -27,7 +27,7 @@ class Jetpack_Constants {
 	 * @return bool
 	 */
 	public static function is_defined( $name ) {
-		return isset( self::$set_constants[ $name ] )
+		return array_key_exists( $name, self::$set_constants )
 			? true
 			: defined( $name );
 	}
@@ -41,7 +41,7 @@ class Jetpack_Constants {
 	 * @return mixed null if the constant does not exist or the value of the constant.
 	 */
 	public static function get_constant( $name ) {
-		if ( isset( self::$set_constants[ $name ] ) ) {
+		if ( array_key_exists( $name,  self::$set_constants ) ) {
 			return self::$set_constants[ $name ];
 		}
 
@@ -66,7 +66,7 @@ class Jetpack_Constants {
 	 * @return bool Whether the constant was removed.
 	 */
 	public static function clear_single_constant( $name ) {
-		if ( ! isset( self::$set_constants[ $name ] ) ) {
+		if ( ! array_key_exists( $name, self::$set_constants ) ) {
 			return false;
 		}
 
