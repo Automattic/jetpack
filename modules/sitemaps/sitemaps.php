@@ -1,10 +1,26 @@
 <?php
 /**
- * Generate sitemap files in base XML as well as popular namespace extensions.
+ * Generate sitemap files in base XML as well as some namespace extensions.
+ *
+ * This module generates two different base sitemaps.
+ *
+ * 1. sitemap.xml
+ *    The basic sitemap is generated regularly by wp-cron. It is stored in the
+ *    database and retrieved when requested. This sitemap aims to include canonical
+ *    URLs for all published content and abide by the sitemap spec. This is the root
+ *    of a tree of sitemap and sitemap index xml files, depending on the number of URLs.
+ *
+ * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
+ * @link https://support.google.com/webmasters/answer/178636 Image sitemap extension.
+ *
+ * 2. news-sitemap.xml
+ *    The news sitemap is generated on the fly when requested. It does not aim for
+ *    completeness, instead including at most 1000 of the most recent published posts
+ *    from the previous 2 days, per the news-sitemap spec.
+ *
+ * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 News sitemap extension.
  *
  * @author Automattic
- * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
- * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps.
  */
 
 
@@ -2279,7 +2295,9 @@ class Jetpack_Sitemap_Buffer {
 /**
  * Handles logging errors and debug messages for sitemap generator.
  *
- * Side effect: writes a string to the PHP error log.
+ * A Jetpack_Sitemap_Logger object keeps track of its birth time as well
+ * as a "unique" ID string. Calling the report() method writes a message
+ * to the PHP error log as well as the ID string for easier grepping.
  */
 class Jetpack_Sitemap_Logger {
 	/**
@@ -2300,8 +2318,6 @@ class Jetpack_Sitemap_Logger {
 	/**
 	 * Initializes a new logger object.
 	 *
-	 * Side effect: writes a string to the PHP error log.
-	 *
 	 * @since 4.5.0
 	 *
 	 * @param string $message A message string to be written to the debug log on initialization.
@@ -2316,8 +2332,6 @@ class Jetpack_Sitemap_Logger {
 	/**
 	 * Writes a string to the debug log, including the logger's ID string.
 	 *
-	 * Side effect: writes a string to the PHP error log.
-	 *
 	 * @since 4.5.0
 	 *
 	 * @param string $message The string to be written to the log.
@@ -2329,8 +2343,6 @@ class Jetpack_Sitemap_Logger {
 
 	/**
 	 * Writes the elapsed lifetime of the logger to the debug log, with an optional message.
-	 *
-	 * Side effect: writes a string to the PHP error log.
 	 *
 	 * @since 4.5.0
 	 *
