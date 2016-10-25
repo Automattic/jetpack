@@ -277,12 +277,54 @@ class Jetpack_Sitemap_Manager {
 
 		add_action( 'jp_sitemap_cron_hook', function () {
 			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$this->generate_all_sitemaps();
+			$this->build_all_sitemaps();
 		});
 
 		if( !wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
 			wp_schedule_event( time(), 'minutely', 'jp_sitemap_cron_hook' );
 		}
+
+		return;
+	}
+
+
+
+
+
+	/**
+	 * Build a fresh tree of sitemaps.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 */
+	private function build_all_sitemaps () {
+		$log = new Jetpack_Sitemap_Logger('begin generation');
+
+		$page = $this->build_page_sitemap_tree();
+		$image = $this->build_image_sitemap_tree();
+
+		$master = 
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap-index.xsl" . "'?>\n" .
+			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n" .
+			" <sitemap>\n" .
+			"  <loc>" . site_url() . $page['filename'] . "</loc>\n" .
+			"  <lastmod>" . $page['last_modified'] . "</lastmod>\n" .
+			" </sitemap>\n" .
+			" <sitemap>\n" .
+			"  <loc>" . site_url() . $image['filename'] . "</loc>\n" .
+			" </sitemap>\n" .
+			"</sitemapindex>\n";
+
+		$this->set_contents_of_post(
+			'sitemap',
+			'jp_sitemap_master',
+			$master,
+			''
+		);
+
+		$log->time('end generation');
 
 		return;
 	}
@@ -897,49 +939,6 @@ class Jetpack_Sitemap_Manager {
 
 		// Otherwise, we have to generate sitemap indices.
 		return $this->build_all_image_sitemap_indices();
-	}
-
-
-
-
-
-
-	/**
-	 * Build a fresh tree of sitemaps.
-	 *
-	 * @access private
-	 * @since 4.5.0
-	 */
-	private function generate_all_sitemaps () {
-		$log = new Jetpack_Sitemap_Logger('begin generation');
-
-		$page = $this->build_page_sitemap_tree();
-		$image = $this->build_image_sitemap_tree();
-
-		$master = 
-			"<?xml version='1.0' encoding='UTF-8'?>\n" .
-			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
-			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap-index.xsl" . "'?>\n" .
-			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n" .
-			" <sitemap>\n" .
-			"  <loc>" . site_url() . $page['filename'] . "</loc>\n" .
-			"  <lastmod>" . $page['last_modified'] . "</lastmod>\n" .
-			" </sitemap>\n" .
-			" <sitemap>\n" .
-			"  <loc>" . site_url() . $image['filename'] . "</loc>\n" .
-			" </sitemap>\n" .
-			"</sitemapindex>\n";
-
-		$this->set_contents_of_post(
-			'sitemap',
-			'jp_sitemap_master',
-			$master,
-			''
-		);
-
-		$log->time('end generation');
-
-		return;
 	}
 
 
