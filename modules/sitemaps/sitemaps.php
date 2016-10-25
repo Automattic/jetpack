@@ -375,6 +375,89 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
+	 * Build the page sitemap tree structure.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @return array $args {
+	 *     @type string filename The filename of the root page sitemap.
+	 *     @type string last_modified The timestamp of the root page sitemap.
+	 * }
+	 */
+	private function build_page_sitemap_tree () {
+		$num_sitemaps = $this->build_all_page_sitemaps();
+
+		// If there's only one sitemap, make that the root.
+		if ( 1 == $num_sitemaps ) {
+			$this->delete_numbered_posts_after(
+				'sitemap-index-',
+				0,
+				'jp_sitemap_index'
+			);
+
+			$last_modified = get_page_by_title('sitemap-1', 'OBJECT', 'jp_sitemap')->post_date;
+
+			return array(
+				'filename'      => '/sitemap-1.xml',
+				'last_modified' => str_replace( ' ', 'T', $last_modified) . 'Z',
+			);
+		}
+
+		// Otherwise, we have to generate sitemap indices.
+		return $this->build_all_page_sitemap_indices();
+	}
+
+
+
+
+
+	/**
+	 * Build and store all page sitemaps.
+	 *
+	 * Side effect: Create/update jp_sitemap posts sitemap-1, sitemap-2, etc.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @return The number of page sitemaps generated.
+	 */
+	private function build_all_page_sitemaps () {
+		$post_ID = 0;
+		$sitemap_number = 1;
+		$any_posts_left = True;
+
+		// Generate sitemaps until no posts remain.
+		while ( True == $any_posts_left ) {
+			$result = $this->build_one_page_sitemap(
+				$sitemap_number,
+				$post_ID
+			);
+
+			if ( True == $result['any_posts_left'] ) {
+				$post_ID = $result['last_post_ID'];
+				$sitemap_number += 1;
+			} else {
+				$any_posts_left = False;
+			}
+		}
+
+		// Clean up old page sitemaps.
+		$this->delete_numbered_posts_after(
+			'sitemap-',
+			$sitemap_number,
+			'jp_sitemap'
+		);
+
+		// Return the number of the last sitemap to be stored.
+		return $sitemap_number;
+	}
+
+
+
+
+
+	/**
 	 * Build and store a single page sitemap.
 	 *
 	 * Side effect: Create/update a jp_sitemap post.
@@ -462,45 +545,52 @@ class Jetpack_Sitemap_Manager {
 
 
 
+
+
 	/**
-	 * Build and store all page sitemaps.
+	 * Build and store all page sitemap indices.
 	 *
-	 * Side effect: Create/update jp_sitemap posts sitemap-1, sitemap-2, etc.
+	 * Side effect: Create/update jp_sitemap_index posts sitemap-index-1, sitemap-index-2, etc.
 	 *
 	 * @access private
 	 * @since 4.5.0
 	 *
-	 * @return The number of page sitemaps generated.
+	 * @return The number of page sitemap indices generated.
 	 */
-	private function build_all_page_sitemaps () {
-		$post_ID = 0;
-		$sitemap_number = 1;
-		$any_posts_left = True;
+	private function build_all_page_sitemap_indices () {
+		$sitemap_ID = 0;
+		$sitemap_index_number = 1;
+		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
+		$any_sitemaps_left = True;
 
-		// Generate sitemaps until no posts remain.
-		while ( True == $any_posts_left ) {
-			$result = $this->build_one_page_sitemap(
-				$sitemap_number,
-				$post_ID
+		// Generate sitemap indices until no sitemaps remain.
+		while ( true == $any_sitemaps_left ) {
+			$result = $this->build_one_page_sitemap_index(
+				$sitemap_index_number,
+				$sitemap_ID,
+				$last_modified
 			);
 
-			if ( True == $result['any_posts_left'] ) {
-				$post_ID = $result['last_post_ID'];
-				$sitemap_number += 1;
+			if ( true == $result['any_sitemaps_left'] ) {
+				$sitemap_ID = $result['last_sitemap_ID'];
+				$sitemap_index_number += 1;
+				$last_modified = $result['last_modified'];
 			} else {
-				$any_posts_left = False;
+				$any_sitemaps_left = False;
 			}
 		}
 
-		// Clean up old page sitemaps.
+		// Clean up old sitemap indices.
 		$this->delete_numbered_posts_after(
-			'sitemap-',
-			$sitemap_number,
-			'jp_sitemap'
+			'sitemap-index-',
+			$sitemap_index_number,
+			'jp_sitemap_index'
 		);
 
-		// Return the number of the last sitemap to be stored.
-		return $sitemap_number;
+		return array(
+			'filename'      => '/sitemap-index-' . $sitemap_index_number . '.xml',
+			'last_modified' => str_replace( ' ', 'T', $last_modified) . 'Z',
+		);
 	}
 
 
@@ -601,86 +691,81 @@ class Jetpack_Sitemap_Manager {
 
 
 
-	/**
-	 * Build and store all page sitemap indices.
-	 *
-	 * Side effect: Create/update jp_sitemap_index posts sitemap-index-1, sitemap-index-2, etc.
-	 *
-	 * @access private
-	 * @since 4.5.0
-	 *
-	 * @return The number of page sitemap indices generated.
-	 */
-	private function build_all_page_sitemap_indices () {
-		$sitemap_ID = 0;
-		$sitemap_index_number = 1;
-		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
-		$any_sitemaps_left = True;
-
-		// Generate sitemap indices until no sitemaps remain.
-		while ( true == $any_sitemaps_left ) {
-			$result = $this->build_one_page_sitemap_index(
-				$sitemap_index_number,
-				$sitemap_ID,
-				$last_modified
-			);
-
-			if ( true == $result['any_sitemaps_left'] ) {
-				$sitemap_ID = $result['last_sitemap_ID'];
-				$sitemap_index_number += 1;
-				$last_modified = $result['last_modified'];
-			} else {
-				$any_sitemaps_left = False;
-			}
-		}
-
-		// Clean up old sitemap indices.
-		$this->delete_numbered_posts_after(
-			'sitemap-index-',
-			$sitemap_index_number,
-			'jp_sitemap_index'
-		);
-
-		return array(
-			'filename'      => '/sitemap-index-' . $sitemap_index_number . '.xml',
-			'last_modified' => str_replace( ' ', 'T', $last_modified) . 'Z',
-		);
-	}
-
 
 
 	/**
-	 * Build the page sitemap tree structure.
+	 * Build the image sitemap tree structure.
 	 *
 	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @return array $args {
-	 *     @type string filename The filename of the root page sitemap.
-	 *     @type string last_modified The timestamp of the root page sitemap.
+	 *     @type string filename The filename of the root image sitemap.
+	 *     @type string last_modified The timestamp of the root image sitemap.
 	 * }
 	 */
-	private function build_page_sitemap_tree () {
-		$num_sitemaps = $this->build_all_page_sitemaps();
+	private function build_image_sitemap_tree () {
+		$num_sitemaps = $this->build_all_image_sitemaps();
 
 		// If there's only one sitemap, make that the root.
 		if ( 1 == $num_sitemaps ) {
 			$this->delete_numbered_posts_after(
-				'sitemap-index-',
+				'image-sitemap-index-',
 				0,
-				'jp_sitemap_index'
+				'jp_img_sitemap_index'
 			);
 
-			$last_modified = get_page_by_title('sitemap-1', 'OBJECT', 'jp_sitemap')->post_date;
-
 			return array(
-				'filename'      => '/sitemap-1.xml',
-				'last_modified' => str_replace( ' ', 'T', $last_modified) . 'Z',
+				'filename' => '/image-sitemap-1.xml',
 			);
 		}
 
 		// Otherwise, we have to generate sitemap indices.
-		return $this->build_all_page_sitemap_indices();
+		return $this->build_all_image_sitemap_indices();
+	}
+
+
+
+
+
+	/**
+	 * Build and store all image sitemaps.
+	 *
+	 * Side effect: Create/update jp_img_sitemap posts image-sitemap-1, image-sitemap-2, etc.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @return The number of image sitemaps generated.
+	 */
+	private function build_all_image_sitemaps () {
+		$image_ID = 0;
+		$img_sitemap_number = 1;
+		$any_images_left = True;
+
+		// Generate image sitemaps until no posts remain.
+		while ( True == $any_images_left ) {
+			$result = $this->build_one_image_sitemap(
+				$img_sitemap_number,
+				$image_ID
+			);
+
+			if ( True == $result['any_posts_left'] ) {
+				$image_ID = $result['last_post_ID'];
+				$img_sitemap_number += 1;
+			} else {
+				$any_images_left = False;
+			}
+		}
+
+		// Clean up old image sitemaps.
+		$this->delete_numbered_posts_after(
+			'image-sitemap-',
+			$img_sitemap_number,
+			'jp_img_sitemap'
+		);
+
+		return $img_sitemap_number;
 	}
 
 
@@ -768,45 +853,55 @@ class Jetpack_Sitemap_Manager {
 
 
 
+
+
 	/**
-	 * Build and store all image sitemaps.
+	 * Build and store all image sitemap indices.
 	 *
-	 * Side effect: Create/update jp_img_sitemap posts image-sitemap-1, image-sitemap-2, etc.
+	 * Side effect: Create/update jp_img_sitemap_index posts
+	 * image-sitemap-index-1, image-sitemap-index-2, etc.
 	 *
 	 * @access private
 	 * @since 4.5.0
 	 *
-	 * @return The number of image sitemaps generated.
+	 * @return The number of image sitemap indices generated.
 	 */
-	private function build_all_image_sitemaps () {
-		$image_ID = 0;
-		$img_sitemap_number = 1;
-		$any_images_left = True;
+	private function build_all_image_sitemap_indices () {
+		$sitemap_ID = 0;
+		$sitemap_index_number = 1;
+		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
+		$any_sitemaps_left = True;
 
-		// Generate image sitemaps until no posts remain.
-		while ( True == $any_images_left ) {
-			$result = $this->build_one_image_sitemap(
-				$img_sitemap_number,
-				$image_ID
+		// Generate sitemap indices until no sitemaps remain.
+		while ( true == $any_sitemaps_left ) {
+			$result = $this->build_one_image_sitemap_index(
+				$sitemap_index_number,
+				$sitemap_ID,
+				$last_modified
 			);
 
-			if ( True == $result['any_posts_left'] ) {
-				$image_ID = $result['last_post_ID'];
-				$img_sitemap_number += 1;
+			if ( true == $result['any_sitemaps_left'] ) {
+				$sitemap_ID = $result['last_sitemap_ID'];
+				$sitemap_index_number += 1;
+				$last_modified = $result['last_modified'];
 			} else {
-				$any_images_left = False;
+				$any_sitemaps_left = False;
 			}
 		}
 
-		// Clean up old image sitemaps.
+		// Clean up old sitemap indices.
 		$this->delete_numbered_posts_after(
-			'image-sitemap-',
-			$img_sitemap_number,
-			'jp_img_sitemap'
+			'image-sitemap-index-',
+			$sitemap_index_number,
+			'jp_img_sitemap_index'
 		);
 
-		return $img_sitemap_number;
+		return array(
+			'filename' => '/image-sitemap-index-' . $sitemap_index_number . '.xml',
+		);
 	}
+
+
 
 
 
@@ -904,56 +999,10 @@ class Jetpack_Sitemap_Manager {
 
 
 
-	/**
-	 * Build and store all image sitemap indices.
-	 *
-	 * Side effect: Create/update jp_img_sitemap_index posts
-	 * image-sitemap-index-1, image-sitemap-index-2, etc.
-	 *
-	 * @access private
-	 * @since 4.5.0
-	 *
-	 * @return The number of image sitemap indices generated.
-	 */
-	private function build_all_image_sitemap_indices () {
-		$sitemap_ID = 0;
-		$sitemap_index_number = 1;
-		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
-		$any_sitemaps_left = True;
-
-		// Generate sitemap indices until no sitemaps remain.
-		while ( true == $any_sitemaps_left ) {
-			$result = $this->build_one_image_sitemap_index(
-				$sitemap_index_number,
-				$sitemap_ID,
-				$last_modified
-			);
-
-			if ( true == $result['any_sitemaps_left'] ) {
-				$sitemap_ID = $result['last_sitemap_ID'];
-				$sitemap_index_number += 1;
-				$last_modified = $result['last_modified'];
-			} else {
-				$any_sitemaps_left = False;
-			}
-		}
-
-		// Clean up old sitemap indices.
-		$this->delete_numbered_posts_after(
-			'image-sitemap-index-',
-			$sitemap_index_number,
-			'jp_img_sitemap_index'
-		);
-
-		return array(
-			'filename' => '/image-sitemap-index-' . $sitemap_index_number . '.xml',
-		);
-	}
-
 
 
 	/**
-	 * Build the news sitemap xml.
+	 * Build and return the news sitemap xml.
 	 *
 	 * @access private
 	 * @since 4.5.0
@@ -998,51 +1047,16 @@ class Jetpack_Sitemap_Manager {
 
 
 
-	/**
-	 * Build the image sitemap tree structure.
-	 *
-	 * @access private
-	 * @since 4.5.0
-	 *
-	 * @return array $args {
-	 *     @type string filename The filename of the root image sitemap.
-	 *     @type string last_modified The timestamp of the root image sitemap.
-	 * }
-	 */
-	private function build_image_sitemap_tree () {
-		$num_sitemaps = $this->build_all_image_sitemaps();
-
-		// If there's only one sitemap, make that the root.
-		if ( 1 == $num_sitemaps ) {
-			$this->delete_numbered_posts_after(
-				'image-sitemap-index-',
-				0,
-				'jp_img_sitemap_index'
-			);
-
-			return array(
-				'filename'      => '/image-sitemap-1.xml',
-			);
-		}
-
-		// Otherwise, we have to generate sitemap indices.
-		return $this->build_all_image_sitemap_indices();
-	}
-
-
-
 
 
 	/**
 	 * Construct the sitemap url entry for a WP_Post.
 	 *
 	 * @link http://www.sitemaps.org/protocol.html#urldef
-	 *
 	 * @access private
 	 * @since 4.5.0
 	 *
 	 * @param WP_Post $post The post to be processed.
-	 *
 	 * @return string An XML fragment representing the post URL.
 	 */
 	private function post_to_sitemap_item ( $post ) {
