@@ -147,10 +147,11 @@ class Jetpack_Sync_Actions {
 
 		if ( ! $result ) {
 			$error = $rpc->get_jetpack_error();
-			if ( 'jetpack_url_mismatch' === $error->get_error_code() ) {
+			$error_code = $error->get_error_code();
+			if ( in_array( $error_code, array( 'jetpack_url_mismatch', 'jetpack_home_url_mismatch', 'jetpack_site_url_mismatch' ) ) ) {
 				Jetpack_Options::update_option(
 					'sync_error_idc',
-					Jetpack::get_sync_error_idc_option()
+					Jetpack::get_sync_error_idc_option( $error_code )
 				);
 			}
 			

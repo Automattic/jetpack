@@ -5254,7 +5254,14 @@ p {
 
 		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
 		if ( $sync_error && self::sync_idc_optin() ) {
-			$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option() );
+			if ( isset( $sync_error['home'], $sync_error['siteurl'] ) ) {
+				$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option() );
+			} else if ( isset( $sync_error['home'] ) ) {
+				$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option( 'jetpack_home_url_mismatch' ) );
+			} else {
+				$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option( 'jetpack_site_url_mismatch' ) );
+			}
+
 			if ( empty( $error_diff ) ) {
 				$is_valid = true;
 			}
@@ -5282,16 +5289,27 @@ p {
 	 *
 	 * @since 4.4.0
 	 *
+	 * @param string $option
 	 * @return array {
 	 *     @type string 'home'    The current home URL.
 	 *     @type string 'siteurl' The current site URL.
 	 * }
 	 */
-	public static function get_sync_error_idc_option() {
-		$options = array(
-			'home'    => get_home_url(),
-			'siteurl' => get_site_url(),
-		);
+	public static function get_sync_error_idc_option( $option = NULL ) {
+		if ( 'jetpack_home_url_mismatch' === $option ) {
+			$options = array(
+				'home' => get_home_url()
+			);
+		} else if ( 'jetpack_site_url_mismatch' === $option ) {
+			$options = array(
+				'siteurl' => get_site_url()
+			);
+		} else {
+			$options = array(
+				'home'    => get_home_url(),
+				'siteurl' => get_site_url(),
+			);
+		}
 
 		$returned_values = array();
 		foreach( $options as $key => $option ) {
