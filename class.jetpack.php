@@ -294,6 +294,13 @@ class Jetpack {
 	public $stats = array();
 
 	/**
+	 * Any errors arising during REST API user tokens authentication
+	 *
+	 * @var array
+	 */
+	public $user_tokens_authentication_error = array();
+
+	/**
 	 * Jetpack_Sync object
 	 */
 	public $sync;
@@ -485,6 +492,11 @@ class Jetpack {
 
 		if ( Jetpack::is_active() ) {
 			Jetpack_Heartbeat::init();
+		}
+
+		if ( Jetpack::is_active() ) {
+			add_filter( 'determine_current_user', array( $this, 'authenticate_user_tokens' ), 20 );
+			add_filter( 'rest_authentication_errors', array( $this, 'user_tokens_authentication_error' ) );
 		}
 
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
@@ -4742,6 +4754,40 @@ p {
 		nocache_headers();
 
 		return new WP_User( $token_details['user_id'] );
+	}
+
+	/**
+	 * Authenticates REST API via user_tokens passed as GET query parameter
+	 */
+	function authenticate_user_tokens( $user_id ) {
+		$get_token = isset( $_GET[ 'user_token' ] ) ? $_GET[ 'user_token' ] : false;
+
+		if ( false === $get_token ) {
+			return $user_id;
+		}
+
+		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
+		$token_user_id = is_array( $user_tokens ) ? array_search( $get_token, $user_tokens ) : false;
+
+		if ( false !== $token_user_id ) {
+			return $token_user_id;
+		}
+		$this->user_tokens_authentication_error[] = new WP_Error( __( 'Invalid user token', 'jetpack' ) );
+
+		return $user_id;
+	}
+
+	/**
+	 * Hooks on `rest_authentication_errors` filter for passing
+	 * any user token authentication error;
+	 */
+	function user_tokens_authentication_error( $error ) {
+		// Passthrough other errors
+		if ( ! empty( $error ) ) {
+			return $error;
+		}
+
+		return $this->user_tokens_authentication_error;
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
