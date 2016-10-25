@@ -190,6 +190,44 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		update_option( 'siteurl', $original_siteurl_option );
 	}
 
+	function test_sync_jetpack_sync_unlock_sync_callable_action_allows_syncing_siteurl_changes() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->setSyncClientDefaults();
+
+		$original_home_option    = get_option( 'home' );
+		$original_siteurl_option = get_option( 'siteurl' );
+
+		// Let's see if the original values get synced. This will also set the await transient.
+		$this->sender->do_sync();
+		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+
+		$this->assertEquals( $original_home_option, $synced_home_url );
+		$this->assertEquals( $original_siteurl_option, $synced_site_url );
+
+		$this->server_replica_storage->reset();
+
+		// We set the filters here to simulate how setting the WP_HOME and WP_SITEURL constant works.
+		add_filter( 'option_home',    array( $this, 'return_https_site_com_blog' ) );
+		add_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
+
+		// By calling this action, we simulate wp_schedule_single_event()
+		do_action( 'jetpack_sync_unlock_sync_callable' );
+
+		$this->sender->do_sync();
+
+		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+
+		$this->assertEquals( $this->return_https_site_com_blog(), $synced_home_url );
+		$this->assertEquals( $this->return_https_site_com_blog(), $synced_site_url );
+
+		// Cleanup
+		remove_filter( 'option_home',    array( $this, 'return_https_site_com_blog' ) );
+		remove_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
+	}
+
 	function test_scheme_switching_does_not_cause_sync() {
 		$this->setSyncClientDefaults();
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
