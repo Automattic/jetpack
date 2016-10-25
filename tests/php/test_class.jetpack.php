@@ -445,6 +445,44 @@ EXPECTED;
 		update_option( 'siteurl', $original_siteurl );
 	}
 
+	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_subdir_subdomain() {
+		$url = 'https://www.subdomain.myfaketestsite.com/what';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'subdomain.myfaketestsite.com/what/' === $url_normalized );
+
+		$url = 'http://subdomain.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'subdomain.myfaketestsite.com/' === $url_normalized );
+
+		$url = 'www.subdomain.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'subdomain.myfaketestsite.com/' === $url_normalized );
+	}
+
+	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_normal_urls() {
+		$url = 'https://www.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
+
+		$url = 'www.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
+
+		$url = 'myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
+	}
+
+	function test_normalize_url_protocol_agnostic_strips_protocol_for_ip() {
+		$url = 'http://123.456.789.0';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( '123.456.789.0/' === $url_normalized );
+
+		$url = '123.456.789.0';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( '123.456.789.0/' === $url_normalized );
+	}
+
 	function __return_string_1() {
 		return '1';
 	}

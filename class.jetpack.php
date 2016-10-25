@@ -5166,13 +5166,7 @@ p {
 			return false;
 		}
 
-		$crisis_options = false;
-		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
-		if ( is_array( $options = Jetpack_Options::get_option( 'sync_error_idc' ) ) ) {
-			$crisis_options = array_diff_assoc( $options, self::get_sync_error_idc_option() );
-		}
-
-		return $crisis_options;
+		return Jetpack_Options::get_option( 'sync_error_idc' );
 	}
 
 	/**
@@ -5285,6 +5279,27 @@ p {
 	}
 
 	/**
+	 * Normalizes a url by doing three things:
+	 *  - Strips protocol
+	 *  - Strips www
+	 *  - Adds a trailing slash
+	 *
+	 * @since 4.4.0
+	 * @param string $url
+	 * @return WP_Error|string
+	 */
+	public static function normalize_url_protocol_agnostic( $url ) {
+		$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $url ) ) );
+		if ( ! $parsed_url ) {
+			return new WP_Error( 'cannot_parse_url', sprintf( esc_html__( 'Cannot parse URL %s', 'jetpack' ), $url ) );
+		}
+
+		// Strip www and protocols
+		$url = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
+		return $url;
+	}
+
+	/**
 	 * Gets the value that is to be saved in the jetpack_sync_error_idc option.
 	 *
 	 * @since 4.4.0
@@ -5313,14 +5328,11 @@ p {
 
 		$returned_values = array();
 		foreach( $options as $key => $option ) {
-			$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $option ) ) );
-
-			if ( ! $parsed_url ) {
-				$returned_values[ $key ] = $option;
+			if ( is_wp_error( $normalized_url = self::normalize_url_protocol_agnostic( $option ) ) ) {
 				continue;
 			}
 
-			$returned_values[ $key ] = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
+			$returned_values[ $key ] = $normalized_url;
 		}
 
 		return $returned_values;
