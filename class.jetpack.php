@@ -487,6 +487,8 @@ class Jetpack {
 			Jetpack_Heartbeat::init();
 		}
 
+		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authenticate' ) );
+
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
@@ -4623,6 +4625,13 @@ p {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-ixr-client.php';
 	}
 
+	/**
+	 * Resets the saved XMLRPC verification in between testing requests.
+	 */
+	public function reset_xmlrpc_verification() {
+		$this->xmlrpc_verification = null;
+	}
+
 	function verify_xml_rpc_signature() {
 		if ( $this->xmlrpc_verification ) {
 			return $this->xmlrpc_verification;
@@ -4695,6 +4704,7 @@ p {
 		} else {
 			$body = null;
 		}
+
 		$signature = $jetpack_signature->sign_current_request(
 			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body, )
 		);
@@ -4747,6 +4757,43 @@ p {
 		nocache_headers();
 
 		return new WP_User( $token_details['user_id'] );
+	}
+
+	// Authenticates requests from Jetpack server to WP API endpoints.
+	// Uses the existing XMLRPC oAuth implementation.
+	function wp_rest_authenticate( $error ) {
+		if ( is_wp_error( $error ) ) {
+			// A previous authentication method failed.
+			return $error;
+		}
+
+		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
+			// Nothing to do for this authentication method.
+			return $error;
+		}
+
+		$verified = $this->verify_xml_rpc_signature();
+
+		if ( is_wp_error( $verified ) ) {
+			return $verified;
+		}
+
+		if (
+			false === $verified ||
+			! isset( $verified['type'] ) ||
+			'user' !== $verified['type'] ||
+			empty( $verified['user_id'] )
+		) {
+			return new WP_Error(
+				'rest_invalid_signature',
+				'The request is not signed correctly.',
+				array( 'status' => 400 )
+			);
+		}
+
+		// Authentication successful.
+		wp_set_current_user( $verified['user_id'] );
+		return true;
 	}
 
 	function add_nonce( $timestamp, $nonce ) {

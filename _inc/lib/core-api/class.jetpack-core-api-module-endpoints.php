@@ -193,7 +193,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 
 		if (
 			! isset( $params['modules'] )
-			|| is_array( $params['modules'] )
+			|| ! is_array( $params['modules'] )
 		) {
 			return new WP_Error(
 				'not_found',
