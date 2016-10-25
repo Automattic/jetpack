@@ -2160,25 +2160,6 @@ CSS;
 		return;
 	}
 
-
-
-	/**
-	 * Clone the contents of a specified post to the master sitemap.
-	 *
-	 * @param string @title Title of the post to clone.
-	 * @param string @type Type of the post to clone.
-	 */
-	private function clone_to_master_sitemap ( $title, $type ) {
-		$this->set_contents_of_post(
-			'sitemap',
-			'jp_sitemap_master',
-			$this->get_contents_of_post($title, $type),
-			''
-		);
-
-		return;
-	}
-
 } // End Jetpack_Sitemap_Manager class
 
 new Jetpack_Sitemap_Manager();
