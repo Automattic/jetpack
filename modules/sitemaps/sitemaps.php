@@ -20,7 +20,6 @@ class Jetpack_Sitemap_Manager {
 	 * Maximum size (in bytes) of a sitemap xml file.
 	 *
 	 * @link http://www.sitemaps.org/
-	 *
 	 * @since 4.5.0
 	 */
 	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
@@ -31,7 +30,6 @@ class Jetpack_Sitemap_Manager {
 	 * Maximum size (in url nodes) of a sitemap xml file.
 	 *
 	 * @link http://www.sitemaps.org/
-	 *
 	 * @since 4.5.0
 	 */
 	const SITEMAP_MAX_ITEMS = 50000; // 50k
@@ -42,7 +40,6 @@ class Jetpack_Sitemap_Manager {
 	 * Maximum size (in url nodes) of a news sitemap xml file.
 	 *
 	 * @link https://support.google.com/news/publisher/answer/74288?hl=en
-	 *
 	 * @since 4.5.0
 	 */
 	const NEWS_SITEMAP_MAX_ITEMS = 1000; // 1k
@@ -50,8 +47,6 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
-	 * Constructor
-	 *
 	 * @since 4.5.0
 	 */
 	public function __construct() {
@@ -90,7 +85,7 @@ class Jetpack_Sitemap_Manager {
 				$type_name,
 				array(
 					'labels'      => array('name' => $label),
-					'public'      => true, // Set to true to aid debugging
+					'public'      => false, // Set to true to aid debugging
 					'has_archive' => false,
 					'rewrite'     => array('slug' => $slug),
 				)
@@ -105,7 +100,8 @@ class Jetpack_Sitemap_Manager {
 			register_sitemap_data(
 				'jp_sitemap_master',
 				'Sitemap Master',
-				'jetpack-sitemap-master');
+				'jetpack-sitemap-master'
+			);
 
 			// Register 'jp_sitemap' post type
 			register_sitemap_data(
@@ -487,6 +483,7 @@ class Jetpack_Sitemap_Manager {
 			'jp_sitemap'
 		);
 
+		// Return the number of the last sitemap to be stored.
 		return $sitemap_number;
 	}
 
@@ -1193,7 +1190,7 @@ class Jetpack_Sitemap_Manager {
 
 
 	/**
-	 * Construct the sitemap url entry for a WP_Post.
+	 * Construct the news sitemap url entry for a WP_Post.
 	 *
 	 * @link http://www.sitemaps.org/protocol.html#urldef
 	 *
@@ -1216,8 +1213,8 @@ class Jetpack_Sitemap_Manager {
 		}
 
 		/*
-		 * Must use W3C Datetime format per the spec.
-		 * https://www.w3.org/TR/NOTE-datetime
+		 * Must use W3C Datetime format per the sitemap spec.
+		 * @link https://www.w3.org/TR/NOTE-datetime
 		 */ 
 		$last_modified = str_replace( ' ', 'T', $post->post_date) . 'Z';
 
@@ -1225,9 +1222,13 @@ class Jetpack_Sitemap_Manager {
 
 		$name = esc_html(get_bloginfo('name'));
 
-		// Unless it's zh-cn for Simplified Chinese or zh-tw for Traditional Chinese,
-		// trim national variety so an ISO 639 language code as required by Google.
+		/*
+		 * Trim the locale to an ISO 639 language code as required by Google.
+		 * Special cases are zh-cn (Simplified Chinese) and zh-tw (Traditional Chinese).
+		 * @link http://www.loc.gov/standards/iso639-2/php/code_list.php
+		 */
 		$language = strtolower( get_locale() );
+
 		if ( in_array( $language, array( 'zh_tw', 'zh_cn' ) ) ) {
 			$language = str_replace( '_', '-', $language );
 		} else {
@@ -2337,7 +2338,7 @@ class Jetpack_Sitemap_Logger {
 	 */
 	public function time($message = '') {
 		$time = (microtime(true) - $this->starttime);
-		$this->report($message . ' ' . $time . ' seconds elsapsed');
+		$this->report($message . ' ' . $time . ' seconds elapsed');
 		return;
 	}
 }
