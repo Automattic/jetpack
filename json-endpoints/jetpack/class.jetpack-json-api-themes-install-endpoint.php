@@ -18,8 +18,13 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			$upgrader  = new Theme_Upgrader( $skin );
 
 			$link = $this->download_links[ $theme ];
+			$result = $upgrader->install( $link );
 
-			$result = $upgrader->install( $this->download_links[ $theme ] );
+			if ( file_exists( $link ) ) {
+			// Delete if link was tmp local file
+				 error_log( 'deleting' );
+				 error_log( unlink( $link ) );
+			}
 
 			if ( ! $this->bulk && is_wp_error( $result ) ) {
 				return $result;
@@ -57,8 +62,13 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 				if ( self::is_installed_theme( $wpcom_theme_slug ) ) {
 					return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
 				}
-				$url = "https://public-api.wordpress.com/rest/v1/themes/download/$wpcom_theme_slug.zip";
-				$this->download_links[ $theme ] = $url;
+
+				$file = self::download_wpcom_theme_to_file( $wpcom_theme_slug );
+				if ( is_wp_error( $file ) ) {
+					return $file;
+				}
+
+				$this->download_links[ $theme ] = $file;
 				continue;
 			}
 
@@ -89,5 +99,26 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 		$wp_theme = wp_get_theme( $theme );
 		return $wp_theme->exists();
 	}
-}
 
+	protected static function download_wpcom_theme_to_file( $theme ) {
+		$url = "themes/download/$theme.zip";
+		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $url );
+
+		$file = tempnam( sys_get_temp_dir(), 'theme' );
+		if ( ! $file ) {
+			return new WP_Error( 'problem_creating_theme_file', __( 'Problem creating file for theme download', 'jetpack' ) );
+		}
+
+		$handle = fopen( $file, 'wb' );
+		if ( ! $handle ) {
+			return new WP_Error( 'problem_opening_theme_file', __( 'Problem opening file for theme download', 'jetpack' ) );
+		}
+
+		if ( ! fwrite( $handle, $result[ "body" ] ) ) {
+			return new WP_Error( 'problem_writing_theme_file', __( 'Problem downloading theme', 'jetpack' ) );
+		}
+
+		fclose( $handle );
+		return $file;
+	}
+}
