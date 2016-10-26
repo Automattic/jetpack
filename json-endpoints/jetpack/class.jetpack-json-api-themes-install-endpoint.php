@@ -21,9 +21,8 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			$result = $upgrader->install( $link );
 
 			if ( file_exists( $link ) ) {
-			// Delete if link was tmp local file
-				 error_log( 'deleting' );
-				 error_log( unlink( $link ) );
+				// Delete if link was tmp local file
+				unlink( $link );
 			}
 
 			if ( ! $this->bulk && is_wp_error( $result ) ) {
