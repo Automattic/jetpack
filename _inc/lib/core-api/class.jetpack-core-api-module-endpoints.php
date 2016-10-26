@@ -580,6 +580,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'sharing_services':
+					if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+						break;
+					}
+
 					$sharer = new Sharing_Service();
 
 					// If option value was the same, consider it done.
@@ -589,14 +593,22 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'button_style':
 				case 'sharing_label':
 				case 'show':
-					$sharer                   = new Sharing_Service();
-					$grouped_options          = $sharer->get_global_options();
-					$grouped_options[$option] = $value;
-					$updated                  = $sharer->set_global_options( $grouped_options );
+					if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+						break;
+					}
+
+					$sharer = new Sharing_Service();
+					$grouped_options = $sharer->get_global_options();
+					$grouped_options[ $option ] = $value;
+					$updated = $sharer->set_global_options( $grouped_options );
 					break;
 
 				case 'custom':
-					$sharer  = new Sharing_Service();
+					if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+						break;
+					}
+
+					$sharer = new Sharing_Service();
 					$updated = $sharer->new_service( stripslashes( $value['sharing_name'] ), stripslashes( $value['sharing_url'] ), stripslashes( $value['sharing_icon'] ) );
 
 					// Return new custom service
@@ -604,7 +616,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'sharing_delete_service':
-					$sharer  = new Sharing_Service();
+					if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+						break;
+					}
+
+					$sharer = new Sharing_Service();
 					$updated = $sharer->delete_service( $value );
 					break;
 

@@ -852,17 +852,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$hidden = array();
 
 			// Set some sharing settings
-			$sharing = new Sharing_Service();
-			$sharing_options['global'] = array(
-				'button_style'  => 'icon',
-				'sharing_label' => $sharing->default_sharing_label,
-				'open_links'    => 'same',
-				'show'          => array( 'post' ),
-				'custom'        => isset( $sharing_options['global']['custom'] ) ? $sharing_options['global']['custom'] : array()
-			);
+			if ( class_exists( 'Sharing_Service' ) ) {
+				$sharing = new Sharing_Service();
+				$sharing_options['global'] = array(
+					'button_style'  => 'icon',
+					'sharing_label' => $sharing->default_sharing_label,
+					'open_links'    => 'same',
+					'show'          => array( 'post' ),
+					'custom'        => isset( $sharing_options['global']['custom'] ) ? $sharing_options['global']['custom'] : array()
+				);
 
-			$result['sharing_options']  = update_option( 'sharing-options', $sharing_options );
-			$result['sharing_services'] = update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
+				$result['sharing_options']  = update_option( 'sharing-options', $sharing_options );
+				$result['sharing_services'] = update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
+			}
 		}
 
 		// If all Jumpstart modules were activated
