@@ -83,7 +83,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes:**
 
-*
+* Admin Page: fix URL to Akismet Settings. #5332
 
 = 4.3.2 =
 
