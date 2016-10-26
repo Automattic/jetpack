@@ -78,10 +78,6 @@
 
 .jp-landing-apps__header-img {
 	max-width: 100%; // needs proper srcsets
-
-	@include breakpoint( ">660px" ) {
-		margin: 0 rem( 32px ); // off-canvas effect
-	}
 }
 
 .jp-landing-apps__header-col-left {
