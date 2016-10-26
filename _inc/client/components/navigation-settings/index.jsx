@@ -80,14 +80,14 @@ const NavigationSettings = React.createClass( {
 						{ __( 'Discussion', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
+						path="#traffic"
+						selected={ this.props.route.path === '/traffic' }>
+						{ __( 'Traffic', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
 						path="#security"
 						selected={ this.props.route.path === '/security' }>
 						{ __( 'Security', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
-						path="#appearance"
-						selected={ this.props.route.path === '/appearance' }>
-						{ __( 'Appearance', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
 			);

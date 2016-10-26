@@ -31,7 +31,7 @@ import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modu
 import AtAGlance from 'at-a-glance/index.jsx';
 import Discussion from 'discussion/index.jsx';
 import Security from 'security/index.jsx';
-import Appearance from 'appearance/index.jsx';
+import Traffic from 'traffic/index.jsx';
 import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
@@ -182,9 +182,9 @@ const Main = React.createClass( {
 				navComponent = <NavigationSettings route={ this.props.route } />;
 				pageComponent = <Security route={ this.props.route } />;
 				break;
-			case '/appearance':
+			case '/traffic':
 				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Appearance route={ this.props.route } />;
+				pageComponent = <Traffic route={ this.props.route } />;
 				break;
 			case '/search':
 				navComponent = <NavigationSettings route={ this.props.route } />;
@@ -252,7 +252,7 @@ window.wpNavMenuClassChange = function() {
 		'#/general',
 		'#/discussion',
 		'#/security',
-		'#/appearance',
+		'#/traffic',
 		'#/writing',
 		'#/search'
 	],

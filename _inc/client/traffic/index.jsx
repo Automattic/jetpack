@@ -27,11 +27,12 @@ import { AllModuleSettings } from 'components/module-settings/modules-per-tab-pa
 import { isUnavailableInDevMode } from 'state/connection';
 import {
 	getSiteAdminUrl,
-	getSiteRawUrl,
-	userCanManageModules as _userCanManageModules
+	userCanManageModules,
+	isSitePublic
 } from 'state/initial-state';
+import Settings from 'components/settings';
 
-export const Discussion = ( props ) => {
+export const Traffic = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
@@ -39,45 +40,41 @@ export const Discussion = ( props ) => {
 		getModule
 	} = props,
 		isAdmin = props.userCanManageModules,
+		sitemapsDesc = getModule( 'sitemaps' ).description,
 		moduleList = Object.keys( props.moduleList );
 
-	/**
-	 * Array of modules that directly map to a card for rendering
-	 * @type {Array}
-	 */
-	let cards = [
-		[ 'comments', getModule( 'comments' ).name, getModule( 'comments' ).description, getModule( 'comments' ).learn_more_button ],
-		[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description, getModule( 'subscriptions' ).learn_more_button ]
-	],
-		nonAdminAvailable = [ 'publicize' ];
-	// Put modules available to non-admin user at the top of the list.
-	if ( ! isAdmin ) {
-		let cardsCopy = cards.slice();
-		cardsCopy.reverse().forEach( ( element ) => {
-			if ( includes( nonAdminAvailable, element[0] ) ) {
-				cards.unshift( element );
-			}
-		} );
-		cards = cards.filter( ( element, index ) => cards.indexOf( element ) === index );
+	if ( ! props.isSitePublic() ) {
+		sitemapsDesc = <span>
+			{ sitemapsDesc }
+			{ <p className="jp-form-setting-explanation">
+				{ __( 'Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
+					  components: {
+						  a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
+					  }
+				  } ) }
+			</p> }
+		</span>;
 	}
-	cards = cards.map( ( element ) => {
+
+	var cards = [
+		[ 'sitemaps', getModule( 'sitemaps' ).name, sitemapsDesc, getModule( 'sitemaps' ).learn_more_button ],
+		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
+		[ 'related-posts', getModule( 'related-posts' ).name, getModule( 'related-posts' ).description, getModule( 'related-posts' ).learn_more_button ],
+		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ]
+	].map( ( element ) => {
 		if ( ! includes( moduleList, element[0] ) ) {
 			return null;
 		}
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
-			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
-			toggle = '',
-			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] ),
-			isModuleActive = isModuleActivated( element[0] );
-		if ( unavailableInDevMode ) {
-			toggle = __( 'Unavailable in Dev Mode' );
-		} else if ( isAdmin ) {
-			toggle = <ModuleToggle slug={ element[0] }
-						activated={ isModuleActivated( element[0] ) }
-						toggling={ isTogglingModule( element[0] ) }
-						toggleModule={ toggleModule } />;
-		}
-		return adminAndNonAdmin ? (
+			toggle = (
+				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
+					<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
+								toggling={ isTogglingModule( element[0] ) }
+								toggleModule={ toggleModule } />
+			),
+			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
+
+		return (
 			<FoldableCard
 				className={ customClasses }
 				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
@@ -94,45 +91,18 @@ export const Discussion = ( props ) => {
 				) }
 			>
 				{
-					isModuleActive ?
-						<AllModuleSettings module={ getModule( element[0] ) } adminUrl={ props.getSiteAdminUrl() } /> :
+					isModuleActivated( element[0] ) ?
+						<AllModuleSettings module={ getModule( element[0] ) } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<div className="jp-module-settings__read-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
-					{
-						'stats' === element[0] && isModuleActive ? (
-							<span>
-								<span className="jp-module-settings__more-sep" />
-								<span className="jp-module-settings__more-text">{
-									__( 'View {{a}}All Stats{{/a}}', {
-										components: {
-											a: <a href={ props.getSiteAdminUrl() + 'admin.php?page=stats' } />
-										}
-									} )
-								}</span>
-							</span>
-						) : ''
-					}
-					{
-						'subscriptions' === element[0] && isModuleActive ? (
-							<span>
-								<span className="jp-module-settings__more-sep" />
-								<span className="jp-module-settings__more-text">{
-									__( 'View your {{a}}Email Followers{{/a}}', {
-										components: {
-											a: <a href={ 'https://wordpress.com/people/email-followers/' + props.getSiteRawUrl() } />
-										}
-									} )
-								}</span>
-							</span>
-						) : ''
-					}
 				</div>
 			</FoldableCard>
-		) : false;
+		);
 	} );
+
 	return (
 		<div>
 			{ cards }
@@ -150,12 +120,13 @@ export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
+			isTogglingModule: ( module_name ) =>
+				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			getSiteRawUrl: () => getSiteRawUrl( state ),
 			getSiteAdminUrl: () => getSiteAdminUrl( state ),
-			userCanManageModules: _userCanManageModules( state ),
+			isSitePublic: () => isSitePublic( state ),
+			userCanManageModules: userCanManageModules( state ),
 			moduleList: getModules( state )
 		};
 	},
@@ -168,4 +139,4 @@ export default connect(
 			}
 		};
 	}
-)( Discussion );
+)( Traffic );
