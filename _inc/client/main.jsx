@@ -24,7 +24,8 @@ import {
 	getSiteRawUrl,
 	getSiteAdminUrl,
 	getApiNonce,
-	getApiRootUrl
+	getApiRootUrl,
+	userCanManageModules
 } from 'state/initial-state';
 import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
 
@@ -132,13 +133,11 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
-		const showJumpStart = this.props.jumpStartStatus;
-		const canManageModules = window.Initial_State.userData.currentUser.permissions.manage_modules;
 
 		// Track page views
 		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
-		if ( ! canManageModules ) {
+		if ( ! this.props.userCanManageModules ) {
 			return <NonAdminView { ...this.props } />
 		}
 
@@ -146,7 +145,7 @@ const Main = React.createClass( {
 			return <JetpackConnect />
 		}
 
-		if ( showJumpStart ) {
+		if ( this.props.jumpStartStatus ) {
 			if ( '/' === route ) {
 				const history = createHistory();
 				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
@@ -242,7 +241,8 @@ export default connect(
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),
-			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state )
+			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state ),
+			userCanManageModules: userCanManageModules( state )
 		};
 	},
 	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag }, dispatch )
