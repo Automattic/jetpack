@@ -213,6 +213,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
 
 		// By calling this action, we simulate wp_schedule_single_event()
+
+		/**
+		 * Used to signal that the callables await transient should be cleared. Clearing the await transient is useful
+		 * in cases where we need to sync values to WordPress.com sooner than the default wait time.
+		 *
+		 * @since 4.4.0
+		 */
 		do_action( 'jetpack_sync_unlock_sync_callable' );
 
 		$this->sender->do_sync();
