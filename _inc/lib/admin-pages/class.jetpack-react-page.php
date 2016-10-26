@@ -210,6 +210,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$is_dev_mode = Jetpack::is_development_mode();
 
 		// Enqueue jp.js and localize it
+		wp_enqueue_script( 'react-plugin-dependencies', plugins_url( '_inc/build/vendor.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
 
 		if ( ! $is_dev_mode ) {
