@@ -77,7 +77,7 @@ abstract class Jetpack_Sync_Module {
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
 
 			// if we hit our row limit, process and return
-			if ( $chunk_count + count( $chunked_ids ) > $max_items_to_enqueue ) {
+			if ( $chunk_count + count( $chunked_ids ) >= $max_items_to_enqueue ) {
 				$remaining_items_count = $max_items_to_enqueue - $chunk_count;
 				$remaining_items = array_slice( $chunked_ids, 0, $remaining_items_count );
 
