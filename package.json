@@ -13,15 +13,15 @@
     "url": "https://github.com/Automattic/jetpack/issues"
   },
   "scripts": {
-    "watch": "tools/yarn-scripts/watch.sh",
-    "clean": "tools/yarn-scripts/clean.sh",
-    "distclean": "tools/yarn-scripts/distclean.sh",
-    "build": "tools/yarn-scripts/build.sh",
-    "build-client": "tools/yarn-scripts/build-client.sh",
-    "build-production": "tools/yarn-scripts/build-production.sh",
-    "build-languages": "tools/yarn-scripts/build-languages.sh",
-    "test-client": "tools/yarn-scripts/test-client.sh",
-    "lint": "tools/yarn-scripts/lint.sh"
+    "watch": "gulp watch",
+    "clean": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map _inc/build/*.html",
+    "distclean": "rm -rf node_modules",
+    "build": "yarn && gulp",
+    "build-client": "gulp",
+    "build-production": "yarn run clean && yarn run build && yarn run build-languages && gulp languages:extract && NODE_ENV=production BABEL_ENV=production yarn run build",
+    "build-languages": "gulp languages",
+    "lint": "eslint _inc/client -c .eslintrc",
+    "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js"
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
