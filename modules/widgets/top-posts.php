@@ -342,8 +342,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						 *
 						 * @module widgets
 						 *
+						 * @since 4.4.0
+						 *
 						 * @param string $post['permalink'] Post permalink.
-						 * @param array  $post              Post array. 
+						 * @param array  $post              Post array.
 						 */
 						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 
