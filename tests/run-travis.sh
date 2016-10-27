@@ -31,9 +31,9 @@ else
 
     gem install sass
     gem install compass
-    npm install -g npm
-    npm install -g gulp-cli
-    npm install
+    npm install -g yarn
+    yarn install gulp-cli
+    yarn
 
     if $WP_TRAVISCI; then
 	# Everything is fine
