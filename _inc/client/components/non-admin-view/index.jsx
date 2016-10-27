@@ -44,9 +44,6 @@ const NonAdminView = React.createClass( {
 				pageComponent = <Apps { ...this.props } />;
 				break;
 			case '/settings':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <GeneralSettings { ...this.props } />;
-				break;
 			case '/general':
 				navComponent = <NavigationSettings { ...this.props } />;
 				pageComponent = <GeneralSettings { ...this.props } />;

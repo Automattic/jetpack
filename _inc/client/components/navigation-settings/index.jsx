@@ -70,8 +70,8 @@ const NavigationSettings = React.createClass( {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
-						path="#settings"
-						selected={ ( this.props.route.path === '/settings' || this.props.route.path === '/settings' ) }>
+						path="#writing"
+						selected={ ( this.props.route.path === '/writing' || this.props.route.path === '/settings' ) }>
 						{ __( 'Writing', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
@@ -96,7 +96,7 @@ const NavigationSettings = React.createClass( {
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
 						path="#settings"
-						selected={ ( this.props.route.path === '/settings' || this.props.route.path === '/settings' ) }>
+						selected={ this.props.route.path === '/settings' }>
 						{ __( 'Settings', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
@@ -106,13 +106,13 @@ const NavigationSettings = React.createClass( {
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
 						path="#settings"
-						selected={ ( this.props.route.path === '/settings' || this.props.route.path === '/settings' ) }>
-						{ __( 'Writing', { context: 'Navigation item.' } ) }
+						selected={ this.props.route.path === '/settings' }>
+						{ __( 'General', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
-						path="#discussion"
-						selected={ this.props.route.path === '/discussion' }>
-						{ __( 'Discussion', { context: 'Navigation item.' } ) }
+						path="#writing"
+						selected={ this.props.route.path === '/writing' }>
+						{ __( 'Writing', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
 			);
