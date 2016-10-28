@@ -149,14 +149,6 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
-		getLastDownTime: () => fetch( `${ apiRoot }jetpack/v4/module/monitor/data`, {
-			credentials: 'same-origin',
-			headers: {
-				'X-WP-Nonce': apiNonce,
-				'Content-type': 'application/json'
-			}
-		} )
-		.then( checkStatus ).then( response => response.json() ),
 		getAkismetData: () => fetch( `${ apiRoot }jetpack/v4/module/akismet/data`, {
 			credentials: 'same-origin',
 			headers: {
