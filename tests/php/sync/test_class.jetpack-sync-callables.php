@@ -390,6 +390,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
+	function test_is_https_supported_returns_wp_error_cannot_parse() {
+		$https_supported = Jetpack_Sync_Functions::is_https_supported( 'home_url', 'http:///example.com' );
+		$this->assertTrue( is_wp_error( $https_supported ) );
+	}
+
 	function test_subdomain_switching_to_www_does_not_cause_sync() {
 		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of 
 		// switching back and forth, so we force the domain to be the one in the siteurl option

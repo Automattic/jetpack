@@ -115,8 +115,10 @@ class Jetpack_Sync_Functions {
 
 		$parsed_url = wp_parse_url( $new_value );
 		if ( ! $parsed_url ) {
-			// If we can't parse, then just return the value.
-			return $new_value;
+			return new WP_Error(
+				'parse-error',
+				__( 'Could not parse the URL, so can not determine if https is supported', 'jetpack' )
+			);
 		}
 
 		$scheme = $parsed_url['scheme'];
