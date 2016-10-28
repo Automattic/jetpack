@@ -23,7 +23,7 @@ class Google_Translate_Widget extends WP_Widget {
 			array( 'description' => __( 'Automatic translation of your site content', 'jetpack' ) )
 		);
 		wp_register_script( 'google-translate-init', plugins_url( 'google-translate/google-translate.js', __FILE__ ) );
-		wp_register_script( 'google-translate', '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit', [ 'google-translate-init' ] );
+		wp_register_script( 'google-translate', '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit', array( 'google-translate-init' ) );
 	}
 
 	/**
@@ -38,7 +38,7 @@ class Google_Translate_Widget extends WP_Widget {
 		// We never should show more than 1 instance of this.
 		if ( null === self::$instance ) {
 			/** This filter is documented in core/src/wp-includes/default-widgets.php */
-			$title = apply_filters( 'widget_title', $instance['title'] );
+			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
 			echo $args['before_widget'];
 			if ( ! empty( $title ) ) {
 				echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
