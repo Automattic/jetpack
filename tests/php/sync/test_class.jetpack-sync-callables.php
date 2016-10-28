@@ -319,6 +319,20 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		return 'https://foo.example.com';
 	}
 
+	function test_gets_raw_url_values() {
+		$home_url = get_home_url();
+		add_filter( 'home_url', array( $this, 'return_https_example_org' ), 100 );
+		$this->assertEquals( $this->return_https_example_org(), get_home_url(), 'Home url filter was not set' );
+		$this->assertEquals( $home_url, Jetpack_Sync_Functions::preserve_scheme( 'home', 'get_home_url' ), 'Home URL was not preserved.' );
+		remove_filter( 'home_url', array( $this, 'return_https_example_org' ) );
+
+		$home_url = get_site_url();
+		add_filter( 'site_url', array( $this, 'return_https_example_org' ), 100 );
+		$this->assertEquals( $this->return_https_example_org(), get_site_url(), 'Site url filter was not set' );
+		$this->assertEquals( $home_url, Jetpack_Sync_Functions::preserve_scheme( 'home', 'get_site_url' ), 'Site URL was not preserved.' );
+		remove_filter( 'site_url', array( $this, 'return_https_example_org' ) );
+	}
+
 	function test_ignores_but_preserves_https_value() {
 		$non_https_site_url = site_url();
 

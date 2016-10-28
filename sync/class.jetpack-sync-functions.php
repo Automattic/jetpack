@@ -107,12 +107,29 @@ class Jetpack_Sync_Functions {
 	public static function main_network_site_url() {
 		return self::preserve_scheme( 'siteurl', 'network_site_url', false );
 	}
+	private static function raw__url( $option ) {
+		global $wpdb;
+		switch( $option ) {
+			case 'siteurl':
+				if( defined( 'WP_SITEURL' ) ) {
+					return WP_SITEURL;
+				}
+			case 'home':
+				if ( defined( 'WP_HOME' ) ) {
+					return WP_HOME;
+				}
+			default:
+				return $wpdb->get_var( $wpdb->prepare(
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $option ) );
+		}
+	}
 
 	public static function preserve_scheme( $option, $url_function, $normalize_www = false ) {
 		$previous_https_value = isset( $_SERVER['HTTPS'] ) ? $_SERVER['HTTPS'] : null;
 		$_SERVER['HTTPS'] = 'off';
 		$url = call_user_func( $url_function );
-		$option_url = get_option( $option );
+		$option_url = self::raw__url( $option );
+
 		if ( $previous_https_value ) {
 			$_SERVER['HTTPS'] = $previous_https_value;	
 		} else {
@@ -126,7 +143,7 @@ class Jetpack_Sync_Functions {
 		// turn them both into parsed format
 		$option_url = parse_url( $option_url );
 		$url        = parse_url( $url );
-
+		
 		if ( $normalize_www ) {
 			if ( $url['host'] === "www.{$option_url[ 'host' ]}" ) {
 				// remove www if not present in option URL
