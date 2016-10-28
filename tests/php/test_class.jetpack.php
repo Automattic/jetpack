@@ -351,6 +351,20 @@ EXPECTED;
 		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
 	}
 
+	function test_sync_error_idc_validation_returns_true_when_siteurl_matches_expected() {
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option( 'jetpack_home_url_mismatch' ) );
+		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+	}
+
+	function test_sync_error_idc_validation_returns_true_when_home_url_matches_expected() {
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option( 'jetpack_site_url_mismatch' ) );
+		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+	}
+
 	function test_sync_error_idc_validation_cleans_up_when_validation_fails() {
 		Jetpack_Options::update_option( 'sync_error_idc', array(
 			'home'    => 'coolsite.com/',
