@@ -156,8 +156,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			 */
 			$link = apply_filters( 'jetpack_social_media_icons_widget_profile_link', esc_url( sprintf( $url, $link_username ) ), $service );
 			$html[ $index ] =
-				'<a title="' . sprintf( $alt_text, esc_attr( $username ), $service_name )
-				. '" href="' . $link
+				'<a href="' . $link
 				. '" class="genericon genericon-' . $service . '" target="_blank"><span class="screen-reader-text">'
 				. sprintf( $alt_text, esc_html( $username ), $service_name )
 				. '</span></a>';

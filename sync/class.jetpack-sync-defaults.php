@@ -159,6 +159,8 @@ class Jetpack_Sync_Defaults {
 		'snitch',
 		'secupress_log_action',
 		'http',
+		'bwg_gallery',
+		'bwg_album',
 	);
 
 	static $default_post_checksum_columns = array(
