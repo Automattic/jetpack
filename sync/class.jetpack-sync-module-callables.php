@@ -29,6 +29,10 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 		}
 
+		// Provide a hook so that hosts can send changes to certain callables right away.
+		// Especially useful when a host uses constants to change home and siteurl.
+		add_action( 'jetpack_sync_unlock_sync_callable', array( $this, 'unlock_sync_callable' ) );
+
 		// get_plugins and wp_version
 		// gets fired when new code gets installed, updates etc.
 		add_action( 'upgrader_process_complete', array( $this, 'unlock_sync_callable' ) );
