@@ -5,7 +5,8 @@
  */
 
 class Jetpack_Sync_Functions {
-	const URL_NORMALIZATION_OPTION_PREFIX = 'jetpack_sync_url_normalization_';
+	const HTTPS_CHECK_OPTION_PREFIX = 'jetpack_sync_https_history_';
+	const HTTPS_CHECK_HISTORY = 9;
 
 	public static function get_modules() {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
@@ -109,8 +110,8 @@ class Jetpack_Sync_Functions {
 		return self::preserve_scheme( 'siteurl', 'network_site_url', false );
 	}
 
-	public static function normalize_url_protocols_over_time( $callable, $new_value ) {
-		$option_key = self::URL_NORMALIZATION_OPTION_PREFIX . $callable;
+	public static function is_https_supported( $callable, $new_value ) {
+		$option_key = self::HTTPS_CHECK_OPTION_PREFIX . $callable;
 
 		$parsed_url = wp_parse_url( $new_value );
 		if ( ! $parsed_url ) {
@@ -120,22 +121,18 @@ class Jetpack_Sync_Functions {
 
 		$scheme = $parsed_url['scheme'];
 
-		$callable_history = get_option( $option_key, array() );
+		$scheme_history = get_option( $option_key, array() );
 
 		// Add the current scheme to the history.
-		$callable_history[] = $scheme;
+		$scheme_history[] = $scheme;
 
 		// Limit to last 9 items. An odd number so we don't have to deal with equals.
 		// Ex. 5 https and 5 http if we have 10 items.
-		$callable_history = array_slice( $callable_history, -9 );
+		$scheme_history = array_slice( $scheme_history, ( self::HTTPS_CHECK_HISTORY * -1 ) );
 
-		update_option( $option_key, $callable_history );
+		update_option( $option_key, $scheme_history );
 
-		// Get the most common scheme
-		$counted_values = array_count_values( $callable_history );
-		$most_common_scheme = array_search( max( $counted_values ), $counted_values );
-
-		return set_url_scheme( $new_value, $most_common_scheme );
+		return in_array( 'https', $scheme_history );
 	}
 
 	public static function preserve_scheme( $option, $url_function, $normalize_www = false ) {

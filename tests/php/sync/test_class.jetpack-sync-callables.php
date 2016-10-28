@@ -335,14 +335,19 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_SERVER['HTTPS'] );
 	}
 
-	function test_normalize_url_protocols_returns_same_scheme_with_no_history() {
+	function test_is_https_supported_works_with_no_history() {
 		$callable_type = 'home_url';
-		$option_key = Jetpack_Sync_Functions::URL_NORMALIZATION_OPTION_PREFIX . $callable_type;
+		$option_key = Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 
-		$this->assertEquals(
-			$this->return_example_com(),
-			Jetpack_Sync_Functions::normalize_url_protocols_over_time( $callable_type, $this->return_example_com() )
+		$this->assertFalse(
+			Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_example_com() )
+		);
+
+		delete_option( $option_key );
+
+		$this->assertTrue(
+			Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_https_example_com() )
 		);
 
 		$this->assertCount( 1, get_option( $option_key ) );
@@ -350,49 +355,39 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		delete_option( $option_key );
 	}
 
-	function test_normalize_url_protocols_stores_max_history_of_9() {
+	function test_is_https_supported_stores_max_history() {
 		$callable_type = 'home_url';
-		$option_key = Jetpack_Sync_Functions::URL_NORMALIZATION_OPTION_PREFIX . $callable_type;
+		$option_key = Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 		for ( $i = 0; $i < 20; $i++ ) {
-			Jetpack_Sync_Functions::normalize_url_protocols_over_time( $callable_type, $this->return_example_com() );
+			Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_example_com() );
 		}
 
-		$this->assertCount( 9, get_option( $option_key ) );
+		$this->assertCount( Jetpack_Sync_Functions::HTTPS_CHECK_HISTORY, get_option( $option_key ) );
 		delete_option( $option_key );
 	}
 
-	function test_normalize_url_protocols_returns_average_scheme() {
+	function test_is_https_supported_returns_http_when_https_falls_off() {
 		$callable_type = 'home_url';
-		$option_key = Jetpack_Sync_Functions::URL_NORMALIZATION_OPTION_PREFIX . $callable_type;
+		$option_key = Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 
-		// Start with 5 http schemes
-		for ( $i = 1; $i <= 5; $i++ ) {
-			$this->assertEquals(
-				Jetpack_Sync_Functions::normalize_url_protocols_over_time( $callable_type, $this->return_example_com() ),
-				$this->return_example_com()
+		// Start with one https scheme
+		$this->assertTrue(
+			Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_https_example_com() )
+		);
+
+		// Now add enough http schemes to fill up the history
+		for ( $i = 1; $i < Jetpack_Sync_Functions::HTTPS_CHECK_HISTORY; $i++ ) {
+			$this->assertTrue(
+				Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_example_com() )
 			);
 		}
 
-		// Now let's add 5 https schemes
-		for ( $i = 1; $i <= 5; $i++ ) {
-			// When we've added 5 https URLs, we will have 4 http and 5 https schemes in the history. So, we should
-			// get back an https URL.
-			$expected_equals = ( $i == 5 )
-				? $this->return_https_example_com()
-				: $this->return_example_com();
-
-			$this->assertEquals(
-				Jetpack_Sync_Functions::normalize_url_protocols_over_time(
-					$callable_type,
-					$this->return_https_example_com()
-				),
-				$expected_equals
-			);
-		}
-
-		delete_option( $option_key );
+		// Now that the history is full, this one should cause the function to return false.
+		$this->assertFalse(
+			Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_example_com() )
+		);
 	}
 
 	function test_subdomain_switching_to_www_does_not_cause_sync() {
