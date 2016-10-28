@@ -50,6 +50,9 @@ const Navigation = React.createClass( {
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
 				);
+			} else if ( ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) ) {
+				this.props.route.path = '/apps';
+				this.props.route.name = 'Apps';
 			}
 			navTabs = (
 				<NavTabs selectedText={ this.props.route.name }>
