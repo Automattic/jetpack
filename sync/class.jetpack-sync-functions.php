@@ -122,14 +122,10 @@ class Jetpack_Sync_Functions {
 		}
 
 		$scheme = $parsed_url['scheme'];
-
 		$scheme_history = get_option( $option_key, array() );
-
-		// Add the current scheme to the history.
 		$scheme_history[] = $scheme;
 
-		// Limit to last 9 items. An odd number so we don't have to deal with equals.
-		// Ex. 5 https and 5 http if we have 10 items.
+		// Limit length to self::HTTPS_CHECK_HISTORY
 		$scheme_history = array_slice( $scheme_history, ( self::HTTPS_CHECK_HISTORY * -1 ) );
 
 		update_option( $option_key, $scheme_history );
