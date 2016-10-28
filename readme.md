@@ -44,6 +44,7 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 
 * Node 6.x
 * npm 3.8.x
+* yarn 0.16.1
 
 #### A note on Node versions used for the build tasks
 
