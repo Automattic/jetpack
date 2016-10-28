@@ -5310,7 +5310,7 @@ p {
 	 *     @type string 'siteurl' The current site URL.
 	 * }
 	 */
-	public static function get_sync_error_idc_option( $option = NULL ) {
+	public static function get_sync_error_idc_option( $option = null ) {
 		if ( 'jetpack_home_url_mismatch' === $option ) {
 			$options = array(
 				'home' => get_home_url()
