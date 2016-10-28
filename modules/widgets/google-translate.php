@@ -1,13 +1,8 @@
 <?php
-/**
- * Plugin Name: Google Translate Widget for WordPress.com
- * Plugin URI: http://automattic.com
- * Description: Add a widget for automatic translation
- * Author: Artur Piszek
- * Version: 0.1
- * Author URI: http://automattic.com
- * Text Domain: jetpack
- */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 class Google_Translate_Widget extends WP_Widget {
 	static $instance = null;
