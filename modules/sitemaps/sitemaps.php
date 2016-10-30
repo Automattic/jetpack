@@ -476,6 +476,10 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @param int $number The number of the current sitemap.
 	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
+	 * @return array @args {
+	 *   @type int $last_post_ID The ID of the last post to be successfully added to the buffer.
+	 *   @type bool $any_posts_left True if there are posts which haven't been saved to a sitemap, false otherwise.
+	 * }
 	 */
 	private function build_one_page_sitemap ( $number, $from_ID ) {
 		$last_post_ID = $from_ID;
