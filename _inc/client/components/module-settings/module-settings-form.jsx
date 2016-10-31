@@ -53,11 +53,39 @@ export function ModuleSettingsForm( InnerComponent ) {
 				} );
 			this.props.clearUnsavedOptionFlag();
 		},
+
+		/**
+		 * Retrieves an option from an existing module, or from an array of modules
+		 * if the form was initialized with an array
+		 */
 		getOptionValue( optionName ) {
-			const currentValue = this.props.getOptionCurrentValue( this.props.module.module, optionName );
+			let self = this;
+
+			if ( Array.isArray( this.props.module ) ) {
+
+				// If we have an array of modules, find the one with that option
+				return this.props.module.map( function( module ) {
+					return self.getOptionFromModule( optionName, module );
+				} ).reduce( function( item, value ) {
+					if ( 'undefined' !== typeof item ) {
+						return item;
+					}
+					return value;
+				}, undefined );
+
+			} else {
+				return this.getOptionFromModule( optionName, this.props.module );
+			}
+		},
+
+		/**
+		 * Return an option value from a certain module
+		 */
+		getOptionFromModule( optionName, module ) {
+			const currentValue = this.props.getOptionCurrentValue( module.module, optionName );
 			return typeof this.state.options[ optionName ] !== 'undefined'
-				? this.state.options[ optionName ]
-				: currentValue;
+				 ? this.state.options[ optionName ]
+				 : currentValue;
 		},
 		shouldSaveButtonBeDisabled() {
 			let shouldItBeEnabled = false;

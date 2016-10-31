@@ -190,7 +190,73 @@ export const deactivateModule = ( slug ) => {
 	}
 }
 
-export const updateModuleOptions = ( slug, newOptionValues ) => {
+export const updateModuleOptions = ( module, newOptionValues ) => {
+	let slug;
+
+	// Handling the case when several modules need updating at once
+	if ( Array.isArray( module ) ) {
+		return ( dispatch, getState ) => {
+
+			dispatch( removeNotice( `module-setting-multiple` ) );
+			dispatch( createNotice(
+				'is-info',
+				__( 'Updating settings…' ),
+				{ id: `module-setting-multiple` }
+			) );
+
+			let promises = module.map( function( current_module ) {
+				dispatch( {
+					type: JETPACK_MODULE_UPDATE_OPTIONS,
+					module: current_module.module,
+					newOptionValues
+				} );
+				return restApi.updateModuleOptions( current_module.module, newOptionValues );
+			} );
+
+			return Promise.all( promises ).then( success => {
+				module.forEach( function( current_module ) {
+					dispatch( {
+						type: JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
+						module: current_module.module,
+						newOptionValues,
+						success: success
+					} );
+					maybeHideNavMenuItem( current_module.module, newOptionValues );
+				} );
+
+				dispatch( removeNotice( `module-setting-multiple` ) );
+				dispatch( createNotice(
+					'is-success',
+					__( 'Updated settings.' ),
+					{ id: `module-setting-multiple` }
+				) );
+			} ).catch( error => {
+				module.forEach( function( current_module ) {
+					dispatch( {
+						type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
+						module: current_module.module,
+						success: false,
+						error: error,
+						newOptionValues
+					} );
+				} );
+
+				dispatch( removeNotice( `module-setting-multiple` ) );
+				dispatch( createNotice(
+					'is-error',
+					__( 'Error updating settings. %(error)s', {
+						args: {
+							error: error
+						}
+					} ),
+					{ id: `module-setting-multiple` }
+				) );
+			} );
+		};
+	}
+
+	slug = module.module;
+
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_UPDATE_OPTIONS,

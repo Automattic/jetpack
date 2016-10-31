@@ -47,20 +47,6 @@ import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
 import { getSiteRawUrl } from 'state/initial-state';
 
-export const Writing = ( props ) => {
-	let {
-		toggleModule,
-		isModuleActivated,
-		isTogglingModule,
-		getModule,
-		userCanManageModules,
-		sitePlan,
-		fetchingSiteData,
-		siteRawUrl
-	} = props,
-		isAdmin = userCanManageModules,
-		moduleList = Object.keys( props.moduleList );
-		nonAdminAvailable = [ 'after-the-deadline', 'post-by-email' ];
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 
 export const Writing = React.createClass( {
@@ -69,140 +55,113 @@ export const Writing = React.createClass( {
 	propTypes: {
 	},
 
-	getMarkdownSettings() {
-		return React.createClass( {
-			render() {
-				return (
-					<form onSubmit={ this.props.onSubmit } >
-						<FormFieldset>
-							<ModuleSettingCheckbox
-name={ 'wpcom_publish_comments_with_markdown' }
-{ ...this.props }
-label={ __( 'Use Markdown for comments' ) } />
-						</FormFieldset>
-					</form>
-				);
-			}
-		} );
-	},
-
-	getAfterTheDeadlineSetting() {
-		return React.createClass( {
-			render() {
-				return (
-					<form onSubmit={ this.props.onSubmit } >
-						<FormFieldset>
-							<span className="jp-form-setting-explanation">
-								{ __( 'Automatically proofread content when: ' ) }
-							</span>
-							<ModuleSettingCheckbox
-								name={ 'onpublish' }
-								{ ...this.props }
-								label={ __( 'A post or page is first published' ) } />
-							<ModuleSettingCheckbox
-								name={ 'onupdate' }
-								{ ...this.props }
-								label={ __( 'A post or page is updated' ) } />
-						</FormFieldset>
-						<FormFieldset>
-							<FormLegend> { __( 'Automatic Language Detection' ) }
-							</FormLegend>
-							<span className="jp-form-setting-explanation">
-								{ __(
-									  'The proofreader supports English, French, ' +
-									  'German, Portuguese and Spanish.'
-								  ) }
-							</span>
-							<ModuleSettingCheckbox
-								name={ 'guess_lang' }
-								{ ...this.props }
-								label={ __( 'Use automatically detected language to proofread posts and pages' ) } />
-						</FormFieldset>
-						<FormFieldset>
-							<FormLegend> { __( 'English Options' ) } </FormLegend>
-							<span className="jp-form-setting-explanation">
-								{ __( 'Enable proofreading for the following grammar and style rules: ' ) }
-							</span>
-							<ModuleSettingCheckbox
-								name={ 'Bias Language' }
-								{ ...this.props }
-								label={ __( 'Bias Language' ) } />
-							<ModuleSettingCheckbox
-								name={ 'Cliches' }
-								{ ...this.props }
-								label={ __( 'Clichés' ) } />
-							<ModuleSettingCheckbox
-								name={ 'Complex Expression' }
-								{ ...this.props }
-								label={ __( 'Complex Phrases' ) } />
-							<ModuleSettingCheckbox
-								name={ 'Diacritical Marks' }
-								{ ...this.props }
-								label={ __( 'Diacritical Marks' ) } />
-							<ModuleSettingCheckbox
-								name={ 'Double Negative' }
-								{ ...this.props }
-								label={ __( 'Double Negatives' ) } />
-							<ModuleSettingCheckbox
-								name={ 'Hidden Verbs' }
-								{ ...this.props }
-								label={ __( 'Hidden Verbs' ) } />
-							<ModuleSettingCheckbox
-								name={ 'Jargon Language' }
-								{ ...this.props }
-								label={ __( 'Jargon' ) } />
-							<ModuleSettingCheckbox
-								name={ 'Passive voice' }
-								{ ...this.props }
-								label={ __( 'Passive Voice' ) } />
-							<ModuleSettingCheckbox
-								name={ 'Phrases to Avoid' }
-								{ ...this.props }
-								label={ __( 'Phrases to Avoid' ) } />
-							<ModuleSettingCheckbox
-								name={ 'Redundant Expression' }
-								{ ...this.props }
-								label={ __( 'Redundant Phrases' ) } />
-						</FormFieldset>
-						<FormFieldset>
-							<FormLegend>
-								{ __( 'Ignored Phrases' ) }
-							</FormLegend>
-							<TagsInput
-								name="ignored_phrases"
-								placeholder={ __( 'Add a phrase' ) }
-								value={
-									(
-										'undefined' !== typeof this.props.getOptionValue( 'ignored_phrases' )
-										&& '' !== this.props.getOptionValue( 'ignored_phrases' )
-									) ?
-									   this.props.getOptionValue( 'ignored_phrases' ).split( ',' ) :
-									   []
-									  }
-								onChange={ this.props.onOptionChange } />
-						</FormFieldset>
-					</form>
-				)
-			}
-		} );
-	},
-
 	render() {
-		let Markdown = moduleSettingsForm( this.getMarkdownSettings() );
-		let AfterTheDeadline = moduleSettingsForm( this.getAfterTheDeadlineSetting() );
+		let markdown = this.props.getModule( 'markdown' );
+		let atd = this.props.getModule( 'after-the-deadline' );
+
+		let Composing = moduleSettingsForm(
+			React.createClass( {
+				getCheckbox( setting, label, isAtd = true ) {
+					return(
+						<ModuleSettingCheckbox
+							name={ setting }
+							module={ isAtd ? atd : markdown }
+							label={ label }
+							{ ...this.props }
+						/>
+					);
+				},
+
+				render() {
+					return (
+						<form>
+							<SectionHeader label={ __( 'Composing', { context: 'Settings header' } ) }>
+								<Button
+									primary
+									isSubmitting={ this.props.isSavingAnyOption() }
+									disabled={ this.props.shouldSaveButtonBeDisabled() }
+									onClick={ this.props.onSubmit }
+								>
+									{ __( 'Save', { context: 'Button caption' } ) }
+								</Button>
+							</SectionHeader>
+							<Card>
+								<FormFieldset>
+									{
+										this.getCheckbox(
+											'wpcom_publish_comments_with_markdown',
+											__( 'Use Markdown for comments' ),
+											true
+										)
+									}
+								</FormFieldset>
+								<FormFieldset>
+									<span className="jp-form-setting-explanation">
+										{ __( 'Automatically proofread content when: ' ) }
+									</span>
+									{ this.getCheckbox( 'onpublish', __( 'A post or page is first published' ) ) }
+									{ this.getCheckbox( 'onupdate', __( 'A post or page is updated' ) ) }
+								</FormFieldset>
+								<FormFieldset>
+									<FormLegend> { __( 'Automatic Language Detection' ) }
+									</FormLegend>
+									<span className="jp-form-setting-explanation">
+										{ __(
+											  'The proofreader supports English, French, ' +
+											  'German, Portuguese and Spanish.'
+										  ) }
+									</span>
+									{
+										this.getCheckbox(
+											'guess_lang',
+											__( 'Use automatically detected language to proofread posts and pages' )
+										)
+									}
+								</FormFieldset>
+								<FormFieldset>
+									<FormLegend> { __( 'English Options' ) } </FormLegend>
+									<span className="jp-form-setting-explanation">
+										{ __( 'Enable proofreading for the following grammar and style rules: ' ) }
+									</span>
+									{ this.getCheckbox( 'Bias Language', __( 'Bias Language' ) ) }
+									{ this.getCheckbox( 'Cliches', __( 'Clichés' ) ) }
+									{ this.getCheckbox( 'Complex Expression', __( 'Complex Phrases' ) ) }
+									{ this.getCheckbox( 'Diacritical Marks', __( 'Diacritical Marks' ) ) }
+									{ this.getCheckbox( 'Double Negative', __( 'Double Negatives' ) ) }
+									{ this.getCheckbox( 'Hidden Verbs', __( 'Hidden Verbs' ) ) }
+									{ this.getCheckbox( 'Jargon Language', __( 'Jargon' ) ) }
+									{ this.getCheckbox( 'Passive voice', __( 'Passive Voice' ) ) }
+									{ this.getCheckbox( 'Phrases to Avoid', __( 'Phrases to Avoid' ) ) }
+									{ this.getCheckbox( 'Redundant Expression', __( 'Redundant Phrases' ) ) }
+								</FormFieldset>
+								<FormFieldset>
+									<FormLegend>
+										{ __( 'Ignored Phrases' ) }
+									</FormLegend>
+									<TagsInput
+										name="ignored_phrases"
+										placeholder={ __( 'Add a phrase' ) }
+										value={
+											(
+												'undefined' !== typeof this.props.getOptionValue( 'ignored_phrases' )
+												&& '' !== this.props.getOptionValue( 'ignored_phrases' )
+											) ?
+											   this.props.getOptionValue( 'ignored_phrases' ).split( ',' ) :
+											   []
+											  }
+										onChange={ this.props.onOptionChange } />
+								</FormFieldset>
+							</Card>
+						</form>
+					);
+				}
+			} )
+		);
 
 		return (
 			<div>
 				<QuerySite />
-				<SectionHeader label={ __( 'Composing', { context: 'Settings header' } ) }>
-					<Button primary>
-						{ __( 'Save', { context: 'Button caption' } ) }
-					</Button>
-				</SectionHeader>
-				<Card>
-					<Markdown module={ this.props.getModule( 'markdown' ) } />
-					<AfterTheDeadline module={ this.props.getModule( 'atd' ) } />
-				</Card>
+				<Composing module={ [ atd, markdown ] } />
 			</div>
 		);
 	}

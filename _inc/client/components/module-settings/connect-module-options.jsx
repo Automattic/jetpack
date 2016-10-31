@@ -46,7 +46,7 @@ export function connectModuleOptions( Component ) {
 		},
 		( dispatch, ownProps ) => ( {
 			updateOptions: ( newOptions ) => {
-				return dispatch( updateModuleOptions( ownProps.module.module, newOptions ) );
+				return dispatch( updateModuleOptions( ownProps.module, newOptions ) );
 			},
 			regeneratePostByEmailAddress: () => {
 				return dispatch( regeneratePostByEmailAddress() );
