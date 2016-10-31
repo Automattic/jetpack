@@ -146,19 +146,34 @@ class Jetpack_Sync_Actions {
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 
 		if ( ! $result ) {
-			$error = $rpc->get_jetpack_error();
-			$error_code = $error->get_error_code();
-			if ( in_array( $error_code, array( 'jetpack_url_mismatch', 'jetpack_home_url_mismatch', 'jetpack_site_url_mismatch' ) ) ) {
+			return $rpc->get_jetpack_error();
+		}
+
+		$response = $rpc->getResponse();
+
+		// Check if WordPress.com IDC mitigation blocked the sync request
+		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
+			$error_code = $response['error_code'];
+			$allowed_idc_error_codes = array(
+				'jetpack_url_mismatch',
+				'jetpack_home_url_mismatch',
+				'jetpack_site_url_mismatch'
+			);
+
+			if ( in_array( $error_code, $allowed_idc_error_codes ) ) {
 				Jetpack_Options::update_option(
 					'sync_error_idc',
 					Jetpack::get_sync_error_idc_option( $error_code )
 				);
 			}
-			
-			return $error;
+
+			return new WP_Error(
+				'sync_error_idc',
+				__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis' )
+			);
 		}
 
-		return $rpc->getResponse();
+		return $response;
 	}
 
 	static function do_initial_sync( $new_version = null, $old_version = null ) {
