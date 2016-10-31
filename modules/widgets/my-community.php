@@ -37,10 +37,11 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', esc_html__( 'My Community', 'jetpack' ) ),
 			array(
 				'description' => esc_html__( 'A sampling of users from your blog.', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 
-		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) ) {
+		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 
@@ -157,7 +158,15 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 * @param array $instance Saved values from database.
 	 */
 	function widget( $args, $instance ) {
-		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
+		$instance = wp_parse_args( $instance, array(
+			'title'              => false,
+			'number'             => true,
+			'include_likers'     => true,
+			'include_followers'  => true,
+			'include_commenters' => true,
+		) );
+
+		$title = $instance['title'];
 
 		if ( false === $title ) {
 			$title = $this->default_title;
