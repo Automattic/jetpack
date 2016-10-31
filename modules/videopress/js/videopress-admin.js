@@ -413,17 +413,6 @@
 	});
 
 	/**
-	 * Extend the post editor media frame with our own
-	 */
-	MediaFrame.Post = media.view.MediaFrame.Post;
-	media.view.MediaFrame.Post = MediaFrame.Post.extend({
-		createStates: function() {
-			MediaFrame.Post.prototype.createStates.apply( this, arguments );
-			this.states.add([ new media.controller.VideoPress() ]);
-		}
-	});
-
-	/**
 	 * A VideoPress Modal view that we can use to preview videos.
 	 * Expects a controller object on render.
 	 */
@@ -488,15 +477,4 @@
 		$access.trigger( 'change' );
 	});
 
-	// Media -> VideoPress menu
-	$(document).on( 'click', '#videopress-browse', function() {
-
-		wp.media({
-			state: 'videopress',
-			states: [ new media.controller.VideoPress() ],
-			VideoPress: { hideToolbar: true }
-		}).open();
-
-		return false;
-	});
 })(jQuery);

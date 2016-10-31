@@ -41,7 +41,7 @@ class Jetpack_VideoPress {
 		}
 
 		// Only if the current user can manage the VideoPress library and one has been connected.
-		if ( $this->can( 'read_videos' ) && $options['blog_id'] ) {
+		if ( $this->can( 'read_videos' ) ) {
 			add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
 			add_action( 'print_media_templates', array( $this, 'print_media_templates' ) );
 
@@ -50,11 +50,9 @@ class Jetpack_VideoPress {
 			add_action( 'wp_ajax_save-attachment', array( $this, 'wp_ajax_save_attachment' ), -1 );
 			add_action( 'wp_ajax_save-attachment-compat', array( $this, 'wp_ajax_save_attachment' ), -1 );
 			add_action( 'wp_ajax_delete-post', array( $this, 'wp_ajax_delete_post' ), -1 );
-
-			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		}
 
-		if ( $this->can( 'upload_videos' ) && $options['blog_id'] ) {
+		if ( $this->can( 'upload_videos' ) ) {
 			add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
 		}
 
@@ -82,10 +80,6 @@ class Jetpack_VideoPress {
 	 */
 	function get_options() {
 		$defaults = array(
-			'blogs' => array(),
-			'blog_id' => 0,
-			'access' => '',
-			'allow-upload' => false,
 			'freedom' => false,
 			'hd' => false,
 			'meta' => array(
@@ -120,15 +114,6 @@ class Jetpack_VideoPress {
 			return;
 
 		$options = $this->get_options();
-
-		// Ask WordPress.com for a list of VideoPress blogs
-		$result = $this->query( 'jetpack.vpGetBlogs' );
-		if ( ! is_wp_error( $result ) )
-			$options['blogs'] = $result;
-
-		// If there's at least one available blog, let's use it.
-		if ( is_array( $options['blogs'] ) && count( $options['blogs'] ) > 0 )
-			$options['blog_id'] = $options['blogs'][0]['blog_id'];
 
 		$this->update_options( $options );
 	}
@@ -202,45 +187,11 @@ class Jetpack_VideoPress {
 			check_admin_referer( 'videopress-settings' );
 			$options = $this->get_options();
 
-			if ( isset( $_POST['blog_id'] ) && in_array( $_POST['blog_id'], wp_list_pluck( $options['blogs'], 'blog_id' ) ) )
-				$options['blog_id'] = $_POST['blog_id'];
-
-			// Allow the None setting too.
-			if ( isset( $_POST['blog_id'] ) && $_POST['blog_id'] == 0 )
-				$options['blog_id'] = 0;
-
-			/**
-			 * @see $this->can()
-			 */
-			if ( isset( $_POST['videopress-access'] ) && in_array( $_POST['videopress-access'], array( '', 'read', 'edit', 'delete' ) ) )
-				$options['access'] = $_POST['videopress-access'];
-
 			$options['freedom'] = isset( $_POST['videopress-freedom'] );
 			$options['hd'] = isset( $_POST['videopress-hd'] );
 
-			// Allow upload only if some level of access has been granted, and uploads were allowed.
-			$options['allow-upload'] = false;
-			if ( ! empty( $options['access'] ) && isset( $_POST['videopress-upload'] ) )
-				$options['allow-upload'] = true;
-
 			$this->update_options( $options );
 			Jetpack::state( 'message', 'module_configured' );
-			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
-		}
-
-		/**
-		 * Refresh the list of available WordPress.com blogs
-		 */
-		if ( ! empty( $_GET['videopress'] ) && $_GET['videopress'] == 'refresh-blogs' ) {
-			check_admin_referer( 'videopress-settings' );
-			$options = $this->get_options();
-
-			$result = $this->query( 'jetpack.vpGetBlogs' );
-			if ( ! is_wp_error( $result ) ) {
-				$options['blogs'] = $result;
-				$this->update_options( $options );
-			}
-
 			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
 		}
 	}
@@ -250,7 +201,6 @@ class Jetpack_VideoPress {
 	 */
 	function jetpack_configuration_screen() {
 		$options = $this->get_options();
-		$refresh_url = wp_nonce_url( add_query_arg( 'videopress', 'refresh-blogs' ), 'videopress-settings' );
 		?>
 		<div class="narrow">
 			<form method="post" id="videopress-settings">
@@ -258,45 +208,6 @@ class Jetpack_VideoPress {
 				<?php wp_nonce_field( 'videopress-settings' ); ?>
 
 				<table id="menu" class="form-table">
-					<tr>
-						<th scope="row" colspan="2">
-							<p><?php _e( 'Please note that the VideoPress module requires a WordPress.com account with an active <a href="http://store.wordpress.com/premium-upgrades/videopress/" target="_blank">VideoPress subscription</a>.', 'jetpack' ); ?></p>
-						</th>
-					</tr>
-					<tr>
-						<th scope="row">
-							<label><?php _e( 'Connected WordPress.com Blog', 'jetpack' ); ?></label>
-						</th>
-						<td>
-							<select name="blog_id">
-								<option value="0" <?php selected( $options['blog_id'], 0 ); ?>> <?php esc_html_e( 'None', 'jetpack' ); ?></option>
-								<?php foreach ( $options['blogs'] as $blog ) : ?>
-								<option value="<?php echo absint( $blog['blog_id'] ); ?>" <?php selected( $options['blog_id'], $blog['blog_id'] ); ?>><?php echo esc_html( $blog['name'] ); ?> (<?php echo esc_html( $blog['domain'] ); ?>)</option>
-								<?php endforeach; ?>
-							</select>
-							<p class="description"><?php _e( 'Only videos from the selected blog will be available in your media library.', 'jetpack' ); ?>
-								<?php printf( __( '<a href="%s">Click here</a> to refresh this list.', 'jetpack' ), esc_url( $refresh_url ) ); ?>
-							</p>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row">
-							<label><?php _e( 'Video Library Access', 'jetpack' ); ?></label>
-						</th>
-						<td>
-							<label><input type="radio" name="videopress-access" value="" <?php checked( '', $options['access'] ); ?> />
-								<?php _e( 'Do not allow other users to access my VideoPress library', 'jetpack' ); ?></label><br/>
-							<label><input type="radio" name="videopress-access" value="read" <?php checked( 'read', $options['access'] ); ?> />
-								<?php _e( 'Allow users to access my videos', 'jetpack' ); ?></label><br/>
-							<label><input type="radio" name="videopress-access" value="edit" <?php checked( 'edit', $options['access'] ); ?> />
-								<?php _e( 'Allow users to access and edit my videos', 'jetpack' ); ?></label><br/>
-							<label><input type="radio" name="videopress-access" value="delete" <?php checked( 'delete', $options['access'] ); ?> />
-								<?php _e( 'Allow users to access, edit, and delete my videos', 'jetpack' ); ?></label><br/><br />
-
-							<label><input type="checkbox" name="videopress-upload" value="1" <?php checked( $options['allow-upload'] ); ?> />
-								<?php _e( 'Allow users to upload videos', 'jetpack' ); ?></label><br />
-						</td>
-					</tr>
 					<tr>
 						<th scope="row">
 							<label for="videopress-freedom"><?php _e( 'Free formats', 'jetpack' ); ?></label>
@@ -325,24 +236,6 @@ class Jetpack_VideoPress {
 		<?php
 	}
 
-	function admin_menu() {
-		add_media_page( __( 'VideoPress Library', 'jetpack' ), __( 'VideoPress', 'jetpack' ), 'upload_files', 'videopress-library', array( $this, 'admin_menu_library' ) );
-	}
-
-	function admin_menu_library() {
-		wp_enqueue_media();
-		$this->enqueue_admin_scripts();
-		?>
-		<div class="wrap" style="max-width: 600px;">
-			<?php screen_icon(); ?>
-	        <h2><?php _e( 'VideoPress Library', 'jetpack' ); ?></h2>
-	        <p><?php _e( 'Use the button below to browse your VideoPress Library. Note that you can also browse your VideoPress Library while editing a post or page by using the <strong>Add Media</strong> button in the post editor.', 'jetpack' ); ?></p>
-	        <p class="hide-if-no-js"><a href="#" id="videopress-browse" class="button"><?php _e( 'Browse Your VideoPress Library', 'jetpack' ); ?></a></p>
-	        <p class="hide-if-js description"><?php _e( 'Please enable JavaScript support in your browser to use VideoPress.', 'jetpack' ); ?></p>
-	    </div>
-		<?php
-	}
-
 	/**
 	 * A can of coke
 	 *
@@ -357,26 +250,7 @@ class Jetpack_VideoPress {
 		if ( $this->is_connection_owner( $user_id ) )
 			return true;
 
-		/**
-		 * The access setting can be set by the connection owner, to allow sets
-		 * of operations to other site users. Each access value corresponds to
-		 * an array of things they can do.
-		 */
-
-		$options = $this->get_options();
-		$map = array(
-			'read'   => array( 'read_videos' ),
-			'edit'   => array( 'read_videos', 'edit_videos' ),
-			'delete' => array( 'read_videos', 'edit_videos', 'delete_videos' ),
-		);
-
-		if ( ! array_key_exists( $options['access'], $map ) )
-			return false;
-
-		if ( ! in_array( $cap, $map[ $options['access'] ] ) && 'upload_videos' != $cap )
-			return false;
-
-		// Additional and intrenal caps checks
+		// Additional and internal caps checks
 
 		if ( ! user_can( $user_id, 'upload_files' ) )
 			return false;
@@ -385,9 +259,6 @@ class Jetpack_VideoPress {
 			return false;
 
 		if ( 'delete_videos' == $cap && ! user_can( $user_id, 'delete_others_posts' ) )
-			return false;
-
-		if ( 'upload_videos' == $cap && ! $options['allow-upload'] )
 			return false;
 
 		return true;
