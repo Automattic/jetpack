@@ -5245,11 +5245,28 @@ p {
 	 */
 	public static function validate_sync_error_idc_option() {
 		$is_valid = false;
-		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
-		$local_options = self::get_sync_error_idc_option();
+
+		$idc_allowed = get_transient( 'jetpack_idc_allowed' );
+		if ( false === $idc_allowed ) {
+			$response = wp_remote_get( 'https://jetpack.com/is-idc-allowed/' );
+			if ( is_wp_error( $response ) ) {
+				// If the request failed for some reason, assume IDC is allowed.
+				$idc_allowed = '1';
+				$transient_duration = 5 * MINUTE_IN_SECONDS;
+			} else {
+				$body = wp_remote_retrieve_body( $response );
+				$json = json_decode( $body );
+				$idc_allowed = isset( $json, $json->result ) && $json->result ? '1' : '0';
+				$transient_duration = HOUR_IN_SECONDS;
+			}
+
+			set_transient( 'jetpack_idc_allowed', $idc_allowed, $transient_duration );
+		}
 
 		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
-		if ( $sync_error && self::sync_idc_optin() ) {
+		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+		$local_options = self::get_sync_error_idc_option();
+		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
 			if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 				$is_valid = true;
 			}
@@ -5264,7 +5281,7 @@ p {
 		 */
 		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
 
-		if ( ! $is_valid && $sync_error ) {
+		if ( ! $idc_allowed || ( ! $is_valid && $sync_error ) ) {
 			// Since the option exists, and did not validate, delete it
 			Jetpack_Options::delete_option( 'sync_error_idc' );
 		}
