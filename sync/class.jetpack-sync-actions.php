@@ -163,7 +163,7 @@ class Jetpack_Sync_Actions {
 			if ( in_array( $error_code, $allowed_idc_error_codes ) ) {
 				Jetpack_Options::update_option(
 					'sync_error_idc',
-					Jetpack::get_sync_error_idc_option( $error_code )
+					Jetpack::get_sync_error_idc_option( $response )
 				);
 			}
 

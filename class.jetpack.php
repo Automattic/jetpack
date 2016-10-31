@@ -5245,18 +5245,11 @@ p {
 	public static function validate_sync_error_idc_option() {
 		$is_valid = false;
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+		$local_options = self::get_sync_error_idc_option();
 
 		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
 		if ( $sync_error && self::sync_idc_optin() ) {
-			if ( isset( $sync_error['home'], $sync_error['siteurl'] ) ) {
-				$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option() );
-			} else if ( isset( $sync_error['home'] ) ) {
-				$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option( 'jetpack_home_url_mismatch' ) );
-			} else {
-				$error_diff = array_diff_assoc( $sync_error, self::get_sync_error_idc_option( 'jetpack_site_url_mismatch' ) );
-			}
-
-			if ( empty( $error_diff ) ) {
+			if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 				$is_valid = true;
 			}
 		}
@@ -5310,24 +5303,21 @@ p {
 	 *     @type string 'siteurl' The current site URL.
 	 * }
 	 */
-	public static function get_sync_error_idc_option( $option = null ) {
-		if ( 'jetpack_home_url_mismatch' === $option ) {
-			$options = array(
-				'home' => get_home_url()
-			);
-		} else if ( 'jetpack_site_url_mismatch' === $option ) {
-			$options = array(
-				'siteurl' => get_site_url()
-			);
-		} else {
-			$options = array(
-				'home'    => get_home_url(),
-				'siteurl' => get_site_url(),
-			);
-		}
+	public static function get_sync_error_idc_option( $response = array() ) {
+		$local_options = array(
+			'home' => get_home_url(),
+			'siteurl' => get_site_url(),
+		);
+
+		$options = array_merge( $local_options, $response );
 
 		$returned_values = array();
 		foreach( $options as $key => $option ) {
+			if ( 'error_code' === $key ) {
+				$returned_values[ $key ] = $option;
+				continue;
+			}
+
 			if ( is_wp_error( $normalized_url = self::normalize_url_protocol_agnostic( $option ) ) ) {
 				continue;
 			}
