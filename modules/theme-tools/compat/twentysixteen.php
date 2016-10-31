@@ -18,12 +18,14 @@ function twentysixteen_init_jetpack() {
 	 * Set the version equal to filemtime for development builds, and the JETPACK__VERSION for production
 	 * or skip it entirely for wpcom.
 	 */
-	$version = false;
-	if ( method_exists( 'Jetpack', 'is_development_version' ) ) {
-		$version = Jetpack::is_development_version() ? filemtime( plugin_dir_path( __FILE__ ) . 'twentysixteen.css' ) : JETPACK__VERSION;
+	if ( ! is_admin() ) {
+		$version = false;
+		if ( method_exists( 'Jetpack', 'is_development_version' ) ) {
+			$version = Jetpack::is_development_version() ? filemtime( plugin_dir_path( __FILE__ ) . 'twentysixteen.css' ) : JETPACK__VERSION;
+		}
+		wp_enqueue_style( 'twentysixteen-jetpack', plugins_url( 'twentysixteen.css', __FILE__ ), array(), $version );
+		wp_style_add_data( 'twentysixteen-jetpack', 'rtl', 'replace' );
 	}
-	wp_enqueue_style( 'twentysixteen-jetpack', plugins_url( 'twentysixteen.css', __FILE__ ), array(), $version );
-	wp_style_add_data( 'twentysixteen-jetpack', 'rtl', 'replace' );
 }
 add_action( 'init', 'twentysixteen_init_jetpack' );
 
