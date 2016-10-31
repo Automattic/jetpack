@@ -385,7 +385,7 @@ EXPECTED;
 		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
 		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
 
-		$this->assertNotFalse( get_transient( 'jetpack_idc_allowed' ) );
+		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
 		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
 
 		// Cleanup
@@ -402,7 +402,7 @@ EXPECTED;
 		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
 
-		$this->assertNotFalse( get_transient( 'jetpack_idc_allowed' ) );
+		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
 		$this->assertEquals( '0', get_transient( 'jetpack_idc_allowed' ) );
 
 		// Cleanup
@@ -418,7 +418,7 @@ EXPECTED;
 		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
 		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
 
-		$this->assertNotFalse( get_transient( 'jetpack_idc_allowed' ) );
+		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
 		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
 
 		// Cleanup
