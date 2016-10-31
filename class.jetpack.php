@@ -22,6 +22,9 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
+include_once ABSPATH . 'wp-admin/includes/class-file-upload-upgrader.php';
+include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
 class Jetpack {
 	public $xmlrpc_server = null;
 
@@ -3031,6 +3034,18 @@ p {
 
 		if ( empty( $_FILES ) ) {
 			return new Jetpack_Error( 'no_files_uploaded', 'No files were uploaded: nothing to process', 400 );
+		}
+
+		if ( isset( $_FILES['themezip'] ) ) {
+			// todo: check user can install theme
+			// todo: check hmac
+			$file_upload = new File_Upload_Upgrader( 'themezip', 'package' );
+			$upgrader  = new Theme_Upgrader( new Automatic_Upgrader_Skin() );
+			$result = $upgrader->install( $file_upload->package );
+			if ( $result || is_wp_error($result) ) {
+				$file_upload->cleanup();
+			}
+			return $result;
 		}
 
 		foreach ( array_keys( $_FILES ) as $files_key ) {
