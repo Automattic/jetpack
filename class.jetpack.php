@@ -5297,11 +5297,8 @@ p {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param string $option
-	 * @return array {
-	 *     @type string 'home'    The current home URL.
-	 *     @type string 'siteurl' The current site URL.
-	 * }
+	 * @param array $response
+	 * @return array Array of the local urls, wpcom urls, and error code
 	 */
 	public static function get_sync_error_idc_option( $response = array() ) {
 		$local_options = array(
