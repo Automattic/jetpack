@@ -26,3 +26,58 @@
 .jp-banner__description-container {
 	padding: 16px;
 }
+
+// Plugin List Connection Banners
+
+.jp-wpcom-connect__container {
+	display: block;
+	position: relative;
+	margin: 0 auto 10px auto;
+	padding: 16px;
+	box-sizing: border-box;
+	background: #fff;
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+}
+
+// Connection Banner Vertical Menu
+
+	.vertical-menu {
+		flex-direction: row;
+		justify-content: center;
+		max-width: none;
+
+		.vertical-menu__social-item {
+			border: 0;
+			padding: 8px;
+		}
+
+		.vertical-menu__items.is-selected {
+			border-left: 0;
+			border-bottom: 3px solid #0087be;
+		}
+
+		.vertical-menu__items__social-label {
+			display: none;
+		}
+
+		@include breakpoint( ">660px" ) {
+			flex-direction: column;
+			justify-content: flex-start;
+			border-bottom: 1px solid #c8d7e1;
+
+
+			.vertical-menu__social-item {
+				border-top: 1px solid #c8d7e1;
+				padding: 0;
+			}
+
+			.vertical-menu__items.is-selected {
+				border-left: 3px solid #0087be;
+				border-bottom: 0;
+			}
+
+			.vertical-menu__items__social-label {
+				display: block;
+			}
+		}
+	}
