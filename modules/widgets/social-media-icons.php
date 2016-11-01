@@ -47,17 +47,18 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			)
 		);
 		$this->defaults = array(
-			'title'              => __( 'Social', 'jetpack' ),
-			'facebook_username'  => '',
-			'twitter_username'   => '',
-			'instagram_username' => '',
-			'pinterest_username' => '',
-			'linkedin_username'  => '',
-			'github_username'    => '',
-			'youtube_username'   => '',
-			'vimeo_username'     => '',
+			'title'               => __( 'Social', 'jetpack' ),
+			'facebook_username'   => '',
+			'twitter_username'    => '',
+			'instagram_username'  => '',
+			'pinterest_username'  => '',
+			'linkedin_username'   => '',
+			'github_username'     => '',
+			'youtube_username'    => '',
+			'vimeo_username'      => '',
 			'googleplus_username' => '',
-			'flickr_username'    => '',
+			'flickr_username'     => '',
+			'wordpress_username'  => '',
 		);
 		$this->services = array(
 			'facebook'   => array( 'Facebook', 'https://www.facebook.com/%s/' ),
@@ -70,6 +71,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'vimeo'      => array( 'Vimeo', 'https://vimeo.com/%s/' ),
 			'googleplus' => array( 'Google+', 'https://plus.google.com/u/0/%s/' ),
 			'flickr'     => array( 'Flickr', 'https://www.flickr.com/photos/%s/' ),
+			'wordpress'  => array( 'WordPress.org', 'https://profiles.wordpress.org/%s/' ),
 		);
 		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );

@@ -150,10 +150,12 @@ class Jetpack_Debugger {
 		$tests['HTTPS']['fail_message'] = esc_html__( 'Your site isn’t securely reaching the Jetpack servers.', 'jetpack' );
 
 		$identity_crisis_message = '';
-		if ( $identity_crisis = Jetpack::check_identity_crisis( true ) ) {
-			foreach( $identity_crisis as $key => $value ) {
-				$identity_crisis_message .= sprintf( __( 'Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!', 'jetpack' ), $key, (string) get_option( $key ), $value ) . "\r\n";
-			}
+		if ( $identity_crisis = Jetpack::check_identity_crisis() ) {
+			$identity_crisis_message .= sprintf(
+				__( 'Your url is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`!', 'jetpack' ),
+				$identity_crisis['home'],
+				$identity_crisis['wpcom_home']
+			);
 			$identity_crisis = new WP_Error( 'identity-crisis', $identity_crisis_message, $identity_crisis );
 		} else {
 			$identity_crisis = 'PASS';
