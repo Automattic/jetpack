@@ -41,17 +41,13 @@ class Jetpack_Sitemap_Manager {
 	 */
 	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
 
-
-
 	/**
 	 * Maximum size (in url nodes) of a sitemap xml file.
 	 *
 	 * @link http://www.sitemaps.org/
 	 * @since 4.5.0
 	 */
-	const SITEMAP_MAX_ITEMS = 5; // 50k
-
-
+	const SITEMAP_MAX_ITEMS = 50000; // 50k
 
 	/**
 	 * Maximum size (in url nodes) of a news sitemap xml file.
@@ -61,16 +57,12 @@ class Jetpack_Sitemap_Manager {
 	 */
 	const NEWS_SITEMAP_MAX_ITEMS = 1000; // 1k
 
-
-
 	/**
 	 * Number of seconds between sitemap generations.
 	 *
 	 * @since 4.5.0
 	 */
 	const SITEMAP_INTERVAL = 60;
-
-
 
 	/**
 	 * @since 4.5.0
@@ -93,8 +85,6 @@ class Jetpack_Sitemap_Manager {
 
 		return;
 	}
-
-
 
 	/**
 	 * Add init actions to register sitemap post types for data storage.
@@ -160,8 +150,6 @@ class Jetpack_Sitemap_Manager {
 
 		return;
 	}
-
-
 
 	/**
 	 * Add init action to capture sitemap url requests and serve sitemap xml.
@@ -307,8 +295,6 @@ class Jetpack_Sitemap_Manager {
 		});
 	}
 
-
-
 	/**
 	 * Add actions to schedule sitemap generation.
 	 * Should only be called once, in the constructor.
@@ -337,10 +323,6 @@ class Jetpack_Sitemap_Manager {
 
 		return;
 	}
-
-
-
-
 
 	/**
 	 * Build a fresh tree of sitemaps.
@@ -380,10 +362,6 @@ class Jetpack_Sitemap_Manager {
 		return;
 	}
 
-
-
-
-
 	/**
 	 * Build the page sitemap tree structure.
 	 *
@@ -417,10 +395,6 @@ class Jetpack_Sitemap_Manager {
 		// Otherwise, we have to generate sitemap indices.
 		return $this->build_all_page_sitemap_indices();
 	}
-
-
-
-
 
 	/**
 	 * Build and store all page sitemaps.
@@ -462,10 +436,6 @@ class Jetpack_Sitemap_Manager {
 		// Return the number of the last sitemap to be stored.
 		return $sitemap_number;
 	}
-
-
-
-
 
 	/**
 	 * Build and store a single page sitemap.
@@ -557,10 +527,6 @@ class Jetpack_Sitemap_Manager {
 		);
 	}
 
-
-
-
-
 	/**
 	 * Build and store all page sitemap indices.
 	 *
@@ -606,10 +572,6 @@ class Jetpack_Sitemap_Manager {
 			'last_modified' => str_replace( ' ', 'T', $last_modified) . 'Z',
 		);
 	}
-
-
-
-
 
 	/**
 	 * Build and store a single page sitemap index.
@@ -703,10 +665,6 @@ class Jetpack_Sitemap_Manager {
 		);
 	}
 
-
-
-
-
 	/**
 	 * Build the image sitemap tree structure.
 	 *
@@ -737,10 +695,6 @@ class Jetpack_Sitemap_Manager {
 		// Otherwise, we have to generate sitemap indices.
 		return $this->build_all_image_sitemap_indices();
 	}
-
-
-
-
 
 	/**
 	 * Build and store all image sitemaps.
@@ -781,10 +735,6 @@ class Jetpack_Sitemap_Manager {
 
 		return $img_sitemap_number;
 	}
-
-
-
-
 
 	/**
 	 * Build and store a single image sitemap.
@@ -866,10 +816,6 @@ class Jetpack_Sitemap_Manager {
 		);
 	}
 
-
-
-
-
 	/**
 	 * Build and store all image sitemap indices.
 	 *
@@ -915,10 +861,6 @@ class Jetpack_Sitemap_Manager {
 			'filename' => '/image-sitemap-index-' . $sitemap_index_number . '.xml',
 		);
 	}
-
-
-
-
 
 	/**
 	 * Build and store a single image sitemap index.
@@ -1012,10 +954,6 @@ class Jetpack_Sitemap_Manager {
 		);
 	}
 
-
-
-
-
 	/**
 	 * Build and return the news sitemap xml.
 	 *
@@ -1065,10 +1003,6 @@ class Jetpack_Sitemap_Manager {
 		return $buffer->contents();
 	}
 
-
-
-
-
 	/**
 	 * Construct the sitemap url entry for a WP_Post.
 	 *
@@ -1107,8 +1041,6 @@ class Jetpack_Sitemap_Manager {
 			'last_modified' => $post->post_date
 		);
 	}
-
-
 
 	/**
 	 * Construct the image sitemap url entry for a WP_Post of image type.
@@ -1164,8 +1096,6 @@ class Jetpack_Sitemap_Manager {
 		);
 	}
 
-
-
 	/**
 	 * Construct the sitemap index url entry for a sitemap post.
 	 *
@@ -1201,8 +1131,6 @@ class Jetpack_Sitemap_Manager {
 		);
 	}
 
-
-
 	/**
 	 * Construct the image sitemap index url entry for an image sitemap post.
 	 *
@@ -1236,8 +1164,6 @@ class Jetpack_Sitemap_Manager {
 			'last_modified' => $post->post_date
 		);
 	}
-
-
 
 	/**
 	 * Construct the news sitemap url entry for a WP_Post.
@@ -1303,8 +1229,6 @@ class Jetpack_Sitemap_Manager {
 			'xml' => $xml
 		);
 	}
-
-
 
 	/**
 	 * Returns the xsl of a sitemap xml file as a string.
@@ -1431,8 +1355,6 @@ $css
 XSL;
 	}
 
-
-
 	/**
 	 * Returns the xsl of a sitemap index xml file as a string.
 	 *
@@ -1556,8 +1478,6 @@ $css
 </xsl:stylesheet>\n
 XSL;
 	}
-
-
 
 	/**
 	 * Returns the xsl of an image sitemap xml file as a string.
@@ -1707,8 +1627,6 @@ $css
 XSL;
 	}
 
-
-
 	/**
 	 * Returns the xsl of a news sitemap xml file as a string.
 	 *
@@ -1842,8 +1760,6 @@ $css
 XSL;
 	}
 
-
-
 	/**
 	 * The CSS to be included in sitemap xsl stylesheets;
 	 * factored out for uniformity.
@@ -1927,14 +1843,9 @@ XSL;
 CSS;
 	}
 
-
-
-
-
 	/*
 	 * Querying the Database
 	 */
-
 
 	/**
 	 * Retrieve an array of posts sorted by ID.
@@ -1963,8 +1874,6 @@ CSS;
 
 		return $wpdb->get_results( $query_string );
 	}
-
-
 
 	/**
 	 * Retrieve an array of image posts sorted by ID.
@@ -1996,8 +1905,6 @@ CSS;
 		return $wpdb->get_results( $query_string );
 	}
 
-
-
 	/**
 	 * Retrieve an array of page sitemap posts sorted by ID.
 	 *
@@ -2025,8 +1932,6 @@ CSS;
 
 		return $wpdb->get_results( $query_string );
 	}
-
-
 
 	/**
 	 * Retrieve an array of image sitemap posts sorted by ID.
@@ -2056,8 +1961,6 @@ CSS;
 		return $wpdb->get_results( $query_string );
 	}
 
-
-
 	/**
 	 * Retrieve an array of published posts from the last 2 days.
 	 *
@@ -2084,8 +1987,6 @@ CSS;
 		return $wpdb->get_results( $query_string );
 	}
 
-
-
 	/**
 	 * Retrieve the contents of a post with given title and type.
 	 * If the post does not exist, return the empty string.
@@ -2104,10 +2005,6 @@ CSS;
 			return wp_specialchars_decode($the_post->post_content, ENT_QUOTES);
 		}
 	}
-
-
-
-
 
 	/*
 	 * Manipulating the Database
@@ -2138,8 +2035,6 @@ CSS;
 
 		return;
 	}
-
-
 
 	/**
 	 * Store a string in the contents of a post with given title and type.
