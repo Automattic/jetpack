@@ -52,7 +52,6 @@ class Jetpack_IDC {
 	 */
 	function idc_notice_step_one() {
 		$safe_mode_doc_link = 'https://jetpack.com/support/safe-mode';
-		$old_url = esc_url( self::$wpcom_home_url );
 		?>
 		<div class="jp-idc notice notice-warning">
 			<div class="jp-emblem">
@@ -64,40 +63,53 @@ class Jetpack_IDC {
 			<hr />
 			<div class="msg-bottom-head">
 				<?php
-					_e(
+					echo wp_kses(
 						sprintf(
-							'Jetpack has been placed into %1$sSafe Mode%2$s because we noticed this is an exact copy of %3$s.
-							Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or %1$slearn more about Safe Mode%2$s.',
-							'<a href="' . esc_url( $safe_mode_doc_link ) . '">',
-							'</a>',
-							'<a href="' . $old_url . '">' . $old_url . '</a>'
-						), 'jetpack'
-					)
-				?>
-			</div>
-			<div style="width: 49%; display: inline-block;">
-				<?php
-					_e(
-						sprintf(
-							'Is this website a temporaray duplicate of %s for the purposes of testing, staging or development?
-							If so, we recommend keeping it in Safe Mode.',
-							'<a href="' . $old_url . '">' . $old_url . '</a>'
-						), 'jetpack'
+							__(
+								'Jetpack has been placed into <a href="%1$s">Safe mode</a> because we noticed this is an exact copy of %2$s.
+								Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or <a href="%1$s">learn 
+								more about Safe Mode</a>.',
+								'jetpack'
+							),
+							esc_url( $safe_mode_doc_link ),
+							Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) )
+						),
+						array( 'a' => array( 'href' => array() ) )
 					);
 				?>
-				<button><?php _e( 'Confirm Safe Mode' ); ?></button>
 			</div>
 			<div style="width: 49%; display: inline-block;">
 				<?php
-				_e(
-					sprintf(
-						'If this is a separate and new website, or the new home of %s, we recommend turning Safe Mode off,
-						and re-establishing your connection to WordPress.com.',
-						'<a href="' . $old_url . '">' . $old_url . '</a>'
-					), 'jetpack'
-				);
+					echo wp_kses(
+						sprintf(
+							__(
+								'Is this website a temporary duplicate of <a href="%1$s">%2$s</a> for the purposes of testing, staging or development? If so, we recommend keeping it in Safe Mode.',
+								'jetpack'
+							),
+							esc_url( self::$wpcom_home_url ),
+							Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) )
+						),
+						array( 'a' => array( 'href' => array() ) )
+					);
 				?>
-				<button><?php _e( "Fix Jetpack's Connection" ); ?></button>
+				<button><?php esc_html_e( 'Confirm Safe Mode' ); ?></button>
+			</div>
+			<div style="width: 49%; display: inline-block;">
+				<?php
+					echo wp_kses(
+						sprintf(
+							__(
+								'If this is a separate and new website, or the new home of <a href="%1$s">%2$s</a>, we recommend turning Safe Mode off,
+								and re-establishing your connection to WordPress.com.',
+								'jetpack'
+							),
+							esc_url( $safe_mode_doc_link ),
+							Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) )
+						),
+						array( 'a' => array( 'href' => array() ) )
+					);
+				?>
+				<button><?php esc_html_e( "Fix Jetpack's Connection" ); ?></button>
 			</div>
 		</div>
 	<?php }
