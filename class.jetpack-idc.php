@@ -85,7 +85,7 @@ class Jetpack_IDC {
 						), 'jetpack'
 					);
 				?>
-				<button><?php _e( 'Confirm Safe Mode' ); ?></button>
+				<button id="idc-confirm-safe-mode"><?php _e( 'Confirm Safe Mode' ); ?></button>
 			</div>
 			<div style="width: 49%; display: inline-block;">
 				<?php
@@ -97,7 +97,7 @@ class Jetpack_IDC {
 					), 'jetpack'
 				);
 				?>
-				<button><?php _e( "Fix Jetpack's Connection" ); ?></button>
+				<button id="idc-fix-connection"><?php _e( "Fix Jetpack's Connection" ); ?></button>
 			</div>
 		</div>
 	<?php }
@@ -116,10 +116,10 @@ class Jetpack_IDC {
 
 		wp_localize_script(
 			'jetpack-idc-js',
-			'idc',
+			'idcL10n',
 			array(
-				'ajaxurl'   => admin_url( 'admin-ajax.php' ),
-				'idc_nonce' => wp_create_nonce( 'jetpack-idc-nonce' ),
+				'apiRoot' => esc_url_raw( rest_url() ),
+				'nonce' => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 
