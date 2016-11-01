@@ -5249,15 +5249,14 @@ p {
 		$idc_allowed = get_transient( 'jetpack_idc_allowed' );
 		if ( false === $idc_allowed ) {
 			$response = wp_remote_get( 'https://jetpack.com/is-idc-allowed/' );
-			if ( is_wp_error( $response ) ) {
-				// If the request failed for some reason, assume IDC is allowed.
-				$idc_allowed = '1';
-				$transient_duration = 5 * MINUTE_IN_SECONDS;
-			} else {
-				$body = wp_remote_retrieve_body( $response );
-				$json = json_decode( $body );
+			if ( 200 === (int) wp_remote_retrieve_response_code( $response ) ) {
+				$json = json_decode( wp_remote_retrieve_body( $response ) );
 				$idc_allowed = isset( $json, $json->result ) && $json->result ? '1' : '0';
 				$transient_duration = HOUR_IN_SECONDS;
+			} else {
+				// If the request failed for some reason, then assume IDC is allowed and set shorter transient.
+				$idc_allowed = '1';
+				$transient_duration = 5 * MINUTE_IN_SECONDS;
 			}
 
 			set_transient( 'jetpack_idc_allowed', $idc_allowed, $transient_duration );

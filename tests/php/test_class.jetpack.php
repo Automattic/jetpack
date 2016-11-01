@@ -394,7 +394,7 @@ EXPECTED;
 		delete_transient( 'jetpack_idc_allowed' );
 	}
 
-	function test_sync_error_idc_validation_fails_when_idc_allowed() {
+	function test_sync_error_idc_validation_fails_when_idc_disabled() {
 		add_filter( 'pre_http_request', array( $this, '__idc_is_disabled' ) );
 		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
 
@@ -406,7 +406,7 @@ EXPECTED;
 		$this->assertEquals( '0', get_transient( 'jetpack_idc_allowed' ) );
 
 		// Cleanup
-		remove_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
+		remove_filter( 'pre_http_request', array( $this, '__idc_is_disabled' ) );
 		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
 		delete_transient( 'jetpack_idc_allowed' );
 	}
@@ -422,7 +422,23 @@ EXPECTED;
 		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
 
 		// Cleanup
-		remove_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
+		remove_filter( 'pre_http_request', array( $this, '__idc_is_errored' ) );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		delete_transient( 'jetpack_idc_allowed' );
+	}
+
+	function test_sync_error_idc_validation_success_when_idc_404() {
+		add_filter( 'pre_http_request', array( $this, '__idc_check_404' ) );
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
+		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+
+		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
+		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
+
+		// Cleanup
+		remove_filter( 'pre_http_request', array( $this, '__idc_check_404' ) );
 		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
 		delete_transient( 'jetpack_idc_allowed' );
 	}
@@ -540,18 +556,33 @@ EXPECTED;
 
 	function __idc_is_allowed() {
 		return array(
+			'response' => array(
+				'code' => 200
+			),
 			'body' => '{"result":true}'
 		);
 	}
 
 	function __idc_is_disabled() {
 		return array(
+			'response' => array(
+				'code' => 200
+			),
 			'body' => '{"result":false}'
 		);
 	}
 
 	function __idc_check_errored() {
 		return new WP_Error( 'idc-request-failed' );
+	}
+
+	function __idc_check_404() {
+		return array(
+			'response' => array(
+				'code' => 404
+			),
+			'body' => '<div>some content</div>'
+		);
 	}
 
 	static function reset_tracking_of_module_activation() {
