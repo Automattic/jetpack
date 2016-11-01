@@ -256,6 +256,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		echo $args['after_widget'];
+		do_action( 'jetpack_stats_extra', 'widget_view', 'top_posts' );
 	}
 
 	/*
