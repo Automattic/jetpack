@@ -462,7 +462,7 @@ jQuery(document).ready(function($) {
 
 		open: function(options) {
 			var settings = {
-				'items_selector' : '.gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id]',
+				'items_selector' : '.gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id], img[data-attachment-id]',
 				'start_index': 0
 			},
 			data = $(this).data('carousel-extra');
@@ -1393,7 +1393,7 @@ jQuery(document).ready(function($) {
 	};
 
 	// register the event listener for starting the gallery
-	$( document.body ).on( 'click.jp-carousel', 'div.gallery,div.tiled-gallery', function(e) {
+	$( document.body ).on( 'click.jp-carousel', 'div.gallery,div.tiled-gallery, a.single-image-gallery', function(e) {
 		if ( ! $(this).jp_carousel( 'testForData', e.currentTarget ) ) {
 			return;
 		}
@@ -1407,6 +1407,22 @@ jQuery(document).ready(function($) {
 		e.stopPropagation();
 		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item, .tiled-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item'))});
 	});
+
+	// handle lightbox (single image gallery) for images linking to 'Attachment Page'
+	if ( 1 === Number( jetpackCarouselStrings.single_image_gallery ) ) {
+		// process links that have rel=attachment and img tag inside
+		$( 'a[rel*="attachment"] img' ).each(function() {
+			var container = $( this ).parent();
+			if( $( container ).attr( 'href' ) == $( this ).attr( 'data-orig-file' ) ) {
+				// if link points to 'Media File', skip it
+				return;
+			}
+			// make this node a gallery recognizable by event listener above
+			$( container ).addClass( 'single-image-gallery') ;
+			// method 'open' needs this attribute to distinguish from defailt WP gallery
+			container.data( 'carousel-extra', { single_image: true } );
+		});
+	}
 
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)
 	$( window ).on( 'hashchange.jp-carousel', function () {
@@ -1429,7 +1445,7 @@ jQuery(document).ready(function($) {
 		last_known_location_hash = window.location.hash;
 		matches = window.location.hash.match( hashRegExp );
 		attachmentId = parseInt( matches[1], 10 );
-		galleries = $( 'div.gallery, div.tiled-gallery' );
+		galleries = $( 'div.gallery, div.tiled-gallery, a.single-image-gallery' );
 
 		// Find the first thumbnail that matches the attachment ID in the location
 		// hash, then open the gallery that contains it.
@@ -1444,6 +1460,7 @@ jQuery(document).ready(function($) {
 			if ( selectedThumbnail ) {
 				$( selectedThumbnail.gallery )
 					.jp_carousel( 'openOrSelectSlide', selectedThumbnail.index );
+				return false;
 			}
 		});
 	});

@@ -24,6 +24,8 @@ class Jetpack_Carousel {
 
 	public $in_jetpack = true;
 
+	public $single_image_gallery_enabled = false;
+
 	function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 	}
@@ -33,6 +35,8 @@ class Jetpack_Carousel {
 			return;
 
 		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
+
+		$this->single_image_gallery_enabled = !$this->maybe_disable_jp_carousel_single_images();
 
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings
@@ -62,10 +66,14 @@ class Jetpack_Carousel {
 			 * @param array $this->prebuilt_widths Array of default widths.
 			 */
 			$this->prebuilt_widths = apply_filters( 'jp_carousel_widths', $this->prebuilt_widths );
-			add_filter( 'post_gallery', array( $this, 'enqueue_assets' ), 1000, 2 ); // load later than other callbacks hooked it
+			add_filter( 'post_gallery', array( $this, 'check_and_enqueue_assets' ), 1000, 2 ); // load later than other callbacks hooked it
 			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
+			if ( $this->single_image_gallery_enabled ) {
+				add_filter( 'the_content', array( $this, 'add_data_to_single_images' ) );
+				$this->enqueue_assets();
+			}
 		}
 
 		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
@@ -85,6 +93,17 @@ class Jetpack_Carousel {
 		 * @param bool false Should Carousel be disabled? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_maybe_disable', false );
+	}
+
+	function maybe_disable_jp_carousel_single_images() {
+		/**
+		 * Allow third-party plugins or themes to disable Carousel for single images.
+		 *
+		 * @module carousel
+		 *
+		 * @param bool false Should Carousel be disabled for single images? Default to false.
+		 */
+		return apply_filters( 'jp_carousel_maybe_disable_single_images', false );
 	}
 
 	function jetpack_configuration_load() {
@@ -115,7 +134,7 @@ class Jetpack_Carousel {
 		return $output;
 	}
 
-	function enqueue_assets( $output ) {
+	function check_and_enqueue_assets( $output ) {
 		if (
 			! empty( $output ) &&
 			/**
@@ -151,6 +170,12 @@ class Jetpack_Carousel {
 		 **/
 		do_action( 'jp_carousel_thumbnails_shown' );
 
+		$this->enqueue_assets();
+
+		return $output;
+	}
+
+	function enqueue_assets() {
 		if ( $this->first_run ) {
 			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery.spin' ), $this->asset_version( '20160325' ), true );
 
@@ -168,6 +193,7 @@ class Jetpack_Carousel {
 				'nonce'                => wp_create_nonce( 'carousel_nonce' ),
 				'display_exif'         => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) ),
 				'display_geo'          => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_geo', true ) ),
+				'single_image_gallery' => $this->single_image_gallery_enabled,
 				'background_color'     => $this->carousel_background_color_sanitize( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_background_color', '' ) ),
 				'comment'              => __( 'Comment', 'jetpack' ),
 				'post_comment'         => __( 'Post Comment', 'jetpack' ),
@@ -275,8 +301,6 @@ class Jetpack_Carousel {
 
 			$this->first_run = false;
 		}
-
-		return $output;
 	}
 
 	function set_in_gallery( $output ) {
@@ -284,13 +308,49 @@ class Jetpack_Carousel {
 		return $output;
 	}
 
-	function add_data_to_images( $attr, $attachment = null ) {
+	/**
+	 * Adds data-* attributes required by carousel to img tags in post HTML
+	 * content. To be used by 'the_content' filter.
+	 *
+	 * @see add_data_to_images()
+	 * @see wp_make_content_images_responsive() in wp-includes/media.php
+	 *
+	 * @param string $content HTML content of the post
+	 * @return string Modified HTML content of the post
+	 */
+	function add_data_to_single_images( $content ) {
+		if ( ! preg_match_all( '/<img [^>]+>/', $content, $matches ) ) {
+			return $content;
+		}
+		$selected_images = array();
 
-		// not in a gallery?
-		if ( ! $this->in_gallery ) {
-			return $attr;
+		foreach( $matches[0] as $image_html ) {
+			if ( preg_match( '/wp-image-([0-9]+)/i', $image_html, $class_id ) &&
+				( $attachment_id = absint( $class_id[1] ) ) ) {
+
+				/*
+				 * If exactly the same image tag is used more than once, overwrite it.
+				 * All identical tags will be replaced later with 'str_replace()'.
+				 */
+				$selected_images[ $attachment_id  ] = $image_html;
+			}
 		}
 
+		foreach ( $selected_images as $attachment_id => $image_html ) {
+			$attachment = WP_Post::get_instance( $attachment_id );
+			$attributes = $this->add_data_to_images( array(), $attachment );
+			$attributes_html = '';
+			foreach( $attributes as $k => $v ) {
+				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '"';
+			}
+			$image_html_with_data = str_replace( '<img ', "<img $attributes_html", $image_html );
+			$content = str_replace( $image_html, $image_html_with_data, $content );
+		}
+
+		return $content;
+	}
+
+	function add_data_to_images( $attr, $attachment = null ) {
 		$attachment_id   = intval( $attachment->ID );
 		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
 		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
