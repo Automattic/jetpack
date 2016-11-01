@@ -922,9 +922,9 @@ class Jetpack_VideoPress {
 			$id   = $vp_item['post_id'];
 			$guid = $vp_item['guid'];
 
-			$post = get_post( $id );
+			$attachment = get_post( $id );
 
-			if ( ! $post ) {
+			if ( ! $attachment ) {
 				$errors[] = array(
 					'id'    => $id,
 					'error' => 'Post not found',
@@ -933,15 +933,15 @@ class Jetpack_VideoPress {
 				continue;
 			}
 
-			$post->guid = $vp_item['original'];
-			$post->file = $vp_item['original'];
+			$attachment->guid = $vp_item['original'];
+			$attachment->file = $vp_item['original'];
 
-			wp_update_post( $post );
+			wp_update_post( $attachment );
 
 			// Update the vp guid and set it to a dirrect meta property.
 			update_post_meta( $id, 'videopress_guid', $guid );
 
-			$meta = wp_get_attachment_metadata( $post->ID );
+			$meta = wp_get_attachment_metadata( $attachment->ID );
 
 			$current_poster = get_post_meta( $id, '_thumbnail_id' );
 
@@ -956,10 +956,10 @@ class Jetpack_VideoPress {
 				update_post_meta( $id, '_thumbnail_id', $thumbnail_id );
 			}
 
-			wp_update_attachment_metadata( $post->ID, $meta );
+			wp_update_attachment_metadata( $attachment->ID, $meta );
 
 			// update the meta to tell us that we're processing or complete
-			update_post_meta( $id, 'videopress_status', $this->is_video_finished_processing( $post->ID ) ? 'complete' : 'processing' );
+			update_post_meta( $id, 'videopress_status', $this->is_video_finished_processing( $attachment->ID ) ? 'complete' : 'processing' );
 		}
 
 		if ( count( $errors ) > 0 ) {
