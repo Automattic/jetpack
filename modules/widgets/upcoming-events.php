@@ -106,6 +106,7 @@ class Upcoming_Events_Widget extends WP_Widget {
 		endif;
 
 		echo $args['after_widget'];
+		stats_extra( 'widget_view', 'upcoming_events' );
 	}
 
 	function apply_timezone_offset( $events ) {
