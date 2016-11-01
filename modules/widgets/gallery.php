@@ -114,6 +114,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		echo "\n" . '</div>'; // .widget-gallery-$type
 
 		echo "\n" . $after_widget;
+		
+		stats_extra( 'widget_view', 'gallery' );
 	}
 
 	/**
