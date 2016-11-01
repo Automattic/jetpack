@@ -84,7 +84,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<?php
 		echo $after_widget;
 
-		do_action( 'jetpack_stats_extra', 'widget', 'facebook-likebox' );
+		do_action( 'jetpack_stats_extra', 'widget_view', 'facebook-likebox' );
 	}
 
 	function update( $new_instance, $old_instance ) {
