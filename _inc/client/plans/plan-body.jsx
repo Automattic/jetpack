@@ -23,7 +23,9 @@ const PlanBody = React.createClass( {
 	render() {
 		let planCard = '';
 		switch ( this.props.plan ) {
-			case 'jetpack_premium':
+      case 'jetpack_personal':
+      case 'jetpack_personal_monthly':
+      case 'jetpack_premium':
 			case 'jetpack_premium_monthly':
 			case 'jetpack_business':
 			case 'jetpack_business_monthly':
@@ -48,24 +50,74 @@ const PlanBody = React.createClass( {
 							}
 						</div>
 
-						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Security Scanning & Backups' ) }</h3>
-							<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place.' ) }</p>
-							{
-								this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
-									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button href="https://dashboard.vaultpress.com/" className="is-primary">
-											{ __( 'View your security dashboard' ) }
-										</Button>
-									)
-									: (
-										<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'Configure VaultPress' ) }
-										</Button>
-									)
-							}
-						</div>
+            {
+							includes( [ 'jetpack_personal', 'jetpack_personal_monthly' ], this.props.plan ) ?
+                <div className="jp-landing__plan-features-card">
+                  <h3 className="jp-landing__plan-features-title">{ __( 'Backups' ) }</h3>
+                  <p>{ __( 'Daily backup of all your site data with unlimited space and one-click restores (powered by VaultPress).' ) }</p>
+                  {
+                    this.props.isFetchingPluginsData ? '' :
+                      this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
+                      && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+                        <Button href="https://dashboard.vaultpress.com/" className="is-primary">
+                          { __( 'View your security dashboard' ) }
+                        </Button>
+                      )
+                      : (
+                        <Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+                          { __( 'Configure VaultPress' ) }
+                        </Button>
+                      )
+                  }
+                </div>
+								: ''
+						}
+
+            {
+							includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
+                <div className="jp-landing__plan-features-card">
+                  <h3 className="jp-landing__plan-features-title">{ __( 'Backups & Security Scanning' ) }</h3>
+                  <p>{ __( 'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support (powered by VaultPress).' ) }</p>
+                  {
+                    this.props.isFetchingPluginsData ? '' :
+                      this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
+                      && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+                        <Button href="https://dashboard.vaultpress.com/" className="is-primary">
+                          { __( 'View your security dashboard' ) }
+                        </Button>
+                      )
+                      : (
+                        <Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+                          { __( 'Configure VaultPress' ) }
+                        </Button>
+                      )
+                  }
+                </div>
+								: ''
+						}
+
+            {
+              includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
+                <div className="jp-landing__plan-features-card">
+                  <h3 className="jp-landing__plan-features-title">{ __( 'Backups & Security Scanning' ) }</h3>
+                  <p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, one-click threat resolution, and priority support (powered by VaultPress). Also includes surveys, polls and ratings.' ) }</p>
+                  {
+                    this.props.isFetchingPluginsData ? '' :
+                      this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
+                      && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+                        <Button href="https://dashboard.vaultpress.com/" className="is-primary">
+                          { __( 'View your security dashboard' ) }
+                        </Button>
+                      )
+                      : (
+                        <Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+                          { __( 'Configure VaultPress' ) }
+                        </Button>
+                      )
+                  }
+                </div>
+                : ''
+            }
 
 						{
 							includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
@@ -79,25 +131,42 @@ const PlanBody = React.createClass( {
 								: ''
 						}
 
-						{
-							includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
-								<div className="jp-landing__plan-features-card">
-									<h3 className="jp-landing__plan-features-title">{ __( 'Need more?' ) }</h3>
-									<p>{ __( 'Jetpack Professional offers advanced features including:' ) }</p>
-									<p> &mdash; { __( 'Supports 1-3 sites' ) }</p>
-									<p> &mdash; { __( 'Includes on-demand malware scanning' ) }</p>
-									<p> &mdash; { __( 'Unlimited backup archive' ) }</p>
-									<p> &mdash; { __( 'Real-time backups' ) }</p>
-									<p> &mdash; { __( 'One-click threat resolution' ) }</p>
-									<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
-									<p>
-										<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
-											{ __( 'Compare Plans' ) }
-										</Button>
-									</p>
-								</div>
-								: ''
-						}
+            {
+              includes( [ 'jetpack_personal', 'jetpack_personal_monthly' ], this.props.plan ) ?
+                <div className="jp-landing__plan-features-card">
+                  <h3 className="jp-landing__plan-features-title">{ __( 'Need more? Running a business site?' ) }</h3>
+                  <p>{ __( 'If your site is important to you, consider protecting and improving it with some of our advanced features: ' ) }</p>
+                  <p> &mdash; { __( 'Daily and on-demand security scanning' ) }</p>
+                  <p> &mdash; { __( 'Real-time backups and one-click threat resolution' ) }</p>
+                  <p> &mdash; { __( 'Unlimited and ad-free video hosting' ) }</p>
+                  <p> &mdash; { __( 'Advertising revenue with WordAds' ) }</p>
+                  <p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
+                  <p>
+                    <Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
+                      { __( 'Compare Plans' ) }
+                    </Button>
+                  </p>
+                </div>
+                : ''
+            }
+
+            {
+              includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
+                <div className="jp-landing__plan-features-card">
+                  <h3 className="jp-landing__plan-features-title">{ __( 'Need more? Running a business site?' ) }</h3>
+                  <p>{ __( 'If your site is important to you, consider protecting and improving it with some of our advanced features: ' ) }</p>
+                  <p> &mdash; { __( 'On-demand security scanning' ) }</p>
+                  <p> &mdash; { __( 'Real-time backups' ) }</p>
+                  <p> &mdash; { __( 'One-click threat resolution' ) }</p>
+                  <p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
+                  <p>
+                    <Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
+                      { __( 'Compare Plans' ) }
+                    </Button>
+                  </p>
+                </div>
+                : ''
+            }
 					</div>
 				);
 				break;
