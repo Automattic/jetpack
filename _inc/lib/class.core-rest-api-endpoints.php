@@ -921,13 +921,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @since 4.3.0
 	 * @since 4.4.0 Accepts 'any' as a parameter which will make it return the entire list.
 	 *
-	 * @param string $module Module slug.
-	 *                       If empty, it's assumed we're updating a module and we'll try to get its slug.
-	 *                       If 'any' a custom list is returned.
+	 * @param string|array $selector Module slug or array of parameters.
+	 *                               If empty, it's assumed we're updating a module and we'll try to get its slug.
+	 *                               If 'any' a custom list is returned.
 	 *
 	 * @return array
 	 */
-	public static function get_module_available_options( $module = '' ) {
+	public static function get_module_available_options( $selector = '' ) {
 
 		$options = array(
 
@@ -1462,12 +1462,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 		);
 
-		if ( 'any' === $module ) {
+		if ( is_array( $selector ) ) {
+			$options = array_intersect_key( $options, $selector );
 			return $options;
 		}
 
-		if ( empty( $module ) ) {
-			$module = self::get_module_requested();
+		if ( 'any' === $selector ) {
+			return $options;
+		}
+
+		if ( empty( $selector ) ) {
+			$selector = self::get_module_requested();
 		}
 
 		$selected = array();
@@ -1475,7 +1480,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		foreach ( $options as $option => $attributes ) {
 
 			// Not adding an isset( $attributes['module'] ) because if it's not set, it must be fixed, otherwise options will fail.
-			if ( $module === $attributes['module'] ) {
+			if ( $selector === $attributes['module'] ) {
 				$selected[ $option ] = $attributes;
 			}
 		}

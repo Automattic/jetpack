@@ -345,12 +345,21 @@ class Jetpack_Core_API_Module_Endpoint
 	 * @return bool|WP_Error True if module was updated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public function update_module( $data ) {
-		if ( ! Jetpack::is_module( $data['slug'] ) ) {
-			return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
-		}
 
-		if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
-			return new WP_Error( 'inactive', esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' ), array( 'status' => 409 ) );
+		// If it's null, we're trying to update many module options from different modules.
+		if ( is_null( $data['slug'] ) ) {
+
+			// Value admitted by Jetpack_Core_Json_Api_Endpoints::get_module_available_options that will make it return all module options.
+			// It will not be passed. It's just checked in this method to pass that method a string or array.
+			$data['slug'] = 'any';
+		} else {
+			if ( ! Jetpack::is_module( $data['slug'] ) ) {
+				return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
+			}
+
+			if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
+				return new WP_Error( 'inactive', esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' ), array( 'status' => 409 ) );
+			}
 		}
 
 		// Get parameters to update the module.
@@ -362,7 +371,10 @@ class Jetpack_Core_API_Module_Endpoint
 		}
 
 		// Get available module options.
-		$options = Jetpack_Core_Json_Api_Endpoints::get_module_available_options( $data['slug'] );
+		$options = Jetpack_Core_Json_Api_Endpoints::get_module_available_options( 'any' === $data['slug']
+			? $params
+			: $data['slug']
+		);
 
 		// Options that are invalid or failed to update.
 		$invalid = array();
