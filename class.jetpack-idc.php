@@ -100,14 +100,6 @@ class Jetpack_IDC {
 				<button><?php _e( "Fix Jetpack's Connection" ); ?></button>
 			</div>
 		</div>
-		<style>
-			.jp-emblem {
-				width: 25px;
-				height: 25px;
-				margin: .40em 1em 0 auto;
-				float: left;
-			}
-		</style>
 	<?php }
 
 	/**
@@ -129,6 +121,13 @@ class Jetpack_IDC {
 				'ajaxurl'   => admin_url( 'admin-ajax.php' ),
 				'idc_nonce' => wp_create_nonce( 'jetpack-idc-nonce' ),
 			)
+		);
+
+		wp_enqueue_style(
+			'jetpack-idc-css',
+			plugins_url( 'css/jetpack-idc.css', JETPACK__PLUGIN_FILE ),
+			array(),
+			JETPACK__VERSION
 		);
 	}
 }
