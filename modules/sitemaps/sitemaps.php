@@ -107,7 +107,7 @@ class Jetpack_Sitemap_Manager {
 				$type_name,
 				array(
 					'labels'      => array('name' => $label),
-					'public'      => true, // Set to true to aid debugging
+					'public'      => false, // Set to true to aid debugging
 					'has_archive' => false,
 					'rewrite'     => array('slug' => $slug),
 				)
