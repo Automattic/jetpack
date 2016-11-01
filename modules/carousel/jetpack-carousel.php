@@ -24,6 +24,8 @@ class Jetpack_Carousel {
 
 	public $in_jetpack = true;
 
+	public $single_image_gallery_enabled = false;
+
 	function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 	}
@@ -33,6 +35,9 @@ class Jetpack_Carousel {
 			return;
 
 		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
+
+		$this->single_image_gallery_enabled =
+			( 1 == $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_single_image_display_gallery', true ) ) );
 
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings
@@ -46,8 +51,6 @@ class Jetpack_Carousel {
 			add_action( 'wp_ajax_nopriv_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
 			add_action( 'wp_ajax_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
-			// TODO: add setting checkbox for "single_image_linked_to_self", check for it here
-			add_filter( 'image_send_to_editor', array( $this, 'handle_single_image' ), 10, 8 );
 		} else {
 			if ( ! $this->in_jetpack ) {
 				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) )
@@ -68,21 +71,14 @@ class Jetpack_Carousel {
 			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
+			if ( $this->single_image_gallery_enabled ) {
+				add_filter( 'the_content', array( $this, 'add_data_to_single_images' ) );
+			}
 		}
 
 		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
 			Jetpack::enable_module_configurable( dirname( dirname( __FILE__ ) ) . '/carousel.php' );
 			Jetpack::module_configuration_load( dirname( dirname( __FILE__ ) ) . '/carousel.php', array( $this, 'jetpack_configuration_load' ) );
-		}
-	}
-
-	function handle_single_image( $html, $id, $caption, $title, $align, $url, $size, $alt ) {
-		$url_without_extension = substr( $url, 0, strrpos( $url, '.' ) );
-		if( $url && strpos( $html, "src=\"$url_without_extension" ) !== false ) {
-			// image links to itself when img src contains same location as $url (a href value)
-			return "[gallery columns=\"1\" size=\"{$size}\" ids=\"{$id}\"]";
-		} else {
-			return $html;
 		}
 	}
 
@@ -180,6 +176,7 @@ class Jetpack_Carousel {
 				'nonce'                => wp_create_nonce( 'carousel_nonce' ),
 				'display_exif'         => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) ),
 				'display_geo'          => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_geo', true ) ),
+				'single_image_gallery' => $this->single_image_gallery_enabled,
 				'background_color'     => $this->carousel_background_color_sanitize( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_background_color', '' ) ),
 				'comment'              => __( 'Comment', 'jetpack' ),
 				'post_comment'         => __( 'Post Comment', 'jetpack' ),
@@ -296,13 +293,49 @@ class Jetpack_Carousel {
 		return $output;
 	}
 
-	function add_data_to_images( $attr, $attachment = null ) {
+	/**
+	 * Adds data-* attributes required by carousel to img tags in post HTML
+	 * content. To be used by 'the_content' filter.
+	 *
+	 * @see add_data_to_images()
+	 * @see wp_make_content_images_responsive() in wp-includes/media.php
+	 *
+	 * @param string $content HTML content of the post
+	 * @return string Modified HTML content of the post
+	 */
+	function add_data_to_single_images( $content ) {
+		if ( ! preg_match_all( '/<img [^>]+>/', $content, $matches ) ) {
+			return $content;
+		}
+		$selected_images = array();
 
-		// not in a gallery?
-		if ( ! $this->in_gallery ) {
-			return $attr;
+		foreach( $matches[0] as $image_html ) {
+			if ( preg_match( '/wp-image-([0-9]+)/i', $image_html, $class_id ) &&
+				( $attachment_id = absint( $class_id[1] ) ) ) {
+
+				/*
+				 * If exactly the same image tag is used more than once, overwrite it.
+				 * All identical tags will be replaced later with 'str_replace()'.
+				 */
+				$selected_images[ $attachment_id  ] = $image_html;
+			}
 		}
 
+		foreach ( $selected_images as $attachment_id => $image_html ) {
+			$attachment = WP_Post::get_instance( $attachment_id );
+			$attributes = $this->add_data_to_images( array(), $attachment );
+			$attributes_html = '';
+			foreach( $attributes as $k => $v ) {
+				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '"';
+			}
+			$image_html_with_data = str_replace( '<img ', "<img $attributes_html", $image_html );
+			$content = str_replace( $image_html, $image_html_with_data, $content );
+		}
+
+		return $content;
+	}
+
+	function add_data_to_images( $attr, $attachment = null ) {
 		$attachment_id   = intval( $attachment->ID );
 		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
 		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
@@ -555,6 +588,9 @@ class Jetpack_Carousel {
 		add_settings_field('carousel_display_exif', __( 'Metadata', 'jetpack'), array( $this, 'carousel_display_exif_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_exif', array( $this, 'carousel_display_exif_sanitize' ) );
 
+		add_settings_field('carousel_single_image_display_gallery', __( 'Single image', 'jetpack'), array( $this, 'carousel_single_image_display_gallery_callback' ), 'media', 'carousel_section' );
+		register_setting( 'media', 'carousel_single_image_display_gallery', array( $this, 'carousel_single_image_display_gallery_sanitize' ) );
+
 		// No geo setting yet, need to "fuzzify" data first, for privacy
 		// add_settings_field('carousel_display_geo', __( 'Geolocation', 'jetpack' ), array( $this, 'carousel_display_geo_callback' ), 'media', 'carousel_section' );
 		// register_setting( 'media', 'carousel_display_geo', array( $this, 'carousel_display_geo_sanitize' ) );
@@ -630,6 +666,14 @@ class Jetpack_Carousel {
 
 	function carousel_background_color_sanitize( $value ) {
 		return ( 'white' == $value ) ? 'white' : 'black';
+	}
+
+	function carousel_single_image_display_gallery_callback() {
+		$this->settings_checkbox( 'carousel_single_image_display_gallery', __( 'When linking to \'Attachment Page\' open in Carousel Lightbox.', 'jetpack' ) );
+	}
+
+	function carousel_single_image_display_gallery_sanitize( $value ) {
+		return $this->sanitize_1or0_option( $value );
 	}
 
 	function carousel_enable_it_callback() {
