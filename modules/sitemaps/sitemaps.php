@@ -71,13 +71,13 @@ class Jetpack_Sitemap_Manager {
 		// Register post types for data storage
 		add_action(
 			'init',
-			array($this, 'callback_action_register_post_types')
+			array( $this, 'callback_action_register_post_types' )
 		);
 
 		// Sitemap URL handler
 		add_action(
 			'init',
-			array($this, 'callback_action_catch_sitemap_urls')
+			array( $this, 'callback_action_catch_sitemap_urls' )
 		);
 
 		// Add generator to wp_cron task list
@@ -86,7 +86,7 @@ class Jetpack_Sitemap_Manager {
 		// Add sitemap to robots.txt
 		add_action(
 			'do_robotstxt',
-			array($this, 'callback_action_do_robotstxt'),
+			array( $this, 'callback_action_do_robotstxt' ),
 			20
 		);
 
@@ -106,10 +106,10 @@ class Jetpack_Sitemap_Manager {
 			register_post_type(
 				$type_name,
 				array(
-					'labels'      => array('name' => $label),
+					'labels'      => array( 'name' => $label ),
 					'public'      => false, // Set to true to aid debugging
 					'has_archive' => false,
-					'rewrite'     => array('slug' => $slug),
+					'rewrite'     => array( 'slug' => $slug ),
 				)
 			);
 			return;
@@ -311,7 +311,7 @@ class Jetpack_Sitemap_Manager {
 
 		add_action(
 			'jp_sitemap_cron_hook',
-			array($this, 'build_all_sitemaps')
+			array( $this, 'build_all_sitemaps' )
 		);
 
 		if( !wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
