@@ -3229,34 +3229,43 @@ p {
 		<div id="message" class="jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__inner-container">
 				<a href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"></a>
-
 				<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
+
 			<div class="jp-wpcom-connect__vertical-nav">
 				<div class="vertical-menu">
 					<div class="vertical-menu__feature-item jp-feature-intro">
 						<div class="vertical-menu__feature-item-icon">o</div>
-						<span class="vertical-menu__feature-item-label">Welcome to Jetpack</span>
+						<span class="vertical-menu__feature-item-label"><?php _e( 'Welcome to Jetpack', 'jetpack' ); ?></span>
 					</div>
 					<div class="vertical-menu__feature-item vertical-menu__feature-item-is-selected">
 						<div class="vertical-menu__feature-item-icon">o</div>
-						<span class="vertical-menu__feature-item-label">Stats &amp; Traffic Tools</span>
+						<span class="vertical-menu__feature-item-label"><?php _e( 'Stats &amp; Traffic Tools', 'jetpack' ); ?></span>
 					</div>
 					<div class="vertical-menu__feature-item">
 						<div class="vertical-menu__feature-item-icon">o</div>
-						<span class="vertical-menu__feature-item-label">Site Security</span>
+						<span class="vertical-menu__feature-item-label"><?php _e( 'Site Security', 'jetpack' ); ?></span>
 					</div>
 					<div class="vertical-menu__feature-item">
 						<div class="vertical-menu__feature-item-icon">o</div>
-						<span class="vertical-menu__feature-item-label">Performance</span>
+						<span class="vertical-menu__feature-item-label"><?php _e( 'Performance', 'jetpack' ); ?></span>
 					</div>
 					<div class="vertical-menu__feature-item">
 						<div class="vertical-menu__feature-item-icon">o</div>
-						<span class="vertical-menu__feature-item-label">More Features</span>
+						<span class="vertical-menu__feature-item-label"><?php _e( '', 'More Features' ); ?></span>
 					</div>
 				</div>
 			</div>
 			<div class="jp-wpcom-connect__content-container">
-			<p>Jetpack includes other features that help you customize your site including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and many more. Connect with WordPress.com to get started!</p>
+
+			<h2><?php _e( 'Jetpack is here to enhance your site and your life', 'jetpack' ) ?></h2>
+
+			<p><?php _e( 'Jetpack is a free plugin that utilizes powerful WordPress.com serves to simplify managing your site(s) with detailed visitor stats, security services, image performance upgrades, and more. Connect with WordPress.com to get started!', 'jetpack' ); ?></p>
+
+			<p class="jp-banner__button-container">
+				<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="button button-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
+				<a href="#" class="button" title="<?php esc_attr_e( 'Start tour to Learn about the benefits you receive when you connect Jetpack to WordPress.com', 'jetpack' ); ?>"><?php _e( 'Start quick tour', 'jetpack' ); ?></a>
+			</p>
+
 			</div>
 			<?php else : ?>
 				do other stuff
