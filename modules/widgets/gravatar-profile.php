@@ -126,7 +126,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			 * @param string widget Item type (e.g. widget, or embed).
 			 * @param string grofile Item description (e.g. grofile, goodreads).
 			 */
-			do_action( 'jetpack_stats_extra', 'widget', 'grofile' );
+			do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
 
 		} else {
 			if ( current_user_can( 'edit_theme_options' ) ) {
