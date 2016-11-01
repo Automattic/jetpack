@@ -760,9 +760,9 @@ class Jetpack_VideoPress {
 			$id = $vp_item['post_id'];
 			$guid = $vp_item['guid'];
 
-			$post = get_post( $id );
+			$attachment = get_post( $id );
 
-			if ( ! $post ) {
+			if ( ! $attachment ) {
 				$errors[] = array(
 					'id' => $id,
 					'error' => 'Post not found',
@@ -771,24 +771,32 @@ class Jetpack_VideoPress {
 				continue;
 			}
 
-			$post->guid = $vp_item['original'];
-			$post->file = $vp_item['original'];
+			$attachment->guid = $vp_item['original'];
+			$attachment->file = $vp_item['original'];
 
-			wp_update_post( $post );
+			wp_update_post( $attachment );
 
 			// Update the vp guid and set it to a dirrect meta property.
 			update_post_meta( $id, 'videopress_guid', $guid );
 
-			$meta = wp_get_attachment_metadata( $post->ID );
+			$meta = wp_get_attachment_metadata( $attachment->ID );
+
+			// Only update the poster if it has changed.
+			if ( $meta['videopress']['poster'] !== $vp_item['poster'] ) {
+				$thumbnail_id = videopress_download_poster_image( $vp_item['poster'], $attachment->ID );
+
+				if ( ! $thumbnail_id instanceof WP_Error ) {
+					update_post_meta( $attachment->ID, '_thumbnail_id', $thumbnail_id );
+				}
+			}
+
 			$meta['width'] = $vp_item['width'];
 			$meta['height'] = $vp_item['height'];
 			$meta['original']['url'] = $vp_item['original'];
 			$meta['videopress'] = $vp_item;
 			$meta['videopress']['url'] = 'https://videopress.com/v/' . $guid;
 
-			// TODO: Add poster updating.
-
-			wp_update_attachment_metadata( $post->ID, $meta );
+			wp_update_attachment_metadata( $attachment->ID, $meta );
 		}
 
 		if ( count( $errors ) > 0 ) {
@@ -815,16 +823,16 @@ class Jetpack_VideoPress {
 		$created_items = array();
 
 		foreach ( $media as $media_item ) {
-			$post = array(
+			$attachment = array(
 				'post_type'   => 'attachment',
 				'post_mime_type' => 'video/videopress',
 				'post_title' => sanitize_title( basename( $media_item['url'] ) ),
 				'post_content' => '',
 			);
 
-			$media_id = wp_insert_post( $post );
+			$attachment_id = wp_insert_post( $attachment );
 
-			wp_update_attachment_metadata( $media_id, array(
+			wp_update_attachment_metadata( $attachment_id, array(
 				'original' => array(
 					'url' => $media_item['url'],
 					'file' => $media_item['file'],
@@ -833,8 +841,8 @@ class Jetpack_VideoPress {
 			) );
 
 			$created_items[] = array(
-				'id' => $media_id,
-				'post' => get_post( $media_id ),
+				'id' => $attachment_id,
+				'post' => get_post( $attachment_id ),
 			);
 		}
 
