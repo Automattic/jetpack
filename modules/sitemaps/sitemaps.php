@@ -404,7 +404,7 @@ class Jetpack_Sitemap_Manager {
 	 * @access private
 	 * @since 4.5.0
 	 *
-	 * @return The number of page sitemaps generated.
+	 * @return int The number of page sitemaps generated.
 	 */
 	private function build_all_page_sitemaps () {
 		$post_ID = 0;
@@ -535,7 +535,7 @@ class Jetpack_Sitemap_Manager {
 	 * @access private
 	 * @since 4.5.0
 	 *
-	 * @return The number of page sitemap indices generated.
+	 * @return int The number of page sitemap indices generated.
 	 */
 	private function build_all_page_sitemap_indices () {
 		$sitemap_ID = 0;
@@ -704,7 +704,7 @@ class Jetpack_Sitemap_Manager {
 	 * @access private
 	 * @since 4.5.0
 	 *
-	 * @return The number of image sitemaps generated.
+	 * @return int The number of image sitemaps generated.
 	 */
 	private function build_all_image_sitemaps () {
 		$image_ID = 0;
@@ -825,7 +825,7 @@ class Jetpack_Sitemap_Manager {
 	 * @access private
 	 * @since 4.5.0
 	 *
-	 * @return The number of image sitemap indices generated.
+	 * @return int The number of image sitemap indices generated.
 	 */
 	private function build_all_image_sitemap_indices () {
 		$sitemap_ID = 0;
