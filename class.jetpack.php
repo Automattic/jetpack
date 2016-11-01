@@ -3225,41 +3225,44 @@ p {
 
 		$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
 		?>
-		<div id="message" class="jp-wpcom-connect__container">
-			<a href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"></a>
 
-			<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
-		<div class="jp-wpcom-connect__vertical-nav">
-			<div class="vertical-menu">
-				<div class="vertical-menu__social-item vertical-menu__items">
-					<div class="vertical-menu__items__social-icon">o</div>
-					<span class="vertical-menu__items__social-label">Google search</span>
-				</div>
-				<div class="vertical-menu__social-item vertical-menu__items is-selected">
-					<div class="vertical-menu__items__social-icon">o</div>
-					<span class="vertical-menu__items__social-label">Facebook feed</span>
-				</div>
-				<div class="vertical-menu__social-item vertical-menu__items">
-					<div class="vertical-menu__items__social-icon">o</div>
-					<span class="vertical-menu__items__social-label">WordPress.com Reader</span>
-				</div>
-				<div class="vertical-menu__social-item vertical-menu__items">
-					<div class="vertical-menu__items__social-icon">o</div>
-					<span class="vertical-menu__items__social-label">LinkedIn share</span>
-				</div>
-				<div class="vertical-menu__social-item vertical-menu__items">
-					<div class="vertical-menu__items__social-icon">o</div>
-					<span class="vertical-menu__items__social-label">Twitter card</span>
+		<div id="message" class="jp-wpcom-connect__container">
+			<div class="jp-wpcom-connect__inner-container">
+				<a href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"></a>
+
+				<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
+			<div class="jp-wpcom-connect__vertical-nav">
+				<div class="vertical-menu">
+					<div class="vertical-menu__feature-item jp-feature-intro">
+						<div class="vertical-menu__feature-item-icon">o</div>
+						<span class="vertical-menu__feature-item-label">Welcome to Jetpack</span>
+					</div>
+					<div class="vertical-menu__feature-item vertical-menu__feature-item-is-selected">
+						<div class="vertical-menu__feature-item-icon">o</div>
+						<span class="vertical-menu__feature-item-label">Stats &amp; Traffic Tools</span>
+					</div>
+					<div class="vertical-menu__feature-item">
+						<div class="vertical-menu__feature-item-icon">o</div>
+						<span class="vertical-menu__feature-item-label">Site Security</span>
+					</div>
+					<div class="vertical-menu__feature-item">
+						<div class="vertical-menu__feature-item-icon">o</div>
+						<span class="vertical-menu__feature-item-label">Performance</span>
+					</div>
+					<div class="vertical-menu__feature-item">
+						<div class="vertical-menu__feature-item-icon">o</div>
+						<span class="vertical-menu__feature-item-label">More Features</span>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="jp-wpcom-connect__content-container">
+			<div class="jp-wpcom-connect__content-container">
+			<p>Jetpack includes other features that help you customize your site including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and many more. Connect with WordPress.com to get started!</p>
+			</div>
+			<?php else : ?>
+				do other stuff
+			<?php endif; ?>
 
-		</div>
-		<?php else : ?>
-			do other stuff
-		<?php endif; ?>
-
+			</div>
 		</div>
 
 		<div id="message" class="updated jp-banner">
