@@ -419,8 +419,20 @@ EXPECTED;
 		$this->assertFalse( Jetpack::get_other_linked_admins() );
 	}
 
-	function test_idc_optin_defaults_to_false() {
+	function test_idc_optin_default() {
+		if ( is_multisite() ) {
+			$this->assertFalse( Jetpack::sync_idc_optin() );
+		} else {
+			$this->assertTrue( Jetpack::sync_idc_optin() );
+		}
+	}
+
+	function test_idc_optin_false_when_sunrise() {
+		Jetpack_Constants::set_constant( 'SUNRISE', true );
+
 		$this->assertFalse( Jetpack::sync_idc_optin() );
+
+		Jetpack_Constants::clear_constants();
 	}
 
 	function test_idc_optin_filter_overrides_development_version() {
