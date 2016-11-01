@@ -1146,14 +1146,6 @@ class Jetpack_Sitemap_Manager {
 	private function image_sitemap_to_index_item ( $post ) {
 		$url = site_url() . '/' . $post->post_title . '.xml';
 
-		/*
-		 * Must use W3C Datetime format per the spec.
-		 * https://www.w3.org/TR/NOTE-datetime
-		 * Also recall that we stored the most recent modification time
-		 * among all the posts in this sitemap in post_date.
-		 */
-		$last_modified = str_replace( ' ', 'T', $post->post_date) . 'Z';
-
 		$xml =
 			"<sitemap>\n" .
 			" <loc>$url</loc>\n" .
