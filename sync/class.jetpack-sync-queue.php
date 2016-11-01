@@ -55,8 +55,6 @@ class Jetpack_Sync_Queue {
 			) );
 			$added      = ( 0 !== $rows_added );
 		}
-
-		do_action( 'jpsq_item_added' );
 	}
 
 	// Attempts to insert all the items in a single SQL query. May be subject to query size limits!
@@ -79,8 +77,6 @@ class Jetpack_Sync_Queue {
 		if ( count( $items ) === $rows_added ) {
 			return new WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
-
-		do_action( 'jpsq_items_added', $rows_added );
 	}
 
 	// Peek at the front-most item on the queue without checking it out
@@ -321,22 +317,67 @@ class Jetpack_Sync_Queue {
 	}
 
 	function unlock() {
-		$this->delete_checkout_id();
+		return $this->delete_checkout_id();
 	}
 
 	private function get_checkout_id() {
-		return get_transient( $this->get_checkout_transient_name() );
+		global $wpdb;
+		$checkout_value = $wpdb->get_var( 
+			$wpdb->prepare(
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s", 
+				$this->get_lock_option_name()
+			)
+		);
+
+		if ( $checkout_value ) {
+			list( $checkout_id, $timestamp ) = explode( ':', $checkout_value );
+			if ( intval( $timestamp ) > time() ) {
+				return $checkout_id;
+			}
+		}
+
+		return false;
 	}
 
 	private function set_checkout_id( $checkout_id ) {
-		return set_transient( $this->get_checkout_transient_name(), $checkout_id, 5 * 60 ); // 5 minute timeout
+		global $wpdb;
+
+		$expires = time() + Jetpack_Sync_Defaults::$default_sync_queue_lock_timeout;
+		$updated_num = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s", 
+				"$checkout_id:$expires",
+				$this->get_lock_option_name()
+			)
+		);
+
+		if ( ! $updated_num ) {
+			$updated_num = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )", 
+					$this->get_lock_option_name(),
+					"$checkout_id:$expires"
+				)
+			);
+		}
+
+		return $updated_num;
 	}
 
 	private function delete_checkout_id() {
-		delete_transient( $this->get_checkout_transient_name() );
+		global $wpdb;
+		// rather than delete, which causes fragmentation, we update in place
+		return $wpdb->query(
+			$wpdb->prepare( 
+				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s", 
+				"0:0",
+				$this->get_lock_option_name() 
+			) 
+		);
+
 	}
 
-	private function get_checkout_transient_name() {
+	private function get_lock_option_name() {
 		return "jpsq_{$this->id}_checkout";
 	}
 

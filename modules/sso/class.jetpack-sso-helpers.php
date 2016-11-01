@@ -197,7 +197,7 @@ class Jetpack_SSO_Helpers {
 		 *
 		 * @module sso
 		 *
-		 * @since 4.4.0
+		 * @since 4.3.2
 		 *
 		 * @param int 5 By default, SSO will attempt to random generate a user up to 5 times.
 		 */
@@ -226,6 +226,19 @@ class Jetpack_SSO_Helpers {
 		update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 		
 		return $user;
+	}
+
+	static function extend_auth_cookie_expiration_for_sso() {
+		/**
+		 * Determines how long the auth cookie is valid for when a user logs in with SSO.
+		 *
+		 * @module sso
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param int YEAR_IN_SECONDS
+		 */
+		return intval( apply_filters( 'jetpack_sso_auth_cookie_expirtation', YEAR_IN_SECONDS ) );
 	}
 }
 

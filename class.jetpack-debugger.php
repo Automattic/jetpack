@@ -88,18 +88,11 @@ class Jetpack_Debugger {
 		$human_readable_sync_status = array();
 		foreach( $sync_statuses  as $sync_status => $sync_status_value ) {
 			$human_readable_sync_status[ $sync_status ] =
-				in_array( $sync_status, array( 'started', 'queue_finished', 'sent_started', 'finished' ) )
+				in_array( $sync_status, array( 'started', 'queue_finished', 'send_started', 'finished' ) )
 				? date( 'r', $sync_status_value ) : $sync_status_value ;
 		}
 
 		$debug_info .= "\r\n". sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) );
-
-		$next_schedules = wp_next_scheduled( 'jetpack_sync_full' );
-		if( $next_schedules ) {
-			$debug_info .= "\r\n". sprintf( esc_html__( 'Next Jetpack Full Sync Schedule: `%1$s`', 'jetpack' ), date( 'r', $next_schedules ) );
-		} else {
-			$debug_info .= "\r\n". esc_html__( "Next Jetpack Full Sync Schedule: Not Scheduled", 'jetpack' );
-		}
 
 		require_once JETPACK__PLUGIN_DIR. 'sync/class.jetpack-sync-sender.php';
 
@@ -157,10 +150,12 @@ class Jetpack_Debugger {
 		$tests['HTTPS']['fail_message'] = esc_html__( 'Your site isn’t securely reaching the Jetpack servers.', 'jetpack' );
 
 		$identity_crisis_message = '';
-		if ( $identity_crisis = Jetpack::check_identity_crisis( true ) ) {
-			foreach( $identity_crisis as $key => $value ) {
-				$identity_crisis_message .= sprintf( __( 'Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!', 'jetpack' ), $key, (string) get_option( $key ), $value ) . "\r\n";
-			}
+		if ( $identity_crisis = Jetpack::check_identity_crisis() ) {
+			$identity_crisis_message .= sprintf(
+				__( 'Your url is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`!', 'jetpack' ),
+				$identity_crisis['home'],
+				$identity_crisis['wpcom_home']
+			);
 			$identity_crisis = new WP_Error( 'identity-crisis', $identity_crisis_message, $identity_crisis );
 		} else {
 			$identity_crisis = 'PASS';

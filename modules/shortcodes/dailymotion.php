@@ -21,7 +21,7 @@
  */
 
 function dailymotion_embed_to_shortcode( $content ) {
-	if ( false === stripos( $content, 'www.dailymotion.com/swf/' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'www.dailymotion.com/swf/' ) ) {
 		return $content;
 	}
 
@@ -202,7 +202,7 @@ function dailymotion_shortcode( $atts ) {
 
 		if ( array_key_exists( 'user', $atts ) && $user = preg_replace( '/[^-a-z0-9_]/i', '', $atts['user'] ) ) {
 			/* translators: %s is a Dailymotion user name */
-			$output .= '<br /><em>' . wp_kses( sprintf( __( 'Uploaded by %s', 'jetpack' ), '<a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a>' ), array( 'a' => array( 'href' => true, 'target' => true ) ) ) . '</em>';			
+			$output .= '<br /><em>' . wp_kses( sprintf( __( 'Uploaded by %s', 'jetpack' ), '<a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a>' ), array( 'a' => array( 'href' => true, 'target' => true ) ) ) . '</em>';
 		}
 	}
 
@@ -239,7 +239,7 @@ add_shortcode( 'dailymotion-channel', 'dailymotion_channel_shortcode' );
  * Embed Reversal for Badge/Channel
  */
 function dailymotion_channel_reversal( $content ) {
-	if ( false === stripos( $content, 'dailymotion.com/badge/' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'dailymotion.com/badge/' ) ) {
 		return $content;
 	}
 
@@ -289,7 +289,7 @@ add_filter( 'pre_kses', 'dailymotion_channel_reversal' );
  */
 
 function jetpack_dailymotion_embed_reversal( $content ) {
-	if ( false === stripos( $content, 'dailymotion.com/embed' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'dailymotion.com/embed' ) ) {
 		return $content;
 	}
 

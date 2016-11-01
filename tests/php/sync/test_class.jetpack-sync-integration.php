@@ -22,21 +22,38 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.2', '4.1' );
 
-		$modules = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => 'initial' );
-		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( $modules ) ) > time()-5 );
+		global $wpdb;
+
+		$expected_sync_config = array( 
+			'options' => true, 
+			'network_options' => true,
+			'functions' => true, 
+			'constants' => true, 
+			'users' => 'initial'
+		);
+
+		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
+		
+		$this->assertEquals( $sync_status['config'], $expected_sync_config );
 	}
 
 	function test_upgrading_from_42_plus_does_not_includes_users_in_initial_sync() {
 
-		$initial_sync_without_users_config = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true );
-		$initial_sync_with_users_config = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => 'initial' );
+		$initial_sync_without_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true );
+		$initial_sync_with_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true, 'users' => 'initial' );
 
 		do_action( 'updating_jetpack_version', '4.3', '4.2' );
-		$this->assertTrue( Jetpack_Sync_Actions::is_scheduled_full_sync( $initial_sync_without_users_config ) );
-		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync( $initial_sync_with_users_config ) );
+		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
+		$sync_config = $sync_status[ 'config' ];
+
+		$this->assertEquals( $initial_sync_without_users_config, $sync_config );
+		$this->assertNotEquals( $initial_sync_with_users_config, $sync_config );
 
 		do_action( 'updating_jetpack_version', '4.2', '4.1' );
-		$this->assertTrue( Jetpack_Sync_Actions::is_scheduled_full_sync( $initial_sync_with_users_config ) );
+		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
+		$sync_config = $sync_status[ 'config' ];
+
+		$this->assertEquals( $initial_sync_with_users_config, $sync_config );
 	}
 
 	function test_schedules_incremental_sync_cron() {
@@ -88,41 +105,9 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '1min', wp_get_schedule( 'jetpack_sync_full_cron' ) );
 	}
 
-	function test_schedules_ƒull_sync_on_client_authorized() {
-		do_action( 'jetpack_client_authorized', 'abcd1234' ); // Jetpack_Options::get_option( 'id' )
-		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full' ) !== false );
-	}
-
-	function test_is_scheduled_full_sync_works_with_different_args() {
-		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );
-
-		Jetpack_Sync_Actions::schedule_full_sync( array( 'posts' => true ) );
-
-		$this->assertTrue( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync() );
-		$this->assertTrue( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync( array( 'posts' => true ) ) );
-		$this->assertFalse( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync( array( 'comments' => true ) ) );
-	}
-
-	function test_can_unschedule_all_full_syncs() {
-		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );
-
-		Jetpack_Sync_Actions::schedule_full_sync( array( 'posts' => true ) );
-		Jetpack_Sync_Actions::schedule_full_sync( array( 'users' => true ) );
-
-		$this->assertTrue( Jetpack_Sync_Actions::is_scheduled_full_sync() );
-
-		Jetpack_Sync_Actions::unschedule_all_full_syncs();
-
-		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );
-	}
-
-	function test_scheduling_a_full_sync_unschedules_all_future_full_syncs() {
-		Jetpack_Sync_Actions::schedule_full_sync( array( 'posts' => true ), 100 ); // 100 seconds in the future
-		Jetpack_Sync_Actions::schedule_full_sync( array( 'users' => true ), 200 ); // 200 seconds in the future
-
-		// users sync should have overridden posts sync
-		$this->assertFalse( wp_next_scheduled( 'jetpack_sync_full', array( array( 'posts' => true ) ) ) );
-		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( array( 'users' => true ) ) ) >= time() + 199 );
+	function test_starts_full_sync_on_client_authorized() {
+		do_action( 'jetpack_client_authorized', 'abcd1234' );
+		$this->assertTrue( Jetpack_Sync_Modules::get_module( 'full-sync' )->is_started() );
 	}
 
 	function test_sends_updating_jetpack_version_event() {

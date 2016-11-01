@@ -584,11 +584,13 @@ class Jetpack_Subscriptions {
 		$blog_checked     = '';
 
 		// Check for a comment / blog submission and set a cookie to retain the setting and check the boxes.
-		if ( isset( $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash ] ) && $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash ] == $post->ID )
+		if ( isset( $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash . '_' . $post->ID ] ) ) {
 			$comments_checked = ' checked="checked"';
+		}
 
-		if ( isset( $_COOKIE[ 'jetpack_blog_subscribe_' . self::$hash ] ) )
+		if ( isset( $_COOKIE[ 'jetpack_blog_subscribe_' . self::$hash ] ) ) {
 			$blog_checked = ' checked="checked"';
+		}
 
 		// Some themes call this function, don't show the checkbox again
 		remove_action( 'comment_form', 'subscription_comment_form' );
@@ -657,13 +659,14 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
+		$comment = get_comment( $comment_id );
+
 		// Set cookies for this post/comment
-		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), isset( $_REQUEST['subscribe_blog'] ) );
+		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), $comment->comment_post_ID, isset( $_REQUEST['subscribe_blog'] ) );
 
 		if ( !isset( $_REQUEST['subscribe_comments'] ) && !isset( $_REQUEST['subscribe_blog'] ) )
 			return;
 
-		$comment  = get_comment( $comment_id );
 		$post_ids = array();
 
 		if ( isset( $_REQUEST['subscribe_comments'] ) )
@@ -689,12 +692,17 @@ class Jetpack_Subscriptions {
 	 * Jetpack_Subscriptions::set_cookies()
 	 *
 	 * Set a cookie to save state on the comment and post subscription checkboxes.
+	 *
+	 * @param bool $subscribe_to_post Whether the user chose to subscribe to subsequent comments on this post.
+	 * @param int $post_id If $subscribe_to_post is true, the post ID they've subscribed to.
+	 * @param bool $subscribe_to_blog Whether the user chose to subscribe to all new posts on the blog.
 	 */
-	function set_cookies( $comments = true, $posts = true ) {
-		global $post;
+	function set_cookies( $subscribe_to_post = false, $post_id = null, $subscribe_to_blog = false ) {
+		$post_id = intval( $post_id );
 
 		/** This filter is already documented in core/wp-includes/comment-functions.php */
 		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime',       30000000 );
+
 		/**
 		 * Filter the Jetpack Comment cookie path.
 		 *
@@ -705,6 +713,7 @@ class Jetpack_Subscriptions {
 		 * @param string COOKIEPATH Cookie path.
 		 */
 		$cookie_path     = apply_filters( 'jetpack_comment_cookie_path',   COOKIEPATH );
+
 		/**
 		 * Filter the Jetpack Comment cookie domain.
 		 *
@@ -716,15 +725,17 @@ class Jetpack_Subscriptions {
 		 */
 		$cookie_domain   = apply_filters( 'jetpack_comment_cookie_domain', COOKIE_DOMAIN );
 
-		if ( $comments )
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash, $post->ID, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
-		else
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
+		if ( $subscribe_to_post && $post_id >= 0 ) {
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
+		} else {
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, '', time() - 3600, $cookie_path, $cookie_domain );
+		}
 
-		if ( $posts )
+		if ( $subscribe_to_blog ) {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
-		else
+		} else {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
+		}
 	}
 }
 
@@ -965,7 +976,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			'subscribe_text'      	 => esc_html__( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' ),
 			'subscribe_placeholder'	 => esc_html__( 'Email Address', 'jetpack' ),
 			'subscribe_button'    	 => esc_html__( 'Subscribe', 'jetpack' ),
-			'success_message'    	 => esc_html__( 'Success! An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing.', 'jetpack' ),
+			'success_message'    	 => esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' ),
 			'show_subscribers_total' => true,
 		);
 	}

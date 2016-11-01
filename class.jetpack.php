@@ -228,6 +228,7 @@ class Jetpack {
 		'social-discussions/social-discussions.php',             // Social Discussions
 		'social-sharing-toolkit/social_sharing_toolkit.php',     // Social Sharing Toolkit
 		'socialize/socialize.php',                               // Socialize
+		'squirrly-seo/squirrly.php',                             // SEO by SQUIRRLY™
 		'only-tweet-like-share-and-google-1/tweet-like-plusone.php',
 		                                                         // Tweet, Like, Google +1 and Share
 		'wordbooker/wordbooker.php',                             // Wordbooker
@@ -1229,7 +1230,7 @@ class Jetpack {
 		 */
 		return (bool) apply_filters(
 			'jetpack_development_version',
-			! preg_match( '/^\d+(\.\d+)+$/', JETPACK__VERSION )
+			! preg_match( '/^\d+(\.\d+)+$/', Jetpack_Constants::get_constant( 'JETPACK__VERSION' ) )
 		);
 	}
 
@@ -2584,9 +2585,13 @@ p {
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 		Jetpack::clean_nonces( true );
 
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.deregister' );
+		// If the site is in an IDC because sync is not allowed,
+		// let's make sure to not disconnect the production site.
+		if ( ! self::validate_sync_error_idc_option() ) {
+			Jetpack::load_xml_rpc_client();
+			$xml = new Jetpack_IXR_Client();
+			$xml->query( 'jetpack.deregister' );
+		}
 
 		Jetpack_Options::delete_option(
 			array(
@@ -2597,6 +2602,7 @@ p {
 				'master_user',
 				'time_diff',
 				'fallback_no_verify_ssl_certs',
+				'sync_error_idc',
 			)
 		);
 
@@ -2817,10 +2823,12 @@ p {
 	 * Get additional stat data to sync to WPCOM
 	 */
 	public static function get_additional_stat_data( $prefix = '' ) {
+		global $wpdb;
 		$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
 		$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
-		$return["{$prefix}users"]          = count_users();
+		$return["{$prefix}users"]          = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities'" );
 		$return["{$prefix}site-count"]     = 0;
+
 		if ( function_exists( 'get_blog_count' ) ) {
 			$return["{$prefix}site-count"] = get_blog_count();
 		}
@@ -3817,8 +3825,7 @@ p {
 		if ( ! Jetpack_Options::get_option( 'blog_token' ) || ! Jetpack_Options::get_option( 'id' ) ) {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
 			if( is_network_admin() ) {
-			    $url = add_query_arg( 'is_multisite', network_admin_url(
-			    'admin.php?page=jetpack-settings' ), $url );
+				$url = add_query_arg( 'is_multisite', network_admin_url( 'admin.php?page=jetpack-settings' ), $url );
 			}
 		} else {
 			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
@@ -3846,6 +3853,17 @@ p {
 				? get_site_icon_url()
 				: false;
 
+			/**
+			 * Filter the type of authorization.
+			 * 'calypso' completes authorization on wordpress.com/jetpack/connect
+			 * while 'jetpack' ( or any other value ) completes the authorization at jetpack.wordpress.com.
+			 *
+			 * @since 4.3.3
+			 *
+			 * @param string $auth_type Defaults to 'calypso', can also be 'jetpack'.
+			 */
+			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
+
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
@@ -3864,9 +3882,9 @@ p {
 					'user_login'    => $user->user_login,
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
-					'auth_type'     => 'calypso',
+					'auth_type'     => $auth_type,
 					'secret'        => $secret,
-					'locale'        => isset( $gp_locale->slug ) ? $gp_locale->slug : '',
+					'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
 					'blogname'      => get_option( 'blogname' ),
 					'site_url'      => site_url(),
 					'home_url'      => home_url(),
@@ -4709,11 +4727,7 @@ p {
 		global $wpdb;
 
 		$sql = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
-		if ( method_exists ( $wpdb , 'esc_like' ) ) {
-			$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
-		} else {
-			$sql_args = array( like_escape( 'jetpack_nonce_' ) . '%' );
-		}
+		$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
 
 		if ( true !== $all ) {
 			$sql .= ' AND CAST( `option_value` AS UNSIGNED ) < %d';
@@ -5144,104 +5158,16 @@ p {
 	}
 
 	/**
-	 * Fetch the filtered array of options that we should compare to determine an identity crisis.
+	 * Checks if the site is currently in an identity crisis.
 	 *
-	 * @return array An array of options to check.
+	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
 	 */
-	public static function identity_crisis_options_to_check() {
-		return array(
-			'siteurl',
-			'home',
-		);
-	}
-
-	/**
-	 * Checks to make sure that local options have the same values as remote options.  Will cache the results for up to 24 hours.
-	 *
-	 * @param bool $force_recheck Whether to ignore any cached transient and manually re-check.
-	 *
-	 * @return array An array of options that do not match.  If everything is good, it will evaluate to false.
-	 */
-	public static function check_identity_crisis( $force_recheck = false ) {
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() )
+	public static function check_identity_crisis() {
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;
-
-		if ( $force_recheck || false === ( $errors = get_transient( 'jetpack_has_identity_crisis' ) ) ) {
-			$options_to_check = self::identity_crisis_options_to_check();
-			$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
-			$errors        = array();
-
-			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
-
-				// If it's not the same as the local value...
-				if ( $cloud_value !== get_option( $cloud_key ) ) {
-
-					// Break out if we're getting errors.  We are going to check the error keys later when we alert.
-					if ( 'error_code' == $cloud_key ) {
-						$errors[ $cloud_key ] = $cloud_value;
-						break;
-					}
-
-					$parsed_cloud_value = parse_url( $cloud_value );
-					// If the current options is an IP address
-					if ( filter_var( $parsed_cloud_value['host'], FILTER_VALIDATE_IP ) ) {
-						// Give the new value a Jetpack to fly in to the clouds
-						continue;
-					}
-
-					// And it's not been added to the whitelist...
-					if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
-						/*
-						 * This should be a temporary hack until a cleaner solution is found.
-						 *
-						 * The siteurl and home can be set to use http in General > Settings
-						 * however some constants can be defined that can force https in wp-admin
-						 * when this happens wpcom can confuse wporg with a fake identity
-						 * crisis with a mismatch of http vs https when it should be allowed.
-						 * we need to check that here.
-						 *
-						 * @see https://github.com/Automattic/jetpack/issues/1006
-						 */
-						if ( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
-							&& ( substr( $cloud_value, 0, 8 ) == "https://" )
-							&& Jetpack::init()->is_ssl_required_to_visit_site() ) {
-							// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
-							continue;
-						}
-
-
-						// Then kick an error!
-						$errors[ $cloud_key ] = $cloud_value;
-					}
-				}
-			}
 		}
 
-		/**
-		 * Filters the errors returned when checking for an Identity Crisis.
-		 *
-		 * @since 2.3.2
-		 *
-		 * @param array $errors Array of Identity Crisis errors.
-		 * @param bool $force_recheck Ignore any cached transient and manually re-check. Default to false.
-		 */
-		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
-	}
-
-	/**
-	 * Checks whether a value is already whitelisted.
-	 *
-	 * @param string $key The option name that we're checking the value for.
-	 * @param string $value The value that we're curious to see if it's on the whitelist.
-	 *
-	 * @return bool Whether the value is whitelisted.
-	 */
-	public static function is_identity_crisis_value_whitelisted( $key, $value ) {
-		$whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist', array() );
-		if ( ! empty( $whitelist[ $key ] ) && is_array( $whitelist[ $key ] ) && in_array( $value, $whitelist[ $key ] ) ) {
-			return true;
-		}
-		return false;
+		return Jetpack_Options::get_option( 'sync_error_idc' );
 	}
 
 	/**
@@ -5297,6 +5223,11 @@ p {
 			}
 		}
 
+		// Last, let's check if sync is erroring due to an IDC. If so, set the site to staging mode.
+		if ( ! $is_staging && self::validate_sync_error_idc_option() ) {
+			$is_staging = true;
+		}
+
 		/**
 		 * Filters is_staging_site check.
 		 *
@@ -5305,6 +5236,120 @@ p {
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+	}
+
+	/**
+	 * Checks whether the sync_error_idc option is valid or not, and if not, will do cleanup.
+	 *
+	 * @return bool
+	 */
+	public static function validate_sync_error_idc_option() {
+		$is_valid = false;
+		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+		$local_options = self::get_sync_error_idc_option();
+
+		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
+		if ( $sync_error && self::sync_idc_optin() ) {
+			if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
+				$is_valid = true;
+			}
+		}
+
+		/**
+		 * Filters whether the sync_error_idc option is valid.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool $is_valid If the sync_error_idc is valid or not.
+		 */
+		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
+
+		if ( ! $is_valid && $sync_error ) {
+			// Since the option exists, and did not validate, delete it
+			Jetpack_Options::delete_option( 'sync_error_idc' );
+		}
+
+		return $is_valid;
+	}
+
+	/**
+	 * Normalizes a url by doing three things:
+	 *  - Strips protocol
+	 *  - Strips www
+	 *  - Adds a trailing slash
+	 *
+	 * @since 4.4.0
+	 * @param string $url
+	 * @return WP_Error|string
+	 */
+	public static function normalize_url_protocol_agnostic( $url ) {
+		$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $url ) ) );
+		if ( ! $parsed_url ) {
+			return new WP_Error( 'cannot_parse_url', sprintf( esc_html__( 'Cannot parse URL %s', 'jetpack' ), $url ) );
+		}
+
+		// Strip www and protocols
+		$url = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
+		return $url;
+	}
+
+	/**
+	 * Gets the value that is to be saved in the jetpack_sync_error_idc option.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param array $response
+	 * @return array Array of the local urls, wpcom urls, and error code
+	 */
+	public static function get_sync_error_idc_option( $response = array() ) {
+		$local_options = array(
+			'home' => get_home_url(),
+			'siteurl' => get_site_url(),
+		);
+
+		$options = array_merge( $local_options, $response );
+
+		$returned_values = array();
+		foreach( $options as $key => $option ) {
+			if ( 'error_code' === $key ) {
+				$returned_values[ $key ] = $option;
+				continue;
+			}
+
+			if ( is_wp_error( $normalized_url = self::normalize_url_protocol_agnostic( $option ) ) ) {
+				continue;
+			}
+
+			$returned_values[ $key ] = $normalized_url;
+		}
+
+		return $returned_values;
+	}
+
+	/**
+	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
+	 * If set to true, the site will be put into staging mode.
+	 *
+	 * @since 4.3.2
+	 * @return bool
+	 */
+	public static function sync_idc_optin() {
+		if ( Jetpack_Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
+			$default = Jetpack_Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
+		} else {
+			$default = false;
+		}
+
+		/**
+		 * Allows sites to optin to IDC mitigation which blocks the site from syncing to WordPress.com when the home
+		 * URL or site URL do not match what WordPress.com expects. The default value is either false, or the value of
+		 * JETPACK_SYNC_IDC_OPTIN constant if set.
+		 *
+		 * @since 4.3.2
+		 *
+		 * @param bool $default Whether the site is opted in to IDC mitigation.
+		 */
+		return (bool) apply_filters( 'jetpack_sync_idc_optin', $default );
 	}
 
 	/**
@@ -5466,6 +5511,7 @@ p {
 			'add_option_jetpack_is_main_network'                     => null,
 			'add_option_jetpack_main_network_site'                   => null,
 			'jetpack_sync_all_registered_options'                    => null,
+			'jetpack_has_identity_crisis'                            => 'jetpack_sync_error_idc_validation',
 		);
 
 		// This is a silly loop depth. Better way?
@@ -5538,24 +5584,6 @@ p {
 		}
 
 		return $css;
-	}
-
-	/**
-	 * This method checks to see if SSL is required by the site in
-	 * order to visit it in some way other than only setting the
-	 * https value in the home or siteurl values.
-	 *
-	 * @since 3.2
-	 * @return boolean
-	 **/
-	private function is_ssl_required_to_visit_site() {
-		global $wp_version;
-		$ssl = is_ssl();
-
-		if ( force_ssl_admin() ) {
-			$ssl = true;
-		}
-		return $ssl;
 	}
 
 	/**

@@ -7,15 +7,17 @@
  * */
 
 function blip_embed_to_shortcode( $content ) {
-	if ( false === stripos( $content, '/blip.tv/play/' ) )
+	if ( ! is_string( $content ) || false === stripos( $content, '/blip.tv/play/' ) ) {
 		return $content;
+	}
 
 	$regexp = '!<embed((?:\s+\w+="[^"]*")*)\s+src="http(?:\:|&#0*58;)//(blip\.tv/play/[^"]*)"((?:\s+\w+="[^"]*")*)\s*(?:/>|>\s*</embed>)!';
 	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
 	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
-		if ( !preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) )
+		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
+		}
 
 		foreach ( $matches as $match ) {
 			$src = 'http://' . html_entity_decode( $match[2] );

@@ -327,18 +327,19 @@ abstract class Sharing_Source {
 			$opts[] = "$key=$val";
 		}
 		$opts = implode( ',', $opts );
-		?>
-		<script type="text/javascript">
-		var windowOpen;
-		jQuery(document.body).on('click', 'a.share-<?php echo $name; ?>', function() {
-			if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
-				windowOpen.close();
-			}
-			windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
-			return false;
-		});
-		</script>
-		<?php
+
+		// Add JS after sharing-js has been enqueued.
+		wp_add_inline_script( 'sharing-js',
+			"var windowOpen;
+			jQuery( document.body ).on( 'click', 'a.share-$name', function() {
+				// If there's another sharing window open, close it.
+				if ( 'undefined' !== typeof windowOpen ) {
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcom$name', '$opts' );
+				return false;
+			});"
+		);
 	}
 }
 
@@ -495,7 +496,7 @@ class Share_Email extends Sharing_Source {
 
 			<?php endif; ?>
 			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" />
-			<script> document.getElementById('jetpack-source_f_name').value = ''; </script>
+			<script>jQuery( document ).ready( function(){ document.getElementById('jetpack-source_f_name').value = '' });</script>
 			<?php
 				/**
 				 * Fires when the Email sharing dialog is loaded.
