@@ -668,14 +668,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Dismisses identity crisis notice, and confirms that the site should remain in staging mode.
+	 * Sets a flag
 	 *
 	 * @since 4.4.0
 	 *
-	 * @return bool|WP_Error True if site was successfully set to staging mode.
+	 * @return bool True
 	 */
 	public static function confirm_staging_mode() {
-		error_log( 'staging mode confirmed' );
+		Jetpack_Options::update_option( 'auto_staging_confirmed', true );
 		return rest_ensure_response(
 			array(
 				'code' => 'success'
