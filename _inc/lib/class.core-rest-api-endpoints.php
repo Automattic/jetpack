@@ -97,6 +97,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
+		// Confirm that a site in identity crisis should be in staging mode
+		register_rest_route( 'jetpack/v4', '/identity-crisis/confirm-staging-mode', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::confirm_staging_mode',
+			'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
+		) );
+
 		// Return all modules
 		self::route(
 			'module/all',
@@ -409,6 +416,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Verify that user can mitigate an identity crisis.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return bool Whether user has capability 'jetpack_disconnect'.
+	 */
+	public static function identity_crisis_mitigation_permission_check() {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_identity_crisis', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
 	 * Verify that user can update Jetpack options.
 	 *
 	 * @since 4.3.0
@@ -645,6 +667,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
+	/**
+	 * Dismisses identity crisis notice, and confirms that the site should remain in staging mode.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return bool|WP_Error True if site was successfully set to staging mode.
+	 */
+	public static function confirm_staging_mode() {
+		error_log( 'staging mode confirmed' );
+		return rest_ensure_response(
+			array(
+				'code' => 'success'
+			)
+		);
+	}
 
 	/**
 	 * Reset Jetpack options
