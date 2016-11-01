@@ -52,17 +52,7 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @param bool should we load sync listener code for this request
 		 */
-		if ( apply_filters( 'jetpack_sync_listener_should_load',
-			(
-				( isset( $_SERVER["REQUEST_METHOD"] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] )
-				||
-				is_user_logged_in()
-				||
-				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
-				||
-				defined( 'DOING_CRON' ) && DOING_CRON
-			)
-		) ) {
+		if ( apply_filters( 'jetpack_sync_listener_should_load', true ) ) {
 			self::initialize_listener();
 		}
 
