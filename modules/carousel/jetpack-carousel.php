@@ -36,8 +36,7 @@ class Jetpack_Carousel {
 
 		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
 
-		$this->single_image_gallery_enabled =
-			( 1 == $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_single_image_display_gallery', true ) ) );
+		$this->single_image_gallery_enabled = !$this->maybe_disable_jp_carousel_single_images();
 
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings
@@ -67,12 +66,13 @@ class Jetpack_Carousel {
 			 * @param array $this->prebuilt_widths Array of default widths.
 			 */
 			$this->prebuilt_widths = apply_filters( 'jp_carousel_widths', $this->prebuilt_widths );
-			add_filter( 'post_gallery', array( $this, 'enqueue_assets' ), 1000, 2 ); // load later than other callbacks hooked it
+			add_filter( 'post_gallery', array( $this, 'check_and_enqueue_assets' ), 1000, 2 ); // load later than other callbacks hooked it
 			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
 			if ( $this->single_image_gallery_enabled ) {
 				add_filter( 'the_content', array( $this, 'add_data_to_single_images' ) );
+				$this->enqueue_assets();
 			}
 		}
 
@@ -93,6 +93,17 @@ class Jetpack_Carousel {
 		 * @param bool false Should Carousel be disabled? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_maybe_disable', false );
+	}
+
+	function maybe_disable_jp_carousel_single_images() {
+		/**
+		 * Allow third-party plugins or themes to disable Carousel for single images.
+		 *
+		 * @module carousel
+		 *
+		 * @param bool false Should Carousel be disabled for single images? Default to false.
+		 */
+		return apply_filters( 'jp_carousel_maybe_disable_single_images', false );
 	}
 
 	function jetpack_configuration_load() {
@@ -123,7 +134,7 @@ class Jetpack_Carousel {
 		return $output;
 	}
 
-	function enqueue_assets( $output ) {
+	function check_and_enqueue_assets( $output ) {
 		if (
 			! empty( $output ) &&
 			/**
@@ -159,6 +170,12 @@ class Jetpack_Carousel {
 		 **/
 		do_action( 'jp_carousel_thumbnails_shown' );
 
+		$this->enqueue_assets();
+
+		return $output;
+	}
+
+	function enqueue_assets() {
 		if ( $this->first_run ) {
 			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery.spin' ), $this->asset_version( '20160325' ), true );
 
@@ -284,8 +301,6 @@ class Jetpack_Carousel {
 
 			$this->first_run = false;
 		}
-
-		return $output;
 	}
 
 	function set_in_gallery( $output ) {
@@ -588,9 +603,6 @@ class Jetpack_Carousel {
 		add_settings_field('carousel_display_exif', __( 'Metadata', 'jetpack'), array( $this, 'carousel_display_exif_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_exif', array( $this, 'carousel_display_exif_sanitize' ) );
 
-		add_settings_field('carousel_single_image_display_gallery', __( 'Single image', 'jetpack'), array( $this, 'carousel_single_image_display_gallery_callback' ), 'media', 'carousel_section' );
-		register_setting( 'media', 'carousel_single_image_display_gallery', array( $this, 'carousel_single_image_display_gallery_sanitize' ) );
-
 		// No geo setting yet, need to "fuzzify" data first, for privacy
 		// add_settings_field('carousel_display_geo', __( 'Geolocation', 'jetpack' ), array( $this, 'carousel_display_geo_callback' ), 'media', 'carousel_section' );
 		// register_setting( 'media', 'carousel_display_geo', array( $this, 'carousel_display_geo_sanitize' ) );
@@ -666,14 +678,6 @@ class Jetpack_Carousel {
 
 	function carousel_background_color_sanitize( $value ) {
 		return ( 'white' == $value ) ? 'white' : 'black';
-	}
-
-	function carousel_single_image_display_gallery_callback() {
-		$this->settings_checkbox( 'carousel_single_image_display_gallery', __( 'When linking to \'Attachment Page\' open in Carousel Lightbox.', 'jetpack' ) );
-	}
-
-	function carousel_single_image_display_gallery_sanitize( $value ) {
-		return $this->sanitize_1or0_option( $value );
 	}
 
 	function carousel_enable_it_callback() {
