@@ -41,7 +41,7 @@
 	}
 }
 
-// clouds are a little hacky, but works for IE11+ -jg
+// clouds are a little hacky, but works for IE11 -jg
 .jp-landing-apps__clouds {
 	position: relative;
 	overflow: hidden;
@@ -78,6 +78,10 @@
 
 .jp-landing-apps__header-img {
 	max-width: 100%; // needs proper srcsets
+
+	@include breakpoint( ">660px" ) {
+		margin: 0 rem( -64px ) 0 rem( 64px ); // off-canvas effect
+	}
 }
 
 .jp-landing-apps__header-col-left {
@@ -90,14 +94,6 @@
 
 .jp-landing-apps__header-col-right {
 	flex-basis: 55%;
-
-	@include breakpoint( ">660px" ) {
-		padding: 0 rem( 32px );
-	}
-
-	@include breakpoint( "<660px" ) {
-		text-align: center;
-	}
 }
 
 .jp-landing-apps__title,
@@ -164,17 +160,6 @@
 
 	@include breakpoint( ">660px" ) {
 		flex-basis: 50%;
-
-		@include breakpoint( ">660px" ) {
-
-			&:nth-child(odd) {
-				padding: 0 rem( 32px );
-			}
-
-			&:nth-child(even) {
-				padding: 0 rem( 32px ) 0;
-			}
-		}
 	}
 
 	&.jp-landing-apps__feature-img {
@@ -193,7 +178,7 @@
 		}
 
 		&:nth-child(even) {
-			padding: 0 rem( 32px ) 0;
+			padding: 0 rem( 48px ) 0 rem( 32px );
 		}
 	}
 }

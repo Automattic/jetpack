@@ -10,6 +10,9 @@ import {
 	AKISMET_DATA_FETCH,
 	AKISMET_DATA_FETCH_FAIL,
 	AKISMET_DATA_FETCH_SUCCESS,
+	MONITOR_LAST_DOWNTIME_FETCH,
+	MONITOR_LAST_DOWNTIME_FETCH_FAIL,
+	MONITOR_LAST_DOWNTIME_FETCH_SUCCESS,
 	VAULTPRESS_SITE_DATA_FETCH,
 	VAULTPRESS_SITE_DATA_FETCH_FAIL,
 	VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
@@ -62,6 +65,25 @@ export const fetchProtectCount = () => {
 		} ).catch( error => {
 			dispatch( {
 				type: DASHBOARD_PROTECT_COUNT_FETCH_FAIL,
+				error: error
+			} );
+		} );
+	}
+}
+
+export const fetchLastDownTime = () => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: MONITOR_LAST_DOWNTIME_FETCH
+		} );
+		return restApi.getLastDownTime().then( lastDownTime => {
+			dispatch( {
+				type: MONITOR_LAST_DOWNTIME_FETCH_SUCCESS,
+				lastDownTime: lastDownTime
+			} );
+		} ).catch( error => {
+			dispatch( {
+				type: MONITOR_LAST_DOWNTIME_FETCH_FAIL,
 				error: error
 			} );
 		} );

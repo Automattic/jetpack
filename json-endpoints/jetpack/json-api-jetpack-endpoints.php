@@ -581,7 +581,7 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 		'users'    => '(string) Comma-delimited list of user IDs to sync',
 	),
 	'response_format' => array(
-		'started' => '(bool) Whether or not the synchronisation was started'
+		'scheduled' => '(bool) Whether or not the synchronisation was scheduled'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
@@ -598,7 +598,7 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 	'response_format' => array(
 		'started' => '(int|null) The unix timestamp when the last sync started',
 		'queue_finished' => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
-		'send_started' => '(int|null) The unix timestamp when the last sent process started',
+		'sent_started' => '(int|null) The unix timestamp when the last sent process started',
 		'finished' => '(int|null) The unix timestamp when the last sync finished',
 		'total'  => '(array) Count of actions that could be sent',
 		'queue'  => '(array) Count of actions that have been added to the queue',
@@ -610,8 +610,7 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'full_queue_size' => '(int) Number of items in the full sync queue',
 		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue',
 		'full_queue_next_sync' => '(float) Time in seconds before trying to sync the full sync queue again',
-		'cron_size' => '(int) Size of the current cron array',
-		'oldest_cron' => '(int) Age in seconds of the oldest scheduled cron job - a good indicator if cron isn\'t running',
+		'is_scheduled' => '(bool) Is a full sync scheduled via cron?',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
 ) );
@@ -650,7 +649,6 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
 		'start_id' => '(int=0) Starting ID for the range',
 		'end_id' => '(int=null) Ending ID for the range',
 		'columns' => '(string) Columns to checksum',
-		'strip_non_ascii', '(bool=true) Strip non-ascii characters from all columns',
 	),
 	'response_format' => array(
 		'histogram' => '(array) Associative array of histograms by ID range, e.g. "500-999" => "abcd1234"'
@@ -668,12 +666,9 @@ $sync_settings_response = array(
 	'max_queue_lag'        => '(int|bool=false) Maximum queue lag in seconds used to prevent the DB from filling up. Needs to also meet the max_queue_size limit.',
 	'queue_max_writes_sec' => '(int|bool=false) Maximum writes per second to allow to the queue during full sync.',
 	'post_types_blacklist' => '(array|string|bool=false) List of post types to exclude from sync. Send "empty" to unset.',
-	'post_meta_whitelist'  => '(array|string|bool=false) List of post meta to be included in sync. Send "empty" to unset.',
-	'comment_meta_whitelist' => '(array|string|bool=false) List of comment meta to be included in sync. Send "empty" to unset.',
+	'meta_blacklist'       => '(array|string|bool=false) List of meta keys to exclude from sync. Send "empty" to unset.',
 	'disable'              => '(int|bool=false) Set to 1 or true to disable sync entirely.',
 	'render_filtered_content' => '(int|bool=true) Set to 1 or true to render filtered content.',
-	'max_enqueue_full_sync'   => '(int|bool=false) Maximum number of rows to enqueue during each full sync process',
-	'max_queue_size_full_sync'=> '(int|bool=false) Maximum queue size that full sync is allowed to use',
 );
 
 // GET /sites/%s/sync/settings
@@ -742,73 +737,6 @@ new Jetpack_JSON_API_Sync_Now_Endpoint( array(
 		'response' => '(array) The response from the server'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/now?queue=full_sync'
-) );
-
-
-// POST /sites/%s/sync/unlock
-new Jetpack_JSON_API_Sync_Unlock_Endpoint( array(
-	'description'     => 'Unlock the queue in case it gets locked by a process.',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/sync/unlock',
-	'group'           => '__do_not_document',
-	'stat'            => 'sync-unlock',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'request_format' => array(
-		'queue'      => '(string) sync or full_sync',
-	),
-	'response_format' => array(
-		'success' => '(bool) Unlocking the queue successful?'
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/unlock'
-) );
-
-// POST /sites/%s/sync/checkout
-new Jetpack_JSON_API_Sync_Checkout_Endpoint( array(
-	'description'     => 'Locks the queue and returns items and the buffer ID.',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/sync/checkout',
-	'group'           => '__do_not_document',
-	'stat'            => 'sync-checkout',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'request_format' => array(
-		'queue'             => '(string) sync or full_sync',
-		'number_of_items'   => '(int=10) Maximum number of items from the queue to be returned',
-		'encode'            => '(bool=true) Use the default encode method',
-		'force'             => '(bool=false) Force unlock the queue',
-	),
-	'response_format' => array(
-		'buffer_id' => '(string) Buffer ID that we are using',
-		'items'             => '(array) Items from the queue that are ready to be processed by the sync server',
-		'skipped_items'     => '(array) Skipped item ids',
-		'codec'             => '(string) The name of the codec used to encode the data',
-		'sent_timestamp'    => '(int) Current timestamp of the server',
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/checkout'
-) );
-
-// POST /sites/%s/sync/close
-new Jetpack_JSON_API_Sync_Close_Endpoint( array(
-	'description'     => 'Closes the buffer and delete the processed items from the queue.',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/sync/close',
-	'group'           => '__do_not_document',
-	'stat'            => 'sync-close',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'request_format' => array(
-		'item_ids'  => '(array) Item IDs to delete from the queue.',
-		'queue'      => '(string) sync or full_sync',
-		'buffer_id'  => '(string) buffer ID that was opened during the checkout step.',
-	),
-	'response_format' => array(
-		'success' => '(bool) Closed the buffer successfully?'
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/close'
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );

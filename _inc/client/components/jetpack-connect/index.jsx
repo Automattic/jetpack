@@ -17,8 +17,6 @@ const JetpackConnect = React.createClass( {
 	displayName: 'JetpackConnect',
 
 	render: function() {
-		const newAccountUrl = this.props.connectUrl + '&from=new-account-button';
-		
 		return (
 			<div className="jp-jetpack-connect__container">
 				<h1 className="jp-jetpack-connect__container-title" title="Welcome to Jetpack">
@@ -31,7 +29,7 @@ const JetpackConnect = React.createClass( {
 					</p>
 					<ConnectButton />
 					<p>
-						<a href={ newAccountUrl } className="jp-jetpack-connect__link">
+						<a href={ this.props.connectUrl } className="jp-jetpack-connect__link">
 							{ __( 'No account? Create one for free…' ) }
 						</a>
 					</p>
@@ -218,7 +216,7 @@ const JetpackConnect = React.createClass( {
 					</p>
 					<ConnectButton />
 					<p>
-						<a href={ newAccountUrl } className="jp-jetpack-connect__link">
+						<a href="https://wordpress.com/start/jetpack/" className="jp-jetpack-connect__link">
 							{ __( 'No account? Create one for free…' ) }
 						</a>
 					</p>

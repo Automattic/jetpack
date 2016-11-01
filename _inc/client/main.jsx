@@ -24,8 +24,7 @@ import {
 	getSiteRawUrl,
 	getSiteAdminUrl,
 	getApiNonce,
-	getApiRootUrl,
-	userCanManageModules
+	getApiRootUrl
 } from 'state/initial-state';
 import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
 
@@ -54,38 +53,16 @@ const Main = React.createClass( {
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalyitics();
 
-		// Handles refresh, closing and navigating away from Jetpack's Admin Page
-		window.addEventListener( 'beforeunload', this.onBeforeUnload );
-		// Handles transition between routes handled by react-router
-		this.props.router.listenBefore( this.routerWillLeave );
-	},
-
-	/*
-	 * Returns a string if there are unsaved module settings thus showing a confirm dialog to the user
-	 * according to the `beforeunload` event handling specification
-	 */
-	onBeforeUnload( e ) {
-		const dialogText = __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' );
-		if ( this.props.areThereUnsavedModuleOptions ) {
-			e.returnValue = dialogText;
-			return dialogText;
-		}
-	},
-
-	/*
- 	 * Shows a confirmation dialog if there are unsaved module settings.
- 	 *
- 	 * Return true or false according to the history.listenBefore specification which is part of react-router
-	 */
-	routerWillLeave() {
-		if ( this.props.areThereUnsavedModuleOptions ) {
-			const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
-			if ( confirmLeave ) {
-				this.props.clearUnsavedOptionFlag();
-			} else {
-				return false;
+		this.props.router.listenBefore( () => {
+			if ( this.props.areThereUnsavedModuleOptions ) {
+				const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
+				if ( confirmLeave ) {
+					this.props.clearUnsavedOptionFlag();
+				} else {
+					return false;
+				}
 			}
-		}
+		} );
 	},
 
 	initializeAnalyitics() {
@@ -133,11 +110,13 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
+		const showJumpStart = this.props.jumpStartStatus;
+		const canManageModules = window.Initial_State.userData.currentUser.permissions.manage_modules;
 
 		// Track page views
 		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
-		if ( ! this.props.userCanManageModules ) {
+		if ( ! canManageModules ) {
 			return <NonAdminView { ...this.props } />
 		}
 
@@ -145,7 +124,7 @@ const Main = React.createClass( {
 			return <JetpackConnect />
 		}
 
-		if ( this.props.jumpStartStatus ) {
+		if ( showJumpStart ) {
 			if ( '/' === route ) {
 				const history = createHistory();
 				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
@@ -241,8 +220,7 @@ export default connect(
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),
-			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state ),
-			userCanManageModules: userCanManageModules( state )
+			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state )
 		};
 	},
 	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag }, dispatch )

@@ -36,12 +36,8 @@ const NonAdminView = React.createClass( {
 			navComponent = <Navigation { ...this.props } />;
 		switch ( route ) {
 			case '/dashboard':
-			default:
 				if ( this.props.userCanViewStats || this.props.isModuleActivated( 'protect' ) ) {
 					pageComponent = <AtAGlance { ...this.props } />;
-				} else {
-					// If routing took us to Dashboard but user can't view anything, fallback to Apps
-					pageComponent = <Apps { ...this.props } />;
 				}
 				break;
 			case '/apps':
@@ -67,6 +63,9 @@ const NonAdminView = React.createClass( {
 					pageComponent = <Writing { ...this.props } />;
 				}
 				break;
+
+			default:
+				pageComponent = <AtAGlance { ...this.props } />;
 		}
 
 		window.wpNavMenuClassChange();

@@ -25,10 +25,8 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_terms', array( $this, 'expand_term_ids' ) );
 	}
 
-	function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
+	function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
-
-		// TODO: process state
 
 		$taxonomies           = get_taxonomies();
 		$total_chunks_counter = 0;
@@ -45,7 +43,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 			}
 		}
 
-		return array( $total_chunks_counter, true );
+		return $total_chunks_counter;
 	}
 
 	function estimate_full_sync_actions( $config ) {

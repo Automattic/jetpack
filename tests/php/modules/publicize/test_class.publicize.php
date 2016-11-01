@@ -56,20 +56,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 		$this->assertPublicized( false, $this->post );
 	}
-	
-	public function test_publicize_does_not_fire_on_post_types_that_do_not_support_it() {
-		$args = array(
-			'public' => true,
-			'label'  => 'unregister post type'
-		);
-		register_post_type( 'foo', $args );
-		$this->post->post_type = 'foo';
-		$this->post->post_status = 'publish';
-
-		wp_insert_post( $this->post->to_array() );
-
-		$this->assertPublicized( false, $this->post );
-	}
 
 	function assertPublicized( $should_have_publicized, $post ) {
 		if ( $should_have_publicized ) {

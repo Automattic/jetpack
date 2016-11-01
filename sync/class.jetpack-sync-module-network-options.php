@@ -43,9 +43,9 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		$this->network_options_whitelist = Jetpack_Sync_Defaults::$default_network_options_whitelist;
 	}
 
-	function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
+	function enqueue_full_sync_actions( $config ) {
 		if ( ! is_multisite() ) {
-			return array( 0, true );
+			return 0;
 		}
 
 		/**
@@ -57,8 +57,7 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_full_sync_network_options', true );
 
-		// The number of actions enqueued, and next module state (true == done)
-		return array( 1, true );
+		return 1; // The number of actions enqueued
 	}
 
 	function estimate_full_sync_actions( $config ) {

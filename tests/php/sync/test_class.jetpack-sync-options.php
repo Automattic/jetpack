@@ -65,6 +65,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$options = array(
 			'stylesheet'                           => 'test',
 			'blogname'                             => 'test',
+			'home'                                 => 'http://test.com',
+			'siteurl'                              => 'http://test.com',
 			'blogdescription'                      => 'banana',
 			'blog_charset'                         => 'stuffs',
 			'permalink_structure'                  => '%postname%',

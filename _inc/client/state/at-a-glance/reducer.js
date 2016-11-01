@@ -16,6 +16,9 @@ import {
 	AKISMET_DATA_FETCH,
 	AKISMET_DATA_FETCH_FAIL,
 	AKISMET_DATA_FETCH_SUCCESS,
+	MONITOR_LAST_DOWNTIME_FETCH,
+	MONITOR_LAST_DOWNTIME_FETCH_FAIL,
+	MONITOR_LAST_DOWNTIME_FETCH_SUCCESS,
 	VAULTPRESS_SITE_DATA_FETCH,
 	VAULTPRESS_SITE_DATA_FETCH_FAIL,
 	VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
@@ -33,6 +36,8 @@ const requests = ( state = {}, action ) => {
 			return assign( {}, state, { fetchingStatsData: true } );
 		case AKISMET_DATA_FETCH:
 			return assign( {}, state, { fetchingAkismetData: true } );
+		case MONITOR_LAST_DOWNTIME_FETCH:
+			return assign( {}, state, { fetchingMonitorData: true } );
 		case VAULTPRESS_SITE_DATA_FETCH:
 			return assign( {}, state, { fetchingVaultPressData: true } );
 		case DASHBOARD_PROTECT_COUNT_FETCH:
@@ -44,6 +49,8 @@ const requests = ( state = {}, action ) => {
 		case STATS_DATA_FETCH_SUCCESS:
 		case AKISMET_DATA_FETCH_FAIL:
 		case AKISMET_DATA_FETCH_SUCCESS:
+		case MONITOR_LAST_DOWNTIME_FETCH_FAIL:
+		case MONITOR_LAST_DOWNTIME_FETCH_SUCCESS:
 		case VAULTPRESS_SITE_DATA_FETCH_FAIL:
 		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
 		case DASHBOARD_PROTECT_COUNT_FETCH_FAIL:
@@ -53,6 +60,7 @@ const requests = ( state = {}, action ) => {
 			return assign( {}, state, {
 				fetchingStatsData: false,
 				fetchingAkismetData: false,
+				fetchingMonitorData: false,
 				fetchingVaultPressData: false,
 				fetchingProtectData: false,
 				fetchingPluginUpdates: false
@@ -100,6 +108,16 @@ const protectCount = ( state = 'N/A', action ) => {
 	}
 };
 
+const lastDownTime = ( state = 'N/A', action ) => {
+	switch ( action.type ) {
+		case MONITOR_LAST_DOWNTIME_FETCH_SUCCESS:
+			return action.lastDownTime;
+
+		default:
+			return state;
+	}
+};
+
 const vaultPressData = ( state = 'N/A', action ) => {
 	switch ( action.type ) {
 		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
@@ -124,6 +142,7 @@ export const dashboard = combineReducers( {
 	requests,
 	activeStatsTab,
 	protectCount,
+	lastDownTime,
 	vaultPressData,
 	statsData,
 	akismetData,
@@ -198,6 +217,26 @@ export function isFetchingProtectData( state ) {
  */
 export function getProtectCount( state ) {
 	return state.jetpack.dashboard.protectCount;
+}
+
+/**
+ * Returns true if currently requesting Monitor data
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean}        Whether Monitor data is being requested
+ */
+export function isFetchingMonitorData( state ) {
+	return state.jetpack.dashboard.requests.fetchingMonitorData ? true : false;
+}
+
+/**
+ * Returns last downtime of the site, from Monitor.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {String} Date/time stamp when last downtime was detected/logged
+ */
+export function getLastDownTime( state ) {
+	return state.jetpack.dashboard.lastDownTime;
 }
 
 /**

@@ -12,7 +12,7 @@ import NoticesList from 'components/global-notices';
  * Internal dependencies
  */
 import JetpackStateNotices from './state-notices';
-import { getSiteConnectionStatus, getSiteDevMode, isStaging, isInIdentityCrisis } from 'state/connection';
+import { getSiteConnectionStatus, getSiteDevMode, isStaging } from 'state/connection';
 import { isDevVersion } from 'state/initial-state';
 import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
@@ -52,28 +52,20 @@ export const StagingSiteNotice = React.createClass( {
 
 	render() {
 		if ( this.props.isStaging ) {
-			const isIDC = this.props.isInIdentityCrisis;
-			let stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/';
-
-			let props = {
-				text: 	__( 'You are running Jetpack on a staging server.' ),
-				status: 'is-basic',
-				showDismiss: false
-			};
-
-			if ( isIDC ) {
-				props.text = __( 'Your site was automatically put in staging mode because we think this is a staging server.' );
-				props.status = 'is-info';
-				stagingSiteSupportLink = 'https://jetpack.com/support/identity-crisis';
-			}
+			const text = __( 'You are running Jetpack on a {{a}}staging server{{/a}}.',
+				{
+					components: {
+						a: <a href="https://jetpack.com/support/staging-sites/" target="_blank" />
+					}
+				}
+			);
 
 			return (
-				<SimpleNotice { ... props }>
-					<NoticeAction
-						href={ stagingSiteSupportLink }
-					>
-						{ __( 'More Info' ) }
-					</NoticeAction>
+				<SimpleNotice
+					showDismiss={ false }
+					status="is-basic"
+				>
+					{ text }
 				</SimpleNotice>
 			);
 		}
@@ -84,8 +76,7 @@ export const StagingSiteNotice = React.createClass( {
 } );
 
 StagingSiteNotice.propTypes = {
-	isStaging: React.PropTypes.bool.isRequired,
-	isInIdentityCrisis: React.PropTypes.bool.isRequired
+	isStaging: React.PropTypes.bool.isRequired
 };
 
 export const DevModeNotice = React.createClass( {
@@ -205,9 +196,7 @@ const JetpackNotices = React.createClass( {
 				<DevModeNotice
 					siteConnectionStatus={ this.props.siteConnectionStatus }
 					siteDevMode={ this.props.siteDevMode } />
-				<StagingSiteNotice
-					isStaging={ this.props.isStaging }
-					isInIdentityCrisis={ this.props.isInIdentityCrisis } />
+				<StagingSiteNotice isStaging={ this.props.isStaging } />
 				<DismissableNotices />
 				<UserUnlinked
 					connectUrl={ this.props.connectUrl }
@@ -224,9 +213,7 @@ export default connect(
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isDevVersion: isDevVersion( state ),
 			siteDevMode: getSiteDevMode( state ),
-			isStaging: isStaging( state ),
-			isInIdentityCrisis: isInIdentityCrisis( state )
-
+			isStaging: isStaging( state )
 		};
 	}
 )( JetpackNotices );

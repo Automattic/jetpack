@@ -14,7 +14,7 @@ import { getCurrentVersion } from 'state/initial-state';
 const Masthead = React.createClass( {
 	render: function() {
 		let devNotice = this.props.siteConnectionStatus === 'dev'
-			? <code>Dev Mode</code>
+			? <code>[Dev Mode]</code>
 			: '';
 
 		return (

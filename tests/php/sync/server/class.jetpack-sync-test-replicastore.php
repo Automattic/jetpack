@@ -33,7 +33,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->comments        = array();
 		$this->options         = array();
 		$this->theme_support   = array();
-		$this->meta            = array( 'post' => array(), 'comment' => array() );
+		$this->meta            = array();
 		$this->constants       = array();
 		$this->updates         = array();
 		$this->callable        = array();
@@ -73,19 +73,13 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return $this->calculate_checksum( $this->posts, 'ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_post_checksum_columns );
 	}
 
-	function post_meta_checksum( $min_id = null, $max_id = null ) {
-		return null;
-	}
-
-	private function reduce_checksum( $carry, $object ) {
+	private function reduce_checksum( $carry, $post ) {
 		// append fields
 		$value = '';
 		foreach ( $this->checksum_fields as $field ) {
-			$value .= preg_replace( '/[^\x20-\x7E]/','', $object->{ $field } );
+			$value .= preg_replace( '/[^\x20-\x7E]/','', $post->{ $field } );
 		}
-		
-		$result = $carry ^ sprintf( '%u', crc32( $value ) ) + 0;
-		return $result;
+		return $carry ^ sprintf( '%u', crc32( $value ) ) + 0;
 	}
 
 	function filter_post_status( $post ) {
@@ -128,10 +122,6 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function comments_checksum( $min_id = null, $max_id = null ) {
 		return $this->calculate_checksum( array_filter( $this->comments, array( $this, 'is_not_spam' ) ), 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
-	}
-
-	function comment_meta_checksum( $min_id = null, $max_id = null ) {
-		return null;
 	}
 
 	function is_not_spam( $comment ) {
@@ -235,7 +225,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->meta_filter['object_id'] = $object_id;
 		$this->meta_filter['meta_key']  = $meta_key;
 
-		$meta_entries = array_values( array_filter( $this->meta[ $type ], array( $this, 'find_meta' ) ) );
+		$meta_entries = array_values( array_filter( $this->meta, array( $this, 'find_meta' ) ) );
 
 		if ( count( $meta_entries ) === 0 ) {
 			// match return signature of WP code
@@ -255,21 +245,9 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return $meta_values;
 	}
 
-	// this is just here to support checksum histograms
-	function get_post_meta_by_id( $meta_id ) {
-		$matching_metas = array_filter( $this->meta[ 'post' ], create_function( '$m', 'return $m->meta_id == '.$meta_id.';' ) );
-		return reset( $matching_metas );
-	}
-
-	// this is just here to support checksum histograms
-	function get_comment_meta_by_id( $meta_id ) {
-		$matching_metas = array_filter( $this->meta[ 'comment' ], create_function( '$m', 'return $m->meta_id == '.$meta_id.';' ) );
-		return reset( $matching_metas );
-	}
-
 	public function find_meta( $meta ) {
-		// must match object ID
-		$match = ( $this->meta_filter['object_id'] === $meta->object_id );
+		// must match object and type
+		$match = ( $this->meta_filter['type'] === $meta->type && $this->meta_filter['object_id'] === $meta->object_id );
 
 		// match key if given
 		if ( $match && $this->meta_filter['meta_key'] ) {
@@ -284,7 +262,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function upsert_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id ) {
-		$this->meta[ $type ][ $meta_id ] = (object) array(
+		$this->meta[ $meta_id ] = (object) array(
 			'meta_id'    => $meta_id,
 			'type'       => $type,
 			'object_id'  => absint( $object_id ),
@@ -295,7 +273,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	public function delete_metadata( $type, $object_id, $meta_ids ) {
 		foreach ( $meta_ids as $meta_id ) {
-			unset( $this->meta[ $type ][ $meta_id ] );
+			unset( $this->meta[ $meta_id ] );
 		}
 	}
 
@@ -530,14 +508,9 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 
 	function checksum_all() {
-		$post_meta_checksum = $this->checksum_histogram( 'post_meta', 1 );
-		$comment_meta_checksum = $this->checksum_histogram( 'comment_meta', 1 );
-
 		return array(
 			'posts'    => $this->posts_checksum(),
-			'comments' => $this->comments_checksum(),
-			'post_meta'=> reset( $post_meta_checksum ),
-			'comment_meta'=> reset( $comment_meta_checksum ),
+			'comments' => $this->comments_checksum()
 		);
 	}
 
@@ -546,8 +519,9 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		switch ( $object_type ) {
 			case 'posts':
 				$posts         = $this->get_posts( null, $start_id, $end_id );
-				$all_ids      = array_map( create_function( '$o', 'return $o->ID;' ), $posts );
+				$post_ids      = array_map( create_function( '$o', 'return $o->ID;' ), $posts );
 				$id_field      = 'ID';
+				$values        = array_combine( $post_ids, $posts );
 				$get_function  = 'get_post';
 
 				if ( empty( $fields ) ) {
@@ -555,62 +529,39 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				}
 
 				break;
-			case 'post_meta':
-				$post_meta = array_filter( $this->meta[ 'post' ], create_function( '$m', 'return $m->type === \'post\';' ) );
-				$all_ids  = array_values( array_map( create_function( '$o', 'return $o->meta_id;' ), $post_meta ) );
-				$id_field     = 'meta_id';
-				$get_function = 'get_post_meta_by_id';
-
-				if ( empty( $fields ) ) {
-					$fields = Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
-				}
-				break;
 			case 'comments':
 				$comments     = $this->get_comments( null, $start_id, $end_id );
-				$all_ids  = array_map( create_function( '$o', 'return $o->comment_ID;' ), $comments );
+				$comment_ids  = array_map( create_function( '$o', 'return $o->comment_ID;' ), $comments );
 				$id_field     = 'comment_ID';
+				$values       = array_combine( $comment_ids, $comments );
 				$get_function = 'get_comment';
 
 				if ( empty( $fields ) ) {
 					$fields = Jetpack_Sync_Defaults::$default_comment_checksum_columns;
 				}
 				break;
-			case 'comment_meta':
-				$comment_meta = array_filter( $this->meta[ 'comment' ], create_function( '$m', 'return $m->type === \'comment\';' ) );
-				$all_ids  = array_values( array_map( create_function( '$o', 'return $o->meta_id;' ), $comment_meta ) );
-				$id_field     = 'meta_id';
-				$get_function = 'get_comment_meta_by_id';
-
-				if ( empty( $fields ) ) {
-					$fields = Jetpack_Sync_Defaults::$default_comment_meta_checksum_columns;
-				}
-				break;
 			default:
 				return false;
 		}
 
+		$all_ids = array_keys( $values );
 		sort( $all_ids );
 		$bucket_size = intval( ceil( count( $all_ids ) / $buckets ) );
-
-		if ( $bucket_size === 0 ) {
-			return array();
-		}
-
 		$id_chunks   = array_chunk( $all_ids, $bucket_size );
 		$histogram   = array();
 
-		foreach ( $id_chunks as $id_chunk ) {
-			$first_id      = $id_chunk[0];
-			$last_id_array = array_slice( $id_chunk, -1 );
+		foreach ( $id_chunks as $ids ) {
+			$first_id      = $ids[0];
+			$last_id_array = array_slice( $ids, -1 );
 			$last_id       = array_pop( $last_id_array );
 
-			if ( count( $id_chunk ) === 1 ) {
+			if ( count( $ids ) === 1 ) {
 				$key = "{$first_id}";
 			} else {
-				$key = "{$first_id}-{$last_id}";
+				$key = "{$ids[0]}-{$last_id}";
 			}
 
-			$objects           = array_map( array( $this, $get_function ), $id_chunk );
+			$objects           = array_map( array( $this, $get_function ), $ids );
 			$value             = $this->calculate_checksum( $objects, null, null, null, $fields );
 			$histogram[ $key ] = $value;
 		}
