@@ -103,6 +103,11 @@ class Jetpack_Sitemap_Manager {
 	public function callback_action_register_post_types () {
 		/** This filter is documented in modules/sitemaps/sitemaps.php */
 
+		/**
+		 * Helper method for registering sitemap data post types uniformly
+		 *
+		 * @since 4.5.0
+		 */
 		function register_sitemap_data ($type_name, $label, $slug) {
 			register_post_type(
 				$type_name,
@@ -301,7 +306,12 @@ class Jetpack_Sitemap_Manager {
 	 * @since 4.5.0
 	 */
 	private function schedule_sitemap_generation () {
-		function add_sitemap_schedule ($schedules) {
+		/**
+		 * Callback for adding sitemap-interval to the list of schedules.
+		 *
+		 * @since 4.5.0
+		 */
+		function callback_add_sitemap_schedule ($schedules) {
 			$schedules['sitemap-interval'] = array(
 				'interval' => self::SITEMAP_INTERVAL,
 				'display'  => __('Every Minute')
@@ -310,7 +320,7 @@ class Jetpack_Sitemap_Manager {
 		}
 
 		// Add cron schedule
-		add_filter( 'cron_schedules', 'add_sitemap_schedule');
+		add_filter( 'cron_schedules', 'callback_add_sitemap_schedule');
 
 		add_action(
 			'jp_sitemap_cron_hook',
