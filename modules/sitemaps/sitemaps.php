@@ -69,39 +69,45 @@ class Jetpack_Sitemap_Manager {
 	 */
 	public function __construct() {
 		// Register post types for data storage
-		$this->register_post_types();
+		add_action(
+			'init',
+			array($this, 'callback_action_register_post_types')
+		);
 
-		// Add sitemap URL handler
-		$this->add_sitemap_url_handler();
+		// Sitemap URL handler
+		add_action(
+			'init',
+			array($this, 'callback_action_catch_sitemap_urls')
+		);
 
 		// Add generator to wp_cron task list
 		$this->schedule_sitemap_generation();
 
 		// Add sitemap to robots.txt
-		add_action('do_robotstxt', function () {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			echo 'Sitemap: ' . site_url() . '/sitemap.xml' . PHP_EOL;
-		}, 20);
+		add_action(
+			'do_robotstxt',
+			array($this, 'callback_action_do_robotstxt'),
+			20
+		);
 
 		return;
 	}
 
 	/**
-	 * Add init actions to register sitemap post types for data storage.
-	 * Should only be called once, in the constructor.
+	 * Callback to register sitemap post types for data storage.
 	 *
-	 * Side effect: add 'register_post_type' actions to 'init'.
-	 *
-	 * @access private
+	 * @access public
 	 * @since 4.5.0
 	 */
-	private function register_post_types () {
+	public function callback_action_register_post_types () {
+		/** This filter is documented in modules/sitemaps/sitemaps.php */
+
 		function register_sitemap_data ($type_name, $label, $slug) {
 			register_post_type(
 				$type_name,
 				array(
 					'labels'      => array('name' => $label),
-					'public'      => false, // Set to true to aid debugging
+					'public'      => true, // Set to true to aid debugging
 					'has_archive' => false,
 					'rewrite'     => array('slug' => $slug),
 				)
@@ -109,190 +115,181 @@ class Jetpack_Sitemap_Manager {
 			return;
 		}
 
-		add_action( 'init', function () {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
+		// Register 'jp_sitemap_master' post type
+		register_sitemap_data(
+			'jp_sitemap_master',
+			'Sitemap Master',
+			'jetpack-sitemap-master'
+		);
 
-			// Register 'jp_sitemap_master' post type
-			register_sitemap_data(
-				'jp_sitemap_master',
-				'Sitemap Master',
-				'jetpack-sitemap-master'
-			);
+		// Register 'jp_sitemap' post type
+		register_sitemap_data(
+			'jp_sitemap',
+			'Sitemap',
+			'jetpack-sitemap'
+		);
 
-			// Register 'jp_sitemap' post type
-			register_sitemap_data(
-				'jp_sitemap',
-				'Sitemap',
-				'jetpack-sitemap'
-			);
+		// Register 'jp_sitemap_index' post type
+		register_sitemap_data(
+			'jp_sitemap_index',
+			'Sitemap Index',
+			'jetpack-sitemap-index'
+		);
 
-			// Register 'jp_sitemap_index' post type
-			register_sitemap_data(
-				'jp_sitemap_index',
-				'Sitemap Index',
-				'jetpack-sitemap-index'
-			);
+		// Register 'jp_img_sitemap' post type
+		register_sitemap_data(
+			'jp_img_sitemap',
+			'Image Sitemap',
+			'jetpack-image-sitemap'
+		);
 
-			// Register 'jp_img_sitemap' post type
-			register_sitemap_data(
-				'jp_img_sitemap',
-				'Image Sitemap',
-				'jetpack-image-sitemap'
-			);
-
-			// Register 'jp_img_sitemap_index' post type
-			register_sitemap_data(
-				'jp_img_sitemap_index',
-				'Image Sitemap Index',
-				'jetpack-image-sitemap-index'
-			);
-		});
+		// Register 'jp_img_sitemap_index' post type
+		register_sitemap_data(
+			'jp_img_sitemap_index',
+			'Image Sitemap Index',
+			'jetpack-image-sitemap-index'
+		);
 
 		return;
 	}
 
 	/**
-	 * Add init action to capture sitemap url requests and serve sitemap xml.
-	 * Should only be called once, in the constructor.
+	 * Callback to intercept sitemap url requests and serve sitemap files.
 	 *
-	 * Side effect: add action to 'init' which detects sitemap-related URLs
-	 *
-	 * @access private
+	 * @access public
 	 * @since 4.5.0
 	 */
-	private function add_sitemap_url_handler () {
-		add_action( 'init', function () {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
+	public function callback_action_catch_sitemap_urls () {
+		/** This filter is documented in modules/sitemaps/sitemaps.php */
 
-			// Regular expressions for sitemap URL routing
-			$regex = array(
-				'master'        => '/^\/sitemap\.xml$/',
-				'sitemap'       => '/^\/sitemap-[1-9][0-9]*\.xml$/',
-				'index'         => '/^\/sitemap-index-[1-9][0-9]*\.xml$/',
-				'sitemap-style' => '/^\/sitemap\.xsl$/',
-				'index-style'   => '/^\/sitemap-index\.xsl$/',
-				'image'         => '/^\/image-sitemap-[1-9][0-9]*\.xml$/',
-				'image-index'   => '/^\/image-sitemap-index-[1-9][0-9]*\.xml$/',
-				'image-style'   => '/^\/image-sitemap\.xsl$/',
-				'news'          => '/^\/news-sitemap\.xml$/',
-				'news-style'    => '/^\/news-sitemap\.xsl$/',
+		// Regular expressions for sitemap URL routing
+		$regex = array(
+			'master'        => '/^\/sitemap\.xml$/',
+			'sitemap'       => '/^\/sitemap-[1-9][0-9]*\.xml$/',
+			'index'         => '/^\/sitemap-index-[1-9][0-9]*\.xml$/',
+			'sitemap-style' => '/^\/sitemap\.xsl$/',
+			'index-style'   => '/^\/sitemap-index\.xsl$/',
+			'image'         => '/^\/image-sitemap-[1-9][0-9]*\.xml$/',
+			'image-index'   => '/^\/image-sitemap-index-[1-9][0-9]*\.xml$/',
+			'image-style'   => '/^\/image-sitemap\.xsl$/',
+			'news'          => '/^\/news-sitemap\.xml$/',
+			'news-style'    => '/^\/news-sitemap\.xsl$/',
+		);
+
+		/**
+		 * Echo a raw string of given content-type.
+		 *
+		 * @param string $the_content_type The content type to be served.
+		 * @param string $the_content The string to be echoed.
+		 */
+		function serve_raw_and_die($the_content_type, $the_content) {
+			header('Content-Type: ' . $the_content_type . '; charset=UTF-8');
+
+			if ('' == $the_content) {
+				http_response_code(404);
+			}
+
+			echo $the_content;
+			die();
+		}
+
+		// Catch master sitemap xml
+		if ( preg_match( $regex['master'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'application/xml',
+				$this->get_contents_of_post(
+					'sitemap',
+					'jp_sitemap_master'
+				)
 			);
+		}
 
-			/**
-			 * Echo a raw string of given content-type.
-			 *
-			 * @param string $the_content_type The content type to be served.
-			 * @param string $the_content The string to be echoed.
-			 */
-			function serve_raw_and_die($the_content_type, $the_content) {
-				header('Content-Type: ' . $the_content_type . '; charset=UTF-8');
+		// Catch sitemap xml
+		if ( preg_match( $regex['sitemap'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'application/xml',
+				$this->get_contents_of_post(
+					substr($_SERVER['REQUEST_URI'], 1, -4),
+					'jp_sitemap'
+				)
+			);
+		}
 
-				if ('' == $the_content) {
-					http_response_code(404);
-				}
+		// Catch sitemap index xml
+		if ( preg_match( $regex['index'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'application/xml',
+				$this->get_contents_of_post(
+					substr($_SERVER['REQUEST_URI'], 1, -4),
+					'jp_sitemap_index'
+				)
+			);
+		}
 
-				echo $the_content;
-				die();
-			}
+		// Catch sitemap xsl
+		if ( preg_match( $regex['sitemap-style'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'text/xml',
+				$this->sitemap_xsl()
+			);
+		}
 
-			// Catch master sitemap xml
-			if ( preg_match( $regex['master'], $_SERVER['REQUEST_URI']) ) {
-				serve_raw_and_die(
-					'application/xml',
-					$this->get_contents_of_post(
-						'sitemap',
-						'jp_sitemap_master'
-					)
-				);
-			}
+		// Catch sitemap index xsl
+		if ( preg_match( $regex['index-style'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'text/xml',
+				$this->sitemap_index_xsl()
+			);
+		}
 
-			// Catch sitemap xml
-			if ( preg_match( $regex['sitemap'], $_SERVER['REQUEST_URI']) ) {
-				serve_raw_and_die(
-					'application/xml',
-					$this->get_contents_of_post(
-						substr($_SERVER['REQUEST_URI'], 1, -4),
-						'jp_sitemap'
-					)
-				);
-			}
+		// Catch image sitemap xml
+		if ( preg_match( $regex['image'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'application/xml',
+				$this->get_contents_of_post(
+					substr($_SERVER['REQUEST_URI'], 1, -4),
+					'jp_img_sitemap'
+				)
+			);
+		}
 
-			// Catch sitemap index xml
-			if ( preg_match( $regex['index'], $_SERVER['REQUEST_URI']) ) {
-				serve_raw_and_die(
-					'application/xml',
-					$this->get_contents_of_post(
-						substr($_SERVER['REQUEST_URI'], 1, -4),
-						'jp_sitemap_index'
-					)
-				);
-			}
+		// Catch image sitemap index xml
+		if ( preg_match( $regex['image-index'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'application/xml',
+				$this->get_contents_of_post(
+					substr($_SERVER['REQUEST_URI'], 1, -4),
+					'jp_img_sitemap_index'
+				)
+			);
+		}
 
-			// Catch sitemap xsl
-			if ( preg_match( $regex['sitemap-style'], $_SERVER['REQUEST_URI']) ) {
-				serve_raw_and_die(
-					'text/xml',
-					$this->sitemap_xsl()
-				);
-			}
+		// Catch image sitemap xsl
+		if ( preg_match( $regex['image-style'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'text/xml',
+				$this->image_sitemap_xsl()
+			);
+		}
 
-			// Catch sitemap index xsl
-			if ( preg_match( $regex['index-style'], $_SERVER['REQUEST_URI']) ) {
-				serve_raw_and_die(
-					'text/xml',
-					$this->sitemap_index_xsl()
-				);
-			}
+		// Catch news sitemap xml
+		if ( preg_match( $regex['news'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'text/xml',
+				$this->news_sitemap_xml()
+			);
+		}
 
-			// Catch image sitemap xml
-			if ( preg_match( $regex['image'], $_SERVER['REQUEST_URI']) ) {
-				serve_raw_and_die(
-					'application/xml',
-					$this->get_contents_of_post(
-						substr($_SERVER['REQUEST_URI'], 1, -4),
-						'jp_img_sitemap'
-					)
-				);
-			}
+		// Catch news sitemap xsl
+		if ( preg_match( $regex['news-style'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'text/xml',
+				$this->news_sitemap_xsl()
+			);
+		}
 
-			// Catch image sitemap index xml
-			if ( preg_match( $regex['image-index'], $_SERVER['REQUEST_URI']) ) {
-				serve_raw_and_die(
-					'application/xml',
-					$this->get_contents_of_post(
-						substr($_SERVER['REQUEST_URI'], 1, -4),
-						'jp_img_sitemap_index'
-					)
-				);
-			}
-
-			// Catch image sitemap xsl
-			if ( preg_match( $regex['image-style'], $_SERVER['REQUEST_URI']) ) {
-				serve_raw_and_die(
-					'text/xml',
-					$this->image_sitemap_xsl()
-				);
-			}
-
-			// Catch news sitemap xml
-			if ( preg_match( $regex['news'], $_SERVER['REQUEST_URI']) ) {
-				serve_raw_and_die(
-					'text/xml',
-					$this->news_sitemap_xml()
-				);
-			}
-
-			// Catch news sitemap xsl
-			if ( preg_match( $regex['news-style'], $_SERVER['REQUEST_URI']) ) {
-				serve_raw_and_die(
-					'text/xml',
-					$this->news_sitemap_xsl()
-				);
-			}
-
-			// URL did not match any sitemap patterns.
-			return;
-		});
+		// URL did not match any sitemap patterns.
+		return;
 	}
 
 	/**
@@ -312,25 +309,40 @@ class Jetpack_Sitemap_Manager {
 			return $schedules;
 		});
 
-		add_action( 'jp_sitemap_cron_hook', function () {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$this->build_all_sitemaps();
-		});
+		add_action(
+			'jp_sitemap_cron_hook',
+			array($this, 'build_all_sitemaps')
+		);
 
 		if( !wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
-			wp_schedule_event( time(), 'sitemap-interval', 'jp_sitemap_cron_hook' );
+			wp_schedule_event(
+				time(),
+				'sitemap-interval',
+				'jp_sitemap_cron_hook'
+			);
 		}
 
 		return;
 	}
 
 	/**
-	 * Build a fresh tree of sitemaps.
+	 * Callback to add sitemap to robots.txt.
 	 *
-	 * @access private
+	 * @access public
 	 * @since 4.5.0
 	 */
-	private function build_all_sitemaps () {
+	public function callback_action_do_robotstxt () {
+		/** This filter is documented in modules/sitemaps/sitemaps.php */
+		echo 'Sitemap: ' . site_url() . '/sitemap.xml' . PHP_EOL;
+	}
+
+	/**
+	 * Build a fresh tree of sitemaps.
+	 *
+	 * @access public
+	 * @since 4.5.0
+	 */
+	public function build_all_sitemaps () {
 		$log = new Jetpack_Sitemap_Logger('begin sitemap generation');
 
 		$page = $this->build_page_sitemap_tree();

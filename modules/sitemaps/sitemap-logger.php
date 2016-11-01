@@ -45,7 +45,7 @@ class Jetpack_Sitemap_Logger {
 	 * @param string $message The string to be written to the log.
 	 */
 	public function report($message) {
-		error_log( 'woo! jp-sitemap-' .  $this->key . ': ' . $message );
+		error_log( 'jp-sitemap-' .  $this->key . ': ' . $message );
 		return;
 	}
 
