@@ -33,16 +33,12 @@ class Jetpack_IDC {
 
 		self::$wpcom_home_url = $urls_in_crisis['wpcom_home'];
 
-		add_action( 'admin_notices', array( $this, 'prepare_idc_notice' ) );
+		add_action( 'admin_notices', array( $this, 'display_idc_notice' ) );
+		add_action( 'admin_enqueue_scripts', array( $this,'enqueue_idc_notice_files' ) );
 	}
 
-	function prepare_idc_notice() {
-		if ( ! current_user_can( 'jetpack_disconnect' ) || ! Jetpack::is_active() || Jetpack::is_development_mode() ) {
-			return;
-		}
-
-		$this->enqueue_idc_notice_files();
-		$this->idc_notice_step_one();
+	function should_show_idc_notice() {
+		return current_user_can( 'jetpack_disconnect' ) && Jetpack::is_active() && ! Jetpack::is_development_mode();
 	}
 
 	/**
@@ -50,7 +46,11 @@ class Jetpack_IDC {
 	 * "Confirm Staging" - Dismiss the notice and continue on with our lives in staging mode.
 	 * "Fix Jetpack Connection" - Will disconnect the site and start the mitigation...
 	 */
-	function idc_notice_step_one() {
+	function display_idc_notice() {
+		if ( ! $this->should_show_idc_notice() ) {
+			return;
+		}
+
 		$safe_mode_doc_link = 'https://jetpack.com/support/safe-mode';
 		?>
 		<div class="jp-idc notice notice-warning">
@@ -118,6 +118,10 @@ class Jetpack_IDC {
 	 * Enqueue scripts for the notice
 	 */
 	function enqueue_idc_notice_files() {
+		if ( ! $this->should_show_idc_notice() ) {
+			return;
+		}
+
 		wp_enqueue_script(
 			'jetpack-idc-js',
 			plugins_url( '_inc/idc-notice.js', JETPACK__PLUGIN_FILE ),
