@@ -409,16 +409,16 @@ class Jetpack_Sitemap_Manager {
 	private function build_all_page_sitemaps () {
 		$post_ID = 0;
 		$sitemap_number = 1;
-		$any_posts_left = True;
+		$any_posts_left = true;
 
 		// Generate sitemaps until no posts remain.
-		while ( True == $any_posts_left ) {
+		while ( true == $any_posts_left ) {
 			$result = $this->build_one_page_sitemap(
 				$sitemap_number,
 				$post_ID
 			);
 
-			if ( True == $result['any_posts_left'] ) {
+			if ( true == $result['any_posts_left'] ) {
 				$post_ID = $result['last_post_ID'];
 				$sitemap_number += 1;
 			} else {
@@ -449,7 +449,7 @@ class Jetpack_Sitemap_Manager {
 	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
 	 * @return array @args {
 	 *   @type int $last_post_ID The ID of the last post to be successfully added to the buffer.
-	 *   @type bool $any_posts_left True if there are posts which haven't been saved to a sitemap, false otherwise.
+	 *   @type bool $any_posts_left 'true' if there are posts which haven't been saved to a sitemap, 'false' otherwise.
 	 * }
 	 */
 	private function build_one_page_sitemap ( $number, $from_ID ) {
@@ -541,7 +541,7 @@ class Jetpack_Sitemap_Manager {
 		$sitemap_ID = 0;
 		$sitemap_index_number = 1;
 		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
-		$any_sitemaps_left = True;
+		$any_sitemaps_left = true;
 
 		// Generate sitemap indices until no sitemaps remain.
 		while ( true == $any_sitemaps_left ) {
@@ -709,16 +709,16 @@ class Jetpack_Sitemap_Manager {
 	private function build_all_image_sitemaps () {
 		$image_ID = 0;
 		$img_sitemap_number = 1;
-		$any_images_left = True;
+		$any_images_left = true;
 
 		// Generate image sitemaps until no posts remain.
-		while ( True == $any_images_left ) {
+		while ( true == $any_images_left ) {
 			$result = $this->build_one_image_sitemap(
 				$img_sitemap_number,
 				$image_ID
 			);
 
-			if ( True == $result['any_posts_left'] ) {
+			if ( true == $result['any_posts_left'] ) {
 				$image_ID = $result['last_post_ID'];
 				$img_sitemap_number += 1;
 			} else {
@@ -831,7 +831,7 @@ class Jetpack_Sitemap_Manager {
 		$sitemap_ID = 0;
 		$sitemap_index_number = 1;
 		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
-		$any_sitemaps_left = True;
+		$any_sitemaps_left = true;
 
 		// Generate sitemap indices until no sitemaps remain.
 		while ( true == $any_sitemaps_left ) {
@@ -2019,10 +2019,10 @@ CSS;
 	 * @param string $type Post type.
 	 */
 	private function delete_numbered_posts_after( $prefix, $position, $type ) {
-		$any_left = True;
+		$any_left = true;
 		$i = $position + 1;
 
-		while ( True == $any_left ) {
+		while ( true == $any_left ) {
 			$the_post = get_page_by_title( $prefix . $i, 'OBJECT', $type );
 
 			if ( null == $the_post ) {
