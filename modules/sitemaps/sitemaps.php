@@ -301,14 +301,16 @@ class Jetpack_Sitemap_Manager {
 	 * @since 4.5.0
 	 */
 	private function schedule_sitemap_generation () {
-		// Add cron schedule
-		add_filter( 'cron_schedules', function ($schedules) {
+		function add_sitemap_schedule ($schedules) {
 			$schedules['sitemap-interval'] = array(
 				'interval' => self::SITEMAP_INTERVAL,
 				'display'  => __('Every Minute')
 			);
 			return $schedules;
-		});
+		}
+
+		// Add cron schedule
+		add_filter( 'cron_schedules', 'add_sitemap_schedule');
 
 		add_action(
 			'jp_sitemap_cron_hook',
