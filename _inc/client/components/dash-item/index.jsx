@@ -27,7 +27,7 @@ import {
 import ProStatus from 'pro-status';
 import { userCanManageModules } from 'state/initial-state';
 
-const DashItem = React.createClass( {
+export const DashItem = React.createClass( {
 	displayName: 'DashItem',
 
 	propTypes: {
