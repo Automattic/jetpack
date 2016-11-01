@@ -112,45 +112,6 @@ EXPECTED;
 	}
 
 	/**
-	 * @author tonykova
-	 * @covers Jetpack::check_identity_crisis
-	 * @since 3.2.0
-	 */
-	public function test_check_identity_crisis_will_report_crisis_if_an_http_site_and_siteurl_mismatch() {
-		// Store master user data
-		Jetpack_Options::update_option( 'master_user', 'test' );
-		Jetpack_Options::update_option( 'user_tokens', array( 'test' => 'herp.derp.test' ) );
-		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
-
-		// Mock get_cloud_site_options
-		$jp	= $this->getMockBuilder( 'MockJetpack' )
-			->setMethods( array( 'get_cloud_site_options' ) )
-			->getMock();
-
-		$jp->init();
-		Jetpack::$instance = $jp;
-
-		$jp->expects( $this->any() )
-			->method( 'get_cloud_site_options' )
-			->will( $this->returnValue( array( 'siteurl' => 'https://test.site.com' ) ) );
-
-		// Save the mismatching option for comparison
-		// Using @ to prevent throwing an error on a bug in WP core when attempting to change .htaccess
-		@update_option( 'siteurl', 'http://test.site.com' );
-
-		// Attach hook for checking the errors
-
-		add_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_report_crisis_if_an_http_site_and_siteurl_mismatch' ) );
-
-		$this->assertTrue( false !== MockJetpack::check_identity_crisis( true ) );
-		remove_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_report_crisis_if_an_http_site_and_siteurl_mismatch' ) );
-	}
-
-	public function pre_test_check_identity_crisis_will_report_crisis_if_an_http_site_and_siteurl_mismatch( $errors ){
-		$this->assertCount( 1, $errors );
-	}
-
-	/**
 	 * @author  kraftbj
 	 * @covers Jetpack::is_staging_site
 	 * @since  3.9.0
@@ -196,83 +157,6 @@ EXPECTED;
 		}
 
 		$this->assertTrue( $seen_bundle );
-	}
-
-	/**
-	 * @author tonykova
-	 * @covers Jetpack::check_identity_crisis
-	 * @since 3.2.0
-	 */
-	public function test_check_identity_crisis_will_not_report_crisis_if_matching_siteurl() {
-		// Store master user data
-		Jetpack_Options::update_option( 'master_user', 'test' );
-		Jetpack_Options::update_option( 'user_tokens', array( 'test' => 'herp.derp.test' ) );
-		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
-
-		// Mock get_cloud_site_options
-		$jp	= $this->getMockBuilder( 'MockJetpack' )
-			->setMethods( array( 'get_cloud_site_options' ) )
-			->getMock();
-
-		$jp->init();
-		Jetpack::$instance = $jp;
-
-		$jp->expects( $this->any() )
-			->method( 'get_cloud_site_options' )
-			->will( $this->returnValue( array( 'siteurl' => 'https://test.site.com' ) ) );
-
-		// Save the mismatching option for comparison
-		// Using @ to prevent throwing an error on a bug in WP core when attempting to change .htaccess
-		@update_option( 'siteurl', 'https://test.site.com' );
-
-		// Attach hook for checking the errors
-		add_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_not_report_crisis_if_matching_siteurl' ) );
-
-		$this->assertTrue( false !== MockJetpack::check_identity_crisis( true ) );
-		remove_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_not_report_crisis_if_matching_siteurl' ) );
-	}
-
-	public function pre_test_check_identity_crisis_will_not_report_crisis_if_matching_siteurl( $errors ){
-		$this->assertCount( 0, $errors );
-	}
-
-	/**
-	 * @author tonykova
-	 * @covers Jetpack::check_identity_crisis
-	 * @since 3.2.0
-	 */
-	public function test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl() {
-		// Kick in with force ssl and store master user data
-		force_ssl_admin( true );
-		Jetpack_Options::update_option( 'master_user', 'test' );
-		Jetpack_Options::update_option( 'user_tokens', array( 'test' => 'herp.derp.test' ) );
-		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
-
-		// Mock get_cloud_site_options
-		$jp = $this->getMockBuilder( 'MockJetpack' )
-		    ->setMethods( array( 'get_cloud_site_options' ) )
-		    ->getMock();
-
-		$jp->init();
-		Jetpack::$instance = $jp;
-
-		$jp->expects( $this->any() )
-			->method( 'get_cloud_site_options' )
-			->will( $this->returnValue( array( 'siteurl' => 'https://test.site.com' ) ) );
-
-		// Save the mismatching option for comparison
-		// Using @ to prevent throwing an error on a bug in WP core when attempting to change .htaccess
-		@update_option( 'siteurl', 'http://test.site.com' );
-
-		// Attach hook for checking the errors
-		add_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl') );
-
-		$this->assertTrue( false !== MockJetpack::check_identity_crisis( true ) );
-		remove_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl') );
-	}
-
-	public function pre_test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl( $errors ){
-		$this->assertCount( 0, $errors );
 	}
 	
 	/**
@@ -459,10 +343,12 @@ EXPECTED;
 		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
 	}
 
-	function _returns_true_when_option_matches_expected() {
+	function test_sync_error_idc_validation_returns_true_when_option_matches_expected() {
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
 		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
 		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
 		Jetpack_Options::delete_option( 'sync_error_idc' );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
 	}
 
 	function test_sync_error_idc_validation_cleans_up_when_validation_fails() {
@@ -559,6 +445,44 @@ EXPECTED;
 		// Cleanup
 		update_option( 'home', $original_home );
 		update_option( 'siteurl', $original_siteurl );
+	}
+
+	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_subdir_subdomain() {
+		$url = 'https://www.subdomain.myfaketestsite.com/what';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'subdomain.myfaketestsite.com/what/' === $url_normalized );
+
+		$url = 'http://subdomain.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'subdomain.myfaketestsite.com/' === $url_normalized );
+
+		$url = 'www.subdomain.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'subdomain.myfaketestsite.com/' === $url_normalized );
+	}
+
+	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_normal_urls() {
+		$url = 'https://www.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
+
+		$url = 'www.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
+
+		$url = 'myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
+	}
+
+	function test_normalize_url_protocol_agnostic_strips_protocol_for_ip() {
+		$url = 'http://123.456.789.0';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( '123.456.789.0/' === $url_normalized );
+
+		$url = '123.456.789.0';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( '123.456.789.0/' === $url_normalized );
 	}
 
 	function __return_string_1() {
