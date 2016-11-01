@@ -114,14 +114,20 @@ class Jetpack_IDC {
 	 * Enqueue scripts for the notice
 	 */
 	function enqueue_idc_notice_files() {
-		wp_enqueue_script( 'jetpack-idc-js', plugins_url( '_inc/idc-notice.js', JETPACK__PLUGIN_FILE ),
-			array( 'jquery' ), JETPACK__VERSION, true );
+		wp_enqueue_script(
+			'jetpack-idc-js',
+			plugins_url( '_inc/idc-notice.js', JETPACK__PLUGIN_FILE ),
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			true
+		);
+
 		wp_localize_script(
 			'jetpack-idc-js',
 			'idc',
 			array(
-				'ajaxurl'    => admin_url( 'admin-ajax.php' ),
-				'jitm_nonce' => wp_create_nonce( 'jetpack-jitm-nonce' ),
+				'ajaxurl'   => admin_url( 'admin-ajax.php' ),
+				'idc_nonce' => wp_create_nonce( 'jetpack-idc-nonce' ),
 			)
 		);
 	}
