@@ -364,6 +364,15 @@ class Jetpack_Sitemap_Manager {
 	public function callback_action_filter_sitemap_post_types () {
 		$this->delete_sitemap_post_type_option();
 		$this->store_sitemap_post_type_option(
+			/**
+			 * The array of post types to be included in the sitemap.
+			 *
+			 * Add your custom post type name to the array to have posts of
+			 * that type included in the sitemap. The default array includes
+			 * 'page' and 'post'.
+			 *
+			 * @since 4.5.0
+			 */
 			apply_filters(
 				'jetpack_sitemap_post_types',
 				array( 'post', 'page' )
