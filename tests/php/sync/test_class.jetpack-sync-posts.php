@@ -364,6 +364,40 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
 	}
 
+
+	function test_sync_publicize_works_as_expected() {
+		// create a draft
+		$new_post_id = $this->factory->post->create(  array( 'post_status' => 'draft' ) );
+
+		// Publish and then immediately update the post
+		wp_publish_post( $new_post_id );
+		// update a published post which should set the do not send flag
+		wp_update_post( array(
+			'ID'           => $new_post_id,
+			'post_content' => 'updated',
+			) );
+		
+		$this->sender->do_sync();
+
+		$all_wp_insert_post_events = $this->server_event_storage->get_all_events( 'wp_insert_post' );
+
+		foreach( $all_wp_insert_post_events as $event ) {
+			list( $post_id, $post ) = $event->args;
+			
+			if ( $post_id !== $new_post_id ) {
+				// ignore events that do not have the have the same post_id.
+				continue;
+			}
+
+			if ( 'updated' === $post->post_content ) {
+				// Only the updated post should have the do not send flag.
+				$this->assertEquals( true, $post->dont_email_post_to_subs );
+			} else {
+				$this->assertEquals( false, $post->dont_email_post_to_subs );
+			}
+		}
+	}
+
 	function test_sync_post_includes_dont_email_post_to_subs_when_subscription_is_not_active() {
 		$active_modules = Jetpack::get_active_modules();
 		Jetpack_Options::update_option( 'active_modules', array() );
