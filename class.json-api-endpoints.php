@@ -1562,18 +1562,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return true;
 		}
 
-		if ( $post_type_object = get_post_type_object( $post_type ) ) {
-			if ( ! empty( $post_type_object->show_in_rest ) ) {
-				return true;
-			}
-			if ( ! empty( $post_type_object->publicly_queryable ) ) {
-				return true;
-			}
+		// check for allowed types
+		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) ) {
+			return true;
 		}
 
-		// check for allowed types
-		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) )
-			return true;
+		if ( $post_type_object = get_post_type_object( $post_type ) ) {
+			if ( ! empty( $post_type_object->show_in_rest ) ) {
+				return $post_type_object->show_in_rest;
+			}
+			if ( ! empty( $post_type_object->publicly_queryable ) ) {
+				return $post_type_object->publicly_queryable;
+			}
+		}
 
 		return false;
 	}
