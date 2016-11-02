@@ -18,6 +18,12 @@ class Jetpack_IDC {
 	 */
 	static $wpcom_home_url;
 
+	/**
+	 * The link to the support document used to explain Safe Mode to users
+	 * @var string
+	 */
+	const SAFE_MODE_DOC_LINK = 'https://jetpack.com/support/safe-mode';
+
 	static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_IDC;
@@ -51,66 +57,19 @@ class Jetpack_IDC {
 			return;
 		}
 
-		$safe_mode_doc_link = 'https://jetpack.com/support/safe-mode';
 		?>
-		<div class="jp-idc notice notice-warning">
-			<div class="jp-emblem">
-				<?php echo Jetpack::get_jp_emblem(); ?>
+		<div class="jp-idc-notice notice notice-warning">
+			<div class="jp-idc-notice__header">
+				<div class="jp-idc-notice__header__emblem">
+					<?php echo Jetpack::get_jp_emblem(); ?>
+				</div>
+				<p class="jp-idc-notice__header__text">
+					<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack' ); ?>
+				</p>
 			</div>
-			<p class="msg-top">
-				<?php esc_html_e( 'Jetpack Safe Mode.', 'jetpack' ); ?>
-			</p>
-			<hr />
-			<div class="msg-bottom-head">
-				<?php
-					echo wp_kses(
-						sprintf(
-							__(
-								'Jetpack has been placed into <a href="%1$s">Safe mode</a> because we noticed this is an exact copy of %2$s.
-								Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or <a href="%1$s">learn 
-								more about Safe Mode</a>.',
-								'jetpack'
-							),
-							esc_url( $safe_mode_doc_link ),
-							Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) )
-						),
-						array( 'a' => array( 'href' => array() ) )
-					);
-				?>
-			</div>
-			<div style="width: 49%; display: inline-block;">
-				<?php
-					echo wp_kses(
-						sprintf(
-							__(
-								'Is this website a temporary duplicate of <a href="%1$s">%2$s</a> for the purposes of testing, staging or development? If so, we recommend keeping it in Safe Mode.',
-								'jetpack'
-							),
-							esc_url( self::$wpcom_home_url ),
-							Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) )
-						),
-						array( 'a' => array( 'href' => array() ) )
-					);
-				?>
-				<button id="idc-confirm-safe-mode"><?php esc_html_e( 'Confirm Safe Mode' ); ?></button>
-			</div>
-			<div style="width: 49%; display: inline-block;">
-				<?php
-					echo wp_kses(
-						sprintf(
-							__(
-								'If this is a separate and new website, or the new home of <a href="%1$s">%2$s</a>, we recommend turning Safe Mode off,
-								and re-establishing your connection to WordPress.com.',
-								'jetpack'
-							),
-							esc_url( $safe_mode_doc_link ),
-							Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) )
-						),
-						array( 'a' => array( 'href' => array() ) )
-					);
-				?>
-				<button  id="idc-fix-connection"><?php esc_html_e( "Fix Jetpack's Connection" ); ?></button>
-			</div>
+
+			<?php $this->render_notice_first_step(); ?>
+			<?php $this->render_notice_second_step(); ?>
 		</div>
 	<?php }
 
@@ -139,13 +98,161 @@ class Jetpack_IDC {
 			)
 		);
 
-		wp_enqueue_style(
-			'jetpack-idc-css',
-			plugins_url( 'css/jetpack-idc.css', JETPACK__PLUGIN_FILE ),
+		wp_register_style(
+			'jetpack-dops-style',
+			plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ),
 			array(),
 			JETPACK__VERSION
 		);
+
+		wp_enqueue_style(
+			'jetpack-idc-css',
+			plugins_url( 'css/jetpack-idc.css', JETPACK__PLUGIN_FILE ),
+			array( 'jetpack-dops-style' ),
+			JETPACK__VERSION
+		);
 	}
+
+	function render_notice_first_step() { ?>
+		<div class="jp-idc-notice__first-step">
+			<div class="jp-idc-notice__content-header">
+				<h3 class="jp-idc-notice__content-header__lead">
+					<?php
+					echo wp_kses(
+						sprintf(
+							__(
+								'Jetpack has been placed into <a href="%1$s">Safe mode</a> because we noticed this is an exact copy of <a href="%2$s">%2$s</a>.',
+								'jetpack'
+							),
+							esc_url( self::SAFE_MODE_DOC_LINK ),
+							esc_url( untrailingslashit( self::$wpcom_home_url ) )
+						),
+						array( 'a' => array( 'href' => array() ) )
+					);
+					?>
+				</h3>
+
+				<p class="jp-idc-notice__content-header__explanation">
+					<?php
+					echo wp_kses(
+						sprintf(
+							__(
+								'Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or <a href="%1$s">learn 
+								more about Safe Mode</a>.',
+								'jetpack'
+							),
+							esc_url( self::SAFE_MODE_DOC_LINK )
+						),
+						array( 'a' => array( 'href' => array() ) )
+					);
+					?>
+				</p>
+			</div>
+
+			<div class="jp-idc-notice__actions">
+				<div class="jp-idc-notice__action">
+					<p class="jp-idc-notice__action__explanation">
+						<?php
+						echo wp_kses(
+							sprintf(
+								__(
+									'Is this website a temporary duplicate of <a href="%1$s">%1$s</a> for the purposes 
+									of testing, staging or development? If so, we recommend keeping it in Safe Mode.',
+									'jetpack'
+								),
+								esc_url( untrailingslashit( self::$wpcom_home_url ) )
+							),
+							array( 'a' => array( 'href' => array() ) )
+						);
+						?>
+					</p>
+					<button id="jp-idc-confirm-safe-mode-action" class="dops-button">
+						<?php esc_html_e( 'Confirm Safe Mode' ); ?>
+					</button>
+				</div>
+
+				<div class="jp-idc-notice__action">
+					<p class="jp-idc-notice__action__explanation">
+						<?php
+						echo wp_kses(
+							sprintf(
+								__(
+									'If this is a separate and new website, or the new home of <a href="%1$s">%1$s</a>, 
+									we recommend turning Safe Mode off, and re-establishing your connection to WordPress.com.',
+									'jetpack'
+								),
+								esc_url( untrailingslashit( self::$wpcom_home_url ) )
+							),
+							array( 'a' => array( 'href' => array() ) )
+						);
+						?>
+					</p>
+					<button id="jp-idc-fix-connection-action" class="dops-button">
+						<?php esc_html_e( "Fix Jetpack's Connection" ); ?>
+					</button>
+				</div>
+			</div>
+		</div>
+	<?php }
+
+	function render_notice_second_step() { ?>
+		<div class="jp-idc-notice__second-step">
+			<div class="jp-idc-notice__content-header">
+				<h3 class="jp-idc-notice__content-header__lead">
+					<?php
+						printf(
+							esc_html__(
+								'Is %1$s the new home of %2$s?',
+								'jetpack'
+							),
+							untrailingslashit( Jetpack::normalize_url_protocol_agnostic( get_home_url() ) ),
+							untrailingslashit( Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
+						)
+					?>
+				</h3>
+			</div>
+
+			<div class="jp-idc-notice__actions">
+				<div class="jp-idc-notice__action">
+					<p class="jp-idc-notice__action__explanation">
+						<?php
+							printf(
+								esc_html__(
+									'Yes. %1$s is replacing %2$s. I would like to migrate my stats and subscribers from 
+									%2$s to %1$s.',
+									'jetpack'
+								),
+								untrailingslashit( Jetpack::normalize_url_protocol_agnostic( get_home_url() ) ),
+								untrailingslashit( Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
+							)
+						?>
+					</p>
+					<button id="jp-idc-migrate-action" class="dops-button">
+						<?php esc_html_e( 'Migrate stats &amp; and Subscribers' ); ?>
+					</button>
+				</div>
+
+				<div class="jp-idc-notice__action">
+					<p class="jp-idc-notice__action__explanation">
+						<?php
+							printf(
+								esc_html__(
+									'No. %1$s is a new and different website that\'s separate from %2$s. It requires 
+									a new connection to WordPress.com for new stats and subscribers.',
+									'jetpack'
+								),
+								untrailingslashit( Jetpack::normalize_url_protocol_agnostic( get_home_url() ) ),
+								untrailingslashit( Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
+							)
+						?>
+					</p>
+					<button id="jp-idc-reconnect-site-action" class="dops-button">
+						<?php esc_html_e( 'Start fresh &amp; create new connection' ); ?>
+					</button>
+				</div>
+			</div>
+		</div>
+	<?php }
 }
 
 Jetpack_IDC::init();
