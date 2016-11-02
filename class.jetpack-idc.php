@@ -18,6 +18,12 @@ class Jetpack_IDC {
 	 */
 	static $wpcom_home_url;
 
+	/**
+	 * The link to the support document used to explain Safe Mode to users
+	 * @var string
+	 */
+	const SAFE_MODE_DOC_LINK = 'https://jetpack.com/support/safe-mode';
+
 	static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_IDC;
@@ -51,7 +57,6 @@ class Jetpack_IDC {
 			return;
 		}
 
-		$safe_mode_doc_link = 'https://jetpack.com/support/safe-mode';
 		?>
 		<div class="jp-idc-notice notice notice-warning">
 			<div class="jp-idc-notice__header">
@@ -63,6 +68,52 @@ class Jetpack_IDC {
 				</p>
 			</div>
 
+			<?php $this->render_notice_first_step(); ?>
+		</div>
+	<?php }
+
+	/**
+	 * Enqueue scripts for the notice
+	 */
+	function enqueue_idc_notice_files() {
+		if ( ! $this->should_show_idc_notice() ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'jetpack-idc-js',
+			plugins_url( '_inc/idc-notice.js', JETPACK__PLUGIN_FILE ),
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'jetpack-idc-js',
+			'idcL10n',
+			array(
+				'apiRoot' => esc_url_raw( rest_url() ),
+				'nonce' => wp_create_nonce( 'wp_rest' ),
+			)
+		);
+
+		wp_register_style(
+			'jetpack-dops-style',
+			plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ),
+			array(),
+			JETPACK__VERSION
+		);
+
+		wp_enqueue_style(
+			'jetpack-idc-css',
+			plugins_url( 'css/jetpack-idc.css', JETPACK__PLUGIN_FILE ),
+			array( 'jetpack-dops-style' ),
+			JETPACK__VERSION
+		);
+	}
+
+	function render_notice_first_step() { ?>
+		<div class="jp-idc-notice__first-step">
 			<div class="jp-idc-notice__content-header">
 				<h3 class="jp-idc-notice__content-header__lead">
 					<?php
@@ -72,7 +123,7 @@ class Jetpack_IDC {
 								'Jetpack has been placed into <a href="%1$s">Safe mode</a> because we noticed this is an exact copy of <a href="%2$s">%2$s</a>.',
 								'jetpack'
 							),
-							esc_url( $safe_mode_doc_link ),
+							esc_url( self::SAFE_MODE_DOC_LINK ),
 							esc_url( untrailingslashit( self::$wpcom_home_url ) )
 						),
 						array( 'a' => array( 'href' => array() ) )
@@ -89,7 +140,7 @@ class Jetpack_IDC {
 								more about Safe Mode</a>.',
 								'jetpack'
 							),
-							esc_url( $safe_mode_doc_link )
+							esc_url( self::SAFE_MODE_DOC_LINK )
 						),
 						array( 'a' => array( 'href' => array() ) )
 					);
@@ -142,46 +193,6 @@ class Jetpack_IDC {
 			</div>
 		</div>
 	<?php }
-
-	/**
-	 * Enqueue scripts for the notice
-	 */
-	function enqueue_idc_notice_files() {
-		if ( ! $this->should_show_idc_notice() ) {
-			return;
-		}
-
-		wp_enqueue_script(
-			'jetpack-idc-js',
-			plugins_url( '_inc/idc-notice.js', JETPACK__PLUGIN_FILE ),
-			array( 'jquery' ),
-			JETPACK__VERSION,
-			true
-		);
-
-		wp_localize_script(
-			'jetpack-idc-js',
-			'idcL10n',
-			array(
-				'apiRoot' => esc_url_raw( rest_url() ),
-				'nonce' => wp_create_nonce( 'wp_rest' ),
-			)
-		);
-
-		wp_register_style(
-			'jetpack-dops-style',
-			plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ),
-			array(),
-			JETPACK__VERSION
-		);
-
-		wp_enqueue_style(
-			'jetpack-idc-css',
-			plugins_url( 'css/jetpack-idc.css', JETPACK__PLUGIN_FILE ),
-			array( 'jetpack-dops-style' ),
-			JETPACK__VERSION
-		);
-	}
 }
 
 Jetpack_IDC::init();
