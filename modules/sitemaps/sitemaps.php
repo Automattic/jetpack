@@ -102,38 +102,6 @@ class Jetpack_Sitemap_Manager {
 	}
 
 	/**
-	 * Store an array of post type names to be included in the sitemap.
-	 * Side effect: creates or updates an option in the database.
-	 *
-	 * @since 4.5.0
-	 *
-	 * @param array $post_types Array of (string) names of post types to be included in the sitemap.
-	 */
-	private function store_sitemap_post_type_option ( $post_types ) {
-		update_option( 'jetpack_sitemap_post_types', $post_types );
-		return;
-	}
-
-	/**
-	 * Read the array of post type names to be included in the sitemap.
-	 *
-	 * @since 4.5.0
-	 */
-	private function read_sitemap_post_type_option () {
-		return get_option( 'jetpack_sitemap_post_types' );
-	}
-
-	/**
-	 * Delete the stored array of post type names to be included in the sitemap.
-	 *
-	 * @since 4.5.0
-	 */
-	private function delete_sitemap_post_type_option () {
-		delete_option( 'jetpack_sitemap_post_types' );
-		return;
-	}
-
-	/**
 	 * Callback to register sitemap post types for data storage.
 	 *
 	 * @access public
@@ -1536,6 +1504,42 @@ class Jetpack_Sitemap_Manager {
 			));
 		}
 
+		return;
+	}
+
+	/*
+	 * Store and Manipulate Admin Options
+	 */
+
+	/**
+	 * Store an array of post type names to be included in the sitemap.
+	 * Side effect: creates or updates an option in the database.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param array $post_types Array of (string) names of post types to be included in the sitemap.
+	 */
+	private function store_sitemap_post_type_option ( $post_types ) {
+		update_option( 'jetpack_sitemap_post_types', $post_types );
+		return;
+	}
+
+	/**
+	 * Read the array of post type names to be included in the sitemap.
+	 *
+	 * @since 4.5.0
+	 */
+	private function read_sitemap_post_type_option () {
+		return get_option( 'jetpack_sitemap_post_types' );
+	}
+
+	/**
+	 * Delete the stored array of post type names to be included in the sitemap.
+	 *
+	 * @since 4.5.0
+	 */
+	private function delete_sitemap_post_type_option () {
+		delete_option( 'jetpack_sitemap_post_types' );
 		return;
 	}
 
