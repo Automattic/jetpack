@@ -599,7 +599,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = $grouped_options_current != $grouped_options ? update_option( 'stats_options', $grouped_options ) : true;
 					break;
 
-				case jetpack_holiday_snow_option_name():
+				case Jetpack_Core_Json_Api_Endpoints::holiday_snow_option_name():
 					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? 'letitsnow' : '' ) : true;
 					break;
 

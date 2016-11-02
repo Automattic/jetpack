@@ -555,7 +555,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_settings() {
 		$response = array(
-			jetpack_holiday_snow_option_name() => get_option( jetpack_holiday_snow_option_name() ) == 'letitsnow',
+			self::holiday_snow_option_name() => get_option( self::holiday_snow_option_name() ) == 'letitsnow',
 		);
 		return rest_ensure_response( $response );
 	}
@@ -579,7 +579,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return rest_ensure_response( $response );
 	}
 
-
+	/**
+	 * Returns the proper name for Jetpack Holiday Snow setting.
+	 * When the REST route starts, the holiday-snow.php file where jetpack_holiday_snow_option_name() function is defined is not loaded,
+	 * so where using this to replicate it and have the same functionality.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return string
+	 */
+	public static function holiday_snow_option_name() {
+		/** This filter is documented in modules/holiday-snow.php */
+		return apply_filters( 'jetpack_holiday_snow_option_name', 'jetpack_holiday_snow_enabled' );
+	}
 
 	/**
 	 * Update a single miscellaneous setting for this Jetpack installation, like Holiday Snow.
@@ -607,7 +619,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$updated = false;
 
 		switch ( $option ) {
-			case jetpack_holiday_snow_option_name():
+			case self::holiday_snow_option_name():
 				$updated = update_option( $option, ( true == (bool) $value ) ? 'letitsnow' : '' );
 				break;
 		}
@@ -1463,7 +1475,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Settings - Not a module
-			jetpack_holiday_snow_option_name() => array(
+			self::holiday_snow_option_name() => array(
 				'description'       => '',
 				'type'              => 'boolean',
 				'default'           => 0,
