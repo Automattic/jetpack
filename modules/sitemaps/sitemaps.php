@@ -313,7 +313,7 @@ class Jetpack_Sitemap_Manager {
 		 */
 		function callback_add_sitemap_schedule ($schedules) {
 			$schedules['sitemap-interval'] = array(
-				'interval' => self::SITEMAP_INTERVAL,
+				'interval' => Jetpack_Sitemap_Manager::SITEMAP_INTERVAL,
 				'display'  => __('Every Minute')
 			);
 			return $schedules;
