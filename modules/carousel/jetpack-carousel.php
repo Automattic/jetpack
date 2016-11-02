@@ -337,7 +337,7 @@ class Jetpack_Carousel {
 		}
 
 		foreach ( $selected_images as $attachment_id => $image_html ) {
-			$attachment = WP_Post::get_instance( $attachment_id );
+			$attachment = get_post( $attachment_id );
 			$attributes = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
 			foreach( $attributes as $k => $v ) {
