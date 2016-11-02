@@ -583,6 +583,10 @@ class Jetpack_Core_API_Module_Endpoint
 					$updated = $grouped_options_current != $grouped_options ? update_option( 'stats_options', $grouped_options ) : true;
 					break;
 
+				case jetpack_holiday_snow_option_name():
+					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? 'letitsnow' : '' ) : true;
+					break;
+
 				case 'wp_mobile_featured_images':
 				case 'wp_mobile_excerpt':
 					$value = ( 'enabled' === $value ) ? '1' : '0';

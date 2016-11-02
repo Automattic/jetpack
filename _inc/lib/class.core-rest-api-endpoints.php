@@ -1460,6 +1460,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_posint',
 				'module'            => 'stats',
 			),
+
+			// Settings - Not a module
+			jetpack_holiday_snow_option_name() => array(
+				'description'       => '',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'module'            => 'settings',
+			),
+
 		);
 
 		if ( is_array( $selector ) ) {
