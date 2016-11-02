@@ -27,11 +27,11 @@ const PlanHeader = React.createClass( {
 						<div className="jp-landing-plans__header-img-container">
 							<div className="jp-landing-plans__header-col-left">
 								<h3 className="jp-landing-plans__header-subtitle">{ __( "Just $3.50 monthly or $39 per year" ) }</h3>
-                <p className="jp-landing-plans__header-text">
-                  { __( "How much is your website worth? For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up." ) }
-                  <br /><br />
-                  { __( "Hackers, botnets and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios we'll be here to help you restore your site to its former glory." ) }
-                </p>
+								<p className="jp-landing-plans__header-text">
+									{ __( "How much is your website worth? For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up." ) }
+									<br /><br />
+									{ __( "Hackers, botnets and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios we'll be here to help you restore your site to its former glory." ) }
+								</p>
 								<p className="jp-landing-plans__header-btn-container">
 									<Button href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } className="is-primary">
 										{ __( 'More detail...' ) }
@@ -60,19 +60,19 @@ const PlanHeader = React.createClass( {
 				);
 				break;
 
-    case 'jetpack_personal':
-		case 'jetpack_personal_monthly':
-			planCard = (
-				<div className="jp-landing__plan-card">
-					<div className="jp-landing__plan-card-img">
-						<img src={ imagePath + '/plans/plan-jetpack-premium.svg' } className="jp-landing__plan-icon" />
+			case 'jetpack_personal':
+			case 'jetpack_personal_monthly':
+				planCard = (
+					<div className="jp-landing__plan-card">
+						<div className="jp-landing__plan-card-img">
+							<img src={ imagePath + '/plans/plan-jetpack-premium.svg' } className="jp-landing__plan-icon" />
+						</div>
+						<div className="jp-landing__plan-card-current">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Personal plan' ) }</h3>
+							<p className="jp-landing__plan-features-text">{ __( 'With this plan you are provided with spam-protection, daily backups (up to 30 days), and unlimited storage.' ) }</p>
+						</div>
 					</div>
-					<div className="jp-landing__plan-card-current">
-						<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Personal plan' ) }</h3>
-						<p className="jp-landing__plan-features-text">{ __( 'With this plan you are provided with spam-protection, daily backups (up to 30 days), and unlimited storage.' ) }</p>
-					</div>
-				</div>
-			);
+				);
 			break;
 
 			case 'jetpack_premium':
