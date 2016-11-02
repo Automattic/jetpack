@@ -1901,6 +1901,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Allows the endpoint to perform logic to allow it to decide whether-or-not it should force a
+	 * response from the WPCOM API, or potentially go to the Jetpack blog.
+	 *
+	 * Override this method if you want to do something different.
+	 *
+	 * @param  int  $blog_id
+	 * @return bool
+	 */
+	function force_wpcom_request( $blog_id ) {
+		return false;
+	}
+
+	/**
 	 * Return endpoint response
 	 *
 	 * @param ... determined by ->$path
