@@ -37,14 +37,18 @@ jQuery(document).ready(function($) {
 				break;
 			case 39: // right
 				e.preventDefault();
-				gallery.jp_carousel('clearCommentTextAreaValue');
-				gallery.jp_carousel('next');
+				if( gallery.jp_carousel('slides').length > 1 ) {
+					gallery.jp_carousel('clearCommentTextAreaValue');
+					gallery.jp_carousel('next');
+				}
 				break;
 			case 37: // left
 			case 8: // backspace
 				e.preventDefault();
-				gallery.jp_carousel('clearCommentTextAreaValue');
-				gallery.jp_carousel('previous');
+				if( gallery.jp_carousel('slides').length > 1 ) {
+					gallery.jp_carousel('clearCommentTextAreaValue');
+					gallery.jp_carousel('previous');
+				}
 				break;
 			case 27: // escape
 				e.preventDefault();
