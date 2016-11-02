@@ -66,13 +66,13 @@ class Jetpack_Carousel {
 			 * @param array $this->prebuilt_widths Array of default widths.
 			 */
 			$this->prebuilt_widths = apply_filters( 'jp_carousel_widths', $this->prebuilt_widths );
-			add_filter( 'post_gallery', array( $this, 'check_and_enqueue_assets' ), 1000, 2 ); // load later than other callbacks hooked it
+			// below: load later than other callbacks hooked it (e.g. 3rd party plugins handling gallery shortcode)
+			add_filter( 'post_gallery', array( $this, 'check_if_shortcode_processed_and_enqueue_assets' ), 1000, 2 );
 			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
 			if ( $this->single_image_gallery_enabled ) {
-				add_filter( 'the_content', array( $this, 'add_data_to_single_images_html' ) );
-				$this->enqueue_assets();
+				add_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			}
 		}
 
@@ -134,7 +134,7 @@ class Jetpack_Carousel {
 		return $output;
 	}
 
-	function check_and_enqueue_assets( $output ) {
+	function check_if_shortcode_processed_and_enqueue_assets( $output ) {
 		if (
 			! empty( $output ) &&
 			/**
@@ -151,6 +151,7 @@ class Jetpack_Carousel {
 			// Bail because someone is overriding the [gallery] shortcode.
 			remove_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			remove_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ) );
+			remove_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			// Display message that carousel has bailed, if user is super_admin, and if we're not on WordPress.com.
 			if (
 				is_super_admin() &&
@@ -318,7 +319,7 @@ class Jetpack_Carousel {
 	 * @param string $content HTML content of the post
 	 * @return string Modified HTML content of the post
 	 */
-	function add_data_to_single_images_html( $content ) {
+	function add_data_img_tags_and_enqueue_assets( $content ) {
 		if ( ! preg_match_all( '/<img [^>]+>/', $content, $matches ) ) {
 			return $content;
 		}
@@ -346,7 +347,7 @@ class Jetpack_Carousel {
 			$image_html_with_data = str_replace( '<img ', "<img $attributes_html", $image_html );
 			$content = str_replace( $image_html, $image_html_with_data, $content );
 		}
-
+		$this->enqueue_assets();
 		return $content;
 	}
 
