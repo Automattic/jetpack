@@ -6,7 +6,7 @@
 
 class Jetpack_Sync_Functions {
 	const HTTPS_CHECK_OPTION_PREFIX = 'jetpack_sync_https_history_';
-	const HTTPS_CHECK_HISTORY = 9;
+	const HTTPS_CHECK_HISTORY = 5;
 
 	public static function get_modules() {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
@@ -99,26 +99,23 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function home_url() {
-		return self::preserve_scheme( 'home', 'home_url', true );
+		return self::get_protocol_normalized_url( 'home_url', get_home_url() );
 	}
 
 	public static function site_url() {
-		return self::preserve_scheme( 'siteurl', 'site_url', true );
+		return self::get_protocol_normalized_url( 'site_url', get_site_url() );
 	}
 
 	public static function main_network_site_url() {
-		return self::preserve_scheme( 'siteurl', 'network_site_url', false );
+		return self::get_protocol_normalized_url( 'main_network_site_url', network_site_url() );
 	}
 
-	public static function is_https_supported( $callable, $new_value ) {
+	public static function get_protocol_normalized_url( $callable, $new_value ) {
 		$option_key = self::HTTPS_CHECK_OPTION_PREFIX . $callable;
 
 		$parsed_url = wp_parse_url( $new_value );
 		if ( ! $parsed_url ) {
-			return new WP_Error(
-				'parse-error',
-				__( 'Could not parse the URL, so can not determine if https is supported', 'jetpack' )
-			);
+			return $new_value;
 		}
 
 		$scheme = $parsed_url['scheme'];
@@ -130,59 +127,9 @@ class Jetpack_Sync_Functions {
 
 		update_option( $option_key, $scheme_history );
 
-		return in_array( 'https', $scheme_history );
-	}
+		$forced_scheme =  in_array( 'https', $scheme_history ) ? 'https' : 'http';
 
-	public static function preserve_scheme( $option, $url_function, $normalize_www = false ) {
-		$previous_https_value = isset( $_SERVER['HTTPS'] ) ? $_SERVER['HTTPS'] : null;
-		$_SERVER['HTTPS'] = 'off';
-		$url = call_user_func( $url_function );
-		$option_url = get_option( $option );
-		if ( $previous_https_value ) {
-			$_SERVER['HTTPS'] = $previous_https_value;	
-		} else {
-			unset( $_SERVER['HTTPS'] );
-		}
-
-		if ( $option_url === $url ) {
-			return $url;
-		}
-
-		// turn them both into parsed format
-		$option_url = wp_parse_url( $option_url );
-		$url        = wp_parse_url( $url );
-
-		if ( ! $option_url || ! $url ) {
-			return $url;
-		}
-
-		if ( $normalize_www ) {
-			if ( $url['host'] === "www.{$option_url[ 'host' ]}" ) {
-				// remove www if not present in option URL
-				$url['host'] = $option_url['host'];
-			}
-			if ( $option_url['host'] === "www.{$url[ 'host' ]}" ) {
-				// add www if present in option URL
-				$url['host'] = $option_url['host'];
-			}
-		}
-
-		if ( $url['host'] === $option_url['host'] ) {
-			$url['scheme'] = $option_url['scheme'];
-			// return set_url_scheme( $current_url,  $option_url['scheme'] );
-		}
-
-		$normalized_url = "{$url['scheme']}://{$url['host']}";
-
-		if ( isset( $url['path'] ) ) {
-			$normalized_url .= "{$url['path']}";
-		}
-
-		if ( isset( $url['query'] ) ) {
-			$normalized_url .= "?{$url['query']}";
-		}
-
-		return $normalized_url;
+		return set_url_scheme( $new_value, $forced_scheme );
 	}
 
 	public static function get_plugins() {

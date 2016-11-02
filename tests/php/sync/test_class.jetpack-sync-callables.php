@@ -254,35 +254,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $home_url, $this->server_replica_storage->get_callable( 'home_url' ) );
 	}
 
-	function test_preserve_scheme() {
-		update_option( 'banana', 'http://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com' ) ), 'http://example.com' );
-
-		// the same host so lets preseve the scheme
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com' ) ), 'http://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com_blog' ) ), 'http://example.com/blog' );
-
-		// lets change the scheme to https
-		update_option( 'banana', 'https://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com' ) ), 'https://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com_blog' ) ), 'https://example.com/blog' );
-
-		// a different host lets preseve the scheme from the host
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_site_com' ) ), 'http://site.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_site_com' ) ), 'https://site.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_site_com_blog' ) ), 'https://site.com/blog' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_example_org' ) ), 'https://example.org' );
-
-		// adding www subdomain reverts to original domain
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_www_example_com' ), true ), 'https://example.com' );
-		// other subdomains are preserved
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_foo_example_com' ), true ), 'https://foo.example.com' );
-
-		// if original domain is www, prefer that
-		update_option( 'banana', 'https://www.example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_example_com' ), true ), 'https://www.example.com' );
-	}
-
 	function return_example_com() {
 		return 'http://example.com';
 	}
@@ -319,35 +290,21 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		return 'https://foo.example.com';
 	}
 
-	function test_ignores_but_preserves_https_value() {
-		$non_https_site_url = site_url();
-
-		$this->assertTrue( !! preg_match( '/^http:/', site_url() ) );
-
-		$_SERVER['HTTPS'] = 'on';
-
-		$this->assertTrue( !! preg_match( '/^https:/', site_url() ) );
-
-		$this->assertEquals( $non_https_site_url, Jetpack_Sync_Functions::preserve_scheme( 'siteurl', 'site_url') );
-
-		$this->assertEquals( $_SERVER['HTTPS'], 'on' );
-
-		unset( $_SERVER['HTTPS'] );
-	}
-
-	function test_is_https_supported_works_with_no_history() {
+	function test_get_protocol_normalized_url_works_with_no_history() {
 		$callable_type = 'home_url';
 		$option_key = Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 
-		$this->assertFalse(
-			Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_example_com() )
+		$this->assertStringStartsWith(
+			'http://',
+			Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
 		);
 
 		delete_option( $option_key );
 
-		$this->assertTrue(
-			Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_https_example_com() )
+		$this->assertStringStartsWith(
+			'https://',
+			Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_https_example_com() )
 		);
 
 		$this->assertCount( 1, get_option( $option_key ) );
@@ -355,44 +312,50 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		delete_option( $option_key );
 	}
 
-	function test_is_https_supported_stores_max_history() {
+	function test_get_protocol_normalized_url_stores_max_history() {
 		$callable_type = 'home_url';
 		$option_key = Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 		for ( $i = 0; $i < 20; $i++ ) {
-			Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_example_com() );
+			Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() );
 		}
 
 		$this->assertCount( Jetpack_Sync_Functions::HTTPS_CHECK_HISTORY, get_option( $option_key ) );
 		delete_option( $option_key );
 	}
 
-	function test_is_https_supported_returns_http_when_https_falls_off() {
+	function test_get_protocol_normalized_url_returns_http_when_https_falls_off() {
 		$callable_type = 'home_url';
 		$option_key = Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 
 		// Start with one https scheme
-		$this->assertTrue(
-			Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_https_example_com() )
+		$this->assertStringStartsWith(
+			'https://',
+			Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_https_example_com() )
 		);
 
 		// Now add enough http schemes to fill up the history
 		for ( $i = 1; $i < Jetpack_Sync_Functions::HTTPS_CHECK_HISTORY; $i++ ) {
-			$this->assertTrue(
-				Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_example_com() )
+			$this->assertStringStartsWith(
+				'https://',
+				Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
 			);
 		}
 
 		// Now that the history is full, this one should cause the function to return false.
-		$this->assertFalse(
-			Jetpack_Sync_Functions::is_https_supported( $callable_type, $this->return_example_com() )
+		$this->assertStringStartsWith(
+			'http://',
+			Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
 		);
 	}
 
-	function test_is_https_supported_returns_wp_error_cannot_parse() {
-		$https_supported = Jetpack_Sync_Functions::is_https_supported( 'home_url', 'http:///example.com' );
-		$this->assertTrue( is_wp_error( $https_supported ) );
+	function test_get_protocol_normalized_url_returns_new_value_cannot_parse() {
+		$test_url = 'http:///example.com';
+		$this->assertEquals(
+			$test_url,
+			Jetpack_Sync_Functions::get_protocol_normalized_url( 'home_url', $test_url )
+		);
 	}
 
 	function test_subdomain_switching_to_www_does_not_cause_sync() {
