@@ -1415,7 +1415,7 @@ jQuery(document).ready(function($) {
 		// process links that have rel=attachment and img tag inside
 		$( 'a[rel*="attachment"] img' ).each(function() {
 			var container = $( this ).parent();
-			if( $( container ).attr( 'href' ) == $( this ).attr( 'data-orig-file' ) ) {
+			if( $( container ).attr( 'href' ) === $( this ).attr( 'data-orig-file' ) ) {
 				// if link points to 'Media File', skip it
 				return;
 			}
