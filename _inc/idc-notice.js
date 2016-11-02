@@ -6,12 +6,12 @@
 		notice = $( '.jp-idc-notice' );
 
 	// Confirm Safe Mode
-	$( '#idc-confirm-safe-mode' ).click( function() {
+	$( '#jp-idc-confirm-safe-mode-action' ).click( function() {
 		confirmSafeMode();
 	} );
 
 	// Confirm Safe Mode
-	$( '#idc-fix-connection' ).click( function() {
+	$( '#jp-idc-fix-connection-action' ).click( function() {
 		fixJetpackConnection();
 	} );
 
@@ -25,7 +25,7 @@
 			url: route,
 			data: {},
 			success: function( response ){
-				$( '.jp-idc' ).hide();
+				$( '.jp-idc-notice' ).hide();
 				alert( JSON.stringify( response, null, 4 ) );
 			},
 			error: function( response ) {

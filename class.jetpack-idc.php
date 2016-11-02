@@ -166,7 +166,7 @@ class Jetpack_IDC {
 						);
 						?>
 					</p>
-					<button id="idc-confirm-safe-mode" class="dops-button">
+					<button id="jp-idc-confirm-safe-mode-action" class="dops-button">
 						<?php esc_html_e( 'Confirm Safe Mode' ); ?>
 					</button>
 				</div>
@@ -187,7 +187,7 @@ class Jetpack_IDC {
 						);
 						?>
 					</p>
-					<button id="idc-fix-connection" class="dops-button">
+					<button id="jp-idc-fix-connection-action" class="dops-button">
 						<?php esc_html_e( "Fix Jetpack's Connection" ); ?>
 					</button>
 				</div>
@@ -227,7 +227,7 @@ class Jetpack_IDC {
 							)
 						?>
 					</p>
-					<button id="idc-confirm-migrate" class="dops-button">
+					<button id="jp-idc-migrate-action" class="dops-button">
 						<?php esc_html_e( 'Migrate stats &amp; and Subscribers' ); ?>
 					</button>
 				</div>
@@ -246,7 +246,7 @@ class Jetpack_IDC {
 							)
 						?>
 					</p>
-					<button id="idc-fix-connection" class="dops-button">
+					<button id="jp-idc-reconnect-site-action" class="dops-button">
 						<?php esc_html_e( 'Start fresh &amp; create new connection' ); ?>
 					</button>
 				</div>
