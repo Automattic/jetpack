@@ -91,6 +91,13 @@ class Jetpack_Sitemap_Manager {
 			20
 		);
 
+		// Process filters and store post_types for inclusion in sitemap.
+		add_action(
+			'init',
+			array( $this, 'callback_action_filter_sitemap_post_types' ),
+			999
+		);
+
 		return;
 	}
 
@@ -117,7 +124,7 @@ class Jetpack_Sitemap_Manager {
 	private function add_sitemap_post_type_option ( $new_post_type ) {
 		$post_types = $this->read_sitemap_post_type_option();
 		$post_types[] = $new_post_type;
-		store_sitemap_post_type_option( $post_types );
+		$this->store_sitemap_post_type_option( $post_types );
 		return;
 	}
 
@@ -128,6 +135,16 @@ class Jetpack_Sitemap_Manager {
 	 */
 	private function read_sitemap_post_type_option () {
 		return get_option( 'jetpack_sitemap_post_types' );
+	}
+
+	/**
+	 * Delete the stored array of post type names to be included in the sitemap.
+	 *
+	 * @since 4.5.0
+	 */
+	private function delete_sitemap_post_type_option () {
+		delete_option( 'jetpack_sitemap_post_types' );
+		return;
 	}
 
 	/**
@@ -383,6 +400,23 @@ class Jetpack_Sitemap_Manager {
 	public function callback_action_do_robotstxt () {
 		/** This filter is documented in modules/sitemaps/sitemaps.php */
 		echo 'Sitemap: ' . home_url() . '/sitemap.xml' . PHP_EOL;
+	}
+
+	/**
+	 * Callback to filter and store post_types for inclusion in the sitemap.
+	 *
+	 * @since 4.5.0
+	 */
+	public function callback_action_filter_sitemap_post_types () {
+		$this->delete_sitemap_post_type_option();
+		$this->store_sitemap_post_type_option(
+			apply_filters(
+				'jetpack_sitemap_post_types',
+				array( 'post', 'page' )
+			)
+		);
+
+		return;
 	}
 
 	/**
@@ -1304,10 +1338,17 @@ class Jetpack_Sitemap_Manager {
 	private function query_posts_after_ID ( $from_ID, $num_posts ) {
 		global $wpdb;
 
+		// Get the list of post types to include and prepare for query.
+		$post_types = $this->read_sitemap_post_type_option();
+		foreach ( (array) $post_types as $i => $post_type ) {
+			$post_types[ $i ] = $wpdb->prepare( '%s', $post_type );
+		}
+		$post_types_list = join( ",", $post_types );
+
 		$query_string = "
 			SELECT *
 				FROM $wpdb->posts
-				WHERE post_status='publish' AND ID>$from_ID
+				WHERE post_status='publish' AND post_type IN ($post_types_list) AND ID>$from_ID
 				ORDER BY ID ASC
 				LIMIT $num_posts;
 		";
