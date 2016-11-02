@@ -127,7 +127,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		echo $args['after_widget'];
 
 		/** This action is already documented in modules/widgets/gravatar-profile.php */
-		do_action( 'jetpack_stats_extra', 'widget', 'googleplus-badge' );
+		do_action( 'jetpack_stats_extra', 'widget_view', 'googleplus-badge' );
 	}
 
 	function update( $new_instance, $old_instance ) {

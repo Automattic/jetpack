@@ -87,7 +87,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		echo $args['after_widget'];
 
 		/** This action is already documented in modules/widgets/gravatar-profile.php */
-		do_action( 'jetpack_stats_extra', 'widget', 'goodreads' );
+		do_action( 'jetpack_stats_extra', 'widget_view', 'goodreads' );
 	}
 
 	function goodreads_user_id_exists( $user_id ) {
