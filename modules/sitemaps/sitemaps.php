@@ -10,6 +10,10 @@
  *    URLs for all published content and abide by the sitemap spec. This is the root
  *    of a tree of sitemap and sitemap index xml files, depending on the number of URLs.
  *
+ *    By default the sitemap contains published posts of type 'post' and 'page', as
+ *    well as the home url. To include other post types use the 'jetpack_sitemap_post_types'
+ *    filter.
+ *
  * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
  * @link https://support.google.com/webmasters/answer/178636 Image sitemap extension.
  *
