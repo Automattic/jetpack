@@ -35,7 +35,7 @@ class Jetpack_Options {
 				'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
 				'protect_whitelist',           // (array) IP Address for the Protect module to ignore
 				'sync_error_idc',              // (bool|array) false or array containing the site's home and siteurl at time of IDC error
-				'auto_staging_confirmed'       // (bool) True if someone confirms that a site was correctly put into staging mode automatically after an identity crisis is discovered.
+				'safe_mode_confirmed'          // (bool) True if someone confirms that a site was correctly put into safe mode automatically after an identity crisis is discovered.
 			);
 
 		case 'private' :

@@ -1,9 +1,10 @@
-/* global idcL10n, jQuery, alert, JSON, console */
+/* global idcL10n, jQuery */
 
 ( function( $ ) {
 	var restNonce = idcL10n.nonce,
 		restRoot = idcL10n.apiRoot,
-		notice = $( '.jp-idc-notice' );
+		notice = $( '.jp-idc-notice' ),
+		idcButtons = $( '.jp-idc-notice .dops-button' );
 
 	// Confirm Safe Mode
 	$( '#jp-idc-confirm-safe-mode-action' ).click( function() {
@@ -15,21 +16,29 @@
 		fixJetpackConnection();
 	} );
 
+	function disableDopsButtons() {
+		idcButtons.prop( 'disabled', true );
+	}
+
+	function enableDopsButtons() {
+		idcButtons.prop( 'disabled', false );
+	}
+
 	function confirmSafeMode() {
-		var route = restRoot + 'jetpack/v4/site';
+		var route = restRoot + 'jetpack/v4/identity-crisis/confirm-safe-mode';
+		disableDopsButtons();
 		$.ajax( {
-			method: 'GET',
+			method: 'POST',
 			beforeSend : function ( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
 			},
 			url: route,
 			data: {},
-			success: function( response ){
+			success: function(){
 				$( '.jp-idc-notice' ).hide();
-				alert( JSON.stringify( response, null, 4 ) );
 			},
-			error: function( response ) {
-				console.log( response.responseText );
+			error: function() {
+				enableDopsButtons();
 			}
 		} );
 	}

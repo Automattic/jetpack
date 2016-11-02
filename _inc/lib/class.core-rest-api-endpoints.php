@@ -98,9 +98,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Confirm that a site in identity crisis should be in staging mode
-		register_rest_route( 'jetpack/v4', '/identity-crisis/confirm-staging-mode', array(
+		register_rest_route( 'jetpack/v4', '/identity-crisis/confirm-safe-mode', array(
 			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::confirm_staging_mode',
+			'callback' => __CLASS__ . '::confirm_safe_mode',
 			'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 		) );
 
@@ -668,19 +668,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Sets a flag
+	 * Sets a flag to confirm safe mode.
 	 *
 	 * @since 4.4.0
 	 *
 	 * @return bool True
 	 */
-	public static function confirm_staging_mode() {
-		Jetpack_Options::update_option( 'auto_staging_confirmed', true );
-		return rest_ensure_response(
-			array(
-				'code' => 'success'
-			)
-		);
+	public static function confirm_safe_mode() {
+		$updated = Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+		if ( $updated ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success'
+				)
+			);
+		}
+		return new WP_Error( 'error_confirming_safe_mode', esc_html__( 'Jetpack could not confirm safe mode.', 'jetpack' ), array( 'status' => 500 ) );
 	}
 
 	/**
