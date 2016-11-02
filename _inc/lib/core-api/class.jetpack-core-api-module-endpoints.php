@@ -416,22 +416,24 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			'message' => esc_html__( 'The requested Jetpack data updates were successful.', 'jetpack' ),
 		);
 
-		// If there are modules to activate, activate them first so they're ready when their options are set
+		// If there are modules to activate, activate them first so they're ready when their options are set.
 		foreach ( $params as $option => $value ) {
 			if ( 'modules' === $options[ $option ]['jp_group'] ) {
-				
+
 				// Used if there was an error. Can be overwritten with specific error messages.
 				$error = '';
 
-				// Set to true if the option update was successful.
+				// Set to true if the module toggling was successful.
 				$updated = false;
 
+				// Check if user can toggle the module.
 				if ( $toggle_module->can_request() ) {
-					if ( $value ) {
-						$toggle_result = $toggle_module->activate_module( $option );
-					} else {
-						$toggle_result = $toggle_module->deactivate_module( $option );
-					}
+
+					// Activate or deactivate the module according to the value passed.
+					$toggle_result = $value
+						? $toggle_module->activate_module( $option )
+						: $toggle_module->deactivate_module( $option );
+
 					if ( is_wp_error( $toggle_result ) ) {
 						$error = $toggle_result->get_error_message();
 					} else {
@@ -441,7 +443,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$error = Jetpack_Core_Json_Api_Endpoints::$user_permissions_error_msg;
 				}
 
-				// The module was not activated.
+				// The module was not toggled.
 				if ( ! $updated ) {
 					$not_updated[ $option ] = $error;
 				}
@@ -461,6 +463,19 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 			// Get option attributes, including the group it belongs to.
 			$option_attrs = $options[ $option ];
+
+			// If this is a module option and the related module isn't active for any reason, continue with the next one.
+			if ( 'settings' !== $option_attrs['jp_group'] ) {
+				if ( ! Jetpack::is_module( $option_attrs['jp_group'] ) ) {
+					$not_updated[ $option ] = esc_html__( 'The requested Jetpack module was not found.', 'jetpack' );
+					continue;
+				}
+
+				if ( ! Jetpack::is_module_active( $option_attrs['jp_group'] ) ) {
+					$not_updated[ $option ] = esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' );
+					continue;
+				}
+			}
 
 			// Properly cast value based on its type defined in endpoint accepted args.
 			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $option_attrs );
