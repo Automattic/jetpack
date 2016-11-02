@@ -69,6 +69,7 @@ class Jetpack_IDC {
 			</div>
 
 			<?php $this->render_notice_first_step(); ?>
+			<?php $this->render_notice_second_step(); ?>
 		</div>
 	<?php }
 
@@ -188,6 +189,65 @@ class Jetpack_IDC {
 					</p>
 					<button id="idc-fix-connection" class="dops-button">
 						<?php esc_html_e( "Fix Jetpack's Connection" ); ?>
+					</button>
+				</div>
+			</div>
+		</div>
+	<?php }
+
+	function render_notice_second_step() { ?>
+		<div class="jp-idc-notice__second-step">
+			<div class="jp-idc-notice__content-header">
+				<h3 class="jp-idc-notice__content-header__lead">
+					<?php
+						printf(
+							esc_html__(
+								'Is %1$s the new home of %2$s?',
+								'jetpack'
+							),
+							untrailingslashit( Jetpack::normalize_url_protocol_agnostic( get_home_url() ) ),
+							untrailingslashit( Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
+						)
+					?>
+				</h3>
+			</div>
+
+			<div class="jp-idc-notice__actions">
+				<div class="jp-idc-notice__action">
+					<p class="jp-idc-notice__action__explanation">
+						<?php
+							printf(
+								esc_html__(
+									'Yes. %1$s is replacing %2$s. I would like to migrate my stats and subscribers from 
+									%2$s to %1$s.',
+									'jetpack'
+								),
+								untrailingslashit( Jetpack::normalize_url_protocol_agnostic( get_home_url() ) ),
+								untrailingslashit( Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
+							)
+						?>
+					</p>
+					<button id="idc-confirm-migrate" class="dops-button">
+						<?php esc_html_e( 'Migrate stats &amp; and Subscribers' ); ?>
+					</button>
+				</div>
+
+				<div class="jp-idc-notice__action">
+					<p class="jp-idc-notice__action__explanation">
+						<?php
+							printf(
+								esc_html__(
+									'No. %1$s is a new and different website that\'s separate from %2$s. It requires 
+									a new connection to WordPress.com for new stats and subscribers.',
+									'jetpack'
+								),
+								untrailingslashit( Jetpack::normalize_url_protocol_agnostic( get_home_url() ) ),
+								untrailingslashit( Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
+							)
+						?>
+					</p>
+					<button id="idc-fix-connection" class="dops-button">
+						<?php esc_html_e( 'Start fresh &amp; create new connection' ); ?>
 					</button>
 				</div>
 			</div>

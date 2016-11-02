@@ -5,6 +5,24 @@
 	padding: 0;
 }
 
+.jp-idc-notice__first-step {
+	display: inline;
+}
+
+.jp-idc-notice__second-step {
+	display: none;
+}
+
+.jp-idc-notice.jp-idc-show-second-step {
+	.jp-idc-notice__first-step {
+		display: none;
+	}
+
+	.jp-idc-notice__second-step {
+		display: inline;
+	}
+}
+
 .jp-idc-notice__header {
 	border-bottom: 1px solid $gray-light;
 	margin-bottom: 16px;
