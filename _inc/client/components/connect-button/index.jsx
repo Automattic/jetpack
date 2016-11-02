@@ -25,7 +25,7 @@ const ConnectButton = React.createClass( {
 	displayName: 'ConnectButton',
 
 	propTypes: {
-		type: React.PropTypes.bool
+		connectUser: React.PropTypes.bool,
 	},
 
 	getDefaultProps() {
