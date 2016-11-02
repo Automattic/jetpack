@@ -1,6 +1,65 @@
-.jp-emblem {
-  width: 25px;
-  height: 25px;
-  margin: .40em 1em 0 auto;
-  float: left;
+@import '../_inc/client/scss/variables/_colors.scss';
+
+.jp-idc-notice p {
+	margin: 0;
+	padding: 0;
+}
+
+.jp-idc-notice__header {
+	border-bottom: 1px solid $gray-light;
+	margin-bottom: 16px;
+	padding: 8px 0;
+}
+
+.jp-idc-notice__header__emblem {
+	fill: $green-primary;
+	width: 25px;
+	height: 25px;
+	margin: 0 1em 0 auto;
+	float: left;
+}
+
+.jp-idc-notice__header__text {
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 25px;
+	margin: 0;
+}
+
+.jp-idc-notice__content-header {
+	margin-bottom: 16px;
+}
+
+.jp-idc-notice__content-header__lead {
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 21px;
+	margin: 0;
+}
+
+.jp-idc-notice__content-header .jpc-idc-notice-content-header__explanation {
+	margin: 0;
+}
+
+.jp-idc-notice__actions {
+	display: flex;
+}
+
+.jp-idc-notice__action {
+	width: 49%;
+	display: block;
+	flex: 1;
+	margin-bottom: 24px;
+}
+
+.jp-idc-notice__action:first-child {
+	padding-right: 24px;
+}
+
+.jp-idc-notice__action:last-child {
+	padding-left: 24px;
+}
+
+.jp-idc-notice .jp-idc-notice__action__explanation {
+	margin: 0 0 16px 0;
 }
