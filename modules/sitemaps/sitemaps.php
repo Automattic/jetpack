@@ -95,6 +95,42 @@ class Jetpack_Sitemap_Manager {
 	}
 
 	/**
+	 * Store an array of post type names to be included in the sitemap.
+	 * Side effect: creates or updates an option in the database.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param array $post_types Array of (string) names of post types to be included in the sitemap.
+	 */
+	private function store_sitemap_post_type_option ( $post_types ) {
+		update_option( 'jetpack_sitemap_post_types', $post_types );
+		return;
+	}
+
+	/**
+	 * Add a post type to the array of post types to be included in the sitemap.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param string $new_post_type The name of the post type to be included.
+	 */
+	private function add_sitemap_post_type_option ( $new_post_type ) {
+		$post_types = $this->read_sitemap_post_type_option();
+		$post_types[] = $new_post_type;
+		store_sitemap_post_type_option( $post_types );
+		return;
+	}
+
+	/**
+	 * Read the array of post type names to be included in the sitemap.
+	 *
+	 * @since 4.5.0
+	 */
+	private function read_sitemap_post_type_option () {
+		return get_option( 'jetpack_sitemap_post_types' );
+	}
+
+	/**
 	 * Callback to register sitemap post types for data storage.
 	 *
 	 * @access public
