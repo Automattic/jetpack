@@ -1,7 +1,6 @@
-/* global idcL10n, jQuery */
+/* global idcL10n, jQuery, alert, JSON, console */
 
 ( function( $ ) {
-	
 	var restNonce = idcL10n.nonce,
 		restRoot = idcL10n.apiRoot;
 
