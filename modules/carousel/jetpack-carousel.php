@@ -101,6 +101,8 @@ class Jetpack_Carousel {
 		 *
 		 * @module carousel
 		 *
+		 * @since 4.5.0
+		 *
 		 * @param bool false Should Carousel be disabled for single images? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_maybe_disable_single_images', false );
