@@ -71,7 +71,7 @@ class Jetpack_Carousel {
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
 			if ( $this->single_image_gallery_enabled ) {
-				add_filter( 'the_content', array( $this, 'add_data_to_single_images' ) );
+				add_filter( 'the_content', array( $this, 'add_data_to_single_images_html' ) );
 				$this->enqueue_assets();
 			}
 		}
@@ -318,7 +318,7 @@ class Jetpack_Carousel {
 	 * @param string $content HTML content of the post
 	 * @return string Modified HTML content of the post
 	 */
-	function add_data_to_single_images( $content ) {
+	function add_data_to_single_images_html( $content ) {
 		if ( ! preg_match_all( '/<img [^>]+>/', $content, $matches ) ) {
 			return $content;
 		}
