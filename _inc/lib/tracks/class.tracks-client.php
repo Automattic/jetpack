@@ -181,25 +181,4 @@ class Jetpack_Tracks_Client {
 			'username' => $user_data['login'],
 		);
 	}
-
-	/**
-	 * Enqueues Tracks functions and library
-	 */
-	static function enqueue_tracks_scripts() {
-		wp_enqueue_script(
-			'jp-tracks',
-			'//stats.wp.com/w.js?48',
-			array(),
-			JETPACK__VERSION,
-			true
-		);
-
-		wp_enqueue_script(
-			'jp-tracks-functions',
-			plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
-			array(),
-			JETPACK__VERSION,
-			false
-		);
-	}
 }

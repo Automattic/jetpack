@@ -184,17 +184,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return $dismissed_notices;
 	}
 
-	function jetpack_get_tracks_user_data() {
-		if ( ! $user_data = Jetpack::get_connected_user_data() ) {
-			return false;
-		}
-
-		return array(
-			'userid' => $user_data['ID'],
-			'username' => $user_data['login'],
-		);
-	}
-
 	function page_admin_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
 
@@ -291,7 +280,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'errorCode' => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
-			'tracksUserData' => $this->jetpack_get_tracks_user_data(),
+			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false
 		) );
 	}

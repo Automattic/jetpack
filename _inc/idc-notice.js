@@ -1,18 +1,25 @@
-/* global idcL10n, jQuery */
+/* global idcL10n, jQuery, analytics */
 
 ( function( $ ) {
 	var restNonce = idcL10n.nonce,
 		restRoot = idcL10n.apiRoot,
 		notice = $( '.jp-idc-notice' ),
-		idcButtons = $( '.jp-idc-notice .dops-button' );
+		idcButtons = $( '.jp-idc-notice .dops-button' ),
+		tracksUser = idcL10n.tracksUserData;
+
+	// Initialize Tracks and bump stats.
+	analytics.initialize( tracksUser.userid, tracksUser.username );
+	trackAndBumpMCStats( 'notice_view' );
 
 	// Confirm Safe Mode
 	$( '#jp-idc-confirm-safe-mode-action' ).click( function() {
+		trackAndBumpMCStats( 'confirm_safe_mode' );
 		confirmSafeMode();
 	} );
 
-	// Confirm Safe Mode
+	// Fix connection
 	$( '#jp-idc-fix-connection-action' ).click( function() {
+		trackAndBumpMCStats( 'fix_connection' );
 		fixJetpackConnection();
 	} );
 
@@ -45,5 +52,29 @@
 
 	function fixJetpackConnection() {
 		notice.addClass( 'jp-idc-show-second-step' );
+	}
+
+	/**
+	 * This function will fire both a Tracks and MC stat.
+	 * It will make sure to format the event name properly for the given stat home.
+	 *
+	 * Tracks: Will be prefixed by 'jetpack_idc_' and use underscores.
+	 * MC: Will not be prefixed, and will use dashes.
+	 *
+	 * @param eventName string
+	 */
+	function trackAndBumpMCStats( eventName ) {
+		if ( 'undefined' !== eventName && eventName.length ) {
+
+			// Format for Tracks
+			eventName = eventName.replace( /-/g, '_' );
+			eventName = eventName.indexOf( 'jetpack_idc_' ) !== 0 ? 'jetpack_idc_' + eventName : eventName;
+			analytics.tracks.recordEvent( eventName, {} );
+
+			// Now format for MC stats
+			eventName = eventName.replace( 'jetpack_idc_', '' );
+			eventName = eventName.replace( /_/g, '-' );
+			analytics.mc.bumpStat( 'jetpack-idc', eventName );
+		}
 	}
 })( jQuery );
