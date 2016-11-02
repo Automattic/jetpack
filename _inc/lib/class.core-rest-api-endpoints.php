@@ -138,7 +138,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// Return a single module and update it when needed
 		self::route(
 			'/module/(?P<slug>[a-z\-]+)',
-			'Jetpack_Core_API_Module_Endpoint',
+			'Jetpack_Core_API_Data',
 			WP_REST_Server::READABLE,
 			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) )
 		);
@@ -162,10 +162,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// Update a module
 		self::route(
 			'/module/(?P<slug>[a-z\-]+)',
-			'Jetpack_Core_API_Module_Endpoint',
+			'Jetpack_Core_API_Data',
 			WP_REST_Server::EDITABLE,
 			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
-			self::get_module_updating_parameters()
+			self::get_updateable_parameters()
 		);
 
 		// Get data for a specific module, i.e. Protect block count, WPCOM stats,
@@ -188,10 +188,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// Update any Jetpack module option or setting
 		self::route(
 			'/update',
-			'Jetpack_Core_API_Module_Endpoint',
+			'Jetpack_Core_API_Data',
 			WP_REST_Server::EDITABLE,
 			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
-			self::get_module_updating_parameters( 'any' )
+			self::get_updateable_parameters( 'any' )
 		);
 
 		// Reset all Jetpack options
@@ -440,14 +440,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Verify that user can update Jetpack options.
+	 * Verify that user can update Jetpack general settings.
 	 *
 	 * @since 4.3.0
 	 *
-	 * @return bool Whether user has the capability 'jetpack_admin_page'.
+	 * @return bool Whether user has the capability 'update_settings_permission_check'.
 	 */
 	public static function update_settings_permission_check() {
-		if ( current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'jetpack_configure_modules' ) ) {
 			return true;
 		}
 
@@ -896,38 +896,39 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Get the query parameters for module updating.
+	 * Get the query parameters to update module options or general settings.
 	 *
 	 * @since 4.3.0
-	 * @since 4.4.0 Accepts a $module parameter.
+	 * @since 4.4.0 Accepts a $selector parameter.
 	 *
-	 * @param string $module Module slug. Can be empty, any module slug or 'any'.
+	 * @param string $selector Selects a set of options to update, Can be empty, a module slug or 'any'.
 	 *
 	 * @return array
 	 */
-	public static function get_module_updating_parameters( $module = '' ) {
+	public static function get_updateable_parameters( $selector = '' ) {
 		$parameters = array(
 			'context'     => array(
 				'default' => 'edit',
 			),
 		);
 
-		return array_merge( $parameters, self::get_module_available_options( $module ) );
+		return array_merge( $parameters, self::get_updateable_data_list( $selector ) );
 	}
 
 	/**
-	 * Returns a list of module options that can be updated.
+	 * Returns a list of module options or general settings that can be updated.
 	 *
 	 * @since 4.3.0
 	 * @since 4.4.0 Accepts 'any' as a parameter which will make it return the entire list.
 	 *
-	 * @param string|array $selector Module slug or array of parameters.
+	 * @param string|array $selector Module slug, 'any', or an array of parameters.
 	 *                               If empty, it's assumed we're updating a module and we'll try to get its slug.
-	 *                               If 'any' a custom list is returned.
+	 *                               If 'any' the full list is returned.
+	 *                               If it's an array of parameters, includes the elements by matching keys.
 	 *
 	 * @return array
 	 */
-	public static function get_module_available_options( $selector = '' ) {
+	public static function get_updateable_data_list( $selector = '' ) {
 
 		$options = array(
 
@@ -1881,7 +1882,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array
 	 */
 	public static function prepare_options_for_response( $module = '' ) {
-		$options = self::get_module_available_options( $module );
+		$options = self::get_updateable_data_list( $module );
 
 		if ( ! is_array( $options ) || empty( $options ) ) {
 			return $options;

@@ -273,14 +273,30 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	}
 }
 
-class Jetpack_Core_API_Module_Endpoint
-	extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
+/**
+ * Class that manages updating of Jetpack module options and general Jetpack settings or retrieving module data.
+ *
+ * @since 4.3.0
+ * @since 4.4.0 Renamed Jetpack_Core_API_Module_Endpoint from to Jetpack_Core_API_Data.
+ *
+ * @author Automattic
+ */
+class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
+	/**
+	 * Process request by returning the module or updating it.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $data
+	 *
+	 * @return bool|mixed|void|WP_Error
+	 */
 	public function process( $data ) {
 		if ( 'GET' === $data->get_method() ) {
 			return $this->get_module( $data );
 		} else {
-			return $this->update_module( $data );
+			return $this->update_data( $data );
 		}
 	}
 
@@ -344,12 +360,12 @@ class Jetpack_Core_API_Module_Endpoint
 	 *
 	 * @return bool|WP_Error True if module was updated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public function update_module( $data ) {
+	public function update_data( $data ) {
 
 		// If it's null, we're trying to update many module options from different modules.
 		if ( is_null( $data['slug'] ) ) {
 
-			// Value admitted by Jetpack_Core_Json_Api_Endpoints::get_module_available_options that will make it return all module options.
+			// Value admitted by Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list that will make it return all module options.
 			// It will not be passed. It's just checked in this method to pass that method a string or array.
 			$data['slug'] = 'any';
 		} else {
@@ -371,7 +387,7 @@ class Jetpack_Core_API_Module_Endpoint
 		}
 
 		// Get available module options.
-		$options = Jetpack_Core_Json_Api_Endpoints::get_module_available_options( 'any' === $data['slug']
+		$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'any' === $data['slug']
 			? $params
 			: $data['slug']
 		);
@@ -590,7 +606,7 @@ class Jetpack_Core_API_Module_Endpoint
 				case 'wp_mobile_featured_images':
 				case 'wp_mobile_excerpt':
 					$value = ( 'enabled' === $value ) ? '1' : '0';
-					// break intentionally omitted
+				// break intentionally omitted
 				default:
 					// If option value was the same, consider it done.
 					$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
@@ -612,7 +628,7 @@ class Jetpack_Core_API_Module_Endpoint
 			$error = '';
 			if ( $invalid_count > 0 ) {
 				$error = sprintf(
-					/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
+				/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
 					_n( 'Invalid option for this module: %s.', 'Invalid options for this module: %s.', $invalid_count, 'jetpack' ),
 					join( ', ', $invalid )
 				);
@@ -622,7 +638,7 @@ class Jetpack_Core_API_Module_Endpoint
 				foreach ( $not_updated as $not_updated_option => $not_updated_message ) {
 					if ( ! empty( $not_updated_message ) ) {
 						$not_updated_messages[] = sprintf(
-							/* Translators: the first variable is a module option name. The second is the error message . */
+						/* Translators: the first variable is a module option name. The second is the error message . */
 							__( 'Extra info for %1$s: %2$s', 'jetpack' ),
 							$not_updated_option, $not_updated_message );
 					}
@@ -631,7 +647,7 @@ class Jetpack_Core_API_Module_Endpoint
 					$error .= ' ';
 				}
 				$error .= sprintf(
-					/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
+				/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
 					_n( 'Option not updated: %s.', 'Options not updated: %s.', $not_updated_count, 'jetpack' ),
 					join( ', ', array_keys( $not_updated ) ) );
 				if ( ! empty( $not_updated_messages ) ) {
@@ -681,7 +697,7 @@ class Jetpack_Core_API_Module_Endpoint
 	/**
 	 * Check if user is allowed to perform the update.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 *
 	 * @param WP_REST_Request $request
 	 *
