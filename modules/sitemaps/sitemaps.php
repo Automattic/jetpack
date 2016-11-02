@@ -346,7 +346,7 @@ class Jetpack_Sitemap_Manager {
 	 */
 	public function callback_action_do_robotstxt () {
 		/** This filter is documented in modules/sitemaps/sitemaps.php */
-		echo 'Sitemap: ' . site_url() . '/sitemap.xml' . PHP_EOL;
+		echo 'Sitemap: ' . home_url() . '/sitemap.xml' . PHP_EOL;
 	}
 
 	/**
@@ -364,14 +364,14 @@ class Jetpack_Sitemap_Manager {
 		$master = 
 			"<?xml version='1.0' encoding='UTF-8'?>\n" .
 			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
-			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap-index.xsl" . "'?>\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/sitemap-index.xsl" . "'?>\n" .
 			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n" .
 			" <sitemap>\n" .
-			"  <loc>" . site_url() . $page['filename'] . "</loc>\n" .
+			"  <loc>" . home_url() . $page['filename'] . "</loc>\n" .
 			"  <lastmod>" . $page['last_modified'] . "</lastmod>\n" .
 			" </sitemap>\n" .
 			" <sitemap>\n" .
-			"  <loc>" . site_url() . $image['filename'] . "</loc>\n" .
+			"  <loc>" . home_url() . $image['filename'] . "</loc>\n" .
 			" </sitemap>\n" .
 			"</sitemapindex>\n";
 
@@ -488,7 +488,7 @@ class Jetpack_Sitemap_Manager {
 			/* open tag */
 			"<?xml version='1.0' encoding='UTF-8'?>\n" .
 			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
-			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap.xsl'?>\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/sitemap.xsl'?>\n" .
 			"<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n",
 
 			/* close tag */
@@ -502,7 +502,7 @@ class Jetpack_Sitemap_Manager {
 		if ( 1 == $number ) {
 			$buffer->try_to_add_item(
 				"<url>\n" .
-				" <loc>" . site_url() . "</loc>\n" .
+				" <loc>" . home_url() . "</loc>\n" .
 				"</url>\n"
 			);
 		}
@@ -621,7 +621,7 @@ class Jetpack_Sitemap_Manager {
 			/* open tag */
 			"<?xml version='1.0' encoding='UTF-8'?>\n" .
 			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
-			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap-index.xsl" . "'?>\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/sitemap-index.xsl" . "'?>\n" .
 			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n",
 
 			/* close tag */
@@ -636,7 +636,7 @@ class Jetpack_Sitemap_Manager {
 			$i = $number - 1;
 			$buffer->try_to_add_item(
 				"<sitemap>\n" .
- 				" <loc>" . site_url() . "/sitemap-index-$i.xml</loc>\n" .
+ 				" <loc>" . home_url() . "/sitemap-index-$i.xml</loc>\n" .
 				" <lastmod>" . str_replace( ' ', 'T', $timestamp) . 'Z' . "</lastmod>\n" .
 				"</sitemap>\n"
 			);
@@ -783,7 +783,7 @@ class Jetpack_Sitemap_Manager {
 			/* open tag */
 			"<?xml version='1.0' encoding='UTF-8'?>\n" .
 			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
-			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/image-sitemap.xsl" . "'?>\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/image-sitemap.xsl" . "'?>\n" .
 			"<urlset\n" .
 			"  xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'\n" .
 			"  xmlns:image='http://www.google.com/schemas/sitemap-image/1.1'>\n",
@@ -910,7 +910,7 @@ class Jetpack_Sitemap_Manager {
 			/* open tag */
 			"<?xml version='1.0' encoding='UTF-8'?>\n" .
 			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
-			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/sitemap-index.xsl" . "'?>\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/sitemap-index.xsl" . "'?>\n" .
 			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n",
 
 			/* close tag */
@@ -925,7 +925,7 @@ class Jetpack_Sitemap_Manager {
 			$i = $number - 1;
 			$buffer->try_to_add_item(
 				"<sitemap>\n" .
- 				" <loc>" . site_url() . "/image-sitemap-index-$i.xml</loc>\n" .
+ 				" <loc>" . home_url() . "/image-sitemap-index-$i.xml</loc>\n" .
 				" <lastmod>" . str_replace( ' ', 'T', $timestamp) . 'Z' . "</lastmod>\n" .
 				"</sitemap>\n"
 			);
@@ -997,7 +997,7 @@ class Jetpack_Sitemap_Manager {
 			/* open tag */
 			"<?xml version='1.0' encoding='UTF-8'?>\n" .
 			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
-			"<?xml-stylesheet type='text/xsl' href='" . site_url() . "/news-sitemap.xsl'?>\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/news-sitemap.xsl'?>\n" .
 			"<urlset\n" .
 			"  xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'\n" .
 			"  xmlns:news='http://www.google.com/schemas/sitemap-news/0.9'>\n",
@@ -1134,7 +1134,7 @@ class Jetpack_Sitemap_Manager {
 	 * @return string An XML fragment representing the post URL.
 	 */
 	private function sitemap_to_index_item ( $post ) {
-		$url = site_url() . '/' . $post->post_title . '.xml';
+		$url = home_url() . '/' . $post->post_title . '.xml';
 
 		/*
 		 * Must use W3C Datetime format per the spec.
@@ -1169,7 +1169,7 @@ class Jetpack_Sitemap_Manager {
 	 * @return string An XML fragment representing the post URL.
 	 */
 	private function image_sitemap_to_index_item ( $post ) {
-		$url = site_url() . '/' . $post->post_title . '.xml';
+		$url = home_url() . '/' . $post->post_title . '.xml';
 
 		$xml =
 			"<sitemap>\n" .
