@@ -1553,12 +1553,23 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	function is_post_type_allowed( $post_type ) {
 		// if the post type is empty, that's fine, WordPress will default to post
-		if ( empty( $post_type ) )
+		if ( empty( $post_type ) ) {
 			return true;
+		}
 
 		// allow special 'any' type
-		if ( 'any' == $post_type )
+		if ( 'any' == $post_type ) {
 			return true;
+		}
+
+		if ( $post_type_object = get_post_type_object( $post_type ) ) {
+			if ( ! empty( $post_type_object->show_in_rest ) ) {
+				return true;
+			}
+			if ( ! empty( $post_type_object->publicly_queryable ) ) {
+				return true;
+			}
+		}
 
 		// check for allowed types
 		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) )
