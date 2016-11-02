@@ -142,8 +142,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		echo $args['after_widget'];
 
-		/** This action is documented in modules/widgets/social-media-icons.php */
-		do_action( 'jetpack_bump_stats_extras', 'widget_view', 'twitter_timeline' );
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'twitter_timeline' );
 	}
 
 
