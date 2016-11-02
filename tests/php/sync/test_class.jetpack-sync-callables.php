@@ -239,6 +239,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->setSyncClientDefaults();
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+
 		$_SERVER['HTTPS'] = 'off';
 		$home_url         = home_url();
 		$this->sender->do_sync();
@@ -254,33 +255,20 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $home_url, $this->server_replica_storage->get_callable( 'home_url' ) );
 	}
 
-	function test_preserve_scheme() {
-		update_option( 'banana', 'http://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com' ) ), 'http://example.com' );
+	function test_get_url_scheme_for_callable_returns_http_default() {
+		$this->assertEquals( 'http', Jetpack_Sync_Functions::get_url_scheme_for_callable( 'home_url' ) );
+	}
 
-		// the same host so lets preseve the scheme
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com' ) ), 'http://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com_blog' ) ), 'http://example.com/blog' );
+	function test_get_url_scheme_for_callable_can_be_overriden() {
+		add_filter( 'jetpack_synced_urls_scheme', array( $this, 'return_https' ) );
+		$this->assertEquals( 'https', Jetpack_Sync_Functions::get_url_scheme_for_callable( 'home_url' ) );
+		remove_filter( 'jetpack_synced_urls_scheme', array( $this, 'return_https' ) );
+	}
 
-		// lets change the scheme to https
-		update_option( 'banana', 'https://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com' ) ), 'https://example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_example_com_blog' ) ), 'https://example.com/blog' );
-
-		// a different host lets preseve the scheme from the host
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_site_com' ) ), 'http://site.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_site_com' ) ), 'https://site.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_site_com_blog' ) ), 'https://site.com/blog' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_example_org' ) ), 'https://example.org' );
-
-		// adding www subdomain reverts to original domain
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_www_example_com' ), true ), 'https://example.com' );
-		// other subdomains are preserved
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_foo_example_com' ), true ), 'https://foo.example.com' );
-
-		// if original domain is www, prefer that
-		update_option( 'banana', 'https://www.example.com' );
-		$this->assertEquals( Jetpack_Sync_Functions::preserve_scheme( 'banana', array( $this, 'return_https_example_com' ), true ), 'https://www.example.com' );
+	function test_get_url_scheme_for_callable_only_allows_http_or_https() {
+		add_filter( 'jetpack_synced_urls_scheme', array( $this, 'return_example_com' ) );
+		$this->assertEquals( 'http', Jetpack_Sync_Functions::get_url_scheme_for_callable( 'home_url' ) );
+		remove_filter( 'jetpack_synced_urls_scheme', array( $this, 'return_example_com' ) );
 	}
 
 	function return_example_com() {
@@ -319,20 +307,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		return 'https://foo.example.com';
 	}
 
-	function test_ignores_but_preserves_https_value() {
-		$non_https_site_url = site_url();
-
-		$this->assertTrue( !! preg_match( '/^http:/', site_url() ) );
-
-		$_SERVER['HTTPS'] = 'on';
-
-		$this->assertTrue( !! preg_match( '/^https:/', site_url() ) );
-
-		$this->assertEquals( $non_https_site_url, Jetpack_Sync_Functions::preserve_scheme( 'siteurl', 'site_url') );
-
-		$this->assertEquals( $_SERVER['HTTPS'], 'on' );
-
-		unset( $_SERVER['HTTPS'] );
+	function return_https() {
+		return 'https';
 	}
 
 	function test_subdomain_switching_to_www_does_not_cause_sync() {
