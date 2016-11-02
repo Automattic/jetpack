@@ -97,63 +97,34 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function home_url() {
-		return self::preserve_scheme( 'home', 'home_url', true );
+		return get_home_url( null, '', self::get_url_scheme_for_callable( 'home_url' ) );
 	}
 
 	public static function site_url() {
-		return self::preserve_scheme( 'siteurl', 'site_url', true );
+		return get_site_url( null, '', self::get_url_scheme_for_callable( 'site_url' ) );
 	}
 
 	public static function main_network_site_url() {
-		return self::preserve_scheme( 'siteurl', 'network_site_url', false );
+		return network_site_url( '', self::get_url_scheme_for_callable( 'main_network_site_url' ) );
 	}
 
-	public static function preserve_scheme( $option, $url_function, $normalize_www = false ) {
-		$previous_https_value = isset( $_SERVER['HTTPS'] ) ? $_SERVER['HTTPS'] : null;
-		$_SERVER['HTTPS'] = 'off';
-		$url = call_user_func( $url_function );
-		$option_url = get_option( $option );
-		if ( $previous_https_value ) {
-			$_SERVER['HTTPS'] = $previous_https_value;	
-		} else {
-			unset( $_SERVER['HTTPS'] );
+	public static function get_url_scheme_for_callable( $callable ) {
+		/**
+		 * By default, we will set the URL scheme for URL callables to http. This filter fires for each callable
+		 * and allows developers to change that behavior so that the URLs can conditionally be synced with https schemes.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string 'http'    The default scheme that will be used for the URL synced to WordPress.com
+		 * @param string $callable The name of the callable that is being synced
+		 */
+		$scheme = apply_filters( 'jetpack_synced_urls_scheme', 'http', $callable );
+
+		if ( 'http' !== $scheme && 'https' !== $scheme ) {
+			$scheme = 'http';
 		}
 
-		if ( $option_url === $url ) {
-			return $url;
-		}
-
-		// turn them both into parsed format
-		$option_url = parse_url( $option_url );
-		$url        = parse_url( $url );
-
-		if ( $normalize_www ) {
-			if ( $url['host'] === "www.{$option_url[ 'host' ]}" ) {
-				// remove www if not present in option URL
-				$url['host'] = $option_url['host'];
-			}
-			if ( $option_url['host'] === "www.{$url[ 'host' ]}" ) {
-				// add www if present in option URL
-				$url['host'] = $option_url['host'];
-			}
-		}
-
-		if ( $url['host'] === $option_url['host'] ) {
-			$url['scheme'] = $option_url['scheme'];
-			// return set_url_scheme( $current_url,  $option_url['scheme'] );
-		}
-
-		$normalized_url = "{$url['scheme']}://{$url['host']}";
-
-		if ( isset( $url['path'] ) ) {
-			$normalized_url .= "{$url['path']}";
-		}
-
-		if ( isset( $url['query'] ) ) {
-			$normalized_url .= "?{$url['query']}";
-		}
-
-		return $normalized_url;
+		return $scheme;
 	}
 
 	public static function get_plugins() {
