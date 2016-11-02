@@ -73,7 +73,7 @@ class Jetpack_IDC {
 								'jetpack'
 							),
 							esc_url( $safe_mode_doc_link ),
-							esc_url( self::$wpcom_home_url )
+							esc_url( untrailingslashit( self::$wpcom_home_url ) )
 						),
 						array( 'a' => array( 'href' => array() ) )
 					);
@@ -108,7 +108,7 @@ class Jetpack_IDC {
 									of testing, staging or development? If so, we recommend keeping it in Safe Mode.',
 									'jetpack'
 								),
-								esc_url( self::$wpcom_home_url )
+								esc_url( untrailingslashit( self::$wpcom_home_url ) )
 							),
 							array( 'a' => array( 'href' => array() ) )
 						);
@@ -129,7 +129,7 @@ class Jetpack_IDC {
 									we recommend turning Safe Mode off, and re-establishing your connection to WordPress.com.',
 									'jetpack'
 								),
-								esc_url( self::$wpcom_home_url )
+								esc_url( untrailingslashit( self::$wpcom_home_url ) )
 							),
 							array( 'a' => array( 'href' => array() ) )
 						);
