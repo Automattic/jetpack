@@ -78,8 +78,8 @@ export const Writing = React.createClass( {
 							<SectionHeader label={ __( 'Composing', { context: 'Settings header' } ) }>
 								<Button
 									primary
+									compact
 									isSubmitting={ this.props.isSavingAnyOption() }
-									disabled={ this.props.shouldSaveButtonBeDisabled() }
 									onClick={ this.props.onSubmit }
 								>
 									{ __( 'Save', { context: 'Button caption' } ) }
