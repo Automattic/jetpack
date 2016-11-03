@@ -70,7 +70,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 		) {
 			return new WP_Error(
 				'rest_cannot_publish',
-				esc_html__( 'This module requires your site to be set to publicly accessible.', 'jetpack' ),
+				__( 'This module requires your site to be set to publicly accessible.', 'jetpack' ),
 				array( 'status' => 424 )
 			);
 		}
@@ -795,28 +795,23 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
 		}
 
+		$response = array(
+			'general' => stats_get_from_restapi(),
+		);
+
 		switch ( $range ) {
-
-			// This is always called first on page load
 			case 'day':
-				$initial_stats = stats_get_from_restapi();
-				return rest_ensure_response( array(
-					'general' => $initial_stats,
-
-					// Build data for 'day' as if it was stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' );
-					'day' => isset( $initial_stats->visits )
-						? $initial_stats->visits
-						: array(),
-				) );
+				$response['day'] = stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' );
+				break;
 			case 'week':
-				return rest_ensure_response( array(
-					'week' => stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' ),
-				) );
+				$response['week'] = stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' );
+				break;
 			case 'month':
-				return rest_ensure_response( array(
-					'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
-				) );
+				$response['month'] = stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' );
+				break;
 		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -989,27 +984,3 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		return current_user_can( 'jetpack_admin_page' );
 	}
 }
-
-/**
- * Actions performed only when Gravatar Hovercards is activated through the endpoint call.
- *
- * @since 4.3.1
- */
-function jetpack_do_after_gravatar_hovercards_activation() {
-
-	// When Gravatar Hovercards is activated, enable them automatically.
-	update_option( 'gravatar_disable_hovercards', 'enabled' );
-}
-add_action( 'jetpack_activate_module_gravatar-hovercards', 'jetpack_do_after_gravatar_hovercards_activation' );
-
-/**
- * Actions performed only when Gravatar Hovercards is activated through the endpoint call.
- *
- * @since 4.3.1
- */
-function jetpack_do_after_gravatar_hovercards_deactivation() {
-
-	// When Gravatar Hovercards is deactivated, disable them automatically.
-	update_option( 'gravatar_disable_hovercards', 'disabled' );
-}
-add_action( 'jetpack_deactivate_module_gravatar-hovercards', 'jetpack_do_after_gravatar_hovercards_deactivation' );

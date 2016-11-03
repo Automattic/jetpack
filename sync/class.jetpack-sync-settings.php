@@ -6,28 +6,22 @@ class Jetpack_Sync_Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
 	static $valid_settings = array(
-		'dequeue_max_bytes'       => true,
-		'upload_max_bytes'        => true,
-		'upload_max_rows'         => true,
-		'sync_wait_time'          => true,
-		'sync_wait_threshold'     => true,
-		'enqueue_wait_time'       => true,
-		'max_queue_size'          => true,
-		'max_queue_lag'           => true,
-		'queue_max_writes_sec'    => true,
-		'post_types_blacklist'    => true,
-		'disable'                 => true,
+		'dequeue_max_bytes'    => true,
+		'upload_max_bytes'     => true,
+		'upload_max_rows'      => true,
+		'sync_wait_time'       => true,
+		'sync_wait_threshold'  => true,
+		'max_queue_size'       => true,
+		'max_queue_lag'        => true,
+		'queue_max_writes_sec' => true,
+		'post_types_blacklist' => true,
+		'meta_blacklist'       => true,
+		'disable'              => true,
 		'render_filtered_content' => true,
-		'post_meta_whitelist'     => true,
-		'comment_meta_whitelist'  => true,
-		'max_enqueue_full_sync'   => true,
-		'max_queue_size_full_sync'=> true,
 	);
 
 	static $is_importing;
 	static $is_doing_cron;
-	static $is_syncing;
-	static $is_sending;
 
 	static $settings_cache = array(); // some settings can be expensive to compute - let's cache them
 
@@ -62,25 +56,15 @@ class Jetpack_Sync_Settings {
 		if ( is_numeric( $value ) ) {
 			$value = intval( $value );
 		}
-		$default_array_value = null;
-		switch( $setting ) {
-			case 'post_types_blacklist':
-				$default_array_value = Jetpack_Sync_Defaults::$blacklisted_post_types;
-				break;
-			case 'post_meta_whitelist':
-				$default_array_value = Jetpack_Sync_Defaults::$post_meta_whitelist;
-				break;
-			case 'comment_meta_whitelist':
-				$default_array_value = Jetpack_Sync_Defaults::$comment_meta_whitelist;
-				break;
+
+		// specifically for the post_types blacklist, we want to include the hardcoded settings
+		if ( $setting === 'post_types_blacklist' ) {
+			$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$blacklisted_post_types ) );
 		}
 
-		if ( $default_array_value ) {
-			if ( is_array( $value ) ) {
-				$value = array_unique( array_merge( $value, $default_array_value ) );
-			} else {
-				$value = $default_array_value;
-			}
+		// ditto for meta blacklist
+		if ( $setting === 'meta_blacklist' ) {
+			$value = array_unique( array_merge( $value, Jetpack_Sync_Defaults::$default_blacklist_meta_keys ) );
 		}
 
 		self::$settings_cache[ $setting ] = $value;
@@ -109,18 +93,6 @@ class Jetpack_Sync_Settings {
 		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
 	}
 
-	static function get_whitelisted_post_meta_sql() {
-		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ) ) . '\')';
-	}
-
-	static function get_whitelisted_comment_meta_sql() {
-		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
-	}
-
-	static function get_comments_filter_sql() {
-		return "comment_approved <> 'spam'";
-	}
-
 	static function reset_data() {
 		$valid_settings       = self::$valid_settings;
 		self::$settings_cache = array();
@@ -129,8 +101,6 @@ class Jetpack_Sync_Settings {
 		}
 		self::set_importing( null );
 		self::set_doing_cron( null );
-		self::set_is_syncing( null );
-		self::set_is_sending( null );
 	}
 
 	static function set_importing( $is_importing ) {
@@ -157,21 +127,5 @@ class Jetpack_Sync_Settings {
 		}
 
 		return defined( 'DOING_CRON' ) && DOING_CRON;
-	}
-
-	static function is_syncing() {
-		return (bool) self::$is_syncing;
-	}
-
-	static function set_is_syncing( $is_syncing ) {
-		self::$is_syncing = $is_syncing;
-	}
-
-	static function is_sending() {
-		return (bool) self::$is_sending;
-	}
-
-	static function set_is_sending( $is_sending ) {
-		self::$is_sending = $is_sending;
 	}
 }

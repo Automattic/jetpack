@@ -17,7 +17,7 @@
  */
 
 function flickr_embed_to_shortcode( $content ) {
-	if ( ! is_string( $content ) || false === stripos( $content, '/www.flickr.com/apps/video/stewart.swf' ) ) {
+	if ( false === stripos( $content, '/www.flickr.com/apps/video/stewart.swf' ) ) {
 		return $content;
 	}
 
@@ -102,6 +102,7 @@ function flickr_shortcode_handler( $atts ) {
 			'w'         => 400,
 			'h'         => 300,
 			'secret'    => 0,
+			'size'      => 0,
 		), $atts, 'flickr'
 	);
 

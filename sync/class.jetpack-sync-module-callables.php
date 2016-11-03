@@ -23,15 +23,8 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
 
-		// For some options, we should always send the change right away!
-		$always_send_updates_to_these_options = array( 'jetpack_active_modules', 'home', 'siteurl' );
-		foreach( $always_send_updates_to_these_options as $option ) {
-			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
-		}
-
-		// Provide a hook so that hosts can send changes to certain callables right away.
-		// Especially useful when a host uses constants to change home and siteurl.
-		add_action( 'jetpack_sync_unlock_sync_callable', array( $this, 'unlock_sync_callable' ) );
+		// always send change to active modules right away
+		add_action( 'update_option_jetpack_active_modules', array( $this, 'unlock_sync_callable' ) );
 
 		// get_plugins and wp_version
 		// gets fired when new code gets installed, updates etc.
@@ -79,7 +72,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		return call_user_func( $callable );
 	}
 
-	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
+	public function enqueue_full_sync_actions( $config ) {
 		/**
 		 * Tells the client to sync all callables to the server
 		 *
@@ -89,8 +82,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_full_sync_callables', true );
 
-		// The number of actions enqueued, and next module state (true == done)
-		return array( 1, true ); 
+		return 1; // The number of actions enqueued
 	}
 
 	public function estimate_full_sync_actions( $config ) {

@@ -16,7 +16,6 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	qunit = require( 'gulp-qunit' ),
 	rename = require( 'gulp-rename' ),
 	readline = require( 'readline' ),
-	request = require( 'request' ),
 	rtlcss = require( 'gulp-rtlcss' ),
 	sass = require( 'gulp-sass' ),
 	spawn = require( 'child_process' ).spawn,
@@ -24,12 +23,11 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	tap = require( 'gulp-tap' ),
 	modify = require('gulp-modify'),
-	uglify = require('gulp-uglify'),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
 
 var admincss, frontendcss,
-	meta = require( './package.json' );
+	language_packs = require( './language-packs.js' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -58,16 +56,6 @@ function onBuild( done ) {
 			children: false
 		} ), '\nJS finished at', Date.now() );
 
-		if ( 'production' === process.env.NODE_ENV ) {
-			gutil.log( 'Uglifying JS...' );
-			gulp.src( '_inc/build/admin.js' )
-				.pipe( uglify() )
-				.pipe( gulp.dest( '_inc/build' ) )
-				.on( 'end', function() {
-					gutil.log( 'Your JS is now uglified!' );
-				} );;
-		}
-
 		doSass( function() {
 			if ( done ) {
 				doStatic( done );
@@ -81,6 +69,7 @@ function onBuild( done ) {
 function getWebpackConfig() {
 	// clone and extend webpackConfig
 	var config = Object.create( require( './webpack.config.js' ) );
+	config.devtool = 'sourcemap';
 	config.debug = true;
 
 	return config;
@@ -168,6 +157,16 @@ gulp.task( 'react:build', function( done ) {
 	var config = getWebpackConfig();
 
 	if ( 'production' === process.env.NODE_ENV ) {
+		config.plugins = config.plugins.concat(
+			new webpack.optimize.DedupePlugin(),
+			new webpack.optimize.UglifyJsPlugin( {
+				compress: {
+					warnings: false
+				}
+			} )
+		);
+
+		config.devtool = 'source-map';
 		config.debug = false;
 	}
 
@@ -284,8 +283,7 @@ frontendcss = [
 	'modules/widgets/goodreads/css/goodreads.css',
 	'modules/widgets/social-media-icons/style.css',
 	'modules/widgets/top-posts/style.css',
-	'modules/widgets/my-community/style.css',
-	'modules/widgets/widgets.css' // TODO Moved to image-widget/style.css
+	'modules/widgets/image-widget/style.css'
 ];
 
 gulp.task( 'old-styles:watch', function() {
@@ -543,30 +541,20 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 	} );
 } );
 
-gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
-	var language_packs = [];
+gulp.task( 'languages:cleanup', [ 'languages:build' ], function() {
+	return del(
+		language_packs.map( function( item ) {
+			var locale = item.split( '-' );
 
-	request(
-		'https://api.wordpress.org/translations/plugins/1.0/?slug=jetpack&version=' + meta.version,
-		function ( error, response, body ) {
-			if ( error || 200 !== response.statusCode ) {
-				done( 'Failed to reach wordpress.org translation API: ' + error );
+			if ( locale.length > 1 ) {
+				locale[1] = locale[1].toUpperCase();
+				locale = locale.join( '_' );
+			} else {
+				locale = locale[0];
 			}
 
-			body = JSON.parse( body );
-
-			body.translations.forEach( function( language ) {
-				language_packs.push( './languages/jetpack-' + language.language + '.*' );
-			} );
-
-			gutil.log( 'Cleaning up languages for which Jetpack has language packs:' );
-			del( language_packs ).then( function( paths ) {
-				paths.forEach( function( item ) {
-					gutil.log( item );
-				} );
-				done();
-			} );
-		}
+			return './languages/jetpack-' + locale + '.*';
+		} )
 	);
 } );
 

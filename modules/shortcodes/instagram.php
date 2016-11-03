@@ -8,7 +8,7 @@
  * @return (string) the filtered or the original content
  **/
 function jetpack_instagram_embed_reversal( $content ) {
-	if ( ! is_string( $content ) || false === stripos( $content, 'instagram.com' ) ) {
+	if ( false === stripos( $content, 'instagram.com' ) ) {
 		return $content;
 	}
 

@@ -26,13 +26,9 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	function add_actions() {
-
-		// If user is not an admin and site is in Dev Mode, don't do anything
-		if ( ! current_user_can( 'manage_options' ) && Jetpack::is_development_mode() ) {
-			return;
-		}
-
-		// Don't add in the modules page unless modules are available!
+		/**
+		 * Don't add in the modules page unless modules are available!
+		 */
 		if ( $this->dont_show_if_not_active && ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
 			return;
 		}

@@ -31,19 +31,10 @@
 .jp-masthead__logo-link {
 	display: inline-block;
 	outline: none;
-	vertical-align: middle;
 
 	&:focus {
 		line-height: 0; // fixes rectangle gap
 		box-shadow: 0 0 0 2px $blue-light;
-	}
-
-	& + code {
-		margin: 0 10px;
-		padding: 5px 9px;
-		border-radius: 2px;
-		background: #e6ecf1;
-		color: #647a88;
 	}
 }
 

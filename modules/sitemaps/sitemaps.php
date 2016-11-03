@@ -1,782 +1,1556 @@
 <?php
 /**
- * Generate sitemap files in base XML as well as popular namespace extensions.
+ * Generate sitemap files in base XML as well as some namespace extensions.
+ *
+ * This module generates two different base sitemaps.
+ *
+ * 1. sitemap.xml
+ *    The basic sitemap is generated regularly by wp-cron. It is stored in the
+ *    database and retrieved when requested. This sitemap aims to include canonical
+ *    URLs for all published content and abide by the sitemap spec. This is the root
+ *    of a tree of sitemap and sitemap index xml files, depending on the number of URLs.
+ *
+ *    By default the sitemap contains published posts of type 'post' and 'page', as
+ *    well as the home url. To include other post types use the 'jetpack_sitemap_post_types'
+ *    filter.
+ *
+ * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
+ * @link https://support.google.com/webmasters/answer/178636 Image sitemap extension.
+ *
+ * 2. news-sitemap.xml
+ *    The news sitemap is generated on the fly when requested. It does not aim for
+ *    completeness, instead including at most 1000 of the most recent published posts
+ *    from the previous 2 days, per the news-sitemap spec.
+ *
+ * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 News sitemap extension.
  *
  * @author Automattic
- * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
- * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps.
  */
 
+require dirname( __FILE__ ) . '/sitemap-buffer.php';
+require dirname( __FILE__ ) . '/sitemap-stylist.php';
+require dirname( __FILE__ ) . '/sitemap-logger.php';
 
 /**
- * Convert a MySQL datetime string to an ISO 8601 string.
+ * Governs the generation, storage, and serving of sitemaps.
  *
- * @module sitemaps
- *
- * @link http://www.w3.org/TR/NOTE-datetime W3C date and time formats document.
- *
- * @param string $mysql_date UTC datetime in MySQL syntax of YYYY-MM-DD HH:MM:SS.
- *
- * @return string ISO 8601 UTC datetime string formatted as YYYY-MM-DDThh:mm:ssTZD where timezone offset is always +00:00.
+ * @since 4.5.0
  */
-function jetpack_w3cdate_from_mysql( $mysql_date ) {
-	return str_replace( ' ', 'T', $mysql_date ) . '+00:00';
-}
-
-/**
- * Get the maximum comment_date_gmt value for approved comments for the given post_id.
- *
- * @module sitemaps
- *
- * @param int $post_id Post identifier.
- *
- * @return string datetime MySQL value or null if no comment found.
- */
-function jetpack_get_approved_comments_max_datetime( $post_id ) {
-	global $wpdb;
-
-	return $wpdb->get_var( $wpdb->prepare( "SELECT MAX(comment_date_gmt) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_approved = '1' AND comment_type=''", $post_id ) );
-}
-
-/**
- * Return the content type used to serve a Sitemap XML file.
- * Uses text/xml by default, possibly overridden by jetpack_sitemap_content_type filter.
- *
- * @module sitemaps
- *
- * @return string Internet media type for the sitemap XML.
- */
-function jetpack_sitemap_content_type() {
-	/**
-	 * Filter the content type used to serve the XML sitemap file.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param string $content_type By default, it's 'text/xml'.
-	 */
-	return apply_filters( 'jetpack_sitemap_content_type', 'text/xml' );
-}
-
-/**
- * Write an XML tag.
- *
- * @module sitemaps
- *
- * @param array $data Information to write an XML tag.
- */
-function jetpack_print_sitemap_item( $data ) {
-	jetpack_print_xml_tag( array( 'url' => $data ) );
-}
-
-/**
- * Write an opening tag and its matching closing tag.
- *
- * @module sitemaps
- *
- * @param array $array Information to write a tag, opening and closing it.
- */
-function jetpack_print_xml_tag( $array ) {
-	foreach ( $array as $key => $value ) {
-		if ( is_array( $value ) ) {
-			echo "<$key>";
-			jetpack_print_xml_tag( $value );
-			echo "</$key>";
-		} else {
-			echo "<$key>" . esc_html( $value ) . "</$key>";
-		}
-	}
-}
-
-/**
- * Convert an array to a SimpleXML child of the passed tree.
- *
- * @module sitemaps
- *
- * @param array $data array containing element value pairs, including other arrays, for XML contruction.
- * @param SimpleXMLElement $tree A SimpleXMLElement class object used to attach new children.
- *
- * @return SimpleXMLElement full tree with new children mapped from array.
- */
-function jetpack_sitemap_array_to_simplexml( $data, &$tree ) {
-	$doc_namespaces = $tree->getDocNamespaces();
-
-	foreach ( $data as $key => $value ) {
-		// Allow namespaced keys by use of colon in $key, namespaces must be part of the document
-		$namespace = null;
-		if ( false !== strpos( $key, ':' ) && 'image' != $key ) {
-			list( $namespace_prefix, $key ) = explode( ':', $key );
-			if ( isset( $doc_namespaces[ $namespace_prefix ] ) ) {
-				$namespace = $doc_namespaces[ $namespace_prefix ];
-			}
-		}
-
-		if ( 'image' != $key ) {
-			if ( is_array( $value ) ) {
-				$child = $tree->addChild( $key, null, $namespace );
-				jetpack_sitemap_array_to_simplexml( $value, $child );
-			} else {
-				$tree->addChild( $key, esc_html( $value ), $namespace );
-			}
-		} elseif ( is_array( $value ) ) {
-			foreach ( $value as $image ) {
-				$child = $tree->addChild( $key, null, $namespace );
-				jetpack_sitemap_array_to_simplexml( $image, $child );
-			}
-		}
-	}
-
-	return $tree;
-}
-
-/**
- * Define an array of attribute value pairs for use inside the root element of an XML document.
- * Intended for mapping namespace and namespace URI values.
- * Passes array through jetpack_sitemap_ns for other functions to add their own namespaces.
- *
- * @module sitemaps
- *
- * @return array array of attribute value pairs passed through the jetpack_sitemap_ns filter
- */
-function jetpack_sitemap_namespaces() {
-	/**
-	 * Filter the attribute value pairs used for namespace and namespace URI mappings.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param array $namespaces Associative array with namespaces and namespace URIs.
-	 */
-	return apply_filters( 'jetpack_sitemap_ns', array(
-		'xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance',
-		'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd',
-		'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
-		// Mobile namespace from http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
-		'xmlns:mobile'       => 'http://www.google.com/schemas/sitemap-mobile/1.0',
-		'xmlns:image'        => 'http://www.google.com/schemas/sitemap-image/1.1',
-	) );
-}
-
-/**
- * Start sitemap XML document, writing its heading and <urlset> tag with namespaces.
- *
- * @module sitemaps
- *
- * @param $charset string Charset for current XML document.
- *
- * @return string
- */
-function jetpack_sitemap_initstr( $charset ) {
-	global $wp_rewrite;
-	// URL to XSLT
-	if ( $wp_rewrite->using_index_permalinks() ) {
-		$xsl = home_url( '/index.php/sitemap.xsl' );
-	} else if ( $wp_rewrite->using_permalinks() ) {
-		$xsl = home_url( '/sitemap.xsl' );
-	} else {
-		$xsl = home_url( '/?jetpack-sitemap-xsl=true' );
-	}
-
-	$initstr = '<?xml version="1.0" encoding="' . $charset . '"?>' . "\n";
-	$initstr .= '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xsl ) . '"?>' . "\n";
-	$initstr .= '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
-	$initstr .= '<urlset';
-	foreach ( jetpack_sitemap_namespaces() as $attribute => $value ) {
-		$initstr .= ' ' . esc_html( $attribute ) . '="' . esc_attr( $value ) . '"';
-	}
-	$initstr .= ' />';
-
-	return $initstr;
-}
-
-/**
- * Load XSLT for sitemap.
- *
- * @module sitemaps
- *
- * @param string $type XSLT to load.
- */
-function jetpack_load_xsl( $type = '' ) {
-
-	$transient_xsl = empty( $type ) ? 'jetpack_sitemap_xsl' : "jetpack_{$type}_sitemap_xsl";
-
-	$xsl = get_transient( $transient_xsl );
-
-	if ( $xsl ) {
-		header( 'Content-Type: ' . jetpack_sitemap_content_type(), true );
-		echo $xsl;
-		die();
-	}
-
-	// Populate $xsl. Use $type.
-	include_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-xsl.php';
-
-	if ( ! empty( $xsl ) ) {
-		set_transient( $transient_xsl, $xsl, DAY_IN_SECONDS );
-		echo $xsl;
-	}
-
-	die();
-}
-
-/**
- * Responds with an XSLT to stylize sitemap.
- *
- * @module sitemaps
- */
-function jetpack_print_sitemap_xsl() {
-	jetpack_load_xsl();
-}
-
-/**
- * Responds with an XSLT to stylize news sitemap.
- *
- * @module sitemaps
- */
-function jetpack_print_news_sitemap_xsl() {
-	jetpack_load_xsl( 'news' );
-}
-
-/**
- * Print an XML sitemap conforming to the Sitemaps.org protocol.
- * Outputs an XML list of up to the latest 1000 posts.
- *
- * @module sitemaps
- *
- * @link http://sitemaps.org/protocol.php Sitemaps.org protocol.
- */
-function jetpack_print_sitemap() {
-	global $wpdb, $post;
-
-	$xml = get_transient( 'jetpack_sitemap' );
-
-	if ( $xml ) {
-		header( 'Content-Type: ' . jetpack_sitemap_content_type(), true );
-		echo $xml;
-		die();
-	}
-
-	// Compatibility with PHP 5.3 and older
-	if ( ! defined( 'ENT_XML1' ) ) {
-		define( 'ENT_XML1', 16 );
-	}
+class Jetpack_Sitemap_Manager {
 
 	/**
-	 * Filter the post types that will be included in sitemap.
+	 * Maximum size (in bytes) of a sitemap xml file.
 	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param array $post_types Array of post types.
+	 * @link http://www.sitemaps.org/
+	 * @since 4.5.0
 	 */
-	$post_types    = apply_filters( 'jetpack_sitemap_post_types', array( 'post', 'page' ) );
-
-	$post_types_in = array();
-	foreach ( (array) $post_types as $post_type ) {
-		$post_types_in[] = $wpdb->prepare( '%s', $post_type );
-	}
-	$post_types_in = join( ",", $post_types_in );
-
-	// use direct query instead because get_posts was acting too heavy for our needs
-	//$posts = get_posts( array( 'numberposts'=>1000, 'post_type'=>$post_types, 'post_status'=>'published' ) );
-	$posts = $wpdb->get_results( "SELECT ID, post_type, post_modified_gmt, comment_count FROM $wpdb->posts WHERE post_status='publish' AND post_type IN ({$post_types_in}) ORDER BY post_modified_gmt DESC LIMIT 1000" );
-	if ( empty( $posts ) ) {
-		status_header( 404 );
-	}
-	header( 'Content-Type: ' . jetpack_sitemap_content_type() );
-	$initstr = jetpack_sitemap_initstr( get_bloginfo( 'charset' ) );
-	$tree    = simplexml_load_string( $initstr );
-	// If we did not get a valid string, force UTF-8 and try again.
-	if ( false === $tree ) {
-		$initstr = jetpack_sitemap_initstr( 'UTF-8' );
-		$tree    = simplexml_load_string( $initstr );
-	}
-
-	unset( $initstr );
-	$latest_mod = '';
-	foreach ( $posts as $post ) {
-		setup_postdata( $post );
-
-		/**
-		 * Filter condition to allow skipping specific posts in sitemap.
-		 *
-		 * @module sitemaps
-		 *
-		 * @since 3.9.0
-		 *
-		 * @param bool $skip Current boolean. False by default, so no post is skipped.
-		 * @param WP_POST $post Current post object.
-		 */
-		if ( apply_filters( 'jetpack_sitemap_skip_post', false, $post ) ) {
-			continue;
-		}
-
-		$post_latest_mod = null;
-		$url             = array( 'loc' => esc_url( get_permalink( $post->ID ) ) );
-
-		// If this post is configured to be the site home, skip since it's added separately later
-		if ( untrailingslashit( get_permalink( $post->ID ) ) == untrailingslashit( get_option( 'home' ) ) ) {
-			continue;
-		}
-
-		// Mobile node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
-		$url['mobile:mobile'] = '';
-
-		// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
-		// These attachments were produced with batch SQL earlier in the script
-		if ( ! post_password_required( $post->ID ) ) {
-
-			$media = array();
-			$methods = array(
-				'from_thumbnail'  => false,
-				'from_slideshow'  => false,
-				'from_gallery'    => false,
-				'from_attachment' => false,
-				'from_html'       => false,
-			);
-			foreach ( $methods as $method => $value ) {
-				$methods[ $method ] = true;
-				$images_collected = Jetpack_PostImages::get_images( $post->ID, $methods );
-				if ( is_array( $images_collected ) ) {
-					$media = array_merge( $media, $images_collected );
-				}
-				$methods[ $method ] = false;
-			}
-
-			$images = array();
-
-			foreach ( $media as $item ) {
-				if ( ! isset( $item['type'] ) || 'image' != $item['type'] ) {
-					continue;
-				}
-				$one_image = array();
-
-				if ( isset( $item['src'] ) ) {
-					$one_image['image:loc'] = esc_url( $item['src'] );
-					$one_image['image:title'] = sanitize_title_with_dashes( $name = pathinfo( $item['src'], PATHINFO_FILENAME ) );
-				}
-
-				$images[] = $one_image;
-			}
-
-			if ( ! empty( $images ) ) {
-				$url['image:image'] = $images;
-			}
-		}
-
-		if ( $post->post_modified_gmt && $post->post_modified_gmt != '0000-00-00 00:00:00' ) {
-			$post_latest_mod = $post->post_modified_gmt;
-		}
-		if ( $post->comment_count > 0 ) {
-			// last modified based on last comment
-			$latest_comment_datetime = jetpack_get_approved_comments_max_datetime( $post->ID );
-			if ( ! empty( $latest_comment_datetime ) ) {
-				if ( is_null( $post_latest_mod ) || $latest_comment_datetime > $post_latest_mod ) {
-					$post_latest_mod = $latest_comment_datetime;
-				}
-			}
-			unset( $latest_comment_datetime );
-		}
-		if ( ! empty( $post_latest_mod ) ) {
-			$latest_mod     = max( $latest_mod, $post_latest_mod );
-			$url['lastmod'] = jetpack_w3cdate_from_mysql( $post_latest_mod );
-		}
-		unset( $post_latest_mod );
-		if ( $post->post_type == 'page' ) {
-			$url['changefreq'] = 'weekly';
-			$url['priority']   = '0.6'; // set page priority above default priority of 0.5
-		} else {
-			$url['changefreq'] = 'monthly';
-		}
-		/**
-		 * Filter associative array with data to build <url> node and its descendants for current post.
-		 *
-		 * @module sitemaps
-		 *
-		 * @since 3.9.0
-		 *
-		 * @param array $url Data to build parent and children nodes for current post.
-		 * @param int $post_id Current post ID.
-		 */
-		$url_node = apply_filters( 'jetpack_sitemap_url', $url, $post->ID );
-		jetpack_sitemap_array_to_simplexml( array( 'url' => $url_node ), $tree );
-		unset( $url );
-	}
-	wp_reset_postdata();
-	$blog_home = array(
-		'loc'        => esc_url( get_option( 'home' ) ),
-		'changefreq' => 'daily',
-		'priority'   => '1.0'
-	);
-	if ( ! empty( $latest_mod ) ) {
-		$blog_home['lastmod'] = jetpack_w3cdate_from_mysql( $latest_mod );
-		header( 'Last-Modified:' . mysql2date( 'D, d M Y H:i:s', $latest_mod, 0 ) . ' GMT' );
-	}
-	/**
-	 * Filter associative array with data to build <url> node and its descendants for site home.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param array $blog_home Data to build parent and children nodes for site home.
-	 */
-	$url_node = apply_filters( 'jetpack_sitemap_url_home', $blog_home );
-	jetpack_sitemap_array_to_simplexml( array( 'url' => $url_node ), $tree );
-	unset( $blog_home );
+	const SITEMAP_MAX_BYTES = 10485760; // 10485760 (10MB)
 
 	/**
-	 * Filter data before rendering it as XML.
+	 * Maximum size (in url nodes) of a sitemap xml file.
 	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param SimpleXMLElement $tree Data tree for sitemap.
-	 * @param string $latest_mod Date of last modification.
+	 * @link http://www.sitemaps.org/
+	 * @since 4.5.0
 	 */
-	$tree = apply_filters( 'jetpack_print_sitemap', $tree, $latest_mod );
-
-	$xml = $tree->asXML();
-	unset( $tree );
-	if ( ! empty( $xml ) ) {
-		set_transient( 'jetpack_sitemap', $xml, DAY_IN_SECONDS );
-		echo $xml;
-	}
-
-	die();
-}
-
-/**
- * Prints the news XML sitemap conforming to the Sitemaps.org protocol.
- * Outputs an XML list of up to 1000 posts published in the last 2 days.
- *
- * @module sitemaps
- *
- * @link http://sitemaps.org/protocol.php Sitemaps.org protocol.
- */
-function jetpack_print_news_sitemap() {
-
-	$xml = get_transient( 'jetpack_news_sitemap' );
-
-	if ( $xml ) {
-		header( 'Content-Type: application/xml' );
-		echo $xml;
-		die();
-	}
-
-	global $wpdb, $post;
+	const SITEMAP_MAX_ITEMS = 50000; // 50k
 
 	/**
-	 * Filter post types to be included in news sitemap.
+	 * Maximum size (in url nodes) of a news sitemap xml file.
 	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param array $post_types Array with post types to include in news sitemap.
+	 * @link https://support.google.com/news/publisher/answer/74288?hl=en
+	 * @since 4.5.0
 	 */
-	$post_types = apply_filters( 'jetpack_sitemap_news_sitemap_post_types', array( 'post' ) );
-	if ( empty( $post_types ) ) {
+	const NEWS_SITEMAP_MAX_ITEMS = 1000; // 1k
+
+	/**
+	 * Number of seconds between sitemap generations.
+	 *
+	 * @since 4.5.0
+	 */
+	const SITEMAP_INTERVAL = 60;
+
+	/**
+	 * @since 4.5.0
+	 */
+	public function __construct() {
+		// Register post types for data storage
+		add_action(
+			'init',
+			array( $this, 'callback_action_register_post_types' )
+		);
+
+		// Sitemap URL handler
+		add_action(
+			'init',
+			array( $this, 'callback_action_catch_sitemap_urls' )
+		);
+
+		// Add generator to wp_cron task list
+		$this->schedule_sitemap_generation();
+
+		// Add sitemap to robots.txt
+		add_action(
+			'do_robotstxt',
+			array( $this, 'callback_action_do_robotstxt' ),
+			20
+		);
+
+		// Process filters and store post_types for inclusion in sitemap.
+		add_action(
+			'init',
+			array( $this, 'callback_action_filter_sitemap_post_types' ),
+			999
+		);
+
 		return;
 	}
 
-	$post_types_in = array();
-	foreach ( $post_types as $post_type ) {
-		$post_types_in[] = $wpdb->prepare( '%s', $post_type );
+	/**
+	 * Callback to register sitemap post types for data storage.
+	 *
+	 * @access public
+	 * @since 4.5.0
+	 */
+	public function callback_action_register_post_types () {
+		/**
+		 * Helper method for registering sitemap data post types uniformly.
+		 *
+		 * @since 4.5.0
+		 */
+		function register_sitemap_data ($type_name, $label, $slug) {
+			register_post_type(
+				$type_name,
+				array(
+					'labels'      => array( 'name' => $label ),
+					'public'      => false, // Set to true to aid debugging
+					'has_archive' => false,
+					'rewrite'     => array( 'slug' => $slug ),
+				)
+			);
+			return;
+		}
+
+		// Register 'jp_sitemap_master' post type
+		register_sitemap_data(
+			'jp_sitemap_master',
+			'Sitemap Master',
+			'jetpack-sitemap-master'
+		);
+
+		// Register 'jp_sitemap' post type
+		register_sitemap_data(
+			'jp_sitemap',
+			'Sitemap',
+			'jetpack-sitemap'
+		);
+
+		// Register 'jp_sitemap_index' post type
+		register_sitemap_data(
+			'jp_sitemap_index',
+			'Sitemap Index',
+			'jetpack-sitemap-index'
+		);
+
+		// Register 'jp_img_sitemap' post type
+		register_sitemap_data(
+			'jp_img_sitemap',
+			'Image Sitemap',
+			'jetpack-image-sitemap'
+		);
+
+		// Register 'jp_img_sitemap_index' post type
+		register_sitemap_data(
+			'jp_img_sitemap_index',
+			'Image Sitemap Index',
+			'jetpack-image-sitemap-index'
+		);
+
+		return;
 	}
-	$post_types_in_string = implode( ', ', $post_types_in );
 
 	/**
-	 * Filter limit of entries to include in news sitemap.
+	 * Callback to intercept sitemap url requests and serve sitemap files.
 	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param int $count Number of entries to include in news sitemap.
+	 * @access public
+	 * @since 4.5.0
 	 */
-	$limit        = apply_filters( 'jetpack_sitemap_news_sitemap_count', 1000 );
-	$cur_datetime = current_time( 'mysql', true );
+	public function callback_action_catch_sitemap_urls () {
+		// Regular expressions for sitemap URL routing
+		$regex = array(
+			'master'        => '/^\/sitemap\.xml$/',
+			'sitemap'       => '/^\/sitemap-[1-9][0-9]*\.xml$/',
+			'index'         => '/^\/sitemap-index-[1-9][0-9]*\.xml$/',
+			'sitemap-style' => '/^\/sitemap\.xsl$/',
+			'index-style'   => '/^\/sitemap-index\.xsl$/',
+			'image'         => '/^\/image-sitemap-[1-9][0-9]*\.xml$/',
+			'image-index'   => '/^\/image-sitemap-index-[1-9][0-9]*\.xml$/',
+			'image-style'   => '/^\/image-sitemap\.xsl$/',
+			'news'          => '/^\/news-sitemap\.xml$/',
+			'news-style'    => '/^\/news-sitemap\.xsl$/',
+		);
 
-	$query = $wpdb->prepare( "
-		SELECT p.ID, p.post_title, p.post_type, p.post_date, p.post_name, p.post_date_gmt, GROUP_CONCAT(t.name SEPARATOR ', ') AS keywords
-		FROM
-			$wpdb->posts AS p LEFT JOIN $wpdb->term_relationships AS r ON p.ID = r.object_id
-			LEFT JOIN $wpdb->term_taxonomy AS tt ON r.term_taxonomy_id = tt.term_taxonomy_id AND tt.taxonomy = 'post_tag'
-			LEFT JOIN $wpdb->terms AS t ON tt.term_id = t.term_id
-		WHERE
-			post_status='publish' AND post_type IN ( {$post_types_in_string} ) AND post_date_gmt > (%s - INTERVAL 2 DAY)
-		GROUP BY p.ID
-		ORDER BY p.post_date_gmt DESC LIMIT %d", $cur_datetime, $limit );
+		/**
+		 * Echo a raw string of given content-type.
+		 *
+		 * @param string $the_content_type The content type to be served.
+		 * @param string $the_content The string to be echoed.
+		 */
+		function serve_raw_and_die($the_content_type, $the_content) {
+			header('Content-Type: ' . $the_content_type . '; charset=UTF-8');
 
-	// URL to XSLT
-	$xsl = get_option( 'permalink_structure' ) ? home_url( 'news-sitemap.xsl' ) : home_url( '/?jetpack-news-sitemap-xsl=true' );
+			if ('' == $the_content) {
+				http_response_code(404);
+			}
 
-	// Unless it's zh-cn for Simplified Chinese or zh-tw for Traditional Chinese,
-	// trim national variety so an ISO 639 language code as required by Google.
-	$language_code = strtolower( get_locale() );
-	if ( in_array( $language_code, array( 'zh_tw', 'zh_cn' ) ) ) {
-		$language_code = str_replace( '_', '-', $language_code );
-	} else {
-		$language_code = preg_replace( '/(_.*)$/i', '', $language_code );
+			echo $the_content;
+			die();
+		}
+
+		// Catch master sitemap xml
+		if ( preg_match( $regex['master'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'application/xml',
+				$this->get_contents_of_post(
+					'sitemap',
+					'jp_sitemap_master'
+				)
+			);
+		}
+
+		// Catch sitemap xml
+		if ( preg_match( $regex['sitemap'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'application/xml',
+				$this->get_contents_of_post(
+					substr($_SERVER['REQUEST_URI'], 1, -4),
+					'jp_sitemap'
+				)
+			);
+		}
+
+		// Catch sitemap index xml
+		if ( preg_match( $regex['index'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'application/xml',
+				$this->get_contents_of_post(
+					substr($_SERVER['REQUEST_URI'], 1, -4),
+					'jp_sitemap_index'
+				)
+			);
+		}
+
+		// Catch sitemap xsl
+		if ( preg_match( $regex['sitemap-style'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'text/xml',
+				Jetpack_Sitemap_Stylist::sitemap_xsl()
+			);
+		}
+
+		// Catch sitemap index xsl
+		if ( preg_match( $regex['index-style'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'text/xml',
+				Jetpack_Sitemap_Stylist::sitemap_index_xsl()
+			);
+		}
+
+		// Catch image sitemap xml
+		if ( preg_match( $regex['image'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'application/xml',
+				$this->get_contents_of_post(
+					substr($_SERVER['REQUEST_URI'], 1, -4),
+					'jp_img_sitemap'
+				)
+			);
+		}
+
+		// Catch image sitemap index xml
+		if ( preg_match( $regex['image-index'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'application/xml',
+				$this->get_contents_of_post(
+					substr($_SERVER['REQUEST_URI'], 1, -4),
+					'jp_img_sitemap_index'
+				)
+			);
+		}
+
+		// Catch image sitemap xsl
+		if ( preg_match( $regex['image-style'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'text/xml',
+				Jetpack_Sitemap_Stylist::image_sitemap_xsl()
+			);
+		}
+
+		// Catch news sitemap xml
+		if ( preg_match( $regex['news'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'text/xml',
+				$this->news_sitemap_xml()
+			);
+		}
+
+		// Catch news sitemap xsl
+		if ( preg_match( $regex['news-style'], $_SERVER['REQUEST_URI']) ) {
+			serve_raw_and_die(
+				'text/xml',
+				Jetpack_Sitemap_Stylist::news_sitemap_xsl()
+			);
+		}
+
+		// URL did not match any sitemap patterns.
+		return;
 	}
 
-	header( 'Content-Type: application/xml' );
-	ob_start();
-	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-	echo '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xsl ) . '"?>' . "\n";
-	echo '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
-	?>
-	<!-- generator="jetpack" -->
-	<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
-	        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-	        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
-	        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-		>
-		<?php
-		$posts = $wpdb->get_results( $query );
-		foreach ( $posts as $post ):
-			setup_postdata( $post );
+	/**
+	 * Add actions to schedule sitemap generation.
+	 * Should only be called once, in the constructor.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 */
+	private function schedule_sitemap_generation () {
+		/**
+		 * Callback for adding sitemap-interval to the list of schedules.
+		 *
+		 * @since 4.5.0
+		 */
+		function callback_add_sitemap_schedule ($schedules) {
+			$schedules['sitemap-interval'] = array(
+				'interval' => Jetpack_Sitemap_Manager::SITEMAP_INTERVAL,
+				'display'  => __('Every Minute')
+			);
+			return $schedules;
+		}
 
+		// Add cron schedule
+		add_filter( 'cron_schedules', 'callback_add_sitemap_schedule');
+
+		add_action(
+			'jp_sitemap_cron_hook',
+			array( $this, 'build_all_sitemaps' )
+		);
+
+		if( !wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
+			wp_schedule_event(
+				time(),
+				'sitemap-interval',
+				'jp_sitemap_cron_hook'
+			);
+		}
+
+		return;
+	}
+
+	/**
+	 * Callback to add sitemap to robots.txt.
+	 *
+	 * @access public
+	 * @since 4.5.0
+	 */
+	public function callback_action_do_robotstxt () {
+		echo 'Sitemap: ' . home_url() . '/sitemap.xml' . PHP_EOL;
+	}
+
+	/**
+	 * Callback to filter and store post_types for inclusion in the sitemap.
+	 *
+	 * @since 4.5.0
+	 */
+	public function callback_action_filter_sitemap_post_types () {
+		$this->delete_sitemap_post_type_option();
+		$this->store_sitemap_post_type_option(
 			/**
-			 * Filter condition to allow skipping specific posts in news sitemap.
+			 * The array of post types to be included in the sitemap.
 			 *
-			 * @module sitemaps
+			 * Add your custom post type name to the array to have posts of
+			 * that type included in the sitemap. The default array includes
+			 * 'page' and 'post'.
 			 *
-			 * @since 3.9.0
-			 *
-			 * @param bool $skip Current boolean. False by default, so no post is skipped.
-			 * @param WP_POST $post Current post object.
+			 * @since 4.5.0
 			 */
-			if ( apply_filters( 'jetpack_sitemap_news_skip_post', false, $post ) ) {
-				continue;
-			}
+			apply_filters(
+				'jetpack_sitemap_post_types',
+				array( 'post', 'page' )
+			)
+		);
 
-			$GLOBALS['post']                       = $post;
-			$url                                   = array();
-			$url['loc']                            = get_permalink( $post->ID );
-			$news                                  = array();
-			$news['news:publication']['news:name'] = get_bloginfo_rss( 'name' );
-			$news['news:publication']['news:language'] = $language_code;
-			$news['news:publication_date'] = jetpack_w3cdate_from_mysql( $post->post_date_gmt );
-			$news['news:title']            = get_the_title_rss();
-			if ( $post->keywords ) {
-				$news['news:keywords'] = html_entity_decode( ent2ncr( $post->keywords ), ENT_HTML5 );
-			}
-			$url['news:news'] = $news;
-
-			// Add image to sitemap
-			$post_thumbnail = Jetpack_PostImages::get_image( $post->ID );
-			if ( isset( $post_thumbnail['src'] ) ) {
-				$url['image:image'] = array( 'image:loc' => esc_url( $post_thumbnail['src'] ) );
-			}
-
-			/**
-			 * Filter associative array with data to build <url> node and its descendants for current post in news sitemap.
-			 *
-			 * @module sitemaps
-			 *
-			 * @since 3.9.0
-			 *
-			 * @param array $url Data to build parent and children nodes for current post.
-			 * @param int $post_id Current post ID.
-			 */
-			$url = apply_filters( 'jetpack_sitemap_news_sitemap_item', $url, $post );
-
-			if ( empty( $url ) ) {
-				continue;
-			}
-
-			jetpack_print_sitemap_item( $url );
-		endforeach;
-		wp_reset_postdata();
-		?>
-	</urlset>
-	<?php
-	$xml = ob_get_contents();
-	ob_end_clean();
-	if ( ! empty( $xml ) ) {
-		set_transient( 'jetpack_news_sitemap', $xml, DAY_IN_SECONDS );
-		echo $xml;
-	}
-
-	die();
-}
-
-/**
- * Absolute URL of the current blog's sitemap.
- *
- * @module sitemaps
- *
- * @return string Sitemap URL.
- */
-function jetpack_sitemap_uri() {
-	global $wp_rewrite;
-
-	if ( $wp_rewrite->using_index_permalinks() ) {
-		$sitemap_url = home_url( '/index.php/sitemap.xml' );
-	} else if ( $wp_rewrite->using_permalinks() ) {
-		$sitemap_url = home_url( '/sitemap.xml' );
-	} else {
-		$sitemap_url = home_url( '/?jetpack-sitemap=true' );
+		return;
 	}
 
 	/**
-	 * Filter sitemap URL relative to home URL.
+	 * Build a fresh tree of sitemaps.
 	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param string $sitemap_url Sitemap URL.
+	 * @access public
+	 * @since 4.5.0
 	 */
-	return apply_filters( 'jetpack_sitemap_location', $sitemap_url );
-}
+	public function build_all_sitemaps () {
+		$log = new Jetpack_Sitemap_Logger('begin sitemap generation');
 
-/**
- * Absolute URL of the current blog's news sitemap.
- *
- * @module sitemaps
- */
-function jetpack_news_sitemap_uri() {
-	global $wp_rewrite;
+		$page = $this->build_page_sitemap_tree();
+		$image = $this->build_image_sitemap_tree();
 
-	if ( $wp_rewrite->using_index_permalinks() ) {
-		$news_sitemap_url = home_url( '/index.php/news-sitemap.xml' );
-	} else if ( $wp_rewrite->using_permalinks() ) {
-		$news_sitemap_url = home_url( '/news-sitemap.xml' );
-	} else {
-		$news_sitemap_url = home_url( '/?jetpack-news-sitemap=true' );
+		$master = 
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/sitemap-index.xsl" . "'?>\n" .
+			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n" .
+			" <sitemap>\n" .
+			"  <loc>" . home_url() . $page['filename'] . "</loc>\n" .
+			"  <lastmod>" . $page['last_modified'] . "</lastmod>\n" .
+			" </sitemap>\n" .
+			" <sitemap>\n" .
+			"  <loc>" . home_url() . $image['filename'] . "</loc>\n" .
+			" </sitemap>\n" .
+			"</sitemapindex>\n";
+
+		$this->set_contents_of_post(
+			'sitemap',
+			'jp_sitemap_master',
+			$master,
+			''
+		);
+
+		$log->time('end sitemap generation');
+
+		return;
 	}
 
 	/**
-	 * Filter news sitemap URL relative to home URL.
+	 * Build the page sitemap tree structure.
 	 *
-	 * @module sitemaps
+	 * @access private
+	 * @since 4.5.0
 	 *
-	 * @since 3.9.0
-	 *
-	 * @param string $news_sitemap_url News sitemap URL.
+	 * @return array $args {
+	 *     @type string filename The filename of the root page sitemap.
+	 *     @type string last_modified The timestamp of the root page sitemap.
+	 * }
 	 */
-	return apply_filters( 'jetpack_news_sitemap_location', $news_sitemap_url );
-}
+	private function build_page_sitemap_tree () {
+		$num_sitemaps = $this->build_all_page_sitemaps();
 
-/**
- * Output the default sitemap URL.
- *
- * @module sitemaps
- */
-function jetpack_sitemap_discovery() {
-	echo 'Sitemap: ' . esc_url( jetpack_sitemap_uri() ) . PHP_EOL;
-}
+		// If there's only one sitemap, make that the root.
+		if ( 1 == $num_sitemaps ) {
+			$this->delete_numbered_posts_after(
+				'sitemap-index-',
+				0,
+				'jp_sitemap_index'
+			);
 
-/**
- * Output the news sitemap URL.
- *
- * @module sitemaps
- */
-function jetpack_news_sitemap_discovery() {
-	echo 'Sitemap: ' . esc_url( jetpack_news_sitemap_uri() ) . PHP_EOL . PHP_EOL;
-}
+			$last_modified = get_page_by_title('sitemap-1', 'OBJECT', 'jp_sitemap')->post_date;
 
-/**
- * Clear the sitemap cache when a sitemap action has changed.
- *
- * @module sitemaps
- *
- * @param int $post_id unique post identifier. not used.
- */
-function jetpack_sitemap_handle_update( $post_id ) {
-	delete_transient( 'jetpack_sitemap' );
-	delete_transient( 'jetpack_news_sitemap' );
-}
+			return array(
+				'filename'      => '/sitemap-1.xml',
+				'last_modified' => str_replace( ' ', 'T', $last_modified) . 'Z',
+			);
+		}
 
-/**
- * Clear sitemap cache when an entry changes. Make sitemaps discoverable to robots. Render sitemaps.
- *
- * @module sitemaps
- */
-function jetpack_sitemap_initialize() {
-	add_action( 'publish_post', 'jetpack_sitemap_handle_update', 12, 1 );
-	add_action( 'publish_page', 'jetpack_sitemap_handle_update', 12, 1 );
-	add_action( 'trash_post', 'jetpack_sitemap_handle_update', 12, 1 );
-	add_action( 'deleted_post', 'jetpack_sitemap_handle_update', 12, 1 );
+		// Otherwise, we have to generate sitemap indices.
+		return $this->build_all_page_sitemap_indices();
+	}
 
 	/**
-	 * Filter whether to make the default sitemap discoverable to robots or not.
+	 * Build and store all page sitemaps.
 	 *
-	 * @module sitemaps
+	 * Side effect: Create/update jp_sitemap posts sitemap-1, sitemap-2, etc.
 	 *
-	 * @since 3.9.0
+	 * @access private
+	 * @since 4.5.0
 	 *
-	 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
+	 * @return int The number of page sitemaps generated.
 	 */
-	$discover_sitemap = apply_filters( 'jetpack_sitemap_generate', true );
-	if ( $discover_sitemap ) {
-		add_action( 'do_robotstxt', 'jetpack_sitemap_discovery', 5, 0 );
+	private function build_all_page_sitemaps () {
+		$post_ID = 0;
+		$sitemap_number = 1;
+		$any_posts_left = true;
 
-		if ( get_option( 'permalink_structure' ) ) {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$sitemap = apply_filters( 'jetpack_sitemap_location', home_url( '/sitemap.xml' ) );
-			$sitemap = parse_url( $sitemap, PHP_URL_PATH );
+		// Generate sitemaps until no posts remain.
+		while ( true == $any_posts_left ) {
+			$result = $this->build_one_page_sitemap(
+				$sitemap_number,
+				$post_ID
+			);
+
+			if ( true == $result['any_posts_left'] ) {
+				$post_ID = $result['last_post_ID'];
+				$sitemap_number += 1;
+			} else {
+				$any_posts_left = False;
+			}
+		}
+
+		// Clean up old page sitemaps.
+		$this->delete_numbered_posts_after(
+			'sitemap-',
+			$sitemap_number,
+			'jp_sitemap'
+		);
+
+		// Return the number of the last sitemap to be stored.
+		return $sitemap_number;
+	}
+
+	/**
+	 * Build and store a single page sitemap.
+	 *
+	 * Side effect: Create/update a jp_sitemap post.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param int $number The number of the current sitemap.
+	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
+	 * @return array @args {
+	 *   @type int $last_post_ID The ID of the last post to be successfully added to the buffer.
+	 *   @type bool $any_posts_left 'true' if there are posts which haven't been saved to a sitemap, 'false' otherwise.
+	 * }
+	 */
+	private function build_one_page_sitemap ( $number, $from_ID ) {
+		$last_post_ID = $from_ID;
+		$any_posts_left = true;
+
+		$buffer = new Jetpack_Sitemap_Buffer(
+			self::SITEMAP_MAX_ITEMS,
+			self::SITEMAP_MAX_BYTES,
+
+			/* open tag */
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/sitemap.xsl'?>\n" .
+			"<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n",
+
+			/* close tag */
+			"</urlset>\n",
+
+			/* epoch */
+			strtotime('1970-01-01 00:00:00')
+		);
+
+		// Add entry for the main page (only if we're at the first one)
+		if ( 1 == $number ) {
+			$buffer->try_to_add_item(
+				"<url>\n" .
+				" <loc>" . home_url() . "</loc>\n" .
+				"</url>\n"
+			);
+		}
+
+		// Until the buffer is too large,
+		while ( false == $buffer->is_full() ) {
+			// Retrieve a batch of posts (in order).
+			$posts = $this->query_posts_after_ID($last_post_ID, 1000);
+			// If there were no posts to get, make note and quit trying to fill the buffer.
+			if (null == $posts) {
+				$any_posts_left = false;
+				break;
+			}
+
+			// Otherwise, for each post in the batch,
+			foreach ($posts as $post) {
+				// Generate the sitemap XML for the post.
+				$current_item = $this->post_to_sitemap_item($post);
+
+				// If we can add it to the buffer,
+				if ( true == $buffer->try_to_add_item($current_item['xml']) ) {
+					// Update the current post ID and timestamp.
+					$last_post_ID = $post->ID;
+					$buffer->view_time($current_item['last_modified']);
+				} else {
+					// Otherwise stop looping through posts.
+					break;
+				}
+			}
+		}
+
+		// Store the buffer as the content of a jp_sitemap post.
+		$this->set_contents_of_post(
+			'sitemap-' . $number,
+			'jp_sitemap',
+			$buffer->contents(),
+			$buffer->last_modified()
+		);
+
+		/*
+		 * Now report back with the ID of the last post ID to be
+		 * successfully added and whether there are any posts left.
+		 */
+		return array(
+			'last_post_ID'   => $last_post_ID,
+			'any_posts_left' => $any_posts_left
+		);
+	}
+
+	/**
+	 * Build and store all page sitemap indices.
+	 *
+	 * Side effect: Create/update jp_sitemap_index posts sitemap-index-1, sitemap-index-2, etc.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @return int The number of page sitemap indices generated.
+	 */
+	private function build_all_page_sitemap_indices () {
+		$sitemap_ID = 0;
+		$sitemap_index_number = 1;
+		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
+		$any_sitemaps_left = true;
+
+		// Generate sitemap indices until no sitemaps remain.
+		while ( true == $any_sitemaps_left ) {
+			$result = $this->build_one_page_sitemap_index(
+				$sitemap_index_number,
+				$sitemap_ID,
+				$last_modified
+			);
+
+			if ( true == $result['any_sitemaps_left'] ) {
+				$sitemap_ID = $result['last_sitemap_ID'];
+				$sitemap_index_number += 1;
+				$last_modified = $result['last_modified'];
+			} else {
+				$any_sitemaps_left = False;
+			}
+		}
+
+		// Clean up old sitemap indices.
+		$this->delete_numbered_posts_after(
+			'sitemap-index-',
+			$sitemap_index_number,
+			'jp_sitemap_index'
+		);
+
+		return array(
+			'filename'      => '/sitemap-index-' . $sitemap_index_number . '.xml',
+			'last_modified' => str_replace( ' ', 'T', $last_modified) . 'Z',
+		);
+	}
+
+	/**
+	 * Build and store a single page sitemap index.
+	 *
+	 * Side effect: Create/update a jp_sitemap_index post.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param int $number The number of the current sitemap index.
+	 * @param int $from_ID The greatest lower bound of the IDs of the sitemaps to be included.
+	 * @param string $timestamp Timestamp of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
+	 */
+	private function build_one_page_sitemap_index ( $number, $from_ID, $timestamp ) {
+		$last_sitemap_ID = $from_ID;
+		$any_sitemaps_left = true;
+
+		$buffer = new Jetpack_Sitemap_Buffer(
+			self::SITEMAP_MAX_ITEMS,
+			self::SITEMAP_MAX_BYTES,
+
+			/* open tag */
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/sitemap-index.xsl" . "'?>\n" .
+			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n",
+
+			/* close tag */
+			"</sitemapindex>\n",
+
+			/* initial last_modified value */
+			$timestamp
+		);
+
+		// Add pointer to the previous sitemap index (unless we're at the first one)
+		if ( 1 != $number ) {
+			$i = $number - 1;
+			$buffer->try_to_add_item(
+				"<sitemap>\n" .
+ 				" <loc>" . home_url() . "/sitemap-index-$i.xml</loc>\n" .
+				" <lastmod>" . str_replace( ' ', 'T', $timestamp) . 'Z' . "</lastmod>\n" .
+				"</sitemap>\n"
+			);
+		}
+
+		// Until the buffer is too large,
+		while ( false == $buffer->is_full() ) {
+			// Retrieve a batch of posts (in order)
+			$posts = $this->query_page_sitemaps_after_ID($last_sitemap_ID, 1000);
+
+			// If there were no posts to get, make a note.
+			if (null == $posts) {
+				$any_sitemaps_left = false;
+				break;
+			}
+
+			// Otherwise, for each post in the batch,
+			foreach ($posts as $post) {
+				// Generate the sitemap XML for the post.
+				$current_item = $this->sitemap_to_index_item($post);
+
+				// If adding this item to the buffer doesn't make it too large,
+				if ( true == $buffer->try_to_add_item($current_item['xml']) ) {
+					// Add it and update the last sitemap ID.
+					$last_sitemap_ID = $post->ID;
+					$buffer->view_time($current_item['last_modified']);
+				} else {
+					// Otherwise stop looping through posts.
+					break;
+				}
+			}
+		}
+
+		// Store the buffer as the content of a jp_sitemap_index post.
+		$this->set_contents_of_post(
+			'sitemap-index-' . $number,
+			'jp_sitemap_index',
+			$buffer->contents(),
+			$buffer->last_modified()
+		);
+
+		/*
+		 * Now report back with the ID of the last sitemap post ID to
+		 * be successfully added, whether there are any sitemap posts
+		 * left, and the most recent modification time seen.
+		 */
+		return array(
+			'last_sitemap_ID'   => $last_sitemap_ID,
+			'any_sitemaps_left' => $any_sitemaps_left,
+		  'last_modified'     => $buffer->last_modified()
+		);
+	}
+
+	/**
+	 * Build the image sitemap tree structure.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @return array $args {
+	 *     @type string filename The filename of the root image sitemap.
+	 *     @type string last_modified The timestamp of the root image sitemap.
+	 * }
+	 */
+	private function build_image_sitemap_tree () {
+		$num_sitemaps = $this->build_all_image_sitemaps();
+
+		// If there's only one sitemap, make that the root.
+		if ( 1 == $num_sitemaps ) {
+			$this->delete_numbered_posts_after(
+				'image-sitemap-index-',
+				0,
+				'jp_img_sitemap_index'
+			);
+
+			return array(
+				'filename' => '/image-sitemap-1.xml',
+			);
+		}
+
+		// Otherwise, we have to generate sitemap indices.
+		return $this->build_all_image_sitemap_indices();
+	}
+
+	/**
+	 * Build and store all image sitemaps.
+	 *
+	 * Side effect: Create/update jp_img_sitemap posts image-sitemap-1, image-sitemap-2, etc.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @return int The number of image sitemaps generated.
+	 */
+	private function build_all_image_sitemaps () {
+		$image_ID = 0;
+		$img_sitemap_number = 1;
+		$any_images_left = true;
+
+		// Generate image sitemaps until no posts remain.
+		while ( true == $any_images_left ) {
+			$result = $this->build_one_image_sitemap(
+				$img_sitemap_number,
+				$image_ID
+			);
+
+			if ( true == $result['any_posts_left'] ) {
+				$image_ID = $result['last_post_ID'];
+				$img_sitemap_number += 1;
+			} else {
+				$any_images_left = False;
+			}
+		}
+
+		// Clean up old image sitemaps.
+		$this->delete_numbered_posts_after(
+			'image-sitemap-',
+			$img_sitemap_number,
+			'jp_img_sitemap'
+		);
+
+		return $img_sitemap_number;
+	}
+
+	/**
+	 * Build and store a single image sitemap.
+	 *
+	 * Side effect: Create/update a jp_img_sitemap post.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param int $number The number of the current sitemap.
+	 * @param int $from_ID The greatest lower bound of the IDs of the posts to be included.
+	 */
+	private function build_one_image_sitemap ( $number, $from_ID ) {
+		$last_post_ID = $from_ID;
+		$any_posts_left = true;
+
+		$buffer = new Jetpack_Sitemap_Buffer(
+			self::SITEMAP_MAX_ITEMS,
+			self::SITEMAP_MAX_BYTES,
+
+			/* open tag */
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/image-sitemap.xsl" . "'?>\n" .
+			"<urlset\n" .
+			"  xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'\n" .
+			"  xmlns:image='http://www.google.com/schemas/sitemap-image/1.1'>\n",
+
+			/* close tag */
+			"</urlset>\n",
+
+			/* epoch */
+			strtotime('1970-01-01 00:00:00')
+		);
+
+		// Until the buffer is too large,
+		while ( false == $buffer->is_full() ) {
+			// Retrieve a batch of posts (in order).
+			$posts = $this->query_images_after_ID($last_post_ID, 1000);
+
+			// If there were no posts to get, make note and quit trying to fill the buffer.
+			if (null == $posts) {
+				$any_posts_left = false;
+				break;
+			}
+
+			// Otherwise, for each post in the batch,
+			foreach ($posts as $post) {
+				// Generate the sitemap XML for the post.
+				$current_item = $this->image_post_to_sitemap_item($post);
+
+				// If we can add it to the buffer,
+				if ( true == $buffer->try_to_add_item($current_item['xml']) ) {
+					// Update the current post ID and timestamp.
+					$last_post_ID = $post->ID;
+					$buffer->view_time($current_item['last_modified']);
+				} else {
+					// Otherwise stop looping through posts.
+					break;
+				}
+			}
+		}
+
+		// Store the buffer as the content of a jp_sitemap post.
+		$this->set_contents_of_post(
+			'image-sitemap-' . $number,
+			'jp_img_sitemap',
+			$buffer->contents(),
+			$buffer->last_modified()
+		);
+
+		/*
+		 * Now report back with the ID of the last post ID to be
+		 * successfully added and whether there are any posts left.
+		 */
+		return array(
+			'last_post_ID'   => $last_post_ID,
+			'any_posts_left' => $any_posts_left
+		);
+	}
+
+	/**
+	 * Build and store all image sitemap indices.
+	 *
+	 * Side effect: Create/update jp_img_sitemap_index posts
+	 * image-sitemap-index-1, image-sitemap-index-2, etc.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @return int The number of image sitemap indices generated.
+	 */
+	private function build_all_image_sitemap_indices () {
+		$sitemap_ID = 0;
+		$sitemap_index_number = 1;
+		$last_modified = strtotime('1970-01-01 00:00:00'); // Epoch
+		$any_sitemaps_left = true;
+
+		// Generate sitemap indices until no sitemaps remain.
+		while ( true == $any_sitemaps_left ) {
+			$result = $this->build_one_image_sitemap_index(
+				$sitemap_index_number,
+				$sitemap_ID,
+				$last_modified
+			);
+
+			if ( true == $result['any_sitemaps_left'] ) {
+				$sitemap_ID = $result['last_sitemap_ID'];
+				$sitemap_index_number += 1;
+				$last_modified = $result['last_modified'];
+			} else {
+				$any_sitemaps_left = False;
+			}
+		}
+
+		// Clean up old sitemap indices.
+		$this->delete_numbered_posts_after(
+			'image-sitemap-index-',
+			$sitemap_index_number,
+			'jp_img_sitemap_index'
+		);
+
+		return array(
+			'filename' => '/image-sitemap-index-' . $sitemap_index_number . '.xml',
+		);
+	}
+
+	/**
+	 * Build and store a single image sitemap index.
+	 *
+	 * Side effect: Create/update a jp_img_sitemap_index post.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param int $number The number of the current image sitemap index.
+	 * @param int $from_ID The greatest lower bound of the IDs of the sitemaps to be included.
+	 * @param string $timestamp Timestamp of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
+	 */
+	private function build_one_image_sitemap_index ( $number, $from_ID, $timestamp ) {
+		$last_sitemap_ID = $from_ID;
+		$any_sitemaps_left = true;
+
+		$buffer = new Jetpack_Sitemap_Buffer(
+			self::SITEMAP_MAX_ITEMS,
+			self::SITEMAP_MAX_BYTES,
+
+			/* open tag */
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/sitemap-index.xsl" . "'?>\n" .
+			"<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>\n",
+
+			/* close tag */
+			"</sitemapindex>\n",
+
+			/* initial last_modified value */
+			$timestamp
+		);
+
+		// Add pointer to the previous sitemap index (unless we're at the first one)
+		if ( 1 != $number ) {
+			$i = $number - 1;
+			$buffer->try_to_add_item(
+				"<sitemap>\n" .
+ 				" <loc>" . home_url() . "/image-sitemap-index-$i.xml</loc>\n" .
+				" <lastmod>" . str_replace( ' ', 'T', $timestamp) . 'Z' . "</lastmod>\n" .
+				"</sitemap>\n"
+			);
+		}
+
+		// Until the buffer is too large,
+		while ( false == $buffer->is_full() ) {
+			// Retrieve a batch of posts (in order)
+			$posts = $this->query_image_sitemaps_after_ID($last_sitemap_ID, 1000);
+
+			// If there were no posts to get, make a note.
+			if (null == $posts) {
+				$any_sitemaps_left = false;
+				break;
+			}
+
+			// Otherwise, for each post in the batch,
+			foreach ($posts as $post) {
+				// Generate the sitemap XML for the post.
+				$current_item = $this->image_sitemap_to_index_item($post);
+
+				// If adding this item to the buffer doesn't make it too large,
+				if ( true == $buffer->try_to_add_item($current_item['xml']) ) {
+					// Add it and update the last sitemap ID.
+					$last_sitemap_ID = $post->ID;
+					$buffer->view_time($current_item['last_modified']);
+				} else {
+					// Otherwise stop looping through posts.
+					break;
+				}
+			}
+		}
+
+		// Store the buffer as the content of a jp_sitemap_index post.
+		$this->set_contents_of_post(
+			'image-sitemap-index-' . $number,
+			'jp_img_sitemap_index',
+			$buffer->contents(),
+			$buffer->last_modified()
+		);
+
+		/*
+		 * Now report back with the ID of the last sitemap post ID to
+		 * be successfully added, whether there are any sitemap posts
+		 * left, and the most recent modification time seen.
+		 */
+		return array(
+			'last_sitemap_ID'   => $last_sitemap_ID,
+			'any_sitemaps_left' => $any_sitemaps_left,
+		  'last_modified'     => $buffer->last_modified()
+		);
+	}
+
+	/**
+	 * Build and return the news sitemap xml.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @return string The news sitemap xml.
+	 */
+	private function news_sitemap_xml () {
+		$log = new Jetpack_Sitemap_Logger('begin news sitemap generation');
+
+		$buffer = new Jetpack_Sitemap_Buffer(
+			self::NEWS_SITEMAP_MAX_ITEMS,
+			self::SITEMAP_MAX_BYTES,
+
+			/* open tag */
+			"<?xml version='1.0' encoding='UTF-8'?>\n" .
+			"<!-- generator='jetpack-" . JETPACK__VERSION . "' -->\n" .
+			"<?xml-stylesheet type='text/xsl' href='" . home_url() . "/news-sitemap.xsl'?>\n" .
+			"<urlset\n" .
+			"  xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'\n" .
+			"  xmlns:news='http://www.google.com/schemas/sitemap-news/0.9'>\n",
+
+			/* close tag */
+			"</urlset>\n",
+
+			/* epoch */
+			strtotime('1970-01-01 00:00:00')
+		);
+
+		// Retrieve the 1000 most recent posts.
+		$posts = $this->query_most_recent_posts(1000);
+
+		// For each post in the batch,
+		foreach ($posts as $post) {
+			// Generate the sitemap XML for the post.
+			$current_item = $this->post_to_news_sitemap_item($post);
+
+			// Try to add it to the buffer.
+			if ( false == $buffer->try_to_add_item($current_item['xml']) ) {
+				break;
+			}
+		}
+
+		$log->time('end news sitemap generation');
+
+		return $buffer->contents();
+	}
+
+	/**
+	 * Construct the sitemap url entry for a WP_Post.
+	 *
+	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param WP_Post $post The post to be processed.
+	 * @return string An XML fragment representing the post URL.
+	 */
+	private function post_to_sitemap_item ( $post ) {
+		$url = get_permalink($post);
+
+		/*
+		 * Must use W3C Datetime format per the spec.
+		 * https://www.w3.org/TR/NOTE-datetime
+		 */ 
+		$last_modified = str_replace( ' ', 'T', $post->post_date) . 'Z';
+
+		/*
+		 * Spec requires the URL to be <=2048 bytes.
+		 * In practice this constraint is unlikely to be violated.
+		 */
+		if ( mb_strlen($url) > 2048 ) {
+			$url = site_url() . '/?p=' . $post->ID; 
+		}
+
+		$xml =
+			"<url>\n" .
+			" <loc>$url</loc>\n" .
+			" <lastmod>$last_modified</lastmod>\n" .
+			"</url>\n";
+
+		return array(
+			'xml'           => $xml,
+			'last_modified' => $post->post_date
+		);
+	}
+
+	/**
+	 * Construct the image sitemap url entry for a WP_Post of image type.
+	 *
+	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param WP_Post $post The image post to be processed.
+	 *
+	 * @return string An XML fragment representing the post URL.
+	 */
+	private function image_post_to_sitemap_item ( $post ) {
+		$url = wp_get_attachment_url($post->ID);
+
+		$title = esc_html($post->post_title);
+		if ( '' != $title ) {
+			$title = "  <image:title>$title</image:title>\n";
+		}
+
+		$caption = esc_html($post->post_excerpt);
+		if ( '' != $caption ) {
+			$caption = "  <image:caption>$caption</image:caption>\n";
+		}
+
+		$parent_url = get_permalink(get_post($post->post_parent));
+		if ( '' == $parent_url ) {
+			$parent_url = get_permalink($post);
+		}
+
+		/*
+		 * Spec requires the URL to be <=2048 bytes.
+		 * In practice this constraint is unlikely to be violated.
+		 */
+		if ( mb_strlen($url) > 2048 ) {
+			$url = site_url() . '/?p=' . $post->ID; 
+		}
+
+		$xml =
+			"<url>\n" .
+			" <loc>$parent_url</loc>\n" .
+			" <image:image>\n" .
+			"  <image:loc>$url</image:loc>\n" .
+			$title .
+			$caption .
+			" </image:image>\n" .
+			"</url>\n";
+
+		return array(
+			'xml'           => $xml,
+			'last_modified' => $post->post_date
+		);
+	}
+
+	/**
+	 * Construct the sitemap index url entry for a sitemap post.
+	 *
+	 * @link http://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param WP_Post $post The sitemap post to be processed.
+	 *
+	 * @return string An XML fragment representing the post URL.
+	 */
+	private function sitemap_to_index_item ( $post ) {
+		$url = home_url() . '/' . $post->post_title . '.xml';
+
+		/*
+		 * Must use W3C Datetime format per the spec.
+		 * https://www.w3.org/TR/NOTE-datetime
+		 * Also recall that we stored the most recent modification time
+		 * among all the posts in this sitemap in post_date.
+		 */
+		$last_modified = str_replace( ' ', 'T', $post->post_date) . 'Z';
+
+		$xml =
+			"<sitemap>\n" .
+			" <loc>$url</loc>\n" .
+			" <lastmod>$last_modified</lastmod>\n" .
+			"</sitemap>\n";
+
+		return array(
+			'xml'           => $xml,
+			'last_modified' => $post->post_date
+		);
+	}
+
+	/**
+	 * Construct the image sitemap index url entry for an image sitemap post.
+	 *
+	 * @link http://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param WP_Post $post The image sitemap post to be processed.
+	 *
+	 * @return string An XML fragment representing the post URL.
+	 */
+	private function image_sitemap_to_index_item ( $post ) {
+		$url = home_url() . '/' . $post->post_title . '.xml';
+
+		$xml =
+			"<sitemap>\n" .
+			" <loc>$url</loc>\n" .
+			"</sitemap>\n";
+
+		return array(
+			'xml'           => $xml,
+			'last_modified' => $post->post_date
+		);
+	}
+
+	/**
+	 * Construct the news sitemap url entry for a WP_Post.
+	 *
+	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param WP_Post $post The post to be processed.
+	 *
+	 * @return string An XML fragment representing the post URL.
+	 */
+	private function post_to_news_sitemap_item ( $post ) {
+		$url = get_permalink($post);
+
+		/*
+		 * Spec requires the URL to be <=2048 bytes.
+		 * In practice this constraint is unlikely to be violated.
+		 */
+		if ( mb_strlen($url) > 2048 ) {
+			$url = site_url() . '/?p=' . $post->ID; 
+		}
+
+		/*
+		 * Must use W3C Datetime format per the sitemap spec.
+		 * @link https://www.w3.org/TR/NOTE-datetime
+		 */ 
+		$last_modified = str_replace( ' ', 'T', $post->post_date) . 'Z';
+
+		$title = esc_html($post->post_title);
+
+		$name = esc_html(get_bloginfo('name'));
+
+		/*
+		 * Trim the locale to an ISO 639 language code as required by Google.
+		 * Special cases are zh-cn (Simplified Chinese) and zh-tw (Traditional Chinese).
+		 * @link http://www.loc.gov/standards/iso639-2/php/code_list.php
+		 */
+		$language = strtolower( get_locale() );
+
+		if ( in_array( $language, array( 'zh_tw', 'zh_cn' ) ) ) {
+			$language = str_replace( '_', '-', $language );
 		} else {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$sitemap = apply_filters( 'jetpack_sitemap_location', home_url( '/?jetpack-sitemap=true' ) );
-			$sitemap = preg_replace( '/(=.*?)$/i', '', parse_url( $sitemap, PHP_URL_QUERY ) );
+			$language = preg_replace( '/(_.*)$/i', '', $language );
 		}
 
-		// Sitemap XML
-		if ( preg_match( '#(' . $sitemap . ')$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET[ $sitemap ] ) && 'true' == $_GET[ $sitemap ] ) ) {
-			// run later so things like custom post types have been registered
-			add_action( 'init', 'jetpack_print_sitemap', 999 );
-		}
+		$xml =
+			"<url>\n" .
+			" <loc>$url</loc>\n" .
+			" <news:news>\n" .
+			"  <news:publication>\n" .
+			"   <news:name>$name</news:name>\n" .
+			"   <news:language>$language</news:language>\n" .
+			"  </news:publication>\n" .
+			"  <news:title>$title</news:title>\n" .
+			"  <news:publication_date>$last_modified</news:publication_date>\n" .
+			"  <news:genres>Blog</news:genres>\n" .
+			" </news:news>\n" .
+			"</url>\n";
 
-		// XSLT for sitemap
-		if ( preg_match( '#(/sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-sitemap-xsl'] ) && 'true' == $_GET['jetpack-sitemap-xsl'] ) ) {
-			add_action( 'init', 'jetpack_print_sitemap_xsl' );
+		return array(
+			'xml' => $xml
+		);
+	}
+
+	/*
+	 * Querying the Database
+	 */
+
+	/**
+	 * Retrieve an array of posts sorted by ID.
+	 *
+	 * More precisely, returns the smallest $num_posts posts
+	 * (measured by ID) which are larger than $from_ID.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param int $from_ID Greatest lower bound of retrieved post IDs.
+	 * @param int $num_posts Largest number of posts to retrieve.
+	 *
+	 * @return array The posts.
+	 */
+	private function query_posts_after_ID ( $from_ID, $num_posts ) {
+		global $wpdb;
+
+		// Get the list of post types to include and prepare for query.
+		$post_types = $this->read_sitemap_post_type_option();
+		foreach ( (array) $post_types as $i => $post_type ) {
+			$post_types[ $i ] = $wpdb->prepare( '%s', $post_type );
 		}
+		$post_types_list = join( ",", $post_types );
+
+		$query_string = "
+			SELECT *
+				FROM $wpdb->posts
+				WHERE post_status='publish' AND post_type IN ($post_types_list) AND ID>$from_ID
+				ORDER BY ID ASC
+				LIMIT $num_posts;
+		";
+
+		return $wpdb->get_results( $query_string );
 	}
 
 	/**
-	 * Filter whether to make the news sitemap discoverable to robots or not.
+	 * Retrieve an array of image posts sorted by ID.
 	 *
-	 * @module sitemaps
+	 * More precisely, returns the smallest $num_posts image posts
+	 * (measured by ID) which are larger than $from_ID.
 	 *
-	 * @since 3.9.0
+	 * @access private
+	 * @since 4.5.0
 	 *
-	 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.
+	 * @param int $from_ID Greatest lower bound of retrieved image post IDs.
+	 * @param int $num_posts Largest number of image posts to retrieve.
+	 *
+	 * @return array The posts.
 	 */
-	$discover_news_sitemap = apply_filters( 'jetpack_news_sitemap_generate', true );
-	if ( $discover_news_sitemap ) {
-		add_action( 'do_robotstxt', 'jetpack_news_sitemap_discovery', 5, 0 );
+	private function query_images_after_ID ( $from_ID, $num_posts ) {
+		global $wpdb;
 
-		if ( get_option( 'permalink_structure' ) ) {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$sitemap = apply_filters( 'jetpack_news_sitemap_location', home_url( '/news-sitemap.xml' ) );
-			$sitemap = parse_url( $sitemap, PHP_URL_PATH );
+		$query_string = "
+			SELECT *
+				FROM $wpdb->posts
+				WHERE post_type='attachment'
+								AND post_mime_type IN ('image/jpeg','image/png','image/gif')
+								AND ID>$from_ID
+				ORDER BY ID ASC
+				LIMIT $num_posts;
+		";
+
+		return $wpdb->get_results( $query_string );
+	}
+
+	/**
+	 * Retrieve an array of page sitemap posts sorted by ID.
+	 *
+	 * Returns the smallest $num_posts sitemap posts (measured by ID)
+	 * which are larger than $from_ID.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param int $from_ID Greatest lower bound of retrieved sitemap post IDs.
+	 * @param int $num_posts Largest number of sitemap posts to retrieve.
+	 *
+	 * @return array The sitemap posts.
+	 */
+	private function query_page_sitemaps_after_ID ( $from_ID, $num_posts ) {
+		global $wpdb;
+
+		$query_string = "
+			SELECT *
+				FROM $wpdb->posts
+				WHERE post_type='jp_sitemap' AND ID>$from_ID
+				ORDER BY ID ASC
+				LIMIT $num_posts;
+		";
+
+		return $wpdb->get_results( $query_string );
+	}
+
+	/**
+	 * Retrieve an array of image sitemap posts sorted by ID.
+	 *
+	 * Returns the smallest $num_posts image sitemap posts (measured by ID)
+	 * which are larger than $from_ID.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param int $from_ID Greatest lower bound of retrieved image sitemap post IDs.
+	 * @param int $num_posts Largest number of image sitemap posts to retrieve.
+	 *
+	 * @return array The sitemap posts.
+	 */
+	private function query_image_sitemaps_after_ID ( $from_ID, $num_posts ) {
+		global $wpdb;
+
+		$query_string = "
+			SELECT *
+				FROM $wpdb->posts
+				WHERE post_type='jp_img_sitemap' AND ID>$from_ID
+				ORDER BY ID ASC
+				LIMIT $num_posts;
+		";
+
+		return $wpdb->get_results( $query_string );
+	}
+
+	/**
+	 * Retrieve an array of published posts from the last 2 days.
+	 *
+	 * @access private
+	 * @since 4.5.0
+	 *
+	 * @param int $num_posts Largest number of posts to retrieve.
+	 *
+	 * @return array The posts.
+	 */
+	private function query_most_recent_posts ( $num_posts ) {
+		global $wpdb;
+
+		$two_days_ago = date('Y-m-d', strtotime('-2 days'));
+
+		$query_string = "
+			SELECT *
+				FROM $wpdb->posts
+				WHERE post_status='publish' AND post_date >= '$two_days_ago'
+				ORDER BY post_date DESC
+				LIMIT $num_posts;
+		";
+
+		return $wpdb->get_results( $query_string );
+	}
+
+	/**
+	 * Retrieve the contents of a post with given title and type.
+	 * If the post does not exist, return the empty string.
+	 *
+	 * @param string $title Post title.
+	 * @param string $type Post type.
+	 *
+	 * @return string Contents of the specified post, or the empty string.
+	 */
+	private function get_contents_of_post ($title, $type) {
+		$the_post = get_page_by_title($title, 'OBJECT', $type);
+
+		if (null == $the_post) {
+			return '';
 		} else {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$sitemap = apply_filters( 'jetpack_news_sitemap_location', home_url( '/?jetpack-news-sitemap=true' ) );
-			$sitemap = preg_replace( '/(=.*?)$/i', '', parse_url( $sitemap, PHP_URL_QUERY ) );
-		}
-
-		// News Sitemap XML
-		if ( preg_match( '#(' . $sitemap . ')$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET[ $sitemap ] ) && 'true' == $_GET[ $sitemap ] ) ) {
-			// run later so things like custom post types have been registered
-			add_action( 'init', 'jetpack_print_news_sitemap', 999 );
-		}
-
-		// XSLT for sitemap
-		if ( preg_match( '#(/news-sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-news-sitemap-xsl'] ) && 'true' == $_GET['jetpack-news-sitemap-xsl'] ) ) {
-			add_action( 'init', 'jetpack_print_news_sitemap_xsl' );
+			return wp_specialchars_decode($the_post->post_content, ENT_QUOTES);
 		}
 	}
-}
 
-// Initialize sitemaps once themes can filter the initialization.
-add_action( 'after_setup_theme', 'jetpack_sitemap_initialize' );
+	/*
+	 * Manipulating the Database
+	 */
+
+	/**
+	 * Delete numbered posts prefix-(p+1), prefix-(p+2), ...
+	 * until the first nonexistent post is found.
+	 *
+	 * @param string $prefix Post name prefix.
+	 * @param int $position Number before the first sitemap to be deleted.
+	 * @param string $type Post type.
+	 */
+	private function delete_numbered_posts_after( $prefix, $position, $type ) {
+		$any_left = true;
+		$i = $position + 1;
+
+		while ( true == $any_left ) {
+			$the_post = get_page_by_title( $prefix . $i, 'OBJECT', $type );
+
+			if ( null == $the_post ) {
+				$any_left = False;
+			} else {
+				wp_delete_post($the_post->ID);
+				$i += 1;
+			}
+		}
+
+		return;
+	}
+
+	/**
+	 * Store a string in the contents of a post with given title and type.
+	 *
+	 * If the post does not exist, create it.
+	 * If the post does exist, the old contents are overwritten.
+	 *
+	 * @param string $title Post title.
+	 * @param string $type Post type.
+	 * @param string $contents The string being stored.
+	 * @param string $timestamp Timestamp in 'TTTT-MM-DD hh:mm:ss' format
+	 */
+	private function set_contents_of_post ($title, $type, $contents, $timestamp) {
+		$the_post = get_page_by_title( $title, 'OBJECT', $type );
+
+		if ( null == $the_post ) {
+			// Post does not exist.
+			wp_insert_post(array(
+				'post_title'   => $title,
+				'post_content' => esc_html($contents),
+				'post_type'    => $type,
+				'post_date'    => date('Y-m-d H:i:s', strtotime($timestamp))
+			));
+		} else {
+			// Post does exist.
+			wp_insert_post(array(
+				'ID'           => $the_post->ID,
+				'post_title'   => $title,
+				'post_content' => esc_html($contents),
+				'post_type'    => $type,
+				'post_date'    => date('Y-m-d H:i:s', strtotime($timestamp))
+			));
+		}
+
+		return;
+	}
+
+	/*
+	 * Store and Manipulate Admin Options
+	 */
+
+	/**
+	 * Store an array of post type names to be included in the sitemap.
+	 * Side effect: creates or updates an option in the database.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param array $post_types Array of (string) names of post types to be included in the sitemap.
+	 */
+	private function store_sitemap_post_type_option ( $post_types ) {
+		update_option( 'jetpack_sitemap_post_types', $post_types );
+		return;
+	}
+
+	/**
+	 * Read the array of post type names to be included in the sitemap.
+	 *
+	 * @since 4.5.0
+	 */
+	private function read_sitemap_post_type_option () {
+		return get_option( 'jetpack_sitemap_post_types' );
+	}
+
+	/**
+	 * Delete the stored array of post type names to be included in the sitemap.
+	 *
+	 * @since 4.5.0
+	 */
+	private function delete_sitemap_post_type_option () {
+		delete_option( 'jetpack_sitemap_post_types' );
+		return;
+	}
+
+} // End Jetpack_Sitemap_Manager class
+
+new Jetpack_Sitemap_Manager();
