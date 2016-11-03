@@ -3265,7 +3265,7 @@ p {
 					</div>
 					<div class="vertical-menu__feature-item">
 						<div class="vertical-menu__feature-item-icon">
-							<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 4 15 15" version="1.1"><polygon points="6.6 4 6.6 10.6 0 10.6 0 12.4 6.6 12.4 6.6 19 8.4 19 8.4 12.4 15 12.4 15 10.6 8.4 10.6 8.4 4"/></svg>
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 4 15 15" version="1.1"><polygon points="6.6 4 6.6 10.6 0 10.6 0 12.4 6.6 12.4 6.6 19 8.4 19 8.4 12.4 15 12.4 15 10.6 8.4 10.6 8.4 4"/></svg>
 						</div>
 						<span class="vertical-menu__feature-item-label"><?php _e( 'More Features', 'jetpack' ); ?></span>
 					</div>
