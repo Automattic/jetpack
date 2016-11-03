@@ -35,7 +35,7 @@ export const AllModuleSettings = React.createClass( {
 		let { module } = this.props;
 		switch ( module.module ) {
 			case 'videopress':
-				return ( <VideoPressSettings module={ module } siteHasPlan={ this.props.siteHasPlan } /> );
+				return ( <VideoPressSettings module={ module } sitePlan={ this.props.sitePlan } /> );
 			case 'omnisearch':
 				return (
 					<div>
