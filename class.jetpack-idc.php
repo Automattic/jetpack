@@ -73,6 +73,8 @@ class Jetpack_IDC {
 				</p>
 			</div>
 
+			<div class="jp-idc-notice__separator"></div>
+
 			<?php $this->render_notice_first_step(); ?>
 			<?php $this->render_notice_second_step(); ?>
 		</div>
@@ -152,6 +154,7 @@ class Jetpack_IDC {
 			</div>
 
 			<div class="jp-idc-notice__actions">
+				<div class="jp-idc-notice__separator"></div>
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
 						<?php
@@ -172,6 +175,8 @@ class Jetpack_IDC {
 						<?php esc_html_e( 'Confirm Safe Mode' ); ?>
 					</button>
 				</div>
+
+				<div class="jp-idc-notice__separator"></div>
 
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
@@ -215,6 +220,7 @@ class Jetpack_IDC {
 			</div>
 
 			<div class="jp-idc-notice__actions">
+				<div class="jp-idc-notice__separator"></div>
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
 						<?php
@@ -233,6 +239,8 @@ class Jetpack_IDC {
 						<?php esc_html_e( 'Migrate stats &amp; and Subscribers' ); ?>
 					</button>
 				</div>
+
+				<div class="jp-idc-notice__separator"></div>
 
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">

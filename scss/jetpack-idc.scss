@@ -1,5 +1,13 @@
 @import '../_inc/client/scss/variables/_colors.scss';
 
+.jp-idc-notice, .jp-idc-notice * {
+	box-sizing: border-box;
+}
+
+.jp-idc-notice {
+	padding-bottom: 24px;
+}
+
 .jp-idc-notice p {
 	margin: 0;
 	padding: 0;
@@ -34,8 +42,6 @@
 }
 
 .jp-idc-notice .jp-idc-notice__header {
-	border-bottom: 1px solid $gray-light;
-	margin-bottom: 16px;
 	padding: 8px 0;
 }
 
@@ -55,32 +61,30 @@
 }
 
 .jp-idc-notice__content-header {
-	margin-bottom: 24px;
+	margin: 16px 0 16px 0;
 }
 
 .jp-idc-notice__content-header__lead {
 	font-size: 16px;
 	font-weight: 600;
 	line-height: 21px;
-	margin: 0 0 8px 0;
+	margin: 0;
+}
+
+.jp-idc-notice__content-header .jp-idc-notice__content-header__explanation {
+	font-size: 14px;
+	font-weight: 400;
+	margin: 8px 0 0 0;
 }
 
 @media only screen and ( min-width: 960px ) {
-	.jp-idc-notice__content-header__lead {
-		margin: 0 0 4px 0;
+	.jp-idc-notice__content-header .jp-idc-notice__content-header__explanation {
+		margin: 4px 0 0 0;
 	}
-}
-
-.jp-idc-notice__content-header .jpc-idc-notice-content-header__explanation {
-	font-size: 14px;
-	font-weight: 300;
-	margin: 0;
 }
 
 .jp-idc-notice__action {
 	display: block;
-	flex: 1;
-	margin-bottom: 24px;
 }
 
 @media only screen and ( min-width: 960px ) {
@@ -103,4 +107,30 @@
 
 .jp-idc-notice .jp-idc-notice__action__explanation {
 	margin: 0 0 16px 0;
+}
+
+
+.jp-idc-notice__separator {
+	background-color: $gray-light;
+	margin: 0 -10px 0 -10px;
+	height: 1px;
+}
+
+@media only screen and ( min-width: 782px ) {
+	.jp-idc-notice__separator {
+		margin: 0 -12px 0 -12px;
+	}
+}
+
+.jp-idc-notice__actions .jp-idc-notice__separator {
+	margin: 16px -26px 16px -26px;
+}
+.jp-idc-notice__actions .jp-idc-notice__separator:first-child {
+	margin-top: 0;
+}
+
+@media only screen and ( min-width: 960px ) {
+	.jp-idc-notice__actions .jp-idc-notice__separator {
+		display: none;
+	}
 }
