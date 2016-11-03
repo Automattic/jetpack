@@ -52,17 +52,7 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @param bool should we load sync listener code for this request
 		 */
-		if ( apply_filters( 'jetpack_sync_listener_should_load',
-			(
-				( isset( $_SERVER["REQUEST_METHOD"] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] )
-				||
-				is_user_logged_in()
-				||
-				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
-				||
-				defined( 'DOING_CRON' ) && DOING_CRON
-			)
-		) ) {
+		if ( apply_filters( 'jetpack_sync_listener_should_load', true ) ) {
 			self::initialize_listener();
 		}
 
@@ -146,18 +136,34 @@ class Jetpack_Sync_Actions {
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 
 		if ( ! $result ) {
-			$error = $rpc->get_jetpack_error();
-			if ( 'jetpack_url_mismatch' === $error->get_error_code() ) {
-				Jetpack_Options::update_option(
-					'sync_error_idc',
-					Jetpack::get_sync_error_idc_option()
-				);
-			}
-			
-			return $error;
+			return $rpc->get_jetpack_error();
 		}
 
-		return $rpc->getResponse();
+		$response = $rpc->getResponse();
+
+		// Check if WordPress.com IDC mitigation blocked the sync request
+		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
+			$error_code = $response['error_code'];
+			$allowed_idc_error_codes = array(
+				'jetpack_url_mismatch',
+				'jetpack_home_url_mismatch',
+				'jetpack_site_url_mismatch'
+			);
+
+			if ( in_array( $error_code, $allowed_idc_error_codes ) ) {
+				Jetpack_Options::update_option(
+					'sync_error_idc',
+					Jetpack::get_sync_error_idc_option( $response )
+				);
+			}
+
+			return new WP_Error(
+				'sync_error_idc',
+				__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis' )
+			);
+		}
+
+		return $response;
 	}
 
 	static function do_initial_sync( $new_version = null, $old_version = null ) {

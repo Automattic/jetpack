@@ -70,6 +70,7 @@ if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php'      );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-debugger.php'  );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 }
 
 // Play nice with http://wp-cli.org/
