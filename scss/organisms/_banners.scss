@@ -28,13 +28,24 @@
 }
 
 // Plugin List Connection Banners
+// Written in the style of React to stay consistent with the Jetpack interior
+
+// wp-admin overrides
+.updated.jp-wpcom-connect__container {
+	border-left: none;
+	padding: 0;
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+}
+
+.updated .notice-dismiss {
+	text-decoration: none;
+}
+// end overrides
 
 .jp-wpcom-connect__container {
 	display: block;
 	position: relative;
 	box-sizing: border-box;
-	background: #fff;
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 }
 
 .jp-wpcom-connect__inner-container {
@@ -44,64 +55,98 @@
 	justify-content: left;
 }
 
-.jp-wpcom-connect__vertical-nav,
-.jp-wpcom-connect__content-container {
-
-}
-
 .jp-wpcom-connect__content-container {
 	padding: 32px;
 }
 
+.jp-wpcom-connect__content-container p {
+	color: #4F748E;
+	font-size: 14px;
+}
+
+.jp-wpcom-connect__content-container h2 {
+	margin-top: 0;
+	color: #4F748E;
+}
+
 // Connection Banner Vertical Menu
+.jp-wpcom-connect__vertical-nav {
+	background-color: #F3F6F8;
 
-	.vertical-menu {
-		width: 240px;
+	@include minbreakpoint(phablet) {
+		flex-direction: column;
+		justify-content: flex-start;
+	};
 
-		@include minbreakpoint(phablet) {
-			flex-direction: column;
-			justify-content: flex-start;
-		};
+}
 
-		.vertical-menu__feature-item-label {
-			display: none;
+.jp-wpcom-connect__vertical-nav-container {
+	width: 240px;
+}
+
+.vertical-menu__feature-item-label {
+	display: none;
+}
+
+@include minbreakpoint(phablet) {
+
+	.vertical-menu__feature-item {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		border: none;
+		padding: 8px;
+		border-bottom: 1px solid #c8d7e1;
+		border-right: 1px solid #c8d7e1;
+		border-left: 3px solid #F3F6F8;
+		background-color: #F3F6F8;
+		color: #87a6bc;
+
+		&:last-of-type {
+			border-bottom: none;
+		}
+	}
+
+	.vertical-menu__feature-item-is-selected {
+		border-left: 3px solid #0087be;
+		border-right: 1px solid #fff;
+		background-color: #fff;
+		color: #2e4453;
+
+		&.jp-feature-intro {
+			border-left: 3px solid #8CC258;
+		}
+	}
+
+	.vertical-menu__feature-item-icon {
+		width: 20px;
+		height: 20px;
+		padding: 4px;
+	}
+
+	// svg fill swaps
+	.vertical-menu__feature-item {
+		svg {
+			fill: #86A6BD;
+		}
+	}
+
+	.vertical-menu__feature-item-is-selected {
+
+		svg {
+			fill: #3D596D;
 		}
 
-		@include minbreakpoint(phablet) {
-
-			.vertical-menu__feature-item {
-				display: flex;
-				flex-direction: row;
-				border: none;
-				padding: 8px;
-				border-bottom: 1px solid #c8d7e1;
-				border-right: 1px solid #c8d7e1;
-				border-left: 3px solid #F3F6F8;
-				background-color: #F3F6F8;
-
-				&:last-of-type {
-					border-bottom: none;
-				}
+		&.jp-feature-intro {
+			svg {
+				fill: #8CC258;
 			}
-
-			.vertical-menu__feature-item-is-selected {
-				border-left: 3px solid #0087be;
-				border-right: 1px solid #fff;
-				background-color: #fff;
-			}
-
-			.vertical-menu__feature-item-is-selected.jp-feature-intro {
-				border-left: 3px solid #8CC258;
-			}
-
-			.vertical-menu__feature-item-icon {
-				width: 20px;
-				height: 20px;
-			}
-
-			.vertical-menu__feature-item-label {
-				display: block;
-				padding: 8px;
-			}
-		};
+		}
 	}
+	// end svg fill swaps
+
+	.vertical-menu__feature-item-label {
+		display: block;
+		padding: 8px;
+	}
+};
