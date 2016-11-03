@@ -3226,7 +3226,7 @@ p {
 		$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
 		?>
 
-		<div id="message" class="jp-wpcom-connect__container">
+		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__inner-container">
 				<a href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"></a>
 				<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
