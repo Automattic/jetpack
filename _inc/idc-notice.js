@@ -94,7 +94,6 @@
 	function migrateStatsAndSubscribers() {
 		var route = restRoot + 'jetpack/v4/identity-crisis/migrate';
 		disableDopsButtons();
-		alert( 'wooly' );
 		$.ajax( {
 			method: 'POST',
 			beforeSend : function ( xhr ) {

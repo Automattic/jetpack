@@ -705,14 +705,38 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Sets a flag to confirm safe mode.
+	 * Handles identity crisis mitigation, confirming safe mode for this site.
 	 *
 	 * @since 4.4.0
 	 *
-	 * @return bool True
+	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function confirm_safe_mode() {
-		$updated = Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+		return self::set_jetpack_option_to_true_and_ensure_rest_response( 'safe_mode_confirmed' );
+	}
+
+	/**
+	 * Handles identity crisis mitigation, migrating stats and subscribers from old url to this, new url.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return bool | WP_Error True if option is properly set.
+	 */
+	public static function migrate_stats_and_subscribers() {
+		return self::set_jetpack_option_to_true_and_ensure_rest_response( 'migrate_for_idc' );
+	}
+
+	/**
+	 * Sets a jetpack option flag, and responds with an appropriate WP API response.
+	 *
+	 * @param $option_name The name of the jetpack option to set to true
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return string|WP_Error A proper WP API response. Success if the option was properly set
+	 */
+	public static function set_jetpack_option_to_true_and_ensure_rest_response( $option_name ) {
+		$updated = Jetpack_Options::update_option( $option_name, true );
 		if ( $updated ) {
 			return rest_ensure_response(
 				array(
@@ -720,14 +744,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 				)
 			);
 		}
-		return new WP_Error( 'error_confirming_safe_mode', esc_html__( 'Jetpack could not confirm safe mode.', 'jetpack' ), array( 'status' => 500 ) );
-	}
-
-	public static function migrate_stats_and_subscribers() {
-		return rest_ensure_response(
-			array(
-				'code' => 'success'
-			)
+		return new WP_Error(
+			'error_setting_jetpack_option',
+			esc_html__( 'Could not set Jetpack option.', 'jetpack' ), array( 'status' => 500 )
 		);
 	}
 
