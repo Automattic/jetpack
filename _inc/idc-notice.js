@@ -23,6 +23,12 @@
 		fixJetpackConnection();
 	} );
 
+
+	// Confirm Safe Mode
+	$( '#jp-idc-reconnect-site-action' ).click( function() {
+		startFreshConnection();
+	} );
+
 	function disableDopsButtons() {
 		idcButtons.prop( 'disabled', true );
 	}
@@ -52,6 +58,30 @@
 
 	function fixJetpackConnection() {
 		notice.addClass( 'jp-idc-show-second-step' );
+	}
+
+	/**
+	 * On successful request of the endpoint, we will redirect to the
+	 * connection auth flow after appending a specific 'from=' param for tracking.
+	 */
+	function startFreshConnection() {
+		var route = restRoot + 'jetpack/v4/identity-crisis/start-fresh';
+		disableDopsButtons();
+		$.ajax( {
+			method: 'POST',
+			beforeSend : function ( xhr ) {
+				xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
+			},
+			url: route,
+			data: {},
+			success: function( connectUrl ){
+				// Add a from param and take them to connect.
+				window.location = connectUrl + '&from=idc-notice';
+			},
+			error: function() {
+				enableDopsButtons();
+			}
+		} );
 	}
 
 	/**
