@@ -25,11 +25,63 @@ import {
 
 import {
 	ModuleSettingRadios,
+	ModuleSettingSelect,
 	ModuleSettingCheckbox,
 	ModuleSettingMultipleSelectCheckboxes
 } from 'components/module-settings/form-components';
 
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+
+export let VideoPressSettings = React.createClass( {
+	render() {
+		const siteHasJetpackPlan = false;
+
+		if ( siteHasJetpackPlan ) {
+			return (
+				<form onSubmit={ this.props.onSubmit } >
+					<FormFieldset>
+						<FormLegend> { __( 'Free Formats' ) } </FormLegend>
+						<ModuleSettingCheckbox
+							{ ...this.props }
+							name={ 'videopress_free_formats' }
+							value={ this.props.getOptionValue( 'videopress_free_formats' ) }
+							label={ __( 'Only display videos in free software formats' ) } />
+						<span className="jp-form-setting-explanation">{ __( 'Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari.' ) }</span>
+					</FormFieldset>
+					<FormFieldset>
+						<FormLegend> { __( 'Default Quality' ) } </FormLegend>
+						<ModuleSettingCheckbox
+							{ ...this.props }
+							name={ 'videopress_default_quality' }
+							value={ this.props.getOptionValue( 'videopress_default_quality' ) }
+							label={ __( 'Display higher quality video by default' ) } />
+						<span className="jp-form-setting-explanation">{ __( 'This setting may be overridden for individual videos.' ) }</span>
+					</FormFieldset>
+					<FormFieldset>
+						<FormButton
+							className="is-primary"
+							isSubmitting={ this.props.isSavingAnyOption() }
+							disabled={ this.props.shouldSaveButtonBeDisabled() } />
+					</FormFieldset>
+				</form>
+			)
+		} else {
+			return (
+				<span className="jp-form-setting-explanation">
+					{
+					__( 'You need a {{a}}Jetpack Plan{{/a}} to use VideoPress.', {
+						components: {
+							a: <a href="admin.php?page=jetpack#/plans" />
+						}
+					} )
+					}
+				</span>
+			)
+		}
+	}
+} );
+
+VideoPressSettings = moduleSettingsForm( VideoPressSettings );
 
 export let SharedaddySettings = React.createClass( {
 	render() {
