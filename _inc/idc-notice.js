@@ -26,6 +26,7 @@
 
 	// Confirm Safe Mode
 	$( '#jp-idc-reconnect-site-action' ).click( function() {
+		trackAndBumpMCStats( 'start_fresh' );
 		startFreshConnection();
 	} );
 
