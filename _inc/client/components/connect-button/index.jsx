@@ -56,6 +56,7 @@ const ConnectButton = React.createClass( {
 		let connectUrl = this.props.connectUrl( this.props );
 		if ( this.props.from ) {
 			connectUrl += `&from=${ this.props.from }`;
+			connectUrl += '&additional-user';
 		}
 
 		return (
