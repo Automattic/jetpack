@@ -21,17 +21,21 @@
 		confirmSafeMode();
 	} );
 
-	// Fix connection
+	// Goes to second step of the notice.
 	$( '#jp-idc-fix-connection-action' ).click( function() {
 		trackAndBumpMCStats( 'fix_connection' );
 		fixJetpackConnection();
 	} );
 
-
-	// Confirm Safe Mode
+	// Starts process to create a new connection.
 	$( '#jp-idc-reconnect-site-action' ).click( function() {
-		trackAndBumpMCStats( 'start_fresh' );
+		trackAndBumpMCStats('start_fresh');
 		startFreshConnection();
+	} );
+
+	// Starts migration process.
+	$( '#jp-idc-migrate-action' ).click( function() {
+		migrateStatsAndSubscribers();
 	} );
 
 	function disableDopsButtons() {
@@ -80,6 +84,26 @@
 				if ( window.location.search && 1 === window.location.search.indexOf( 'page=jetpack' ) ) {
 					window.location.reload();
 				}
+			},
+			error: function() {
+				enableDopsButtons();
+			}
+		} );
+	}
+
+	function migrateStatsAndSubscribers() {
+		var route = restRoot + 'jetpack/v4/identity-crisis/migrate';
+		disableDopsButtons();
+		alert( 'wooly' );
+		$.ajax( {
+			method: 'POST',
+			beforeSend : function ( xhr ) {
+				xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
+			},
+			url: route,
+			data: {},
+			success: function() {
+				$( '.jp-idc-notice' ).hide();
 			},
 			error: function() {
 				enableDopsButtons();

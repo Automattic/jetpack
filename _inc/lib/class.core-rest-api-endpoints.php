@@ -111,6 +111,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 		) );
 
+		// Handles the request to migrate stats and subscribers during an identity crisis.
+		register_rest_route( 'jetpack/v4', 'identity-crisis/migrate', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::migrate_stats_and_subscribers',
+			'permissison_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
+		) );
+
 		// Return all modules
 		self::route(
 			'module/all',
@@ -714,6 +721,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 		return new WP_Error( 'error_confirming_safe_mode', esc_html__( 'Jetpack could not confirm safe mode.', 'jetpack' ), array( 'status' => 500 ) );
+	}
+
+	public static function migrate_stats_and_subscribers() {
+		return rest_ensure_response(
+			array(
+				'code' => 'success'
+			)
+		);
 	}
 
 	/**
