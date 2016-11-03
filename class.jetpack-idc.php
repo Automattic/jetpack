@@ -97,6 +97,7 @@ class Jetpack_IDC {
 			array(
 				'apiRoot' => esc_url_raw( rest_url() ),
 				'nonce' => wp_create_nonce( 'wp_rest' ),
+				'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			)
 		);
 
@@ -112,6 +113,23 @@ class Jetpack_IDC {
 			plugins_url( 'css/jetpack-idc.css', JETPACK__PLUGIN_FILE ),
 			array( 'jetpack-dops-style' ),
 			JETPACK__VERSION
+		);
+
+		// Required for Tracks
+		wp_enqueue_script(
+			'jp-tracks',
+			'//stats.wp.com/w.js',
+			array(),
+			gmdate( 'YW' ),
+			true
+		);
+
+		wp_enqueue_script(
+			'jp-tracks-functions',
+			plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
+			array(),
+			JETPACK__VERSION,
+			false
 		);
 	}
 
