@@ -174,7 +174,7 @@ export const UserUnlinked = React.createClass( {
 					text={ text }
 				>
 					<NoticeAction
-						href={ this.props.connectUrl }
+						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
 					>
 						{ __( 'Link to WordPress.com' ) }
 					</NoticeAction>
