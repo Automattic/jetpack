@@ -36,7 +36,7 @@ export let VideoPressSettings = React.createClass( {
 	render() {
 		const siteHasJetpackPlan = false;
 
-		if (! siteHasJetpackPlan ) {
+		if ( siteHasJetpackPlan ) {
 			return (
 				<form onSubmit={ this.props.onSubmit } >
 					<FormFieldset>

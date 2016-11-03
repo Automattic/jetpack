@@ -200,6 +200,47 @@ class Jetpack_VideoPress {
 	}
 
 	/**
+	 * Get a fresh list of VideoPress capable blogs from WordPress.com
+	 * Note: Can this be improved or omitted somehow? It seems like these actions
+	 * should be built into sync.
+	 *
+	 * @uses Jetpack
+	 * @uses Jetpack_VideoPress
+	 * @uses Jetpack_IXR_Client
+	 * @uses Jetpack::load_xml_rpc_client()
+	 */
+	public static function refresh_blog_list() {
+		// Load Jetpack's XML-RPC client
+		Jetpack::load_xml_rpc_client();
+
+		// Init VideoPress and get VideoPress options
+		$vp = Jetpack_VideoPress::init();
+		$options = $vp->get_options();
+
+		// Init the IXR client
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => JETPACK_MASTER_USER
+		));
+
+		// Query for capable WPCOM blogs
+		$xml->query( 'jetpack.vpGetBlogs', array(
+			'args'          => null,
+			'video_blog_id' => $options['blog_id'],
+			'caps'          => array( 'read_videos' ),
+		));
+
+		// Get the results and update if possible
+		if ( ! $xml->isError() ) {
+			$response = $xml->getResponse();
+
+			if ( isset( $response['result'] ) && is_array( $response['result'] ) ) {
+				$options['blogs'] = $response['result'];
+				$vp->update_options( $options );
+			}
+		}
+	}
+
+	/**
 	 * A can of coke
 	 *
 	 * Similar to current_user_can, but internal to VideoPress. Returns
