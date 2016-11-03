@@ -112,8 +112,6 @@ class Jetpack_Sitemap_Manager {
 	 * @since 4.5.0
 	 */
 	public function callback_action_register_post_types () {
-		/** This filter is documented in modules/sitemaps/sitemaps.php */
-
 		/**
 		 * Helper method for registering sitemap data post types uniformly
 		 *
@@ -177,8 +175,6 @@ class Jetpack_Sitemap_Manager {
 	 * @since 4.5.0
 	 */
 	public function callback_action_catch_sitemap_urls () {
-		/** This filter is documented in modules/sitemaps/sitemaps.php */
-
 		// Regular expressions for sitemap URL routing
 		$regex = array(
 			'master'        => '/^\/sitemap\.xml$/',
@@ -356,7 +352,6 @@ class Jetpack_Sitemap_Manager {
 	 * @since 4.5.0
 	 */
 	public function callback_action_do_robotstxt () {
-		/** This filter is documented in modules/sitemaps/sitemaps.php */
 		echo 'Sitemap: ' . home_url() . '/sitemap.xml' . PHP_EOL;
 	}
 
