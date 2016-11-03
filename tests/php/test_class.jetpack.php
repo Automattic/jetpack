@@ -416,6 +416,291 @@ EXPECTED;
 		$this->assertFalse( Jetpack::get_other_linked_admins() );
 	}
 
+<<<<<<< HEAD
+=======
+	function test_idc_optin_defaults_to_false() {
+		$this->assertFalse( Jetpack::sync_idc_optin() );
+	}
+
+	function test_idc_optin_filter_overrides_development_version() {
+		add_filter( 'jetpack_development_version', '__return_true' );
+		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
+		$this->assertFalse( Jetpack::sync_idc_optin() );
+		remove_filter( 'jetpack_development_version', '__return_true' );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
+	}
+
+	function test_idc_optin_casts_to_bool() {
+		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+		$this->assertTrue( Jetpack::sync_idc_optin() );
+		remove_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+	}
+
+	function test_idc_optin_true_when_constant_true() {
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
+		$this->assertTrue( Jetpack::sync_idc_optin() );
+	}
+
+	function test_idc_optin_false_when_constant_false() {
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
+		$this->assertFalse( Jetpack::sync_idc_optin() );
+	}
+
+	function test_idc_optin_filter_overrides_constant() {
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
+		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
+		$this->assertFalse( Jetpack::sync_idc_optin() );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
+	}
+
+	function test_sync_error_idc_validation_returns_false_if_no_option() {
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+	}
+
+	function test_sync_error_idc_validation_returns_true_when_option_matches_expected() {
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
+		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+	}
+
+	function test_sync_error_idc_validation_cleans_up_when_validation_fails() {
+		Jetpack_Options::update_option( 'sync_error_idc', array(
+			'home'    => 'coolsite.com/',
+			'siteurl' => 'coolsite.com/wp/',
+		) );
+
+		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+	}
+
+	function test_sync_error_idc_validation_cleans_up_when_part_of_validation_fails() {
+		$test = Jetpack::get_sync_error_idc_option();
+		$test['siteurl'] = 'coolsite.com/wp/';
+		Jetpack_Options::update_option( 'sync_error_idc', $test );
+
+		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+	}
+
+	function test_sync_error_idc_validation_returns_false_and_cleans_up_when_opted_out() {
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
+
+		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+	}
+
+	function test_sync_error_idc_validation_success_when_idc_allowed() {
+		add_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
+		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+
+		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
+		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
+
+		// Cleanup
+		remove_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		delete_transient( 'jetpack_idc_allowed' );
+	}
+
+	function test_sync_error_idc_validation_fails_when_idc_disabled() {
+		add_filter( 'pre_http_request', array( $this, '__idc_is_disabled' ) );
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
+		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+
+		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
+		$this->assertEquals( '0', get_transient( 'jetpack_idc_allowed' ) );
+
+		// Cleanup
+		remove_filter( 'pre_http_request', array( $this, '__idc_is_disabled' ) );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		delete_transient( 'jetpack_idc_allowed' );
+	}
+
+	function test_sync_error_idc_validation_success_when_idc_errored() {
+		add_filter( 'pre_http_request', array( $this, '__idc_check_errored' ) );
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
+		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+
+		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
+		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
+
+		// Cleanup
+		remove_filter( 'pre_http_request', array( $this, '__idc_is_errored' ) );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		delete_transient( 'jetpack_idc_allowed' );
+	}
+
+	function test_sync_error_idc_validation_success_when_idc_404() {
+		add_filter( 'pre_http_request', array( $this, '__idc_check_404' ) );
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+
+		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
+		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+
+		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
+		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
+
+		// Cleanup
+		remove_filter( 'pre_http_request', array( $this, '__idc_check_404' ) );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		delete_transient( 'jetpack_idc_allowed' );
+	}
+
+	function test_is_staging_site_true_when_sync_error_idc_is_valid() {
+		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
+		$this->assertTrue( Jetpack::is_staging_site() );
+		remove_filter( 'jetpack_sync_error_idc_validation', '__return_false' );
+	}
+
+	function test_is_dev_version_true_with_alpha() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3.1-alpha' );
+		$this->assertTrue( Jetpack::is_development_version() );
+	}
+
+	function test_is_dev_version_true_with_beta() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3-beta2' );
+		$this->assertTrue( Jetpack::is_development_version() );
+	}
+
+	function test_is_dev_version_true_with_rc() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3-rc2' );
+		$this->assertTrue( Jetpack::is_development_version() );
+	}
+
+	function test_is_dev_version_false_with_number_dot_number() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3' );
+		$this->assertFalse( Jetpack::is_development_version() );
+	}
+
+	function test_is_dev_version_false_with_number_dot_number_dot_number() {
+		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3.1' );
+		$this->assertFalse( Jetpack::is_development_version() );
+	}
+
+	function test_get_sync_idc_option_sanitizes_out_www_and_protocol() {
+		$original_home    = get_option( 'home' );
+		$original_siteurl = get_option( 'siteurl' );
+
+		update_option( 'home', 'http://www.coolsite.com' );
+		update_option( 'siteurl', 'http://www.coolsite.com/wp' );
+
+		$expected = array(
+			'home' => 'coolsite.com/',
+			'siteurl' => 'coolsite.com/wp/'
+		);
+
+		$this->assertSame( $expected, Jetpack::get_sync_error_idc_option() );
+		
+		// Cleanup
+		update_option( 'home', $original_home );
+		update_option( 'siteurl', $original_siteurl );
+	}
+
+	function test_get_sync_idc_option_with_ip_address_in_option() {
+		$original_home    = get_option( 'home' );
+		$original_siteurl = get_option( 'siteurl' );
+
+		update_option( 'home', 'http://72.182.131.109/~wordpress' );
+		update_option( 'siteurl', 'http://72.182.131.109/~wordpress/wp' );
+
+		$expected = array(
+			'home' => '72.182.131.109/~wordpress/',
+			'siteurl' => '72.182.131.109/~wordpress/wp/'
+		);
+
+		$this->assertSame( $expected, Jetpack::get_sync_error_idc_option() );
+
+		// Cleanup
+		update_option( 'home', $original_home );
+		update_option( 'siteurl', $original_siteurl );
+	}
+
+	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_subdir_subdomain() {
+		$url = 'https://www.subdomain.myfaketestsite.com/what';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'subdomain.myfaketestsite.com/what/' === $url_normalized );
+
+		$url = 'http://subdomain.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'subdomain.myfaketestsite.com/' === $url_normalized );
+
+		$url = 'www.subdomain.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'subdomain.myfaketestsite.com/' === $url_normalized );
+	}
+
+	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_normal_urls() {
+		$url = 'https://www.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
+
+		$url = 'www.myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
+
+		$url = 'myfaketestsite.com';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( 'myfaketestsite.com/' === $url_normalized );
+	}
+
+	function test_normalize_url_protocol_agnostic_strips_protocol_for_ip() {
+		$url = 'http://123.456.789.0';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( '123.456.789.0/' === $url_normalized );
+
+		$url = '123.456.789.0';
+		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
+		$this->assertTrue( '123.456.789.0/' === $url_normalized );
+	}
+
+	function __return_string_1() {
+		return '1';
+	}
+
+	function __idc_is_allowed() {
+		return array(
+			'response' => array(
+				'code' => 200
+			),
+			'body' => '{"result":true}'
+		);
+	}
+
+	function __idc_is_disabled() {
+		return array(
+			'response' => array(
+				'code' => 200
+			),
+			'body' => '{"result":false}'
+		);
+	}
+
+	function __idc_check_errored() {
+		return new WP_Error( 'idc-request-failed' );
+	}
+
+	function __idc_check_404() {
+		return array(
+			'response' => array(
+				'code' => 404
+			),
+			'body' => '<div>some content</div>'
+		);
+	}
+
+>>>>>>> upstream/master
 	static function reset_tracking_of_module_activation() {
 		self::$activated_modules = array();
 		self::$deactivated_modules = array();
