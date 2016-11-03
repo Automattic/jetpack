@@ -34,9 +34,7 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 
 export let VideoPressSettings = React.createClass( {
 	render() {
-		const siteHasJetpackPlan = false;
-
-		if (! siteHasJetpackPlan ) {
+		if ( this.props.siteHasPlan ) {
 			return (
 				<form onSubmit={ this.props.onSubmit } >
 					<FormFieldset>
