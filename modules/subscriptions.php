@@ -765,7 +765,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 		}
 
-
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'jetpack_subscriptions' );
 
 		$source                 = 'widget';
 		$instance            	= wp_parse_args( (array) $instance, $this->defaults() );

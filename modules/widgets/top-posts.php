@@ -207,6 +207,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'top_posts' );
+
 		$instance = wp_parse_args( (array) $instance, $this->defaults() );
 
 		$title = isset( $instance['title' ] ) ? $instance['title'] : false;

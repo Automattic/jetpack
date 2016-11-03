@@ -53,7 +53,6 @@ class Jetpack_Image_Widget extends WP_Widget {
 	* @param array $instance Saved values from database.
 	*/
 	public function widget( $args, $instance ) {
-
 		echo $args['before_widget'];
 
 		$instance = wp_parse_args( $instance, array(
@@ -107,6 +106,9 @@ class Jetpack_Image_Widget extends WP_Widget {
 		}
 
 		echo "\n" . $args['after_widget'];
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'image' );
 	}
 
 	/**
