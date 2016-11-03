@@ -921,6 +921,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		switch ( $module ) {
+			// VideoPress
+			case 'videopress':
+				// Holder for options to send to React
+				$options = array(
+					'videopress_free_formats' => array(
+						'description' => esc_html__( 'Only display videos in free software formats', 'jetpack' ),
+						'type' => 'boolean',
+						'default' => 0,
+						'validate_callback' => __CLASS__ . '::validate_boolean',
+					),
+					'videopress_default_quality' => array(
+						'description' => esc_html__( 'Display higher quality videos by default', 'jetpack' ),
+						'type' => 'boolean',
+						'default' => 1,
+						'validate_callback' => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
 
 			// Carousel
 			case 'carousel':

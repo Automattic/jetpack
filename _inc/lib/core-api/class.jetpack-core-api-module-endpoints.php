@@ -391,6 +391,13 @@ class Jetpack_Core_API_Module_Endpoint
 			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $options[ $option ] );
 
 			switch ( $option ) {
+				case 'videopress_free_formats':
+				case 'videopress_default_quality':
+					$value = ( $value ) ? 1 : 0;
+					update_option( $option, $value );
+					$updated = true;
+					break;
+
 				case 'monitor_receive_notifications':
 					$monitor = new Jetpack_Monitor();
 

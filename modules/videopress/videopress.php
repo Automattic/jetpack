@@ -33,13 +33,6 @@ class Jetpack_VideoPress {
 	function on_init() {
 		$options = $this->get_options();
 
-		// Only the connection owner can configure this module.
-		if ( $this->is_connection_owner() ) {
-			Jetpack::enable_module_configurable( $this->module );
-			Jetpack::module_configuration_load( $this->module, array( $this, 'jetpack_configuration_load' ) );
-			Jetpack::module_configuration_screen( $this->module, array( $this, 'jetpack_configuration_screen' ) );
-		}
-
 		// Only if the current user can manage the VideoPress library and one has been connected.
 		if ( $this->can( 'read_videos' ) && $options['blog_id'] ) {
 			add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
@@ -186,143 +179,6 @@ class Jetpack_VideoPress {
 			return $response['result'];
 
 		return $response;
-	}
-
-	/**
-	 * Runs before the VideoPress Configuration screen loads, useful
-	 * to update options and yield errors.
-	 */
-	function jetpack_configuration_load() {
-		$this->enqueue_admin_scripts();
-
-		/**
-		 * Save configuration
-		 */
-		if ( ! empty( $_POST['action'] ) && $_POST['action'] == 'videopress-save' ) {
-			check_admin_referer( 'videopress-settings' );
-			$options = $this->get_options();
-
-			if ( isset( $_POST['blog_id'] ) && in_array( $_POST['blog_id'], wp_list_pluck( $options['blogs'], 'blog_id' ) ) )
-				$options['blog_id'] = $_POST['blog_id'];
-
-			// Allow the None setting too.
-			if ( isset( $_POST['blog_id'] ) && $_POST['blog_id'] == 0 )
-				$options['blog_id'] = 0;
-
-			/**
-			 * @see $this->can()
-			 */
-			if ( isset( $_POST['videopress-access'] ) && in_array( $_POST['videopress-access'], array( '', 'read', 'edit', 'delete' ) ) )
-				$options['access'] = $_POST['videopress-access'];
-
-			$options['freedom'] = isset( $_POST['videopress-freedom'] );
-			$options['hd'] = isset( $_POST['videopress-hd'] );
-
-			// Allow upload only if some level of access has been granted, and uploads were allowed.
-			$options['allow-upload'] = false;
-			if ( ! empty( $options['access'] ) && isset( $_POST['videopress-upload'] ) )
-				$options['allow-upload'] = true;
-
-			$this->update_options( $options );
-			Jetpack::state( 'message', 'module_configured' );
-			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
-		}
-
-		/**
-		 * Refresh the list of available WordPress.com blogs
-		 */
-		if ( ! empty( $_GET['videopress'] ) && $_GET['videopress'] == 'refresh-blogs' ) {
-			check_admin_referer( 'videopress-settings' );
-			$options = $this->get_options();
-
-			$result = $this->query( 'jetpack.vpGetBlogs' );
-			if ( ! is_wp_error( $result ) ) {
-				$options['blogs'] = $result;
-				$this->update_options( $options );
-			}
-
-			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
-		}
-	}
-
-	/**
-	 * Renders the VideoPress Configuration screen in Jetpack.
-	 */
-	function jetpack_configuration_screen() {
-		$options = $this->get_options();
-		$refresh_url = wp_nonce_url( add_query_arg( 'videopress', 'refresh-blogs' ), 'videopress-settings' );
-		?>
-		<div class="narrow">
-			<form method="post" id="videopress-settings">
-				<input type="hidden" name="action" value="videopress-save" />
-				<?php wp_nonce_field( 'videopress-settings' ); ?>
-
-				<table id="menu" class="form-table">
-					<tr>
-						<th scope="row" colspan="2">
-							<p><?php _e( 'Please note that the VideoPress module requires a WordPress.com account with an active <a href="http://store.wordpress.com/premium-upgrades/videopress/" target="_blank">VideoPress subscription</a>.', 'jetpack' ); ?></p>
-						</th>
-					</tr>
-					<tr>
-						<th scope="row">
-							<label><?php _e( 'Connected WordPress.com Blog', 'jetpack' ); ?></label>
-						</th>
-						<td>
-							<select name="blog_id">
-								<option value="0" <?php selected( $options['blog_id'], 0 ); ?>> <?php esc_html_e( 'None', 'jetpack' ); ?></option>
-								<?php foreach ( $options['blogs'] as $blog ) : ?>
-								<option value="<?php echo absint( $blog['blog_id'] ); ?>" <?php selected( $options['blog_id'], $blog['blog_id'] ); ?>><?php echo esc_html( $blog['name'] ); ?> (<?php echo esc_html( $blog['domain'] ); ?>)</option>
-								<?php endforeach; ?>
-							</select>
-							<p class="description"><?php _e( 'Only videos from the selected blog will be available in your media library.', 'jetpack' ); ?>
-								<?php printf( __( '<a href="%s">Click here</a> to refresh this list.', 'jetpack' ), esc_url( $refresh_url ) ); ?>
-							</p>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row">
-							<label><?php _e( 'Video Library Access', 'jetpack' ); ?></label>
-						</th>
-						<td>
-							<label><input type="radio" name="videopress-access" value="" <?php checked( '', $options['access'] ); ?> />
-								<?php _e( 'Do not allow other users to access my VideoPress library', 'jetpack' ); ?></label><br/>
-							<label><input type="radio" name="videopress-access" value="read" <?php checked( 'read', $options['access'] ); ?> />
-								<?php _e( 'Allow users to access my videos', 'jetpack' ); ?></label><br/>
-							<label><input type="radio" name="videopress-access" value="edit" <?php checked( 'edit', $options['access'] ); ?> />
-								<?php _e( 'Allow users to access and edit my videos', 'jetpack' ); ?></label><br/>
-							<label><input type="radio" name="videopress-access" value="delete" <?php checked( 'delete', $options['access'] ); ?> />
-								<?php _e( 'Allow users to access, edit, and delete my videos', 'jetpack' ); ?></label><br/><br />
-
-							<label><input type="checkbox" name="videopress-upload" value="1" <?php checked( $options['allow-upload'] ); ?> />
-								<?php _e( 'Allow users to upload videos', 'jetpack' ); ?></label><br />
-						</td>
-					</tr>
-					<tr>
-						<th scope="row">
-							<label for="videopress-freedom"><?php _e( 'Free formats', 'jetpack' ); ?></label>
-						</th>
-						<td>
-							<label><input type="checkbox" name="videopress-freedom" id="videopress-freedom" <?php checked( $options['freedom'] ); ?> />
-								<?php _e( 'Only display videos in free software formats', 'jetpack' ); ?></label>
-							<p class="description"><?php _e( 'Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari.', 'jetpack' ); ?></p>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row">
-							<label for="videopress-hd"><?php _e( 'Default quality', 'jetpack' ); ?></label>
-						</th>
-						<td>
-							<label><input type="checkbox" name="videopress-hd" id="videopress-hd" <?php checked( $options['hd'] ); ?> />
-								<?php _e( 'Display higher quality video by default.', 'jetpack' ); ?></label>
-							<p class="description"><?php _e( 'This setting may be overridden for individual videos.', 'jetpack' ); ?></p>
-						</td>
-					</tr>
-				</table>
-
-				<?php submit_button(); ?>
-			</form>
-		</div>
-		<?php
 	}
 
 	function admin_menu() {
@@ -591,7 +447,6 @@ class Jetpack_VideoPress {
 			'VideoPressLibraryRouter' => __( 'VideoPress Library', 'jetpack' ),
 			'uploadVideoRouter' => __( 'Upload a Video', 'jetpack' ),
 			'insertVideoButton' => __( 'Insert Video', 'jetpack' ),
-
 		);
 
 		wp_localize_script( 'videopress-admin', 'VideoPressAdminSettings', array(
@@ -612,10 +467,10 @@ class Jetpack_VideoPress {
 	 */
 	function get_available_ratings() {
 		return array(
-			'G' => 'G',
+			'G'     => 'G',
 			'PG-13' => 'PG-13',
-			'R-17' => 'R',
-			'X-18' => 'X',
+			'R-17'  => 'R',
+			'X-18'  => 'X',
 		);
 	}
 
@@ -840,6 +695,7 @@ class Jetpack_VideoPress {
 
 		return array( 'media' => $created_items );
 	}
+
 }
 
 // Initialize the module.
