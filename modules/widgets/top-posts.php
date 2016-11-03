@@ -131,6 +131,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
+		do_action( 'jetpack_stats_extra', 'widget_view', 'top_posts' );
+
 		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
 		if ( false === $title )
 			$title = $this->default_title;
@@ -256,7 +258,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		echo $args['after_widget'];
-		do_action( 'jetpack_stats_extra', 'widget_view', 'top_posts' );
 	}
 
 	/*
