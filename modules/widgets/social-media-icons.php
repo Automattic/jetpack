@@ -2,7 +2,7 @@
 /*
 Plugin Name: Social Media Icons Widget
 Description: A simple widget that displays social media icons
-Author: Chris Rudzki
+Author: Automattic Inc.
 */
 
 // Creating the widget
