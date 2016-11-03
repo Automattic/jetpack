@@ -26,8 +26,8 @@ import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
-
 import { getSitePlan } from 'state/site';
+import QuerySite from 'components/data/query-site';
 
 export const Writing = ( props ) => {
 	let {
@@ -101,7 +101,7 @@ export const Writing = ( props ) => {
 				) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } siteHasPlan={ props.sitePlan ? true : false } /> :
+					<AllModuleSettings module={ getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } sitePlan={ props.sitePlan } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -114,6 +114,7 @@ export const Writing = ( props ) => {
 
 	return (
 		<div>
+			<QuerySite />
 			{ cards }
 		</div>
 	);

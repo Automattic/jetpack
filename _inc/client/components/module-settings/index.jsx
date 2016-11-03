@@ -25,7 +25,6 @@ import {
 
 import {
 	ModuleSettingRadios,
-	ModuleSettingSelect,
 	ModuleSettingCheckbox,
 	ModuleSettingMultipleSelectCheckboxes
 } from 'components/module-settings/form-components';
@@ -34,7 +33,9 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 
 export let VideoPressSettings = React.createClass( {
 	render() {
-		if ( this.props.siteHasPlan ) {
+		let product = this.props.sitePlan.product_slug;
+
+		if ( 'jetpack_personal' === product || 'jetpack_premium' === product || 'jetpack_business' === product ) {
 			return (
 				<form onSubmit={ this.props.onSubmit } >
 					<FormFieldset>
@@ -67,7 +68,7 @@ export let VideoPressSettings = React.createClass( {
 			return (
 				<span className="jp-form-setting-explanation">
 					{
-					__( 'You need a {{a}}Jetpack Plan{{/a}} to use VideoPress.', {
+					__( 'VideoPress is available as part of a {{a}}Jetpack Plan{{/a}}.', {
 						components: {
 							a: <a href="admin.php?page=jetpack#/plans" />
 						}
