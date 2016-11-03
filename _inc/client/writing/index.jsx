@@ -106,8 +106,6 @@ export const Writing = ( props ) => {
 			</span>;
 		}
 
-		console.log( isVideoPress, vpProps );
-
 		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
