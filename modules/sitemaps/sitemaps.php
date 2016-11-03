@@ -113,7 +113,7 @@ class Jetpack_Sitemap_Manager {
 	 */
 	public function callback_action_register_post_types () {
 		/**
-		 * Helper method for registering sitemap data post types uniformly
+		 * Helper method for registering sitemap data post types uniformly.
 		 *
 		 * @since 4.5.0
 		 */
