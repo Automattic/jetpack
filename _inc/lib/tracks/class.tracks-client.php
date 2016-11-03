@@ -165,4 +165,41 @@ class Jetpack_Tracks_Client {
 
 		return $anon_id;
 	}
+
+	/**
+	 * Gets the WordPress.com user's Tracks identity, if connected.
+	 *
+	 * @return array|bool
+	 */
+	static function get_connected_user_tracks_identity() {
+		if ( ! $user_data = Jetpack::get_connected_user_data() ) {
+			return false;
+		}
+
+		return array(
+			'userid' => $user_data['ID'],
+			'username' => $user_data['login'],
+		);
+	}
+
+	/**
+	 * Enqueues Tracks functions and library
+	 */
+	static function enqueue_tracks_scripts() {
+		wp_enqueue_script(
+			'jp-tracks',
+			'//stats.wp.com/w.js?48',
+			array(),
+			JETPACK__VERSION,
+			true
+		);
+
+		wp_enqueue_script(
+			'jp-tracks-functions',
+			plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
+			array(),
+			JETPACK__VERSION,
+			false
+		);
+	}
 }
