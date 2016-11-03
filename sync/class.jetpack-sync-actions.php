@@ -159,7 +159,7 @@ class Jetpack_Sync_Actions {
 
 			return new WP_Error(
 				'sync_error_idc',
-				__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis' )
+				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
 			);
 		}
 
@@ -193,10 +193,10 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function minute_cron_schedule( $schedules ) {
-		if( ! isset( $schedules["1min"] ) ) {
-			$schedules["1min"] = array(
+		if( ! isset( $schedules['1min'] ) ) {
+			$schedules['1min'] = array(
 				'interval' => 60,
-				'display' => __( 'Every minute' )
+				'display' => esc_html__( 'Every minute', 'jetpack' )
 			);
 		}
 		return $schedules;
