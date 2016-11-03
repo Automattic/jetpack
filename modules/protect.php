@@ -425,6 +425,19 @@ class Jetpack_Protect_Module {
 	function check_login_ability( $preauth = false ) {
 		$ip = jetpack_protect_get_ip();
 		
+		/**
+		 * Short-circuit check_login_ability. 
+		 *
+		 * If there is an alternate way to validate the current IP such as
+		 * a hard-coded list of IP addresses, we can short-circuit the rest
+		 * of the login ability checks and return true here.
+		 *
+		 * @module protect
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool false Should we allow all logins for the current ip? Default: false
+		 */
 		if ( apply_filters( 'jpp_allow_login', false, $ip ) ) {
 			return true;
 		}
