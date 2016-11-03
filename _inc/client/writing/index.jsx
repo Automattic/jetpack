@@ -28,6 +28,7 @@ import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
 import QuerySite from 'components/data/query-site';
+import ProStatus from 'pro-status';
 
 export const Writing = ( props ) => {
 	let {
@@ -84,6 +85,29 @@ export const Writing = ( props ) => {
 			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
 		}
 
+		var isVideoPress = 'videopress' === element[0];
+
+		if ( isVideoPress ) {
+			var vpProps = {
+				module: 'videopress',
+				configure_url: ''
+			};
+
+			toggle = <ProStatus proFeature={ 'videopress' } />;
+
+			element[1] = <span>
+				{ element[1] }
+				<Button
+					compact={ true }
+					href="#/plans"
+				>
+					{ __( 'Pro' ) }
+				</Button>
+			</span>;
+		}
+
+		console.log( isVideoPress, vpProps );
+
 		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
@@ -101,7 +125,7 @@ export const Writing = ( props ) => {
 				) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } sitePlan={ props.sitePlan } /> :
+					<AllModuleSettings module={ isVideoPress ? vpProps : getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } sitePlan={ props.sitePlan } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}

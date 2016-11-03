@@ -67,13 +67,7 @@ export let VideoPressSettings = React.createClass( {
 		} else {
 			return (
 				<span className="jp-form-setting-explanation">
-					{
-					__( 'VideoPress is available as part of a {{a}}Jetpack Plan{{/a}}.', {
-						components: {
-							a: <a href="admin.php?page=jetpack#/plans" />
-						}
-					} )
-					}
+					{ __( 'The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.' ) }
 				</span>
 			)
 		}
