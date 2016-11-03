@@ -37,7 +37,7 @@ jQuery(document).ready(function($) {
 				break;
 			case 39: // right
 				e.preventDefault();
-				if( gallery.jp_carousel('slides').length > 1 ) {
+				if ( gallery.jp_carousel('slides').length > 1 ) {
 					gallery.jp_carousel('clearCommentTextAreaValue');
 					gallery.jp_carousel('next');
 				}
@@ -45,7 +45,7 @@ jQuery(document).ready(function($) {
 			case 37: // left
 			case 8: // backspace
 				e.preventDefault();
-				if( gallery.jp_carousel('slides').length > 1 ) {
+				if ( gallery.jp_carousel('slides').length > 1 ) {
 					gallery.jp_carousel('clearCommentTextAreaValue');
 					gallery.jp_carousel('previous');
 				}
@@ -197,13 +197,15 @@ jQuery(document).ready(function($) {
 				.addClass('jp-carousel-next-button')
 				.css({
 					'right'    : '15px'
-				});
+				})
+				.hide();
 
 			previousButton = $('<div><span></span></div>')
 				.addClass('jp-carousel-previous-button')
 				.css({
 					'left'     : 0
-				});
+				})
+				.hide();
 
 			nextButton.add( previousButton ).css( {
 				'position' : 'fixed',
@@ -391,6 +393,8 @@ jQuery(document).ready(function($) {
 					$(window).unbind('keydown', keyListener);
 					$(window).unbind('resize', resizeListener);
 					$(window).scrollTop(scroll);
+					$( '.jp-carousel-previous-button' ).hide();
+					$( '.jp-carousel-next-button' ).hide();
 				})
 				.bind('jp_carousel.afterClose', function(){
 					if ( window.location.hash && history.back ) {
