@@ -193,7 +193,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'videopress' => array(
 				'name' => _x( 'VideoPress', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Upload and embed videos right on your site. (Subscription required.)', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Upload and embed videos right on your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'widget-visibility' => array(
