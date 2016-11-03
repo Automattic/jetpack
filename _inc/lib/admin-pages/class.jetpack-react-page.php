@@ -214,7 +214,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		if ( ! $is_dev_mode ) {
 			// Required for Analytics
-			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js?48', array(), JETPACK__VERSION, true );
+			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
 		$localeSlug = explode( '_', get_locale() );
