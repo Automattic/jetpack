@@ -604,7 +604,7 @@ class Jetpack_VideoPress {
 
 			wp_update_post( $attachment );
 
-			// Update the vp guid and set it to a dirrect meta property.
+			// Update the vp guid and set it to a direct meta property.
 			update_post_meta( $id, 'videopress_guid', $guid );
 
 			$meta = wp_get_attachment_metadata( $attachment->ID );
