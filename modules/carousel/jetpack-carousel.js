@@ -1415,8 +1415,10 @@ jQuery(document).ready(function($) {
 		// process links that have rel=attachment and img tag inside
 		$( 'a[rel*="attachment"] img' ).each(function() {
 			var container = $( this ).parent();
-			if( $( container ).attr( 'href' ) === $( this ).attr( 'data-orig-file' ) ) {
-				// if link points to 'Media File', skip it
+			// if link points to 'Media File' and flag is not set skip it
+			if ( $( container ).attr( 'href' ) === $( this ).attr( 'data-orig-file' ) &&
+				0 === Number( jetpackCarouselStrings.single_image_gallery_media_file )
+			) {
 				return;
 			}
 			// make this node a gallery recognizable by event listener above

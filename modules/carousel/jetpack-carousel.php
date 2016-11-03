@@ -26,6 +26,8 @@ class Jetpack_Carousel {
 
 	public $single_image_gallery_enabled = false;
 
+	public $single_image_gallery_enabled_media_file = false;
+
 	function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 	}
@@ -37,6 +39,7 @@ class Jetpack_Carousel {
 		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
 
 		$this->single_image_gallery_enabled = !$this->maybe_disable_jp_carousel_single_images();
+		$this->single_image_gallery_enabled_media_file = $this->maybe_enable_jp_carousel_single_images_media_file();
 
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings
@@ -106,6 +109,20 @@ class Jetpack_Carousel {
 		 * @param bool false Should Carousel be disabled for single images? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_maybe_disable_single_images', false );
+	}
+
+	function maybe_enable_jp_carousel_single_images_media_file() {
+		/**
+		 * Allow third-party plugins or themes to enable Carousel
+		 * for single images linking to 'Media File' (full size image).
+		 *
+		 * @module carousel
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param bool false Should Carousel be enabled for single images linking to 'Media File'? Default to false.
+		 */
+		return apply_filters( 'jp_carousel_load_for_images_linked_to_file', false );
 	}
 
 	function jetpack_configuration_load() {
@@ -197,6 +214,7 @@ class Jetpack_Carousel {
 				'display_exif'         => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) ),
 				'display_geo'          => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_geo', true ) ),
 				'single_image_gallery' => $this->single_image_gallery_enabled,
+				'single_image_gallery_media_file' => $this->single_image_gallery_enabled_media_file,
 				'background_color'     => $this->carousel_background_color_sanitize( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_background_color', '' ) ),
 				'comment'              => __( 'Comment', 'jetpack' ),
 				'post_comment'         => __( 'Post Comment', 'jetpack' ),
