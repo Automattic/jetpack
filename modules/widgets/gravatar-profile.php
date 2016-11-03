@@ -32,6 +32,19 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
+		/**
+		 * Fires when an item is displayed on the frontend.
+		 *
+		 * Can be used to track stats about the number of displays for a specific item
+		 *
+		 * @module widgets, shortcodes
+		 *
+		 * @since 1.6.0
+		 *
+		 * @param string widget Item type (e.g. widget, or embed).
+		 * @param string grofile Item description (e.g. grofile, goodreads).
+		 */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
 
 		$instance = wp_parse_args( $instance, array(
 			'title' => '',
@@ -119,21 +132,6 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			</a></p>
 
 			<?php
-
-			/**
-			 * Fires when an item is displayed on the frontend.
-			 *
-			 * Can be used to track stats about the number of displays for a specific item
-			 *
-			 * @module widgets, shortcodes
-			 *
-			 * @since 1.6.0
-			 *
-			 * @param string widget Item type (e.g. widget, or embed).
-			 * @param string grofile Item description (e.g. grofile, goodreads).
-			 */
-			do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
-
 		} else {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo '<p>' . esc_html__( 'Error loading profile', 'jetpack' ) . '</p>';
