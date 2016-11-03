@@ -44,10 +44,9 @@ export const Page = ( props ) => {
 		moduleList = Object.keys( props.moduleList );
 	var cards = [
 		[ 'scan', __( 'Security Scanning' ), __( 'Automated, comprehensive protection from threats and attacks.' ), 'https://vaultpress.com/jetpack/' ],
-		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
-		[ 'monitor', getModule( 'monitor' ).name, getModule( 'monitor' ).description, getModule( 'monitor' ).learn_more_button ],
-		[ 'akismet', 'Akismet', __( 'State-of-the-art spam defense.' ), 'https://akismet.com/jetpack/' ],
 		[ 'backups', __( 'Site Backups' ), __( 'Automatically backup your entire site.' ), 'https://vaultpress.com/jetpack/' ],
+		[ 'akismet', 'Akismet', __( 'State-of-the-art spam defense.' ), 'https://akismet.com/jetpack/' ],
+		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
 		[ 'sso', getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
 	].map( ( element ) => {
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),

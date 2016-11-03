@@ -30,10 +30,9 @@ import {
 import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
 
 import AtAGlance from 'at-a-glance/index.jsx';
-import Engagement from 'engagement/index.jsx';
+import Discussion from 'discussion/index.jsx';
 import Security from 'security/index.jsx';
-import Appearance from 'appearance/index.jsx';
-import GeneralSettings from 'general-settings/index.jsx';
+import Traffic from 'traffic/index.jsx';
 import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
@@ -167,34 +166,26 @@ const Main = React.createClass( {
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/settings':
+			case '/writing':
 				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <GeneralSettings route={ this.props.route } />;
+				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
-			case '/general':
+			case '/discussion':
 				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <GeneralSettings route={ this.props.route } />;
-				break;
-			case '/engagement':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Engagement route={ this.props.route } />;
+				pageComponent = <Discussion route={ this.props.route } />;
 				break;
 			case '/security':
 				navComponent = <NavigationSettings route={ this.props.route } />;
 				pageComponent = <Security route={ this.props.route } />;
 				break;
-			case '/appearance':
+			case '/traffic':
 				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Appearance route={ this.props.route } />;
-				break;
-			case '/writing':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
+				pageComponent = <Traffic route={ this.props.route } />;
 				break;
 			case '/search':
 				navComponent = <NavigationSettings route={ this.props.route } />;
 				pageComponent = <SearchPage siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
-
 			default:
 				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 		}
@@ -256,9 +247,9 @@ window.wpNavMenuClassChange = function() {
 	const settingRoutes = [
 		'#/settings',
 		'#/general',
-		'#/engagement',
+		'#/discussion',
 		'#/security',
-		'#/appearance',
+		'#/traffic',
 		'#/writing',
 		'#/search'
 	],
