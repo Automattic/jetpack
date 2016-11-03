@@ -154,6 +154,15 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 
 class Jetpack_Core_API_Module_List_Endpoint {
 
+	/**
+	 * A WordPress REST API callback method that accepts a request object and decides what to do with it.
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @since 4.3.0
+	 *
+	 * @return bool|Array|WP_Error a resulting value or object, or an error.
+	 */
 	public function process( $request ) {
 		if ( 'GET' === $request->get_method() ) {
 			return $this->get_modules( $request );
@@ -272,6 +281,16 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		);
 	}
 
+	/**
+	 * A WordPress REST API permission callback method that accepts a request object and decides
+	 * if the current user has enough privileges to act.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return bool does the current user have enough privilege.
+	 */
 	public function can_request( $request ) {
 		if ( 'GET' === $request->get_method() ) {
 			return current_user_can( 'jetpack_admin_page' );
@@ -1079,6 +1098,16 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		}
 	}
 
+	/**
+	 * A WordPress REST API permission callback method that accepts a request object and
+	 * decides if the current user has enough privileges to act.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return bool does a current user have enough privileges.
+	 */
 	public function can_request() {
 		return current_user_can( 'jetpack_admin_page' );
 	}
