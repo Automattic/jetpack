@@ -138,7 +138,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// Return a single module and update it when needed
 		self::route(
 			'/module/(?P<slug>[a-z\-]+)',
-			'Jetpack_Core_API_Module_Endpoint',
+			'Jetpack_Core_API_Data',
 			WP_REST_Server::READABLE,
 			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) )
 		);
@@ -162,10 +162,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// Update a module
 		self::route(
 			'/module/(?P<slug>[a-z\-]+)',
-			'Jetpack_Core_API_Module_Endpoint',
+			'Jetpack_Core_API_Data',
 			WP_REST_Server::EDITABLE,
 			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
-			self::get_module_updating_parameters()
+			self::get_updateable_parameters()
 		);
 
 		// Get data for a specific module, i.e. Protect block count, WPCOM stats,
@@ -185,12 +185,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		// Reset all Jetpack options
-		register_rest_route( 'jetpack/v4', '/options/(?P<options>[a-z\-]+)', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::reset_jetpack_options',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-		) );
+		// Update any Jetpack module option or setting
+		self::route(
+			'/settings',
+			'Jetpack_Core_API_Data',
+			WP_REST_Server::EDITABLE,
+			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
+			self::get_updateable_parameters( 'any' )
+		);
+
+		// Update a module
+		self::route(
+			'/settings/(?P<slug>[a-z\-]+)',
+			'Jetpack_Core_API_Data',
+			WP_REST_Server::EDITABLE,
+			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
+			self::get_updateable_parameters()
+		);
 
 		// Return miscellaneous settings
 		register_rest_route( 'jetpack/v4', '/settings', array(
@@ -199,11 +210,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
-		// Update miscellaneous setting
-		register_rest_route( 'jetpack/v4', '/settings', array(
+		// Reset all Jetpack options
+		register_rest_route( 'jetpack/v4', '/options/(?P<options>[a-z\-]+)', array(
 			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::update_setting',
-			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			'callback' => __CLASS__ . '::reset_jetpack_options',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
 		// Jumpstart
@@ -431,14 +442,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Verify that user can update Jetpack options.
+	 * Verify that user can update Jetpack general settings.
 	 *
 	 * @since 4.3.0
 	 *
-	 * @return bool Whether user has the capability 'jetpack_admin_page'.
+	 * @return bool Whether user has the capability 'update_settings_permission_check'.
 	 */
 	public static function update_settings_permission_check() {
-		if ( current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'jetpack_configure_modules' ) ) {
 			return true;
 		}
 
@@ -546,7 +557,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_settings() {
 		$response = array(
-			jetpack_holiday_snow_option_name() => get_option( jetpack_holiday_snow_option_name() ) == 'letitsnow',
+			self::holiday_snow_option_name() => get_option( self::holiday_snow_option_name() ) == 'letitsnow',
 		);
 		return rest_ensure_response( $response );
 	}
@@ -570,7 +581,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return rest_ensure_response( $response );
 	}
 
-
+	/**
+	 * Returns the proper name for Jetpack Holiday Snow setting.
+	 * When the REST route starts, the holiday-snow.php file where jetpack_holiday_snow_option_name() function is defined is not loaded,
+	 * so where using this to replicate it and have the same functionality.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return string
+	 */
+	public static function holiday_snow_option_name() {
+		/** This filter is documented in modules/holiday-snow.php */
+		return apply_filters( 'jetpack_holiday_snow_option_name', 'jetpack_holiday_snow_enabled' );
+	}
 
 	/**
 	 * Update a single miscellaneous setting for this Jetpack installation, like Holiday Snow.
@@ -598,7 +621,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$updated = false;
 
 		switch ( $option ) {
-			case jetpack_holiday_snow_option_name():
+			case self::holiday_snow_option_name():
 				$updated = update_option( $option, ( true == (bool) $value ) ? 'letitsnow' : '' );
 				break;
 		}
@@ -887,600 +910,623 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Get the query parameters for module updating.
+	 * Get the query parameters to update module options or general settings.
 	 *
 	 * @since 4.3.0
+	 * @since 4.4.0 Accepts a $selector parameter.
+	 *
+	 * @param string $selector Selects a set of options to update, Can be empty, a module slug or 'any'.
 	 *
 	 * @return array
 	 */
-	public static function get_module_updating_parameters() {
+	public static function get_updateable_parameters( $selector = '' ) {
 		$parameters = array(
 			'context'     => array(
 				'default' => 'edit',
 			),
 		);
 
-		return array_merge( $parameters, self::get_module_available_options() );
+		return array_merge( $parameters, self::get_updateable_data_list( $selector ) );
 	}
 
 	/**
-	 * Returns a list of module options that can be updated.
+	 * Returns a list of module options or general settings that can be updated.
 	 *
 	 * @since 4.3.0
+	 * @since 4.4.0 Accepts 'any' as a parameter which will make it return the entire list.
 	 *
-	 * @param string $module Module slug. If empty, it's assumed we're updating a module and we'll try to get its slug.
-	 * @param bool $cache Whether to cache the options or return always fresh.
+	 * @param string|array $selector Module slug, 'any', or an array of parameters.
+	 *                               If empty, it's assumed we're updating a module and we'll try to get its slug.
+	 *                               If 'any' the full list is returned.
+	 *                               If it's an array of parameters, includes the elements by matching keys.
 	 *
 	 * @return array
 	 */
-	public static function get_module_available_options( $module = '' ) {
-		$options = array();
+	public static function get_updateable_data_list( $selector = '' ) {
 
-		if ( empty( $module ) ) {
-			$module = self::get_module_requested();
-		}
-
-		switch ( $module ) {
+		$options = array(
 
 			// Carousel
-			case 'carousel':
-				$options = array(
-					'carousel_background_color' => array(
-						'description'        => esc_html__( 'Background color.', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => 'black',
-						'enum'				 => array(
-							'black' => esc_html__( 'Black', 'jetpack' ),
-							'white' => esc_html__( 'White', 'jetpack' ),
-						),
-						'validate_callback'  => __CLASS__ . '::validate_list_item',
-					),
-					'carousel_display_exif' => array(
-						'description'        => wp_kses( sprintf( __( 'Show photo metadata (<a href="http://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) ), array( 'a' => array( 'href' => true, 'target' => true ) )  ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-				);
-				break;
+			'carousel_background_color' => array(
+				'description'       => esc_html__( 'Background color.', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'black',
+				'enum'              => array(
+					'black' => esc_html__( 'Black', 'jetpack' ),
+					'white' => esc_html__( 'White', 'jetpack' ),
+				),
+				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'jp_group'          => 'carousel',
+			),
+			'carousel_display_exif' => array(
+				'description'       => wp_kses( sprintf( __( 'Show photo metadata (<a href="http://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) ), array( 'a' => array( 'href' => true, 'target' => true ) ) ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'carousel',
+			),
 
 			// Comments
-			case 'comments':
-				$options = array(
-					'highlander_comment_form_prompt' => array(
-						'description'        => esc_html__( 'Greeting Text', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => esc_html__( 'Leave a Reply', 'jetpack' ),
-						'sanitize_callback'  => 'sanitize_text_field',
-					),
-					'jetpack_comment_form_color_scheme' => array(
-						'description'        => esc_html__( "Color Scheme", 'jetpack' ),
-						'type'               => 'string',
-						'default'            => 'light',
-						'enum'				 => array(
-							'light'       => esc_html__( 'Light', 'jetpack' ),
-							'dark'        => esc_html__( 'Dark', 'jetpack' ),
-							'transparent' => esc_html__( 'Transparent', 'jetpack' ),
-						),
-						'validate_callback'  => __CLASS__ . '::validate_list_item',
-					),
-				);
-				break;
+			'highlander_comment_form_prompt' => array(
+				'description'       => esc_html__( 'Greeting Text', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => esc_html__( 'Leave a Reply', 'jetpack' ),
+				'sanitize_callback' => 'sanitize_text_field',
+				'jp_group'          => 'comments',
+			),
+			'jetpack_comment_form_color_scheme' => array(
+				'description'       => esc_html__( "Color Scheme", 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'light',
+				'enum'              => array(
+					'light'       => esc_html__( 'Light', 'jetpack' ),
+					'dark'        => esc_html__( 'Dark', 'jetpack' ),
+					'transparent' => esc_html__( 'Transparent', 'jetpack' ),
+				),
+				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'jp_group'          => 'comments',
+			),
 
 			// Custom Content Types
-			case 'custom-content-types':
-				$options = array(
-					'jetpack_portfolio' => array(
-						'description'        => esc_html__( 'Enable or disable Jetpack portfolio post type.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'jetpack_portfolio_posts_per_page' => array(
-						'description'        => esc_html__( 'Number of entries to show at most in Portfolio pages.', 'jetpack' ),
-						'type'               => 'integer',
-						'default'            => 10,
-						'validate_callback'  => __CLASS__ . '::validate_posint',
-					),
-					'jetpack_testimonial' => array(
-						'description'        => esc_html__( 'Enable or disable Jetpack testimonial post type.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'jetpack_testimonial_posts_per_page' => array(
-						'description'        => esc_html__( 'Number of entries to show at most in Testimonial pages.', 'jetpack' ),
-						'type'               => 'integer',
-						'default'            => 10,
-						'validate_callback'  => __CLASS__ . '::validate_posint',
-					),
-				);
-				break;
+			'jetpack_portfolio' => array(
+				'description'       => esc_html__( 'Enable or disable Jetpack portfolio post type.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'custom-content-types',
+			),
+			'jetpack_portfolio_posts_per_page' => array(
+				'description'       => esc_html__( 'Number of entries to show at most in Portfolio pages.', 'jetpack' ),
+				'type'              => 'integer',
+				'default'           => 10,
+				'validate_callback' => __CLASS__ . '::validate_posint',
+				'jp_group'          => 'custom-content-types',
+			),
+			'jetpack_testimonial' => array(
+				'description'       => esc_html__( 'Enable or disable Jetpack testimonial post type.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'custom-content-types',
+			),
+			'jetpack_testimonial_posts_per_page' => array(
+				'description'       => esc_html__( 'Number of entries to show at most in Testimonial pages.', 'jetpack' ),
+				'type'              => 'integer',
+				'default'           => 10,
+				'validate_callback' => __CLASS__ . '::validate_posint',
+				'jp_group'          => 'custom-content-types',
+			),
 
 			// Galleries
-			case 'tiled-gallery':
-				$options = array(
-					'tiled_galleries' => array(
-						'description'        => esc_html__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-				);
-				break;
+			'tiled_galleries' => array(
+				'description'       => esc_html__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'tiled-gallery',
+			),
 
-			// Gravatar Hovercards
-			case 'gravatar-hovercards':
-				$options = array(
-					'gravatar_disable_hovercards' => array(
-						'description'        => esc_html__( "View people's profiles when you mouse over their Gravatars", 'jetpack' ),
-						'type'               => 'string',
-						'default'            => 'enabled',
-						// Not visible. This is used as the checkbox value.
-						'enum'				 => array(
-							'enabled' => esc_html__( 'Enabled', 'jetpack' ),
-							'disabled' => esc_html__( 'Disabled', 'jetpack' ),
-						),
-						'validate_callback'  => __CLASS__ . '::validate_list_item',
-					),
-				);
-				break;
+			'gravatar_disable_hovercards' => array(
+				'description'       => esc_html__( "View people's profiles when you mouse over their Gravatars", 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'enabled',
+				// Not visible. This is used as the checkbox value.
+				'enum'              => array(
+					'enabled'  => esc_html__( 'Enabled', 'jetpack' ),
+					'disabled' => esc_html__( 'Disabled', 'jetpack' ),
+				),
+				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'jp_group'          => 'gravatar-hovercards',
+			),
 
 			// Infinite Scroll
-			case 'infinite-scroll':
-				$options = array(
-					'infinite_scroll' => array(
-						'description'        => esc_html__( 'To infinity and beyond', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 1,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'infinite_scroll_google_analytics' => array(
-						'description'        => esc_html__( 'Use Google Analytics with Infinite Scroll', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-				);
-				break;
+			'infinite_scroll' => array(
+				'description'       => esc_html__( 'To infinity and beyond', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'infinite-scroll',
+			),
+			'infinite_scroll_google_analytics' => array(
+				'description'       => esc_html__( 'Use Google Analytics with Infinite Scroll', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'infinite-scroll',
+			),
 
 			// Likes
-			case 'likes':
-				$options = array(
-					'wpl_default' => array(
-						'description'        => esc_html__( 'WordPress.com Likes are', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => 'on',
-						'enum'				 => array(
-							'on'  => esc_html__( 'On for all posts', 'jetpack' ),
-							'off' => esc_html__( 'Turned on per post', 'jetpack' ),
-						),
-						'validate_callback'  => __CLASS__ . '::validate_list_item',
-					),
-					'social_notifications_like' => array(
-						'description'        => esc_html__( 'Send email notification when someone likes a post', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 1,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-				);
-				break;
+			'wpl_default' => array(
+				'description'       => esc_html__( 'WordPress.com Likes are', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'on',
+				'enum'              => array(
+					'on'  => esc_html__( 'On for all posts', 'jetpack' ),
+					'off' => esc_html__( 'Turned on per post', 'jetpack' ),
+				),
+				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'jp_group'          => 'likes',
+			),
+			'social_notifications_like' => array(
+				'description'       => esc_html__( 'Send email notification when someone likes a post', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'likes',
+			),
 
 			// Markdown
-			case 'markdown':
-				$options = array(
-					'wpcom_publish_comments_with_markdown' => array(
-						'description'        => esc_html__( 'Use Markdown for comments.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-				);
-				break;
+			'wpcom_publish_comments_with_markdown' => array(
+				'description'       => esc_html__( 'Use Markdown for comments.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'markdown',
+			),
 
 			// Mobile Theme
-			case 'minileven':
-				$options = array(
-					'wp_mobile_excerpt' => array(
-						'description'        => esc_html__( 'Excerpts', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => 'disabled',
-						'enum'				 => array(
-							'enabled'  => esc_html__( 'Enable excerpts on front page and on archive pages', 'jetpack' ),
-							'disabled' => esc_html__( 'Show full posts on front page and on archive pages', 'jetpack' ),
-						),
-						'validate_callback'  => __CLASS__ . '::validate_list_item',
-					),
-					'wp_mobile_featured_images' => array(
-						'description'        => esc_html__( 'Featured Images', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => 'disabled',
-						'enum'				 => array(
-							'enabled' => esc_html__( 'Display featured images', 'jetpack' ),
-							'disabled'  => esc_html__( 'Hide all featured images', 'jetpack' ),
-						),
-						'validate_callback'  => __CLASS__ . '::validate_list_item',
-					),
-					'wp_mobile_app_promos' => array(
-						'description'        => esc_html__( 'Show a promo for the WordPress mobile apps in the footer of the mobile theme.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-				);
-				break;
+			'wp_mobile_excerpt' => array(
+				'description'       => esc_html__( 'Excerpts', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'disabled',
+				'enum'              => array(
+					'enabled'  => esc_html__( 'Enable excerpts on front page and on archive pages', 'jetpack' ),
+					'disabled' => esc_html__( 'Show full posts on front page and on archive pages', 'jetpack' ),
+				),
+				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'jp_group'          => 'minileven',
+			),
+			'wp_mobile_featured_images' => array(
+				'description'       => esc_html__( 'Featured Images', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'disabled',
+				'enum'              => array(
+					'enabled'  => esc_html__( 'Display featured images', 'jetpack' ),
+					'disabled' => esc_html__( 'Hide all featured images', 'jetpack' ),
+				),
+				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'jp_group'          => 'minileven',
+			),
+			'wp_mobile_app_promos' => array(
+				'description'       => esc_html__( 'Show a promo for the WordPress mobile apps in the footer of the mobile theme.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'minileven',
+			),
 
 			// Monitor
-			case 'monitor':
-				$options = array(
-					'monitor_receive_notifications' => array(
-						'description'        => esc_html__( 'Receive Monitor Email Notifications.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-				);
-				break;
+			'monitor_receive_notifications' => array(
+				'description'       => esc_html__( 'Receive Monitor Email Notifications.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'monitor',
+			),
 
 			// Post by Email
-			case 'post-by-email':
-				$options = array(
-					'post_by_email_address' => array(
-						'description'       => esc_html__( 'Email Address', 'jetpack' ),
-						'type'              => 'string',
-						'default'           => '',
-						'enum'              => array(
-							'create'     => esc_html__( 'Create Post by Email address', 'jetpack' ),
-							'regenerate' => esc_html__( 'Regenerate Post by Email address', 'jetpack' ),
-							'delete'     => esc_html__( 'Delete Post by Email address', 'jetpack' ),
-						),
-						'validate_callback' => __CLASS__ . '::validate_list_item',
-					),
-				);
-				break;
+			'post_by_email_address' => array(
+				'description'       => esc_html__( 'Email Address', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'noop',
+				'enum'              => array(
+					'noop'       => '',
+					'create'     => esc_html__( 'Create Post by Email address', 'jetpack' ),
+					'regenerate' => esc_html__( 'Regenerate Post by Email address', 'jetpack' ),
+					'delete'     => esc_html__( 'Delete Post by Email address', 'jetpack' ),
+				),
+				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'jp_group'          => 'post-by-email',
+			),
 
 			// Protect
-			case 'protect':
-				$options = array(
-					'jetpack_protect_key' => array(
-						'description'        => esc_html__( 'Protect API key', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'validate_callback'  => __CLASS__ . '::validate_alphanum',
-					),
-					'jetpack_protect_global_whitelist' => array(
-						'description'        => esc_html__( 'Protect global whitelist', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'validate_callback'  => __CLASS__ . '::validate_string',
-						'sanitize_callback'  => 'esc_textarea',
-					),
-				);
-				break;
+			'jetpack_protect_key' => array(
+				'description'       => esc_html__( 'Protect API key', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_alphanum',
+				'jp_group'          => 'protect',
+			),
+			'jetpack_protect_global_whitelist' => array(
+				'description'       => esc_html__( 'Protect global whitelist', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_string',
+				'sanitize_callback' => 'esc_textarea',
+				'jp_group'          => 'protect',
+			),
 
 			// Sharing
-			case 'sharedaddy':
-				$options = array(
-					'sharing_services' => array(
-						'description'        => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
-						'type'               => 'array',
-						'default'            => array(
-							'visible' => array( 'twitter', 'facebook', 'google-plus-1' ),
-							'hidden'  => array(),
-						),
-						'validate_callback'  => __CLASS__ . '::validate_services',
-					),
-					'button_style' => array(
-						'description'       => esc_html__( 'Button Style', 'jetpack' ),
-						'type'              => 'string',
-						'default'           => 'icon',
-						'enum'              => array(
-							'icon-text' => esc_html__( 'Icon + text', 'jetpack' ),
-							'icon'      => esc_html__( 'Icon only', 'jetpack' ),
-							'text'      => esc_html__( 'Text only', 'jetpack' ),
-							'official'  => esc_html__( 'Official buttons', 'jetpack' ),
-						),
-						'validate_callback' => __CLASS__ . '::validate_list_item',
-					),
-					'sharing_label' => array(
-						'description'        => esc_html__( 'Sharing Label', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'validate_callback'  => __CLASS__ . '::validate_string',
-						'sanitize_callback'  => 'esc_html',
-					),
-					'show' => array(
-						'description'        => esc_html__( 'Views where buttons are shown', 'jetpack' ),
-						'type'               => 'array',
-						'default'            => array( 'post' ),
-						'validate_callback'  => __CLASS__ . '::validate_sharing_show',
-					),
-					'jetpack-twitter-cards-site-tag' => array(
-						'description'        => esc_html__( "The Twitter username of the owner of this site's domain.", 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'validate_callback'  => __CLASS__ . '::validate_twitter_username',
-						'sanitize_callback'  => 'esc_html',
-					),
-					'sharedaddy_disable_resources' => array(
-						'description'        => esc_html__( 'Disable CSS and JS', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'custom' => array(
-						'description'        => esc_html__( 'Custom sharing services added by user.', 'jetpack' ),
-						'type'               => 'array',
-						'default'            => array(
-							'sharing_name' => '',
-							'sharing_url'  => '',
-							'sharing_icon' => '',
-						),
-						'validate_callback'  => __CLASS__ . '::validate_custom_service',
-					),
-					// Not an option, but an action that can be perfomed on the list of custom services passing the service ID.
-					'sharing_delete_service' => array(
-						'description'        => esc_html__( 'Delete custom sharing service.', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'validate_callback'  => __CLASS__ . '::validate_custom_service_id',
-					),
-				);
-				break;
+			'sharing_services' => array(
+				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
+				'type'              => 'array',
+				'default'           => array(
+					'visible' => array( 'twitter', 'facebook', 'google-plus-1' ),
+					'hidden'  => array(),
+				),
+				'validate_callback' => __CLASS__ . '::validate_services',
+				'jp_group'          => 'sharedaddy',
+			),
+			'button_style' => array(
+				'description'       => esc_html__( 'Button Style', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'icon',
+				'enum'              => array(
+					'icon-text' => esc_html__( 'Icon + text', 'jetpack' ),
+					'icon'      => esc_html__( 'Icon only', 'jetpack' ),
+					'text'      => esc_html__( 'Text only', 'jetpack' ),
+					'official'  => esc_html__( 'Official buttons', 'jetpack' ),
+				),
+				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'jp_group'          => 'sharedaddy',
+			),
+			'sharing_label' => array(
+				'description'       => esc_html__( 'Sharing Label', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_string',
+				'sanitize_callback' => 'esc_html',
+				'jp_group'          => 'sharedaddy',
+			),
+			'show' => array(
+				'description'       => esc_html__( 'Views where buttons are shown', 'jetpack' ),
+				'type'              => 'array',
+				'default'           => array( 'post' ),
+				'validate_callback' => __CLASS__ . '::validate_sharing_show',
+				'jp_group'          => 'sharedaddy',
+			),
+			'jetpack-twitter-cards-site-tag' => array(
+				'description'       => esc_html__( "The Twitter username of the owner of this site's domain.", 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_twitter_username',
+				'sanitize_callback' => 'esc_html',
+				'jp_group'          => 'sharedaddy',
+			),
+			'sharedaddy_disable_resources' => array(
+				'description'       => esc_html__( 'Disable CSS and JS', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'sharedaddy',
+			),
+			'custom' => array(
+				'description'       => esc_html__( 'Custom sharing services added by user.', 'jetpack' ),
+				'type'              => 'array',
+				'default'           => array(
+					'sharing_name' => '',
+					'sharing_url'  => '',
+					'sharing_icon' => '',
+				),
+				'validate_callback' => __CLASS__ . '::validate_custom_service',
+				'jp_group'          => 'sharedaddy',
+			),
+			// Not an option, but an action that can be perfomed on the list of custom services passing the service ID.
+			'sharing_delete_service' => array(
+				'description'       => esc_html__( 'Delete custom sharing service.', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_custom_service_id',
+				'jp_group'          => 'sharedaddy',
+			),
 
 			// SSO
-			case 'sso':
-				$options = array(
-					'jetpack_sso_require_two_step' => array(
-						'description'        => esc_html__( 'Require Two-Step Authentication', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'jetpack_sso_match_by_email' => array(
-						'description'        => esc_html__( 'Match by Email', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-				);
-				break;
+			'jetpack_sso_require_two_step' => array(
+				'description'       => esc_html__( 'Require Two-Step Authentication', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'sso',
+			),
+			'jetpack_sso_match_by_email' => array(
+				'description'       => esc_html__( 'Match by Email', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'sso',
+			),
 
 			// Site Icon
-			case 'site-icon':
-				$options = array(
-					'site_icon_id' => array(
-						'description'        => esc_html__( 'Site Icon ID', 'jetpack' ),
-						'type'               => 'integer',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_posint',
-					),
-					'site_icon_url' => array(
-						'description'        => esc_html__( 'Site Icon URL', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'sanitize_callback'  => 'esc_url',
-					),
-				);
-				break;
+			'site_icon_id' => array(
+				'description'       => esc_html__( 'Site Icon ID', 'jetpack' ),
+				'type'              => 'integer',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_posint',
+				'jp_group'          => 'site-icon',
+			),
+			'site_icon_url' => array(
+				'description'       => esc_html__( 'Site Icon URL', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'esc_url',
+				'jp_group'          => 'site-icon',
+			),
 
 			// Subscriptions
-			case 'subscriptions':
-				$options = array(
-					'stb_enabled' => array(
-						'description'        => esc_html__( "Show a <em>'follow blog'</em> option in the comment form", 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 1,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'stc_enabled' => array(
-						'description'        => esc_html__( "Show a <em>'follow comments'</em> option in the comment form", 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 1,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-				);
-				break;
+			'stb_enabled' => array(
+				'description'       => esc_html__( "Show a <em>'follow blog'</em> option in the comment form", 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'stc_enabled' => array(
+				'description'       => esc_html__( "Show a <em>'follow comments'</em> option in the comment form", 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
 
 			// Related Posts
-			case 'related-posts':
-				$options = array(
-					'show_headline' => array(
-						'description'        => esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 1,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'show_thumbnails' => array(
-						'description'        => esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-				);
-				break;
+			'show_headline' => array(
+				'description'       => esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'related-posts',
+			),
+			'show_thumbnails' => array(
+				'description'       => esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'related-posts',
+			),
 
 			// Spelling and Grammar - After the Deadline
-			case 'after-the-deadline':
-				$options = array(
-					'onpublish' => array(
-						'description'        => esc_html__( 'Proofread when a post or page is first published.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'onupdate' => array(
-						'description'        => esc_html__( 'Proofread when a post or page is updated.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'Bias Language' => array(
-						'description'        => esc_html__( 'Bias Language', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'Cliches' => array(
-						'description'        => esc_html__( 'Clichés', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'Complex Expression' => array(
-						'description'        => esc_html__( 'Complex Phrases', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'Diacritical Marks' => array(
-						'description'        => esc_html__( 'Diacritical Marks', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'Double Negative' => array(
-						'description'        => esc_html__( 'Double Negatives', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'Hidden Verbs' => array(
-						'description'        => esc_html__( 'Hidden Verbs', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'Jargon Language' => array(
-						'description'        => esc_html__( 'Jargon', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'Passive voice' => array(
-						'description'        => esc_html__( 'Passive Voice', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'Phrases to Avoid' => array(
-						'description'        => esc_html__( 'Phrases to Avoid', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'Redundant Expression' => array(
-						'description'        => esc_html__( 'Redundant Phrases', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'guess_lang' => array(
-						'description'        => esc_html__( 'Use automatically detected language to proofread posts and pages', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'ignored_phrases' => array(
-						'description'        => esc_html__( 'Add Phrase to be ignored', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'sanitize_callback'  => 'esc_html',
-					),
-					'unignore_phrase' => array(
-						'description'        => esc_html__( 'Remove Phrase from being ignored', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'sanitize_callback'  => 'esc_html',
-					),
-				);
-				break;
+			'onpublish' => array(
+				'description'       => esc_html__( 'Proofread when a post or page is first published.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'onupdate' => array(
+				'description'       => esc_html__( 'Proofread when a post or page is updated.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'Bias Language' => array(
+				'description'       => esc_html__( 'Bias Language', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'Cliches' => array(
+				'description'       => esc_html__( 'Clichés', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'Complex Expression' => array(
+				'description'       => esc_html__( 'Complex Phrases', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'Diacritical Marks' => array(
+				'description'       => esc_html__( 'Diacritical Marks', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'Double Negative' => array(
+				'description'       => esc_html__( 'Double Negatives', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'Hidden Verbs' => array(
+				'description'       => esc_html__( 'Hidden Verbs', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'Jargon Language' => array(
+				'description'       => esc_html__( 'Jargon', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'Passive voice' => array(
+				'description'       => esc_html__( 'Passive Voice', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'Phrases to Avoid' => array(
+				'description'       => esc_html__( 'Phrases to Avoid', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'Redundant Expression' => array(
+				'description'       => esc_html__( 'Redundant Phrases', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'guess_lang' => array(
+				'description'       => esc_html__( 'Use automatically detected language to proofread posts and pages', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'ignored_phrases' => array(
+				'description'       => esc_html__( 'Add Phrase to be ignored', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'esc_html',
+				'jp_group'          => 'after-the-deadline',
+			),
+			'unignore_phrase' => array(
+				'description'       => esc_html__( 'Remove Phrase from being ignored', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'esc_html',
+				'jp_group'          => 'after-the-deadline',
+			),
 
 			// Verification Tools
-			case 'verification-tools':
-				$options = array(
-					'google' => array(
-						'description'        => esc_html__( 'Google Search Console', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'validate_callback'  => __CLASS__ . '::validate_alphanum',
-					),
-					'bing' => array(
-						'description'        => esc_html__( 'Bing Webmaster Center', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'validate_callback'  => __CLASS__ . '::validate_alphanum',
-					),
-					'pinterest' => array(
-						'description'        => esc_html__( 'Pinterest Site Verification', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '',
-						'validate_callback'  => __CLASS__ . '::validate_alphanum',
-					),
-				);
-				break;
+			'google' => array(
+				'description'       => esc_html__( 'Google Search Console', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_alphanum',
+				'jp_group'          => 'verification-tools',
+			),
+			'bing' => array(
+				'description'       => esc_html__( 'Bing Webmaster Center', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_alphanum',
+				'jp_group'          => 'verification-tools',
+			),
+			'pinterest' => array(
+				'description'       => esc_html__( 'Pinterest Site Verification', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_alphanum',
+				'jp_group'          => 'verification-tools',
+			),
 
 			// Stats
-			/*
-				Example:
-				'admin_bar' => true
-				'roles' => array ( 'administrator', 'editor' )
-				'count_roles' => array ( 'editor' )
-				'blog_id' => false
-				'do_not_track' => true
-				'hide_smile' => true
-				'version' => '9'
-			*/
-			case 'stats':
-				$options = array(
-					'admin_bar' => array(
-						'description'        => esc_html__( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 1,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'roles' => array(
-						'description'       => esc_html__( 'Select the roles that will be able to view stats reports.', 'jetpack' ),
-						'type'              => 'array',
-						'default'           => array( 'administrator' ),
-						'validate_callback' => __CLASS__ . '::validate_stats_roles',
-						'sanitize_callback' => __CLASS__ . '::sanitize_stats_allowed_roles',
-					),
-					'count_roles' => array(
-						'description'       => esc_html__( 'Count the page views of registered users who are logged in.', 'jetpack' ),
-						'type'              => 'array',
-						'default'           => array( 'administrator' ),
-						'validate_callback' => __CLASS__ . '::validate_stats_roles',
-					),
-					'blog_id' => array(
-						'description'        => esc_html__( 'Blog ID.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 0,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'do_not_track' => array(
-						'description'        => esc_html__( 'Do not track.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 1,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'hide_smile' => array(
-						'description'        => esc_html__( 'Hide the stats smiley face image.', 'jetpack' ),
-						'type'               => 'boolean',
-						'default'            => 1,
-						'validate_callback'  => __CLASS__ . '::validate_boolean',
-					),
-					'version' => array(
-						'description'        => esc_html__( 'Version.', 'jetpack' ),
-						'type'               => 'integer',
-						'default'            => 9,
-						'validate_callback'  => __CLASS__ . '::validate_posint',
-					),
-				);
-				break;
+			'admin_bar' => array(
+				'description'       => esc_html__( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'stats',
+			),
+			'roles' => array(
+				'description'       => esc_html__( 'Select the roles that will be able to view stats reports.', 'jetpack' ),
+				'type'              => 'array',
+				'default'           => array( 'administrator' ),
+				'validate_callback' => __CLASS__ . '::validate_stats_roles',
+				'sanitize_callback' => __CLASS__ . '::sanitize_stats_allowed_roles',
+				'jp_group'          => 'stats',
+			),
+			'count_roles' => array(
+				'description'       => esc_html__( 'Count the page views of registered users who are logged in.', 'jetpack' ),
+				'type'              => 'array',
+				'default'           => array( 'administrator' ),
+				'validate_callback' => __CLASS__ . '::validate_stats_roles',
+				'jp_group'          => 'stats',
+			),
+			'blog_id' => array(
+				'description'       => esc_html__( 'Blog ID.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'stats',
+			),
+			'do_not_track' => array(
+				'description'       => esc_html__( 'Do not track.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'stats',
+			),
+			'hide_smile' => array(
+				'description'       => esc_html__( 'Hide the stats smiley face image.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'stats',
+			),
+			'version' => array(
+				'description'       => esc_html__( 'Version.', 'jetpack' ),
+				'type'              => 'integer',
+				'default'           => 9,
+				'validate_callback' => __CLASS__ . '::validate_posint',
+				'jp_group'          => 'stats',
+			),
+
+			// Settings - Not a module
+			self::holiday_snow_option_name() => array(
+				'description'       => '',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+
+		);
+
+		// Add modules to list so they can be toggled
+		$modules = Jetpack::get_available_modules();
+		if ( is_array( $modules ) && ! empty( $modules ) ) {
+			$module_args = array(
+				'description'       => '',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'modules',
+			);
+			foreach( $modules as $module ) {
+				$options[ $module ] = $module_args;
+			}
 		}
 
-		return $options;
+		if ( is_array( $selector ) ) {
+
+			// Return only those options whose keys match $selector keys
+			return array_intersect_key( $options, $selector );
+		}
+
+		if ( 'any' === $selector ) {
+
+			// Toggle module or update any module option or any general setting
+			return $options;
+		}
+
+		// We're updating the options for a single module.
+		if ( empty( $selector ) ) {
+			$selector = self::get_module_requested();
+		}
+		$selected = array();
+		foreach ( $options as $option => $attributes ) {
+
+			// Not adding an isset( $attributes['jp_group'] ) because if it's not set, it must be fixed, otherwise options will fail.
+			if ( $selector === $attributes['jp_group'] ) {
+				$selected[ $option ] = $attributes;
+			}
+		}
+		return $selected;
 	}
 
 	/**
@@ -1866,7 +1912,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array
 	 */
 	public static function prepare_options_for_response( $module = '' ) {
-		$options = self::get_module_available_options( $module );
+		$options = self::get_updateable_data_list( $module );
 
 		if ( ! is_array( $options ) || empty( $options ) ) {
 			return $options;
