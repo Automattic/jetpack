@@ -391,38 +391,10 @@ class Jetpack_Core_API_Module_Endpoint
 			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $options[ $option ] );
 
 			switch ( $option ) {
-				case 'videopress_connected_blog':
-					$vp_options = Jetpack_VideoPress::init()->get_options();
-					$vp_options['blog_id'] = sanitize_text_field( $value );
-					Jetpack_VideoPress::init()->update_options( $vp_options );
-					$updated = true;
-					break;
-
-				case 'videopress_library_access':
-					$vp_options = Jetpack_VideoPress::init()->get_options();
-					$vp_options['access'] = sanitize_text_field( $value );
-					Jetpack_VideoPress::init()->update_options( $vp_options );
-					$updated = true;
-					break;
-
-				case 'videopress_allow_user_upload':
-					$vp_options = Jetpack_VideoPress::init()->get_options();
-					$vp_options['allow-upload'] = (bool) $value;
-					Jetpack_VideoPress::init()->update_options( $vp_options );
-					$updated = true;
-					break;
-
 				case 'videopress_free_formats':
-					$vp_options = Jetpack_VideoPress::init()->get_options();
-					$vp_options['freedom'] = (bool) $value;
-					Jetpack_VideoPress::init()->update_options( $vp_options );
-					$updated = true;
-					break;
-
 				case 'videopress_default_quality':
-					$vp_options = Jetpack_VideoPress::init()->get_options();
-					$vp_options['hd'] = (bool) $value;
-					Jetpack_VideoPress::init()->update_options( $vp_options );
+					$value = ( $value ) ? 1 : 0;
+					update_option( $option, $value );
 					$updated = true;
 					break;
 

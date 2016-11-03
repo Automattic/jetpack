@@ -883,44 +883,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		switch ( $module ) {
 			// VideoPress
 			case 'videopress':
-				// Make sure to include the Jetpack_VideoPress class
-				if ( ! class_exists( 'Jetpack_VideoPress' ) ) {
-					require_once( JETPACK__PLUGIN_DIR . 'modules/videopress/videopress.php' );
-				}
-
-				// Get fresh list of capable blogs on each settings load
-				Jetpack_VideoPress::refresh_blog_list();
-
-				// Get current VideoPress options
-				$videopress_options = Jetpack_Options::get_option( 'videopress', array() );
-
 				// Holder for options to send to React
 				$options = array(
-					'videopress_connected_blog' => array(
-						'description' => esc_html__( 'VideoPress Blogs', 'jetpack' ),
-						'type' => 'string',
-						'default' => isset( $videopress_options['blog_id'] ) ? absint( $videopress_options['blog_id'] ) : 0,
-						'enum' => array(),
-						'validate_callback'  => __CLASS__ . '::validate_posint',
-					),
-					'videopress_library_access' => array(
-						'description' => esc_html__( 'VideoPress Library Access', 'jetpack' ),
-						'type' => 'string',
-						'default' => '',
-						'enum' => array(
-							'' => esc_html__( 'Do not allow other users to access my VideoPress library', 'jetpack' ),
-							'read' => esc_html__( 'Allow users to access my videos', 'jetpack' ),
-							'edit' => esc_html__( 'Allow users to access and edit my videos', 'jetpack' ),
-							'delete' => esc_html__( 'Allow users to access, edit, and delete my videos', 'jetpack' ),
-						),
-						'validate_callback' => __CLASS__ . '::validate_list_item',
-					),
-					'videopress_allow_user_upload' => array(
-						'description' => esc_html__( 'Allow users to upload videos', 'jetpack' ),
-						'type' => 'boolean',
-						'default' => 0,
-						'validate_callback' => __CLASS__ . '::validate_boolean',
-					),
 					'videopress_free_formats' => array(
 						'description' => esc_html__( 'Only display videos in free software formats', 'jetpack' ),
 						'type' => 'boolean',
@@ -930,18 +894,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'videopress_default_quality' => array(
 						'description' => esc_html__( 'Display higher quality videos by default', 'jetpack' ),
 						'type' => 'boolean',
-						'default' => 0,
+						'default' => 1,
 						'validate_callback' => __CLASS__ . '::validate_boolean',
 					),
 				);
-
-				// Populate the blogs option with valid VideoPress blogs
-				if ( isset( $videopress_options['blogs'] ) && is_array( $videopress_options['blogs'] ) ) {
-					foreach ( $videopress_options['blogs'] as $blog ) {
-						$options['videopress_connected_blog']['enum'][ absint( $blog['blog_id'] ) ] = sprintf( '%s (%s)', $blog['name'], $blog['domain'] );
-					}
-				}
-
 				break;
 
 			// Carousel

@@ -34,56 +34,26 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 
 export let VideoPressSettings = React.createClass( {
 	render() {
-		if ( this.props.validValues( 'videopress_connected_blog' ).length < 1 ) {
-			return (
-				<span className="jp-form-setting-explanation">
-					{
-					__( 'You need a WordPress.com Premium blog to use VideoPress. {{a}}Sign up now!{{/a}}', {
-						components: {
-							a: <a href="https://wordpress.com/start/premium/" target="_blank" />
-						}
-					} )
-					}
-				</span>
-			)
-		} else {
+		const siteHasJetpackPlan = false;
+
+		if (! siteHasJetpackPlan ) {
 			return (
 				<form onSubmit={ this.props.onSubmit } >
 					<FormFieldset>
-						<FormLegend> { __( 'Connected Blog' ) }</FormLegend>
-						<ModuleSettingSelect
-							name={ 'videopress_connected_blog' }
-							{ ...this.props }
-							validValues={ this.props.validValues( 'videopress_connected_blog' ) } />
-						<span className="jp-form-setting-explanation">{ __( 'Only videos from the selected blog will be available in your media library.' ) }</span>
-					</FormFieldset>
-					<FormFieldset>
-						<FormLegend> { __( 'VideoPress Library Access' ) }</FormLegend>
-						<ModuleSettingRadios
-							name={ 'videopress_library_access' }
-							{ ...this.props }
-							validValues={ this.props.validValues( 'videopress_library_access' ) } />
-					</FormFieldset>
-					<FormFieldset>
-						<ModuleSettingCheckbox
-							name={ 'videopress_allow_user_upload' }
-							{ ...this.props }
-							disabled={ ( '' === this.props.getOptionValue( 'videopress_library_access' ) ) ? true : false }
-							label={ __( 'Allow users to upload videos' ) } />
-					</FormFieldset>
-					<FormFieldset>
 						<FormLegend> { __( 'Free Formats' ) } </FormLegend>
 						<ModuleSettingCheckbox
-							name={ 'videopress_free_formats' }
 							{ ...this.props }
+							name={ 'videopress_free_formats' }
+							value={ this.props.getOptionValue( 'videopress_free_formats' ) }
 							label={ __( 'Only display videos in free software formats' ) } />
 						<span className="jp-form-setting-explanation">{ __( 'Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari.' ) }</span>
 					</FormFieldset>
 					<FormFieldset>
 						<FormLegend> { __( 'Default Quality' ) } </FormLegend>
 						<ModuleSettingCheckbox
-							name={ 'videopress_default_quality' }
 							{ ...this.props }
+							name={ 'videopress_default_quality' }
+							value={ this.props.getOptionValue( 'videopress_default_quality' ) }
 							label={ __( 'Display higher quality video by default' ) } />
 						<span className="jp-form-setting-explanation">{ __( 'This setting may be overridden for individual videos.' ) }</span>
 					</FormFieldset>
@@ -94,6 +64,18 @@ export let VideoPressSettings = React.createClass( {
 							disabled={ this.props.shouldSaveButtonBeDisabled() } />
 					</FormFieldset>
 				</form>
+			)
+		} else {
+			return (
+				<span className="jp-form-setting-explanation">
+					{
+					__( 'You need a {{a}}Jetpack Plan{{/a}} to use VideoPress.', {
+						components: {
+							a: <a href="admin.php?page=jetpack#/plans" />
+						}
+					} )
+					}
+				</span>
 			)
 		}
 	}
