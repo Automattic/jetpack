@@ -29,6 +29,8 @@ class VideoPress_Edit_Attachment {
 	public function __construct() {
 		add_filter( 'attachment_fields_to_edit', array( $this, 'fields_to_edit' ), 10, 2 );
 		add_filter( 'attachment_fields_to_save', array( $this, 'save_fields' ), 10, 2 );
+		add_filter( 'wp_ajax_save-attachment', array( $this, 'save_fields' ), -1 );
+		add_filter( 'wp_ajax_save-attachment-compat', array( $this, 'save_fields' ), -1 );
 
 		add_action( 'add_meta_boxes', array( $this, 'configure_meta_boxes' ), 10, 2 );
 	}
@@ -58,11 +60,18 @@ class VideoPress_Edit_Attachment {
 
 	/**
 	 * @param array $post
-	 * @param array $attachment
+	 * @param array|null $attachment
 	 *
 	 * @return array
 	 */
-	public function save_fields( $post, $attachment ) {
+	public function save_fields( $post, $attachment = null ) {
+		if ( $attachment === null && isset( $_POST['attachment'] ) ) {
+			$attachment = $_POST['attachment'];
+		}
+
+		if ( ! isset( $attachment['is_videopress_attachment'] ) || $attachment['is_videopress_attachment'] !== 'yes' ) {
+			return $post;
+		}
 
 		$post_id = absint( $post['ID'] );
 
@@ -87,13 +96,13 @@ class VideoPress_Edit_Attachment {
 		if ( isset( $attachment['rating'] ) ) {
 			$rating = $attachment['rating'];
 
-			if ( ! empty( $value ) && in_array( $rating, array( 'G', 'PG-13', 'R-17', 'X-18' ) ) ) {
+			if ( ! empty( $rating ) && in_array( $rating, array( 'G', 'PG-13', 'R-17', 'X-18' ) ) ) {
 				$values['rating'] = $rating;
 			}
 		}
 
 		// We set a default here, as if it isn't selected, then we'll turn it off.
-		$attachment['display_embed'] = 0;
+		$values['display_embed'] = 0;
 		if ( isset( $attachment['display_embed'] ) ) {
 			$display_embed = $attachment['display_embed'];
 
@@ -111,6 +120,16 @@ class VideoPress_Edit_Attachment {
 			$post['errors']['videopress']['errors'][] = __( 'There was an issue saving your updates to the VideoPress service. Please try again later.' );
 			return $post;
 		}
+
+		if ( isset( $values['display_embed'] ) ) {
+			$meta['videopress']['display_embed'] = $values['display_embed'];
+		}
+
+		if ( isset( $values['rating'] ) ) {
+			$meta['videopress']['rating'] = $values['rating'];
+		}
+
+		wp_update_attachment_metadata( $post_id, $meta );
 
 		$response = json_decode( $result['body'], true );
 
@@ -180,6 +199,19 @@ class VideoPress_Edit_Attachment {
 		$fields['post_excerpt']['input'] = 'textarea';
 		$fields['post_excerpt']['value'] = $info->description;
 
+		$fields['is_videopress_attachment'] = array(
+			'input' => 'hidden',
+			'value' => 'yes',
+		);
+
+		$fields['videopress_shortcode'] = array(
+			'label'         => __( 'Shortcode' ),
+			'input'         => 'html',
+			'html'          => "<input type=\"text\" name=\"videopress_shortcode\" value=\"[videopress {$info->guid}]\" readonly=\"readonly\"/>",
+			'show_in_modal' => true,
+			'show_in_edit'  => false,
+		);
+
 		$fields['display_embed'] = array(
 			'label' => __( 'Share' ),
 			'input' => 'html',
@@ -208,7 +240,7 @@ class VideoPress_Edit_Attachment {
 			return;
 		}
 
-		$info = (object)$meta['videopress'];
+		$info = (object) $meta['videopress'];
 
 		$status = videopress_get_transcoding_status( $post_id );
 
