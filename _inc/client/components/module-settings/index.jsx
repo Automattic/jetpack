@@ -33,44 +33,11 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 
 export let VideoPressSettings = React.createClass( {
 	render() {
-		let product = this.props.sitePlan.product_slug;
-
-		if ( 'jetpack_personal' === product || 'jetpack_premium' === product || 'jetpack_business' === product ) {
-			return (
-				<form onSubmit={ this.props.onSubmit } >
-					<FormFieldset>
-						<FormLegend> { __( 'Free Formats' ) } </FormLegend>
-						<ModuleSettingCheckbox
-							{ ...this.props }
-							name={ 'videopress_free_formats' }
-							value={ this.props.getOptionValue( 'videopress_free_formats' ) }
-							label={ __( 'Only display videos in free software formats' ) } />
-						<span className="jp-form-setting-explanation">{ __( 'Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari.' ) }</span>
-					</FormFieldset>
-					<FormFieldset>
-						<FormLegend> { __( 'Default Quality' ) } </FormLegend>
-						<ModuleSettingCheckbox
-							{ ...this.props }
-							name={ 'videopress_default_quality' }
-							value={ this.props.getOptionValue( 'videopress_default_quality' ) }
-							label={ __( 'Display higher quality video by default' ) } />
-						<span className="jp-form-setting-explanation">{ __( 'This setting may be overridden for individual videos.' ) }</span>
-					</FormFieldset>
-					<FormFieldset>
-						<FormButton
-							className="is-primary"
-							isSubmitting={ this.props.isSavingAnyOption() }
-							disabled={ this.props.shouldSaveButtonBeDisabled() } />
-					</FormFieldset>
-				</form>
-			)
-		} else {
-			return (
-				<span className="jp-form-setting-explanation">
-					{ __( 'The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.' ) }
-				</span>
-			)
-		}
+		return (
+			<span className="jp-form-setting-explanation">
+				{ __( 'The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.' ) }
+			</span>
+		)
 	}
 } );
 
