@@ -137,6 +137,9 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			do_action( 'jetpack_contact_info_widget_end' );
 
 			echo $args['after_widget'];
+
+			/** This action is documented in modules/widgets/gravatar-profile.php */
+			do_action( 'jetpack_stats_extra', 'widget_view', 'contact_info' );
 		}
 
 

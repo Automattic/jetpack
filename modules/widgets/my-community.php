@@ -185,6 +185,9 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 		echo $my_community;
 
 		echo $args['after_widget'];
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'my_community' );
 	}
 
 	/**

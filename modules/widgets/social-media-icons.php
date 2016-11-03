@@ -182,6 +182,10 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			$html = $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'] . $html;
 		}
 		$html = $args['before_widget'] . $html . $args['after_widget'];
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'social_media_icons' );
+
 		/**
 		 * Filters the Social Media Icons widget output.
 		 *
