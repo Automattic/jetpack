@@ -187,19 +187,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Update any Jetpack module option or setting
 		self::route(
-			'/update',
+			'/settings',
 			'Jetpack_Core_API_Data',
 			WP_REST_Server::EDITABLE,
 			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
 			self::get_updateable_parameters( 'any' )
 		);
 
-		// Reset all Jetpack options
-		register_rest_route( 'jetpack/v4', '/options/(?P<options>[a-z\-]+)', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::reset_jetpack_options',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-		) );
+		// Update a module
+		self::route(
+			'/settings/(?P<slug>[a-z\-]+)',
+			'Jetpack_Core_API_Data',
+			WP_REST_Server::EDITABLE,
+			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
+			self::get_updateable_parameters()
+		);
 
 		// Return miscellaneous settings
 		register_rest_route( 'jetpack/v4', '/settings', array(
@@ -208,11 +210,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
-		// Update miscellaneous setting
-		register_rest_route( 'jetpack/v4', '/settings', array(
+		// Reset all Jetpack options
+		register_rest_route( 'jetpack/v4', '/options/(?P<options>[a-z\-]+)', array(
 			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::update_setting',
-			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			'callback' => __CLASS__ . '::reset_jetpack_options',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
 		// Jumpstart
