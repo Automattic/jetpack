@@ -72,6 +72,7 @@ class Jetpack_IDC {
 		}
 	}
 
+<<<<<<< 319618c48a15d8dae62332d843c8551e3a3f18e2
 	function display_admin_bar_button() {
 		global $wp_admin_bar;
 
