@@ -5,7 +5,7 @@
 }
 
 .jp-idc-notice {
-	padding-bottom: 24px;
+	padding-bottom: 16px;
 }
 
 .jp-idc-notice p {
@@ -85,6 +85,13 @@
 
 .jp-idc-notice__action {
 	display: block;
+	border: 1px solid lighten( $gray, 30% );
+	border-radius: 4px;
+	padding: 16px;
+}
+
+.jp-idc-notice__action:last-child {
+	margin: 16px 0 0 0;
 }
 
 @media only screen and ( min-width: 960px ) {
@@ -94,6 +101,11 @@
 
 	.jp-idc-notice__action {
 		flex: 1;
+		margin: 0 8px 0 0;
+	}
+
+	.jp-idc-notice__action:last-child {
+		margin: 0 0 0 8px;
 	}
 
 	.jp-idc-notice__action:first-child {
@@ -111,7 +123,7 @@
 
 
 .jp-idc-notice__separator {
-	background-color: $gray-light;
+	background-color: lighten( $gray, 30% );
 	margin: 0 -10px 0 -10px;
 	height: 1px;
 }
@@ -122,15 +134,6 @@
 	}
 }
 
-.jp-idc-notice__actions .jp-idc-notice__separator {
-	margin: 16px -26px 16px -26px;
-}
-.jp-idc-notice__actions .jp-idc-notice__separator:first-child {
-	margin-top: 0;
-}
-
-@media only screen and ( min-width: 960px ) {
-	.jp-idc-notice__actions .jp-idc-notice__separator {
-		display: none;
-	}
+.jp-idc-notice .jp-idc-notice__unsure-prompt {
+	margin: 16px 0 0 0;
 }

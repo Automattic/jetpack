@@ -159,7 +159,6 @@ class Jetpack_IDC {
 			</div>
 
 			<div class="jp-idc-notice__actions">
-				<div class="jp-idc-notice__separator"></div>
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
 						<?php
@@ -181,8 +180,6 @@ class Jetpack_IDC {
 						<?php esc_html_e( 'Confirm Safe Mode' ); ?>
 					</button>
 				</div>
-
-				<div class="jp-idc-notice__separator"></div>
 
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
@@ -227,7 +224,6 @@ class Jetpack_IDC {
 			</div>
 
 			<div class="jp-idc-notice__actions">
-				<div class="jp-idc-notice__separator"></div>
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
 						<?php
@@ -252,8 +248,6 @@ class Jetpack_IDC {
 					</button>
 				</div>
 
-				<div class="jp-idc-notice__separator"></div>
-
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
 						<?php
@@ -277,7 +271,23 @@ class Jetpack_IDC {
 						<?php esc_html_e( 'Start fresh &amp; create new connection' ); ?>
 					</button>
 				</div>
+
 			</div>
+
+			<p class="jp-idc-notice__unsure-prompt">
+				<?php
+				echo wp_kses(
+					sprintf(
+						__(
+							'Unsure what to do? <a href="%1$s">Read more about Jetpack Safe Mode</a>',
+							'jetpack'
+						),
+						esc_url( self::SAFE_MODE_DOC_LINK )
+					),
+					array( 'a' => array( 'href' => array() ) )
+				);
+				?>
+			</p>
 		</div>
 	<?php }
 }
