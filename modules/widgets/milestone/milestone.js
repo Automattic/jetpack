@@ -61,6 +61,6 @@ var Milestone = ( function( $ ) {
 	}
 
 	for ( i = 0; i < MilestoneConfig.instances.length; i++ ) {
-		MilestoneInstances[i] = new Milestone( MilestoneConfig.instances[i] );
+		MilestoneInstances[ i ] = new Milestone( MilestoneConfig.instances[ i ] );
 	}
 } )();
