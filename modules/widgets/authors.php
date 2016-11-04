@@ -175,6 +175,7 @@ class Widget_Authors extends WP_Widget {
 	}
 }
 
-add_action( 'widgets_init', function () {
+add_action( 'widgets_init', 'register_authors_widget' );
+function register_authors_widget() {
 	register_widget( 'Widget_Authors' );
 } );
