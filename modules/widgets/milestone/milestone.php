@@ -137,8 +137,17 @@ class Milestone_Widget extends WP_Widget {
 			wp_dequeue_script( 'milestone' );
 			return;
 		}
-		self::$config_js['labels'] = self::get_interval_labels();
-		wp_localize_script( 'milestone', 'MilestoneConfig', self::$config_js );
+
+		wp_localize_script( 'milestone', 'MilestoneConfig', array(
+			'instances'         => self::$config_js['instances'],
+			'labels'            => self::get_interval_labels(),
+			'MINUTE_IN_SECONDS' => MINUTE_IN_SECONDS,
+			'HOUR_IN_SECONDS'   => HOUR_IN_SECONDS,
+			'DAY_IN_SECONDS'    => DAY_IN_SECONDS,
+			'WEEK_IN_SECONDS'   => WEEK_IN_SECONDS,
+			'MONTH_IN_SECONDS'  => MONTH_IN_SECONDS,
+			'YEAR_IN_SECONDS'   => YEAR_IN_SECONDS,
+		) );
 	}
 
 	/**
@@ -155,20 +164,20 @@ class Milestone_Widget extends WP_Widget {
 		$label  = '';
 		$interval_labels = self::get_interval_labels();
 
-		if ( 63113852 < $diff ) { // more than 2 years - show in years, one decimal point
-			$number = round( $diff / 60 / 60 / 24 / 365, 1 );
+		if ( 2 * YEAR_IN_SECONDS < $diff ) { // more than 2 years - show in years, one decimal point
+			$number = round( $diff / YEAR_IN_SECONDS, 1 );
 			$label  = $interval_labels['years'];
-		} else if ( 7775999 < $diff ) { // fewer than 2 years - show in months
-			$number = floor( $diff / 60 / 60 / 24 / 30 );
+		} else if ( 3 * MONTH_IN_SECONDS < $diff ) { // fewer than 2 years - show in months
+			$number = floor( $diff / MONTH_IN_SECONDS );
 			$label  = ( 1 == $number ) ? $interval_labels['month'] : $interval_labels['months'];
-		} else if ( 86399 < $diff ) { // fewer than 3 months - show in days
-			$number = floor( $diff / 60 / 60 / 24 ) + 1;
+		} else if ( DAY_IN_SECONDS < $diff ) { // fewer than 3 months - show in days
+			$number = floor( $diff / DAY_IN_SECONDS ) + 1;
 			$label  = ( 1 == $number ) ? $interval_labels['day'] : $interval_labels['days'];
-		} else if ( 3599 < $diff ) { // less than 1 day - show in hours
-			$number = floor( $diff / 60 / 60 );
+		} else if ( HOUR_IN_SECONDS < $diff ) { // less than 1 day - show in hours
+			$number = floor( $diff / HOUR_IN_SECONDS );
 			$label  = ( 1 == $number ) ? $interval_labels['hour'] : $interval_labels['hours'];
-		} else if ( 59 < $diff ) { // less than 1 hour - show in minutes
-			$number = floor( $diff / 60 ) + 1;
+		} else if ( MINUTE_IN_SECONDS ) { // less than 1 hour - show in minutes
+			$number = floor( $diff / MINUTE_IN_SECONDS ) + 1;
 			$label = ( 1 == $number ) ? $interval_labels['minute'] : $interval_labels['minutes'];
 		} else { // less than 1 minute - show in seconds
 			$number = $diff;
