@@ -1417,17 +1417,30 @@ jQuery(document).ready(function($) {
 	// handle lightbox (single image gallery) for images linking to 'Attachment Page'
 	if ( 1 === Number( jetpackCarouselStrings.single_image_gallery ) ) {
 		// process links that have rel=attachment and img tag inside
-		$( 'a[rel*="attachment"] img' ).each(function() {
+		$( 'a img[data-attachment-id]' ).each(function() {
 			var container = $( this ).parent();
-			// if link points to 'Media File' and flag is not set skip it
+			var valid = false;
+
+			// if link points to 'Media File' and flag is set allow it
 			if ( $( container ).attr( 'href' ) === $( this ).attr( 'data-orig-file' ) &&
-				0 === Number( jetpackCarouselStrings.single_image_gallery_media_file )
+				1 === Number( jetpackCarouselStrings.single_image_gallery_media_file )
 			) {
+				valid = true;
+			}
+
+			// if link points to 'Attachment Page' allow it
+			if( $( container ).attr( 'href' ) === $( this ).attr( 'data-permalink' ) ) {
+				valid = true;
+			}
+
+			// links to 'Custom URL' or 'Media File' when flag not set are not valid
+			if( ! valid ) {
 				return;
 			}
+
 			// make this node a gallery recognizable by event listener above
 			$( container ).addClass( 'single-image-gallery') ;
-			// method 'open' needs this attribute to distinguish from defailt WP gallery
+			// method 'open' needs this attribute to distinguish from default WP gallery
 			container.data( 'carousel-extra', { single_image: true } );
 		});
 	}

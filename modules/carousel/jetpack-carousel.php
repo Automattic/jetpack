@@ -421,6 +421,7 @@ class Jetpack_Carousel {
 		$img_meta = json_encode( array_map( 'strval', $img_meta ) );
 
 		$attr['data-attachment-id']     = $attachment_id;
+		$attr['data-permalink']         = esc_attr( get_permalink( $attachment->ID ) );
 		$attr['data-orig-file']         = esc_attr( $orig_file );
 		$attr['data-orig-size']         = $size;
 		$attr['data-comments-opened']   = $comments_opened;
