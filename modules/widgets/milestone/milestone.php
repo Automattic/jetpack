@@ -38,6 +38,7 @@ class Milestone_Widget extends WP_Widget {
 	public static function enqueue_admin( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
 			wp_enqueue_style( 'milestone-admin', plugins_url( 'style-admin.css', __FILE__ ), array(), '20111212' );
+			wp_style_add_data( 'milestone-admin', 'jetpack-inline', true );
 		}
 	}
 
