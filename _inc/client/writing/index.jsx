@@ -153,7 +153,7 @@ export const Writing = React.createClass( {
 									{
 										this.props.isSavingAnyOption() ?
 										__( 'Saving…', { context: 'Button caption' } ) :
-										__( 'Save', { context: 'Button caption' } )
+										__( 'Save settings', { context: 'Button caption' } )
 									}
 								</Button>
 							</SectionHeader>
