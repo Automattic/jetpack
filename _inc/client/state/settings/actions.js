@@ -1,4 +1,10 @@
 /**
+ * External dependencies
+ */
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import { translate as __ } from 'i18n-calypso';
+
+/**
  * Internal dependencies
  */
 import {
@@ -7,8 +13,12 @@ import {
 	JETPACK_SETTINGS_FETCH_FAIL,
 	JETPACK_SETTING_UPDATE,
 	JETPACK_SETTING_UPDATE_SUCCESS,
-	JETPACK_SETTING_UPDATE_FAIL
+	JETPACK_SETTING_UPDATE_FAIL,
+	JETPACK_SETTINGS_UPDATE,
+	JETPACK_SETTINGS_UPDATE_SUCCESS,
+	JETPACK_SETTINGS_UPDATE_FAIL
 } from 'state/action-types';
+import { maybeHideNavMenuItem } from 'state/modules';
 import restApi from 'rest-api';
 
 export const fetchSettings = () => {
@@ -52,4 +62,53 @@ export const updateSetting = ( updatedOption ) => {
 			} );
 		} );
 	}
+};
+
+export const updateSettings = ( newOptionValues ) => {
+	return ( dispatch, getState ) => {
+
+		dispatch( removeNotice( `module-setting-update` ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Updating settings…' ),
+			{ id: `module-setting-update` }
+		) );
+		dispatch( {
+			type: JETPACK_SETTINGS_UPDATE
+		} );
+
+		return restApi.updateSettings( newOptionValues ).then( success => {
+			dispatch( {
+				type: JETPACK_SETTINGS_UPDATE_SUCCESS,
+				updatedOptions: newOptionValues,
+				success: success
+			} );
+			maybeHideNavMenuItem( newOptionValues );
+
+			dispatch( removeNotice( `module-setting-update` ) );
+			dispatch( createNotice(
+				'is-success',
+				__( 'Updated settings.' ),
+				{ id: `module-setting-update` }
+			) );
+		} ).catch( error => {
+			dispatch( {
+				type: JETPACK_SETTINGS_UPDATE_FAIL,
+				success: false,
+				error: error,
+				updatedOptions: newOptionValues
+			} );
+
+			dispatch( removeNotice( `module-setting-update` ) );
+			dispatch( createNotice(
+				'is-error',
+				__( 'Error updating settings. %(error)s', {
+					args: {
+						error: error
+					}
+				} ),
+				{ id: `module-setting-update` }
+			) );
+		} );
+	};
 };

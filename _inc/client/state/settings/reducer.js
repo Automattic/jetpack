@@ -41,7 +41,7 @@ export const items = ( state = {}, action ) => {
 
 export const initialRequestsState = {
 	fetchingSettingsList: false,
-	updatingSetting: {}
+	updatingSetting: false
 };
 
 export const requests = ( state = initialRequestsState, action ) => {

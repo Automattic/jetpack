@@ -10,11 +10,15 @@ import {
 	updateModuleOptions,
 	getModuleOption,
 	getModuleOptionValidValues,
-	isUpdatingModuleOption,
 	regeneratePostByEmailAddress,
 	setUnsavedOptionFlag,
 	clearUnsavedOptionFlag
 } from 'state/modules';
+import {
+	getSetting,
+	updateSettings,
+	isUpdatingSetting
+} from 'state/settings';
 import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getSiteRoles,
@@ -36,8 +40,9 @@ export function connectModuleOptions( Component ) {
 			return {
 				validValues: ( option_name ) => getModuleOptionValidValues( state, ownProps.module.module, option_name ),
 				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
+				getSettingCurrentValue: ( setting_name ) => getSetting( state, setting_name ),
 				getSiteRoles: () => getSiteRoles( state ),
-				isUpdating: ( option_name ) => isUpdatingModuleOption( state, ownProps.module.module, option_name ),
+				isUpdating: () => isUpdatingSetting( state ),
 				adminEmailAddress: getAdminEmailAddress( state ),
 				currentIp: getCurrentIp( state ),
 				siteAdminUrl: getSiteAdminUrl( state ),
@@ -46,7 +51,7 @@ export function connectModuleOptions( Component ) {
 		},
 		( dispatch, ownProps ) => ( {
 			updateOptions: ( newOptions ) => {
-				return dispatch( updateModuleOptions( ownProps.module, newOptions ) );
+				return dispatch( updateSettings( newOptions ) );
 			},
 			regeneratePostByEmailAddress: () => {
 				return dispatch( regeneratePostByEmailAddress() );

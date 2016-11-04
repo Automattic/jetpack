@@ -58,35 +58,13 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * Retrieves an option from an existing module, or from an array of modules
 		 * if the form was initialized with an array
 		 */
-		getOptionValue( optionName ) {
-			let self = this;
-
-			if ( Array.isArray( this.props.module ) ) {
-
-				// If we have an array of modules, find the one with that option
-				return this.props.module.map( function( module ) {
-					return self.getOptionFromModule( optionName, module );
-				} ).reduce( function( item, value ) {
-					if ( 'undefined' !== typeof item ) {
-						return item;
-					}
-					return value;
-				}, undefined );
-
-			} else {
-				return this.getOptionFromModule( optionName, this.props.module );
-			}
-		},
-
-		/**
-		 * Return an option value from a certain module
-		 */
-		getOptionFromModule( optionName, module ) {
-			const currentValue = this.props.getOptionCurrentValue( module.module, optionName );
-			return typeof this.state.options[ optionName ] !== 'undefined'
-				 ? this.state.options[ optionName ]
+		getOptionValue( settingName ) {
+			const currentValue = this.props.getSettingCurrentValue( settingName );
+			return typeof this.state.options[ settingName ] !== 'undefined'
+				 ? this.state.options[ settingName ]
 				 : currentValue;
 		},
+
 		shouldSaveButtonBeDisabled() {
 			let shouldItBeEnabled = false;
 			// Check if the form is not currently dirty
@@ -98,7 +76,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		},
 		isSavingAnyOption() {
 			// Check if any of the updated options is still saving
-			return Object.keys( this.state.options ).some( option_name => this.props.isUpdating( option_name ) );
+			return this.props.isUpdating();
 		},
 		render() {
 			return (
