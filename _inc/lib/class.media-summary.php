@@ -64,14 +64,19 @@ class Jetpack_Media_Summary {
 					case 'videopress':
 					case 'wpvideo':
 						if ( 0 == $return['count']['video'] ) {
+							// If there is no id on the video, then let's just skip this
+							if ( ! isset ( $data['id'][0] ) ) {
+								continue;
+							}
+
 							$guid = $data['id'][0];
 							$video_info = videopress_get_video_details( $guid );
 
 							// Only add the video tags if the guid returns a valid videopress object.
 							if ( $video_info instanceof stdClass ) {
-								// Return early if we can't find a Video slug.
+								// Continue early if we can't find a Video slug.
 								if ( empty( $video_info->files->std->mp4 ) ) {
-									return;
+									continue;
 								}
 
 								$url = sprintf(
