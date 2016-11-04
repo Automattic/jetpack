@@ -65,12 +65,12 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php');
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php'      );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-debugger.php'  );
-	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 }
 
 // Play nice with http://wp-cli.org/
