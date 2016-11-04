@@ -165,9 +165,8 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
  * @since 4.5.0
  */
 function jetpack_blog_stats_widget_init() {
-	if ( ! function_exists( 'stats_get_from_restapi' ) ) {
-		return;
+	if ( function_exists( 'stats_get_from_restapi' ) ) {
+		register_widget( 'Jetpack_Blog_Stats_Widget' );
 	}
-	register_widget( 'Jetpack_Blog_Stats_Widget' );
 }
 add_action( 'widgets_init', 'jetpack_blog_stats_widget_init' );
