@@ -153,7 +153,7 @@ class Widget_Authors extends WP_Widget {
 			<label>
 				<?php _e( 'Number of posts to show for each author:' ); ?>
 				<input style="width: 50px; text-align: center;" name="<?php echo $this->get_field_name( 'number' ); ?>" type="text" value="<?php echo esc_attr( $instance['number'] ); ?>" />
-				<?php _e( '(at most 10)' ); ?>
+				<?php _ex( '(at most 10)', 'Upper limit on qty of articles to display' ); ?>
 			</label>
 		</p>
 		<p>
