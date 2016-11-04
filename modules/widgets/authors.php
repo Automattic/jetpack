@@ -65,8 +65,9 @@ class Widget_Authors extends WP_Widget {
 				'no_found_rows'  => true,
 			) );
 
-			if ( ! $r->have_posts() && ! $instance['all'] )
+			if ( ! $r->have_posts() && ! $instance['all'] ) {
 				continue;
+			}
 
 			echo '<li>';
 
@@ -74,15 +75,17 @@ class Widget_Authors extends WP_Widget {
 			if ( $r->have_posts() ) {
 				echo '<a href="' . get_author_posts_url( $author->ID ) . '">';
 
-				if ( $instance['avatar_size'] > 1 )
+				if ( $instance['avatar_size'] > 1 ) {
 					echo ' ' . get_avatar( $author->ID, $instance['avatar_size'], '', true ) . ' ';
+				}
 
 				echo '<strong>' . esc_html( $author->display_name ) . '</strong>';
 				echo '</a>';
 			}
 			else if ( $instance['all'] ) {
-				if ( $instance['avatar_size'] > 1 )
+				if ( $instance['avatar_size'] > 1 ) {
 					echo get_avatar( $author->ID, $instance['avatar_size'], '', true ) . ' ';
+				}
 
 				echo '<strong>' . esc_html( $author->display_name ) . '</strong>';
 			}
@@ -104,8 +107,9 @@ class Widget_Authors extends WP_Widget {
 
 					if ( get_the_title() )
 						echo get_the_title();
-					else
+					} else {
 						echo get_the_ID();
+					}
 
 					echo '</a></li>';
 				}
