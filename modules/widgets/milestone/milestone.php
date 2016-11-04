@@ -145,8 +145,8 @@ class Milestone_Widget extends WP_Widget {
 	 * is still counting down. In all other cases, this
 	 * function will dequeue milestone.js.
 	 *
-     * Hooks into the "wp_footer" action.
-     */
+	 * Hooks into the "wp_footer" action.
+	 */
 	function localize_script() {
 		if ( empty( self::$config_js['instances'] ) ) {
 			wp_dequeue_script( 'milestone' );
@@ -156,10 +156,10 @@ class Milestone_Widget extends WP_Widget {
 		wp_localize_script( 'milestone', 'MilestoneConfig', self::$config_js );
 	}
 
-    /**
-     * Widget
-     */
-    function widget( $args, $instance ) {
+	/**
+	 * Widget
+	 */
+	function widget( $args, $instance ) {
 		$instance = $this->sanitize_instance( $instance );
 
 		$milestone = mktime( $instance['hour'], $instance['min'], 0, $instance['month'], $instance['day'], $instance['year'] );
@@ -222,17 +222,17 @@ class Milestone_Widget extends WP_Widget {
 		echo '</div><!--milestone-content-->';
 
 		echo $args['after_widget'];
-    }
 		if ( method_exists( 'stats_extra' ) ) {
 			stats_extra( 'widget_view', 'milestone' );
 		}
+	}
 
-    /**
-     * Update
-     */
-    function update( $new_instance, $old_instance ) {
+	/**
+	 * Update
+	 */
+	function update( $new_instance, $old_instance ) {
 		return $this->sanitize_instance( $new_instance );
-    }
+	}
 
 	/*
 	 * Make sure that a number is within a certain range.
@@ -295,23 +295,23 @@ class Milestone_Widget extends WP_Widget {
 		return $clean;
 	}
 
-    /**
-     * Form
-     */
-    function form( $instance ) {
+	/**
+	 * Form
+	 */
+	function form( $instance ) {
 		$instance = $this->sanitize_instance( $instance );
-        ?>
+		?>
 
 	<div class="milestone-widget">
-        <p>
-        	<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title' ); ?></label>
-        	<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
-        </p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+		</p>
 
-        <p>
-        	<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Event' ); ?></label>
-        	<input class="widefat" id="<?php echo $this->get_field_id( 'event' ); ?>" name="<?php echo $this->get_field_name( 'event' ); ?>" type="text" value="<?php echo esc_attr( $instance['event'] ); ?>" />
-        </p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Event' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'event' ); ?>" name="<?php echo $this->get_field_name( 'event' ); ?>" type="text" value="<?php echo esc_attr( $instance['event'] ); ?>" />
+		</p>
 
 		<fieldset>
 			<legend><?php _e( 'Date and Time' ); ?></legend>
@@ -345,7 +345,7 @@ class Milestone_Widget extends WP_Widget {
 	</div>
 
 		<?php
-    }
+	}
 }
 
 add_action( 'widgets_init', 'register_milestone_widget' );
