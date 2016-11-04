@@ -313,13 +313,15 @@ class Milestone_Widget extends WP_Widget {
 			<legend><?php _e( 'Date and Time' ); ?></legend>
 
 			<label for="<?php echo $this->get_field_id( 'month' ); ?>" class="assistive-text"><?php _e( 'Month' ); ?></label>
-			<select id="<?php echo $this->get_field_id( 'month' ); ?>" class="month" name="<?php echo $this->get_field_name( 'month' ); ?>"><?php
+			<select id="<?php echo $this->get_field_id( 'month' ); ?>" class="month" name="<?php echo $this->get_field_name( 'month' ); ?>">
+				<?php
 				global $wp_locale;
 				for ( $i = 1; $i <= 12; $i++ ) {
 					$monthnum = zeroise( $i, 2 );
 					echo '<option value="' . esc_attr( $monthnum ) . '"' . selected( $i, $instance['month'], false ) . '>' . $monthnum . '-' . $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) ) . '</option>';
 				}
-			?></select>
+				?>
+			</select>
 
 			<label for="<?php echo $this->get_field_id( 'day' ); ?>" class="assistive-text"><?php _e( 'Day' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'day' ); ?>" class="day" name="<?php echo $this->get_field_name( 'day' ); ?>" type="text" value="<?php echo esc_attr( $instance['day'] ); ?>">,
