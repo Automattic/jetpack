@@ -61,9 +61,10 @@ class Jetpack_Media_Summary {
 		if ( !empty( $extract['has']['shortcode'] ) ) {
 			foreach ( $extract['shortcode'] as $type => $data ) {
 				switch ( $type ) {
+					case 'videopress':
 					case 'wpvideo':
 						if ( 0 == $return['count']['video'] ) {
-							$guid = $extract['shortcode']['wpvideo']['id'][0];
+							$guid = $data['id'][0];
 							$video_info = videopress_get_video_details( $guid );
 
 							// Only add the video tags if the guid returns a valid videopress object.

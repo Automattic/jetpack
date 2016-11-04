@@ -134,4 +134,13 @@ if ( ! function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) {
 	}
 }
 
+if ( ! function_exists( 'jetpack_shortcode_get_videopress_id' ) ) {
+	function jetpack_shortcode_get_videopress_id( $atts ) {
+		if ( isset( $atts[ 0 ] ) )
+			return $atts[ 0 ];
+		else
+			return 0;
+	}
+}
+
 jetpack_load_shortcodes();
