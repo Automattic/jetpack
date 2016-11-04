@@ -723,6 +723,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function migrate_stats_and_subscribers() {
+		Jetpack_Options::delete_option( 'sync_error_idc' );
 		return self::set_jetpack_option_to_true_and_ensure_rest_response( 'migrate_for_idc' );
 	}
 
