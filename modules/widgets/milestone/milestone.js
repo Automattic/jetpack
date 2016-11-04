@@ -1,3 +1,4 @@
+/* global MilestoneConfig */
 var Milestone = ( function( $ ) {
 	var Milestone = function ( args ) {
 		var labels = MilestoneConfig.labels;
@@ -12,7 +13,7 @@ var Milestone = ( function( $ ) {
 			this.diff = this.diff - 1;
 
 			if ( 2 * MilestoneConfig.YEAR_IN_SECONDS <= this.diff ) { // more than 2 years - show in years, one decimal point
-				num = ( this.diff / MilestoneConfig.YEAR_IN_SECONDS ).toFixed( 1 );
+				var num = ( this.diff / MilestoneConfig.YEAR_IN_SECONDS ).toFixed( 1 );
 				if ( 0 == num.charAt( num.length - 1 ) ) {
 					num = Math.floor( num );
 				}
@@ -60,7 +61,7 @@ var Milestone = ( function( $ ) {
 		return;
 	}
 
-	for ( i = 0; i < MilestoneConfig.instances.length; i++ ) {
+	for ( var i = 0; i < MilestoneConfig.instances.length; i++ ) {
 		MilestoneInstances[ i ] = new Milestone( MilestoneConfig.instances[ i ] );
 	}
 } )();
