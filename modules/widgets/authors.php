@@ -32,7 +32,7 @@ class Widget_Authors extends WP_Widget {
 
 		$cache_bucket = is_ssl() ? 'widget_authors_ssl' : 'widget_authors';
 
-		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
+		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {
 			if ( $output = wp_cache_get( $cache_bucket, 'widget') ) {
 				echo $output;
 				return;
@@ -121,8 +121,9 @@ class Widget_Authors extends WP_Widget {
 
 		wp_reset_postdata();
 
-		if ( '%BEG_OF_TITLE%' != $args['before_title'] )
+		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {
 			wp_cache_add( $cache_bucket, ob_get_flush(), 'widget');
+		}
 
 		stats_extra( 'widget_view', 'authors' );
 	}
