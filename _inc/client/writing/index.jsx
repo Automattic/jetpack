@@ -156,7 +156,8 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			userCanManageModules: _userCanManageModules( state ),
-			moduleList: getModules( state )
+			moduleList: getModules( state ),
+			sitePlan: getSitePlan( state )
 		};
 	},
 	( dispatch ) => {
