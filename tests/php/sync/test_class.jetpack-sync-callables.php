@@ -359,6 +359,23 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
+	function test_get_protocol_normalized_url_cleared_on_reset_data() {
+		Jetpack_Sync_Functions::get_protocol_normalized_url( 'home_url', get_home_url() );
+		Jetpack_Sync_Functions::get_protocol_normalized_url( 'site_url', get_site_url() );
+		Jetpack_Sync_Functions::get_protocol_normalized_url( 'main_network_site_url', network_site_url() );
+
+		$url_callables = array( 'home_url', 'site_url', 'main_network_site_url' );
+		foreach( $url_callables as $callable ) {
+			$this->assertInternalType( 'array', get_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable) );
+		}
+
+		Jetpack_Sync_Sender::get_instance()->uninstall();
+
+		foreach( $url_callables as $callable ) {
+			$this->assertFalse( get_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
+		}
+	}
+
 	function test_subdomain_switching_to_www_does_not_cause_sync() {
 		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of 
 		// switching back and forth, so we force the domain to be the one in the siteurl option
