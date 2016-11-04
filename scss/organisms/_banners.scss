@@ -1,3 +1,6 @@
+@import '_inc/client/scss/functions/rem';
+@import '_inc/client/scss/variables/colors';
+
 .updated { // utlizes some core styles, overrides some others
 	&.jp-banner {
 		position: relative;
@@ -5,13 +8,13 @@
 	}
 
 	.jp-banner__header {
-		font-size: 18px;
+		font-size: rem( 18px ) ;
 		font-weight: 400;
 		margin-top: 0;
 	}
 
 	.jp-banner__button-container {
-		padding: 12px 0 0;
+		padding: rem( 12px ) 0 0;
 	}
 }
 
@@ -20,11 +23,11 @@
 }
 
 .jp-banner__description {
-	font-size: 14px;
+	font-size: rem( 14px );
 }
 
 .jp-banner__description-container {
-	padding: 16px;
+	padding: rem( 16px );
 }
 
 // Plugin List Connection Banners
@@ -40,6 +43,17 @@
 .updated .notice-dismiss {
 	text-decoration: none;
 }
+
+.jp-wpcom-connect__container .button {
+	height: auto;
+	padding: rem( 8px ) rem( 16px );
+	font-size: rem( 14px);
+
+	&.button-primary {
+		background: $blue-medium;
+	}
+}
+
 // end overrides
 
 .jp-wpcom-connect__container {
@@ -56,12 +70,12 @@
 }
 
 .jp-wpcom-connect__content-container {
-	padding: 32px;
+	padding: rem( 32px );
 }
 
 .jp-wpcom-connect__content-container p {
-	color: #4F748E;
-	font-size: 14px;
+	color: darken( $gray, 20% );
+	font-size: rem( 14px );
 }
 
 .jp-wpcom-connect__content-container h2 {
@@ -81,7 +95,7 @@
 }
 
 .jp-wpcom-connect__vertical-nav-container {
-	width: 240px;
+	width: rem( 240px );
 }
 
 .vertical-menu__feature-item-label {
@@ -95,7 +109,7 @@
 		flex-direction: row;
 		align-items: center;
 		border: none;
-		padding: 8px;
+		padding: rem( 8px );
 		border-bottom: 1px solid #c8d7e1;
 		border-right: 1px solid #c8d7e1;
 		border-left: 3px solid #F3F6F8;
@@ -119,9 +133,9 @@
 	}
 
 	.vertical-menu__feature-item-icon {
-		width: 20px;
-		height: 20px;
-		padding: 4px;
+		width: rem( 20px );
+		height: rem( 20px );
+		padding: rem( 4px );
 	}
 
 	// svg fill swaps
@@ -147,6 +161,6 @@
 
 	.vertical-menu__feature-item-label {
 		display: block;
-		padding: 8px;
+		padding: rem( 8px );
 	}
 };
