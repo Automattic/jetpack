@@ -285,7 +285,8 @@ frontendcss = [
 	'modules/widgets/social-media-icons/style.css',
 	'modules/widgets/top-posts/style.css',
 	'modules/widgets/my-community/style.css',
-	'modules/widgets/widgets.css' // TODO Moved to image-widget/style.css
+	'modules/widgets/widgets.css', // TODO Moved to image-widget/style.css
+	'css/jetpack-idc-admin-bar.css'
 ];
 
 gulp.task( 'old-styles:watch', function() {

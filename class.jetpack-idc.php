@@ -19,6 +19,12 @@ class Jetpack_IDC {
 	static $wpcom_home_url;
 
 	/**
+	 * Has safe mode been confirmed?
+	 * @var bool
+	 */
+	static $is_safe_mode_confirmed;
+
+	/**
 	 * The link to the support document used to explain Safe Mode to users
 	 * @var string
 	 */
@@ -36,25 +42,58 @@ class Jetpack_IDC {
 		if ( false === $urls_in_crisis = Jetpack::check_identity_crisis() ) {
 			return;
 		}
+
 		self::$wpcom_home_url = $urls_in_crisis['wpcom_home'];
 		add_action( 'init', array( $this, 'wordpress_init' ) );
 	}
 
 	function wordpress_init() {
-		if ( ! $this->should_show_idc_notice() ) {
+		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
 			return;
 		}
-		add_action( 'admin_notices', array( $this, 'display_idc_notice' ) );
-		add_action( 'admin_enqueue_scripts', array( $this,'enqueue_idc_notice_files' ) );
+
+		if (
+			isset( $_GET['jetpack_idc_clear_confirmation'], $_GET['_wpnonce'] ) &&
+			wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' )
+		) {
+			Jetpack_Options::delete_option( 'safe_mode_confirmed' );
+			self::$is_safe_mode_confirmed = false;
+		} else {
+			self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
+		}
+
+		add_action( 'admin_bar_menu', array( $this, 'display_admin_bar_button' ), 121 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_bar_css' ) );
+
+		if ( is_admin() && ! self::$is_safe_mode_confirmed ) {
+			add_action( 'admin_notices', array( $this, 'display_idc_notice' ) );
+			add_action( 'admin_enqueue_scripts', array( $this,'enqueue_idc_notice_files' ) );
+		}
 	}
 
-	function should_show_idc_notice() {
-		return (
-			current_user_can( 'jetpack_disconnect' )
-			&& Jetpack::is_active()
-			&& ! Jetpack::is_development_mode()
-			&& ! Jetpack_Options::get_option( 'safe_mode_confirmed', false )
+	function display_admin_bar_button() {
+		global $wp_admin_bar;
+
+		$href = is_admin()
+			? add_query_arg( 'jetpack_idc_clear_confirmation', '1' )
+			: add_query_arg( 'jetpack_idc_clear_confirmation', '1', admin_url() );
+
+		$href = wp_nonce_url( $href, 'jetpack_idc_clear_confirmation' );
+
+		$menu = array(
+			'id'     => 'jetpack-idc',
+			'title'  => esc_html__( 'Jetpack Safe Mode', 'jetpack' ),
+			'href'   => esc_url( $href ),
+			'parent' => 'top-secondary',
 		);
+
+		if ( ! self::$is_safe_mode_confirmed ) {
+			$menu['meta'] = array(
+				'class' => 'hide'
+			);
+		}
+
+		$wp_admin_bar->add_node( $menu );
 	}
 
 	/**
@@ -78,6 +117,15 @@ class Jetpack_IDC {
 		</div>
 	<?php }
 
+	function enqueue_admin_bar_css() {
+		wp_enqueue_style(
+			'jetpack-idc-admin-bar-css',
+			plugins_url( 'css/jetpack-idc-admin-bar.css', JETPACK__PLUGIN_FILE ),
+			array(),
+			JETPACK__VERSION
+		);
+	}
+
 	/**
 	 * Enqueue scripts for the notice
 	 */
@@ -98,6 +146,7 @@ class Jetpack_IDC {
 				'apiRoot' => esc_url_raw( rest_url() ),
 				'nonce' => wp_create_nonce( 'wp_rest' ),
 				'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				'currentUrl' => remove_query_arg( '_wpnonce', remove_query_arg( 'jetpack_idc_clear_confirmation' ) ),
 			)
 		);
 

@@ -1,18 +1,22 @@
-/* global idcL10n, jQuery, analytics */
+/* global idcL10n, jQuery, analytics, history */
 
 ( function( $ ) {
 	var restNonce = idcL10n.nonce,
+		currentUrl = idcL10n.currentUrl,
 		restRoot = idcL10n.apiRoot,
 		notice = $( '.jp-idc-notice' ),
 		idcButtons = $( '.jp-idc-notice .dops-button' ),
-		tracksUser = idcL10n.tracksUserData;
+		tracksUser = idcL10n.tracksUserData,
+		adminBarMenu = $( '#wp-admin-bar-jetpack-idc' ),
+		confirmSafeModeButton = $( '#jp-idc-confirm-safe-mode-action' );
 
 	// Initialize Tracks and bump stats.
 	analytics.initialize( tracksUser.userid, tracksUser.username );
 	trackAndBumpMCStats( 'notice_view' );
+	clearConfirmationArgsFromUrl();
 
 	// Confirm Safe Mode
-	$( '#jp-idc-confirm-safe-mode-action' ).click( function() {
+	confirmSafeModeButton.click( function() {
 		trackAndBumpMCStats( 'confirm_safe_mode' );
 		confirmSafeMode();
 	} );
@@ -31,6 +35,25 @@
 		idcButtons.prop( 'disabled', false );
 	}
 
+	function clearConfirmationArgsFromUrl( allowReload ) {
+		allowReload = 'undefined' === typeof allowReload ? false : allowReload;
+
+		// If the jetpack_idc_clear_confirmation query arg is present, let's try to clear it.
+		//
+		// Otherwise, there's a weird flow where if the user dismisses the notice, then shows the notice, then clicks
+		// the confirm safe mode button again, and then reloads the page, then the notice never disappears.
+		if ( window.location.search && -1 !== window.location.search.indexOf( 'jetpack_idc_clear_confirmation' ) ) {
+
+			// If push state is available, let's use that to minimize reloading the page.
+			// Otherwise, we can clear the args by reloading the page.
+			if ( history && history.pushState ) {
+				history.pushState( {}, '', currentUrl );
+			} else if ( allowReload ) {
+				window.location.href = currentUrl;
+			}
+		}
+	}
+
 	function confirmSafeMode() {
 		var route = restRoot + 'jetpack/v4/identity-crisis/confirm-safe-mode';
 		disableDopsButtons();
@@ -41,8 +64,9 @@
 			},
 			url: route,
 			data: {},
-			success: function(){
+			success: function() {
 				$( '.jp-idc-notice' ).hide();
+				adminBarMenu.removeClass( 'hide' );
 			},
 			error: function() {
 				enableDopsButtons();
