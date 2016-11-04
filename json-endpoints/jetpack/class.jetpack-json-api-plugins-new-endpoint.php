@@ -8,21 +8,31 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 	// POST /sites/%s/plugins/new
 	protected $needed_capabilities = 'install_plugins';
 	protected $action              = 'install';
-	
+
+	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
+		$validate = parent::validate_call( $_blog_id, $capability, $check_manage_active );
+		if ( is_wp_error( $validate ) ) {
+			
+			// Lets delete the attachment... if the user doesn't have the right permissions to do things.
+			$args = $this->input();
+			if ( isset( $args['zip'][0]['id'] ) ) {
+				wp_delete_attachment( $args['zip'][0]['id'], true );
+			}
+		}
+		return $validate;
+	}
 	// no need to try to validate the plugin since we didn't pass one in.
 	protected function validate_input( $plugin ) {
 		$this->bulk = false;
 		$this->plugins = array();
-
 	}
 
 	function install() {
 		$args = $this->input();
 
-		$plugin_attachment = $args['zip'][0];
-		if ( isset( $plugin_attachment['id'] ) ) {
-
-			$local_file = get_attached_file( $plugin_attachment['id'] );
+		if ( isset(  $args['zip'][0]['id'] ) ) {
+			$plugin_attachment_id = $args['zip'][0]['id'];
+			$local_file = get_attached_file( $plugin_attachment_id );
 			if ( ! $local_file ) {
 				return new WP_Error( 'local-file-does-not-exist' );
 			}
@@ -32,8 +42,9 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 			$pre_install_plugin_list = get_plugins();
 			$result = $upgrader->install( $local_file );
 
-			// delete the
-			wp_delete_attachment( $plugin_attachment['id'], true );
+			// clean up.
+			wp_delete_attachment( $plugin_attachment_id, true );
+
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
