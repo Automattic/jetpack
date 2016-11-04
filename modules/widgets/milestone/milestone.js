@@ -2,10 +2,10 @@ var Milestone = ( function( $ ) {
 	var Milestone = function ( args ) {
 		var labels = MilestoneConfig.labels;
 
-		this.id = args.id;
-		this.diff = args.diff;
-		this.message = args.message;
-		this.widget = $( '#' + this.id );
+		this.id            = args.id;
+		this.diff          = args.diff;
+		this.message       = args.message;
+		this.widget        = $( '#' + this.id );
 		this.widgetContent = this.widget.find( '.milestone-content' );
 
 		this.timer = function() {
