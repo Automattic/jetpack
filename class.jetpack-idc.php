@@ -62,6 +62,7 @@ class Jetpack_IDC {
 			self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
 		}
 
+		// 121 Priority so that it's the most inner Jetpack item in the admin bar.
 		add_action( 'admin_bar_menu', array( $this, 'display_admin_bar_button' ), 121 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_bar_css' ) );
 
