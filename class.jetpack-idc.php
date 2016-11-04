@@ -278,6 +278,13 @@ class Jetpack_IDC {
 			array( 'a' => array( 'href' => array() ) )
 		);
 
+		/**
+		 * Allows overriding of the default header text in the first step of the Safe Mode notice.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $html The HTML to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_first_step_header_lead', $html );
 	}
 
@@ -294,6 +301,13 @@ class Jetpack_IDC {
 			array( 'a' => array( 'href' => array() ) )
 		);
 
+		/**
+		 * Allows overriding of the default header explanation text in the first step of the Safe Mode notice.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $html The HTML to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_first_step_header_explanation', $html );
 	}
 
@@ -311,11 +325,26 @@ class Jetpack_IDC {
 			array( 'a' => array( 'href' => array() ) )
 		);
 
+		/**
+		 * Allows overriding of the default text used to explain the confirm safe mode action.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $html The HTML to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_confirm_safe_mode_explanation', $html );
 	}
 
 	function get_confirm_safe_mode_button_text() {
 		$string =  esc_html__( 'Confirm Safe Mode', 'jetpack' );
+
+		/**
+		 * Allows overriding of the default text used for the confirm safe mode action button.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $string The string to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_confirm_safe_mode_button_text', $string );
 	}
 
@@ -333,11 +362,26 @@ class Jetpack_IDC {
 			array( 'a' => array( 'href' => array() ) )
 		);
 
+		/**
+		 * Allows overriding of the default text used to explain the fix Jetpack connection action.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $html The HTML to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_first_fix_connection_explanation', $html );
 	}
 
 	function get_first_step_fix_connection_button_text() {
 		$string = esc_html__( "Fix Jetpack's Connection", 'jetpack' );
+
+		/**
+		 * Allows overriding of the default text used for the fix Jetpack connection action button.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $string The string to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_first_step_fix_connection_button_text', $string );
 	}
 
@@ -351,6 +395,13 @@ class Jetpack_IDC {
 			untrailingslashit( Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
 		);
 
+		/**
+		 * Allows overriding of the default header text in the second step of the Safe Mode notice.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $html The HTML to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_second_step_header_lead', $string );
 	}
 
@@ -370,11 +421,26 @@ class Jetpack_IDC {
 			array( 'a' => array( 'href' => array() ) )
 		);
 
+		/**
+		 * Allows overriding of the default text for explaining the migrate site action.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $html The HTML to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_migrate_site_explanation', $html );
 	}
 
 	function get_migrate_site_button_text() {
 		$string = esc_html__( 'Migrate stats &amp; and Subscribers', 'jetpack' );
+
+		/**
+		 * Allows overriding of the default text used for the migrate site action button.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $string The string to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_migrate_site_button_text', $string );
 	}
 
@@ -394,11 +460,26 @@ class Jetpack_IDC {
 			array( 'a' => array( 'href' => array() ) )
 		);
 
+		/**
+		 * Allows overriding of the default text for explaining the start fresh action.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $html The HTML to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_start_fresh_explanation', $html );
 	}
 
 	function get_start_fresh_button_text() {
 		$string = esc_html__( 'Start fresh &amp; create new connection', 'jetpack' );
+
+		/**
+		 * Allows overriding of the default text used for the start fresh action button.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $string The string to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_start_fresh_button_text', $string );
 	}
 
@@ -414,6 +495,13 @@ class Jetpack_IDC {
 			array( 'a' => array( 'href' => array() ) )
 		);
 
+		/**
+		 * Allows overriding of the default text using in the "Unsure what to do?" prompt.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $html The HTML to be displayed
+		 */
 		return apply_filters( 'jetpack_idc_unsure_prompt', $html );
 	}
 }
