@@ -43,6 +43,7 @@
 		// Otherwise, there's a weird flow where if the user dismisses the notice, then shows the notice, then clicks
 		// the confirm safe mode button again, and then reloads the page, then the notice never disappears.
 		if ( window.location.search && -1 !== window.location.search.indexOf( 'jetpack_idc_clear_confirmation' ) ) {
+			trackAndBumpMCStats( 'clear_confirmation_clicked' );
 
 			// If push state is available, let's use that to minimize reloading the page.
 			// Otherwise, we can clear the args by reloading the page.
