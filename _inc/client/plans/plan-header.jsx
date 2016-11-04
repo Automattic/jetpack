@@ -34,7 +34,7 @@ const PlanHeader = React.createClass( {
 								</p>
 								<p className="jp-landing-plans__header-btn-container">
 									<Button href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } className="is-primary">
-										{ __( 'More detail...' ) }
+										{ __( 'Learn more...' ) }
 									</Button>
 								</p>
 							</div>
@@ -84,7 +84,7 @@ const PlanHeader = React.createClass( {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Premium plan' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'With this plan you are provided with spam-protection, daily backups (up to 30 days), unlimited storage, security scanning, and priority support.' ) }</p>
+							<p className="jp-landing__plan-features-text">{ __( 'With this plan you are provided with spam-protection, daily backups (up to 30 days), unlimited backup storage, security scanning, 13Gb of ad-free video hosting, and priority support.' ) }</p>
 						</div>
 					</div>
 				);
@@ -98,8 +98,8 @@ const PlanHeader = React.createClass( {
 							<img src={ imagePath + '/plans/plan-jetpack-pro.svg' } className="jp-landing__plan-icon" />
 						</div>
 						<div className="jp-landing__plan-card-current">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Professional plan' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'With this plan you are provided with spam-protection, real-time backups (unlimited archive), unlimited storage, security scanning, PollDaddy, and priority support.' ) }</p>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Youxxxr site is on the Jetpack Professional plan' ) }</h3>
+							<p className="jp-landing__plan-features-text">{ __( 'You get spam-protection, real-time backups (unlimited archive), unlimited backup storage, security scanning, unlimited ad-free video hosting, PollDaddy, and priority support.' ) }</p>
 						</div>
 					</div>
 				);

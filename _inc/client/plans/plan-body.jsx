@@ -100,7 +100,7 @@ const PlanBody = React.createClass( {
 						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Backups & Security Scanning' ) }</h3>
-								<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, one-click threat resolution, and priority support (powered by VaultPress). Also includes surveys, polls and ratings.' ) }</p>
+								<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, one-click threat resolution, and priority support (powered by VaultPress).' ) }</p>
 								{
 									this.props.isFetchingPluginsData ? '' :
 									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
@@ -120,7 +120,30 @@ const PlanBody = React.createClass( {
 					}
 
 					{
-						includes( [ 'jetpack_premium', 'jetpack_premium_monthly', 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
+						includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
+							<div className="jp-landing__plan-features-card">
+								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
+								<p>{ __( '13Gb of fast, optimised, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
+								{
+									this.props.isFetchingPluginsData ? '' :
+									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
+									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+										<Button href="https://vaultpress.com/" className="is-primary">
+											{ __( 'TO DO: Text and link if unconfigured' ) }
+										</Button>
+									)
+									: (
+										<Button href={ 'https://videopress.com' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+											{ __( 'TO DO: Text and link if configured' ) }
+										</Button>
+									)
+								}
+							</div>
+						: ''
+					}
+
+					{
+						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
 								<p>{ __( 'Fast, optimised, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
@@ -134,7 +157,7 @@ const PlanBody = React.createClass( {
 									)
 									: (
 										<Button href={ 'https://videopress.com' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'TO DO: Text and link if unconfigured' ) }
+											{ __( 'TO DO: Text and link if configured' ) }
 										</Button>
 									)
 								}
@@ -162,7 +185,6 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'Daily and on-demand security scanning' ) }</p>
 								<p> &mdash; { __( 'Real-time backups and one-click threat resolution' ) }</p>
 								<p> &mdash; { __( 'Unlimited and ad-free video hosting' ) }</p>
-								<p> &mdash; { __( 'Advertising revenue with WordAds' ) }</p>
 								<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
 								<p>
 									<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
@@ -200,7 +222,7 @@ const PlanBody = React.createClass( {
 					<div className="jp-landing__plan-features">
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Maximum grade security' ) }</h3>
-							<p>{ __( 'Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense and brute-force login protection - all in one place and optimized for WordPress.' ) }</p>
+							<p>{ __( 'Real-time backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense and brute-force login protection - all in one place and optimized for WordPress.' ) }</p>
 						</div>
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Lock out the bad guys' ) }</h3>
