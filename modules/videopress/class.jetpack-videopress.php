@@ -39,11 +39,6 @@ class Jetpack_VideoPress {
 	 * Fires on init since is_connection_owner should wait until the user is initialized by $wp->init();
 	 */
 	public function on_init() {
-		// Only the connection owner can configure this module.
-		if ( $this->is_connection_owner() ) {
-			Jetpack::enable_module_configurable( $this->module );
-		}
-
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
 
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
