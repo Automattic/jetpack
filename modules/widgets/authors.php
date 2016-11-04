@@ -12,8 +12,8 @@ class Widget_Authors extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'authors',
-			__( 'Authors' ),
-			array( 'classname' => 'widget_authors', 'description' => __( 'Display blogs authors with avatars and recent posts.' ) ),
+			__( 'Authors', 'jetpack' ),
+			array( 'classname' => 'widget_authors', 'description' => __( 'Display blogs authors with avatars and recent posts.', 'jetpack' ) ),
 			array( 'width' => 300 )
 		);
 
@@ -41,7 +41,7 @@ class Widget_Authors extends WP_Widget {
 			ob_start();
 		}
 
-		$instance = wp_parse_args( $instance, array( 'title' => __( 'Authors' ), 'all' => false, 'number' => 5, 'avatar_size' => 48 ) );
+		$instance = wp_parse_args( $instance, array( 'title' => __( 'Authors', 'jetpack' ), 'all' => false, 'number' => 5, 'avatar_size' => 48 ) );
 		$instance['number'] = min( 10, max( 0, (int) $instance['number'] ) );
 
 		// We need to query at least one post to determine whether an author has written any posts or not
@@ -139,28 +139,28 @@ class Widget_Authors extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php _e( 'Title:' ); ?>
+				<?php _e( 'Title:', 'jetpack' ); ?>
 				<input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
 				<input class="checkbox" type="checkbox" <?php checked( $instance['all'] ); ?> name="<?php echo $this->get_field_name( 'all' ); ?>" />
-				<?php _e( 'Display all authors (including those who have not written any posts)' ); ?>
+				<?php _e( 'Display all authors (including those who have not written any posts)', 'jetpack' ); ?>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php _e( 'Number of posts to show for each author:' ); ?>
+				<?php _e( 'Number of posts to show for each author:', 'jetpack' ); ?>
 				<input style="width: 50px; text-align: center;" name="<?php echo $this->get_field_name( 'number' ); ?>" type="text" value="<?php echo esc_attr( $instance['number'] ); ?>" />
-				<?php _ex( '(at most 10)', 'Upper limit on qty of articles to display' ); ?>
+				<?php _ex( '(at most 10)', 'Upper limit on qty of articles to display', 'jetpack' ); ?>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php _e( 'Avatar Size (px):' ); ?>
+				<?php _e( 'Avatar Size (px):', 'jetpack' ); ?>
 				<select name="<?php echo $this->get_field_name( 'avatar_size' ); ?>">
-					<?php foreach( array( '1' => __( 'No Avatars' ), '16' => '16x16', '32' => '32x32', '48' => '48x48', '96' => '96x96', '128' => '128x128' ) as $value => $label ) { ?>
+					<?php foreach( array( '1' => __( 'No Avatars', 'jetpack' ), '16' => '16x16', '32' => '32x32', '48' => '48x48', '96' => '96x96', '128' => '128x128' ) as $value => $label ) { ?>
 						<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $instance['avatar_size'] ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php } ?>
 				</select>

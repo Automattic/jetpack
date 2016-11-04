@@ -16,14 +16,14 @@ class Milestone_Widget extends WP_Widget {
 	function __construct() {
 		$widget = array(
 			'classname'   => 'milestone-widget',
-			'description' => __( 'Display a countdown to a certain date.' )
+			'description' => __( 'Display a countdown to a certain date.', 'jetpack' )
 		);
 
 		$control = array(
 			'width' => 251, // Chrome needs a little extra room for the date fields.
 		);
 
-		parent::__construct( 'Milestone_Widget', __( 'Milestone' ), $widget, $control );
+		parent::__construct( 'Milestone_Widget', __( 'Milestone', 'jetpack' ), $widget, $control );
 
 		self::$dir = trailingslashit( __DIR__ );
 
@@ -173,7 +173,7 @@ class Milestone_Widget extends WP_Widget {
 
 		echo '<div class="milestone-header">';
 		echo '<strong class="event">' . esc_html( $instance['event'] ) . '</strong>';
-		echo '<span class="date">' . esc_html( date_i18n( __( 'F jS, Y' ), $milestone ) ) . '</span>';
+		echo '<span class="date">' . esc_html( date_i18n( __( 'F jS, Y', 'jetpack' ), $milestone ) ) . '</span>';
 		echo '</div>';
 
 		if ( 1 > $diff ) {
@@ -181,7 +181,7 @@ class Milestone_Widget extends WP_Widget {
 			echo '<div class="milestone-message">' . $instance['message'] . '</div>';
 		} else {
 			/* Countdown to the milestone. */
-			echo '<div class="milestone-countdown">' . sprintf( __( '%1$s %2$s to go.' ),
+			echo '<div class="milestone-countdown">' . sprintf( __( '%1$s %2$s to go.', 'jetpack' ),
 				'<span class="difference">' . esc_html( $number ) . '</span>',
 				'<span class="label">' . esc_html( $label ) . '</span>'
 			) . '</div>';
@@ -240,8 +240,8 @@ class Milestone_Widget extends WP_Widget {
 
 		$dirty = wp_parse_args( $dirty, array(
 			'title'   => '',
-			'event'   => __( 'The Big Day' ),
-			'message' => __( 'The big day is here.' ),
+			'event'   => __( 'The Big Day', 'jetpack' ),
+			'message' => __( 'The big day is here.', 'jetpack' ),
 			'day'     => date( 'd', $now ),
 			'month'   => date( 'm', $now ),
 			'year'    => date( 'Y', $now ),
@@ -279,19 +279,19 @@ class Milestone_Widget extends WP_Widget {
 
 	<div class="milestone-widget">
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Event' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Event', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'event' ); ?>" name="<?php echo $this->get_field_name( 'event' ); ?>" type="text" value="<?php echo esc_attr( $instance['event'] ); ?>" />
 		</p>
 
 		<fieldset>
-			<legend><?php _e( 'Date and Time' ); ?></legend>
+			<legend><?php _e( 'Date and Time', 'jetpack' ); ?></legend>
 
-			<label for="<?php echo $this->get_field_id( 'month' ); ?>" class="screen-reader-text"><?php _e( 'Month' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'month' ); ?>" class="screen-reader-text"><?php _e( 'Month', 'jetpack' ); ?></label>
 			<select id="<?php echo $this->get_field_id( 'month' ); ?>" class="month" name="<?php echo $this->get_field_name( 'month' ); ?>">
 				<?php
 				global $wp_locale;
@@ -302,21 +302,21 @@ class Milestone_Widget extends WP_Widget {
 				?>
 			</select>
 
-			<label for="<?php echo $this->get_field_id( 'day' ); ?>" class="screen-reader-text"><?php _e( 'Day' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'day' ); ?>" class="screen-reader-text"><?php _e( 'Day', 'jetpack' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'day' ); ?>" class="day" name="<?php echo $this->get_field_name( 'day' ); ?>" type="text" value="<?php echo esc_attr( $instance['day'] ); ?>">,
 
-			<label for="<?php echo $this->get_field_id( 'year' ); ?>" class="screen-reader-text"><?php _e( 'Year' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'year' ); ?>" class="screen-reader-text"><?php _e( 'Year', 'jetpack' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'year' ); ?>" class="year" name="<?php echo $this->get_field_name( 'year' ); ?>" type="text" value="<?php echo esc_attr( $instance['year'] ); ?>">
 
-			@ <label for="<?php echo $this->get_field_id( 'hour' ); ?>" class="screen-reader-text"><?php _e( 'Hour' ); ?></label>
+			@ <label for="<?php echo $this->get_field_id( 'hour' ); ?>" class="screen-reader-text"><?php _e( 'Hour', 'jetpack' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'hour' ); ?>" class="hour" name="<?php echo $this->get_field_name( 'hour' ); ?>" type="text" value="<?php echo esc_attr( $instance['hour'] ); ?>">
 
-			<label for="<?php echo $this->get_field_id( 'min' ); ?>" class="screen-reader-text"><?php _e( 'Minutes' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'min' ); ?>" class="screen-reader-text"><?php _e( 'Minutes', 'jetpack' ); ?></label>
 			: <input id="<?php echo $this->get_field_id( 'min' ); ?>" class="minutes" name="<?php echo $this->get_field_name( 'min' ); ?>" type="text" value="<?php echo esc_attr( $instance['min'] ); ?>">
 		</fieldset>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'message' ); ?>"><?php _e( 'Message' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'message' ); ?>"><?php _e( 'Message', 'jetpack' ); ?></label>
 			<textarea id="<?php echo $this->get_field_id( 'message' ); ?>" name="<?php echo $this->get_field_name( 'message' ); ?>" class="widefat"><?php echo esc_textarea( $instance['message'] ); ?></textarea>
 		</p>
 	</div>
@@ -336,18 +336,18 @@ class Milestone_Widget extends WP_Widget {
 		// Static variables can't be initialized to arrays on declaration, so we do it here:
 		if ( is_null( $labels ) ) {
 			$labels = array(
-				'year'    => __( 'year' ),
-				'years'   => __( 'years' ),
-				'month'   => __( 'month' ),
-				'months'  => __( 'months' ),
-				'day'     => __( 'day' ),
-				'days'    => __( 'days' ),
-				'hour'    => __( 'hour' ),
-				'hours'   => __( 'hours' ),
-				'minute'  => __( 'minute' ),
-				'minutes' => __( 'minutes' ),
-				'second'  => __( 'second' ),
-				'seconds' => __( 'seconds' ),
+				'year'    => __( 'year', 'jetpack' ),
+				'years'   => __( 'years', 'jetpack' ),
+				'month'   => __( 'month', 'jetpack' ),
+				'months'  => __( 'months', 'jetpack' ),
+				'day'     => __( 'day', 'jetpack' ),
+				'days'    => __( 'days', 'jetpack' ),
+				'hour'    => __( 'hour', 'jetpack' ),
+				'hours'   => __( 'hours', 'jetpack' ),
+				'minute'  => __( 'minute', 'jetpack' ),
+				'minutes' => __( 'minutes', 'jetpack' ),
+				'second'  => __( 'second', 'jetpack' ),
+				'seconds' => __( 'seconds', 'jetpack' ),
 			);
 		}
 
