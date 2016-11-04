@@ -266,6 +266,28 @@ new Jetpack_JSON_API_Plugins_Get_Endpoint( array(
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-endpoint.php' );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-new-endpoint.php' );
+// POST /sites/%s/plugins/new
+new Jetpack_JSON_API_Plugins_New_Endpoint( array(
+	'description'     => 'Install a plugin to a Jetpack site by uploading a zip file',
+	'group'           => '__do_not_document',
+	'stat'            => 'plugins:new',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/plugins/new',
+	'path_labels' => array(
+		'$site'   => '(int|string) Site ID or domain',
+	),
+	'request_format' => array(
+		'zip'       => '(zip) Plugin package zip file. multipart/form-data encoded. ',
+	),
+	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/new'
+) );
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'description'     => 'Activate/Deactivate a Plugin on your Jetpack Site, or set automatic updates',
@@ -351,28 +373,7 @@ new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/akismet/install'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugin-new-endpoint.php' );
-// POST /sites/%s/plugin/new 
-new Jetpack_JSON_API_Plugin_New_Endpoint( array(
-	'description'     => 'Install a plugin to a Jetpack site by uploading a zip file',
-	'group'           => '__do_not_document',
-	'stat'            => 'plugin:1:new',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/plugin/new',
-	'path_labels' => array(
-		'$site'   => '(int|string) Site ID or domain',
-	),
-	'request_format' => array(
-		'zip'       => '(zip) Plugin package zip file. multipart/form-data encoded. ',
-	),
-	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugin/new'
-) );
+
 
 
 

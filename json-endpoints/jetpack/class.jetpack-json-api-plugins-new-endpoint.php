@@ -3,9 +3,9 @@
 include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 include_once ABSPATH . 'wp-admin/includes/file.php';
 
-class Jetpack_JSON_API_Plugin_New_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
+class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
-	// POST /sites/%s/plugin/new
+	// POST /sites/%s/plugins/new
 	protected $needed_capabilities = 'install_plugins';
 	protected $action              = 'install';
 	
@@ -41,22 +41,22 @@ class Jetpack_JSON_API_Plugin_New_Endpoint extends Jetpack_JSON_API_Plugins_Endp
 			$after_install_plugin_list = get_plugins();
 			$plugin = array_values( array_diff( array_keys( $after_install_plugin_list ), array_keys( $pre_install_plugin_list ) ) );
 
-			if ( empty( $plugin ) ) {
-				return new WP_Error( 'plugin_already_installed' );
-			}
-
 			if ( ! $result ) {
 				$error_code = $upgrader->skin->get_main_error_code();
-				$message = $upgrader->skin->get_main_error_message();
-				$error = $message ? $message : __( 'An unknown error occurred during installation' , 'jetpack' );
-			}
+				$message = $upgrader->skin->get_main_error_message() ;
+				if ( empty( $message ) ) {
+					$message = __( 'An unknown error occurred during installation' , 'jetpack' );
+				}
 
-			if ( isset( $error ) ) {
 				if ( 'download_failed' === $error_code ) {
 					$error_code = 'no_package';
 				}
 
-				return new WP_Error( $error_code, error, 400 );
+				return new WP_Error( $error_code, $message, 400 );
+			}
+
+			if ( empty( $plugin ) ) {
+				return new WP_Error( 'plugin_already_installed' );
 			}
 
 			$this->plugins = $plugin;
