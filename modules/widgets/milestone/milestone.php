@@ -47,9 +47,9 @@ class Milestone_Widget extends WP_Widget {
 	public static function styles_template() {
 		global $themecolors;
 		$colors = wp_parse_args( $themecolors, array(
-			'bg'     => 'ffffff',
-			'border' => 'cccccc',
-			'text'   => '333333',
+			'bg'     => 'fff',
+			'border' => 'ccc',
+			'text'   => '333',
 		) );
 ?>
 <style>
