@@ -55,14 +55,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 		}
 		foreach( $this->themes as $index => $theme ) {
 			if ( wp_endswith( $theme, '-wpcom' ) ) {
-				// install from wpcom
-				$wpcom_theme_slug = preg_replace( '/-wpcom$/', '', $theme );
-
-				if ( self::is_installed_theme( $wpcom_theme_slug ) ) {
-					return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
-				}
-
-				$file = self::download_wpcom_theme_to_file( $wpcom_theme_slug );
+				$file = self::download_wpcom_theme_to_file( $theme );
 				if ( is_wp_error( $file ) ) {
 					return $file;
 				}
@@ -100,10 +93,16 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 	}
 
 	protected static function download_wpcom_theme_to_file( $theme ) {
+		$wpcom_theme_slug = preg_replace( '/-wpcom$/', '', $theme );
+
+		if ( self::is_installed_theme( $wpcom_theme_slug ) ) {
+			return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
+		}
+
 		$url = "themes/download/$theme.zip";
 		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $url );
 
-		$file = tempnam( sys_get_temp_dir(), 'theme' );
+		$file = wp_tempnam( 'theme' );
 		if ( ! $file ) {
 			return new WP_Error( 'problem_creating_theme_file', __( 'Problem creating file for theme download', 'jetpack' ) );
 		}
