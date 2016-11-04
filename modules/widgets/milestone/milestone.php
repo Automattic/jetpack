@@ -36,8 +36,9 @@ class Milestone_Widget extends WP_Widget {
 	}
 
 	public static function enqueue_admin( $hook_suffix ) {
-		if ( 'widgets.php' == $hook_suffix )
+		if ( 'widgets.php' == $hook_suffix ) {
 			wp_enqueue_style( 'milestone-admin', plugins_url( 'style-admin.css', __FILE__ ), array(), '20111212' );
+		}
 	}
 
 	public static function enqueue_template() {
@@ -163,8 +164,9 @@ class Milestone_Widget extends WP_Widget {
 		echo $args['before_widget'];
 
 		$title = apply_filters( 'widget_title', $instance['title'] );
-		if ( ! empty( $title ) )
+		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . $title . $args['after_title'];
+		}
 
 		echo '<div class="milestone-content">';
 
