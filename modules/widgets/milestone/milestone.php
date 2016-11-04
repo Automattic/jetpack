@@ -64,8 +64,8 @@ class Milestone_Widget extends WP_Widget {
 	text-align: center;
 }
 .milestone-header {
-	background-color: <?php echo self::sanitize_color_hex( $colors['text'] ); ?>;
-	color: <?php echo self::sanitize_color_hex( $colors['bg'] ); ?>;
+	background-color: #<?php echo sanitize_hex_color_no_hash( $colors['text'] ); ?>;
+	color: #<?php echo sanitize_hex_color_no_hash( $colors['bg'] ); ?>;
 	line-height: 1.3;
 	margin: 0;
 	padding: .8em;
@@ -85,10 +85,10 @@ class Milestone_Widget extends WP_Widget {
 }
 .milestone-countdown,
 .milestone-message {
-	background-color: <?php echo self::sanitize_color_hex( $colors['bg'] ); ?>;
-	border: 1px solid <?php echo self::sanitize_color_hex( $colors['border'] ); ?>;
+	background-color: #<?php echo sanitize_hex_color_no_hash( $colors['bg'] ); ?>;
+	border: 1px solid #<?php echo sanitize_hex_color_no_hash( $colors['border'] ); ?>;
 	border-top: 0;
-	color: <?php echo self::sanitize_color_hex( $colors['text'] ); ?>;
+	color: #<?php echo sanitize_hex_color_no_hash( $colors['text'] ); ?>;
 	padding-bottom: 1em;
 }
 .milestone-message {
@@ -96,28 +96,6 @@ class Milestone_Widget extends WP_Widget {
 }
 </style>
 <?php
-	}
-
-	/**
-	 * Ensure that a string representing a color in hexadecimal
-	 * notation is safe for use in css and database saves.
-	 *
-	 * @param string Color in hexadecimal notation. "#" may or may not be prepended to the string.
-	 * @return string Color in hexadecimal notation on success - the string "transparent" otherwise.
-	 */
-	public static function sanitize_color_hex( $hex, $prefix = '#' ) {
-		$hex = trim( $hex );
-
-		/* Strip recognized prefixes. */
-		if ( 0 === strpos( $hex, '#' ) )
-			$hex = substr( $hex, 1 );
-		elseif ( 0 === strpos( $hex, '%23' ) )
-			$hex = substr( $hex, 3 );
-
-		if ( 0 !== preg_match( '/^[0-9a-fA-F]{6}$/', $hex ) )
-			return $prefix . $hex;
-
-		return 'transparent';
 	}
 
 	/**
