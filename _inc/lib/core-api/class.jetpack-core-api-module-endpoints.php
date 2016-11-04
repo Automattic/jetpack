@@ -500,13 +500,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $option_attrs );
 
 			switch ( $option ) {
-				case 'videopress_free_formats':
-				case 'videopress_default_quality':
-					$value = ( $value ) ? 1 : 0;
-					update_option( $option, $value );
-					$updated = true;
-					break;
-
 				case 'monitor_receive_notifications':
 					$monitor = new Jetpack_Monitor();
 

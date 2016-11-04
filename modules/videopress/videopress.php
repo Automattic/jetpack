@@ -447,6 +447,7 @@ class Jetpack_VideoPress {
 			'VideoPressLibraryRouter' => __( 'VideoPress Library', 'jetpack' ),
 			'uploadVideoRouter' => __( 'Upload a Video', 'jetpack' ),
 			'insertVideoButton' => __( 'Insert Video', 'jetpack' ),
+
 		);
 
 		wp_localize_script( 'videopress-admin', 'VideoPressAdminSettings', array(
@@ -467,10 +468,10 @@ class Jetpack_VideoPress {
 	 */
 	function get_available_ratings() {
 		return array(
-			'G'     => 'G',
+			'G' => 'G',
 			'PG-13' => 'PG-13',
-			'R-17'  => 'R',
-			'X-18'  => 'X',
+			'R-17' => 'R',
+			'X-18' => 'X',
 		);
 	}
 
@@ -695,7 +696,6 @@ class Jetpack_VideoPress {
 
 		return array( 'media' => $created_items );
 	}
-
 }
 
 // Initialize the module.

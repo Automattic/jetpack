@@ -26,7 +26,6 @@ import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
-import { getSitePlan } from 'state/site';
 import QuerySite from 'components/data/query-site';
 import ProStatus from 'pro-status';
 
@@ -123,7 +122,7 @@ export const Writing = ( props ) => {
 				) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ isVideoPress ? vpProps : getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } sitePlan={ props.sitePlan } /> :
+					<AllModuleSettings module={ isVideoPress ? vpProps : getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -157,8 +156,7 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			userCanManageModules: _userCanManageModules( state ),
-			moduleList: getModules( state ),
-			sitePlan: getSitePlan( state )
+			moduleList: getModules( state )
 		};
 	},
 	( dispatch ) => {

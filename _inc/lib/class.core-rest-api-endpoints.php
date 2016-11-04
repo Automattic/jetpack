@@ -943,7 +943,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array
 	 */
 	public static function get_updateable_data_list( $selector = '' ) {
+
 		$options = array(
+
 			// Carousel
 			'carousel_background_color' => array(
 				'description'       => esc_html__( 'Background color.', 'jetpack' ),
