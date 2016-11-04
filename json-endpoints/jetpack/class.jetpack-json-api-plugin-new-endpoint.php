@@ -39,7 +39,7 @@ class Jetpack_JSON_API_Plugin_New_Endpoint extends Jetpack_JSON_API_Plugins_Endp
 			}
 
 			$after_install_plugin_list = get_plugins();
-			$plugin = array_diff( array_keys( $after_install_plugin_list ), array_keys( $pre_install_plugin_list ) );
+			$plugin = array_values( array_diff( array_keys( $after_install_plugin_list ), array_keys( $pre_install_plugin_list ) ) );
 
 			if ( empty( $plugin ) ) {
 				return new WP_Error( 'plugin_already_installed' );
