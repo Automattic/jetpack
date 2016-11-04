@@ -11,7 +11,6 @@ License: GPLv2 or later
 class Milestone_Widget extends WP_Widget {
 	private static $dir       = null;
 	private static $url       = null;
-	private static $labels    = null;
 	private static $defaults  = null;
 	private static $config_js = null;
 
@@ -29,20 +28,6 @@ class Milestone_Widget extends WP_Widget {
 
 		self::$dir = trailingslashit( __DIR__ );
 		self::$url = plugin_dir_url( __FILE__ );
-		self::$labels = array(
-			'year'    => __( 'year' ),
-			'years'   => __( 'years' ),
-			'month'   => __( 'month' ),
-			'months'  => __( 'months' ),
-			'day'     => __( 'day' ),
-			'days'    => __( 'days' ),
-			'hour'    => __( 'hour' ),
-			'hours'   => __( 'hours' ),
-			'minute'  => __( 'minute' ),
-			'minutes' => __( 'minutes' ),
-			'second'  => __( 'second' ),
-			'seconds' => __( 'seconds' ),
-		);
 
 		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin' ) );
@@ -152,7 +137,7 @@ class Milestone_Widget extends WP_Widget {
 			wp_dequeue_script( 'milestone' );
 			return;
 		}
-		self::$config_js['labels'] = self::$labels;
+		self::$config_js['labels'] = self::get_interval_labels();
 		wp_localize_script( 'milestone', 'MilestoneConfig', self::$config_js );
 	}
 
@@ -168,25 +153,26 @@ class Milestone_Widget extends WP_Widget {
 
 		$number = 0;
 		$label  = '';
+		$interval_labels = self::get_interval_labels();
 
 		if ( 63113852 < $diff ) { // more than 2 years - show in years, one decimal point
 			$number = round( $diff / 60 / 60 / 24 / 365, 1 );
-			$label  = self::$labels['years'];
+			$label  = $interval_labels['years'];
 		} else if ( 7775999 < $diff ) { // fewer than 2 years - show in months
 			$number = floor( $diff / 60 / 60 / 24 / 30 );
-			$label  = ( 1 == $number ) ? self::$labels['month'] : self::$labels['months'];
+			$label  = ( 1 == $number ) ? $interval_labels['month'] : $interval_labels['months'];
 		} else if ( 86399 < $diff ) { // fewer than 3 months - show in days
 			$number = floor( $diff / 60 / 60 / 24 ) + 1;
-			$label  = ( 1 == $number ) ? self::$labels['day'] : self::$labels['days'];
+			$label  = ( 1 == $number ) ? $interval_labels['day'] : $interval_labels['days'];
 		} else if ( 3599 < $diff ) { // less than 1 day - show in hours
 			$number = floor( $diff / 60 / 60 );
-			$label  = ( 1 == $number ) ? self::$labels['hour'] : self::$labels['hours'];
+			$label  = ( 1 == $number ) ? $interval_labels['hour'] : $interval_labels['hours'];
 		} else if ( 59 < $diff ) { // less than 1 hour - show in minutes
 			$number = floor( $diff / 60 ) + 1;
-			$label = ( 1 == $number ) ? self::$labels['minute'] : self::$labels['minutes'];
+			$label = ( 1 == $number ) ? $interval_labels['minute'] : $interval_labels['minutes'];
 		} else { // less than 1 minute - show in seconds
 			$number = $diff;
-			$label = ( 1 == $number ) ? self::$labels['second'] : self::$labels['seconds'] ;
+			$label = ( 1 == $number ) ? $interval_labels['second'] : $interval_labels['seconds'] ;
 		}
 
 		echo $args['before_widget'];
@@ -345,6 +331,36 @@ class Milestone_Widget extends WP_Widget {
 	</div>
 
 		<?php
+	}
+
+	/**
+	 * Cache the translations, but do it on-demand so it's
+	 * not run every page load whether used or not.
+	 *
+	 * @return array
+	 */
+	public static function get_interval_labels() {
+		static $labels = null;
+
+		// Static variables can't be initialized to arrays on declaration, so we do it here:
+		if ( is_null( $labels ) ) {
+			$labels = array(
+				'year'    => __( 'year' ),
+				'years'   => __( 'years' ),
+				'month'   => __( 'month' ),
+				'months'  => __( 'months' ),
+				'day'     => __( 'day' ),
+				'days'    => __( 'days' ),
+				'hour'    => __( 'hour' ),
+				'hours'   => __( 'hours' ),
+				'minute'  => __( 'minute' ),
+				'minutes' => __( 'minutes' ),
+				'second'  => __( 'second' ),
+				'seconds' => __( 'seconds' ),
+			);
+		}
+
+		return $labels;
 	}
 }
 
