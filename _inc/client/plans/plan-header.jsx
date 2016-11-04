@@ -98,7 +98,7 @@ const PlanHeader = React.createClass( {
 							<img src={ imagePath + '/plans/plan-jetpack-pro.svg' } className="jp-landing__plan-icon" />
 						</div>
 						<div className="jp-landing__plan-card-current">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Youxxxr site is on the Jetpack Professional plan' ) }</h3>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Professional plan' ) }</h3>
 							<p className="jp-landing__plan-features-text">{ __( 'You get spam-protection, real-time backups (unlimited archive), unlimited backup storage, security scanning, unlimited ad-free video hosting, PollDaddy, and priority support.' ) }</p>
 						</div>
 					</div>
