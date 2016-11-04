@@ -128,7 +128,9 @@ class Widget_Authors extends WP_Widget {
 			wp_cache_add( $cache_bucket, ob_get_flush(), 'widget');
 		}
 
-		stats_extra( 'widget_view', 'authors' );
+		if ( function_exists( 'stats_extra' ) ) {
+			stats_extra( 'widget_view', 'authors' );
+		}
 	}
 
 	public function form( $instance ) {

@@ -222,8 +222,10 @@ class Milestone_Widget extends WP_Widget {
 		echo '</div><!--milestone-content-->';
 
 		echo $args['after_widget'];
-		stats_extra( 'widget_view', 'milestone' );
     }
+		if ( method_exists( 'stats_extra' ) ) {
+			stats_extra( 'widget_view', 'milestone' );
+		}
 
     /**
      * Update
