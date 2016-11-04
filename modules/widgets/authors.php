@@ -169,9 +169,9 @@ class Widget_Authors extends WP_Widget {
 	}
 
 	public function update( $new_instance, $old_instance ) {
-		$new_instance['title'] = strip_tags( $new_instance['title'] );
-		$new_instance['all'] = isset( $new_instance['all'] );
-		$new_instance['number'] = (int) $new_instance['number'];
+		$new_instance['title']       = strip_tags( $new_instance['title'] );
+		$new_instance['all']         = isset( $new_instance['all'] );
+		$new_instance['number']      = (int) $new_instance['number'];
 		$new_instance['avatar_size'] = (int) $new_instance['avatar_size'];
 
 		self::flush_cache();
