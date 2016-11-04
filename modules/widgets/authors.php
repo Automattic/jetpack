@@ -73,7 +73,7 @@ class Widget_Authors extends WP_Widget {
 
 			// Display avatar and author name
 			if ( $r->have_posts() ) {
-				echo '<a href="' . get_author_posts_url( $author->ID ) . '">';
+				echo '<a href="' . esc_url( get_author_posts_url( $author->ID ) ) . '">';
 
 				if ( $instance['avatar_size'] > 1 ) {
 					echo ' ' . get_avatar( $author->ID, $instance['avatar_size'], '', true ) . ' ';
@@ -102,7 +102,7 @@ class Widget_Authors extends WP_Widget {
 
 				while ( $r->have_posts() ) {
 					$r->the_post();
-					echo '<li><a href="' . get_permalink() . '">';
+					echo '<li><a href="' . esc_url( get_permalink() ) . '">';
 
 					if ( get_the_title() ) {
 						echo get_the_title();
