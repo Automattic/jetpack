@@ -47,7 +47,7 @@ var Milestone = ( function( $ ) {
 		};
 
 		this.timer();
-	}
+	};
 	return function ( args ) {
 		return new Milestone( args );
 	};
