@@ -142,7 +142,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 		// Get the Site Stats.
 		$views = $this->get_stats();
 
-		if ( isset( $views ) && ! empty( $views ) ) {
+		if ( ! empty( $views ) ) {
 			printf(
 				'<ul><li>%1$s %2$s</li></ul>',
 				number_format_i18n( $views ),
