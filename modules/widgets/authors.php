@@ -174,7 +174,7 @@ class Widget_Authors extends WP_Widget {
 		$new_instance['number'] = (int) $new_instance['number'];
 		$new_instance['avatar_size'] = (int) $new_instance['avatar_size'];
 
-		Widget_Authors::flush_cache();
+		self::flush_cache();
 
 		return $new_instance;
 	}
