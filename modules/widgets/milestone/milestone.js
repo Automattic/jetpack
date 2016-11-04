@@ -56,8 +56,9 @@ var Milestone = ( function( $ ) {
 ( function() {
 	var MilestoneInstances = {};
 
-	if ( typeof( MilestoneConfig ) === 'undefined' )
+	if ( 'undefined' === typeof( MilestoneConfig ) ) {
 		return;
+	}
 
 	for ( i = 0; i < MilestoneConfig.instances.length; i++ ) {
 		MilestoneInstances[i] = new Milestone( MilestoneConfig.instances[i] );
