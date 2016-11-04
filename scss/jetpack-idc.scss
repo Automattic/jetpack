@@ -21,6 +21,20 @@
 	}
 }
 
+.jp-idc-notice {
+	a,
+	a:visited {
+		color: $blue-wordpress;
+		text-decoration: none;
+	}
+
+	a:hover,
+	a:focus,
+	a:active {
+		color: $link-highlight;
+	}
+}
+
 .jp-idc-notice > div {
 	padding: 0 16px;
 }
