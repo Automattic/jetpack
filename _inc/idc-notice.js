@@ -29,12 +29,13 @@
 
 	// Starts process to create a new connection.
 	$( '#jp-idc-reconnect-site-action' ).click( function() {
-		trackAndBumpMCStats('start_fresh');
+		trackAndBumpMCStats( 'start_fresh' );
 		startFreshConnection();
 	} );
 
 	// Starts migration process.
 	$( '#jp-idc-migrate-action' ).click( function() {
+		trackAndBumpMCStats( 'migrate' );
 		migrateStatsAndSubscribers();
 	} );
 
