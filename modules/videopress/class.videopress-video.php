@@ -79,6 +79,14 @@ class VideoPress_Video {
 	public $title;
 
 	/**
+	 * Video description
+	 *
+	 * @var string
+	 * @since 4.4
+	 */
+	public $description;
+
+	/**
 	 * Directionality of title text. ltr or rtl
 	 *
 	 * @var string
@@ -193,6 +201,9 @@ class VideoPress_Video {
 
 		if ( isset( $data->title ) && $data->title !== '' )
 			$this->title = trim( str_replace( '&nbsp;', ' ', $data->title ) );
+
+		if ( isset( $data->description ) && $data->description !== '' )
+			$this->description = trim( $data->description );
 
 		if ( isset( $data->text_direction ) && $data->text_direction === 'rtl' )
 			$this->text_direction = 'rtl';
