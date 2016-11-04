@@ -159,7 +159,7 @@ class Jetpack_Sync_Actions {
 
 			return new WP_Error(
 				'sync_error_idc',
-				__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis' )
+				__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
 			);
 		}
 
@@ -196,7 +196,7 @@ class Jetpack_Sync_Actions {
 		if( ! isset( $schedules["1min"] ) ) {
 			$schedules["1min"] = array(
 				'interval' => 60,
-				'display' => __( 'Every minute' )
+				'display' => __( 'Every minute', 'jetpack' )
 			);
 		}
 		return $schedules;
