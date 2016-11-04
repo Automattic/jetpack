@@ -240,10 +240,11 @@ class Milestone_Widget extends WP_Widget {
 	 */
 	function sanitize_range( $n, $floor, $ceil ) {
 		$n = (int) $n;
-		if ( $n < $floor )
+		if ( $n < $floor ) {
 			$n = $floor;
-		else if ( $n > $ceil )
+		} elseif ( $n > $ceil ) {
 			$n = $ceil;
+		}
 		return $n;
 	}
 
