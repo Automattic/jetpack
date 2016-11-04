@@ -315,7 +315,7 @@ class Jetpack_IDC {
 	}
 
 	function get_confirm_safe_mode_button_text() {
-		$string =  esc_html__( 'Confirm Safe Mode' );
+		$string =  esc_html__( 'Confirm Safe Mode', 'jetpack' );
 		return apply_filters( 'jetpack_idc_confirm_safe_mode_button_text', $string );
 	}
 
@@ -337,7 +337,7 @@ class Jetpack_IDC {
 	}
 
 	function get_first_step_fix_connection_button_text() {
-		$string = esc_html__( "Fix Jetpack's Connection" );
+		$string = esc_html__( "Fix Jetpack's Connection", 'jetpack' );
 		return apply_filters( 'jetpack_idc_first_step_fix_connection_button_text', $string );
 	}
 
@@ -374,7 +374,7 @@ class Jetpack_IDC {
 	}
 
 	function get_migrate_site_button_text() {
-		$string = esc_html__( 'Migrate stats &amp; and Subscribers' );
+		$string = esc_html__( 'Migrate stats &amp; and Subscribers', 'jetpack' );
 		return apply_filters( 'jetpack_idc_migrate_site_button_text', $string );
 	}
 
@@ -398,7 +398,7 @@ class Jetpack_IDC {
 	}
 
 	function get_start_fresh_button_text() {
-		$string = esc_html__( 'Start fresh &amp; create new connection' );
+		$string = esc_html__( 'Start fresh &amp; create new connection', 'jetpack' );
 		return apply_filters( 'jetpack_idc_start_fresh_button_text', $string );
 	}
 
