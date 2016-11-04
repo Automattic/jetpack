@@ -8,8 +8,6 @@ Author URI: http://automattic.com/
 License: GPLv2 or later
 */
 
-xmpp_message( 'georgestephanis@im.wordpress.com', wp_debug_backtrace_summary() );
-
 class Milestone {
 	public static function init() {
 		add_action( 'widgets_init', array( __class__, 'register_widget' ) );
