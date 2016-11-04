@@ -4,7 +4,8 @@ import {
 	isFetchingSettingsList,
 	isUpdatingSetting,
 	isSettingActivated,
-	getSettings
+	getSettings,
+	getSetting
 } from '../reducer';
 
 let state = {
@@ -12,7 +13,9 @@ let state = {
 		settings: {
 			items: {
 				'setting-a': false,
-				'setting-b': true
+				'setting-b': true,
+				'setting-numeric': 10,
+				'setting-string': 'Hocus Pocus'
 			},
 			requests: {
 				fetchingSettingsList: true,
@@ -56,6 +59,16 @@ describe( 'items selectors', () => {
 			const stateIn = state;
 			const output2 = getSettings( stateIn );
 			expect( output2 ).to.eql( state.jetpack.settings.items );
+		} );
+	} );
+
+	describe( '#getSetting', () => {
+		it( 'should return a setting by its key', () => {
+			const stateIn = state;
+			expect( getSetting( stateIn, 'setting-numeric' ) )
+				.to.eql( state.jetpack.settings.items[ 'setting-numeric' ] );
+			expect( getSetting( stateIn, 'setting-string' ) )
+				.to.eql( state.jetpack.settings.items[ 'setting-string' ] );
 		} );
 	} );
 } );

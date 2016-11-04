@@ -46,6 +46,36 @@ describe( 'items reducer', () => {
 			expect( stateOut.setting_name ).to.equal( 'new-value' );
 		} );
 	} );
+
+	describe( '#multipleSettingsUpdate', () => {
+		it( 'should update multiple settings', () => {
+			const stateIn = settings;
+			const action = {
+				type: 'JETPACK_SETTINGS_UPDATE_SUCCESS',
+				updatedOptions: {
+					setting_name: 'new-value',
+					setting_name_other: 'other-new-value'
+				}
+			};
+			let stateOut = itemsReducer( stateIn, action );
+			expect( stateOut.setting_name ).to.equal( 'new-value' );
+			expect( stateOut.setting_name_other ).to.equal( 'other-new-value' );
+		} );
+	} );
+
+	describe( '#initialState', () => {
+		it( 'should replace .items with the initial state\'s settings list', () => {
+			const stateIn = {};
+			const action = {
+				type: 'JETPACK_SET_INITIAL_STATE',
+				initialState: {
+					settings: settings
+				}
+			};
+			let stateOut = itemsReducer( stateIn, action );
+			expect( stateOut ).to.eql( action.initialState.settings );
+		} );
+	} );
 } );
 
 describe( 'requests reducer', () => {
@@ -97,6 +127,35 @@ describe( 'requests reducer', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SETTING_UPDATE_SUCCESS'
+			};
+			let stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.updatingSetting ).to.be.false;
+		} );
+	} );
+
+	describe( '#multipleSettingsUpdate', () => {
+		it( 'should set updatingSetting to true when updating multiple settings', () => {
+			const stateIn = {};
+			const action = {
+				type: 'JETPACK_SETTINGS_UPDATE',
+			};
+			let stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.updatingSetting ).to.be.true;
+		} );
+
+		it( 'should set updatingSetting to false when settings were updated', () => {
+			const stateIn = {};
+			const action = {
+				type: 'JETPACK_SETTINGS_UPDATE_SUCCESS'
+			};
+			let stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.updatingSetting ).to.be.false;
+		} );
+
+		it( 'should set updatingSetting to false when settings update has failed', () => {
+			const stateIn = {};
+			const action = {
+				type: 'JETPACK_SETTINGS_UPDATE_SUCCESS'
 			};
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.updatingSetting ).to.be.false;

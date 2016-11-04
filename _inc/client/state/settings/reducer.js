@@ -9,16 +9,22 @@ import assign from 'lodash/assign';
  * Internal dependencies
  */
 import {
+	JETPACK_SET_INITIAL_STATE,
 	JETPACK_SETTINGS_FETCH,
 	JETPACK_SETTINGS_FETCH_RECEIVE,
 	JETPACK_SETTINGS_FETCH_FAIL,
 	JETPACK_SETTING_UPDATE,
 	JETPACK_SETTING_UPDATE_SUCCESS,
-	JETPACK_SETTING_UPDATE_FAIL
+	JETPACK_SETTING_UPDATE_FAIL,
+	JETPACK_SETTINGS_UPDATE,
+	JETPACK_SETTINGS_UPDATE_SUCCESS,
+	JETPACK_SETTINGS_UPDATE_FAIL
 } from 'state/action-types';
 
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
+		case JETPACK_SET_INITIAL_STATE:
+			return assign( {}, state, action.initialState.settings );
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
 			return assign( {}, action.settings );
 		case JETPACK_SETTING_UPDATE_SUCCESS:
@@ -26,6 +32,8 @@ export const items = ( state = {}, action ) => {
 			return assign( {}, state, {
 				[ key ]: action.updatedOption[ key ]
 			} );
+		case JETPACK_SETTINGS_UPDATE_SUCCESS:
+			return assign( {}, state, action.updatedOptions );
 		default:
 			return state;
 	}
@@ -49,11 +57,14 @@ export const requests = ( state = initialRequestsState, action ) => {
 			} );
 
 		case JETPACK_SETTING_UPDATE:
+		case JETPACK_SETTINGS_UPDATE:
 			return assign( {}, state, {
 				updatingSetting: true
 			} );
 		case JETPACK_SETTING_UPDATE_FAIL:
 		case JETPACK_SETTING_UPDATE_SUCCESS:
+		case JETPACK_SETTINGS_UPDATE_FAIL:
+		case JETPACK_SETTINGS_UPDATE_SUCCESS:
 			return assign( {}, state, {
 				updatingSetting: false
 			} );
@@ -74,6 +85,16 @@ export const reducer = combineReducers( {
  */
 export function getSettings( state ) {
 	return state.jetpack.settings.items;
+}
+
+/**
+ * Returns a value of a certain setting
+ * @param  {Object} state Global state tree
+ * @param  {String} key   Setting name
+ * @return {Mixed}       Settings value
+ */
+export function getSetting( state, key ) {
+	return get( state.jetpack.settings.items, key, undefined );
 }
 
 /**
