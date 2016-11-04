@@ -3280,8 +3280,8 @@ p {
 				<p><?php _e( 'Jetpack is a free plugin that utilizes powerful WordPress.com serves to simplify managing your site(s) with detailed visitor stats, security services, image performance upgrades, and more. Connect with WordPress.com to get started!', 'jetpack' ); ?></p>
 
 				<p class="jp-banner__button-container">
-					<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="button button-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
-					<a href="#" class="button" title="<?php esc_attr_e( 'Start tour to Learn about the benefits you receive when you connect Jetpack to WordPress.com', 'jetpack' ); ?>"><?php _e( 'Start quick tour', 'jetpack' ); ?></a>
+					<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="dops-button is-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
+					<a href="#" class="dops-button" title="<?php esc_attr_e( 'Start tour to Learn about the benefits you receive when you connect Jetpack to WordPress.com', 'jetpack' ); ?>"><?php _e( 'Start quick tour', 'jetpack' ); ?></a>
 				</p>
 			</div><!-- jp-wpcom-connect__slide-one -->
 

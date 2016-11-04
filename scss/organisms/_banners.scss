@@ -1,6 +1,10 @@
 @import '_inc/client/scss/functions/rem';
 @import '_inc/client/scss/variables/colors';
 
+// importing dops-comp styles outside of react area. Talk to Jeff or Igor about a plan to clean this up
+@import '_inc/build/admin.dops-style';
+
+
 .updated { // utlizes some core styles, overrides some others
 	&.jp-banner {
 		position: relative;
@@ -40,18 +44,12 @@
 	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 }
 
-.updated .notice-dismiss {
-	text-decoration: none;
+.updated.jp-wpcom-connect__container .dops-button {
+	padding: 7px 14px 9px; // override wp-admin .updated a padding
 }
 
-.jp-wpcom-connect__container .button {
-	height: auto;
-	padding: rem( 8px ) rem( 16px );
-	font-size: rem( 14px);
-
-	&.button-primary {
-		background: $blue-medium;
-	}
+.updated .notice-dismiss {
+	text-decoration: none;
 }
 
 // end overrides
