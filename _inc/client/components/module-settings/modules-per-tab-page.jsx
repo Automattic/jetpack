@@ -25,7 +25,8 @@ import {
 	AfterTheDeadlineSettings,
 	MarkdownSettings,
 	VerificationToolsSettings,
-	SitemapsSettings
+	SitemapsSettings,
+	VideoPressSettings
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
 
@@ -33,6 +34,8 @@ export const AllModuleSettings = React.createClass( {
 	render() {
 		let { module } = this.props;
 		switch ( module.module ) {
+			case 'videopress':
+				return ( <VideoPressSettings module={ module } sitePlan={ this.props.sitePlan } /> );
 			case 'omnisearch':
 				return (
 					<div>

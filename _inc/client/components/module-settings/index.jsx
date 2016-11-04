@@ -31,6 +31,18 @@ import {
 
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 
+export let VideoPressSettings = React.createClass( {
+	render() {
+		return (
+			<span className="jp-form-setting-explanation">
+				{ __( 'The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.' ) }
+			</span>
+		)
+	}
+} );
+
+VideoPressSettings = moduleSettingsForm( VideoPressSettings );
+
 export let SharedaddySettings = React.createClass( {
 	render() {
 		return (

@@ -26,6 +26,8 @@ import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
+import QuerySite from 'components/data/query-site';
+import ProStatus from 'pro-status';
 
 export const Writing = ( props ) => {
 	let {
@@ -82,6 +84,27 @@ export const Writing = ( props ) => {
 			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
 		}
 
+		var isVideoPress = 'videopress' === element[0];
+
+		if ( isVideoPress ) {
+			var vpProps = {
+				module: 'videopress',
+				configure_url: ''
+			};
+
+			toggle = <ProStatus proFeature={ 'videopress' } />;
+
+			element[1] = <span>
+				{ element[1] }
+				<Button
+					compact={ true }
+					href="#/plans"
+				>
+					{ __( 'Pro' ) }
+				</Button>
+			</span>;
+		}
+
 		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
@@ -99,7 +122,7 @@ export const Writing = ( props ) => {
 				) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } /> :
+					<AllModuleSettings module={ isVideoPress ? vpProps : getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -112,6 +135,7 @@ export const Writing = ( props ) => {
 
 	return (
 		<div>
+			<QuerySite />
 			{ cards }
 		</div>
 	);
@@ -132,7 +156,8 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			userCanManageModules: _userCanManageModules( state ),
-			moduleList: getModules( state )
+			moduleList: getModules( state ),
+			sitePlan: getSitePlan( state )
 		};
 	},
 	( dispatch ) => {
