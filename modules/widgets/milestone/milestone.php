@@ -164,19 +164,19 @@ class Milestone_Widget extends WP_Widget {
 		$label  = '';
 		$interval_labels = self::get_interval_labels();
 
-		if ( 2 * YEAR_IN_SECONDS < $diff ) { // more than 2 years - show in years, one decimal point
+		if ( 2 * YEAR_IN_SECONDS <= $diff ) { // more than 2 years - show in years, one decimal point
 			$number = round( $diff / YEAR_IN_SECONDS, 1 );
 			$label  = $interval_labels['years'];
-		} else if ( 3 * MONTH_IN_SECONDS < $diff ) { // fewer than 2 years - show in months
+		} else if ( 3 * MONTH_IN_SECONDS <= $diff ) { // fewer than 2 years - show in months
 			$number = floor( $diff / MONTH_IN_SECONDS );
 			$label  = ( 1 == $number ) ? $interval_labels['month'] : $interval_labels['months'];
-		} else if ( DAY_IN_SECONDS < $diff ) { // fewer than 3 months - show in days
+		} else if ( DAY_IN_SECONDS <= $diff ) { // fewer than 3 months - show in days
 			$number = floor( $diff / DAY_IN_SECONDS ) + 1;
 			$label  = ( 1 == $number ) ? $interval_labels['day'] : $interval_labels['days'];
-		} else if ( HOUR_IN_SECONDS < $diff ) { // less than 1 day - show in hours
+		} else if ( HOUR_IN_SECONDS <= $diff ) { // less than 1 day - show in hours
 			$number = floor( $diff / HOUR_IN_SECONDS );
 			$label  = ( 1 == $number ) ? $interval_labels['hour'] : $interval_labels['hours'];
-		} else if ( MINUTE_IN_SECONDS ) { // less than 1 hour - show in minutes
+		} else if ( MINUTE_IN_SECONDS <= $diff ) { // less than 1 hour - show in minutes
 			$number = floor( $diff / MINUTE_IN_SECONDS ) + 1;
 			$label = ( 1 == $number ) ? $interval_labels['minute'] : $interval_labels['minutes'];
 		} else { // less than 1 minute - show in seconds
