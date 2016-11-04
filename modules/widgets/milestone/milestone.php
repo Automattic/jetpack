@@ -8,17 +8,6 @@ Author URI: http://automattic.com/
 License: GPLv2 or later
 */
 
-class Milestone {
-	public static function init() {
-		add_action( 'widgets_init', array( __class__, 'register_widget' ) );
-	}
-	public static function register_widget() {
-		register_widget( 'Milestone_Widget' );
-	}
-}
-
-Milestone::init();
-
 class Milestone_Widget extends WP_Widget {
 	private static $dir       = null;
 	private static $url       = null;
@@ -355,4 +344,9 @@ class Milestone_Widget extends WP_Widget {
 
 		<?php
     }
+}
+
+add_action( 'widgets_init', 'register_milestone_widget' );
+function register_milestone_widget() {
+	register_widget( 'Milestone_Widget' );
 }
