@@ -139,11 +139,8 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function normalize_www_in_url( $option, $url_function ) {
-		$url        = call_user_func( $url_function );
-		$option_url = get_option( $option );
-
-		$option_url = wp_parse_url( $option_url );
-		$url        = wp_parse_url( $url );
+		$url        = wp_parse_url( call_user_func( $url_function ) );
+		$option_url = wp_parse_url( get_option( $option ) );
 
 		if ( ! $option_url || ! $url ) {
 			return $url;

@@ -163,8 +163,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Let's see if the original values get synced
 		$this->sender->do_sync();
-		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
-		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+		$synced_home_url = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url = $this->server_replica_storage->get_callable( 'site_url' );
 
 		$this->assertEquals( $original_home_option, $synced_home_url );
 		$this->assertEquals( $original_siteurl_option, $synced_site_url );
@@ -179,8 +179,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
-		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+		$synced_home_url = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url = $this->server_replica_storage->get_callable( 'site_url' );
 
 		$this->assertEquals( $updated_home_option, $synced_home_url );
 		$this->assertEquals( $updated_siteurl_option, $synced_site_url );
@@ -200,8 +200,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Let's see if the original values get synced. This will also set the await transient.
 		$this->sender->do_sync();
-		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
-		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+		$synced_home_url = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url = $this->server_replica_storage->get_callable( 'site_url' );
 
 		$this->assertEquals( $original_home_option, $synced_home_url );
 		$this->assertEquals( $original_siteurl_option, $synced_site_url );
@@ -212,8 +212,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'option_home',    array( $this, 'return_https_site_com_blog' ) );
 		add_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
 
-		// By calling this action, we simulate wp_schedule_single_event()
-
 		/**
 		 * Used to signal that the callables await transient should be cleared. Clearing the await transient is useful
 		 * in cases where we need to sync values to WordPress.com sooner than the default wait time.
@@ -222,15 +220,18 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		 */
 		do_action( 'jetpack_sync_unlock_sync_callable' );
 
+		$_SERVER['HTTPS'] = 'on';
+
 		$this->sender->do_sync();
 
-		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
-		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+		$synced_home_url = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url = $this->server_replica_storage->get_callable( 'site_url' );
 
 		$this->assertEquals( $this->return_https_site_com_blog(), $synced_home_url );
 		$this->assertEquals( $this->return_https_site_com_blog(), $synced_site_url );
 
 		// Cleanup
+		unset( $_SERVER['HTTPS'] );
 		remove_filter( 'option_home',    array( $this, 'return_https_site_com_blog' ) );
 		remove_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
 	}
