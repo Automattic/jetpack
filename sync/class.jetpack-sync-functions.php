@@ -99,11 +99,17 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function home_url() {
-		return self::get_protocol_normalized_url( 'home_url', get_home_url() );
+		return self::get_protocol_normalized_url(
+			'home_url',
+			self::normalize_www_in_url( 'home', 'home_url' )
+		);
 	}
 
 	public static function site_url() {
-		return self::get_protocol_normalized_url( 'site_url', get_site_url() );
+		return self::get_protocol_normalized_url(
+			'site_url',
+			self::normalize_www_in_url( 'siteurl', 'site_url' )
+		);
 	}
 
 	public static function main_network_site_url() {
@@ -130,6 +136,38 @@ class Jetpack_Sync_Functions {
 		$forced_scheme =  in_array( 'https', $scheme_history ) ? 'https' : 'http';
 
 		return set_url_scheme( $new_value, $forced_scheme );
+	}
+
+	public static function normalize_www_in_url( $option, $url_function ) {
+		$url        = call_user_func( $url_function );
+		$option_url = get_option( $option );
+
+		$option_url = wp_parse_url( $option_url );
+		$url        = wp_parse_url( $url );
+
+		if ( ! $option_url || ! $url ) {
+			return $url;
+		}
+
+		if ( $url[ 'host' ] === "www.{$option_url[ 'host' ]}" ) {
+			// remove www if not present in option URL
+			$url[ 'host' ] = $option_url[ 'host' ];
+		}
+		if ( $option_url[ 'host' ] === "www.{$url[ 'host' ]}" ) {
+			// add www if present in option URL
+			$url[ 'host' ] = $option_url[ 'host' ];
+		}
+
+		$normalized_url = "{$url['scheme']}://{$url['host']}";
+		if ( isset( $url['path'] ) ) {
+			$normalized_url .= "{$url['path']}";
+		}
+
+		if ( isset( $url['query'] ) ) {
+			$normalized_url .= "?{$url['query']}";
+		}
+
+		return $normalized_url;
 	}
 
 	public static function get_plugins() {
