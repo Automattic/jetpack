@@ -104,6 +104,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 		) );
 
+		// IDC resolve: create an entirely new shadow site for this URL.
+		register_rest_route( 'jetpack/v4', '/identity-crisis/start-fresh', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::start_fresh_connection',
+			'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
+		) );
+
 		// Return all modules
 		self::route(
 			'module/all',
@@ -707,6 +714,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 		return new WP_Error( 'error_confirming_safe_mode', esc_html__( 'Jetpack could not confirm safe mode.', 'jetpack' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * This IDC resolution will disconnect the site and re-connect to a completely new
+	 * and separate shadow site than the original.
+	 *
+	 * It will first will disconnect the site without phoning home as to not disturb the production site.
+	 * It then builds a fresh connection URL and sends it back along with the response.
+	 *
+	 * @since 4.4.0
+	 * @return bool|WP_Error
+	 */
+	public static function start_fresh_connection() {
+		// First clear the options / disconnect.
+		Jetpack::disconnect();
+		return self::build_connect_url();
 	}
 
 	/**
