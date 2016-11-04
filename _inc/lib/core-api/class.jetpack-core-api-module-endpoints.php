@@ -429,7 +429,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						? $toggle_module->activate_module( $option )
 						: $toggle_module->deactivate_module( $option );
 
-					if ( is_wp_error( $toggle_result ) ) {
+					if (
+						is_wp_error( $toggle_result )
+						&& 'already_inactive' === $toggle_result->get_error_code()
+					) {
+
+						// If the module is already inactive, we don't fail
+						$updated = true;
+					} elseif ( is_wp_error( $toggle_result ) ) {
 						$error = $toggle_result->get_error_message();
 					} else {
 						$updated = true;
@@ -466,7 +473,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					continue;
 				}
 
-				if ( ! Jetpack::is_module_active( $option_attrs['jp_group'] ) ) {
+				if (
+					'any' !== $data['slug']
+					&& ! Jetpack::is_module_active( $option_attrs['jp_group'] )
+				) {
+
+					// We only take note of skipped options when updating one module
 					$not_updated[ $option ] = esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' );
 					continue;
 				}
