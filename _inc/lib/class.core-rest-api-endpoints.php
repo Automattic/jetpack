@@ -712,7 +712,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function confirm_safe_mode() {
-		return self::set_jetpack_option_to_true_and_ensure_rest_response( 'safe_mode_confirmed' );
+		$updated = Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+		if ( $updated ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success'
+				)
+			);
+		}
+		return new WP_Error(
+			'error_setting_jetpack_safe_mode',
+			esc_html__( 'Could not confirm safe mode.', 'jetpack' ), array( 'status' => 500 )
+		);
 	}
 
 	/**
@@ -723,21 +734,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function migrate_stats_and_subscribers() {
-		Jetpack_Options::delete_option( 'sync_error_idc' );
-		return self::set_jetpack_option_to_true_and_ensure_rest_response( 'migrate_for_idc' );
-	}
+		$deleted = Jetpack_Options::delete_option( 'sync_error_idc' );
 
-	/**
-	 * Sets a jetpack option flag, and responds with an appropriate WP API response.
-	 *
-	 * @param $option_name The name of the jetpack option to set to true
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return string|WP_Error A proper WP API response. Success if the option was properly set
-	 */
-	public static function set_jetpack_option_to_true_and_ensure_rest_response( $option_name ) {
-		$updated = Jetpack_Options::update_option( $option_name, true );
+		if ( ! $deleted ) {
+			return new WP_Error(
+				'error_deleting_sync_error_idc',
+				esc_html__( 'Could not delete sync error option.', 'jetpack' ), array( 'status' => 500 )
+			);
+		}
+
+		$updated = Jetpack_Options::update_option( 'migrate_for_idc', true );
 		if ( $updated ) {
 			return rest_ensure_response(
 				array(
@@ -746,8 +752,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 		return new WP_Error(
-			'error_setting_jetpack_option',
-			esc_html__( 'Could not set Jetpack option.', 'jetpack' ), array( 'status' => 500 )
+			'error_setting_jetpack_migrate',
+			esc_html__( 'Could not confirm migration.', 'jetpack' ), array( 'status' => 500 )
 		);
 	}
 
