@@ -291,7 +291,7 @@ class Milestone_Widget extends WP_Widget {
 		<fieldset>
 			<legend><?php _e( 'Date and Time' ); ?></legend>
 
-			<label for="<?php echo $this->get_field_id( 'month' ); ?>" class="assistive-text"><?php _e( 'Month' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'month' ); ?>" class="screen-reader-text"><?php _e( 'Month' ); ?></label>
 			<select id="<?php echo $this->get_field_id( 'month' ); ?>" class="month" name="<?php echo $this->get_field_name( 'month' ); ?>">
 				<?php
 				global $wp_locale;
@@ -302,16 +302,16 @@ class Milestone_Widget extends WP_Widget {
 				?>
 			</select>
 
-			<label for="<?php echo $this->get_field_id( 'day' ); ?>" class="assistive-text"><?php _e( 'Day' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'day' ); ?>" class="screen-reader-text"><?php _e( 'Day' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'day' ); ?>" class="day" name="<?php echo $this->get_field_name( 'day' ); ?>" type="text" value="<?php echo esc_attr( $instance['day'] ); ?>">,
 
-			<label for="<?php echo $this->get_field_id( 'year' ); ?>" class="assistive-text"><?php _e( 'Year' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'year' ); ?>" class="screen-reader-text"><?php _e( 'Year' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'year' ); ?>" class="year" name="<?php echo $this->get_field_name( 'year' ); ?>" type="text" value="<?php echo esc_attr( $instance['year'] ); ?>">
 
-			@ <label for="<?php echo $this->get_field_id( 'hour' ); ?>" class="assistive-text"><?php _e( 'Hour' ); ?></label>
+			@ <label for="<?php echo $this->get_field_id( 'hour' ); ?>" class="screen-reader-text"><?php _e( 'Hour' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'hour' ); ?>" class="hour" name="<?php echo $this->get_field_name( 'hour' ); ?>" type="text" value="<?php echo esc_attr( $instance['hour'] ); ?>">
 
-			<label for="<?php echo $this->get_field_id( 'min' ); ?>" class="assistive-text"><?php _e( 'Minutes' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'min' ); ?>" class="screen-reader-text"><?php _e( 'Minutes' ); ?></label>
 			: <input id="<?php echo $this->get_field_id( 'min' ); ?>" class="minutes" name="<?php echo $this->get_field_name( 'min' ); ?>" type="text" value="<?php echo esc_attr( $instance['min'] ); ?>">
 		</fieldset>
 
