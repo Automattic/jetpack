@@ -128,6 +128,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_render() {
+		// We're in an IDC: we need a decision made before we show the UI again.
+		if ( Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' ) ) {
+			return false;
+		}
+
 		// Handle redirects to configuration pages
 		if ( ! empty( $_GET['configure'] ) ) {
 			return $this->render_nojs_configurable( $_GET['configure'] );
