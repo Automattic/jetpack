@@ -43,7 +43,7 @@ var Milestone = ( function( $ ) {
 				this.widget.find( '.milestone-countdown' ).replaceWith( '<div class="milestone-message">' + this.message + '</div>' );
 			} else {
 				var instance = this;
-				setTimeout( function() { instance.timer() }, 1000 );
+				setTimeout( function() { instance.timer(); }, 1000 );
 			}
 		};
 
