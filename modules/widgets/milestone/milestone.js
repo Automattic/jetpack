@@ -35,8 +35,8 @@ var Milestone = ( function( $ ) {
 				this.label = ( 1 == this.number ) ? labels.second : labels.seconds;
 			}
 
-			this.widget.find( '.difference' ).html( this.number );
-			this.widget.find( '.label' ).html( this.label );
+			this.widget.find( '.difference' ).text( this.number );
+			this.widget.find( '.label' ).text( this.label );
 
 			if ( 1 > this.diff ) {
 				this.widget.find( '.milestone-countdown' ).replaceWith( '<div class="milestone-message">' + this.message + '</div>' );
