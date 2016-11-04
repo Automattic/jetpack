@@ -80,9 +80,15 @@ class Jetpack_IDC {
 
 		$href = wp_nonce_url( $href, 'jetpack_idc_clear_confirmation' );
 
+		$title = sprintf(
+			'<span class="jp-idc-admin-bar">%s %s</span>',
+			'<span class="dashicons dashicons-warning"></span>',
+			esc_html__( 'Jetpack Safe Mode', 'jetpack' )
+		);
+
 		$menu = array(
 			'id'     => 'jetpack-idc',
-			'title'  => esc_html__( 'Jetpack Safe Mode', 'jetpack' ),
+			'title'  => $title,
 			'href'   => esc_url( $href ),
 			'parent' => 'top-secondary',
 		);
@@ -121,7 +127,7 @@ class Jetpack_IDC {
 		wp_enqueue_style(
 			'jetpack-idc-admin-bar-css',
 			plugins_url( 'css/jetpack-idc-admin-bar.css', JETPACK__PLUGIN_FILE ),
-			array(),
+			array( 'dashicons' ),
 			JETPACK__VERSION
 		);
 	}
