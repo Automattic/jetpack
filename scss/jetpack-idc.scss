@@ -1,6 +1,7 @@
 @import '../_inc/client/scss/variables/_colors.scss';
 
-.jp-idc-notice, .jp-idc-notice * {
+.jp-idc-notice, 
+.jp-idc-notice * {
 	box-sizing: border-box;
 }
 
@@ -62,7 +63,7 @@
 }
 
 .jp-idc-notice__content-header {
-	margin: 16px 0 16px 0;
+	margin: 16px 0;
 }
 
 .jp-idc-notice__content-header__lead {
@@ -75,12 +76,12 @@
 .jp-idc-notice__content-header .jp-idc-notice__content-header__explanation {
 	font-size: 14px;
 	font-weight: 400;
-	margin: 8px 0 0 0;
+	margin: 8px 0 0;
 }
 
 @media only screen and ( min-width: 960px ) {
 	.jp-idc-notice__content-header .jp-idc-notice__content-header__explanation {
-		margin: 4px 0 0 0;
+		margin: 4px 0 0;
 	}
 }
 
@@ -92,7 +93,7 @@
 }
 
 .jp-idc-notice__action:last-child {
-	margin: 16px 0 0 0;
+	margin: 16px 0 0;
 }
 
 @media only screen and ( min-width: 960px ) {
@@ -136,5 +137,5 @@
 }
 
 .jp-idc-notice .jp-idc-notice__unsure-prompt {
-	margin: 16px 0 0 0;
+	margin: 16px 0 0;
 }
