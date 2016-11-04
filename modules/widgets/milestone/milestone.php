@@ -10,7 +10,6 @@ License: GPLv2 or later
 
 class Milestone_Widget extends WP_Widget {
 	private static $dir       = null;
-	private static $url       = null;
 	private static $defaults  = null;
 	private static $config_js = null;
 
@@ -27,7 +26,6 @@ class Milestone_Widget extends WP_Widget {
 		parent::__construct( 'Milestone_Widget', __( 'Milestone' ), $widget, $control );
 
 		self::$dir = trailingslashit( __DIR__ );
-		self::$url = plugin_dir_url( __FILE__ );
 
 		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin' ) );
@@ -39,11 +37,11 @@ class Milestone_Widget extends WP_Widget {
 
 	public static function enqueue_admin( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix )
-			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20111212' );
+			wp_enqueue_style( 'milestone-admin', plugins_url( 'style-admin.css', __FILE__ ), array(), '20111212' );
 	}
 
 	public static function enqueue_template() {
-		wp_enqueue_script( 'milestone', self::$url . 'milestone.js', array( 'jquery' ), '20160520', true );
+		wp_enqueue_script( 'milestone', plugins_url( 'milestone.js', __FILE__ ), array( 'jquery' ), '20160520', true );
 	}
 
 	public static function styles_template() {
