@@ -234,13 +234,13 @@ class Jetpack_Photon {
 
 									// Prevent image distortion if a detected dimension exceeds the image's natural dimensions
 									if ( ( false !== $width && $width > $src_per_wp[1] ) || ( false !== $height && $height > $src_per_wp[2] ) ) {
-										$width = false == $width ? false : min( $width, $src_per_wp[1] );
-										$height = false == $height ? false : min( $height, $src_per_wp[2] );
+										$width = false === $width ? false : min( $width, $src_per_wp[1] );
+										$height = false === $height ? false : min( $height, $src_per_wp[2] );
 									}
 
 									// If no width and height are found, max out at source image's natural dimensions
 									// Otherwise, respect registered image sizes' cropping setting
-									if ( false == $width && false == $height ) {
+									if ( false === $width && false === $height ) {
 										$width = $src_per_wp[1];
 										$height = $src_per_wp[2];
 										$transform = 'fit';

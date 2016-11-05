@@ -37,7 +37,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		$this->update_options_whitelist();
 	}
 
-	function enqueue_full_sync_actions( $config ) {
+	function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		/**
 		 * Tells the client to sync all options to the server
 		 *
@@ -47,7 +47,8 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_full_sync_options', true );
 
-		return 1; // The number of actions enqueued
+		// The number of actions enqueued, and next module state (true == done)
+		return array( 1, true );
 	}
 
 	public function estimate_full_sync_actions( $config ) {

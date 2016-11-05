@@ -32,7 +32,7 @@ define( 'MARKDOWNEXTRA_VERSION',  "1.2.8" ); # 29 Nov 2013
 @define( 'MARKDOWN_FN_BACKLINK_TITLE',     "" );
 
 # Optional class attribute for footnote links and backlinks.
-@define( 'MARKDOWN_FN_LINK_CLASS',         "" );
+@define( 'MARKDOWN_FN_LINK_CLASS',         "jetpack-footnote" );
 @define( 'MARKDOWN_FN_BACKLINK_CLASS',     "" );
 
 # Optional class prefix for fenced code block.

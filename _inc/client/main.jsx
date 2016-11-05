@@ -24,15 +24,15 @@ import {
 	getSiteRawUrl,
 	getSiteAdminUrl,
 	getApiNonce,
-	getApiRootUrl
+	getApiRootUrl,
+	userCanManageModules
 } from 'state/initial-state';
 import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
 
 import AtAGlance from 'at-a-glance/index.jsx';
-import Engagement from 'engagement/index.jsx';
+import Discussion from 'discussion/index.jsx';
 import Security from 'security/index.jsx';
-import Appearance from 'appearance/index.jsx';
-import GeneralSettings from 'general-settings/index.jsx';
+import Traffic from 'traffic/index.jsx';
 import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
@@ -53,16 +53,38 @@ const Main = React.createClass( {
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalyitics();
 
-		this.props.router.listenBefore( () => {
-			if ( this.props.areThereUnsavedModuleOptions ) {
-				const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
-				if ( confirmLeave ) {
-					this.props.clearUnsavedOptionFlag();
-				} else {
-					return false;
-				}
+		// Handles refresh, closing and navigating away from Jetpack's Admin Page
+		window.addEventListener( 'beforeunload', this.onBeforeUnload );
+		// Handles transition between routes handled by react-router
+		this.props.router.listenBefore( this.routerWillLeave );
+	},
+
+	/*
+	 * Returns a string if there are unsaved module settings thus showing a confirm dialog to the user
+	 * according to the `beforeunload` event handling specification
+	 */
+	onBeforeUnload( e ) {
+		const dialogText = __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' );
+		if ( this.props.areThereUnsavedModuleOptions ) {
+			e.returnValue = dialogText;
+			return dialogText;
+		}
+	},
+
+	/*
+ 	 * Shows a confirmation dialog if there are unsaved module settings.
+ 	 *
+ 	 * Return true or false according to the history.listenBefore specification which is part of react-router
+	 */
+	routerWillLeave() {
+		if ( this.props.areThereUnsavedModuleOptions ) {
+			const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
+			if ( confirmLeave ) {
+				this.props.clearUnsavedOptionFlag();
+			} else {
+				return false;
 			}
-		} );
+		}
 	},
 
 	initializeAnalyitics() {
@@ -110,13 +132,11 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
-		const showJumpStart = this.props.jumpStartStatus;
-		const canManageModules = window.Initial_State.userData.currentUser.permissions.manage_modules;
 
 		// Track page views
 		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
-		if ( ! canManageModules ) {
+		if ( ! this.props.userCanManageModules ) {
 			return <NonAdminView { ...this.props } />
 		}
 
@@ -124,7 +144,7 @@ const Main = React.createClass( {
 			return <JetpackConnect />
 		}
 
-		if ( showJumpStart ) {
+		if ( this.props.jumpStartStatus ) {
 			if ( '/' === route ) {
 				const history = createHistory();
 				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
@@ -142,38 +162,30 @@ const Main = React.createClass( {
 			case '/apps':
 				pageComponent = <Apps siteRawUrl={ this.props.siteRawUrl } />;
 				break;
-			case '/professional':
+			case '/plans':
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/settings':
+			case '/writing':
 				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <GeneralSettings route={ this.props.route } />;
+				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
-			case '/general':
+			case '/discussion':
 				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <GeneralSettings route={ this.props.route } />;
-				break;
-			case '/engagement':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Engagement route={ this.props.route } />;
+				pageComponent = <Discussion route={ this.props.route } />;
 				break;
 			case '/security':
 				navComponent = <NavigationSettings route={ this.props.route } />;
 				pageComponent = <Security route={ this.props.route } />;
 				break;
-			case '/appearance':
+			case '/traffic':
 				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Appearance route={ this.props.route } />;
-				break;
-			case '/writing':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
+				pageComponent = <Traffic route={ this.props.route } />;
 				break;
 			case '/search':
 				navComponent = <NavigationSettings route={ this.props.route } />;
 				pageComponent = <SearchPage siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
-
 			default:
 				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 		}
@@ -220,7 +232,8 @@ export default connect(
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),
-			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state )
+			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state ),
+			userCanManageModules: userCanManageModules( state )
 		};
 	},
 	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag }, dispatch )
@@ -234,9 +247,9 @@ window.wpNavMenuClassChange = function() {
 	const settingRoutes = [
 		'#/settings',
 		'#/general',
-		'#/engagement',
+		'#/discussion',
 		'#/security',
-		'#/appearance',
+		'#/traffic',
 		'#/writing',
 		'#/search'
 	],
@@ -244,7 +257,7 @@ window.wpNavMenuClassChange = function() {
 		'#/',
 		'#/dashboard',
 		'#/apps',
-		'#/professional'
+		'#/plans'
 	];
 
 	// Clear currents
@@ -267,7 +280,7 @@ window.wpNavMenuClassChange = function() {
 
 	const $body = jQuery( 'body' );
 
-	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#security"], .dops-button[href="#professional"]', function() {
+	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#/security"], .dops-button[href="#/plans"]', function() {
 		window.scrollTo( 0, 0 );
 	} );
 

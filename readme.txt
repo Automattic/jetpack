@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stefmattana, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 4.3
+Stable tag: 4.3.2
 Requires at least: 4.5
 Tested up to: 4.6.1
 
@@ -75,9 +75,44 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.3.2 =
+
+* Release date: October 13, 2016
+
+**Enhancements**
+
+* Unsaved changes were getting lost when users were navigating away from settings so we put in a confirmation message to prevent this from happening.
+* We've stopped counting carousel views in stats by default, you can use the `jetpack_enable_carousel_stats` filter to enable counting them again.
+* Stats are now responding faster.
+* There were several improvements and repairs made to sync including additional endpoints, performance enhancements, whitelisted data, better decision making around when to sync information, and more.
+* Markdown now has a CSS class on footnotes.
+
+**Improved Compatibility:**
+
+* We've improved compatibility with Kinsta by automatically turning on Staging Mode for Jetpack when in a staging environment.
+
+**Bug Fixes:**
+
+* Several fixes have been made to sync to repair issues with Publicize, Notifications, and Subscriptions.
+* We removed PHP warnings by checking to make sure json language files like jetpack-en_US.json are readable before we load them.
+* We found an unused option in Gravatar Hovercard settings and removed it.
+* The correct support link is now being used to make it easier for you to connect with the Jetpack team if you need us.
+* The permissions check for plugin information retrieval was fixed as well.
+* Some plugins were adding content on outbound http requests causing an infinite loop we fixed this right up.
+* We removed some warnings that were occurring when translations didn't exist by adding a fallback.
+* We've added Moroccan Arabic translations, and switched to language packs for Croatian, Spanish (Chile) and Greek.
+* Sync was running into issues so we've limited dequeue time to 1/3 of PHP's max execution time, which has unclogged the problem.
+* We're now sending full and incremental queues separately so that a failure in one doesn't block the other.
+* There was a JavaScript enqueuing error with our Sharing feature that has been repaired.
+* The Top Posts widget now includes the ability to list attachment (media) pages.
+* We weren't building CPT links correctly resulting in bad navigation, which is now fixed.
+* We removed the form legend for default Tiled Gallery settings as it doesn't relate.
+* With shortcodes we now return early from processing them if no string is passed, as they are required.
+
+
 = 4.3.1 =
 
-* Release date: September 7, 2016
+* Release date: September 8, 2016
 
 **Support Enhancements**
 
@@ -90,6 +125,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled.
 * Admin Page: make sure all translated strings are encoded properly.
 * Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests.
+* Admin Page: search icon no longer overlaps the global notices.
+* Admin Page: make sure that non-admins can also modify Spellchecking settings.
 * General: Improve random number generation for compatibility with more hosts.
 * General: Add deprecated PHP file (class.jetpack-landing-page.php) back as an empty file, to avoid generating fatal errors on sites with aggressive caching.
 * General: Ensure concatenated CSS is generated for RTL languages.
@@ -97,6 +134,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Stats: fix display for sites with pretty permalinks disabled.
 * Subscriptions: ensure that no email is sent when updating a published post.
 * Sync: To improve performance, add snapTW to the list of post meta data that won't be synchronized for each post.
+* Sync: do not schedule a full sync after each import.
 * Verification Tools: in the Settings card, use appropriate link for each service.
 
 
@@ -175,4 +213,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * The PHP warnings of Sitemaps stylesheets have been eliminated.
 * We’ve done away with the warnings that appeared when Tonesque processes a file which claims to be one filetype, but is actually another.
 * We’ve exterminated PHP notices that appeared when using Random Redirect, as well as when the author wasn't set.
-

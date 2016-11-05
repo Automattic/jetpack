@@ -7,6 +7,25 @@ require_once( dirname( __FILE__ ) . '/../../../../modules/sso/class.jetpack-sso-
  * @since 4.1.0
  */
 class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
+	protected $user_data;
+
+	function setUp() {
+		$this->user_data = (object) array(
+			'ID'           => 123456789,
+			'email'        => 'ssouser@testautomattic.com',
+			'login'        => 'ssouser',
+			'display_name' => 'ssouser',
+			'first_name'   => 'sso',
+			'last_name'    => 'user',
+			'url'          => 'https://automattic.com',
+			'description'  => 'A user to test SSO',
+		);
+	}
+
+	function __return_one() {
+		return 1;
+	}
+
 	function test_sso_helpers_is_two_step_required_filter_true() {
 		add_filter( 'jetpack_sso_require_two_step', '__return_true' );
 		$this->assertTrue( Jetpack_SSO_Helpers::is_two_step_required() );
@@ -144,5 +163,48 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertCount( 4, $hosts );
 		$this->assertContains( 'fakesite.com', $hosts );
 		remove_filter( 'jetpack_development_version', '__return_true' );
+	}
+
+	function test_generate_user_returns_user_when_username_not_exists() {
+		$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
+		$this->assertInternalType( 'object', $user );
+		$this->assertInstanceOf( 'WP_User', $user );
+
+		wp_delete_user( $user->ID );
+	}
+
+	function test_generate_user_returns_user_if_username_exists_and_has_tries() {
+		add_filter( 'jetpack_sso_allowed_username_generate_retries', array( $this, '__return_one' )  );
+		$this->factory->user->create( array( 'user_login' => $this->user_data->login ) );
+
+		$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
+
+		$this->assertInternalType( 'object', $user );
+		$this->assertInstanceOf( 'WP_User', $user );
+
+		// If the username contains the user's ID, we know the username was generated with our random algo
+		$this->assertContains( (string) $this->user_data->ID, $user->user_login );
+
+		wp_delete_user( $user->ID );
+	}
+	
+	function test_generate_user_returns_false_when_no_more_tries_and_username_exists() {
+		add_filter( 'jetpack_sso_allowed_username_generate_retries', '__return_zero' );
+		$this->factory->user->create( array( 'user_login' => $this->user_data->login ) );
+		$this->assertFalse( Jetpack_SSO_Helpers::generate_user( $this->user_data ) );
+	}
+
+	function test_extend_auth_cookie_casts_to_int() {
+		add_filter( 'jetpack_sso_auth_cookie_expirtation', array( $this, '__return_string_value' ) );
+		$this->assertSame( intval( $this->__return_string_value() ), Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
+		remove_filter( 'jetpack_sso_auth_cookie_expirtation', array( $this, '__return_string_value' ) );
+	}
+
+	function test_extend_auth_cookie_default_value_greater_than_default() {
+		$this->assertGreaterThan( 2 * DAY_IN_SECONDS, Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
+	}
+
+	function __return_string_value() {
+		return '1';
 	}
 }

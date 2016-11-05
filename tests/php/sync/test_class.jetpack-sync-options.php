@@ -65,8 +65,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$options = array(
 			'stylesheet'                           => 'test',
 			'blogname'                             => 'test',
-			'home'                                 => 'http://test.com',
-			'siteurl'                              => 'http://test.com',
 			'blogdescription'                      => 'banana',
 			'blog_charset'                         => 'stuffs',
 			'permalink_structure'                  => '%postname%',
@@ -94,7 +92,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_sync_non_public_post_stati'   => 'pineapple',
 			'jetpack_options'                      => array( 'food' => 'pineapple' ),
 			'site_icon'                            => '1',
-			'jetpack_site_icon_url'                => 'http://test.com',
 			'default_post_format'                  => 'pineapple',
 			'default_category'                     => 0,
 			'large_size_w'                         => 1000,

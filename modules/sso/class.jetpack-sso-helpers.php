@@ -188,6 +188,58 @@ class Jetpack_SSO_Helpers {
 
 		return array_unique( $hosts );
 	}
+
+	static function generate_user( $user_data ) {
+		$username = $user_data->login;
+
+		/**
+		 * Determines how many times the SSO module can attempt to randomly generate a user.
+		 *
+		 * @module sso
+		 *
+		 * @since 4.3.2
+		 *
+		 * @param int 5 By default, SSO will attempt to random generate a user up to 5 times.
+		 */
+		$num_tries = intval( apply_filters( 'jetpack_sso_allowed_username_generate_retries', 5 ) );
+
+		$tries = 0;
+		while ( ( $exists = username_exists( $username ) ) && $tries++ < $num_tries ) {
+			$username = $user_data->login . '_' . $user_data->ID . '_' . mt_rand();
+		}
+
+		if ( $exists ) {
+			return false;
+		}
+
+		$password = wp_generate_password( 20 );
+		$user_id  = wp_create_user( $username, $password, $user_data->email );
+		$user     = get_userdata( $user_id );
+
+		$user->display_name = $user_data->display_name;
+		$user->first_name   = $user_data->first_name;
+		$user->last_name    = $user_data->last_name;
+		$user->url          = $user_data->url;
+		$user->description  = $user_data->description;
+		wp_update_user( $user );
+
+		update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
+		
+		return $user;
+	}
+
+	static function extend_auth_cookie_expiration_for_sso() {
+		/**
+		 * Determines how long the auth cookie is valid for when a user logs in with SSO.
+		 *
+		 * @module sso
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param int YEAR_IN_SECONDS
+		 */
+		return intval( apply_filters( 'jetpack_sso_auth_cookie_expirtation', YEAR_IN_SECONDS ) );
+	}
 }
 
 endif;

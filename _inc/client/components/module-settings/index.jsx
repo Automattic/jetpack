@@ -77,7 +77,7 @@ export let RelatedPostsSettings = React.createClass( {
 							{
 								show_thumbnails ? <img src={ preview.url } /> : ''
 							}
-							<span><a href="#/engagement"> { preview.text } </a></span>
+							<span><a href="#/discussion"> { preview.text } </a></span>
 						</span>
 					) )
 				}
@@ -441,28 +441,6 @@ export let MinilevenSettings = React.createClass( {
 
 MinilevenSettings = moduleSettingsForm( MinilevenSettings );
 
-export let GravatarHovercardsSettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<FormLegend>{ __( 'View people\'s profiles when you mouse over their Gravatars' ) }</FormLegend>
-					<ModuleSettingRadios
-						name={ 'gravatar_disable_hovercards' }
-						{ ...this.props }
-						validValues={ this.props.validValues( 'gravatar_disable_hovercards' ) } />
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-GravatarHovercardsSettings = moduleSettingsForm( GravatarHovercardsSettings );
-
 export let VerificationToolsSettings = React.createClass( {
 	render() {
 		return (
@@ -548,7 +526,6 @@ export let TiledGallerySettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<FormLegend>{ __( 'Excerpts' ) }</FormLegend>
 					<ModuleSettingCheckbox
 						name={ 'tiled_galleries' }
 						{ ...this.props }
@@ -627,7 +604,7 @@ export let CustomContentTypesSettings = React.createClass( {
 				'' :
 				<Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href={ this.props.siteAdminUrl + '/wp-admin/edit.php?post_type=jetpack-portfolio' }
+					href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-portfolio' }
 					compact={ true }
 				>{ __( 'Configure Portfolios' ) }</Button>;
 		};
@@ -637,7 +614,7 @@ export let CustomContentTypesSettings = React.createClass( {
 				'' :
 				<Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href={ this.props.siteAdminUrl + '/wp-admin/edit.php?post_type=jetpack-testimonial' }
+					href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-testimonial' }
 					compact={ true }
 				>{ __( 'Configure Testimonials' ) }</Button>;
 		};

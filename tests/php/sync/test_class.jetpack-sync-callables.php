@@ -75,6 +75,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'active_modules'                   => Jetpack::get_active_modules(),
 			'hosting_provider'                 => Jetpack_Sync_Functions::get_hosting_provider(),
 			'locale'                           => get_locale(),
+			'site_icon_url'                    => Jetpack_Sync_Functions::site_icon_url(),
 		);
 
 		if ( is_multisite() ) {
@@ -150,6 +151,88 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
 		$this->assertEquals( array( 'json-api' ), $synced_value );
+	}
+
+	function test_sync_always_sync_changes_to_home_siteurl_right_away() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->setSyncClientDefaults();
+
+		$original_home_option    = get_option( 'home' );
+		$original_siteurl_option = get_option( 'siteurl' );
+
+		// Let's see if the original values get synced
+		$this->sender->do_sync();
+		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+
+		$this->assertEquals( $original_home_option, $synced_home_url );
+		$this->assertEquals( $original_siteurl_option, $synced_site_url );
+
+		$this->server_replica_storage->reset();
+
+		$updated_home_option    = 'http://syncrocks.com';
+		$updated_siteurl_option = 'http://syncrocks.com';
+
+		update_option( 'home', $updated_home_option );
+		update_option( 'siteurl', $updated_siteurl_option );
+
+		$this->sender->do_sync();
+
+		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+
+		$this->assertEquals( $updated_home_option, $synced_home_url );
+		$this->assertEquals( $updated_siteurl_option, $synced_site_url );
+
+		// Cleanup
+		update_option( 'home', $original_home_option );
+		update_option( 'siteurl', $original_siteurl_option );
+	}
+
+	function test_sync_jetpack_sync_unlock_sync_callable_action_allows_syncing_siteurl_changes() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->setSyncClientDefaults();
+
+		$original_home_option    = get_option( 'home' );
+		$original_siteurl_option = get_option( 'siteurl' );
+
+		// Let's see if the original values get synced. This will also set the await transient.
+		$this->sender->do_sync();
+		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+
+		$this->assertEquals( $original_home_option, $synced_home_url );
+		$this->assertEquals( $original_siteurl_option, $synced_site_url );
+
+		$this->server_replica_storage->reset();
+
+		// We set the filters here to simulate how setting the WP_HOME and WP_SITEURL constant works.
+		add_filter( 'option_home',    array( $this, 'return_https_site_com_blog' ) );
+		add_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
+
+		// By calling this action, we simulate wp_schedule_single_event()
+
+		/**
+		 * Used to signal that the callables await transient should be cleared. Clearing the await transient is useful
+		 * in cases where we need to sync values to WordPress.com sooner than the default wait time.
+		 *
+		 * @since 4.4.0
+		 */
+		do_action( 'jetpack_sync_unlock_sync_callable' );
+
+		$this->sender->do_sync();
+
+		$synced_home_url = $synced_value = $this->server_replica_storage->get_callable( 'home_url' );
+		$synced_site_url   = $synced_value = $this->server_replica_storage->get_callable( 'site_url' );
+
+		$this->assertEquals( $this->return_https_site_com_blog(), $synced_home_url );
+		$this->assertEquals( $this->return_https_site_com_blog(), $synced_site_url );
+
+		// Cleanup
+		remove_filter( 'option_home',    array( $this, 'return_https_site_com_blog' ) );
+		remove_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
 	}
 
 	function test_scheme_switching_does_not_cause_sync() {
@@ -289,11 +372,41 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
 		
-		Jetpack_Sync_Settings::set_doing_cron( false );		
+		Jetpack_Sync_Settings::set_doing_cron( false );
 		$this->sender->do_sync();
 		$this->assertEquals( site_url(), $this->server_replica_storage->get_callable( 'site_url' ) );
 	}
 
+	function test_site_icon_url_returns_false_when_no_site_icon() {
+		delete_option( 'jetpack_site_icon_url' );
+		$this->sender->do_sync();
+		$this->assertFalse( $this->server_replica_storage->get_callable( 'site_icon_url' ) );
+	}
+
+	function test_site_icon_url_returns_core_site_icon_url_when_set() {
+		$attachment_id = $this->factory->post->create( array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'image/png',
+		) );
+		add_post_meta( $attachment_id, '_wp_attached_file', '2016/09/core_site_icon_url.png' );
+		update_option( 'site_icon', $attachment_id );
+		update_option( 'jetpack_site_icon_url', 'http://website.com/wp-content/uploads/2016/09/jetpack_site_icon.png' );
+
+		$this->sender->do_sync();
+
+		$this->assertContains( 'core_site_icon_url', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
+
+		delete_option( 'site_icon' );
+	}
+
+	function test_site_icon_url_fallback_to_jetpack_site_icon_url() {
+		delete_option( 'site_icon' );
+		update_option( 'jetpack_site_icon_url', 'http://website.com/wp-content/uploads/2016/09/jetpack_site_icon.png' );
+		$this->sender->do_sync();
+
+		$this->assertContains( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
+	}
+	
 	function add_www_subdomain_to_siteurl( $url ) {
 		$parsed_url = parse_url( $url );
 

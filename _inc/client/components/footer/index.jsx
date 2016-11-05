@@ -17,7 +17,7 @@ import {
 } from 'state/initial-state';
 import { resetOptions } from 'state/dev-version';
 import { disconnectSite } from 'state/connection';
-import { getSiteConnectionStatus } from 'state/connection';
+import { getSiteConnectionStatus, isInIdentityCrisis } from 'state/connection';
 import { isDevMode as _isDevMode } from 'state/connection';
 import { getSiteAdminUrl } from 'state/initial-state';
 
@@ -25,7 +25,10 @@ export const Footer = React.createClass( {
 	displayName: 'Footer',
 
 	disconnectSite() {
-		if ( window.confirm( __( 'Do you really want to disconnect your site from WordPress.com?' ) ) ) {
+		if (
+			this.props.isInIdentityCrisis ||
+			window.confirm( __( 'Do you really want to disconnect your site from WordPress.com?' ) )
+		) {
 			this.props.disconnectSite();
 		}
 	},
@@ -141,7 +144,8 @@ export default connect(
 			isDevVersion: _isDevVersion( state ),
 			isDevMode: _isDevMode( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
-			siteAdminUrl: getSiteAdminUrl( state )
+			siteAdminUrl: getSiteAdminUrl( state ),
+			isInIdentityCrisis: isInIdentityCrisis( state )
 		}
 	},
 	( dispatch ) => {

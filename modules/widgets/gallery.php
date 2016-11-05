@@ -134,6 +134,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		echo "\n" . '</div>'; // .widget-gallery-$type
 
 		echo "\n" . $after_widget;
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'gallery' );
 	}
 
 	/**

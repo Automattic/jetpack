@@ -15,7 +15,7 @@ import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import AtAGlance from 'at-a-glance/index.jsx';
-import Engagement from 'engagement/index.jsx';
+import Discussion from 'discussion/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
@@ -36,25 +36,26 @@ const NonAdminView = React.createClass( {
 			navComponent = <Navigation { ...this.props } />;
 		switch ( route ) {
 			case '/dashboard':
+			default:
 				if ( this.props.userCanViewStats || this.props.isModuleActivated( 'protect' ) ) {
 					pageComponent = <AtAGlance { ...this.props } />;
+				} else {
+					// If routing took us to Dashboard but user can't view anything, fallback to Apps
+					pageComponent = <Apps { ...this.props } />;
 				}
 				break;
 			case '/apps':
 				pageComponent = <Apps { ...this.props } />;
 				break;
 			case '/settings':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <GeneralSettings { ...this.props } />;
-				break;
 			case '/general':
 				navComponent = <NavigationSettings { ...this.props } />;
 				pageComponent = <GeneralSettings { ...this.props } />;
 				break;
-			case '/engagement':
+			case '/discussion':
 				if ( ! this.props.isSubscriber ) {
 					navComponent = <NavigationSettings { ...this.props } />;
-					pageComponent = <Engagement { ...this.props } />;
+					pageComponent = <Discussion { ...this.props } />;
 				}
 				break;
 			case '/writing':
@@ -63,9 +64,6 @@ const NonAdminView = React.createClass( {
 					pageComponent = <Writing { ...this.props } />;
 				}
 				break;
-
-			default:
-				pageComponent = <AtAGlance { ...this.props } />;
 		}
 
 		window.wpNavMenuClassChange();

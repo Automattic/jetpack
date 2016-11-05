@@ -47,7 +47,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param string|WP_REST_Request $data {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -56,7 +56,11 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public function activate_module( $data ) {
-		if ( ! Jetpack::is_module( $data['slug'] ) ) {
+		$module_slug = isset( $data['slug'] )
+			? $data['slug']
+			: $data;
+
+		if ( ! Jetpack::is_module( $module_slug ) ) {
 			return new WP_Error(
 				'not_found',
 				esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ),
@@ -65,17 +69,17 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 		}
 
 		if (
-			in_array( $data['slug'], $this->modules_requiring_public )
+			in_array( $module_slug, $this->modules_requiring_public )
 			&& ! $this->is_site_public()
 		) {
 			return new WP_Error(
 				'rest_cannot_publish',
-				__( 'This module requires your site to be set to publicly accessible.', 'jetpack' ),
+				esc_html__( 'This module requires your site to be set to publicly accessible.', 'jetpack' ),
 				array( 'status' => 424 )
 			);
 		}
 
-		if ( Jetpack::activate_module( $data['slug'], false, false ) ) {
+		if ( Jetpack::activate_module( $module_slug, false, false ) ) {
 			return rest_ensure_response( array(
 				'code' 	  => 'success',
 				'message' => esc_html__( 'The requested Jetpack module was activated.', 'jetpack' ),
@@ -94,7 +98,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param string|WP_REST_Request $data {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -103,7 +107,11 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public function deactivate_module( $data ) {
-		if ( ! Jetpack::is_module( $data['slug'] ) ) {
+		$module_slug = isset( $data['slug'] )
+			? $data['slug']
+			: $data;
+
+		if ( ! Jetpack::is_module( $module_slug ) ) {
 			return new WP_Error(
 				'not_found',
 				esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ),
@@ -111,7 +119,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 			);
 		}
 
-		if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
+		if ( ! Jetpack::is_module_active( $module_slug ) ) {
 			return new WP_Error(
 				'already_inactive',
 				esc_html__( 'The requested Jetpack module was already inactive.', 'jetpack' ),
@@ -119,7 +127,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 			);
 		}
 
-		if ( Jetpack::deactivate_module( $data['slug'] ) ) {
+		if ( Jetpack::deactivate_module( $module_slug ) ) {
 			return rest_ensure_response( array(
 				'code' 	  => 'success',
 				'message' => esc_html__( 'The requested Jetpack module was deactivated.', 'jetpack' ),
@@ -146,6 +154,15 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 
 class Jetpack_Core_API_Module_List_Endpoint {
 
+	/**
+	 * A WordPress REST API callback method that accepts a request object and decides what to do with it.
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @since 4.3.0
+	 *
+	 * @return bool|Array|WP_Error a resulting value or object, or an error.
+	 */
 	public function process( $request ) {
 		if ( 'GET' === $request->get_method() ) {
 			return $this->get_modules( $request );
@@ -264,6 +281,16 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		);
 	}
 
+	/**
+	 * A WordPress REST API permission callback method that accepts a request object and decides
+	 * if the current user has enough privileges to act.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return bool does the current user have enough privilege.
+	 */
 	public function can_request( $request ) {
 		if ( 'GET' === $request->get_method() ) {
 			return current_user_can( 'jetpack_admin_page' );
@@ -273,14 +300,30 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	}
 }
 
-class Jetpack_Core_API_Module_Endpoint
-	extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
+/**
+ * Class that manages updating of Jetpack module options and general Jetpack settings or retrieving module data.
+ *
+ * @since 4.3.0
+ * @since 4.4.0 Renamed Jetpack_Core_API_Module_Endpoint from to Jetpack_Core_API_Data.
+ *
+ * @author Automattic
+ */
+class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
+	/**
+	 * Process request by returning the module or updating it.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $data
+	 *
+	 * @return bool|mixed|void|WP_Error
+	 */
 	public function process( $data ) {
 		if ( 'GET' === $data->get_method() ) {
 			return $this->get_module( $data );
 		} else {
-			return $this->update_module( $data );
+			return $this->update_data( $data );
 		}
 	}
 
@@ -344,13 +387,22 @@ class Jetpack_Core_API_Module_Endpoint
 	 *
 	 * @return bool|WP_Error True if module was updated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public function update_module( $data ) {
-		if ( ! Jetpack::is_module( $data['slug'] ) ) {
-			return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
-		}
+	public function update_data( $data ) {
 
-		if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
-			return new WP_Error( 'inactive', esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' ), array( 'status' => 409 ) );
+		// If it's null, we're trying to update many module options from different modules.
+		if ( is_null( $data['slug'] ) ) {
+
+			// Value admitted by Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list that will make it return all module options.
+			// It will not be passed. It's just checked in this method to pass that method a string or array.
+			$data['slug'] = 'any';
+		} else {
+			if ( ! Jetpack::is_module( $data['slug'] ) ) {
+				return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
+			}
+
+			if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
+				return new WP_Error( 'inactive', esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' ), array( 'status' => 409 ) );
+			}
 		}
 
 		// Get parameters to update the module.
@@ -362,24 +414,65 @@ class Jetpack_Core_API_Module_Endpoint
 		}
 
 		// Get available module options.
-		$options = Jetpack_Core_Json_Api_Endpoints::get_module_available_options( $data['slug'] );
+		$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'any' === $data['slug']
+			? $params
+			: $data['slug']
+		);
+
+		// Prepare to toggle module if needed
+		$toggle_module = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
 
 		// Options that are invalid or failed to update.
-		$invalid = array();
+		$invalid = array_keys( array_diff_key( $params, $options ) );
 		$not_updated = array();
+
+		// Remove invalid options
+		$params = array_intersect_key( $params, $options );
 
 		// Used if response is successful. The message can be overwritten and additional data can be added here.
 		$response = array(
 			'code'	  => 'success',
-			'message' => esc_html__( 'The requested Jetpack module was updated.', 'jetpack' ),
+			'message' => esc_html__( 'The requested Jetpack data updates were successful.', 'jetpack' ),
 		);
 
+		// If there are modules to activate, activate them first so they're ready when their options are set.
 		foreach ( $params as $option => $value ) {
-			// If option is invalid, don't go any further.
-			if ( ! in_array( $option, array_keys( $options ) ) ) {
-				$invalid[] = $option;
-				continue;
+			if ( 'modules' === $options[ $option ]['jp_group'] ) {
+
+				// Used if there was an error. Can be overwritten with specific error messages.
+				$error = '';
+
+				// Set to true if the module toggling was successful.
+				$updated = false;
+
+				// Check if user can toggle the module.
+				if ( $toggle_module->can_request() ) {
+
+					// Activate or deactivate the module according to the value passed.
+					$toggle_result = $value
+						? $toggle_module->activate_module( $option )
+						: $toggle_module->deactivate_module( $option );
+
+					if ( is_wp_error( $toggle_result ) ) {
+						$error = $toggle_result->get_error_message();
+					} else {
+						$updated = true;
+					}
+				} else {
+					$error = Jetpack_Core_Json_Api_Endpoints::$user_permissions_error_msg;
+				}
+
+				// The module was not toggled.
+				if ( ! $updated ) {
+					$not_updated[ $option ] = $error;
+				}
+
+				// Remove module from list so we don't go through it again.
+				unset( $params[ $option ] );
 			}
+		}
+
+		foreach ( $params as $option => $value ) {
 
 			// Used if there was an error. Can be overwritten with specific error messages.
 			$error = '';
@@ -387,8 +480,24 @@ class Jetpack_Core_API_Module_Endpoint
 			// Set to true if the option update was successful.
 			$updated = false;
 
+			// Get option attributes, including the group it belongs to.
+			$option_attrs = $options[ $option ];
+
+			// If this is a module option and the related module isn't active for any reason, continue with the next one.
+			if ( 'settings' !== $option_attrs['jp_group'] ) {
+				if ( ! Jetpack::is_module( $option_attrs['jp_group'] ) ) {
+					$not_updated[ $option ] = esc_html__( 'The requested Jetpack module was not found.', 'jetpack' );
+					continue;
+				}
+
+				if ( ! Jetpack::is_module_active( $option_attrs['jp_group'] ) ) {
+					$not_updated[ $option ] = esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' );
+					continue;
+				}
+			}
+
 			// Properly cast value based on its type defined in endpoint accepted args.
-			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $options[ $option ] );
+			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $option_attrs );
 
 			switch ( $option ) {
 				case 'monitor_receive_notifications':
@@ -420,8 +529,8 @@ class Jetpack_Core_API_Module_Endpoint
 
 					// If we got an email address (create or regenerate) or 1 (delete), consider it done.
 					if ( preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
-						$response[ $option ] = $result;
-						$updated = true;
+						$response[$option] = $result;
+						$updated           = true;
 					} elseif ( 1 == $result ) {
 						$updated = true;
 					} elseif ( is_array( $result ) && isset( $result['message'] ) ) {
@@ -439,8 +548,8 @@ class Jetpack_Core_API_Module_Endpoint
 
 					// If we got one of Protect keys, consider it done.
 					if ( preg_match( '/[a-z0-9]{40,}/i', $result ) ) {
-						$response[ $option ] = $result;
-						$updated = true;
+						$response[$option] = $result;
+						$updated           = true;
 					}
 					break;
 
@@ -453,8 +562,8 @@ class Jetpack_Core_API_Module_Endpoint
 
 				case 'show_headline':
 				case 'show_thumbnails':
-					$grouped_options = $grouped_options_current = (array) Jetpack_Options::get_option( 'relatedposts' );
-					$grouped_options[ $option ] = $value;
+					$grouped_options          = $grouped_options_current = (array) Jetpack_Options::get_option( 'relatedposts' );
+					$grouped_options[$option] = $value;
 
 					// If option value was the same, consider it done.
 					$updated = $grouped_options_current != $grouped_options ? Jetpack_Options::update_option( 'relatedposts', $grouped_options ) : true;
@@ -463,8 +572,8 @@ class Jetpack_Core_API_Module_Endpoint
 				case 'google':
 				case 'bing':
 				case 'pinterest':
-					$grouped_options = $grouped_options_current = (array) get_option( 'verification_services_codes' );
-					$grouped_options[ $option ] = $value;
+					$grouped_options          = $grouped_options_current = (array) get_option( 'verification_services_codes' );
+					$grouped_options[$option] = $value;
 
 					// If option value was the same, consider it done.
 					$updated = $grouped_options_current != $grouped_options ? update_option( 'verification_services_codes', $grouped_options ) : true;
@@ -480,27 +589,27 @@ class Jetpack_Core_API_Module_Endpoint
 				case 'button_style':
 				case 'sharing_label':
 				case 'show':
-					$sharer = new Sharing_Service();
-					$grouped_options = $sharer->get_global_options();
-					$grouped_options[ $option ] = $value;
-					$updated = $sharer->set_global_options( $grouped_options );
+					$sharer                   = new Sharing_Service();
+					$grouped_options          = $sharer->get_global_options();
+					$grouped_options[$option] = $value;
+					$updated                  = $sharer->set_global_options( $grouped_options );
 					break;
 
 				case 'custom':
-					$sharer = new Sharing_Service();
+					$sharer  = new Sharing_Service();
 					$updated = $sharer->new_service( stripslashes( $value['sharing_name'] ), stripslashes( $value['sharing_url'] ), stripslashes( $value['sharing_icon'] ) );
 
 					// Return new custom service
-					$response[ $option ] = $updated;
+					$response[$option] = $updated;
 					break;
 
 				case 'sharing_delete_service':
-					$sharer = new Sharing_Service();
+					$sharer  = new Sharing_Service();
 					$updated = $sharer->delete_service( $value );
 					break;
 
 				case 'jetpack-twitter-cards-site-tag':
-					$value = trim( ltrim( strip_tags( $value ), '@' ) );
+					$value   = trim( ltrim( strip_tags( $value ), '@' ) );
 					$updated = get_option( $option ) !== $value ? update_option( $option, $value ) : true;
 					break;
 
@@ -521,40 +630,40 @@ class Jetpack_Core_API_Module_Endpoint
 						$atd_option = 'AtD_check_when';
 					} elseif ( 'guess_lang' == $option ) {
 						$atd_option = 'AtD_guess_lang';
-						$option = 'true';
+						$option     = 'true';
 					} else {
 						$atd_option = 'AtD_options';
 					}
-					$user_id = get_current_user_id();
+					$user_id                 = get_current_user_id();
 					$grouped_options_current = AtD_get_options( $user_id, $atd_option );
 					unset( $grouped_options_current['name'] );
 					$grouped_options = $grouped_options_current;
-					if ( $value && ! isset( $grouped_options [ $option ] ) ) {
-						$grouped_options [ $option ] = $value;
-					} elseif ( ! $value && isset( $grouped_options [ $option ] ) ) {
-						unset( $grouped_options [ $option ] );
+					if ( $value && ! isset( $grouped_options [$option] ) ) {
+						$grouped_options [$option] = $value;
+					} elseif ( ! $value && isset( $grouped_options [$option] ) ) {
+						unset( $grouped_options [$option] );
 					}
 					// If option value was the same, consider it done, otherwise try to update it.
 					$options_to_save = implode( ',', array_keys( $grouped_options ) );
-					$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $options_to_save ) : true;
+					$updated         = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $options_to_save ) : true;
 					break;
 
 				case 'ignored_phrases':
 				case 'unignore_phrase':
-					$user_id = get_current_user_id();
-					$atd_option = 'AtD_ignored_phrases';
+					$user_id         = get_current_user_id();
+					$atd_option      = 'AtD_ignored_phrases';
 					$grouped_options = $grouped_options_current = explode( ',', AtD_get_setting( $user_id, $atd_option ) );
 					if ( 'ignored_phrases' == $option ) {
 						$grouped_options = explode( ',', $value );
 					} else {
 						$index = array_search( $value, $grouped_options );
 						if ( false !== $index ) {
-							unset( $grouped_options[ $index ] );
+							unset( $grouped_options[$index] );
 							$grouped_options = array_values( $grouped_options );
 						}
 					}
 					$ignored_phrases = implode( ',', array_filter( array_map( 'strip_tags', $grouped_options ) ) );
-					$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $ignored_phrases ) : true;
+					$updated         = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $ignored_phrases ) : true;
 					break;
 
 				case 'admin_bar':
@@ -564,17 +673,21 @@ class Jetpack_Core_API_Module_Endpoint
 				case 'do_not_track':
 				case 'hide_smile':
 				case 'version':
-					$grouped_options = $grouped_options_current = (array) get_option( 'stats_options' );
-					$grouped_options[ $option ] = $value;
+					$grouped_options          = $grouped_options_current = (array) get_option( 'stats_options' );
+					$grouped_options[$option] = $value;
 
 					// If option value was the same, consider it done.
 					$updated = $grouped_options_current != $grouped_options ? update_option( 'stats_options', $grouped_options ) : true;
 					break;
 
+				case Jetpack_Core_Json_Api_Endpoints::holiday_snow_option_name():
+					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? 'letitsnow' : '' ) : true;
+					break;
+
 				case 'wp_mobile_featured_images':
 				case 'wp_mobile_excerpt':
 					$value = ( 'enabled' === $value ) ? '1' : '0';
-					// break intentionally omitted
+				// break intentionally omitted
 				default:
 					// If option value was the same, consider it done.
 					$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
@@ -596,8 +709,8 @@ class Jetpack_Core_API_Module_Endpoint
 			$error = '';
 			if ( $invalid_count > 0 ) {
 				$error = sprintf(
-					/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
-					_n( 'Invalid option for this module: %s.', 'Invalid options for this module: %s.', $invalid_count, 'jetpack' ),
+				/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
+					_n( 'Invalid option: %s.', 'Invalid options: %s.', $invalid_count, 'jetpack' ),
 					join( ', ', $invalid )
 				);
 			}
@@ -606,7 +719,7 @@ class Jetpack_Core_API_Module_Endpoint
 				foreach ( $not_updated as $not_updated_option => $not_updated_message ) {
 					if ( ! empty( $not_updated_message ) ) {
 						$not_updated_messages[] = sprintf(
-							/* Translators: the first variable is a module option name. The second is the error message . */
+						/* Translators: the first variable is a module option or slug, or setting. The second is the error message . */
 							__( 'Extra info for %1$s: %2$s', 'jetpack' ),
 							$not_updated_option, $not_updated_message );
 					}
@@ -615,7 +728,7 @@ class Jetpack_Core_API_Module_Endpoint
 					$error .= ' ';
 				}
 				$error .= sprintf(
-					/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
+				/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
 					_n( 'Option not updated: %s.', 'Options not updated: %s.', $not_updated_count, 'jetpack' ),
 					join( ', ', array_keys( $not_updated ) ) );
 				if ( ! empty( $not_updated_messages ) ) {
@@ -665,7 +778,7 @@ class Jetpack_Core_API_Module_Endpoint
 	/**
 	 * Check if user is allowed to perform the update.
 	 *
-	 * @since 4.3
+	 * @since 4.3.0
 	 *
 	 * @param WP_REST_Request $request
 	 *
@@ -795,23 +908,28 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
 		}
 
-		$response = array(
-			'general' => stats_get_from_restapi(),
-		);
-
 		switch ( $range ) {
-			case 'day':
-				$response['day'] = stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' );
-				break;
-			case 'week':
-				$response['week'] = stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' );
-				break;
-			case 'month':
-				$response['month'] = stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' );
-				break;
-		}
 
-		return rest_ensure_response( $response );
+			// This is always called first on page load
+			case 'day':
+				$initial_stats = stats_get_from_restapi();
+				return rest_ensure_response( array(
+					'general' => $initial_stats,
+
+					// Build data for 'day' as if it was stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' );
+					'day' => isset( $initial_stats->visits )
+						? $initial_stats->visits
+						: array(),
+				) );
+			case 'week':
+				return rest_ensure_response( array(
+					'week' => stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' ),
+				) );
+			case 'month':
+				return rest_ensure_response( array(
+					'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
+				) );
+		}
 	}
 
 	/**
@@ -980,7 +1098,41 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		}
 	}
 
+	/**
+	 * A WordPress REST API permission callback method that accepts a request object and
+	 * decides if the current user has enough privileges to act.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return bool does a current user have enough privileges.
+	 */
 	public function can_request() {
 		return current_user_can( 'jetpack_admin_page' );
 	}
 }
+
+/**
+ * Actions performed only when Gravatar Hovercards is activated through the endpoint call.
+ *
+ * @since 4.3.1
+ */
+function jetpack_do_after_gravatar_hovercards_activation() {
+
+	// When Gravatar Hovercards is activated, enable them automatically.
+	update_option( 'gravatar_disable_hovercards', 'enabled' );
+}
+add_action( 'jetpack_activate_module_gravatar-hovercards', 'jetpack_do_after_gravatar_hovercards_activation' );
+
+/**
+ * Actions performed only when Gravatar Hovercards is activated through the endpoint call.
+ *
+ * @since 4.3.1
+ */
+function jetpack_do_after_gravatar_hovercards_deactivation() {
+
+	// When Gravatar Hovercards is deactivated, disable them automatically.
+	update_option( 'gravatar_disable_hovercards', 'disabled' );
+}
+add_action( 'jetpack_deactivate_module_gravatar-hovercards', 'jetpack_do_after_gravatar_hovercards_deactivation' );
