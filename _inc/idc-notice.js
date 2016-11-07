@@ -17,7 +17,6 @@
 
 	// If the user dismisses the notice, set a cookie for one week so we don't display it for that time.
 	notice.on( 'click.wp-dismiss-notice', function() {
-		console.log( 'dismissed' );
 		var secure = ( 'https:' === window.location.protocol );
 		wpCookies.set( 'jetpack_idc_dismiss_notice', '1', 7 * 24 * 60 * 60, false, false, secure );
 	} );
