@@ -373,11 +373,6 @@ new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/akismet/install'
 ) );
 
-
-
-
-
-
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-delete-endpoint.php' );
 // POST /sites/%s/plugins/%s/delete
 new Jetpack_JSON_API_Plugins_Delete_Endpoint( array(
