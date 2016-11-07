@@ -87,7 +87,7 @@ class Jetpack_VideoPress {
 			'method' => 'POST',
 		);
 
-		$endpoint = "sites/{$options['blog_id']}/media/token";
+		$endpoint = "sites/{$options['shadow_blog_id']}/media/token";
 		$result   = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args );
 
 		if ( is_wp_error( $result ) ) {
@@ -98,7 +98,7 @@ class Jetpack_VideoPress {
 
 		$response = json_decode( $result['body'], true );
 
-		if ( empty( $response['upload_blog_id'] ) || empty( $response['upload_token'] ) ) {
+		if ( empty( $response['upload_token'] ) ) {
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
 
 			return;
@@ -106,7 +106,7 @@ class Jetpack_VideoPress {
 
 		$title = sanitize_title( basename( $_POST['filename'] ) );
 
-		$response['upload_action_url'] = self::make_media_upload_path( $response['upload_blog_id'] );
+		$response['upload_action_url'] = self::make_media_upload_path( $response['shadow_blog_id'] );
 		$response['upload_media_id']   = $this->create_new_media_item( $title );
 
 		wp_send_json_success( $response );
@@ -117,10 +117,9 @@ class Jetpack_VideoPress {
 	 */
 	function get_options() {
 		$defaults = array(
-			'blog_id'      => 0,
-			'freedom'      => false,
-			'hd'           => true,
-			'meta'         => array(
+			'freedom'        => false,
+			'hd'             => true,
+			'meta'           => array(
 				'max_upload_size' => 0,
 			),
 		);
@@ -135,10 +134,11 @@ class Jetpack_VideoPress {
 
 		$options = array_merge( $defaults, $options );
 
-		// Add in the site id to the VideoPress options. Added at the bottom the ensure this cannot be overridden.
-
-		if ( $options['blog_id'] == 0 && $this->isVideoPressIncludedInJetpackPlan() ) {
-			$options['blog_id'] = Jetpack_Options::get_option( 'id' );
+		// Make sure that the shadow blog id never comes from the options, but instead uses the
+		// associated shadow blog id, if videopress is enabled.
+		$options['shadow_blog_id'] = 0;
+		if ( $this->isVideoPressIncludedInJetpackPlan() ) {
+			$options['shadow_blog_id'] = Jetpack_Options::get_option( 'id' );
 		}
 
 		return $options;
@@ -162,7 +162,7 @@ class Jetpack_VideoPress {
 		$options = $this->get_options();
 
 		if ( $this->isVideoPressIncludedInJetpackPlan() ) {
-			$options['blog_id'] = Jetpack_Options::get_option( 'id' );
+			$options['shadow_blog_id'] = Jetpack_Options::get_option( 'id' );
 		}
 
 		$this->update_options( $options );
@@ -192,7 +192,7 @@ class Jetpack_VideoPress {
 
 		$params = array(
 			'args'          => $args,
-			'video_blog_id' => $options['blog_id'],
+			'video_blog_id' => $options['shadow_blog_id'],
 			'caps'          => array(),
 		);
 
@@ -949,7 +949,7 @@ class Jetpack_VideoPress {
 
 		$options = $this->get_options();
 
-		return $options['blog_id'] > 0;
+		return $options['shadow_blog_id'] > 0;
 	}
 
 	/**
