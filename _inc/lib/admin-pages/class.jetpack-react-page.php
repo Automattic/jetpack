@@ -301,7 +301,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$settings = array();
 
 		foreach ( $modules as $slug => $data ) {
-			$settings [ $slug ] = $data['activated'] ? true : false;
+			$settings[ $slug ] = $data['activated'] ? true : false;
 
 			foreach ( $data['options'] as $name => $option ) {
 				$settings[ $name ] = $option['current_value'];
