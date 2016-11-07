@@ -168,5 +168,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::success( sprintf( __( 'The cron named `%s` was removed from the schedule.', 'jetpack' ), $args[0] ) );
 		}
 	}
+
 	WP_CLI::add_command( 'videopress', 'VideoPress_CLI' );
 }

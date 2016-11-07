@@ -251,7 +251,7 @@ class VideoPress_Edit_Attachment {
 			'hd_mp4'  => 'High Definition',
 		);
 
-		$embed = "[wpvideo {$info->guid}]";
+		$embed = "[videopress {$info->guid}]";
 
 		$shortcode = '<input type="text" id="plugin-embed" readonly="readonly" style="width:180px;" value="' . esc_attr( $embed ) . '" onclick="this.focus();this.select();" />';
 

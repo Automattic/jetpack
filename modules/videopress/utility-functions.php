@@ -219,68 +219,6 @@ function videopress_cleanup_media_library() {
 	return $cleaned;
 }
 
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	/**
-	 * Manage and import VideoPress videos.
-	 */
-	class VideoPress_CLI extends WP_CLI_Command {
-		/**
-		 * Import a VideoPress Video
-		 *
-		 * ## OPTIONS
-		 *
-		 * <guid>: Import the video with the specified guid
-		 *
-		 * ## EXAMPLES
-		 *
-		 * wp videopress import kUJmAcSf
-		 *
-		 */
-		public function import( $args ) {
-			$guid = $args[0];
-			$attachment_id = create_local_media_library_for_videopress_guid( $guid );
-			if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
-				WP_CLI::success( sprintf( __( 'The video has been imported as Attachment ID %d', 'jetpack' ), $attachment_id ) );
-			} else {
-				WP_CLI::error( __( 'An error has been encountered.', 'jetpack' ) );
-			}
-		}
-
-		/**
-		 * Calls to the videopress_cleanup_media_library() function directly.
-		 */
-		public function cleanup_videos() {
-			$num_cleaned = videopress_cleanup_media_library();
-
-			WP_CLI::success( sprintf( __( 'Cleaned up a total of %d videos.', 'jetpack' ), $num_cleaned ) );
-		}
-
-		public function check_cleanup_cron_status() {
-			$time = wp_next_scheduled( 'videopress_cleanup_media_library' );
-
-			if ( ! $time ) {
-				WP_CLI::success( __( 'The cron is not scheduled to run.', 'jetpack' ) );
-
-			} else {
-				WP_CLI::success( __( sprintf( 'Cron will run at: %s GMT', gmdate( 'Y-m-d H:i:s', $time ) ), 'jetpack' ) );
-			}
-		}
-
-		public function activate_cleanup_cron() {
-			if ( ! Jetpack::is_module_active( 'videopress' ) ) {
-				return false;
-			}
-
-			if ( ! wp_next_scheduled( 'videopress_cleanup_media_library' ) ) {
-				wp_schedule_event( time(), 'minutes_30', 'videopress_cleanup_media_library' );
-			}
-
-			WP_CLI::success( __( 'Scheduled.', 'jetpack' ) );
-		}
-	}
-	WP_CLI::add_command( 'videopress', 'VideoPress_CLI' );
-}
-
 /**
  * Return an absolute URI for a given filename and guid on the CDN.
  * No check is performed to ensure the guid exists or the file is present. Simple centralized string builder.
@@ -297,6 +235,7 @@ function videopress_cdn_file_url( $guid, $filename ) {
 /**
  * Get an array of the transcoding status for the given video post.
  *
+ * @since 4.4
  * @param int $post_id
  * @return array|bool Returns an array of statuses if this is a VideoPress post, otherwise it returns false.
  */
@@ -323,10 +262,143 @@ function videopress_get_transcoding_status( $post_id ) {
 /**
  * Get the direct url to the video.
  *
+ * @since 4.4
  * @param string $guid
- *
  * @return string
  */
 function videopress_build_url( $guid ) {
 	return 'https://videopress.com/v/' . $guid;
+}
+
+/**
+ * Create an empty videopress media item that will be filled out later by an xmlrpc
+ * callback from the VideoPress servers.
+ *
+ * @since 4.4
+ * @param string $title
+ * @return int|WP_Error
+ */
+function videopress_create_new_media_item( $title ) {
+	$post = array(
+		'post_type'      => 'attachment',
+		'post_mime_type' => 'video/videopress',
+		'post_title'     => $title,
+		'post_content'   => '',
+	);
+
+	$media_id = wp_insert_post( $post );
+
+	add_post_meta( $media_id, 'videopress_status', 'new' );
+
+	return $media_id;
+}
+
+
+/**
+ * Check to see if a video has completed processing.
+ *
+ * @since 4.4
+ * @param int $post_id
+ * @return bool
+ */
+function videopress_is_finished_processing( $post_id ) {
+	$post = get_post( $post_id );
+
+	if ( is_wp_error( $post ) ) {
+		return false;
+	}
+
+	$meta = wp_get_attachment_metadata( $post->ID );
+
+	if ( ! isset( $meta['videopress'] ) || ! is_array( $meta['videopress'] ) ) {
+		return false;
+	}
+
+	// These are explicitly declared to avoid doing unnecessary loops across two levels of arrays.
+	if ( isset( $meta['videopress']['files_status']['hd'] ) && $meta['videopress']['files_status']['hd'] != 'DONE' ) {
+		return false;
+	}
+
+	if ( isset( $meta['videopress']['files_status']['dvd'] ) && $meta['videopress']['files_status']['dvd'] != 'DONE' ) {
+		return false;
+	}
+
+	if ( isset( $meta['videopress']['files_status']['std']['mp4'] ) && $meta['videopress']['files_status']['std']['mp4'] != 'DONE' ) {
+		return false;
+	}
+
+	if ( isset( $meta['videopress']['files_status']['std']['ogg'] ) && $meta['videopress']['files_status']['std']['ogg'] != 'DONE' ) {
+		return false;
+	}
+
+	return true;
+}
+
+
+/**
+ * Update the meta information  status for the given video post.
+ *
+ * @since 4.4
+ * @param int $post_id
+ * @return bool
+ */
+function videopress_update_meta_data( $post_id ) {
+
+	$meta = wp_get_attachment_metadata( $post_id );
+
+	// If this has not been processed by VideoPress, we can skip the rest.
+	if ( ! $meta || ! isset( $meta['videopress'] ) ) {
+		return false;
+	}
+
+	$info = (object) $meta['videopress'];
+
+	$result = wp_remote_get( videopress_make_video_get_path( $info->guid ) );
+
+	if ( is_wp_error( $result ) ) {
+		return false;
+	}
+
+	$response = json_decode( $result['body'], true );
+
+	// Update the attachment metadata.
+	$meta['videopress'] = $response;
+
+	wp_update_attachment_metadata( $post_id, $meta );
+
+	return true;
+}
+
+
+
+/**
+ * Get the video update path
+ *
+ * @since 4.4
+ * @param string $guid
+ * @return string
+ */
+function videopress_make_video_get_path( $guid ) {
+	return sprintf(
+		'%s://%s/rest/v%s/videos/%s',
+		'https',
+		JETPACK__WPCOM_JSON_API_HOST,
+		Jetpack_Client::WPCOM_JSON_API_VERSION,
+		$guid
+	);
+}
+
+/**
+ * Get the upload api path.
+ *
+ * @since 4.4
+ * @param int $blog_id The id of the blog we're uploading to.
+ * @return string
+ */
+function videopress_make_media_upload_path( $blog_id ) {
+	return sprintf(
+		'https://%s/rest/v1.1/sites/%s/videos/new',
+		JETPACK__WPCOM_JSON_API_HOST,
+		$blog_id
+	);
 }
