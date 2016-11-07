@@ -40,7 +40,12 @@ class Jetpack_JITM {
 		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
-
+	
+	function get_emblem()
+	{
+		return '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
+	}
+	
 	/**
 	 * Prepare actions according to screen and post type.
 	 *
@@ -83,9 +88,8 @@ class Jetpack_JITM {
 		<div class="jp-jitm">
 			<a href="#" data-module="manage" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-			<div class="jp-emblem">
-				<?php echo Jetpack::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
+
 			<p class="msg">
 				<?php esc_html_e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
 			</p>
@@ -114,9 +118,8 @@ class Jetpack_JITM {
 		<div class="jp-jitm">
 			<a href="#" data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-			<div class="jp-emblem">
-				<?php echo Jetpack::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
+
 			<p class="msg">
 				<?php esc_html_e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
 			</p>
@@ -143,9 +146,8 @@ class Jetpack_JITM {
 			<div class="jp-jitm" data-track="photon-modal">
 				<a href="#" data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-				<div class="jp-emblem">
-					<?php echo Jetpack::get_jp_emblem(); ?>
-				</div>
+				<?php echo self::get_emblem(); ?>
+
 				<p class="msg">
 					<?php esc_html_e( 'Let Jetpack deliver your images optimized and faster than ever.', 'jetpack' ); ?>
 				</p>
@@ -211,9 +213,8 @@ class Jetpack_JITM {
 			<div class="jp-jitm">
 				<a href="#" data-module="manage-pi" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-				<div class="jp-emblem">
-					<?php echo Jetpack::get_jp_emblem(); ?>
-				</div>
+			<?php echo self::get_emblem(); ?>
+
 				<?php if ( ! $manage_active ) : ?>
 					<p class="msg">
 						<?php esc_html_e( 'Save time with automated plugin updates.', 'jetpack' ); ?>
@@ -253,9 +254,7 @@ class Jetpack_JITM {
 			?>
 			<div class="jp-jitm">
 				<a href="#"  data-module="editor" class="dismiss"><span class="genericon genericon-close"></span></a>
-				<div class="jp-emblem">
-					<?php echo Jetpack::get_jp_emblem(); ?>
-				</div>
+				<?php echo self::get_emblem(); ?>
 				<p class="msg">
 					<?php esc_html_e( 'Try the brand new editor.', 'jetpack' ); ?>
 				</p>
@@ -283,10 +282,7 @@ class Jetpack_JITM {
 		?>
 		<div class="jp-jitm">
 			<a href="#" data-module="stats" class="dismiss"><span class="genericon genericon-close"></span></a>
-
-			<div class="jp-emblem">
-				<?php echo Jetpack::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
 			<p class="msg">
 				<?php esc_html_e( 'Track detailed stats on this post and the rest of your site.', 'jetpack' ); ?>
 			</p>
@@ -319,10 +315,7 @@ class Jetpack_JITM {
 		?>
 		<div class="jp-jitm" data-track="vaultpress-updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
 			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
-
-			<div class="jp-emblem">
-				<?php echo self::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
 			<p class="msg">
 				<?php esc_html_e( 'Backups are recommended to protect your site before you make any changes.', 'jetpack' ); ?>
 			</p>
@@ -349,10 +342,7 @@ class Jetpack_JITM {
 		?>
 		<div class="jp-jitm" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
 			<a href="#" data-module="akismet" class="dismiss"><span class="genericon genericon-close"></span></a>
-
-			<div class="jp-emblem">
-				<?php echo self::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
 			<p class="msg">
 				<?php esc_html_e( "Spam affects your site's legitimacy, protect your site with Akismet.", 'jetpack' ); ?>
 			</p>
@@ -380,9 +370,8 @@ class Jetpack_JITM {
 		<div class="jp-jitm" data-track="vaultpress-publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
 			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-			<div class="jp-emblem">
-				<?php echo self::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
+
 			<p class="msg">
 				<?php esc_html_e( "Great job! Now let's make sure your hard work is never lost, backup everything with VaultPress.", 'jetpack' ); ?>
 			</p>
@@ -454,13 +443,15 @@ class Jetpack_JITM {
 		return is_array( self::$jetpack_hide_jitm );
 	}
 }
-/**
- * Filter to turn off all just in time messages
- *
- * @since 3.7.0
- *
- * @param bool true Whether to show just in time messages.
- */
-if ( apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
+if (
+	/**
+	 * Filter to turn off all just in time messages
+	 *
+	 * @since 3.7.0
+	 *
+	 * @param bool true Whether to show just in time messages.
+	 */
+	apply_filters( 'jetpack_just_in_time_msgs', false )
+) {
 	Jetpack_JITM::init();
 }
