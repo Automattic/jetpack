@@ -53,9 +53,6 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
 
-	propTypes: {
-	},
-
 	render() {
 		let markdown = this.props.getModule( 'markdown' );
 		let atd = this.props.getModule( 'after-the-deadline' );
