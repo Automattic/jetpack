@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import assign from 'lodash/assign';
 
 /**
  * Internal dependencies
@@ -47,11 +48,9 @@ export function ModuleSettingsForm( InnerComponent ) {
 		},
 		onSubmit( event ) {
 			event.preventDefault();
-			this.props.updateOptions( this.state.options )
-				.then( () => {
-					this.setState( { options: {} } )
-				} );
+			this.props.updateOptions( assign( {}, this.state.options ) );
 			this.props.clearUnsavedOptionFlag();
+			this.setState( { options: {} } )
 		},
 
 		/**
