@@ -36,9 +36,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 
-		// Enqueue admin page styles in head
-		add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_styles' ) );
-
 		// Adding a redirect tag wrapped in browser conditional comments
 		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
 	}
@@ -128,11 +125,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_render() {
-		// We're in an IDC: we need a decision made before we show the UI again.
-		if ( Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' ) ) {
-			return false;
-		}
-
 		// Handle redirects to configuration pages
 		if ( ! empty( $_GET['configure'] ) ) {
 			return $this->render_nojs_configurable( $_GET['configure'] );
@@ -189,7 +181,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return $dismissed_notices;
 	}
 
-	function page_admin_styles() {
+	function additional_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
 
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
