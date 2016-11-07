@@ -126,8 +126,7 @@ function JetpackRestApiClient( root, nonce ) {
 		getProtectCount: () => fetch( `${ apiRoot }jetpack/v4/module/protect/data`, {
 			credentials: 'same-origin',
 			headers: {
-				'X-WP-Nonce': apiNonce,
-				'Content-type': 'application/json'
+				'X-WP-Nonce': apiNonce
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
@@ -144,16 +143,14 @@ function JetpackRestApiClient( root, nonce ) {
 		getVaultPressData: () => fetch( `${ apiRoot }jetpack/v4/module/vaultpress/data`, {
 			credentials: 'same-origin',
 			headers: {
-				'X-WP-Nonce': apiNonce,
-				'Content-type': 'application/json'
+				'X-WP-Nonce': apiNonce
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		getAkismetData: () => fetch( `${ apiRoot }jetpack/v4/module/akismet/data`, {
 			credentials: 'same-origin',
 			headers: {
-				'X-WP-Nonce': apiNonce,
-				'Content-type': 'application/json'
+				'X-WP-Nonce': apiNonce
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
@@ -170,8 +167,7 @@ function JetpackRestApiClient( root, nonce ) {
 		getPluginUpdates: () => fetch( `${ apiRoot }jetpack/v4/updates/plugins`, {
 			credentials: 'same-origin',
 			headers: {
-				'X-WP-Nonce': apiNonce,
-				'Content-type': 'application/json'
+				'X-WP-Nonce': apiNonce
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
@@ -197,8 +193,7 @@ function JetpackRestApiClient( root, nonce ) {
 				method: 'get',
 				credentials: 'same-origin',
 				headers: {
-					'X-WP-Nonce': apiNonce,
-					'Content-type': 'application/json'
+					'X-WP-Nonce': apiNonce
 				}
 			} )
 			.then( checkStatus ).then( response => response.json() )
@@ -220,8 +215,7 @@ function JetpackRestApiClient( root, nonce ) {
 			method: 'get',
 			credentials: 'same-origin',
 			headers: {
-				'X-WP-Nonce': apiNonce,
-				'Content-type': 'application/json'
+				'X-WP-Nonce': apiNonce
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() )
