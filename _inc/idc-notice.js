@@ -108,6 +108,11 @@
 			data: {},
 			success: function() {
 				notice.hide();
+				if ( $( 'body' ).hasClass( 'toplevel_page_jetpack' ) ) {
+					// On the main Jetpack page, sites in IDC will not see Jetpack's interface.
+					// Once IDC is resolved, we need to refresh the page to regain access to the UI.
+					window.location.reload( true );
+				}
 			},
 			error: function() {
 				enableDopsButtons();
