@@ -1196,6 +1196,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'caption'      => $media_item->post_excerpt,
 			'description'  => $media_item->post_content,
 			'alt'          => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
+			'icon'         => wp_mime_type_icon( $media_item->ID ),
 			'thumbnails'   => array()
 		);
 
