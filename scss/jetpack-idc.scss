@@ -181,3 +181,12 @@
 .jp-idc-notice .jp-idc-notice__unsure-prompt {
 	margin: 16px 0 0;
 }
+
+.jp-idc-error__notice {
+	display: none;
+
+	.dops-notice__icon {
+		height: auto;
+		width: auto;
+	}
+}

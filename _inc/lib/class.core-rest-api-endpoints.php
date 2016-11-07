@@ -712,6 +712,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function confirm_safe_mode() {
+		return new WP_Error( 'error_confirming_safe_mode', esc_html__( 'Jetpack could not confirm safe mode.', 'jetpack' ), array( 'status' => 500 ) );
 		$updated = Jetpack_Options::update_option( 'safe_mode_confirmed', true );
 		if ( $updated ) {
 			return rest_ensure_response(
@@ -735,6 +736,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function migrate_stats_and_subscribers() {
+		return new WP_Error(
+			'error_setting_jetpack_migrate',
+			esc_html__( 'Could not confirm migration.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
+
 		$deleted = Jetpack_Options::delete_option( 'sync_error_idc' );
 
 		if ( ! $deleted ) {
@@ -773,6 +780,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function start_fresh_connection() {
+		return new WP_Error( 'build_connect_url_failed', esc_html__( 'Unable to build the connect URL.  Please reload the page and try again.', 'jetpack' ), array( 'status' => 400 ) );
+
 		// First clear the options / disconnect.
 		Jetpack::disconnect();
 		return self::build_connect_url();
