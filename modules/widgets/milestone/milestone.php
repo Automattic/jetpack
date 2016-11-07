@@ -166,6 +166,7 @@ class Milestone_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . $title . $args['after_title'];

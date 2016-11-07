@@ -59,7 +59,10 @@ class Widget_Authors extends WP_Widget {
 		) );
 
 		echo $args['before_widget'];
-		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
+		if ( ! empty( $title ) ) {
+			/** This filter is documented in core/src/wp-includes/default-widgets.php */
+			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
+		}
 		echo '<ul>';
 
 		foreach ( $authors as $author ) {
