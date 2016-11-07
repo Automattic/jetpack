@@ -128,9 +128,9 @@ class Widget_Authors extends WP_Widget {
 			wp_cache_add( $cache_bucket, ob_get_flush(), 'widget');
 		}
 
-		if ( function_exists( 'stats_extra' ) ) {
-			stats_extra( 'widget_view', 'authors' );
-		}
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'authors' );
 	}
 
 	public function form( $instance ) {
