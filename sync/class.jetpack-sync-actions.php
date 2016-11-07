@@ -125,6 +125,10 @@ class Jetpack_Sync_Actions {
 			$query_args['idc'] = true;
 		}
 
+		if ( Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
+			$query_args['migrate_for_idc'] = true;
+		}
+
 		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
 
 		$rpc = new Jetpack_IXR_Client( array(

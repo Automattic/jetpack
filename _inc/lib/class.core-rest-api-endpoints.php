@@ -111,6 +111,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 		) );
 
+		// Handles the request to migrate stats and subscribers during an identity crisis.
+		register_rest_route( 'jetpack/v4', 'identity-crisis/migrate', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::migrate_stats_and_subscribers',
+			'permissison_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
+		) );
+
 		// Return all modules
 		self::route(
 			'module/all',
@@ -698,11 +705,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Sets a flag to confirm safe mode.
+	 * Handles identity crisis mitigation, confirming safe mode for this site.
 	 *
 	 * @since 4.4.0
 	 *
-	 * @return bool True
+	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function confirm_safe_mode() {
 		$updated = Jetpack_Options::update_option( 'safe_mode_confirmed', true );
@@ -713,7 +720,46 @@ class Jetpack_Core_Json_Api_Endpoints {
 				)
 			);
 		}
-		return new WP_Error( 'error_confirming_safe_mode', esc_html__( 'Jetpack could not confirm safe mode.', 'jetpack' ), array( 'status' => 500 ) );
+		return new WP_Error(
+			'error_setting_jetpack_safe_mode',
+			esc_html__( 'Could not confirm safe mode.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	/**
+	 * Handles identity crisis mitigation, migrating stats and subscribers from old url to this, new url.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return bool | WP_Error True if option is properly set.
+	 */
+	public static function migrate_stats_and_subscribers() {
+		$deleted = Jetpack_Options::delete_option( 'sync_error_idc' );
+
+		if ( ! $deleted ) {
+			return new WP_Error(
+				'error_deleting_sync_error_idc',
+				esc_html__( 'Could not delete sync error option.', 'jetpack' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$updated = Jetpack_Options::update_option( 'migrate_for_idc', true );
+		if ( $updated ) {
+			// Deleting this transient will force the callables to sync faster.
+			delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+			return rest_ensure_response(
+				array(
+					'code' => 'success'
+				)
+			);
+		}
+		return new WP_Error(
+			'error_setting_jetpack_migrate',
+			esc_html__( 'Could not confirm migration.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
 	}
 
 	/**

@@ -8,7 +8,11 @@
 		idcButtons = $( '.jp-idc-notice .dops-button' ),
 		tracksUser = idcL10n.tracksUserData,
 		adminBarMenu = $( '#wp-admin-bar-jetpack-idc' ),
-		confirmSafeModeButton = $( '#jp-idc-confirm-safe-mode-action' );
+		confirmSafeModeButton = $( '#jp-idc-confirm-safe-mode-action' ),
+		fixConnectionButton = $( '#jp-idc-fix-connection-action' ),
+		reconnectButton  = $( '#jp-idc-reconnect-site-action' ),
+		migrateButton = $( '#jp-idc-migrate-action' );
+
 
 	// Initialize Tracks and bump stats.
 	analytics.initialize( tracksUser.userid, tracksUser.username );
@@ -21,17 +25,22 @@
 		confirmSafeMode();
 	} );
 
-	// Fix connection
-	$( '#jp-idc-fix-connection-action' ).click( function() {
+	// Goes to second step of the notice.
+	fixConnectionButton.click( function() {
 		trackAndBumpMCStats( 'fix_connection' );
 		fixJetpackConnection();
 	} );
 
-
-	// Confirm Safe Mode
-	$( '#jp-idc-reconnect-site-action' ).click( function() {
+	// Starts process to create a new connection.
+	reconnectButton.click( function() {
 		trackAndBumpMCStats( 'start_fresh' );
 		startFreshConnection();
+	} );
+
+	// Starts migration process.
+	migrateButton.click( function() {
+		trackAndBumpMCStats( 'migrate' );
+		migrateStatsAndSubscribers();
 	} );
 
 	function disableDopsButtons() {
@@ -73,12 +82,36 @@
 			url: route,
 			data: {},
 			success: function() {
-				$( '.jp-idc-notice' ).hide();
+				notice.hide();
 				adminBarMenu.removeClass( 'hide' );
 
 				// We must refresh the Jetpack admin UI page in order for the React UI to render.
 				if ( window.location.search && 1 === window.location.search.indexOf( 'page=jetpack' ) ) {
 					window.location.reload();
+				}
+			},
+			error: function() {
+				enableDopsButtons();
+			}
+		} );
+	}
+
+	function migrateStatsAndSubscribers() {
+		var route = restRoot + 'jetpack/v4/identity-crisis/migrate';
+		disableDopsButtons();
+		$.ajax( {
+			method: 'POST',
+			beforeSend : function ( xhr ) {
+				xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
+			},
+			url: route,
+			data: {},
+			success: function() {
+				notice.hide();
+				if ( $( 'body' ).hasClass( 'toplevel_page_jetpack' ) ) {
+					// On the main Jetpack page, sites in IDC will not see Jetpack's interface.
+					// Once IDC is resolved, we need to refresh the page to regain access to the UI.
+					window.location.reload( true );
 				}
 			},
 			error: function() {
