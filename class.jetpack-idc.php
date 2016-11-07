@@ -39,12 +39,40 @@ class Jetpack_IDC {
 	}
 
 	private function __construct() {
+		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
+
 		if ( false === $urls_in_crisis = Jetpack::check_identity_crisis() ) {
 			return;
 		}
 
 		self::$wpcom_home_url = $urls_in_crisis['wpcom_home'];
 		add_action( 'init', array( $this, 'wordpress_init' ) );
+	}
+
+	/**
+	 * This method loops through the array of processed items from sync and checks if one of the items was the
+	 * home_url or site_url callable. If so, then we delete the jetpack_migrate_for_idc option.
+	 *
+	 * @param $processed_items array Array of processed items that were synced to WordPress.com
+	 */
+	function maybe_clear_migrate_option( $processed_items ) {
+		foreach ( (array) $processed_items as $item ) {
+
+			// First, is this item a jetpack_sync_callable action? If so, then proceed.
+			$callable_args = ( is_array( $item ) && isset( $item[0], $item[1] ) && 'jetpack_sync_callable' === $item[0] )
+				? $item[1]
+				: null;
+
+			// Second, if $callable_args is set, check if the callable was home_url or site_url. If so,
+			// clear the migrate option.
+			if (
+				isset( $callable_args, $callable_args[0] )
+				&& ( 'home_url' === $callable_args[0] || 'site_url' === $callable_args[1] )
+			) {
+				Jetpack_Options::delete_option( 'migrate_for_idc' );
+				break;
+			}
+		}
 	}
 
 	function wordpress_init() {
