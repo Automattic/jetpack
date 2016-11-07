@@ -7,6 +7,7 @@ class Jetpack_Custom_CSS_Enhancements {
 	public static function add_hooks() {
 		add_action( 'init', array( __CLASS__, 'init' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+        add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
 	}
 
 	public static function init() {
@@ -81,6 +82,70 @@ class Jetpack_Custom_CSS_Enhancements {
 		</div>
 		<?php
 	}
+
+    /**
+     * Add Custom CSS section and controls.
+     */
+    public static function customize_register( $wp_customize ) {
+
+        $wp_customize->add_setting( 'jetpack_custom_css[preprocessor]', array(
+            'default' => '',
+            'transport' => 'postMessage',
+        ) );
+
+        $wp_customize->add_setting( 'jetpack_custom_css[replace]', array(
+            'default' => false,
+            'transport' => 'refresh',
+        ) );
+
+        $wp_customize->add_setting( 'jetpack_custom_css[content_width]', array(
+            'default' => '',
+            'transport' => 'refresh',
+        ) );
+
+
+        $wp_customize->add_control( 'wpcom_custom_css_content_width_control', array(
+            'type'     => 'text',
+            'label'    => __( 'Media Width', 'jetpack' ),
+            'section'  => 'custom_css',
+            'settings' => 'jetpack_custom_css[content_width]',
+            'priority' => 1,
+        ) );
+
+
+        $wp_customize->add_control( 'jetpack_css_mode_control', array(
+            'type'     => 'checkbox',
+            'label'    => __( 'Don\'t use the theme\'s original CSS.', 'jetpack' ),
+            'section'  => 'custom_css',
+            'settings' => 'jetpack_custom_css[replace]',
+            'priority' => 2,
+        ) );
+
+        do_action( 'jetpack_custom_css_customizer_controls', $wp_customize );
+
+        $preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+        if ( ! empty( $preprocessors ) ) {
+            $preprocessor_choices = array(
+                '' => __( 'None', 'jetpack' ),
+            );
+
+            foreach ( $preprocessors as $preprocessor_key => $processor ) {
+                $preprocessor_choices[$preprocessor_key] = $processor['name'];
+            }
+
+            $wp_customize->add_control( 'jetpack_css_preprocessors_control', array(
+                'type'     => 'select',
+                'choices'  => $preprocessor_choices,
+                'label'    => __( 'Preprocessor', 'jetpack' ),
+                'section'  => 'custom_css',
+                'settings' => 'jetpack_custom_css[preprocessor]',
+                'priority' => 3,
+            ) );
+        }
+
+    //    header( 'Content-type: text/plain' ); var_dump( $wp_customize ); exit;
+
+    }
 
 }
 
