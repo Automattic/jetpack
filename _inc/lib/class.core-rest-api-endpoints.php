@@ -747,6 +747,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$updated = Jetpack_Options::update_option( 'migrate_for_idc', true );
 		if ( $updated ) {
+			// Deleting this transient will force the callables to sync faster.
+			delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 			return rest_ensure_response(
 				array(
 					'code' => 'success'
