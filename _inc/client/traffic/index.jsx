@@ -13,6 +13,7 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
+import QuerySite from 'components/data/query-site';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -22,6 +23,7 @@ import {
 	getModule as _getModule,
 	getModules
 } from 'state/modules';
+import ProStatus from 'pro-status';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
@@ -30,6 +32,7 @@ import {
 	userCanManageModules,
 	isSitePublic
 } from 'state/initial-state';
+import { getSitePlan } from 'state/site';
 import Settings from 'components/settings';
 
 export const Traffic = ( props ) => {
@@ -57,11 +60,11 @@ export const Traffic = ( props ) => {
 	}
 
 	var cards = [
+		[ 'seo-tools', getModule( 'seo-tools' ).name, getModule( 'seo-tools' ).description, getModule( 'seo-tools' ).learn_more_button ],
 		[ 'sitemaps', getModule( 'sitemaps' ).name, sitemapsDesc, getModule( 'sitemaps' ).learn_more_button ],
 		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
 		[ 'related-posts', getModule( 'related-posts' ).name, getModule( 'related-posts' ).description, getModule( 'related-posts' ).learn_more_button ],
-		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
-		[ 'seo-tools', getModule( 'seo-tools' ).name, getModule( 'seo-tools' ).description, getModule( 'seo-tools' ).learn_more_button ]
+		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ]
 	].map( ( element ) => {
 		if ( ! includes( moduleList, element[0] ) ) {
 			return null;
@@ -73,7 +76,23 @@ export const Traffic = ( props ) => {
 								toggling={ isTogglingModule( element[0] ) }
 								toggleModule={ toggleModule } />
 			),
+			isPro = 'seo-tools' === element[0],
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
+
+		if ( isPro && props.sitePlan.product_slug !== 'jetpack_business' ) {
+			toggle = <ProStatus proFeature={ element[0] } />;
+
+			// Add a "pro" button next to the header title
+			element[1] = <span>
+				{ element[1] }
+				<Button
+					compact={ true }
+					href="#/plans"
+				>
+					{ __( 'Pro' ) }
+				</Button>
+			</span>;
+		}
 
 		return (
 			<FoldableCard
@@ -106,6 +125,7 @@ export const Traffic = ( props ) => {
 
 	return (
 		<div>
+			<QuerySite />
 			{ cards }
 		</div>
 	);
@@ -127,6 +147,7 @@ export default connect(
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			getSiteAdminUrl: () => getSiteAdminUrl( state ),
 			isSitePublic: () => isSitePublic( state ),
+			sitePlan: getSitePlan( state ),
 			userCanManageModules: userCanManageModules( state ),
 			moduleList: getModules( state )
 		};
