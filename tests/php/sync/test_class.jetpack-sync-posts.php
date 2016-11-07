@@ -365,12 +365,13 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 
-	function test_sync_publicize_works_as_expected() {
+	function test_sync_subscriptions_to_works_as_expected() {
 
-		// activate subsriptions
+		// activate subscription module.
 		$active = Jetpack_Options::get_option( 'active_modules' );
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
-
+		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
+		Jetpack_Subscriptions::init();
 		// create a draft
 		$new_post_id = $this->factory->post->create(  array( 'post_status' => 'draft' ) );
 
@@ -383,11 +384,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 			) );
 		
 		$this->sender->do_sync();
+
 		// revert back to what it used to be.
 		Jetpack_Options::update_option( 'active_modules', $active );
 
 		$all_wp_insert_post_events = $this->server_event_storage->get_all_events( 'wp_insert_post' );
-
 		foreach( $all_wp_insert_post_events as $event ) {
 			list( $post_id, $post ) = $event->args;
 			
@@ -398,9 +399,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 			if ( 'updated' === $post->post_content || 'publish' !== $post->post_status ) {
 				// Only the updated post should have the do not send flag.
-				$this->assertEquals( true, $post->dont_email_post_to_subs );
+				$this->assertEquals( true, $post->dont_email_post_to_subs, 'Post status:'. $post->post_status .' Should not send email to subscripbers.' );
 			} else {
-				$this->assertEquals( false, $post->dont_email_post_to_subs );
+				$this->assertEquals( false, $post->dont_email_post_to_subs, 'Post status:'. $post->post_status .' Should send email to subscripbers.' );
 			}
 		}
 	}
