@@ -556,7 +556,7 @@ class Jetpack_IDC {
 		$html = wp_kses(
 			sprintf(
 				__(
-					'Jetpack has been placed into Safe Mode. <a href="%1$s">Click Here</a> for more information.',
+					'Jetpack has been placed into Safe Mode. Learn more about <a href="%1$s">Safe Mode</a>.',
 					'jetpack'
 				),
 				esc_url( self::SAFE_MODE_DOC_LINK )
