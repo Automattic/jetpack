@@ -75,6 +75,11 @@
 			success: function() {
 				$( '.jp-idc-notice' ).hide();
 				adminBarMenu.removeClass( 'hide' );
+
+				// We must refresh the Jetpack admin UI page in order for the React UI to render.
+				if ( window.location.search && 1 === window.location.search.indexOf( 'page=jetpack' ) ) {
+					window.location.reload();
+				}
 			},
 			error: function() {
 				enableDopsButtons();

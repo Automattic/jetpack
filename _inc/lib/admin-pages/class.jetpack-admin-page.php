@@ -71,7 +71,13 @@ abstract class Jetpack_Admin_Page {
 
 	// Render the page with a common top and bottom part, and page specific content
 	function render() {
+		// We're in an IDC: we need a decision made before we show the UI again.
+		if ( Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' ) ) {
+			return;
+		}
+
 		$this->page_render();
+		$this->additional_styles();
 	}
 
 	function admin_help() {
@@ -104,8 +110,6 @@ abstract class Jetpack_Admin_Page {
 		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
-
-		$this->additional_styles();
 	}
 
 	function is_wp_version_too_old() {
