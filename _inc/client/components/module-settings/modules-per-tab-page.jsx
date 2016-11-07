@@ -28,7 +28,8 @@ import {
 	VerificationToolsSettings,
 	SitemapsSettings,
 	VideoPressSettings,
-	WordAdsSettings
+	WordAdsSettings,
+	GoogleAnalyticsSettings
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
 
@@ -128,6 +129,8 @@ const AllModuleSettingsComponent = React.createClass( {
 				return ( <SitemapsSettings module={ module } { ...this.props } /> );
 			case 'wordads':
 				return ( <WordAdsSettings module={ module } /> );
+			case 'google-analytics':
+				return ( <GoogleAnalyticsSettings { ...{ ...this.props, module } } /> );
 			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':

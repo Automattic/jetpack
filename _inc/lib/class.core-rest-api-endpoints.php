@@ -1546,6 +1546,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback'  => __CLASS__ . '::validate_boolean',
 				'jp_group'           => 'wordads',
 			),
+
+			// Google Analytics
+			'google_analytics_tracking_id' => array(
+				'description'        => esc_html__( 'Google Analytics', 'jetpack' ),
+				'type'               => 'string',
+				'default'            => '',
+				'validate_callback'  => __CLASS__ . '::validate_alphanum',
+				'jp_group'           => 'google-analytics',
+			),
+
 			// Stats
 			'admin_bar' => array(
 				'description'       => esc_html__( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ),
@@ -2092,6 +2102,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'verification-tools':
 				// It's local, but it must be broken apart since it's saved as an array.
 				$options = self::split_options( $options, get_option( 'verification_services_codes' ) );
+				break;
+
+			case 'google-analytics':
+				$wga = get_option( 'wga' );
+				if ( is_array( $wga ) && array_key_exists( 'code', $wga ) ) {
+					$options[ 'google_analytics_tracking_id' ][ 'current_value' ] = $wga[ 'code' ];
+				}
 				break;
 
 			case 'sharedaddy':

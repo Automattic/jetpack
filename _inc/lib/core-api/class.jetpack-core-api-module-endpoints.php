@@ -718,6 +718,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? 'letitsnow' : '' ) : true;
 					break;
 
+				case 'google_analytics_tracking_id':
+					$grouped_options = $grouped_options_current = (array) get_option( 'wga' );
+					$grouped_options[ 'code' ] = $value;
+
+					// If option value was the same, consider it done.
+					$updated = $grouped_options_current != $grouped_options ? update_option( 'wga', $grouped_options ) : true;
+					break;
+
 				case 'wp_mobile_featured_images':
 				case 'wp_mobile_excerpt':
 					$value = ( 'enabled' === $value ) ? '1' : '0';

@@ -1,0 +1,185 @@
+# Copyright (C) 2012 WP Google Analytics
+# This file is distributed under the same license as the WP Google Analytics package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Google Analytics 1.4.0\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-google-analytics\n"
+"POT-Creation-Date: 2012-10-05 21:16:58+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2012-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: wp-google-analytics.php:78
+msgid "Post author for current view"
+msgstr ""
+
+#: wp-google-analytics.php:79
+msgid "Post author's display name"
+msgstr ""
+
+#: wp-google-analytics.php:94
+msgid "Categories assigned to a post"
+msgstr ""
+
+#: wp-google-analytics.php:95
+msgid "Category names in a commma-separated list"
+msgstr ""
+
+#: wp-google-analytics.php:109
+msgid "Which view the visitor is on"
+msgstr ""
+
+#: wp-google-analytics.php:110
+msgid "Samples: 'home', 'category', 'post', 'author'"
+msgstr ""
+
+#: wp-google-analytics.php:116
+msgid "Publication date for the current view"
+msgstr ""
+
+#: wp-google-analytics.php:117
+msgid "Format specified by 'Date Format' in Settings -> General"
+msgstr ""
+
+#: wp-google-analytics.php:132
+msgid "Tags assigned to a post"
+msgstr ""
+
+#: wp-google-analytics.php:133
+msgid "Tag names in a commma-separated list"
+msgstr ""
+
+#: wp-google-analytics.php:148
+msgid "Whether or not the viewer is logged in"
+msgstr ""
+
+#: wp-google-analytics.php:149
+msgid "'true' or 'false'"
+msgstr ""
+
+#: wp-google-analytics.php:160
+msgid "Google Analytics"
+msgstr ""
+
+#: wp-google-analytics.php:171
+msgid "Google Analytics tracking ID:"
+msgstr ""
+
+#: wp-google-analytics.php:172
+msgid "Additional items to log:"
+msgstr ""
+
+#: wp-google-analytics.php:173
+msgid "Visits to ignore:"
+msgstr ""
+
+#: wp-google-analytics.php:174
+msgid "Custom variables:"
+msgstr ""
+
+#: wp-google-analytics.php:183
+msgid ""
+"Use tokens in your custom variables to make your fields dynamic based on "
+"context. Here are some of the tokens you can use:"
+msgstr ""
+
+#: wp-google-analytics.php:185
+msgid "Token"
+msgstr ""
+
+#: wp-google-analytics.php:185
+msgid "Description"
+msgstr ""
+
+#: wp-google-analytics.php:185
+msgid "Return value"
+msgstr ""
+
+#: wp-google-analytics.php:199
+msgid ""
+"Paste your Google Analytics tracking ID (e.g. \"UA-XXXXXX-X\") into the "
+"field."
+msgstr ""
+
+#: wp-google-analytics.php:207
+msgid "Log 404 errors as events"
+msgstr ""
+
+#: wp-google-analytics.php:208
+msgid ""
+"Log searches as /search/{search}?referrer={referrer} (<a href=\"%s"
+"\">deprecated</a>)"
+msgstr ""
+
+#: wp-google-analytics.php:209
+msgid "Log outgoing links as events"
+msgstr ""
+
+#: wp-google-analytics.php:227
+msgid "Default"
+msgstr ""
+
+#: wp-google-analytics.php:228
+msgid "Visitor"
+msgstr ""
+
+#: wp-google-analytics.php:229
+msgid "Session"
+msgstr ""
+
+#: wp-google-analytics.php:230
+msgid "Page"
+msgstr ""
+
+#: wp-google-analytics.php:236
+msgid "Name"
+msgstr ""
+
+#: wp-google-analytics.php:239
+msgid "Value"
+msgstr ""
+
+#: wp-google-analytics.php:242
+msgid "Scope"
+msgstr ""
+
+#: wp-google-analytics.php:256
+msgid "Do not log anything in the admin area"
+msgstr ""
+
+#: wp-google-analytics.php:260
+msgid "Do not log %s when logged in"
+msgstr ""
+
+#: wp-google-analytics.php:321
+msgid "Google Analytics Options"
+msgstr ""
+
+#: wp-google-analytics.php:326
+msgid "Update Options"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "WP Google Analytics"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://bluedogwebservices.com/wordpress-plugin/wp-google-analytics/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Lets you use <a href=\"http://analytics.google.com\">Google Analytics</a> to "
+"track your WordPress site statistics"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Aaron D. Campbell"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://ran.ge/"
+msgstr ""

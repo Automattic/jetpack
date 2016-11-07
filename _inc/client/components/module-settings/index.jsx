@@ -855,3 +855,43 @@ export let WordAdsSettings = React.createClass( {
 } );
 
 WordAdsSettings = moduleSettingsForm( WordAdsSettings );
+
+export let GoogleAnalyticsSettings = React.createClass( {
+	render() {
+		return (
+			<form onSubmit={ this.props.onSubmit } >
+				<FormFieldset>
+					<p className="jp-form-setting-explanation">
+						{
+							__( 'Enter your tracking Id value to track your blog with {{a}}Google Analytics{{/a}}.', {
+								components: {
+									a: <a href="https://www.google.com/analytics/" target="_blank" />
+								}
+							} )
+						}
+					</p>
+
+					<div className="dops-card">
+						<FormLabel>
+							<FormLegend>{ __( 'Google Analytics Tracking Id' ) }</FormLegend>
+							<TextInput
+								name={ 'google_analytics_tracking_id' }
+								value={ this.props.getOptionValue( 'google_analytics_tracking_id' ) }
+								placeholder={ 'Example: UA-11111111-1' }
+								className="widefat code"
+								disabled={ this.props.isUpdating( 'google_analytics_tracking_id' ) }
+								onChange={ this.props.onOptionChange } />
+						</FormLabel>
+					</div>
+
+					<FormButton
+						className="is-primary"
+						isSubmitting={ this.props.isSavingAnyOption() }
+						disabled={ this.props.shouldSaveButtonBeDisabled() } />
+				</FormFieldset>
+			</form>
+		);
+	}
+} );
+
+GoogleAnalyticsSettings = moduleSettingsForm( GoogleAnalyticsSettings );
