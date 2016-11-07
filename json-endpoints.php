@@ -1209,7 +1209,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 
 	'response_format' => array(
 		'media' => '(array) Array of media objects',
-		'found' => '(int) The number of total results found'
+		'found' => '(int) The number of total results found',
+		'meta'  => '(object) Meta data',
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/media',
