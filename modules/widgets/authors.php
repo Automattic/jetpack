@@ -12,9 +12,15 @@ class Widget_Authors extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'authors',
-			__( 'Authors', 'jetpack' ),
-			array( 'classname' => 'widget_authors', 'description' => __( 'Display blogs authors with avatars and recent posts.', 'jetpack' ) ),
-			array( 'width' => 300 )
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
+			apply_filters( 'jetpack_widget_name', __( 'Authors', 'jetpack' ) ),
+			array(
+				'classname' => 'widget_authors',
+				'description' => __( 'Display blogs authors with avatars and recent posts.', 'jetpack' ),
+			),
+			array(
+				'width' => 300,
+			)
 		);
 
 		add_action( 'publish_post', array( __CLASS__, 'flush_cache' ) );

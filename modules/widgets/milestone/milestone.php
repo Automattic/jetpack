@@ -14,16 +14,18 @@ class Milestone_Widget extends WP_Widget {
 	private static $config_js = null;
 
 	function __construct() {
-		$widget = array(
-			'classname'   => 'milestone-widget',
-			'description' => __( 'Display a countdown to a certain date.', 'jetpack' )
+		parent::__construct(
+			'Milestone_Widget',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
+			apply_filters( 'jetpack_widget_name', __( 'Milestone', 'jetpack' ) ),
+			array(
+				'classname'   => 'milestone-widget',
+				'description' => __( 'Display a countdown to a certain date.', 'jetpack' ),
+			),
+			array(
+				'width' => 251, // Chrome needs a little extra room for the date fields.
+			)
 		);
-
-		$control = array(
-			'width' => 251, // Chrome needs a little extra room for the date fields.
-		);
-
-		parent::__construct( 'Milestone_Widget', __( 'Milestone', 'jetpack' ), $widget, $control );
 
 		self::$dir = trailingslashit( __DIR__ );
 
