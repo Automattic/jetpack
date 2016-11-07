@@ -722,7 +722,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 		return new WP_Error(
 			'error_setting_jetpack_safe_mode',
-			esc_html__( 'Could not confirm safe mode.', 'jetpack' ), array( 'status' => 500 )
+			esc_html__( 'Could not confirm safe mode.', 'jetpack' ),
+			array( 'status' => 500 )
 		);
 	}
 
@@ -739,7 +740,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! $deleted ) {
 			return new WP_Error(
 				'error_deleting_sync_error_idc',
-				esc_html__( 'Could not delete sync error option.', 'jetpack' ), array( 'status' => 500 )
+				esc_html__( 'Could not delete sync error option.', 'jetpack' ),
+				array( 'status' => 500 )
 			);
 		}
 
@@ -753,7 +755,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 		return new WP_Error(
 			'error_setting_jetpack_migrate',
-			esc_html__( 'Could not confirm migration.', 'jetpack' ), array( 'status' => 500 )
+			esc_html__( 'Could not confirm migration.', 'jetpack' ),
+			array( 'status' => 500 )
 		);
 	}
 

@@ -8,7 +8,11 @@
 		idcButtons = $( '.jp-idc-notice .dops-button' ),
 		tracksUser = idcL10n.tracksUserData,
 		adminBarMenu = $( '#wp-admin-bar-jetpack-idc' ),
-		confirmSafeModeButton = $( '#jp-idc-confirm-safe-mode-action' );
+		confirmSafeModeButton = $( '#jp-idc-confirm-safe-mode-action' ),
+		fixConnectionButton = $( '#jp-idc-fix-connection-action' ),
+		reconnectButton  = $( '#jp-idc-reconnect-site-action' ),
+		migrateButton = $( '#jp-idc-migrate-action' );
+
 
 	// Initialize Tracks and bump stats.
 	analytics.initialize( tracksUser.userid, tracksUser.username );
@@ -22,19 +26,19 @@
 	} );
 
 	// Goes to second step of the notice.
-	$( '#jp-idc-fix-connection-action' ).click( function() {
+	fixConnectionButton.click( function() {
 		trackAndBumpMCStats( 'fix_connection' );
 		fixJetpackConnection();
 	} );
 
 	// Starts process to create a new connection.
-	$( '#jp-idc-reconnect-site-action' ).click( function() {
+	reconnectButton.click( function() {
 		trackAndBumpMCStats( 'start_fresh' );
 		startFreshConnection();
 	} );
 
 	// Starts migration process.
-	$( '#jp-idc-migrate-action' ).click( function() {
+	migrateButton.click( function() {
 		trackAndBumpMCStats( 'migrate' );
 		migrateStatsAndSubscribers();
 	} );
@@ -78,7 +82,7 @@
 			url: route,
 			data: {},
 			success: function() {
-				$( '.jp-idc-notice' ).hide();
+				notice.hide();
 				adminBarMenu.removeClass( 'hide' );
 
 				// We must refresh the Jetpack admin UI page in order for the React UI to render.
@@ -103,7 +107,7 @@
 			url: route,
 			data: {},
 			success: function() {
-				$( '.jp-idc-notice' ).hide();
+				notice.hide();
 			},
 			error: function() {
 				enableDopsButtons();
