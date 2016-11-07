@@ -168,11 +168,26 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		$post->permalink               = get_permalink( $post->ID );
 		$post->shortlink               = wp_get_shortlink( $post->ID );
-		$post->dont_email_post_to_subs = Jetpack::is_module_active( 'subscriptions' ) ?
-				get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) :
-				true; // Don't email subscription if the subscription module is not active.
+		$post->dont_email_post_to_subs = self::do_not_send_post( $post->ID, $post->post_status );
 
 		return $post;
+	}
+
+	public function do_not_send_post( $post_id, $post_status ) {
+		if ( 'publish' !== $post_status ) {
+			return true;
+		}
+		$pending = get_post_meta( $post_id, '_jetpack_set_pending_email_post_to_subs', true );
+
+		if ( $pending ) {
+			delete_post_meta( $post_id, '_jetpack_set_pending_email_post_to_subs' );
+
+			return Jetpack::is_module_active( 'subscriptions' ) ?
+				false :
+				true; // Don't email subscription if the subscription module is not active.
+		}
+
+		return true;
 	}
 
 	public function expand_post_ids( $args ) {

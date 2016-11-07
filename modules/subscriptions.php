@@ -171,7 +171,7 @@ class Jetpack_Subscriptions {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-
+		
 		/**
 		 * If we're updating the post, let's make sure the flag to not send to subscribers
 		 * is set to minimize the chances of sending posts multiple times.
@@ -222,6 +222,12 @@ class Jetpack_Subscriptions {
 				update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
 			}
 		}
+		
+		// If _jetpack_dont_email_post_to_subs is set to false and the post status is set to true.
+		// Lets set a pending email post to subs flag.
+ 		if ( ! get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) ) {
+			add_post_meta( $post->ID, '_jetpack_set_pending_email_post_to_subs', 1, true );
+		} 
 	}
 
 	/**
