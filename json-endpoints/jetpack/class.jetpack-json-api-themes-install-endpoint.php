@@ -14,7 +14,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 		foreach ( $this->themes as $theme ) {
 
-			$skin      = new Automatic_Upgrader_Skin();
+			$skin      = new Jetpack_Automatic_Install_Skin();
 			$upgrader  = new Theme_Upgrader( $skin );
 
 			$link = $this->download_links[ $theme ];
