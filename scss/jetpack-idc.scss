@@ -1,13 +1,26 @@
 @import '../_inc/client/scss/variables/_colors.scss';
 
+@media all and ( min-width: 783px ) {
+	body.toplevel_page_jetpack {
+		.jp-idc-notice {
+			margin-top: 40px;
+		}
+	}
+}
+
 .jp-idc-notice, 
 .jp-idc-notice * {
 	box-sizing: border-box;
 }
 
 .jp-idc-notice {
+	overflow: auto;
 	padding-bottom: 16px;
 	padding-top: 0;
+
+	&.is-non-admin {
+		padding-bottom: 0;
+	}
 }
 
 .jp-idc-notice p {
@@ -151,9 +164,17 @@
 	height: 1px;
 }
 
+.jp-idc-notice.is-dismissible .jp-idc-notice__separator {
+	margin-right: -46px;
+}
+
 @media only screen and ( min-width: 782px ) {
 	.jp-idc-notice__separator {
 		margin: 0 -12px 0 -12px;
+	}
+
+	.jp-idc-notice.is-dismissible .jp-idc-notice__separator {
+		margin-right: -38px;
 	}
 }
 

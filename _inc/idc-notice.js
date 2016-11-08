@@ -1,4 +1,4 @@
-/* global idcL10n, jQuery, analytics, history */
+/* global idcL10n, jQuery, analytics, history, wpCookies */
 
 ( function( $ ) {
 	var restNonce = idcL10n.nonce,
@@ -18,6 +18,12 @@
 	analytics.initialize( tracksUser.userid, tracksUser.username );
 	trackAndBumpMCStats( 'notice_view' );
 	clearConfirmationArgsFromUrl();
+
+	// If the user dismisses the notice, set a cookie for one week so we don't display it for that time.
+	notice.on( 'click.wp-dismiss-notice', function() {
+		var secure = ( 'https:' === window.location.protocol );
+		wpCookies.set( 'jetpack_idc_dismiss_notice', '1', 7 * 24 * 60 * 60, false, false, secure );
+	} );
 
 	// Confirm Safe Mode
 	confirmSafeModeButton.click( function() {

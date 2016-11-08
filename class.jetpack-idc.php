@@ -25,6 +25,12 @@ class Jetpack_IDC {
 	static $is_safe_mode_confirmed;
 
 	/**
+	 * The current screen, which is set if the current user is a non-admin and this is an admin page.
+	 * @var WP_Screen
+	 */
+	static $current_screen;
+
+	/**
 	 * The link to the support document used to explain Safe Mode to users
 	 * @var string
 	 */
@@ -76,7 +82,10 @@ class Jetpack_IDC {
 	}
 
 	function wordpress_init() {
-		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
+		if ( ! current_user_can( 'jetpack_disconnect' ) && is_admin() ) {
+			add_action( 'admin_notices', array( $this, 'display_non_admin_idc_notice' ) );
+			add_action( 'admin_enqueue_scripts', array( $this,'enqueue_idc_notice_files' ) );
+			add_action( 'current_screen', array( $this, 'non_admins_current_screen_check' ) );
 			return;
 		}
 
@@ -97,6 +106,20 @@ class Jetpack_IDC {
 		if ( is_admin() && ! self::$is_safe_mode_confirmed ) {
 			add_action( 'admin_notices', array( $this, 'display_idc_notice' ) );
 			add_action( 'admin_enqueue_scripts', array( $this,'enqueue_idc_notice_files' ) );
+		}
+	}
+
+	function non_admins_current_screen_check( $current_screen ) {
+		self::$current_screen = $current_screen;
+		if ( isset( $current_screen->id ) && 'toplevel_page_jetpack' == $current_screen->id ) {
+			return null;
+		}
+
+		// If the user has dismissed the notice, and we're not currently on a Jetpack page,
+		// then do not show the non-admin notice.
+		if ( isset( $_COOKIE, $_COOKIE['jetpack_idc_dismiss_notice'] ) ) {
+			remove_action( 'admin_notices', array( $this, 'display_non_admin_idc_notice' ) );
+			remove_action( 'admin_enqueue_scripts', array( $this,'enqueue_idc_notice_files' ) );
 		}
 	}
 
@@ -135,6 +158,27 @@ class Jetpack_IDC {
 		return untrailingslashit( Jetpack::normalize_url_protocol_agnostic( $url ) );
 	}
 
+	function display_non_admin_idc_notice() {
+		$classes = 'jp-idc-notice is-non-admin notice notice-warning';
+		if ( isset( self::$current_screen ) && 'toplevel_page_jetpack' != self::$current_screen->id ) {
+			$classes .= ' is-dismissible';
+		}
+		?>
+
+		<div class="<?php echo $classes; ?>">
+			<?php $this->render_notice_header(); ?>
+			<div class="jp-idc-notice__content-header">
+				<h3 class="jp-idc-notice__content-header__lead">
+					<?php echo $this->get_non_admin_notice_text(); ?>
+				</h3>
+
+				<p class="jp-idc-notice__content-header__explanation">
+					<?php echo $this->get_non_admin_contact_admin_text(); ?>
+				</p>
+			</div>
+		</div>
+	<?php }
+
 	/**
 	 * First "step" of the IDC mitigation. Will provide some messaging and two options/buttons.
 	 * "Confirm Staging" - Dismiss the notice and continue on with our lives in staging mode.
@@ -142,17 +186,7 @@ class Jetpack_IDC {
 	 */
 	function display_idc_notice() { ?>
 		<div class="jp-idc-notice notice notice-warning">
-			<div class="jp-idc-notice__header">
-				<div class="jp-idc-notice__header__emblem">
-					<?php echo Jetpack::get_jp_emblem(); ?>
-				</div>
-				<p class="jp-idc-notice__header__text">
-					<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack' ); ?>
-				</p>
-			</div>
-
-			<div class="jp-idc-notice__separator"></div>
-
+			<?php $this->render_notice_header(); ?>
 			<?php $this->render_notice_first_step(); ?>
 			<?php $this->render_notice_second_step(); ?>
 		</div>
@@ -187,7 +221,7 @@ class Jetpack_IDC {
 				'apiRoot' => esc_url_raw( rest_url() ),
 				'nonce' => wp_create_nonce( 'wp_rest' ),
 				'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-				'currentUrl' => remove_query_arg( '_wpnonce', remove_query_arg( 'jetpack_idc_clear_confirmation' ) ),
+				'currentUrl' => remove_query_arg( '_wpnonce', remove_query_arg( 'jetpack_idc_clear_confirmation' ) )
 			)
 		);
 
@@ -222,6 +256,19 @@ class Jetpack_IDC {
 			false
 		);
 	}
+
+	function render_notice_header() { ?>
+		<div class="jp-idc-notice__header">
+			<div class="jp-idc-notice__header__emblem">
+				<?php echo Jetpack::get_jp_emblem(); ?>
+			</div>
+			<p class="jp-idc-notice__header__text">
+				<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack' ); ?>
+			</p>
+		</div>
+
+		<div class="jp-idc-notice__separator"></div>
+	<?php }
 
 	function render_notice_first_step() { ?>
 		<div class="jp-idc-notice__first-step">
@@ -531,6 +578,41 @@ class Jetpack_IDC {
 		 * @param string $html The HTML to be displayed
 		 */
 		return apply_filters( 'jetpack_idc_unsure_prompt', $html );
+	}
+
+	function get_non_admin_notice_text() {
+		$html = wp_kses(
+			sprintf(
+				__(
+					'Jetpack has been placed into Safe Mode. Learn more about <a href="%1$s">Safe Mode</a>.',
+					'jetpack'
+				),
+				esc_url( self::SAFE_MODE_DOC_LINK )
+			),
+			array( 'a' => array( 'href' => array() ) )
+		);
+
+		/**
+		 * Allows overriding of the default text that is displayed to non-admin on the Jetpack admin page.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $html The HTML to be displayed
+		 */
+		return apply_filters( 'jetpack_idc_non_admin_notice_text', $html );
+	}
+
+	function get_non_admin_contact_admin_text() {
+		$string = esc_html__( 'An administrator of this site can take Jetpack out of Safe Mode.', 'jetpack' );
+
+		/**
+		 * Allows overriding of the default text that is displayed to non-admins prompting them to contact an admin.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string $string The string to be displayed
+		 */
+		return apply_filters( 'jetpack_idc_non_admin_contact_admin_text', $string );
 	}
 }
 
