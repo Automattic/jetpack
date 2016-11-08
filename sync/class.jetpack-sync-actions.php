@@ -13,8 +13,14 @@ class Jetpack_Sync_Actions {
 
 	static function init() {
 
-		// Add a custom "every minute" cron schedule
-		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
+		// everything below this point should only happen if we're a valid sync site
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		if ( self::sync_via_cron_allowed() ) {
+			self::init_sync_cron_jobs();
+		}
 
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'do_full_sync' ), 10, 0 );
@@ -25,20 +31,8 @@ class Jetpack_Sync_Actions {
 		// Sync connected user role changes to .com
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
 
-		// everything below this point should only happen if we're a valid sync site
-		if ( ! self::sync_allowed() ) {
-			return;
-		}
-
 		// publicize filter to prevent publicizing blacklisted post types
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
-
-		// cron hooks
-		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
-		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
-		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
-
-		self::init_sync_cron_jobs();
 
 		/**
 		 * Fires on every request before default loading sync listener code.
@@ -94,6 +88,11 @@ class Jetpack_Sync_Actions {
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
+	static function sync_via_cron_allowed() {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
+		return ( Jetpack_Sync_Settings::get_setting( 'sync_via_cron' ) );
+	}
+
 	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
@@ -123,6 +122,10 @@ class Jetpack_Sync_Actions {
 		// Has the site opted in to IDC mitigation?
 		if ( Jetpack::sync_idc_optin() ) {
 			$query_args['idc'] = true;
+		}
+
+		if ( Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
+			$query_args['migrate_for_idc'] = true;
 		}
 
 		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
@@ -159,7 +162,7 @@ class Jetpack_Sync_Actions {
 
 			return new WP_Error(
 				'sync_error_idc',
-				__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis' )
+				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
 			);
 		}
 
@@ -193,10 +196,10 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function minute_cron_schedule( $schedules ) {
-		if( ! isset( $schedules["1min"] ) ) {
-			$schedules["1min"] = array(
+		if( ! isset( $schedules['1min'] ) ) {
+			$schedules['1min'] = array(
 				'interval' => 60,
-				'display' => __( 'Every minute' )
+				'display' => esc_html__( 'Every minute', 'jetpack' )
 			);
 		}
 		return $schedules;
@@ -303,6 +306,15 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function init_sync_cron_jobs() {
+		// Add a custom "every minute" cron schedule
+		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
+
+		// cron hooks
+		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
+
+		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
+		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
+
 		/**
 		 * Allows overriding of the default incremental sync cron schedule which defaults to once per minute.
 		 *

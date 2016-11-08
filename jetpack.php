@@ -65,6 +65,7 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php');
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
@@ -96,12 +97,6 @@ add_filter( 'is_jetpack_site', '__return_true' );
 if ( Jetpack::is_module_active( 'photon' ) ) {
 	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 }
-
-/*
-if ( is_admin() && ! Jetpack::check_identity_crisis() ) {
-	Jetpack_Sync::sync_options( __FILE__, 'db_version', 'jetpack_active_modules', 'active_plugins' );
-}
-*/
 
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php' );
 

@@ -1209,7 +1209,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 
 	'response_format' => array(
 		'media' => '(array) Array of media objects',
-		'found' => '(int) The number of total results found'
+		'found' => '(int) The number of total results found',
+		'meta'  => '(object) Meta data',
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/media',
@@ -2493,6 +2494,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'jetpack_testimonial_posts_per_page'   => '(int) Number of testimonials to show per page',
 		'jetpack_portfolio'                    => '(bool) Whether portfolio custom post type is enabled for the site',
 		'jetpack_portfolio_posts_per_page'     => '(int) Number of portfolio projects to show per page',
+		'site_icon'                            => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 	),
 
 	'response_format' => array(

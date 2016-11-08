@@ -54,6 +54,8 @@ class Google_Translate_Widget extends WP_Widget {
 			if ( is_admin_bar_showing() ) {
 				echo '<style>.goog-te-banner-frame { top:32px !important } </style>';
 			}
+			/** This action is documented in modules/widgets/gravatar-profile.php */
+			do_action( 'jetpack_stats_extra', 'widget_view', 'google-translate' );
 		}
 	}
 

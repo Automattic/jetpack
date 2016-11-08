@@ -1189,7 +1189,7 @@ class Nova_Restaurant {
 	 */
 	function menu_item_loop_open_element( $field ) {
 		$markup = $this->get_menu_item_loop_markup();
-		echo '<' . tag_escape( $markup["{$field}_tag"] ) .  $this->menu_item_loop_class( $markup["{$field}_class"] ) . ">\n";
+		echo apply_filters( 'jetpack_nova_menu_item_loop_open_element', '<' . tag_escape( $markup["{$field}_tag"] ) .  $this->menu_item_loop_class( $markup["{$field}_class"] ) . ">\n", $field, $markup, $this->menu_item_loop_current_term );
 	}
 
 	/**
@@ -1199,7 +1199,7 @@ class Nova_Restaurant {
 	 */
 	function menu_item_loop_close_element( $field ) {
 		$markup = $this->get_menu_item_loop_markup();
-		echo '</' . tag_escape( $markup["{$field}_tag"] ) . ">\n";
+		echo apply_filters( 'jetpack_nova_menu_item_loop_close_element', '</' . tag_escape( $markup["{$field}_tag"] ) . ">\n", $field, $markup, $this->menu_item_loop_current_term );
 	}
 
 	/**
@@ -1213,7 +1213,7 @@ class Nova_Restaurant {
 			return '';
 		}
 
-		return ' class="' . esc_attr( $class ) . '"';
+		return apply_filters( 'jetpack_nova_menu_item_loop_class', ' class="' . esc_attr( $class ) . '"', $class, $this->menu_item_loop_current_term );
 	}
 }
 

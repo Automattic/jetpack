@@ -58,7 +58,6 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-
 		extract( $args );
 
 		$like_args = $this->normalize_facebook_args( $instance['like_args'] );
@@ -113,8 +112,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		wp_enqueue_script( 'jetpack-facebook-embed' );
 		echo $after_widget;
 
-		/** This action is already documented in modules/widgets/gravatar-profile.php */
-		do_action( 'jetpack_stats_extra', 'widget', 'facebook-likebox' );
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'facebook-likebox' );
 	}
 
 	function update( $new_instance, $old_instance ) {

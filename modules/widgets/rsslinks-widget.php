@@ -48,6 +48,9 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		if ( 'text' == $instance['format'] ) echo '</ul>';
 
 		echo "\n" . $after_widget;
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'rss-links' );
 	}
 
 	/**

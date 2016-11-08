@@ -137,6 +137,9 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			do_action( 'jetpack_contact_info_widget_end' );
 
 			echo $args['after_widget'];
+
+			/** This action is documented in modules/widgets/gravatar-profile.php */
+			do_action( 'jetpack_stats_extra', 'widget_view', 'contact_info' );
 		}
 
 
@@ -262,7 +265,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 					<?php _e( 'Google Maps API Key', 'jetpack' ); ?>
 					<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'apikey' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['apikey'] ); ?>" />
 					<br />
-					<small><?php printf( wp_kses( __( 'Google now requires an API key to use their maps on your site. <a href="%s">See our documentation</a> for instructions on acquiring a key.' ), array( 'a' => array( 'href' => true ) ) ), 'https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/' ); ?></small>
+					<small><?php printf( wp_kses( __( 'Google now requires an API key to use their maps on your site. <a href="%s">See our documentation</a> for instructions on acquiring a key.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ), 'https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/' ); ?></small>
 				</label>
 			</p>
 

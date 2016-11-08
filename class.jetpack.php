@@ -51,6 +51,7 @@ class Jetpack {
 		'jetpack_social_media_icons_widget',
 		'jetpack-top-posts-widget',
 		'jetpack_image_widget',
+		'jetpack-my-community-widget',
 	);
 
 	public $plugins_to_deactivate = array(
@@ -529,7 +530,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', '__return_false' );
+		add_filter( 'jetpack_just_in_time_msgs', '__return_true' );
 
 		/**
 		 * This is the hack to concatinate all css files into one.
@@ -921,12 +922,17 @@ class Jetpack {
 	 * If a user has been promoted to or demoted from admin, we need to clear the
 	 * jetpack_other_linked_admins transient.
 	 *
-	 * @param $user_id
-	 * @param $role
-	 * @param $old_roles
+	 * @since 4.3.2
+	 * @since 4.4.0  $old_roles is null by default and if it's not passed, the transient is cleared.
+	 *
+	 * @param int    $user_id   The user ID whose role changed.
+	 * @param string $role      The new role.
+	 * @param array  $old_roles An array of the user's previous roles.
 	 */
-	function maybe_clear_other_linked_admins_transient( $user_id, $role, $old_roles ) {
-		if ( 'administrator' == $role || ( is_array( $old_roles ) && in_array( 'administrator', $old_roles ) )
+	function maybe_clear_other_linked_admins_transient( $user_id, $role, $old_roles = null ) {
+		if ( 'administrator' == $role
+			|| ( is_array( $old_roles ) && in_array( 'administrator', $old_roles ) )
+			|| is_null( $old_roles )
 		) {
 			delete_transient( 'jetpack_other_linked_admins' );
 		}
@@ -2602,9 +2608,10 @@ p {
 				'master_user',
 				'time_diff',
 				'fallback_no_verify_ssl_certs',
-				'sync_error_idc',
 			)
 		);
+
+		Jetpack_IDC::clear_all_idc_options();
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
@@ -3192,7 +3199,7 @@ p {
 		if( current_user_can( 'jetpack_manage_modules' ) && ( Jetpack::is_active() || Jetpack::is_development_mode() ) ) {
 			return array_merge(
 				$jetpack_home,
-				array( 'settings' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack_modules' ), __( 'Settings', 'jetpack' ) ) ),
+				array( 'settings' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack#/settings' ), __( 'Settings', 'jetpack' ) ) ),
 				array( 'support' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack-debugger '), __( 'Support', 'jetpack' ) ) ),
 				$actions
 				);
@@ -5245,11 +5252,27 @@ p {
 	 */
 	public static function validate_sync_error_idc_option() {
 		$is_valid = false;
-		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
-		$local_options = self::get_sync_error_idc_option();
+
+		$idc_allowed = get_transient( 'jetpack_idc_allowed' );
+		if ( false === $idc_allowed ) {
+			$response = wp_remote_get( 'https://jetpack.com/is-idc-allowed/' );
+			if ( 200 === (int) wp_remote_retrieve_response_code( $response ) ) {
+				$json = json_decode( wp_remote_retrieve_body( $response ) );
+				$idc_allowed = isset( $json, $json->result ) && $json->result ? '1' : '0';
+				$transient_duration = HOUR_IN_SECONDS;
+			} else {
+				// If the request failed for some reason, then assume IDC is allowed and set shorter transient.
+				$idc_allowed = '1';
+				$transient_duration = 5 * MINUTE_IN_SECONDS;
+			}
+
+			set_transient( 'jetpack_idc_allowed', $idc_allowed, $transient_duration );
+		}
 
 		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
-		if ( $sync_error && self::sync_idc_optin() ) {
+		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+		$local_options = self::get_sync_error_idc_option();
+		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
 			if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 				$is_valid = true;
 			}
@@ -5264,7 +5287,7 @@ p {
 		 */
 		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
 
-		if ( ! $is_valid && $sync_error ) {
+		if ( ! $idc_allowed || ( ! $is_valid && $sync_error ) ) {
 			// Since the option exists, and did not validate, delete it
 			Jetpack_Options::delete_option( 'sync_error_idc' );
 		}
@@ -5337,7 +5360,7 @@ p {
 		if ( Jetpack_Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
 			$default = Jetpack_Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
 		} else {
-			$default = false;
+			$default = ! Jetpack_Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
 		}
 
 		/**
