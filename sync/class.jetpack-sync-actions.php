@@ -13,8 +13,14 @@ class Jetpack_Sync_Actions {
 
 	static function init() {
 
-		// Add a custom "every minute" cron schedule
-		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
+		// everything below this point should only happen if we're a valid sync site
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		if ( self::sync_via_cron_allowed() ) {
+			self::init_sync_cron_jobs();
+		}
 
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'do_full_sync' ), 10, 0 );
@@ -25,20 +31,8 @@ class Jetpack_Sync_Actions {
 		// Sync connected user role changes to .com
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
 
-		// everything below this point should only happen if we're a valid sync site
-		if ( ! self::sync_allowed() ) {
-			return;
-		}
-
 		// publicize filter to prevent publicizing blacklisted post types
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
-
-		// cron hooks
-		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
-		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
-		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
-
-		self::init_sync_cron_jobs();
 
 		/**
 		 * Fires on every request before default loading sync listener code.
@@ -92,6 +86,11 @@ class Jetpack_Sync_Actions {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' ) && Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
+	}
+
+	static function sync_via_cron_allowed() {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
+		return ( Jetpack_Sync_Settings::get_setting( 'sync_via_cron' ) );
 	}
 
 	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
@@ -307,6 +306,15 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function init_sync_cron_jobs() {
+		// Add a custom "every minute" cron schedule
+		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
+
+		// cron hooks
+		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
+
+		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
+		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
+
 		/**
 		 * Allows overriding of the default incremental sync cron schedule which defaults to once per minute.
 		 *
