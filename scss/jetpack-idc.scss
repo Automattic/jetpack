@@ -1,25 +1,30 @@
 @import '../_inc/client/scss/variables/_colors.scss';
 
-@media all and ( min-width: 783px ) {
-	body.toplevel_page_jetpack {
-		.jp-idc-notice {
-			margin-top: 40px;
-		}
-	}
-}
-
-.jp-idc-notice, 
+.jp-idc-notice,
 .jp-idc-notice * {
 	box-sizing: border-box;
 }
 
 .jp-idc-notice {
-	overflow: auto;
+	margin-left: 0;
+	margin-right: 10px;
+	margin-top: 10px;
 	padding-bottom: 16px;
 	padding-top: 0;
 
 	&.is-non-admin {
 		padding-bottom: 0;
+	}
+}
+
+@media all and ( min-width: 783px ) {
+	.jp-idc-notice {
+		margin-right: 20px;
+		margin-top: 20px;
+
+		&.has-help-tabs {
+			margin-top: 48px;
+		}
 	}
 }
 
