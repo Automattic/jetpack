@@ -2914,12 +2914,24 @@ p {
 
 	function prepare_connect_notice() {
 		add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_connection_banner_scripts' ) );
 
 		add_action( 'admin_notices', array( $this, 'admin_connect_notice' ) );
 
 		if ( Jetpack::state( 'network_nag' ) )
 			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
 	}
+
+	function enqueue_connection_banner_scripts() {
+		wp_enqueue_script(
+			'jetpack-connection-banner-js',
+			plugins_url( '_inc/jetpack-connection-banner.js', JETPACK__PLUGIN_FILE ),
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			true
+		);
+	}
+
 	/**
 	 * Call this function if you want the Big Jetpack Manage Notice to show up.
 	 *
