@@ -222,6 +222,14 @@ class Jetpack_Subscriptions {
 				update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
 			}
 		}
+
+		if ( ! Jetpack::is_module_active( 'subscriptions' )  ) {
+			return;
+		}
+
+		if ( ! get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs' ) ) {
+			do_action( 'jetpack_email_post_to_subscribers', $post->ID );
+		}
 	}
 
 	/**
