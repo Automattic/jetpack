@@ -13,8 +13,14 @@ License: GPLv2 or later
 define( 'GRUNION_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GRUNION_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
-if ( is_admin() )
+if ( is_admin() ) {
 	require_once GRUNION_PLUGIN_DIR . '/admin.php';
+}
+
+add_action( 'rest_api_init', 'grunion_contact_form_require_endpoint' );
+function grunion_contact_form_require_endpoint() {
+	require_once GRUNION_PLUGIN_DIR . '/class-grunion-contact-form-endpoint.php';
+}
 
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
@@ -121,15 +127,16 @@ class Grunion_Contact_Form_Plugin {
 				'not_found'          => __( 'No feedback found', 'jetpack' ),
 				'not_found_in_trash' => __( 'No feedback found', 'jetpack' )
 			),
-			'menu_icon'         => 'dashicons-feedback',
-			'show_ui'           => TRUE,
-			'show_in_admin_bar' => FALSE,
-			'public'            => FALSE,
-			'rewrite'           => FALSE,
-			'query_var'         => FALSE,
-			'capability_type'   => 'page',
-			'show_in_rest'      => true,
-			'capabilities'		=> array(
+			'menu_icon'         	=> GRUNION_PLUGIN_URL . '/images/grunion-menu.png',
+			'show_ui'           	=> TRUE,
+			'show_in_admin_bar' 	=> FALSE,
+			'public'            	=> FALSE,
+			'rewrite'           	=> FALSE,
+			'query_var'         	=> FALSE,
+			'capability_type'   	=> 'page',
+			'show_in_rest'      	=> true,
+			'rest_controller_class' => 'Grunion_Contact_Form_Endpoint',
+			'capabilities'			=> array(
 				'create_posts'        => false,
 				'publish_posts'       => 'publish_pages',
 				'edit_posts'          => 'edit_pages',
@@ -141,7 +148,7 @@ class Grunion_Contact_Form_Plugin {
 				'delete_post'         => 'delete_page',
 				'read_post'           => 'read_page',
 			),
-			'map_meta_cap'		=> true,
+			'map_meta_cap'			=> true,
 		) );
 
 		// Add to REST API post type whitelist
