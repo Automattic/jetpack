@@ -43,13 +43,17 @@ export function ModuleSettingsForm( InnerComponent ) {
 				[ optionName ]: optionValue
 			};
 			this.setState( { options: newOptions } );
-			this.props.setUnsavedOptionFlag();
 			return true;
+		},
+		componentDidUpdate() {
+			if ( this.isDirty() ) {
+				this.props.setUnsavedSettingsFlag();
+			}
 		},
 		onSubmit( event ) {
 			event.preventDefault();
 			this.props.updateOptions( assign( {}, this.state.options ) );
-			this.props.clearUnsavedOptionFlag();
+			this.props.clearUnsavedSettingsFlag();
 			this.setState( { options: {} } )
 		},
 

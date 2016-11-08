@@ -10,14 +10,14 @@ import {
 	updateModuleOptions,
 	getModuleOption,
 	getModuleOptionValidValues,
-	regeneratePostByEmailAddress,
-	setUnsavedOptionFlag,
-	clearUnsavedOptionFlag
+	regeneratePostByEmailAddress
 } from 'state/modules';
 import {
 	getSetting,
 	updateSettings,
-	isUpdatingSetting
+	isUpdatingSetting,
+	setUnsavedSettingsFlag,
+	clearUnsavedSettingsFlag
 } from 'state/settings';
 import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
 import {
@@ -56,11 +56,11 @@ export function connectModuleOptions( Component ) {
 			regeneratePostByEmailAddress: () => {
 				return dispatch( regeneratePostByEmailAddress() );
 			},
-			setUnsavedOptionFlag: () => {
-				return dispatch( setUnsavedOptionFlag() );
+			setUnsavedSettingsFlag: () => {
+				return dispatch( setUnsavedSettingsFlag() );
 			},
-			clearUnsavedOptionFlag: () => {
-				return dispatch( clearUnsavedOptionFlag() );
+			clearUnsavedSettingsFlag: () => {
+				return dispatch( clearUnsavedSettingsFlag() );
 			}
 		} )
 	)( Component );

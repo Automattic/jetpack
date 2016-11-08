@@ -28,6 +28,7 @@ import {
 	userCanManageModules
 } from 'state/initial-state';
 import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
+import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 
 import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
@@ -66,7 +67,10 @@ const Main = React.createClass( {
 	 */
 	onBeforeUnload( e ) {
 		const dialogText = __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' );
-		if ( this.props.areThereUnsavedModuleOptions ) {
+		if (
+			this.props.areThereUnsavedModuleOptions
+			|| this.props.areThereUnsavedSettings
+		) {
 			e.returnValue = dialogText;
 			return dialogText;
 		}
@@ -78,10 +82,14 @@ const Main = React.createClass( {
  	 * Return true or false according to the history.listenBefore specification which is part of react-router
 	 */
 	routerWillLeave() {
-		if ( this.props.areThereUnsavedModuleOptions ) {
+		if (
+			this.props.areThereUnsavedModuleOptions
+			|| this.props.areThereUnsavedSettings
+		) {
 			const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
 			if ( confirmLeave ) {
 				this.props.clearUnsavedOptionFlag();
+				this.props.clearUnsavedSettingsFlag();
 			} else {
 				return false;
 			}
@@ -242,10 +250,11 @@ export default connect(
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state ),
+			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state )
 		};
 	},
-	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag }, dispatch )
+	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag, clearUnsavedSettingsFlag }, dispatch )
 )( withRouter( Main ) );
 
 /**

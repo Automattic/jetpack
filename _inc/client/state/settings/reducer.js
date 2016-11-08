@@ -18,7 +18,9 @@ import {
 	JETPACK_SETTING_UPDATE_FAIL,
 	JETPACK_SETTINGS_UPDATE,
 	JETPACK_SETTINGS_UPDATE_SUCCESS,
-	JETPACK_SETTINGS_UPDATE_FAIL
+	JETPACK_SETTINGS_UPDATE_FAIL,
+	JETPACK_SETTINGS_SET_UNSAVED_FLAG,
+	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG
 } from 'state/action-types';
 
 export const items = ( state = {}, action ) => {
@@ -73,9 +75,21 @@ export const requests = ( state = initialRequestsState, action ) => {
 	}
 };
 
+export const unsavedSettingsFlag = ( state = false, action ) => {
+	switch ( action.type ) {
+		case JETPACK_SETTINGS_SET_UNSAVED_FLAG:
+			return true;
+		case JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG:
+			return false;
+		default:
+			return state;
+	}
+}
+
 export const reducer = combineReducers( {
 	items,
-	requests
+	requests,
+	unsavedSettingsFlag
 } );
 
 /**
@@ -146,4 +160,13 @@ export function toggleSetting( state, name ) {
  */
 export function getSettingName( state, name ) {
 	return get( state.jetpack.initialState.settingNames, [ name ] );
+}
+
+/**
+ * Returns true if there are unsaved settings.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}  Whether there are unsaved settings
+ */
+export function areThereUnsavedSettings( state ) {
+	return get( state.jetpack.settings, 'unsavedSettingsFlag' );
 }

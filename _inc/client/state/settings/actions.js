@@ -16,10 +16,24 @@ import {
 	JETPACK_SETTING_UPDATE_FAIL,
 	JETPACK_SETTINGS_UPDATE,
 	JETPACK_SETTINGS_UPDATE_SUCCESS,
-	JETPACK_SETTINGS_UPDATE_FAIL
+	JETPACK_SETTINGS_UPDATE_FAIL,
+	JETPACK_SETTINGS_SET_UNSAVED_FLAG,
+	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG
 } from 'state/action-types';
 import { maybeHideNavMenuItem } from 'state/modules';
 import restApi from 'rest-api';
+
+export const setUnsavedSettingsFlag = () => {
+	return ( {
+		type: JETPACK_SETTINGS_SET_UNSAVED_FLAG
+	} );
+}
+
+export const clearUnsavedSettingsFlag = () => {
+	return ( {
+		type: JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG
+	} );
+}
 
 export const fetchSettings = () => {
 	return ( dispatch ) => {
