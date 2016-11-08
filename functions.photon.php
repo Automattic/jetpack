@@ -139,10 +139,10 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 *
 	 * @since 3.4.2
 	 *
-	 * @param string http://i{$subdomain}.wp.com Domain used by Photon. $subdomain is a random number between 0 and 2.
+	 * @param string https://i{$subdomain}.wp.com Domain used by Photon. $subdomain is a random number between 0 and 2.
 	 * @param string $image_url URL of the image to be photonized.
 	 */
-	$photon_domain = apply_filters( 'jetpack_photon_domain', "http://i{$subdomain}.wp.com", $image_url );
+	$photon_domain = apply_filters( 'jetpack_photon_domain', "https://i{$subdomain}.wp.com", $image_url );
 	$photon_domain = trailingslashit( esc_url( $photon_domain ) );
 	$photon_url  = $photon_domain . $image_host_path;
 
@@ -235,7 +235,7 @@ add_filter( 'jetpack_photon_any_extension_for_domain',   'jetpack_photon_allow_f
 
 function jetpack_photon_url_scheme( $url, $scheme ) {
 	if ( ! in_array( $scheme, array( 'http', 'https', 'network_path' ) ) ) {
-		$scheme = is_ssl() ? 'https' : 'http';
+		$scheme = 'https';
 	}
 
 	if ( 'network_path' == $scheme ) {
