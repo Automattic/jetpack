@@ -182,8 +182,9 @@ class Jetpack_IDC {
 		}
 
 		$current_screen = get_current_screen();
+		$tabs = $current_screen->get_help_tabs();
 
-		return ! empty( $current_screen->get_help_tabs() );
+		return ! empty( $tabs );
 	}
 
 	function display_non_admin_idc_notice() {
