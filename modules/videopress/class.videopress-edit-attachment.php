@@ -14,7 +14,7 @@ class VideoPress_Edit_Attachment {
 	public static function init() {
 		static $instance = null;
 
-		if ( !$instance ) {
+		if ( ! $instance ) {
 			$instance = new VideoPress_Edit_Attachment();
 		}
 

@@ -218,7 +218,7 @@ class Jetpack_VideoPress {
 		global $pagenow;
 
 		// Only load in the admin
-		if ( !is_admin() ) {
+		if ( ! is_admin() ) {
 			return false;
 		}
 

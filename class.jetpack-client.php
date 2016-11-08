@@ -79,7 +79,7 @@ class Jetpack_Client {
 				}
 			}
 
-			if ( !is_string( $body_to_hash ) ) {
+			if ( ! is_string( $body_to_hash ) ) {
 				return new Jetpack_Error( 'invalid_body', 'Body is malformed.' );
 			}
 

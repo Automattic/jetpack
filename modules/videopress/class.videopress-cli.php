@@ -71,11 +71,10 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				$runs_next = $scheduler->check_cron( $cron_name );
 				$status = $runs_next ? sprintf( 'Scheduled - Runs Next at %s GMT', gmdate( 'Y-m-d H:i:s', $runs_next ) ) : 'Not Scheduled';
 
-				echo 'Name: ' . $cron_name . "\n";
-				echo 'Method: ' . $cron['method'] . "\n";
-				echo 'Interval: ' . $interval . "\n";
-				echo 'Status: ' . $status . "\n";
-				echo "\n";
+				WP_CLI::log( 'Name: ' . $cron_name );
+				WP_CLI::log( 'Method: ' . $cron['method'] );
+				WP_CLI::log( 'Interval: ' . $interval );
+				WP_CLI::log( 'Status: ' . $status );
 			}
 		}
 
