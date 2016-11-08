@@ -107,7 +107,7 @@
 			},
 			error: function( error ) {
 				erroredAction = 'confirm';
-				displayErrorNotice( error.responseJSON.message );
+				displayErrorNotice( error );
 				enableDopsButtons();
 			}
 		} );
@@ -136,7 +136,7 @@
 			},
 			error: function( error ) {
 				erroredAction = 'migrate';
-				displayErrorNotice( error.responseJSON.message );
+				displayErrorNotice( error );
 				enableDopsButtons();
 			}
 		} );
@@ -171,7 +171,7 @@
 			},
 			error: function( error ) {
 				erroredAction = 'start-fresh';
-				displayErrorNotice( error.responseJSON.message );
+				displayErrorNotice( error );
 				enableDopsButtons();
 			}
 		} );
@@ -180,11 +180,16 @@
 	/**
 	 * Displays an error message from the REST endpoints we're hitting.
 	 *
-	 * @param errorMessage String of the error message details
+	 * @param error {Object} Object containing the errored response from the API
 	 */
-	function displayErrorNotice( errorMessage ) {
+	function displayErrorNotice( error ) {
+		var errorDescription = $( '.jp-idc-error__desc' );
+		if ( error && error.responseJSON && error.responseJSON.message ) {
+			errorDescription.html( error.responseJSON.message );
+		} else {
+			errorDescription.html( '' );
+		}
 		errorNotice.css( 'display', 'flex' );
-		$( '.jp-idc-error__desc' ).html( errorMessage );
 	}
 
 	/**
