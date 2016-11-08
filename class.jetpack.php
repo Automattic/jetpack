@@ -921,12 +921,17 @@ class Jetpack {
 	 * If a user has been promoted to or demoted from admin, we need to clear the
 	 * jetpack_other_linked_admins transient.
 	 *
-	 * @param $user_id
-	 * @param $role
-	 * @param $old_roles
+	 * @since 4.3.2
+	 * @since 4.4.0  $old_roles is null by default and if it's not passed, the transient is cleared.
+	 *
+	 * @param int    $user_id   The user ID whose role changed.
+	 * @param string $role      The new role.
+	 * @param array  $old_roles An array of the user's previous roles.
 	 */
-	function maybe_clear_other_linked_admins_transient( $user_id, $role, $old_roles ) {
-		if ( 'administrator' == $role || ( is_array( $old_roles ) && in_array( 'administrator', $old_roles ) )
+	function maybe_clear_other_linked_admins_transient( $user_id, $role, $old_roles = null ) {
+		if ( 'administrator' == $role
+			|| ( is_array( $old_roles ) && in_array( 'administrator', $old_roles ) )
+			|| is_null( $old_roles )
 		) {
 			delete_transient( 'jetpack_other_linked_admins' );
 		}
