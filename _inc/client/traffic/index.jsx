@@ -100,6 +100,15 @@ export const Traffic = ( props ) => {
 			</span>;
 		}
 
+		let moduleDescription = isModuleActivated( element[0] ) ?
+			<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
+			// Render the long_description if module is deactivated
+			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
+
+		if ( element[0] === 'seo-tools' ) {
+			moduleDescription = <AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } />;
+		}
+
 		return (
 			<FoldableCard
 				className={ customClasses }
@@ -116,12 +125,7 @@ export const Traffic = ( props ) => {
 					}
 				) }
 			>
-				{
-					isModuleActivated( element[0] ) ?
-						<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
-						// Render the long_description if module is deactivated
-						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
-				}
+				{ moduleDescription }
 				<div className="jp-module-settings__read-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
