@@ -96,6 +96,14 @@
 	};
 }
 
+.jp-wpcom-connect__slide {
+	display: none;
+
+	&.jp__slide-is-active {
+		display: block;
+	}
+}
+
 // Connection Banner Vertical Menu
 .jp-wpcom-connect__vertical-nav {
 	background-color: #F3F6F8;
@@ -133,9 +141,10 @@
 		background-color: #F3F6F8;
 		color: #87a6bc;
 
-		/*&:last-of-type {
-			border-bottom: none;
-		}*/
+		&:last-of-type {
+			position: relative;
+			top: 1px;
+		}
 	}
 
 	.vertical-menu__feature-item-is-selected {

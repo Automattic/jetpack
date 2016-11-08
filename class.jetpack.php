@@ -3233,13 +3233,13 @@ p {
 
 			<div class="jp-wpcom-connect__vertical-nav">
 				<div class="jp-wpcom-connect__vertical-nav-container">
-					<div class="vertical-menu__feature-item jp-feature-intro">
+					<div class="vertical-menu__feature-item jp-feature-intro vertical-menu__feature-item-is-selected">
 						<div class="vertical-menu__feature-item-icon">
 							<svg class="jp-wpcom-connect__svg-jetpack" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 1 20 20" version="1.1"><path d="M14.4 11.3L10.5 18.1 10.5 8.7 13.7 9.5C14.5 9.7 14.9 10.6 14.4 11.3L14.4 11.3ZM9.6 13.3L6.5 12.5C5.7 12.3 5.3 11.4 5.7 10.7L9.6 3.9 9.6 13.3ZM10 1C4.5 1 0 5.5 0 11 0 16.5 4.5 21 10 21 15.5 21 20 16.5 20 11 20 5.5 15.5 1 10 1L10 1Z" /></svg>
 						</div>
 						<span class="vertical-menu__feature-item-label"><?php _e( 'Welcome to Jetpack', 'jetpack' ); ?></span>
 					</div>
-					<div class="vertical-menu__feature-item vertical-menu__feature-item-is-selected">
+					<div class="vertical-menu__feature-item">
 						<div class="vertical-menu__feature-item-icon">		
 							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 2 20 20" version="1.1"><path d="M7.8 17.6L12.2 17.6 12.2 2 7.8 2 7.8 17.6ZM14.4 17.6L18.9 17.6 18.9 5.3 14.4 5.3 14.4 17.6ZM1.1 17.6L5.6 17.6 5.6 9.8 1.1 9.8 1.1 17.6ZM0 22L20 22 20 19.8 0 19.8 0 22Z" /></svg>
 						</div>
@@ -3273,8 +3273,8 @@ p {
 			</div>
 			<div class="jp-wpcom-connect__content-container">
 
-				<!-- slide 1: intro 
-				<div class="jp-wpcom-connect__slide-one">
+				<!-- slide 1: intro -->
+				<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
 					<h2><?php _e( 'Jetpack is here to enhance your site and your life', 'jetpack' ) ?></h2>
 
 					<div class="jp-wpcom-connect__content-icon">
@@ -3294,10 +3294,10 @@ p {
 						<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="dops-button is-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 						<a href="#" class="dops-button" title="<?php esc_attr_e( 'Start tour to Learn about the benefits you receive when you connect Jetpack to WordPress.com', 'jetpack' ); ?>"><?php _e( 'Start quick tour', 'jetpack' ); ?></a>
 					</p>
-				</div> --><!-- end slide 1 -->
+				</div> <!-- end slide 1 -->
 
-				<!-- slide 2: stats 
-				<div class="jp-wpcom-connect__slide-two">
+				<!-- slide 2: stats -->
+				<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-two">
 					<h2><?php _e( 'Detailed stats and traffic tools to help you grow', 'jetpack' ) ?></h2>
 
 					<div class="jp-wpcom-connect__content-icon">
@@ -3310,10 +3310,10 @@ p {
 						<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="dops-button is-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 						<a href="#" class="dops-button" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>"><?php _e( 'Next feature', 'jetpack' ); ?></a>
 					</p>
-				</div> --><!-- end slide 2 -->
+				</div> <!-- end slide 2 -->
 
-				<!-- slide 3: security 
-				<div class="jp-wpcom-connect__slide-three">
+				<!-- slide 3: security -->
+				<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-three">
 					<h2><?php _e( 'Detailed stats and traffic tools to help you grow', 'jetpack' ) ?></h2>
 
 					<div class="jp-wpcom-connect__content-icon">
@@ -3326,10 +3326,10 @@ p {
 						<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="dops-button is-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 						<a href="#" class="dops-button" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>"><?php _e( 'Next feature', 'jetpack' ); ?></a>
 					</p>
-				</div> --><!-- end slide 3 -->
+				</div> <!-- end slide 3 -->
 
-				<!-- slide 4: Performance 
-				<div class="jp-wpcom-connect__slide-four">
+				<!-- slide 4: Performance -->
+				<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-four">
 					<h2><?php _e( 'Better image performance through the WordPress.com CDN', 'jetpack' ) ?></h2>
 
 					<div class="jp-wpcom-connect__content-icon">
@@ -3342,10 +3342,10 @@ p {
 						<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="dops-button is-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 						<a href="#" class="dops-button" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>"><?php _e( 'Next feature', 'jetpack' ); ?></a>
 					</p>
-				</div> --><!-- end slide 4 -->
+				</div> <!-- end slide 4 -->
 
-				<!-- slide 5: Apps 
-				<div class="jp-wpcom-connect__slide-five">
+				<!-- slide 5: Apps -->
+				<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-five">
 					<h2><?php _e( 'Free WordPress apps to manage your site(s) from any device', 'jetpack' ) ?></h2>
 
 					<div class="jp-wpcom-connect__content-icon">
@@ -3358,10 +3358,10 @@ p {
 						<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="dops-button is-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 						<a href="#" class="dops-button" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>"><?php _e( 'Next feature', 'jetpack' ); ?></a>
 					</p>
-				</div> --><!-- end slide 5 -->
+				</div> <!-- end slide 5 -->
 
 				<!-- slide 6: more features -->
-				<div class="jp-wpcom-connect__slide-six">
+				<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-six">
 					<h2><?php _e( 'More Jetpack features our users love', 'jetpack' ) ?></h2>
 
 					<div class="jp-wpcom-connect__content-icon">
@@ -3373,7 +3373,7 @@ p {
 					<p class="jp-banner__button-container">
 						<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="dops-button is-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 					</p>
-				</div><!-- end slide 5 -->
+				</div> <!-- end slide 6 -->
 
 
 			</div>
