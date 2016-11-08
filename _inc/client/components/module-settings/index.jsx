@@ -575,7 +575,7 @@ export let PostByEmailSettings = React.createClass( {
 						<div className="jp-connection-settings">
 							<div className="jp-connection-settings__headline">{ __( 'Link your account to WordPress.com to start using this feature.' ) }</div>
 							<div className="jp-connection-settings__actions">
-								<ConnectButton connectUser={ true } />
+								<ConnectButton connectUser={ true } from="post-by-email" />
 							</div>
 						</div>
 					}

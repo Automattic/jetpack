@@ -25,12 +25,14 @@ const ConnectButton = React.createClass( {
 	displayName: 'ConnectButton',
 
 	propTypes: {
-		type: React.PropTypes.bool
+		connectUser: React.PropTypes.bool,
+		from: React.PropTypes.string,
 	},
 
 	getDefaultProps() {
 		return {
-			connectUser: false
+			connectUser: false,
+			from: '',
 		};
 	},
 
@@ -51,10 +53,16 @@ const ConnectButton = React.createClass( {
 			);
 		}
 
+		let connectUrl = this.props.connectUrl( this.props );
+		if ( this.props.from ) {
+			connectUrl += `&from=${ this.props.from }`;
+			connectUrl += '&additional-user';
+		}
+
 		return (
 			<Button
 				className="is-primary jp-jetpack-connect__button"
-				href={ this.props.connectUrl( this.props ) }
+				href={ connectUrl }
 				disabled={ fetchingUrl } >
 				{ __( 'Link to WordPress.com' ) }
 			</Button>
@@ -85,10 +93,15 @@ const ConnectButton = React.createClass( {
 			);
 		}
 
+		let connectUrl = this.props.connectUrl( this.props );
+		if ( this.props.from ) {
+			connectUrl += `&from=${ this.props.from }`;
+		}
+
 		return (
 			<Button
 				className="is-primary jp-jetpack-connect__button"
-				href={ this.props.connectUrl( this.props ) }
+				href={ connectUrl }
 				disabled={ fetchingUrl }>
 				{ __( 'Connect Jetpack' ) }
 			</Button>
