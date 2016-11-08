@@ -191,3 +191,9 @@
 		width: auto;
 	}
 }
+
+@media only screen and ( min-width: 683px ) {
+	.jp-idc-error__notice .dops-notice__text {
+		line-height: 24px;
+	}
+}
