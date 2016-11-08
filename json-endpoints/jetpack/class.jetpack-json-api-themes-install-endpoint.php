@@ -117,16 +117,10 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			return new WP_Error( 'problem_creating_theme_file', __( 'Problem creating file for theme download', 'jetpack' ) );
 		}
 
-		$handle = fopen( $file, 'wb' );
-		if ( ! $handle ) {
-			return new WP_Error( 'problem_opening_theme_file', __( 'Problem opening file for theme download', 'jetpack' ) );
-		}
-
-		if ( ! fwrite( $handle, $result[ 'body' ] ) ) {
+		if ( file_put_contents( $file, $result[ 'body' ] ) === false ) {
 			return new WP_Error( 'problem_writing_theme_file', __( 'Problem downloading theme', 'jetpack' ) );
 		}
 
-		fclose( $handle );
 		return $file;
 	}
 }
