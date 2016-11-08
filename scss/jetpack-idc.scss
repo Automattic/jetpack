@@ -34,16 +34,17 @@
 	}
 }
 
-.jp-idc-notice {
-	a,
-	a:visited {
+.jp-idc-notice a:not( .dops-notice__action ) {
+	color: $blue-wordpress;
+	text-decoration: none;
+
+	&:visited {
 		color: $blue-wordpress;
-		text-decoration: none;
 	}
 
-	a:hover,
-	a:focus,
-	a:active {
+	&:hover,
+	&:focus,
+	&:active {
 		color: $link-highlight;
 	}
 }
@@ -180,4 +181,19 @@
 
 .jp-idc-notice .jp-idc-notice__unsure-prompt {
 	margin: 16px 0 0;
+}
+
+.jp-idc-error__notice {
+	display: none;
+
+	.dops-notice__icon {
+		height: auto;
+		width: auto;
+	}
+}
+
+@media only screen and ( min-width: 683px ) {
+	.jp-idc-error__notice .dops-notice__text {
+		line-height: 24px;
+	}
 }
