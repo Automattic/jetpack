@@ -115,6 +115,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 		$response =  $result[ 'response' ];
 		if ( $response[ 'code' ] !== 200 ) {
+			unlink( $file );
 			return new WP_Error( 'problem_fetching_theme', __( 'Problem downloading theme' ) );
 		}
 
