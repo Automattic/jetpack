@@ -2608,9 +2608,10 @@ p {
 				'master_user',
 				'time_diff',
 				'fallback_no_verify_ssl_certs',
-				'sync_error_idc',
 			)
 		);
+
+		Jetpack_IDC::clear_all_idc_options();
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );

@@ -64,6 +64,9 @@
 		</testsuite>
 		<testsuite name="restapi">
 			<directory prefix="test_" suffix="rest-api-endpoints.php">tests/php/_inc/lib</directory>
+		</testsuites>
+		<testsuite name="idc">
+			<file>tests/php/test_class.jetpack-idc.php</file>
 		</testsuite>
 	</testsuites>
 	<groups>

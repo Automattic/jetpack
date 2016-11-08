@@ -158,6 +158,19 @@ class Jetpack_IDC {
 		return untrailingslashit( Jetpack::normalize_url_protocol_agnostic( $url ) );
 	}
 
+	/**
+	 * Clears all IDC specific options. This method is used on disconnect and reconnect.
+	 */
+	static function clear_all_idc_options() {
+		Jetpack_Options::delete_option(
+			array(
+				'sync_error_idc',
+				'safe_mode_confirmed',
+				'migrate_for_idc',
+			)
+		);
+	}
+
 	function display_non_admin_idc_notice() {
 		$classes = 'jp-idc-notice is-non-admin notice notice-warning';
 		if ( isset( self::$current_screen ) && 'toplevel_page_jetpack' != self::$current_screen->id ) {
