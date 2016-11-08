@@ -18,7 +18,7 @@
 	// Initialize Tracks and bump stats.
 	analytics.initialize( tracksUser.userid, tracksUser.username );
 	if ( tracksEvent.isAdmin ) {
-		trackAndBumpMCStats( 'notice_view' )
+		trackAndBumpMCStats( 'notice_view' );
 	} else {
 		trackAndBumpMCStats( 'non_admin_notice_view', { 'page': tracksEvent.currentScreen } );
 	}
@@ -169,9 +169,12 @@
 	 * @param eventName string
 	 * @param extraProps object
 	 */
-	function trackAndBumpMCStats( eventName, extraProps = {} ) {
-		if ( 'undefined' !== eventName && eventName.length ) {
+	function trackAndBumpMCStats( eventName, extraProps ) {
+		if ( 'undefined' === extraProps || typeof extraProps !== 'object' ) {
+			extraProps = {};
+		}
 
+		if ( 'undefined' !== eventName && eventName.length ) {
 			// Format for Tracks
 			eventName = eventName.replace( /-/g, '_' );
 			eventName = eventName.indexOf( 'jetpack_idc_' ) !== 0 ? 'jetpack_idc_' + eventName : eventName;
