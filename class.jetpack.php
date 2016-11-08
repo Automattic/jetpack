@@ -3327,7 +3327,7 @@ p {
 							</a>
 							<a
 								href="#"
-								class="dops-button"
+								class="dops-button next-feature"
 								title="<?php
 									esc_attr_e(
 										'Start tour to Learn about the benefits you receive when you connect Jetpack to WordPress.com',
@@ -3365,7 +3365,7 @@ p {
 							<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="dops-button is-primary" id="wpcom-connect">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
-							<a href="#" class="dops-button" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
+							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 						</p>
@@ -3399,7 +3399,7 @@ p {
 								id="wpcom-connect">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
-							<a href="#" class="dops-button" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
+							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 						</p>
@@ -3431,7 +3431,7 @@ p {
 							<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="dops-button is-primary" id="wpcom-connect">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
-							<a href="#" class="dops-button" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
+							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 						</p>
@@ -3463,7 +3463,7 @@ p {
 							<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="dops-button is-primary" id="wpcom-connect">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
-							<a href="#" class="dops-button" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
+							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 						</p>
