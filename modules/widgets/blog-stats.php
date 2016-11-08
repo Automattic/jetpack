@@ -51,6 +51,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	public function defaults() {
 		return array(
 			'title' => __( 'Blog Stats', 'jetpack' ),
+			/* Translators: Number of views, plural */
 			'hits'  => __( 'hits', 'jetpack' ),
 		);
 	}
