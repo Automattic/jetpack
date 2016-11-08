@@ -276,7 +276,7 @@ class Jetpack_Connection_Banner {
 
 					<!-- slide 3: security -->
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-three">
-						<h2><?php esc_html_e( 'Detailed stats and traffic tools to help you grow', 'jetpack' ) ?></h2>
+						<h2><?php esc_html_e( 'Multiple security tools to give you peace of mind', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon">
 							<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="2 3 100 100" version="1.1"><defs><polygon points="36 22.5 36 0 0 0 0 22.5 0 45 36 45"/></defs><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(2.000000, 3.000000)"><circle fill="#3D596D" cx="50" cy="50" r="50"/><g transform="translate(32.000000, 25.000000)"><mask fill="white"/><path d="M20.3 30.9L20.3 36 15.8 36 15.8 30.9C14.4 30.1 13.5 28.7 13.5 27 13.5 24.5 15.5 22.5 18 22.5 20.5 22.5 22.5 24.5 22.5 27 22.5 28.7 21.6 30.1 20.3 30.9L20.3 30.9ZM11.3 11.2C11.3 7.5 14.3 4.5 18 4.5 21.7 4.5 24.8 7.5 24.8 11.2L24.8 13.5 11.3 13.5 11.3 11.2ZM31.5 13.5L29.3 13.5 29.3 11.2C29.3 5 24.2 0 18 0 11.8 0 6.8 5 6.8 11.2L6.8 13.5 4.5 13.5C2 13.5 0 15.5 0 18L0 40.5C0 43 2 45 4.5 45L31.5 45C34 45 36 43 36 40.5L36 18C36 15.5 34 13.5 31.5 13.5L31.5 13.5Z" fill="#FFFFFF" mask="url(#mask-2)"/></g></g></svg>
