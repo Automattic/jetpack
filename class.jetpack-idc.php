@@ -221,7 +221,11 @@ class Jetpack_IDC {
 				'apiRoot' => esc_url_raw( rest_url() ),
 				'nonce' => wp_create_nonce( 'wp_rest' ),
 				'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-				'currentUrl' => remove_query_arg( '_wpnonce', remove_query_arg( 'jetpack_idc_clear_confirmation' ) )
+				'currentUrl' => remove_query_arg( '_wpnonce', remove_query_arg( 'jetpack_idc_clear_confirmation' ) ),
+				'tracksEventData' => array(
+					'isAdmin' => current_user_can( 'jetpack_disconnect' ),
+					'currentScreen' => self::$current_screen ? self::$current_screen->id : false,
+				),
 			)
 		);
 

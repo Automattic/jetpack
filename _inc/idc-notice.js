@@ -7,6 +7,7 @@
 		notice = $( '.jp-idc-notice' ),
 		idcButtons = $( '.jp-idc-notice .dops-button' ),
 		tracksUser = idcL10n.tracksUserData,
+		tracksEvent = idcL10n.tracksEventData,
 		adminBarMenu = $( '#wp-admin-bar-jetpack-idc' ),
 		confirmSafeModeButton = $( '#jp-idc-confirm-safe-mode-action' ),
 		fixConnectionButton = $( '#jp-idc-fix-connection-action' ),
@@ -16,7 +17,11 @@
 
 	// Initialize Tracks and bump stats.
 	analytics.initialize( tracksUser.userid, tracksUser.username );
-	trackAndBumpMCStats( 'notice_view' );
+	if ( tracksEvent.isAdmin ) {
+		trackAndBumpMCStats( 'notice_view' )
+	} else {
+		trackAndBumpMCStats( 'non_admin_notice_view', { 'page': tracksEvent.currentScreen } );
+	}
 	clearConfirmationArgsFromUrl();
 
 	// If the user dismisses the notice, set a cookie for one week so we don't display it for that time.
@@ -162,14 +167,15 @@
 	 * MC: Will not be prefixed, and will use dashes.
 	 *
 	 * @param eventName string
+	 * @param extraProps object
 	 */
-	function trackAndBumpMCStats( eventName ) {
+	function trackAndBumpMCStats( eventName, extraProps = {} ) {
 		if ( 'undefined' !== eventName && eventName.length ) {
 
 			// Format for Tracks
 			eventName = eventName.replace( /-/g, '_' );
 			eventName = eventName.indexOf( 'jetpack_idc_' ) !== 0 ? 'jetpack_idc_' + eventName : eventName;
-			analytics.tracks.recordEvent( eventName, {} );
+			analytics.tracks.recordEvent( eventName, { extraProps } );
 
 			// Now format for MC stats
 			eventName = eventName.replace( 'jetpack_idc_', '' );
