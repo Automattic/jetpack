@@ -224,7 +224,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-1' ) ); ?>"
+								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-1' ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
