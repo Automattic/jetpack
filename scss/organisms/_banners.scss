@@ -54,7 +54,6 @@
 .updated .notice-dismiss {
 	text-decoration: none;
 }
-
 // end overrides
 
 .jp-wpcom-connect__container {
@@ -87,10 +86,6 @@
 .jp-wpcom-connect__content-icon {
 	float: right;
 	margin: 0 0 rem( 36px ) rem( 36px );
-
-	@include breakpoint(phablet) {
-		display: none;
-	};
 }
 
 .jp-wpcom-connect__slide {
@@ -99,6 +94,10 @@
 	&.jp__slide-is-active {
 		display: block;
 	}
+}
+
+.jp-banner__button-container .dops-button {
+	margin: rem( 5px ) 0;
 }
 
 // Connection Banner Vertical Menu
