@@ -58,10 +58,10 @@ class Jetpack_Connection_Banner {
 			add_action( 'admin_notices', array( $this, 'render_legacy_banner' ) );
 		} else {
 			add_action( 'admin_notices', array( $this, 'render_banner' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
 		}
 
 		add_action( 'admin_print_styles',    array( Jetpack::init(), 'admin_banner_styles' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
 
 		if ( Jetpack::state( 'network_nag' ) ) {
 			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
