@@ -142,7 +142,7 @@ window.wp = window.wp || {};
 						filesizeHumanReadable: '',
 						filesizeInBytes: '',
 						height: media.height,
-						icon: '',
+						icon: media.icon || '',
 						id: media.ID || '',
 						link: media.URL || '',
 						menuOrder: 0,
