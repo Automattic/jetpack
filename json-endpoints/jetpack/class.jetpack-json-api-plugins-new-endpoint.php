@@ -38,7 +38,7 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 			if ( ! $local_file ) {
 				return new WP_Error( 'local-file-does-not-exist' );
 			}
-			$skin     = new Jetpack_Automatic_Plugin_Install_Skin();
+			$skin     = new Jetpack_Automatic_Install_Skin();
 			$upgrader = new Plugin_Upgrader( $skin );
 
 			$pre_install_plugin_list = get_plugins();
