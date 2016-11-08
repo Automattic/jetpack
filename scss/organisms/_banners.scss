@@ -137,6 +137,8 @@
 		color: #87a6bc;
 		cursor: pointer;
 
+		// trick to hide the bottom border of the last menu item when the menu is the tallest element, 
+		// but display the border when the overall container is taller than the menu
 		&:last-of-type {
 			position: relative;
 			top: 1px;
