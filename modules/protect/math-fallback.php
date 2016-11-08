@@ -83,7 +83,11 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		<?php
 			$mathage = ob_get_contents();
 			ob_end_clean();
-			wp_die( $mathage );
+			wp_die(
+				$mathage,
+				'',
+				'401'
+			);
 		}
 
 		public function process_generate_math_page() {
