@@ -104,21 +104,18 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
 		}
 
-		$url = "themes/download/$theme.zip";
-		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $url );
-
-		$response =  $result[ 'response' ];
-		if ( $response[ 'code' ] !== 200 ) {
-			return new WP_Error( 'problem_fetching_theme', __( 'Problem downloading theme' ) );
-		}
-
 		$file = wp_tempnam( 'theme' );
 		if ( ! $file ) {
 			return new WP_Error( 'problem_creating_theme_file', __( 'Problem creating file for theme download', 'jetpack' ) );
 		}
 
-		if ( file_put_contents( $file, $result[ 'body' ] ) === false ) {
-			return new WP_Error( 'problem_writing_theme_file', __( 'Problem downloading theme', 'jetpack' ) );
+		$url = "themes/download/$theme.zip";
+		$args = array( 'stream' => true, 'filename' => $file );
+		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $url, '1.1', $args );
+
+		$response =  $result[ 'response' ];
+		if ( $response[ 'code' ] !== 200 ) {
+			return new WP_Error( 'problem_fetching_theme', __( 'Problem downloading theme' ) );
 		}
 
 		return $file;

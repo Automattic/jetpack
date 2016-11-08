@@ -18,6 +18,8 @@ class Jetpack_Client {
 			'timeout' => 10,
 			'redirection' => 0,
 			'headers' => array(),
+			'stream' => false,
+			'filename' => null,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -38,8 +40,10 @@ class Jetpack_Client {
 		$timeout = intval( $args['timeout'] );
 
 		$redirection = $args['redirection'];
+		$stream = $args['stream'];
+		$filename = $args['filename'];
 
-		$request = compact( 'method', 'body', 'timeout', 'redirection' );
+		$request = compact( 'method', 'body', 'timeout', 'redirection', 'stream', 'filename' );
 
 		@list( $token_key, $secret ) = explode( '.', $token->secret );
 		if ( empty( $token ) || empty( $secret ) ) {
@@ -270,6 +274,8 @@ class Jetpack_Client {
 			'method'      => 'string',
 			'timeout'     => 'int',
 			'redirection' => 'int',
+			'stream'      => 'boolean',
+			'filename'    => 'string',
 		) );
 
 		/**
