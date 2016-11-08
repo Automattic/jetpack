@@ -4,7 +4,6 @@
 // importing dops-comp styles outside of react area. Talk to Jeff or Igor about a plan to clean this up
 @import '_inc/build/admin.dops-style';
 
-
 .updated { // utlizes some core styles, overrides some others
 	&.jp-banner {
 		position: relative;
@@ -47,8 +46,6 @@
 		padding: 0 !important; // override core cascades
 	}
 }
-
-
 
 .updated.jp-wpcom-connect__container .dops-button {
 	padding: 7px 14px 9px; // override wp-admin .updated a padding
@@ -116,7 +113,6 @@
 	@include breakpoint(phablet) {
 		display: none; // hide nav on sm screens. becomes a linear tutorial
 	};
-
 }
 
 .jp-wpcom-connect__vertical-nav-container {
