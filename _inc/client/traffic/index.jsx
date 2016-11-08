@@ -77,9 +77,15 @@ export const Traffic = ( props ) => {
 								toggleModule={ toggleModule } />
 			),
 			isPro = 'seo-tools' === element[0],
+			proProps = {},
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
 
 		if ( isPro && props.sitePlan.product_slug !== 'jetpack_business' ) {
+			proProps = {
+				module: element[0],
+				configure_url: ''
+			};
+
 			toggle = <ProStatus proFeature={ element[0] } />;
 
 			// Add a "pro" button next to the header title
@@ -112,7 +118,7 @@ export const Traffic = ( props ) => {
 			>
 				{
 					isModuleActivated( element[0] ) ?
-						<AllModuleSettings module={ getModule( element[0] ) } /> :
+						<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}

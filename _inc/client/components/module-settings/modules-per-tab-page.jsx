@@ -80,7 +80,11 @@ export const AllModuleSettings = React.createClass( {
 			case 'sso':
 				return ( <SingleSignOnSettings module={ module }  /> );
 			case 'seo-tools':
-				return (
+				return '' === module.configure_url ? (
+					<div>
+						{ __( 'Your Jetpack plan doesn’t include SEO tools, you must upgrade to Jetpack Professional to use SEO tools.' ) }
+					</div>
+				) : (
 					<div>
 						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href='https://wordpress.com/settings/seo/'>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
 					</div>
