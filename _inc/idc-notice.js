@@ -175,7 +175,7 @@
 			// Format for Tracks
 			eventName = eventName.replace( /-/g, '_' );
 			eventName = eventName.indexOf( 'jetpack_idc_' ) !== 0 ? 'jetpack_idc_' + eventName : eventName;
-			analytics.tracks.recordEvent( eventName, { extraProps } );
+			analytics.tracks.recordEvent( eventName, extraProps );
 
 			// Now format for MC stats
 			eventName = eventName.replace( 'jetpack_idc_', '' );
