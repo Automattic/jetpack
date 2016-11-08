@@ -3307,7 +3307,16 @@ p {
 							</svg>
 						</div>
 
-						<p><?php esc_html_e( 'Jetpack is a free plugin that utilizes powerful WordPress.com serves to simplify managing your site(s) with detailed visitor stats, security services, image performance upgrades, and more. Connect with WordPress.com to get started!', 'jetpack' ); ?></p>
+						<p>
+							<?php
+								esc_html_e(
+									'Jetpack is a free plugin that utilizes powerful WordPress.com servers to simplify 
+									managing your site(s) with detailed visitor stats, security services, 
+									image performance upgrades, and more. Connect with WordPress.com to get started!',
+									'jetpack'
+								);
+							?>
+						</p>
 
 						<p class="jp-banner__button-container">
 							<a
