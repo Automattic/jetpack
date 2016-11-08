@@ -124,8 +124,12 @@ class Jetpack_Sync_Functions {
 		}
 
 		// turn them both into parsed format
-		$option_url = parse_url( $option_url );
-		$url        = parse_url( $url );
+		$option_url = wp_parse_url( $option_url );
+		$url        = wp_parse_url( $url );
+
+		if ( ! $option_url || ! $url ) {
+			return $url;
+		}
 
 		if ( $normalize_www ) {
 			if ( $url['host'] === "www.{$option_url[ 'host' ]}" ) {
