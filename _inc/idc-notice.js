@@ -170,11 +170,11 @@
 	 * @param extraProps object
 	 */
 	function trackAndBumpMCStats( eventName, extraProps ) {
-		if ( 'undefined' === extraProps || typeof extraProps !== 'object' ) {
+		if ( 'undefined' === typeof extraProps || 'object' !== typeof extraProps ) {
 			extraProps = {};
 		}
 
-		if ( 'undefined' !== eventName && eventName.length ) {
+		if ( eventName && eventName.length ) {
 			// Format for Tracks
 			eventName = eventName.replace( /-/g, '_' );
 			eventName = eventName.indexOf( 'jetpack_idc_' ) !== 0 ? 'jetpack_idc_' + eventName : eventName;
