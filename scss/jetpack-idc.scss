@@ -34,16 +34,17 @@
 	}
 }
 
-.jp-idc-notice {
-	a,
-	a:visited {
+.jp-idc-notice a:not( .dops-notice__action ) {
+	color: $blue-wordpress;
+	text-decoration: none;
+
+	&:visited {
 		color: $blue-wordpress;
-		text-decoration: none;
 	}
 
-	a:hover,
-	a:focus,
-	a:active {
+	&:hover,
+	&:focus,
+	&:active {
 		color: $link-highlight;
 	}
 }
