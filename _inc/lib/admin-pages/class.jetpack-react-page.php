@@ -212,7 +212,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		foreach( get_editable_roles() as $slug => $role ) {
 			$stats_roles[ $slug ] = array(
 				'name' => translate_user_role( $role['name'] ),
-				'canView' => in_array( $slug, $enabled_roles, true ),
+				'canView' => is_array( $enabled_roles ) ? in_array( $slug, $enabled_roles, true ) : false,
 			);
 		}
 
