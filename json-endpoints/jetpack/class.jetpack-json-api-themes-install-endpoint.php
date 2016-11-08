@@ -81,6 +81,11 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			if ( is_wp_error( $theme_data ) ) {
 				return $theme_data;
 			}
+
+			if ( ! is_object( $theme_data ) && !isset( $theme_data->download_link ) ) {
+				return new WP_Error( 'theme_not_found', __( 'This theme does not exits') , 404 );
+			}
+
 			$this->download_links[ $theme ] = $theme_data->download_link;
 
 		}
