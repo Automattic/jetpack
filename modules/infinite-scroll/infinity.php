@@ -768,7 +768,7 @@ class The_Neverending_Home_Page {
 			'google_analytics' => false,
 			'offset'           => self::wp_query()->get( 'paged' ),
 			'history'          => array(
-				'host'                 => preg_replace( '#^http(s)?://#i', '', untrailingslashit( get_option( 'home' ) ) ),
+				'host'                 => preg_replace( '#^http(s)?://#i', '', untrailingslashit( esc_url( get_home_url() ) ) ),
 				'path'                 => self::get_request_path(),
 				'use_trailing_slashes' => $wp_rewrite->use_trailing_slashes,
 				'parameters'           => self::get_request_parameters(),
