@@ -17,32 +17,35 @@ describe( 'ConnectButton', () => {
 		fetchingConnectUrl: true,
 		connectUrl        : 'https://jetpack.wordpress.com/jetpack.authorize/1/',
 		connectUser       : true,
+		from              : '',
 		isSiteConnected   : false,
 		isDisconnecting   : false,
 		isLinked          : false,
 		isUnlinking       : false
 	};
 
-	const wrapper = shallow( <ConnectButton { ...testProps } /> );
+	describe( 'Initially', () => {
 
-	it( 'queries URL to connect', () => {
-		expect( wrapper.find( 'QueryConnectUrl' ) ).to.exist;
-		expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
-	} );
+		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
-	it( 'renders a button to connect or link', () => {
-		expect( wrapper.find( 'Button' ) ).to.exist;
-		expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
-	} );
+		it( 'queries URL to connect', () => {
+			expect( wrapper.find( 'QueryConnectUrl' ) ).to.exist;
+		} );
 
-	it( 'disables the button while fetching the connect URL', () => {
-		expect( wrapper.find( 'Button' ).props().disabled ).to.be.true;
+		it( 'renders a button to connect or link', () => {
+			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
+		} );
+
+		it( 'disables the button while fetching the connect URL', () => {
+			expect( wrapper.find( 'Button' ).props().disabled ).to.be.true;
+		} );
+
 	} );
 
 	// Fetching done
-	testProps.fetchingConnectUrl = () => false;
+	testProps.fetchingConnectUrl = false;
 
-	describe( 'Button to link a user', () => {
+	describe( 'When it is used to link a user', () => {
 
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
@@ -52,12 +55,12 @@ describe( 'ConnectButton', () => {
 
 	} );
 
-	describe( 'Button to unlink a user', () => {
+	describe( 'When it is used to unlink a user', () => {
 
 		const unlinkUser = sinon.spy();
 
 		Object.assign( testProps, {
-			isLinked  : () => true,
+			isLinked  : true,
 			unlinkUser: unlinkUser
 		} );
 
@@ -78,7 +81,7 @@ describe( 'ConnectButton', () => {
 
 	} );
 
-	describe( 'Button to connect a site', () => {
+	describe( 'When it is used to connect a site', () => {
 
 		Object.assign( testProps, {
 			connectUrl     : 'http://example.org/wp-admin/admin.php?page=jetpack&action=register',
@@ -93,20 +96,23 @@ describe( 'ConnectButton', () => {
 			expect( wrapper.find( 'Button' ).props().href ).to.have.string( 'http://example.org/wp-admin/admin.php?page=jetpack&action=register' );
 		} );
 
+		const wrapper2 = shallow( <ConnectButton { ...testProps } from="somewhere" /> );
+
+		it( "if prop 'from' has something, it's included in the link", () => {
+			expect( wrapper2.find( 'Button' ).props().href ).to.have.string( 'http://example.org/wp-admin/admin.php?page=jetpack&action=register&from=somewhere' );
+		} );
+
 	} );
 
-	describe( 'Button to disconnect a site', () => {
+	describe( 'When it is used to disconnect a site', () => {
 
-		Object.assign( testProps, {
-			isSiteConnected: true
-		} );
+		testProps.isSiteConnected = true;
 
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
 		it( 'does not link to a URL', () => {
 			expect( wrapper.find( 'Button' ).props().href ).to.not.exist;
 		} );
-
 
 		it( 'when clicked, disconnectSite() is called once', () => {
 
