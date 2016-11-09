@@ -94,3 +94,7 @@ body.editing-css .wp-full-overlay-sidebar {
 body.editing-css .wp-full-overlay.expanded {
 	margin-left: 500px;
 }
+
+input[type=jetpackCss] {
+	display: none;
+}
