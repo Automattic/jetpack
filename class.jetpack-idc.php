@@ -171,10 +171,30 @@ class Jetpack_IDC {
 		);
 	}
 
+	/**
+	 * Does the current admin page have help tabs?
+	 *
+	 * @return bool
+	 */
+	function admin_page_has_help_tabs() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
+		$current_screen = get_current_screen();
+		$tabs = $current_screen->get_help_tabs();
+
+		return ! empty( $tabs );
+	}
+
 	function display_non_admin_idc_notice() {
-		$classes = 'jp-idc-notice is-non-admin notice notice-warning';
+		$classes = 'jp-idc-notice inline is-non-admin notice notice-warning';
 		if ( isset( self::$current_screen ) && 'toplevel_page_jetpack' != self::$current_screen->id ) {
 			$classes .= ' is-dismissible';
+		}
+
+		if ( $this->admin_page_has_help_tabs() ) {
+			$classes .= ' has-help-tabs';
 		}
 		?>
 
@@ -197,8 +217,13 @@ class Jetpack_IDC {
 	 * "Confirm Staging" - Dismiss the notice and continue on with our lives in staging mode.
 	 * "Fix Jetpack Connection" - Will disconnect the site and start the mitigation...
 	 */
-	function display_idc_notice() { ?>
-		<div class="jp-idc-notice notice notice-warning">
+	function display_idc_notice() {
+		$classes = 'jp-idc-notice inline notice notice-warning';
+		if ( $this->admin_page_has_help_tabs() ) {
+			$classes .= ' has-help-tabs';
+		}
+		?>
+		<div class="<?php echo $classes; ?>">
 			<?php $this->render_notice_header(); ?>
 			<?php $this->render_notice_first_step(); ?>
 			<?php $this->render_notice_second_step(); ?>

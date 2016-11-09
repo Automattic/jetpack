@@ -21,6 +21,12 @@ function jetpack_verification_services() {
 			'format' => 'f100679e6048d45e4a0b0b92dce1efce',
 			'url'    => 'https://pinterest.com/website/verify/',
 		),
+		'yandex'     => array(
+			'name'   => 'Yandex.Webmaster',
+			'key'    => 'yandex-verification',
+			'format' => '44d68e1216009f40',
+			'url'    => 'https://webmaster.yandex.com/sites/',
+		),
 	);
 }
 

@@ -22,25 +22,31 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 https://github.com/thoughtbot/bourbon
 */
-@media all and (min-width: 783px) {
-  body.toplevel_page_jetpack .jp-idc-notice {
-    margin-top: 40px;
-  }
-}
-
 .jp-idc-notice,
 .jp-idc-notice * {
   box-sizing: border-box;
 }
 
 .jp-idc-notice {
-  overflow: auto;
+  margin-right: 0;
+  margin-left: 10px;
+  margin-top: 10px;
   padding-bottom: 16px;
   padding-top: 0;
 }
 
 .jp-idc-notice.is-non-admin {
   padding-bottom: 0;
+}
+
+@media all and (min-width: 783px) {
+  .jp-idc-notice {
+    margin-left: 20px;
+    margin-top: 20px;
+  }
+  .jp-idc-notice.has-help-tabs {
+    margin-top: 48px;
+  }
 }
 
 .jp-idc-notice p {

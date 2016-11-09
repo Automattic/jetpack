@@ -156,6 +156,11 @@ class Jetpack {
 			'ShareThis'                            => 'share-this/sharethis.php',
 			'Shareaholic'                          => 'shareaholic/shareaholic.php',
 		),
+		'seo-tools' => array(
+			'WordPress SEO by Yoast'               => 'wordpress-seo/wp-seo.php',
+			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
+			'All in One SEO Pack'                  => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
+		),
 		'verification-tools' => array(
 			'WordPress SEO by Yoast'               => 'wordpress-seo/wp-seo.php',
 			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
@@ -542,7 +547,6 @@ class Jetpack {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
-
 	}
 
 	function jetpack_admin_ajax_tracks_callback() {
@@ -2858,9 +2862,7 @@ p {
 
 		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
 			if ( 4 != Jetpack_Options::get_option( 'activated' ) ) {
-				// Show connect notice on dashboard and plugins pages
-				add_action( 'load-index.php', array( $this, 'prepare_connect_notice' ) );
-				add_action( 'load-plugins.php', array( $this, 'prepare_connect_notice' ) );
+				Jetpack_Connection_Banner::init();
 			}
 		} elseif ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
@@ -2912,14 +2914,6 @@ p {
 		return $admin_body_class . ' jetpack-pagestyles ';
 	}
 
-	function prepare_connect_notice() {
-		add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
-
-		add_action( 'admin_notices', array( $this, 'admin_connect_notice' ) );
-
-		if ( Jetpack::state( 'network_nag' ) )
-			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
-	}
 	/**
 	 * Call this function if you want the Big Jetpack Manage Notice to show up.
 	 *
@@ -3097,6 +3091,12 @@ p {
 					'type' => $attachment->post_mime_type,
 					'meta' => wp_get_attachment_metadata( $attachment_id ),
 				);
+				// Zip files uploads are not supported unless they are done for installation purposed
+				// lets delete them in case something goes wrong in this whole process
+				if ( 'application/zip' === $attachment->post_mime_type ) {
+					// Schedule a cleanup for 2 hours from now in case of failed install.
+					wp_schedule_single_event( time() + 2 * HOUR_IN_SECONDS, 'upgrader_scheduled_cleanup', array( $attachment_id ) );
+				}
 			}
 		}
 		if ( ! is_null( $global_post ) ) {
@@ -3208,42 +3208,6 @@ p {
 		return array_merge( $jetpack_home, $actions );
 	}
 
-	function admin_connect_notice() {
-		// Don't show the connect notice anywhere but the plugins.php after activating
-		$current = get_current_screen();
-		if ( 'plugins' !== $current->parent_base )
-			return;
-
-		if ( ! current_user_can( 'jetpack_connect' ) )
-			return;
-
-		$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
-		?>
-		<div id="message" class="updated jp-banner">
-			<a href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"></a>
-			<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
-					<div class="jp-banner__description-container">
-						<h2 class="jp-banner__header"><?php _e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h2>
-						<p class="jp-banner__description"><?php _e( 'Please connect to or create a WordPress.com account to enable Jetpack, including powerful security, traffic, and customization services.', 'jetpack' ); ?></p>
-						<p class="jp-banner__button-container">
-							<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="button button-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
-							<a href="<?php echo Jetpack::admin_url( 'admin.php?page=jetpack' ) ?>" class="button" title="<?php esc_attr_e( 'Learn about the benefits you receive when you connect Jetpack to WordPress.com', 'jetpack' ); ?>"><?php _e( 'Learn more', 'jetpack' ); ?></a>
-						</p>
-					</div>
-			<?php else : ?>
-				<div class="jp-banner__content">
-					<h2><?php _e( 'Jetpack is installed!', 'jetpack' ) ?></h2>
-					<p><?php _e( 'It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
-				</div>
-				<div class="jp-banner__action-container">
-					<a href="<?php echo Jetpack::admin_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a>
-				</div>
-			<?php endif; ?>
-		</div>
-
-		<?php
-	}
-
 	/**
 	 * This is the first banner
 	 * It should be visible only to user that can update the option
@@ -3338,16 +3302,6 @@ p {
 		 * @param bool ! self::is_module_active( 'manage' ) Is the Manage module inactive.
 		 */
 		return apply_filters( 'can_display_jetpack_manage_notice', ! self::is_module_active( 'manage' ) );
-	}
-
-	function network_connect_notice() {
-		?>
-		<div id="message" class="updated jetpack-message">
-			<div class="squeezer">
-				<h2><?php _e( '<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site.', 'jetpack' ) ?></h2>
-			</div>
-		</div>
-		<?php
 	}
 
 	/*
@@ -6037,55 +5991,6 @@ p {
 		<?php
 	}
 
-	/*
-	 * A graceful transition to using Core's site icon.
-	 *
-	 * All of the hard work has already been done with the image
-	 * in all_done_page(). All that needs to be done now is update
-	 * the option and display proper messaging.
-	 *
-	 * @todo remove when WP 4.3 is minimum
-	 *
-	 * @since 3.6.1
-	 *
-	 * @return bool false = Core's icon not available || true = Core's icon is available
-	 */
-	public static function jetpack_site_icon_available_in_core() {
-		global $wp_version;
-		$core_icon_available = function_exists( 'has_site_icon' ) && version_compare( $wp_version, '4.3-beta' ) >= 0;
-
-		if ( ! $core_icon_available ) {
-			return false;
-		}
-
-		// No need for Jetpack's site icon anymore if core's is already set
-		if ( has_site_icon() ) {
-			if ( Jetpack::is_module_active( 'site-icon' ) ) {
-				Jetpack::log( 'deactivate', 'site-icon' );
-				Jetpack::deactivate_module( 'site-icon' );
-			}
-			return true;
-		}
-
-		// Transfer Jetpack's site icon to use core.
-		$site_icon_id = Jetpack::get_option( 'site_icon_id' );
-		if ( $site_icon_id ) {
-			// Update core's site icon
-			update_option( 'site_icon', $site_icon_id );
-
-			// Delete Jetpack's icon option. We still want the blavatar and attached data though.
-			delete_option( 'site_icon_id' );
-		}
-
-		// No need for Jetpack's site icon anymore
-		if ( Jetpack::is_module_active( 'site-icon' ) ) {
-			Jetpack::log( 'deactivate', 'site-icon' );
-			Jetpack::deactivate_module( 'site-icon' );
-		}
-
-		return true;
-	}
-
 	/**
 	 * Return string containing the Jetpack logo.
 	 *
@@ -6137,5 +6042,4 @@ p {
 			</style>
 		<?php }
 	}
-
 }

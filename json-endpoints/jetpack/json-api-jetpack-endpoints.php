@@ -75,6 +75,32 @@ new Jetpack_JSON_API_Themes_List_Endpoint( array(
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-get-endpoint.php' );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-new-endpoint.php' );
+
+// POST /sites/%s/themes/%new
+new Jetpack_JSON_API_Themes_new_Endpoint( array(
+	'description'     => 'Install a theme to your jetpack blog',
+	'group'           => '__do_not_document',
+	'stat'            => 'themes:new',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/themes/new',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'zip'       => '(zip) Theme package zip file. multipart/form-data encoded. ',
+	),
+	'response_format' => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/new'
+) );
+
+
+
 new Jetpack_JSON_API_Themes_Get_Endpoint( array(
 	'description'     => 'Get a single theme on a jetpack blog',
 	'group'           => '__do_not_document',
@@ -240,6 +266,28 @@ new Jetpack_JSON_API_Plugins_Get_Endpoint( array(
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-endpoint.php' );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-new-endpoint.php' );
+// POST /sites/%s/plugins/new
+new Jetpack_JSON_API_Plugins_New_Endpoint( array(
+	'description'     => 'Install a plugin to a Jetpack site by uploading a zip file',
+	'group'           => '__do_not_document',
+	'stat'            => 'plugins:new',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/plugins/new',
+	'path_labels' => array(
+		'$site'   => '(int|string) Site ID or domain',
+	),
+	'request_format' => array(
+		'zip'       => '(zip) Plugin package zip file. multipart/form-data encoded. ',
+	),
+	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/new'
+) );
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'description'     => 'Activate/Deactivate a Plugin on your Jetpack Site, or set automatic updates',

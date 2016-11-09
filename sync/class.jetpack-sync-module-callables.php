@@ -52,6 +52,11 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function reset_data() {
 		delete_option( self::CALLABLES_CHECKSUM_OPTION_NAME );
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
+
+		$url_callables = array( 'home_url', 'site_url', 'main_network_site_url' );
+		foreach( $url_callables as $callable ) {
+			delete_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable );
+		}
 	}
 
 	function set_callable_whitelist( $callables ) {
