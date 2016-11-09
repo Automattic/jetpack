@@ -27,6 +27,24 @@ defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'ht
 defined( 'JETPACK_PROTECT__API_HOST' )       or define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
 
+add_filter( 'rest_url_prefix', 'jetpack_index_permalinks_rest_api_url', 999 );
+/**
+ * Fix the REST API URL for sites using index permalinks
+ *
+ * @todo Remove when 4.7 is minimum version
+ * @see  https://core.trac.wordpress.org/ticket/38182
+ * @see  https://github.com/Automattic/jetpack/issues/5216
+ * @author kraftbj
+ **/
+function jetpack_index_permalinks_rest_api_url( $prefix ){
+	global $wp_rewrite, $wp_version;
+	if ( version_compare( $wp_version, '4.7-alpha-38790', '<' ) && $wp_rewrite->using_index_permalinks() ){
+		$prefix = $wp_rewrite->index . '/' . $prefix;
+	}
+
+	return $prefix;
+}
+
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied
  * in require_lib().
