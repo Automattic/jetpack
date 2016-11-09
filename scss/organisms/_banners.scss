@@ -1,9 +1,6 @@
 @import '_inc/client/scss/functions/rem';
 @import '_inc/client/scss/variables/colors';
 
-// importing dops-comp styles outside of react area. Talk to Jeff or Igor about a plan to clean this up
-@import '_inc/build/admin.dops-style';
-
 .updated { // utlizes some core styles, overrides some others
 	&.jp-banner {
 		position: relative;

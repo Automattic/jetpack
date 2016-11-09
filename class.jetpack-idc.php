@@ -267,12 +267,14 @@ class Jetpack_IDC {
 			)
 		);
 
-		wp_register_style(
-			'jetpack-dops-style',
-			plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ),
-			array(),
-			JETPACK__VERSION
-		);
+		if ( ! wp_style_is( 'jetpack-dops-style' ) ) {
+			wp_register_style(
+				'jetpack-dops-style',
+				plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ),
+				array(),
+				JETPACK__VERSION
+			);
+		}
 
 		wp_enqueue_style(
 			'jetpack-idc-css',

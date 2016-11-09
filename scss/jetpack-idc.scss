@@ -188,7 +188,7 @@
 	margin: 16px 0 0;
 }
 
-.jp-idc-error__notice {
+.jp-idc-notice .jp-idc-error__notice {
 	display: none;
 
 	.dops-notice__icon {
@@ -198,7 +198,7 @@
 }
 
 @media only screen and ( min-width: 683px ) {
-	.jp-idc-error__notice .dops-notice__text {
+	.jp-idc-notice .jp-idc-error__notice .dops-notice__text {
 		line-height: 24px;
 	}
 }
