@@ -126,6 +126,93 @@ class Jetpack_Custom_CSS_Enhancements {
 		));
 	}
 
+	public static function sanitize_css( $css, $force = false ) {
+		if ( $force || ! current_user_can( 'unfiltered_html' ) ) {
+
+			$warnings = array();
+
+			safecss_class();
+			$csstidy = new csstidy();
+			$csstidy->optimise = new safecss( $csstidy );
+
+			$csstidy->set_cfg( 'remove_bslash',              false );
+			$csstidy->set_cfg( 'compress_colors',            false );
+			$csstidy->set_cfg( 'compress_font-weight',       false );
+			$csstidy->set_cfg( 'optimise_shorthands',        0 );
+			$csstidy->set_cfg( 'remove_last_;',              false );
+			$csstidy->set_cfg( 'case_properties',            false );
+			$csstidy->set_cfg( 'discard_invalid_properties', true );
+			$csstidy->set_cfg( 'css_level',                  'CSS3.0' );
+			$csstidy->set_cfg( 'preserve_css',               true );
+			$csstidy->set_cfg( 'template',                   dirname( __FILE__ ) . '/csstidy/wordpress-standard.tpl' );
+
+			// Test for some preg_replace stuff.
+			{
+				$prev = $css;
+				$css = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $css );
+				// prevent content: '\3434' from turning into '\\3434'
+				$css = str_replace( array( '\'\\\\', '"\\\\' ), array( '\'\\', '"\\' ), $css );
+				if ( $css !== $prev ) {
+					$warnings[] = 'preg_replace found stuff';
+				}
+			}
+
+			// Some people put weird stuff in their CSS, KSES tends to be greedy
+			$css = str_replace( '<=', '&lt;=', $css );
+
+			// Test for some kses stuff.
+			{
+				$prev = $css;
+				// Why KSES instead of strip_tags?  Who knows?
+				$css = wp_kses_split( $css, array(), array() );
+				$css = str_replace( '&gt;', '>', $css ); // kses replaces lone '>' with &gt;
+				// Why both KSES and strip_tags?  Because we just added some '>'.
+				$css = strip_tags( $css );
+
+				if ( $css != $prev ) {
+					$warnings[] = 'kses found stuff';
+				}
+			}
+
+			// if we're not using a preprocessor
+			if ( ! $args['preprocessor'] ) {
+
+				/**
+				 * Fires before parsing the css with CSSTidy, but only if
+				 * the preprocessor is not configured for use.
+				 *
+				 * @module custom-css
+				 *
+				 * @since 1.7.0
+				 *
+				 * @param obj $csstidy The csstidy object.
+				 * @param string $css Custom CSS.
+				 * @param array $args Array of custom CSS arguments.
+				 */
+				do_action( 'safecss_parse_pre', $csstidy, $css, $args );
+
+				$csstidy->parse( $css );
+
+				/**
+				 * Fires after parsing the css with CSSTidy, but only if
+				 * the preprocessor is not configured for use.
+				 *
+				 * @module custom-css
+				 *
+				 * @since 1.7.0
+				 *
+				 * @param obj $csstidy The csstidy object.
+				 * @param array $warnings Array of warnings.
+				 * @param array $args Array of custom CSS arguments.
+				 */
+				do_action( 'safecss_parse_post', $csstidy, $warnings, $args );
+
+				$css = $csstidy->print->plain();
+			}
+		}
+		return $css;
+	}
+
 	/**
 	 * Add Custom CSS section and controls.
 	 */
@@ -146,6 +233,12 @@ class Jetpack_Custom_CSS_Enhancements {
 			'transport' => 'refresh',
 		) );
 
+		// Add custom sanitization to the core css customizer setting.
+		foreach ( $wp_customize->settings() as $setting ) {
+			if ( $setting instanceof WP_Customize_Custom_CSS_Setting ) {
+				add_filter( "customize_sanitize_{$setting->id}", array( __CLASS__, 'sanitize_css' ) );
+			}
+		}
 
 		$wp_customize->add_control( 'wpcom_custom_css_content_width_control', array(
 			'type'     => 'text',
@@ -199,3 +292,47 @@ class Jetpack_Custom_CSS_Enhancements {
 }
 
 Jetpack_Custom_CSS_Enhancements::add_hooks();
+
+function safecss_class() {
+	// Wrapped so we don't need the parent class just to load the plugin
+	if ( class_exists('safecss') ) {
+		return;
+	}
+
+	require_once( dirname( __FILE__ ) . '/csstidy/class.csstidy.php' );
+
+	class safecss extends csstidy_optimise {
+
+		function postparse() {
+
+			/**
+			 * Fires after parsing the css.
+			 *
+			 * @module custom-css
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param obj $this CSSTidy object.
+			 */
+			do_action( 'csstidy_optimize_postparse', $this );
+
+			return parent::postparse();
+		}
+
+		function subvalue() {
+
+			/**
+			 * Fires before optimizing the Custom CSS subvalue.
+			 *
+			 * @module custom-css
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param obj $this CSSTidy object.
+			 **/
+			do_action( 'csstidy_optimize_subvalue', $this );
+
+			return parent::subvalue();
+		}
+	}
+}
