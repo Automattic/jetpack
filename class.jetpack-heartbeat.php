@@ -117,7 +117,7 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis() ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 
-		$return["{$prefix}single-user-site"]= Jetpack::is_single_user_site();
+		$return["{$prefix}single-user-site"] = get_user_count() == 1;
 
 		$return["{$prefix}manage-enabled"] = Jetpack::is_module_active( 'manage' );
 
