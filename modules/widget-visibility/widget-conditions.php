@@ -39,7 +39,7 @@ class Jetpack_Widget_Conditions {
 				<option value=""><?php _e( 'All category pages', 'jetpack' ); ?></option>
 				<?php
 
-				$categories = get_categories( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC', 'hide_empty' => apply_filters( 'jetpack_widget_conditions_show_empty_terms' , false , $major , $minor ) ) );
+				$categories = get_categories( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC', 'hide_empty' => false ) );
 				usort( $categories, array( __CLASS__, 'strcasecmp_name' ) );
 
 				foreach ( $categories as $category ) {
@@ -79,7 +79,7 @@ class Jetpack_Widget_Conditions {
 				<option value=""><?php _e( 'All tag pages', 'jetpack' ); ?></option>
 				<?php
 
-				$tags = get_tags( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC', 'hide_empty' => apply_filters( 'jetpack_widget_conditions_show_empty_terms' , false , $major , $minor ) ) );
+				$tags = get_tags( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC', 'hide_empty' => false ) );
 				usort( $tags, array( __CLASS__, 'strcasecmp_name' ) );
 
 				foreach ( $tags as $tag ) {
