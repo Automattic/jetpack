@@ -10,8 +10,9 @@
     "grunt-svg2png": "^0.2.7",
     "grunt-svgmin": "^2.0.1",
     "grunt-svgstore": "^0.3.6",
-    "grunt-webfont": "^1.1.0",
+    "grunt-webfont": "^1.6.0",
     "handlebars": "^2.0.0",
-    "multiline": "^0.3.4"
+    "multiline": "^0.3.4",
+    "xml2js": "^0.4.17"
   }
 }

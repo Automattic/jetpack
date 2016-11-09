@@ -4,7 +4,21 @@
 
 'use strict';
 
-var multiline = require('multiline');
+var multiline = require('multiline'),
+	xml2js = require('xml2js');
+
+var KABOB_REGEX = /\-(\w)/g;
+
+/**
+ * Transforms kabob case names to camel case
+ * @param name        ex: foo-bar-baz
+ * @returns {String}  ex: fooBarBaz
+ */
+function kabobToCamelCase( name ) {
+	return name.replace( KABOB_REGEX, function replacer( match, capture ) {
+		return capture.toUpperCase();
+	} );
+}
 
 module.exports = function(grunt) {
 
@@ -184,6 +198,22 @@ module.exports = function(grunt) {
 
 			// Grab the relevant bits from the file contents
 			var fileContent = grunt.file.read( 'svg-min/' + svgFile );
+			
+			// Rename any attributes to camel case for react
+			xml2js.parseString( fileContent, {
+					async: false, // set callback is sync, since this task is sync
+					trim: true,
+					attrNameProcessors: [ kabobToCamelCase ]
+				},
+				function ( err, result ) {
+				  if ( ! err ) {
+					  var builder = new xml2js.Builder( {
+						  renderOpts: { pretty: false },
+						  headless: true //omit xml header
+					  } );
+					  fileContent = builder.buildObject( result );
+				  }
+			} );
 
 			// Add className, height, and width to the svg element
 			fileContent = fileContent.slice( 0, 4 ) +
