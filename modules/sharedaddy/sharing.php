@@ -238,7 +238,7 @@ class Sharing_Admin {
 						<p><?php _e( 'Services dragged here will appear individually.', 'jetpack' ); ?></p>
 					</td>
 					<td class="services" id="share-drop-target">
-							<h2 id="drag-instructions" <?php if ( count( $enabled['visible'] ) > 0 ) { echo ' style="display: none"';} ?>><?php _e( 'Drag and drop available services here.', 'jetpack' ); ?></h2>
+                            <h2 id="drag-instructions" <?php if ( count( $enabled['visible'] ) > 0 ) { echo ' style="display: none"';} ?>><?php _e( 'Drag and drop available services here.', 'jetpack' ); ?></h2>
 
 								<ul class="services-enabled">
 									<?php foreach ( $enabled['visible'] as $id => $service ) : ?>
@@ -376,7 +376,11 @@ class Sharing_Admin {
 										$label = $post_type_object->labels->name;
 									}
 								?>
-								<?php if ( $br ) { echo '<br />';} ?>
+                                <?php 
+                                if ( $br ) { 
+                                    echo '<br />';
+                                } 
+                                ?>
 								<label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
 								<?php
 								$br = true;
