@@ -236,6 +236,44 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
 	}
 
+	function test_home_site_urls_synced_while_migrate_for_idc_set() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+
+		$home_option    = get_option( 'home' );
+		$siteurl_option = get_option( 'siteurl' );
+		$main_network   = network_site_url();
+
+		// First, let's see if the original values get synced
+		$this->sender->do_sync();
+
+		$this->assertEquals( $home_option,  $this->server_replica_storage->get_callable( 'home_url' ) );
+		$this->assertEquals( $siteurl_option, $this->server_replica_storage->get_callable( 'site_url' ) );
+		$this->assertEquals( $main_network, $this->server_replica_storage->get_callable( 'main_network_site' ) );
+
+		// Second, let's make sure that values don't get synced again if the migrate_for_idc option is not set
+		$this->server_replica_storage->reset();
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		$this->sender->do_sync();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'home_url' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'main_network_site' ) );
+
+		// Third, let's test that values get syncd with the option set
+		Jetpack_Options::update_option( 'migrate_for_idc', true );
+
+		$this->server_replica_storage->reset();
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		$this->sender->do_sync();
+
+		$this->assertEquals( $home_option,  $this->server_replica_storage->get_callable( 'home_url' ) );
+		$this->assertEquals( $siteurl_option, $this->server_replica_storage->get_callable( 'site_url' ) );
+		$this->assertEquals( $main_network, $this->server_replica_storage->get_callable( 'main_network_site' ) );
+
+		Jetpack_Options::delete_option( 'migrate_for_idc' );
+	}
+
 	function test_scheme_switching_does_not_cause_sync() {
 		$this->setSyncClientDefaults();
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
