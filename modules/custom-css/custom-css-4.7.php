@@ -9,7 +9,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'customize_controls_enqueue_scripts' ) );
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
-		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 1, 2 );
+		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 20, 2 );
 	}
 
 	public static function init() {
