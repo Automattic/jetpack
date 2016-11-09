@@ -75,6 +75,16 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.3.3 =
+
+**Enhancements**
+
+*
+
+**Bug Fixes:**
+
+* Admin Page: fix URL to Akismet Settings. #5332
+
 = 4.3.2 =
 
 * Release date: October 13, 2016
