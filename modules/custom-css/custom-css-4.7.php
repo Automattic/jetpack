@@ -218,6 +218,8 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function customize_register( $wp_customize ) {
 
+		// SETTINGS
+
 		$wp_customize->add_setting( 'jetpack_custom_css[preprocessor]', array(
 			'default' => '',
 			'transport' => 'postMessage',
@@ -239,6 +241,8 @@ class Jetpack_Custom_CSS_Enhancements {
 				add_filter( "customize_sanitize_{$setting->id}", array( __CLASS__, 'sanitize_css' ) );
 			}
 		}
+
+		// CONTROLS
 
 		$wp_customize->add_control( 'wpcom_custom_css_content_width_control', array(
 			'type'     => 'text',
