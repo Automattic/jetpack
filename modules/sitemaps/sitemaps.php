@@ -355,6 +355,11 @@ function jetpack_print_sitemap() {
 				$one_image = array();
 
 				if ( isset( $item['src'] ) ) {
+					// Make all image links absolute
+					$check_url = parse_url( $item['src'] );
+					if( empty( $check_url['scheme'] ) && empty( $check_url['host'] ) ){
+						$item['src'] = network_site_url( $item['src'] );
+					}
 					$one_image['image:loc'] = esc_url( $item['src'] );
 					$one_image['image:title'] = sanitize_title_with_dashes( $name = pathinfo( $item['src'], PATHINFO_FILENAME ) );
 				}
@@ -573,6 +578,11 @@ function jetpack_print_news_sitemap() {
 			// Add image to sitemap
 			$post_thumbnail = Jetpack_PostImages::get_image( $post->ID );
 			if ( isset( $post_thumbnail['src'] ) ) {
+				// Make all news image links absolute
+				$check_url = parse_url( $post_thumbnail['src'] );
+				if( empty( $check_url['scheme'] ) && empty( $check_url['host'] ) ){
+					$post_thumbnail['src'] = network_site_url( $post_thumbnail['src'] );
+				}
 				$url['image:image'] = array( 'image:loc' => esc_url( $post_thumbnail['src'] ) );
 			}
 

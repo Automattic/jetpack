@@ -8,7 +8,7 @@
 */
 
 function jetpack_shortcode_get_youtube_id( $url ) {
-    return jetpack_get_youtube_id( $url );
+	return jetpack_get_youtube_id( $url );
 }
 
 /**

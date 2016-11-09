@@ -20,9 +20,10 @@
  * [shortcode a=1&b=2&c=3] or [shortcode=1]
  * This is parsed as array( a => '1&b=2&c=3' ) and array( 0 => '=1' ), which is useless
  *
- * @param Array $params
- * @param Bool $old_format_support true if [shortcode=foo] format is possible.
- * @return String $params
+ * @param array $params             Array of old shortcode parameters.
+ * @param bool  $old_format_support true if [shortcode=foo] format is possible.
+ *
+ * @return string $params
  */
 function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 	$str = '';
@@ -31,14 +32,18 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 		$str = ltrim( $params[0], '=' );
 	} elseif ( is_array( $params ) ) {
 		foreach ( array_keys( $params ) as $key ) {
-			if ( ! is_numeric( $key ) )
-				$str = $key . '=' . $params[$key];
+			if ( ! is_numeric( $key ) ) {
+				$str = $key . '=' . $params[ $key ];
+			}
 		}
 	}
 
 	return str_replace( array( '&amp;', '&#038;' ), '&', $str );
 }
 
+/**
+ * Load all available Jetpack shortcode files.
+ */
 function jetpack_load_shortcodes() {
 	$shortcode_includes = array();
 
@@ -48,16 +53,16 @@ function jetpack_load_shortcodes() {
 		$shortcode_includes[ $filename ] = $file;
 	}
 
-/**
- * This filter allows other plugins to override which shortcodes Jetpack loads.
- *
- * @module shortcodes
- *
- * @since 2.2.1
- * @since 4.2.0 Added filename without extension as array key.
- *
- * @param array $shortcode_includes An array of which shortcodes to include.
- */
+	/**
+	 * This filter allows other plugins to override which shortcodes Jetpack loads.
+	 *
+	 * @module shortcodes
+	 *
+	 * @since 2.2.1
+	 * @since 4.2.0 Added filename without extension as array key.
+	 *
+	 * @param array $shortcode_includes An array of which shortcodes to include.
+	 */
 	$shortcode_includes = apply_filters( 'jetpack_shortcodes_to_include', $shortcode_includes );
 
 	foreach ( $shortcode_includes as $include ) {
@@ -69,14 +74,15 @@ function jetpack_load_shortcodes() {
  * Runs preg_replace so that replacements don't happen within open tags.
  * Parameters are the same as preg_replace, with an added optional search param for improved performance
  *
- * @param String $pattern
- * @param String $replacement
- * @param String $content
- * @param String $search
- * @return String $content
+ * @param string $pattern     Pattern to search for.
+ * @param string $replacement String to replace.
+ * @param string $content     Post content.
+ * @param string $search      String to search for.
+ *
+ * @return string $content    Replaced post content.
  */
 function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $search = null ) {
-	if( ! function_exists( 'wp_html_split' ) ) {
+	if ( ! function_exists( 'wp_html_split' ) ) {
 		return $content;
 	}
 
@@ -86,10 +92,11 @@ function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $s
 
 	$textarr = wp_html_split( $content );
 	unset( $content );
-	foreach( $textarr as &$element ) {
-	    if ( '' === $element || '<' === $element{0} )
-	        continue;
-	    $element = preg_replace( $pattern, $replacement, $element );
+	foreach ( $textarr as &$element ) {
+		if ( '' === $element || '<' === $element{0} ) {
+			continue;
+		}
+		$element = preg_replace( $pattern, $replacement, $element );
 	}
 
 	return join( $textarr );
@@ -97,16 +104,17 @@ function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $s
 
 /**
  * Runs preg_replace_callback so that replacements don't happen within open tags.
- * Parameters are the same as preg_replace, with an added optional search param for improved performance
+ * Parameters are the same as preg_replace, with an added optional search param for improved performance.
  *
- * @param String $pattern
- * @param String $replacement
- * @param String $content
- * @param String $search
- * @return String $content
+ * @param string $pattern  Pattern to search for.
+ * @param string $callback Callback returning the replacement string.
+ * @param string $content  Post content.
+ * @param string $search   String to search for.
+ *
+ * @return string $content Replaced post content.
  */
 function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $content, $search = null ) {
-	if( ! function_exists( 'wp_html_split' ) ) {
+	if ( ! function_exists( 'wp_html_split' ) ) {
 		return $content;
 	}
 
@@ -116,21 +124,45 @@ function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $conte
 
 	$textarr = wp_html_split( $content );
 	unset( $content );
-	foreach( $textarr as &$element ) {
-	    if ( '' === $element || '<' === $element{0} )
-	        continue;
-	    $element = preg_replace_callback( $pattern, $callback, $element );
+	foreach ( $textarr as &$element ) {
+		if ( '' === $element || '<' === $element{0} ) {
+			continue;
+		}
+		$element = preg_replace_callback( $pattern, $callback, $element );
 	}
 
 	return join( $textarr );
 }
 
 if ( ! function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) {
+	/**
+	 * Get VideoPress ID from wpvideo shortcode attributes.
+	 *
+	 * @param array $atts Shortcode attributes.
+	 * @return int  $id   VideoPress ID.
+	 */
 	function jetpack_shortcode_get_wpvideo_id( $atts ) {
-		if ( isset( $atts[ 0 ] ) )
-			return $atts[ 0 ];
-		else
+		if ( isset( $atts[0] ) ) {
+			return $atts[0];
+		} else {
 			return 0;
+		}
+	}
+}
+
+if ( ! function_exists( 'jetpack_shortcode_get_videopress_id' ) ) {
+	/**
+	 * Get VideoPress ID from videopress shortcode attributes.
+	 *
+	 * @param array $atts Shortcode attributes.
+	 * @return int  $id   VideoPress ID.
+	 */
+	function jetpack_shortcode_get_videopress_id( $atts ) {
+		if ( isset( $atts[0] ) ) {
+			return $atts[0];
+		} else {
+			return 0;
+		}
 	}
 }
 
