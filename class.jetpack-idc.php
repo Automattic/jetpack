@@ -580,7 +580,7 @@ class Jetpack_IDC {
 	}
 
 	function get_migrate_site_button_text() {
-		$string = esc_html__( 'Migrate stats &amp; and Subscribers', 'jetpack' );
+		$string = esc_html__( 'Migrate Stats &amp; Subscribers', 'jetpack' );
 
 		/**
 		 * Allows overriding of the default text used for the migrate site action button.
@@ -619,7 +619,7 @@ class Jetpack_IDC {
 	}
 
 	function get_start_fresh_button_text() {
-		$string = esc_html__( 'Start fresh &amp; create new connection', 'jetpack' );
+		$string = esc_html__( 'Start Fresh &amp; Create New Connection', 'jetpack' );
 
 		/**
 		 * Allows overriding of the default text used for the start fresh action button.
