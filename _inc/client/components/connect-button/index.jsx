@@ -21,7 +21,7 @@ import {
 } from 'state/connection';
 import QueryConnectUrl from 'components/data/query-connect-url';
 
-const ConnectButton = React.createClass( {
+export const ConnectButton = React.createClass( {
 	displayName: 'ConnectButton',
 
 	propTypes: {

@@ -11,7 +11,7 @@ import { translate as __ } from 'i18n-calypso';
 import { getSiteConnectionStatus } from 'state/connection';
 import { getCurrentVersion } from 'state/initial-state';
 
-const Masthead = React.createClass( {
+export const Masthead = React.createClass( {
 	render: function() {
 		let devNotice = this.props.siteConnectionStatus === 'dev'
 			? <code>Dev Mode</code>

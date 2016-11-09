@@ -22,7 +22,7 @@ import {
 	userIsSubscriber as _userIsSubscriber
 } from 'state/initial-state';
 
-const NavigationSettings = React.createClass( {
+export const NavigationSettings = React.createClass( {
 	openSearch: function() {
 		let currentHash = window.location.hash;
 		if ( currentHash.indexOf( 'search' ) === -1 ) {
@@ -45,9 +45,7 @@ const NavigationSettings = React.createClass( {
 	},
 
 	maybeShowSearch: function() {
-		let isAdmin = this.props.userCanManageModules;
-
-		if ( isAdmin ) {
+		if ( this.props.userCanManageModules ) {
 			return (
 				<Search
 					pinned={ true }
