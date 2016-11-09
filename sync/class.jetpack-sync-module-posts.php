@@ -57,7 +57,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		// config is a list of post IDs to sync
 		if ( is_array( $config ) ) {
-			$where_sql   .= ' AND ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+			$where_sql .= ' AND ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
 
 		return $where_sql;
@@ -110,13 +110,15 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		// return non existant post 
 		$post_type = get_post_type_object( $post->post_type );
-		if ( empty( $post_type) || ! is_object( $post_type ) ) {
-			$non_existant_post                    = new stdClass();
-			$non_existant_post->ID                = $post->ID;
-			$non_existant_post->post_modified     = $post->post_modified;
-			$non_existant_post->post_modified_gmt = $post->post_modified_gmt;
-			$non_existant_post->post_status       = 'jetpack_sync_non_registered_post_type';
-			
+		if ( empty( $post_type ) || ! is_object( $post_type ) ) {
+			$non_existant_post                          = new stdClass();
+			$non_existant_post->ID                      = $post->ID;
+			$non_existant_post->post_modified           = $post->post_modified;
+			$non_existant_post->post_modified_gmt       = $post->post_modified_gmt;
+			$non_existant_post->post_status             = 'jetpack_sync_non_registered_post_type';
+			$non_existant_post->dont_email_post_to_subs = true;
+			$non_existant_post->post_type               = $post->post_type;
+
 			return $non_existant_post;
 		}
 		/**
@@ -134,11 +136,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 */
 		if ( apply_filters( 'jetpack_sync_prevent_sending_post_data', false, $post ) ) {
 			// We only send the bare necessary object to be able to create a checksum.
-			$blocked_post                    = new stdClass();
-			$blocked_post->ID                = $post->ID;
-			$blocked_post->post_modified     = $post->post_modified;
-			$blocked_post->post_modified_gmt = $post->post_modified_gmt;
-			$blocked_post->post_status       = 'jetpack_sync_blocked';
+			$blocked_post                          = new stdClass();
+			$blocked_post->ID                      = $post->ID;
+			$blocked_post->post_modified           = $post->post_modified;
+			$blocked_post->post_modified_gmt       = $post->post_modified_gmt;
+			$blocked_post->post_status             = 'jetpack_sync_blocked';
+			$blocked_post->dont_email_post_to_subs = true;
 
 			return $blocked_post;
 		}
@@ -149,12 +152,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
-		
-		/** This filter is already documented in core. wp-includes/post-template.php */
-		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public  ) {
 
-			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
-			$post->post_excerpt_filtered   = apply_filters( 'the_excerpt', $post->post_excerpt );
+		/** This filter is already documented in core. wp-includes/post-template.php */
+		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public ) {
+
+			$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
+			$post->post_excerpt_filtered = apply_filters( 'the_excerpt', $post->post_excerpt );
 		}
 
 		$this->add_embed();
@@ -168,11 +171,26 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		$post->permalink               = get_permalink( $post->ID );
 		$post->shortlink               = wp_get_shortlink( $post->ID );
-		$post->dont_email_post_to_subs = Jetpack::is_module_active( 'subscriptions' ) ?
-				get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) :
-				true; // Don't email subscription if the subscription module is not active.
+		$post->dont_email_post_to_subs = self::do_not_send_post( $post->ID, $post->post_status );
 
 		return $post;
+	}
+
+	public function do_not_send_post( $post_id, $post_status ) {
+		if ( 'publish' !== $post_status ) {
+			return true;
+		}
+		$pending = get_post_meta( $post_id, '_jetpack_set_pending_email_post_to_subs', true );
+
+		if ( $pending ) {
+			delete_post_meta( $post_id, '_jetpack_set_pending_email_post_to_subs' );
+
+			return Jetpack::is_module_active( 'subscriptions' ) ?
+				false :
+				true; // Don't email subscription if the subscription module is not active.
+		}
+
+		return true;
 	}
 
 	public function expand_post_ids( $args ) {
