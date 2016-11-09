@@ -10,6 +10,9 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'customize_controls_enqueue_scripts' ) );
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 20, 2 );
+
+		add_filter( 'stylesheet_uri', array( __CLASS__, 'style_filter' ) );
+		add_filter( 'safecss_skip_stylesheet', array( __CLASS__, 'preview_skip_stylesheet' ) );
 	}
 
 	public static function init() {
@@ -25,6 +28,10 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), array( 'jetpack-codemirror' ), '20140728' );
 		wp_register_script( 'jetpack-codemirror',     plugins_url( "custom-css/js/codemirror{$min}.js", __FILE__ ), array(), '3.16', true );
 		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), array(  'customize-controls', 'underscore', 'jetpack-codemirror' ), JETPACK__VERSION, true );
+
+		if ( isset( $GLOBALS['wp_customize'] ) ) {
+			self::preview_content_width();
+		}
 	}
 
 	public static function map_meta_cap( $caps, $cap ) {
@@ -241,6 +248,108 @@ class Jetpack_Custom_CSS_Enhancements {
 			}
 		}
 		return $css;
+	}
+
+	/**
+	 * Override $content_width in customizer previews.
+	 */
+	public static function preview_content_width() {
+		if ( isset( $GLOBALS['wp_customize'] ) ) {
+			if ( isset( $_POST['customized'] ) && isset( $_POST['customize_messenger_channel'] ) ) {
+				$customizations = json_decode( stripslashes( $_POST['customized'] ) );
+
+				if ( isset( $customizations->{'jetpack_custom_css[content_width]'} ) ) {
+					$width = (int) $customizations->{'jetpack_custom_css[content_width]'};
+
+					if ( $width ) {
+						$GLOBALS['content_width'] = $width;
+					}
+				}
+			}
+		}
+	}
+
+	static function style_filter( $current ) {
+		if ( is_admin() ) {
+			return $current;
+		} elseif ( Jetpack_Custom_CSS::is_freetrial() && ( ! Jetpack_Custom_CSS::is_preview() || ! current_user_can( 'switch_themes' ) ) ) {
+			return $current;
+		} else if ( Jetpack_Custom_CSS::skip_stylesheet() ) {
+			/**
+			 * Filter the default blank Custom CSS URL.
+			 *
+			 * @module custom-css
+			 *
+			 * @since 2.2.1
+			 *
+			 * @param string $url Default blank Custom CSS URL.
+			 */
+			return apply_filters( 'safecss_style_filter_url', plugins_url( 'custom-css/css/blank.css', __FILE__ ) );
+		}
+
+		return $current;
+	}
+
+	static function skip_stylesheet() {
+		/**
+		 * Prevent the Custom CSS stylesheet from being enqueued.
+		 *
+		 * @module custom-css
+		 *
+		 * @since 2.2.1
+		 *
+		 * @param null Should the stylesheet be skipped. Default to null. Anything else will force the stylesheet to be skipped.
+		 */
+		$skip_stylesheet = apply_filters( 'safecss_skip_stylesheet', null );
+
+		if ( null !== $skip_stylesheet ) {
+			return $skip_stylesheet;
+		} elseif ( Jetpack_Custom_CSS::is_customizer_preview() ) {
+			return false;
+		} else {
+			if ( Jetpack_Custom_CSS::is_preview() ) {
+				$safecss_post = Jetpack_Custom_CSS::get_current_revision();
+
+				if ( $safecss_post )
+					return (bool) ( get_post_meta( $safecss_post['ID'], 'custom_css_add', true ) == 'no' );
+				else
+					return (bool) ( get_option( 'safecss_preview_add' ) == 'no' );
+			}
+			else {
+				$custom_css_post_id = Jetpack_Custom_CSS::post_id();
+
+				if ( $custom_css_post_id ) {
+					$custom_css_add = get_post_meta( $custom_css_post_id, 'custom_css_add', true );
+
+					// It is possible for the CSS to be stored in a post but for the safecss_add option
+					// to have not been upgraded yet if the user hasn't opened their Custom CSS editor
+					// since October 2012.
+					if ( ! empty( $custom_css_add ) )
+						return (bool) ( $custom_css_add === 'no' );
+				}
+
+				return (bool) ( Jetpack_Options::get_option_and_ensure_autoload( 'safecss_add', '' ) == 'no' );
+			}
+		}
+	}
+
+	/**
+	 * Override $content_width in customizer previews.
+	 *
+	 * Runs on `safecss_skip_stylesheet` filter.
+	 */
+	public static function preview_skip_stylesheet( $skip_value ) {
+		if ( isset( $GLOBALS['wp_customize'] ) ) {
+			if ( isset( $_POST['customized'] ) && isset( $_POST['customize_messenger_channel'] ) ) {
+				$customizations = json_decode( stripslashes( $_POST['customized'] ) );
+
+				if ( isset( $customizations->{'jetpack_custom_css[replace]'} ) ) {
+					return $customizations->{'jetpack_custom_css[replace]'};
+				}
+			}
+		}
+
+		return $skip_value;
 	}
 
 	/**
