@@ -2873,9 +2873,8 @@ p {
 				$args,
 				true
 			);
-		} else {
+		} else if ( $this->can_display_jetpack_manage_notice() && ! Jetpack_Options::get_option( 'dismissed_manage_banner' ) ) {
 			// Show the notice on the Dashboard only for now
-
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
 		}
 
@@ -3233,12 +3232,7 @@ p {
 		$screen = get_current_screen();
 
 		// Don't show the connect notice on the jetpack settings page.
-		if ( ! in_array( $screen->base, array( 'dashboard' ) ) || $screen->is_network || $screen->action )
-			return;
-
-		// Only show it if don't have the managment option set.
-		// And not dismissed it already.
-		if ( ! $this->can_display_jetpack_manage_notice() || Jetpack_Options::get_option( 'dismissed_manage_banner' ) ) {
+		if ( ! in_array( $screen->base, array( 'dashboard' ) ) || $screen->is_network || $screen->action ) {
 			return;
 		}
 
