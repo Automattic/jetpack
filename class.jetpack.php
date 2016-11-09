@@ -2856,7 +2856,7 @@ p {
 
 		if ( function_exists( 'wp_is_large_network' ) ) {
 			if ( wp_is_large_network( 'users' ) ) {
-				return 10101; // Not a real value but should tell us that we are dealing with a large network.
+				return -1; // Not a real value but should tell us that we are dealing with a large network.
 			}
 		}
 		if ( false === ( $user_count = get_transient( 'jetpack_site_user_count' ) ) ) {
