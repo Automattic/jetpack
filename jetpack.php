@@ -38,7 +38,7 @@ add_filter( 'rest_url_prefix', 'jetpack_index_permalinks_rest_api_url', 999 );
  **/
 function jetpack_index_permalinks_rest_api_url( $prefix ){
 	global $wp_rewrite, $wp_version;
-	if ( version_compare( $wp_version, '4.7-alpha-38790', '>=' ) && $wp_rewrite->using_index_permalinks() ){
+	if ( version_compare( $wp_version, '4.7-alpha-38790', '<' ) && $wp_rewrite->using_index_permalinks() ){
 		$prefix = $wp_rewrite->index . '/' . $prefix;
 	}
 
