@@ -2810,18 +2810,18 @@ p {
 	 * Return stat data for WPCOM sync
 	 */
 	public static function get_stat_data( $encode = true, $extended = true ) {
-		$heartbeat_data = Jetpack_Heartbeat::generate_stats_array();
+		$data = Jetpack_Heartbeat::generate_stats_array();
+
 		if ( $extended ) {
 			$additional_data = self::get_additional_stat_data();
+			$data = array_merge( $data, $additional_data );
 		}
-
-		$merged_data = array_merge( $heartbeat_data, $additional_data );
 
 		if ( $encode ) {
-			return json_encode( $merged_data );
+			return json_encode( $data );
 		}
 
-		return $merged_data;
+		return $data;
 	}
 
 	/**

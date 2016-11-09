@@ -50,8 +50,7 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 		restore_current_blog();
 
 		$this->assertEquals( JETPACK__VERSION, $action->args[0]['version'] );
-		$this->assertEquals( 2, $action->args[0]['users'] );
-		$this->assertEquals( 2, $action->args[0]['site-count'] );
+		$this->assertFalse( isset( $action->args[0]['users'] ) );
 
 	}
 }
