@@ -27,7 +27,10 @@ import ProStatus from 'pro-status';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
-import { userCanManageModules } from 'state/initial-state';
+import {
+	userCanManageModules,
+	getSiteRawUrl
+} from 'state/initial-state';
 import { getSitePlan } from 'state/site';
 import Settings from 'components/settings';
 
@@ -36,7 +39,8 @@ export const Page = ( props ) => {
 		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
-		getModule
+		getModule,
+		siteRawUrl
 	} = props,
 		isAdmin = props.userCanManageModules,
 		moduleList = Object.keys( props.moduleList );
@@ -93,6 +97,14 @@ export const Page = ( props ) => {
 
 		if ( element[0] === 'seo-tools' ) {
 			moduleDescription = <AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } />;
+		}
+
+		if ( element[0] === 'seo-tools' ) {
+			if ( props.sitePlan.product_slug === 'jetpack_business' ) {
+				proProps.configure_url = 'https://wordpress.com/settings/seo/' + siteRawUrl;
+			}
+
+			moduleDescription = <AllModuleSettings module={ proProps } />;
 		}
 
 		return (
@@ -155,6 +167,7 @@ function renderLongDescription( module ) {
 export default connect(
 	( state ) => {
 		return {
+			siteRawUrl: getSiteRawUrl( state ),
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) =>
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),

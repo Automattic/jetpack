@@ -89,7 +89,7 @@ export const AllModuleSettings = React.createClass( {
 					</div>
 				) : (
 					<div>
-						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href='https://wordpress.com/settings/seo/'>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
 					</div>
 				);
 			case 'stats':
