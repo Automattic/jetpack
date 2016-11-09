@@ -28,10 +28,11 @@ import { isUnavailableInDevMode } from 'state/connection';
 import {
 	getSiteAdminUrl,
 	getSiteRawUrl,
+	isSitePublic,
 	userCanManageModules as _userCanManageModules
 } from 'state/initial-state';
 
-export const Discussion = ( props ) => {
+export const Engagement = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
@@ -39,15 +40,38 @@ export const Discussion = ( props ) => {
 		getModule
 	} = props,
 		isAdmin = props.userCanManageModules,
+		sitemapsDesc = getModule( 'sitemaps' ).description,
 		moduleList = Object.keys( props.moduleList );
+
+	if ( ! props.isSitePublic() ) {
+		sitemapsDesc = <span>
+			{ sitemapsDesc }
+			{ <p className="jp-form-setting-explanation">
+				{ __( 'Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
+					components: {
+						a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
+					}
+				} ) }
+			</p> }
+		</span>;
+	}
 
 	/**
 	 * Array of modules that directly map to a card for rendering
 	 * @type {Array}
 	 */
 	let cards = [
+		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
+		[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description, getModule( 'sharedaddy' ).learn_more_button ],
+		[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
+		[ 'related-posts', getModule( 'related-posts' ).name, getModule( 'related-posts' ).description, getModule( 'related-posts' ).learn_more_button ],
 		[ 'comments', getModule( 'comments' ).name, getModule( 'comments' ).description, getModule( 'comments' ).learn_more_button ],
-		[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description, getModule( 'subscriptions' ).learn_more_button ]
+		[ 'likes', getModule( 'likes' ).name, getModule( 'likes' ).description, getModule( 'likes' ).learn_more_button ],
+		[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description, getModule( 'subscriptions' ).learn_more_button ],
+		[ 'gravatar-hovercards', getModule( 'gravatar-hovercards' ).name, getModule( 'gravatar-hovercards' ).description, getModule( 'gravatar-hovercards' ).learn_more_button ],
+		[ 'sitemaps', getModule( 'sitemaps' ).name, sitemapsDesc, getModule( 'sitemaps' ).learn_more_button ],
+		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description, getModule( 'enhanced-distribution' ).learn_more_button ],
+		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
 	],
 		nonAdminAvailable = [ 'publicize' ];
 	// Put modules available to non-admin user at the top of the list.
@@ -155,6 +179,7 @@ export default connect(
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			getSiteRawUrl: () => getSiteRawUrl( state ),
 			getSiteAdminUrl: () => getSiteAdminUrl( state ),
+			isSitePublic: () => isSitePublic( state ),
 			userCanManageModules: _userCanManageModules( state ),
 			moduleList: getModules( state )
 		};
@@ -168,4 +193,4 @@ export default connect(
 			}
 		};
 	}
-)( Discussion );
+)( Engagement );

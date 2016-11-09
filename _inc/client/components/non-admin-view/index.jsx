@@ -15,7 +15,7 @@ import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import AtAGlance from 'at-a-glance/index.jsx';
-import Discussion from 'discussion/index.jsx';
+import Engagement from 'engagement/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
@@ -48,14 +48,17 @@ const NonAdminView = React.createClass( {
 				pageComponent = <Apps { ...this.props } />;
 				break;
 			case '/settings':
+				navComponent = <NavigationSettings { ...this.props } />;
+				pageComponent = <GeneralSettings { ...this.props } />;
+				break;
 			case '/general':
 				navComponent = <NavigationSettings { ...this.props } />;
 				pageComponent = <GeneralSettings { ...this.props } />;
 				break;
-			case '/discussion':
+			case '/engagement':
 				if ( ! this.props.isSubscriber ) {
 					navComponent = <NavigationSettings { ...this.props } />;
-					pageComponent = <Discussion { ...this.props } />;
+					pageComponent = <Engagement { ...this.props } />;
 				}
 				break;
 			case '/writing':
