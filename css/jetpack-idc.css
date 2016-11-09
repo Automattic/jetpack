@@ -207,17 +207,17 @@ https://github.com/thoughtbot/bourbon
   margin: 16px 0 0;
 }
 
-.jp-idc-error__notice {
+.jp-idc-notice .jp-idc-error__notice {
   display: none;
 }
 
-.jp-idc-error__notice .dops-notice__icon {
+.jp-idc-notice .jp-idc-error__notice .dops-notice__icon {
   height: auto;
   width: auto;
 }
 
 @media only screen and (min-width: 683px) {
-  .jp-idc-error__notice .dops-notice__text {
+  .jp-idc-notice .jp-idc-error__notice .dops-notice__text {
     line-height: 24px;
   }
 }

@@ -265,6 +265,10 @@ class Jetpack_Sync_Sender {
 		$this->sync_queue->reset();
 	}
 
+	function reset_full_sync_queue() {
+		$this->full_sync_queue->reset();
+	}
+
 	function set_dequeue_max_bytes( $size ) {
 		$this->dequeue_max_bytes = $size;
 	}
@@ -329,6 +333,7 @@ class Jetpack_Sync_Sender {
 
 	function reset_data() {
 		$this->reset_sync_queue();
+		$this->reset_full_sync_queue();
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->reset_data();
@@ -350,5 +355,6 @@ class Jetpack_Sync_Sender {
 
 		// clear the sync cron.
 		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
+		wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
 	}
 }

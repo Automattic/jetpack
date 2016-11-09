@@ -77,25 +77,6 @@ class Jetpack_Subscriptions {
 		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
 	}
 
-	function post_is_public( $the_post ) {
-		if ( !$post = get_post( $the_post ) ) {
-			return false;
-		}
-
-		if ( 'publish' === $post->post_status && strlen( (string) $post->post_password ) < 1 ) {
-			/**
-			 * Filter whether posts can be emailed to subscribers.
-			 *
-			 * @module subscriptions
-			 *
-			 * @since 2.4.0
-			 *
-			 * @param bool true Can the post be emailed to Subscribers. Default to true.
-			 */
-			return apply_filters( 'jetpack_is_post_mailable', true );
-		}
-	}
-
 	/**
 	 * Jetpack_Subscriptions::xmlrpc_methods()
 	 *
