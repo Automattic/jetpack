@@ -12,6 +12,7 @@
 			<file>tests/php/test_class.jetpack-heartbeat.php</file>
 			<file>tests/php/test_class.jetpack-constants.php</file>
 			<file>tests/php/test_class.jetpack-connection-banner.php</file>
+			<file>tests/php/test_class.jetpack-options.php</file>
 		</testsuite>
 		<testsuite name="core-api">
 			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/core-api</directory>
