@@ -69,7 +69,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		 *
 		 * @param boolean $preserve_shortcodes Defaults to $this->preserve_shortcodes.
 		 */
-		$this->preserve_shortcodes = apply_filters( 'wpcom_markdown_preserve_shortcodes', $this->preserve_shortcodes ) && function_exists( 'get_shortcode_regex' );
+		$this->preserve_shortcodes = apply_filters( 'jetpack_markdown_preserve_shortcodes', $this->preserve_shortcodes ) && function_exists( 'get_shortcode_regex' );
 		$this->preserve_latex      = function_exists( 'latex_markup' );
 		$this->strip_paras         = function_exists( 'wpautop' );
 
