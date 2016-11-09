@@ -389,10 +389,8 @@ jQuery(document).ready(function($) {
 					$(window).scrollTop(scroll);
 				})
 				.bind('jp_carousel.afterClose', function(){
-					if ( history.pushState ) {
-						history.pushState('', document.title, window.location.pathname + window.location.search);
-					} else {
-						window.location.hash = '';
+					if ( window.location.hash && history.back ) {
+						history.back();
 					}
 					last_known_location_hash = '';
 					gallery.opened = false;
@@ -1423,6 +1421,11 @@ jQuery(document).ready(function($) {
 		}
 
 		if ( ( window.location.hash === last_known_location_hash ) && gallery.opened ) {
+			return;
+		}
+
+		if ( window.location.hash && gallery && !gallery.opened && history.back) {
+			history.back();
 			return;
 		}
 
