@@ -24,7 +24,12 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
 
 		// For some options, we should always send the change right away!
-		$always_send_updates_to_these_options = array( 'jetpack_active_modules', 'home', 'siteurl' );
+		$always_send_updates_to_these_options = array(
+			'jetpack_active_modules',
+			'home',
+			'siteurl',
+			'jetpack_sync_error_idc'
+		);
 		foreach( $always_send_updates_to_these_options as $option ) {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 		}

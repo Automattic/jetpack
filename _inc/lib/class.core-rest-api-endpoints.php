@@ -735,9 +735,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function migrate_stats_and_subscribers() {
-		$deleted = Jetpack_Options::delete_option( 'sync_error_idc' );
-
-		if ( ! $deleted ) {
+		if ( Jetpack_Options::get_option( 'sync_error_idc' ) && ! Jetpack_Options::delete_option( 'sync_error_idc' ) ) {
 			return new WP_Error(
 				'error_deleting_sync_error_idc',
 				esc_html__( 'Could not delete sync error option.', 'jetpack' ),
@@ -747,8 +745,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$updated = Jetpack_Options::update_option( 'migrate_for_idc', true );
 		if ( $updated ) {
-			// Deleting this transient will force the callables to sync faster.
-			delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 			return rest_ensure_response(
 				array(
 					'code' => 'success'
