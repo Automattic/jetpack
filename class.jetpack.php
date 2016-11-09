@@ -2809,9 +2809,11 @@ p {
 	/**
 	 * Return stat data for WPCOM sync
 	 */
-	public static function get_stat_data( $encode = true ) {
+	public static function get_stat_data( $encode = true, $extended = true ) {
 		$heartbeat_data = Jetpack_Heartbeat::generate_stats_array();
-		$additional_data = self::get_additional_stat_data();
+		if ( $extended ) {
+			$additional_data = self::get_additional_stat_data();
+		}
 
 		$merged_data = array_merge( $heartbeat_data, $additional_data );
 
