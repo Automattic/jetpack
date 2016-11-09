@@ -9,13 +9,6 @@
 	border-top: 1px solid #eee;
 	border-bottom: 1px solid #eee;
 }
-<<<<<<< 814ec107c401471f8de30da3a5bcab02f00bd820
-=======
-.CodeMirror {
-	margin-left: -19px;
-	margin-right: -19px;
-}
->>>>>>> Import JS and Styles from WPCOM implementation.
 .for-codemirror {
 	width: 98%;
 	height: 300px;
@@ -70,7 +63,6 @@
 	padding: 0 .5em;
 }
 
-<<<<<<< 814ec107c401471f8de30da3a5bcab02f00bd820
 #sub-accordion-section-custom_css .customize-control {
 	margin-left: 12px;
 	margin-right: 12px;
@@ -84,26 +76,6 @@
 
 #sub-accordion-section-custom_css #customize-control-jetpack_css_preprocessors_control select {
 	max-width: 75%;
-=======
-#accordion-section-jetpack_custom_css .customize-control {
-	margin-top: 10px;
-}
-
-#accordion-section-jetpack_custom_css .accordion-section-content {
-	overflow: visible;
-	overflow-y: scroll;
-}
-
-#accordion-section-jetpack_custom_css .accordion-section-content:before {
-	content: "";
-	display: table;
-}
-
-#accordion-section-jetpack_custom_css .accordion-section-content:after {
-	content: "";
-	display: table;
-	clear: both;
->>>>>>> Import JS and Styles from WPCOM implementation.
 }
 
 body.editing-css .wp-full-overlay-sidebar {
@@ -112,11 +84,8 @@ body.editing-css .wp-full-overlay-sidebar {
 
 body.editing-css .wp-full-overlay.expanded {
 	margin-left: 500px;
-<<<<<<< 814ec107c401471f8de30da3a5bcab02f00bd820
 }
 
 input[type=jetpackCss] {
 	display: none;
-=======
->>>>>>> Import JS and Styles from WPCOM implementation.
 }
