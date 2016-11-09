@@ -14,13 +14,13 @@ import { ConnectButton } from '../index';
 describe( 'ConnectButton', () => {
 
 	let testProps = {
-		fetchingConnectUrl: () => true,
-		connectUrl        : () => 'https://jetpack.wordpress.com/jetpack.authorize/1/',
+		fetchingConnectUrl: true,
+		connectUrl        : 'https://jetpack.wordpress.com/jetpack.authorize/1/',
 		connectUser       : true,
-		isSiteConnected   : () => false,
-		isDisconnecting   : () => false,
-		isLinked          : () => false,
-		isUnlinking       : () => false
+		isSiteConnected   : false,
+		isDisconnecting   : false,
+		isLinked          : false,
+		isUnlinking       : false
 	};
 
 	const wrapper = shallow( <ConnectButton { ...testProps } /> );
@@ -81,16 +81,16 @@ describe( 'ConnectButton', () => {
 	describe( 'Button to connect a site', () => {
 
 		Object.assign( testProps, {
-			connectUrl     : () => 'http://example.org/wp-admin/admin.php?page=jetpack&action=register',
-			isSiteConnected: () => false,
-			isLinked       : () => false,
+			connectUrl     : 'http://example.org/wp-admin/admin.php?page=jetpack&action=register',
+			isSiteConnected: false,
+			isLinked       : false,
 			connectUser    : false
 		} );
 
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
 		it( 'has a link to Jetpack admin page in register mode', () => {
-			expect( wrapper.find( 'Button' ).props().href ).to.be.equal( 'http://example.org/wp-admin/admin.php?page=jetpack&action=register' );
+			expect( wrapper.find( 'Button' ).props().href ).to.have.string( 'http://example.org/wp-admin/admin.php?page=jetpack&action=register' );
 		} );
 
 	} );
@@ -98,7 +98,7 @@ describe( 'ConnectButton', () => {
 	describe( 'Button to disconnect a site', () => {
 
 		Object.assign( testProps, {
-			isSiteConnected: () => true
+			isSiteConnected: true
 		} );
 
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
