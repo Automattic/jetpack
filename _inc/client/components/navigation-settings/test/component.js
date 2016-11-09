@@ -39,9 +39,9 @@ describe( 'NavigationSettings', () => {
 		expect( wrapper.find( '.dops-navigation' ) ).to.have.length( 1 );
 	} );
 
-	it( 'has /general as selected navigation item, accessing through /settings', () => {
+	it( 'accessing through /settings, it has /settings as selected navigation item', () => {
 		expect( wrapper.find( 'NavItem' ).get( 0 ).props.selected ).to.be.true;
-		expect( wrapper.find( 'NavItem' ).get( 0 ).props.path ).to.equal( '#general' );
+		expect( wrapper.find( 'NavItem' ).get( 0 ).props.path ).to.equal( '#settings' );
 	} );
 
 	it( 'renders NavigationSettings, SectionNav, NavTabs', () => {
@@ -52,8 +52,8 @@ describe( 'NavigationSettings', () => {
 
 	describe( 'Subscriber user', () => {
 
-		it( 'renders only one tab: General', () => {
-			expect( wrapper.find( 'NavItem' ).children().text() ).to.be.equal( 'General' );
+		it( 'renders only one tab: Settings', () => {
+			expect( wrapper.find( 'NavItem' ).children().text() ).to.be.equal( 'Settings' );
 		} );
 
 		it( 'does not display Search', () => {
@@ -71,8 +71,8 @@ describe( 'NavigationSettings', () => {
 
 		const wrapper = shallow( <NavigationSettings { ...testProps } /> );
 
-		it( 'renders tabs with General, Engagement, Writing', () => {
-			expect( wrapper.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'General,Engagement,Writing' );
+		it( 'renders tabs with General, Writing', () => {
+			expect( wrapper.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'General,Writing' );
 		} );
 
 		it( 'does not display Search', () => {
@@ -90,8 +90,8 @@ describe( 'NavigationSettings', () => {
 
 		const wrapper = shallow( <NavigationSettings { ...testProps } /> );
 
-		it( 'renders tabs with General, Engagement, Security, Appearance, Writing', () => {
-			expect( wrapper.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'General,Engagement,Security,Appearance,Writing' );
+		it( 'renders tabs with Writing, Discussion, Traffic, Security', () => {
+			expect( wrapper.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'Writing,Discussion,Traffic,Security' );
 		} );
 
 		it( 'displays Search', () => {

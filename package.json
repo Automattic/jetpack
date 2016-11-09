@@ -23,7 +23,7 @@
     "lint": "eslint _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "./node_modules/.bin/grunt addtextdomain",
-    "build-pot": "./node_modules/.bin/grunt makepot"
+    "build-pot": "./node_modules/.bin/grunt makepot",
     "test-gui":    "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui"
   },
   "dependencies": {
