@@ -18,7 +18,7 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 				return new WP_Error(
 					'rest_cannot_view',
 					__( 'Sorry, you cannot view this resource.' ),
-					array( 'status' => rest_authorization_required_code() )
+					array( 'status' => 401 )
 				);
 			}
 
@@ -36,7 +36,7 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 				return new WP_Error(
 					'rest_cannot_view',
 					__( 'Sorry, you cannot view this resource.' ),
-					array( 'status' => rest_authorization_required_code() )
+					array( 'status' => 401 )
 				);
 			}
 
