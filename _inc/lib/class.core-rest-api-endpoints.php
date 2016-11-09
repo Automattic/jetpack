@@ -743,8 +743,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		$updated = Jetpack_Options::update_option( 'migrate_for_idc', true );
-		if ( $updated ) {
+		if ( Jetpack_Options::get_option( 'migrate_for_idc' ) || Jetpack_Options::update_option( 'migrate_for_idc', true ) ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'
