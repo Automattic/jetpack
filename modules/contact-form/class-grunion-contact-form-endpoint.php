@@ -6,9 +6,13 @@
 
 if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 
+	/**
+	 * Class Grunion_Contact_Form_Endpoint
+	 * Used as 'rest_controller_class' parameter when 'feedback' post type is registered in modules/contact-form/grunion-contact-form.php.
+	 */
 	class Grunion_Contact_Form_Endpoint extends WP_REST_Posts_Controller {
 		/**
-		 * Check whether a given request has proper authoriztion to view feedback items.
+		 * Check whether a given request has proper authorization to view feedback items.
 		 *
 		 * @param  WP_REST_Request $request Full details about the request.
 		 * @return WP_Error|boolean
@@ -17,7 +21,7 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 			if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 				return new WP_Error(
 					'rest_cannot_view',
-					__( 'Sorry, you cannot view this resource.' ),
+					esc_html__( 'Sorry, you cannot view this resource.', 'jetpack' ),
 					array( 'status' => 401 )
 				);
 			}
@@ -26,7 +30,7 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 		}
 
 		/**
-		 * Check whether a given request has proper authoriztion to view feedback item.
+		 * Check whether a given request has proper authorization to view feedback item.
 		 *
 		 * @param  WP_REST_Request $request Full details about the request.
 		 * @return WP_Error|boolean
@@ -35,7 +39,7 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 			if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 				return new WP_Error(
 					'rest_cannot_view',
-					__( 'Sorry, you cannot view this resource.' ),
+					esc_html__( 'Sorry, you cannot view this resource.', 'jetpack' ),
 					array( 'status' => 401 )
 				);
 			}
