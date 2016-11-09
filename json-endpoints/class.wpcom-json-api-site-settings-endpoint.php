@@ -212,6 +212,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
 					'jetpack_portfolio_posts_per_page' => (int) get_option( 'jetpack_portfolio_posts_per_page', '10' ),
 					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
+					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
+					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -449,6 +451,46 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						if ( wp_attachment_is_image( $coerce_value ) && update_option( $key, $coerce_value ) ) {
 							$updated[ $key ] = $coerce_value;
 						}
+					}
+					break;
+
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_grandfathered_front_page_meta() ) {
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'Jetpack' ), 403 );
+					}
+
+					if ( ! is_string( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.', 'Jetpack' ), 400 );
+					}
+
+					$new_description = Jetpack_SEO_Utils::update_front_page_meta_description( $value );
+
+					if ( ! empty( $new_description ) ) {
+						$updated[ $key ] = $new_description;
+					}
+					break;
+
+				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION:
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'Jetpack' ), 403 );
+					}
+
+					if ( ! Jetpack_SEO_Titles::are_valid_title_formats( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.', 'Jetpack' ), 400 );
+					}
+
+					$new_title_formats = Jetpack_SEO_Titles::update_title_formats( $value );
+
+					if ( ! empty( $new_title_formats ) ) {
+						$updated[ $key ] = $new_title_formats;
+					}
+					break;
+
+				case 'verification_services_codes':
+					$verification_codes = jetpack_verification_validate( $value );
+
+					if ( update_option( 'verification_services_codes', $verification_codes ) ) {
+						$updated[ $key ] = $verification_codes;
 					}
 					break;
 

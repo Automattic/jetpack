@@ -86,7 +86,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'page_on_front',
 		'page_for_posts',
 		'headstart',
-		'ak_vp_bundle_enabled'
+		'ak_vp_bundle_enabled',
+		'verification_services_codes',
+		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION,
+		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION,
 	);
 
 	protected static $jetpack_response_field_additions = array( 
@@ -428,6 +431,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'ak_vp_bundle_enabled' :
 					$options[ $key ] = $site->get_ak_vp_bundle_enabled();
+					break;
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION :
+					$options[ $key ] = $site->get_jetpack_seo_front_page_description();
+					break;
+				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION :
+					$options[ $key ] = $site->get_jetpack_seo_title_formats();
+					break;
+				case 'verification_services_codes' :
+					$options[ $key ] = $site->get_verification_services_codes();
+					break;
 			}
 		}
 

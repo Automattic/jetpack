@@ -84,6 +84,18 @@ const ProStatus = React.createClass( {
 				}
 			}
 
+			if ( 'seo-tools' === feature && 'jetpack_business' !== sitePlan.product_slug ) {
+				return (
+					<Button
+						compact={ true }
+						primary={ true }
+						href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl }
+					>
+						{ __( 'Upgrade' ) }
+					</Button>
+				);
+			}
+
 			if ( sitePlan.product_slug ) {
 				let btnVals = {};
 				if ( 'jetpack_free' !== sitePlan.product_slug ) {

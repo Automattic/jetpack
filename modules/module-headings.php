@@ -133,6 +133,12 @@ function jetpack_get_module_i18n( $key ) {
 				'recommended description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' ),
 			),
 
+			'seo-tools' => array(
+				'name' => _x( 'SEO Tools', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Adds tools to enhance your site\'s content for better results on search engines and social media.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Adds tools to enhance your site\'s content for better results on search engines and social media.', 'Jumpstart Description', 'jetpack' ),
+			),
+
 			'sharedaddy' => array(
 				'name' => _x( 'Sharing', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Visitors can share your content.', 'Module Description', 'jetpack' ),
@@ -188,7 +194,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'verification-tools' => array(
 				'name' => _x( 'Site Verification', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Verify your site or domain with Google Search Console, Pinterest, and Bing.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Verify your site or domain with Google Search Console, Pinterest, Bing, and Yandex.', 'Module Description', 'jetpack' ),
 			),
 
 			'videopress' => array(
