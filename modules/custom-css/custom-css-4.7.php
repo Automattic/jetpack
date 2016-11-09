@@ -9,6 +9,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'customize_controls_enqueue_scripts' ) );
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
+		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 1, 2 );
 	}
 
 	public static function init() {
@@ -24,6 +25,13 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), array( 'jetpack-codemirror' ), '20140728' );
 		wp_register_script( 'jetpack-codemirror',     plugins_url( "custom-css/js/codemirror{$min}.js", __FILE__ ), array(), '3.16', true );
 		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), array(  'customize-controls', 'underscore', 'jetpack-codemirror' ), JETPACK__VERSION, true );
+	}
+
+	public static function map_meta_cap( $caps, $cap ) {
+		if ( 'edit_css' === $cap ) {
+			$caps = array( 'edit_theme_options' );
+		}
+		return $caps;
 	}
 
 	public static function register_legacy_post_type() {
