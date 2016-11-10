@@ -24,6 +24,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'set_dont_email_post_flag' ) );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -81,6 +82,16 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
 		}
+
+		return $args;
+	}
+
+	function set_dont_email_post_flag( $args ) {
+		$post = $args[1];
+
+		$post->dont_email_post_to_subs = Jetpack::is_module_active( 'subscriptions' ) ?
+				get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) :
+				true; // Don't email subscription if the subscription module is not active.
 
 		return $args;
 	}
@@ -168,9 +179,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		$post->permalink               = get_permalink( $post->ID );
 		$post->shortlink               = wp_get_shortlink( $post->ID );
-		$post->dont_email_post_to_subs = Jetpack::is_module_active( 'subscriptions' ) ?
-				get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) :
-				true; // Don't email subscription if the subscription module is not active.
 
 		return $post;
 	}
