@@ -456,11 +456,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
 					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_grandfathered_front_page_meta() ) {
-						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'Jetpack' ), 403 );
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 					}
 
 					if ( ! is_string( $value ) ) {
-						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.', 'Jetpack' ), 400 );
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.', 'jetpack' ), 400 );
 					}
 
 					$new_description = Jetpack_SEO_Utils::update_front_page_meta_description( $value );
@@ -472,11 +472,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION:
 					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
-						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'Jetpack' ), 403 );
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 					}
 
 					if ( ! Jetpack_SEO_Titles::are_valid_title_formats( $value ) ) {
-						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.', 'Jetpack' ), 400 );
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.', 'jetpack' ), 400 );
 					}
 
 					$new_title_formats = Jetpack_SEO_Titles::update_title_formats( $value );
