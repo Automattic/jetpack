@@ -2206,12 +2206,25 @@ class Jetpack {
 	 */
 	public static function get_active_modules() {
 		$active = Jetpack_Options::get_option( 'active_modules' );
-		if ( ! is_array( $active ) )
+		
+		if ( ! is_array( $active ) ) {
 			$active = array();
+		}
+
 		if ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) {
 			$active[] = 'vaultpress';
 		} else {
 			$active = array_diff( $active, array( 'vaultpress' ) );
+		}
+
+		// Get the current site plan
+		$plan = Jetpack::get_active_plan();
+
+		// If this plan supports videopress, force activate module
+		if ( in_array( 'videopress', $plan['supports'] ) ) {
+			$active[] = 'videopress';
+		} else {
+			$active = array_diff( $active, array( 'videopress' ) );
 		}
 
 		//If protect is active on the main site of a multisite, it should be active on all sites.
