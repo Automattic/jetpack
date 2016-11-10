@@ -4,7 +4,7 @@
  * Module Name: Google Analytics
  * Module Description: MODULE DESCRIPTION COPY.
  * First Introduced: 4.4
- * Sort Order: 35
+ * Sort Order: 37
  * Requires Connection: No
  * Auto Activate: Yes
  * Feature: Engagement
