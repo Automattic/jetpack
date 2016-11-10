@@ -93,7 +93,8 @@ class Jetpack_SEO_Utils {
 		}
 
 		$can_set_meta = self::is_enabled_jetpack_seo();
-		$has_old_meta = ! empty( get_option( self::GRANDFATHERED_META_OPTION ) );
+		$grandfathered_meta_option = get_option( self::GRANDFATHERED_META_OPTION );
+		$has_old_meta = ! empty( $grandfathered_meta_option );
 		$option_name = self::has_grandfathered_front_page_meta() ? self::GRANDFATHERED_META_OPTION : self::FRONT_PAGE_META_OPTION;
 
 		$did_update = update_option( $option_name, $front_page_description );
