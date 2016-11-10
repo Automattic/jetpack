@@ -203,7 +203,7 @@ class Jetpack_Subscriptions {
 		// Email the post, depending on the checkbox option
 		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
 			if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
-				$email_to_subs = $_POST['_jetpack_dont_email_post_to_subs'];
+				$email_to_subs = ! $_POST['_jetpack_dont_email_post_to_subs'];
 			}
 		}
 
