@@ -505,20 +505,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->post->post_content, $synced_post->post_content );
 	}
 
-	function test_filters_out_blacklisted_post_types() {
-		$args = array(
-			'public' => true,
-			'label'  => 'Snitch'
-		);
-		register_post_type( 'snitch', $args );
-
-		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
-
-		$this->sender->do_sync();
-
-		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
-	}
-
 	function test_filters_out_blacklisted_post_types_and_their_post_meta() {
 		$args = array(
 			'public' => true,
