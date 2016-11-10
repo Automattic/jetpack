@@ -388,6 +388,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_includes_dont_email_post_to_subs_when_subscription_is_not_active() {
+		$this->server_event_storage->reset();
+		
 		Jetpack_Options::update_option( 'active_modules', array() );
 		// Subscription is not an active module
 		$this->assertTrue( ! in_array( 'subscriptions', Jetpack::get_active_modules() ) );
