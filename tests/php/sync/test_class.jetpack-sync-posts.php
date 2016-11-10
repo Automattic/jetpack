@@ -365,10 +365,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_includes_dont_email_post_to_subs_when_subscription_is_not_active() {
-		$active_modules = Jetpack::get_active_modules();
 		Jetpack_Options::update_option( 'active_modules', array() );
-		// Subscription is not an active module
-		$this->assertTrue( ! in_array( 'subscriptions', Jetpack::get_active_modules() ) );
+		
 		$post_id = $this->factory->post->create();
 
 		$this->sender->do_sync();
@@ -844,8 +842,8 @@ That was a cool video.';
 
 	public function test_sync_jetpack_published_post_should_set_dont_send_to_subscribers_flag() {
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
-		// Subscription is an active module
-		$this->assertTrue( in_array( 'subscriptions', Jetpack::get_active_modules() ) );
+		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
+ 		Jetpack_Subscriptions::init();
 
 		wp_update_post( array(
 			'ID'          => $this->post->ID,

@@ -182,12 +182,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function save_published( $new_status, $old_status, $post ) {
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-			$this->just_published = $post;
+			$this->just_published = $post->ID;
 		}
 	}
 
 	public function send_published( $post_ID, $post, $update ) {
-		if ( $this->just_published === $post ) {
+		if ( $this->just_published === $post->ID ) {
 			$this->just_published = null;
 			$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
 			do_action( 'jetpack_published_post', $post_ID, $flags );
