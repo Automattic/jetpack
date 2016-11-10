@@ -267,7 +267,7 @@ class Sharing_Admin {
 						<h3><?php _e( 'Live Preview', 'jetpack' ); ?></h3>
 					</td>
 					<td class="services">
-						<h2<?php if ( count( $enabled['all'] ) > 0 ) { echo ' style="display: none"';} ?>><?php _e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
+                        <h2 <?php echo ( count( $enabled['all'] ) > 0 ) ? ' style="display: none"' : ''; ?>><?php _e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
 						<div class="sharedaddy sd-sharing-enabled">
 							<?php if ( count( $enabled['all'] ) > 0 ) : ?>
 							<h3 class="sd-title"><?php echo esc_html( $global['sharing_label'] ); ?></h3>
@@ -339,10 +339,10 @@ class Sharing_Admin {
 						<th scope="row"><label><?php _e( 'Button style', 'jetpack' ); ?></label></th>
 						<td>
 							<select name="button_style" id="button_style">
-								<option<?php if ( $global['button_style'] == 'icon-text' ) { echo ' selected="selected"';}?> value="icon-text"><?php _e( 'Icon + text', 'jetpack' ); ?></option>
-								<option<?php if ( $global['button_style'] == 'icon' ) { echo ' selected="selected"';}?> value="icon"><?php _e( 'Icon only', 'jetpack' ); ?></option>
-								<option<?php if ( $global['button_style'] == 'text' ) { echo ' selected="selected"';}?> value="text"><?php _e( 'Text only', 'jetpack' ); ?></option>
-								<option<?php if ( $global['button_style'] == 'official' ) { echo ' selected="selected"';}?> value="official"><?php _e( 'Official buttons', 'jetpack' ); ?></option>
+                                <option<?php echo ( $global['button_style'] == 'icon-text' ) ? ' selected="selected"' : ''; ?> value="icon-text"><?php _e( 'Icon + text', 'jetpack' ); ?></option>
+								<option<?php echo ( $global['button_style'] == 'icon' ) ? ' selected="selected"' : ''; ?> value="icon"><?php _e( 'Icon only', 'jetpack' ); ?></option>
+								<option<?php echo ( $global['button_style'] == 'text' ) ? ' selected="selected"' : ''; ?> value="text"><?php _e( 'Text only', 'jetpack' ); ?></option>
+								<option<?php echo ( $global['button_style'] == 'official' ) ? ' selected="selected"' : ''; ?> value="official"><?php _e( 'Official buttons', 'jetpack' ); ?></option>
 							</select>
 						</td>
 					</tr>
