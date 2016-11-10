@@ -804,4 +804,28 @@ That was a cool video.';
 	function foo_shortcode() {
 		return 'bar';
 	}
+
+	public function test_sync_jetpack_published_post() {
+		wp_update_post( array(
+			'ID'          => $this->post->ID,
+			'post_status' => 'draft',
+		) );
+
+		$this->sender->do_sync();
+
+		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( 'draft', $remote_post->post_status );
+
+		wp_publish_post( $this->post->ID );
+
+		$this->sender->do_sync();
+
+		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( 'publish', $remote_post->post_status );
+
+		$event = $this->server_event_storage->get_most_recent_event();
+
+		$this->assertEquals( 'jetpack_published_post', $event->action );
+		$this->assertEquals( $this->post->ID, $event->args[0] );
+	}
 }
