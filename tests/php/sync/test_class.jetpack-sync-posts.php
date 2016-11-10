@@ -353,17 +353,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post->shortlink, wp_get_shortlink( $this->post->ID ) );
 	}
 
-	function test_sync_post_includes_dont_email_post_to_subs() {
-		$post_id = $this->factory->post->create();
-		add_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true );
-
-		$this->sender->do_sync();
-
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
-
-		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
-	}
-
 	function test_sync_sends_dont_email_post_to_subs_flag_when_post_status_changes() {
 
 		// activate subscription module.
@@ -372,7 +361,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Subscriptions::init();
 
 		// create a draft
-		$new_post_id = $this->factory->post->create(  array( 'post_status' => 'draft' ) );
+		$new_post_id = $this->factory->post->create(  array( 'post_status' => 'draft', 'post_content' => 'original' ) );
 
 		// Publish and then immediately update the post
 		wp_publish_post( $new_post_id );
@@ -385,22 +374,15 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		
 		$this->sender->do_sync();
 
-		$all_wp_insert_post_events = $this->server_event_storage->get_all_events( 'wp_insert_post' );
-		foreach( $all_wp_insert_post_events as $event ) {
-			list( $post_id, $post ) = $event->args;
-			
-			if ( $post_id !== $new_post_id ) {
-				// ignore events that do not have the have the same post_id.
-				continue;
-			}
+		$all_email_post_subs_events = $this->server_event_storage->get_all_events( 'jetpack_email_post_to_subs' );
 
-			if ( 'updated' === $post->post_content ) {
-				// Only the updated post should have the do not send flag.
-				$this->assertEquals( true, $post->dont_email_post_to_subs, 'Post status: '. $post->post_status .' Should not send email to subscribers.' );
-			} else {
-				$this->assertEquals( false, $post->dont_email_post_to_subs, 'Post status: '. $post->post_status .' Should send email to subscribers.' );
-			}
-		}
+		$this->assertEquals( 1, count( $all_email_post_subs_events ) );
+
+		$event = $all_email_post_subs_events[0];
+		$post = $event->args[0];
+
+		$this->assertEquals( 'original', $post->post_content );
+		$this->assertEquals( 'publish', $post->post_status );
 	}
 
 	function test_sync_post_includes_dont_email_post_to_subs_when_subscription_is_not_active() {

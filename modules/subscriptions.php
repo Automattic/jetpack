@@ -153,12 +153,14 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
+		$email_to_subs = ! get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
+
 		/**
 		 * If we're updating the post, let's make sure the flag to not send to subscribers
 		 * is set to minimize the chances of sending posts multiple times.
 		 */
 		if ( 'publish' == $old_status ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+			$email_to_subs = false;
 		}
 
 		/**
@@ -176,7 +178,7 @@ class Jetpack_Subscriptions {
 
 		// Never email posts from these categories
 		if ( ! empty( $excluded_categories ) && in_category( $excluded_categories, $post->ID ) ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+			$email_to_subs = false;
 		}
 
 		/**
@@ -194,15 +196,23 @@ class Jetpack_Subscriptions {
 
 		// Only emails posts from these categories
 		if ( ! empty( $only_these_categories ) && ! in_category( $only_these_categories, $post->ID ) ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+			$email_to_subs = false;
 		}
 
 		// Email the post, depending on the checkbox option
 		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
 			if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
-				update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
+				$email_to_subs = $_POST['_jetpack_dont_email_post_to_subs'];
 			}
 		}
+
+		// fire email to subs action
+		if ( $email_to_subs ) {
+			do_action( 'jetpack_email_post_to_subs', $post );	
+		}
+		
+		// this is now just here to stop us from emailing twice
+		update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 	}
 
 	/**
