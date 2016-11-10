@@ -622,10 +622,6 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		if ( isset( $object->extra ) ) {
 			$object->extra = (array) $object->extra;
 		}
-		// Lets unset the do not email post to subs object...
-		if ( isset( $object->dont_email_post_to_subs ) ) {
-			unset( $object->dont_email_post_to_subs );
-		}
 		$post = new WP_Post( $object );
 		return $post;
 	}
