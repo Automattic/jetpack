@@ -1158,6 +1158,55 @@ class Jetpack {
 	}
 
 	/**
+	 * Get the plan that this Jetpack site is currently using
+	 *
+	 * @uses get_transient()
+	 * @uses set_transient()
+	 * @uses Jetpack_Options::get_option()
+	 * @uses Jetpack_Client::wpcom_json_api_request_as_blog()
+	 * @uses is_wp_error()
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array|boolean
+	 */
+	public static function get_active_plan() {
+		// Check cache for stale results
+		$plan = get_transient( 'jetpack_active_plan' );
+
+		if ( ! $plan ) {
+			// Make the API request for site data
+			$request = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
+			$result = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+
+			// Bail if there is an error
+			if ( is_wp_error( $results ) ) {
+				return false;
+			}
+
+			// Decode response and extract the plan data
+			$response = json_decode( $result['body'], true );
+			$plan = $response['plan'];
+
+			// Cache the results for 10 minutes since this makes an API request on each call
+			set_transient( 'jetpack_active_plan', $plan, 600 );
+		}
+
+		// Add in an array of supported features
+		$plan['supports'] = array();
+
+		// If a site is on a premium or business plan, we support VideoPress, Akismet, and VaultPress
+		if ( 'jetpack_premium' === $plan['product_slug'] || 'jetpack_business' === $plan['product_slug'] ) {
+			$plan['supports'][] = 'videopress';
+			$plan['supports'][] = 'akismet';
+			$plan['supports'][] = 'vaultpress';
+		}
+
+		return $plan;
+	}
+
+	/**
 	 * Is Jetpack in development (offline) mode?
 	 */
 	public static function is_development_mode() {
