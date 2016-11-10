@@ -1181,16 +1181,16 @@ class Jetpack {
 			$result = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
 			// Bail if there is an error
-			if ( is_wp_error( $results ) ) {
-				return false;
+			if ( is_wp_error( $result ) ) {
+				return array( 'supports' => array() );
 			}
 
 			// Decode response and extract the plan data
 			$response = json_decode( $result['body'], true );
-			$plan = $response['plan'];
+			$plan = (array) $response['plan'];
 
 			// Cache the results for 10 minutes since this makes an API request on each call
-			set_transient( 'jetpack_active_plan', $plan, 600 );
+			set_transient( 'jetpack_active_plan', $plan, 3600 );
 		}
 
 		// Add in an array of supported features
