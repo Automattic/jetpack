@@ -107,7 +107,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				WP_CLI::success( __( 'The cron is not scheduled to run.', 'jetpack' ) );
 
 			} else {
-				WP_CLI::success( sprintf( __( 'Cron will run at: %s GMT', 'jetpack' ) ), gmdate( 'Y-m-d H:i:s', $time ) );
+				WP_CLI::success( sprintf( __( 'Cron will run at: %s GMT', 'jetpack' ), gmdate( 'Y-m-d H:i:s', $time ) ) );
 			}
 		}
 
