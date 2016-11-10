@@ -23,6 +23,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'wp_insert_post', $callable, 10, 3 );
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
+		add_action( 'jetpack_email_post_to_subs', $callable );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
 	}
 
@@ -32,6 +33,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_wp_insert_post', array( $this, 'expand_wp_insert_post' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_email_post_to_subs', array( $this, 'jetpack_email_post_to_subs' ) );
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
@@ -73,6 +75,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	function expand_wp_insert_post( $args ) {
 		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2] );
+	}
+
+	function jetpack_email_post_to_subs( $args ) {
+		return array( $this->filter_post_content_and_add_links( $args[0] ) );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -169,7 +175,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$post->permalink               = get_permalink( $post->ID );
 		$post->shortlink               = wp_get_shortlink( $post->ID );
 		$post->dont_email_post_to_subs = Jetpack::is_module_active( 'subscriptions' ) ?
-				get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) :
+				get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) :		
 				true; // Don't email subscription if the subscription module is not active.
 
 		return $post;

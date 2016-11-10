@@ -623,7 +623,6 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			$object->extra = (array) $object->extra;
 		}
 		$post = new WP_Post( $object );
-
 		return $post;
 	}
 

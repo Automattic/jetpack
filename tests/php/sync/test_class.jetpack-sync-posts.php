@@ -353,19 +353,43 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post->shortlink, wp_get_shortlink( $this->post->ID ) );
 	}
 
-	function test_sync_post_includes_dont_email_post_to_subs() {
-		$post_id = $this->factory->post->create();
-		add_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true );
+	function test_sync_sends_dont_email_post_to_subs_flag_when_post_status_changes() {
+		// Don't include post already created
+		$this->server_event_storage->reset();
 
+		// activate subscription module.
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
+		Jetpack_Subscriptions::init();
+
+		// create a draft
+		$new_post_id = $this->factory->post->create(  array( 'post_status' => 'draft', 'post_content' => 'original' ) );
+
+		// Publish and then immediately update the post
+		wp_publish_post( $new_post_id );
+
+		// update a published post which should set the do not send flag
+		wp_update_post( array(
+			'ID'           => $new_post_id,
+			'post_content' => 'updated',
+		) );
+		
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+		$all_email_post_subs_events = $this->server_event_storage->get_all_events( 'jetpack_email_post_to_subs' );
 
-		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
+		$this->assertEquals( 1, count( $all_email_post_subs_events ) );
+
+		$event = $all_email_post_subs_events[0];
+		$post = $event->args[0];
+
+		$this->assertEquals( 'original', $post->post_content );
+		$this->assertEquals( 'publish', $post->post_status );
 	}
 
 	function test_sync_post_includes_dont_email_post_to_subs_when_subscription_is_not_active() {
-		$active_modules = Jetpack::get_active_modules();
+		$this->server_event_storage->reset();
+		
 		Jetpack_Options::update_option( 'active_modules', array() );
 		// Subscription is not an active module
 		$this->assertTrue( ! in_array( 'subscriptions', Jetpack::get_active_modules() ) );
@@ -373,11 +397,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
-
-		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
-
-		Jetpack_Options::update_option( 'active_modules', $active_modules );
+		$this->assertEmpty( $this->server_event_storage->get_all_events( 'jetpack_email_post_to_subs' ) );
 	}
 
 	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
@@ -464,20 +484,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 		// no we sync the content and it looks like what we expect to be.
 		$this->assertEquals( $this->post->post_content, $synced_post->post_content );
-	}
-
-	function test_filters_out_blacklisted_post_types() {
-		$args = array(
-			'public' => true,
-			'label'  => 'Snitch'
-		);
-		register_post_type( 'snitch', $args );
-
-		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
-
-		$this->sender->do_sync();
-
-		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 	}
 
 	function test_filters_out_blacklisted_post_types_and_their_post_meta() {
