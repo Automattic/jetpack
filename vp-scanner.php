@@ -94,13 +94,24 @@ function vp_is_interesting_file($file) {
 
 /**
  * Uses the PHP tokenizer to split a file into 3 arrays: PHP code with no comments,
- * PHP code with comments, and HTML/JS code.
+ * PHP code with comments, and HTML/JS code. Helper wrapper around split_to_php_html()
  *
  * @param string $file The file path to read and parse
  * @return array An array with 3 arrays of lines
  */
 function split_file_to_php_html( $file ) {
 	$source = file_get_contents( $file );
+	return split_to_php_html( $source );
+}
+
+/**
+ * Uses the PHP tokenizer to split a string into 3 arrays: PHP code with no comments,
+ * PHP code with comments, and HTML/JS code.
+ *
+ * @param string $file The file path to read and parse
+ * @return array An array with 3 arrays of lines
+ */
+function split_to_php_html( $source ) {
 	$tokens = token_get_all( $source );
 
 	$ret = array( 'php' => array(), 'php-with-comments' => array(), 'html' => array() );
@@ -124,6 +135,13 @@ function split_file_to_php_html( $file ) {
 				if ( T_COMMENT === $id || T_DOC_COMMENT === $id ) {
 					// add it to the PHP with comments array only
 					add_text_to_parsed( $ret, 'php-with-comments', $current_line, $text );
+
+					// special case for lines like: "     // comment\n":
+					// if we're adding a comment with a newline, and the 'php' array current line
+					// has no trailing newline, add one
+					if ( substr_count( $text, "\n" ) >= 1 && isset( $ret['php'][ $current_line ] ) && 0 === substr_count( $ret['php'][ $current_line ], "\n" ) ) {
+						$ret['php'][ $current_line ] .= "\n";
+					}
 
 					// make sure to count newlines in comments 
 					$current_line += substr_count( $text, "\n" );
@@ -167,9 +185,18 @@ function add_text_to_parsed( &$parsed, $prefix, $start_line_number, $all_text ) 
 	$line_number = $start_line_number;
 
 	// whitespace tokens may span multiple lines; we need to split them up so that the indentation goes on the next line
-	foreach ( explode( "\n", $all_text ) as $fragment ) {
+	$fragments = explode( "\n", $all_text );
+	foreach ( $fragments as $i => $fragment ) {
 		// each line needs to end with a newline to match the behavior of file()
-		$text = $fragment . "\n";
+		if ( $i < count( $fragments ) - 1 ) {
+			$text = $fragment . "\n";
+		} else {
+			$text = $fragment;
+		}
+
+		if ( empty( $text ) ) {
+			continue;
+		}
 
 		foreach ( $parsed as $lang => $lines ) {
 			// add the line to all the parsed arrays that start with $prefix
@@ -186,7 +213,6 @@ function add_text_to_parsed( &$parsed, $prefix, $start_line_number, $all_text ) 
 		$line_number++;
 	}
 }
-
 /**
  * Scans a file with the registered signatures. To report a security notice for a specified signature, all its regular
  * expressions should result in a match.
