@@ -79,6 +79,7 @@ class Jetpack_Sync_Defaults {
 		'jetpack_available_modules',
 		'jetpack_autoupdate_plugins',
 		'jetpack_autoupdate_themes',
+		'jetpack_autoupdate_themes_translations',
 		'jetpack_autoupdate_core',
 		'carousel_background_color',
 		'carousel_display_exif',

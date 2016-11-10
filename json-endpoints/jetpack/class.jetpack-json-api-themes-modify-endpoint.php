@@ -17,8 +17,8 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 				$this->autoupdate_off();
 			}
 		}
-		if ( isset( $args['autoupdate_themes_translations'] ) && is_bool( $args['autoupdate_themes_translations'] ) ) {
-			if ( $args['autoupdate_themes_translations'] ) {
+		if ( isset( $args['autoupdate_translations'] ) && is_bool( $args['autoupdate_translations'] ) ) {
+			if ( $args['autoupdate_translations'] ) {
 				$this->autoupdate_translations_on();
 			} else {
 				$this->autoupdate_translations_off();

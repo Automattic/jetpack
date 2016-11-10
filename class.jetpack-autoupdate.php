@@ -34,6 +34,7 @@ class Jetpack_Autoupdate {
 			add_filter( 'auto_update_plugin',  array( $this, 'autoupdate_plugin' ), 10, 2 );
 			add_filter( 'auto_update_theme',   array( $this, 'autoupdate_theme' ), 10, 2 );
 			add_filter( 'auto_update_core',    array( $this, 'autoupdate_core' ), 10, 2 );
+			add_filter( 'auto_update_translation', array( $this, 'autoupdate_translation', 10, 2 ) );
 			add_action( 'automatic_updates_complete', array( $this, 'automatic_updates_complete' ), 999, 1 );
 		}
 	}
@@ -44,6 +45,29 @@ class Jetpack_Autoupdate {
 			$this->expect( $item->plugin, 'plugin' );
  			return true;
 		}
+		return $update;
+	}
+	
+	public function autoupdate_translation( $update, $item ) {
+		$autoupdate_themes_translations = Jetpack_Options::get_option( 'autoupdate_themes_translations', array() );
+		$autoupdate_theme_list = Jetpack_Options::get_option( 'autoupdate_themes', array() );
+		
+		// $item = {
+		//  "type":"theme",
+		//  "slug":"twentyfourteen",
+		//  "language":"en_CA",
+		//  "version":"1.8",
+		//  "updated":"2015-07-18 11:27:20",
+		//  "package":"https:\/\/downloads.wordpress.org\/translation\/theme\/twentyfourteen\/1.8\/en_CA.zip",
+		//  "autoupdate":true
+		//}
+		if ( (  in_array( $item->slug, $autoupdate_themes_translations )
+	         || in_array( $item->slug, $autoupdate_theme_list ) )
+             && 'theme' === $item->type ) {
+			$this->expect( $item->slug, 'theme' );
+			return true;
+		}
+
 		return $update;
 	}
 
