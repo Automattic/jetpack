@@ -41,7 +41,12 @@ class VideoPress_Options {
 		// Make sure that the shadow blog id never comes from the options, but instead uses the
 		// associated shadow blog id, if videopress is enabled.
 		self::$options['shadow_blog_id'] = 0;
-		if ( self::isVideoPressIncludedInJetpackPlan() ) {
+
+		// Get the active Jetpack plan
+		$plan = Jetpack::get_active_plan();
+
+		// Use the Jetpack ID for the shadow blog ID if we have a plan that supports VideoPress
+		if ( in_array( 'videopress', $plan['supports'] ) ) {
 			self::$options['shadow_blog_id'] = Jetpack_Options::get_option( 'id' );
 		}
 
@@ -66,23 +71,4 @@ class VideoPress_Options {
 		self::$options = array();
 	}
 
-
-	/**
-	 * Does the site have a Jetpack plan attached to it that includes VideoPress
-	 *
-	 * @todo We might want to cache this.
-	 * @return bool
-	 */
-	protected static function isVideoPressIncludedInJetpackPlan() {
-		$site_id = Jetpack_Options::get_option( 'id' );
-		$result  = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ), '1.1' );
-
-		if ( is_wp_error( $result ) ) {
-			return false;
-		}
-
-		$response = json_decode( $result['body'], true );
-
-		return in_array( $response['plan']['product_slug'], self::$jetpack_plans_with_videopress );
-	}
 }
