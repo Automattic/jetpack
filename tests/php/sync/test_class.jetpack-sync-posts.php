@@ -374,8 +374,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
 
 		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
-
-		Jetpack_Options::update_option( 'active_modules', $active_modules );
 	}
 
 	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
