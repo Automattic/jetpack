@@ -189,8 +189,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	public function send_published( $post_ID, $post, $update ) {
 		if ( $this->just_published === $post ) {
 			$this->just_published = null;
-			$meta = apply_filters( 'jetpack_published_post_meta', array() );
-			do_action( 'jetpack_published_post', $post_ID, $meta );
+			$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+			do_action( 'jetpack_published_post', $post_ID, $flags );
 		}
 	}
 
