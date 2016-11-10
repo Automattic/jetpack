@@ -117,7 +117,7 @@ class VideoPress_Edit_Attachment {
 		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args, $values );
 
 		if ( is_wp_error( $result ) ) {
-			$post['errors']['videopress']['errors'][] = __( 'There was an issue saving your updates to the VideoPress service. Please try again later.' );
+			$post['errors']['videopress']['errors'][] = __( 'There was an issue saving your updates to the VideoPress service. Please try again later.', 'jetpack' );
 			return $post;
 		}
 
@@ -186,16 +186,16 @@ class VideoPress_Edit_Attachment {
 			$ogg_url  = videopress_cdn_file_url( $info->guid, $video_name );
 
 			$fields['video-ogg'] = array(
-				'label' => __('Ogg File URL'),
+				'label' => __( 'Ogg File URL', 'jetpack' ),
 				'input' => 'html',
 				'html'  => "<input type='text' class='urlfield' readonly='readonly' name='attachments[$post_id][oggurl]' value='" . esc_url( $ogg_url, array( 'http', 'https' ) ) . "' />",
-				'helps' => __('Location of the Ogg video file.'),
+				'helps' => __( 'Location of the Ogg video file.', 'jetpack' ),
 			);
 		}
 
-		$fields['post_title']['helps'] = __( 'Title will appear on the first frame of your video' );
+		$fields['post_title']['helps'] = __( 'Title will appear on the first frame of your video', 'jetpack' );
 
-		$fields['post_excerpt']['label'] = __( 'Description' );
+		$fields['post_excerpt']['label'] = _x( 'Description', 'A header for the short description display', 'jetpack' );
 		$fields['post_excerpt']['input'] = 'textarea';
 		$fields['post_excerpt']['value'] = $info->description;
 
@@ -205,7 +205,7 @@ class VideoPress_Edit_Attachment {
 		);
 
 		$fields['videopress_shortcode'] = array(
-			'label'         => __( 'Shortcode' ),
+			'label'         => _x( 'Shortcode', 'A header for the shortcode display', 'jetpack' ),
 			'input'         => 'html',
 			'html'          => "<input type=\"text\" name=\"videopress_shortcode\" value=\"[videopress {$info->guid}]\" readonly=\"readonly\"/>",
 			'show_in_modal' => true,
@@ -213,13 +213,13 @@ class VideoPress_Edit_Attachment {
 		);
 
 		$fields['display_embed'] = array(
-			'label' => __( 'Share' ),
+			'label' => _x( 'Share', 'A header for the video sharing options area', 'jetpack' ),
 			'input' => 'html',
 			'html'  => $this->display_embed_choice( $info )
 		);
 
 		$fields['video-rating'] = array(
-			'label' => __( 'Rating' ),
+			'label' => _x( 'Rating', 'A header for the video rating area', 'jetpack' ),
 			'input' => 'html',
 			'html'  => $this->display_rating( $info )
 		);
@@ -344,7 +344,7 @@ HTML;
 		$out  = "<input type='checkbox' name='attachments[{$info->post_id}][display_embed]' id='$id'";
 		if ( $info->display_embed )
 			$out .= ' checked="checked"';
-		$out .= " /><label for='$id'>" . __( 'Display share menu and allow viewers to embed or download this video' ) . '</label>';
+		$out .= " /><label for='$id'>" . __( 'Display share menu and allow viewers to embed or download this video', 'jetpack' ) . '</label>';
 		return $out;
 	}
 
