@@ -83,13 +83,27 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 		return true;
 	}
 
-	function update_translation() {
+	function update_translations() {
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 		// Clear the cache.
 		wp_update_themes();
+	
+		$available_themes_updates = get_site_transient( 'update_themes' );
+		
+		if ( ! isset( $available_themes_updates->translations ) || empty( $available_themes_updates->translations ) ) {
+			
+			return new WP_Error( 'nothing_to_translate' );
+		}
 
-		foreach ( $this->themes as $theme ) {
+		foreach( $available_themes_updates->translations as $translation ) {
+			if ( ! in_array( $translation['slug'], $this->themes )  ) {
+				continue;
+			}
+
+			$theme = $translation['slug'] ;
+
+
 			/**
 			 * Pre-upgrade action
 			 *
@@ -103,7 +117,8 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 			$skin = new Automatic_Upgrader_Skin();
 			$upgrader = new Language_Pack_Upgrader( $skin );
 			$upgrader->init();
-			$result   = $upgrader->upgrade( $theme );
+
+			$result   = $upgrader->upgrade( (object) $translation );
 			$this->log[ $theme ][] = $upgrader->skin->get_upgrade_messages();
 		}
 
