@@ -26,7 +26,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'wp_insert_post', array( $this, 'send_published'), 11, 3 );
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
-		add_action( 'jetpack_published_post', $callable, 10, 4 );
+		add_action( 'jetpack_published_post', $callable, 10, 2 );
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
 	}
@@ -190,7 +190,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( $this->just_published === $post ) {
 			$this->just_published = null;
 			$meta = apply_filters( 'jetpack_published_post_meta', array() );
-			do_action( 'jetpack_published_post', $post_ID, $post, $update, $meta );
+			do_action( 'jetpack_published_post', $post_ID, $meta );
 		}
 	}
 
