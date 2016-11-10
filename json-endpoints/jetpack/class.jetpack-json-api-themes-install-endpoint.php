@@ -84,7 +84,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			}
 
 			if ( ! is_object( $theme_data ) && !isset( $theme_data->download_link ) ) {
-				return new WP_Error( 'theme_not_found', __( 'This theme does not exits') , 404 );
+				return new WP_Error( 'theme_not_found', __( 'This theme does not exist', 'jetpack' ) , 404 );
 			}
 
 			$this->download_links[ $theme ] = $theme_data->download_link;
@@ -113,7 +113,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 		$response =  $result[ 'response' ];
 		if ( $response[ 'code' ] !== 200 ) {
 			unlink( $file );
-			return new WP_Error( 'problem_fetching_theme', __( 'Problem downloading theme' ) );
+			return new WP_Error( 'problem_fetching_theme', __( 'Problem downloading theme', 'jetpack' ) );
 		}
 
 		return $file;
