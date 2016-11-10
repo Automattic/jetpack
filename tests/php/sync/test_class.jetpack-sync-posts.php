@@ -828,4 +828,38 @@ That was a cool video.';
 		$this->assertEquals( 'jetpack_published_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 	}
+
+	public function test_sync_jetpack_update_post_to_draft_shouldnt_publish() {
+		$this->server_event_storage->reset();
+
+		wp_update_post( array(
+			'ID'          => $this->post->ID,
+			'post_status' => 'draft',
+		) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' ) );
+	}
+
+	public function test_sync_jetpack_published_post_should_set_dont_send_to_subscribers_flag() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		// Subscription is an active module
+		$this->assertTrue( in_array( 'subscriptions', Jetpack::get_active_modules() ) );
+
+		wp_update_post( array(
+			'ID'          => $this->post->ID,
+			'post_status' => 'draft',
+		) );
+
+		update_post_meta( $this->post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+
+		wp_publish_post( $this->post->ID );
+
+		$this->sender->do_sync();
+
+		$post_flags = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' )->args[1];
+
+		$this->assertEquals( $post_flags['_jetpack_dont_email_post_to_subs'], 1 );
+	}
 }
