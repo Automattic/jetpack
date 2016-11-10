@@ -30,6 +30,8 @@ class Jetpack_Subscriptions {
 
 	public static $hash;
 
+	static $send_email = false;
+
 	/**
 	 * Singleton
 	 * @static
@@ -75,6 +77,7 @@ class Jetpack_Subscriptions {
 		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
 
 		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
+		add_action( 'wp_insert_post', array( $this, 'maybe_trigger_send_email_action' ), 11, 3 );
 	}
 
 	/**
@@ -202,6 +205,20 @@ class Jetpack_Subscriptions {
 			if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
 				update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
 			}
+		}
+
+		if ( ! get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs' ) ) {
+			self::$send_email = $post->ID;
+		}
+
+	}
+
+	function maybe_trigger_send_email_action( $post_ID ) {
+		if ( ! Jetpack::is_module_active( 'subscriptions' )  ) {
+			return;
+		}
+		if ( self::$send_email === $post_ID ) {
+			do_action( 'jetpack_email_post_to_subscribers', $post_ID );
 		}
 	}
 

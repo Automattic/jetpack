@@ -364,20 +364,33 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
 	}
 
+	function test_sync_posts_triggers_email_post_to_subscribers() {
+
+		// Activate subscription module
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
+		Jetpack_Subscriptions::init();
+
+		$post_id = $this->factory->post->create();
+		$this->sender->do_sync();
+
+		$email_post_id = $this->server_event_storage->get_most_recent_event( 'jetpack_email_post_to_subscribers' )->args[0];
+		$this->assertEquals( $post_id, $email_post_id );
+
+	}
+
 	function test_sync_post_includes_dont_email_post_to_subs_when_subscription_is_not_active() {
-		$active_modules = Jetpack::get_active_modules();
-		Jetpack_Options::update_option( 'active_modules', array() );
-		// Subscription is not an active module
-		$this->assertTrue( ! in_array( 'subscriptions', Jetpack::get_active_modules() ) );
 		$post_id = $this->factory->post->create();
 
 		$this->sender->do_sync();
 
 		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
 
-		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
+		$email_post_to_subscribers_event = $this->server_event_storage->get_most_recent_event( 'jetpack_email_post_to_subscribers' );
 
-		Jetpack_Options::update_option( 'active_modules', $active_modules );
+		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
+		$this->assertFalse( $email_post_to_subscribers_event );
+
 	}
 
 	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
