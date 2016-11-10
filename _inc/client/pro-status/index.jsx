@@ -97,10 +97,14 @@ const ProStatus = React.createClass( {
 			}
 
 			if ( sitePlan.product_slug ) {
-				let btnVals = {};
+				let btnVals = {},
+					featureSlug = ( 'scan' === feature || 'backups' === feature )
+						? 'vaultpress'
+						: feature;
+
 				if ( 'jetpack_free' !== sitePlan.product_slug ) {
 					btnVals = {
-						href: `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }`,
+						href: `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ featureSlug }`,
 						text: __( 'Set up' )
 					}
 				} else {
