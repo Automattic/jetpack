@@ -149,6 +149,7 @@ class Jetpack_Subscriptions {
 		if ( 'publish' !== $new_status ) {
 			return;
 		}
+
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
@@ -209,10 +210,10 @@ class Jetpack_Subscriptions {
 		// fire email to subs action
 		if ( $email_to_subs ) {
 			do_action( 'jetpack_email_post_to_subs', $post );	
+		} else {
+			// this is here to stop us from emailing twice
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
-		
-		// this is now just here to stop us from emailing twice
-		update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 	}
 
 	/**

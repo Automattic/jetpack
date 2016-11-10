@@ -354,6 +354,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_sends_dont_email_post_to_subs_flag_when_post_status_changes() {
+		// Don't include post already created
+		$this->server_event_storage->reset();
 
 		// activate subscription module.
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
