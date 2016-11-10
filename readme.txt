@@ -93,6 +93,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: improve design when Development mode is active. #5186
 * Admin Page: improve contrast for better accessibility. #5236
 * Carousel: moved close icon location to the top right. #5237
+* Carousel: change the behavior of the browser's back button after closing a gallery. #5168
 * Contact Form: add horizontal line between message content and meta data. #5270
 * Custom Post Types: added custom posts to the output of the WordPress REST API. #5434
 * Custom Post Types: made Nova post markup more flexible by adding new filters. #1542
