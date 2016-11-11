@@ -81,54 +81,15 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 // GET /sites/%s/data-check
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-
-		$sender     = Jetpack_Sync_Sender::get_instance();
-		$sync_queue = $sender->get_sync_queue();
-
-		// lock sending from the queue while we compare checksums with the server
-		$result = $sync_queue->lock( 30 ); // tries to acquire the lock for up to 30 seconds
-
-		if ( ! $result ) {
-			return new WP_Error( 'unknown_error', 'Unknown error trying to lock the sync queue' );
-		}
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
-
 		$store = new Jetpack_Sync_WP_Replicastore();
-
-		$result = $store->checksum_all();
-
-		$sync_queue->unlock();
-
-		return $result;
-
+		return $store->checksum_all();
 	}
 }
 
 // GET /sites/%s/data-histogram
 class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-
-		$sender     = Jetpack_Sync_Sender::get_instance();
-		$sync_queue = $sender->get_sync_queue();
-
-		// lock sending from the queue while we compare checksums with the server
-		$result = $sync_queue->lock( 30 ); // tries to acquire the lock for up to 30 seconds
-
-		if ( ! $result ) {
-			return new WP_Error( 'unknown_error', 'Unknown error trying to lock the sync queue' );
-		}
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
 		$args = $this->query_args();
 
 		if ( isset( $args['columns'] ) ) {
@@ -138,15 +99,9 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
-
 		$store = new Jetpack_Sync_WP_Replicastore();
 
-		$result = $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'] );
-
-		$sync_queue->unlock();
-
-		return $result;
-
+		return $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'] );
 	}
 }
 
