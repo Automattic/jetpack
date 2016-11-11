@@ -56,18 +56,20 @@ class VaultPress_Hotfixes {
 		// WooThemes < 3.8.3, foxypress, asset-manager, wordpress-member-private-conversation.
 		$end_execution = false;
 		if ( isset( $_SERVER['SCRIPT_FILENAME'] ) )
-			foreach ( array( 'preview-shortcode-external.php', 'uploadify.php', 'doupload.php', 'cef-upload.php', 'upload.php' ) as $vulnerable_script )
+			foreach ( array( 'preview-shortcode-external.php', 'uploadify.php', 'doupload.php', 'cef-upload.php', 'upload.php' ) as $vulnerable_script ) {
 				if ( $vulnerable_script == basename( $_SERVER['SCRIPT_FILENAME'] ) ) {
-					switch( $vulnerable_script ) {
+					switch ( $vulnerable_script ) {
 						case 'upload.php':
 							$pma_config_file = realpath( dirname( $_SERVER['SCRIPT_FILENAME'] ) . DIRECTORY_SEPARATOR . 'paam-config-ajax.php' );
-							if ( !in_array( $pma_config_file, get_included_files() ) )
+							if ( ! in_array( $pma_config_file, get_included_files() ) ) {
 								break;
+							}
 						default:
 							$end_execution = true;
 							break 2;
 					}
 				}
+			}
 		if ( $end_execution )
 			die( 'Disabled for security reasons' );
 
@@ -1077,11 +1079,12 @@ class VaultPress_kses {
 		$string2 = strtolower($string2);
 
 		$allowed = false;
-		foreach ( (array) $allowed_protocols as $one_protocol )
-			if ( strtolower($one_protocol) == $string2 ) {
+		foreach ( (array) $allowed_protocols as $one_protocol ) {
+			if ( strtolower( $one_protocol ) == $string2 ) {
 				$allowed = true;
 				break;
 			}
+		}
 
 		if ($allowed)
 			return "$string2:";
