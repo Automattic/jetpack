@@ -19,6 +19,8 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'init', array( __CLASS__, 'preview_content_width' ) );
 		add_filter( 'jetpack_content_width', array( __CLASS__, 'jetpack_content_width' ) );
 		add_filter( 'editor_max_image_size', array( __CLASS__, 'editor_max_image_size' ), 10, 3 );
+		add_action( 'template_redirect', array( __CLASS__, 'set_content_width' ) );
+		add_action( 'admin_init', array( __CLASS__, 'set_content_width' ) );
 
 		// Stuff?
 	}
@@ -421,21 +423,30 @@ class Jetpack_Custom_CSS_Enhancements {
 	static function jetpack_content_width( $content_width ) {
 		$custom_content_width = 0;
 
-		if ( self::is_preview() ) {
-			$safecss_post = self::get_current_revision();
-			$custom_content_width = intval( get_post_meta( $safecss_post['ID'], 'content_width', true ) );
-		} elseif ( ! self::is_freetrial() ) {
-			$custom_css_post_id = self::post_id();
-			if ( $custom_css_post_id ) {
-				$custom_content_width = intval( get_post_meta( $custom_css_post_id, 'content_width', true ) );
-			}
+		$jetpack_custom_css = get_theme_mod( 'jetpack_custom_css', array() );
+		if ( isset( $jetpack_custom_css['content_width'] ) ) {
+			$custom_content_width = $jetpack_custom_css['content_width'];
 		}
 
 		if ( $custom_content_width > 0 ) {
-			$content_width = $custom_content_width;
+			return $custom_content_width;
 		}
 
 		return $content_width;
+	}
+
+	/**
+	 * Currently this filter function gets called on
+	 * 'template_redirect' action and
+	 * 'admin_init' action
+	 */
+	static function set_content_width(){
+		// Don't apply this filter on the Edit CSS page
+		if ( isset( $_GET['page'] ) && 'editcss' === $_GET['page'] && is_admin() ) {
+			return;
+		}
+
+		$GLOBALS['content_width'] = Jetpack::get_content_width();
 	}
 }
 
