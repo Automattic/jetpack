@@ -251,9 +251,9 @@ class Jetpack_Custom_CSS_Enhancements {
 	static function style_filter( $current ) {
 		if ( is_admin() ) {
 			return $current;
-		} elseif ( Jetpack_Custom_CSS::is_freetrial() && ( ! Jetpack_Custom_CSS::is_preview() || ! current_user_can( 'switch_themes' ) ) ) {
+		} elseif ( self::is_freetrial() && ( ! self::is_preview() || ! current_user_can( 'switch_themes' ) ) ) {
 			return $current;
-		} else if ( Jetpack_Custom_CSS::skip_stylesheet() ) {
+		} elseif ( self::skip_stylesheet() ) {
 			/**
 			 * Filter the default blank Custom CSS URL.
 			 *
