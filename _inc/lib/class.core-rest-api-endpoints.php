@@ -693,6 +693,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				return new WP_Error( 'site_data_fetch_failed', esc_html__( 'Failed fetching site data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
 			}
 
+			// Save plan details in the database for future use without API calls
+			$results = json_decode( $response['body'], true );
+
+			if ( is_array( $results ) && isset( $results['plan'] ) ) {
+				update_option( 'jetpack_active_plan_2', $results['plan'] );
+			}
+
 			return rest_ensure_response( array(
 					'code' => 'success',
 					'message' => esc_html__( 'Site data correctly received.', 'jetpack' ),

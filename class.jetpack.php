@@ -1158,40 +1158,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Make an API call to WordPress.com for plan status
-	 *
-	 * @uses Jetpack_Options::get_option()
-	 * @uses Jetpack_Client::wpcom_json_api_request_as_blog()
-	 * @uses update_option()
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return bool True if plan updated, false if no update
-	 */
-	public static function refresh_active_plan_from_wpcom() {
-		// Make the API request
-		$request = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
-
-		// Bail if there was an error or malformed response
-		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-			return false;
-		}
-
-		// Decode the results
-		$results = json_decode( $response['body'], true );
-
-		// Bail if there were no results or plan details returned
-		if ( ! is_array( $results ) || ! isset( $results['plan'] ) ) {
-			return false;
-		}
-
-		// Store the option and return true if updated
-		return update_option( 'jetpack_active_plan', $results['plan'] );
-	}
-
-	/**
 	 * Get the plan that this Jetpack site is currently using
 	 *
 	 * @uses get_option()
