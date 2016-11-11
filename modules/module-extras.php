@@ -22,6 +22,7 @@ $tools = array(
 	'seo-tools/jetpack-seo-utils.php',
 	'seo-tools/jetpack-seo-titles.php',
 	'seo-tools/jetpack-seo-posts.php',
+	'verification-tools/verification-tools-utils.php',
 );
 
 /**
