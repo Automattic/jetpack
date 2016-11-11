@@ -75,8 +75,6 @@ class Jetpack_Subscriptions {
 		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
 
 		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
-
-		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 	}
 
 	/**
@@ -163,17 +161,6 @@ class Jetpack_Subscriptions {
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
 
-		if ( ! $this->should_email_post_to_subscribers( $post ) ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
-		}
-	}
-
-	public function should_email_post_to_subscribers( $post ) {
-		$should_email = true;
-		if ( get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) ) {
-			return false;
-		}
-
 		/**
 		 * Array of categories that will never trigger subscription emails.
 		 *
@@ -189,7 +176,7 @@ class Jetpack_Subscriptions {
 
 		// Never email posts from these categories
 		if ( ! empty( $excluded_categories ) && in_category( $excluded_categories, $post->ID ) ) {
-			$should_email = false;
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
 
 		/**
@@ -207,23 +194,15 @@ class Jetpack_Subscriptions {
 
 		// Only emails posts from these categories
 		if ( ! empty( $only_these_categories ) && ! in_category( $only_these_categories, $post->ID ) ) {
-			$should_email = false;
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
 
 		// Email the post, depending on the checkbox option
 		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
 			if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
-				$should_email = false;
+				update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
 			}
 		}
-		return $should_email;
-	}
-
-	function set_post_flags( $flags, $post ) {
-		if ( ! $this->should_email_post_to_subscribers( $post ) ) {
-			$flags['_jetpack_dont_email_post_to_subs'] = true;
-		}
-		return $flags;
 	}
 
 	/**
@@ -739,7 +718,6 @@ class Jetpack_Subscriptions {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
 		}
 	}
-
 }
 
 Jetpack_Subscriptions::init();
