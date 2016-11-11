@@ -36,7 +36,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'My Community', 'jetpack' ) ),
 			array(
-				'description' => esc_html__( 'Display members of your site\'s community.', 'jetpack' ),
+				'description' => esc_html__( "Display members of your site's community.", 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
