@@ -33,8 +33,12 @@ class Jetpack_Connection_Banner {
 	 *
 	 * @return bool
 	 */
-	static function check_ab_test_allowed( $now = null ) {
+	static function check_ab_test_not_expired( $now = null ) {
+		// Get the current timestamp in GMT
 		$now = empty( $now ) ? current_time( 'timestamp', 1 ) : $now;
+
+		// Arguments are hour, minute, second, month, day, year. So, we are getting the timestamp for GMT timestamp
+		// for the 15th of December 2016.
 		$expiration = gmmktime( 0, 0, 0, 12, 15, 2016 );
 
 		return $expiration >= $now;
@@ -81,7 +85,7 @@ class Jetpack_Connection_Banner {
 			return;
 		}
 
-		if ( self::check_ab_test_allowed() && 2 == self::get_random_connection_banner_value() ) {
+		if ( self::check_ab_test_not_expired() && 2 == self::get_random_connection_banner_value() ) {
 			add_action( 'admin_notices', array( $this, 'render_banner' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
 		} else {
@@ -129,7 +133,7 @@ class Jetpack_Connection_Banner {
 	 * Renders the legacy connection banner.
 	 */
 	function render_legacy_banner() {
-		$legacy_banner_from = self::check_ab_test_allowed()
+		$legacy_banner_from = self::check_ab_test_not_expired()
 			? 'banner-legacy'
 			: 'banner';
 		?>
