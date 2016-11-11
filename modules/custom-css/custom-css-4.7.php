@@ -337,21 +337,26 @@ class Jetpack_Custom_CSS_Enhancements {
 
 		// CONTROLS
 
+		// Overwrite the Core Control.
+		$core_custom_css = $wp_customize->get_control( 'custom_css' );
+		if ( $core_custom_css ) {
+			$wp_customize->remove_control( 'custom_css' );
+			$core_custom_css->type = 'jetpackCss';
+			$wp_customize->add_control( $core_custom_css );
+		}
+
 		$wp_customize->add_control( 'wpcom_custom_css_content_width_control', array(
 			'type'     => 'text',
 			'label'    => __( 'Media Width', 'jetpack' ),
 			'section'  => 'custom_css',
 			'settings' => 'jetpack_custom_css[content_width]',
-			'priority' => 1,
 		) );
-
 
 		$wp_customize->add_control( 'jetpack_css_mode_control', array(
 			'type'     => 'checkbox',
 			'label'    => __( 'Don\'t use the theme\'s original CSS.', 'jetpack' ),
 			'section'  => 'custom_css',
 			'settings' => 'jetpack_custom_css[replace]',
-			'priority' => 2,
 		) );
 
 		do_action( 'jetpack_custom_css_customizer_controls', $wp_customize );
@@ -372,17 +377,10 @@ class Jetpack_Custom_CSS_Enhancements {
 				'label'    => __( 'Preprocessor', 'jetpack' ),
 				'section'  => 'custom_css',
 				'settings' => 'jetpack_custom_css[preprocessor]',
-				'priority' => 3,
 			) );
 		}
 
-		// Overwrite the Core Control.
-		$core_custom_css = $wp_customize->get_control( 'custom_css' );
-		if ( $core_custom_css ) {
-			$wp_customize->remove_control( 'custom_css' );
-			$core_custom_css->type = 'jetpackCss';
-			$wp_customize->add_control( $core_custom_css );
-		}
+	}
 
 	}
 
