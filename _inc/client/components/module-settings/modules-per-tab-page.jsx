@@ -83,15 +83,27 @@ export const AllModuleSettings = React.createClass( {
 			case 'sso':
 				return ( <SingleSignOnSettings module={ module }  /> );
 			case 'seo-tools':
-				return '' === module.configure_url ? (
-					<div>
-						{ __( 'Your Jetpack plan doesn’t include SEO tools, you must upgrade to Jetpack Professional to use SEO tools.' ) }
-					</div>
-				) : (
-					<div>
-						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
-					</div>
-				);
+				if ( '' === module.configure_url ) {
+					return (
+						<div>
+							{ __( 'Your Jetpack plan doesn’t include SEO tools. You must upgrade to Jetpack Professional to use SEO tools.' ) }
+						</div>
+					);
+				} else if ( 'checking' === module.configure_url ) {
+					return null;
+				} else if ( 'inactive' === module.configure_url ) {
+					return (
+						<div>
+							{ __( 'You have the Professional plan! Activate this module to use the advanced SEO tools.' ) }
+						</div>
+					);
+				} else {
+					return (
+						<div>
+							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
+						</div>
+					);
+				}
 			case 'stats':
 				return ( <StatsSettings module={ module }  /> );
 			case 'related-posts':
