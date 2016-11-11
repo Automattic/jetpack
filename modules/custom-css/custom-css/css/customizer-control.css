@@ -9,10 +9,6 @@
 	border-top: 1px solid #eee;
 	border-bottom: 1px solid #eee;
 }
-.CodeMirror {
-	margin-left: -19px;
-	margin-right: -19px;
-}
 .for-codemirror {
 	width: 98%;
 	height: 300px;
@@ -67,24 +63,19 @@
 	padding: 0 .5em;
 }
 
-#accordion-section-jetpack_custom_css .customize-control {
-	margin-top: 10px;
+#sub-accordion-section-custom_css .customize-control {
+	margin-left: 12px;
+	margin-right: 12px;
 }
 
-#accordion-section-jetpack_custom_css .accordion-section-content {
-	overflow: visible;
-	overflow-y: scroll;
+#sub-accordion-section-custom_css .customize-control-jetpackCss,
+#customize-theme-controls #sub-accordion-section-custom_css .customize-control-title {
+	margin-left: 0;
+	margin-right: 0;
 }
 
-#accordion-section-jetpack_custom_css .accordion-section-content:before {
-	content: "";
-	display: table;
-}
-
-#accordion-section-jetpack_custom_css .accordion-section-content:after {
-	content: "";
-	display: table;
-	clear: both;
+#sub-accordion-section-custom_css #customize-control-jetpack_css_preprocessors_control select {
+	max-width: 75%;
 }
 
 body.editing-css .wp-full-overlay-sidebar {
