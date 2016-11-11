@@ -157,7 +157,10 @@ class Jetpack_Subscriptions {
 		 * If we're updating the post, let's make sure the flag to not send to subscribers
 		 * is set to minimize the chances of sending posts multiple times.
 		 */
-		if ( 'publish' == $old_status ) {
+		if (
+			( strtotime( $post->post_modified_gmt ) - strtotime( $post->post_date_gmt ) > DAY_IN_SECONDS ) &&
+			'publish' == $old_status
+		) {
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
 
