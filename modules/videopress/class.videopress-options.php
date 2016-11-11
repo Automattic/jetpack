@@ -42,11 +42,8 @@ class VideoPress_Options {
 		// associated shadow blog id, if videopress is enabled.
 		self::$options['shadow_blog_id'] = 0;
 
-		// Get the active Jetpack plan
-		$plan = Jetpack::get_active_plan();
-
 		// Use the Jetpack ID for the shadow blog ID if we have a plan that supports VideoPress
-		if ( in_array( 'videopress', $plan['supports'] ) ) {
+		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
 			self::$options['shadow_blog_id'] = Jetpack_Options::get_option( 'id' );
 		}
 
