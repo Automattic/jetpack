@@ -139,7 +139,7 @@ export const Engagement = ( props ) => {
 
 		if ( element[0] === 'seo-tools' ) {
 			if ( props.sitePlan.product_slug === 'jetpack_business' ) {
-				proProps.configure_url = 'https://wordpress.com/settings/seo/' + siteRawUrl;
+				proProps.configure_url = 'https://wordpress.com/settings/seo/' + props.siteRawUrl;
 			}
 
 			moduleDescription = <AllModuleSettings module={ proProps } />;
