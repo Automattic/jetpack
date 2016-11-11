@@ -90,14 +90,10 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 		$result = $sync_queue->lock( 30 ); // tries to acquire the lock for up to 30 seconds
 
 		if ( ! $result ) {
-			$sync_queue->unlock();
-
 			return new WP_Error( 'unknown_error', 'Unknown error trying to lock the sync queue' );
 		}
 
 		if ( is_wp_error( $result ) ) {
-			$sync_queue->unlock();
-
 			return $result;
 		}
 
@@ -126,14 +122,10 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 		$result = $sync_queue->lock( 30 ); // tries to acquire the lock for up to 30 seconds
 
 		if ( ! $result ) {
-			$sync_queue->unlock();
-
 			return new WP_Error( 'unknown_error', 'Unknown error trying to lock the sync queue' );
 		}
 
 		if ( is_wp_error( $result ) ) {
-			$sync_queue->unlock();
-
 			return $result;
 		}
 
