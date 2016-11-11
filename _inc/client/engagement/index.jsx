@@ -33,6 +33,7 @@ import {
 	userCanManageModules as _userCanManageModules
 } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
+import QuerySite from 'components/data/query-site';
 
 export const Engagement = ( props ) => {
 	let {
@@ -96,14 +97,13 @@ export const Engagement = ( props ) => {
 			toggle = '',
 			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] ),
 			isPro = 'seo-tools' === element[0],
-			proProps = {},
-			isModuleActive = isModuleActivated( element[0] );
-
-		if ( isPro && props.sitePlan.product_slug !== 'jetpack_business' ) {
 			proProps = {
 				module: element[0],
 				configure_url: ''
-			};
+			},
+			isModuleActive = isModuleActivated( element[0] );
+
+		if ( isPro && 'undefined' !== typeof props.sitePlan.product_slug && props.sitePlan.product_slug !== 'jetpack_business' ) {
 
 			toggle = <ProStatus proFeature={ element[0] } />;
 
@@ -134,8 +134,14 @@ export const Engagement = ( props ) => {
 			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
 
 		if ( element[0] === 'seo-tools' ) {
-			if ( props.sitePlan.product_slug === 'jetpack_business' ) {
-				proProps.configure_url = 'https://wordpress.com/settings/seo/' + props.siteRawUrl;
+			if ( 'undefined' === typeof props.sitePlan.product_slug && ! unavailableInDevMode ) {
+				proProps.configure_url = 'checking';
+			} else {
+				if ( props.sitePlan.product_slug === 'jetpack_business' ) {
+					proProps.configure_url = isModuleActive
+						? 'https://wordpress.com/settings/seo/' + props.siteRawUrl
+						: 'inactive';
+				}
 			}
 
 			moduleDescription = <AllModuleSettings module={ proProps } />;
@@ -196,6 +202,7 @@ export const Engagement = ( props ) => {
 	} );
 	return (
 		<div>
+			<QuerySite />
 			{ cards }
 		</div>
 	);
