@@ -135,6 +135,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_activated'                    => 'pineapple',
 			'jetpack_available_modules'            => 'pineapple',
 			'jetpack_autoupdate_plugins'           => 'pineapple',
+			'jetpack_autoupdate_plugins_translations' => 'pineapple',
 			'jetpack_autoupdate_themes'            => 'pineapple',
 			'jetpack_autoupdate_themes_translations' => 'pineapple',
 			'jetpack_autoupdate_core'              => 'pineapple',
