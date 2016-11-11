@@ -77,41 +77,15 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * @return WP_Post|null
 	 */
 	public static function get_css_post( $stylesheet = '' ) {
-		if ( empty( $stylesheet ) ) {
-			$stylesheet = get_stylesheet();
+		return wp_get_custom_css_post( $stylesheet );
+	}
+
+	public static function post_id( $stylesheet = '' ) {
+		$post = self::get_css_post( $stylesheet );
+		if ( $post instanceof WP_Post ) {
+			return $post->ID;
 		}
-
-		$custom_css_query_vars = array(
-			'post_type'              => 'custom_css',
-			'post_status'            => get_post_stati(),
-			'name'                   => sanitize_title( $stylesheet ),
-			'number'                 => 1,
-			'no_found_rows'          => true,
-			'cache_results'          => true,
-			'update_post_meta_cache' => false,
-			'update_term_meta_cache' => false,
-		);
-
-		$post = null;
-		if ( get_stylesheet() === $stylesheet ) {
-			$post_id = get_theme_mod( 'custom_css_post_id' );
-			if ( ! $post_id ) {
-				$query = new WP_Query( $custom_css_query_vars );
-				$post = $query->post;
-				/*
-				 * Cache the lookup. See WP_Customize_Custom_CSS_Setting::update().
-				 * @todo This should get cleared if a custom_css post is added/removed.
-				 */
-				set_theme_mod( 'custom_css_post_id', $post ? $post->ID : -1 );
-			} elseif ( $post_id > 0 ) {
-				$post = get_post( $post_id );
-			}
-		} else {
-			$query = new WP_Query( $custom_css_query_vars );
-			$post = $query->post;
-		}
-
-		return $post;
+		return 0;
 	}
 
 	public static function admin_page() {
