@@ -23,7 +23,6 @@ import {
 	getModule as _getModule,
 	getModules
 } from 'state/modules';
-import ProStatus from 'pro-status';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
@@ -31,7 +30,6 @@ import {
 	userCanManageModules,
 	getSiteRawUrl
 } from 'state/initial-state';
-import { getSitePlan } from 'state/site';
 import Settings from 'components/settings';
 
 export const Page = ( props ) => {
@@ -46,7 +44,6 @@ export const Page = ( props ) => {
 		moduleList = Object.keys( props.moduleList );
 
 	var cards = [
-		[ 'seo-tools', getModule( 'seo-tools' ).name, getModule( 'seo-tools' ).description, getModule( 'seo-tools' ).learn_more_button ],
 		[ 'tiled-gallery', getModule( 'tiled-gallery' ).name, getModule( 'tiled-gallery' ).description, getModule( 'tiled-gallery' ).learn_more_button ],
 		[ 'photon', getModule( 'photon' ).name, getModule( 'photon' ).description, getModule( 'photon' ).learn_more_button ],
 		[ 'carousel', getModule( 'carousel' ).name, getModule( 'carousel' ).description, getModule( 'carousel' ).learn_more_button ],
@@ -66,46 +63,12 @@ export const Page = ( props ) => {
 								toggling={ isTogglingModule( element[0] ) }
 								toggleModule={ toggleModule } />
 			),
-			isPro = 'seo-tools' === element[0],
-			proProps = {},
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
 
-		if ( isPro && props.sitePlan.product_slug !== 'jetpack_business' ) {
-			proProps = {
-				module: element[0],
-				configure_url: ''
-			};
-
-			toggle = <ProStatus proFeature={ element[0] } />;
-
-			// Add a "pro" button next to the header title
-			element[1] = <span>
-				{ element[1] }
-				<Button
-					compact={ true }
-					href="#/plans"
-				>
-					{ __( 'Pro' ) }
-				</Button>
-			</span>;
-		}
-
 		let moduleDescription = isModuleActivated( element[0] ) ?
-			<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
+			<AllModuleSettings module={ getModule( element[ 0 ] ) } /> :
 			// Render the long_description if module is deactivated
 			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
-
-		if ( element[0] === 'seo-tools' ) {
-			moduleDescription = <AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } />;
-		}
-
-		if ( element[0] === 'seo-tools' ) {
-			if ( props.sitePlan.product_slug === 'jetpack_business' ) {
-				proProps.configure_url = 'https://wordpress.com/settings/seo/' + siteRawUrl;
-			}
-
-			moduleDescription = <AllModuleSettings module={ proProps } />;
-		}
 
 		return (
 			<FoldableCard
@@ -173,7 +136,6 @@ export default connect(
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			sitePlan: getSitePlan( state ),
 			userCanManageModules: userCanManageModules( state ),
 			moduleList: getModules( state )
 		};
