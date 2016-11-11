@@ -1158,44 +1158,71 @@ class Jetpack {
 	}
 
 	/**
-	 * Get the plan that this Jetpack site is currently using
+	 * Make an API call to WordPress.com for plan status
 	 *
-	 * @uses get_transient()
-	 * @uses set_transient()
 	 * @uses Jetpack_Options::get_option()
 	 * @uses Jetpack_Client::wpcom_json_api_request_as_blog()
-	 * @uses is_wp_error()
+	 * @uses update_option()
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return array|boolean
+	 * @return bool True if plan updated, false if no update
 	 */
-	public static function get_active_plan() {
-		// Check cache for stale results
-		$plan = get_transient( 'jetpack_active_plan' );
+	public static function refresh_active_plan_from_wpcom() {
+		// Make the API request
+		$request = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
-		if ( ! $plan ) {
-			// Make the API request for site data
-			$request = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
-			$result = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
-
-			// Bail if there is an error
-			if ( is_wp_error( $result ) ) {
-				return array( 'supports' => array() );
-			}
-
-			// Decode response and extract the plan data
-			$response = json_decode( $result['body'], true );
-			$plan = (array) $response['plan'];
-
-			// Cache the results for 10 minutes since this makes an API request on each call
-			set_transient( 'jetpack_active_plan', $plan, 3600 );
+		// Bail if there was an error or malformed response
+		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
+			return false;
 		}
 
-		// Add in an array of supported features
-		$plan['supports'] = array();
+		// Decode the results
+		$results = json_decode( $response['body'], true );
 
+		// Bail if there were no results or plan details returned
+		if ( ! is_array( $results ) || ! isset( $results['plan'] ) ) {
+			return false;
+		}
+
+		// Store the option and return true if updated
+		return update_option( 'jetpack_active_plan', $results['plan'] );
+	}
+
+	/**
+	 * Get the plan that this Jetpack site is currently using
+	 *
+	 * @uses get_option()
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array Active Jetpack plan details
+	 */
+	public static function get_active_plan() {
+		$plan = get_option( 'jetpack_active_plan' );
+
+		// Set the default options
+		if ( ! $plan ) {
+			$plan = array( 
+				'product_slug' => 'jetpack_free', 
+				'supports' => array(), 
+			);
+		}
+
+		// Define what paid modules are supported by personal plans
+		$personal_plans = array( 
+			'jetpack_personal',
+			'jetpack_personal_monthly',
+		);
+
+		if ( in_array( $plan['product_slug'], $personal_plans ) ) {
+			$plan['supports'][] = 'akismet';
+		}
+
+		// Define what paid modules are supported by premium plans
 		$premium_plans = array(
 			'jetpack_premium',
 			'jetpack_premium_monthly',
@@ -1203,7 +1230,6 @@ class Jetpack {
 			'jetpack_business_monthly',
 		);
 
-		// If a site has a premium plan, add in supports details.
 		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
 			$plan['supports'][] = 'videopress';
 			$plan['supports'][] = 'akismet';
@@ -1211,6 +1237,26 @@ class Jetpack {
 		}
 
 		return $plan;
+	}
+
+	/**
+	 * Determine whether the active plan supports a particular feature
+	 *
+	 * @uses Jetpack::get_active_plan()
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool True if plan supports feature, false if not
+	 */
+	public static function active_plan_supports( $feature ) {
+		$plan = Jetpack::get_active_plan();
+
+		if ( in_array( $feature, $plan['supports'] ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
