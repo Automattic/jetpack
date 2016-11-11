@@ -2106,9 +2106,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'google-analytics':
 				$wga = get_option( 'wga' );
+				$code = '';
 				if ( is_array( $wga ) && array_key_exists( 'code', $wga ) ) {
-					$options[ 'google_analytics_tracking_id' ][ 'current_value' ] = $wga[ 'code' ];
+					 $code = $wga[ 'code' ];
 				}
+				$options[ 'google_analytics_tracking_id' ][ 'current_value' ] = $code;
 				break;
 
 			case 'sharedaddy':

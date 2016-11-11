@@ -6,18 +6,35 @@
  * First Introduced: 4.4
  * Sort Order: 37
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Feature: Engagement
  * Additional Search Queries: webmaster, google, analytics, console
  */
 
-function jetpack_load_google_analytics() {
-	include dirname( __FILE__ ) . "/google-analytics/wp-google-analytics/wp-google-analytics.php";
+/**
+ * Removes the Google Analytics plugin settings page
+ */
+function removeSettingsPage() {
+	remove_submenu_page( 'options-general.php', 'wp-google-analytics' );
 }
 
-function jetpack_google_analytics_loaded() {
-	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'jetpack_google_analytics_configuration_load' );
+/**
+ * Does the site have a Jetpack plan attached to it that includes Google Analytics?
+ *
+ * @return bool
+ */
+function isGoogleAnalyticsIncludedInJetpackPlan() {
+	$site_id = Jetpack_Options::get_option( 'id' );
+	$result  = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ), '1.1' );
+
+	if ( is_wp_error( $result ) ) {
+		return false;
+	}
+
+	$response = json_decode( $result['body'], true );
+
+	return $response['plan']['product_slug'] == 'jetpack_business';
 }
 
-jetpack_load_google_analytics();
+include dirname( __FILE__ ) . "/google-analytics/wp-google-analytics.php";
+add_action( 'admin_menu', 'removeSettingsPage' );

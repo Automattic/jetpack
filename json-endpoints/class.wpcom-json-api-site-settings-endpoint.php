@@ -366,8 +366,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					/** This action is documented in modules/widgets/social-media-icons.php */
 					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
-					$business_plugins = WPCOM_Business_Plugins::instance();
-					$business_plugins->activate_plugin( 'wp-google-analytics' );
+					if ( ! $is_jetpack && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+						$business_plugins = WPCOM_Business_Plugins::instance();
+						$business_plugins->activate_plugin( 'wp-google-analytics' );
+					}
 					break;
 
 				case 'jetpack_testimonial':
