@@ -85,7 +85,7 @@ export const AllModuleSettings = React.createClass( {
 			case 'seo-tools':
 				return '' === module.configure_url ? (
 					<div>
-						{ __( 'Your Jetpack plan doesn’t include SEO tools, you must upgrade to Jetpack Professional to use SEO tools.' ) }
+						{ __( 'Your Jetpack plan doesn’t include SEO tools. You must upgrade to Jetpack Professional to use SEO tools.' ) }
 					</div>
 				) : (
 					<div>
