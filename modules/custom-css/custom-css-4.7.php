@@ -11,8 +11,16 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 20, 2 );
 
+		// Stuff for stripping out the theme's default stylesheet...
 		add_filter( 'stylesheet_uri', array( __CLASS__, 'style_filter' ) );
 		add_filter( 'safecss_skip_stylesheet', array( __CLASS__, 'preview_skip_stylesheet' ) );
+
+		// Stuff for overriding content width...
+		add_action( 'init', array( __CLASS__, 'preview_content_width' ) );
+		add_filter( 'jetpack_content_width', array( __CLASS__, 'jetpack_content_width' ) );
+		add_filter( 'editor_max_image_size', array( __CLASS__, 'editor_max_image_size' ), 10, 3 );
+
+		// Stuff?
 	}
 
 	public static function init() {
@@ -29,9 +37,6 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_register_script( 'jetpack-codemirror',     plugins_url( "custom-css/js/codemirror{$min}.js", __FILE__ ), array(), '3.16', true );
 		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), array(  'customize-controls', 'underscore', 'jetpack-codemirror' ), JETPACK__VERSION, true );
 
-		if ( isset( $GLOBALS['wp_customize'] ) ) {
-			self::preview_content_width();
-		}
 	}
 
 	public static function map_meta_cap( $caps, $cap ) {
@@ -392,6 +397,41 @@ class Jetpack_Custom_CSS_Enhancements {
 		return false;
 	}
 
+	/**
+	 * When on the edit screen, make sure the custom content width
+	 * setting is applied to the large image size.
+	 */
+	static function editor_max_image_size( $dims, $size = 'medium', $context = null ) {
+		list( $width, $height ) = $dims;
+
+		if ( 'large' == $size && 'edit' == $context )
+			$width = Jetpack::get_content_width();
+
+		return array( $width, $height );
+	}
+
+	/**
+	 * Override the content_width with a custom value if one is set.
+	 */
+	static function jetpack_content_width( $content_width ) {
+		$custom_content_width = 0;
+
+		if ( self::is_preview() ) {
+			$safecss_post = self::get_current_revision();
+			$custom_content_width = intval( get_post_meta( $safecss_post['ID'], 'content_width', true ) );
+		} elseif ( ! self::is_freetrial() ) {
+			$custom_css_post_id = self::post_id();
+			if ( $custom_css_post_id ) {
+				$custom_content_width = intval( get_post_meta( $custom_css_post_id, 'content_width', true ) );
+			}
+		}
+
+		if ( $custom_content_width > 0 ) {
+			$content_width = $custom_content_width;
+		}
+
+		return $content_width;
+	}
 }
 
 Jetpack_Custom_CSS_Enhancements::add_hooks();
