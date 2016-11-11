@@ -26,10 +26,7 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
-import {
-	userCanManageModules,
-	getSiteRawUrl
-} from 'state/initial-state';
+import { userCanManageModules } from 'state/initial-state';
 import Settings from 'components/settings';
 
 export const Page = ( props ) => {
@@ -37,8 +34,7 @@ export const Page = ( props ) => {
 		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
-		getModule,
-		siteRawUrl
+		getModule
 	} = props,
 		isAdmin = props.userCanManageModules,
 		moduleList = Object.keys( props.moduleList );
@@ -130,7 +126,6 @@ function renderLongDescription( module ) {
 export default connect(
 	( state ) => {
 		return {
-			siteRawUrl: getSiteRawUrl( state ),
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) =>
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
