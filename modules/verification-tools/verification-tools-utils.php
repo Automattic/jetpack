@@ -1,8 +1,8 @@
 <?php
 
 /*
- * Helper functions that are called from API even when module is active should be added here.
- * We will include this in module-extras.php
+ * Helper functions that are called from API even when module is inactive should be added here.
+ * This file will be included in module-extras.php.
  */
 
 function jetpack_verification_validate( $verification_services_codes ) {
