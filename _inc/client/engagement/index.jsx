@@ -100,7 +100,7 @@ export const Engagement = ( props ) => {
 			proProps = {},
 			isModuleActive = isModuleActivated( element[0] );
 
-		if ( isPro && props.sitePlan.product_slug !== 'jetpack_business' ) {
+		if ( isPro && 'undefined' !== typeof props.sitePlan.product_slug && props.sitePlan.product_slug !== 'jetpack_business' ) {
 			proProps = {
 				module: element[0],
 				configure_url: ''
