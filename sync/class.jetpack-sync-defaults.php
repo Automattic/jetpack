@@ -78,6 +78,7 @@ class Jetpack_Sync_Defaults {
 		'jetpack_activated',
 		'jetpack_available_modules',
 		'jetpack_autoupdate_plugins',
+		'jetpack_autoupdate_plugins_translations',
 		'jetpack_autoupdate_themes',
 		'jetpack_autoupdate_themes_translations',
 		'jetpack_autoupdate_core',
