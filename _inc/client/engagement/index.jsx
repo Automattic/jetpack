@@ -134,10 +134,6 @@ export const Engagement = ( props ) => {
 			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
 
 		if ( element[0] === 'seo-tools' ) {
-			moduleDescription = <AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } />;
-		}
-
-		if ( element[0] === 'seo-tools' ) {
 			if ( props.sitePlan.product_slug === 'jetpack_business' ) {
 				proProps.configure_url = 'https://wordpress.com/settings/seo/' + props.siteRawUrl;
 			}
