@@ -61,16 +61,6 @@ function jetpack_verification_print_meta() {
 }
 add_action( 'wp_head', 'jetpack_verification_print_meta', 1 );
 
-function jetpack_verification_get_code( $code ){
-	$pattern = '/content=["\']?([^"\' ]*)["\' ]/is';
-	preg_match( $pattern, $code, $match );
-	if ( $match ){
-		return urldecode( $match[1] );
-	} else {
-		return false;
-	}
-}
-
 function jetpack_verification_options_form() {
 	$verification_services_codes = get_option( 'verification_services_codes' );
 	?>

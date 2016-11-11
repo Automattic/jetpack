@@ -30,3 +30,13 @@ function jetpack_verification_validate( $verification_services_codes ) {
 	}
 	return $verification_services_codes;
 }
+
+function jetpack_verification_get_code( $code ){
+	$pattern = '/content=["\']?([^"\' ]*)["\' ]/is';
+	preg_match( $pattern, $code, $match );
+	if ( $match ){
+		return urldecode( $match[1] );
+	} else {
+		return false;
+	}
+}
