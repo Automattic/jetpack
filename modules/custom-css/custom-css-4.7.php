@@ -275,36 +275,16 @@ class Jetpack_Custom_CSS_Enhancements {
 		 * @param null Should the stylesheet be skipped. Default to null. Anything else will force the stylesheet to be skipped.
 		 */
 		$skip_stylesheet = apply_filters( 'safecss_skip_stylesheet', null );
-
-		if ( null !== $skip_stylesheet ) {
+		if ( ! is_null( $skip_stylesheet ) ) {
 			return $skip_stylesheet;
-		} elseif ( Jetpack_Custom_CSS::is_customizer_preview() ) {
-			return false;
-		} else {
-			if ( Jetpack_Custom_CSS::is_preview() ) {
-				$safecss_post = Jetpack_Custom_CSS::get_current_revision();
-
-				if ( $safecss_post )
-					return (bool) ( get_post_meta( $safecss_post['ID'], 'custom_css_add', true ) == 'no' );
-				else
-					return (bool) ( get_option( 'safecss_preview_add' ) == 'no' );
-			}
-			else {
-				$custom_css_post_id = Jetpack_Custom_CSS::post_id();
-
-				if ( $custom_css_post_id ) {
-					$custom_css_add = get_post_meta( $custom_css_post_id, 'custom_css_add', true );
-
-					// It is possible for the CSS to be stored in a post but for the safecss_add option
-					// to have not been upgraded yet if the user hasn't opened their Custom CSS editor
-					// since October 2012.
-					if ( ! empty( $custom_css_add ) )
-						return (bool) ( $custom_css_add === 'no' );
-				}
-
-				return (bool) ( Jetpack_Options::get_option_and_ensure_autoload( 'safecss_add', '' ) == 'no' );
-			}
 		}
+
+		$jetpack_custom_css = get_theme_mod( 'jetpack_custom_css', array() );
+		if ( isset( $jetpack_custom_css['replace'] ) ) {
+			return $jetpack_custom_css['replace'];
+		}
+
+		return false;
 	}
 
 	/**
