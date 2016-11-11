@@ -6,7 +6,7 @@ Jetpack 4.4 is packed with new things and improvements for your favorite modules
 
 Jetpack 4.4 tightens the links between Jetpack and WordPress.com, and now allows site owners using our [Jetpack Professional Plan](https://jetpack.com/features/) to manage SEO options from the WordPress.com interface.
 
-To get started, go to Jetpack > Settings > Traffic and enable the SEO Tools module. Then, [go to Settings > SEO on WordPress.com](https://wordpress.com/settings/seo) in the WordPress.com dashboard. After you've picked your site, you should see a number of options on that page. Make sure they can be saved, and are applied on your Jetpack site.
+To get started, go to Jetpack > Settings > Appearance and enable the SEO Tools module. Then, [go to Settings > SEO on WordPress.com](https://wordpress.com/settings/seo) in the WordPress.com dashboard. After you've picked your site, you should see a number of options on that page. Make sure they can be saved, and are applied on your Jetpack site.
 
 You can learn more about the different options [here](https://en.blog.wordpress.com/2016/10/03/attract-more-visitors-to-your-business-site-with-our-advanced-seo-tools/).
 
