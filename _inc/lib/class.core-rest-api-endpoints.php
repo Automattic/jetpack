@@ -697,7 +697,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$results = json_decode( $response['body'], true );
 
 			if ( is_array( $results ) && isset( $results['plan'] ) ) {
-				update_option( 'jetpack_active_plan_2', $results['plan'] );
+				update_option( 'jetpack_active_plan', $results['plan'] );
 			}
 
 			return rest_ensure_response( array(
