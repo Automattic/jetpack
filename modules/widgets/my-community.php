@@ -87,11 +87,11 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label><?php esc_html_e( 'Show how many users?', 'jetpack' ); ?></label>
+			<label><?php esc_html_e( 'Show a maximum of', 'jetpack' ); ?></label>
 		</p>
 		<ul>
-			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-few"  name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="10" <?php checked( '10', $number ); ?> /> <?php esc_html_e( 'A few', 'jetpack' ); ?></label></li>
-			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-lots" name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="50" <?php checked( '50', $number ); ?> /> <?php esc_html_e( 'Lots', 'jetpack' ); ?></label></li>
+			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-few"  name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="10" <?php checked( '10', $number ); ?> /> <?php esc_html_e( '10 community members', 'jetpack' ); ?></label></li>
+			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-lots" name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="50" <?php checked( '50', $number ); ?> /> <?php esc_html_e( '50 community members', 'jetpack' ); ?></label></li>
 		</ul>
 
 		<p>
