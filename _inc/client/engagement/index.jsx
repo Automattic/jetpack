@@ -33,6 +33,7 @@ import {
 	userCanManageModules as _userCanManageModules
 } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
+import QuerySite from 'components/data/query-site';
 
 export const Engagement = ( props ) => {
 	let {
@@ -196,6 +197,7 @@ export const Engagement = ( props ) => {
 	} );
 	return (
 		<div>
+			<QuerySite />
 			{ cards }
 		</div>
 	);
