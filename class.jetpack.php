@@ -2270,11 +2270,8 @@ class Jetpack {
 			$active = array_diff( $active, array( 'vaultpress' ) );
 		}
 
-		// Get the current site plan
-		$plan = Jetpack::get_active_plan();
-
 		// If this plan supports videopress, force activate module
-		if ( in_array( 'videopress', $plan['supports'] ) ) {
+		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
 			$active[] = 'videopress';
 		} else {
 			$active = array_diff( $active, array( 'videopress' ) );
