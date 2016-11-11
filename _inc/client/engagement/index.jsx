@@ -97,14 +97,13 @@ export const Engagement = ( props ) => {
 			toggle = '',
 			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] ),
 			isPro = 'seo-tools' === element[0],
-			proProps = {},
-			isModuleActive = isModuleActivated( element[0] );
-
-		if ( isPro && 'undefined' !== typeof props.sitePlan.product_slug && props.sitePlan.product_slug !== 'jetpack_business' ) {
 			proProps = {
 				module: element[0],
 				configure_url: ''
-			};
+			},
+			isModuleActive = isModuleActivated( element[0] );
+
+		if ( isPro && 'undefined' !== typeof props.sitePlan.product_slug && props.sitePlan.product_slug !== 'jetpack_business' ) {
 
 			toggle = <ProStatus proFeature={ element[0] } />;
 
@@ -136,7 +135,9 @@ export const Engagement = ( props ) => {
 
 		if ( element[0] === 'seo-tools' ) {
 			if ( props.sitePlan.product_slug === 'jetpack_business' ) {
-				proProps.configure_url = 'https://wordpress.com/settings/seo/' + props.siteRawUrl;
+				proProps.configure_url = isModuleActive
+					? 'https://wordpress.com/settings/seo/' + props.siteRawUrl
+					: 'inactive';
 			}
 
 			moduleDescription = <AllModuleSettings module={ proProps } />;
