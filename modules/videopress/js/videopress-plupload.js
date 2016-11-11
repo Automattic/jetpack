@@ -1,4 +1,4 @@
-/* global pluploadL10n, plupload, _wpPluploadSettings */
+/* global pluploadL10n, plupload, _wpPluploadSettings, JSON */
 
 window.wp = window.wp || {};
 
@@ -26,7 +26,7 @@ window.wp = window.wp || {};
      */
     Uploader = function( options ) {
         var self = this,
-            isIE = navigator.userAgent.indexOf('Trident/') != -1 || navigator.userAgent.indexOf('MSIE ') != -1,
+            isIE = navigator.userAgent.indexOf('Trident/') !== -1 || navigator.userAgent.indexOf('MSIE ') !== -1,
             elements = {
                 container: 'container',
                 browser:   'browse_button',
@@ -109,7 +109,7 @@ window.wp = window.wp || {};
             vp = exports.VideoPress;
 
         } else {
-            console.error( 'The VideoPress object was not loaded. Errors may occur.' );
+            window.console && window.console.error( 'The VideoPress object was not loaded. Errors may occur.' );
         }
 
         /**
