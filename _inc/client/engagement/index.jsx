@@ -22,6 +22,7 @@ import {
 	getModule as _getModule,
 	getModules
 } from 'state/modules';
+import ProStatus from 'pro-status';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
@@ -31,6 +32,7 @@ import {
 	isSitePublic,
 	userCanManageModules as _userCanManageModules
 } from 'state/initial-state';
+import { getSitePlan } from 'state/site';
 
 export const Engagement = ( props ) => {
 	let {
@@ -43,13 +45,13 @@ export const Engagement = ( props ) => {
 		sitemapsDesc = getModule( 'sitemaps' ).description,
 		moduleList = Object.keys( props.moduleList );
 
-	if ( ! props.isSitePublic() ) {
+	if ( ! props.isSitePublic ) {
 		sitemapsDesc = <span>
 			{ sitemapsDesc }
 			{ <p className="jp-form-setting-explanation">
 				{ __( 'Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
 					components: {
-						a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
+						a: <a href={ props.siteAdminUrl + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
 					}
 				} ) }
 			</p> }
@@ -61,6 +63,7 @@ export const Engagement = ( props ) => {
 	 * @type {Array}
 	 */
 	let cards = [
+		[ 'seo-tools', getModule( 'seo-tools' ).name, getModule( 'seo-tools' ).description, getModule( 'seo-tools' ).learn_more_button ],
 		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
 		[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description, getModule( 'sharedaddy' ).learn_more_button ],
 		[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
@@ -71,7 +74,7 @@ export const Engagement = ( props ) => {
 		[ 'gravatar-hovercards', getModule( 'gravatar-hovercards' ).name, getModule( 'gravatar-hovercards' ).description, getModule( 'gravatar-hovercards' ).learn_more_button ],
 		[ 'sitemaps', getModule( 'sitemaps' ).name, sitemapsDesc, getModule( 'sitemaps' ).learn_more_button ],
 		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description, getModule( 'enhanced-distribution' ).learn_more_button ],
-		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
+		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ]
 	],
 		nonAdminAvailable = [ 'publicize' ];
 	// Put modules available to non-admin user at the top of the list.
@@ -92,15 +95,52 @@ export const Engagement = ( props ) => {
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
 			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] ),
+			isPro = 'seo-tools' === element[0],
+			proProps = {},
 			isModuleActive = isModuleActivated( element[0] );
+
+		if ( isPro && props.sitePlan.product_slug !== 'jetpack_business' ) {
+			proProps = {
+				module: element[0],
+				configure_url: ''
+			};
+
+			toggle = <ProStatus proFeature={ element[0] } />;
+
+			// Add a "pro" button next to the header title
+			element[1] = <span>
+				{ element[1] }
+				<Button
+					compact={ true }
+					href="#/plans"
+				>
+					{ __( 'Pro' ) }
+				</Button>
+			</span>;
+		}
+
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
 		} else if ( isAdmin ) {
 			toggle = <ModuleToggle slug={ element[0] }
-						activated={ isModuleActivated( element[0] ) }
+						activated={ isModuleActive }
 						toggling={ isTogglingModule( element[0] ) }
 						toggleModule={ toggleModule } />;
 		}
+
+		let moduleDescription = isModuleActive ?
+			<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
+			// Render the long_description if module is deactivated
+			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
+
+		if ( element[0] === 'seo-tools' ) {
+			if ( props.sitePlan.product_slug === 'jetpack_business' ) {
+				proProps.configure_url = 'https://wordpress.com/settings/seo/' + props.siteRawUrl;
+			}
+
+			moduleDescription = <AllModuleSettings module={ proProps } />;
+		}
+
 		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
@@ -118,10 +158,7 @@ export const Engagement = ( props ) => {
 				) }
 			>
 				{
-					isModuleActive ?
-						<AllModuleSettings module={ getModule( element[0] ) } adminUrl={ props.getSiteAdminUrl() } /> :
-						// Render the long_description if module is deactivated
-						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
+					moduleDescription
 				}
 				<div className="jp-module-settings__read-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
@@ -132,7 +169,7 @@ export const Engagement = ( props ) => {
 								<span className="jp-module-settings__more-text">{
 									__( 'View {{a}}All Stats{{/a}}', {
 										components: {
-											a: <a href={ props.getSiteAdminUrl() + 'admin.php?page=stats' } />
+											a: <a href={ props.siteAdminUrl + 'admin.php?page=stats' } />
 										}
 									} )
 								}</span>
@@ -146,7 +183,7 @@ export const Engagement = ( props ) => {
 								<span className="jp-module-settings__more-text">{
 									__( 'View your {{a}}Email Followers{{/a}}', {
 										components: {
-											a: <a href={ 'https://wordpress.com/people/email-followers/' + props.getSiteRawUrl() } />
+											a: <a href={ 'https://wordpress.com/people/email-followers/' + props.siteRawUrl } />
 										}
 									} )
 								}</span>
@@ -177,9 +214,10 @@ export default connect(
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			getSiteRawUrl: () => getSiteRawUrl( state ),
-			getSiteAdminUrl: () => getSiteAdminUrl( state ),
-			isSitePublic: () => isSitePublic( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
+			isSitePublic: isSitePublic( state ),
+			sitePlan: getSitePlan( state ),
 			userCanManageModules: _userCanManageModules( state ),
 			moduleList: getModules( state )
 		};
