@@ -25,6 +25,43 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
+	 * Checks whether the connection banner A/B test should be ran.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param null $now
+	 *
+	 * @return bool
+	 */
+	static function check_ab_test_not_expired( $now = null ) {
+		// Get the current timestamp in GMT
+		$now = empty( $now ) ? current_time( 'timestamp', 1 ) : $now;
+
+		// Arguments are hour, minute, second, month, day, year. So, we are getting the timestamp for GMT timestamp
+		// for the 15th of December 2016.
+		$expiration = gmmktime( 0, 0, 0, 12, 15, 2016 );
+
+		return $expiration >= $now;
+	}
+
+	/**
+	 * Gets the value for which connection banner to show, and initializes if not set.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return int
+	 */
+	static function get_random_connection_banner_value() {
+		$random_connection_banner = Jetpack_Options::get_option( 'connection_banner_ab' );
+		if ( ! $random_connection_banner ) {
+			$random_connection_banner = mt_rand( 1, 2 );
+			Jetpack_Options::update_option( 'connection_banner_ab', $random_connection_banner );
+		}
+
+		return $random_connection_banner;
+	}
+
+	/**
 	 * Will initialize hooks to display the new and legacy connection banners if the current user can
 	 * connect Jetpack, if Jetpack has not been deactivated, and if the current page is the plugins page.
 	 *
@@ -48,20 +85,15 @@ class Jetpack_Connection_Banner {
 			return;
 		}
 
-		$random_connection_banner = Jetpack_Options::get_option( 'connection_banner_ab' );
-		if ( ! $random_connection_banner ) {
-			$random_connection_banner = mt_rand( 1, 2 );
-			Jetpack_Options::update_option( 'connection_banner_ab', $random_connection_banner );
-		}
-
-		if ( 1 == $random_connection_banner ) {
-			add_action( 'admin_notices', array( $this, 'render_legacy_banner' ) );
-		} else {
+		if ( self::check_ab_test_not_expired() && 2 == self::get_random_connection_banner_value() ) {
 			add_action( 'admin_notices', array( $this, 'render_banner' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
+		} else {
+			add_action( 'admin_notices', array( $this, 'render_legacy_banner' ) );
+
 		}
 
-		add_action( 'admin_print_styles',    array( Jetpack::init(), 'admin_banner_styles' ) );
+		add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
 
 		if ( Jetpack::state( 'network_nag' ) ) {
 			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
@@ -100,7 +132,11 @@ class Jetpack_Connection_Banner {
 	/**
 	 * Renders the legacy connection banner.
 	 */
-	function render_legacy_banner() { ?>
+	function render_legacy_banner() {
+		$legacy_banner_from = self::check_ab_test_not_expired()
+			? 'banner-legacy'
+			: 'banner';
+		?>
 		<div id="message" class="updated jp-banner">
 			<a
 				href="<?php echo esc_url( $this->get_dismiss_and_deactivate_url() ); ?>"
@@ -120,7 +156,7 @@ class Jetpack_Connection_Banner {
 				</p>
 				<p class="jp-banner__button-container">
 					<a
-						href="<?php echo Jetpack::init()->build_connect_url( false, false, 'banner' ) ?>"
+						href="<?php echo Jetpack::init()->build_connect_url( false, false, $legacy_banner_from ) ?>"
 						class="button button-primary">
 						<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 					</a>
