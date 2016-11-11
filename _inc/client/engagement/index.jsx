@@ -134,12 +134,14 @@ export const Engagement = ( props ) => {
 			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
 
 		if ( element[0] === 'seo-tools' ) {
-			if ( 'undefined' === typeof props.sitePlan.product_slug ) {
+			if ( 'undefined' === typeof props.sitePlan.product_slug && ! unavailableInDevMode ) {
 				proProps.configure_url = 'checking';
-			} else if ( props.sitePlan.product_slug === 'jetpack_business' ) {
-				proProps.configure_url = isModuleActive
-					? 'https://wordpress.com/settings/seo/' + props.siteRawUrl
-					: 'inactive';
+			} else {
+				if ( props.sitePlan.product_slug === 'jetpack_business' ) {
+					proProps.configure_url = isModuleActive
+						? 'https://wordpress.com/settings/seo/' + props.siteRawUrl
+						: 'inactive';
+				}
 			}
 
 			moduleDescription = <AllModuleSettings module={ proProps } />;
