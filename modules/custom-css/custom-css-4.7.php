@@ -269,6 +269,11 @@ class Jetpack_Custom_CSS_Enhancements {
 		return $current;
 	}
 
+	/**
+	 * Determine whether or not we should have the theme skip its main stylesheet.
+	 *
+	 * @return mixed The truthiness of this value determines whether the stylesheet should be skipped.
+	 */
 	static function skip_stylesheet() {
 		/**
 		 * Prevent the Custom CSS stylesheet from being enqueued.
