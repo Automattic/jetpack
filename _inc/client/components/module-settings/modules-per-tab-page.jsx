@@ -89,6 +89,8 @@ export const AllModuleSettings = React.createClass( {
 							{ __( 'Your Jetpack plan doesn’t include SEO tools, you must upgrade to Jetpack Professional to use SEO tools.' ) }
 						</div>
 					);
+				} else if ( 'checking' === module.configure_url ) {
+					return null;
 				} else if ( 'inactive' === module.configure_url ) {
 					return (
 						<div>
