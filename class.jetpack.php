@@ -1196,8 +1196,15 @@ class Jetpack {
 		// Add in an array of supported features
 		$plan['supports'] = array();
 
-		// If a site is on a premium or business plan, we support VideoPress, Akismet, and VaultPress
-		if ( 'jetpack_premium' === $plan['product_slug'] || 'jetpack_business' === $plan['product_slug'] ) {
+		$premium_plans = array(
+			'jetpack_premium',
+			'jetpack_premium_monthly',
+			'jetpack_business',
+			'jetpack_business_monthly',
+		);
+
+		// If a site has a premium plan, add in supports details.
+		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
 			$plan['supports'][] = 'videopress';
 			$plan['supports'][] = 'akismet';
 			$plan['supports'][] = 'vaultpress';
