@@ -128,7 +128,11 @@ class Jetpack_Connection_Banner {
 	/**
 	 * Renders the legacy connection banner.
 	 */
-	function render_legacy_banner() { ?>
+	function render_legacy_banner() {
+		$legacy_banner_from = self::check_ab_test_allowed()
+			? 'banner-legacy'
+			: 'banner';
+		?>
 		<div id="message" class="updated jp-banner">
 			<a
 				href="<?php echo esc_url( $this->get_dismiss_and_deactivate_url() ); ?>"
@@ -148,7 +152,7 @@ class Jetpack_Connection_Banner {
 				</p>
 				<p class="jp-banner__button-container">
 					<a
-						href="<?php echo Jetpack::init()->build_connect_url( false, false, 'banner' ) ?>"
+						href="<?php echo Jetpack::init()->build_connect_url( false, false, $legacy_banner_from ) ?>"
 						class="button button-primary">
 						<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 					</a>
