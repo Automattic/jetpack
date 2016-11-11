@@ -45,13 +45,13 @@ export const Engagement = ( props ) => {
 		sitemapsDesc = getModule( 'sitemaps' ).description,
 		moduleList = Object.keys( props.moduleList );
 
-	if ( ! props.isSitePublic() ) {
+	if ( ! props.isSitePublic ) {
 		sitemapsDesc = <span>
 			{ sitemapsDesc }
 			{ <p className="jp-form-setting-explanation">
 				{ __( 'Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
 					components: {
-						a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
+						a: <a href={ props.siteAdminUrl + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
 					}
 				} ) }
 			</p> }
@@ -173,7 +173,7 @@ export const Engagement = ( props ) => {
 								<span className="jp-module-settings__more-text">{
 									__( 'View {{a}}All Stats{{/a}}', {
 										components: {
-											a: <a href={ props.getSiteAdminUrl() + 'admin.php?page=stats' } />
+											a: <a href={ props.siteAdminUrl + 'admin.php?page=stats' } />
 										}
 									} )
 								}</span>
@@ -187,7 +187,7 @@ export const Engagement = ( props ) => {
 								<span className="jp-module-settings__more-text">{
 									__( 'View your {{a}}Email Followers{{/a}}', {
 										components: {
-											a: <a href={ 'https://wordpress.com/people/email-followers/' + props.getSiteRawUrl() } />
+											a: <a href={ 'https://wordpress.com/people/email-followers/' + props.siteRawUrl } />
 										}
 									} )
 								}</span>
@@ -218,9 +218,9 @@ export default connect(
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			getSiteRawUrl: () => getSiteRawUrl( state ),
-			getSiteAdminUrl: () => getSiteAdminUrl( state ),
-			isSitePublic: () => isSitePublic( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
+			isSitePublic: isSitePublic( state ),
 			sitePlan: getSitePlan( state ),
 			userCanManageModules: _userCanManageModules( state ),
 			moduleList: getModules( state )
