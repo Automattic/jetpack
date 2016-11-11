@@ -68,17 +68,6 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 			);
 		}
 
-		if (
-			in_array( $module_slug, $this->modules_requiring_public )
-			&& ! $this->is_site_public()
-		) {
-			return new WP_Error(
-				'rest_cannot_publish',
-				esc_html__( 'This module requires your site to be set to publicly accessible.', 'jetpack' ),
-				array( 'status' => 424 )
-			);
-		}
-
 		if ( Jetpack::activate_module( $module_slug, false, false ) ) {
 			return rest_ensure_response( array(
 				'code' 	  => 'success',
