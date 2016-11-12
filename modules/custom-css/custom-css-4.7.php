@@ -11,6 +11,10 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 20, 2 );
 
+		// Handle Sass/LESS
+		add_filter( 'customize_value_custom_css', array( __CLASS__, 'customize_value_custom_css' ), 10, 2 );
+		add_filter( 'customize_update_custom_css_post_content_args', array( __CLASS__, 'customize_update_custom_css_post_content_args' ), 10, 3 );
+
 		// Stuff for stripping out the theme's default stylesheet...
 		add_filter( 'stylesheet_uri', array( __CLASS__, 'style_filter' ) );
 		add_filter( 'safecss_skip_stylesheet', array( __CLASS__, 'preview_skip_stylesheet' ) );
@@ -402,6 +406,51 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 	public static function is_customizer_preview() {
 		return false;
+	}
+
+	public static function customize_value_custom_css( $css, $setting ) {
+		// Find the current preprocessor
+		$jetpack_custom_css = get_theme_mod( 'jetpack_custom_css', array() );
+		if ( isset( $jetpack_custom_css['preprocessor'] ) ) {
+			$preprocessor = $jetpack_custom_css['preprocessor'];
+		}
+
+		// If it's not supported, just return.
+		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+		if ( ! isset( $preprocessors[ $preprocessor ] ) ) {
+			return $css;
+		}
+
+		// Swap it for the `post_content_filtered` instead.
+		$post = wp_get_custom_css_post( $setting->stylesheet );
+		if ( $post && ! empty( $post->post_content_filtered ) ) {
+			$css = $post->post_content_filtered;
+		}
+
+		return $css;
+	}
+
+	public static function customize_update_custom_css_post_content_args( $args, $css, $setting ) {
+		// Find the current preprocessor
+		$jetpack_custom_css = get_theme_mod( 'jetpack_custom_css', array() );
+		if ( empty( $jetpack_custom_css['preprocessor'] ) ) {
+			return $args;
+		}
+
+		$preprocessor = $jetpack_custom_css['preprocessor'];
+		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+
+		// If it's empty, just return.
+		if ( empty( $preprocessor ) ) {
+			return $args;
+		}
+
+		if ( isset( $preprocessors[ $preprocessor ] ) ) {
+			$args['post_content_filtered'] = $css;
+			$args['post_content'] = call_user_func( $preprocessors[ $preprocessor ]['callback'], $css );
+		}
+
+		return $args;
 	}
 
 	/**
