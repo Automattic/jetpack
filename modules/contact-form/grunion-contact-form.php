@@ -2357,21 +2357,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		}
 	}
 
-	/**
-	 * Check the default value for options field
-	 *
-	 * @param string value
-	 * @param int index
-	 * @param string default value
-	 *
-	 * @return string
-	 */
-	public function get_option_value( $value, $index, $options ) {
-		if ( empty( $value[ $index ] ) ) {
-			return $options;
-		}
-		return $value[ $index ];
-	}
 
 	/**
 	 * Check the default value for options field
