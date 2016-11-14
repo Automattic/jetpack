@@ -124,7 +124,7 @@ export const Writing = ( props ) => {
 				) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ isVideoPress ? vpProps : getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } /> :
+					<AllModuleSettings module={ isVideoPress ? vpProps : getModule( element[0] ) } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
