@@ -24,7 +24,7 @@ class Google_Translate_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Google Translate', 'jetpack' ) ),
 			array(
-				'description' => __( 'Automatic translation of your site content', 'jetpack' ),
+				'description' => __( 'Provide your readers with the option to translate your site into their preferred language.', 'jetpack' ),
 				'customize_selective_refresh' => true
 			)
 		);
