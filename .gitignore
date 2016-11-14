@@ -14,8 +14,8 @@ tests/php/files/jetpack-150x150.jpg
 *.unison.tmp
 
 ## Things we will need in release branches
-/_inc/build
-/modules/**/*.min.css
-/modules/**/*-rtl.css
-/css
-_inc/jetpack-strings.php
+#/_inc/build
+#/modules/**/*.min.css
+#/modules/**/*-rtl.css
+#/css
+#_inc/jetpack-strings.php
