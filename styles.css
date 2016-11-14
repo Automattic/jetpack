@@ -343,7 +343,7 @@ Header
 	left: 8px;
 	width: 16px;
 	height: 21px;
-	background: blue url(images/vp-toolbar-icon-trans.png) no-repeat 0 2px;
+	background: transparent url(images/vp-toolbar-icon-trans.png) no-repeat 0 2px;
 	background-size: 16px;
 }
 
