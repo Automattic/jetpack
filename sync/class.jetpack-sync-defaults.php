@@ -164,6 +164,7 @@ class Jetpack_Sync_Defaults {
 		'http',
 		'bwg_gallery',
 		'bwg_album',
+		'idx_page',
 	);
 
 	static $default_post_checksum_columns = array(
