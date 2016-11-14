@@ -2,7 +2,9 @@
 
 add_action( 'widgets_init', 'follow_button_register_widget' );
 function follow_button_register_widget() {
-	register_widget( 'Follow_Button_Widget' );
+	if ( Jetpack::is_active() ) {
+		register_widget( 'Follow_Button_Widget' );
+	}
 }
 
 class Follow_Button_Widget extends WP_Widget {
