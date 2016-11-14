@@ -162,6 +162,25 @@ const PlanBody = React.createClass( {
 									)
 								}
 							</div>
+
+							<div className="jp-landing__plan-features-card">
+								<h3 className="jp-landing__plan-features-title">{ __( 'SEO Tools' ) }</h3>
+								<p>{ __( 'Advanced SEO tools to help your site get found when people search for relevant content.' ) }</p>
+								{
+									this.props.isFetchingPluginsData ? '' :
+									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
+									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+										<Button href="#" className="is-primary">
+											{ __( 'TO DO: Text and link if unconfigured' ) }
+										</Button>
+									)
+									: (
+										<Button href={ '#' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+											{ __( 'TO DO: Text and link if configured' ) }
+										</Button>
+									)
+								}
+							</div>
 						: ''
 					}
 
@@ -186,6 +205,7 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'Real-time backups and one-click threat resolution' ) }</p>
 								<p> &mdash; { __( 'Unlimited and ad-free video hosting' ) }</p>
 								<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
+								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
 								<p>
 									<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
@@ -204,6 +224,7 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'Real-time backups' ) }</p>
 								<p> &mdash; { __( 'One-click threat resolution' ) }</p>
 								<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
+								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
 								<p>
 									<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
