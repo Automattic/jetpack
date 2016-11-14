@@ -34,9 +34,14 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 export let VideoPressSettings = React.createClass( {
 	render() {
 		return (
-			<span className="jp-form-setting-explanation">
-				{ __( 'The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.' ) }
-			</span>
+			<div>
+				<p className="jp-form-setting-explanation">
+					{ __( 'The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.' ) }
+				</p>
+				<p className="jp-form-setting-explanation">
+					{ __( 'To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!' ) }
+				</p>
+			</div>
 		)
 	}
 } );
