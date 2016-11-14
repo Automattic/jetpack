@@ -36,7 +36,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'My Community', 'jetpack' ) ),
 			array(
-				'description' => esc_html__( 'A sampling of users from your blog.', 'jetpack' ),
+				'description' => esc_html__( "Display members of your site's community.", 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -87,11 +87,11 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label><?php esc_html_e( 'Show how many users?', 'jetpack' ); ?></label>
+			<label><?php esc_html_e( 'Show a maximum of', 'jetpack' ); ?></label>
 		</p>
 		<ul>
-			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-few"  name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="10" <?php checked( '10', $number ); ?> /> <?php esc_html_e( 'A few', 'jetpack' ); ?></label></li>
-			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-lots" name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="50" <?php checked( '50', $number ); ?> /> <?php esc_html_e( 'Lots', 'jetpack' ); ?></label></li>
+			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-few"  name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="10" <?php checked( '10', $number ); ?> /> <?php esc_html_e( '10 community members', 'jetpack' ); ?></label></li>
+			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-lots" name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="50" <?php checked( '50', $number ); ?> /> <?php esc_html_e( '50 community members', 'jetpack' ); ?></label></li>
 		</ul>
 
 		<p>
