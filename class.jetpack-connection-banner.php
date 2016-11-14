@@ -65,6 +65,8 @@ class Jetpack_Connection_Banner {
 	 * Will initialize hooks to display the new and legacy connection banners if the current user can
 	 * connect Jetpack, if Jetpack has not been deactivated, and if the current page is the plugins page.
 	 *
+	 * This method should not be called if the site is connected to WordPress.com or if the site is in development mode.
+	 *
 	 * @since 4.4.0
 	 *
 	 * @param $current_screen
@@ -76,12 +78,6 @@ class Jetpack_Connection_Banner {
 		}
 
 		if ( ! current_user_can( 'jetpack_connect' ) ) {
-			return;
-		}
-
-		// Make sure that the current state is not disconnected. The activated option is set to "4"
-		// in the Jetpack::disconnect() method.
-		if ( ! in_array( Jetpack_Options::get_option( 'activated' ), array( 1, 2, 3 ) ) ) {
 			return;
 		}
 
