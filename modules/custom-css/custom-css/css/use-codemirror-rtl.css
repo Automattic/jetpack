@@ -1,0 +1,7 @@
+/* Do not modify this file directly.  It is concatenated from individual module CSS files. */
+.CodeMirror, #safecss {
+	font-family: Consolas, Monaco, monospace;
+	font-size: 12px;
+	line-height: 16px;
+	min-height: 300px;
+}
