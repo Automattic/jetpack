@@ -15,6 +15,12 @@ abstract class Jetpack_Admin_Page {
 	abstract function page_render();
 
 	/**
+	 * Should we block the page rendering because the site is in IDC?
+	 * @var bool
+	 */
+	static $block_page_rendering_for_idc;
+
+	/**
 	 * Function called after admin_styles to load any additional needed styles.
 	 *
 	 * @since 4.3.0
@@ -23,6 +29,13 @@ abstract class Jetpack_Admin_Page {
 
 	function __construct() {
 		$this->jetpack = Jetpack::init();
+		self::$block_page_rendering_for_idc = (
+			Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
+		);
+
+		if ( ! self::$block_page_rendering_for_idc ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'additional_styles' ) );
+		}
 	}
 
 	function add_actions() {
@@ -72,12 +85,11 @@ abstract class Jetpack_Admin_Page {
 	// Render the page with a common top and bottom part, and page specific content
 	function render() {
 		// We're in an IDC: we need a decision made before we show the UI again.
-		if ( Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' ) ) {
+		if ( self::$block_page_rendering_for_idc ) {
 			return;
 		}
 
 		$this->page_render();
-		$this->additional_styles();
 	}
 
 	function admin_help() {
