@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
@@ -30,7 +31,11 @@ import {
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
 
-export const AllModuleSettings = React.createClass( {
+import {
+	getSiteAdminUrl,
+} from 'state/initial-state';
+
+const AllModuleSettingsComponent = React.createClass( {
 	render() {
 		let { module } = this.props;
 		switch ( module.module ) {
@@ -179,3 +184,11 @@ export const AllModuleSettings = React.createClass( {
 		}
 	}
 } );
+
+export const AllModuleSettings = connect(
+	( state ) => {
+		return {
+			adminUrl: getSiteAdminUrl( state )
+		};
+	}
+)( AllModuleSettingsComponent );
