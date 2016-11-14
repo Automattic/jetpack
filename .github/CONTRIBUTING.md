@@ -25,6 +25,7 @@ When creating Pull Requests, remember:
 - [Check In Early, Check In Often](http://blog.codinghorror.com/check-in-early-check-in-often/).
 - Write [good commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
 - Respect the [Best practices for WordPress development](http://jetpack.com/contribute/#practices).
+- Follow the [Code Guidelines](https://github.com/Automattic/jetpack/wiki/Code-Guidelines) to add code to Jetpack.
 
 #### Code Reviews
 
