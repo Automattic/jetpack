@@ -11,7 +11,7 @@ class Follow_Button_Widget extends WP_Widget {
 		parent::__construct(
 			'follow_button_widget',
 			__( 'Follow Button', 'jetpack' ),
-			array( 'description' => __('Add a WordPress.com follow button to allow people to follow your blog easier', 'jetpack' ) )
+			array( 'description' => __( 'Add a WordPress.com follow button to allow people to follow your blog easier', 'jetpack' ) )
 		);
 	}
 
@@ -28,7 +28,7 @@ class Follow_Button_Widget extends WP_Widget {
 		echo $args['before_widget'];
 		?>
 
-		<a class="wordpress-follow-button" href="<?php echo site_url(); ?>" data-blog="<?php echo site_url(); ?>" data-lang="<?php echo get_locale(); ?>" <?php if ( ! empty( $attributes ) ) echo implode( ' ', $attributes ); ?>>Follow <?php bloginfo( 'name' ); ?> on WordPress.com</a>
+		<a class="wordpress-follow-button" href="<?php echo esc_url( site_url() ); ?>" data-blog="<?php echo esc_url( site_url() ); ?>" data-lang="<?php echo get_locale(); ?>" <?php if ( ! empty( $attributes ) ) echo implode( ' ', $attributes ); ?>>Follow <?php bloginfo( 'name' ); ?> on WordPress.com</a>
 		<script type="text/javascript">(function(d){var f = d.getElementsByTagName('SCRIPT')[0], p = d.createElement('SCRIPT');p.type = 'text/javascript';p.async = true;p.src = '//widgets.wp.com/platform.js';f.parentNode.insertBefore(p,f);}(document));</script>
 
 		<?php
@@ -47,10 +47,10 @@ class Follow_Button_Widget extends WP_Widget {
 
 		<p>
 		<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('show_name'); ?>" name="<?php echo $this->get_field_name('show_name'); ?>"<?php checked( $show_name ); ?> />
-		<label for="<?php echo $this->get_field_id('show_name'); ?>"><?php _e( 'Show blog name' ); ?></label>
+		<label for="<?php echo $this->get_field_id('show_name'); ?>"><?php esc_html_e( 'Show blog name', 'jetpack' ); ?></label>
 		<br />
 		<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('show_count'); ?>" name="<?php echo $this->get_field_name('show_count'); ?>"<?php checked( $show_count ); ?> />
-		<label for="<?php echo $this->get_field_id('show_count'); ?>"><?php _e( 'Show follower count' ); ?></label>
+		<label for="<?php echo $this->get_field_id('show_count'); ?>"><?php esc_html_e( 'Show follower count', 'jetpack' ); ?></label>
 		</p>
 
 		<?php
