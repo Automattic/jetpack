@@ -11,7 +11,19 @@
 add_filter( 'user_has_cap', 'at_pressable_disable_premium_theme_editing', 10, 3 );
 
 function at_pressable_disable_premium_theme_editing( $allcaps ) {
-	$allcaps['edit_themes'] = false;
+	$list_of_third_party_premium_themes = [
+		'Carbon',
+		'Eris',
+		'Label',
+		'Pena'
+		// TODO: If we decide for this approach, list all third-party WPCom premium themes here
+	];
+
+	$currently_active_theme = get_template();
+
+	if ( $currently_active_theme && in_array( $currently_active_theme, $list_of_third_party_premium_themes ) ) {
+		$allcaps['edit_themes'] = false;
+	}
 
 	return $allcaps;
 }
