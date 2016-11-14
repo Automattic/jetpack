@@ -71,7 +71,7 @@ $ yarn distclean
 
 3. Install [yarn](https://www.npmjs.com/package/yarn) package.
     ```
-    npm install -g yarn
+    npm install -g yarn@0.16.1
     ```
 
 4. Make sure the Jetpack plugin is active and run

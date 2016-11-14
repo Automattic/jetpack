@@ -31,7 +31,7 @@ else
 
     gem install sass
     gem install compass
-    npm install -g yarn
+    npm install -g yarn@0.16.1
     yarn add gulp-cli
     yarn
 

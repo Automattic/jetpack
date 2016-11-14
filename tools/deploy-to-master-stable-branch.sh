@@ -40,8 +40,9 @@ fi
 echo ""
 
 echo "Building Jetpack"
-npm install -g yarn
+npm install -g yarn@0.16.1
 yarn run distclean
+yarn cache clean
 yarn
 NODE_ENV=production yarn run build-client
 echo "Done"
