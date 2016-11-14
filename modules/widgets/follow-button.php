@@ -12,7 +12,8 @@ class Follow_Button_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'follow_button_widget',
-			__( 'Follow Button', 'jetpack' ),
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
+			apply_filters( 'jetpack_widget_name', __( 'Follow Button', 'jetpack' ) ),
 			array(
 				'description' => __( 'Add a WordPress.com follow button to allow people to follow your blog easier', 'jetpack' ),
 				'customize_selective_refresh' => true,
