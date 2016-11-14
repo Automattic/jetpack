@@ -120,8 +120,25 @@ class Jetpack_Recipes {
 		// add $themecolors-defined styles.
 		wp_add_inline_style( 'jetpack-recipes-style', self::themecolor_styles() );
 
-		wp_enqueue_script( 'jetpack-recipes-printthis', plugins_url( '/js/recipes-printthis.js', __FILE__ ), array( 'jquery' ), '20170202' );
-		wp_enqueue_script( 'jetpack-recipes-js',        plugins_url( '/js/recipes.js', __FILE__ ), array( 'jquery', 'jetpack-recipes-printthis' ), '20131230' );
+		$file_path = Jetpack::should_load_minified_js()
+			? 'js/recipes-printthis.min.js'
+			: 'js/recipes-printthis.js';
+		wp_enqueue_script(
+			'jetpack-recipes-printthis',
+			plugins_url( $file_path, __FILE__ ),
+			array( 'jquery' ),
+			'20170202'
+		);
+
+		$file_path = ! is_admin() && ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG )
+			? '/js/recipes.min.js'
+			: '/js/recipes.js';
+		wp_enqueue_script(
+			'jetpack-recipes-js',
+			plugins_url( $file_path, __FILE__ ),
+			array( 'jquery', 'jetpack-recipes-printthis' ),
+			'20131230'
+		);
 
 		$title_var     = wp_title( '|', false, 'right' );
 		$print_css_var = plugins_url( '/css/recipes-print.css', __FILE__ );

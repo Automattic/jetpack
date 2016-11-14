@@ -580,6 +580,18 @@ EXPECTED;
 		$this->assertTrue( '123.456.789.0/' === $url_normalized );
 	}
 
+	function test_should_load_minified_js() {
+		Jetpack_Constants::set_constant( 'SCRIPT_DEBUG', false );
+		Jetpack_Constants::set_constant( 'IS_WPCOM', false );
+		$this->assertTrue( Jetpack::should_load_minified_js() );
+
+		Jetpack_Constants::set_constant( 'IS_WPCOM', true );
+		$this->assertFalse( Jetpack::should_load_minified_js() );
+
+		Jetpack_Constants::set_constant( 'SCRIPT_DEBUG', true );
+		$this->assertFalse( Jetpack::should_load_minified_js() );
+	}
+
 	/**
 	 * The generate_secrets method should return and store the secret.
 	 *
