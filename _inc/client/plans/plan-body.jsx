@@ -162,6 +162,11 @@ const PlanBody = React.createClass( {
 									)
 								}
 							</div>
+						: ''
+					}
+
+					{
+						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'SEO Tools' ) }</h3>
