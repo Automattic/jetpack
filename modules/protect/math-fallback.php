@@ -32,11 +32,6 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		 * @throws Error message if the math is wrong
 		 */
 		static function math_authenticate() {
-			$salt        = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
-			$ans         = isset( $_POST['jetpack_protect_num'] ) ? (int) $_POST['jetpack_protect_num'] : '' ;
-			$salted_ans  = sha1( $salt . $ans );
-			$correct_ans = isset( $_POST[ 'jetpack_protect_answer' ] ) ? $_POST[ 'jetpack_protect_answer' ] : '' ;
-
 			if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
 				$transient = Jetpack_Protect_Module::get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
 				if( !$transient || $transient < 1 ) {
@@ -45,13 +40,18 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 				return true;
 			}
 
-			if ( ! $correct_ans || !$_POST['jetpack_protect_num'] ) {
+			$salt        = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
+			$ans         = isset( $_POST['jetpack_protect_num'] ) ? (int) $_POST['jetpack_protect_num'] : '' ;
+			$salted_ans  = sha1( $salt . $ans );
+			$correct_ans = isset( $_POST[ 'jetpack_protect_answer' ] ) ? $_POST[ 'jetpack_protect_answer' ] : '' ;
+
+			if ( ! $correct_ans || ! $ans ) {
 				Jetpack_Protect_Math_Authenticate::generate_math_page();
 			} elseif ( $salted_ans != $correct_ans ) {
 				wp_die(
 				__( '<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Protect API is unavailable.  Please use your browser\'s back button to return to the login form, press the "refresh" button to generate a new math problem, and try to log in again.', 'jetpack' ),
-				'',
-				401
+				__( 'Login Blocked by Jetpack', 'jetpack' ),
+				403
 				);
 			} else {
 				return true;
@@ -86,9 +86,9 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 
 		public function process_generate_math_page() {
 			$salt        = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
-			$ans         = (int)$_POST['jetpack_protect_num'];
+			$ans         = isset( $_POST['jetpack_protect_num'] ) ? (int)$_POST['jetpack_protect_num'] : '';
 			$salted_ans  = sha1( $salt . $ans );
-			$correct_ans = $_POST[ 'jetpack_protect_answer' ];
+			$correct_ans = isset( $_POST[ 'jetpack_protect_answer' ] ) ? $_POST[ 'jetpack_protect_answer' ] : '' ;
 
 			if ( $salted_ans != $correct_ans ) {
 				Jetpack_Protect_Math_Authenticate::generate_math_page(true);
@@ -96,6 +96,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 				$temp_pass = substr( sha1( rand( 1, 100000000 ) . get_site_option( 'jetpack_protect_key' ) ), 5, 25 );
 				Jetpack_Protect_Module::set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
 				setcookie('jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
+				remove_action( 'login_form', array( $this, 'math_form' ) );
 				return true;
 			}
 		}
@@ -106,6 +107,14 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		 * @return VOID outputs html
 		 */
 		static function math_form() {
+			// check if jpp_math_pass cookie is set and it matches valid transient
+			if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
+				$transient = $this->get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+				if( $transient && $transient > 0 ) {
+					return '';
+				}
+			}
+			
 			$salt = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
 			$num1 = rand( 0, 10 );
 			$num2 = rand( 1, 10 );
