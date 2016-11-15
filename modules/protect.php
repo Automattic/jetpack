@@ -60,6 +60,12 @@ class Jetpack_Protect_Module {
 		// This is a backup in case $pagenow fails for some reason
 		add_action( 'login_head', array ( $this, 'check_login_ability' ) );
 
+		// load math fallback after math page form submission
+		if( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
+			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate;
+		}
+
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
 		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
@@ -468,6 +474,14 @@ class Jetpack_Protect_Module {
 			$this->kill_login();
 		}
 
+		// check if jpp_math_pass cookie is set and it matches valid transient
+		if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
+			$transient = $this->get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+			if( $transient && $transient > 0 ) {
+				return true;
+			}
+		}
+
 		// If we've reached this point, this means that the IP isn't cached.
 		// Now we check with the Protect API to see if we should allow login
 		$response = $this->protect_call( $action = 'check_ip' );
@@ -758,7 +772,7 @@ class Jetpack_Protect_Module {
 	 */
 	function set_transient( $transient, $value, $expiration ) {
 		if ( is_multisite() && ! is_main_site() ) {
-			switch_to_blog( $this->get_main_blog_id() );
+			switch_to_blog( self::get_main_blog_id() );
 			$return = set_transient( $transient, $value, $expiration );
 			restore_current_blog();
 
@@ -778,7 +792,7 @@ class Jetpack_Protect_Module {
 	 */
 	function delete_transient( $transient ) {
 		if ( is_multisite() && ! is_main_site() ) {
-			switch_to_blog( $this->get_main_blog_id() );
+			switch_to_blog( self::get_main_blog_id() );
 			$return = delete_transient( $transient );
 			restore_current_blog();
 
@@ -798,7 +812,7 @@ class Jetpack_Protect_Module {
 	 */
 	function get_transient( $transient ) {
 		if ( is_multisite() && ! is_main_site() ) {
-			switch_to_blog( $this->get_main_blog_id() );
+			switch_to_blog( self::get_main_blog_id() );
 			$return = get_transient( $transient );
 			restore_current_blog();
 
