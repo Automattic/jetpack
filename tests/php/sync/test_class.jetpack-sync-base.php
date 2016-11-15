@@ -30,10 +30,10 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected $server_event_storage;
 
 	public function setUp() {
-		parent::setUp();
-
 		$this->listener = Jetpack_Sync_Listener::get_instance();
 		$this->sender   = Jetpack_Sync_Sender::get_instance();
+		
+		parent::setUp();
 
 		$this->setSyncClientDefaults();
 
