@@ -18,6 +18,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 
+		$this->resetCallableAndConstantTimeouts();
+
 		$this->callable_module = Jetpack_Sync_Modules::get_module( "functions" );
 		set_current_screen( 'post-user' ); // this only works in is_admin()
 	}
@@ -47,7 +49,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_callable_whitelist() {
-		$this->setSyncClientDefaults();
+		// $this->setSyncClientDefaults();
 
 		$callables = array(
 			'wp_max_upload_size'               => wp_max_upload_size(),
@@ -134,9 +136,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_always_sync_changes_to_modules_right_away() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
-		$this->setSyncClientDefaults();
 		Jetpack::update_active_modules( array( 'stats' ) );
 
 		$this->sender->do_sync();
@@ -154,10 +153,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_always_sync_changes_to_home_siteurl_right_away() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
-		$this->setSyncClientDefaults();
-
 		$original_home_option    = get_option( 'home' );
 		$original_siteurl_option = get_option( 'siteurl' );
 
@@ -191,10 +186,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_jetpack_sync_unlock_sync_callable_action_allows_syncing_siteurl_changes() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
-		$this->setSyncClientDefaults();
-
 		$original_home_option    = get_option( 'home' );
 		$original_siteurl_option = get_option( 'siteurl' );
 
