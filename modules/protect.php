@@ -474,14 +474,6 @@ class Jetpack_Protect_Module {
 			$this->kill_login();
 		}
 
-		// check if jpp_math_pass cookie is set and it matches valid transient
-		if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
-			$transient = $this->get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
-			if( $transient && $transient > 0 ) {
-				return true;
-			}
-		}
-
 		// If we've reached this point, this means that the IP isn't cached.
 		// Now we check with the Protect API to see if we should allow login
 		$response = $this->protect_call( $action = 'check_ip' );
