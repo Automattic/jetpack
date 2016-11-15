@@ -128,29 +128,33 @@ class Jetpack_VideoPress {
 		}
 
 		if ( $this->should_override_media_uploader() ) {
-			wp_enqueue_script( 'videopress-uploader', plugins_url( 'js/videopress-uploader.js', __FILE__ ), array(
-				'jquery',
-				'wp-plupload'
-			), $this->version );
+			// We're going to replace the standard wp-plupload with our own ... messy, I know, but as of now the
+			// hooks in it are not good enough for us to be able to override / add in just the code we need.
+			// P.S. Please don't take this as an example of good behavior, this is a temporary fix until I
+			// can get a more permanent action / filter system added into the core wp-plupload.js to make this
+			// type of override unnecessary.
+			wp_dequeue_script( 'wp-plupload' );
+
+			wp_enqueue_script(
+				'videopress-plupload',
+				plugins_url( 'js/videopress-plupload.js', __FILE__ ),
+				array(
+					'jquery'
+				),
+				$this->version
+			);
+
+			wp_enqueue_script(
+				'videopress-uploader',
+				plugins_url( 'js/videopress-uploader.js', __FILE__ ),
+				array(
+					'videopress-plupload'
+				),
+				$this->version
+			);
 		}
 
 		wp_enqueue_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
-
-		$caps = array();
-		foreach ( array( 'edit_videos', 'delete_videos' ) as $cap ) {
-			$caps[ $cap ] = $this->can( $cap );
-		}
-
-		// Leaving these as we may need to encorporate them somewhere else
-		$l10n = array(
-			'selectVideoFile'         => __( 'Please select a video file to upload.', 'jetpack' ),
-			'videoUploading'          => __( 'Your video is uploading... Please do not close this window.', 'jetpack' ),
-			'unknownError'            => __( 'An unknown error has occurred. Please try again later.', 'jetpack' ),
-			'videoUploaded'           => __( 'Your video has successfully been uploaded. It will appear in your VideoPress Library shortly.', 'jetpack' ),
-			'VideoPressLibraryRouter' => __( 'VideoPress Library', 'jetpack' ),
-			'uploadVideoRouter'       => __( 'Upload a Video', 'jetpack' ),
-			'insertVideoButton'       => __( 'Insert Video', 'jetpack' ),
-		);
 
 		/**
 		 * Fires after VideoPress scripts are enqueued in the dashboard.

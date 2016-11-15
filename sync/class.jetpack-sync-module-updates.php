@@ -18,6 +18,8 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			$this,
 			'filter_upgrader_process_complete',
 		), 10, 2 );
+
+		add_action( 'automatic_updates_complete', $callable );
 	}
 
 	public function init_full_sync_listeners( $callable ) {

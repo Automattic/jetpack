@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Open Graph: add SEO by Squirrly TM to the list of conflicting plugins. #5365
 * Sharing: fix conflict between the Email button and the Autoptimize plugin. #5291
 * Sync: avoid conflicts with the Photo Gallery plugin. #5412
+* Sync: avoid conflicts with IDX support plugins such as IMPress for IDX Broker and dsIDXpress for IDX. #5636
 * Several improvements to avoid issues when cloning / duplicating sites, creating staging sites, or changing your site URL.
 
 **Bug Fixes:**
