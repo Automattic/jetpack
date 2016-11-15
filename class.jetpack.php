@@ -1222,23 +1222,41 @@ class Jetpack {
 		);
 
 		if ( in_array( $plan['product_slug'], $personal_plans ) ) {
-			$plan['supports'][] = 'akismet';
+			$plan['supports'] = array(
+				'akismet',
+			);
 		}
 
 		// Define what paid modules are supported by premium plans
 		$premium_plans = array(
 			'jetpack_premium',
 			'jetpack_premium_monthly',
+		);
+
+		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
+			$plan['supports'] = array(
+				'videopress',
+				'akismet',
+				'vaultpress',
+			);
+		}
+
+		// Define what paid modules are supported by professional plans
+		$business_plans = array(
 			'jetpack_business',
 			'jetpack_business_monthly',
 		);
 
-		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
-			$plan['supports'][] = 'videopress';
-			$plan['supports'][] = 'akismet';
-			$plan['supports'][] = 'vaultpress';
+		if ( in_array( $plan['product_slug'], $business_plans ) ) {
+			$plan['supports'][] = array(
+				'videopress',
+				'akismet',
+				'vaultpress',
+				'seo-tools',
+			);
 		}
 
+		// Make sure we have an array here in the event database data is stale
 		if ( ! isset( $plan['supports'] ) ) {
 			$plan['supports'] = array();
 		}
