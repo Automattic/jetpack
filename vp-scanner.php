@@ -194,7 +194,9 @@ function add_text_to_parsed( &$parsed, $prefix, $start_line_number, $all_text ) 
 			$text = $fragment;
 		}
 
-		if ( empty( $text ) ) {
+		if ( '' === $text ) {
+			// check for the empty string explicitly, rather than using empty()
+			// otherwise things like a '0' token will get skipped, because PHP is stupid
 			continue;
 		}
 
