@@ -71,7 +71,7 @@ class Jetpack_Autoupdate {
 		       || in_array( $item->slug, $autoupdate_theme_list ) )
 		     && 'theme' === $item->type
 		) {
-			$this->expect( $item->slug, 'translation' );
+			$this->expect( $item->type + ':' + $item->slug, 'translation' );
 
 			return true;
 		}
@@ -85,7 +85,7 @@ class Jetpack_Autoupdate {
 		if ( in_array( $item->slug, $plugin_slugs )
 		     && 'plugin' === $item->type
 		) {
-			$this->expect( $item->slug, 'translation' );
+			$this->expect( $item->type + ':' + $item->slug, 'translation' );
 			return true;
 		}
 
@@ -96,7 +96,6 @@ class Jetpack_Autoupdate {
 		$autoupdate_theme_list = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 		if ( in_array( $item->theme, $autoupdate_theme_list ) ) {
 			$this->expect( $item->theme, 'theme' );
-
 			return true;
 		}
 
@@ -240,7 +239,7 @@ class Jetpack_Autoupdate {
 						$successful_updates[] = $result->item->plugin;
 						break;
 					case 'translation':
-						$successful_updates[] = $result->item->slug;
+						$successful_updates[] = $result->item->type + ':' + $result->item->slug;
 						break;
 				}
 			}

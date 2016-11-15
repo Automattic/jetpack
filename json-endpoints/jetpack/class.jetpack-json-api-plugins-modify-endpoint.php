@@ -232,12 +232,12 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		foreach( $this->plugins as $plugin ) {
 			$this->slug = Jetpack_Autoupdate::get_plugin_slug( $plugin );
 			$translation = array_filter( $available_updates->translations, array( $this, 'get_translation' ) );
-			
+
 			if ( empty( $translation ) ) {
 				$this->log[ $plugin ][] = __( 'No update needed', 'jetpack' );
 				continue;
 			}
-			
+
 			/**
 			 * Pre-upgrade action
 			 *
