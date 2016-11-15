@@ -109,7 +109,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		static function math_form() {
 			// check if jpp_math_pass cookie is set and it matches valid transient
 			if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
-				$transient = $this->get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+				$transient = Jetpack_Protect_Module::get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
 				if( $transient && $transient > 0 ) {
 					return '';
 				}
