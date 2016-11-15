@@ -1025,6 +1025,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'black',
 				'enum'              => array(
+					'black',
+					'white',
+				),
+				'enum_labels' => array(
 					'black' => esc_html__( 'Black', 'jetpack' ),
 					'white' => esc_html__( 'White', 'jetpack' ),
 				),
@@ -1052,6 +1056,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'light',
 				'enum'              => array(
+					'light',
+					'dark',
+					'transparent',
+				),
+				'enum_labels' => array(
 					'light'       => esc_html__( 'Light', 'jetpack' ),
 					'dark'        => esc_html__( 'Dark', 'jetpack' ),
 					'transparent' => esc_html__( 'Transparent', 'jetpack' ),
@@ -1105,6 +1114,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => 'enabled',
 				// Not visible. This is used as the checkbox value.
 				'enum'              => array(
+					'enabled',
+					'disabled',
+				),
+				'enum_labels' => array(
 					'enabled'  => esc_html__( 'Enabled', 'jetpack' ),
 					'disabled' => esc_html__( 'Disabled', 'jetpack' ),
 				),
@@ -1134,6 +1147,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'on',
 				'enum'              => array(
+					'on',
+					'off',
+				),
+				'enum_labels' => array(
 					'on'  => esc_html__( 'On for all posts', 'jetpack' ),
 					'off' => esc_html__( 'Turned on per post', 'jetpack' ),
 				),
@@ -1163,6 +1180,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'disabled',
 				'enum'              => array(
+					'enabled',
+					'disabled',
+				),
+				'enum_labels' => array(
 					'enabled'  => esc_html__( 'Enable excerpts on front page and on archive pages', 'jetpack' ),
 					'disabled' => esc_html__( 'Show full posts on front page and on archive pages', 'jetpack' ),
 				),
@@ -1174,6 +1195,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'disabled',
 				'enum'              => array(
+					'enabled',
+					'disabled',
+				),
+				'enum_labels' => array(
 					'enabled'  => esc_html__( 'Display featured images', 'jetpack' ),
 					'disabled' => esc_html__( 'Hide all featured images', 'jetpack' ),
 				),
@@ -1203,6 +1228,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'noop',
 				'enum'              => array(
+					'noop',
+					'create',
+					'regenerate',
+					'delete',
+				),
+				'enum_labels' => array(
 					'noop'       => '',
 					'create'     => esc_html__( 'Create Post by Email address', 'jetpack' ),
 					'regenerate' => esc_html__( 'Regenerate Post by Email address', 'jetpack' ),
@@ -1232,7 +1263,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Sharing
 			'sharing_services' => array(
 				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
-				'type'              => 'array',
+				'type'              => 'object',
 				'default'           => array(
 					'visible' => array( 'twitter', 'facebook', 'google-plus-1' ),
 					'hidden'  => array(),
@@ -1245,6 +1276,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'icon',
 				'enum'              => array(
+					'icon-text',
+					'icon',
+					'text',
+					'official',
+				),
+				'enum_labels' => array(
 					'icon-text' => esc_html__( 'Icon + text', 'jetpack' ),
 					'icon'      => esc_html__( 'Icon only', 'jetpack' ),
 					'text'      => esc_html__( 'Text only', 'jetpack' ),
@@ -1285,7 +1322,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'custom' => array(
 				'description'       => esc_html__( 'Custom sharing services added by user.', 'jetpack' ),
-				'type'              => 'array',
+				'type'              => 'object',
 				'default'           => array(
 					'sharing_name' => '',
 					'sharing_url'  => '',
