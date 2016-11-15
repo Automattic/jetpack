@@ -131,12 +131,14 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_all_plugins_filter_is_respected() {
+		$this->sender->do_sync();
 		$plugins = get_plugins();
 
 		if ( ! isset( $plugins['hello.php'] ) ) {
 			$this->markTestSkipped( 'Plugin hello dolly is not available' );
 		}
 		add_filter( 'all_plugins', array( $this, 'remove_hello_dolly' ) );
+		$this->resetCallableAndConstantTimeouts();
 		$this->sender->do_sync();
 
 		remove_filter( 'all_plugins', array( $this, 'remove_hello_dolly' ) );
