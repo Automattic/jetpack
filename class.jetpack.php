@@ -1239,6 +1239,10 @@ class Jetpack {
 			$plan['supports'][] = 'vaultpress';
 		}
 
+		if ( ! isset( $plan['supports'] ) ) {
+			$plan['supports'] = array();
+		}
+
 		return $plan;
 	}
 
