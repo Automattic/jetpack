@@ -197,4 +197,3 @@
 	});
 
 })( this.wp, jQuery, this.wp.customize );
-
