@@ -23,6 +23,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			}
 		}
 
+
 		/**
 		 * Verifies that a user answered the math problem correctly while logging in.
 		 *
@@ -63,11 +64,6 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		 * @return none, execution stopped
 		 */
 		static function generate_math_page( $error = false ) {
-			$salt = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
-			$num1 = rand( 0, 10 );
-			$num2 = rand( 1, 10 );
-			$sum  = $num1 + $num2;
-			$ans  = sha1( $salt . $sum );
 			ob_start();
 			?>
 			<h2><?php _e( 'Please solve this math problem to prove that you are not a bot.  Once you solve it, you will need to log in again.', 'jetpack' ); ?></h2>
@@ -83,7 +79,9 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		<?php
 			$mathage = ob_get_contents();
 			ob_end_clean();
-			wp_die( $mathage );
+			wp_die( $mathage,
+			__( 'Prove your humanity:', 'jetpack' ),
+			array ( 'response' => 200 )  );
 		}
 
 		public function process_generate_math_page() {
