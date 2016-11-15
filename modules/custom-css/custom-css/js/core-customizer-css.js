@@ -1,6 +1,4 @@
-(function(wp, $){
-    var api = wp.customize;
-
+(function( wp, $, api ){
     api.controlConstructor.jetpackCss = api.Control.extend({
         modes: {
             'default': 'text/css',
@@ -195,4 +193,4 @@
         }
     });
 
-})(this.wp, jQuery);
+})( this.wp, jQuery, this.wp.customize );
