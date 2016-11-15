@@ -13,13 +13,13 @@
     "url": "https://github.com/Automattic/jetpack/issues"
   },
   "scripts": {
-    "watch": "gulp watch",
+    "watch": "./node_modules/.bin/gulp watch",
     "clean-client": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map _inc/build/*.html",
     "distclean": "rm -rf node_modules",
-    "build": "yarn && gulp",
-    "build-client": "gulp",
-    "build-production": "yarn run clean && yarn run build && yarn run build-languages && gulp languages:extract && NODE_ENV=production BABEL_ENV=production yarn run build",
-    "build-languages": "gulp languages",
+    "build": "yarn && yarn build-client",
+    "build-client": "./node_modules/.bin/gulp",
+    "build-production": "yarn clean-client && yarn build-languages && ./node_modules/.bin/gulp languages:extract && NODE_ENV=production BABEL_ENV=production yarn build",
+    "build-languages": "./node_modules/.bin/gulp languages",
     "lint": "eslint _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "./node_modules/.bin/grunt addtextdomain",
