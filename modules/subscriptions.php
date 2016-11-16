@@ -223,9 +223,7 @@ class Jetpack_Subscriptions {
 	}
 
 	function set_post_flags( $flags, $post ) {
-		if ( ! $this->should_email_post_to_subscribers( $post ) ) {
-			$flags['_jetpack_dont_email_post_to_subs'] = true;
-		}
+		$flags['send_subscription'] = $this->should_email_post_to_subscribers( $post );
 		return $flags;
 	}
 
