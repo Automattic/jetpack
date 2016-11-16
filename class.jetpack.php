@@ -3019,9 +3019,7 @@ p {
 		}
 
 		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
-			if ( 4 != Jetpack_Options::get_option( 'activated' ) ) {
-				Jetpack_Connection_Banner::init();
-			}
+			Jetpack_Connection_Banner::init();
 		} elseif ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate

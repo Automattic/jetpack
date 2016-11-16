@@ -36,12 +36,19 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * Fires on init since is_connection_owner should wait until the user is initialized by $wp->init();
+	 * Fires on init
 	 */
 	public function on_init() {
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
+
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
+
+		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
 		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
+
+		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
+
+		add_action( 'admin_menu', array( $this,'change_add_new_menu_location' ), 999 );
 
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
@@ -98,6 +105,22 @@ class Jetpack_VideoPress {
 		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
+	}
+
+	/**
+	 * Filters the VideoPress shortcode options, makes sure that
+	 * the settings set in Jetpack's VideoPress module are applied.
+	 */
+	public function videopress_shortcode_options( $options ) {
+		$videopress_options = VideoPress_Options::get_options();
+
+		if ( false === $options['freedom'] ) {
+			$options['freedom'] = $videopress_options['freedom'];
+		}
+
+		$options['hd'] = $videopress_options['hd'];
+
+		return $options;
 	}
 
 	/**
@@ -212,6 +235,48 @@ class Jetpack_VideoPress {
 		return $options['shadow_blog_id'] > 0;
 	}
 
+	/**
+	 * A work-around / hack to make it possible to go to the media library with the add new box open.
+	 *
+	 * @return bool
+	 */
+	public function print_in_footer_open_media_add_new() {
+		global $pagenow;
+
+		// Only load in the admin
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		if ( $pagenow !== 'upload.php' ) {
+			return false;
+		}
+
+		if ( ! isset ( $_GET['action'] ) || $_GET['action'] !== 'add-new' ) {
+			return false;
+		}
+
+		?>
+			<script type="text/javascript">
+				( function( $ ) {
+					window.setTimeout( function() {
+						$('#wp-media-grid .page-title-action').click();
+					}, 500 );
+
+				}( jQuery ) );
+			</script>
+		<?php
+	}
+
+	/**
+	 * Changes the add new menu location, so that VideoPress will be enabled
+	 * when a user clicks that button.
+	 */
+	public function change_add_new_menu_location() {
+		$page = remove_submenu_page( 'upload.php', 'media-new.php' );
+
+		add_submenu_page( 'upload.php', $page[0], $page[0], 'upload_files', 'upload.php?action=add-new');
+	}
 }
 
 // Initialize the module.

@@ -92,32 +92,34 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 		$available_themes_updates = get_site_transient( 'update_themes' );
 		
 		if ( ! isset( $available_themes_updates->translations ) || empty( $available_themes_updates->translations ) ) {
+			
 			return new WP_Error( 'nothing_to_translate' );
 		}
 
 		foreach( $available_themes_updates->translations as $translation ) {
-			$theme = $translation['slug'] ;
 			if ( ! in_array( $translation['slug'], $this->themes )  ) {
-				$this->log[ $theme ][] = __( 'No update needed', 'jetpack' );
 				continue;
 			}
+
+			$theme = $translation['slug'] ;
+
 
 			/**
 			 * Pre-upgrade action
 			 *
-			 * @since 4.4
+			 * @since 3.9.3
 			 *
 			 * @param object $theme WP_Theme object
 			 * @param array $themes Array of theme objects
 			 */
-			do_action( 'jetpack_pre_theme_upgrade_translations', $theme, $this->themes );
+			do_action('jetpack_pre_theme_upgrade', $theme, $this->themes);
 			// Objects created inside the for loop to clean the messages for each theme
 			$skin = new Automatic_Upgrader_Skin();
 			$upgrader = new Language_Pack_Upgrader( $skin );
 			$upgrader->init();
 
 			$result   = $upgrader->upgrade( (object) $translation );
-			$this->log[ $theme ] = $upgrader->skin->get_upgrade_messages();
+			$this->log[ $theme ][] = $upgrader->skin->get_upgrade_messages();
 		}
 
 		if ( ! $this->bulk && ! $result ) {
