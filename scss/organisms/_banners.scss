@@ -67,7 +67,12 @@
 }
 
 .jp-wpcom-connect__content-container {
+	position: relative;
 	padding: rem( 32px );
+
+	@include minbreakpoint(tablet) {
+		padding: rem( 32px ) rem( 32px ) rem( 96px ) rem( 32px );
+	};
 }
 
 .jp-wpcom-connect__content-container p {
@@ -91,6 +96,13 @@
 	&.jp__slide-is-active {
 		display: block;
 	}
+}
+
+.jp-banner__button-container {
+	@include minbreakpoint(tablet) {
+		position: absolute;
+		bottom: rem( 16px );
+	};
 }
 
 .jp-banner__button-container .dops-button {
