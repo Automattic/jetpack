@@ -86,27 +86,6 @@ export const Writing = ( props ) => {
 			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
 		}
 
-		var isVideoPress = 'videopress' === element[0];
-
-		if ( isVideoPress ) {
-			var vpProps = {
-				module: 'videopress',
-				configure_url: ''
-			};
-
-			toggle = <ProStatus proFeature={ 'videopress' } />;
-
-			element[1] = <span>
-				{ element[1] }
-				<Button
-					compact={ true }
-					href="#/plans"
-				>
-					{ __( 'Pro' ) }
-				</Button>
-			</span>;
-		}
-
 		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
@@ -124,7 +103,7 @@ export const Writing = ( props ) => {
 				) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ isVideoPress ? vpProps : getModule( element[0] ) } /> :
+					<AllModuleSettings module={ getModule( element[0] ) } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}

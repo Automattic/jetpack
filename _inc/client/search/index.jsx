@@ -90,7 +90,7 @@ export const SearchResults = ( {
 	} );
 
 	cards = moduleList.map( ( element ) => {
-		let isPro = 'scan' === element[0] || 'akismet' === element[0] || 'backups' === element[0] || 'videopress' === element[0],
+		let isPro = 'scan' === element[0] || 'akismet' === element[0] || 'backups' === element[0],
 			proProps = {},
 			unavailableDevMode = unavailableInDevMode( element[0] ),
 			toggle = unavailableDevMode ? __( 'Unavailable in Dev Mode' ) : (
