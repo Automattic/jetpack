@@ -1294,6 +1294,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'show' => array(
 				'description'       => esc_html__( 'Views where buttons are shown', 'jetpack' ),
 				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string'
+				),
 				'default'           => array( 'post' ),
 				'validate_callback' => __CLASS__ . '::validate_sharing_show',
 				'jp_group'          => 'sharedaddy',
@@ -1529,6 +1532,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'roles' => array(
 				'description'       => esc_html__( 'Select the roles that will be able to view stats reports.', 'jetpack' ),
 				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string'
+				),
 				'default'           => array( 'administrator' ),
 				'validate_callback' => __CLASS__ . '::validate_stats_roles',
 				'sanitize_callback' => __CLASS__ . '::sanitize_stats_allowed_roles',
@@ -1537,6 +1543,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'count_roles' => array(
 				'description'       => esc_html__( 'Count the page views of registered users who are logged in.', 'jetpack' ),
 				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string'
+				),
 				'default'           => array( 'administrator' ),
 				'validate_callback' => __CLASS__ . '::validate_stats_roles',
 				'jp_group'          => 'stats',
@@ -1767,6 +1776,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function validate_sharing_show( $value, $request, $param ) {
 		$views = array( 'index', 'post', 'page', 'attachment', 'jetpack-portfolio' );
+		if ( ! is_array( $value ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an array of post types.', 'jetpack' ), $param ) );
+		}
 		if ( ! array_intersect( $views, $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf(
 				/* Translators: first variable is the name of a parameter passed to endpoint holding the post type where Sharing will be displayed, the second is a list of post types where Sharing can be displayed */
