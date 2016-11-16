@@ -42,10 +42,6 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'invalid_input', 'A valid user ID must be specified.', 400 );
 		}
 
-		if ( get_current_user_id() == $user_id ) {
-			return new WP_Error( 'invalid_input', 'User can not remove or delete self through this endpoint.', 400 );
-		}
-
 		if ( ! $this->user_exists( $user_id ) ) {
 			return new WP_Error( 'invalid_input', 'A user does not exist with that ID.', 400 );
 		}
