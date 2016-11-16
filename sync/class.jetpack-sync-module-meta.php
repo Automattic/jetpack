@@ -22,7 +22,10 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	 */
 	public function get_objects_by_id( $object_type, $config ) {
 		global $wpdb;
-		if ( ! in_array( $object_type, $this->meta_types ) ) {
+
+		$table = _get_meta_table( $object_type );
+
+		if ( ! $table ) {
 			return array();
 		}
 
@@ -32,18 +35,7 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 
 		$meta_key = $config['meta_key'];
 		$ids = $config['ids'];
-
-		if ( ! $this->is_meta_key_allowed( $meta_key ) ) {
-			return array();
-		}
-
-		if ( 'post' == $object_type ) {
-			$table = $wpdb->postmeta;
-			$object_id_column = 'post_id';
-		} else {
-			$table = $wpdb->commentmeta;
-			$object_id_column = 'comment_id';
-		}
+		$object_id_column = $object_type.'_id';
 
 		// Sanitize so that the array only has integer values
 		$ids_string = implode( ', ', array_map( 'intval', $ids ) );
@@ -71,9 +63,7 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		foreach ( $this->meta_types as $meta_type ) {
-			add_action( "added_{$meta_type}_meta", $callable, 10, 4 );
-			add_action( "updated_{$meta_type}_meta", $callable, 10, 4 );
-			add_action( "deleted_{$meta_type}_meta", $callable, 10, 4 );
+			$this->init_listeners_for_meta_type( $meta_type, $callable );
 
 			$whitelist_handler = array( $this, 'filter_meta_' . $meta_type );
 			add_filter( "jetpack_sync_before_enqueue_added_{$meta_type}_meta", $whitelist_handler );
@@ -81,23 +71,22 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 			add_filter( "jetpack_sync_before_enqueue_deleted_{$meta_type}_meta", $whitelist_handler );
 		}
 	}
-	// POST Meta
-	function get_post_meta_whitelist() {
-		return Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' );
+
+	public function init_listeners_for_meta_type( $meta_type, $callable ) {
+		add_action( "added_{$meta_type}_meta", $callable, 10, 4 );
+		add_action( "updated_{$meta_type}_meta", $callable, 10, 4 );
+		add_action( "deleted_{$meta_type}_meta", $callable, 10, 4 );
 	}
 
+	// POST Meta
 	function is_whitelisted_post_meta( $meta_key ) {
 		// _wpas_skip_ is used by publicize
-		return in_array( $meta_key, $this->get_post_meta_whitelist() ) || wp_startswith( $meta_key, '_wpas_skip_' );
+		return in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' ) ) || wp_startswith( $meta_key, '_wpas_skip_' );
 	}
 
 	// Comment Meta
-	function get_comment_meta_whitelist() {
-		return Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' );
-	}
-
 	function is_whitelisted_comment_meta( $meta_key ) {
-		return in_array( $meta_key, $this->get_comment_meta_whitelist() );
+		return in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) );
 	}
 
 	function is_post_type_allowed( $post_id ) {

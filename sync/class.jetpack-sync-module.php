@@ -97,24 +97,15 @@ abstract class Jetpack_Sync_Module {
 		return array( $chunk_count, true );
 	}
 
-	protected function get_metadata( $ids, $meta_type ) {
+	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist ) {
 		global $wpdb;
 		$table = _get_meta_table( $meta_type );
 		$id    = $meta_type . '_id';
 		if ( ! $table ) {
 			return array();
 		}
-		$private_meta_whitelist_sql = '';
-		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
-		
-		switch( $meta_type ) {
-			case 'post':
-				$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_module->get_post_meta_whitelist() ) ) . "'";
-				break;
-			case 'comment':
-				$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_module->get_comment_meta_whitelist() ) ) . "'";
-				break;
-		}
+
+		$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_key_whitelist ) ) . "'";
 
 		return array_map( 
 			array( $this, 'unserialize_meta' ), 
