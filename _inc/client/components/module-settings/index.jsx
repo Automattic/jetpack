@@ -11,6 +11,7 @@ import ClipboardButtonInput from 'components/clipboard-button-input';
 import ConnectButton from 'components/connect-button';
 import get from 'lodash/get';
 import Button from 'components/button';
+import ExternalLink from 'components/external-link';
 
 /**
  * Internal dependencies
@@ -38,9 +39,10 @@ export let VideoPressSettings = React.createClass( {
 				<p className="jp-form-setting-explanation">
 					{ __( 'The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.' ) }
 				</p>
-				<p className="jp-form-setting-explanation">
-					{ __( 'To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!' ) }
-				</p>
+				<br/>
+				<div>
+					<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ this.props.module.configure_url }>{ __( 'Configure your VideoPress settings.' ) }</ExternalLink>
+				</div>
 			</div>
 		)
 	}

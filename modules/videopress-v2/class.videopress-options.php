@@ -21,21 +21,12 @@ class VideoPress_Options {
 		}
 
 		$defaults = array(
-			'freedom'        => false,
-			'hd'             => true,
 			'meta'           => array(
 				'max_upload_size' => 0,
 			),
 		);
 
 		self::$options = Jetpack_Options::get_option( self::$option_name, array() );
-
-		// If options have not been saved yet, check for older VideoPress plugin options.
-		if ( empty( self::$options ) ) {
-			self::$options['freedom'] = (bool) get_option( 'video_player_freedom', false );
-			self::$options['hd']      = (bool) get_option( 'video_player_high_quality', false );
-		}
-
 		self::$options = array_merge( $defaults, self::$options );
 
 		// Make sure that the shadow blog id never comes from the options, but instead uses the
