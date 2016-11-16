@@ -571,7 +571,7 @@ add_action( 'jetpack_learn_more_button_seo-tools', 'jetpack_seo_tools_more_link'
 
 function jetpack_seo_tools_more_info() {
 	esc_html_e(
-		'Adds tools to enhance your site\'s content for better results on search engines and social media.'
+		'Better results on search engines and social media.'
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_seo-tools', 'jetpack_seo_tools_more_info' );

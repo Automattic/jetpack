@@ -91,7 +91,7 @@ const AllModuleSettingsComponent = React.createClass( {
 				if ( '' === module.configure_url ) {
 					return (
 						<div>
-							{ __( 'Your Jetpack plan doesn’t include SEO tools. You must upgrade to Jetpack Professional to use SEO tools.' ) }
+							{ __( 'Make sure your site is easily found on search engines with advanced SEO tools for your content and social posts.' ) }
 						</div>
 					);
 				} else if ( 'checking' === module.configure_url ) {
@@ -99,7 +99,7 @@ const AllModuleSettingsComponent = React.createClass( {
 				} else if ( 'inactive' === module.configure_url ) {
 					return (
 						<div>
-							{ __( 'You have the Professional plan! Activate this module to use the advanced SEO tools.' ) }
+							{ __( 'Activate this module to use the advanced SEO tools.' ) }
 						</div>
 					);
 				} else {
