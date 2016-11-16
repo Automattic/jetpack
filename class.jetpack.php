@@ -1248,7 +1248,7 @@ class Jetpack {
 		);
 
 		if ( in_array( $plan['product_slug'], $business_plans ) ) {
-			$plan['supports'][] = array(
+			$plan['supports'] = array(
 				'videopress',
 				'akismet',
 				'vaultpress',
