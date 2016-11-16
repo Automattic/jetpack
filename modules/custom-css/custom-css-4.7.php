@@ -10,6 +10,9 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'customize_controls_enqueue_scripts' ) );
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 20, 2 );
+        add_action( 'customize_preview_init', array( __CLASS__, 'customize_preview_init' ) );
+
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
 
 		// Handle Sass/LESS
 		add_filter( 'customize_value_custom_css', array( __CLASS__, 'customize_value_custom_css' ), 10, 2 );
@@ -43,7 +46,12 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_register_script( 'jetpack-codemirror',     plugins_url( "custom-css/js/codemirror{$min}.js", __FILE__ ), array(), '3.16', true );
 		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), array(  'customize-controls', 'underscore', 'jetpack-codemirror' ), JETPACK__VERSION, true );
 
+		wp_register_script( 'jetpack-customizer-css-preview', plugins_url( 'custom-css/js/core-customizer-css-preview.js', __FILE__ ), array( 'customize-selective-refresh' ), JETPACK__VERSION, true );
 	}
+
+	public static function customize_preview_init() {
+        add_filter( 'wp_get_custom_css', array( __CLASS__, 'customize_preview_wp_get_custom_css' ) );
+    }
 
 	public static function map_meta_cap( $caps, $cap ) {
 		if ( 'edit_css' === $cap ) {
@@ -99,6 +107,10 @@ class Jetpack_Custom_CSS_Enhancements {
 		return 0;
 	}
 
+	public static function echo_custom_css_partial() {
+		echo wp_get_custom_css();
+	}
+
 	public static function admin_page() {
 		?>
 		<div class="wrap">
@@ -146,6 +158,12 @@ class Jetpack_Custom_CSS_Enhancements {
 				'css_help_title' => __( 'CSS Help' )
 			)
 		));
+	}
+
+	public static function wp_enqueue_scripts() {
+		if ( is_customize_preview() ) {
+			wp_enqueue_script( 'jetpack-customizer-css-preview' );
+		}
 	}
 
 	public static function sanitize_css( $css, $force = false ) {
@@ -361,6 +379,18 @@ class Jetpack_Custom_CSS_Enhancements {
 			$wp_customize->add_control( $core_custom_css );
 		}
 
+		$wp_customize->selective_refresh->add_partial( 'custom_css', array(
+			'type'                => 'custom_css',
+			'selector'            => '#wp-custom-css',
+			'container_inclusive' => false,
+			'fallback_refresh'    => false,
+			'settings'            => array(
+				'custom_css[' . $wp_customize->get_stylesheet() . ']',
+				'jetpack_custom_css[preprocessor]',
+			),
+			'render_callback' => array( __CLASS__, 'echo_custom_css_partial' ),
+		) );
+
 		$wp_customize->add_control( 'wpcom_custom_css_content_width_control', array(
 			'type'     => 'text',
 			'label'    => __( 'Media Width', 'jetpack' ),
@@ -406,6 +436,24 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 	public static function is_customizer_preview() {
 		return false;
+	}
+
+	public static function customize_preview_wp_get_custom_css( $css ) {
+		global $wp_customize;
+
+		$preprocessor = $wp_customize->get_setting('jetpack_custom_css[preprocessor]')->value();
+
+		// If it's empty, just return.
+		if ( empty( $preprocessor ) ) {
+			return $css;
+		}
+
+		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+		if ( isset( $preprocessors[ $preprocessor ] ) ) {
+			return call_user_func( $preprocessors[ $preprocessor ]['callback'], $css );
+		}
+
+		return $css;
 	}
 
 	public static function customize_value_custom_css( $css, $setting ) {
