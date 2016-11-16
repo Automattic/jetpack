@@ -693,6 +693,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				return new WP_Error( 'site_data_fetch_failed', esc_html__( 'Failed fetching site data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
 			}
 
+			// Save plan details in the database for future use without API calls
+			$results = json_decode( $response['body'], true );
+
+			if ( is_array( $results ) && isset( $results['plan'] ) ) {
+				update_option( 'jetpack_active_plan', $results['plan'] );
+			}
+
 			return rest_ensure_response( array(
 					'code' => 'success',
 					'message' => esc_html__( 'Site data correctly received.', 'jetpack' ),
@@ -1018,6 +1025,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'black',
 				'enum'              => array(
+					'black',
+					'white',
+				),
+				'enum_labels' => array(
 					'black' => esc_html__( 'Black', 'jetpack' ),
 					'white' => esc_html__( 'White', 'jetpack' ),
 				),
@@ -1045,6 +1056,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'light',
 				'enum'              => array(
+					'light',
+					'dark',
+					'transparent',
+				),
+				'enum_labels' => array(
 					'light'       => esc_html__( 'Light', 'jetpack' ),
 					'dark'        => esc_html__( 'Dark', 'jetpack' ),
 					'transparent' => esc_html__( 'Transparent', 'jetpack' ),
@@ -1098,6 +1114,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => 'enabled',
 				// Not visible. This is used as the checkbox value.
 				'enum'              => array(
+					'enabled',
+					'disabled',
+				),
+				'enum_labels' => array(
 					'enabled'  => esc_html__( 'Enabled', 'jetpack' ),
 					'disabled' => esc_html__( 'Disabled', 'jetpack' ),
 				),
@@ -1127,6 +1147,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'on',
 				'enum'              => array(
+					'on',
+					'off',
+				),
+				'enum_labels' => array(
 					'on'  => esc_html__( 'On for all posts', 'jetpack' ),
 					'off' => esc_html__( 'Turned on per post', 'jetpack' ),
 				),
@@ -1156,6 +1180,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'disabled',
 				'enum'              => array(
+					'enabled',
+					'disabled',
+				),
+				'enum_labels' => array(
 					'enabled'  => esc_html__( 'Enable excerpts on front page and on archive pages', 'jetpack' ),
 					'disabled' => esc_html__( 'Show full posts on front page and on archive pages', 'jetpack' ),
 				),
@@ -1167,6 +1195,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'disabled',
 				'enum'              => array(
+					'enabled',
+					'disabled',
+				),
+				'enum_labels' => array(
 					'enabled'  => esc_html__( 'Display featured images', 'jetpack' ),
 					'disabled' => esc_html__( 'Hide all featured images', 'jetpack' ),
 				),
@@ -1196,6 +1228,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'noop',
 				'enum'              => array(
+					'noop',
+					'create',
+					'regenerate',
+					'delete',
+				),
+				'enum_labels' => array(
 					'noop'       => '',
 					'create'     => esc_html__( 'Create Post by Email address', 'jetpack' ),
 					'regenerate' => esc_html__( 'Regenerate Post by Email address', 'jetpack' ),
@@ -1225,7 +1263,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Sharing
 			'sharing_services' => array(
 				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
-				'type'              => 'array',
+				'type'              => 'object',
 				'default'           => array(
 					'visible' => array( 'twitter', 'facebook', 'google-plus-1' ),
 					'hidden'  => array(),
@@ -1238,6 +1276,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'icon',
 				'enum'              => array(
+					'icon-text',
+					'icon',
+					'text',
+					'official',
+				),
+				'enum_labels' => array(
 					'icon-text' => esc_html__( 'Icon + text', 'jetpack' ),
 					'icon'      => esc_html__( 'Icon only', 'jetpack' ),
 					'text'      => esc_html__( 'Text only', 'jetpack' ),
@@ -1257,6 +1301,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'show' => array(
 				'description'       => esc_html__( 'Views where buttons are shown', 'jetpack' ),
 				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string'
+				),
 				'default'           => array( 'post' ),
 				'validate_callback' => __CLASS__ . '::validate_sharing_show',
 				'jp_group'          => 'sharedaddy',
@@ -1278,7 +1325,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'custom' => array(
 				'description'       => esc_html__( 'Custom sharing services added by user.', 'jetpack' ),
-				'type'              => 'array',
+				'type'              => 'object',
 				'default'           => array(
 					'sharing_name' => '',
 					'sharing_url'  => '',
@@ -1492,6 +1539,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'roles' => array(
 				'description'       => esc_html__( 'Select the roles that will be able to view stats reports.', 'jetpack' ),
 				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string'
+				),
 				'default'           => array( 'administrator' ),
 				'validate_callback' => __CLASS__ . '::validate_stats_roles',
 				'sanitize_callback' => __CLASS__ . '::sanitize_stats_allowed_roles',
@@ -1500,6 +1550,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'count_roles' => array(
 				'description'       => esc_html__( 'Count the page views of registered users who are logged in.', 'jetpack' ),
 				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string'
+				),
 				'default'           => array( 'administrator' ),
 				'validate_callback' => __CLASS__ . '::validate_stats_roles',
 				'jp_group'          => 'stats',
@@ -1730,6 +1783,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function validate_sharing_show( $value, $request, $param ) {
 		$views = array( 'index', 'post', 'page', 'attachment', 'jetpack-portfolio' );
+		if ( ! is_array( $value ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an array of post types.', 'jetpack' ), $param ) );
+		}
 		if ( ! array_intersect( $views, $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf(
 				/* Translators: first variable is the name of a parameter passed to endpoint holding the post type where Sharing will be displayed, the second is a list of post types where Sharing can be displayed */
