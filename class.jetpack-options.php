@@ -25,7 +25,6 @@ class Jetpack_Options {
 				'file_data',
 				'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
 				'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
-				'autoupdate_themes_translations', // (array)  An array of theme ids ( eg. twentyfourteen ) that should autoupdated translation files.
 				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
 				'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
 				'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.

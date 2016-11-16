@@ -12,12 +12,12 @@ class Jetpack_Autoupdate {
 
 	private $success = array(
 		'plugin' => array(),
-		'theme'  => array(),
+		'theme' => array(),
 	);
 
 	private $failed = array(
 		'plugin' => array(),
-		'theme'  => array(),
+		'theme' => array(),
 	);
 
 	private static $instance = null;
@@ -26,16 +26,14 @@ class Jetpack_Autoupdate {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Autoupdate;
 		}
-
 		return self::$instance;
 	}
 
 	private function __construct() {
 		if ( Jetpack::is_module_active( 'manage' ) ) {
-			add_filter( 'auto_update_plugin', array( $this, 'autoupdate_plugin' ), 10, 2 );
-			add_filter( 'auto_update_theme', array( $this, 'autoupdate_theme' ), 10, 2 );
-			add_filter( 'auto_update_core', array( $this, 'autoupdate_core' ), 10, 2 );
-			add_filter( 'auto_update_translation', array( $this, 'autoupdate_translation', 10, 2 ) );
+			add_filter( 'auto_update_plugin',  array( $this, 'autoupdate_plugin' ), 10, 2 );
+			add_filter( 'auto_update_theme',   array( $this, 'autoupdate_theme' ), 10, 2 );
+			add_filter( 'auto_update_core',    array( $this, 'autoupdate_core' ), 10, 2 );
 			add_action( 'automatic_updates_complete', array( $this, 'automatic_updates_complete' ), 999, 1 );
 		}
 	}
@@ -44,48 +42,17 @@ class Jetpack_Autoupdate {
 		$autoupdate_plugin_list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		if ( in_array( $item->plugin, $autoupdate_plugin_list ) ) {
 			$this->expect( $item->plugin, 'plugin' );
-
-			return true;
+ 			return true;
 		}
-
-		return $update;
-	}
-
-	public function autoupdate_translation( $update, $item ) {
-		$autoupdate_themes_translations = Jetpack_Options::get_option( 'autoupdate_themes_translations', array() );
-		$autoupdate_theme_list          = Jetpack_Options::get_option( 'autoupdate_themes', array() );
-
-		/*
-		$item = {
-		  "type":"theme",
-		  "slug":"twentyfourteen",
-		  "language":"en_CA",
-		  "version":"1.8",
-		  "updated":"2015-07-18 11:27:20",
-		  "package":"https:\/\/downloads.wordpress.org\/translation\/theme\/twentyfourteen\/1.8\/en_CA.zip",
-		  "autoupdate":true
-		}
-		*/
-		if ( ( in_array( $item->slug, $autoupdate_themes_translations )
-		       || in_array( $item->slug, $autoupdate_theme_list ) )
-		     && 'theme' === $item->type
-		) {
-			$this->expect( $item->slug, 'theme' );
-
-			return true;
-		}
-
 		return $update;
 	}
 
 	public function autoupdate_theme( $update, $item ) {
 		$autoupdate_theme_list = Jetpack_Options::get_option( 'autoupdate_themes', array() );
-		if ( in_array( $item->theme, $autoupdate_theme_list ) ) {
+		if ( in_array( $item->theme , $autoupdate_theme_list) ) {
 			$this->expect( $item->theme, 'theme' );
-
 			return true;
 		}
-
 		return $update;
 	}
 
@@ -94,14 +61,13 @@ class Jetpack_Autoupdate {
 		if ( $autoupdate_core ) {
 			return $autoupdate_core;
 		}
-
 		return $update;
 	}
 
 	/**
 	 * Stores the an item identifier to the expected array.
 	 *
-	 * @param string $item Example: 'jetpack/jetpack.php' for type 'plugin' or 'twentyfifteen' for type 'theme'
+	 * @param string $item  Example: 'jetpack/jetpack.php' for type 'plugin' or 'twentyfifteen' for type 'theme'
 	 * @param string $type 'plugin' or 'theme'
 	 */
 	private function expect( $item, $type ) {
@@ -127,7 +93,7 @@ class Jetpack_Autoupdate {
 		Jetpack::init();
 
 		$items_to_log = array( 'plugin', 'theme' );
-		foreach ( $items_to_log as $items ) {
+		foreach( $items_to_log as $items ) {
 			$this->log_items( $items );
 		}
 
@@ -136,9 +102,9 @@ class Jetpack_Autoupdate {
 
 	public function get_log() {
 		return array(
-			'results' => $this->results,
-			'failed'  => $this->failed,
-			'success' => $this->success
+			'results'	=> $this->results,
+			'failed'	=> $this->failed,
+			'success'	=> $this->success
 		);
 	}
 
@@ -156,11 +122,11 @@ class Jetpack_Autoupdate {
 		$item_results = $this->get_successful_updates( $items );
 
 		if ( is_array( $this->expected[ $items ] ) ) {
-			foreach ( $this->expected[ $items ] as $item ) {
+			foreach( $this->expected[ $items ] as $item ) {
 				if ( in_array( $item, $item_results ) ) {
-					$this->success[ $items ][] = $item;
+						$this->success[ $items ][] = $item;
 				} else {
-					$this->failed[ $items ][] = $item;
+						$this->failed[ $items ][] = $item;
 				}
 			}
 		}
@@ -168,7 +134,7 @@ class Jetpack_Autoupdate {
 
 	public function bump_stats() {
 		$instance = Jetpack::init();
-		$log      = array();
+		$log = array();
 		// Bump numbers
 		if ( ! empty( $this->success['plugin'] ) ) {
 			$instance->stat( 'autoupdates/plugin-success', count( $this->success['plugin'] ) );
@@ -195,7 +161,7 @@ class Jetpack_Autoupdate {
 		// Send a more detailed log to logstash
 		if ( ! empty( $log ) ) {
 			Jetpack::load_xml_rpc_client();
-			$xml            = new Jetpack_IXR_Client( array(
+			$xml = new Jetpack_IXR_Client( array(
 				'user_id' => get_current_user_id()
 			) );
 			$log['blog_id'] = Jetpack_Options::get_option( 'id' );
@@ -217,9 +183,9 @@ class Jetpack_Autoupdate {
 			return $successful_updates;
 		}
 
-		foreach ( $this->results[ $type ] as $result ) {
+		foreach( $this->results[ $type ] as $result ) {
 			if ( $result->result ) {
-				switch ( $type ) {
+				switch( $type ) {
 					case 'theme':
 						$successful_updates[] = $result->item->theme;
 						break;
@@ -267,16 +233,14 @@ class Jetpack_Autoupdate {
 		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, false ) ) {
 			$result[] = 'no-system-write-access';
 		}
-		if ( ! $skin->request_filesystem_credentials( false, WP_PLUGIN_DIR, false ) ) {
+		if ( ! $skin->request_filesystem_credentials( false, WP_PLUGIN_DIR, false )  ) {
 			$result[] = 'no-plugin-directory-write-access';
 		}
-		if ( ! $skin->request_filesystem_credentials( false, WP_CONTENT_DIR, false ) ) {
+		if ( ! $skin->request_filesystem_credentials( false,  WP_CONTENT_DIR, false ) ) {
 			$result[] = 'no-wp-content-directory-write-access';
 		}
-
 		return $result;
 	}
 
 }
-
 Jetpack_Autoupdate::init();
