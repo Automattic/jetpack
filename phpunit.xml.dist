@@ -70,6 +70,9 @@
 		<testsuite name="idc">
 			<file>tests/php/test_class.jetpack-idc.php</file>
 		</testsuite>
+		<testsuite name="feature-rollout">
+			<file>tests/php/test_class.jetpack-feature-rollout.php</file>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>

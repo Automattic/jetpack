@@ -316,50 +316,68 @@ EXPECTED;
 	}
 
 	function test_idc_optin_default() {
+		add_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 		if ( is_multisite() ) {
 			$this->assertFalse( Jetpack::sync_idc_optin() );
 		} else {
 			$this->assertTrue( Jetpack::sync_idc_optin() );
 		}
+		remove_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 	}
 
 	function test_idc_optin_false_when_sunrise() {
+		add_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 		Jetpack_Constants::set_constant( 'SUNRISE', true );
 
 		$this->assertFalse( Jetpack::sync_idc_optin() );
 
 		Jetpack_Constants::clear_constants();
+		remove_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 	}
 
 	function test_idc_optin_filter_overrides_development_version() {
+		add_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 		add_filter( 'jetpack_development_version', '__return_true' );
 		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
 		$this->assertFalse( Jetpack::sync_idc_optin() );
 		remove_filter( 'jetpack_development_version', '__return_true' );
 		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
+		remove_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 	}
 
 	function test_idc_optin_casts_to_bool() {
+		add_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
 		$this->assertTrue( Jetpack::sync_idc_optin() );
 		remove_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+		remove_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 	}
 
 	function test_idc_optin_true_when_constant_true() {
+		add_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
 		$this->assertTrue( Jetpack::sync_idc_optin() );
+		remove_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 	}
 
 	function test_idc_optin_false_when_constant_false() {
+		add_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
 		$this->assertFalse( Jetpack::sync_idc_optin() );
+		remove_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 	}
 
 	function test_idc_optin_filter_overrides_constant() {
+		add_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
 		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
 		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
 		$this->assertFalse( Jetpack::sync_idc_optin() );
 		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
+		remove_filter( 'jetpack_feature_rollout_enabled', '__return_true' );
+	}
+
+	function test_idc_optin_returns_false_when_feature_disabled() {
+		$this->assertFalse( Jetpack::sync_idc_optin() );
 	}
 
 	function test_sync_error_idc_validation_returns_false_if_no_option() {
@@ -400,71 +418,6 @@ EXPECTED;
 
 		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
-	}
-
-	function test_sync_error_idc_validation_success_when_idc_allowed() {
-		add_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-
-		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
-
-		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
-		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
-
-		// Cleanup
-		remove_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		delete_transient( 'jetpack_idc_allowed' );
-	}
-
-	function test_sync_error_idc_validation_fails_when_idc_disabled() {
-		add_filter( 'pre_http_request', array( $this, '__idc_is_disabled' ) );
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-
-		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
-		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
-
-		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
-		$this->assertEquals( '0', get_transient( 'jetpack_idc_allowed' ) );
-
-		// Cleanup
-		remove_filter( 'pre_http_request', array( $this, '__idc_is_disabled' ) );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		delete_transient( 'jetpack_idc_allowed' );
-	}
-
-	function test_sync_error_idc_validation_success_when_idc_errored() {
-		add_filter( 'pre_http_request', array( $this, '__idc_check_errored' ) );
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-
-		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
-
-		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
-		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
-
-		// Cleanup
-		remove_filter( 'pre_http_request', array( $this, '__idc_is_errored' ) );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		delete_transient( 'jetpack_idc_allowed' );
-	}
-
-	function test_sync_error_idc_validation_success_when_idc_404() {
-		add_filter( 'pre_http_request', array( $this, '__idc_check_404' ) );
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-
-		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
-
-		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
-		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
-
-		// Cleanup
-		remove_filter( 'pre_http_request', array( $this, '__idc_check_404' ) );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		delete_transient( 'jetpack_idc_allowed' );
 	}
 
 	function test_is_staging_site_true_when_sync_error_idc_is_valid() {
@@ -584,36 +537,7 @@ EXPECTED;
 		return '1';
 	}
 
-	function __idc_is_allowed() {
-		return array(
-			'response' => array(
-				'code' => 200
-			),
-			'body' => '{"result":true}'
-		);
-	}
 
-	function __idc_is_disabled() {
-		return array(
-			'response' => array(
-				'code' => 200
-			),
-			'body' => '{"result":false}'
-		);
-	}
-
-	function __idc_check_errored() {
-		return new WP_Error( 'idc-request-failed' );
-	}
-
-	function __idc_check_404() {
-		return array(
-			'response' => array(
-				'code' => 404
-			),
-			'body' => '<div>some content</div>'
-		);
-	}
 
 	static function reset_tracking_of_module_activation() {
 		self::$activated_modules = array();
