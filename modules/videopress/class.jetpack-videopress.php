@@ -40,10 +40,7 @@ class Jetpack_VideoPress {
 	 */
 	public function on_init() {
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
-
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
-
-		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
 		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
 
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
@@ -105,22 +102,6 @@ class Jetpack_VideoPress {
 		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
-	}
-
-	/**
-	 * Filters the VideoPress shortcode options, makes sure that
-	 * the settings set in Jetpack's VideoPress module are applied.
-	 */
-	public function videopress_shortcode_options( $options ) {
-		$videopress_options = VideoPress_Options::get_options();
-
-		if ( false === $options['freedom'] ) {
-			$options['freedom'] = $videopress_options['freedom'];
-		}
-
-		$options['hd'] = $videopress_options['hd'];
-
-		return $options;
 	}
 
 	/**
