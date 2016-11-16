@@ -91,7 +91,7 @@ const AllModuleSettingsComponent = React.createClass( {
 				if ( '' === module.configure_url ) {
 					return (
 						<div>
-							{ __( 'Make sure your site is easily found on search engines with advanced SEO tools for your content and social posts.' ) }
+							{ __( 'Make sure your site is easily found on search engines with SEO tools for your content and social posts.' ) }
 						</div>
 					);
 				} else if ( 'checking' === module.configure_url ) {
