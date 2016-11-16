@@ -1,2 +1,4 @@
 node_modules/
 svg/output/
+.idea/
+npm-debug.log

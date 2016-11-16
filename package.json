@@ -1,8 +1,25 @@
 {
   "name": "social-logos",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "main": "build/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Automattic/social-logos"
+  },
+  "license": "GPL-2.0+",
   "devDependencies": {
+    "babel-plugin-add-module-exports": "0.2.1",
+    "babel-plugin-syntax-jsx": "6.8.0",
+    "babel-plugin-transform-class-properties": "6.9.1",
+    "babel-plugin-transform-export-extensions": "6.8.0",
+    "babel-plugin-transform-react-display-name": "6.8.0",
+    "babel-plugin-transform-react-jsx": "6.8.0",
+    "babel-plugin-transform-runtime": "6.9.0",
+    "babel-preset-es2015": "6.9.0",
+    "babel-preset-stage-2": "6.5.0",
+    "babili": "0.0.8",
     "grunt": "~0.4.1",
+    "grunt-babel": "^6.0.0",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-copy": "^0.6.0",
     "grunt-contrib-cssmin": "^0.14.0",
@@ -12,6 +29,7 @@
     "grunt-svgstore": "^0.3.6",
     "grunt-webfont": "^1.6.0",
     "handlebars": "^2.0.0",
+    "load-grunt-tasks": "^3.5.2",
     "multiline": "^0.3.4",
     "xml2js": "^0.4.17"
   }

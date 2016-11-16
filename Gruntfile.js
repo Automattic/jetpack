@@ -20,7 +20,9 @@ function kabobToCamelCase( name ) {
 	} );
 }
 
-module.exports = function(grunt) {
+module.exports = function( grunt ) {
+
+	require( 'load-grunt-tasks' )( grunt );
 
 	// Project configuration.
 	grunt.initConfig({
@@ -135,6 +137,31 @@ module.exports = function(grunt) {
 				}]
 			}
 		},
+
+		babel: {
+			options: {
+				sourceMap: false,
+				presets: [
+					'es2015',
+					'stage-2',
+					'babili'
+				],
+				plugins: [
+					'transform-runtime',
+					'transform-class-properties',
+					'transform-export-extensions',
+					'add-module-exports',
+					'syntax-jsx',
+					'transform-react-jsx',
+					'transform-react-display-name'
+				]
+			},
+			dist: {
+				files: {
+					"build/index.js": "react/social-logo/index.jsx"
+				}
+			}
+		}
 	});
 
 	// Load the copier
@@ -301,6 +328,6 @@ module.exports = function(grunt) {
 
 	// Default task(s).
 
-	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'webfont', 'cssmin','addsquare']);
+	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'babel', 'webfont', 'cssmin','addsquare']);
 
 };
