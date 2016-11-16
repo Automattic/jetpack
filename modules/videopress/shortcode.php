@@ -39,7 +39,7 @@ function videopress_shortcode_callback( $attr ) {
 	$defaults = array(
 		'w'               => 0,     // Width of the video player, in pixels
 		'at'              => 0,     // How many seconds in to initially seek to
-		'hd'              => false, // Whether to display a high definition version
+		'hd'              => true,  // Whether to display a high definition version
 		'loop'            => false, // Whether to loop the video repeatedly
 		'freedom'         => false, // Whether to use only free/libre codecs
 		'autoplay'        => false, // Whether to autoplay the video on load
@@ -155,7 +155,7 @@ function videopress_shortcode_override_for_core_shortcode( $raw_attr, $contents,
 	if ( isset( $attr['videopress_guid'] ) ) {
 		$videopress_guid = $attr['videopress_guid'];
 
-	} else {
+	} elseif ( isset( $attr['mp4'] ) ) {
 		$url = $attr['mp4'];
 
 		if ( preg_match( '@videos.videopress.com/([a-z0-9]{8})/@', $url, $matches ) ) {

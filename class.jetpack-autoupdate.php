@@ -35,7 +35,7 @@ class Jetpack_Autoupdate {
 			add_filter( 'auto_update_plugin', array( $this, 'autoupdate_plugin' ), 10, 2 );
 			add_filter( 'auto_update_theme', array( $this, 'autoupdate_theme' ), 10, 2 );
 			add_filter( 'auto_update_core', array( $this, 'autoupdate_core' ), 10, 2 );
-			add_filter( 'auto_update_translation', array( $this, 'autoupdate_translation', 10, 2 ) );
+			add_filter( 'auto_update_translation', array( $this, 'autoupdate_translation' ), 10, 2 );
 			add_action( 'automatic_updates_complete', array( $this, 'automatic_updates_complete' ), 999, 1 );
 		}
 	}
@@ -52,6 +52,7 @@ class Jetpack_Autoupdate {
 	}
 
 	public function autoupdate_translation( $update, $item ) {
+		// Themes
 		$autoupdate_themes_translations = Jetpack_Options::get_option( 'autoupdate_themes_translations', array() );
 		$autoupdate_theme_list          = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 
@@ -70,8 +71,21 @@ class Jetpack_Autoupdate {
 		       || in_array( $item->slug, $autoupdate_theme_list ) )
 		     && 'theme' === $item->type
 		) {
-			$this->expect( $item->slug, 'theme' );
+			$this->expect( $item->type + ':' + $item->slug, 'translation' );
 
+			return true;
+		}
+
+		// Plugins
+		$autoupdate_plugin_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
+		$autoupdate_plugin_list         = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+		$plugin_files = array_unique( array_merge( $autoupdate_plugin_list, $autoupdate_plugin_translations ) );
+		$plugin_slugs = array_map( array( __CLASS__, 'get_plugin_slug' ), $plugin_files );
+
+		if ( in_array( $item->slug, $plugin_slugs )
+		     && 'plugin' === $item->type
+		) {
+			$this->expect( $item->type + ':' + $item->slug, 'translation' );
 			return true;
 		}
 
@@ -82,7 +96,6 @@ class Jetpack_Autoupdate {
 		$autoupdate_theme_list = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 		if ( in_array( $item->theme, $autoupdate_theme_list ) ) {
 			$this->expect( $item->theme, 'theme' );
-
 			return true;
 		}
 
@@ -126,7 +139,7 @@ class Jetpack_Autoupdate {
 
 		Jetpack::init();
 
-		$items_to_log = array( 'plugin', 'theme' );
+		$items_to_log = array( 'plugin', 'theme', 'translation' );
 		foreach ( $items_to_log as $items ) {
 			$this->log_items( $items );
 		}
@@ -148,7 +161,6 @@ class Jetpack_Autoupdate {
 	 * @param $items 'plugin' or 'theme'
 	 */
 	private function log_items( $items ) {
-
 		if ( ! isset( $this->expected[ $items ] ) ) {
 			return;
 		}
@@ -225,6 +237,10 @@ class Jetpack_Autoupdate {
 						break;
 					case 'plugin':
 						$successful_updates[] = $result->item->plugin;
+						break;
+					case 'translation':
+						$successful_updates[] = $result->item->type + ':' + $result->item->slug;
+						break;
 				}
 			}
 		}
@@ -275,6 +291,29 @@ class Jetpack_Autoupdate {
 		}
 
 		return $result;
+	}
+
+	static function get_plugin_slug( $plugin_file ) {
+		$update_plugins   = get_site_transient( 'update_plugins' );
+		if ( isset( $update_plugins->no_update ) ) {
+			if ( isset( $update_plugins->no_update[ $plugin_file ] ) ) {
+				$slug = $update_plugins->no_update[ $plugin_file ]->slug;
+			}
+		}
+		if ( empty( $slug ) && isset( $update_plugins->response ) ) {
+			if ( isset( $update_plugins->response[ $plugin_file ] ) ) {
+				$slug = $update_plugins->response[ $plugin_file ]->slug;
+			}
+		}
+
+		// Try to infer from the plugin file if not cached
+		if ( empty( $slug) ) {
+			$slug = dirname( $plugin_file );
+			if ( '.' === $slug ) {
+				$slug = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+			}
+		}
+		return $slug;
 	}
 
 }
