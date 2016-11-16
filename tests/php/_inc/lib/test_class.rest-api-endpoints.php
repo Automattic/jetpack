@@ -669,6 +669,32 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->create_and_get_request( 'settings/carousel', array( 'carousel_background_color' => 'white' ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
 
+		$response = $this->create_and_get_request( 'settings', array( 'carousel_background_color' => 'black' ), 'POST' );
+		$this->assertResponseStatus( 200, $response );
+
+	}
+
+	/**
+	 * Test that an arg with array type can be saved.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_setting_array_type() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_activate_modules' );
+		wp_set_current_user( $user->ID );
+
+		Jetpack::update_active_modules( array( 'sharedaddy' ) );
+
+		// Verify that saving another thing fails
+		$response = $this->create_and_get_request( 'settings', array( 'show' => 'post' ), 'POST' );
+		$this->assertResponseStatus( 400, $response );
+
+		$response = $this->create_and_get_request( 'settings', array( 'show' => array( 'post', 'page' ) ), 'POST' );
+		$this->assertResponseStatus( 200, $response );
+
 	}
 
 } // class end
