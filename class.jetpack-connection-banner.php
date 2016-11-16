@@ -230,7 +230,7 @@ class Jetpack_Connection_Banner {
 
 					<!-- slide 1: intro -->
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
-						<h2><?php esc_html_e( 'Jetpack simplifies site security, customization, and promotion.', 'jetpack' ) ?></h2>
+						<h2><?php esc_html_e( 'Jetpack simplifies site security, customization, and management.', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon">
 							<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100" height="103" viewBox="686 84 100 103" version="1.1">
@@ -246,7 +246,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Jetpack is a free plugin that utilizes powerful WordPress.com servers to augment your site and simplify managing it.',
+								'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it.',
 								'jetpack'
 							);
 							?>
