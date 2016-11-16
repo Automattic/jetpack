@@ -8,7 +8,11 @@
  * Author URI: http://automattic.com/
  */
 
-add_filter( 'user_has_cap', 'at_pressable_disable_premium_theme_editing', 10, 3 );
+add_action( 'admin_init', 'at_pressable_add_filter_for_edit_themes_capability' );
+
+function at_pressable_add_filter_for_edit_themes_capability() {
+	add_filter( 'user_has_cap', 'at_pressable_disable_premium_theme_editing', 10, 3 );
+}
 
 function at_pressable_disable_premium_theme_editing( $allcaps ) {
 	$list_of_third_party_premium_themes = [
