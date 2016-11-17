@@ -23,7 +23,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_filter( 'safecss_skip_stylesheet', array( __CLASS__, 'preview_skip_stylesheet' ) );
 
 		// Stuff for overriding content width...
-		add_action( 'init', array( __CLASS__, 'preview_content_width' ) );
+		add_action( 'customize_preview_init', array( __CLASS__, 'preview_content_width' ) );
 		add_filter( 'jetpack_content_width', array( __CLASS__, 'jetpack_content_width' ) );
 		add_filter( 'editor_max_image_size', array( __CLASS__, 'editor_max_image_size' ), 10, 3 );
 		add_action( 'template_redirect', array( __CLASS__, 'set_content_width' ) );
