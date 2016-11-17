@@ -148,7 +148,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_localize_script( 'jetpack-customizer-css', '_jp_css_settings', array(
 			/** This filter is documented in modules/custom-css/custom-css.php */
 			'useRichEditor' => ! jetpack_is_mobile() && apply_filters( 'safecss_use_ace', true ),
-			'areThereCssRevisions' => false, // self::are_there_css_revisions(),
+			'areThereCssRevisions' => self::are_there_css_revisions(),
 			'revisionsUrl' => admin_url( 'themes.php?page=editcss' ),
 			'cssHelpUrl' => '//en.support.wordpress.com/custom-design/editing-css/',
 			'l10n' => array(
@@ -159,6 +159,14 @@ class Jetpack_Custom_CSS_Enhancements {
 				'css_help_title' => __( 'CSS Help' )
 			)
 		));
+	}
+
+	public static function are_there_css_revisions( $stylesheet = '' ) {
+		$post = wp_get_custom_css_post( $stylesheet );
+		if ( empty( $post ) ) {
+			return $post;
+		}
+		return sizeof( wp_get_post_revisions( $post ) );
 	}
 
 	public static function wp_enqueue_scripts() {
