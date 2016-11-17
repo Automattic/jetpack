@@ -472,7 +472,7 @@ class Jetpack {
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
 			}
 
-			// Now that no one can authenticate, and we're whitelisting all te methods, force enable_xmlrpc on.
+			// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
 			add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
 		} elseif ( is_admin() && isset( $_POST['action'] ) && 'jetpack_upload_file' == $_POST['action'] ) {
 			$this->require_jetpack_authentication();

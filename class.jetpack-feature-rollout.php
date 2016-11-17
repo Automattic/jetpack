@@ -38,6 +38,8 @@ class Jetpack_Feature_Rollout {
 
 	/**
 	 * The URL to make a GET request to in order to get the features that are enabled.
+	 *
+	 * @var string
 	 */
 	const JETPACK_FEATURES_REQUEST_URL = 'https://jetpack.com/get-feature-rollout/';
 
