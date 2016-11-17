@@ -29,6 +29,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
+
+		// listen for meta changes
+		$this->init_listeners_for_meta_type( 'post', $callable );
+		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -88,6 +92,25 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		return $args;
+	}
+
+	// Meta
+	function filter_meta( $args ) {
+		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
+			return $args;
+		}
+
+		return false;
+	}
+
+	function is_whitelisted_post_meta( $meta_key ) {
+		// _wpas_skip_ is used by publicize
+		return in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' ) ) || wp_startswith( $meta_key, '_wpas_skip_' );
+	}
+
+	function is_post_type_allowed( $post_id ) {
+		$post = get_post( $post_id );
+		return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
 	}
 
 	function remove_embed() {
@@ -203,7 +226,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		return array(
 			$posts,
-			$this->get_metadata( $post_ids, 'post' ),
+			$this->get_metadata( $post_ids, 'post', Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' ) ),
 			$this->get_term_relationships( $post_ids ),
 		);
 	}
