@@ -36,13 +36,6 @@ class Jetpack_Feature_Rollout {
 	 */
 	const JETPACK_FEATURES_TRANSIENT_NAME = 'jetpack_feature_rollout';
 
-	/**
-	 * The URL to make a GET request to in order to get the features that are enabled.
-	 *
-	 * @var string
-	 */
-	const JETPACK_FEATURES_REQUEST_URL = 'https://jetpack.com/get-feature-rollout/';
-
 	static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Feature_Rollout();
