@@ -410,6 +410,15 @@ class Jetpack_Custom_CSS_Enhancements {
 			'settings' => 'jetpack_custom_css[replace]',
 		) );
 
+		/**
+		 * An action to grab on to if another Jetpack Module would like to add its own controls.
+		 *
+		 * @module custom-css
+		 *
+		 * @since 4.?.?
+		 *
+		 * @param $wp_customize The WP_Customize object.
+		 */
 		do_action( 'jetpack_custom_css_customizer_controls', $wp_customize );
 
 		/** This filter is documented in modules/custom-css/custom-css.php */
