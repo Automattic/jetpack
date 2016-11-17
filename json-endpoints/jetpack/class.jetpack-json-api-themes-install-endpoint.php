@@ -14,6 +14,12 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 		foreach ( $this->themes as $theme ) {
 
+			// hook to allow alternative install method
+			if ( wp_endswith( $theme, '-wpcom' )
+				&& apply_filters( 'jetpack_wpcom_theme_install', false, $theme ) ) {
+				continue;
+			}
+
 			$skin      = new Jetpack_Automatic_Install_Skin();
 			$upgrader  = new Theme_Upgrader( $skin );
 
@@ -60,6 +66,10 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			}
 
 			if ( wp_endswith( $theme, '-wpcom' ) ) {
+				if ( apply_filters( 'jetpack_wpcom_theme_skip_download', false, $theme ) ) {
+					continue;
+				}
+
 				$file = self::download_wpcom_theme_to_file( $theme );
 				if ( is_wp_error( $file ) ) {
 					return $file;
