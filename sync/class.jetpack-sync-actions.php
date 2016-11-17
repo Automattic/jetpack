@@ -281,7 +281,7 @@ class Jetpack_Sync_Actions {
 			return $schedule;
 		}
 
-		return self::DEFAULT_SYNC_CRON_INTERVAL;
+		return self::DEFAULT_SYNC_CRON_INTERVAL_NAME;
 	}
 
 	static function maybe_schedule_sync_cron( $schedule, $hook ) {
