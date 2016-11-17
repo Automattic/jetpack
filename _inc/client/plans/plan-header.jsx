@@ -26,9 +26,9 @@ const PlanHeader = React.createClass( {
 						</p>
 						<div className="jp-landing-plans__header-img-container">
 							<div className="jp-landing-plans__header-col-left">
-								<h3 className="jp-landing-plans__header-subtitle">{ __( "Just $3.50 monthly or $39 per year" ) }</h3>
+								<h3 className="jp-landing-plans__header-subtitle">{ __( "How much is your website worth?" ) }</h3>
 								<p className="jp-landing-plans__header-text">
-									{ __( "How much is your website worth? For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up." ) }
+									{ __( "For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up." ) }
 									<br /><br />
 									{ __( "Hackers, botnets and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios we'll be here to help you restore your site to its former glory." ) }
 								</p>
