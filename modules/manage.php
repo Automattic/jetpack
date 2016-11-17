@@ -7,9 +7,9 @@
  * Recommendation Order: 3
  * First Introduced: 3.4
  * Requires Connection: Yes
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Centralized Management, Recommended
- * Feature: General, Jumpstart
+ * Feature: General
  * Additional Search Queries: manage, management, remote
  */
 add_action( 'customize_register', 'add_wpcom_to_allowed_redirect_hosts' );
