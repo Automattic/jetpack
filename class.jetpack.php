@@ -494,7 +494,7 @@ class Jetpack {
 			Jetpack_Heartbeat::init();
 		}
 
-		if ( Jetpack::is_active() ) {
+		if ( Jetpack::is_active() && defined( 'REST_REQUEST' ) ) {
 			add_filter( 'determine_current_user', array( $this, 'authenticate_user_tokens' ), 20 );
 			add_filter( 'rest_authentication_errors', array( $this, 'user_tokens_authentication_error' ) );
 		}
