@@ -102,9 +102,18 @@ describe( 'Engagement', () => {
 		} );
 
 		const wrapper = shallow( <Engagement { ...testProps } /> );
+		let cardProps = wrapper.find( 'FoldableCard' ).props();
 
 		it( "SEO Tools is available in 'jetpack_business' plan", () => {
-			expect( wrapper.find( 'FoldableCard' ).props().summary.type.displayName ).to.be.equal( 'ModuleToggle' );
+			expect( cardProps.summary.type.displayName ).to.be.equal( 'ModuleToggle' );
+		} );
+
+		it( 'always displays a PRO badge next to the title', () => {
+			expect( cardProps.header.props.children[1].type.displayName ).to.be.equal( 'Button' );
+		} );
+
+		it( 'the PRO badge points to the Plans tab', () => {
+			expect( cardProps.header.props.children[1].props.href ).to.have.string( '#/plans' );
 		} );
 
 	} );
