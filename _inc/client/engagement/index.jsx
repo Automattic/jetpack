@@ -103,37 +103,27 @@ export const Engagement = ( props ) => {
 			},
 			isModuleActive = isModuleActivated( element[0] );
 
-		if ( isPro ) {
-
-			toggle = <ProStatus proFeature={ element[0] } />;
-
-			// Add a "pro" button next to the header title
-			element[1] = <span>
-				{ element[1] }
-				<Button
-					compact={ true }
-					href="#/plans"
-				>
-					{ __( 'Pro' ) }
-				</Button>
-			</span>;
-		}
-
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
-		} else if ( 'seo-tools' === element[0] && 'jetpack_business' !== props.sitePlan.product_slug ) {
-			toggle = <Button
-				compact={ true }
-				primary={ true }
-				href={ 'https://wordpress.com/plans/' + props.siteRawUrl }
-			>
-				{ __( 'Upgrade' ) }
-			</Button>;
 		} else if ( isAdmin ) {
-			toggle = <ModuleToggle slug={ element[0] }
-						activated={ isModuleActive }
-						toggling={ isTogglingModule( element[0] ) }
-						toggleModule={ toggleModule } />;
+			if ( isPro && 'undefined' !== typeof props.sitePlan.product_slug && props.sitePlan.product_slug !== 'jetpack_business' ) {
+				toggle = <ProStatus proFeature={ element[0] } />;
+			} else if ( ! isPro || ( 'undefined' !== typeof props.sitePlan.product_slug && props.sitePlan.product_slug === 'jetpack_business' ) ) {
+				toggle = <ModuleToggle slug={ element[0] }
+									   activated={ isModuleActive }
+									   toggling={ isTogglingModule( element[0] ) }
+									   toggleModule={ toggleModule } />;
+			}
+
+			if ( isPro ) {
+				// Add a "pro" button next to the header title
+				element[1] = <span>
+								{ element[1] }
+								<Button compact={ true } href="#/plans">
+									{ __( 'Pro' ) }
+								</Button>
+							</span>;
+			}
 		}
 
 		let moduleDescription = isModuleActive ?
