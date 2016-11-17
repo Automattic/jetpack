@@ -24,17 +24,17 @@
 			// We can explicitly override for specific providers by testing if `'sass' === preprocessor`
 			if ( jpCustomizerCssPreview.preprocessors.hasOwnProperty( preprocessor ) ) {
 				return api.selectiveRefresh.Partial.prototype.refresh.call( partial );
-			} else {
-				// No ajax, no partial refresh, just write what we got.
-				deferred = new $.Deferred();
-				setting = api( 'custom_css[' + api.settings.theme.stylesheet + ']' );
-				_.each( partial.placements(), function( placement ) {
-					placement.container.text( setting.get() );
-				} );
-
-				deferred.resolve();
-				return deferred.promise();
 			}
+
+			// No special providers, just write what we got.
+			deferred = new $.Deferred();
+			setting = api( 'custom_css[' + api.settings.theme.stylesheet + ']' );
+			_.each( partial.placements(), function( placement ) {
+				placement.container.text( setting.get() );
+			} );
+
+			deferred.resolve();
+			return deferred.promise();
 		},
 
 		/**
