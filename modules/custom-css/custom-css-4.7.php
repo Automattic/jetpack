@@ -10,7 +10,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'customize_controls_enqueue_scripts' ) );
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 20, 2 );
-        add_action( 'customize_preview_init', array( __CLASS__, 'customize_preview_init' ) );
+		add_action( 'customize_preview_init', array( __CLASS__, 'customize_preview_init' ) );
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
 
@@ -50,8 +50,8 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 
 	public static function customize_preview_init() {
-        add_filter( 'wp_get_custom_css', array( __CLASS__, 'customize_preview_wp_get_custom_css' ) );
-    }
+		add_filter( 'wp_get_custom_css', array( __CLASS__, 'customize_preview_wp_get_custom_css' ) );
+	}
 
 	public static function map_meta_cap( $caps, $cap ) {
 		if ( 'edit_css' === $cap ) {
