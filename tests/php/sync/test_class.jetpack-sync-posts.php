@@ -838,7 +838,7 @@ That was a cool video.';
 		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' ) );
 	}
 
-	public function test_sync_jetpack_published_post_should_set_dont_send_to_subscribers_flag() {
+	public function test_sync_jetpack_published_post_should_set_send_subscription_to_false() {
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
 		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
  		Jetpack_Subscriptions::init();
@@ -855,7 +855,33 @@ That was a cool video.';
 		$this->sender->do_sync();
 
 		$post_flags = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' )->args[1];
+		error_log( print_r( $post_flags,1 ));
+		$this->assertFalse( $post_flags['send_subscription'] );
+	}
 
-		$this->assertEquals( $post_flags['_jetpack_dont_email_post_to_subs'], 1 );
+	public function test_sync_jetpack_published_post_should_set_set_send_subscription_to_true() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
+		Jetpack_Subscriptions::init();
+
+		wp_update_post( array(
+			'ID'          => $this->post->ID,
+			'post_status' => 'draft',
+		) );
+		
+		wp_publish_post( $this->post->ID );
+
+		wp_update_post( array(
+			'ID'          => $this->post->ID,
+			'post_content' => 'content',
+		) );
+		
+		$this->sender->do_sync();
+		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+
+		$post_flags = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' )->args[1];
+		
+		$this->assertEquals( count( $events ), 1 );
+		$this->assertTrue( $post_flags['send_subscription'] );
 	}
 }
