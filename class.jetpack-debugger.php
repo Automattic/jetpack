@@ -92,6 +92,11 @@ class Jetpack_Debugger {
 				? date( 'r', $sync_status_value ) : $sync_status_value ;
 		}
 
+		$debug_info .= "\r\n". sprintf(
+			esc_html__( 'Enabled Features: %1$s', 'jetpack' ),
+			print_r( Jetpack_Feature_Rollout::init()->get_features(), true )
+		);
+
 		$debug_info .= "\r\n". sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR. 'sync/class.jetpack-sync-sender.php';
