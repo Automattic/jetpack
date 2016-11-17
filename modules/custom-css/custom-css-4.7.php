@@ -260,16 +260,15 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * Override $content_width in customizer previews.
 	 */
 	public static function preview_content_width() {
-		if ( isset( $GLOBALS['wp_customize'] ) ) {
-			if ( isset( $_POST['customized'] ) && isset( $_POST['customize_messenger_channel'] ) ) {
-				$customizations = json_decode( stripslashes( $_POST['customized'] ) );
+		global $wp_customize;
+		if ( isset( $wp_customize ) && isset( $_POST['customize_messenger_channel'] ) ) {
+			$customizations = $wp_customize->unsanitized_post_values();
 
-				if ( isset( $customizations->{'jetpack_custom_css[content_width]'} ) ) {
-					$width = (int) $customizations->{'jetpack_custom_css[content_width]'};
+			if ( isset( $customizations->{'jetpack_custom_css[content_width]'} ) ) {
+				$width = (int) $customizations->{'jetpack_custom_css[content_width]'};
 
-					if ( $width ) {
-						$GLOBALS['content_width'] = $width;
-					}
+				if ( $width ) {
+					$GLOBALS['content_width'] = $width;
 				}
 			}
 		}
