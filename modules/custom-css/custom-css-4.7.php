@@ -359,6 +359,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		$wp_customize->add_setting( 'jetpack_custom_css[preprocessor]', array(
 			'default' => '',
 			'transport' => 'postMessage',
+			'sanitize_callback' => array( __CLASS__, 'sanitize_preprocessor' ),
 		) );
 
 		$wp_customize->add_setting( 'jetpack_custom_css[replace]', array(
@@ -369,6 +370,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		$wp_customize->add_setting( 'jetpack_custom_css[content_width]', array(
 			'default' => '',
 			'transport' => 'refresh',
+			'sanitize_callback' => array( $wp_customize, 'intval_base10' ),
 		) );
 
 		// Add custom sanitization to the core css customizer setting.
@@ -554,6 +556,20 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 
 		$GLOBALS['content_width'] = Jetpack::get_content_width();
+	}
+
+	/**
+	 * Make sure the preprocessor we're saving is one we know about.
+	 *
+	 * @param $preprocessor The preprocessor to sanitize.
+	 * @return null|string
+	 */
+	public static function sanitize_preprocessor( $preprocessor ) {
+		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+		if ( array_key_exists( $preprocessor, $preprocessors ) ) {
+			return $preprocessor;
+		}
+		return null;
 	}
 }
 
