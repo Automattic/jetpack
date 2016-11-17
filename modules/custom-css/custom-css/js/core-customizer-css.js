@@ -135,7 +135,10 @@
 			this.addTitle( 'jetpack_css_mode_control', this.opts.l10n.mode );
 			this.addTitle( 'jetpack_mobile_css_control', this.opts.l10n.mobile );
 			this.addDesc( 'wpcom_custom_css_content_width_control', this.opts.l10n.contentWidth );
-			this._getControl( 'wpcom_custom_css_content_width_control' ).find( 'input' ).after( '<span>px</span>' );
+			var widthControl = this._getControl( 'wpcom_custom_css_content_width_control' );
+			if ( widthControl ) {
+				widthControl.find( 'input' ).after( '<span>px</span>' );
+			}
 			$( '<div />', {
 				id: 'css-help-links',
 				'class': 'css-help'
@@ -163,7 +166,10 @@
 		 * @param {string} title     A title to add
 		 */
 		addTitle: function( controlId, title ) {
-			this._getControl( controlId ).prepend( '<span class="customize-control-title">' + title + '<span>' );
+			var control = this._getControl( controlId );
+			if ( control ) {
+				control.prepend( '<span class="customize-control-title">' + title + '<span>' );
+			}
 		},
 		/**
 		 * Add a description to a control
@@ -171,7 +177,10 @@
 		 * @param {string} desc      A description to add
 		 */
 		addDesc: function( controlId, desc ) {
-			this._getControl( controlId ).append( '<span class="description">' + desc + '<span>' );
+			var control = this._getControl( controlId );
+			if ( control ) {
+				control.append( '<span class="description">' + desc + '<span>' );
+			}
 		},
 		/**
 		 * Helper function to qet a control by ID
@@ -179,7 +188,11 @@
 		 * @return {object}           Customizer Control object
 		 */
 		_getControl: function( controlId ) {
-			return api.control.value( controlId ).container;
+			var control = api.control.value( controlId );
+			if ( control ) {
+				return control.container;
+			}
+			return null;
 		}
 	});
 
