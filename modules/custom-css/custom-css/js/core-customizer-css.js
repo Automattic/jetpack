@@ -64,7 +64,7 @@
 
 			// refresh the CodeMirror instance's rendering because it's initially hidden
 			// 250ms because that's the open animation duration
-			$( '#accordion-section-jetpack_custom_css > .accordion-section-title' ).click( _.bind( _.debounce( this.editor.refresh, 250 ), this.editor ) );
+			$( '#accordion-section-custom_css > .accordion-section-title' ).click( _.bind( _.debounce( this.editor.refresh, 250 ), this.editor ) );
 			// also refresh when focusing
 			this.editor.on( 'focus', function( editor ) {
 				editor.refresh();
@@ -131,7 +131,7 @@
 		 * @return {null}
 		 */
 		refresh: function( id ) {
-			if ( 'accordion-section-jetpack_custom_css' === id ) {
+			if ( 'accordion-section-custom_css' === id ) {
 				setTimeout( _.bind( function(){
 					this.editor.refresh();
 				}, this), 300 );
