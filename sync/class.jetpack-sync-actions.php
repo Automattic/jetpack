@@ -126,12 +126,14 @@ class Jetpack_Sync_Actions {
 			$query_args['migrate_for_idc'] = true;
 		}
 
+		$query_args['timeout'] = Jetpack_Sync_Settings::is_doing_cron() ? 30 : 15;
+
 		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
 
 		$rpc = new Jetpack_IXR_Client( array(
 			'url'     => $url,
 			'user_id' => JETPACK_MASTER_USER,
-			'timeout' => 30,
+			'timeout' => $query_args['timeout'],
 		) );
 
 		$result = $rpc->query( 'jetpack.syncActions', $data );
