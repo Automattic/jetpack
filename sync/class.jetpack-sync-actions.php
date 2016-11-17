@@ -20,6 +20,9 @@ class Jetpack_Sync_Actions {
 
 		if ( self::sync_via_cron_allowed() ) {
 			self::init_sync_cron_jobs();
+		} else if ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
+			wp_clear_scheduled_hook( 'jetpack_sync_cron' );
+			wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
 		}
 
 		// On jetpack authorization, schedule a full sync
