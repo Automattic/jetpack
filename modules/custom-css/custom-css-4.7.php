@@ -142,7 +142,7 @@ class Jetpack_Custom_CSS_Enhancements {
 
 		$content_help = __( 'Set a different content width for full size images.', 'jetpack' );
 		if ( ! empty( $GLOBALS['content_width'] ) ) {
-			$content_help .= sprintf( __( ' The default content width for the <strong>%s</strong> theme is %d pixels.' ), wp_get_theme()->Name, intval( $GLOBALS['content_width'] ) );
+			$content_help .= sprintf( __( ' The default content width for the <strong>%s</strong> theme is %d pixels.', 'jetpack' ), wp_get_theme()->Name, intval( $GLOBALS['content_width'] ) );
 		}
 
 		wp_localize_script( 'jetpack-customizer-css', '_jp_css_settings', array(
@@ -152,11 +152,11 @@ class Jetpack_Custom_CSS_Enhancements {
 			'revisionsUrl' => admin_url( 'themes.php?page=editcss' ),
 			'cssHelpUrl' => '//en.support.wordpress.com/custom-design/editing-css/',
 			'l10n' => array(
-				'mode'           => __( 'Start Fresh' ),
-				'mobile'         => __( 'On Mobile' ),
+				'mode'           => __( 'Start Fresh', 'jetpack' ),
+				'mobile'         => __( 'On Mobile', 'jetpack' ),
 				'contentWidth'   => $content_help,
-				'revisions'      => __( 'CSS Revisions' ),
-				'css_help_title' => __( 'CSS Help' )
+				'revisions'      => __( 'CSS Revisions', 'jetpack' ),
+				'css_help_title' => __( 'CSS Help', 'jetpack' )
 			)
 		));
 	}
