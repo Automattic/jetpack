@@ -41,9 +41,9 @@ class Jetpack_Custom_CSS_Enhancements {
 			$min = '';
 		}
 
-		wp_register_style( 'jetpack-codemirror',      plugins_url( "custom-css/css/codemirror{$min}.css", __FILE__ ), array(), '20120905' );
+		wp_register_style( 'jetpack-codemirror',      plugins_url( "custom-css/css/codemirror.css", __FILE__ ), array(), '20120905' );
 		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), array( 'jetpack-codemirror' ), '20140728' );
-		wp_register_script( 'jetpack-codemirror',     plugins_url( "custom-css/js/codemirror{$min}.js", __FILE__ ), array(), '3.16', true );
+		wp_register_script( 'jetpack-codemirror',     plugins_url( "custom-css/js/codemirror.min.js", __FILE__ ), array(), '3.16', true );
 		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), array(  'customize-controls', 'underscore', 'jetpack-codemirror' ), JETPACK__VERSION, true );
 
 		wp_register_script( 'jetpack-customizer-css-preview', plugins_url( 'custom-css/js/core-customizer-css-preview.js', __FILE__ ), array( 'customize-selective-refresh' ), JETPACK__VERSION, true );
