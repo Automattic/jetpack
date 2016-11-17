@@ -92,16 +92,6 @@
 
 			// when others update the control, update CodeMirror
 			this.setting.bind( 'change', _.bind( this.externalChange, this ) );
-
-			// if CSS preprocessor setting changes, change rendering mode
-			api.value( 'jetpack_custom_css[preprocessor]' ).bind( 'change', _.bind( this.switchMode, this ) );
-		},
-		/**
-		 * Callback for switching syntax mode after a preprocessor is chosen
-		 * @return {null}
-		 */
-		switchMode: function() {
-			this.editor.setOption( 'mode', this.getMode() );
 		},
 		/**
 		 * Get the mode of the currently active preprocessor (if any),
