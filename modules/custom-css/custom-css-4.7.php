@@ -261,16 +261,18 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function preview_content_width() {
 		global $wp_customize;
-		if ( isset( $wp_customize ) && isset( $_POST['customize_messenger_channel'] ) ) {
-			$customizations = $wp_customize->unsanitized_post_values();
+		if ( ! is_customize_preview() ) {
+			return;
+		}
 
-			if ( isset( $customizations->{'jetpack_custom_css[content_width]'} ) ) {
-				$width = (int) $customizations->{'jetpack_custom_css[content_width]'};
+		$setting = $wp_customize->get_setting( 'jetpack_custom_css[content_width]' );
+		if ( ! $setting ) {
+			return;
+		}
 
-				if ( $width ) {
-					$GLOBALS['content_width'] = $width;
-				}
-			}
+		$customized_content_width = (int) $setting->post_value();
+		if ( ! empty( $customized_content_width ) ) {
+			$GLOBALS['content_width'] = $customized_content_width;
 		}
 	}
 
@@ -329,14 +331,19 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * Runs on `safecss_skip_stylesheet` filter.
 	 */
 	public static function preview_skip_stylesheet( $skip_value ) {
-		if ( isset( $GLOBALS['wp_customize'] ) ) {
-			if ( isset( $_POST['customized'] ) && isset( $_POST['customize_messenger_channel'] ) ) {
-				$customizations = json_decode( stripslashes( $_POST['customized'] ) );
+		global $wp_customize;
+		if ( ! is_customize_preview() ) {
+			return $skip_value;
+		}
 
-				if ( isset( $customizations->{'jetpack_custom_css[replace]'} ) ) {
-					return $customizations->{'jetpack_custom_css[replace]'};
-				}
-			}
+		$setting = $wp_customize->get_setting( 'jetpack_custom_css[replace]' );
+		if ( ! $setting ) {
+			return $skip_value;
+		}
+
+		$customized_replace = $setting->post_value();
+		if ( null !== $customized_replace ) {
+			return $customized_replace;
 		}
 
 		return $skip_value;
