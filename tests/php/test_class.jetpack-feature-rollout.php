@@ -11,7 +11,7 @@ class MockJetpackFeatureRollout extends Jetpack_Feature_Rollout  {
 class WP_Test_Jetpack_Feature_Rollout extends WP_UnitTestCase {
 	function setUp() {
 		delete_transient( Jetpack_Feature_Rollout::JETPACK_FEATURES_TRANSIENT_NAME );
-		delete_option( Jetpack_Feature_Rollout::JETPACK_FEATURES_OPTION_NAME );
+		delete_option( 'jetpack_' . Jetpack_Feature_Rollout::JETPACK_FEATURES_OPTION_NAME );
 	}
 
 	function get_stub( $return_value ) {
@@ -21,11 +21,13 @@ class WP_Test_Jetpack_Feature_Rollout extends WP_UnitTestCase {
 			->disableOriginalConstructor()
 			->getMock();
 
-		$stub->method( 'fetch_features_from_wpcom' )
+		$stub->expects( $this->any() )
+			->method( 'fetch_features_from_wpcom' )
 			->will( $this->returnValue( $return_value ) );
 
-		$stub->method( 'should_load' )
-		     ->will( $this->returnValue( true ) );
+		$stub->expects( $this->any() )
+			->method( 'should_load' )
+			->will( $this->returnValue( true ) );
 
 		return $stub;
 	}
@@ -43,7 +45,7 @@ class WP_Test_Jetpack_Feature_Rollout extends WP_UnitTestCase {
 			'idc' => true,
 			'sync_via_shutdown' => true
 		);
-		update_option( Jetpack_Feature_Rollout::JETPACK_FEATURES_OPTION_NAME, $initial );
+		update_option( 'jetpack_' . Jetpack_Feature_Rollout::JETPACK_FEATURES_OPTION_NAME, $initial );
 
 		$stub = $this->get_stub( $this->__get_features_wp_errored() );
 
@@ -57,16 +59,11 @@ class WP_Test_Jetpack_Feature_Rollout extends WP_UnitTestCase {
 			'idc' => false,
 			'sync_via_shutdown' => true
 		);
-		update_option( Jetpack_Feature_Rollout::JETPACK_FEATURES_OPTION_NAME, $initial );
-		set_transient( Jetpack_Feature_Rollout::JETPACK_FEATURES_TRANSIENT_NAME, '1', HOUR_IN_SECONDS );
+		update_option( 'jetpack_' . Jetpack_Feature_Rollout::JETPACK_FEATURES_OPTION_NAME, $initial );
 
 		$stub = $this->get_stub( $this->__get_features_successful() );
-
 		$stub->wordpress_init();
-		$this->assertSame( $initial, $stub->get_features() );
 
-		delete_transient( Jetpack_Feature_Rollout::JETPACK_FEATURES_TRANSIENT_NAME );
-		$stub->update_features_option_and_transient();
 		$this->assertSame(
 			array( 'idc'=> true, 'sync_via_shutdown' => true ),
 			$stub->get_features()
@@ -78,7 +75,7 @@ class WP_Test_Jetpack_Feature_Rollout extends WP_UnitTestCase {
 			'idc' => true,
 			'sync_via_shutdown' => true
 		);
-		update_option( Jetpack_Feature_Rollout::JETPACK_FEATURES_OPTION_NAME, $initial );
+		update_option( 'jetpack_' . Jetpack_Feature_Rollout::JETPACK_FEATURES_OPTION_NAME, $initial );
 		set_transient( Jetpack_Feature_Rollout::JETPACK_FEATURES_TRANSIENT_NAME, '1', HOUR_IN_SECONDS );
 
 		$stub = $this->get_stub( $this->__get_features_only_sync_via_shutdown() );
@@ -94,7 +91,8 @@ class WP_Test_Jetpack_Feature_Rollout extends WP_UnitTestCase {
 
 		$this->setUp();
 
-		$stub->method( 'fetch_features_from_wpcom' )
+		$stub->expects( $this->any() )
+			->method( 'fetch_features_from_wpcom' )
 			->will( $this->returnValue( $this->__get_features_wp_errored() ) );
 
 		$stub->update_features_option_and_transient();
