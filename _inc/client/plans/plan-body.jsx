@@ -15,7 +15,11 @@ import {
 	fetchPluginsData,
 	isFetchingPluginsData,
 	isPluginActive,
-	isPluginInstalled
+	isPluginInstalled,
+	isModuleActivated as _isModuleActivated,
+	activateModule,
+	isActivatingModule,
+	isDeactivatingModule,
 } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
@@ -129,12 +133,12 @@ const PlanBody = React.createClass( {
 									this.props.isFetchingPluginsData ? '' :
 									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
 									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button href="#" className="is-primary">
-											{ __( 'Set up your SEO ' ) }
+										<Button href={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl } className="is-primary">
+											{ __( 'Configure Site SEO' ) }
 										</Button>
 									)
 									: (
-										<Button href={ '`https://wordpress.com/settings/seo/' + this.props.siteRawUrl } className="is-primary">
+										<Button href={ "#" } className="is-primary">
 											{ __( 'Configure Site SEO' ) }
 										</Button>
 									)
