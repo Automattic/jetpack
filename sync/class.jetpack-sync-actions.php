@@ -9,7 +9,7 @@
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
-	const DEFAULT_SYNC_CRON_INTERVAL = '1min';
+	const DEFAULT_SYNC_CRON_INTERVAL = '5min';
 
 	static function init() {
 
@@ -195,11 +195,11 @@ class Jetpack_Sync_Actions {
 		return true;
 	}
 
-	static function minute_cron_schedule( $schedules ) {
-		if( ! isset( $schedules['1min'] ) ) {
-			$schedules['1min'] = array(
-				'interval' => 60,
-				'display' => esc_html__( 'Every minute', 'jetpack' )
+	static function jetpack_cron_schedule( $schedules ) {
+		if( ! isset( $schedules['5min'] ) ) {
+			$schedules['5min'] = array(
+				'interval' => 5 * 60,
+				'display' => esc_html__( 'Every 5 minutes', 'jetpack' )
 			);
 		}
 		return $schedules;
@@ -297,7 +297,7 @@ class Jetpack_Sync_Actions {
 
 	static function init_sync_cron_jobs() {
 		// Add a custom "every minute" cron schedule
-		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
+		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
 
 		// cron hooks
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
@@ -306,7 +306,7 @@ class Jetpack_Sync_Actions {
 		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
 
 		/**
-		 * Allows overriding of the default incremental sync cron schedule which defaults to once per minute.
+		 * Allows overriding of the default incremental sync cron schedule which defaults to once every 5 minutes.
 		 *
 		 * @since 4.3.2
 		 *
@@ -316,7 +316,7 @@ class Jetpack_Sync_Actions {
 		self::maybe_schedule_sync_cron( $incremental_sync_cron_schedule, 'jetpack_sync_cron' );
 
 		/**
-		 * Allows overriding of the full sync cron schedule which defaults to once per minute.
+		 * Allows overriding of the full sync cron schedule which defaults to once every 5 minutes.
 		 *
 		 * @since 4.3.2
 		 *
