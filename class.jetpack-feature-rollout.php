@@ -58,8 +58,8 @@ class Jetpack_Feature_Rollout {
 
 		$this->features = Jetpack_Options::get_option( self::JETPACK_FEATURES_OPTION_NAME );
 
-		// If we haven't already fetched features at least once or if we need to fetch again, then fetch.
-		if ( false === $this->features || false === get_transient( self::JETPACK_FEATURES_TRANSIENT_NAME ) ) {
+		// Fetch features from WordPress.com if the transient has expired
+		if ( false === get_transient( self::JETPACK_FEATURES_TRANSIENT_NAME ) ) {
 			$this->update_features_option_and_transient();
 		}
 	}
