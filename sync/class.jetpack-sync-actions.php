@@ -9,7 +9,8 @@
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
-	const DEFAULT_SYNC_CRON_INTERVAL = '5min';
+	const DEFAULT_SYNC_CRON_INTERVAL_NAME = 'jetpack_sync_interval';
+	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 5 * 60;
 
 	static function init() {
 
@@ -199,10 +200,13 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function jetpack_cron_schedule( $schedules ) {
-		if( ! isset( $schedules['5min'] ) ) {
-			$schedules['5min'] = array(
-				'interval' => 5 * 60,
-				'display' => esc_html__( 'Every 5 minutes', 'jetpack' )
+		if( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
+			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
+				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
+				'display' => sprintf(
+					esc_html__( 'Every %d minutes', 'jetpack' ),
+					self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60
+				)
 			);
 		}
 		return $schedules;
@@ -313,9 +317,9 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @since 4.3.2
 		 *
-		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL
+		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL_NAME
 		 */
-		$incremental_sync_cron_schedule = apply_filters( 'jetpack_sync_incremental_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL );
+		$incremental_sync_cron_schedule = apply_filters( 'jetpack_sync_incremental_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL_NAME );
 		self::maybe_schedule_sync_cron( $incremental_sync_cron_schedule, 'jetpack_sync_cron' );
 
 		/**
@@ -323,9 +327,9 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @since 4.3.2
 		 *
-		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL
+		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL_NAME
 		 */
-		$full_sync_cron_schedule = apply_filters( 'jetpack_sync_full_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL );
+		$full_sync_cron_schedule = apply_filters( 'jetpack_sync_full_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL_NAME );
 		self::maybe_schedule_sync_cron( $full_sync_cron_schedule, 'jetpack_sync_full_cron' );
 	}
 }
