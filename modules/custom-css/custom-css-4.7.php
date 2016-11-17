@@ -146,6 +146,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 
 		wp_localize_script( 'jetpack-customizer-css', '_jp_css_settings', array(
+			/** This filter is documented in modules/custom-css/custom-css.php */
 			'useRichEditor' => ! jetpack_is_mobile() && apply_filters( 'safecss_use_ace', true ),
 			'areThereCssRevisions' => false, // self::are_there_css_revisions(),
 			'revisionsUrl' => admin_url( 'themes.php?page=editcss' ),
@@ -164,6 +165,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		if ( is_customize_preview() ) {
 			wp_enqueue_script( 'jetpack-customizer-css-preview' );
 			wp_localize_script( 'jetpack-customizer-css-preview', 'jpCustomizerCssPreview', array(
+				/** This filter is documented in modules/custom-css/custom-css.php */
 				'preprocessors' => apply_filters( 'jetpack_custom_css_preprocessors', array() ),
 			));
 		}
@@ -282,15 +284,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		} elseif ( self::is_freetrial() && ( ! self::is_preview() || ! current_user_can( 'switch_themes' ) ) ) {
 			return $current;
 		} elseif ( self::skip_stylesheet() ) {
-			/**
-			 * Filter the default blank Custom CSS URL.
-			 *
-			 * @module custom-css
-			 *
-			 * @since 2.2.1
-			 *
-			 * @param string $url Default blank Custom CSS URL.
-			 */
+			/** This filter is documented in modules/custom-css/custom-css.php */
 			return apply_filters( 'safecss_style_filter_url', plugins_url( 'custom-css/css/blank.css', __FILE__ ) );
 		}
 
@@ -303,15 +297,7 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * @return mixed The truthiness of this value determines whether the stylesheet should be skipped.
 	 */
 	static function skip_stylesheet() {
-		/**
-		 * Prevent the Custom CSS stylesheet from being enqueued.
-		 *
-		 * @module custom-css
-		 *
-		 * @since 2.2.1
-		 *
-		 * @param null Should the stylesheet be skipped. Default to null. Anything else will force the stylesheet to be skipped.
-		 */
+		/** This filter is documented in modules/custom-css/custom-css.php */
 		$skip_stylesheet = apply_filters( 'safecss_skip_stylesheet', null );
 		if ( ! is_null( $skip_stylesheet ) ) {
 			return $skip_stylesheet;
@@ -418,6 +404,7 @@ class Jetpack_Custom_CSS_Enhancements {
 
 		do_action( 'jetpack_custom_css_customizer_controls', $wp_customize );
 
+		/** This filter is documented in modules/custom-css/custom-css.php */
 		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 		if ( ! empty( $preprocessors ) ) {
 			$preprocessor_choices = array(
@@ -459,6 +446,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			return $css;
 		}
 
+		/** This filter is documented in modules/custom-css/custom-css.php */
 		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 		if ( isset( $preprocessors[ $preprocessor ] ) ) {
 			return call_user_func( $preprocessors[ $preprocessor ]['callback'], $css );
@@ -475,6 +463,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 
 		// If it's not supported, just return.
+		/** This filter is documented in modules/custom-css/custom-css.php */
 		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 		if ( ! isset( $preprocessors[ $preprocessor ] ) ) {
 			return $css;
@@ -497,6 +486,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 
 		$preprocessor = $jetpack_custom_css['preprocessor'];
+		/** This filter is documented in modules/custom-css/custom-css.php */
 		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 
 		// If it's empty, just return.
@@ -565,6 +555,7 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * @return null|string
 	 */
 	public static function sanitize_preprocessor( $preprocessor ) {
+		/** This filter is documented in modules/custom-css/custom-css.php */
 		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 		if ( array_key_exists( $preprocessor, $preprocessors ) ) {
 			return $preprocessor;
