@@ -1,5 +1,5 @@
 // Originally based on https://raw.githubusercontent.com/xwp/wp-custom-scss-demo/master/custom-scss-demo-preview.js
-/* globals console */
+/* globals console, jpCustomizerCssPreview */
 (function( api, $ ) {
 	if ( api.settingPreviewHandlers ) {
 		// No-op the custom_css preview handler since now handled by partial.
@@ -21,11 +21,8 @@
 				deferred, setting;
 
 			// Sass or Less require Partial -- so ajax call to get it from PHP.
-			if ( 'sass' === preprocessor ) {
-				parent.console.log( 'sass' );
-				return api.selectiveRefresh.Partial.prototype.refresh.call( partial );
-			} else if ( 'less' === preprocessor ) {
-				parent.console.log( 'less' );
+			// We can explicitly override for specific providers by testing if `'sass' === preprocessor`
+			if ( jpCustomizerCssPreview.preprocessors.hasOwnProperty( preprocessor ) ) {
 				return api.selectiveRefresh.Partial.prototype.refresh.call( partial );
 			} else {
 				// No ajax, no partial refresh, just write what we got.
