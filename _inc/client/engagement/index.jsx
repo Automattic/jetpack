@@ -122,7 +122,7 @@ export const Engagement = ( props ) => {
 								<Button compact={ true } href="#/plans">
 									{ __( 'Pro' ) }
 								</Button>
-							</span>;
+							 </span>;
 			}
 		}
 
