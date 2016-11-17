@@ -103,7 +103,7 @@ export const Engagement = ( props ) => {
 			},
 			isModuleActive = isModuleActivated( element[0] );
 
-		if ( isPro && 'undefined' !== typeof props.sitePlan.product_slug && props.sitePlan.product_slug !== 'jetpack_business' ) {
+		if ( isPro ) {
 
 			toggle = <ProStatus proFeature={ element[0] } />;
 
@@ -121,6 +121,14 @@ export const Engagement = ( props ) => {
 
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
+		} else if ( 'seo-tools' === element[0] && 'jetpack_business' !== props.sitePlan.product_slug ) {
+			toggle = <Button
+				compact={ true }
+				primary={ true }
+				href={ 'https://wordpress.com/plans/' + props.siteRawUrl }
+			>
+				{ __( 'Upgrade' ) }
+			</Button>;
 		} else if ( isAdmin ) {
 			toggle = <ModuleToggle slug={ element[0] }
 						activated={ isModuleActive }
