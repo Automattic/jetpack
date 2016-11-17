@@ -95,10 +95,7 @@ class Jetpack_Sync_Actions {
 
 	static function sync_via_cron_allowed() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
-		return (
-			Jetpack_Feature_Rollout::init()->is_enabled( 'sync_via_cron' ) ||
-			Jetpack_Sync_Settings::get_setting( 'sync_via_cron' )
-		);
+		return ( Jetpack_Sync_Settings::get_setting( 'sync_via_cron' ) );
 	}
 
 	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
