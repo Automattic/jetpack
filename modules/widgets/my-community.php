@@ -229,7 +229,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				$my_community = '<p>' . wp_kses( sprintf( __( 'There are no users to display in this <a href="%1$s">My Community widget</a>. <a href="%2$s">Want more traffic?</a>', 'jetpack' ),
 						admin_url( 'widgets.php' ),
-						'http://en.support.wordpress.com/getting-more-site-traffic/'
+						'https://jetpack.com/support/getting-more-views-and-traffic/'
 					), array( 'a' => array( 'href' => true ) ) ) . '</p>';
 			} else {
 				$my_community = '<p>' . esc_html__( "I'm just starting out; leave me a comment or a like :)", 'jetpack' ) . '</p>';
