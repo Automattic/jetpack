@@ -17,6 +17,11 @@ import {
 	isPluginActive,
 	isPluginInstalled
 } from 'state/site/plugins';
+import {
+	isModuleActivated as _isModuleActivated,
+	activateModule,
+	isActivatingModule
+} from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
 const PlanBody = React.createClass( {
@@ -120,52 +125,6 @@ const PlanBody = React.createClass( {
 					}
 
 					{
-						includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( '13Gb of fast, optimised, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
-								{
-									this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
-									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button href="https://vaultpress.com/" className="is-primary">
-											{ __( 'TO DO: Text and link if unconfigured' ) }
-										</Button>
-									)
-									: (
-										<Button href={ 'https://videopress.com' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'TO DO: Text and link if configured' ) }
-										</Button>
-									)
-								}
-							</div>
-						: ''
-					}
-
-					{
-						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( 'Fast, optimised, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
-								{
-									this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
-									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button href="https://vaultpress.com/" className="is-primary">
-											{ __( 'TO DO: Text and link if unconfigured' ) }
-										</Button>
-									)
-									: (
-										<Button href={ 'https://videopress.com' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'TO DO: Text and link if configured' ) }
-										</Button>
-									)
-								}
-							</div>
-						: ''
-					}
-
-					{
 						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 
 							<div className="jp-landing__plan-features-card">
@@ -173,15 +132,18 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Advanced SEO tools to help your site get found when people search for relevant content.' ) }</p>
 								{
 									this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
-									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button href="#" className="is-primary">
-											{ __( 'TO DO: Text and link if unconfigured' ) }
+									this.props.isModuleActivated( 'seo-tools' ) ? (
+										<Button href={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl } className="is-primary">
+											{ __( 'Configure Site SEO' ) }
 										</Button>
 									)
 									: (
-										<Button href={ '#' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'TO DO: Text and link if configured' ) }
+										<Button
+											onClick={ this.props.activateModule.bind( null, 'seo-tools' ) }
+											className="is-primary"
+										    disabled={ this.props.isActivatingModule( 'seo-tools' ) }
+										>
+											{ __( 'Activate SEO Tools' ) }
 										</Button>
 									)
 								}
@@ -297,12 +259,17 @@ export default connect(
 		return {
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
+			isModuleActivated: ( module_slug ) => _isModuleActivated( state, module_slug ),
+			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug )
 		};
 	},
 	( dispatch ) => {
 		return {
-			fetchPluginsData: () => dispatch( fetchPluginsData() )
+			fetchPluginsData: () => dispatch( fetchPluginsData() ),
+			activateModule: ( slug ) => {
+				return dispatch( activateModule( slug ) );
+			}
 		};
 	}
 )( PlanBody );
