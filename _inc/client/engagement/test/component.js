@@ -77,18 +77,34 @@ describe( 'Engagement', () => {
 
 	} );
 
+	describe( 'if polling site plan from wpcom', () => {
+
+		testProps = Object.assign( testProps, {
+			sitePlan: {
+				product_slug: undefined
+			}
+		} );
+
+		const wrapper = shallow( <Engagement { ...testProps } /> );
+
+		it( "don't display the toggle", () => {
+			expect( wrapper.find( 'FoldableCard' ).props().summary ).to.be.equal( '' );
+		} );
+
+	} );
+
 	describe( "if site has 'jetpack_business' plan", () => {
 
 		testProps = Object.assign( testProps, {
 			sitePlan: {
-				'product_slug': 'jetpack_premium'
+				'product_slug': 'jetpack_business'
 			}
 		} );
 
 		const wrapper = shallow( <Engagement { ...testProps } /> );
 
 		it( "SEO Tools is available in 'jetpack_business' plan", () => {
-			expect( wrapper.find( 'FoldableCard' ).props().summary.type.displayName ).to.be.equal( 'Connect(ProStatus)' );
+			expect( wrapper.find( 'FoldableCard' ).props().summary.type.displayName ).to.be.equal( 'ModuleToggle' );
 		} );
 
 	} );
