@@ -60,49 +60,4 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 
 		return $meta_objects;
 	}
-
-	public function init_listeners( $callable ) {
-		foreach ( $this->meta_types as $meta_type ) {
-			$this->init_listeners_for_meta_type( $meta_type, $callable );
-
-			$whitelist_handler = array( $this, 'filter_meta_' . $meta_type );
-			add_filter( "jetpack_sync_before_enqueue_added_{$meta_type}_meta", $whitelist_handler );
-			add_filter( "jetpack_sync_before_enqueue_updated_{$meta_type}_meta", $whitelist_handler );
-			add_filter( "jetpack_sync_before_enqueue_deleted_{$meta_type}_meta", $whitelist_handler );
-		}
-	}
-
-	public function init_listeners_for_meta_type( $meta_type, $callable ) {
-		add_action( "added_{$meta_type}_meta", $callable, 10, 4 );
-		add_action( "updated_{$meta_type}_meta", $callable, 10, 4 );
-		add_action( "deleted_{$meta_type}_meta", $callable, 10, 4 );
-	}
-
-	// POST Meta
-	function is_whitelisted_post_meta( $meta_key ) {
-		// _wpas_skip_ is used by publicize
-		return in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' ) ) || wp_startswith( $meta_key, '_wpas_skip_' );
-	}
-
-	// Comment Meta
-	function is_whitelisted_comment_meta( $meta_key ) {
-		return in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) );
-	}
-
-	function is_post_type_allowed( $post_id ) {
-		$post = get_post( $post_id );
-		return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
-	}
-
-	function filter_meta_post( $args ) {
-		if ( ! $this->is_whitelisted_post_meta( $args[2] ) ) {
-			return false;
-		}
-		return ( $this->is_post_type_allowed( $args[1] ) ? $args : false );
-	}
-
-	function filter_meta_comment( $args ) {
-		return ( $this->is_whitelisted_comment_meta( $args[2] ) ? $args : false );
-	}
-	
 }

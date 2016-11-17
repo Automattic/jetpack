@@ -116,6 +116,18 @@ abstract class Jetpack_Sync_Module {
 		);
 	}
 
+	public function init_listeners_for_meta_type( $meta_type, $callable ) {
+		add_action( "added_{$meta_type}_meta", $callable, 10, 4 );
+		add_action( "updated_{$meta_type}_meta", $callable, 10, 4 );
+		add_action( "deleted_{$meta_type}_meta", $callable, 10, 4 );
+	}
+
+	public function init_meta_whitelist_handler( $meta_type, $whitelist_handler ) {
+		add_filter( "jetpack_sync_before_enqueue_added_{$meta_type}_meta", $whitelist_handler );
+		add_filter( "jetpack_sync_before_enqueue_updated_{$meta_type}_meta", $whitelist_handler );
+		add_filter( "jetpack_sync_before_enqueue_deleted_{$meta_type}_meta", $whitelist_handler );
+	}
+
 	protected function get_term_relationships( $ids ) {
 		global $wpdb;
 
