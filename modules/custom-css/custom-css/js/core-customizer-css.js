@@ -62,7 +62,7 @@
 		addListeners: function() {
 			var edited = false;
 
-			// refresh the CodeMirror instance's rendering becuase it's initially hidden
+			// refresh the CodeMirror instance's rendering because it's initially hidden
 			// 250ms because that's the open animation duration
 			$( '#accordion-section-jetpack_custom_css > .accordion-section-title' ).click( _.bind( _.debounce( this.editor.refresh, 250 ), this.editor ) );
 			// also refresh when focusing
