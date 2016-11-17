@@ -120,52 +120,6 @@ const PlanBody = React.createClass( {
 					}
 
 					{
-						includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( '13Gb of fast, optimised, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
-								{
-									this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
-									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button href="https://vaultpress.com/" className="is-primary">
-											{ __( 'TO DO: Text and link if unconfigured' ) }
-										</Button>
-									)
-									: (
-										<Button href={ 'https://videopress.com' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'TO DO: Text and link if configured' ) }
-										</Button>
-									)
-								}
-							</div>
-						: ''
-					}
-
-					{
-						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( 'Fast, optimised, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
-								{
-									this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
-									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button href="https://vaultpress.com/" className="is-primary">
-											{ __( 'TO DO: Text and link if unconfigured' ) }
-										</Button>
-									)
-									: (
-										<Button href={ 'https://videopress.com' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'TO DO: Text and link if configured' ) }
-										</Button>
-									)
-								}
-							</div>
-						: ''
-					}
-
-					{
 						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 
 							<div className="jp-landing__plan-features-card">
@@ -202,26 +156,7 @@ const PlanBody = React.createClass( {
 					}
 
 					{
-						includes( [ 'jetpack_personal', 'jetpack_personal_monthly' ], this.props.plan ) ?
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Need more? Running a business site?' ) }</h3>
-								<p>{ __( 'If your site is important to you, consider protecting and improving it with some of our advanced features: ' ) }</p>
-								<p> &mdash; { __( 'Daily and on-demand security scanning' ) }</p>
-								<p> &mdash; { __( 'Real-time backups and one-click threat resolution' ) }</p>
-								<p> &mdash; { __( 'Unlimited and ad-free video hosting' ) }</p>
-								<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
-								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
-								<p>
-									<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
-										{ __( 'Compare Plans' ) }
-									</Button>
-								</p>
-							</div>
-						: ''
-					}
-
-					{
-						includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
+						includes( [ 'jetpack_personal', 'jetpack_personal_monthly', 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Need more? Running a business site?' ) }</h3>
 								<p>{ __( 'If your site is important to you, consider protecting and improving it with some of our advanced features: ' ) }</p>
