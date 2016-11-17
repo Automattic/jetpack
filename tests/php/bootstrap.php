@@ -25,28 +25,50 @@ if ( "1" != getenv( 'WP_MULTISITE' ) &&
  echo "Disregard Core's -c tests/phpunit/multisite.xml notice below." . PHP_EOL;
 }
 
+if ( "1" != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+ echo "To run Jetpack woocommerce tests, prefix phpunit with JETPACK_TEST_WOOCOMMERCE=1" . PHP_EOL;
+} else {
+	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', dirname( __FILE__ ) . '/../../../woocommerce' );
+}
+
 require $test_root . '/includes/functions.php';
 
 // Activates this plugin in WordPress so it can be tested.
 function _manually_load_plugin() {
+	if ( "1" == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
+	}
 	require dirname( __FILE__ ) . '/../../jetpack.php';
+}
+
+function _manually_install_woocommerce() {
+	// clean existing install first
+	define( 'WP_UNINSTALL_PLUGIN', true );
+	define( 'WC_REMOVE_ALL_DATA', true );
+	include( JETPACK_WOOCOMMERCE_INSTALL_DIR . '/uninstall.php' );
+
+	WC_Install::install();
+
+	// reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374
+	$GLOBALS['wp_roles']->reinit();
+
+	echo "Installing WooCommerce..." . PHP_EOL;
 }
 
 // If we are running the uninstall tests don't load jepack.
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin' );
+	if ( "1" == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );	
+	}
 }
 
-
 require $test_root . '/includes/bootstrap.php';
-
 
 // Load the shortcodes module to test properly.
 if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {
 	require dirname( __FILE__ ) . '/../../modules/shortcodes.php';
-
 }
-
 
 // Load attachment helper methods.
 require dirname( __FILE__ ) . '/attachment_test_case.php';
