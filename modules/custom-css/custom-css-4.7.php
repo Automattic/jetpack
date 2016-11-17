@@ -163,6 +163,9 @@ class Jetpack_Custom_CSS_Enhancements {
 	public static function wp_enqueue_scripts() {
 		if ( is_customize_preview() ) {
 			wp_enqueue_script( 'jetpack-customizer-css-preview' );
+			wp_localize_script( 'jetpack-customizer-css-preview', 'jpCustomizerCssPreview', array(
+				'preprocessors' => apply_filters( 'jetpack_custom_css_preprocessors', array() ),
+			));
 		}
 	}
 
