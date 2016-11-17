@@ -15,12 +15,13 @@ import {
 	fetchPluginsData,
 	isFetchingPluginsData,
 	isPluginActive,
-	isPluginInstalled,
+	isPluginInstalled
+} from 'state/site/plugins';
+import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isActivatingModule,
-	isDeactivatingModule,
-} from 'state/site/plugins';
+	isActivatingModule
+} from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
 const PlanBody = React.createClass( {
@@ -131,15 +132,18 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Advanced SEO tools to help your site get found when people search for relevant content.' ) }</p>
 								{
 									this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
-									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+									this.props.isModuleActivated( 'seo-tools' ) ? (
 										<Button href={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Site SEO' ) }
 										</Button>
 									)
 									: (
-										<Button href={ "#" } className="is-primary">
-											{ __( 'Configure Site SEO' ) }
+										<Button
+											onClick={ this.props.activateModule.bind( null, 'seo-tools' ) }
+											className="is-primary"
+										    disabled={ this.props.isActivatingModule( 'seo-tools' ) }
+										>
+											{ __( 'Activate SEO Tools' ) }
 										</Button>
 									)
 								}
@@ -255,12 +259,17 @@ export default connect(
 		return {
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
+			isModuleActivated: ( module_slug ) => _isModuleActivated( state, module_slug ),
+			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug )
 		};
 	},
 	( dispatch ) => {
 		return {
-			fetchPluginsData: () => dispatch( fetchPluginsData() )
+			fetchPluginsData: () => dispatch( fetchPluginsData() ),
+			activateModule: ( slug ) => {
+				return dispatch( activateModule( slug ) );
+			}
 		};
 	}
 )( PlanBody );
