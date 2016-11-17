@@ -1,5 +1,5 @@
 // Originally based on https://raw.githubusercontent.com/xwp/wp-custom-scss-demo/master/custom-scss-demo-preview.js
-/* globals console, jpCustomizerCssPreview */
+/* globals jpCustomizerCssPreview */
 (function( api, $ ) {
 	if ( api.settingPreviewHandlers ) {
 		// No-op the custom_css preview handler since now handled by partial.
