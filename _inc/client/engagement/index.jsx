@@ -181,7 +181,6 @@ export const Engagement = ( props ) => {
 						'stats' === element[0] && isModuleActive
 							? <div className="jp-module-settings__read-more">
 								<span>
-									<span className="jp-module-settings__more-sep" />
 									<span className="jp-module-settings__more-text">{
 										__( 'View {{a}}All Stats{{/a}}', {
 											components: {
@@ -197,7 +196,6 @@ export const Engagement = ( props ) => {
 						'subscriptions' === element[0] && isModuleActive
 							? <div className="jp-module-settings__read-more">
 								<span>
-									<span className="jp-module-settings__more-sep" />
 									<span className="jp-module-settings__more-text">{
 										__( 'View your {{a}}Email Followers{{/a}}', {
 											components: {
