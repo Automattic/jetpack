@@ -38,9 +38,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Adding a redirect tag wrapped in browser conditional comments
 		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
-
-		// Check if the site plan changed and deactivate modules accordingly.
-		$this->check_plan_deactivate_modules( $hook );
 	}
 
 	/**

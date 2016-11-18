@@ -8,11 +8,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	// Show the settings page only when Jetpack is connected or in dev mode
 	protected $dont_show_if_not_active = true;
 
-	function add_page_actions( $hook ) {
-
-		// Check if the site plan changed and deactivate modules accordingly.
-		$this->check_plan_deactivate_modules( $hook );
-	}
+	function add_page_actions( $hook ) {}
 
 	// Adds the Settings sub menu
 	function get_page_hook() {
