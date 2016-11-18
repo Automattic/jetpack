@@ -91,6 +91,7 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-wpcom-connect__content-container {
+  max-width: 75rem;
   position: relative;
   padding: 2rem;
 }
@@ -109,6 +110,7 @@ https://github.com/thoughtbot/bourbon
 .jp-wpcom-connect__content-container h2 {
   margin-top: 0;
   color: #4F748E;
+  line-height: 1.6;
 }
 
 .jp-wpcom-connect__content-icon {
@@ -125,7 +127,7 @@ https://github.com/thoughtbot/bourbon
 }
 
 @media (min-width: 782px) {
-  .jp-banner__button-container {
+  .jp-wpcom-connect__content-container .jp-banner__button-container {
     position: absolute;
     bottom: 1rem;
   }

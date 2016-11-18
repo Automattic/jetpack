@@ -128,4 +128,51 @@ abstract class Jetpack_Admin_Page {
 		global $wp_version;
 		return ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) );
 	}
+
+	/**
+	 * Checks the site plan and deactivates modules that were active but are no longer included in the plan.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param $page
+	 *
+	 * @return bool|array
+	 */
+	function check_plan_deactivate_modules( $page ) {
+		if ( 'admin_page_jetpack_modules' !== $page && 'jetpack_page_jetpack_modules' !== $page ) {
+			return false;
+		}
+		$previous = get_option( 'jetpack_active_plan', '' );
+		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/site' ) );
+		$current = $response->get_data();
+		$current = json_decode( $current['data'] );
+		$to_deactivate = array();
+		if ( isset( $current->plan->product_slug ) ) {
+			if ( empty( $previous ) || ! isset( $previous['product_slug'] ) || $previous['product_slug'] !== $current->plan->product_slug ) {
+				$active = Jetpack::get_active_modules();
+				switch ( $current->plan->product_slug ) {
+					case 'jetpack_free':
+						$to_deactivate = array( 'seo-tools', 'videopress' );
+						break;
+					case 'jetpack_personal':
+					case 'jetpack_personal_monthly':
+						$to_deactivate = array( 'seo-tools', 'videopress' );
+						break;
+					case 'jetpack_premium':
+					case 'jetpack_premium_monthly':
+						$to_deactivate = array( 'seo-tools' );
+						break;
+				}
+				$to_deactivate = array_intersect( $active, $to_deactivate );
+				if ( ! empty( $to_deactivate ) ) {
+					Jetpack::update_active_modules( array_filter( array_diff( $active, $to_deactivate ) ) );
+				}
+			}
+		}
+		return array(
+			'previous'   => $previous,
+			'current'    => $current,
+			'deactivate' => $to_deactivate
+		);
+	}
 }

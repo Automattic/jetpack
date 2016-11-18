@@ -67,6 +67,7 @@
 }
 
 .jp-wpcom-connect__content-container {
+	max-width: rem( 1200px );
 	position: relative;
 	padding: rem( 32px );
 
@@ -83,6 +84,7 @@
 .jp-wpcom-connect__content-container h2 {
 	margin-top: 0;
 	color: #4F748E;
+	line-height: 1.6;
 }
 
 .jp-wpcom-connect__content-icon {
@@ -98,7 +100,7 @@
 	}
 }
 
-.jp-banner__button-container {
+.jp-wpcom-connect__content-container .jp-banner__button-container {
 	@include minbreakpoint(tablet) {
 		position: absolute;
 		bottom: rem( 16px );
