@@ -139,12 +139,13 @@ abstract class Jetpack_Admin_Page {
 	 * @return bool|array
 	 */
 	function check_plan_deactivate_modules( $page ) {
-		if ( 'admin_page_jetpack_modules' !== $page && 'jetpack_page_jetpack_modules' !== $page ) {
+		if ( Jetpack::is_development_mode() || ( 'admin_page_jetpack_modules' !== $page && 'jetpack_page_jetpack_modules' !== $page ) ) {
 			return false;
 		}
 		$previous = get_option( 'jetpack_active_plan', '' );
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/site' ) );
 		$current = $response->get_data();
+
 		$current = json_decode( $current['data'] );
 		$to_deactivate = array();
 		if ( isset( $current->plan->product_slug ) ) {
