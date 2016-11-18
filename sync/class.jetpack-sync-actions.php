@@ -10,7 +10,7 @@ class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
 	const DEFAULT_SYNC_CRON_INTERVAL_NAME = 'jetpack_sync_interval';
-	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * SECONDS_IN_MINUTE;
+	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 
 	static function init() {
 
