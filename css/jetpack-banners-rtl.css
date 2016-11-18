@@ -91,7 +91,15 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-wpcom-connect__content-container {
+  max-width: 75rem;
+  position: relative;
   padding: 2rem;
+}
+
+@media (min-width: 782px) {
+  .jp-wpcom-connect__content-container {
+    padding: 2rem 2rem 6rem 2rem;
+  }
 }
 
 .jp-wpcom-connect__content-container p {
@@ -102,6 +110,7 @@ https://github.com/thoughtbot/bourbon
 .jp-wpcom-connect__content-container h2 {
   margin-top: 0;
   color: #4F748E;
+  line-height: 1.6;
 }
 
 .jp-wpcom-connect__content-icon {
@@ -115,6 +124,13 @@ https://github.com/thoughtbot/bourbon
 
 .jp-wpcom-connect__slide.jp__slide-is-active {
   display: block;
+}
+
+@media (min-width: 782px) {
+  .jp-wpcom-connect__content-container .jp-banner__button-container {
+    position: absolute;
+    bottom: 1rem;
+  }
 }
 
 .jp-banner__button-container .dops-button {
