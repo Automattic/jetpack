@@ -38,6 +38,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Adding a redirect tag wrapped in browser conditional comments
 		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
+
+		// Check if the site plan changed and deactivate modules accordingly.
+		$this->check_plan_deactivate_modules( $hook );
 	}
 
 	/**
@@ -188,41 +191,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
 
-	/**
-	 * Checks the site plan and deactivates modules that were active but are no longer included in the plan.
-	 *
-	 * @since 4.4.0
-	 */
-	function check_plan_deactivate_modules() {
-		$previous = get_option( 'jetpack_active_plan', '' );
-		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/site' ) );
-		$current = $response->get_data();
-		$current = json_decode( $current['data'] );
-		if ( isset( $current->plan->product_slug ) ) {
-			if ( empty( $previous ) || ! isset( $previous['product_slug'] ) || $previous['product_slug'] !== $current->plan->product_slug ) {
-				$active = Jetpack::get_active_modules();
-				$to_deactivate = array();
-				switch ( $current->plan->product_slug ) {
-					case 'jetpack_free':
-						$to_deactivate = array( 'seo-tools', 'videopress' );
-						break;
-					case 'jetpack_personal':
-					case 'jetpack_personal_monthly':
-						$to_deactivate = array( 'seo-tools', 'videopress' );
-						break;
-					case 'jetpack_premium':
-					case 'jetpack_premium_monthly':
-						$to_deactivate = array( 'seo-tools' );
-						break;
-				}
-				$to_deactivate = array_intersect( $active, $to_deactivate );
-				if ( ! empty( $to_deactivate ) ) {
-					Jetpack::update_active_modules( array_filter( array_diff( $active, $to_deactivate ) ) );
-				}
-			}
-		}
-	}
-
 	function page_admin_scripts() {
 		if ( $this->is_redirecting ) {
 			return; // No need for scripts on a fallback page
@@ -250,9 +218,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'canView' => is_array( $enabled_roles ) ? in_array( $slug, $enabled_roles, true ) : false,
 			);
 		}
-
-		// Check the site plan and deactivate modules accordingly
-		$this->check_plan_deactivate_modules();
 
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/module/all' ) );
 		$modules = $response->get_data();
