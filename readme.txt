@@ -154,7 +154,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sitemaps: make sure sitemaps always use absolute paths for images. #5375
 * Sync: avoid counting users on very large networks. #5575
 * Subscriptions: fix PHP warnings when user subscribes to comments. #4897
-* Subscriptions: fixed the "do not send" checkbox status in draft mode so it would stay checked. #5689
 * Widgets: fixed Instagram widget minimum width rule to actually use the minimum instead of maximum. #5316
 
 = 4.3.2 =

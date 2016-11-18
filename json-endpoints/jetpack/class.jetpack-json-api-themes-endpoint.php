@@ -25,6 +25,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		'tags'         => '(array) Tags indicating styles and features of the theme.',
 		'log'          => '(array) An array of log strings',
 		'autoupdate'   => '(bool) Whether the theme is automatically updated',
+		'autoupdate_translation' => '(bool) Whether the theme is automatically updating translations',
 	);
 
 	protected function result() {
@@ -118,13 +119,13 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		$update_themes = get_site_transient( 'update_themes' );
 		$formatted_theme['update'] = ( isset( $update_themes->response[ $id ] ) ) ? $update_themes->response[ $id ] : null;
 
-		$autoupdate_themes = Jetpack_Options::get_option( 'autoupdate_themes', array() );
+		$autoupdate = in_array( $id, Jetpack_Options::get_option( 'autoupdate_themes', array() ) );
+		$formatted_theme['autoupdate'] =  $autoupdate;
 
-		$autoupdate = in_array( $id, $autoupdate_themes );
+		$autoupdate_translation = in_array( $id, Jetpack_Options::get_option( 'autoupdate_themes_translations', array() ) );
+		$formatted_theme['autoupdate_translation'] = $autoupdate || $autoupdate_translation;
 
-		$formatted_theme['autoupdate'] = $autoupdate;
-
-		if( isset( $this->log[ $id ] ) ) {
+		if ( isset( $this->log[ $id ] ) ) {
 			$formatted_theme['log'] = $this->log[ $id ];
 		}
 

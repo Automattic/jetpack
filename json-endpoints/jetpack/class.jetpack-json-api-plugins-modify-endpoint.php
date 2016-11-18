@@ -3,14 +3,17 @@
 class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// POST  /sites/%s/plugins/%s
 	// POST  /sites/%s/plugins
-
+	protected $slug = null;
 	protected $needed_capabilities = 'activate_plugins';
 	protected $action              = 'default_action';
-	protected $expected_actions    = array( 'update', 'install', 'delete' );
+	protected $expected_actions    = array( 'update', 'install', 'delete', 'update_translations' );
 
 	public function callback( $path = '', $blog_id = 0, $object = null ) {
 		Jetpack_JSON_API_Endpoint::validate_input( $object );
 		switch ( $this->action ) {
+			case 'delete':
+				$this->needed_capabilities = 'delete_plugins';
+			case 'update_translations':
 			case 'update' :
 				$this->needed_capabilities = 'update_plugins';
 				break;
@@ -18,7 +21,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				$this->needed_capabilities = 'install_plugins';
 				break;
 		}
-		if ( isset( $args['autoupdate'] ) ) {
+
+		if ( isset( $args['autoupdate'] ) || isset( $args['autoupdate_translations'] ) ) {
 			$this->needed_capabilities = 'update_plugins';
 		}
 
@@ -44,6 +48,14 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 		}
 
+		if ( isset( $args['autoupdate_translations'] ) && is_bool( $args['autoupdate_translations'] ) ) {
+			if ( $args['autoupdate_translations'] ) {
+				$this->autoupdate_translations_on();
+			} else {
+				$this->autoupdate_translations_off();
+			}
+		}
+
 		return true;
 	}
 
@@ -57,6 +69,18 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		$autoupdate_plugins = array_diff( $autoupdate_plugins, $this->plugins );
 		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
+	}
+
+	protected function autoupdate_translations_on() {
+		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
+		$autoupdate_plugins = array_unique( array_merge( $autoupdate_plugins, $this->plugins ) );
+		Jetpack_Options::update_option( 'autoupdate_plugins_translations', $autoupdate_plugins );
+	}
+
+	protected function autoupdate_translations_off() {
+		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
+		$autoupdate_plugins = array_diff( $autoupdate_plugins, $this->plugins );
+		Jetpack_Options::update_option( 'autoupdate_plugins_translations', $autoupdate_plugins );
 	}
 
 	protected function activate() {
@@ -151,7 +175,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		$result = false;
 
 		foreach ( $this->plugins as $plugin ) {
-
+	
 			if ( ! in_array( $plugin, $plugin_updates_needed ) ) {
 				$this->log[ $plugin ][] = __( 'No update needed', 'jetpack' );
 				continue;
@@ -166,7 +190,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			 * @param array $plugin Array of plugin objects
 			 * @param bool $updated_attempted false for the first update, true subsequently
 			 */
-			do_action('jetpack_pre_plugin_upgrade', $plugin, $this->plugins, $update_attempted);
+			do_action( 'jetpack_pre_plugin_upgrade', $plugin, $this->plugins, $update_attempted );
 
 			$update_attempted = true;
 
@@ -179,7 +203,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			defined( 'DOING_CRON' ) or define( 'DOING_CRON', true );
 			$result = $upgrader->upgrade( $plugin );
 
-			$this->log[ $plugin ][] = $upgrader->skin->get_upgrade_messages();
+			$this->log[ $plugin ] = $upgrader->skin->get_upgrade_messages();
 		}
 
 		if ( ! $this->bulk && ! $result && $update_attempted ) {
@@ -187,5 +211,63 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		}
 
 		return $this->default_action();
+	}
+
+	function update_translations() {
+		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+		// Clear the cache.
+		wp_clean_plugins_cache();
+		ob_start();
+		wp_update_plugins(); // Check for Plugin updates
+		ob_end_clean();
+
+		$available_updates = get_site_transient( 'update_plugins' );
+		if ( ! isset( $available_updates->translations ) || empty( $available_updates->translations ) ) {
+			return new WP_Error( 'nothing_to_translate' );
+		}
+
+		$update_attempted = false;
+		$result = false;
+		foreach( $this->plugins as $plugin ) {
+			$this->slug = Jetpack_Autoupdate::get_plugin_slug( $plugin );
+			$translation = array_filter( $available_updates->translations, array( $this, 'get_translation' ) );
+
+			if ( empty( $translation ) ) {
+				$this->log[ $plugin ][] = __( 'No update needed', 'jetpack' );
+				continue;
+			}
+
+			/**
+			 * Pre-upgrade action
+			 *
+			 * @since 4.4
+			 *
+			 * @param array $plugin Plugin data
+			 * @param array $plugin Array of plugin objects
+			 * @param bool $updated_attempted false for the first update, true subsequently
+			 */
+			do_action( 'jetpack_pre_plugin_upgrade_translations', $plugin, $this->plugins, $update_attempted );
+
+			$update_attempted = true;
+			
+			$skin = new Automatic_Upgrader_Skin();
+			$upgrader = new Language_Pack_Upgrader( $skin );
+			$upgrader->init();
+
+			$result   = $upgrader->upgrade( (object) $translation[0] );
+		
+			$this->log[ $plugin ] = $upgrader->skin->get_upgrade_messages();
+		}
+
+		if ( ! $this->bulk && ! $result ) {
+			return new WP_Error( 'update_fail', __( 'There was an error updating your plugin', 'jetpack' ), 400 );
+		}
+
+		return true;
+	}
+	
+	protected function get_translation( $translation ) {
+		return ( $translation['slug'] === $this->slug );
 	}
 }
