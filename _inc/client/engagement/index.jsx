@@ -174,37 +174,42 @@ export const Engagement = ( props ) => {
 				{
 					moduleDescription
 				}
-				<div className="jp-module-settings__read-more">
+				<div className="jp-module-settings__learn-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
-					{
-						'stats' === element[0] && isModuleActive ? (
-							<span>
-								<span className="jp-module-settings__more-sep" />
-								<span className="jp-module-settings__more-text">{
-									__( 'View {{a}}All Stats{{/a}}', {
-										components: {
-											a: <a href={ props.siteAdminUrl + 'admin.php?page=stats' } />
-										}
-									} )
-								}</span>
-							</span>
-						) : ''
-					}
-					{
-						'subscriptions' === element[0] && isModuleActive ? (
-							<span>
-								<span className="jp-module-settings__more-sep" />
-								<span className="jp-module-settings__more-text">{
-									__( 'View your {{a}}Email Followers{{/a}}', {
-										components: {
-											a: <a href={ 'https://wordpress.com/people/email-followers/' + props.siteRawUrl } />
-										}
-									} )
-								}</span>
-							</span>
-						) : ''
-					}
 				</div>
+					{
+						'stats' === element[0] && isModuleActive
+							? <div className="jp-module-settings__read-more">
+								<span>
+									<span className="jp-module-settings__more-sep" />
+									<span className="jp-module-settings__more-text">{
+										__( 'View {{a}}All Stats{{/a}}', {
+											components: {
+												a: <a href={ props.siteAdminUrl + 'admin.php?page=stats' } />
+											}
+										} )
+									}</span>
+								</span>
+							  </div>
+							: ''
+					}
+					{
+						'subscriptions' === element[0] && isModuleActive
+							? <div className="jp-module-settings__read-more">
+								<span>
+									<span className="jp-module-settings__more-sep" />
+									<span className="jp-module-settings__more-text">{
+										__( 'View your {{a}}Email Followers{{/a}}', {
+											components: {
+												a: <a href={ 'https://wordpress.com/people/email-followers/' + props.siteRawUrl } />
+											}
+										} )
+									}</span>
+								</span>
+							  </div>
+							: ''
+					}
+
 			</FoldableCard>
 		) : false;
 	} );
