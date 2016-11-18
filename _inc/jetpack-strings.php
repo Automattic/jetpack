@@ -36,6 +36,11 @@ __( "%(slug)s has been activated.", "jetpack" ), // _inc/client/state/modules/ac
 __( "Activating %(slug)s…", "jetpack" ), // _inc/client/state/modules/actions.js:94
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:82
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:68
+__( "Show falling snow on my blog from Dec 1st until Jan 4th.", "jetpack" ), // _inc/client/appearance/index.jsx:113
+__( "Show falling snow in the holiday period.", "jetpack" ), // _inc/client/appearance/index.jsx:100
+__( "Holiday Snow", "jetpack" ), // _inc/client/appearance/index.jsx:99
+__( "Learn More", "jetpack" ), // _inc/client/appearance/index.jsx:87
+__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/appearance/index.jsx:57
 __( "WordPress.com for Linux", "jetpack" ), // _inc/client/apps/index.jsx:192
 __( "WordPress.com for Windows", "jetpack" ), // _inc/client/apps/index.jsx:188
 __( "WordPress.com for Mac OS X", "jetpack" ), // _inc/client/apps/index.jsx:183
@@ -63,11 +68,6 @@ __( "All the WordPress apps are built for speed. You'll notice the difference in
 __( "Feel the performance", "jetpack" ), // _inc/client/apps/index.jsx:30
 __( "Manage all your sites from a single dashboard.", "jetpack" ), // _inc/client/apps/index.jsx:25
 __( "Powerful WordPress.com features on every device.", "jetpack" ), // _inc/client/apps/index.jsx:21
-__( "Show falling snow on my blog from Dec 1st until Jan 4th.", "jetpack" ), // _inc/client/appearance/index.jsx:113
-__( "Show falling snow in the holiday period.", "jetpack" ), // _inc/client/appearance/index.jsx:100
-__( "Holiday Snow", "jetpack" ), // _inc/client/appearance/index.jsx:99
-__( "Learn More", "jetpack" ), // _inc/client/appearance/index.jsx:87
-__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/appearance/index.jsx:57
 __( "View your {{a}}Email Followers{{/a}}", "jetpack" ), // _inc/client/engagement/index.jsx:190
 __( "View {{a}}All Stats{{/a}}", "jetpack" ), // _inc/client/engagement/index.jsx:175
 __( "Learn More", "jetpack" ), // _inc/client/engagement/index.jsx:168
@@ -288,6 +288,13 @@ __( "Drive more traffic to your site", "jetpack" ), // _inc/client/components/je
 __( "No account? Create one for free…", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:35
 __( "Please connect to or create a WordPress.com account to start using Jetpack. This will enable powerful security, traffic, and customization services.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:30
 __( "Welcome to Jetpack", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:25
+__( "Skip this step", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:83
+__( "Skip the Jetpack Jumpstart process", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:82
+__( "Features can be activated or deactivated at any time.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:75
+__( "Jetpack's recommended features include:", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:67
+__( "Activate Recommended Features", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:57
+__( "Quickly enhance your site by activating Jetpack's recommended features.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:54
+__( "Jump Start your Site", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:48
 __( "Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/dismissable.jsx:40
 __( "You have successfully disconnected Jetpack", "jetpack" ), // _inc/client/components/jetpack-notices/dismissable.jsx:37
 __( "Let us know!", "jetpack" ), // _inc/client/components/jetpack-notices/feedback-dash-request.jsx:36
@@ -315,13 +322,6 @@ __( "We had an issue connecting Jetpack; deactivate then reactivate the Jetpack 
 __( "You need to stay logged in to your WordPress blog while you authorize Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:53
 __( "{{p}}Would you mind telling us why you did not complete the Jetpack connection in this {{a}}2 question survey{{/a}}?{{/p}}{{p}}A Jetpack connection is required for our free security and traffic features to work.{{/p}}", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:42
 __( "Cheatin' uh?", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:39
-__( "Skip this step", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:83
-__( "Skip the Jetpack Jumpstart process", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:82
-__( "Features can be activated or deactivated at any time.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:75
-__( "Jetpack's recommended features include:", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:67
-__( "Activate Recommended Features", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:57
-__( "Quickly enhance your site by activating Jetpack's recommended features.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:54
-__( "Jump Start your Site", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:48
 __( "Send us Feedback", "jetpack" ), // _inc/client/components/masthead/index.jsx:45
 __( "Send us Feedback", "jetpack" ), // _inc/client/components/masthead/index.jsx:43
 __( "Need Help?", "jetpack" ), // _inc/client/components/masthead/index.jsx:37
