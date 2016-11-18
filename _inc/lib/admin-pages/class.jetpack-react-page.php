@@ -194,28 +194,31 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.4.0
 	 */
 	function check_plan_deactivate_modules() {
+		$previous = get_option( 'jetpack_active_plan', '' );
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/site' ) );
-		$site_data = $response->get_data();
-		$site_data = json_decode( $site_data['data'] );
-		if ( isset( $site_data->plan->product_slug ) ) {
-			$active = Jetpack::get_active_modules();
-			$to_deactivate = array();
-			switch ( $site_data->plan->product_slug ) {
-				case 'jetpack_free':
-					$to_deactivate = array( 'seo-tools', 'videopress' );
-					break;
-				case 'jetpack_personal':
-				case 'jetpack_personal_monthly':
-					$to_deactivate = array( 'seo-tools', 'videopress' );
-					break;
-				case 'jetpack_premium':
-				case 'jetpack_premium_monthly':
-					$to_deactivate = array( 'seo-tools' );
-					break;
-			}
-			$to_deactivate = array_intersect( $active, $to_deactivate );
-			if ( ! empty( $to_deactivate ) ) {
-				Jetpack::update_active_modules( array_filter( array_diff( $active, $to_deactivate ) ) );
+		$current = $response->get_data();
+		$current = json_decode( $current['data'] );
+		if ( isset( $current->plan->product_slug ) ) {
+			if ( empty( $previous ) || ! isset( $previous['product_slug'] ) || $previous['product_slug'] !== $current->plan->product_slug ) {
+				$active = Jetpack::get_active_modules();
+				$to_deactivate = array();
+				switch ( $current->plan->product_slug ) {
+					case 'jetpack_free':
+						$to_deactivate = array( 'seo-tools', 'videopress' );
+						break;
+					case 'jetpack_personal':
+					case 'jetpack_personal_monthly':
+						$to_deactivate = array( 'seo-tools', 'videopress' );
+						break;
+					case 'jetpack_premium':
+					case 'jetpack_premium_monthly':
+						$to_deactivate = array( 'seo-tools' );
+						break;
+				}
+				$to_deactivate = array_intersect( $active, $to_deactivate );
+				if ( ! empty( $to_deactivate ) ) {
+					Jetpack::update_active_modules( array_filter( array_diff( $active, $to_deactivate ) ) );
+				}
 			}
 		}
 	}
