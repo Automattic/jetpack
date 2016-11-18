@@ -16,7 +16,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 			// hook to allow alternative install method
 			if ( wp_endswith( $theme, '-wpcom' )
-				&& apply_filters( 'jetpack_wpcom_theme_install', false, $theme ) ) {
+				 && apply_filters( 'jetpack_wpcom_theme_install', false, $theme ) ) {
 				continue;
 			}
 
