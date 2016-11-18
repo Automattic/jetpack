@@ -82,6 +82,8 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		if ( is_numeric( $order_item ) ) {
 			global $wpdb;
 			return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $this->order_item_table_name WHERE order_item_id = %d", $order_item ) );
+		} elseif ( is_array( $order_item ) ) {
+			return $order_item;
 		} else {
 			return (object)array(
 				'order_item_id'   => $order_item->get_id(),
