@@ -147,11 +147,19 @@ class Jetpack_Subscriptions {
 	 * @param $post obj - The post object
 	 */
 	function maybe_send_subscription_email( $new_status, $old_status, $post ) {
-		// Only do things on publish
-		if ( 'publish' !== $new_status ) {
+
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+
+		// Make sure that the checkbox is preseved
+		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
+			$set_checkbox = isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ? 1 : 0;
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $set_checkbox );
+		}
+
+		// Only do things on publish
+		if ( 'publish' !== $new_status ) {
 			return;
 		}
 
@@ -210,19 +218,12 @@ class Jetpack_Subscriptions {
 			$should_email = false;
 		}
 
-		// Email the post, depending on the checkbox option
-		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
-			if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
-				$should_email = false;
-			}
-		}
+
 		return $should_email;
 	}
 
 	function set_post_flags( $flags, $post ) {
-		if ( ! $this->should_email_post_to_subscribers( $post ) ) {
-			$flags['_jetpack_dont_email_post_to_subs'] = true;
-		}
+		$flags['send_subscription'] = $this->should_email_post_to_subscribers( $post );
 		return $flags;
 	}
 
