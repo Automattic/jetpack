@@ -39,7 +39,7 @@ function videopress_shortcode_callback( $attr ) {
 	$defaults = array(
 		'w'               => 0,     // Width of the video player, in pixels
 		'at'              => 0,     // How many seconds in to initially seek to
-		'hd'              => true,  // Whether to display a high definition version
+		'hd'              => false, // Whether to display a high definition version
 		'loop'            => false, // Whether to loop the video repeatedly
 		'freedom'         => false, // Whether to use only free/libre codecs
 		'autoplay'        => false, // Whether to autoplay the video on load
@@ -147,20 +147,20 @@ add_filter( 'oembed_fetch_url', 'videopress_add_oembed_for_parameter' );
  * @param $attr
  *
  * @return string|void
- */
+ * /
 function videopress_shortcode_override_for_core_shortcode( $raw_attr, $contents, $tag ) {
 	$attr = $raw_attr;
-	$videopress_guid = null;
+	$videopress_guid = false;
 
 	if ( isset( $attr['videopress_guid'] ) ) {
 		$videopress_guid = $attr['videopress_guid'];
+	}
 
-	} elseif ( isset( $attr['mp4'] ) ) {
-		$url = $attr['mp4'];
-
-		if ( preg_match( '@videos.videopress.com/([a-z0-9]{8})/@', $url, $matches ) ) {
-			$videopress_guid = $matches[1];
-		}
+	// If we can find a local media item from the provided url…
+	$media_id = videopress_get_attachment_id_by_url( $attr['src'] );
+	if ( $media_id ) {
+		// And that local media item has a VideoPress GUID attached to it…
+		$videopress_guid = get_post_meta( $media_id, 'videopress_guid', true );
 	}
 
 	if ( $videopress_guid ) {
@@ -187,3 +187,4 @@ function videopress_shortcode_override_for_core_shortcode( $raw_attr, $contents,
 $GLOBALS['vp_original_video_shortcode_callback'] = $GLOBALS['shortcode_tags']['video'];
 remove_shortcode( 'video' );
 add_shortcode( 'video', 'videopress_shortcode_override_for_core_shortcode' );
+/**/
