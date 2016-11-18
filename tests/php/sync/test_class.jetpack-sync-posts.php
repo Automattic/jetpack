@@ -838,7 +838,7 @@ That was a cool video.';
 	public function test_sync_jetpack_published_post_should_set_send_subscription_to_false() {
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
 		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
- 		Jetpack_Subscriptions::init();
+ 		new Jetpack_Subscriptions; // call instead of Jetpack_Subscriptions::init() so that actions get reinitialized
 
 		$post_id = $this->factory->post->create( array(  'post_status' => 'draft' ) );
 
@@ -857,7 +857,7 @@ That was a cool video.';
 		$this->server_event_storage->reset();
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
 		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
-		Jetpack_Subscriptions::init();
+		new Jetpack_Subscriptions; // call instead of Jetpack_Subscriptions::init() so that actions get reinitialized
 
 		wp_update_post( array(
 			'ID'          => $this->post->ID,
@@ -874,9 +874,9 @@ That was a cool video.';
 		$this->sender->do_sync();
 		
 		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
-		$post_flags = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' )->args[1];
-
 		$this->assertEquals( count( $events ), 1 );
+
+		$post_flags = $events[0]->args[1];		
 		$this->assertTrue( $post_flags['send_subscription'] );
 	}
 }
