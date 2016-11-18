@@ -31,14 +31,21 @@ add_filter( 'rest_url_prefix', 'jetpack_index_permalinks_rest_api_url', 999 );
 /**
  * Fix the REST API URL for sites using index permalinks
  *
- * @todo Remove when 4.7 is minimum version
- * @see  https://core.trac.wordpress.org/ticket/38182
- * @see  https://github.com/Automattic/jetpack/issues/5216
+ * @todo   Remove when 4.7 is minimum version
+ * @see    https://core.trac.wordpress.org/ticket/38182
+ * @see    https://github.com/Automattic/jetpack/issues/5216
  * @author kraftbj
- **/
+ *
+ * @param string $prefix REST API endpoint URL base prefix.
+ *
+ * @return string
+ */
 function jetpack_index_permalinks_rest_api_url( $prefix ){
 	global $wp_rewrite, $wp_version;
-	if ( version_compare( $wp_version, '4.7-alpha-38790', '<' ) && $wp_rewrite->using_index_permalinks() ){
+	if ( version_compare( $wp_version, '4.7-alpha-38790', '<' )
+		&& isset( $wp_rewrite ) && $wp_rewrite instanceof WP_Rewrite
+		&& method_exists( $wp_rewrite, 'using_index_permalinks' )
+		&& $wp_rewrite->using_index_permalinks() ) {
 		$prefix = $wp_rewrite->index . '/' . $prefix;
 	}
 
