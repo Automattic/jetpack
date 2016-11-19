@@ -55,8 +55,11 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_initalize_Jetpack_Sync_Action_on_init() {
-		// prioroty should be set to 11 so that Plugins by default (10) initialize the whitelist_filter before.
-		$this->assertEquals( 90, has_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ) ) );
+		// prioroty should be set so that plugins can set their own filers initialize the whitelist_filter before.
+		// Priority is set earlier now plugins_loaded but we plugins should still be able to set whitelist_filters by
+		// using the plugins_loaded action.
+
+		$this->assertEquals( 90, has_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ) ) );
 	}
 
 	public function test_sync_default_options() {
