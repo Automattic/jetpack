@@ -53,8 +53,10 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 			if ( $themes_posts[ $stylesheet ] ) {
 				$args['ID'] = $themes_posts[ $stylesheet ];
+				// We already know the ID, so no need to save the return value.
 				wp_update_post( wp_slash( $args ) );
 			} else {
+				// This is a new post we're stashing it under, so save the ID.
 				$themes_posts[ $stylesheet ] = wp_insert_post( wp_slash( $args ) );
 			}
 		}
