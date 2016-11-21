@@ -39,15 +39,17 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_updates', array( $this, 'expand_updates' ) );
 	}
 
+	public function get_update_checksum( $value ) {
+		$a_value = (array) $value;
+
+		// ignore `last_checked`
+		unset( $a_value['last_checked'] );
+
+		return $this->get_check_sum( $a_value );
+	}
+
 	public function validate_update_change( $value, $expiration, $transient ) {
-		$value = (array) $value;
-		unset( $value['last_checked'] );
-
-		if ( empty( $value ) ) {
-			return;
-		}
-
-		$checksum = $this->get_check_sum( $value );
+		$checksum = $this->get_update_checksum( $value );
 
 		$checksums = get_option( self::UPDATES_CHECKSUM_OPTION_NAME, array() );
 		if ( isset( $checksums[ $transient ] ) && $checksums[ $transient ] === $checksum ) {
