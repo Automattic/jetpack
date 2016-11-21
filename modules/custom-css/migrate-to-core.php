@@ -28,6 +28,8 @@ class Jetpack_Custom_CSS_Data_Migration {
 			return null;
 		}
 
+		/** This filter is documented in modules/custom-css/custom-css.php */
+		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 		$revisions = array_reverse( $revisions );
 		$themes = self::get_themes();
 		$themes_posts = array();
@@ -42,19 +44,29 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 			$to_delete[] = $post->ID;
 			$preprocessor = get_post_meta( $post->ID, 'custom_css_preprocessor', true );
+			$css = $post->post_content;
+			$pre = null;
+
+			if ( $preprocessor && isset( $preprocessors[ $preprocessor ] ) ) {
+				$preprocessor = 'less';
+				$pre = $css;
+				$css = call_user_func( $preprocessors[ $preprocessor ]['callback'], $pre );
+				print_r( $preprocessors[ $preprocessor ]['callback'] );
+				echo $css;
+			}
 
 			// Do we need to remove any filters here for users without `unfiltered_html` ?
 
 			// Format here into calls to wp_insert_post() or wp_update_post()
 			$args = array(
-				'post_content' => $post->post_content,
-				'post_content_filtered' => $preprocessor ? $post->post_content_filtered : '',
 				'post_title' => $stylesheet,
 				'post_name' => sanitize_title( $stylesheet ),
 				'post_type' => 'custom_css',
 				'post_status' => 'publish',
 				'post_author' => $post->post_author,
 				'post_modified_gmt' => $post->post_modified_gmt,
+				'post_content'          => $css,
+				'post_content_filtered' => $pre,
 			);
 
 			// Run one quick query to determine if we have a post for that theme.
