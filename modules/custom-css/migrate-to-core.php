@@ -18,13 +18,14 @@ class Jetpack_Custom_CSS_Data_Migration {
 	}
 
 	public static function do_migration() {
+		Jetpack_Options::update_option( 'custom_css_4.7_migration', true );
+
 		if ( ! post_type_exists( 'safecss' ) ) {
 			self::register_legacy_post_type();
 		}
 
 		$revisions = self::get_all_revisions();
 		if ( empty( $revisions ) || ! is_array( $revisions ) ) {
-			Jetpack_Options::update_option( 'custom_css_4.7_migration', true );
 			return null;
 		}
 
@@ -88,7 +89,6 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 		// delete the old posts stored in $to_delete.
 
-		Jetpack_Options::update_option( 'custom_css_4.7_migration', true );
 		return sizeof( $to_delete );
 	}
 
