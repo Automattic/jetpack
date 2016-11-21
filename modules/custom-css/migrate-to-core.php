@@ -12,7 +12,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 		$revisions = self::get_all_revisions();
 		if ( empty( $revisions ) || ! is_array( $revisions ) ) {
-			do_action( 'jetpack-custom_css-4.7_migration_finished', 0 );
+			Jetpack_Options::update_option( 'custom_css_4.7_migration', true );
 			return null;
 		}
 
@@ -60,6 +60,9 @@ class Jetpack_Custom_CSS_Data_Migration {
 		}
 
 		// delete the old posts stored in $to_delete.
+
+		Jetpack_Options::update_option( 'custom_css_4.7_migration', true );
+		return sizeof( $to_delete );
 	}
 
 	public static function register_legacy_post_type() {
