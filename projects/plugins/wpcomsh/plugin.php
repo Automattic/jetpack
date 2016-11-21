@@ -37,21 +37,21 @@ class AT_Pressable_Themes {
 	}
 
 	function symlink_theme( $is_theme_installed, $theme_slug ) {
-		$theme_slug = preg_replace( '/-wpcom$/', '', $theme_slug );
+		$theme_slug_without_wpcom_suffix = preg_replace( '/-wpcom$/', '', $theme_slug );
 
 		error_log('theme slug: ' . $theme_slug);
 
-		$abs_theme_path = AT_PRESSABLE_THEMES_PATH . '/' . $theme_slug;
+		$abs_theme_path = AT_PRESSABLE_THEMES_PATH . '/' . $theme_slug_without_wpcom_suffix;
 		$abs_theme_symlink_path = get_theme_root() . '/' . $theme_slug;
 
 		symlink( $abs_theme_path, $abs_theme_symlink_path );
 
-		return false;
+		return true;
 
 	}
 
 	private function is_theme_on_filesystem( $theme_slug ) {
-		$theme_slug = preg_replace( '/-wpcom$/', '', $theme_slug );
+		$theme_slug_without_wpcom_suffix = preg_replace( '/-wpcom$/', '', $theme_slug );
 
 		$all_wpcom_themes = scandir( AT_PRESSABLE_THEMES_PATH );
 
@@ -64,7 +64,7 @@ class AT_Pressable_Themes {
 			return false;
 		}
 
-		if ( ! in_array( $theme_slug, $all_wpcom_themes ) ) {
+		if ( ! in_array( $theme_slug_without_wpcom_suffix, $all_wpcom_themes ) ) {
 			return false;
 		}
 
@@ -72,7 +72,7 @@ class AT_Pressable_Themes {
 
 		$site_themes = scandir( $site_themes_dir );
 
-		if ( ! in_array( $theme_slug, $site_themes ) ) {
+		if ( ! in_array( $theme_slug_without_wpcom_suffix, $site_themes ) ) {
 			return false;
 		}
 
@@ -93,6 +93,9 @@ add_action( 'init', 'at_pressable_themes_init' );
 function at_pressable_themes_init() {
 	AT_Pressable_Themes::init();
 }
+
+
+
 
 add_action( 'admin_init', 'at_pressable_add_filter_for_edit_themes_capability' );
 
