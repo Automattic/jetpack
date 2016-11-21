@@ -31,6 +31,23 @@ import {
 
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 
+export let VideoPressSettings = React.createClass( {
+	render() {
+		return (
+			<div>
+				<p className="jp-form-setting-explanation">
+					{ __( 'The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.' ) }
+				</p>
+				<p className="jp-form-setting-explanation">
+					{ __( 'To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!' ) }
+				</p>
+			</div>
+		)
+	}
+} );
+
+VideoPressSettings = moduleSettingsForm( VideoPressSettings );
+
 export let SharedaddySettings = React.createClass( {
 	render() {
 		return (
@@ -77,7 +94,7 @@ export let RelatedPostsSettings = React.createClass( {
 							{
 								show_thumbnails ? <img src={ preview.url } /> : ''
 							}
-							<span><a href="#/discussion"> { preview.text } </a></span>
+							<span><a href="#/engagement"> { preview.text } </a></span>
 						</span>
 					) )
 				}
@@ -463,8 +480,8 @@ export let VerificationToolsSettings = React.createClass( {
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example: ' ) }
-							&lt;meta name='google-site-verification' content='<strong className="code">dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8</strong>'&gt;
+							{ __( 'Meta key example:' ) }
+							&nbsp;&lt;meta name='google-site-verification' content='<strong className="code">dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8</strong>'&gt;
 						</span>
 					</div>
 
@@ -480,8 +497,8 @@ export let VerificationToolsSettings = React.createClass( {
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example: ' ) }
-							&lt;meta name='msvalidate.01' content='<strong>12C1203B5086AECE94EB3A3D9830B2E</strong>'&gt;
+							{ __( 'Meta key example:' ) }
+							&nbsp;&lt;meta name='msvalidate.01' content='<strong>12C1203B5086AECE94EB3A3D9830B2E</strong>'&gt;
 						</span>
 					</div>
 
@@ -497,8 +514,25 @@ export let VerificationToolsSettings = React.createClass( {
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example: ' ) }
-							&lt;meta name='p:domain_verify' content='<strong>f100679e6048d45e4a0b0b92dce1efce</strong>'&gt;
+							{ __( 'Meta key example:' ) }
+							&nbsp;&lt;meta name='p:domain_verify' content='<strong>f100679e6048d45e4a0b0b92dce1efce</strong>'&gt;
+						</span>
+					</div>
+
+					<div className="dops-card">
+						<FormLabel>
+							<FormLegend>Yandex</FormLegend>
+							<TextInput
+								name={ 'yandex' }
+								value={ this.props.getOptionValue( 'yandex' ) }
+								placeholder={ 'Example: 44d68e1216009f40' }
+								className="widefat code"
+								disabled={ this.props.isUpdating( 'yandex' ) }
+								onChange={ this.props.onOptionChange} />
+						</FormLabel>
+						<span className="jp-form-setting-explanation">
+							{ __( 'Meta key example:' ) }
+							&nbsp;&lt;meta name='yandex-verification' content='<strong>44d68e1216009f40</strong>'&gt;
 						</span>
 					</div>
 
@@ -575,7 +609,7 @@ export let PostByEmailSettings = React.createClass( {
 						<div className="jp-connection-settings">
 							<div className="jp-connection-settings__headline">{ __( 'Link your account to WordPress.com to start using this feature.' ) }</div>
 							<div className="jp-connection-settings__actions">
-								<ConnectButton connectUser={ true } />
+								<ConnectButton connectUser={ true } from="post-by-email" />
 							</div>
 						</div>
 					}

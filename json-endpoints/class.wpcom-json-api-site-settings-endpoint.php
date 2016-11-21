@@ -77,6 +77,23 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Returns an option value as the result of the callable being applied to
+	 * it if a value is set, otherwise null.
+	 *
+	 * @param (string) $option_name Option name
+	 * @param (callable) $cast_callable Callable to invoke on option value
+	 * @return (int|null) Numeric option value or null
+	 */
+	protected function get_cast_option_value_or_null( $option_name, $cast_callable ) {
+		$option_value = get_option( $option_name, null );
+		if ( is_null( $option_value ) ) {
+			return $option_value;
+		}
+
+		return call_user_func( $cast_callable, $option_value );
+	}
+
+	/**
 	 * Collects the necessary information to return for a get settings response.
 	 *
 	 * @return (array)
@@ -136,11 +153,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					)
 				);
 
-				$eventbrite_api_token = (int) get_option( 'eventbrite_api_token' );
-				if ( 0 === $eventbrite_api_token ) {
-					$eventbrite_api_token = null;
-				}
-
 				$holiday_snow = false;
 				if ( function_exists( 'jetpack_holiday_snow_option_name' ) ) {
 					$holiday_snow = (bool) get_option( jetpack_holiday_snow_option_name() );
@@ -191,7 +203,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
 					'twitter_via'             => (string) get_option( 'twitter_via' ),
 					'jetpack-twitter-cards-site-tag' => (string) get_option( 'jetpack-twitter-cards-site-tag' ),
-					'eventbrite_api_token'    => $eventbrite_api_token,
+					'eventbrite_api_token'    => $this->get_cast_option_value_or_null( 'eventbrite_api_token', 'intval' ),
 					'holidaysnow'             => $holiday_snow,
 					'gmt_offset'              => get_option( 'gmt_offset' ),
 					'timezone_string'         => get_option( 'timezone_string' ),
@@ -199,6 +211,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_testimonial_posts_per_page' => (int) get_option( 'jetpack_testimonial_posts_per_page', '10' ),
 					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
 					'jetpack_portfolio_posts_per_page' => (int) get_option( 'jetpack_portfolio_posts_per_page', '10' ),
+					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
+					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
+					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -417,10 +432,65 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$value = '';
 					}
 
-					// Always set timezone_string either with the given value or with an 
+					// Always set timezone_string either with the given value or with an
 					// empty string
 					if ( update_option( $key, $value ) ) {
 						$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'site_icon':
+					// settings are stored as deletable numeric (all empty
+					// values as delete intent), validated as media image
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( delete_option( $key ) ) {
+							$updated[ $key ] = null;
+						}
+					} else if ( is_numeric( $value ) ) {
+						$coerce_value = (int) $value;
+						if ( wp_attachment_is_image( $coerce_value ) && update_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
+						}
+					}
+					break;
+
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_grandfathered_front_page_meta() ) {
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
+					}
+
+					if ( ! is_string( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.', 'jetpack' ), 400 );
+					}
+
+					$new_description = Jetpack_SEO_Utils::update_front_page_meta_description( $value );
+
+					if ( ! empty( $new_description ) ) {
+						$updated[ $key ] = $new_description;
+					}
+					break;
+
+				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION:
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
+					}
+
+					if ( ! Jetpack_SEO_Titles::are_valid_title_formats( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.', 'jetpack' ), 400 );
+					}
+
+					$new_title_formats = Jetpack_SEO_Titles::update_title_formats( $value );
+
+					if ( ! empty( $new_title_formats ) ) {
+						$updated[ $key ] = $new_title_formats;
+					}
+					break;
+
+				case 'verification_services_codes':
+					$verification_codes = jetpack_verification_validate( $value );
+
+					if ( update_option( 'verification_services_codes', $verification_codes ) ) {
+						$updated[ $key ] = $verification_codes;
 					}
 					break;
 

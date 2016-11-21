@@ -159,6 +159,66 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		$this->rmdir( $the_real_folder );
 	}
 
+	/**
+	 * @author wpbenyamin
+	 * @covers Jetpack_JSON_API_Export_Endpoint
+	 * @requires PHP 5.3.2
+	 *
+	public function test_Jetpack_JSON_API_Export_Endpoint() {
+		$endpoint = new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
+			'method' => 'POST',
+			'description' => 'Export site data.',
+			'group' => '__do_not_document',
+			'stat' => 'export',
+			'path' => '/sites/%s/export',
+			'path_labels' => array(
+				'$site' => '(int|string) Site ID or domain',
+			),
+			'request_format' => array(
+				'content'               => '(string=all) The content to export',
+				'cat'                   => '(integer=0) The Id of the category to export',
+				'post_author'           => '(integer=0) The Id of the author to export his posts',
+				'post_start_date'       => '(string=0) The start month of posts to export. Format: YYYY-MM',
+				'post_end_date'         => '(string=0) The end month of posts to export. Format: YYYY-MM',
+				'post_status'           => '(string=0) The status of the posts to export',
+				'page_author'           => '(integer=0) The Id of the author to export his pages',
+				'page_start_date'       => '(string=0) The start month of pages to export. Format: YYYY-MM',
+				'page_end_date'         => '(string=0) The end month of pages to export. Format: YYYY-MM',
+				'page_status'           => '(string=0) The status of the pages to export',
+				'attachment_start_date' => '(string=0) The start month of media to export. Format: YYYY-MM',
+				'attachment_end_date'   => '(string=0) The end month of media to export. Format: YYYY-MM',
+			),
+			'response_format' => array(
+				'status'        => '(string) The status of the export. Values are success|fail',
+				'download_url'  => '(string) The URL of the export file to download from the Jetpack site.'
+			),
+			'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/export',
+			'example_request_data' => array(
+				'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+				'body' => array(
+					'content'               => 'all',
+					'cat'                   => '0',
+					'post_author'           => '0',
+					'post_start_date'       => '0',
+					'post_end_date'         => '0',
+					'post_status'           => '0',
+					'page_author'           => '0',
+					'page_start_date'       => '0',
+					'page_end_date'         => '0',
+					'page_status'           => '0',
+					'attachment_start_date' => '0',
+					'attachment_end_date'   => '0',
+				),
+			),
+		) );
+		$class = new ReflectionClass('Jetpack_JSON_API_Export_Endpoint');
+		$validate_plugins_method = $class->getMethod( 'validate_plugins' );
+		$validate_plugins_method->setAccessible( true );
+		$result = $validate_plugins_method->invoke( $endpoint );
+		$this->assertTrue( $result );
+
+	}*/
+
 	function filesystem_method_direct( $method ) {
 
 		return 'direct';

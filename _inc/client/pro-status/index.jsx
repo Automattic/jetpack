@@ -70,16 +70,30 @@ const ProStatus = React.createClass( {
 			if ( 'akismet' === feature ) {
 				const akismetData = this.props.getAkismetData();
 				if ( 'invalid_key' === akismetData ) {
-					return(
-						<SimpleNotice
-							showDismiss={ false }
-							status='is-warning'
-							isCompact={ true }
-						>
-							{ __( 'Invalid Key' ) }
-						</SimpleNotice>
+					return (
+						<a href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } >
+							<SimpleNotice
+								showDismiss={ false }
+								status='is-warning'
+								isCompact={ true }
+							>
+								{ __( 'Invalid Key' ) }
+							</SimpleNotice>
+						</a>
 					);
 				}
+			}
+
+			if ( 'seo-tools' === feature && 'jetpack_business' !== sitePlan.product_slug ) {
+				return (
+					<Button
+						compact={ true }
+						primary={ true }
+						href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl }
+					>
+						{ __( 'Upgrade' ) }
+					</Button>
+				);
 			}
 
 			if ( sitePlan.product_slug ) {

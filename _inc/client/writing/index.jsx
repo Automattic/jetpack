@@ -26,6 +26,8 @@ import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
+import QuerySite from 'components/data/query-site';
+import ProStatus from 'pro-status';
 
 export const Writing = ( props ) => {
 	let {
@@ -42,13 +44,15 @@ export const Writing = ( props ) => {
 	 * @type {Array}
 	 */
 	let cards = [
-		[ 'markdown', getModule( 'markdown' ).name, getModule( 'markdown' ).description, getModule( 'markdown' ).learn_more_button ],
+		[ 'shortlinks', getModule( 'shortlinks' ).name, getModule( 'shortlinks' ).description, getModule( 'shortlinks' ).learn_more_button ],
+		[ 'shortcodes', getModule( 'shortcodes' ).name, getModule( 'shortcodes' ).description, getModule( 'shortcodes' ).learn_more_button ],
+		[ 'videopress', getModule( 'videopress' ).name, getModule( 'videopress' ).description, getModule( 'videopress' ).learn_more_button ],
+		[ 'contact-form', getModule( 'contact-form' ).name, getModule( 'contact-form' ).description, getModule( 'contact-form' ).learn_more_button ],
 		[ 'after-the-deadline', getModule( 'after-the-deadline' ).name, getModule( 'after-the-deadline' ).description, getModule( 'after-the-deadline' ).learn_more_button ],
-		[ 'photon', getModule( 'photon' ).name, getModule( 'photon' ).description, getModule( 'photon' ).learn_more_button ],
-		[ 'custom-content-types', getModule( 'custom-content-types' ).name, getModule( 'custom-content-types' ).description, getModule( 'custom-content-types' ).learn_more_button ],
-		[ 'infinite-scroll', getModule( 'infinite-scroll' ).name, getModule( 'infinite-scroll' ).description, getModule( 'infinite-scroll' ).learn_more_button ],
-		[ 'minileven', getModule( 'minileven' ).name, getModule( 'minileven' ).description, getModule( 'minileven' ).learn_more_button ],
-		[ 'post-by-email', getModule( 'post-by-email' ).name, getModule( 'post-by-email' ).description, getModule( 'post-by-email' ).learn_more_button ]
+		[ 'markdown', getModule( 'markdown' ).name, getModule( 'markdown' ).description, getModule( 'markdown' ).learn_more_button ],
+		[ 'post-by-email', getModule( 'post-by-email' ).name, getModule( 'post-by-email' ).description, getModule( 'post-by-email' ).learn_more_button ],
+		[ 'latex', getModule( 'latex' ).name, getModule( 'latex' ).description, getModule( 'latex' ).learn_more_button ],
+		[ 'custom-content-types', getModule( 'custom-content-types' ).name, getModule( 'custom-content-types' ).description, getModule( 'custom-content-types' ).learn_more_button ]
 		],
 		nonAdminAvailable = [ 'after-the-deadline', 'post-by-email' ];
 	// Put modules available to non-admin user at the top of the list.
@@ -82,6 +86,27 @@ export const Writing = ( props ) => {
 			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
 		}
 
+		var isVideoPress = 'videopress' === element[0];
+
+		if ( isVideoPress ) {
+			var vpProps = {
+				module: 'videopress',
+				configure_url: ''
+			};
+
+			toggle = <ProStatus proFeature={ 'videopress' } />;
+
+			element[1] = <span>
+				{ element[1] }
+				<Button
+					compact={ true }
+					href="#/plans"
+				>
+					{ __( 'Pro' ) }
+				</Button>
+			</span>;
+		}
+
 		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
@@ -99,11 +124,11 @@ export const Writing = ( props ) => {
 				) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ getModule( element[0] ) } siteAdminUrl={ props.siteAdminUrl } /> :
+					<AllModuleSettings module={ isVideoPress ? vpProps : getModule( element[0] ) } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
-				<div className="jp-module-settings__read-more">
+				<div className="jp-module-settings__learn-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
 			</FoldableCard>
@@ -112,6 +137,7 @@ export const Writing = ( props ) => {
 
 	return (
 		<div>
+			<QuerySite />
 			{ cards }
 		</div>
 	);

@@ -51,8 +51,7 @@ export const StagingSiteNotice = React.createClass( {
 	displayName: 'StagingSiteNotice',
 
 	render() {
-		if ( this.props.isStaging ) {
-			const isIDC = this.props.isInIdentityCrisis;
+		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
 			let stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/';
 
 			let props = {
@@ -60,12 +59,6 @@ export const StagingSiteNotice = React.createClass( {
 				status: 'is-basic',
 				showDismiss: false
 			};
-
-			if ( isIDC ) {
-				props.text = __( 'Your site was automatically put in staging mode because we think this is a staging server.' );
-				props.status = 'is-info';
-				stagingSiteSupportLink = 'https://jetpack.com/support/identity-crisis';
-			}
 
 			return (
 				<SimpleNotice { ... props }>
@@ -174,7 +167,7 @@ export const UserUnlinked = React.createClass( {
 					text={ text }
 				>
 					<NoticeAction
-						href={ this.props.connectUrl }
+						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
 					>
 						{ __( 'Link to WordPress.com' ) }
 					</NoticeAction>

@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 	function test_default_schedule_incremental_sync_cron() {
 		Jetpack_Sync_Actions::init_sync_cron_jobs();
-		$this->assertEquals( '1min', wp_get_schedule( 'jetpack_sync_cron' ) );
+		$this->assertEquals( Jetpack_Sync_Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_cron' ) );
 	}
 
 	function test_filtered_schedule_incremental_sync_cron_works() {
@@ -79,7 +79,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	function test_filtered_schedule_incremental_sync_cron_bad_schedule_sanitized() {
 		add_filter( 'jetpack_sync_incremental_sync_interval', array( $this, '__return_nonexistent_schedule' ) );
 		Jetpack_Sync_Actions::init_sync_cron_jobs();
-		$this->assertEquals( '1min', wp_get_schedule( 'jetpack_sync_cron' ) );
+		$this->assertEquals( Jetpack_Sync_Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_cron' ) );
 	}
 
 	function test_schedules_full_sync_cron() {
@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 	function test_default_schedule_full_sync_cron() {
 		Jetpack_Sync_Actions::init_sync_cron_jobs();
-		$this->assertEquals( '1min', wp_get_schedule( 'jetpack_sync_full_cron' ) );
+		$this->assertEquals( Jetpack_Sync_Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_full_cron' ) );
 	}
 
 	function test_filtered_schedule_full_sync_cron_works() {
@@ -102,7 +102,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	function test_filtered_schedule_full_sync_cron_bad_schedule_sanitized() {
 		add_filter( 'jetpack_sync_full_sync_interval', array( $this, '__return_nonexistent_schedule' ) );
 		Jetpack_Sync_Actions::init_sync_cron_jobs();
-		$this->assertEquals( '1min', wp_get_schedule( 'jetpack_sync_full_cron' ) );
+		$this->assertEquals( Jetpack_Sync_Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_full_cron' ) );
 	}
 
 	function test_starts_full_sync_on_client_authorized() {

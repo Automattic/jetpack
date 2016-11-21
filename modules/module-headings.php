@@ -133,6 +133,12 @@ function jetpack_get_module_i18n( $key ) {
 				'recommended description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' ),
 			),
 
+			'seo-tools' => array(
+				'name' => _x( 'SEO Tools', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Better results on search engines and social media.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Better results on search engines and social media.', 'Jumpstart Description', 'jetpack' ),
+			),
+
 			'sharedaddy' => array(
 				'name' => _x( 'Sharing', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Visitors can share your content.', 'Module Description', 'jetpack' ),
@@ -147,11 +153,6 @@ function jetpack_get_module_i18n( $key ) {
 			'shortlinks' => array(
 				'name' => _x( 'WP.me Shortlinks', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Enable WP.me-powered shortlinks for all posts and pages.', 'Module Description', 'jetpack' ),
-			),
-
-			'site-icon' => array(
-				'name' => _x( 'Site Icon', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Add a site icon to your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'sitemaps' => array(
@@ -188,12 +189,12 @@ function jetpack_get_module_i18n( $key ) {
 
 			'verification-tools' => array(
 				'name' => _x( 'Site Verification', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Verify your site or domain with Google Search Console, Pinterest, and Bing.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Verify your site or domain with Google Search Console, Pinterest, Bing, and Yandex.', 'Module Description', 'jetpack' ),
 			),
 
 			'videopress' => array(
 				'name' => _x( 'VideoPress', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Upload and embed videos right on your site. (Subscription required.)', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Upload and embed videos right on your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'widget-visibility' => array(
@@ -223,7 +224,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// Modules with `Other` tag:
 			//  - modules/contact-form.php
 			//  - modules/notes.php
-			//  - modules/site-icon.php
 			'Other' =>_x( 'Other', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Writing` tag:

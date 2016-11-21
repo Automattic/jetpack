@@ -131,8 +131,8 @@ class Jetpack_Client_Server {
 			Jetpack::activate_default_modules( false, false, array(), $redirect_on_activation_error );
 		}
 
-		// Since this is a fresh connection, be sure to clear out the IDC sync error option
-		Jetpack_Options::delete_option( 'sync_error_idc' );
+		// Since this is a fresh connection, be sure to clear out IDC options
+		Jetpack_IDC::clear_all_idc_options();
 
 		// Start nonce cleaner
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );

@@ -384,6 +384,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'safehtml' :
 			$return[$key] = wp_kses( (string) $value, wp_kses_allowed_html() );
 			break;
+		case 'zip' :
 		case 'media' :
 			if ( is_array( $value ) ) {
 				if ( isset( $value['name'] ) && is_array( $value['name'] ) ) {

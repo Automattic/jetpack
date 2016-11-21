@@ -140,8 +140,8 @@ class Jetpack_Twitter_Cards {
 			}
 
 			// Third fall back, Site Icon
-			if ( empty( $og_tags['twitter:image'] ) && ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) ) {
-				$og_tags['twitter:image'] = jetpack_site_icon_url( null, '240' );
+			if ( empty( $og_tags['twitter:image'] ) && ( function_exists( 'has_site_icon' ) && has_site_icon() ) ) {
+				$og_tags['twitter:image'] = get_site_icon_url( '240' );
 			}
 
 			// Not falling back on Gravatar, because there's no way to know if we end up with an auto-generated one.

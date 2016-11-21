@@ -14,10 +14,16 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 		foreach ( $this->themes as $theme ) {
 
-			$skin      = new Automatic_Upgrader_Skin();
+			$skin      = new Jetpack_Automatic_Install_Skin();
 			$upgrader  = new Theme_Upgrader( $skin );
 
-			$result = $upgrader->install( $this->download_links[ $theme ] );
+			$link = $this->download_links[ $theme ];
+			$result = $upgrader->install( $link );
+
+			if ( file_exists( $link ) ) {
+				// Delete if link was tmp local file
+				unlink( $link );
+			}
 
 			if ( ! $this->bulk && is_wp_error( $result ) ) {
 				return $result;
@@ -53,6 +59,16 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 				return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
 			}
 
+			if ( wp_endswith( $theme, '-wpcom' ) ) {
+				$file = self::download_wpcom_theme_to_file( $theme );
+				if ( is_wp_error( $file ) ) {
+					return $file;
+				}
+
+				$this->download_links[ $theme ] = $file;
+				continue;
+			}
+
 			$params = (object) array( 'slug' => $theme );
 			$url = 'https://api.wordpress.org/themes/info/1.0/';
 			$args = array(
@@ -66,6 +82,11 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			if ( is_wp_error( $theme_data ) ) {
 				return $theme_data;
 			}
+
+			if ( ! is_object( $theme_data ) && !isset( $theme_data->download_link ) ) {
+				return new WP_Error( 'theme_not_found', __( 'This theme does not exist', 'jetpack' ) , 404 );
+			}
+
 			$this->download_links[ $theme ] = $theme_data->download_link;
 
 		}
@@ -77,6 +98,24 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 		return $wp_theme->exists();
 	}
 
+	protected static function download_wpcom_theme_to_file( $theme ) {
+		$wpcom_theme_slug = preg_replace( '/-wpcom$/', '', $theme );
 
+		$file = wp_tempnam( 'theme' );
+		if ( ! $file ) {
+			return new WP_Error( 'problem_creating_theme_file', __( 'Problem creating file for theme download', 'jetpack' ) );
+		}
+
+		$url = "themes/download/$theme.zip";
+		$args = array( 'stream' => true, 'filename' => $file );
+		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $url, '1.1', $args );
+
+		$response =  $result[ 'response' ];
+		if ( $response[ 'code' ] !== 200 ) {
+			unlink( $file );
+			return new WP_Error( 'problem_fetching_theme', __( 'Problem downloading theme', 'jetpack' ) );
+		}
+
+		return $file;
+	}
 }
-

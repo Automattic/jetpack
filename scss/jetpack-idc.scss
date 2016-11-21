@@ -1,13 +1,31 @@
 @import '../_inc/client/scss/variables/_colors.scss';
 
-.jp-idc-notice, 
+.jp-idc-notice,
 .jp-idc-notice * {
 	box-sizing: border-box;
 }
 
 .jp-idc-notice {
+	margin-left: 0;
+	margin-right: 10px;
+	margin-top: 10px;
 	padding-bottom: 16px;
 	padding-top: 0;
+
+	&.is-non-admin {
+		padding-bottom: 0;
+	}
+}
+
+@media all and ( min-width: 783px ) {
+	.jp-idc-notice {
+		margin-right: 20px;
+		margin-top: 20px;
+
+		&.has-help-tabs {
+			margin-top: 48px;
+		}
+	}
 }
 
 .jp-idc-notice p {
@@ -21,16 +39,17 @@
 	}
 }
 
-.jp-idc-notice {
-	a,
-	a:visited {
+.jp-idc-notice a:not( .dops-notice__action ) {
+	color: $blue-wordpress;
+	text-decoration: none;
+
+	&:visited {
 		color: $blue-wordpress;
-		text-decoration: none;
 	}
 
-	a:hover,
-	a:focus,
-	a:active {
+	&:hover,
+	&:focus,
+	&:active {
 		color: $link-highlight;
 	}
 }
@@ -41,7 +60,7 @@
 }
 
 .jp-idc-notice > div {
-	padding: 0 16px;
+	padding: 0 8px;
 }
 
 .jp-idc-notice__first-step {
@@ -63,7 +82,8 @@
 }
 
 .jp-idc-notice .jp-idc-notice__header {
-	padding: 8px 0;
+	padding-top: 8px;
+	padding-bottom: 8px;
 }
 
 .jp-idc-notice__header__emblem {
@@ -151,12 +171,35 @@
 	height: 1px;
 }
 
+.jp-idc-notice.is-dismissible .jp-idc-notice__separator {
+	margin-right: -46px;
+}
+
 @media only screen and ( min-width: 782px ) {
 	.jp-idc-notice__separator {
 		margin: 0 -12px 0 -12px;
+	}
+
+	.jp-idc-notice.is-dismissible .jp-idc-notice__separator {
+		margin-right: -38px;
 	}
 }
 
 .jp-idc-notice .jp-idc-notice__unsure-prompt {
 	margin: 16px 0 0;
+}
+
+.jp-idc-notice .jp-idc-error__notice {
+	display: none;
+
+	.dops-notice__icon {
+		height: auto;
+		width: auto;
+	}
+}
+
+@media only screen and ( min-width: 683px ) {
+	.jp-idc-notice .jp-idc-error__notice .dops-notice__text {
+		line-height: 24px;
+	}
 }

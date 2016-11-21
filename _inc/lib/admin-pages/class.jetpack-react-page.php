@@ -36,9 +36,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 
-		// Enqueue admin page styles in head
-		add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_styles' ) );
-
 		// Adding a redirect tag wrapped in browser conditional comments
 		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
 	}
@@ -184,7 +181,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return $dismissed_notices;
 	}
 
-	function page_admin_styles() {
+	function additional_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
 
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
@@ -215,7 +212,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		foreach( get_editable_roles() as $slug => $role ) {
 			$stats_roles[ $slug ] = array(
 				'name' => translate_user_role( $role['name'] ),
-				'canView' => in_array( $slug, $enabled_roles, true ),
+				'canView' => is_array( $enabled_roles ) ? in_array( $slug, $enabled_roles, true ) : false,
 			);
 		}
 

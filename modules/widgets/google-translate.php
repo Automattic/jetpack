@@ -8,6 +8,9 @@
  * Author URI: http://automattic.com
  * Text Domain: jetpack
  */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 class Google_Translate_Widget extends WP_Widget {
 	static $instance = null;
@@ -20,10 +23,23 @@ class Google_Translate_Widget extends WP_Widget {
 			'google_translate_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Google Translate', 'jetpack' ) ),
-			array( 'description' => __( 'Automatic translation of your site content', 'jetpack' ) )
+			array(
+				'description' => __( 'Automatic translation of your site content', 'jetpack' ),
+				'customize_selective_refresh' => true
+			)
 		);
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+	}
+
+	/**
+	 * Enqueue frontend JS scripts.
+	 */
+	public function enqueue_scripts() {
 		wp_register_script( 'google-translate-init', plugins_url( 'google-translate/google-translate.js', __FILE__ ) );
-		wp_register_script( 'google-translate', '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit', [ 'google-translate-init' ] );
+		wp_register_script( 'google-translate', '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit', array( 'google-translate-init' ) );
+		// Admin bar is also displayed on top of the site which causes google translate bar to hide beneath.
+		// This is a hack to show google translate bar a bit lower.
+		wp_add_inline_style( 'admin-bar', '.goog-te-banner-frame { top:32px !important }' );
 	}
 
 	/**
@@ -37,23 +53,19 @@ class Google_Translate_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		// We never should show more than 1 instance of this.
 		if ( null === self::$instance ) {
+			wp_localize_script( 'google-translate-init', '_wp_google_translate_widget', array( 'lang' => get_locale() ) );
+			wp_enqueue_script( 'google-translate-init' );
+			wp_enqueue_script( 'google-translate' );
+
 			/** This filter is documented in core/src/wp-includes/default-widgets.php */
-			$title = apply_filters( 'widget_title', $instance['title'] );
+			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
 			echo $args['before_widget'];
 			if ( ! empty( $title ) ) {
 				echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
 			}
-			wp_localize_script( 'google-translate-init', '_wp_google_translate_widget', array( 'lang' => get_locale() ) );
-			wp_enqueue_script( 'google-translate-init' );
-			wp_enqueue_script( 'google-translate' );
 			echo '<div id="google_translate_element"></div>';
 			echo $args['after_widget'];
 			self::$instance = $instance;
-			// Admin bar is also displayed on top of the site which causes google translate bar to hide beneath.
-			// This is a hack to show google translate bar a bit lower.
-			if ( is_admin_bar_showing() ) {
-				echo '<style>.goog-te-banner-frame { top:32px !important } </style>';
-			}
 			/** This action is documented in modules/widgets/gravatar-profile.php */
 			do_action( 'jetpack_stats_extra', 'widget_view', 'google-translate' );
 		}
@@ -92,7 +104,7 @@ class Google_Translate_Widget extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance = array();
-		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? sanitize_text_field( $new_instance['title'] ) : '';
 		return $instance;
 	}
 

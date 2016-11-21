@@ -44,9 +44,10 @@ export const Page = ( props ) => {
 		moduleList = Object.keys( props.moduleList );
 	var cards = [
 		[ 'scan', __( 'Security Scanning' ), __( 'Automated, comprehensive protection from threats and attacks.' ), 'https://vaultpress.com/jetpack/' ],
-		[ 'backups', __( 'Site Backups' ), __( 'Automatically backup your entire site.' ), 'https://vaultpress.com/jetpack/' ],
-		[ 'akismet', 'Akismet', __( 'State-of-the-art spam defense.' ), 'https://akismet.com/jetpack/' ],
 		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
+		[ 'monitor', getModule( 'monitor' ).name, getModule( 'monitor' ).description, getModule( 'monitor' ).learn_more_button ],
+		[ 'akismet', 'Akismet', __( 'State-of-the-art spam defense.' ), 'https://akismet.com/jetpack/' ],
+		[ 'backups', __( 'Site Backups' ), __( 'Automatically backup your entire site.' ), 'https://vaultpress.com/jetpack/' ],
 		[ 'sso', getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
 	].map( ( element ) => {
 		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
@@ -69,7 +70,7 @@ export const Page = ( props ) => {
 				module: element[0],
 				configure_url: ''
 			};
-			toggle = <ProStatus proFeature={ element[0] } />;
+			toggle = <ProStatus proFeature={ element[0] } siteAdminUrl={ props.siteAdminUrl } />;
 
 			// Add a "pro" button next to the header title
 			element[1] = <span>
@@ -114,7 +115,7 @@ export const Page = ( props ) => {
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
-				<div className="jp-module-settings__read-more">
+				<div className="jp-module-settings__learn-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
 			</FoldableCard>

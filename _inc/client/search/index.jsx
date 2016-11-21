@@ -90,7 +90,7 @@ export const SearchResults = ( {
 	} );
 
 	cards = moduleList.map( ( element ) => {
-		let isPro = 'scan' === element[0] || 'akismet' === element[0] || 'backups' === element[0],
+		let isPro = 'scan' === element[0] || 'akismet' === element[0] || 'backups' === element[0] || 'videopress' === element[0],
 			proProps = {},
 			unavailableDevMode = unavailableInDevMode( element[0] ),
 			toggle = unavailableDevMode ? __( 'Unavailable in Dev Mode' ) : (
@@ -108,7 +108,7 @@ export const SearchResults = ( {
 				module: element[0],
 				configure_url: ''
 			};
-			toggle = <ProStatus proFeature={ element[0] } />;
+			toggle = <ProStatus proFeature={ element[0] } siteAdminUrl={ siteAdminUrl } />;
 
 			// Add a "pro" button next to the header title
 			element[1] = <span>
@@ -159,7 +159,7 @@ export const SearchResults = ( {
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<br/>
-				<div className="jp-module-settings__read-more">
+				<div className="jp-module-settings__learn-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
 			</FoldableCard>

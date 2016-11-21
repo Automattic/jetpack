@@ -13,6 +13,7 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
+import QuerySite from 'components/data/query-site';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -25,14 +26,10 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
-import {
-	getSiteAdminUrl,
-	userCanManageModules,
-	isSitePublic
-} from 'state/initial-state';
+import { userCanManageModules } from 'state/initial-state';
 import Settings from 'components/settings';
 
-export const Traffic = ( props ) => {
+export const Page = ( props ) => {
 	let {
 		toggleModule,
 		isModuleActivated,
@@ -40,27 +37,17 @@ export const Traffic = ( props ) => {
 		getModule
 	} = props,
 		isAdmin = props.userCanManageModules,
-		sitemapsDesc = getModule( 'sitemaps' ).description,
 		moduleList = Object.keys( props.moduleList );
 
-	if ( ! props.isSitePublic() ) {
-		sitemapsDesc = <span>
-			{ sitemapsDesc }
-			{ <p className="jp-form-setting-explanation">
-				{ __( 'Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
-					  components: {
-						  a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
-					  }
-				  } ) }
-			</p> }
-		</span>;
-	}
-
 	var cards = [
-		[ 'sitemaps', getModule( 'sitemaps' ).name, sitemapsDesc, getModule( 'sitemaps' ).learn_more_button ],
-		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
-		[ 'related-posts', getModule( 'related-posts' ).name, getModule( 'related-posts' ).description, getModule( 'related-posts' ).learn_more_button ],
-		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ]
+		[ 'tiled-gallery', getModule( 'tiled-gallery' ).name, getModule( 'tiled-gallery' ).description, getModule( 'tiled-gallery' ).learn_more_button ],
+		[ 'photon', getModule( 'photon' ).name, getModule( 'photon' ).description, getModule( 'photon' ).learn_more_button ],
+		[ 'carousel', getModule( 'carousel' ).name, getModule( 'carousel' ).description, getModule( 'carousel' ).learn_more_button ],
+		[ 'widgets', getModule( 'widgets' ).name, getModule( 'widgets' ).description, getModule( 'widgets' ).learn_more_button ],
+		[ 'widget-visibility', getModule( 'widget-visibility' ).name, getModule( 'widget-visibility' ).description, getModule( 'widget-visibility' ).learn_more_button ],
+		[ 'custom-css', getModule( 'custom-css' ).name, getModule( 'custom-css' ).description, getModule( 'custom-css' ).learn_more_button ],
+		[ 'infinite-scroll', getModule( 'infinite-scroll' ).name, getModule( 'infinite-scroll' ).description, getModule( 'infinite-scroll' ).learn_more_button ],
+		[ 'minileven', getModule( 'minileven' ).name, getModule( 'minileven' ).description, getModule( 'minileven' ).learn_more_button ]
 	].map( ( element ) => {
 		if ( ! includes( moduleList, element[0] ) ) {
 			return null;
@@ -73,6 +60,11 @@ export const Traffic = ( props ) => {
 								toggleModule={ toggleModule } />
 			),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
+
+		let moduleDescription = isModuleActivated( element[0] ) ?
+			<AllModuleSettings module={ getModule( element[ 0 ] ) } /> :
+			// Render the long_description if module is deactivated
+			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
 
 		return (
 			<FoldableCard
@@ -90,13 +82,8 @@ export const Traffic = ( props ) => {
 					}
 				) }
 			>
-				{
-					isModuleActivated( element[0] ) ?
-						<AllModuleSettings module={ getModule( element[0] ) } /> :
-						// Render the long_description if module is deactivated
-						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
-				}
-				<div className="jp-module-settings__read-more">
+				{ moduleDescription }
+				<div className="jp-module-settings__learn-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
 			</FoldableCard>
@@ -105,7 +92,27 @@ export const Traffic = ( props ) => {
 
 	return (
 		<div>
+			<QuerySite />
 			{ cards }
+
+			<FoldableCard
+				header={ __( 'Holiday Snow' ) }
+				subheader={ __( 'Show falling snow in the holiday period.' ) }
+				clickableHeaderText={ true }
+				disabled={ ! isAdmin }
+				summary={ isAdmin ? <Settings slug="snow" /> : '' }
+				expandedSummary={ isAdmin ? <Settings slug="snow" /> : '' }
+				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+					{
+						card: 'holiday_snow',
+						path: props.route.path
+					}
+				) }
+			>
+				<span className="jp-form-setting-explanation">
+					{ __( 'Show falling snow on my blog from Dec 1st until Jan 4th.' ) }
+				</span>
+			</FoldableCard>
 		</div>
 	);
 };
@@ -124,8 +131,6 @@ export default connect(
 				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			getSiteAdminUrl: () => getSiteAdminUrl( state ),
-			isSitePublic: () => isSitePublic( state ),
 			userCanManageModules: userCanManageModules( state ),
 			moduleList: getModules( state )
 		};
@@ -139,4 +144,4 @@ export default connect(
 			}
 		};
 	}
-)( Traffic );
+)( Page );

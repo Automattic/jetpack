@@ -29,7 +29,7 @@ const JetpackConnect = React.createClass( {
 					<p className="jp-jetpack-connect__description">
 						{ __( 'Please connect to or create a WordPress.com account to start using Jetpack. This will enable powerful security, traffic, and customization services.' ) }
 					</p>
-					<ConnectButton />
+					<ConnectButton from="landing-page-top" />
 					<p>
 						<a href={ newAccountUrl } className="jp-jetpack-connect__link">
 							{ __( 'No account? Create one for free…' ) }
@@ -216,7 +216,7 @@ const JetpackConnect = React.createClass( {
 							'We\'re passionate about WordPress and here to make your life easier.'
 						) }
 					</p>
-					<ConnectButton />
+					<ConnectButton from="landing-page-bottom" />
 					<p>
 						<a href={ newAccountUrl } className="jp-jetpack-connect__link">
 							{ __( 'No account? Create one for free…' ) }

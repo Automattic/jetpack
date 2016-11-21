@@ -1209,7 +1209,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 
 	'response_format' => array(
 		'media' => '(array) Array of media objects',
-		'found' => '(int) The number of total results found'
+		'found' => '(int) The number of total results found',
+		'meta'  => '(object) Meta data',
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/media',
@@ -2493,6 +2494,11 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'jetpack_testimonial_posts_per_page'   => '(int) Number of testimonials to show per page',
 		'jetpack_portfolio'                    => '(bool) Whether portfolio custom post type is enabled for the site',
 		'jetpack_portfolio_posts_per_page'     => '(int) Number of portfolio projects to show per page',
+		'site_icon'                            => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
+		'verification_services_codes'          => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
+		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
+		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
+
 	),
 
 	'response_format' => array(
@@ -2564,9 +2570,9 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'holidaysnow'                  => '(bool) Enable snowfall on front end of site?',
 		'timezone_string'              => '(string) PHP-compatible timezone string like \'UTC-5\'',
 		'gmt_offset'                   => '(int) Site offset from UTC in hours',
-		'seo_meta_description' 		   => '(string) The seo meta description for the site.',
-		'advanced_seo_title_formats'   => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
+		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
+		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 	),
 
 	'response_format' => array(

@@ -135,7 +135,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_activated'                    => 'pineapple',
 			'jetpack_available_modules'            => 'pineapple',
 			'jetpack_autoupdate_plugins'           => 'pineapple',
+			'jetpack_autoupdate_plugins_translations' => 'pineapple',
 			'jetpack_autoupdate_themes'            => 'pineapple',
+			'jetpack_autoupdate_themes_translations' => 'pineapple',
 			'jetpack_autoupdate_core'              => 'pineapple',
 			'carousel_background_color'            => 'pineapple',
 			'carousel_display_exif'                => 'pineapple',
@@ -160,7 +162,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'verification_services_codes'          => 'pineapple',
 			'users_can_register'                   => '1',
 			'active_plugins'                       => array( 'pineapple' ),
-			'uninstall_plugins'                    => 'banana'
+			'uninstall_plugins'                    => 'banana',
+			'advanced_seo_front_page_description'  => 'banana', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
+			'advanced_seo_title_formats'           => array( 'posts' => array( 'type' => 'string', 'value' => 'test' ) ), // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

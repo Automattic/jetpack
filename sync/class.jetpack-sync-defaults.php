@@ -78,7 +78,9 @@ class Jetpack_Sync_Defaults {
 		'jetpack_activated',
 		'jetpack_available_modules',
 		'jetpack_autoupdate_plugins',
+		'jetpack_autoupdate_plugins_translations',
 		'jetpack_autoupdate_themes',
+		'jetpack_autoupdate_themes_translations',
 		'jetpack_autoupdate_core',
 		'carousel_background_color',
 		'carousel_display_exif',
@@ -104,6 +106,8 @@ class Jetpack_Sync_Defaults {
 		'users_can_register',
 		'active_plugins',
 		'uninstall_plugins',
+		'advanced_seo_front_page_description', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
+		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
 	);
 
 	static $default_constants_whitelist = array(
@@ -161,6 +165,7 @@ class Jetpack_Sync_Defaults {
 		'http',
 		'bwg_gallery',
 		'bwg_album',
+		'idx_page',
 	);
 
 	static $default_post_checksum_columns = array(
@@ -234,6 +239,7 @@ class Jetpack_Sync_Defaults {
 		'switch_like_status',
 		'videopress_guid',
 		'vimeo_poster_image',
+		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY
 	);
 
 	static $comment_meta_whitelist = array(
@@ -305,6 +311,7 @@ class Jetpack_Sync_Defaults {
 	static $default_post_meta_whitelist = array();
 	static $default_comment_meta_whitelist = array();
 	static $default_disable = 0; // completely disable sending data to wpcom
+	static $default_sync_via_cron = 1; // use cron to sync
 	static $default_render_filtered_content = 1; // render post_filtered_content
 	static $default_max_enqueue_full_sync = 100; // max number of items to enqueue at a time when running full sync
 	static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue

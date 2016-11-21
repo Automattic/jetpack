@@ -129,10 +129,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	function get_icon() {
-		if ( function_exists( 'jetpack_site_icon_url' ) && function_exists( 'jetpack_photon_url' ) ) {
+		if ( function_exists( 'get_site_icon_url' ) && function_exists( 'jetpack_photon_url' ) ) {
 			return array(
-				'img' => (string) jetpack_photon_url( jetpack_site_icon_url( get_current_blog_id() , 80 ), array( 'w' => 80 ), 'https' ),
-				'ico' => (string) jetpack_photon_url( jetpack_site_icon_url( get_current_blog_id() , 16 ), array( 'w' => 16 ), 'https' ),
+				'img' => (string) jetpack_photon_url( get_site_icon_url( 80, '', get_current_blog_id() ), array( 'w' => 80 ), 'https' ),
+				'ico' => (string) jetpack_photon_url( get_site_icon_url( 16, '', get_current_blog_id() ), array( 'w' => 16 ), 'https' ),
 			);
 		}
 
@@ -148,6 +148,18 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	function get_ak_vp_bundle_enabled() {}
+
+	function get_jetpack_seo_front_page_description() {
+		return Jetpack_SEO_Utils::get_front_page_meta_description();
+	}
+
+	function get_jetpack_seo_title_formats() {
+		return Jetpack_SEO_Titles::get_custom_title_formats();
+	}
+
+	function get_verification_services_codes() {
+		return get_option( 'verification_services_codes', null );
+	}
 
 	/**
 	 * Post functions

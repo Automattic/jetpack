@@ -4,16 +4,21 @@
 class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sends_stats_data_on_heartbeat() {
-		$this->factory->user->create();
-		$this->factory->user->create();
-
 		$heartbeat = Jetpack_Heartbeat::init();
 		$heartbeat->cron_exec();
 		$this->sender->do_sync();
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
 		$this->assertEquals( JETPACK__VERSION, $action->args[0]['version'] );
-		$this->assertEquals( 3, $action->args[0]['users'] );
+	}
+
+	function test_dont_send_expensive_data_on_heartbeat() {
+		$heartbeat = Jetpack_Heartbeat::init();
+		$heartbeat->cron_exec();
+		$this->sender->do_sync();
+
+		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
+		$this->assertFalse( isset( $action->args[0]['users'] ) );
 	}
 
 	public function  test_sends_stats_data_on_heartbeat_on_multisite() {
@@ -45,8 +50,7 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 		restore_current_blog();
 
 		$this->assertEquals( JETPACK__VERSION, $action->args[0]['version'] );
-		$this->assertEquals( 2, $action->args[0]['users'] );
-		$this->assertEquals( 2, $action->args[0]['site-count'] );
+		$this->assertFalse( isset( $action->args[0]['users'] ) );
 
 	}
 }

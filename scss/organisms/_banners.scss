@@ -1,3 +1,6 @@
+@import '_inc/client/scss/functions/rem';
+@import '_inc/client/scss/variables/colors';
+
 .updated { // utlizes some core styles, overrides some others
 	&.jp-banner {
 		position: relative;
@@ -5,13 +8,13 @@
 	}
 
 	.jp-banner__header {
-		font-size: 18px;
+		font-size: rem( 18px ) ;
 		font-weight: 400;
 		margin-top: 0;
 	}
 
 	.jp-banner__button-container {
-		padding: 12px 0 0;
+		padding: rem( 12px ) 0 0;
 	}
 }
 
@@ -20,9 +23,185 @@
 }
 
 .jp-banner__description {
-	font-size: 14px;
+	font-size: rem( 14px );
 }
 
 .jp-banner__description-container {
-	padding: 16px;
+	padding: rem( 16px );
 }
+
+// Plugin List Connection Banners
+// Written in the style of React to stay consistent with the Jetpack interior
+
+// wp-admin overrides
+.updated.jp-wpcom-connect__container {
+	border-left: none;
+	padding: 0;
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+
+	@media screen and (max-width: 782px) {
+		padding: 0 !important; // override core cascades
+	}
+}
+
+.updated.jp-wpcom-connect__container .dops-button {
+	padding: 7px 14px 9px; // override wp-admin .updated a padding
+}
+
+.updated .notice-dismiss {
+	text-decoration: none;
+}
+// end overrides
+
+.jp-wpcom-connect__container {
+	display: block;
+	position: relative;
+	box-sizing: border-box;
+}
+
+.jp-wpcom-connect__inner-container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: left;
+}
+
+.jp-wpcom-connect__content-container {
+	max-width: rem( 1200px );
+	position: relative;
+	padding: rem( 32px );
+
+	@include minbreakpoint(tablet) {
+		padding: rem( 32px ) rem( 32px ) rem( 96px ) rem( 32px );
+	};
+}
+
+.jp-wpcom-connect__content-container p {
+	color: darken( $gray, 20% );
+	font-size: rem( 14px );
+}
+
+.jp-wpcom-connect__content-container h2 {
+	margin-top: 0;
+	color: #4F748E;
+	line-height: 1.6;
+}
+
+.jp-wpcom-connect__content-icon {
+	float: right;
+	margin: 0 0 rem( 36px ) rem( 36px );
+}
+
+.jp-wpcom-connect__slide {
+	display: none;
+
+	&.jp__slide-is-active {
+		display: block;
+	}
+}
+
+.jp-wpcom-connect__content-container .jp-banner__button-container {
+	@include minbreakpoint(tablet) {
+		position: absolute;
+		bottom: rem( 16px );
+	};
+}
+
+.jp-banner__button-container .dops-button {
+	margin: rem( 5px ) 0;
+}
+
+// Connection Banner Vertical Menu
+.jp-wpcom-connect__vertical-nav {
+	background-color: #F3F6F8;
+
+	@include minbreakpoint(phablet) {
+		flex-direction: column;
+		justify-content: flex-start;
+	};
+
+	@include breakpoint(phablet) {
+		display: none; // hide nav on sm screens. becomes a linear tutorial
+	};
+}
+
+.jp-wpcom-connect__vertical-nav-container {
+	width: rem( 240px );
+}
+
+.vertical-menu__feature-item-label {
+	display: none;
+}
+
+@include minbreakpoint(phablet) {
+
+	.vertical-menu__feature-item {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		border: none;
+		padding: rem( 8px );
+		border-bottom: 1px solid #c8d7e1;
+		border-right: 1px solid #c8d7e1;
+		border-left: 3px solid #F3F6F8;
+		background-color: #F3F6F8;
+		color: #87a6bc;
+		cursor: pointer;
+
+		// trick to hide the bottom border of the last menu item when the menu is the tallest element, 
+		// but display the border when the overall container is taller than the menu
+		&:last-of-type {
+			position: relative;
+			top: 1px;
+		}
+	}
+
+	.vertical-menu__feature-item-is-selected {
+		border-left: 3px solid #0087be;
+		border-right: 1px solid #fff;
+		background-color: #fff;
+		color: #2e4453;
+
+		&.jp-feature-intro {
+			border-left: 3px solid #8CC258;
+		}
+	}
+
+	.vertical-menu__feature-item-icon {
+		width: rem( 20px );
+		height: rem( 20px );
+		padding: rem( 4px );
+	}
+
+	// svg fill swaps
+	.vertical-menu__feature-item {
+		svg {
+			fill: #86A6BD;
+		}
+	}
+
+	.vertical-menu__feature-item-is-selected {
+
+		svg {
+			fill: #3D596D;
+		}
+
+		&.jp-feature-intro {
+			svg {
+				fill: #8CC258;
+			}
+		}
+
+		&.wp-app-logo {
+			svg path {
+				fill: #3D596D;
+			}
+		}
+	}
+	// end svg fill swaps
+
+	.vertical-menu__feature-item-label {
+		display: block;
+		padding: rem( 8px );
+	}
+};

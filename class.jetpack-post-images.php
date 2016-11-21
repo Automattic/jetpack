@@ -353,8 +353,8 @@ class Jetpack_PostImages {
 			}
 
 			$url = blavatar_url( $domain, 'img', $size );
-		} elseif ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) {
-			$url = jetpack_site_icon_url( null, $size, $default = false );
+		} elseif ( function_exists( 'has_site_icon' ) && has_site_icon() ) {
+			$url = get_site_icon_url( $size );
 		} else {
 			return array();
 		}

@@ -19,6 +19,10 @@ $tools = array(
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
 	'theme-tools.php',
+	'seo-tools/jetpack-seo-utils.php',
+	'seo-tools/jetpack-seo-titles.php',
+	'seo-tools/jetpack-seo-posts.php',
+	'verification-tools/verification-tools-utils.php',
 );
 
 /**

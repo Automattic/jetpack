@@ -27,7 +27,7 @@ import {
 import ProStatus from 'pro-status';
 import { userCanManageModules } from 'state/initial-state';
 
-const DashItem = React.createClass( {
+export const DashItem = React.createClass( {
 	displayName: 'DashItem',
 
 	propTypes: {
@@ -70,13 +70,17 @@ const DashItem = React.createClass( {
 			if ( 'manage' === this.props.module ) {
 				if ( 'is-warning' === this.props.status ) {
 					toggle = (
-						<SimpleNotice
-							showDismiss={ false }
-							status={ this.props.status }
-							isCompact={ true }
-						>
-							{ __( 'Updates Needed' ) }
-						</SimpleNotice>
+						<a href={ this.props.isModuleActivated( 'manage' )
+							? 'https://wordpress.com/plugins/' + this.props.siteRawUrl
+							: this.props.siteAdminUrl + 'plugins.php' } >
+							<SimpleNotice
+								showDismiss={ false }
+								status={ this.props.status }
+								isCompact={ true }
+							>
+								{ __( 'Updates Needed' ) }
+							</SimpleNotice>
+						</a>
 					);
 				}
 				if ( 'is-working' === this.props.status ) {
@@ -95,7 +99,7 @@ const DashItem = React.createClass( {
 				</Button>
 			;
 
-			toggle = <ProStatus proFeature={ this.props.module } />;
+			toggle = <ProStatus proFeature={ this.props.module } siteAdminUrl={ this.props.siteAdminUrl } />;
 		}
 
 		return (

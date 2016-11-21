@@ -423,11 +423,29 @@ class Jetpack_Protect_Module {
 	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback and returns false
 	 */
 	function check_login_ability( $preauth = false ) {
+		$ip = jetpack_protect_get_ip();
+		
+		/**
+		 * Short-circuit check_login_ability. 
+		 *
+		 * If there is an alternate way to validate the current IP such as
+		 * a hard-coded list of IP addresses, we can short-circuit the rest
+		 * of the login ability checks and return true here.
+		 *
+		 * @module protect
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool false Should we allow all logins for the current ip? Default: false
+		 */
+		if ( apply_filters( 'jpp_allow_login', false, $ip ) ) {
+			return true;
+		}
+		
 		$headers         = $this->get_headers();
 		$header_hash     = md5( json_encode( $headers ) );
 		$transient_name  = 'jpp_li_' . $header_hash;
 		$transient_value = $this->get_transient( $transient_name );
-		$ip              = jetpack_protect_get_ip();
 
 		if ( jetpack_protect_ip_is_private( $ip ) ) {
 			return true;

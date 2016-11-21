@@ -22,7 +22,7 @@ import {
 	userIsSubscriber as _userIsSubscriber
 } from 'state/initial-state';
 
-const NavigationSettings = React.createClass( {
+export const NavigationSettings = React.createClass( {
 	openSearch: function() {
 		let currentHash = window.location.hash;
 		if ( currentHash.indexOf( 'search' ) === -1 ) {
@@ -45,9 +45,7 @@ const NavigationSettings = React.createClass( {
 	},
 
 	maybeShowSearch: function() {
-		let isAdmin = this.props.userCanManageModules;
-
-		if ( isAdmin ) {
+		if ( this.props.userCanManageModules ) {
 			return (
 				<Search
 					pinned={ true }
@@ -70,24 +68,29 @@ const NavigationSettings = React.createClass( {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
-						path="#writing"
-						selected={ ( this.props.route.path === '/writing' || this.props.route.path === '/settings' ) }>
-						{ __( 'Writing', { context: 'Navigation item.' } ) }
+						path="#general"
+						selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
+						{ __( 'General', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
-						path="#discussion"
-						selected={ this.props.route.path === '/discussion' }>
-						{ __( 'Discussion', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
-						path="#traffic"
-						selected={ this.props.route.path === '/traffic' }>
-						{ __( 'Traffic', { context: 'Navigation item.' } ) }
+						path="#engagement"
+						selected={ this.props.route.path === '/engagement' }>
+						{ __( 'Engagement', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
 						path="#security"
 						selected={ this.props.route.path === '/security' }>
 						{ __( 'Security', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#appearance"
+						selected={ this.props.route.path === '/appearance' }>
+						{ __( 'Appearance', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#writing"
+						selected={ this.props.route.path === '/writing' }>
+						{ __( 'Writing', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
 			);
@@ -95,9 +98,9 @@ const NavigationSettings = React.createClass( {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
-						path="#settings"
-						selected={ this.props.route.path === '/settings' }>
-						{ __( 'Settings', { context: 'Navigation item.' } ) }
+						path="#general"
+						selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
+						{ __( 'General', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
 			);
@@ -105,9 +108,14 @@ const NavigationSettings = React.createClass( {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
-						path="#settings"
-						selected={ this.props.route.path === '/settings' }>
+						path="#general"
+						selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
 						{ __( 'General', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#engagement"
+						selected={ this.props.route.path === '/engagement' }>
+						{ __( 'Engagement', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
 						path="#writing"

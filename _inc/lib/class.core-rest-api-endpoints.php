@@ -111,6 +111,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 		) );
 
+		// Handles the request to migrate stats and subscribers during an identity crisis.
+		register_rest_route( 'jetpack/v4', 'identity-crisis/migrate', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::migrate_stats_and_subscribers',
+			'permissison_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
+		) );
+
 		// Return all modules
 		self::route(
 			'module/all',
@@ -686,6 +693,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				return new WP_Error( 'site_data_fetch_failed', esc_html__( 'Failed fetching site data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
 			}
 
+			// Save plan details in the database for future use without API calls
+			$results = json_decode( $response['body'], true );
+
+			if ( is_array( $results ) && isset( $results['plan'] ) ) {
+				update_option( 'jetpack_active_plan', $results['plan'] );
+			}
+
 			return rest_ensure_response( array(
 					'code' => 'success',
 					'message' => esc_html__( 'Site data correctly received.', 'jetpack' ),
@@ -698,11 +712,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Sets a flag to confirm safe mode.
+	 * Handles identity crisis mitigation, confirming safe mode for this site.
 	 *
 	 * @since 4.4.0
 	 *
-	 * @return bool True
+	 * @return bool | WP_Error True if option is properly set.
 	 */
 	public static function confirm_safe_mode() {
 		$updated = Jetpack_Options::update_option( 'safe_mode_confirmed', true );
@@ -713,7 +727,41 @@ class Jetpack_Core_Json_Api_Endpoints {
 				)
 			);
 		}
-		return new WP_Error( 'error_confirming_safe_mode', esc_html__( 'Jetpack could not confirm safe mode.', 'jetpack' ), array( 'status' => 500 ) );
+		return new WP_Error(
+			'error_setting_jetpack_safe_mode',
+			esc_html__( 'Could not confirm safe mode.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	/**
+	 * Handles identity crisis mitigation, migrating stats and subscribers from old url to this, new url.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return bool | WP_Error True if option is properly set.
+	 */
+	public static function migrate_stats_and_subscribers() {
+		if ( Jetpack_Options::get_option( 'sync_error_idc' ) && ! Jetpack_Options::delete_option( 'sync_error_idc' ) ) {
+			return new WP_Error(
+				'error_deleting_sync_error_idc',
+				esc_html__( 'Could not delete sync error option.', 'jetpack' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		if ( Jetpack_Options::get_option( 'migrate_for_idc' ) || Jetpack_Options::update_option( 'migrate_for_idc', true ) ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success'
+				)
+			);
+		}
+		return new WP_Error(
+			'error_setting_jetpack_migrate',
+			esc_html__( 'Could not confirm migration.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
 	}
 
 	/**
@@ -875,17 +923,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$hidden = array();
 
 			// Set some sharing settings
-			$sharing = new Sharing_Service();
-			$sharing_options['global'] = array(
-				'button_style'  => 'icon',
-				'sharing_label' => $sharing->default_sharing_label,
-				'open_links'    => 'same',
-				'show'          => array( 'post' ),
-				'custom'        => isset( $sharing_options['global']['custom'] ) ? $sharing_options['global']['custom'] : array()
-			);
+			if ( class_exists( 'Sharing_Service' ) ) {
+				$sharing = new Sharing_Service();
+				$sharing_options['global'] = array(
+					'button_style'  => 'icon',
+					'sharing_label' => $sharing->default_sharing_label,
+					'open_links'    => 'same',
+					'show'          => array( 'post' ),
+					'custom'        => isset( $sharing_options['global']['custom'] ) ? $sharing_options['global']['custom'] : array()
+				);
 
-			$result['sharing_options']  = update_option( 'sharing-options', $sharing_options );
-			$result['sharing_services'] = update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
+				$result['sharing_options']  = update_option( 'sharing-options', $sharing_options );
+				$result['sharing_services'] = update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
+			}
 		}
 
 		// If all Jumpstart modules were activated
@@ -975,6 +1025,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'black',
 				'enum'              => array(
+					'black',
+					'white',
+				),
+				'enum_labels' => array(
 					'black' => esc_html__( 'Black', 'jetpack' ),
 					'white' => esc_html__( 'White', 'jetpack' ),
 				),
@@ -1002,6 +1056,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'light',
 				'enum'              => array(
+					'light',
+					'dark',
+					'transparent',
+				),
+				'enum_labels' => array(
 					'light'       => esc_html__( 'Light', 'jetpack' ),
 					'dark'        => esc_html__( 'Dark', 'jetpack' ),
 					'transparent' => esc_html__( 'Transparent', 'jetpack' ),
@@ -1055,6 +1114,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => 'enabled',
 				// Not visible. This is used as the checkbox value.
 				'enum'              => array(
+					'enabled',
+					'disabled',
+				),
+				'enum_labels' => array(
 					'enabled'  => esc_html__( 'Enabled', 'jetpack' ),
 					'disabled' => esc_html__( 'Disabled', 'jetpack' ),
 				),
@@ -1084,6 +1147,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'on',
 				'enum'              => array(
+					'on',
+					'off',
+				),
+				'enum_labels' => array(
 					'on'  => esc_html__( 'On for all posts', 'jetpack' ),
 					'off' => esc_html__( 'Turned on per post', 'jetpack' ),
 				),
@@ -1113,6 +1180,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'disabled',
 				'enum'              => array(
+					'enabled',
+					'disabled',
+				),
+				'enum_labels' => array(
 					'enabled'  => esc_html__( 'Enable excerpts on front page and on archive pages', 'jetpack' ),
 					'disabled' => esc_html__( 'Show full posts on front page and on archive pages', 'jetpack' ),
 				),
@@ -1124,6 +1195,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'disabled',
 				'enum'              => array(
+					'enabled',
+					'disabled',
+				),
+				'enum_labels' => array(
 					'enabled'  => esc_html__( 'Display featured images', 'jetpack' ),
 					'disabled' => esc_html__( 'Hide all featured images', 'jetpack' ),
 				),
@@ -1153,6 +1228,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'noop',
 				'enum'              => array(
+					'noop',
+					'create',
+					'regenerate',
+					'delete',
+				),
+				'enum_labels' => array(
 					'noop'       => '',
 					'create'     => esc_html__( 'Create Post by Email address', 'jetpack' ),
 					'regenerate' => esc_html__( 'Regenerate Post by Email address', 'jetpack' ),
@@ -1182,7 +1263,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Sharing
 			'sharing_services' => array(
 				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
-				'type'              => 'array',
+				'type'              => 'object',
 				'default'           => array(
 					'visible' => array( 'twitter', 'facebook', 'google-plus-1' ),
 					'hidden'  => array(),
@@ -1195,6 +1276,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => 'icon',
 				'enum'              => array(
+					'icon-text',
+					'icon',
+					'text',
+					'official',
+				),
+				'enum_labels' => array(
 					'icon-text' => esc_html__( 'Icon + text', 'jetpack' ),
 					'icon'      => esc_html__( 'Icon only', 'jetpack' ),
 					'text'      => esc_html__( 'Text only', 'jetpack' ),
@@ -1214,6 +1301,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'show' => array(
 				'description'       => esc_html__( 'Views where buttons are shown', 'jetpack' ),
 				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string'
+				),
 				'default'           => array( 'post' ),
 				'validate_callback' => __CLASS__ . '::validate_sharing_show',
 				'jp_group'          => 'sharedaddy',
@@ -1235,7 +1325,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'custom' => array(
 				'description'       => esc_html__( 'Custom sharing services added by user.', 'jetpack' ),
-				'type'              => 'array',
+				'type'              => 'object',
 				'default'           => array(
 					'sharing_name' => '',
 					'sharing_url'  => '',
@@ -1267,22 +1357,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'sso',
-			),
-
-			// Site Icon
-			'site_icon_id' => array(
-				'description'       => esc_html__( 'Site Icon ID', 'jetpack' ),
-				'type'              => 'integer',
-				'default'           => 1,
-				'validate_callback' => __CLASS__ . '::validate_posint',
-				'jp_group'          => 'site-icon',
-			),
-			'site_icon_url' => array(
-				'description'       => esc_html__( 'Site Icon URL', 'jetpack' ),
-				'type'              => 'string',
-				'default'           => '',
-				'sanitize_callback' => 'esc_url',
-				'jp_group'          => 'site-icon',
 			),
 
 			// Subscriptions
@@ -1446,6 +1520,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_alphanum',
 				'jp_group'          => 'verification-tools',
 			),
+			'yandex' => array(
+				'description'        => esc_html__( 'Yandex Site Verification', 'jetpack' ),
+				'type'               => 'string',
+				'default'            => '',
+				'validate_callback'  => __CLASS__ . '::validate_alphanum',
+				'jp_group'          => 'verification-tools',
+			),
 
 			// Stats
 			'admin_bar' => array(
@@ -1458,6 +1539,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'roles' => array(
 				'description'       => esc_html__( 'Select the roles that will be able to view stats reports.', 'jetpack' ),
 				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string'
+				),
 				'default'           => array( 'administrator' ),
 				'validate_callback' => __CLASS__ . '::validate_stats_roles',
 				'sanitize_callback' => __CLASS__ . '::sanitize_stats_allowed_roles',
@@ -1466,6 +1550,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'count_roles' => array(
 				'description'       => esc_html__( 'Count the page views of registered users who are logged in.', 'jetpack' ),
 				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string'
+				),
 				'default'           => array( 'administrator' ),
 				'validate_callback' => __CLASS__ . '::validate_stats_roles',
 				'jp_group'          => 'stats',
@@ -1696,6 +1783,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function validate_sharing_show( $value, $request, $param ) {
 		$views = array( 'index', 'post', 'page', 'attachment', 'jetpack-portfolio' );
+		if ( ! is_array( $value ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an array of post types.', 'jetpack' ), $param ) );
+		}
 		if ( ! array_intersect( $views, $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf(
 				/* Translators: first variable is the name of a parameter passed to endpoint holding the post type where Sharing will be displayed, the second is a list of post types where Sharing can be displayed */
@@ -1994,15 +2084,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$sharer = new Sharing_Service();
 				$options = self::split_options( $options, $sharer->get_global_options() );
 				$options['sharing_services']['current_value'] = $sharer->get_blog_services();
-				break;
-
-			case 'site-icon':
-				// Return site icon ID and URL to make it more complete.
-				$options['site_icon_id']['current_value'] = Jetpack_Options::get_option( 'site_icon_id' );
-				if ( ! function_exists( 'jetpack_site_icon_url' ) ) {
-					@include( JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' );
-				}
-				$options['site_icon_url']['current_value'] = jetpack_site_icon_url();
 				break;
 
 			case 'after-the-deadline':
