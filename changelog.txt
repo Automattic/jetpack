@@ -1,5 +1,31 @@
 == Changelog ==
 
+= 4.4 =
+
+**Enhancements**
+
+* Additional unit tests have been added to improve Jetpack's development process and stability.
+* Custom post types have been added to the REST API output.
+* Many of the screenshots throughout the plugin have been replaced by SVGs in order to make Jetpack smaller.
+* New endpoints have been added to allow the installation of plugins and themes via the API.
+* New filters to improve Jetpack's extensibility: jetpack_auth_type, jetpack_nova_menu_item_loop_open_element, jetpack_nova_menu_item_loop_close_element, jetpack_nova_menu_item_loop_class, jetpack_markdown_preserve_shortcodes, jpp_allow_login, jetpack_sharing_headline_html, jetpack_tiled_gallery_template, jetpack_tiled_gallery_partial, jetpack_top_posts_widget_permalink, jetpack_top_posts_widget_permalink, jetpack_widget_visibility_tax_args.
+* New widget: "Google Translate" to allow users to translate your site into their own language.
+* New widget: "My Community" where you can see who recently interacted with your site.
+* One of the biggest issues facing Jetpack users for years now has been difficulties in moving sites from one domain name to another.  This update makes strides towards improving that process.
+* Photon now uses HTTPS by default. Secure all the things!
+* There are now helpful hints throughout the admin interface to make Jetpack easier to use.
+* We now allow you to embed from Pinterest.
+* We've added a new feature: SEO Tools, available to Jetpack Professional subscribers.
+* We've made numerous improvements to the data sync process.
+* Welcome back to the Site Stats link in your admin menu!
+
+**Bug Fixes:**
+
+* Fixed link to Akismet settings.
+* Improved compatibility between Infinite Scroll and WPML, props Vuk Vuković.
+* Move email notification settings back with the other email settings in the Discussion Settings.
+* Various minor performance/compatibility fixes.
+
 = 4.3.2 =
 
 * Release date: October 13, 2016
