@@ -9,7 +9,7 @@
 
 "@automattic/dops-components@automattic/dops-components":
   version "0.0.1"
-  resolved "https://codeload.github.com/automattic/dops-components/tar.gz/98da709a8f957cf0a874978c73d422b099e4a206"
+  resolved "https://codeload.github.com/automattic/dops-components/tar.gz/8c84bd5a4eb3dd3cb22254293d90cfea5d525b83"
   dependencies:
     bounding-client-rect "^1.0.5"
     classnames "^2.1.3"
