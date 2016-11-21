@@ -421,11 +421,15 @@ jQuery(document).ready(function($) {
 				$( '.jp-carousel-wrap' ).touchwipe( {
 					wipeLeft : function ( e ) {
 						e.preventDefault();
-						gallery.jp_carousel( 'next' );
+						if ( gallery.jp_carousel( 'slides' ).length > 1 ) {
+							gallery.jp_carousel( 'next' );
+						}
 					},
 					wipeRight : function ( e ) {
 						e.preventDefault();
-						gallery.jp_carousel( 'previous' );
+						if ( gallery.jp_carousel( 'slides' ).length > 1 ) {
+							gallery.jp_carousel( 'previous' );
+						}
 					},
 					preventDefaultEvents : false
 				} );
@@ -1416,7 +1420,7 @@ jQuery(document).ready(function($) {
 
 	// handle lightbox (single image gallery) for images linking to 'Attachment Page'
 	if ( 1 === Number( jetpackCarouselStrings.single_image_gallery ) ) {
-		// process links that have rel=attachment and img tag inside
+		// process links that contain img tag with attribute data-attachment-id
 		$( 'a img[data-attachment-id]' ).each(function() {
 			var container = $( this ).parent();
 			var valid = false;
@@ -1439,7 +1443,7 @@ jQuery(document).ready(function($) {
 			}
 
 			// make this node a gallery recognizable by event listener above
-			$( container ).addClass( 'single-image-gallery') ;
+			$( container ).addClass( 'single-image-gallery' ) ;
 			// method 'open' needs this attribute to distinguish from default WP gallery
 			container.data( 'carousel-extra', { single_image: true } );
 		});
