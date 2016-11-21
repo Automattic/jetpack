@@ -59,14 +59,14 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 			// Format here into calls to wp_insert_post() or wp_update_post()
 			$args = array(
-				'post_title' => $stylesheet,
-				'post_name' => sanitize_title( $stylesheet ),
-				'post_type' => 'custom_css',
-				'post_status' => 'publish',
-				'post_author' => $post->post_author,
-				'post_modified_gmt' => $post->post_modified_gmt,
 				'post_content'          => $css,
 				'post_content_filtered' => $pre,
+				'post_title'            => $stylesheet,
+				'post_name'             => sanitize_title( $stylesheet ),
+				'post_type'             => 'custom_css',
+				'post_status'           => 'publish',
+				'post_author'           => $post->post_author,
+				'post_modified_gmt'     => $post->post_modified_gmt,
 			);
 
 			// Run one quick query to determine if we have a post for that theme.
