@@ -11,14 +11,14 @@ _x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/admin.js:59
 _x( "Apps", "Navigation item.", "jetpack" ), // _inc/client/admin.js:58
 __( "At A Glance", "jetpack" ), // _inc/client/admin.js:57
 _x( "At A Glance", "Navigation item.", "jetpack" ), // _inc/client/admin.js:55
+__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:35
+__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:28
+__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:22
 __( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:128
 __( "Unlinked from WordPress.com.", "jetpack" ), // _inc/client/state/connection/actions.js:119
 __( "Unlinking from WordPress.com", "jetpack" ), // _inc/client/state/connection/actions.js:112
 __( "There was an error disconnecting Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:96
 __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/actions.js:81
-__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:35
-__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:28
-__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:22
 __( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:47
 __( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:37
 __( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:29
@@ -36,6 +36,11 @@ __( "%(slug)s has been activated.", "jetpack" ), // _inc/client/state/modules/ac
 __( "Activating %(slug)s…", "jetpack" ), // _inc/client/state/modules/actions.js:94
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:82
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:68
+__( "Show falling snow on my blog from Dec 1st until Jan 4th.", "jetpack" ), // _inc/client/appearance/index.jsx:113
+__( "Show falling snow in the holiday period.", "jetpack" ), // _inc/client/appearance/index.jsx:100
+__( "Holiday Snow", "jetpack" ), // _inc/client/appearance/index.jsx:99
+__( "Learn More", "jetpack" ), // _inc/client/appearance/index.jsx:87
+__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/appearance/index.jsx:57
 __( "WordPress.com for Linux", "jetpack" ), // _inc/client/apps/index.jsx:192
 __( "WordPress.com for Windows", "jetpack" ), // _inc/client/apps/index.jsx:188
 __( "WordPress.com for Mac OS X", "jetpack" ), // _inc/client/apps/index.jsx:183
@@ -63,11 +68,6 @@ __( "All the WordPress apps are built for speed. You'll notice the difference in
 __( "Feel the performance", "jetpack" ), // _inc/client/apps/index.jsx:30
 __( "Manage all your sites from a single dashboard.", "jetpack" ), // _inc/client/apps/index.jsx:25
 __( "Powerful WordPress.com features on every device.", "jetpack" ), // _inc/client/apps/index.jsx:21
-__( "Show falling snow on my blog from Dec 1st until Jan 4th.", "jetpack" ), // _inc/client/appearance/index.jsx:113
-__( "Show falling snow in the holiday period.", "jetpack" ), // _inc/client/appearance/index.jsx:100
-__( "Holiday Snow", "jetpack" ), // _inc/client/appearance/index.jsx:99
-__( "Learn More", "jetpack" ), // _inc/client/appearance/index.jsx:87
-__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/appearance/index.jsx:57
 __( "View your {{a}}Email Followers{{/a}}", "jetpack" ), // _inc/client/engagement/index.jsx:190
 __( "View {{a}}All Stats{{/a}}", "jetpack" ), // _inc/client/engagement/index.jsx:175
 __( "Learn More", "jetpack" ), // _inc/client/engagement/index.jsx:168
@@ -238,10 +238,10 @@ __( "Disconnect Jetpack", "jetpack" ), // _inc/client/components/connect-button/
 __( "Do you really want to disconnect your site from WordPress.com?", "jetpack" ), // _inc/client/components/connect-button/index.jsx:71
 __( "Link to WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:65
 __( "Unlink me from WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:48
+_x( "Settings", "Noun. Displayed to screen readers.", "jetpack" ), // _inc/client/components/dash-section-header/index.jsx:43
 __( "Pro", "jetpack" ), // _inc/client/components/dash-item/index.jsx:98
 __( "Active", "jetpack" ), // _inc/client/components/dash-item/index.jsx:87
 __( "Updates Needed", "jetpack" ), // _inc/client/components/dash-item/index.jsx:81
-_x( "Settings", "Noun. Displayed to screen readers.", "jetpack" ), // _inc/client/components/dash-section-header/index.jsx:43
 _x( "Privacy", "Shorthand for Privacy Policy.", "jetpack" ), // _inc/client/components/footer/index.jsx:126
 __( "Automattic's Privacy Policy", "jetpack" ), // _inc/client/components/footer/index.jsx:124
 _x( "Terms", "Shorthand for Terms of Service.", "jetpack" ), // _inc/client/components/footer/index.jsx:117
@@ -326,6 +326,11 @@ __( "Send us Feedback", "jetpack" ), // _inc/client/components/masthead/index.js
 __( "Send us Feedback", "jetpack" ), // _inc/client/components/masthead/index.jsx:43
 __( "Need Help?", "jetpack" ), // _inc/client/components/masthead/index.jsx:37
 __( "Need Help?", "jetpack" ), // _inc/client/components/masthead/index.jsx:35
+_x( "Apps", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:63
+_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:50
+_x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:39
+_x( "Apps", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:34
+_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:29
 __( "News Sitemap: {{a}}%(url)s{{/a}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:818
 __( "Sitemap: {{a}}%(url)s{{/a}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:808
 __( "Search engines will find the sitemaps at these locations:", "jetpack" ), // _inc/client/components/module-settings/index.jsx:806
@@ -422,11 +427,6 @@ __( "Configure your Security Scans", "jetpack" ), // _inc/client/components/modu
 __( "You can see the information about security scanning in the \"At a Glance\" section.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:82
 __( "Upgrade Jetpack and our state-of-the-art security scanner will hunt out malicious files and report them immediately so that you're never unaware of what is happening on your website.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:76
 __( "Search your content.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:49
-_x( "Apps", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:63
-_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:50
-_x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:39
-_x( "Apps", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:34
-_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:29
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:123
 _x( "Engagement", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:118
 _x( "General", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:113
