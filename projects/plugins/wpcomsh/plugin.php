@@ -35,18 +35,21 @@ class AT_Pressable_Themes {
 
 	}
 
-	function symlink_theme( $is_theme_installed, $theme_slug ) {
+	function symlink_theme( $theme_slug ) {
 		$theme_slug_without_wpcom_suffix = preg_replace( '/-wpcom$/', '', $theme_slug );
-
-		error_log('theme slug: ' . $theme_slug);
 
 		$abs_theme_path = AT_PRESSABLE_THEMES_PATH . '/' . $theme_slug_without_wpcom_suffix;
 		$abs_theme_symlink_path = get_theme_root() . '/' . $theme_slug;
 
 		symlink( $abs_theme_path, $abs_theme_symlink_path );
+	}
 
-		return true;
+	private function delete_theme_cache( $theme_slug ) {
+		$theme_obj = wp_get_theme( $theme_slug );
 
+		if ( $theme_slug && ! is_wp_error( $theme_obj ) ) {
+			$theme_obj->cache_delete();
+		}
 	}
 
 	private function is_premium_theme( $theme_slug ) {
@@ -90,7 +93,11 @@ class AT_Pressable_Themes {
 		}
 
 		if ( ! $this->is_theme_symlinked( $theme_slug ) ) {
-			add_filter( 'jetpack_wpcom_theme_install', [ $this, 'symlink_theme' ], 10, 2 );
+			$this->symlink_theme( $theme_slug );
+			$this->delete_theme_cache( $theme_slug );
+
+			// Skip the theme installation as we've "installed" (symlinked) it manually above.
+			add_filter( 'jetpack_wpcom_theme_install', function() { return true; }, 10, 2 );
 
 			return true;
 		}
