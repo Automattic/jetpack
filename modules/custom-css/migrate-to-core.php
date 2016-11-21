@@ -68,6 +68,9 @@ class Jetpack_Custom_CSS_Data_Migration {
 	}
 
 	public static function register_legacy_post_type() {
+		if ( post_type_exists( 'safecss' ) ) {
+			return;
+		}
 		// Register safecss as a custom post_type
 		// Explicit capability definitions are largely unnecessary because the posts are manipulated in code via an options page, managing CSS revisions does check the capabilities, so let's ensure that the proper caps are checked.
 		register_post_type( 'safecss', array(
