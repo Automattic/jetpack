@@ -235,6 +235,7 @@ class Jetpack_Carousel {
 				'require_name_email'   => $require_name_email,
 				/** This action is documented in core/src/wp-includes/link-template.php */
 				'login_url'            => wp_login_url( apply_filters( 'the_permalink', get_permalink() ) ),
+				'blog_id'              => (int) get_current_blog_id(),
 			);
 
 			if ( ! isset( $localize_strings['jetpack_comments_iframe_src'] ) || empty( $localize_strings['jetpack_comments_iframe_src'] ) ) {

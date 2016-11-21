@@ -1450,8 +1450,8 @@ jQuery(document).ready(function($) {
 
 			// make this node a gallery recognizable by event listener above
 			$( container ).addClass( 'single-image-gallery' ) ;
-			// method 'open' needs this attribute to distinguish from default WP gallery
-			container.data( 'carousel-extra', { single_image: true } );
+			// blog_id is needed to allow posting comments to correct blog 
+			$( container ).data( 'carousel-extra', { blog_id: Number( jetpackCarouselStrings.blog_id ) } );
 		});
 	}
 
