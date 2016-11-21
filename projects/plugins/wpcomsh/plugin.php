@@ -50,29 +50,31 @@ class AT_Pressable_Themes {
 
 	}
 
-	private function is_theme_on_filesystem( $theme_slug ) {
-		$theme_slug_without_wpcom_suffix = preg_replace( '/-wpcom$/', '', $theme_slug );
+	private function is_premium_theme( $theme_slug ) {
+		// If the theme comes from WPCom, its name will be suffixed with "-wpcom".
+		// However, the WPCom premium themes are not stored with this suffix. Let's strip it.
+		$theme_slug = preg_replace( '/-wpcom$/', '', $theme_slug );
 
 		$all_wpcom_themes = scandir( AT_PRESSABLE_THEMES_PATH );
 
 		if ( ! $all_wpcom_themes ) {
 			error_log(
 				"AT_Pressable: WPCom premium themes folder couldn't be located. " .
-			    "Check whether the AT_PRESSABLE_THEMES_PATH constant points to the correct directory."
+				"Check whether the AT_PRESSABLE_THEMES_PATH constant points to the correct directory."
 			);
 
 			return false;
 		}
 
-		if ( ! in_array( $theme_slug_without_wpcom_suffix, $all_wpcom_themes ) ) {
-			return false;
-		}
+		return in_array( $theme_slug, $all_wpcom_themes );
+	}
 
+	private function is_theme_symlinked( $theme_slug ) {
 		$site_themes_dir = get_theme_root();
 
 		$site_themes = scandir( $site_themes_dir );
 
-		if ( ! in_array( $theme_slug_without_wpcom_suffix, $site_themes ) ) {
+		if ( ! in_array( $theme_slug, $site_themes ) ) {
 			return false;
 		}
 
@@ -80,11 +82,15 @@ class AT_Pressable_Themes {
 	}
 
 	function should_theme_skip_download_filter_handler( $is_theme_installed, $theme_slug ) {
-		if ( ! $is_theme_installed ) {
-			return ! $this->is_theme_on_filesystem( $theme_slug );
+		if (
+			! $is_theme_installed &&
+			// If we are dealing with a WPCom non-premium (ie free) theme, don't interfere.
+			! $this->is_premium_theme( $theme_slug )
+		) {
+			return false;
 		}
 
-		return true;
+		return ! $this->is_theme_symlinked( $theme_slug );
 	}
 }
 
