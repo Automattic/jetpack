@@ -66,6 +66,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 				'post_type'             => 'custom_css',
 				'post_status'           => 'publish',
 				'post_author'           => $post->post_author,
+				'post_modified'         => $post->post_modified,
 				'post_modified_gmt'     => $post->post_modified_gmt,
 			);
 
