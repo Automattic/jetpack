@@ -6,7 +6,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			function jetpack_custom_css_data_migration_cli() {
-				$result = self::do_migration();
+				$result = Jetpack_Custom_CSS_Data_Migration::do_migration();
 				if ( $result ) {
 					WP_CLI::success( sprintf( __( '%d revisions migrated.', 'jetpack' ), $result ) );
 					return;
