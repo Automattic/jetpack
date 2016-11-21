@@ -6,35 +6,35 @@ class Jetpack_Custom_CSS_Data_Migration {
 	}
 
 	public static function do_migration() {
-        if ( ! post_type_exists( 'safecss' ) ) {
-            self::register_legacy_post_type();
-        }
+		if ( ! post_type_exists( 'safecss' ) ) {
+			self::register_legacy_post_type();
+		}
 
-        $revisions = self::get_all_revisions();
-        if ( empty( $revisions ) || ! is_array( $revisions ) ) {
-            do_action( 'jetpack-custom_css-4.7_migration_finished', 0 );
-            return null;
-        }
+		$revisions = self::get_all_revisions();
+		if ( empty( $revisions ) || ! is_array( $revisions ) ) {
+			do_action( 'jetpack-custom_css-4.7_migration_finished', 0 );
+			return null;
+		}
 
-        $revisions = array_reverse( $revisions );
-        $themes = self::get_themes();
+		$revisions = array_reverse( $revisions );
+		$themes = self::get_themes();
 
-        foreach ( $revisions as $post_id => $post ) {
-            // Get the stylesheet.  If null, the theme is no longer available.  Skip.
-            $stylesheet = isset( $themes[ $post->post_excerpt ] ) ? $themes[ $post->post_excerpt ] : null;
-            if ( empty( $stylesheet ) ) {
-                continue;
-            }
+		foreach ( $revisions as $post_id => $post ) {
+			// Get the stylesheet.  If null, the theme is no longer available.  Skip.
+			$stylesheet = isset( $themes[ $post->post_excerpt ] ) ? $themes[ $post->post_excerpt ] : null;
+			if ( empty( $stylesheet ) ) {
+				continue;
+			}
 
-            $css = $post->post_content;
-            $pre = $post->post_content_filtered;
-            list( $preprocessor, $replace, $content_width ) = self::get_options( $post->ID );
-            $mod_gmt = $post->post_modified_gmt;
-            $author = $post->post_author;
+			$css = $post->post_content;
+			$pre = $post->post_content_filtered;
+			list( $preprocessor, $replace, $content_width ) = self::get_options( $post->ID );
+			$mod_gmt = $post->post_modified_gmt;
+			$author = $post->post_author;
 
-            // Format here into calls to wp_insert_post() or wp_update_post()
-        }
-    }
+			// Format here into calls to wp_insert_post() or wp_update_post()
+		}
+	}
 
 	public static function register_legacy_post_type() {
 		// Register safecss as a custom post_type
@@ -129,13 +129,13 @@ class Jetpack_Custom_CSS_Data_Migration {
 	}
 
 	public static function get_themes() {
-        $themes = wp_get_themes( array( 'errors' => null ) );
-        $all = array();
-        foreach ( $themes as $theme ) {
-            $all[ $theme->name ] = $theme->stylesheet;
-        }
-        return $all;
-    }
+		$themes = wp_get_themes( array( 'errors' => null ) );
+		$all = array();
+		foreach ( $themes as $theme ) {
+			$all[ $theme->name ] = $theme->stylesheet;
+		}
+		return $all;
+	}
 }
 
 Jetpack_Custom_CSS_Data_Migration::add_hooks();
