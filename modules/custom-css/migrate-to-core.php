@@ -18,6 +18,8 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 		$revisions = array_reverse( $revisions );
 		$themes = self::get_themes();
+		$themes_posts = array();
+		$to_delete = array();
 
 		foreach ( $revisions as $post_id => $post ) {
 			// Get the stylesheet.  If null, the theme is no longer available.  Skip.
@@ -26,14 +28,38 @@ class Jetpack_Custom_CSS_Data_Migration {
 				continue;
 			}
 
-			$css = $post->post_content;
-			$pre = $post->post_content_filtered;
-			list( $preprocessor, $replace, $content_width ) = self::get_options( $post->ID );
-			$mod_gmt = $post->post_modified_gmt;
-			$author = $post->post_author;
+			$to_delete[] = $post->ID;
+			$preprocessor = get_post_meta( $post->ID, 'custom_css_preprocessor', true );
+
+			// Do we need to remove any filters here for users without `unfiltered_html` ?
 
 			// Format here into calls to wp_insert_post() or wp_update_post()
+			$args = array(
+				'post_content' => $post->post_content,
+				'post_content_filtered' => $preprocessor ? $post->post_content_filtered : '',
+				'post_title' => $stylesheet,
+				'post_name' => sanitize_title( $stylesheet ),
+				'post_type' => 'custom_css',
+				'post_status' => 'publish',
+				'post_author' => $post->post_author,
+				'post_modified_gmt' => $post->post_modified_gmt,
+			);
+
+			// Run one quick query to determine if we have a post for that theme.
+			if ( empty( $themes_posts[ $stylesheet ] ) ) {
+				$core_post = wp_get_custom_css_post( $stylesheet );
+				$themes_posts[ $stylesheet ] = ( $core_post instanceof WP_Post ) ? $core_post->ID : null;
+			}
+
+			if ( $themes_posts[ $stylesheet ] ) {
+				$args['ID'] = $themes_posts[ $stylesheet ];
+				wp_update_post( wp_slash( $args ) );
+			} else {
+				$themes_posts[ $stylesheet ] = wp_insert_post( wp_slash( $args ) );
+			}
 		}
+
+		// delete the old posts stored in $to_delete.
 	}
 
 	public static function register_legacy_post_type() {
