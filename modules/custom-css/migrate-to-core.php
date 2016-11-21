@@ -53,8 +53,6 @@ class Jetpack_Custom_CSS_Data_Migration {
 				$preprocessor = 'less';
 				$pre = $css;
 				$css = call_user_func( $preprocessors[ $preprocessor ]['callback'], $pre );
-				print_r( $preprocessors[ $preprocessor ]['callback'] );
-				echo $css;
 			}
 
 			// Do we need to remove any filters here for users without `unfiltered_html` ?
