@@ -27,7 +27,7 @@ With Jetpack comes a **centralized dashboard** on WordPress.com. Manage plugins 
 Jetpack includes other features that help you customize your site including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and [many more](https://jetpack.com/features).
 
 = Dedicated Support =
-We have an entire team of happiness engineers ready to help you.  Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
+We have an entire team of happiness engineers ready to help you. Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
 
 = Contributing to Jetpack =
 
@@ -77,27 +77,29 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.4 =
 
+* Release date: November 21, 2016
+* Release post: http://wp.me/p5U9nj-2Ow
+
 **Enhancements**
 
 * Additional unit tests have been added to improve Jetpack's development process and stability.
-* Custom post types have been added to the REST API output.
+* Custom post types have been added to the WP REST API output.
 * Many of the screenshots throughout the plugin have been replaced by SVGs in order to make Jetpack smaller.
-* New endpoints have been added to allow the installation of plugins and themes via the API.
-* New filters to improve Jetpack's extensibility: jetpack_auth_type, jetpack_nova_menu_item_loop_open_element, jetpack_nova_menu_item_loop_close_element, jetpack_nova_menu_item_loop_class, jetpack_markdown_preserve_shortcodes, jpp_allow_login, jetpack_sharing_headline_html, jetpack_tiled_gallery_template, jetpack_tiled_gallery_partial, jetpack_top_posts_widget_permalink, jetpack_top_posts_widget_permalink, jetpack_widget_visibility_tax_args.
+* New endpoints have been added to allow the installation of plugin and theme zip files via the API.
+* Twelve new filters to make Jetpack more extensible!  See: http://wp.me/p5U9nj-2Ow.
 * New widget: "Google Translate" to allow users to translate your site into their own language.
 * New widget: "My Community" where you can see who recently interacted with your site.
-* One of the biggest issues facing Jetpack users for years now has been difficulties in moving sites from one domain name to another.  This update makes strides towards improving that process.
+* One of the biggest issues facing Jetpack users for years now has been difficulties in moving sites from one domain name to another. This update makes strides towards improving that process.
 * Photon now uses HTTPS by default. Secure all the things!
 * There are now helpful hints throughout the admin interface to make Jetpack easier to use.
-* We now allow you to embed from Pinterest.
-* We've added a new feature: SEO Tools, available to Jetpack Professional subscribers.
+* We now allow you to embed pins, boards and profiles from Pinterest.
+* We've added a new feature: SEO Tools, available to Jetpack Professional subscribers. You can read more about our plans here: https://jetpack.com/features/
 * We've made numerous improvements to the data sync process.
-* Welcome back to the Site Stats link in your admin menu!
 
 **Bug Fixes:**
 
 * Fixed link to Akismet settings.
-* Improved compatibility between Infinite Scroll and WPML, props Vuk Vuković.
+* Improved compatibility between Infinite Scroll and WPML.
 * Move email notification settings back with the other email settings in the Discussion Settings.
 * Various minor performance/compatibility fixes.
 
@@ -214,7 +216,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Security:**
 
-* We’re continuing our efforts to harden Jetpack security, by implementing the `hash_equals()` function to avoid timing attacks when comparing strings.  We also improved security on CSVs exported from your contact form.
+* We’re continuing our efforts to harden Jetpack security, by implementing the `hash_equals()` function to avoid timing attacks when comparing strings. We also improved security on CSVs exported from your contact form.
 
 **Slightly Less Exciting Feature Improvements:**
 
