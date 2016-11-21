@@ -25,6 +25,9 @@ class Jetpack_Custom_CSS_Data_Migration {
 			self::register_legacy_post_type();
 		}
 
+		$core_css_post      = wp_get_custom_css_post();
+		$current_stylesheet = get_stylesheet();
+
 		$revisions = self::get_all_revisions();
 		if ( empty( $revisions ) || ! is_array( $revisions ) ) {
 			return null;
@@ -35,6 +38,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 		$revisions = array_reverse( $revisions );
 		$themes = self::get_themes();
 		$themes_posts = array();
+		$jetpack_latest_theme_revisions = array();
 		$to_delete = array();
 
 		foreach ( $revisions as $post_id => $post ) {
@@ -44,6 +48,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 				continue;
 			}
 
+			$jetpack_latest_theme_revisions[ $stylesheet ] = $post;
 			$to_delete[] = $post->ID;
 			$preprocessor = get_post_meta( $post->ID, 'custom_css_preprocessor', true );
 			$css = $post->post_content;
@@ -84,6 +89,33 @@ class Jetpack_Custom_CSS_Data_Migration {
 				// This is a new post we're stashing it under, so save the ID.
 				$themes_posts[ $stylesheet ] = wp_insert_post( wp_slash( $args ) );
 			}
+		}
+
+		// If we've migrated some CSS for the current theme and there was already something there in the Core dataset ...
+		if ( isset( $jetpack_latest_theme_revisions[ $current_stylesheet ] ) && $core_css_post ) {
+			$jetpack_css_post = $jetpack_latest_theme_revisions[ $current_stylesheet ];
+			$preprocessor = get_post_meta( $jetpack_css_post->ID, 'custom_css_preprocessor', true );
+
+			$css = $core_css_post->post_content;
+			$pre = $core_css_post->post_content_filtered;
+			if ( $preprocessor ) {
+				if ( $pre ) {
+					$pre .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
+				}
+				$pre .= $jetpack_css_post->post_content_filtered;
+
+				$css .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
+				$css .= call_user_func( $preprocessors[ $preprocessor ]['callback'], $jetpack_css_post->post_content_filtered );
+			} else {
+				$css .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
+				$css .= $jetpack_css_post->post_content;
+			}
+
+			wp_update_post( array(
+				'ID'                    => $core_css_post->ID,
+				'post_content'          => $css,
+				'post_content_filtered' => $pre,
+			) );
 		}
 
 		// delete the old posts stored in $to_delete.
