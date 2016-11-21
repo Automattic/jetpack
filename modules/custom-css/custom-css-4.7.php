@@ -33,7 +33,6 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 
 	public static function init() {
-		self::register_legacy_post_type();
 		add_post_type_support( 'custom_css', 'revisions' );
 
 		$min = '.min';
@@ -58,26 +57,6 @@ class Jetpack_Custom_CSS_Enhancements {
 			$caps = array( 'edit_theme_options' );
 		}
 		return $caps;
-	}
-
-	public static function register_legacy_post_type() {
-		// Register safecss as a custom post_type
-		// Explicit capability definitions are largely unnecessary because the posts are manipulated in code via an options page, managing CSS revisions does check the capabilities, so let's ensure that the proper caps are checked.
-		register_post_type( 'safecss', array(
-			'label'        => 'Custom CSS',
-			'supports'     => array( 'revisions' ),
-			'can_export'   => false,
-			'rewrite'      => false,
-			'capabilities' => array(
-				'edit_post'          => 'edit_theme_options',
-				'read_post'          => 'read',
-				'delete_post'        => 'edit_theme_options',
-				'edit_posts'         => 'edit_theme_options',
-				'edit_others_posts'  => 'edit_theme_options',
-				'publish_posts'      => 'edit_theme_options',
-				'read_private_posts' => 'read',
-			),
-		) );
 	}
 
 	public static function admin_menu() {
