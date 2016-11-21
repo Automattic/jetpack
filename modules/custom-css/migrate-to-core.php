@@ -42,6 +42,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 		$to_delete = array();
 
 		foreach ( $revisions as $post_id => $post ) {
+			// Jetpack had stored the theme Name, not the stylesheet directory, for ... reasons.
 			// Get the stylesheet.  If null, the theme is no longer available.  Skip.
 			$stylesheet = isset( $themes[ $post->post_excerpt ] ) ? $themes[ $post->post_excerpt ] : null;
 			if ( empty( $stylesheet ) ) {
