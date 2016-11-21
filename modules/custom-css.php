@@ -16,7 +16,9 @@ function jetpack_load_custom_css() {
 	// If WordPress has the core version of Custom CSS, load our new version.
 	// @see https://core.trac.wordpress.org/changeset/38829
 	if ( function_exists( 'wp_get_custom_css' ) ) {
-		include dirname( __FILE__ ) . '/custom-css/migrate-to-core.php';
+		if ( ! Jetpack_Options::get_option( 'custom_css_4.7_migration' ) ) {
+			include dirname(__FILE__) . '/custom-css/migrate-to-core.php';
+		}
 		include dirname( __FILE__ ) . '/custom-css/custom-css/preprocessors.php';
 		include dirname( __FILE__ ) . '/custom-css/custom-css-4.7.php';
 		return;
