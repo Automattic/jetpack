@@ -3,6 +3,18 @@
 class Jetpack_Custom_CSS_Data_Migration {
 	public static function add_hooks() {
 		add_action( 'init', array( __CLASS__, 'register_legacy_post_type' ) );
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			function jetpack_custom_css_data_migration_cli() {
+				$result = self::do_migration();
+				if ( $result ) {
+					WP_CLI::success( sprintf( __( '%d revisions migrated.', 'jetpack' ), $result ) );
+					return;
+				}
+				WP_CLI::error( __( 'No revisions to migrate.', 'jetpack' ) );
+			}
+			WP_CLI::add_command( 'jetpack custom-css migrate', 'jetpack_custom_css_data_migration_cli' );
+		}
 	}
 
 	public static function do_migration() {
