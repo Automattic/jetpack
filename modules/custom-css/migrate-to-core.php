@@ -19,6 +19,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 	public static function do_migration() {
 		Jetpack_Options::update_option( 'custom_css_4.7_migration', true );
+		Jetpack::log( 'custom_css_4.7_migration', 'start' );
 
 		if ( ! post_type_exists( 'safecss' ) ) {
 			self::register_legacy_post_type();
@@ -89,6 +90,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 		// delete the old posts stored in $to_delete.
 
+		Jetpack::log( 'custom_css_4.7_migration', sizeof( $to_delete ) . 'revisions migrated' );
 		return sizeof( $to_delete );
 	}
 
