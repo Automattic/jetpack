@@ -18,7 +18,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		add_action( 'jetpack_update_themes_change', $callable );
 		add_action( 'jetpack_update_core_change', $callable );
 
-		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array(
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_update_plugins_change', array(
 			$this,
 			'filter_update_keys',
 		), 10, 2 );
