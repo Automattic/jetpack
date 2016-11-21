@@ -1423,6 +1423,12 @@ jQuery(document).ready(function($) {
 		// process links that contain img tag with attribute data-attachment-id
 		$( 'a img[data-attachment-id]' ).each(function() {
 			var container = $( this ).parent();
+
+			// skip if image was already added to gallery by shortcode
+			if( container.parent( '.gallery-icon' ).length ) {
+				return;
+			}
+
 			var valid = false;
 
 			// if link points to 'Media File' and flag is set allow it
