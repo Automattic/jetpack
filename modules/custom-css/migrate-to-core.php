@@ -85,10 +85,9 @@ class Jetpack_Custom_CSS_Data_Migration {
 				'order'          => 'DESC',
 			) );
 
+			$custom_css_post_id = 0;
 			if ( count( $custom_css_posts ) > 0 ) {
 				$custom_css_post_id = $custom_css_posts[0]->ID;
-			} else {
-				$custom_css_post_id = 0;
 			}
 
 			// Save post_id=0 to note that no safecss post exists.
