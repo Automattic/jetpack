@@ -33,7 +33,6 @@ class AT_Pressable_Themes {
 			2
 		);
 
-		add_filter( 'jetpack_wpcom_theme_install', [ $this, 'symlink_theme' ], 10, 2 );
 	}
 
 	function symlink_theme( $is_theme_installed, $theme_slug ) {
@@ -90,7 +89,13 @@ class AT_Pressable_Themes {
 			return false;
 		}
 
-		return ! $this->is_theme_symlinked( $theme_slug );
+		if ( ! $this->is_theme_symlinked( $theme_slug ) ) {
+			add_filter( 'jetpack_wpcom_theme_install', [ $this, 'symlink_theme' ], 10, 2 );
+
+			return true;
+		}
+
+		return false;
 	}
 }
 
