@@ -161,7 +161,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			/** This filter is documented in modules/custom-css/custom-css.php */
 			'useRichEditor' => ! jetpack_is_mobile() && apply_filters( 'safecss_use_ace', true ),
 			'areThereCssRevisions' => self::are_there_css_revisions(),
-			'revisionsUrl' => admin_url( 'themes.php?page=editcss' ),
+			'revisionsUrl' => self::get_revisions_url(),
 			'cssHelpUrl' => '//en.support.wordpress.com/custom-design/editing-css/',
 			'l10n' => array(
 				'mode'           => __( 'Start Fresh', 'jetpack' ),
@@ -179,6 +179,19 @@ class Jetpack_Custom_CSS_Enhancements {
 			return $post;
 		}
 		return sizeof( wp_get_post_revisions( $post ) );
+	}
+
+	public static function get_revisions_url( $stylesheet = '' ) {
+		$post = wp_get_custom_css_post( $stylesheet );
+
+		// If we have any currently saved customizations...
+		if ( $post instanceof WP_Post ) {
+			$revisions = wp_get_post_revisions( $post->ID, array( 'posts_per_page' => 1 ) );
+			$revision = reset( $revisions );
+			return get_edit_post_link( $revision->ID );
+		}
+
+		return admin_url( 'themes.php?page=editcss' );
 	}
 
 	public static function get_themes() {
