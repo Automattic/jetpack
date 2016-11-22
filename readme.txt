@@ -78,7 +78,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 4.4 =
 
 * Release date: November 21, 2016
-* Release post: http://wp.me/p5U9nj-2Ow
+* Release post: http://wp.me/p1moTy-3FE
 
 **Enhancements**
 
@@ -86,7 +86,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Custom post types have been added to the WP REST API output.
 * Many of the screenshots throughout the plugin have been replaced by SVGs in order to make Jetpack smaller.
 * New endpoints have been added to allow the installation of plugin and theme zip files via the API.
-* Twelve new filters to make Jetpack more extensible!  See: http://wp.me/p5U9nj-2Ow.
+* Twelve new filters to make Jetpack more extensible!  See: http://wp.me/p1moTy-3FE.
 * New widget: "Google Translate" to allow users to translate your site into their own language.
 * New widget: "My Community" where you can see who recently interacted with your site.
 * One of the biggest issues facing Jetpack users for years now has been difficulties in moving sites from one domain name to another. This update makes strides towards improving that process.
