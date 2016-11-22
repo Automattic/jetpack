@@ -28,11 +28,30 @@ class AT_Pressable_Themes {
 	private function register_theme_hooks() {
 		add_filter(
 			'jetpack_wpcom_theme_skip_download',
-			[ $this, 'should_theme_skip_download_filter_handler' ],
+			[ $this, 'jetpack_wpcom_theme_skip_download_filter_handler' ],
 			10,
 			2
 		);
 
+		add_filter(
+			'jetpack_wpcom_theme_delete',
+			[ $this, 'jetpack_wpcom_theme_delete_filter_handler' ],
+			10,
+			2
+		);
+	}
+
+	public function jetpack_wpcom_theme_delete_filter_handler( $result, $theme_slug ) {
+		if (
+			! $this->is_premium_theme( $theme_slug ) ||
+		    ! $this->is_theme_symlinked( $theme_slug )
+		) {
+			return false;
+		}
+
+		$result = $this->delete_symlinked_theme( $theme_slug );
+
+		return $result;
 	}
 
 	function symlink_theme( $theme_slug ) {
@@ -41,7 +60,16 @@ class AT_Pressable_Themes {
 		$abs_theme_path = AT_PRESSABLE_THEMES_PATH . '/' . $theme_slug_without_wpcom_suffix;
 		$abs_theme_symlink_path = get_theme_root() . '/' . $theme_slug;
 
-		symlink( $abs_theme_path, $abs_theme_symlink_path );
+		if ( ! symlink( $abs_theme_path, $abs_theme_symlink_path ) ) {
+			$error_message = "Can't symlink theme with slug: ${theme_slug}." .
+				"Make sure it exists in the " . AT_PRESSABLE_THEMES_PATH . " directory.";
+
+			error_log( 'AT Pressable: ' . $error_message );
+
+			return new WP_Error( 'error_symlinking_theme', $error_message );
+		}
+
+		return true;
 	}
 
 	private function delete_theme_cache( $theme_slug ) {
@@ -68,6 +96,17 @@ class AT_Pressable_Themes {
 			return false;
 		}
 
+		$theme_dir_path = AT_PRESSABLE_THEMES_PATH . "/${theme_slug}";
+
+		if ( ! file_exists( $theme_dir_path ) ) {
+			error_log(
+				"AT_Pressable: Theme with slug: {$theme_slug} doesn't exist in the WPCom premium themes folder " .
+			    AT_PRESSABLE_THEMES_PATH
+			);
+
+			return false;
+		}
+
 		return in_array( $theme_slug, $all_wpcom_themes );
 	}
 
@@ -83,21 +122,47 @@ class AT_Pressable_Themes {
 		return true;
 	}
 
-	function should_theme_skip_download_filter_handler( $is_theme_installed, $theme_slug ) {
-		if (
-			! $is_theme_installed &&
-			// If we are dealing with a WPCom non-premium (ie free) theme, don't interfere.
-			! $this->is_premium_theme( $theme_slug )
-		) {
+	private function delete_symlinked_theme( $theme_slug ) {
+		$site_themes_dir = get_theme_root();
+
+		$symlinked_theme_path = $site_themes_dir . '/' . $theme_slug;
+
+		if ( file_exists( $symlinked_theme_path ) && is_link( $symlinked_theme_path ) ) {
+			unlink( $symlinked_theme_path );
+
+			return true;
+		}
+
+		error_log(
+			"AT_Pressable: Can't delete the specified symlinked theme: the path or symlink doesn't exist."
+		);
+
+		return new WP_Error(
+			'error_deleting_symlinked_theme',
+			"Can't delete the specified symlinked theme: the path or symlink doesn't exist."
+		);
+	}
+
+	function jetpack_wpcom_theme_skip_download_filter_handler( $result, $theme_slug ) {
+		// If we are dealing with a WPCom non-premium (ie free) theme, don't interfere.
+		if ( ! $this->is_premium_theme( $theme_slug ) ) {
 			return false;
 		}
 
 		if ( ! $this->is_theme_symlinked( $theme_slug ) ) {
-			$this->symlink_theme( $theme_slug );
+			$result = $this->symlink_theme( $theme_slug );
+
 			$this->delete_theme_cache( $theme_slug );
 
 			// Skip the theme installation as we've "installed" (symlinked) it manually above.
-			add_filter( 'jetpack_wpcom_theme_install', function() { return true; }, 10, 2 );
+			add_filter(
+				'jetpack_wpcom_theme_install',
+				function() use( $result ) {
+					return $result;
+				},
+				10,
+				2
+			);
 
 			return true;
 		}
