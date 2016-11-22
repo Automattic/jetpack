@@ -115,11 +115,11 @@ class Jetpack_Custom_CSS_Data_Migration {
 				$css .= $jetpack_css_revision->post_content;
 			}
 
-			wp_update_post( array(
+			wp_update_post( wp_slash( array(
 				'ID'                    => $core_css_post->ID,
 				'post_content'          => $css,
 				'post_content_filtered' => $pre,
-			) );
+			) ) );
 		}
 
 		/*
