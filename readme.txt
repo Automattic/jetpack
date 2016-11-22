@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 4.3.2
+Stable tag: 4.4.1
 Requires at least: 4.5
 Tested up to: 4.6.1
 
@@ -27,7 +27,7 @@ With Jetpack comes a **centralized dashboard** on WordPress.com. Manage plugins 
 Jetpack includes other features that help you customize your site including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and [many more](https://jetpack.com/features).
 
 = Dedicated Support =
-We have an entire team of happiness engineers ready to help you.  Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
+We have an entire team of happiness engineers ready to help you. Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
 
 = Contributing to Jetpack =
 
@@ -75,86 +75,42 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.4.1 =
+
+* Release date: November 22, 2016
+
+**Bug Fixes**
+
+* Fixed an issue where some users with slower servers would get an error on the Jetpack dashboard when `WP_DEBUG` was enabled.
+* Fixed an issue where users on a Jetpack Professional plan who were paying monthly (as opposed to annually) wouldn’t be able to enable SEO Tools.
+
 = 4.4 =
+
+* Release date: November 21, 2016
+* Release post: http://wp.me/p1moTy-3FE
 
 **Enhancements**
 
-* Brand new SEO Tools module. #5307
-* Shortcodes: added Pinterest embeds. #5437
-* VideoPress: refreshed admin interface, seamless integration with the core Media manager, tied with Jetpack Plans. #5457
-
-* Admin Page: added a filter to manage if the newly connected user should go to WordPress.com or not. #5319
-* Admin Page: added links to pages where users can fix problems with Akismet and update plugins. #5176
-* Admin Page: added helpful hints to make Jetpack easier to use. #5479
-* Admin Page: redesign Development mode banner. #5186
-* Admin Page: removed unnecessarily loaded theme compatibility files. #5454
-* Admin Page: when user is non admin, Protect module is inactive and they have no access to Stats, don't break the UI trying to go to At a Glance which isn't accessible by them and instead display Apps tab. #5395
-* Admin Page: use SVGs instead of raster images to improve performance. #5419
-* Admin Page: improve design when Development mode is active. #5186
-* Admin Page: improve contrast for better accessibility. #5236
-* Carousel: moved close icon location to the top right. #5237
-* Carousel: change the behavior of the browser's back button after closing a gallery. #5168
-* Contact Form: add horizontal line between message content and meta data. #5270
-* Custom Post Types: added custom posts to the output of the WordPress REST API. #5434
-* Custom Post Types: made Nova post markup more flexible by adding new filters. #1542
-* Debug Page: add information about Development mode. #5225
-* Documentation: Improvements to README.md sections about development workflow and clarification about Node versions required for the build tasks. #5428
-* Development: added tests for Jetpack API endpoints for the WordPress REST API. #5310
-* Development: added tests for various constants in use by Jetpack. #5350
-* General: improve the display of the connection banners to explain to site owners why they should connect to WordPress.com. #5473
-* JSON API: add new API endpoint to allow installing a plugin via the API, from a zip file. #5507
-* JSON API: add new API endpoint to allow installing a theme via the API. #5537
-* JSON API: customize the theme endpoint to allow installing WordPress.com themes. #5392
-* Markdown: add new filter to allow site owners to parse content inside shortcodes. #5573
-* Photon: now using HTTPS to retrieve images by default. #5534
-* Protect: added a filter to skip IP address checking in favor of another security check. #5369
-* Publicize: only trigger Publicize for Post Types that support it. #5381
-* Related Posts: add posts to the WP REST API Post Response. #3425
-* Sharing / Likes: add new filter to customize the heading HTML. #5011
-* Sharing: better video tags for Video posts including VideoPress videos. #3853
-* Site Icon: added the site icon property to the output of the settings API endpoint. #5282
-* SSO: Extend logged in expiration to 1 year. #5259
-* Sync: added an API endpoint to examine the current state of scheduled sync jobs. #5324
-* Sync: improve synchronization on sites with a custom implementation of Cron.
-* Sync: disable Sync via Cron. #5528
-* Tests: introduce GUI tests for the React components in Jetpack. #5496
-* Tiled Galleries: add filter to override the default Tiled Gallery template files. #5090
-* Widgets: new 'My Community' widget displaying people who recently interacted with your site. #3358
-* Widgets: new Google Translate widget. #5386
-* Widgets: new Flickr option in the Social Media Icons Widget. #5250
-* Widgets: new 'WordPress.org' option in the Social Media Icons Widget. #5183
-* Widgets: add new `jetpack_top_posts_widget_permalink` filter to the permalinks in Top Posts Widget. #4881
-* Widgets: remove title attributes from the Social Media Icons Widget. #5286
-* Widget Visibility: add a filter to the get_taxonomies arguments. #5222
-
-**Improved Compatibility:**
-
-* Infinite Scroll: improve compatibility with WPML and language slugs in permalinks. #4953
-* Open Graph: add SEO by Squirrly TM to the list of conflicting plugins. #5365
-* Sharing: fix conflict between the Email button and the Autoptimize plugin. #5291
-* Sync: avoid conflicts with the Photo Gallery plugin. #5412
-* Sync: avoid conflicts with IDX support plugins such as IMPress for IDX Broker and dsIDXpress for IDX. #5636
-* Several improvements to avoid issues when cloning / duplicating sites, creating staging sites, or changing your site URL.
+* Additional unit tests have been added to improve Jetpack's development process and stability.
+* Custom post types have been added to the WP REST API output.
+* Many of the screenshots throughout the plugin have been replaced by SVGs in order to make Jetpack smaller.
+* New endpoints have been added to allow the installation of plugin and theme zip files via the API.
+* Twelve new filters to make Jetpack more extensible!  See: http://wp.me/p1moTy-3FE.
+* New widget: "Google Translate" to allow users to translate your site into their own language.
+* New widget: "My Community" where you can see who recently interacted with your site.
+* One of the biggest issues facing Jetpack users for years now has been difficulties in moving sites from one domain name to another. This update makes strides towards improving that process.
+* Photon now uses HTTPS by default. Secure all the things!
+* There are now helpful hints throughout the admin interface to make Jetpack easier to use.
+* We now allow you to embed pins, boards and profiles from Pinterest.
+* We've added a new feature: SEO Tools, available to Jetpack Professional subscribers. You can read more about our plans here: https://jetpack.com/features/
+* We've made numerous improvements to the data sync process.
 
 **Bug Fixes:**
 
-* Admin Page: fix URL to Akismet Settings. #5332
-* Admin Page: do not load unnecessary file on connection page. #5284
-* Admin Page: avoid errors when page is loaded by secondary users. #5366
-* Admin Page: update the Create Account link from the Admin Page's dashboard to direct the user into a connect screen that asks them to sign up by being aware that the user clicked the Create Account instead of just the connect button. #5382
-* Admin Page: for non-admin users, when site is in Dev Mode, a Jetpack link leading to a blank page with a message "Sorry, you are not allowed to access this page." is no longer displayed. #5396
-* Admin Page: fix PHP warning when roles allowed to see Stats don't exist or haven't been saved yet. #5432
-* Admin Page: fix issue where certain administrative page actions would fail with sites using index permalinks. #5345
-* Contact Forms: fixed shortcode properties passing when using do_shortcode. #3188
-* Contact Forms: restricted access to feedback posts from the WordPress REST API. #5408
-* JSON API: avoid errors when the Sharing module isn't available. #5423
-* Likes: move email notification settings back with the other email settings in the Discussion Settings. #4987
-* Site Icon: not using a site icon as fallback version if it is too small. #3515
-* SSO: remove unnecessary styles for nonexistent profile UI. #5289
-* Sitemaps: make sure sitemaps always use absolute paths for images. #5375
-* Sync: avoid counting users on very large networks. #5575
-* Subscriptions: fix PHP warnings when user subscribes to comments. #4897
-* Widgets: fixed Instagram widget minimum width rule to actually use the minimum instead of maximum. #5316
+* Fixed link to Akismet settings.
+* Improved compatibility between Infinite Scroll and WPML.
+* Move email notification settings back with the other email settings in the Discussion Settings.
+* Various minor performance/compatibility fixes.
 
 = 4.3.2 =
 
@@ -269,7 +225,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Security:**
 
-* We’re continuing our efforts to harden Jetpack security, by implementing the `hash_equals()` function to avoid timing attacks when comparing strings.  We also improved security on CSVs exported from your contact form.
+* We’re continuing our efforts to harden Jetpack security, by implementing the `hash_equals()` function to avoid timing attacks when comparing strings. We also improved security on CSVs exported from your contact form.
 
 **Slightly Less Exciting Feature Improvements:**
 
