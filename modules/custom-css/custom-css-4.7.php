@@ -33,8 +33,6 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 
 	public static function init() {
-		add_post_type_support( 'custom_css', 'revisions' );
-
 		$min = '.min';
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 			$min = '';
