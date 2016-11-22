@@ -96,13 +96,7 @@ class Jetpack_Custom_CSS_Enhancements {
 				if ( current_user_can( 'customize' ) ) {
 					printf(
 						' <a class="page-title-action hide-if-no-customize" href="%1$s">%2$s</a>',
-						esc_url( add_query_arg(
-							array(
-								array( 'autofocus' => array( 'section' => 'custom_css' ) ),
-								'return' => urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) )
-							),
-							admin_url( 'customize.php' )
-						) ),
+						esc_url( self::customizer_link() ),
 						__( 'Manage with Live Preview', 'jetpack' )
 					);
 				}
@@ -113,6 +107,24 @@ class Jetpack_Custom_CSS_Enhancements {
 			<?php self::inactive_themes_revision_links(); ?>
 		</div>
 		<?php
+	}
+
+	public static function customizer_link( $args = array() ) {
+		$args = wp_parse_args( $args, array(
+			'return_url' => urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ),
+		) );
+
+		return add_query_arg(
+			array(
+				array(
+					'autofocus' => array(
+						'section' => 'custom_css'
+					),
+				),
+				'return' => $args['return_url'],
+			),
+			admin_url( 'customize.php' )
+		);
 	}
 
 	public static function inactive_themes_revision_links() {
