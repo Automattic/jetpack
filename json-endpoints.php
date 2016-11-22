@@ -1452,6 +1452,7 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint( array(
 	'description' => 'Upload a new piece of media.',
 	'allow_cross_origin_request' => true,
+	'allow_upload_token_auth' => true,
 	'group'       => 'media',
 	'stat'        => 'media:new',
 	'min_version' => '1.1',
