@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 4.3.2
+Stable tag: 4.4
 Requires at least: 4.5
 Tested up to: 4.6.1
 
@@ -75,10 +75,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.4.1 =
+
+* Release date: November 22, 2016
+
+**Bug Fixes**
+
+* Fixes an issue where some users with slower servers would get an error on the Jetpack dashboard when `WP_DEBUG` was enabled.
+* Fixes an issue where users on a Jetpack Professional plan who are paying monthly (as opposed to annually) wouldn’t be able to enable SEO Tools.
+
 = 4.4 =
 
 * Release date: November 21, 2016
-* Release post: http://wp.me/p5U9nj-2Ow
+* Release post: http://wp.me/p1moTy-3FE
 
 **Enhancements**
 
@@ -86,7 +95,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Custom post types have been added to the WP REST API output.
 * Many of the screenshots throughout the plugin have been replaced by SVGs in order to make Jetpack smaller.
 * New endpoints have been added to allow the installation of plugin and theme zip files via the API.
-* Twelve new filters to make Jetpack more extensible!  See: http://wp.me/p5U9nj-2Ow.
+* Twelve new filters to make Jetpack more extensible!  See: http://wp.me/p1moTy-3FE.
 * New widget: "Google Translate" to allow users to translate your site into their own language.
 * New widget: "My Community" where you can see who recently interacted with your site.
 * One of the biggest issues facing Jetpack users for years now has been difficulties in moving sites from one domain name to another. This update makes strides towards improving that process.

@@ -31,6 +31,7 @@ https://github.com/thoughtbot/bourbon
   margin-left: 0;
   margin-right: 10px;
   margin-top: 10px;
+  overflow: hidden;
   padding-bottom: 16px;
   padding-top: 0;
 }

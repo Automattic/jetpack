@@ -93,15 +93,15 @@ msgstr ""
 msgid "%s must be an array of post types."
 msgstr ""
 
-#: _inc/jetpack-strings.php:420
+#: _inc/jetpack-strings.php:425
 msgid "Make sure your site is easily found on search engines with SEO tools for your content and social posts."
 msgstr ""
 
-#: _inc/jetpack-strings.php:419
+#: _inc/jetpack-strings.php:424
 msgid "Activate this module to use the advanced SEO tools."
 msgstr ""
 
-#: _inc/jetpack-strings.php:411
+#: _inc/jetpack-strings.php:416
 msgid "Configure your VideoPress settings."
 msgstr ""
 
@@ -604,11 +604,11 @@ msgstr ""
 msgid "Could not confirm safe mode."
 msgstr ""
 
-#: _inc/jetpack-strings.php:418
+#: _inc/jetpack-strings.php:423
 msgid "Configure your SEO settings."
 msgstr ""
 
-#: _inc/jetpack-strings.php:412
+#: _inc/jetpack-strings.php:417
 msgid "The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive."
 msgstr ""
 
@@ -620,31 +620,31 @@ msgstr ""
 msgid "More Info"
 msgstr ""
 
-#: _inc/jetpack-strings.php:424
+#: _inc/jetpack-strings.php:429
 msgid "Search your content."
 msgstr "Търсене в съдържанието."
 
-#: _inc/jetpack-strings.php:401
+#: _inc/jetpack-strings.php:406
 msgid "{{a}}Manage Likes visibility from the Sharing Module Settings{{/a}}"
 msgstr ""
 
-#: _inc/jetpack-strings.php:391
+#: _inc/jetpack-strings.php:396
 msgid "Hide the stats smiley face image. The image helps collect stats but should still work when hidden."
 msgstr ""
 
-#: _inc/jetpack-strings.php:388
+#: _inc/jetpack-strings.php:393
 msgid "Your Current IP: %(ip)s"
 msgstr ""
 
-#: _inc/jetpack-strings.php:386
+#: _inc/jetpack-strings.php:391
 msgid "Whitelisting an IP address prevents it from ever being blocked by Jetpack."
 msgstr ""
 
-#: _inc/jetpack-strings.php:384
+#: _inc/jetpack-strings.php:389
 msgid "IPv4 and IPv6 are acceptable. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100"
 msgstr ""
 
-#: _inc/jetpack-strings.php:358
+#: _inc/jetpack-strings.php:363
 msgid "Link your account to WordPress.com to start using this feature."
 msgstr ""
 
@@ -699,209 +699,209 @@ msgstr ""
 msgid "Search for a Jetpack feature."
 msgstr ""
 
-#: _inc/jetpack-strings.php:423
+#: _inc/jetpack-strings.php:428
 msgid "Upgrade Jetpack and our state-of-the-art security scanner will hunt out malicious files and report them immediately so that you're never unaware of what is happening on your website."
 msgstr ""
 
-#: _inc/jetpack-strings.php:422
+#: _inc/jetpack-strings.php:427
 msgid "You can see the information about security scanning in the \"At a Glance\" section."
 msgstr ""
 
-#: _inc/jetpack-strings.php:421
+#: _inc/jetpack-strings.php:426
 msgid "Configure your Security Scans"
 msgstr ""
 
-#: _inc/jetpack-strings.php:417
+#: _inc/jetpack-strings.php:422
 msgid "This module has no configuration options"
 msgstr ""
 
-#: _inc/jetpack-strings.php:416
+#: _inc/jetpack-strings.php:421
 msgid "Let search engines and visitors know that you are serious about your websites integrity by upgrading Jetpack. Our anti-spam tools will eliminate comment spam, protect your SEO, and make it easier for visitors to stay in touch."
 msgstr ""
 
-#: _inc/jetpack-strings.php:415
+#: _inc/jetpack-strings.php:420
 msgid "Real-time offsite backups with automated restores deliver peace-of-mind, so you can focus on writing great content and increasing traffic while we protect every aspect of your investment. Upgrade today."
 msgstr ""
 
-#: _inc/jetpack-strings.php:413 _inc/jetpack-strings.php:414
+#: _inc/jetpack-strings.php:418 _inc/jetpack-strings.php:419
 msgid "{{link}}Configure your %(module_slug)s Settings {{/link}}"
 msgstr ""
 
-#: _inc/jetpack-strings.php:410
+#: _inc/jetpack-strings.php:415
 msgid "Subscriber"
 msgstr ""
 
-#: _inc/jetpack-strings.php:409
+#: _inc/jetpack-strings.php:414
 msgid "Big iPhone/iPad Update Now Available"
 msgstr ""
 
-#: _inc/jetpack-strings.php:408
+#: _inc/jetpack-strings.php:413
 msgid "The WordPress for Android App Gets a Big Facelift"
 msgstr ""
 
-#: _inc/jetpack-strings.php:407
+#: _inc/jetpack-strings.php:412
 msgid "Upgrade Focus: VideoPress For Weddings"
 msgstr ""
 
-#: _inc/jetpack-strings.php:402
+#: _inc/jetpack-strings.php:407
 msgid "WordPress.com Likes are:"
 msgstr ""
 
-#: _inc/jetpack-strings.php:400
+#: _inc/jetpack-strings.php:405
 msgid "Comments headline"
 msgstr ""
 
-#: _inc/jetpack-strings.php:399
+#: _inc/jetpack-strings.php:404
 msgid "A few catchy words to motivate your readers to comment."
 msgstr ""
 
-#: _inc/jetpack-strings.php:397
+#: _inc/jetpack-strings.php:402
 msgid "Can readers subscribe to your posts, comments or both?"
 msgstr ""
 
-#: _inc/jetpack-strings.php:396
+#: _inc/jetpack-strings.php:401
 msgid "Show a \"follow blog\" options in the comment form"
 msgstr ""
 
-#: _inc/jetpack-strings.php:395
+#: _inc/jetpack-strings.php:400
 msgid "Show a \"follow comments\" option in the comment form."
 msgstr ""
 
-#: _inc/jetpack-strings.php:394
+#: _inc/jetpack-strings.php:399
 msgid "Admin Bar"
 msgstr ""
 
-#: _inc/jetpack-strings.php:393
+#: _inc/jetpack-strings.php:398
 msgid "Put a chart showing 48 hours of views in the admin bar"
 msgstr ""
 
-#: _inc/jetpack-strings.php:390
+#: _inc/jetpack-strings.php:395
 msgid "Registered Users: Count the page views of registered users who are logged in"
 msgstr ""
 
-#: _inc/jetpack-strings.php:389
+#: _inc/jetpack-strings.php:394
 msgid "Report Visibility: Select the roles that will be able to view stats reports"
 msgstr ""
 
-#: _inc/jetpack-strings.php:383
+#: _inc/jetpack-strings.php:388
 msgid "Receive Monitor Email Notifications"
 msgstr ""
 
-#: _inc/jetpack-strings.php:382
+#: _inc/jetpack-strings.php:387
 msgid "Emails will be sent to "
 msgstr ""
 
-#: _inc/jetpack-strings.php:381
+#: _inc/jetpack-strings.php:386
 msgid "{{a}}Edit{{/a}}"
 msgstr ""
 
-#: _inc/jetpack-strings.php:380
+#: _inc/jetpack-strings.php:385
 msgid "Match By Email"
 msgstr ""
 
-#: _inc/jetpack-strings.php:377
+#: _inc/jetpack-strings.php:382
 msgid "Show photo metadata (Exif) in carousel, when available"
 msgstr ""
 
-#: _inc/jetpack-strings.php:376
+#: _inc/jetpack-strings.php:381
 msgid "Background Color"
 msgstr ""
 
-#: _inc/jetpack-strings.php:375
+#: _inc/jetpack-strings.php:380
 msgid "Scroll infinitely (Shows 7 posts on each load)"
 msgstr ""
 
-#: _inc/jetpack-strings.php:374
+#: _inc/jetpack-strings.php:379
 msgid "Track each infinite Scroll post load as a page view in Google Analytics"
 msgstr ""
 
-#: _inc/jetpack-strings.php:371 _inc/jetpack-strings.php:378
+#: _inc/jetpack-strings.php:376 _inc/jetpack-strings.php:383
 msgid "Mobile Promos"
 msgstr ""
 
-#: _inc/jetpack-strings.php:370
+#: _inc/jetpack-strings.php:375
 msgid "Show a promo for the WordPress mobile apps in the footer of the mobile theme"
 msgstr ""
 
-#: _inc/jetpack-strings.php:369
+#: _inc/jetpack-strings.php:374
 msgid "Enter your meta key \"content\" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a1}}Bing Webmaster Center{{/a1}} and {{a2}}Pinterest Site Verification{{/a2}}."
 msgstr ""
 
-#: _inc/jetpack-strings.php:365 _inc/jetpack-strings.php:366
-#: _inc/jetpack-strings.php:367 _inc/jetpack-strings.php:368
+#: _inc/jetpack-strings.php:370 _inc/jetpack-strings.php:371
+#: _inc/jetpack-strings.php:372 _inc/jetpack-strings.php:373
 msgid "Meta key example:"
 msgstr ""
 
-#: _inc/jetpack-strings.php:364
+#: _inc/jetpack-strings.php:369
 msgid "Display all your gallery pictures in a cool mosaic"
 msgstr ""
 
-#: _inc/jetpack-strings.php:362
+#: _inc/jetpack-strings.php:367
 msgctxt "verb"
 msgid "Copy"
 msgstr ""
 
-#: _inc/jetpack-strings.php:361
+#: _inc/jetpack-strings.php:366
 msgid "Copied!"
 msgstr ""
 
-#: _inc/jetpack-strings.php:360
+#: _inc/jetpack-strings.php:365
 msgid "Highlight and copy the following text to your clipboard:"
 msgstr ""
 
-#: _inc/jetpack-strings.php:359
+#: _inc/jetpack-strings.php:364
 msgid "Regenerate address"
 msgstr ""
 
-#: _inc/jetpack-strings.php:357
+#: _inc/jetpack-strings.php:362
 msgid "Configure Portfolios"
 msgstr ""
 
-#: _inc/jetpack-strings.php:356
+#: _inc/jetpack-strings.php:361
 msgid "Configure Testimonials"
 msgstr ""
 
-#: _inc/jetpack-strings.php:352
+#: _inc/jetpack-strings.php:357
 msgid "Automatically proofread content when: "
 msgstr ""
 
-#: _inc/jetpack-strings.php:351
+#: _inc/jetpack-strings.php:356
 msgid "A post or page is first published"
 msgstr ""
 
-#: _inc/jetpack-strings.php:350
+#: _inc/jetpack-strings.php:355
 msgid "A post or page is updated"
 msgstr ""
 
-#: _inc/jetpack-strings.php:349
+#: _inc/jetpack-strings.php:354
 msgid "Automatic Language Detection"
 msgstr ""
 
-#: _inc/jetpack-strings.php:348
+#: _inc/jetpack-strings.php:353
 msgid "The proofreader supports English, French, German, Portuguese and Spanish."
 msgstr ""
 
-#: _inc/jetpack-strings.php:345
+#: _inc/jetpack-strings.php:350
 msgid "Enable proofreading for the following grammar and style rules: "
 msgstr ""
 
-#: _inc/jetpack-strings.php:333
+#: _inc/jetpack-strings.php:338
 msgid "Add a phrase"
 msgstr ""
 
-#: _inc/jetpack-strings.php:332
+#: _inc/jetpack-strings.php:337
 msgid "Use Markdown for comments"
 msgstr ""
 
-#: _inc/jetpack-strings.php:331
+#: _inc/jetpack-strings.php:336
 msgid "Search engines will find the sitemaps at these locations:"
 msgstr ""
 
-#: _inc/jetpack-strings.php:330
+#: _inc/jetpack-strings.php:335
 msgid "Sitemap: {{a}}%(url)s{{/a}}"
 msgstr ""
 
-#: _inc/jetpack-strings.php:329
+#: _inc/jetpack-strings.php:334
 msgid "News Sitemap: {{a}}%(url)s{{/a}}"
 msgstr ""
 
@@ -981,7 +981,7 @@ msgstr ""
 msgid "Save Settings"
 msgstr ""
 
-#: _inc/jetpack-strings.php:243
+#: _inc/jetpack-strings.php:244
 msgid "Updates Needed"
 msgstr ""
 
@@ -1034,7 +1034,7 @@ msgid "Keep your site backed up!"
 msgstr ""
 
 #: _inc/jetpack-strings.php:74 _inc/jetpack-strings.php:196
-#: _inc/jetpack-strings.php:204 _inc/jetpack-strings.php:241
+#: _inc/jetpack-strings.php:204 _inc/jetpack-strings.php:242
 msgid "Pro"
 msgstr ""
 
@@ -1192,107 +1192,107 @@ msgstr ""
 msgid "View your {{a}}Email Followers{{/a}}"
 msgstr ""
 
-#: _inc/jetpack-strings.php:65
+#: _inc/jetpack-strings.php:70
 msgid "Powerful WordPress.com features on every device."
 msgstr ""
 
-#: _inc/jetpack-strings.php:64
+#: _inc/jetpack-strings.php:69
 msgid "Manage all your sites from a single dashboard."
 msgstr ""
 
-#: _inc/jetpack-strings.php:63
+#: _inc/jetpack-strings.php:68
 msgid "Feel the performance"
 msgstr ""
 
-#: _inc/jetpack-strings.php:62
+#: _inc/jetpack-strings.php:67
 msgid "All the WordPress apps are built for speed. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around."
 msgstr ""
 
-#: _inc/jetpack-strings.php:61
+#: _inc/jetpack-strings.php:66
 msgid "Bulk and automatic updates"
 msgstr ""
 
-#: _inc/jetpack-strings.php:60
+#: _inc/jetpack-strings.php:65
 msgid "Most security flaws are found in outdated plugins. Use our Web and Desktop apps to turn on auto-updates or update plugins manually for all your websites in one convenient place."
 msgstr ""
 
-#: _inc/jetpack-strings.php:58
+#: _inc/jetpack-strings.php:63
 msgid "Focus on your Writing"
 msgstr ""
 
-#: _inc/jetpack-strings.php:57
+#: _inc/jetpack-strings.php:62
 msgid "Our new editor is lightning fast, optimized for writers and eliminates distractions, giving you the ability to focus on your work."
 msgstr ""
 
-#: _inc/jetpack-strings.php:56
+#: _inc/jetpack-strings.php:61
 msgid "Try the New Editor"
 msgstr ""
 
-#: _inc/jetpack-strings.php:55
+#: _inc/jetpack-strings.php:60
 msgid "Connect with your Visitors"
 msgstr ""
 
-#: _inc/jetpack-strings.php:54
+#: _inc/jetpack-strings.php:59
 msgid "Monitor your visitors with advanced stats. Watch for trends, learn what content performs the best and understand your visitors from anywhere in the world."
 msgstr ""
 
-#: _inc/jetpack-strings.php:53
+#: _inc/jetpack-strings.php:58
 msgid "View Your Stats"
 msgstr ""
 
-#: _inc/jetpack-strings.php:52
+#: _inc/jetpack-strings.php:57
 msgid "Connect with the Community"
 msgstr ""
 
-#: _inc/jetpack-strings.php:51
+#: _inc/jetpack-strings.php:56
 msgid "The WordPress apps all have impressively fast and full featured readers so you can catch up with your favorite sites and join the conversation anywhere, any time."
 msgstr ""
 
-#: _inc/jetpack-strings.php:50
+#: _inc/jetpack-strings.php:55
 msgid "Launch Reader"
 msgstr ""
 
-#: _inc/jetpack-strings.php:49
+#: _inc/jetpack-strings.php:54
 msgid "Inspiration strikes any time, anywhere."
 msgstr ""
 
-#: _inc/jetpack-strings.php:48
+#: _inc/jetpack-strings.php:53
 msgid "Get WordPress apps for any screen."
 msgstr ""
 
-#: _inc/jetpack-strings.php:47
+#: _inc/jetpack-strings.php:52
 msgid "In Your Pocket"
 msgstr ""
 
-#: _inc/jetpack-strings.php:46
+#: _inc/jetpack-strings.php:51
 msgid "Publish content, track stats, moderate comments and so much more from anywhere in the world. Our mobile apps are open source, free and available to you on Apple or Android devices."
 msgstr ""
 
-#: _inc/jetpack-strings.php:45
+#: _inc/jetpack-strings.php:50
 msgid "WordPress.com in the App Store"
 msgstr ""
 
-#: _inc/jetpack-strings.php:44
+#: _inc/jetpack-strings.php:49
 msgid "WordPress.com in Google Play"
 msgstr ""
 
-#: _inc/jetpack-strings.php:43
+#: _inc/jetpack-strings.php:48
 msgid "On Your Desktop"
 msgstr ""
 
-#: _inc/jetpack-strings.php:42
+#: _inc/jetpack-strings.php:47
 msgid "A desktop app that gives WordPress a permanent home on your computer. Not to mention the distraction free environment you get writing outside of a web browser."
 msgstr ""
 
-#: _inc/jetpack-strings.php:41
+#: _inc/jetpack-strings.php:46
 msgid "WordPress.com for Mac OS X"
 msgstr ""
 
-#: _inc/jetpack-strings.php:40
+#: _inc/jetpack-strings.php:45
 msgid "WordPress.com for Windows"
 msgstr ""
 
-#: _inc/jetpack-strings.php:39
+#: _inc/jetpack-strings.php:44
 msgid "WordPress.com for Linux"
 msgstr ""
 
@@ -1397,7 +1397,7 @@ msgstr ""
 msgid "Invalid Key"
 msgstr ""
 
-#: _inc/jetpack-strings.php:70 _inc/jetpack-strings.php:75
+#: _inc/jetpack-strings.php:43 _inc/jetpack-strings.php:75
 #: _inc/jetpack-strings.php:98 _inc/jetpack-strings.php:110
 #: _inc/jetpack-strings.php:132 _inc/jetpack-strings.php:193
 #: _inc/jetpack-strings.php:197 _inc/jetpack-strings.php:205
@@ -1405,15 +1405,15 @@ msgstr ""
 msgid "Unavailable in Dev Mode"
 msgstr ""
 
-#: _inc/jetpack-strings.php:68
+#: _inc/jetpack-strings.php:41
 msgid "Holiday Snow"
 msgstr ""
 
-#: _inc/jetpack-strings.php:67
+#: _inc/jetpack-strings.php:40
 msgid "Show falling snow in the holiday period."
 msgstr ""
 
-#: _inc/jetpack-strings.php:66
+#: _inc/jetpack-strings.php:39
 msgid "Show falling snow on my blog from Dec 1st until Jan 4th."
 msgstr ""
 
@@ -1477,31 +1477,31 @@ msgstr ""
 msgid "Error regenerating %(slug)s address. %(error)s"
 msgstr ""
 
-#: _inc/jetpack-strings.php:21
+#: _inc/jetpack-strings.php:16
 msgid "Resetting Jetpack options…"
 msgstr ""
 
-#: _inc/jetpack-strings.php:20
+#: _inc/jetpack-strings.php:15
 msgid "Options reset."
 msgstr ""
 
-#: _inc/jetpack-strings.php:19
+#: _inc/jetpack-strings.php:14
 msgid "Options failed to reset."
 msgstr ""
 
-#: _inc/jetpack-strings.php:17
+#: _inc/jetpack-strings.php:20
 msgid "There was an error disconnecting Jetpack. Error: %(error)s"
 msgstr ""
 
-#: _inc/jetpack-strings.php:16
+#: _inc/jetpack-strings.php:19
 msgid "Unlinking from WordPress.com"
 msgstr ""
 
-#: _inc/jetpack-strings.php:15
+#: _inc/jetpack-strings.php:18
 msgid "Unlinked from WordPress.com."
 msgstr ""
 
-#: _inc/jetpack-strings.php:14
+#: _inc/jetpack-strings.php:17
 msgid "Error unlinking from WordPress.com. %(error)s"
 msgstr ""
 
@@ -1514,7 +1514,7 @@ msgstr ""
 msgid "At A Glance"
 msgstr ""
 
-#: _inc/jetpack-strings.php:10 _inc/jetpack-strings.php:427
+#: _inc/jetpack-strings.php:10 _inc/jetpack-strings.php:331
 msgctxt "Navigation item."
 msgid "Plans"
 msgstr ""
@@ -2009,7 +2009,7 @@ msgstr ""
 msgid "Add Phrase to be ignored"
 msgstr ""
 
-#: _inc/jetpack-strings.php:343 _inc/lib/class.core-rest-api-endpoints.php:1417
+#: _inc/jetpack-strings.php:348 _inc/lib/class.core-rest-api-endpoints.php:1417
 msgid "Clichés"
 msgstr "Клишета"
 
@@ -2419,7 +2419,7 @@ msgstr ""
 msgid "Week of %(date)s"
 msgstr ""
 
-#: _inc/jetpack-strings.php:244
+#: _inc/jetpack-strings.php:241
 msgctxt "Noun. Displayed to screen readers."
 msgid "Settings"
 msgstr ""
@@ -2584,8 +2584,8 @@ msgctxt "Navigation item."
 msgid "General"
 msgstr ""
 
-#: _inc/jetpack-strings.php:11 _inc/jetpack-strings.php:425
-#: _inc/jetpack-strings.php:428
+#: _inc/jetpack-strings.php:11 _inc/jetpack-strings.php:329
+#: _inc/jetpack-strings.php:332
 msgctxt "Navigation item."
 msgid "Apps"
 msgstr ""
@@ -2601,7 +2601,7 @@ msgctxt "Navigation item."
 msgid "Engagement"
 msgstr ""
 
-#: _inc/jetpack-strings.php:426 _inc/jetpack-strings.php:429
+#: _inc/jetpack-strings.php:330 _inc/jetpack-strings.php:333
 msgctxt "Navigation item."
 msgid "At a Glance"
 msgstr ""
@@ -2907,7 +2907,7 @@ msgstr "Преглед на разширени резултати от отст�
 msgid "Your site did not get a response from our debugging service in the expected timeframe. If you are not experiencing other issues, this could be due to a slow connection between your site and our server."
 msgstr "Сайтът ви не получи отговор от услугата ни за отстраняване на програмни грешки в очаквани срокове. Ако не изпитвате други проблеми вероятно това е поради бавна връзка между сайтът ви и нашия сървър."
 
-#: _inc/jetpack-strings.php:59 class.jetpack-network-sites-list-table.php:85
+#: _inc/jetpack-strings.php:64 class.jetpack-network-sites-list-table.php:85
 msgid "Manage Plugins"
 msgstr "Управление на разширенията"
 
@@ -3596,9 +3596,9 @@ msgstr "Automattic"
 msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
 msgstr "Дава силата на WordPress.com за сайтове на WordPress на собствен хостинг. Jetpack дава възможност да свържете блога си с WordPress.com профил и да използвате мощни средства, които иначе са налични само за потребители на WordPress.com."
 
-#. #-#-#-#-#  tmp-jetpack.pot (Jetpack by WordPress.com 4.4-rc2)  #-#-#-#-#
+#. #-#-#-#-#  tmp-jetpack.pot (Jetpack by WordPress.com 4.4)  #-#-#-#-#
 #. Plugin URI of the plugin/theme
-#. #-#-#-#-#  tmp-jetpack.pot (Jetpack by WordPress.com 4.4-rc2)  #-#-#-#-#
+#. #-#-#-#-#  tmp-jetpack.pot (Jetpack by WordPress.com 4.4)  #-#-#-#-#
 #. Author URI of the plugin/theme
 msgid "http://jetpack.com"
 msgstr "http://jetpack.com"
@@ -3671,7 +3671,7 @@ msgstr "Потвърждаване на разкачането"
 msgid "Before you completely disconnect Jetpack is there anything we can do to help?"
 msgstr "Преди напълно да разкачите Jetpack, има ли нещо, което да направим за Вас?"
 
-#: _inc/jetpack-strings.php:18 views/admin/my-jetpack-page.php:155
+#: _inc/jetpack-strings.php:21 views/admin/my-jetpack-page.php:155
 msgid "Disconnecting Jetpack"
 msgstr "Разкачете Jetpack"
 
@@ -5076,7 +5076,7 @@ msgstr "Изображението помага при събиране на с�
 msgid "Hide the stats smiley face image."
 msgstr "Скриване на изображението на усмихнато лице от страницата със статистиките."
 
-#: _inc/jetpack-strings.php:392 modules/stats.php:599
+#: _inc/jetpack-strings.php:397 modules/stats.php:599
 msgid "Smiley"
 msgstr "Усмивка"
 
@@ -5128,7 +5128,7 @@ msgstr "Не може да се постави cookie, тъй като хедъ�
 msgid "Match by Email"
 msgstr "Съвпадение по имейл"
 
-#: _inc/jetpack-strings.php:379 _inc/lib/class.core-rest-api-endpoints.php:1348
+#: _inc/jetpack-strings.php:384 _inc/lib/class.core-rest-api-endpoints.php:1348
 #: modules/sso.php:263
 msgid "Require Two-Step Authentication"
 msgstr "Изискване на двустъпкова автентикация"
@@ -5585,17 +5585,17 @@ msgstr "Скриване на свързаното съдържание след
 msgid "Preview:"
 msgstr "Преглед:"
 
-#: _inc/jetpack-strings.php:404 _inc/lib/class.core-rest-api-endpoints.php:1387
+#: _inc/jetpack-strings.php:409 _inc/lib/class.core-rest-api-endpoints.php:1387
 #: modules/related-posts/jetpack-related-posts.php:330
 msgid "Use a large and visually striking layout"
 msgstr "Показване на голям и забележим изглед"
 
-#: _inc/jetpack-strings.php:405 _inc/lib/class.core-rest-api-endpoints.php:1380
+#: _inc/jetpack-strings.php:410 _inc/lib/class.core-rest-api-endpoints.php:1380
 #: modules/related-posts/jetpack-related-posts.php:328
 msgid "Show a \"Related\" header to more clearly separate the related section from posts"
 msgstr "Показване на хедър \"Свързани\", за да раздели раздела от публикациите"
 
-#: _inc/jetpack-strings.php:406
+#: _inc/jetpack-strings.php:411
 #: modules/related-posts/jetpack-related-posts.php:190
 #: modules/related-posts/jetpack-related-posts.php:386
 msgid "Related"
@@ -5859,7 +5859,7 @@ msgstr "Приемат се IPv4 и IPv6. <br />За диапазон, въве�
 msgid "Your current IP: %s"
 msgstr "Текущият ви IP адрес е: %s"
 
-#: _inc/jetpack-strings.php:385 modules/protect/config-ui.php:50
+#: _inc/jetpack-strings.php:390 modules/protect/config-ui.php:50
 msgid "Make sure to add your most frequently used IP addresses as they can change between your home, office or other locations. Removing an IP address from the list below will remove it from your whitelist."
 msgstr "Убедете се че сте добавили често използваните IP адреси, тъй-като може да са различни вкъщи, в офиса и на други места. Изтриването на адрес от списъка ще го премахне и от вашия списък с позволени адреси."
 
@@ -5880,7 +5880,7 @@ msgstr "Списъкът е записан."
 msgid "One of your IP addresses was not valid."
 msgstr "Един от вашите IP адреси не е валиден."
 
-#: _inc/jetpack-strings.php:387 modules/protect/config-ui.php:30
+#: _inc/jetpack-strings.php:392 modules/protect/config-ui.php:30
 msgid "Whitelist Management"
 msgstr "Управление на списък с позволени адреси"
 
@@ -5938,7 +5938,7 @@ msgstr "Повече информация"
 msgid "Enable Post By Email"
 msgstr "Включване на Публикуване по имейл"
 
-#: _inc/jetpack-strings.php:363 _inc/lib/class.core-rest-api-endpoints.php:1227
+#: _inc/jetpack-strings.php:368 _inc/lib/class.core-rest-api-endpoints.php:1227
 #: modules/post-by-email.php:89 modules/subscriptions.php:982
 msgid "Email Address"
 msgstr "E-mail адрес"
@@ -6553,7 +6553,7 @@ msgstr ""
 msgid "Hide all featured images"
 msgstr ""
 
-#: _inc/jetpack-strings.php:372 _inc/lib/class.core-rest-api-endpoints.php:1194
+#: _inc/jetpack-strings.php:377 _inc/lib/class.core-rest-api-endpoints.php:1194
 #: modules/minileven.php:74
 msgid "Featured Images"
 msgstr "Картинки за публикациите"
@@ -6566,7 +6566,7 @@ msgstr ""
 msgid "Enable excerpts on front page and on archive pages"
 msgstr ""
 
-#: _inc/jetpack-strings.php:373 _inc/lib/class.core-rest-api-endpoints.php:1179
+#: _inc/jetpack-strings.php:378 _inc/lib/class.core-rest-api-endpoints.php:1179
 #: modules/minileven.php:60
 msgid "Excerpts"
 msgstr ""
@@ -7110,7 +7110,7 @@ msgstr "Клиентски препоръки"
 msgid "Testimonial pages display at most %1$s testimonials"
 msgstr "Страницата с препоръки показва най-много %1$s такива"
 
-#: _inc/jetpack-strings.php:354 modules/custom-post-types/testimonial.php:159
+#: _inc/jetpack-strings.php:359 modules/custom-post-types/testimonial.php:159
 msgid "Enable Testimonials for this site."
 msgstr "Включване на препоръки за сайта."
 
@@ -7328,7 +7328,7 @@ msgstr "Елементи от портфолио"
 msgid "Portfolio pages display at most %1$s projects"
 msgstr "Страниците на портфолиото показват до %1$s проекта"
 
-#: _inc/jetpack-strings.php:355 modules/custom-post-types/portfolios.php:131
+#: _inc/jetpack-strings.php:360 modules/custom-post-types/portfolios.php:131
 msgid "Enable Portfolio Projects for this site."
 msgstr "Включване на проекти за портфолио на сайта."
 
@@ -7834,7 +7834,7 @@ msgstr ""
 msgid "Save &amp; Buy Upgrade"
 msgstr ""
 
-#: _inc/jetpack-strings.php:403 modules/custom-css/custom-css.php:1229
+#: _inc/jetpack-strings.php:408 modules/custom-css/custom-css.php:1229
 #: modules/custom-post-types/comics.php:266
 #: modules/videopress/videopress.php:665
 msgid "Preview"
@@ -8429,7 +8429,7 @@ msgstr "Няколко думи, които да подтикнат посети
 msgid "Adjust your Comments form with a clever greeting and color-scheme."
 msgstr ""
 
-#: _inc/jetpack-strings.php:398 _inc/lib/class.core-rest-api-endpoints.php:1055
+#: _inc/jetpack-strings.php:403 _inc/lib/class.core-rest-api-endpoints.php:1055
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 msgid "Color Scheme"
 msgstr "Цветова схема"
@@ -8732,12 +8732,12 @@ msgstr "Добавяне"
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
 msgstr "Определяне на думи и фрази за пренебрегване при коректура на публикациите и страниците ви:"
 
-#: _inc/jetpack-strings.php:334
+#: _inc/jetpack-strings.php:339
 #: modules/after-the-deadline/config-unignore.php:131
 msgid "Ignored Phrases"
 msgstr "Пренебрегвани фрази"
 
-#: _inc/jetpack-strings.php:347 _inc/lib/class.core-rest-api-endpoints.php:1480
+#: _inc/jetpack-strings.php:352 _inc/lib/class.core-rest-api-endpoints.php:1480
 #: modules/after-the-deadline/config-options.php:93
 msgid "Use automatically detected language to proofread posts and pages"
 msgstr "Автоматично определяне на езика за коректура на публикации и страници"
@@ -8750,42 +8750,42 @@ msgstr "Коректура се предлага на английски, фре
 msgid "Language"
 msgstr "Език"
 
-#: _inc/jetpack-strings.php:335 _inc/lib/class.core-rest-api-endpoints.php:1473
+#: _inc/jetpack-strings.php:340 _inc/lib/class.core-rest-api-endpoints.php:1473
 #: modules/after-the-deadline/config-options.php:81
 msgid "Redundant Phrases"
 msgstr "Излишни фрази"
 
-#: _inc/jetpack-strings.php:336 _inc/lib/class.core-rest-api-endpoints.php:1466
+#: _inc/jetpack-strings.php:341 _inc/lib/class.core-rest-api-endpoints.php:1466
 #: modules/after-the-deadline/config-options.php:79
 msgid "Phrases to Avoid"
 msgstr "Фрази, които да избягвате"
 
-#: _inc/jetpack-strings.php:337 _inc/lib/class.core-rest-api-endpoints.php:1459
+#: _inc/jetpack-strings.php:342 _inc/lib/class.core-rest-api-endpoints.php:1459
 #: modules/after-the-deadline/config-options.php:77
 msgid "Passive Voice"
 msgstr "Страдателен залог"
 
-#: _inc/jetpack-strings.php:338 _inc/lib/class.core-rest-api-endpoints.php:1452
+#: _inc/jetpack-strings.php:343 _inc/lib/class.core-rest-api-endpoints.php:1452
 #: modules/after-the-deadline/config-options.php:75
 msgid "Jargon"
 msgstr "Жаргон"
 
-#: _inc/jetpack-strings.php:339 _inc/lib/class.core-rest-api-endpoints.php:1445
+#: _inc/jetpack-strings.php:344 _inc/lib/class.core-rest-api-endpoints.php:1445
 #: modules/after-the-deadline/config-options.php:73
 msgid "Hidden Verbs"
 msgstr "Скрити глаголи"
 
-#: _inc/jetpack-strings.php:340 _inc/lib/class.core-rest-api-endpoints.php:1438
+#: _inc/jetpack-strings.php:345 _inc/lib/class.core-rest-api-endpoints.php:1438
 #: modules/after-the-deadline/config-options.php:71
 msgid "Double Negatives"
 msgstr "Двойни отрицателни"
 
-#: _inc/jetpack-strings.php:341 _inc/lib/class.core-rest-api-endpoints.php:1431
+#: _inc/jetpack-strings.php:346 _inc/lib/class.core-rest-api-endpoints.php:1431
 #: modules/after-the-deadline/config-options.php:69
 msgid "Diacritical Marks"
 msgstr "Акценти/ударения на букви"
 
-#: _inc/jetpack-strings.php:342 _inc/lib/class.core-rest-api-endpoints.php:1424
+#: _inc/jetpack-strings.php:347 _inc/lib/class.core-rest-api-endpoints.php:1424
 #: modules/after-the-deadline/config-options.php:67
 msgid "Complex Phrases"
 msgstr "Сложни фрази"
@@ -8794,7 +8794,7 @@ msgstr "Сложни фрази"
 msgid "Clich&eacute;s"
 msgstr "Клишета"
 
-#: _inc/jetpack-strings.php:344 _inc/lib/class.core-rest-api-endpoints.php:1410
+#: _inc/jetpack-strings.php:349 _inc/lib/class.core-rest-api-endpoints.php:1410
 #: modules/after-the-deadline/config-options.php:63
 msgid "Bias Language"
 msgstr "Терминологичен език"
@@ -8803,7 +8803,7 @@ msgstr "Терминологичен език"
 msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
 msgstr "Включване на коректура за следните граматически и стилистически правила когато пишете публикации и страници:"
 
-#: _inc/jetpack-strings.php:346
+#: _inc/jetpack-strings.php:351
 #: modules/after-the-deadline/config-options.php:58
 msgid "English Options"
 msgstr "Настройки за английски"
@@ -8820,7 +8820,7 @@ msgstr "първоначално публикуване на статия или
 msgid "Automatically proofread content when:"
 msgstr "Автоматично преглеждане на съдържание, когато:"
 
-#: _inc/jetpack-strings.php:353
+#: _inc/jetpack-strings.php:358
 #: modules/after-the-deadline/config-options.php:48
 msgid "Proofreading"
 msgstr "Коректура"
@@ -9290,7 +9290,7 @@ msgstr "На тази страница можете да прегледате м
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack дава на личния ви WordPress сайт страхотни облачни възможности, налични на WordPress.com."
 
-#. #-#-#-#-#  tmp-jetpack.pot (Jetpack by WordPress.com 4.4-rc2)  #-#-#-#-#
+#. #-#-#-#-#  tmp-jetpack.pot (Jetpack by WordPress.com 4.4)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 #: class.jetpack.php:3272 class.jetpack.php:3285 class.jetpack.php:4156
 #: views/admin/network-admin-header.php:5
@@ -9832,7 +9832,7 @@ msgstr "Сортиране по:"
 msgid "Inactive"
 msgstr "Неактивен"
 
-#: _inc/jetpack-strings.php:242
+#: _inc/jetpack-strings.php:243
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:110
 #: class.jetpack-cli.php:297 modules/vaultpress.php:26
 msgid "Active"
@@ -9904,7 +9904,7 @@ msgstr "Jetpack"
 msgid "Config"
 msgstr "Конфигурация"
 
-#: _inc/footer.php:6 _inc/jetpack-strings.php:69 _inc/jetpack-strings.php:73
+#: _inc/footer.php:6 _inc/jetpack-strings.php:42 _inc/jetpack-strings.php:73
 #: _inc/jetpack-strings.php:131 _inc/jetpack-strings.php:195
 #: _inc/jetpack-strings.php:203 _inc/jetpack-strings.php:211
 #: modules/custom-content-types.php:48

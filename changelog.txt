@@ -1,5 +1,16 @@
 == Changelog ==
 
+= 4.4.1 =
+
+* Release date: November 22, 2016
+
+**Bug Fixes**
+
+* Fixes an issue where some users with slower servers would get an error on
+the Jetpack dashboard when `WP_DEBUG` was enabled.
+* Fixes an issue where users on a Jetpack Professional plan who are paying
+monthly (as opposed to annually) wouldn’t be able to enable SEO Tools.
+
 = 4.4 =
 
 * Release date: November 21, 2016
