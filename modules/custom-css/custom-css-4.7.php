@@ -148,6 +148,15 @@ class Jetpack_Custom_CSS_Enhancements {
 		return sizeof( wp_get_post_revisions( $post ) );
 	}
 
+	public static function get_themes() {
+		$themes = wp_get_themes( array( 'errors' => null ) );
+		$all = array();
+		foreach ( $themes as $theme ) {
+			$all[ $theme->name ] = $theme->stylesheet;
+		}
+		return $all;
+	}
+
 	public static function wp_enqueue_scripts() {
 		if ( is_customize_preview() ) {
 			wp_enqueue_script( 'jetpack-customizer-css-preview' );

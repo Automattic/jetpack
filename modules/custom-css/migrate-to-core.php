@@ -38,7 +38,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 		$jetpack_css_post     = self::get_post();
 		$jetpack_css_revision = reset( $revisions ); // get first element of array -- newest revision.
 		$revisions            = array_reverse( $revisions );
-		$themes               = self::get_themes();
+		$themes               = Jetpack_Custom_CSS_Enhancements::get_themes();
 		$themes_posts         = array();
 		$migrated             = array();
 
@@ -226,15 +226,6 @@ class Jetpack_Custom_CSS_Data_Migration {
 			'replace'       => isset( $meta['custom_css_add'][0] )          ? $meta['custom_css_add'][0]          : '',
 			'content_width' => isset( $meta['content_width'][0] )           ? $meta['content_width'][0]           : '',
 		);
-	}
-
-	public static function get_themes() {
-		$themes = wp_get_themes( array( 'errors' => null ) );
-		$all = array();
-		foreach ( $themes as $theme ) {
-			$all[ $theme->name ] = $theme->stylesheet;
-		}
-		return $all;
 	}
 }
 
