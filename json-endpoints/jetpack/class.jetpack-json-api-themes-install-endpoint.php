@@ -70,7 +70,11 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			}
 
 			if ( wp_endswith( $theme, '-wpcom' ) ) {
-				if ( apply_filters( 'jetpack_wpcom_theme_skip_download', false, $theme ) ) {
+				$skip_download_filter_result = apply_filters( 'jetpack_wpcom_theme_skip_download', false, $theme );
+
+				if ( is_wp_error( $skip_download_filter_result ) ) {
+					return $skip_download_filter_result;
+				} elseif ( $skip_download_filter_result ) {
 					continue;
 				}
 
