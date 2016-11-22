@@ -163,7 +163,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 	 * @author wpbenyamin
 	 * @covers Jetpack_JSON_API_Export_Endpoint
 	 * @requires PHP 5.3.2
-	 *
+	 */
 	public function test_Jetpack_JSON_API_Export_Endpoint() {
 		$endpoint = new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
 			'method' => 'POST',
@@ -212,12 +212,18 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 			),
 		) );
 		$class = new ReflectionClass('Jetpack_JSON_API_Export_Endpoint');
-		$validate_plugins_method = $class->getMethod( 'validate_plugins' );
-		$validate_plugins_method->setAccessible( true );
-		$result = $validate_plugins_method->invoke( $endpoint );
-		$this->assertTrue( $result );
+		$result_method = $class->getMethod( 'result' );
+		$result_method->setAccessible( true );
+		$result = $result_method->invoke( $endpoint );
+		$expectedResult =  array(
+			'status'        => 'success',
+			'download_url'  => 'uploads/2016/11/21/export.zip'
+		);
 
-	}*/
+		$this->assertEqual( $result, $expectedResult );
+
+	}
+
 
 	function filesystem_method_direct( $method ) {
 
