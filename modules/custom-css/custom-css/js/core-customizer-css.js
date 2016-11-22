@@ -185,7 +185,7 @@
 		/**
 		 * Helper function to qet a control by ID
 		 * @param  {string} controlId Control ID
-		 * @return {object}           Customizer Control object
+		 * @return {object}           jQuery object of the container
 		 */
 		_getControl: function( controlId ) {
 			var control = api.control.value( controlId );
