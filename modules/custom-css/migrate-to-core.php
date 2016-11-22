@@ -76,6 +76,9 @@ class Jetpack_Custom_CSS_Data_Migration {
 			) );
 		}
 
+		$options = self::get_options( $jetpack_css_post->ID );
+		set_theme_mod( 'jetpack_custom_css', $options );
+
 		// If we've migrated some CSS for the current theme and there was already something there in the Core dataset ...
 		if ( $core_css_post && $jetpack_css_post ) {
 			$preprocessor = $options['preprocessor'];
