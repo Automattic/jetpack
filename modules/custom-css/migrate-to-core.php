@@ -34,12 +34,13 @@ class Jetpack_Custom_CSS_Data_Migration {
 		}
 
 		/** This filter is documented in modules/custom-css/custom-css.php */
-		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
-		$revisions = array_reverse( $revisions );
-		$themes = self::get_themes();
-		$themes_posts = array();
-		$jetpack_css_post = reset( $revisions ); // get first element of array -- newest revision.
-		$to_delete = array();
+		$preprocessors        = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+		$jetpack_css_post     = self::get_post();
+		$jetpack_css_revision = reset( $revisions ); // get first element of array -- newest revision.
+		$revisions            = array_reverse( $revisions );
+		$themes               = self::get_themes();
+		$themes_posts         = array();
+		$migrated             = array();
 
 		foreach ( $revisions as $post_id => $post ) {
 			// Jetpack had stored the theme Name, not the stylesheet directory, for ... reasons.
@@ -49,7 +50,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 				continue;
 			}
 
-			$to_delete[] = $post->ID;
+			$migrated[] = $post->ID;
 			$preprocessor = get_post_meta( $post->ID, 'custom_css_preprocessor', true );
 			$css = $post->post_content;
 			$pre = null;
@@ -91,11 +92,12 @@ class Jetpack_Custom_CSS_Data_Migration {
 			}
 		}
 
-		$options = self::get_options( $jetpack_css_post->ID );
+		// Migrate the settings from revision meta to theme mod.
+		$options = self::get_options( $jetpack_css_revision->ID );
 		set_theme_mod( 'jetpack_custom_css', $options );
 
 		// If we've migrated some CSS for the current theme and there was already something there in the Core dataset ...
-		if ( isset( $jetpack_latest_theme_revisions[ $current_stylesheet ] ) && $core_css_post && $jetpack_css_post ) {
+		if ( isset( $jetpack_latest_theme_revisions[ $current_stylesheet ] ) && $core_css_post && $jetpack_css_revision ) {
 			$preprocessor = $options['preprocessor'];
 
 			$css = $core_css_post->post_content;
@@ -104,13 +106,13 @@ class Jetpack_Custom_CSS_Data_Migration {
 				if ( $pre ) {
 					$pre .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
 				}
-				$pre .= $jetpack_css_post->post_content_filtered;
+				$pre .= $jetpack_css_revision->post_content_filtered;
 
 				$css .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
-				$css .= call_user_func( $preprocessors[ $preprocessor ]['callback'], $jetpack_css_post->post_content_filtered );
+				$css .= call_user_func( $preprocessors[ $preprocessor ]['callback'], $jetpack_css_revision->post_content_filtered );
 			} else {
 				$css .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
-				$css .= $jetpack_css_post->post_content;
+				$css .= $jetpack_css_revision->post_content;
 			}
 
 			wp_update_post( array(
@@ -122,8 +124,8 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 		// delete the old posts stored in $to_delete.
 
-		Jetpack::log( 'custom_css_4.7_migration', sizeof( $to_delete ) . 'revisions migrated' );
-		return sizeof( $to_delete );
+		Jetpack::log( 'custom_css_4.7_migration', sizeof( $migrated ) . 'revisions migrated' );
+		return sizeof( $migrated );
 	}
 
 	public static function register_legacy_post_type() {
