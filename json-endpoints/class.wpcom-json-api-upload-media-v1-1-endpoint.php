@@ -39,7 +39,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		// functionality to just VideoPress test blogs.
 		foreach ( $media_files as $media_item ) {
 			if ( video_is_debug_blog()
-			     && preg_match( '@^video/@', $media_item['type'] ) !== false
+			     && preg_match( '@^video/@', $media_item['type'] )
 			     && $jetpack_sync->is_jetpack_site()
 			) {
 				$jetpack_media_files[] = $media_item;
