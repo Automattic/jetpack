@@ -11,6 +11,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 20, 2 );
 		add_action( 'customize_preview_init', array( __CLASS__, 'customize_preview_init' ) );
+		add_filter( '_wp_post_revision_fields', array( __CLASS__, '_wp_post_revision_fields' ), 10, 2 );
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
 
@@ -74,6 +75,20 @@ class Jetpack_Custom_CSS_Enhancements {
 
 	public static function prettify_post_revisions() {
 		add_filter( 'the_title', array( __CLASS__, 'post_title' ), 10, 2 );
+	}
+
+	/**
+	 * Shows Preprocessor code in the Revisions screen, and ensures that post_content_filtered
+	 * is maintained on revisions
+	 *
+	 * @param  array $fields  Post fields pertinent to revisions
+	 * @return array          Modified array to include post_content_filtered
+	 */
+	public static function _wp_post_revision_fields( $fields, $post ) {
+		if ( 'custom_css' === $post['post_type'] ) {
+			$fields['post_content_filtered'] = __( 'Preprocessor', 'jetpack' );
+		}
+		return $fields;
 	}
 
 	/**
