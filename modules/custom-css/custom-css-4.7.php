@@ -267,8 +267,13 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 	}
 
-	public static function sanitize_css( $css, $force = false ) {
-		if ( $force || ! current_user_can( 'unfiltered_html' ) ) {
+	public static function sanitize_css( $css, $args = array() ) {
+		$args = wp_parse_args( $args, array(
+			'force'        => false,
+			'preprocessor' => null,
+		) );
+
+		if ( $args['force'] || ! current_user_can( 'unfiltered_html' ) ) {
 
 			$warnings = array();
 
