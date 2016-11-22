@@ -122,7 +122,13 @@ class Jetpack_Custom_CSS_Data_Migration {
 			) );
 		}
 
-		// delete the old posts stored in $to_delete.
+		/*
+		// Delete each revision manually to catch meta added to the revisions.
+		foreach ( $migrated as $post_id ) {
+			wp_delete_post( $post_id, true );
+		}
+		wp_delete_post( $jetpack_css_post->ID );
+		/**/
 
 		Jetpack::log( 'custom_css_4.7_migration', sizeof( $migrated ) . 'revisions migrated' );
 		return sizeof( $migrated );
