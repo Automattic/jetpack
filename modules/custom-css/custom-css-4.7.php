@@ -125,6 +125,7 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 
 	public static function admin_page() {
+		$stylesheet = get_stylesheet();
 		?>
 		<div class="wrap">
 			<h1>
