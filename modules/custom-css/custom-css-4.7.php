@@ -85,6 +85,11 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * @return array          Modified array to include post_content_filtered
 	 */
 	public static function _wp_post_revision_fields( $fields, $post ) {
+		// If we're passed in a revision, go get the main post instead.
+		if ( 'revision' === $post['post_type'] ) {
+			$main_post_id = wp_is_post_revision( $post['ID'] );
+			$post = get_post( $main_post_id, ARRAY_A );
+		}
 		if ( 'custom_css' === $post['post_type'] ) {
 			$fields['post_content_filtered'] = __( 'Preprocessor', 'jetpack' );
 		}
