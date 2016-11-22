@@ -15,16 +15,20 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 		foreach ( $this->themes as $theme ) {
 
 			// hook to allow alternative install method
-			if ( wp_endswith( $theme, '-wpcom' )
-				 && apply_filters( 'jetpack_wpcom_theme_install', false, $theme ) ) {
-				continue;
+			$result = apply_filters( 'jetpack_wpcom_theme_install', false, $theme );
+
+			$skin = null;
+			$upgrader = null;
+			$link = null;
+
+			// If the alternative install method was not used, use the standard method.
+			if ( ! $result ) {
+				$skin     = new Jetpack_Automatic_Install_Skin();
+				$upgrader = new Theme_Upgrader( $skin );
+
+				$link   = $this->download_links[ $theme ];
+				$result = $upgrader->install( $link );
 			}
-
-			$skin      = new Jetpack_Automatic_Install_Skin();
-			$upgrader  = new Theme_Upgrader( $skin );
-
-			$link = $this->download_links[ $theme ];
-			$result = $upgrader->install( $link );
 
 			if ( file_exists( $link ) ) {
 				// Delete if link was tmp local file
@@ -43,7 +47,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 				$error = $this->log[ $theme ]['error'] = __( 'There was an error installing your theme', 'jetpack' );
 			}
 
-			else {
+			elseif ( $upgrader ) {
 				$this->log[ $theme ][] = $upgrader->skin->get_upgrade_messages();
 			}
 		}
