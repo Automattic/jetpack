@@ -89,7 +89,6 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 
 	public static function admin_page() {
-		$stylesheet = get_stylesheet();
 		?>
 		<div class="wrap">
 			<h1>
@@ -111,18 +110,29 @@ class Jetpack_Custom_CSS_Enhancements {
 			</h1>
 			<p><?php esc_html_e( 'Custom CSS is now managed in the Customizer.', 'jetpack' ); ?></p>
 
-			<?php $themes = self::get_all_themes_with_custom_css(); ?>
-			<ul>
-			<?php foreach ( $themes as $theme_stylesheet => $data ) :
-				$revisions = wp_get_post_revisions( $data['post']->ID, array( 'posts_per_page' => 1 ) );
-				$revision = array_shift( $revisions );
-				?>
-				<li><a href="<?php echo esc_url( get_edit_post_link( $revision->ID ) ); ?>"><?php echo esc_html( $data['label'] ); ?>
-					<?php if ( $stylesheet === $theme_stylesheet ) esc_html_e( ' (Current Theme)', 'jetpack' ); ?></a>
-					<?php printf( esc_html__( 'Last modified: %s', 'jetpack' ), get_the_modified_date( '', $data['post'] ) ); ?></li>
-			<?php endforeach; ?>
-			</ul>
+			<?php self::inactive_themes_revision_links(); ?>
 		</div>
+		<?php
+	}
+
+	public static function inactive_themes_revision_links() {
+		$themes = self::get_all_themes_with_custom_css();
+		$stylesheet = get_stylesheet();
+		?>
+
+		<ul>
+		<?php foreach ( $themes as $theme_stylesheet => $data ) :
+			if ( $stylesheet === $theme_stylesheet ) {
+				continue;
+			}
+			$revisions = wp_get_post_revisions( $data['post']->ID, array( 'posts_per_page' => 1 ) );
+			$revision = array_shift( $revisions );
+			?>
+			<li><a href="<?php echo esc_url( get_edit_post_link( $revision->ID ) ); ?>"><?php echo esc_html( $data['label'] ); ?></a>
+				<?php printf( esc_html__( 'Last modified: %s', 'jetpack' ), get_the_modified_date( '', $data['post'] ) ); ?></li>
+		<?php endforeach; ?>
+		</ul>
+
 		<?php
 	}
 
