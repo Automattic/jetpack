@@ -102,10 +102,15 @@ export const Engagement = ( props ) => {
 				configure_url: ''
 			},
 			isModuleActive = isModuleActivated( element[0] ),
-			hasBusiness = false;
+			hasBusiness = false,
+			planLoaded = false;
+
+		if ( 'undefined' !== typeof props.sitePlan.product_slug ) {
+			planLoaded = true
+		}
 
 		if (
-			undefined !== typeof props.sitePlan.product_slug
+			planLoaded
 			&& (
 				props.sitePlan.product_slug === 'jetpack_business'
 				|| props.sitePlan.product_slug === 'jetpack_business_monthly'

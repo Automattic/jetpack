@@ -88,7 +88,7 @@ describe( 'Engagement', () => {
 		const wrapper = shallow( <Engagement { ...testProps } /> );
 
 		it( "don't display the toggle", () => {
-			expect( wrapper.find( 'FoldableCard' ).props().summary ).to.be.equal( '' );
+			expect( wrapper.find( 'FoldableCard' ).props().summary.type.displayName ).to.not.equal( 'ModuleToggle' );
 		} );
 
 	} );
