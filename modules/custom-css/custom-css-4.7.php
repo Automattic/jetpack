@@ -463,7 +463,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		// Add custom sanitization to the core css customizer setting.
 		foreach ( $wp_customize->settings() as $setting ) {
 			if ( $setting instanceof WP_Customize_Custom_CSS_Setting ) {
-				add_filter( "customize_sanitize_{$setting->id}", array( __CLASS__, 'sanitize_css' ) );
+				add_filter( "customize_sanitize_{$setting->id}", array( __CLASS__, 'sanitize_css_callback' ), 10, 2 );
 			}
 		}
 
@@ -534,6 +534,13 @@ class Jetpack_Custom_CSS_Enhancements {
 			) );
 		}
 
+	}
+
+	public static function sanitize_css_callback( $css, $setting ) {
+		global $wp_customize;
+		return self::sanitize_css( $css, array(
+			'preprocessor' => $wp_customize->get_setting('jetpack_custom_css[preprocessor]')->value(),
+		) );
 	}
 
 	public static function is_freetrial() {
