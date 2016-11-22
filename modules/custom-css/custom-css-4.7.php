@@ -343,7 +343,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		$wp_customize->add_setting( 'jetpack_custom_css[content_width]', array(
 			'default' => '',
 			'transport' => 'refresh',
-			'sanitize_callback' => array( $wp_customize, 'intval_base10' ),
+			'sanitize_callback' => array( __CLASS__, 'intval_base10' ),
 		) );
 
 		// Add custom sanitization to the core css customizer setting.
@@ -553,10 +553,25 @@ class Jetpack_Custom_CSS_Enhancements {
 	public static function sanitize_preprocessor( $preprocessor ) {
 		/** This filter is documented in modules/custom-css/custom-css.php */
 		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
-		if ( array_key_exists( $preprocessor, $preprocessors ) ) {
+		if ( empty( $preprocessor ) || array_key_exists( $preprocessor, $preprocessors ) ) {
 			return $preprocessor;
 		}
 		return null;
+	}
+
+	/**
+	 * Get the base10 intval.
+	 *
+	 * This is used as a setting's sanitize_callback; we can't use just plain
+	 * intval because the second argument is not what intval() expects.
+	 *
+	 * @access public
+	 *
+	 * @param mixed $value Number to convert.
+	 * @return int Integer.
+	 */
+	public static function intval_base10( $value ) {
+		return intval( $value, 10 );
 	}
 }
 
