@@ -1172,13 +1172,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return (object) $response;
 	}
 
-	function get_media_item_v1_1( $media_id ) {
-		$media_item = get_post( $media_id );
+	function get_media_item_v1_1( $media_id, $media_item = null, $file = null ) {
+
+		if ( ! $media_item ) {
+			$media_item = get_post( $media_id );
+		}
 
 		if ( ! $media_item || is_wp_error( $media_item ) )
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
 
-		$file = basename( wp_get_attachment_url( $media_item->ID ) );
+		$attachment_file = wp_get_attachment_url( $media_item->ID );
+
+		$file = basename( $attachment_file ? $attachment_file : $file );
 		$file_info = pathinfo( $file );
 		$ext  = $file_info['extension'];
 
