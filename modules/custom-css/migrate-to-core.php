@@ -38,7 +38,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 		$revisions = array_reverse( $revisions );
 		$themes = self::get_themes();
 		$themes_posts = array();
-		$jetpack_latest_theme_revisions = array();
+		$jetpack_css_post = reset( $revisions ); // get first element of array -- newest revision.
 		$to_delete = array();
 
 		foreach ( $revisions as $post_id => $post ) {
@@ -49,7 +49,6 @@ class Jetpack_Custom_CSS_Data_Migration {
 				continue;
 			}
 
-			$jetpack_latest_theme_revisions[ $stylesheet ] = $post;
 			$to_delete[] = $post->ID;
 			$preprocessor = get_post_meta( $post->ID, 'custom_css_preprocessor', true );
 			$css = $post->post_content;
@@ -92,10 +91,12 @@ class Jetpack_Custom_CSS_Data_Migration {
 			}
 		}
 
+		$options = self::get_options( $jetpack_css_post->ID );
+		set_theme_mod( 'jetpack_custom_css', $options );
+
 		// If we've migrated some CSS for the current theme and there was already something there in the Core dataset ...
-		if ( isset( $jetpack_latest_theme_revisions[ $current_stylesheet ] ) && $core_css_post ) {
-			$jetpack_css_post = $jetpack_latest_theme_revisions[ $current_stylesheet ];
-			$preprocessor = get_post_meta( $jetpack_css_post->ID, 'custom_css_preprocessor', true );
+		if ( isset( $jetpack_latest_theme_revisions[ $current_stylesheet ] ) && $core_css_post && $jetpack_css_post ) {
+			$preprocessor = $options['preprocessor'];
 
 			$css = $core_css_post->post_content;
 			$pre = $core_css_post->post_content_filtered;
