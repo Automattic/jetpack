@@ -21,14 +21,18 @@ class Jetpack_JSON_API_Themes_Delete_Endpoint extends Jetpack_JSON_API_Themes_En
 				continue;
 			}
 
-			$result = delete_theme( $theme );
+			// Allow alternative theme deletion mechanism.
+			$result = apply_filters( 'jetpack_wpcom_theme_delete', false, $theme );
+
+			if ( ! $result ) {
+				$result = delete_theme( $theme );
+			}
 
 			if ( is_wp_error( $result ) ) {
 				$error = $this->log[ $theme ]['error'] = $result->get_error_messages;
 			} else {
 				$this->log[ $theme ][] = 'Theme deleted';
 			}
-
 		}
 
 		if( ! $this->bulk && isset( $error ) ) {
