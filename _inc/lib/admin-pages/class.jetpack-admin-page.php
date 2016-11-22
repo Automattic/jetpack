@@ -172,7 +172,7 @@ abstract class Jetpack_Admin_Page {
 		$previous = get_option( 'jetpack_active_plan', '' );
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/site' ) );
 
-		if ( $response->is_error() ) {
+		if ( ! is_object( $response ) || $response->is_error() ) {
 
 			// If we can't get information about the current plan we don't do anything
 			self::$plan_checked = true;
