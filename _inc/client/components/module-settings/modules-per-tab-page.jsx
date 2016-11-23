@@ -33,6 +33,7 @@ import ExternalLink from 'components/external-link';
 
 import {
 	getSiteAdminUrl,
+	getSiteRawUrl
 } from 'state/initial-state';
 
 const AllModuleSettingsComponent = React.createClass( {
@@ -68,6 +69,7 @@ const AllModuleSettingsComponent = React.createClass( {
 			case 'protect':
 				return ( <ProtectSettings module={ module }  /> );
 			case 'monitor':
+				module.raw_url = this.props.siteRawUrl;
 				return ( <MonitorSettings module={ module }  /> );
 			case 'scan':
 				return '' === module.configure_url ? (
@@ -188,7 +190,8 @@ const AllModuleSettingsComponent = React.createClass( {
 export const AllModuleSettings = connect(
 	( state ) => {
 		return {
-			adminUrl: getSiteAdminUrl( state )
+			adminUrl: getSiteAdminUrl( state ),
+			siteRawUrl: getSiteRawUrl( state )
 		};
 	}
 )( AllModuleSettingsComponent );
