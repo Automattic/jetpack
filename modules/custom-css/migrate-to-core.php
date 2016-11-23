@@ -64,7 +64,6 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 			// Do a revision by revision parsing.
 			if ( $preprocessor && isset( $preprocessors[ $preprocessor ] ) ) {
-				$preprocessor = 'less';
 				$pre = $css;
 				$css = call_user_func( $preprocessors[ $preprocessor ]['callback'], $pre );
 			}
