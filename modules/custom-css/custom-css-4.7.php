@@ -18,6 +18,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		// Handle Sass/LESS
 		add_filter( 'customize_value_custom_css', array( __CLASS__, 'customize_value_custom_css' ), 10, 2 );
 		add_filter( 'customize_update_custom_css_post_content_args', array( __CLASS__, 'customize_update_custom_css_post_content_args' ), 10, 3 );
+		add_filter( 'update_custom_css_data', array( __CLASS__, 'update_custom_css_data' ), 10, 2 );
 
 		// Stuff for stripping out the theme's default stylesheet...
 		add_filter( 'stylesheet_uri', array( __CLASS__, 'style_filter' ) );
@@ -600,6 +601,9 @@ class Jetpack_Custom_CSS_Enhancements {
 		return $css;
 	}
 
+	/**
+	 * Soon to be deprecated as the filter moves and new function added.
+	 */
 	public static function customize_update_custom_css_post_content_args( $args, $css, $setting ) {
 		// Find the current preprocessor
 		$jetpack_custom_css = get_theme_mod( 'jetpack_custom_css', array() );
@@ -619,6 +623,31 @@ class Jetpack_Custom_CSS_Enhancements {
 		if ( isset( $preprocessors[ $preprocessor ] ) ) {
 			$args['post_content_filtered'] = $css;
 			$args['post_content'] = call_user_func( $preprocessors[ $preprocessor ]['callback'], $css );
+		}
+
+		return $args;
+	}
+
+	public static function update_custom_css_data( $args, $stylesheet ) {
+		// Find the current preprocessor
+		$jetpack_custom_css = get_theme_mod( 'jetpack_custom_css', array() );
+		if ( empty( $jetpack_custom_css['preprocessor'] ) ) {
+			return $args;
+		}
+
+		/** This filter is documented in modules/custom-css/custom-css.php */
+		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+		$preprocessor = $jetpack_custom_css['preprocessor'];
+
+		// If we have a preprocessor specified ...
+		if ( isset( $preprocessors[ $preprocessor ] ) ) {
+			// And no other preprocessor has run ...
+			if ( empty( $args['preprocessed'] ) ) {
+				$args['preprocessed'] = $args['css'];
+				$args['css'] = call_user_func( $preprocessors[ $preprocessor ]['callback'], $args['css'] );
+			} else {
+				trigger_error( 'Jetpack CSS Preprocessor specified, but something else has already modified the argument.', E_USER_WARNING );
+			}
 		}
 
 		return $args;
