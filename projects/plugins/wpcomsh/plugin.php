@@ -8,6 +8,10 @@
  * Author URI: http://automattic.com/
  */
 
+namespace AT_Pressable\Themes;
+
+use \WP_Error;
+
 require_once( 'constants.php' );
 
 class AT_Pressable_Themes {
@@ -57,12 +61,12 @@ class AT_Pressable_Themes {
 	function symlink_theme( $theme_slug ) {
 		$theme_slug_without_wpcom_suffix = preg_replace( '/-wpcom$/', '', $theme_slug );
 
-		$abs_theme_path = AT_PRESSABLE_THEMES_PATH . '/' . $theme_slug_without_wpcom_suffix;
+		$abs_theme_path = WPCOM_PREMIUM_THEMES_PATH . '/' . $theme_slug_without_wpcom_suffix;
 		$abs_theme_symlink_path = get_theme_root() . '/' . $theme_slug;
 
 		if ( ! symlink( $abs_theme_path, $abs_theme_symlink_path ) ) {
 			$error_message = "Can't symlink theme with slug: ${theme_slug}." .
-				"Make sure it exists in the " . AT_PRESSABLE_THEMES_PATH . " directory.";
+				"Make sure it exists in the " . WPCOM_PREMIUM_THEMES_PATH . " directory.";
 
 			error_log( 'AT Pressable: ' . $error_message );
 
@@ -85,7 +89,7 @@ class AT_Pressable_Themes {
 		// However, the WPCom premium themes are not stored with this suffix. Let's strip it.
 		$theme_slug = preg_replace( '/-wpcom$/', '', $theme_slug );
 
-		$all_wpcom_themes = scandir( AT_PRESSABLE_THEMES_PATH );
+		$all_wpcom_themes = scandir( WPCOM_PREMIUM_THEMES_PATH );
 
 		if ( ! $all_wpcom_themes ) {
 			error_log(
@@ -96,12 +100,12 @@ class AT_Pressable_Themes {
 			return false;
 		}
 
-		$theme_dir_path = AT_PRESSABLE_THEMES_PATH . "/${theme_slug}";
+		$theme_dir_path = WPCOM_PREMIUM_THEMES_PATH . "/${theme_slug}";
 
 		if ( ! file_exists( $theme_dir_path ) ) {
 			error_log(
 				"AT_Pressable: Theme with slug: {$theme_slug} doesn't exist in the WPCom premium themes folder " .
-			    AT_PRESSABLE_THEMES_PATH
+			    WPCOM_PREMIUM_THEMES_PATH
 			);
 
 			return false;
@@ -171,7 +175,7 @@ class AT_Pressable_Themes {
 	}
 }
 
-add_action( 'init', 'at_pressable_themes_init' );
+add_action( 'init', __NAMESPACE__ . '\\at_pressable_themes_init' );
 
 function at_pressable_themes_init() {
 	AT_Pressable_Themes::init();
