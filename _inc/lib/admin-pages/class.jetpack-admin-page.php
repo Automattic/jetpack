@@ -151,19 +151,44 @@ abstract class Jetpack_Admin_Page {
 	 * @return bool|array
 	 */
 	function check_plan_deactivate_modules( $page ) {
-		if ( Jetpack::is_development_mode()
-			|| ! in_array( $page->base, array( 'toplevel_page_jetpack', 'admin_page_jetpack_modules', 'jetpack_page_vaultpress', 'jetpack_page_stats', 'jetpack_page_akismet-key-config' ) )
-			|| true === self::$plan_checked ) {
+		if (
+			Jetpack::is_development_mode()
+			|| ! in_array(
+				$page->base,
+				array(
+					'toplevel_page_jetpack',
+					'admin_page_jetpack_modules',
+					'jetpack_page_vaultpress',
+					'jetpack_page_stats',
+					'jetpack_page_akismet-key-config'
+				)
+			)
+			|| true === self::$plan_checked
+		) {
 			return false;
 		}
+
 		self::$plan_checked = true;
 		$previous = get_option( 'jetpack_active_plan', '' );
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/site' ) );
+
+		if ( ! is_object( $response ) || $response->is_error() ) {
+
+			// If we can't get information about the current plan we don't do anything
+			self::$plan_checked = true;
+			return;
+		}
+
 		$current = $response->get_data();
 		$current = json_decode( $current['data'] );
+
 		$to_deactivate = array();
 		if ( isset( $current->plan->product_slug ) ) {
-			if ( empty( $previous ) || ! isset( $previous['product_slug'] ) || $previous['product_slug'] !== $current->plan->product_slug ) {
+			if (
+				empty( $previous )
+				|| ! isset( $previous['product_slug'] )
+				|| $previous['product_slug'] !== $current->plan->product_slug
+			) {
 				$active = Jetpack::get_active_modules();
 				switch ( $current->plan->product_slug ) {
 					case 'jetpack_free':

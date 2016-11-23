@@ -101,14 +101,30 @@ export const Engagement = ( props ) => {
 				module: element[0],
 				configure_url: ''
 			},
-			isModuleActive = isModuleActivated( element[0] );
+			isModuleActive = isModuleActivated( element[0] ),
+			hasBusiness = false,
+			planLoaded = false;
+
+		if ( 'undefined' !== typeof props.sitePlan.product_slug ) {
+			planLoaded = true
+		}
+
+		if (
+			planLoaded
+			&& (
+				props.sitePlan.product_slug === 'jetpack_business'
+				|| props.sitePlan.product_slug === 'jetpack_business_monthly'
+			)
+		) {
+			hasBusiness = true;
+		}
 
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
 		} else if ( isAdmin ) {
-			if ( isPro && 'undefined' !== typeof props.sitePlan.product_slug && props.sitePlan.product_slug !== 'jetpack_business' ) {
+			if ( isPro && ! hasBusiness ) {
 				toggle = <ProStatus proFeature={ element[0] } />;
-			} else if ( ! isPro || ( 'undefined' !== typeof props.sitePlan.product_slug && props.sitePlan.product_slug === 'jetpack_business' ) ) {
+			} else if ( ! isPro || hasBusiness ) {
 				toggle = <ModuleToggle slug={ element[0] }
 									   activated={ isModuleActive }
 									   toggling={ isTogglingModule( element[0] ) }

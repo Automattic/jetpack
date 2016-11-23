@@ -1,6 +1,6 @@
 {
   "name": "Jetpack",
-  "version": "4.4.0-beta4",
+  "version": "4.5.0-alpha",
   "description": "[Jetpack](http://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
   "homepage": "http://jetpack.com",
   "author": "Automattic",
@@ -24,7 +24,7 @@
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "./node_modules/.bin/grunt addtextdomain",
     "build-pot": "./node_modules/.bin/grunt makepot",
-    "test-gui":    "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui"
+    "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui"
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
@@ -102,11 +102,11 @@
     "babel-register": "^6.8.0",
     "chai": "^3.5.0",
     "commander": "2.3.0",
+    "enzyme": "^2.4.1",
+    "glob": "^7.1.1",
     "grunt": "^0.4.2",
     "grunt-wp-i18n": "~0.4.6",
     "gulp-uglify": "^2.0.0",
-    "enzyme": "^2.4.1",
-    "glob": "^7.1.1",
     "mocha": "^2.4.5",
     "mockery": "^1.4.1",
     "nock": "^7.2.2",

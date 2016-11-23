@@ -84,7 +84,7 @@ const ProStatus = React.createClass( {
 				}
 			}
 
-			if ( 'seo-tools' === feature && 'jetpack_business' !== sitePlan.product_slug ) {
+			if ( 'seo-tools' === feature ) {
 				return (
 					<Button
 						compact={ true }
