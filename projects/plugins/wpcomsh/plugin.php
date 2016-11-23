@@ -180,30 +180,3 @@ add_action( 'init', __NAMESPACE__ . '\\at_pressable_themes_init' );
 function at_pressable_themes_init() {
 	AT_Pressable_Themes::init();
 }
-
-
-
-
-add_action( 'admin_init', 'at_pressable_add_filter_for_edit_themes_capability' );
-
-function at_pressable_add_filter_for_edit_themes_capability() {
-	add_filter( 'user_has_cap', 'at_pressable_disable_premium_theme_editing', 10, 3 );
-}
-
-function at_pressable_disable_premium_theme_editing( $allcaps ) {
-	$list_of_third_party_premium_themes = [
-		'Carbon',
-		'Eris',
-		'Label',
-		'Pena'
-		// TODO: If we decide for this approach, list all third-party WPCom premium themes here
-	];
-
-	$currently_active_theme = get_template();
-
-	if ( $currently_active_theme && in_array( $currently_active_theme, $list_of_third_party_premium_themes ) ) {
-		$allcaps['edit_themes'] = false;
-	}
-
-	return $allcaps;
-}
