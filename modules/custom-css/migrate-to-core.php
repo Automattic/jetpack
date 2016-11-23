@@ -84,10 +84,10 @@ class Jetpack_Custom_CSS_Data_Migration {
 				if ( $pre ) {
 					$pre .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
 				}
-				$pre .= $jetpack_css_revision->post_content_filtered;
+				$pre .= $jetpack_css_post->post_content;
 
 				$css .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
-				$css .= call_user_func( $preprocessors[ $preprocessor ]['callback'], $jetpack_css_revision->post_content_filtered );
+				$css .= call_user_func( $preprocessors[ $preprocessor ]['callback'], $jetpack_css_revision->post_content );
 			} else {
 				$css .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
 				$css .= $jetpack_css_revision->post_content;
