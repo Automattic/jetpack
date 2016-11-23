@@ -40,25 +40,35 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	}
 
 	public function get_update_checksum( $value ) {
+		// Create an new array so we don't modify the object passed in.
 		$a_value = (array) $value;
 
 		// ignore `last_checked`
 		unset( $a_value['last_checked'] );
-
+		unset( $a_value['checked'] );
+		if ( empty( $a_value ) ) {
+			return false;
+		}
 		return $this->get_check_sum( $a_value );
 	}
 
 	public function validate_update_change( $value, $expiration, $transient ) {
-		$checksum = $this->get_update_checksum( $value );
 
-		$checksums = get_option( self::UPDATES_CHECKSUM_OPTION_NAME, array() );
-		if ( isset( $checksums[ $transient ] ) && $checksums[ $transient ] === $checksum ) {
+		$new_checksum = $this->get_update_checksum( $value );
+		if ( false === $new_checksum  ) {
 			return;
 		}
-		$checksums[ $transient ] = $checksum;
+
+		$checksums = get_option( self::UPDATES_CHECKSUM_OPTION_NAME, array() );
+
+		if ( isset( $checksums[ $transient ] ) && $checksums[ $transient ] === $new_checksum ) {
+			return;
+		}
+
+		$checksums[ $transient ] = $new_checksum;
 
 		update_option( self::UPDATES_CHECKSUM_OPTION_NAME, $checksums );
-
+		// possible $transient value are update_plugins, update_themes, update_core
 		do_action( "jetpack_{$transient}_change", $value );
 	}
 
