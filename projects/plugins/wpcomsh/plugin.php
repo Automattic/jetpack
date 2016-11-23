@@ -59,9 +59,7 @@ class AT_Pressable_Themes {
 	}
 
 	function symlink_theme( $theme_slug ) {
-		$theme_slug_without_wpcom_suffix = $this->strip_wpcom_theme_slug_suffix( $theme_slug );
-
-		$abs_theme_path = WPCOM_PREMIUM_THEMES_PATH . '/' . $theme_slug_without_wpcom_suffix;
+		$abs_theme_path = WPCOM_PREMIUM_THEMES_PATH . '/' . $theme_slug;
 		$abs_theme_symlink_path = get_theme_root() . '/' . $theme_slug;
 
 		if ( ! symlink( $abs_theme_path, $abs_theme_symlink_path ) ) {
@@ -84,22 +82,7 @@ class AT_Pressable_Themes {
 		}
 	}
 
-	/**
-	 * WPCom themes (both pub and premium) have a `-wpcom` suffix
-	 *
-	 * @param string $theme_slug theme's slug with or without the `-wpcom` suffix
-	 *
-	 * @return string            theme's slug without the `-wpcom` suffix
-	 */
-	private function strip_wpcom_theme_slug_suffix( $theme_slug ) {
-		return preg_replace( '/-wpcom$/', '', $theme_slug );
-	}
-
 	private function is_wpcom_premium_theme( $theme_slug ) {
-		// If the theme comes from WPCom, its name will be suffixed with "-wpcom".
-		// However, the WPCom premium themes are not stored with this suffix. Let's strip it.
-		$theme_slug = $this->strip_wpcom_theme_slug_suffix( $theme_slug );
-
 		$all_wpcom_themes = scandir( WPCOM_PREMIUM_THEMES_PATH );
 
 		if ( ! $all_wpcom_themes ) {
