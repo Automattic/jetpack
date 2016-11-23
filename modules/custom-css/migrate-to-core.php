@@ -62,6 +62,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 			$css = $post->post_content;
 			$pre = '';
 
+			// Do a revision by revision parsing.
 			if ( $preprocessor && isset( $preprocessors[ $preprocessor ] ) ) {
 				$preprocessor = 'less';
 				$pre = $css;
