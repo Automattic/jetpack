@@ -268,14 +268,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	public function clear_status() {
 		$prefix = self::STATUS_OPTION_PREFIX;
-		delete_option( "{$prefix}_started" );
-		delete_option( "{$prefix}_params" );
-		delete_option( "{$prefix}_queue_finished" );
-		delete_option( "{$prefix}_send_started" );
-		delete_option( "{$prefix}_finished" );
+		Jetpack_Sync_Options::delete_option( "{$prefix}_started" );
+		Jetpack_Sync_Options::delete_option( "{$prefix}_params" );
+		Jetpack_Sync_Options::delete_option( "{$prefix}_queue_finished" );
+		Jetpack_Sync_Options::delete_option( "{$prefix}_send_started" );
+		Jetpack_Sync_Options::delete_option( "{$prefix}_finished" );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			delete_option( "{$prefix}_{$module->name()}_sent" );
+			Jetpack_Sync_Options::delete_option( "{$prefix}_{$module->name()}_sent" );
 		}
 	}
 
