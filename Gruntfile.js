@@ -146,6 +146,7 @@ module.exports = function( grunt ) {
 					'stage-2',
 					'babili'
 				],
+				comments: false,
 				plugins: [
 					'transform-runtime',
 					'transform-class-properties',
@@ -158,7 +159,8 @@ module.exports = function( grunt ) {
 			},
 			dist: {
 				files: {
-					"build/index.js": "react/social-logo/index.jsx"
+					"build/index.js": "build/index.jsx",
+					"build/example.js": "build/example.jsx"
 				}
 			}
 		}
@@ -244,7 +246,7 @@ module.exports = function( grunt ) {
 
 			// Add className, height, and width to the svg element
 			fileContent = fileContent.slice( 0, 4 ) +
-						' className={ iconClass } height={ this.props.size } width={ this.props.size } onClick={ this.props.onClick }' +
+						' className={ iconClass } height={ size } width={ size } onClick={ onClick }' +
 						fileContent.slice( 4, -6 ) +
 						fileContent.slice( -6 );
 
@@ -268,7 +270,7 @@ module.exports = function( grunt ) {
 					"/**\n" +
 					" * Internal dependencies\n" +
 					" */\n" +
-					"import SocialLogo from 'components/social-logo';\n\n" +
+					"import SocialLogo from './index.js';\n\n" +
 					"export default React.createClass( {\n" +
 					"	displayName: 'SocialLogos',\n\n" +
 					"	handleClick( icon ) {\n" +
@@ -277,8 +279,7 @@ module.exports = function( grunt ) {
 					"	},\n\n" +
 					"	render() {\n" +
 					'		return (\n' +
-					'			<div className="design-assets__group">\n' +
-					'				<h2><a href="/devdocs/design/social-logos">Social Logo</a></h2>\n';
+					'			<div>\n';
 
 		// Create a switch() case for each svg file
 		svgFiles.forEach( function( svgFile ) {
@@ -296,10 +297,10 @@ module.exports = function( grunt ) {
 							'		);\n' +
 							'	}\n' +
 							'} );\n';
-
+		
 		// Write the React component to social-logo/index.jsx
-		grunt.file.write( 'react/social-logo/index.jsx', content );
-		grunt.file.write( 'react/social-logo/example.jsx', designContent );
+		grunt.file.write( 'build/index.jsx', content );
+		grunt.file.write( 'build/example.jsx', designContent );
 	});
 
 	// Update all files in svg-min to add transparent square, this ensures copy/pasting to Sketch maintains a 24x24 size

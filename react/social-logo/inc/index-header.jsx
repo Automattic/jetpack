@@ -11,7 +11,6 @@ OR if you're looking to change now SVGs get output, you'll need to edit strings 
  */
 import React, { PropTypes } from 'react';
 import PureRenderMixin from 'react-pure-render/mixin';
-import classNames from 'classnames';
 
 export default React.createClass( {
 	displayName: 'SocialLogo',
@@ -32,16 +31,13 @@ export default React.createClass( {
 	},
 
 	render() {
-		const icon = this.props.icon;
 
-		const iconClass = classNames(
-			this.props.className,
-			icon,
-			'social-logo'
-		);
+		const { className, icon, onClick, size } = this.props;
+		const iconClass = [ 'social-logo', icon, className ].filter( Boolean ).join( ' ' );
+
 		let svg = null;
 
 		switch ( icon ) {
 			default:
-				svg = <svg height={ this.props.size } width={ this.props.size } />;
+				svg = <svg height={ size } width={ size } />;
 				break;

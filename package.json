@@ -1,12 +1,19 @@
 {
   "name": "social-logos",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "build/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Automattic/social-logos"
   },
   "license": "GPL-2.0+",
+  "scripts": {
+    "build": "grunt --verbose",
+    "prepublish": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=14.x"
+  },
   "devDependencies": {
     "babel-plugin-add-module-exports": "0.2.1",
     "babel-plugin-syntax-jsx": "6.8.0",

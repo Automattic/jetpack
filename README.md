@@ -23,8 +23,7 @@ Official guideline resources:
 
 ## Using the SocialLogo Component in your project:
 
-Note that this component requires [react](https://www.npmjs.com/package/react) and [classnames](https://www.npmjs.com/package/classnames)
-to be installed in your project.
+Note that this component requires [react](https://www.npmjs.com/package/react) to be installed in your project.
 
 SocialLogo renders a single social-logo svg based on an `icon` prop. It takes a size property but defaults to 24px. For greater sharpness, the icons should only be shown at either 18px, 24px, 36px or 48px. 
 
@@ -76,20 +75,18 @@ Follow the documentation found in https://github.com/sapegin/grunt-webfont
 
 ### Running
 
-In the commandline, type `$(npm bin)/grunt --verbose`. This will clean up, polish, and generate the following:
+In the commandline, type `npm run build`. This will clean up, polish, and generate the following:
 
 - A folder called `svg-min`. This folder contains minimized SVGs of every Social Logo. These SVGs can be dragged directly into Sketch for mockups.
 - A folder called `svg-sprite`. This folder contains a single SVG sprite called `social-logos.svg`, which can be referenced using `use`. But this doesn't work in IE at all yet, eventually it will work in Edge and newer.
-- A folder called `react`. This folder contains a social-logo component for use in React based environment.
 - A folder called `icon-font`. This folder contains different icon font files and css files.
-- A folder called `build`. This folder contains the minified component that will be exported to npm
+- A folder called `build`. This folder contains the minified component and example that will be exported to npm
 
 Do remember to update the React components where they are used, when you add a new icon.
 
 ### Publishing to NPM
 
 - Follow install instructions
-- Run `$(npm bin)/grunt --verbose`
 - Check in changes if any and follow PR process.
 - Bump package version in package.json to the next desired version and add an alpha postfix `1.1.0-alpha.1`
 - While testing changes publish using the next tag `npm publish --tag next`
