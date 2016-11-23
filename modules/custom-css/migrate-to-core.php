@@ -37,6 +37,11 @@ class Jetpack_Custom_CSS_Data_Migration {
 		set_theme_mod( 'jetpack_custom_css', $options );
 
 		if ( empty( $revisions ) || ! is_array( $revisions ) ) {
+			if ( $jetpack_css_post instanceof WP_Post ) {
+				// Feed in the raw, if the current setting is Sass/LESS, it'll filter it inside.
+				wp_update_custom_css_post( $jetpack_css_post->post_content );
+				return 1;
+			}
 			return null;
 		}
 
