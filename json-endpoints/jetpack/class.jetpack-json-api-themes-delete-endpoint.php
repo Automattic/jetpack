@@ -24,7 +24,7 @@ class Jetpack_JSON_API_Themes_Delete_Endpoint extends Jetpack_JSON_API_Themes_En
 			$result = delete_theme( $theme );
 
 			if ( is_wp_error( $result ) ) {
-				$error = $this->log[ $theme ]['error'] = $result->get_error_messages;
+				$error = $this->log[ $theme ]['error'] = $result->get_error_messages();
 			} else {
 				$this->log[ $theme ][] = 'Theme deleted';
 			}
