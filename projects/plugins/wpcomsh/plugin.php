@@ -98,6 +98,7 @@ class AT_Pressable_Themes {
 	private function is_wpcom_premium_theme( $theme_slug ) {
 		// If the theme comes from WPCom, its name will be suffixed with "-wpcom".
 		// However, the WPCom premium themes are not stored with this suffix. Let's strip it.
+		$theme_slug = $this->strip_wpcom_theme_slug_suffix( $theme_slug );
 
 		$all_wpcom_themes = scandir( WPCOM_PREMIUM_THEMES_PATH );
 
@@ -133,13 +134,13 @@ class AT_Pressable_Themes {
 	 */
 	private function is_theme_symlinked( $theme_slug ) {
 		$site_themes_dir_path = get_theme_root();
-		$site_theme_dir_path = get_template();
+		$symlinked_theme_dir_path = $site_themes_dir_path . "/{$theme_slug}";
 
 		$site_themes = scandir( $site_themes_dir_path );
 
 		if (
 			! in_array( $theme_slug, $site_themes ) ||
-		    ! is_link( $site_theme_dir_path )
+		    ! is_link( $symlinked_theme_dir_path )
 		) {
 			return false;
 		}
