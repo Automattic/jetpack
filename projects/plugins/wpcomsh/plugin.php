@@ -47,8 +47,8 @@ class AT_Pressable_Themes {
 
 	public function jetpack_wpcom_theme_delete_filter_handler( $result, $theme_slug ) {
 		if (
-			! $this->is_premium_theme( $theme_slug ) ||
-		    ! $this->is_theme_symlinked( $theme_slug )
+			! $this->is_wpcom_premium_theme( $theme_slug ) ||
+			! $this->is_theme_symlinked( $theme_slug )
 		) {
 			return false;
 		}
@@ -84,7 +84,7 @@ class AT_Pressable_Themes {
 		}
 	}
 
-	private function is_premium_theme( $theme_slug ) {
+	private function is_wpcom_premium_theme( $theme_slug ) {
 		// If the theme comes from WPCom, its name will be suffixed with "-wpcom".
 		// However, the WPCom premium themes are not stored with this suffix. Let's strip it.
 		$theme_slug = preg_replace( '/-wpcom$/', '', $theme_slug );
@@ -114,12 +114,23 @@ class AT_Pressable_Themes {
 		return in_array( $theme_slug, $all_wpcom_themes );
 	}
 
+	/**
+	 * Checks whether a theme (by theme slug) is symlinked in the themes' directory.
+	 *
+	 * @param string $theme_slug the slug of a theme
+	 *
+	 * @return bool whether a theme is symlinked in the themes' directory
+	 */
 	private function is_theme_symlinked( $theme_slug ) {
-		$site_themes_dir = get_theme_root();
+		$site_themes_dir_path = get_theme_root();
+		$site_theme_dir_path = get_template();
 
-		$site_themes = scandir( $site_themes_dir );
+		$site_themes = scandir( $site_themes_dir_path );
 
-		if ( ! in_array( $theme_slug, $site_themes ) ) {
+		if (
+			! in_array( $theme_slug, $site_themes ) ||
+		    ! is_link( $site_theme_dir_path )
+		) {
 			return false;
 		}
 
@@ -149,7 +160,7 @@ class AT_Pressable_Themes {
 
 	function jetpack_wpcom_theme_skip_download_filter_handler( $result, $theme_slug ) {
 		// If we are dealing with a WPCom non-premium (ie free) theme, don't interfere.
-		if ( ! $this->is_premium_theme( $theme_slug ) ) {
+		if ( ! $this->is_wpcom_premium_theme( $theme_slug ) ) {
 			return false;
 		}
 
