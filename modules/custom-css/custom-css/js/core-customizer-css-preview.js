@@ -35,12 +35,7 @@
 
 			deferred.resolve();
 			return deferred.promise();
-		},
-
-		/**
-		 * Prevent adding edit shortcuts to head.
-		 */
-		createEditShortcutForPlacement: function() {}
+		}
 
 	} );
 
