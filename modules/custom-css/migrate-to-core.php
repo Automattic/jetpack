@@ -26,25 +26,22 @@ class Jetpack_Custom_CSS_Data_Migration {
 			self::register_legacy_post_type();
 		}
 
+		/** This filter is documented in modules/custom-css/custom-css.php */
+		$preprocessors      = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 		$core_css_post      = wp_get_custom_css_post();
-		$current_stylesheet = get_stylesheet();
+		$jetpack_css_post   = self::get_post();
+		$revisions          = self::get_all_revisions();
 
 		// Migrate the settings from revision meta to theme mod.
 		$options = self::get_options( $jetpack_css_post->ID );
 		set_theme_mod( 'jetpack_custom_css', $options );
 
-		$revisions = self::get_all_revisions();
 		if ( empty( $revisions ) || ! is_array( $revisions ) ) {
 			return null;
 		}
 
-		/** This filter is documented in modules/custom-css/custom-css.php */
-		$preprocessors        = apply_filters( 'jetpack_custom_css_preprocessors', array() );
-		$jetpack_css_post     = self::get_post();
-		$jetpack_css_revision = reset( $revisions ); // get first element of array -- newest revision.
 		$revisions            = array_reverse( $revisions );
 		$themes               = Jetpack_Custom_CSS_Enhancements::get_themes();
-		$themes_posts         = array();
 		$migrated             = array();
 
 		foreach ( $revisions as $post_id => $post ) {
@@ -58,7 +55,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 			$migrated[] = $post->ID;
 			$preprocessor = get_post_meta( $post->ID, 'custom_css_preprocessor', true );
 			$css = $post->post_content;
-			$pre = null;
+			$pre = '';
 
 			if ( $preprocessor && isset( $preprocessors[ $preprocessor ] ) ) {
 				$preprocessor = 'less';
