@@ -72,7 +72,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 		}
 
 		// If we've migrated some CSS for the current theme and there was already something there in the Core dataset ...
-		if ( isset( $jetpack_latest_theme_revisions[ $current_stylesheet ] ) && $core_css_post && $jetpack_css_revision ) {
+		if ( $core_css_post && $jetpack_css_post ) {
 			$preprocessor = $options['preprocessor'];
 
 			$css = $core_css_post->post_content;
