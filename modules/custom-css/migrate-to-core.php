@@ -64,33 +64,10 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 			// Do we need to remove any filters here for users without `unfiltered_html` ?
 
-			// Format here into calls to wp_insert_post() or wp_update_post()
-			$args = array(
-				'post_content'          => $css,
-				'post_content_filtered' => $pre,
-				'post_title'            => $stylesheet,
-				'post_name'             => sanitize_title( $stylesheet ),
-				'post_type'             => 'custom_css',
-				'post_status'           => 'publish',
-				'post_author'           => $post->post_author,
-				'post_modified'         => $post->post_modified,
-				'post_modified_gmt'     => $post->post_modified_gmt,
-			);
-
-			// Run one quick query to determine if we have a post for that theme.
-			if ( empty( $themes_posts[ $stylesheet ] ) ) {
-				$core_post = wp_get_custom_css_post( $stylesheet );
-				$themes_posts[ $stylesheet ] = ( $core_post instanceof WP_Post ) ? $core_post->ID : null;
-			}
-
-			if ( $themes_posts[ $stylesheet ] ) {
-				$args['ID'] = $themes_posts[ $stylesheet ];
-				// We already know the ID, so no need to save the return value.
-				wp_update_post( wp_slash( $args ) );
-			} else {
-				// This is a new post we're stashing it under, so save the ID.
-				$themes_posts[ $stylesheet ] = wp_insert_post( wp_slash( $args ) );
-			}
+			wp_update_custom_css_post( $css, array(
+				'stylesheet'   => $stylesheet,
+				'preprocessed' => $pre,
+			) );
 		}
 
 		// Migrate the settings from revision meta to theme mod.
@@ -116,17 +93,15 @@ class Jetpack_Custom_CSS_Data_Migration {
 				$css .= $jetpack_css_revision->post_content;
 			}
 
-			wp_update_post( wp_slash( array(
-				'ID'                    => $core_css_post->ID,
-				'post_content'          => $css,
-				'post_content_filtered' => $pre,
-			) ) );
 		}
 
 		/*
 		// Delete each revision manually to catch meta added to the revisions.
 		foreach ( $migrated as $post_id ) {
 			wp_delete_post( $post_id, true );
+			wp_update_custom_css_post( $css, array(
+				'preprocessed' => $pre,
+			) );
 		}
 		wp_delete_post( $jetpack_css_post->ID );
 		/**/
