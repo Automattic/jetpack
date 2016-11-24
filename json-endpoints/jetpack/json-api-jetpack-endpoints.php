@@ -1073,7 +1073,7 @@ new Jetpack_JSON_API_Export_Endpoint( array (
 	),
 	'request_format' => array(
 		'content'               => '(string=all) The content to export',
-		'cat'                   => '(integer=0) The Id of the category to export',
+		'cat'                   => '(string=0|slug) The slug of the category to export',
 		'post_author'           => '(integer=0) The Id of the author to export his posts',
 		'post_start_date'       => '(string=0) The start month of posts to export. Format: YYYY-MM',
 		'post_end_date'         => '(string=0) The end month of posts to export. Format: YYYY-MM',
