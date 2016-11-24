@@ -130,9 +130,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) home_url();
 				break;
 			case 'locale_variant':
-				$blog_variant_id = wpcom_l10n_get_blog_variant_lang_id();
-				if ( $blog_variant_id ) {
-					$response[$key] = (string) WPCom_Languages::get_locale_code_by_id( $blog_variant_id );
+				$blog_locale_variant = wpcom_l10n_get_blog_locale_variant();
+				if ( $blog_locale_variant ) {
+					$response[$key] = $blog_locale_variant;
 				}
 				break;
 			case 'settings':
@@ -194,7 +194,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'comment_max_links'       => (int) get_option( 'comment_max_links' ),
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
-					'lang_id'                 => wpcom_l10n_get_blog_variant_lang_id_with_fallback(),
+					'lang_id'                 => get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) ),
 					'wga'                     => get_option( 'wga' ),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
 					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
