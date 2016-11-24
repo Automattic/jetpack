@@ -104,9 +104,10 @@ class AT_Pressable_Themes {
 	}
 
 	private function is_wpcom_premium_theme( $theme_slug ) {
-		$all_wpcom_premium_themes = scandir( WPCOM_PREMIUM_THEMES_PATH );
-
-		if ( ! $all_wpcom_premium_themes ) {
+		if (
+			! defined( __NAMESPACE__ . '\\WPCOM_PREMIUM_THEMES_PATH' ) ||
+			! file_exists( WPCOM_PREMIUM_THEMES_PATH )
+		) {
 			error_log(
 				"AT_Pressable: WPCom premium themes folder couldn't be located. " .
 				"Check whether the " . WPCOM_PREMIUM_THEMES_PATH . " constant points to the correct directory."
@@ -117,22 +118,14 @@ class AT_Pressable_Themes {
 
 		$theme_dir_path = WPCOM_PREMIUM_THEMES_PATH . "/${theme_slug}";
 
-		if ( ! file_exists( $theme_dir_path ) ) {
-			error_log(
-				"AT_Pressable: Theme with slug: {$theme_slug} doesn't exist in the WPCom premium themes folder " .
-			    WPCOM_PREMIUM_THEMES_PATH
-			);
-
-			return false;
-		}
-
-		return in_array( $theme_slug, $all_wpcom_premium_themes );
+		return file_exists( $theme_dir_path );
 	}
 
 	private function is_wpcom_pub_theme( $theme_slug ) {
-		$all_wpcom_pub_themes = scandir( WPCOM_PUB_THEMES_PATH );
-
-		if ( ! $all_wpcom_pub_themes ) {
+		if (
+			! defined( __NAMESPACE__ . '\\WPCOM_PUB_THEMES_PATH' ) ||
+			! file_exists( WPCOM_PUB_THEMES_PATH )
+		) {
 			error_log(
 				"AT_Pressable: WPCom pub themes folder couldn't be located. " .
 				"Check whether the " . WPCOM_PUB_THEMES_PATH . " constant points to the correct directory."
@@ -143,16 +136,7 @@ class AT_Pressable_Themes {
 
 		$theme_dir_path = WPCOM_PUB_THEMES_PATH . "/${theme_slug}";
 
-		if ( ! file_exists( $theme_dir_path ) ) {
-			error_log(
-				"AT_Pressable: Theme with slug: {$theme_slug} doesn't exist in the WPCom pub themes folder " .
-				WPCOM_PUB_THEMES_PATH
-			);
-
-			return false;
-		}
-
-		return in_array( $theme_slug, $all_wpcom_pub_themes );
+		return file_exists( $theme_dir_path );
 	}
 
 	/**
