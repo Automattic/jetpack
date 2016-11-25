@@ -176,6 +176,24 @@ class Jetpack_Sync_Functions {
 		return apply_filters( 'all_plugins', get_plugins() );
 	}
 
+	/**
+	 * Returns items inserted to wp-admin admin page menu by custom plugins and themes.
+	 * They usually do that bu hooking in admin_menu and calling add_menu_page and add_submenu_page.
+	 * @return array
+	 **/
+	public static function get_custom_admin_menu_items() {
+	    global $menu, $submenu;
+
+	    /** Since some of the menu items are displayed only for certain capability, we need user switcharoo */
+	    $current_user_id = get_current_user_id();
+	    wp_set_current_user( Jetpack_Options::get_option( 'master_user' ) );
+	    /** add_menu_page and add_submenu_page hook into admin_menu. Documented in wp-admin/includes/menu.php  */
+	    do_action( 'admin_menu', '' );
+	    /** Lets clean up user switch */
+	    wp_set_current_user( $current_user_id );
+	    return array( menu => $menu, submenu => $submenu );
+	}
+
 	public static function wp_version() {
 		global $wp_version;
 
