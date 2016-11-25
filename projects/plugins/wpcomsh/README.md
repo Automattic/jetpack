@@ -28,7 +28,7 @@ This plugin removes the "Delete" button of all the WPCom themes (both pub and pr
 ### Requirements
 
 1. Self-hosted WordPress site with the Jetpack plugin connected to your WP.com account;
-2. The Jetpack plugin needs to be checked out from the Jetpack git repo and be on the `add/theme-install-hooks` branch (unitl it gets merged to `master`). [The PR link here](https://github.com/Automattic/jetpack/pull/5704);
+2. The Jetpack plugin needs to be checked out from the Jetpack git repo and be on the `add/theme-install-hooks` branch (until it gets merged to `master`). [The PR link is here](https://github.com/Automattic/jetpack/pull/5704);
 2. WPCom pub and premium themes (not needed for our testing, though)
 
 ### Installation
