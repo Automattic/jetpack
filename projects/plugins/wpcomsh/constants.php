@@ -2,6 +2,7 @@
 
 namespace AT_Pressable\Themes;
 
+// TODO: update to the real paths after getting an AT Pressable testing site
 const WPCOM_PUB_THEMES_PATH = '/home/lamosty/wpcom-pub-themes';
 const WPCOM_PREMIUM_THEMES_PATH = '/home/lamosty/wpcom-premium-themes';
 
