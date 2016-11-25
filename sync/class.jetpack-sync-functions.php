@@ -191,7 +191,7 @@ class Jetpack_Sync_Functions {
 	    do_action( 'admin_menu', '' );
 	    /** Lets clean up user switch */
 	    wp_set_current_user( $current_user_id );
-	    return array( menu => $menu, submenu => $submenu );
+	    return array( 'menu' => $menu, 'submenu' => $submenu );
 	}
 
 	public static function wp_version() {
