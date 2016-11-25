@@ -81,9 +81,10 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		echo $args['before_widget'];
 
 		$title = isset( $instance['title'] ) ? $instance['title'] : '';
+		
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title );
 		if ( ! empty( $title ) ) {
-			/** This filter is documented in core/src/wp-includes/default-widgets.php */
 			echo $args['before_title'] . $title . $args['after_title'];
 		}
 
