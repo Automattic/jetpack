@@ -37,9 +37,9 @@ class WPCom_Themes_Manager {
 		);
 	}
 
-	public function is_wpcom_theme( $theme_slug ) {
-		return $this->is_wpcom_premium_theme( $theme_slug ) ||
-		       $this->is_wpcom_pub_theme( $theme_slug );
+	static function is_wpcom_theme( $theme_slug ) {
+		return self::is_wpcom_premium_theme( $theme_slug ) ||
+		       self::is_wpcom_pub_theme( $theme_slug );
 	}
 
 	public function jetpack_wpcom_theme_delete_filter_handler( $result, $theme_slug ) {
@@ -95,7 +95,7 @@ class WPCom_Themes_Manager {
 		}
 	}
 
-	private function is_wpcom_premium_theme( $theme_slug ) {
+	static function is_wpcom_premium_theme( $theme_slug ) {
 		if (
 			! defined( __NAMESPACE__ . '\\WPCOM_PREMIUM_THEMES_PATH' ) ||
 			! file_exists( WPCOM_PREMIUM_THEMES_PATH )
@@ -113,7 +113,7 @@ class WPCom_Themes_Manager {
 		return file_exists( $theme_dir_path );
 	}
 
-	private function is_wpcom_pub_theme( $theme_slug ) {
+	static function is_wpcom_pub_theme( $theme_slug ) {
 		if (
 			! defined( __NAMESPACE__ . '\\WPCOM_PUB_THEMES_PATH' ) ||
 			! file_exists( WPCOM_PUB_THEMES_PATH )
