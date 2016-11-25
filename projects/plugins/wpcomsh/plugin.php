@@ -10,3 +10,4 @@
 
 require_once( 'class.wpcom-themes-manager.php' );
 require_once( 'remove-wpcom-theme-delete-button.php' );
+require_once( 'disable-third-party-wpcom-premium-themes-editing.php' );
