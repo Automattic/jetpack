@@ -103,6 +103,22 @@ class Jetpack_Options {
 	}
 
 	/**
+	 * Checks if an option must be saved for the whole network in WP Multisite
+	 *
+	 * @param $option_name
+	 *
+	 * @return bool
+	 */
+	public static function is_network_option( $option_name ) {
+		if ( ! is_multisite() ) {
+			return false;
+		}
+		return in_array( $option_name, array(
+			'file_data'
+		));
+	}
+
+	/**
 	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
 	 *
 	 * @param string $name Option name
@@ -110,7 +126,13 @@ class Jetpack_Options {
 	 */
 	public static function get_option( $name, $default = false ) {
 		if ( self::is_valid( $name, 'non_compact' ) ) {
-			return get_option( "jetpack_$name", $default );
+			if ( self::is_network_option( $name ) ) {
+				return get_site_option( "jetpack_$name", $default );
+			}
+			else {
+				return get_option( "jetpack_$name", $default );
+			}
+
 		}
 
 		foreach ( array_keys( self::$grouped_options ) as $group ) {
@@ -134,10 +156,21 @@ class Jetpack_Options {
 	 * @return mixed|void
 	 */
 	public static function get_option_and_ensure_autoload( $name, $default ) {
-		$value = get_option( $name );
+		$is_network_option = self::is_network_option( $name );
+		if ( $is_network_option ) {
+			$value = get_site_option( $name );
+		}
+		else {
+			$value = get_option( $name );
+		}
 
 		if ( $value === false && $default !== false ) {
-			update_option( $name, $default );
+			if ( $is_network_option ) {
+				update_option( $name, $default );
+			}
+			else {
+				update_site_option( $name, $default );
+			}
 			$value = $default;
 		}
 
@@ -151,7 +184,14 @@ class Jetpack_Options {
 		}
 		$options[ $name ] = $value;
 
-		return update_option( self::$grouped_options[ $group ], $options );
+		if ( self::is_network_option( $name ) ) {
+			return update_option( self::$grouped_options[ $group ], $options );
+		}
+		else {
+			return update_site_option( self::$grouped_options[ $group ], $options );
+		}
+
+
 	}
 
 	/**
@@ -172,7 +212,13 @@ class Jetpack_Options {
 		 */
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( self::is_valid( $name, 'non_compact' ) ) {
-			return update_option( "jetpack_$name", $value, $autoload );
+			if ( self::is_network_option( $name ) ) {
+				return update_site_option( "jetpack_$name", $value );
+			}
+			else {
+				return update_option( "jetpack_$name", $value, $autoload );
+			}
+
 		}
 
 		foreach ( array_keys( self::$grouped_options ) as $group ) {
@@ -221,9 +267,17 @@ class Jetpack_Options {
 		}
 
 		foreach ( array_intersect( $names, self::get_option_names( 'non_compact' ) ) as $name ) {
-			if ( ! delete_option( "jetpack_$name" ) ) {
-				$result = false;
+			if ( self::is_network_option( $name ) ) {
+				if ( ! delete_site_option( "jetpack_$name" ) ) {
+					$result = false;
+				}
 			}
+			else {
+				if ( ! delete_option( "jetpack_$name" ) ) {
+					$result = false;
+				}
+			}
+
 		}
 
 		foreach ( array_keys( self::$grouped_options ) as $group ) {
@@ -236,7 +290,13 @@ class Jetpack_Options {
 	}
 
 	private static function get_grouped_option( $group, $name, $default ) {
-		$options = get_option( self::$grouped_options[ $group ] );
+		if ( self::is_network_option( $name ) ) {
+			$options = get_site_option( self::$grouped_options[ $group ] );
+		}
+		else {
+			$options = get_option( self::$grouped_options[ $group ] );
+		}
+
 		if ( is_array( $options ) && isset( $options[ $name ] ) ) {
 			return $options[ $name ];
 		}
@@ -245,7 +305,14 @@ class Jetpack_Options {
 	}
 
 	private static function delete_grouped_option( $group, $names ) {
-		$options = get_option( self::$grouped_options[ $group ], array() );
+		$is_network_option = self::is_network_option( self::$grouped_options[ $group ] );
+		if ( $is_network_option ) {
+			$options = get_site_option( self::$grouped_options[ $group ], array() );
+		}
+		else {
+			$options = get_option( self::$grouped_options[ $group ], array() );
+		}
+
 
 		$to_delete = array_intersect( $names, self::get_option_names( $group ), array_keys( $options ) );
 		if ( $to_delete ) {
@@ -253,7 +320,13 @@ class Jetpack_Options {
 				unset( $options[ $name ] );
 			}
 
-			return update_option( self::$grouped_options[ $group ], $options );
+			if ( $is_network_option ) {
+				return update_site_option( self::$grouped_options[ $group ], $options );
+			}
+			else {
+				return update_option( self::$grouped_options[ $group ], $options );
+			}
+
 		}
 
 		return true;
