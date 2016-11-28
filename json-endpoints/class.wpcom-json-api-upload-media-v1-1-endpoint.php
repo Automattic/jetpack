@@ -52,7 +52,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		// New Jetpack / VideoPress media upload processing
         if ( count( $jetpack_media_files ) > 0  ) {
 	        add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
-	        $media_items = $jetpack_sync->upload_media( $jetpack_media_files, $media_urls );
+	        $media_items = $jetpack_sync->upload_media( $jetpack_media_files );
 	        $errors = $jetpack_sync->get_errors();
 
 	        foreach ( $media_items as & $media_item ) {
@@ -64,7 +64,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
         }
 
         // Normal WPCOM upload processing
-        if ( count( $other_media_files ) > 0 ) {
+        if ( count( $other_media_files ) > 0 || count( $media_urls ) > 0 ) {
 	        $create_media = $this->handle_media_creation_v1_1( $other_media_files, $media_urls, $media_attrs );
 	        $media_ids = $create_media['media_ids'];
 	        $errors = $create_media['errors'];
