@@ -369,7 +369,11 @@ function videopress_update_meta_data( $post_id ) {
 
 	$info = (object) $meta['videopress'];
 
-	$result = wp_remote_get( videopress_make_video_get_path( $info->guid ) );
+	$args = array(
+		// 'sslverify' => false,
+	);
+
+	$result = wp_remote_get( videopress_make_video_get_path( $info->guid ), $args );
 
 	if ( is_wp_error( $result ) ) {
 		return false;
@@ -413,8 +417,7 @@ function videopress_make_video_get_path( $guid ) {
  */
 function videopress_make_media_upload_path( $blog_id ) {
 	return sprintf(
-		'https://%s/rest/v1.1/sites/%s/videos/new',
-		JETPACK__WPCOM_JSON_API_HOST,
+		'https://public-api.wordpress.com/rest/v1.1/sites/%s/media/new',
 		$blog_id
 	);
 }
