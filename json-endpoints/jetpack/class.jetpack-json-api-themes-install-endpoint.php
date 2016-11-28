@@ -69,16 +69,17 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 				return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
 			}
 
+			$skip_download_filter_result = apply_filters( 'jetpack_wpcom_theme_skip_download', false, $theme );
+
+			if ( is_wp_error( $skip_download_filter_result ) ) {
+				return $skip_download_filter_result;
+			} elseif ( $skip_download_filter_result ) {
+				continue;
+			}
+
 			if ( wp_endswith( $theme, '-wpcom' ) ) {
-				$skip_download_filter_result = apply_filters( 'jetpack_wpcom_theme_skip_download', false, $theme );
-
-				if ( is_wp_error( $skip_download_filter_result ) ) {
-					return $skip_download_filter_result;
-				} elseif ( $skip_download_filter_result ) {
-					continue;
-				}
-
 				$file = self::download_wpcom_theme_to_file( $theme );
+
 				if ( is_wp_error( $file ) ) {
 					return $file;
 				}
