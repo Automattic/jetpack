@@ -130,9 +130,14 @@ class Jetpack_Client {
 			'Authorization' => "X_JETPACK " . join( ' ', $header_pieces ),
 		) );
 
-		// Make sure we keep the host when we do JETPACK__WPCOM_JSON_API_HOST requests.
 		$host = parse_url( $url, PHP_URL_HOST );
-		if ( $host === JETPACK__WPCOM_JSON_API_HOST ) {
+
+		// If we have a JETPACK__WPCOM_JSON_API_HOST_HEADER set, then let's use
+		// that, otherwise, let's fallback to the standard.
+		if ( defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) && JETPACK__WPCOM_JSON_API_HOST_HEADER ) {
+			$request['headers']['Host'] = JETPACK__WPCOM_JSON_API_HOST_HEADER;
+
+		} elseif ( $host === JETPACK__WPCOM_JSON_API_HOST ) {
 			$request['headers']['Host'] = 'public-api.wordpress.com';
 		}
 
