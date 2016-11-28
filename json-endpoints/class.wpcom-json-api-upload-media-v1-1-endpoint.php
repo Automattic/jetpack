@@ -28,7 +28,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		// For jetpack sites, we send the media via a different method, because the sync is very different.
-		$jetpack_sync = Jetpack_Media_Sync::summon( $blog_id, $this->api );
+		$jetpack_sync = Jetpack_Media_Sync::summon( $blog_id );
 
 		$jetpack_media_files = array();
 		$other_media_files   = array();
@@ -52,7 +52,9 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		// New Jetpack / VideoPress media upload processing
         if ( count( $jetpack_media_files ) > 0  ) {
 	        add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
-	        $media_items = $jetpack_sync->upload_media( $jetpack_media_files );
+
+	        $media_items = $jetpack_sync->upload_media( $jetpack_media_files, $this->api );
+
 	        $errors = $jetpack_sync->get_errors();
 
 	        foreach ( $media_items as & $media_item ) {
