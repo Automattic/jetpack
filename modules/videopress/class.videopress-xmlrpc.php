@@ -121,15 +121,12 @@ class VideoPress_XMLRPC {
 	 * in practice this is never done.
 	 *
 	 * @param array $media
-	 *
 	 * @return array
 	 */
 	public function create_media_item( $media ) {
-		$created_items = array();
-
-		foreach ( $media as $media_item ) {
-
-			$media_id = videopress_create_new_media_item( sanitize_title( basename( $media_item['url'] ) ) );
+		foreach ( $media as & $media_item ) {
+			$title    = sanitize_title( basename( $media_item['url'] ) );
+			$media_id = videopress_create_new_media_item( $title );
 
 			wp_update_attachment_metadata( $media_id, array(
 				'original' => array(
@@ -137,13 +134,10 @@ class VideoPress_XMLRPC {
 				),
 			) );
 
-			$created_items[] = array(
-				'id'   => $media_id,
-				'post' => get_post( $media_id ),
-			);
+			$media_item['post'] = get_post( $media_id );
 		}
 
-		return array( 'media' => $created_items );
+		return array( 'media' => $media );
 	}
 
 }
