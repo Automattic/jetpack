@@ -27,8 +27,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page
 		}
 
-		// Adding a redirect meta tag for older WordPress versions
-		if ( $this->is_wp_version_too_old() ) {
+		// Adding a redirect meta tag for older WordPress versions or if the REST API is disabled
+		if ( $this->is_wp_version_too_old() || ! $this->is_rest_api_enabled() ) {
 			$this->is_redirecting = true;
 			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
 		}
@@ -280,6 +280,23 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false
 		) );
+	}
+
+	/**
+	 * Checks if REST API is enabled.
+	 *
+	 * @since 4.4.2
+	 *
+	 * @return bool
+	 */
+	function is_rest_api_enabled() {
+		return
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			apply_filters( 'rest_enabled', true ) &&
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			apply_filters( 'rest_jsonp_enabled', true ) &&
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			apply_filters( 'rest_authentication_errors', true );
 	}
 }
 
