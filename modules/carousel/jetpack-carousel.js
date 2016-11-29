@@ -37,22 +37,15 @@ jQuery(document).ready(function($) {
 				break;
 			case 39: // right
 				e.preventDefault();
-				if ( gallery.jp_carousel('slides').length > 1 ) {
-					gallery.jp_carousel('clearCommentTextAreaValue');
-					gallery.jp_carousel('next');
-				}
+				gallery.jp_carousel('next');
 				break;
 			case 37: // left
 			case 8: // backspace
 				e.preventDefault();
-				if ( gallery.jp_carousel('slides').length > 1 ) {
-					gallery.jp_carousel('clearCommentTextAreaValue');
-					gallery.jp_carousel('previous');
-				}
+				gallery.jp_carousel('previous');
 				break;
 			case 27: // escape
 				e.preventDefault();
-				gallery.jp_carousel('clearCommentTextAreaValue');
 				container.jp_carousel('close');
 				break;
 			default:
@@ -421,13 +414,13 @@ jQuery(document).ready(function($) {
 				$( '.jp-carousel-wrap' ).touchwipe( {
 					wipeLeft : function ( e ) {
 						e.preventDefault();
-						if ( gallery.jp_carousel( 'slides' ).length > 1 ) {
+						if ( gallery.jp_carousel( 'hasMultipleImages' ) ) {
 							gallery.jp_carousel( 'next' );
 						}
 					},
 					wipeRight : function ( e ) {
 						e.preventDefault();
-						if ( gallery.jp_carousel( 'slides' ).length > 1 ) {
+						if ( gallery.jp_carousel( 'hasMultipleImages' ) ) {
 							gallery.jp_carousel( 'previous' );
 						}
 					},
@@ -535,6 +528,7 @@ jQuery(document).ready(function($) {
 			// make sure to let the page scroll again
 			$('body').css('overflow', originalOverflow);
 			$('html').css('overflow', originalHOverflow);
+			this.jp_carousel( 'clearCommentTextAreaValue' );
 			return container
 				.trigger('jp_carousel.beforeClose')
 				.fadeOut('fast', function(){
@@ -544,21 +538,25 @@ jQuery(document).ready(function($) {
 
 		},
 
-		next : function(){
-			var slide = gallery.jp_carousel( 'nextSlide' );
-			container.animate({scrollTop:0}, 'fast');
-
-			if ( slide ) {
-				this.jp_carousel('selectSlide', slide);
-			}
+		next : function() {
+			this.jp_carousel( 'previousOrNext', 'nextSlide' );
 		},
 
-		previous : function(){
-			var slide = gallery.jp_carousel( 'prevSlide' );
-			container.animate({scrollTop:0}, 'fast');
+		previous : function() {
+			this.jp_carousel( 'previousOrNext', 'prevSlide' );
+		},
+
+		previousOrNext : function ( slideSelectionMethodName ) {
+			if ( ! this.jp_carousel( 'hasMultipleImages' ) ) {
+				return false;
+			}
+
+			var slide = gallery.jp_carousel( slideSelectionMethodName );
 
 			if ( slide ) {
-				this.jp_carousel('selectSlide', slide);
+				container.animate( { scrollTop: 0 }, 'fast' );
+				this.jp_carousel( 'clearCommentTextAreaValue' );
+				this.jp_carousel( 'selectSlide', slide );
 			}
 		},
 
@@ -1386,6 +1384,10 @@ jQuery(document).ready(function($) {
 
 				image.data( 'loaded', 1 );
 			}
+		},
+
+		hasMultipleImages : function () {
+			return gallery.jp_carousel('slides').length > 1;
 		}
 	};
 
@@ -1450,7 +1452,7 @@ jQuery(document).ready(function($) {
 
 			// make this node a gallery recognizable by event listener above
 			$( container ).addClass( 'single-image-gallery' ) ;
-			// blog_id is needed to allow posting comments to correct blog 
+			// blog_id is needed to allow posting comments to correct blog
 			$( container ).data( 'carousel-extra', { blog_id: Number( jetpackCarouselStrings.blog_id ) } );
 		});
 	}
