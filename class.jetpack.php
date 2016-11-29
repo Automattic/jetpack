@@ -494,10 +494,7 @@ class Jetpack {
 			Jetpack_Heartbeat::init();
 		}
 
-		if ( Jetpack::is_active() && defined( 'REST_REQUEST' ) ) {
-			add_filter( 'determine_current_user', array( $this, 'authenticate_user_tokens' ), 20 );
-			add_filter( 'rest_authentication_errors', array( $this, 'user_tokens_authentication_error' ) );
-		}
+		add_action( 'wp_json_init', array( $this, 'wp_json_init' ) );
 
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
@@ -4754,6 +4751,13 @@ p {
 		nocache_headers();
 
 		return new WP_User( $token_details['user_id'] );
+	}
+
+	function wp_json_init() {
+		if ( Jetpack::is_active() ) {
+			add_filter( 'determine_current_user', array( $this, 'authenticate_user_tokens' ), 20 );
+			add_filter( 'rest_authentication_errors', array( $this, 'user_tokens_authentication_error' ) );
+		}
 	}
 
 	/**
