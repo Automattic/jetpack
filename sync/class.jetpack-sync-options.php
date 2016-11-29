@@ -42,7 +42,7 @@ class Jetpack_Sync_Options {
 		return $updated_num;
 	}
 
-	static function read_option( $name, $default = null ) {
+	static function get_option( $name, $default = null ) {
 		global $wpdb;
 		$value = $wpdb->get_var( 
 			$wpdb->prepare(

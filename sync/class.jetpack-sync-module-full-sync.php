@@ -287,7 +287,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	private function get_status_option( $name, $default = null ) {
-		$value = Jetpack_Sync_Options::read_option( self::STATUS_OPTION_PREFIX . "_$name", $default );
+		$value = Jetpack_Sync_Options::get_option( self::STATUS_OPTION_PREFIX . "_$name", $default );
 
 		return is_numeric( $value ) ? intval( $value ) : $value;
 	}
@@ -301,7 +301,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	private function get_enqueue_status() {
-		return Jetpack_Sync_Options::read_option( 'jetpack_sync_full_enqueue_status' );
+		return Jetpack_Sync_Options::get_option( 'jetpack_sync_full_enqueue_status' );
 	}
 
 	private function set_config( $config ) {
@@ -309,7 +309,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 	
 	private function get_config() {
-		return Jetpack_Sync_Options::read_option( 'jetpack_sync_full_config' );
+		return Jetpack_Sync_Options::get_option( 'jetpack_sync_full_config' );
 	}
 
 	private function write_option( $name, $value ) {
