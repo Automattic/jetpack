@@ -44,8 +44,8 @@ class Jetpack_VideoPress {
 		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
 
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
-
 		add_action( 'admin_menu', array( $this,'change_add_new_menu_location' ), 999 );
+		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
 
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
@@ -105,6 +105,14 @@ class Jetpack_VideoPress {
 	}
 
 	/**
+	 * Register and enqueue VideoPress admin styles.
+	 */
+	public function enqueue_admin_styles() {
+		wp_register_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
+		wp_enqueue_style( 'videopress-admin' );
+	}
+
+	/**
 	 * Register VideoPress admin scripts.
 	 */
 	public function enqueue_admin_scripts() {
@@ -138,8 +146,6 @@ class Jetpack_VideoPress {
 				$this->version
 			);
 		}
-
-		wp_enqueue_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
 
 		/**
 		 * Fires after VideoPress scripts are enqueued in the dashboard.

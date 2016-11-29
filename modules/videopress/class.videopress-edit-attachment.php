@@ -341,10 +341,10 @@ HTML;
 	 */
 	protected function display_embed_choice( $info ) {
 		$id = "attachments-{$info->post_id}-displayembed";
-		$out  = "<input type='checkbox' name='attachments[{$info->post_id}][display_embed]' id='$id'";
+		$out  = "<label for='$id'><input type='checkbox' name='attachments[{$info->post_id}][display_embed]' id='$id'";
 		if ( $info->display_embed )
 			$out .= ' checked="checked"';
-		$out .= " /><label for='$id'>" . __( 'Display share menu and allow viewers to embed or download this video', 'jetpack' ) . '</label>';
+		$out .= " />" . __( 'Display share menu and allow viewers to embed or download this video', 'jetpack' ) . '</label>';
 		return $out;
 	}
 
@@ -366,12 +366,15 @@ HTML;
 
 		foreach( $ratings as $r => $label ) {
 			$id = "attachments-{$info->post_id}-rating-$r";
-			$out .= "<input type='radio' name='attachments[{$info->post_id}][rating]' id='$id' value='$r'";
-			if ( $info->rating == $r )
+			$out .= "<label for=\"$id\"><input type=\"radio\" name=\"attachments[{$info->post_id}][rating]\" id=\"$id\" value=\"$r\"";
+			if ( $info->rating == $r ) {
 				$out .= ' checked="checked"';
-			$out .= " /><label for='$id'>$label</label>";
+			}
+
+			$out .= " />$label</label>";
 			unset( $id );
 		}
+
 		return $out;
 	}
 }
