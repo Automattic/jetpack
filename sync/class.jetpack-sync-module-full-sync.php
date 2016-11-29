@@ -293,11 +293,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	private function update_status_option( $name, $value, $autoload = false ) {
-		Jetpack_Sync_Options::write_option( self::STATUS_OPTION_PREFIX . "_$name", $value, $autoload );
+		Jetpack_Sync_Options::update_option( self::STATUS_OPTION_PREFIX . "_$name", $value, $autoload );
 	}
 
 	private function set_enqueue_status( $new_status ) {
-		Jetpack_Sync_Options::write_option( 'jetpack_sync_full_enqueue_status', $new_status );
+		Jetpack_Sync_Options::update_option( 'jetpack_sync_full_enqueue_status', $new_status );
 	}
 
 	private function get_enqueue_status() {
@@ -305,7 +305,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	private function set_config( $config ) {
-		Jetpack_Sync_Options::write_option( 'jetpack_sync_full_config', $config );
+		Jetpack_Sync_Options::update_option( 'jetpack_sync_full_config', $config );
 	}
 	
 	private function get_config() {
