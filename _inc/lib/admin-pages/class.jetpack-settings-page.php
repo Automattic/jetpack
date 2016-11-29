@@ -30,7 +30,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 		// We have static.html so let's continue trying to fetch the others
 		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
-		$version_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
+		$version_notice = $rest_api_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
 		$ie_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-ie-notice.html' );
 
 		$noscript_notice = str_replace(
@@ -55,6 +55,17 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			$version_notice
 		);
 
+		$rest_api_notice = str_replace(
+			'#HEADER_TEXT#',
+			esc_html( __( 'WordPress REST API is disabled', 'jetpack' ) ),
+			$rest_api_notice
+		);
+		$rest_api_notice = str_replace(
+			'#TEXT#',
+			esc_html( __( "Enable WordPress REST API to unlock Jetpack's full potential!", 'jetpack' ) ),
+			$rest_api_notice
+		);
+
 		$ie_notice = str_replace(
 			'#HEADER_TEXT#',
 			esc_html( __( 'You are using an unsupported browser version.', 'jetpack' ) ),
@@ -72,6 +83,9 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 		if ( $this->is_wp_version_too_old() ) {
 			echo $version_notice;
+		}
+		if ( ! $this->is_rest_api_enabled() ) {
+			echo $rest_api_notice;
 		}
 		echo $noscript_notice;
 		echo $ie_notice;

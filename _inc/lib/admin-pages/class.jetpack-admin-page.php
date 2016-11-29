@@ -136,9 +136,33 @@ abstract class Jetpack_Admin_Page {
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
 	}
 
+	/**
+	 * Checks if WordPress version is too old to have REST API.
+	 *
+	 * @since 4.3
+	 *
+	 * @return bool
+	 */
 	function is_wp_version_too_old() {
 		global $wp_version;
 		return ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) );
+	}
+
+	/**
+	 * Checks if REST API is enabled.
+	 *
+	 * @since 4.4.2
+	 *
+	 * @return bool
+	 */
+	function is_rest_api_enabled() {
+		return
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			apply_filters( 'rest_enabled', true ) &&
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			apply_filters( 'rest_jsonp_enabled', true ) &&
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			apply_filters( 'rest_authentication_errors', true );
 	}
 
 	/**

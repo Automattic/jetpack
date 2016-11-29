@@ -281,23 +281,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false
 		) );
 	}
-
-	/**
-	 * Checks if REST API is enabled.
-	 *
-	 * @since 4.4.2
-	 *
-	 * @return bool
-	 */
-	function is_rest_api_enabled() {
-		return
-			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-			apply_filters( 'rest_enabled', true ) &&
-			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-			apply_filters( 'rest_jsonp_enabled', true ) &&
-			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-			apply_filters( 'rest_authentication_errors', true );
-	}
 }
 
 /*
