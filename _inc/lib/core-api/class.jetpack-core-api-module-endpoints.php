@@ -7,19 +7,6 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 	/**
-	 * List of modules that require WPCOM public access.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @var array
-	 */
-	private $modules_requiring_public = array(
-		'photon',
-		'enhanced-distribution',
-		'json-api',
-	);
-
-	/**
 	 * Check if the module requires the site to be publicly accessible from WPCOM.
 	 * If the site meets this requirement, the module is activated. Otherwise an error is returned.
 	 *
