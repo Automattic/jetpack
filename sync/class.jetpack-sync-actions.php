@@ -38,6 +38,9 @@ class Jetpack_Sync_Actions {
 		// publicize filter to prevent publicizing blacklisted post types
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
 
+		// tell w3 total cache not to cache queue queries
+		add_filter( 'w3tc_config_default_values', array( __CLASS__, 'bypass_w3_total_cache' ) );
+
 		/**
 		 * Fires on every request before default loading sync listener code.
 		 * Return false to not load sync listener code that monitors common
@@ -102,6 +105,11 @@ class Jetpack_Sync_Actions {
 		}
 
 		return $should_publicize;
+	}
+
+	static function bypass_w3_total_cache( $default_values ) {
+		$default_values['dbcache.reject.words']['default'][] = '\bjpsq_\w'
+		return $default_values;
 	}
 
 	static function set_is_importing_true() {
