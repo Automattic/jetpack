@@ -12,7 +12,7 @@ class Jetpack_Sync_Options {
 		$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s", $name ) );
 	}
 
-	static function write_option( $name, $value, $autoload = false ) {
+	static function update_option( $name, $value, $autoload = false ) {
 
 		$autoload_value = $autoload ? 'yes' : 'no';
 
