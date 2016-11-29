@@ -168,8 +168,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		/**
 		 * Fires when a full sync ends. This action is serialized
-		 * and sent to the server with checksums so that we can confirm the
-		 * sync was successful.
+		 * and sent to the server.
 		 *
 		 * @since 4.2.0
 		 */
