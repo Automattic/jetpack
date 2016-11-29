@@ -872,7 +872,7 @@ class Nova_Restaurant {
 				'post_title'   => $_POST['nova_title'][$key],
 				'tax_input'    => array(
 					self::MENU_ITEM_LABEL_TAX => $_POST['nova_labels'][$key],
-					self::MENU_TAX            => $_POST['nova_menu_tax'],
+					self::MENU_TAX            => isset( $_POST['nova_menu_tax'] ) ? $_POST['nova_menu_tax'] : null,
 				),
 			);
 
