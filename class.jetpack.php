@@ -294,13 +294,6 @@ class Jetpack {
 	public $stats = array();
 
 	/**
-	 * Any errors arising during REST API user tokens authentication
-	 *
-	 * @var array
-	 */
-	public $user_tokens_authentication_error = array();
-
-	/**
 	 * Jetpack_Sync object
 	 */
 	public $sync;
@@ -494,7 +487,7 @@ class Jetpack {
 			Jetpack_Heartbeat::init();
 		}
 
-		add_action( 'wp_json_init', array( $this, 'wp_json_init' ) );
+		add_action( 'rest_authentication_errors', array( $this, 'wp_json_authenticate' ) );
 
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
@@ -4699,6 +4692,7 @@ p {
 		} else {
 			$body = null;
 		}
+
 		$signature = $jetpack_signature->sign_current_request(
 			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body, )
 		);
@@ -4753,45 +4747,18 @@ p {
 		return new WP_User( $token_details['user_id'] );
 	}
 
-	function wp_json_init() {
-		if ( Jetpack::is_active() ) {
-			add_filter( 'determine_current_user', array( $this, 'authenticate_user_tokens' ), 20 );
-			add_filter( 'rest_authentication_errors', array( $this, 'user_tokens_authentication_error' ) );
+	// Authenticates requests from Jetpack server to WP API endpoints.
+	// Uses the existing XMLRPC oAuth implementation.
+	function wp_json_authenticate( $error ) {
+		if ( isset( $_GET['token'] ) ) {
+			$verified = $this->verify_xml_rpc_signature();
+			if ( isset( $verified['type'] ) && isset( $verified['user_id'] ) && 'user' === $verified['type']  ) {
+				wp_set_current_user( $verified['user_id'] );
+				return true;
+			}
+			return new WP_Error( 'rest_forbidden', 'Sorry. You are not allowed to do that', 403 );
 		}
-	}
-
-	/**
-	 * Authenticates REST API via user_tokens passed as GET query parameter
-	 */
-	function authenticate_user_tokens( $user_id ) {
-		$get_token = isset( $_GET[ 'user_token' ] ) ? $_GET[ 'user_token' ] : false;
-
-		if ( false === $get_token ) {
-			return $user_id;
-		}
-
-		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
-		$token_user_id = is_array( $user_tokens ) ? array_search( $get_token, $user_tokens ) : false;
-
-		if ( false !== $token_user_id ) {
-			return $token_user_id;
-		}
-		$this->user_tokens_authentication_error[] = new WP_Error( __( 'Invalid user token', 'jetpack' ) );
-
-		return $user_id;
-	}
-
-	/**
-	 * Hooks on `rest_authentication_errors` filter for passing
-	 * any user token authentication error;
-	 */
-	function user_tokens_authentication_error( $error ) {
-		// Passthrough other errors
-		if ( ! empty( $error ) ) {
-			return $error;
-		}
-
-		return $this->user_tokens_authentication_error;
+		return $error;
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
