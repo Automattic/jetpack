@@ -20,6 +20,7 @@ class Jetpack_Client {
 			'headers' => array(),
 			'stream' => false,
 			'filename' => null,
+			'sslverify' => true,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -42,8 +43,9 @@ class Jetpack_Client {
 		$redirection = $args['redirection'];
 		$stream = $args['stream'];
 		$filename = $args['filename'];
+		$sslverify = $args['sslverify'];
 
-		$request = compact( 'method', 'body', 'timeout', 'redirection', 'stream', 'filename' );
+		$request = compact( 'method', 'body', 'timeout', 'redirection', 'stream', 'filename', 'sslverify' );
 
 		@list( $token_key, $secret ) = explode( '.', $token->secret );
 		if ( empty( $token ) || empty( $secret ) ) {
@@ -281,6 +283,7 @@ class Jetpack_Client {
 			'redirection' => 'int',
 			'stream'      => 'boolean',
 			'filename'    => 'string',
+			'sslverify'   => 'boolean',
 		) );
 
 		/**
