@@ -125,8 +125,10 @@ class VideoPress_XMLRPC {
 	 */
 	public function create_media_item( $media ) {
 		foreach ( $media as & $media_item ) {
-			$title    = sanitize_title( basename( $media_item['url'] ) );
-			$media_id = videopress_create_new_media_item( $title );
+			$title = sanitize_title( basename( $media_item['url'] ) );
+			$guid  = isset( $media['guid'] ) ? $media['guid'] : null;
+
+			$media_id = videopress_create_new_media_item( $title, $guid );
 
 			wp_update_attachment_metadata( $media_id, array(
 				'original' => array(
@@ -139,5 +141,4 @@ class VideoPress_XMLRPC {
 
 		return array( 'media' => $media );
 	}
-
 }

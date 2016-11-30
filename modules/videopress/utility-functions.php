@@ -283,6 +283,12 @@ function videopress_get_transcoding_status( $post_id ) {
  * @return string
  */
 function videopress_build_url( $guid ) {
+
+	// No guid, no videopress url.
+	if ( ! $guid ) {
+		return '';
+	}
+
 	return 'https://videopress.com/v/' . $guid;
 }
 
@@ -294,17 +300,20 @@ function videopress_build_url( $guid ) {
  * @param string $title
  * @return int|WP_Error
  */
-function videopress_create_new_media_item( $title ) {
+function videopress_create_new_media_item( $title, $guid = null ) {
 	$post = array(
 		'post_type'      => 'attachment',
 		'post_mime_type' => 'video/videopress',
 		'post_title'     => $title,
 		'post_content'   => '',
+		'guid'           => videopress_build_url( $guid ),
 	);
 
 	$media_id = wp_insert_post( $post );
 
 	add_post_meta( $media_id, 'videopress_status', 'new' );
+
+	add_post_meta( $media_id, 'videopress_guid', $guid );
 
 	return $media_id;
 }
