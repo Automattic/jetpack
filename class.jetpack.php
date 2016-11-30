@@ -4752,10 +4752,16 @@ p {
 	function wp_json_authenticate( $error ) {
 		if ( isset( $_GET['token'] ) ) {
 			$verified = $this->verify_xml_rpc_signature();
+
+			if ( is_wp_error( $verified ) ) {
+				return $verified;
+			}
+
 			if ( isset( $verified['type'] ) && isset( $verified['user_id'] ) && 'user' === $verified['type']  ) {
 				wp_set_current_user( $verified['user_id'] );
 				return true;
 			}
+			
 			return new WP_Error( 'rest_forbidden', 'Sorry. You are not allowed to do that', 403 );
 		}
 		return $error;
