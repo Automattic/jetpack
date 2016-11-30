@@ -208,6 +208,8 @@ function videopress_media_send_to_editor( $html, $id, $attachment ) {
 			// video, because there isn't a local copy of the file.
 			$html = sprintf( '[videopress %1$s]', esc_attr( $videopress_guid ) );
 		}
+	} elseif ( videopress_is_attachment_without_guid( $id ) ) {
+		$html = sprintf( '[videopress postid=%d]', $id );
 	}
 	return $html;
 }

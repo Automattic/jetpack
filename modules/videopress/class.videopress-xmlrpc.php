@@ -90,7 +90,6 @@ class VideoPress_XMLRPC {
 
 			$current_poster = get_post_meta( $id, '_thumbnail_id' );
 
-
 			$meta['width']             = $vp_item['width'];
 			$meta['height']            = $vp_item['height'];
 			$meta['original']['url']   = $vp_item['original'];

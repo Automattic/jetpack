@@ -13,7 +13,7 @@ defined( 'VIDEOPRESS_MIN_WIDTH' ) or define( 'VIDEOPRESS_MIN_WIDTH', 60 );
  * @return bool true if passes validation test
  */
 function videopress_is_valid_guid( $guid ) {
-	if ( ! empty( $guid ) && strlen( $guid ) === 8 && ctype_alnum( $guid ) ) {
+	if ( ! empty( $guid ) && is_string( $guid ) && strlen( $guid ) === 8 && ctype_alnum( $guid ) ) {
 		return true;
 	}
 	return false;
@@ -394,6 +394,32 @@ function videopress_update_meta_data( $post_id ) {
 	$meta['videopress'] = $response;
 
 	wp_update_attachment_metadata( $post_id, $meta );
+
+	return true;
+}
+
+/**
+ * Check to see if this is a VideoPress post that hasn't had a guid set yet.
+ *
+ * @param int $post_id
+ * @return bool
+ */
+function videopress_is_attachment_without_guid( $post_id ) {
+	$post = get_post( $post_id );
+
+	if ( is_wp_error( $post ) ) {
+		return false;
+	}
+
+	if ( $post->post_mime_type !== 'video/videopress' ) {
+		return false;
+	}
+
+	$videopress_guid = get_post_meta( $post_id, 'videopress_guid', true );
+
+	if ( $videopress_guid ) {
+		return false;
+	}
 
 	return true;
 }

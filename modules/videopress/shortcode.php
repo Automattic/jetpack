@@ -24,7 +24,17 @@ function videopress_shortcode_callback( $attr ) {
 	/**
 	 * We only accept GUIDs as a first unnamed argument.
 	 */
-	$guid = $attr[0];
+	$guid = isset( $attr[0] ) ? $attr[0] : null;
+
+	if ( isset( $attr['postid'] ) ) {
+		$guid = get_post_meta( $attr['postid'], 'videopress_guid', true );
+
+		if ( ! $guid ) {
+			$img_src = get_site_url() . '/wp-content/plugins/jetpack/images/media-video-processing.png';
+			return '<img src="' . $img_src . '">';
+		}
+	}
+
 
 	/**
 	 * Make sure the GUID passed in matches how actual GUIDs are formatted.
