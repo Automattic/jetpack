@@ -35,13 +35,9 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$media_items         = array();
 		$errors              = array();
 
-		// We're splitting out videos and locking out the new Jetpack upload
-		// functionality to just VideoPress test blogs.
+		// We're splitting out videos for Jetpack sites
 		foreach ( $media_files as $media_item ) {
-			if ( video_is_debug_blog()
-			     && preg_match( '@^video/@', $media_item['type'] )
-			     && $jetpack_sync->is_jetpack_site()
-			) {
+			if ( preg_match( '@^video/@', $media_item['type'] ) && $jetpack_sync->is_jetpack_site() ) {
 				$jetpack_media_files[] = $media_item;
 
 			} else {
@@ -108,10 +104,6 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 * @return bool
 	 */
 	function force_wpcom_request( $blog_id ) {
-		// Only enable for VideoPress test blogs
-		if ( ! video_is_debug_blog() ) {
-			return false;
-		}
 
 		// We don't need to do anything if VideoPress is not enabled for the blog.
 		if ( ! is_videopress_enabled_on_jetpack_blog( $blog_id ) ) {
