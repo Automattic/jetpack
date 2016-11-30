@@ -75,8 +75,11 @@ class VideoPress_XMLRPC {
 				continue;
 			}
 
+			$host = parse_url( get_site_url(), PHP_URL_HOST );
+
 			$attachment->guid = $vp_item['original'];
 			$attachment->file = $vp_item['original'];
+			$attachment->icon = '//' . $host . '/wp-content/plugins/jetpack/images/media-video-processing-icon.png';
 
 			wp_update_post( $attachment );
 
@@ -86,6 +89,7 @@ class VideoPress_XMLRPC {
 			$meta = wp_get_attachment_metadata( $attachment->ID );
 
 			$current_poster = get_post_meta( $id, '_thumbnail_id' );
+
 
 			$meta['width']             = $vp_item['width'];
 			$meta['height']            = $vp_item['height'];
