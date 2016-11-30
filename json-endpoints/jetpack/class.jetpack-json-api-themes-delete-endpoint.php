@@ -28,6 +28,8 @@ class Jetpack_JSON_API_Themes_Delete_Endpoint extends Jetpack_JSON_API_Themes_En
 			 * The filter can also return an instance of WP_Error; in which case the endpoint response will
 			 * contain this error.
 			 *
+			 * @module json-api
+			 *
 			 * @since 4.4.2
 			 *
 			 * @param bool   $use_alternative_delete_method Whether to use the alternative method of deleting

@@ -21,6 +21,8 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			 * The filter can also return an instance of WP_Error; in which case the endpoint response will
 			 * contain this error.
 			 *
+			 * @module json-api
+			 *
 			 * @since 4.4.2
 			 *
 			 * @param bool   $use_alternative_install_method Whether to use the alternative method of installing
@@ -89,6 +91,8 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			 *
 			 * The filter can also return an instance of WP_Error; in which case the endpoint response will
 			 * contain this error.
+			 *
+			 * @module json-api
 			 *
 			 * @since 4.4.2
 			 *
