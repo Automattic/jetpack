@@ -191,9 +191,14 @@ class Jetpack_Custom_CSS_Data_Migration {
 
 		$meta = get_post_meta( $post_id );
 
+		$replace = false;
+		if ( isset( $meta['custom_css_add'][0] ) && 'yes' === $meta['custom_css_add'][0] ) {
+			$replace = true;
+		}
+
 		return array(
 			'preprocessor'  => isset( $meta['custom_css_preprocessor'][0] ) ? $meta['custom_css_preprocessor'][0] : '',
-			'replace'       => isset( $meta['custom_css_add'][0] )          ? $meta['custom_css_add'][0]          : '',
+			'replace'       => $replace,
 			'content_width' => isset( $meta['content_width'][0] )           ? $meta['content_width'][0]           : '',
 		);
 	}
