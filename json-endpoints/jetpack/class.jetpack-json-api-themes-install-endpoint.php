@@ -14,7 +14,20 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 		foreach ( $this->themes as $theme ) {
 
-			// hook to allow alternative install method
+			/**
+			 * Filters whether to use an alternative process for installing a WordPress.com theme.
+			 * The alternative process can be executed during the filter.
+			 *
+			 * The filter can also return an instance of WP_Error; in which case the endpoint response will
+			 * contain this error.
+			 *
+			 * @since 4.4.2
+			 *
+			 * @param bool   $use_alternative_install_method Whether to use the alternative method of installing
+			 *                                               a WPCom theme.
+			 * @param string $theme_slug                     Theme name (slug). If it is a WPCom theme,
+			 *                                               it should be suffixed with `-wpcom`.
+			 */
 			$result = apply_filters( 'jetpack_wpcom_theme_install', false, $theme );
 
 			$skin = null;
@@ -69,6 +82,21 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 				return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
 			}
 
+			/**
+			 * Filters whether to skip the standard method of downloading and validating a WordPress.com
+			 * theme. An alternative method of WPCom theme download and validation can be
+			 * executed during the filter.
+			 *
+			 * The filter can also return an instance of WP_Error; in which case the endpoint response will
+			 * contain this error.
+			 *
+			 * @since 4.4.2
+			 *
+			 * @param bool   $skip_download_filter_result Whether to skip the standard method of downloading
+			 *                                            and validating a WPCom theme.
+			 * @param string $theme_slug                  Theme name (slug). If it is a WPCom theme,
+			 *                                            it should be suffixed with `-wpcom`.
+			 */
 			$skip_download_filter_result = apply_filters( 'jetpack_wpcom_theme_skip_download', false, $theme );
 
 			if ( is_wp_error( $skip_download_filter_result ) ) {
