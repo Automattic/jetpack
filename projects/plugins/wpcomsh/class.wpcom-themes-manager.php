@@ -1,11 +1,5 @@
 <?php
 
-namespace AT_Pressable\Themes;
-
-use \WP_Error;
-
-require_once( 'constants.php' );
-
 class WPCom_Themes_Manager {
 	static $instance = null;
 
@@ -97,7 +91,7 @@ class WPCom_Themes_Manager {
 
 	static function is_wpcom_premium_theme( $theme_slug ) {
 		if (
-			! defined( __NAMESPACE__ . '\\WPCOM_PREMIUM_THEMES_PATH' ) ||
+			! defined( 'WPCOM_PREMIUM_THEMES_PATH' ) ||
 			! file_exists( WPCOM_PREMIUM_THEMES_PATH )
 		) {
 			error_log(
@@ -115,7 +109,7 @@ class WPCom_Themes_Manager {
 
 	static function is_wpcom_pub_theme( $theme_slug ) {
 		if (
-			! defined( __NAMESPACE__ . '\\WPCOM_PUB_THEMES_PATH' ) ||
+			! defined( 'WPCOM_PUB_THEMES_PATH' ) ||
 			! file_exists( WPCOM_PUB_THEMES_PATH )
 		) {
 			error_log(
@@ -205,10 +199,4 @@ class WPCom_Themes_Manager {
 
 		return false;
 	}
-}
-
-add_action( 'init', __NAMESPACE__ . '\\at_pressable_themes_init' );
-
-function at_pressable_themes_init() {
-	WPCom_Themes_Manager::init();
 }
