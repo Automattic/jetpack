@@ -43,9 +43,14 @@ class Jetpack_VideoPress {
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
 		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
 
+		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
+			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
+		}
+
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
 		add_action( 'admin_menu', array( $this,'change_add_new_menu_location' ), 999 );
 		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
+
 
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
@@ -263,6 +268,33 @@ class Jetpack_VideoPress {
 		$page = remove_submenu_page( 'upload.php', 'media-new.php' );
 
 		add_submenu_page( 'upload.php', $page[0], $page[0], 'upload_files', 'upload.php?action=add-new');
+	}
+
+	/**
+	 * Makes sure that all video mimes are added in, as multi site installs can remove them.
+	 *
+	 * @param array $existing_mimes
+	 * @return array
+	 */
+	public function add_video_upload_mimes( $existing_mimes = array() ) {
+		$mime_types = wp_get_mime_types();
+		$video_types = array_filter( $mime_types, array( $this, 'filter_video_mimes' ) );
+
+		foreach ( $video_types as $key => $value ) {
+			$existing_mimes[ $key ] = $value;
+		}
+
+		return $existing_mimes;
+	}
+
+	/**
+	 * Filter designed to get rid of non video mime types.
+	 *
+	 * @param string $value
+	 * @return int
+	 */
+	public function filter_video_mimes( $value ) {
+		return preg_match( '@^video/@', $value );
 	}
 }
 
