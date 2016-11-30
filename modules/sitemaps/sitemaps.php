@@ -294,12 +294,22 @@ function jetpack_print_sitemap() {
 	}
 	$post_types_in = join( ",", $post_types_in );
 
-	// use direct query instead because get_posts was acting too heavy for our needs
-	//$posts = get_posts( array( 'numberposts'=>1000, 'post_type'=>$post_types, 'post_status'=>'published' ) );
-	$posts = $wpdb->get_results( "SELECT ID, post_type, post_modified_gmt, comment_count FROM $wpdb->posts WHERE post_status='publish' AND post_type IN ({$post_types_in}) ORDER BY post_modified_gmt DESC LIMIT 1000" );
+	/**
+	 * Filter queried posts.
+	 *
+	 * Use direct query instead because get_posts was acting too heavy for our needs.
+	 * $posts = get_posts( array( 'numberposts'=>1000, 'post_type'=>$post_types, 'post_status'=>'published' ) );
+	 *
+	 * @module sitemaps
+	 *
+	 * @param $posts array|object|null Database posts query results.
+	 */
+	$posts = apply_filters( 'jetpack_sitemap_posts', $wpdb->get_results( "SELECT ID, post_type, post_modified_gmt, comment_count FROM $wpdb->posts WHERE post_status='publish' AND post_type IN ({$post_types_in}) ORDER BY post_modified_gmt DESC LIMIT 1000" ), $post_types, $post_types_in );
+
 	if ( empty( $posts ) ) {
 		status_header( 404 );
 	}
+
 	header( 'Content-Type: ' . jetpack_sitemap_content_type() );
 	$initstr = jetpack_sitemap_initstr( get_bloginfo( 'charset' ) );
 	$tree    = simplexml_load_string( $initstr );
@@ -436,7 +446,7 @@ function jetpack_print_sitemap() {
 	}
 	wp_reset_postdata();
 	$blog_home = array(
-		'loc'        => esc_url( get_option( 'home' ) ),
+		'loc'        => esc_url( home_url( '/' ) ),
 		'changefreq' => 'daily',
 		'priority'   => '1.0'
 	);

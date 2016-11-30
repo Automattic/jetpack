@@ -79,4 +79,46 @@ function jetpack_wpml_translate_permalink( $permalink, $post_id ) {
     return $wpml_permalink;
 }
 
+
+/**
+ * Using direct query to get right posts per language.
+ *
+ * @param array $posts All posts in array
+ * @param array $post_types Post type array
+ * @param string $post_types_in Post types ready for DB
+ *
+ * @return array|null|object Posts array per language
+ */
+function jetpack_wpml_posts_per_language( $posts, $post_types, $post_types_in ) {
+	global $wpdb;
+
+	$wpml_table   = $wpdb->prefix . 'icl_translations';
+	$current_lang = $wpdb->prepare( '%s', apply_filters( 'wpml_current_language', null ) );
+
+	$element_types    = preg_filter( '/^/', 'post_', $post_types );
+	$element_types_in = array();
+
+	foreach ( (array) $element_types as $element_type ) {
+		$element_types_in[] = $wpdb->prepare( '%s', $element_type );
+	}
+	$element_types_in = join( ",", $element_types_in );
+
+	$posts = $wpdb->get_results(
+		"SELECT ID, post_type, post_modified_gmt, comment_count 
+		FROM $wpdb->posts
+		INNER JOIN $wpml_table
+		ON ID = element_id
+		WHERE post_status = 'publish' 
+		AND post_type IN ({$post_types_in}) 
+		AND element_type IN ({$element_types_in})
+		AND language_code = {$current_lang}
+		ORDER BY post_modified_gmt 
+		DESC LIMIT 1000" );
+
+	return $posts;
+}
+
+add_filter( 'jetpack_sitemap_posts', 'jetpack_wpml_posts_per_language', 10, 3 );
+
+
 endif;
