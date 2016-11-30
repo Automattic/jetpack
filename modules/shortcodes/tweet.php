@@ -31,7 +31,7 @@ class Jetpack_Tweet {
 	 *
 	 * @return string
 	 */
-	function jetpack_tweet_shortcode( $atts ) {
+	static public function jetpack_tweet_shortcode( $atts ) {
 		$default_atts = array(
 			'tweet'       => '',
 			'align'       => 'none',
@@ -53,7 +53,7 @@ class Jetpack_Tweet {
 		}
 
 		preg_match( '/^http(s|):\/\/twitter\.com(\/\#\!\/|\/)([a-zA-Z0-9_]{1,20})\/status(es)*\/(\d+)$/', $attr['tweet'], $urlbits );
-		if ( intval( $urlbits[5] ) ) {
+		if ( isset( $urlbits[5] ) && intval( $urlbits[5] ) ) {
 			$id = 'https://twitter.com/' . $urlbits[3] . '/status/' . intval( $urlbits[5] );
 		} else {
 			return '<!-- Invalid tweet id -->';
@@ -88,7 +88,7 @@ class Jetpack_Tweet {
 	 *
 	 * @return string
 	 */
-	function jetpack_tweet_url_extra_args( $provider, $url, $args = array() ) {
+	static public function jetpack_tweet_url_extra_args( $provider, $url, $args = array() ) {
 		foreach ( self::$provider_args as $key => $value ) {
 			switch ( $key ) {
 				case 'align':
@@ -114,7 +114,7 @@ class Jetpack_Tweet {
 	 *
 	 * @since 4.5.0
 	 */
-	function jetpack_tweet_shortcode_script() {
+	static public function jetpack_tweet_shortcode_script() {
 		if ( ! wp_script_is( 'twitter-widgets', 'registered' ) ) {
 			wp_register_script( 'twitter-widgets', set_url_scheme( 'http://platform.twitter.com/widgets.js' ), array(), JETPACK__VERSION, true );
 			wp_print_scripts( 'twitter-widgets' );
