@@ -193,7 +193,7 @@ const PlanBody = React.createClass( {
 						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Surveys & Polls' ) }</h3>
-								<p>{ __( 'Unlimited surveys, unlimited responses. Use the survey editor to create surveys quickly and easily. Collect responses via your website, e-mail or on your iPad or iPhone.' ) }</p>
+								<p>{ __( 'Unlimited surveys, unlimited responses. Use the survey editor to create surveys quickly and easily. Collect responses via your website, email or on your iPad or iPhone.' ) }</p>
 								<Button href="https://polldaddy.com/dashboard/" className="is-primary">
 									{ __( 'Create a new poll' ) }
 								</Button>

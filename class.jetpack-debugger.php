@@ -298,7 +298,7 @@ class Jetpack_Debugger {
 					</div>
 
 					<div id="email_div" class="formbox">
-						<label class="h" for="your_email"><?php esc_html_e( 'E-mail', 'jetpack' ); ?></label>
+						<label class="h" for="your_email"><?php esc_html_e( 'Email', 'jetpack' ); ?></label>
 			  			<span class="errormsg"><?php esc_html_e( 'Use a valid email address.', 'jetpack' ); ?></span>
 						<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email, 'jetpack'); ?>" size="40">
 					</div>
