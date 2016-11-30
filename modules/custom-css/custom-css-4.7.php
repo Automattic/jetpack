@@ -174,6 +174,13 @@ class Jetpack_Custom_CSS_Enhancements {
 				continue;
 			}
 			$revisions = wp_get_post_revisions( $data['post']->ID, array( 'posts_per_page' => 1 ) );
+			if ( ! $revisions ) {
+				?>
+				<li><a href="<?php echo esc_url( add_query_arg( 'id', $data['post']->ID, menu_page_url( 'editcss', 0 ) ) ); ?>"><?php echo esc_html( $data['label'] ); ?></a>
+					<?php printf( esc_html__( 'Last modified: %s', 'jetpack' ), get_the_modified_date( '', $data['post'] ) ); ?></li>
+				<?php
+				continue;
+			}
 			$revision = array_shift( $revisions );
 			?>
 			<li><a href="<?php echo esc_url( get_edit_post_link( $revision->ID ) ); ?>"><?php echo esc_html( $data['label'] ); ?></a>
