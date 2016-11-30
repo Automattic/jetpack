@@ -89,10 +89,10 @@ class Jetpack_Custom_CSS_Data_Migration {
 				$pre .= $jetpack_css_post->post_content;
 
 				$css .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
-				$css .= call_user_func( $preprocessors[ $preprocessor ]['callback'], $jetpack_css_revision->post_content );
+				$css .= call_user_func( $preprocessors[ $preprocessor ]['callback'], $jetpack_css_post->post_content );
 			} else {
 				$css .= "\r\n\r\n/*\r\n\t" . esc_js( __( 'CSS Migrated from Jetpack:', 'jetpack' ) ) . "\r\n*/\r\n\r\n";
-				$css .= $jetpack_css_revision->post_content;
+				$css .= $jetpack_css_post->post_content;
 			}
 
 			wp_update_custom_css_post( $css, array(
