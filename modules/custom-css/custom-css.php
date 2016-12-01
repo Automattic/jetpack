@@ -1853,4 +1853,4 @@ if ( ! function_exists( 'safecss_filter_attr' ) ) {
 	}
 }
 
-include dirname( __FILE__ ) . '/custom-css/preprocessors.php';
+include_once dirname( __FILE__ ) . '/custom-css/preprocessors.php';

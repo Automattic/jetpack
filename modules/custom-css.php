@@ -21,8 +21,8 @@ function jetpack_load_custom_css() {
 		}
 		if ( ! Jetpack_Options::get_option( 'custom_css_4.7_migration' ) ) {
 			// Include the legacy code so we can still print old custom css until the migration.
-			include dirname( __FILE__ ) . '/custom-css/custom-css.php';
-			include dirname( __FILE__ ) . '/custom-css/migrate-to-core.php';
+			include_once dirname( __FILE__ ) . '/custom-css/custom-css.php';
+			include_once dirname( __FILE__ ) . '/custom-css/migrate-to-core.php';
 		}
 
 		// TODO: DELETE THIS
@@ -37,12 +37,12 @@ function jetpack_load_custom_css() {
 		}
 		// TODO: END DELETE THIS
 
-		include dirname( __FILE__ ) . '/custom-css/custom-css/preprocessors.php';
-		include dirname( __FILE__ ) . '/custom-css/custom-css-4.7.php';
+		include_once dirname( __FILE__ ) . '/custom-css/custom-css/preprocessors.php';
+		include_once dirname( __FILE__ ) . '/custom-css/custom-css-4.7.php';
 		return;
 	}
 
-	include dirname( __FILE__ ) . "/custom-css/custom-css.php";
+	include_once dirname( __FILE__ ) . "/custom-css/custom-css.php";
 	add_action( 'init', array( 'Jetpack_Custom_CSS', 'init' ) );
 }
 
