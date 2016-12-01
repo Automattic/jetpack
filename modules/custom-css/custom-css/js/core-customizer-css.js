@@ -142,7 +142,7 @@
 			$( '<div />', {
 				id: 'css-help-links',
 				'class': 'css-help'
-			}).prependTo( this.container );
+			}).appendTo( this.container );
 			$( '<a />', {
 				id: 'help-link',
 				target: '_blank',
