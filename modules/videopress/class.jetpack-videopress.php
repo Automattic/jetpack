@@ -48,9 +48,7 @@ class Jetpack_VideoPress {
 		}
 
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
-		add_action( 'admin_menu', array( $this,'change_add_new_menu_location' ), 999 );
 		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
-
 
 		add_filter( 'wp_mime_type_icon', array( $this, 'wp_mime_type_icon' ), 10, 3 );
 
@@ -268,8 +266,7 @@ class Jetpack_VideoPress {
 	 */
 	public function change_add_new_menu_location() {
 		$page = remove_submenu_page( 'upload.php', 'media-new.php' );
-
-		// add_submenu_page( 'upload.php', $page[0], $page[0], 'upload_files', 'upload.php?action=add-new');
+		add_submenu_page( 'upload.php', $page[0], $page[0], 'upload_files', 'upload.php?action=add-new');
 	}
 
 	/**
