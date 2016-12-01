@@ -221,7 +221,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		if ( empty( $post ) ) {
 			return $post;
 		}
-		return sizeof( wp_get_post_revisions( $post ) );
+		return (bool) wp_get_post_revisions( $post );
 	}
 
 	public static function get_revisions_url( $stylesheet = '' ) {
