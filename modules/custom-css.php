@@ -20,8 +20,6 @@ function jetpack_load_custom_css() {
 			wp_die( 'Please run a SVN up to get the latest version of trunk, or update to at least 4.7 RC1' );
 		}
 		if ( ! Jetpack_Options::get_option( 'custom_css_4.7_migration' ) ) {
-			// Include the legacy code so we can still print old custom css until the migration.
-			include_once dirname( __FILE__ ) . '/custom-css/custom-css.php';
 			include_once dirname( __FILE__ ) . '/custom-css/migrate-to-core.php';
 		}
 
