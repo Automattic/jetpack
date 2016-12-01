@@ -45,6 +45,7 @@ class VideoPress_XMLRPC {
 
 		$methods['jetpack.createMediaItem']      = array( $this, 'create_media_item' );
 		$methods['jetpack.updateVideoPressInfo'] = array( $this, 'update_videopress_info' );
+		$methods['jetpack.updateVideoPressFileStatus'] = array( $this, 'update_videopress_file_status' );
 
 		return $methods;
 	}
@@ -58,6 +59,7 @@ class VideoPress_XMLRPC {
 	 */
 	public function update_videopress_info( $vp_info ) {
 		$errors = null;
+
 		foreach ( $vp_info as $vp_item ) {
 			$id   = $vp_item['post_id'];
 			$guid = $vp_item['guid'];
@@ -84,6 +86,13 @@ class VideoPress_XMLRPC {
 			$meta = wp_get_attachment_metadata( $attachment->ID );
 
 			$current_poster = get_post_meta( $id, '_thumbnail_id' );
+
+			if ( ! isset( $meta['file_statuses'] ) ) {
+				$meta['file_statuses'] = videopress_merge_file_status( $meta, $vp_item );
+			}
+
+			// We don't need to save this, it might be wrong.
+			unset ( $vp_item['files_status'] );
 
 			$meta['width']             = $vp_item['width'];
 			$meta['height']            = $vp_item['height'];
@@ -138,5 +147,30 @@ class VideoPress_XMLRPC {
 		}
 
 		return array( 'media' => $media );
+	}
+
+	public function update_videopress_file_status( $vp_item ) {
+
+		$id     = $vp_item['post_id'];
+		$status = $vp_item['status'];
+		$format = $vp_item['format'];
+
+		$valid_formats = array( 'hd', 'ogg', 'mp4', 'dvd' );
+
+		if ( ! in_array( $format, $valid_formats ) ) {
+			return false;
+		}
+
+		if ( ! $attachment = get_post( $id ) )  {
+			return false;
+		}
+
+		$meta = wp_get_attachment_metadata( $id );
+
+		$meta['file_statuses'][ $format ] = $status;
+
+		wp_update_attachment_metadata( $id, $meta );
+
+		return true;
 	}
 }

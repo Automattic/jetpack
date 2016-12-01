@@ -259,17 +259,17 @@ function videopress_get_transcoding_status( $post_id ) {
 	$meta = wp_get_attachment_metadata( $post_id );
 
 	// If this has not been processed by videopress, we can skip the rest.
-	if ( !$meta || ! isset( $meta['videopress'] ) ) {
+	if ( ! $meta || ! isset( $meta['file_statuses'] ) ) {
 		return false;
 	}
 
-	$info = (object) $meta['videopress'];
+	$info = (object) $meta['file_statuses'];
 
 	$status = array(
-		'std_mp4' => isset( $info->files_status['std']['mp4'] ) ? $info->files_status['std']['mp4'] : null,
-		'std_ogg' => isset( $info->files_status['std']['ogg'] ) ? $info->files_status['std']['ogg'] : null,
-		'dvd_mp4' => isset( $info->files_status['dvd']['mp4'] ) ? $info->files_status['dvd']['mp4'] : null,
-		'hd_mp4'  => isset( $info->files_status['hd']['mp4'] )  ? $info->files_status['hd']['mp4']  : null,
+		'std_mp4' => isset( $info->mp4 ) ? $info->mp4 : null,
+		'std_ogg' => isset( $info->ogg ) ? $info->ogg : null,
+		'dvd_mp4' => isset( $info->dvd ) ? $info->dvd : null,
+		'hd_mp4'  => isset( $info->hd )  ? $info->hd : null,
 	);
 
 	return $status;
@@ -320,6 +320,44 @@ function videopress_create_new_media_item( $title, $guid = null ) {
 
 
 /**
+ * @param array $current_status
+ * @param array $new_meta
+ * @return array
+ */
+function videopress_merge_file_status( $current_status, $new_meta ) {
+	$new_statuses = array();
+
+	if ( isset( $new_meta['videopress']['files_status']['hd'] ) ) {
+		$new_statuses['hd'] = $new_meta['videopress']['files_status']['hd'];
+	}
+
+	if ( isset( $new_meta['videopress']['files_status']['dvd'] ) ) {
+		$new_statuses['dvd'] = $new_meta['videopress']['files_status']['dvd'];
+	}
+
+	if ( isset( $new_meta['videopress']['files_status']['std']['mp4'] ) ) {
+		$new_statuses['mp4'] = $new_meta['videopress']['files_status']['std']['mp4'];
+	}
+
+	if ( isset( $new_meta['videopress']['files_status']['std']['ogg'] ) ) {
+		$new_statuses['ogg'] = $new_meta['videopress']['files_status']['std']['ogg'];
+	}
+
+	foreach ( $new_statuses as $format => $status ) {
+		if ( ! isset( $current_status[ $format ] ) ) {
+			$current_status[ $format ] = $status;
+			continue;
+		}
+
+		if ( $current_status[ $format ] !== 'DONE' ) {
+			$current_status[ $format ] = $status;
+		}
+	}
+
+	return $current_status;
+}
+
+/**
  * Check to see if a video has completed processing.
  *
  * @since 4.4
@@ -335,25 +373,16 @@ function videopress_is_finished_processing( $post_id ) {
 
 	$meta = wp_get_attachment_metadata( $post->ID );
 
-	if ( ! isset( $meta['videopress'] ) || ! is_array( $meta['videopress'] ) ) {
+	if ( ! isset( $meta['file_statuses'] ) || ! is_array( $meta['file_statuses'] ) ) {
 		return false;
 	}
 
-	// These are explicitly declared to avoid doing unnecessary loops across two levels of arrays.
-	if ( isset( $meta['videopress']['files_status']['hd'] ) && $meta['videopress']['files_status']['hd'] != 'DONE' ) {
-		return false;
-	}
+	$check_statuses = array( 'hd', 'dvd', 'mp4', 'ogg' );
 
-	if ( isset( $meta['videopress']['files_status']['dvd'] ) && $meta['videopress']['files_status']['dvd'] != 'DONE' ) {
-		return false;
-	}
-
-	if ( isset( $meta['videopress']['files_status']['std']['mp4'] ) && $meta['videopress']['files_status']['std']['mp4'] != 'DONE' ) {
-		return false;
-	}
-
-	if ( isset( $meta['videopress']['files_status']['std']['ogg'] ) && $meta['videopress']['files_status']['std']['ogg'] != 'DONE' ) {
-		return false;
+	foreach ( $check_statuses as $status ) {
+		if ( ! isset( $meta['file_statuses'][ $status ] ) || $meta['file_statuses'][ $status ] != 'DONE' ) {
+			return false;
+		}
 	}
 
 	return true;
