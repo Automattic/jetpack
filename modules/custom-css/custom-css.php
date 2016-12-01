@@ -1853,6 +1853,4 @@ if ( ! function_exists( 'safecss_filter_attr' ) ) {
 	}
 }
 
-add_action( 'init', array( 'Jetpack_Custom_CSS', 'init' ) );
-
 include dirname( __FILE__ ) . '/custom-css/preprocessors.php';
