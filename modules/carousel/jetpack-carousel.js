@@ -414,15 +414,11 @@ jQuery(document).ready(function($) {
 				$( '.jp-carousel-wrap' ).touchwipe( {
 					wipeLeft : function ( e ) {
 						e.preventDefault();
-						if ( gallery.jp_carousel( 'hasMultipleImages' ) ) {
-							gallery.jp_carousel( 'next' );
-						}
+						gallery.jp_carousel( 'next' );
 					},
 					wipeRight : function ( e ) {
 						e.preventDefault();
-						if ( gallery.jp_carousel( 'hasMultipleImages' ) ) {
-							gallery.jp_carousel( 'previous' );
-						}
+						gallery.jp_carousel( 'previous' );
 					},
 					preventDefaultEvents : false
 				} );
