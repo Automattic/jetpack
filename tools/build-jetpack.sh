@@ -38,7 +38,7 @@ git clone --branch $TARGET_BRANCH --depth 1 git@github.com:Automattic/jetpack.gi
 cd $TARGET_DIR
 
 yarn
-yarn build
+yarn build-production
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
 # check .git
