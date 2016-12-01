@@ -743,6 +743,7 @@ class Jetpack_Custom_CSS_Enhancements {
 
 Jetpack_Custom_CSS_Enhancements::add_hooks();
 
+if ( ! function_exists( 'safecss_class' ) ) :
 function safecss_class() {
 	// Wrapped so we don't need the parent class just to load the plugin
 	if ( class_exists('safecss') ) {
@@ -786,3 +787,4 @@ function safecss_class() {
 		}
 	}
 }
+endif;
