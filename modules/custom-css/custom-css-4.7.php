@@ -12,6 +12,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 20, 2 );
 		add_action( 'customize_preview_init', array( __CLASS__, 'customize_preview_init' ) );
 		add_filter( '_wp_post_revision_fields', array( __CLASS__, '_wp_post_revision_fields' ), 10, 2 );
+		add_action( 'load-revision.php', array( __CLASS__, 'load_revision_php' ) );
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
 
@@ -739,6 +740,98 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function intval_base10( $value ) {
 		return intval( $value, 10 );
+	}
+
+	public static function load_revision_php() {
+		add_action( 'admin_footer', array( __CLASS__, 'revision_admin_footer' ) );
+	}
+
+	public static function revision_admin_footer() {
+		$post = get_post();
+		if ( 'custom_css' !== $post->post_type ) {
+			return;
+		}
+		$stylesheet = $post->post_title;
+		?>
+<script type="text/html" id="tmpl-other-themes-switcher">
+	<?php self::revisions_switcher_box( $stylesheet ); ?>
+</script>
+<style>
+.other-themes-wrap {
+	float: right;
+	background-color: #fff;
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+	box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+	padding: 5px 10px;
+	margin-bottom: 10px;
+}
+.other-themes-wrap label {
+	display: block;
+	margin-bottom: 10px;
+}
+.other-themes-wrap select {
+	float: left;
+	width: 77%;
+}
+.other-themes-wrap button {
+	float: right;
+	width: 20%;
+}
+.revisions {
+	clear: both;
+}
+</style>
+<script>
+(function($){
+	var switcher = $('#tmpl-other-themes-switcher').html(),
+		qty = $( switcher ).find('select option').length,
+		$switcher;
+
+	if ( qty >= 3 ) {
+		$('h1.long-header').before( switcher );
+		$switcher = $('.other-themes-wrap');
+		$switcher.find('button').on('click', function(e){
+			e.preventDefault();
+			if ( $switcher.find('select').val() ) {
+				window.location.href = $switcher.find('select').val();
+			}
+		})
+	}
+})(jQuery);
+</script>
+		<?php
+	}
+
+	public static function revisions_switcher_box( $stylesheet = '' ) {
+		$themes = self::get_all_themes_with_custom_css();
+		?>
+		<div class="other-themes-wrap">
+			<label for="other-themes"><?php esc_html_e( 'Would you like to view the revisions of another theme instead?', 'jetpack' ); ?></label>
+			<select id="other-themes">
+				<option value=""><?php esc_html_e( 'Select a theme&hellip;', 'jetpack' ); ?></option>
+				<?php
+				foreach ( $themes as $theme_stylesheet => $data ) {
+					$revisions = wp_get_post_revisions( $data['post']->ID, array( 'posts_per_page' => 1 ) );
+					if ( ! $revisions ) {
+						?>
+						<option value="<?php echo esc_url( add_query_arg( 'id', $data['post']->ID, menu_page_url( 'editcss', 0 ) ) ); ?>" <?php disabled( $stylesheet, $theme_stylesheet ); ?>>
+							<?php echo esc_html( $data['label'] ); ?>
+							<?php printf( esc_html__( '(modified %s ago)', 'jetpack' ), human_time_diff( strtotime( $data['post']->post_modified_gmt ) ) ); ?></option>
+						<?php
+						continue;
+					}
+					$revision = array_shift( $revisions );
+					?>
+					<option value="<?php echo esc_url( get_edit_post_link( $revision->ID ) ); ?>" <?php disabled( $stylesheet, $theme_stylesheet ); ?>>
+						<?php echo esc_html( $data['label'] ); ?>
+						<?php printf( esc_html__( '(modified %s ago)', 'jetpack' ), human_time_diff( strtotime( $data['post']->post_modified_gmt ) ) ); ?></option>
+					<?php
+				}
+				?>
+			</select>
+			<button class="button" id="other_theme_custom_css_switcher"><?php esc_html_e( 'Switch', 'jetpack' ); ?></button>
+		</div>
+		<?php
 	}
 }
 
