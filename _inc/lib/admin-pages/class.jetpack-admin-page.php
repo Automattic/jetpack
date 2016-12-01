@@ -41,10 +41,6 @@ abstract class Jetpack_Admin_Page {
 		self::$block_page_rendering_for_idc = (
 			Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
 		);
-
-		if ( ! self::$block_page_rendering_for_idc ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'additional_styles' ) );
-		}
 	}
 
 	function add_actions() {
@@ -70,6 +66,10 @@ abstract class Jetpack_Admin_Page {
 
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
+
+		if ( ! self::$block_page_rendering_for_idc ) {
+			add_action( "admin_print_styles-$hook", array( $this, 'additional_styles' ) );
+		}
 
 		// Check if the site plan changed and deactivate modules accordingly.
 		add_action( 'current_screen', array( $this, 'check_plan_deactivate_modules' ) );
