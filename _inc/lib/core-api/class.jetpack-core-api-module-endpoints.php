@@ -143,6 +143,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		if ( 'GET' === $request->get_method() ) {
 			return $this->get_modules( $request );
 		} else {
+			
 			return $this->activate_modules( $request );
 		}
 	}
@@ -189,11 +190,16 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 * @return bool|WP_Error True if modules were activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function activate_modules( $data ) {
-		$params = $data->get_json_params();
-
+		$body = $data->get_body();
+		$params = json_decode( $body, true );
+		
+		if( ! $params ) {
+			$params = $data->get_json_params();
+		}
+		
 		if (
 			! isset( $params['modules'] )
-			|| is_array( $params['modules'] )
+			|| ! is_array( $params['modules'] )
 		) {
 			return new WP_Error(
 				'not_found',
