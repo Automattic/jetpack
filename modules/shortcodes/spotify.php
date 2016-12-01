@@ -6,11 +6,13 @@
  * [spotify id="spotify:track:4bz7uB4edifWKJXSDxwHcs" width="400" height="100"]
  */
 
-add_shortcode( 'spotify', 'jetpack_spotify_shortcode' );
+if ( ! shortcode_exists( 'spotify' ) ) {
+	add_shortcode( 'spotify', 'jetpack_spotify_shortcode' );
 
-if ( get_option( 'embed_autourls' ) ) {
-	// If user enabled autourls, also convert syntax like spotify:track:4bz7uB4edifWKJXSDxwHcs
-	add_filter( 'the_content', 'jetpack_spotify_embed_ids', 7 );
+	if ( get_option( 'embed_autourls' ) ) {
+		// If user enabled autourls, also convert syntax like spotify:track:4bz7uB4edifWKJXSDxwHcs
+		add_filter( 'the_content', 'jetpack_spotify_embed_ids', 7 );
+	}
 }
 
 /**
