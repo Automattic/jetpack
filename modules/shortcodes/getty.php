@@ -6,17 +6,36 @@
  * <div class="getty embed image" style="background-color:#fff;display:inline-block;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#a7a7a7;font-size:11px;width:100%;max-width:462px;"><div style="padding:0;margin:0;text-align:left;"><a href="http://www.gettyimages.com/detail/82278805" target="_blank" style="color:#a7a7a7;text-decoration:none;font-weight:normal !important;border:none;display:inline-block;">Embed from Getty Images</a></div><div style="overflow:hidden;position:relative;height:0;padding:80.086580% 0 0 0;width:100%;"><iframe src="//embed.gettyimages.com/embed/82278805?et=jGiu6FXXSpJDGf1SnwLV2g&sig=TFVNFtqghwNw5iJQ1MFWnI8f4Y40_sfogfZLhai6SfA=" width="462" height="370" scrolling="no" frameborder="0" style="display:inline-block;position:absolute;top:0;left:0;width:100%;height:100%;"></iframe></div><p style="margin:0;"></p></div>
  */
 
-$jp_getty_caller = parse_url( get_home_url(), PHP_URL_HOST );
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	add_action( 'init', 'jetpack_getty_enable_embeds' );
+} else {
+	jetpack_getty_enable_embeds( 'jetpack' );
+}
 
-// Support their oEmbed Endpoint
-wp_oembed_add_provider( '#https?://www\.gettyimages\.com/detail/.*#i', "https://embed.gettyimages.com/oembed/?caller=$jp_getty_caller", true );
-wp_oembed_add_provider( '#https?://(www\.)?gty\.im/.*#i',              "https://embed.gettyimages.com/oembed/?caller=$jp_getty_caller", true );
+/**
+ * Register Getty as oembed provider. Add filter to reverse iframes to shortcode. Register [getty] shortcode.
+ *
+ * @since 4.5.0
+ *
+ * @param string $site Can be 'wpcom' or 'jetpack' and determines if we're in wpcom or in a Jetpack site.
+ */
+function jetpack_getty_enable_embeds( $site = 'wpcom' ) {
 
-// Allow iframes to be filtered to short code (so direct copy+paste can be done)
-add_filter( 'pre_kses', 'wpcom_shortcodereverse_getty' );
+	// Set the caller argument to pass to Getty's oembed provider.
+	$caller = 'jetpack' === $site
+		? parse_url( get_home_url(), PHP_URL_HOST )
+		: 'wordpress.com';
 
-// Actually display the Getty Embed
-add_shortcode( 'getty', 'jetpack_getty_shortcode' );
+	// Support their oEmbed Endpoint
+	wp_oembed_add_provider( '#https?://www\.gettyimages\.com/detail/.*#i', "https://embed.gettyimages.com/oembed/?caller=$caller", true );
+	wp_oembed_add_provider( '#https?://(www\.)?gty\.im/.*#i',              "https://embed.gettyimages.com/oembed/?caller=$caller", true );
+
+	// Allow iframes to be filtered to short code (so direct copy+paste can be done)
+	add_filter( 'pre_kses', 'wpcom_shortcodereverse_getty' );
+
+	// Actually display the Getty Embed
+	add_shortcode( 'getty', 'jetpack_getty_shortcode' );
+}
 
 /**
  * Compose shortcode based on Getty iframes.

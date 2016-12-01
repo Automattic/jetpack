@@ -3,6 +3,15 @@
 /**
  * Brightcove shortcode.
  *
+ * Brighcove had renovated their video player embedding code since they introduced their "new studio".
+ * See https://support.brightcove.com/en/video-cloud/docs.
+ * The new code is not 100% backward compatible, as long as a customized player is used.
+ * By the time I wrote this, there were about 150000+ posts embedded legacy players, so it would be a bad
+ * idea either to introduce a new brightcove shortcode, or to break those posts completely.
+ *
+ * That's why we introduce a less aggressive way: leaving the old embedding code untouched, and
+ * introduce a new set of shortcode parameters which are translated to the latest Brightcove embedding code.
+ *
  * e.g.
  * [brightcove video_id="12345" account_id="99999"] will be translated to the latest embedding code.
  * [brightcove exp=627045696&vid=1415670151] or [brightcove exp=1463233149&vref=1601200825] will be translated
