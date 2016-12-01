@@ -20,8 +20,10 @@ function jetpack_load_custom_css() {
 			wp_die( 'Please run a SVN up to get the latest version of trunk, or update to at least 4.7 RC1' );
 		}
 		if ( ! Jetpack_Options::get_option( 'custom_css_4.7_migration' ) ) {
-			include dirname(__FILE__) . '/custom-css/migrate-to-core.php';
 		} else {
+			// Include the legacy code so we can still print old custom css until the migration.
+			include dirname( __FILE__ ) . '/custom-css/custom-css.php';
+			include dirname( __FILE__ ) . '/custom-css/migrate-to-core.php';
 			if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				function jetpack_custom_css_undo_data_migration_cli() {
 					Jetpack_Options::delete_option( 'custom_css_4.7_migration' );
@@ -36,6 +38,7 @@ function jetpack_load_custom_css() {
 	}
 
 	include dirname( __FILE__ ) . "/custom-css/custom-css.php";
+	add_action( 'init', array( 'Jetpack_Custom_CSS', 'init' ) );
 }
 
 add_action( 'jetpack_modules_loaded', 'custom_css_loaded' );
