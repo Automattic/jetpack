@@ -37,6 +37,14 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		$this->update_options_whitelist();
 	}
 
+	public function set_late_default() {
+
+		$late_options = apply_filters( 'jetpack_options_whitelist', array() );
+		if ( ! empty( $late_options ) && is_array( $late_options ) ) {
+			$this->options_whitelist = array_merge( $this->options_whitelist, $late_options );
+		}
+	}
+
 	function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		/**
 		 * Tells the client to sync all options to the server
