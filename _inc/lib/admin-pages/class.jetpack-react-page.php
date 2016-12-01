@@ -27,8 +27,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page
 		}
 
-		// Adding a redirect meta tag for older WordPress versions
-		if ( $this->is_wp_version_too_old() ) {
+		// Adding a redirect meta tag for older WordPress versions or if the REST API is disabled
+		if ( $this->is_wp_version_too_old() || ! $this->is_rest_api_enabled() ) {
 			$this->is_redirecting = true;
 			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
 		}
