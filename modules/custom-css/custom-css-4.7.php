@@ -127,10 +127,25 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 
 	public static function admin_page() {
+		$post = null;
+		$stylesheet = null;
+		if ( isset( $_GET['id'] ) ) {
+			$post_id = absint( $_GET['id'] );
+			$post = get_post( $post_id );
+			if ( $post instanceof WP_Post && 'custom_css' === $post->post_type ) {
+				$stylesheet = $post->post_title;
+			}
+		}
 		?>
 		<div class="wrap">
+			<?php self::revisions_switcher_box( $stylesheet ); ?>
 			<h1>
-				<?php esc_html_e( 'Custom CSS', 'jetpack' );
+				<?php
+				if ( $post ) {
+					printf( 'Custom CSS for &#8220;%1$s&#8221;', wp_get_theme( $stylesheet )->Name );
+				} else {
+					esc_html_e( 'Custom CSS', 'jetpack' );
+				}
 				if ( current_user_can( 'customize' ) ) {
 					printf(
 						' <a class="page-title-action hide-if-no-customize" href="%1$s">%2$s</a>',
@@ -141,9 +156,58 @@ class Jetpack_Custom_CSS_Enhancements {
 				?>
 			</h1>
 			<p><?php esc_html_e( 'Custom CSS is now managed in the Customizer.', 'jetpack' ); ?></p>
-
-			<?php self::inactive_themes_revision_links(); ?>
+			<?php if ( $post ) : ?>
+				<div class="revisions">
+					<h3><?php esc_html_e( 'CSS', 'jetpack' ); ?></h3>
+					<textarea class="widefat" readonly><?php echo esc_textarea( $post->post_content ); ?></textarea>
+					<?php if ( $post->post_content_filtered ) : ?>
+						<h3><?php esc_html_e( 'Preprocessor', 'jetpack' ); ?></h3>
+						<textarea class="widefat" readonly><?php echo esc_textarea( $post->post_content_filtered ); ?></textarea>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
 		</div>
+
+		<style>
+			.other-themes-wrap {
+				float: right;
+				background-color: #fff;
+				-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+				box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+				padding: 5px 10px;
+				margin-bottom: 10px;
+			}
+			.other-themes-wrap label {
+				display: block;
+				margin-bottom: 10px;
+			}
+			.other-themes-wrap select {
+				float: left;
+				width: 77%;
+			}
+			.other-themes-wrap button {
+				float: right;
+				width: 20%;
+			}
+			.revisions {
+				clear: both;
+			}
+			.revisions textarea {
+				min-height: 300px;
+				background: #fff;
+			}
+		</style>
+		<script>
+			(function($){
+				var $switcher = $('.other-themes-wrap');
+				$switcher.find('button').on('click', function(e){
+					e.preventDefault();
+					if ( $switcher.find('select').val() ) {
+						window.location.href = $switcher.find('select').val();
+					}
+				});
+			})(jQuery);
+		</script>
 		<?php
 	}
 
