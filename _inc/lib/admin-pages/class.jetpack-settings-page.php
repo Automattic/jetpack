@@ -35,23 +35,23 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 		$noscript_notice = str_replace(
 			'#HEADER_TEXT#',
-			esc_html( __( 'You have JavaScript disabled', 'jetpack' ) ),
+			esc_html__( 'You have JavaScript disabled', 'jetpack' ),
 			$noscript_notice
 		);
 		$noscript_notice = str_replace(
 			'#TEXT#',
-			esc_html( __( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ) ),
+			esc_html__( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ),
 			$noscript_notice
 		);
 
 		$version_notice = str_replace(
 			'#HEADER_TEXT#',
-			esc_html( __( 'You are using an outdated version of WordPress', 'jetpack' ) ),
+			esc_html__( 'You are using an outdated version of WordPress', 'jetpack' ),
 			$version_notice
 		);
 		$version_notice = str_replace(
 			'#TEXT#',
-			esc_html( __( "Update WordPress to unlock Jetpack's full potential!", 'jetpack' ) ),
+			esc_html__( "Update WordPress to unlock Jetpack's full potential!", 'jetpack' ),
 			$version_notice
 		);
 
@@ -68,12 +68,12 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 		$ie_notice = str_replace(
 			'#HEADER_TEXT#',
-			esc_html( __( 'You are using an unsupported browser version.', 'jetpack' ) ),
+			esc_html__( 'You are using an unsupported browser version.', 'jetpack' ),
 			$ie_notice
 		);
 		$ie_notice = str_replace(
 			'#TEXT#',
-			esc_html( __( "Update your browser to unlock Jetpack's full potential!", 'jetpack' ) ),
+			esc_html__( "Update your browser to unlock Jetpack's full potential!", 'jetpack' ),
 			$ie_notice
 		);
 
