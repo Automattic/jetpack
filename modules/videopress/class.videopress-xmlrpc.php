@@ -46,6 +46,7 @@ class VideoPress_XMLRPC {
 		$methods['jetpack.createMediaItem']      = array( $this, 'create_media_item' );
 		$methods['jetpack.updateVideoPressInfo'] = array( $this, 'update_videopress_info' );
 		$methods['jetpack.updateVideoPressFileStatus'] = array( $this, 'update_videopress_file_status' );
+		$methods['jetpack.updateVideoPressPoster'] = array( $this, 'update_videopress_poster' );
 
 		return $methods;
 	}
@@ -149,11 +150,16 @@ class VideoPress_XMLRPC {
 		return array( 'media' => $media );
 	}
 
-	public function update_videopress_file_status( $vp_item ) {
+	/**
+	 * @param array $request
+	 *
+	 * @return bool
+	 */
+	public function update_videopress_file_status( $request ) {
 
-		$id     = $vp_item['post_id'];
-		$status = $vp_item['status'];
-		$format = $vp_item['format'];
+		$id     = $request['post_id'];
+		$status = $request['status'];
+		$format = $request['format'];
 
 		$valid_formats = array( 'hd', 'ogg', 'mp4', 'dvd' );
 
@@ -169,6 +175,29 @@ class VideoPress_XMLRPC {
 
 		$meta['file_statuses'][ $format ] = $status;
 
+		wp_update_attachment_metadata( $id, $meta );
+
+		return true;
+	}
+
+	/**
+	 * @param array $request
+	 * @return bool
+	 */
+	public function update_videopress_poster( $request ) {
+		$id     = $request['post_id'];
+		$poster = $request['poster'];
+
+		if ( ! $attachment = get_post( $id ) )  {
+			return false;
+		}
+
+		$thumbnail_id = videopress_download_poster_image( $poster, $id );
+		update_post_meta( $id, '_thumbnail_id', $thumbnail_id );
+
+		// Update the poster in the VideoPress info.
+		$meta = wp_get_attachment_metadata( $id );
+		$meta['videopress']['poster'] = $poster;
 		wp_update_attachment_metadata( $id, $meta );
 
 		return true;
