@@ -164,21 +164,23 @@ function jetpress_get_wpcom_theme_type( $theme_slug ) {
 function jetpress_is_wpcom_child_theme( $theme_slug ) {
 	$theme_obj = wp_get_theme( $theme_slug );
 
-	return $theme_obj->parent();
+	return $theme_obj->get('Template');
 }
 
 function jetpress_symlink_parent_theme( $child_theme_slug ) {
 	$child_theme_obj = wp_get_theme( $child_theme_slug );
-	$parent_theme_obj = $child_theme_obj->parent();
+	$parent_theme_slug = $child_theme_obj->get( 'Template' );
 
-	if ( ! $parent_theme_obj ) {
+	if ( ! $parent_theme_slug ) {
 		error_log( "Jetpress: Can't symlink parent theme. Current theme is not a child theme." );
 
 		return false;
 	}
 
-	$parent_theme_slug = $parent_theme_obj->get_stylesheet();
+	$parent_theme_slug = $parent_theme_slug . '-wpcom';
 	$parent_theme_type = jetpress_get_wpcom_theme_type( $parent_theme_slug );
+
+	error_log('gonna symlink parent theme');
 
 	return jetpress_symlink_theme( $parent_theme_slug, $parent_theme_type );
 }
