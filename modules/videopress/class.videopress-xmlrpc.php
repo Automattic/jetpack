@@ -34,8 +34,6 @@ class VideoPress_XMLRPC {
 		return self::$instance;
 	}
 
-
-
 	/**
 	 * Adds additional methods the WordPress xmlrpc API for handling VideoPress specific features
 	 *
@@ -75,11 +73,8 @@ class VideoPress_XMLRPC {
 				continue;
 			}
 
-			$host = parse_url( get_site_url(), PHP_URL_HOST );
-
 			$attachment->guid = $vp_item['original'];
 			$attachment->file = $vp_item['original'];
-			$attachment->icon = '//' . $host . '/wp-content/plugins/jetpack/images/media-video-processing-icon.png';
 
 			wp_update_post( $attachment );
 

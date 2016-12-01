@@ -52,6 +52,8 @@ class Jetpack_VideoPress {
 		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
 
 
+		add_filter( 'wp_mime_type_icon', array( $this, 'wp_mime_type_icon' ), 10, 3 );
+
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
 	}
@@ -295,6 +297,28 @@ class Jetpack_VideoPress {
 	 */
 	public function filter_video_mimes( $value ) {
 		return preg_match( '@^video/@', $value );
+  }
+
+	/**
+	 * @param string $icon
+	 * @param string $mime
+	 * @param int $post_id
+	 *
+	 * @return string
+	 */
+	public function wp_mime_type_icon( $icon, $mime, $post_id ) {
+
+		if ( $mime !== 'video/videopress' ) {
+			return $icon;
+		}
+
+		$status = get_post_meta( $post_id, 'videopress_status', true );
+
+		if ( $status === 'complete' ) {
+			return $icon;
+		}
+
+		return get_site_url() . '/wp-content/plugins/jetpack/images/media-video-processing-icon.png';
 	}
 }
 
