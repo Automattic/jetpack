@@ -96,6 +96,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			$post = get_post( $main_post_id, ARRAY_A );
 		}
 		if ( 'custom_css' === $post['post_type'] ) {
+			$fields['post_content'] = __( 'CSS', 'jetpack' );
 			$fields['post_content_filtered'] = __( 'Preprocessor', 'jetpack' );
 		}
 		return $fields;
