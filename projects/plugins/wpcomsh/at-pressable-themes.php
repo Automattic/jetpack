@@ -7,7 +7,7 @@
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
-
+error_log('in plugin file');
 function at_pressable_themes_init() {
 	require_once( 'constants.php' );
 	require_once( 'class.wpcom-themes-manager.php' );
@@ -70,7 +70,7 @@ function at_pressable_remove_theme_delete_button( $prepared_themes ) {
 
 	return $prepared_themes;
 }
-add_filter( 'wp_prepare_themes_for_js', 'at_pressable_remove_delete_button', 10 );
+add_filter( 'wp_prepare_themes_for_js', 'at_pressable_remove_theme_delete_button' );
 
 /**
  * Returns whether a theme is a WPCom one or not (ie installed/downloaded from wp.com).

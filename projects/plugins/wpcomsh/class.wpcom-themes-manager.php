@@ -16,6 +16,7 @@ class WPCom_Themes_Manager {
 	}
 
 	private function register_theme_hooks() {
+		error_log('registering hooks');
 		add_filter(
 			'jetpack_wpcom_theme_skip_download',
 			[ $this, 'jetpack_wpcom_theme_skip_download_filter_handler' ],
@@ -38,18 +39,29 @@ class WPCom_Themes_Manager {
 
 	public function jetpack_wpcom_theme_delete_filter_handler( $result, $theme_slug ) {
 		if (
-			! $this->is_wpcom_theme( $theme_slug ) ||
-		    ! $this->is_theme_symlinked( $theme_slug )
+			! self::is_wpcom_theme( $theme_slug ) ||
+		    ! self::is_theme_symlinked( $theme_slug )
 		) {
 			return false;
 		}
 
-		$result = $this->delete_symlinked_theme( $theme_slug );
+		$result = self::delete_symlinked_theme( $theme_slug );
 
 		return $result;
 	}
 
-	function symlink_theme( $theme_slug, $theme_type ) {
+	static function get_parent_theme_slug( $theme_slug ) {
+		$theme_obj = wp_get_theme( $theme_slug );
+
+		if ( is_wp_error( $theme_obj ) ) {
+			return $theme_obj;
+		}
+
+		return $theme_obj->parent();
+
+	}
+
+	static function symlink_theme( $theme_slug, $theme_type ) {
 		$themes_source_path = '';
 
 		if ( WPCOM_PUB_THEME_TYPE === $theme_type ) {
@@ -81,7 +93,7 @@ class WPCom_Themes_Manager {
 		return true;
 	}
 
-	private function delete_theme_cache( $theme_slug ) {
+	static function delete_theme_cache( $theme_slug ) {
 		$theme_obj = wp_get_theme( $theme_slug );
 
 		if ( $theme_slug && ! is_wp_error( $theme_obj ) ) {
@@ -132,7 +144,7 @@ class WPCom_Themes_Manager {
 	 *
 	 * @return bool whether a theme is symlinked in the themes' directory
 	 */
-	private function is_theme_symlinked( $theme_slug ) {
+	static function is_theme_symlinked( $theme_slug ) {
 		$site_themes_dir_path = get_theme_root();
 		$symlinked_theme_dir_path = $site_themes_dir_path . "/{$theme_slug}";
 
@@ -148,7 +160,7 @@ class WPCom_Themes_Manager {
 		return true;
 	}
 
-	private function delete_symlinked_theme( $theme_slug ) {
+	static function delete_symlinked_theme( $theme_slug ) {
 		$site_themes_dir_path = get_theme_root();
 
 		$symlinked_theme_path = $site_themes_dir_path . '/' . $theme_slug;
@@ -169,34 +181,86 @@ class WPCom_Themes_Manager {
 		);
 	}
 
-	function jetpack_wpcom_theme_skip_download_filter_handler( $result, $theme_slug ) {
-		if ( $this->is_wpcom_premium_theme( $theme_slug ) ) {
-			$theme_type = WPCOM_PREMIUM_THEME_TYPE;
-		} elseif ( $this->is_wpcom_pub_theme( $theme_slug ) ) {
-			$theme_type = WPCOM_PUB_THEME_TYPE;
-		} else {
-			// If we are dealing with a non WPCom theme, don't interfere.
-			return false;
-		}
-
-		if ( ! $this->is_theme_symlinked( $theme_slug ) ) {
-			$result = $this->symlink_theme( $theme_slug, $theme_type );
-
-			$this->delete_theme_cache( $theme_slug );
-
-			// Skip the theme installation as we've "installed" (symlinked) it manually above.
-			add_filter(
-				'jetpack_wpcom_theme_install',
-				function() use( $result ) {
-					return $result;
-				},
-				10,
-				2
-			);
-
-			return true;
+	static function get_wpcom_theme_type( $theme_slug ) {
+		if ( self::is_wpcom_premium_theme( $theme_slug ) ) {
+			return WPCOM_PREMIUM_THEME_TYPE;
+		} elseif ( self::is_wpcom_pub_theme( $theme_slug ) ) {
+			return WPCOM_PUB_THEME_TYPE;
 		}
 
 		return false;
+	}
+
+	static function is_wpcom_child_theme( $theme_slug ) {
+		$theme_obj = wp_get_theme( $theme_slug );
+
+		return $theme_obj->parent();
+	}
+
+	static function symlink_parent_theme( $child_theme_slug ) {
+		$child_theme_obj = wp_get_theme( $child_theme_slug );
+		$parent_theme_obj = $child_theme_obj->parent();
+
+		if ( ! $parent_theme_obj ) {
+			error_log( "AT Pressable: Can't symlink parent theme. Current theme is not a child theme." );
+
+			return false;
+		}
+
+		$parent_theme_slug = $parent_theme_obj->get_stylesheet();
+		$parent_theme_type = self::get_wpcom_theme_type( $parent_theme_slug );
+
+		return self::symlink_theme( $parent_theme_slug, $parent_theme_type );
+	}
+
+	function jetpack_wpcom_theme_skip_download_filter_handler( $result, $theme_slug ) {
+		$theme_type = self::get_wpcom_theme_type( $theme_slug );
+
+		// If we are dealing with a non WPCom theme, don't interfere.
+		if ( ! $theme_type ) {
+			return false;
+		}
+
+		if ( self::is_theme_symlinked( $theme_slug ) ) {
+			return false;
+		}
+
+		error_log('after is theme symlinked');
+
+		$was_theme_symlinked = self::symlink_theme( $theme_slug, $theme_type );
+
+		if ( is_wp_error( $was_theme_symlinked ) ) {
+			return $was_theme_symlinked;
+		}
+
+		self::delete_theme_cache( $theme_slug );
+
+		// Skip the theme installation as we've "installed" (symlinked) it manually above.
+		add_filter(
+			'jetpack_wpcom_theme_install',
+			function() use( $was_theme_symlinked ) {
+				return $was_theme_symlinked;
+			},
+			10,
+			2
+		);
+
+		error_log('got until child theme');
+
+
+		// If the installed WPCom theme is a child theme, we need to symlink its parent theme
+		// as well.
+		if ( self::is_wpcom_child_theme( $theme_slug ) ) {
+			$was_parent_theme_symlinked = self::symlink_parent_theme( $theme_slug );
+
+			if ( ! $was_parent_theme_symlinked ) {
+				return new WP_Error(
+					'wpcom_theme_installation_falied',
+					"Can't install specified WPCom theme. Check error log for more details."
+				);
+			}
+		}
+
+		return true;
 	}
 }
