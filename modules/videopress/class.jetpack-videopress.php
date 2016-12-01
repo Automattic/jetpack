@@ -267,7 +267,7 @@ class Jetpack_VideoPress {
 	public function change_add_new_menu_location() {
 		$page = remove_submenu_page( 'upload.php', 'media-new.php' );
 
-		add_submenu_page( 'upload.php', $page[0], $page[0], 'upload_files', 'upload.php?action=add-new');
+		// add_submenu_page( 'upload.php', $page[0], $page[0], 'upload_files', 'upload.php?action=add-new');
 	}
 
 	/**
