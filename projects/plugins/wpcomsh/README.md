@@ -1,6 +1,8 @@
-# AT Pressable Themes
+# Jetpress
 
-This plugin handles everything AT Pressable themes, from installing (symlinking) WPCom premium themes to disabling wp-admin/ Appearance -> Editor for third-party WPCom premium themes.
+This plugin is like Jetpack but for sites transferred from WPCom to Pressable with Automated Transfer (AT).
+ It handles everything from installing (symlinking) WPCom themes to disabling wp-admin/ Appearance -> Editor for
+ third-party WPCom premium themes.
 
 ## Installing/deleting WPCom themes (both pub (free) and premium)
 
@@ -33,12 +35,12 @@ This plugin removes the "Delete" button of all the WPCom themes (both pub and pr
 
 ### Installation
 
-Clone this repository into `wp-content/mu-plugins` of your self-hosted Jetpack site. As the `mu-plugins` loader doesn't parse folders and only `.php` files, create a new file called `at-plugins-loader.php` with the following contents:
+Clone this repository into `wp-content/mu-plugins` of your self-hosted Jetpack site. As the `mu-plugins` loader doesn't parse folders and only `.php` files, create a new file called `jetpress-loader.php` with the following contents:
 
 ```php
 <?php
 
-require_once( WPMU_PLUGIN_DIR . '/at-pressable-themes/plugin.php' );
+require_once( WPMU_PLUGIN_DIR . '/jetpress/jetpress.php' );
 ```
 
 Now, make two folders named `wpcom-premium-themes` and `wpcom-pub-themes` somewhere on your filesystem (e.g. `/home/<your-user-name>/`) and put two different themes into these folders (e.g. put twentyfifteen to the premium themes folder and twentyfourteen to the pub themes folder) so you know which theme is where.
