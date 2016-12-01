@@ -311,7 +311,7 @@ function videopress_create_new_media_item( $title, $guid = null ) {
 
 	$media_id = wp_insert_post( $post );
 
-	add_post_meta( $media_id, 'videopress_status', 'new' );
+	add_post_meta( $media_id, 'videopress_status', 'initiated' );
 
 	add_post_meta( $media_id, 'videopress_guid', $guid );
 

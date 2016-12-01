@@ -81,7 +81,7 @@ class VideoPress_Media_Library {
 				'relation' => 'OR',
 				array(
 					'key'     => 'videopress_status',
-					'value'   => array( 'completed', 'processing' ),
+					'value'   => array( 'completed', 'processing', 'initiated' ),
 					'compare' => 'IN',
 				),
 				array(
