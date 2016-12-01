@@ -6,8 +6,8 @@
 	margin: 16px 0;
 	direction: ltr;
 	text-align: left;
-	border-top: 1px solid #eee;
-	border-bottom: 1px solid #eee;
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
 }
 .for-codemirror {
 	width: 98%;
@@ -46,29 +46,60 @@
 	margin: 28px 0 0 0;
 	color: #aaa;
 }
+
 #customize-control-wpcom_custom_css_content_width_control .description strong {
 	font-style: normal;
 }
+
 #customize-control-jetpack_custom_css_control {
 	position: relative;
 }
+
 .css-help {
-	width: 100%;
-	overflow: hidden;
-	right: -11px;
+	border-bottom: 1px solid #ddd;
+	background: #ffffff;
 	position: relative;
+	right: 0;
+	left: 0;
+	width: 100%;
+	padding: 7px 12px;
+	overflow: hidden;
 }
+
 .css-help a {
-	float: right;
-	padding: 0 .5em;
+	float: none;
+	text-decoration: none;
+	color: #555d66;
+	padding: 0 12px 0 0;
+}
+
+.css-help a:before {
+	display: inline-block;
+	position: relative;
+	font-family: dashicons;
+	font-size: 20px;
+	padding-right: 3px;
+	top: 5px;
+	line-height: 1px;
+}
+
+.css-help a#revisions-link:before {
+	content: "\f321";
+}
+
+.css-help a#help-link:before {
+	content: "\f223";
 }
 
 #sub-accordion-section-custom_css .customize-control {
-	margin-left: 12px;
-	margin-right: 12px;
+	margin: 12px 0;
 }
 
-#sub-accordion-section-custom_css .customize-control-jetpackCss,
+#sub-accordion-section-custom_css .customize-control-jetpackCss {
+	margin: 0 -12px;
+	width: calc( 100% + 24px );
+}
+
 #customize-theme-controls #sub-accordion-section-custom_css .customize-control-title {
 	margin-left: 0;
 	margin-right: 0;
@@ -89,3 +120,4 @@ body.editing-css .wp-full-overlay.expanded {
 input[type=jetpackCss] {
 	display: none;
 }
+
