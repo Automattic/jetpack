@@ -3,7 +3,7 @@
 	font-family: Consolas, Monaco, monospace;
 	font-size: 12px;
 	line-height: 16px;
-	margin: 16px 0;
+	margin: 16px 0 0 0;
 	direction: ltr;
 	text-align: left;
 	border-top: 1px solid #ddd;
@@ -62,15 +62,23 @@
 	right: 0;
 	left: 0;
 	width: 100%;
-	padding: 7px 12px;
+	padding: 0;
 	overflow: hidden;
 }
 
 .css-help a {
 	float: none;
+	display: inline-block;
 	text-decoration: none;
+	border-bottom: 4px solid transparent;
 	color: #555d66;
-	padding: 0 12px 0 0;
+	padding: 7px 10px 5px;
+	transition: .15s color ease-in-out,.15s background-color ease-in-out,.15s border-color ease-in-out;
+}
+
+.css-help a:hover {
+	color: #0073aa;
+	background-color: #f3f3f5;
 }
 
 .css-help a:before {
@@ -81,6 +89,13 @@
 	padding-right: 3px;
 	top: 5px;
 	line-height: 1px;
+}
+
+.css-help a:focus {
+	color: #0073aa;
+	background-color: #f3f3f5;
+	border-bottom-color: #0073aa;
+	box-shadow: none;
 }
 
 .css-help a#revisions-link:before {
