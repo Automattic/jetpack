@@ -178,6 +178,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function get_target_html() {
+		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
 		if ( Jetpack_Sync_Settings::is_syncing() ) {
 			return '';
 		}
@@ -223,6 +224,7 @@ EOT;
 	 * @returns string
 	 */
 	public function get_target_html_unsupported() {
+		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
 		if ( Jetpack_Sync_Settings::is_syncing() ) {
 			return '';
 		}

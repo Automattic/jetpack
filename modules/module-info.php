@@ -565,7 +565,7 @@ add_action( 'jetpack_module_more_info_verification-tools', 'jetpack_verification
  * SEO Tools
  */
 function jetpack_seo_tools_more_link() {
-	echo 'https://support.wordpress.com/seo-tools/';
+	echo 'https://jetpack.com/support/seo-tools/';
 }
 add_action( 'jetpack_learn_more_button_seo-tools', 'jetpack_seo_tools_more_link' );
 

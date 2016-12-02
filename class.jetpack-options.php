@@ -2,11 +2,22 @@
 
 class Jetpack_Options {
 
+	/**
+	 * An array that maps a grouped option type to an option name.
+	 * @var array
+	 */
 	private static $grouped_options = array(
 		'compact' => 'jetpack_options',
 		'private' => 'jetpack_private_options'
 	);
 
+	/**
+	 * Returns an array of option names for a given type.
+	 *
+	 * @param string $type The type of option to return. Defaults to 'compact'.
+	 *
+	 * @return array
+	 */
 	public static function get_option_names( $type = 'compact' ) {
 		switch ( $type ) {
 		case 'non-compact' :
@@ -67,10 +78,19 @@ class Jetpack_Options {
 			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
 			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
-			'hide_jitm'                     // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
+			'hide_jitm',                    // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
+			'custom_css_4.7_migration',     // (bool)   Whether Custom CSS has scanned for and migrated any legacy CSS CPT entries to the new Core format.
 		);
 	}
 
+	/**
+	 * Is the option name valid?
+	 *
+	 * @param string      $name  The name of the option
+	 * @param string|null $group The name of the group that the option is in. Default to null, which will search non_compact.
+	 *
+	 * @return bool Is the option name valid?
+	 */
 	public static function is_valid( $name, $group = null ) {
 		if ( is_array( $name ) ) {
 			$compact_names = array();
@@ -105,6 +125,8 @@ class Jetpack_Options {
 	 *
 	 * @param string $name Option name
 	 * @param mixed $default (optional)
+	 *
+	 * @return mixed
 	 */
 	public static function get_option( $name, $default = false ) {
 		if ( self::is_valid( $name, 'non_compact' ) ) {
@@ -158,6 +180,8 @@ class Jetpack_Options {
 	 * @param string $name Option name
 	 * @param mixed $value Option value
 	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
+	 *
+	 * @return bool Was the option successfully updated?
 	 */
 	public static function update_option( $name, $value, $autoload = null ) {
 		/**
@@ -207,6 +231,8 @@ class Jetpack_Options {
 	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
 	 *
 	 * @param string|array $names
+	 *
+	 * @return bool Was the option successfully deleted?
 	 */
 	public static function delete_option( $names ) {
 		$result = true;
@@ -214,7 +240,6 @@ class Jetpack_Options {
 
 		if ( ! self::is_valid( $names ) ) {
 			trigger_error( sprintf( 'Invalid Jetpack option names: %s', print_r( $names, 1 ) ), E_USER_WARNING );
-
 			return false;
 		}
 
