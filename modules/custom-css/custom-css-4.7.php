@@ -276,8 +276,8 @@ class Jetpack_Custom_CSS_Enhancements {
 				'mode'           => __( 'Start Fresh', 'jetpack' ),
 				'mobile'         => __( 'On Mobile', 'jetpack' ),
 				'contentWidth'   => $content_help,
-				'revisions'      => __( 'CSS Revisions', 'jetpack' ),
-				'css_help_title' => __( 'CSS Help', 'jetpack' )
+				'revisions'      => _x( 'See full history', 'Toolbar button to see full CSS revision history', 'jetpack' ),
+				'css_help_title' => _x( 'Help', 'Toolbar button to get help with custom CSS', 'jetpack' )
 			)
 		));
 	}
