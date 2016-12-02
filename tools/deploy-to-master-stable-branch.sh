@@ -40,7 +40,14 @@ fi
 echo ""
 
 echo "Building Jetpack"
-npm install -g yarn@0.16.1
+
+# Checking for yarn
+hash yarn 2>/dev/null || {
+    echo >&2 "This script requires you to have yarn package manager installed."
+    echo >&2 "Please install it following the instructions on https://yarnpkg.com. Aborting.";
+    exit 1;
+}
+
 yarn run distclean
 yarn cache clean
 yarn

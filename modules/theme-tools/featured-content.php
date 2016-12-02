@@ -46,6 +46,14 @@ class Featured_Content {
 	public static $post_types = array( 'post' );
 
 	/**
+	 * The tag that is used to mark featured content. Users can define
+	 * a custom tag name that will be stored in this variable.
+	 *
+	 * @see Featured_Content::hide_featured_term
+	 */
+	public static $tag;
+
+	/**
 	 * Instantiate.
 	 *
 	 * All custom functionality will be hooked into the "init" action.
@@ -133,6 +141,11 @@ class Featured_Content {
 	 */
 	public static function wp_loaded() {
 		if ( self::get_setting( 'hide-tag' ) ) {
+			$settings = self::get_setting();
+
+			// This is done before setting filters for get_terms in order to avoid an infinite filter loop
+			self::$tag = get_term_by( 'name', $settings['tag-name'], 'post_tag' );
+
 			add_filter( 'get_terms',     array( __CLASS__, 'hide_featured_term'     ), 10, 3 );
 			add_filter( 'get_the_terms', array( __CLASS__, 'hide_the_featured_term' ), 10, 3 );
 		}
@@ -362,11 +375,16 @@ class Featured_Content {
 		}
 
 		$settings = self::get_setting();
-		$tag = get_term_by( 'name', $settings['tag-name'], 'post_tag' );
 
-		if ( false !== $tag ) {
+		if ( false !== self::$tag ) {
 			foreach ( $terms as $order => $term ) {
-				if ( is_object( $term ) && ( $settings['tag-id'] === $term->term_id || $settings['tag-name'] === $term->name ) ) {
+				if (
+					is_object( $term )
+					&& (
+						$settings['tag-id'] === $term->term_id
+						|| $settings['tag-name'] === $term->name
+					)
+				) {
 					unset( $terms[ $order ] );
 				}
 			}
