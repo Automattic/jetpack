@@ -91,8 +91,8 @@ function jetpack_archiveorg_shortcode( $atts ) {
 
 	$url = esc_url( set_url_scheme( "https://archive.org/embed/{$id}{$autoplay}{$poster}" ) );
 
-	$html = "<div class='embed-archiveorg-video' style='text-align:center;'><iframe src='$url' width='$width' height='$height' frameborder='0' webkitallowfullscreen='true' mozallowfullscreen='true' allowfullscreen></iframe></div>";
-	$html = apply_filters( 'video_embed_html', $html );
+	$html = "<div class='embed-archiveorg' style='text-align:center;'><iframe src='$url' width='$width' height='$height' style='border:0;' webkitallowfullscreen='true' mozallowfullscreen='true' allowfullscreen></iframe></div>";
+
 	return $html;
 }
 
