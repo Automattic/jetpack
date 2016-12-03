@@ -89,7 +89,6 @@ class VideoPress_XMLRPC {
 		$id     = $request['post_id'];
 		$status = $request['status'];
 		$format = $request['format'];
-		$poster = $request['poster'];
         $info   = $request['info'];
 
         if ( ! $attachment = get_post( $id ) )  {
@@ -106,6 +105,8 @@ class VideoPress_XMLRPC {
 
         $meta = wp_get_attachment_metadata( $id );
 
+		$new_poster = ( ! isset ( $meta['videopress']['poster'] ) || $info['poster'] !== $meta['videopress']['poster'] );
+
         $meta['width']             = $info['width'];
         $meta['height']            = $info['height'];
         $meta['original']['url']   = $info['original'];
@@ -118,14 +119,14 @@ class VideoPress_XMLRPC {
             $meta['file_statuses'][ $format ] = $status;
 		}
 
-        // Update the poster in the VideoPress info.
-        $thumbnail_id = videopress_download_poster_image( $poster, $id );
+		if ( ! get_post_meta( $id, '_thumbnail_id', true ) ) {
+			// Update the poster in the VideoPress info.
+			$thumbnail_id = videopress_download_poster_image( $info['poster'], $id );
 
-		if ( is_int( $thumbnail_id ) ) {
-			update_post_meta( $id, '_thumbnail_id', $thumbnail_id );
+			if ( is_int( $thumbnail_id ) ) {
+				update_post_meta( $id, '_thumbnail_id', $thumbnail_id );
+			}
 		}
-
-        $meta['videopress']['poster'] = $poster;
 
 		wp_update_attachment_metadata( $id, $meta );
 
