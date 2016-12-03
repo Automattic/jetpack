@@ -453,7 +453,25 @@ function videopress_is_attachment_without_guid( $post_id ) {
 	return true;
 }
 
+/**
+ * Check to see if this is a VideoPress attachment.
+ *
+ * @param int $post_id
+ * @return bool
+ */
+function is_videopress_attachment( $post_id ) {
+	$post = get_post( $post_id );
 
+	if ( is_wp_error( $post ) ) {
+		return false;
+	}
+
+	if ( $post->post_mime_type !== 'video/videopress' ) {
+		return false;
+	}
+
+	return true;
+}
 
 /**
  * Get the video update path

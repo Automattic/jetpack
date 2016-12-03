@@ -43,87 +43,16 @@ class VideoPress_XMLRPC {
 	 */
 	public function xmlrpc_methods( $methods ) {
 
-		$methods['jetpack.createMediaItem']      = array( $this, 'create_media_item' );
-		$methods['jetpack.updateVideoPressInfo'] = array( $this, 'update_videopress_info' );
-		$methods['jetpack.updateVideoPressFileStatus'] = array( $this, 'update_videopress_file_status' );
-		$methods['jetpack.updateVideoPressPoster'] = array( $this, 'update_videopress_poster' );
+		$methods['jetpack.createMediaItem']           = array( $this, 'create_media_item' );
+		$methods['jetpack.updateVideoPressMediaItem'] = array( $this, 'update_videopress_media_item' );
 
 		return $methods;
 	}
 
 	/**
-	 * Endpoint to allow the transcoding session to send updated information about the VideoPress video when it completes a stage of transcoding.
-	 *
-	 * @param array $vp_info
-	 *
-	 * @return array|bool
-	 */
-	public function update_videopress_info( $vp_info ) {
-		$errors = null;
-
-		foreach ( $vp_info as $vp_item ) {
-			$id   = $vp_item['post_id'];
-			$guid = $vp_item['guid'];
-
-			$attachment = get_post( $id );
-
-			if ( ! $attachment ) {
-				$errors[] = array(
-					'id'    => $id,
-					'error' => 'Post not found',
-				);
-
-				continue;
-			}
-
-			$attachment->guid = $vp_item['original'];
-			$attachment->file = $vp_item['original'];
-
-			wp_update_post( $attachment );
-
-			// Update the vp guid and set it to a direct meta property.
-			update_post_meta( $id, 'videopress_guid', $guid );
-
-			$meta = wp_get_attachment_metadata( $attachment->ID );
-
-			$current_poster = get_post_meta( $id, '_thumbnail_id' );
-
-			if ( ! isset( $meta['file_statuses'] ) ) {
-				$meta['file_statuses'] = videopress_merge_file_status( $meta, $vp_item );
-			}
-
-			// We don't need to save this, it might be wrong.
-			unset ( $vp_item['files_status'] );
-
-			$meta['width']             = $vp_item['width'];
-			$meta['height']            = $vp_item['height'];
-			$meta['original']['url']   = $vp_item['original'];
-			$meta['videopress']        = $vp_item;
-			$meta['videopress']['url'] = 'https://videopress.com/v/' . $guid;
-
-			if ( ! $current_poster && isset( $vp_item['poster'] ) && ! empty( $vp_item['poster'] ) ) {
-				$thumbnail_id = videopress_download_poster_image( $vp_item['poster'], $id );
-				update_post_meta( $id, '_thumbnail_id', $thumbnail_id );
-			}
-
-			wp_update_attachment_metadata( $attachment->ID, $meta );
-
-			// update the meta to tell us that we're processing or complete
-			update_post_meta( $id, 'videopress_status', videopress_is_finished_processing( $attachment->ID ) ? 'complete' : 'processing' );
-		}
-
-		if ( count( $errors ) > 0 ) {
-			return array( 'errors' => $errors );
-
-		} else {
-			return true;
-		}
-	}
-
-	/**
 	 * This is used by the WPCOM VideoPress uploader in order to create a media item with
 	 * specific meta data about an uploaded file. After this, the transcoding session will
-	 * update the meta information via the xmlrpc_update_videopress_info() method.
+	 * update the meta information via the update_videopress_media_item() method.
 	 *
 	 * Note: This method technically handles the creation of multiple media objects, though
 	 * in practice this is never done.
@@ -155,50 +84,55 @@ class VideoPress_XMLRPC {
 	 *
 	 * @return bool
 	 */
-	public function update_videopress_file_status( $request ) {
+	public function update_videopress_media_item( $request ) {
 
 		$id     = $request['post_id'];
 		$status = $request['status'];
 		$format = $request['format'];
-
-		$valid_formats = array( 'hd', 'ogg', 'mp4', 'dvd' );
-
-		if ( ! in_array( $format, $valid_formats ) ) {
-			return false;
-		}
-
-		if ( ! $attachment = get_post( $id ) )  {
-			return false;
-		}
-
-		$meta = wp_get_attachment_metadata( $id );
-
-		$meta['file_statuses'][ $format ] = $status;
-
-		wp_update_attachment_metadata( $id, $meta );
-
-		return true;
-	}
-
-	/**
-	 * @param array $request
-	 * @return bool
-	 */
-	public function update_videopress_poster( $request ) {
-		$id     = $request['post_id'];
 		$poster = $request['poster'];
+        $info   = $request['info'];
 
-		if ( ! $attachment = get_post( $id ) )  {
-			return false;
+        if ( ! $attachment = get_post( $id ) )  {
+            return false;
+        }
+
+		$attachment->guid = $info['original'];
+		$attachment->file = $info['original'];
+
+		wp_update_post( $attachment );
+
+		// Update the vp guid and set it to a direct meta property.
+		update_post_meta( $id, 'videopress_guid', $info['guid'] );
+
+        $meta = wp_get_attachment_metadata( $id );
+
+        $meta['width']             = $info['width'];
+        $meta['height']            = $info['height'];
+        $meta['original']['url']   = $info['original'];
+		$meta['videopress']        = $info;
+		$meta['videopress']['url'] = 'https://videopress.com/v/' . $info['guid'];
+
+        // Update file statuses
+		$valid_formats = array( 'hd', 'ogg', 'mp4', 'dvd' );
+		if ( in_array( $format, $valid_formats ) ) {
+            $meta['file_statuses'][ $format ] = $status;
 		}
 
-		$thumbnail_id = videopress_download_poster_image( $poster, $id );
-		update_post_meta( $id, '_thumbnail_id', $thumbnail_id );
+        // Update the poster in the VideoPress info.
+        $thumbnail_id = videopress_download_poster_image( $poster, $id );
 
-		// Update the poster in the VideoPress info.
-		$meta = wp_get_attachment_metadata( $id );
-		$meta['videopress']['poster'] = $poster;
+		if ( is_int( $thumbnail_id ) ) {
+			update_post_meta( $id, '_thumbnail_id', $thumbnail_id );
+		}
+
+        $meta['videopress']['poster'] = $poster;
+
 		wp_update_attachment_metadata( $id, $meta );
+
+		videopress_update_meta_data( $id );
+
+		// update the meta to tell us that we're processing or complete
+		update_post_meta( $id, 'videopress_status', videopress_is_finished_processing( $id ) ? 'complete' : 'processing' );
 
 		return true;
 	}
