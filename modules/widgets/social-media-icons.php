@@ -60,6 +60,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'flickr_username'     => '',
 			'wordpress_username'  => '',
 			'twitch_username'     => '',
+			'tumblr_username'     => '',
 		);
 		$this->services = array(
 			'facebook'   => array( 'Facebook', 'https://www.facebook.com/%s/' ),
@@ -74,6 +75,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'flickr'     => array( 'Flickr', 'https://www.flickr.com/photos/%s/' ),
 			'wordpress'  => array( 'WordPress.org', 'https://profiles.wordpress.org/%s/' ),
 			'twitch'     => array( 'Twitch', 'https://www.twitch.tv/%s/' ),
+			'tumblr'     => array( 'Tumblr', 'https://%s.tumblr.com' ),
 		);
 		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
