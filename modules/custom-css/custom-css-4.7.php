@@ -225,34 +225,6 @@ class Jetpack_Custom_CSS_Enhancements {
 		);
 	}
 
-	public static function inactive_themes_revision_links() {
-		$themes = self::get_all_themes_with_custom_css();
-		$stylesheet = get_stylesheet();
-		?>
-
-		<ul>
-		<?php foreach ( $themes as $theme_stylesheet => $data ) :
-			if ( $stylesheet === $theme_stylesheet ) {
-				continue;
-			}
-			$revisions = wp_get_post_revisions( $data['post']->ID, array( 'posts_per_page' => 1 ) );
-			if ( ! $revisions ) {
-				?>
-				<li><a href="<?php echo esc_url( add_query_arg( 'id', $data['post']->ID, menu_page_url( 'editcss', 0 ) ) ); ?>"><?php echo esc_html( $data['label'] ); ?></a>
-					<?php printf( esc_html__( 'Last modified: %s', 'jetpack' ), get_the_modified_date( '', $data['post'] ) ); ?></li>
-				<?php
-				continue;
-			}
-			$revision = array_shift( $revisions );
-			?>
-			<li><a href="<?php echo esc_url( get_edit_post_link( $revision->ID ) ); ?>"><?php echo esc_html( $data['label'] ); ?></a>
-				<?php printf( esc_html__( 'Last modified: %s', 'jetpack' ), get_the_modified_date( '', $data['post'] ) ); ?></li>
-		<?php endforeach; ?>
-		</ul>
-
-		<?php
-	}
-
 	public static function customize_controls_enqueue_scripts() {
 		wp_enqueue_style( 'jetpack-customizer-css' );
 		wp_enqueue_script( 'jetpack-customizer-css' );
