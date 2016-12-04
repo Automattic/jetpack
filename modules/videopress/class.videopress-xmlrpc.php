@@ -96,7 +96,6 @@ class VideoPress_XMLRPC {
         }
 
 		$attachment->guid = $info['original'];
-		$attachment->file = $info['original'];
 
 		wp_update_post( $attachment );
 
