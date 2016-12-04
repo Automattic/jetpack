@@ -41,7 +41,6 @@ class Jetpack_VideoPress {
 	public function on_init() {
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
-		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
 
 		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
 			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
@@ -161,30 +160,6 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * An override for the attachment url, which returns back the WPCOM videopress original url,
-	 * if it is set to the the objects metadata. this allows us to show the original uploaded
-	 * file on the WPCOM architecture, instead of the locally uplodaded file,
-	 * which doeasn't exist.
-	 *
-	 * @param string $url
-	 * @param int $post_id
-	 *
-	 * @return mixed
-	 */
-	public function update_attachment_url_for_videopress( $url, $post_id ) {
-
-		if ( get_post_mime_type( $post_id ) === 'video/videopress' ) {
-			$meta = wp_get_attachment_metadata( $post_id );
-
-			if ( isset( $meta['original']['url'] ) ) {
-				$url = $meta['original']['url'];
-			}
-		}
-
-		return $url;
-	}
-
-	/**
 	 * Modify the default plupload config to turn on videopress specific filters.
 	 */
 	public function videopress_pluploder_config( $config ) {
@@ -217,8 +192,15 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
+		$acceptable_pages = array(
+			'post-new.php',
+			'post.php',
+			'upload.php',
+			'customize.php',
+		);
+
 		// Only load on the post, new post, or upload pages.
-		if ( $pagenow !== 'post-new.php' && $pagenow !== 'post.php' && $pagenow !== 'upload.php' ) {
+		if ( !in_array( $pagenow, $acceptable_pages ) ) {
 			return false;
 		}
 
