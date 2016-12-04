@@ -1984,33 +1984,39 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string      $modules Can be a single module or a list of modules.
-	 * @param null|string $slug    Slug of the module in the first parameter.
+	 * @param array $modules Can be a single module or a list of modules.
 	 *
 	 * @return array
 	 */
-	public static function prepare_modules_for_response( $modules = '', $slug = null ) {
-		if ( get_option( 'permalink_structure' ) ) {
-			$sitemap_url = home_url( '/sitemap.xml' );
-			$news_sitemap_url = home_url( '/news-sitemap.xml' );
-		} else {
-			$sitemap_url = home_url( '/?jetpack-sitemap=true' );
-			$news_sitemap_url = home_url( '/?jetpack-news-sitemap=true' );
-		}
-		/** This filter is documented in modules/sitemaps/sitemaps.php */
-		$sitemap_url = apply_filters( 'jetpack_sitemap_location', $sitemap_url );
-		/** This filter is documented in modules/sitemaps/sitemaps.php */
-		$news_sitemap_url = apply_filters( 'jetpack_news_sitemap_location', $news_sitemap_url );
+	public static function prepare_modules_for_response( $modules = array() ) {
 
-		if ( is_null( $slug ) && isset( $modules['sitemaps'] ) ) {
-			// Is a list of modules
+		if ( isset( $modules['custom-css'] ) ) {
+			if ( function_exists( 'wp_get_custom_css' ) ) {
+				$modules['custom-css']['configure_url'] = add_query_arg( array(
+					'page' => 'editcss-customizer-redirect'
+				), admin_url( 'themes.php' ) );
+			}
+		}
+
+		if ( isset( $modules['sitemaps'] ) ) {
+			if ( get_option( 'permalink_structure' ) ) {
+				$sitemap_url = home_url( '/sitemap.xml' );
+				$news_sitemap_url = home_url( '/news-sitemap.xml' );
+			} else {
+				$sitemap_url = home_url( '/?jetpack-sitemap=true' );
+				$news_sitemap_url = home_url( '/?jetpack-news-sitemap=true' );
+			}
+
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			$sitemap_url = apply_filters( 'jetpack_sitemap_location', $sitemap_url );
+
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			$news_sitemap_url = apply_filters( 'jetpack_news_sitemap_location', $news_sitemap_url );
+
 			$modules['sitemaps']['extra']['sitemap_url'] = $sitemap_url;
 			$modules['sitemaps']['extra']['news_sitemap_url'] = $news_sitemap_url;
-		} elseif ( 'sitemaps' == $slug ) {
-			// It's a single module
-			$modules['extra']['sitemap_url'] = $sitemap_url;
-			$modules['extra']['news_sitemap_url'] = $news_sitemap_url;
 		}
+
 		return $modules;
 	}
 
