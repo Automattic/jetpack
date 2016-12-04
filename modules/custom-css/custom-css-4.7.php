@@ -79,10 +79,6 @@ class Jetpack_Custom_CSS_Enhancements {
 		) ) );
 	}
 
-	public static function prettify_post_revisions() {
-		add_filter( 'the_title', array( __CLASS__, 'post_title' ), 10, 2 );
-	}
-
 	/**
 	 * Shows Preprocessor code in the Revisions screen, and ensures that post_content_filtered
 	 * is maintained on revisions
