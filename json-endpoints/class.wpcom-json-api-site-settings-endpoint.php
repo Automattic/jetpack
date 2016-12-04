@@ -262,7 +262,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return (array)
 	 */
 	public function update_settings() {
-		
 		// $this->input() retrieves posted arguments whitelisted and casted to the $request_format
 		// specs that get passed in when this class is instantiated
 		/**
