@@ -600,9 +600,6 @@ class Jetpack_Custom_CSS_Enhancements {
 	public static function is_preview() {
 		return false;
 	}
-	public static function is_customizer_preview() {
-		return false;
-	}
 
 	public static function customize_preview_wp_get_custom_css( $css ) {
 		global $wp_customize;
