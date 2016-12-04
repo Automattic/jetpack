@@ -89,7 +89,7 @@ const ProStatus = React.createClass( {
 					<Button
 						compact={ true }
 						primary={ true }
-						href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl }
+						href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl + '?feature=advanced-seo' }
 					>
 						{ __( 'Upgrade' ) }
 					</Button>
