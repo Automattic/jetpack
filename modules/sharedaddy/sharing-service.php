@@ -166,8 +166,13 @@ class Sharing_Service {
 		$enabled  = get_option( 'sharing-services' );
 		$services = $this->get_all_services();
 
-		if ( !is_array( $options ) )
+		if ( ! is_array( $options )  ) {
 			$options = array( 'global' => $this->get_global_options() );
+		}
+
+		if ( ! is_array( $options['global'] ) ) {
+			$options['global'] = $this->get_global_options();
+		}
 
 		$global = $options['global'];
 
