@@ -838,7 +838,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		$themes = self::get_all_themes_with_custom_css();
 		?>
 		<div class="other-themes-wrap">
-			<label for="other-themes"><?php esc_html_e( 'Would you like to view the revisions of another theme instead?', 'jetpack' ); ?></label>
+			<label for="other-themes"><?php esc_html_e( 'Select another theme to view its custom CSS.', 'jetpack' ); ?></label>
 			<select id="other-themes">
 				<option value=""><?php esc_html_e( 'Select a theme&hellip;', 'jetpack' ); ?></option>
 				<?php
