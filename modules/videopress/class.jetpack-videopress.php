@@ -41,9 +41,7 @@ class Jetpack_VideoPress {
 	public function on_init() {
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
-
-		// Todo: Add this back in for video header support of transcoded file format.
-		// add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
+		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
 
 		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
 			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
@@ -167,6 +165,8 @@ class Jetpack_VideoPress {
 	 * if it is set to the the objects metadata. this allows us to show the original uploaded
 	 * file on the WPCOM architecture, instead of the locally uplodaded file,
 	 * which doeasn't exist.
+	 *
+	 * TODO: Fix this so that it will return a VideoPress process url, to ensure that it is in MP4 format.
 	 *
 	 * @param string $url
 	 * @param int $post_id
