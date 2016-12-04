@@ -8,6 +8,8 @@
 	text-align: left;
 	border-top: 1px solid #ddd;
 	border-bottom: 1px solid #ddd;
+	height: 300px;
+	height: calc( 100vh - 244px );
 }
 .for-codemirror {
 	width: 98%;
