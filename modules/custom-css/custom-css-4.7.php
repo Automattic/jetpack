@@ -4,6 +4,9 @@
  * Class Jetpack_Custom_CSS_Enhancements
  */
 class Jetpack_Custom_CSS_Enhancements {
+	/**
+	 * Set up the actions and filters needed for our compatability layer on top of core's Custom CSS implementation.
+	 */
 	public static function add_hooks() {
 		add_action( 'init', array( __CLASS__, 'init' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
@@ -39,6 +42,9 @@ class Jetpack_Custom_CSS_Enhancements {
 		// Stuff?
 	}
 
+	/**
+	 * Things that we do on init.
+	 */
 	public static function init() {
 		$min = '.min';
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
@@ -53,10 +59,27 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_register_script( 'jetpack-customizer-css-preview', plugins_url( 'custom-css/js/core-customizer-css-preview.js', __FILE__ ), array( 'customize-selective-refresh' ), JETPACK__VERSION, true );
 	}
 
+	/**
+	 * Things that we do on init when the Customize Preview is loading.
+	 */
 	public static function customize_preview_init() {
 		add_filter( 'wp_get_custom_css', array( __CLASS__, 'customize_preview_wp_get_custom_css' ) );
 	}
 
+	/**
+	 * Re-map the Edit CSS capability.
+	 *
+	 * Core, by default, restricts this to users that have `unfiltered_html` which
+	 * would make the feature unusable in multi-site by non-super-admins, due to Core
+	 * not shipping any solid sanitization.
+	 *
+	 * We're expanding who can use it, and then conditionally applying CSSTidy
+	 * sanitization to users that do not have the `unfiltered_html` capability.
+	 *
+	 * @param $caps
+	 * @param $cap
+	 * @return array
+	 */
 	public static function map_meta_cap( $caps, $cap ) {
 		if ( 'edit_css' === $cap ) {
 			$caps = array( 'edit_theme_options' );
@@ -64,6 +87,9 @@ class Jetpack_Custom_CSS_Enhancements {
 		return $caps;
 	}
 
+	/**
+	 * Handle our admin menu item and legacy page declaration.
+	 */
 	public static function admin_menu() {
 		// Add in our legacy page to support old bookmarks and such.
 		add_submenu_page( null, __( 'CSS', 'jetpack' ), __( 'Edit CSS', 'jetpack' ), 'edit_theme_options', 'editcss', array( __CLASS__, 'admin_page' ) );
@@ -73,6 +99,14 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( "load-{$hook}", array( __CLASS__, 'customizer_redirect' ) );
 	}
 
+	/**
+	 * Handle the redirect for the customizer.  This is necessary because
+	 * we can't directly add customizer links to the admin menu.
+	 *
+	 * There is a core patch in trac that would make this unnecessary.
+	 *
+	 * @link https://core.trac.wordpress.org/ticket/39050
+	 */
 	public static function customizer_redirect() {
 		wp_safe_redirect( self::customizer_link( array(
 			'return_url' => wp_get_referer(),
@@ -103,13 +137,18 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * Get the published custom CSS post.
 	 *
 	 * @param string $stylesheet Optional. A theme object stylesheet name. Defaults to the current theme.
-	 *
 	 * @return WP_Post|null
 	 */
 	public static function get_css_post( $stylesheet = '' ) {
 		return wp_get_custom_css_post( $stylesheet );
 	}
 
+	/**
+	 * Get the ID of a Custom CSS post tying to a given stylesheet.
+	 *
+	 * @param string $stylesheet
+	 * @return int
+	 */
 	public static function post_id( $stylesheet = '' ) {
 		$post = self::get_css_post( $stylesheet );
 		if ( $post instanceof WP_Post ) {
@@ -118,10 +157,23 @@ class Jetpack_Custom_CSS_Enhancements {
 		return 0;
 	}
 
+	/**
+	 * Partial for use in the Customizer.
+	 */
 	public static function echo_custom_css_partial() {
 		echo wp_get_custom_css();
 	}
 
+	/**
+	 * Admin page!
+	 *
+	 * This currently has two main uses -- firstly to display the css for an inactive
+	 * theme if there are no revisions attached it to a legacy bug, and secondly to
+	 * handle folks that have bookmarkes in their browser going to the old page for
+	 * managing Custom CSS in Jetpack.
+	 *
+	 * If we ever add back in a non-Customizer CSS editor, this would be the place.
+	 */
 	public static function admin_page() {
 		$post = null;
 		$stylesheet = null;
@@ -207,6 +259,14 @@ class Jetpack_Custom_CSS_Enhancements {
 		<?php
 	}
 
+	/**
+	 * Build the URL to deep link to the Customizer.
+	 *
+	 * You can modify the return url via $args.
+	 *
+	 * @param array $args
+	 * @return string
+	 */
 	public static function customizer_link( $args = array() ) {
 		$args = wp_parse_args( $args, array(
 			'return_url' => urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ),
@@ -225,6 +285,9 @@ class Jetpack_Custom_CSS_Enhancements {
 		);
 	}
 
+	/**
+	 * Handle the enqueueing and localizing for scripts to be used in the Customizer.
+	 */
 	public static function customize_controls_enqueue_scripts() {
 		wp_enqueue_style( 'jetpack-customizer-css' );
 		wp_enqueue_script( 'jetpack-customizer-css' );
@@ -250,6 +313,15 @@ class Jetpack_Custom_CSS_Enhancements {
 		));
 	}
 
+	/**
+	 * Check whether there are CSS Revisions for a given theme.
+	 *
+	 * Going forward, there should always be, but this was necessitated
+	 * early on by https://core.trac.wordpress.org/ticket/30854
+	 *
+	 * @param string $stylesheet
+	 * @return bool|null|WP_Post
+	 */
 	public static function are_there_css_revisions( $stylesheet = '' ) {
 		$post = wp_get_custom_css_post( $stylesheet );
 		if ( empty( $post ) ) {
@@ -258,6 +330,12 @@ class Jetpack_Custom_CSS_Enhancements {
 		return (bool) wp_get_post_revisions( $post );
 	}
 
+	/**
+	 * Core doesn't have a function to get the revisions url for a given post ID.
+	 *
+	 * @param string $stylesheet
+	 * @return null|string|void
+	 */
 	public static function get_revisions_url( $stylesheet = '' ) {
 		$post = wp_get_custom_css_post( $stylesheet );
 
@@ -271,6 +349,11 @@ class Jetpack_Custom_CSS_Enhancements {
 		return admin_url( 'themes.php?page=editcss' );
 	}
 
+    /**
+     * Get a map of all theme names and theme stylesheets for mapping stuff.
+     *
+     * @return array
+     */
 	public static function get_themes() {
 		$themes = wp_get_themes( array( 'errors' => null ) );
 		$all = array();
@@ -280,6 +363,11 @@ class Jetpack_Custom_CSS_Enhancements {
 		return $all;
 	}
 
+    /**
+     * When we need to get all themes that have Custom CSS saved.
+     *
+     * @return array
+     */
 	public static function get_all_themes_with_custom_css() {
 		$themes = self::get_themes();
 		$custom_css = get_posts( array(
@@ -308,6 +396,9 @@ class Jetpack_Custom_CSS_Enhancements {
 		return $return;
 	}
 
+	/**
+	 * Handle the enqueueing of scripts for customize previews.
+	 */
 	public static function wp_enqueue_scripts() {
 		if ( is_customize_preview() ) {
 			wp_enqueue_script( 'jetpack-customizer-css-preview' );
@@ -318,6 +409,13 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 	}
 
+	/**
+	 * Sanitize the CSS for users without `unfiltered_html`.
+	 *
+	 * @param $css
+	 * @param array $args
+	 * @return mixed|string
+	 */
 	public static function sanitize_css( $css, $args = array() ) {
 		$args = wp_parse_args( $args, array(
 			'force'        => false,
@@ -430,6 +528,12 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 	}
 
+	/**
+	 * Filter the current theme's stylesheet for potentially nullifying it.
+	 *
+	 * @param $current
+	 * @return mixed|void
+	 */
 	static function style_filter( $current ) {
 		if ( is_admin() ) {
 			return $current;
@@ -587,6 +691,13 @@ class Jetpack_Custom_CSS_Enhancements {
 
 	}
 
+	/**
+	 * The callback to handle sanitizing the CSS.  Takes different arguments, hence the proxy function.
+	 *
+	 * @param $css
+	 * @param $setting
+	 * @return mixed|string
+	 */
 	public static function sanitize_css_callback( $css, $setting ) {
 		global $wp_customize;
 		return self::sanitize_css( $css, array(
@@ -594,13 +705,34 @@ class Jetpack_Custom_CSS_Enhancements {
 		) );
 	}
 
+	/**
+	 * Flesh out for wpcom.
+	 *
+	 * @todo
+	 *
+	 * @return bool
+	 */
 	public static function is_freetrial() {
 		return false;
 	}
+
+	/**
+	 * Flesh out for wpcom.
+	 *
+	 * @todo
+	 *
+	 * @return bool
+	 */
 	public static function is_preview() {
 		return false;
 	}
 
+	/**
+	 * Output the custom css for customize preview.
+	 *
+	 * @param $css
+	 * @return mixed
+	 */
 	public static function customize_preview_wp_get_custom_css( $css ) {
 		global $wp_customize;
 
@@ -620,6 +752,11 @@ class Jetpack_Custom_CSS_Enhancements {
 		return $css;
 	}
 
+	/**
+	 * @param $css
+	 * @param $setting
+	 * @return string
+	 */
 	public static function customize_value_custom_css( $css, $setting ) {
 		// Find the current preprocessor
 		$jetpack_custom_css = get_theme_mod( 'jetpack_custom_css', array() );
@@ -644,7 +781,10 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 
 	/**
-	 * Soon to be deprecated as the filter moves and new function added.
+	 * @param $args
+	 * @param $css
+	 * @param $setting
+	 * @return mixed
 	 */
 	public static function customize_update_custom_css_post_content_args( $args, $css, $setting ) {
 		// Find the current preprocessor
@@ -670,6 +810,13 @@ class Jetpack_Custom_CSS_Enhancements {
 		return $args;
 	}
 
+	/**
+	 * Filter to handle the processing of preprocessed css on save.
+	 *
+	 * @param $args
+	 * @param $stylesheet
+	 * @return mixed
+	 */
 	public static function update_custom_css_data( $args, $stylesheet ) {
 		// Find the current preprocessor
 		$jetpack_custom_css = get_theme_mod( 'jetpack_custom_css', array() );
@@ -698,6 +845,11 @@ class Jetpack_Custom_CSS_Enhancements {
 	/**
 	 * When on the edit screen, make sure the custom content width
 	 * setting is applied to the large image size.
+	 *
+	 * @param array $dims
+	 * @param string $size
+	 * @param null $context
+	 * @return array
 	 */
 	static function editor_max_image_size( $dims, $size = 'medium', $context = null ) {
 		list( $width, $height ) = $dims;
@@ -711,6 +863,9 @@ class Jetpack_Custom_CSS_Enhancements {
 
 	/**
 	 * Override the content_width with a custom value if one is set.
+	 *
+	 * @param $content_width
+	 * @return int
 	 */
 	static function jetpack_content_width( $content_width ) {
 		$custom_content_width = 0;
@@ -771,10 +926,16 @@ class Jetpack_Custom_CSS_Enhancements {
 		return intval( $value, 10 );
 	}
 
+	/**
+	 * Add a footer action on revision.php to print some customizations for the theme switcher.
+	 */
 	public static function load_revision_php() {
 		add_action( 'admin_footer', array( __CLASS__, 'revision_admin_footer' ) );
 	}
 
+	/**
+	 * Print the theme switcher on revision.php and move it into place.
+	 */
 	public static function revision_admin_footer() {
 		$post = get_post();
 		if ( 'custom_css' !== $post->post_type ) {
@@ -809,6 +970,10 @@ class Jetpack_Custom_CSS_Enhancements {
 .revisions {
 	clear: both;
 }
+/* Hide the back-to-post link */
+.long-header + a {
+	display: none;
+}
 </style>
 <script>
 (function($){
@@ -831,6 +996,11 @@ class Jetpack_Custom_CSS_Enhancements {
 		<?php
 	}
 
+	/**
+	 * The HTML for the theme revision switcher box.
+	 *
+	 * @param string $stylesheet
+	 */
 	public static function revisions_switcher_box( $stylesheet = '' ) {
 		$themes = self::get_all_themes_with_custom_css();
 		?>
@@ -867,6 +1037,9 @@ class Jetpack_Custom_CSS_Enhancements {
 Jetpack_Custom_CSS_Enhancements::add_hooks();
 
 if ( ! function_exists( 'safecss_class' ) ) :
+/**
+ * Load in the class only when needed.  Makes lighter load by having one less class in memory.
+ */
 function safecss_class() {
 	// Wrapped so we don't need the parent class just to load the plugin
 	if ( class_exists('safecss') ) {
@@ -875,6 +1048,9 @@ function safecss_class() {
 
 	require_once( dirname( __FILE__ ) . '/csstidy/class.csstidy.php' );
 
+	/**
+	 * Class safecss
+	 */
 	class safecss extends csstidy_optimise {
 
 		function postparse() {
