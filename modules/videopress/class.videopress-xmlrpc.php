@@ -45,6 +45,7 @@ class VideoPress_XMLRPC {
 
 		$methods['jetpack.createMediaItem']           = array( $this, 'create_media_item' );
 		$methods['jetpack.updateVideoPressMediaItem'] = array( $this, 'update_videopress_media_item' );
+		$methods['jetpack.updateVideoPressPosterImage'] = array( $this, 'update_poster_image' );
 
 		return $methods;
 	}
@@ -104,8 +105,6 @@ class VideoPress_XMLRPC {
 
         $meta = wp_get_attachment_metadata( $id );
 
-		$new_poster = ( ! isset ( $meta['videopress']['poster'] ) || $info['poster'] !== $meta['videopress']['poster'] );
-
         $meta['width']             = $info['width'];
         $meta['height']            = $info['height'];
         $meta['original']['url']   = $info['original'];
@@ -133,6 +132,41 @@ class VideoPress_XMLRPC {
 
 		// update the meta to tell us that we're processing or complete
 		update_post_meta( $id, 'videopress_status', videopress_is_finished_processing( $id ) ? 'complete' : 'processing' );
+
+		// Get the attached file and if there isn't one, then let's update it with the one from the server.
+		$file = get_attached_file( $id );
+		if ( ! $file && is_string( $info['original'] ) ) {
+			videopress_download_video( $info['original'], $id );
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param array $request
+	 * @return bool
+	 */
+	public function update_poster_image( $request ) {
+
+		$post_id = $request['post_id'];
+		$poster  = $request['poster'];
+
+		if ( ! $attachment = get_post( $post_id ) )  {
+			return false;
+		}
+
+		// Update the poster in the VideoPress info.
+		$thumbnail_id = videopress_download_poster_image( $poster, $post_id );
+
+		if ( !is_int( $thumbnail_id ) ) {
+			return false;
+		}
+
+		update_post_meta( $post_id, '_thumbnail_id', $thumbnail_id );
+		$meta = wp_get_attachment_metadata( $post_id );
+
+		$meta['videopress']['poster'] = $poster;
+		wp_update_attachment_metadata( $post_id, $meta );
 
 		return true;
 	}
