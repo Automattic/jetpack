@@ -342,6 +342,9 @@ class Jetpack_Custom_CSS_Enhancements {
 		// If we have any currently saved customizations...
 		if ( $post instanceof WP_Post ) {
 			$revisions = wp_get_post_revisions( $post->ID, array( 'posts_per_page' => 1 ) );
+			if ( empty( $revisions ) || is_wp_error( $revisions ) ) {
+				return admin_url( 'themes.php?page=editcss' );
+			}
 			$revision = reset( $revisions );
 			return get_edit_post_link( $revision->ID );
 		}
