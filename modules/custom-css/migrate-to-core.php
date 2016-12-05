@@ -1,4 +1,11 @@
 <?php
+/**
+ * Migration from Jetpack Custom CSS to WordPress' Core CSS.
+ *
+ * @since 4.4.2
+ *
+ * @package Jetpack
+ */
 
 /**
  * Class Jetpack_Custom_CSS_Data_Migration
@@ -73,7 +80,6 @@ class Jetpack_Custom_CSS_Data_Migration {
 			}
 
 			// Do we need to remove any filters here for users without `unfiltered_html` ?
-
 			wp_update_custom_css_post( $css, array(
 				'stylesheet'   => $stylesheet,
 				'preprocessed' => $pre,
@@ -196,7 +202,8 @@ class Jetpack_Custom_CSS_Data_Migration {
 	 *
 	 * Jetpack used to version the settings by storing them as meta on the revision.
 	 *
-	 * @param integer $post_id
+	 * @param integer $post_id Post ID.
+	 *
 	 * @return array
 	 */
 	public static function get_options( $post_id = null ) {
