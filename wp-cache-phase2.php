@@ -389,7 +389,7 @@ function wp_cache_get_ob(&$buffer) {
 		$wp_cache_mfunc_enabled = 0;
 
 	$new_cache = true;
-	$wp_cache_meta = '';
+	$wp_cache_meta = array();
 
 	/* Mode paranoic, check for closing tags 
 	 * we avoid caching incomplete files */
