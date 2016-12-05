@@ -170,7 +170,7 @@ class Sharing_Service {
 			$options = array( 'global' => $this->get_global_options() );
 		}
 
-		if ( isset( $options['global'] ) && ! is_array( $options['global'] ) ) {
+		if ( ! isset( $options['global'] ) || ! is_array( $options['global'] ) ) {
 			$options['global'] = $this->get_global_options();
 		}
 
