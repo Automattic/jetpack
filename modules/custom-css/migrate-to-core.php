@@ -142,18 +142,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 	 * @return array|bool|null|WP_Post
 	 */
 	public static function get_post() {
-		/**
-		 * Filter the ID of the post where Custom CSS is stored, before the ID is retrieved.
-		 *
-		 * If the callback function returns a non-null value, then post_id() will immediately
-		 * return that value, instead of retrieving the normal post ID.
-		 *
-		 * @module custom-css
-		 *
-		 * @since 3.8.1
-		 *
-		 * @param null null The ID to return instead of the normal ID.
-		 */
+		/** This filter is documented in modules/custom-css/custom-css.php */
 		$custom_css_post_id = apply_filters( 'jetpack_custom_css_pre_post_id', null );
 		if ( ! is_null( $custom_css_post_id ) ) {
 			return get_post( $custom_css_post_id );

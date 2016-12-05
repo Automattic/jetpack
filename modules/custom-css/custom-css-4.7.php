@@ -475,34 +475,12 @@ class Jetpack_Custom_CSS_Enhancements {
 			// if we're not using a preprocessor
 			if ( ! $args['preprocessor'] ) {
 
-				/**
-				 * Fires before parsing the css with CSSTidy, but only if
-				 * the preprocessor is not configured for use.
-				 *
-				 * @module custom-css
-				 *
-				 * @since 1.7.0
-				 *
-				 * @param obj $csstidy The csstidy object.
-				 * @param string $css Custom CSS.
-				 * @param array $args Array of custom CSS arguments.
-				 */
+				/** This action is documented in modules/custom-css/custom-css.php */
 				do_action( 'safecss_parse_pre', $csstidy, $css, $args );
 
 				$csstidy->parse( $css );
 
-				/**
-				 * Fires after parsing the css with CSSTidy, but only if
-				 * the preprocessor is not configured for use.
-				 *
-				 * @module custom-css
-				 *
-				 * @since 1.7.0
-				 *
-				 * @param obj $csstidy The csstidy object.
-				 * @param array $warnings Array of warnings.
-				 * @param array $args Array of custom CSS arguments.
-				 */
+				/** This action is documented in modules/custom-css/custom-css.php */
 				do_action( 'safecss_parse_post', $csstidy, $warnings, $args );
 
 				$css = $csstidy->print->plain();
@@ -666,7 +644,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		 *
 		 * @module custom-css
 		 *
-		 * @since 4.?.?
+		 * @since 4.4.2
 		 *
 		 * @param $wp_customize The WP_Customize object.
 		 */
@@ -1058,15 +1036,7 @@ function safecss_class() {
 
 		function postparse() {
 
-			/**
-			 * Fires after parsing the css.
-			 *
-			 * @module custom-css
-			 *
-			 * @since 1.8.0
-			 *
-			 * @param obj $this CSSTidy object.
-			 */
+			/** This action is documented in modules/custom-css/custom-css.php */
 			do_action( 'csstidy_optimize_postparse', $this );
 
 			return parent::postparse();
@@ -1074,15 +1044,7 @@ function safecss_class() {
 
 		function subvalue() {
 
-			/**
-			 * Fires before optimizing the Custom CSS subvalue.
-			 *
-			 * @module custom-css
-			 *
-			 * @since 1.8.0
-			 *
-			 * @param obj $this CSSTidy object.
-			 **/
+			/** This action is documented in modules/custom-css/custom-css.php */
 			do_action( 'csstidy_optimize_subvalue', $this );
 
 			return parent::subvalue();
