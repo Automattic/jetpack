@@ -352,11 +352,11 @@ class Jetpack_Custom_CSS_Enhancements {
 		return admin_url( 'themes.php?page=editcss' );
 	}
 
-    /**
-     * Get a map of all theme names and theme stylesheets for mapping stuff.
-     *
-     * @return array
-     */
+	/**
+	 * Get a map of all theme names and theme stylesheets for mapping stuff.
+	 *
+	 * @return array
+	 */
 	public static function get_themes() {
 		$themes = wp_get_themes( array( 'errors' => null ) );
 		$all = array();
@@ -366,11 +366,11 @@ class Jetpack_Custom_CSS_Enhancements {
 		return $all;
 	}
 
-    /**
-     * When we need to get all themes that have Custom CSS saved.
-     *
-     * @return array
-     */
+	/**
+	 * When we need to get all themes that have Custom CSS saved.
+	 *
+	 * @return array
+	 */
 	public static function get_all_themes_with_custom_css() {
 		$themes = self::get_themes();
 		$custom_css = get_posts( array(
