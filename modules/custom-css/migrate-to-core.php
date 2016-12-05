@@ -110,8 +110,8 @@ class Jetpack_Custom_CSS_Data_Migration {
 			) );
 		}
 
-		Jetpack::log( 'custom_css_4.7_migration', sizeof( $migrated ) . 'revisions migrated' );
-		return sizeof( $migrated );
+		Jetpack::log( 'custom_css_4.7_migration', count( $migrated ) . 'revisions migrated' );
+		return count( $migrated );
 	}
 
 	/**
