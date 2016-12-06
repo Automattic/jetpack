@@ -1804,6 +1804,7 @@ function custom_css_restore_revision( $_post_id, $_revision_id ) {
 	return Jetpack_Custom_CSS::restore_revision( $_post_id, $_revision_id );
 }
 
+if ( ! function_exists( 'safecss_class' ) ) :
 function safecss_class() {
 	// Wrapped so we don't need the parent class just to load the plugin
 	if ( class_exists('safecss') )
@@ -1846,6 +1847,7 @@ function safecss_class() {
 		}
 	}
 }
+endif;
 
 if ( ! function_exists( 'safecss_filter_attr' ) ) {
 	function safecss_filter_attr( $css, $element = 'div' ) {
@@ -1853,6 +1855,4 @@ if ( ! function_exists( 'safecss_filter_attr' ) ) {
 	}
 }
 
-add_action( 'init', array( 'Jetpack_Custom_CSS', 'init' ) );
-
-include dirname( __FILE__ ) . '/custom-css/preprocessors.php';
+include_once dirname( __FILE__ ) . '/custom-css/preprocessors.php';
