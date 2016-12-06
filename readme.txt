@@ -269,3 +269,9 @@ This release improves Jetpack compatibility with WordPress 4.7.
 * The PHP warnings of Sitemaps stylesheets have been eliminated.
 * We’ve done away with the warnings that appeared when Tonesque processes a file which claims to be one filetype, but is actually another.
 * We’ve exterminated PHP notices that appeared when using Random Redirect, as well as when the author wasn't set.
+
+
+== Upgrade Notice ==
+
+= 4.4.2 =
+Jetpack 4.4.2 fixes compatibility issues with WordPress 4.7. Please upgrade immediately.
