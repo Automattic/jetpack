@@ -3,7 +3,7 @@ Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, an
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 4.4.1
 Requires at least: 4.5
-Tested up to: 4.6.1
+Tested up to: 4.7
 
 Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
 
@@ -77,27 +77,22 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.4.2 =
 
+* Release date: December 6, 2016
+
+This release improves Jetpack compatibility with WordPress 4.7.
+
 **Compatibility changes**
 
-* Custom CSS: Made the Custom CSS feature of Jetpack compatible with the CSS Customizer editor coming with WordPress 4.7. #5527
-* General: Adapted the code to work with the new hook structure coming in WordPress 4.7. #5787
-* Sync: improved compatibility with the wp-missed-schedule plugin. #5723
-
-**Enhancements**
-
-* Admin: now redirecting users to the legacy settings page if WordPress REST API is disabled using filters. #5775
-* Sync: cleared out unneeded scheduled jobs. #5713
+* Custom CSS: Made the Custom CSS feature of Jetpack compatible with the CSS Customizer editor in WordPress 4.7.
+* Sync: improved compatibility with the wp-missed-schedule plugin.
 
 **Bug fixes**
 
-* Featured Content: made sure there is no infinite loop when removing the featured tag from the tag list. #5784
-* Admin: made sure help tabs are not being hidden. #5783
-* Admin: made At a Glance page works nicely when there is no backup data yet. #5774
-* General: corrected spelling of the word "email". #5773
-* JSON API: added error handling to the term updation endpoint. #5767
-* Sync: now making sure that needed classes are loaded. #5744
-* JSON API: made the theme getter endpoint work properly. #5727
-* Admin: no longer checking if the site is publicly available to activate a module. #5609
+* Featured Content: made sure there is no infinite loop when removing the featured tag from the tag list.
+* Admin: made sure help tabs are not being hidden.
+* Admin: made At a Glance page work nicely when there is no backup data yet.
+* Sync: now making sure that needed classes are loaded, preventing errors.
+* Sync: cleared out unneeded scheduled jobs.
 
 = 4.4.1 =
 
