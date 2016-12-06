@@ -48,12 +48,8 @@
 				indentWithTabs: true,
 				lineWrapping: true
 			} );
-			this.setEditorHeight();
 
 			this.addListeners();
-		},
-		setEditorHeight: function() {
-			this.editor.setSize( null, $(document).height() * 0.5 );
 		},
 		/**
 		 * Adds various listeners for CodeMirror to render and keep in sync
@@ -69,9 +65,6 @@
 			this.editor.on( 'focus', function( editor ) {
 				editor.refresh();
 			});
-
-			// React to window resizing for CodeMirror height
-			$( window ).resize( _.bind( _.debounce( this.setEditorHeight, 100 ), this ) );
 
 			// when the CodeMirror instance changes, mirror to the textarea,
 			// where we have our "true" change event handler bound. This allows both to function.
