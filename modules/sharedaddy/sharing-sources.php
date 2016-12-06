@@ -865,7 +865,7 @@ class Share_Facebook extends Sharing_Source {
 	}
 
 	function guess_locale_from_lang( $lang ) {
-		if ( 'en' == $lang || 'en_US' == $lang || !$lang ) {
+		if ( 'en' == $lang || 'en_US' == $lang || 'en_AU' == $lang || 'en_CA' == $lang || !$lang ) {
 			return 'en_US';
 		}
 
