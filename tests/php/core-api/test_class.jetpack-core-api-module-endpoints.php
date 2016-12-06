@@ -50,6 +50,10 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_REST_Con
 		);
 	}
 
+	public function test_authorization_from_jetpack_server() {
+		return false;
+	}
+
 	public function test_update_item() {}
 	public function test_context_param() {}
 	public function test_get_items() {}
