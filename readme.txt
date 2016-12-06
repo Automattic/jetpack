@@ -75,13 +75,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 4.4.2 =
+= 4.5 =
 
 * Release date:
 * Release post:
 
 **Bug Fixes**
 
+* Admin Page: numerous design improvements. #5976, #5978, #5983
 * Carousel: fix infinite loop on posts that have attachments that were returning null. #5867
 * Cli: avoid PHP Notice when running `wp jetpack` from the command line. #5874
 * Custom Content Types: avoid PHP warnings in the Restaurant Menu Post type. #5777
@@ -89,7 +90,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Infinite Scroll: remove deprecated function call to prevent notices when using Infinite Scroll in Customizer. #5934
 * JSON API: allow creating a child category from WordPress.com. #5856
 * Sharing: ReCaptcha error fix for the Email sharing button. #5548
-* Shortcodes: add several new shortcodes. #5838
+* Shortcodes: add several new shortcodes. #5838, #5917
 * Shorcodes: remove the blip.tv shortcode, as the service is now extinct. #5853
 * Widget Visibility: allow display of empty categories in the dropdowns. #5770
 * Widgets: various layout fixes for multiple widgets in the customizer and in the Widgets admin screen. #5905
@@ -111,10 +112,30 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Monitor: email checkbox with a link to manage settings on WordPress.com. #5751
 * Related Posts: allow updating Related Posts options from the customizer. #4293
 * Related Posts: add a filter allowing site owners to customize the output of the Related Posts headline. #5740
+* Sharing: add new variables for the custom sharing buttons. #5832
 * Theme Tools: add new Content Options to the customizer for supported themes. #5825
 * Theme Tools: load Holiday Snow in Footer Instead of Head. #5931
 * Widgets: add Blog Stats, Authors, Follow, Milestone. #5497, #5511, #5615
 * Widgets: add Tumblr and Twitch to Social Media Icons Widget. #5777, #5799
+
+= 4.4.2 =
+
+* Release date: December 6, 2016
+
+This release improves Jetpack compatibility with WordPress 4.7.
+
+**Compatibility changes**
+
+* Custom CSS: Made the Custom CSS feature of Jetpack compatible with the CSS Customizer editor in WordPress 4.7.
+* Sync: improved compatibility with the wp-missed-schedule plugin.
+
+**Bug Fixes**
+
+* Featured Content: made sure there is no infinite loop when removing the featured tag from the tag list.
+* Admin: made sure help tabs are not being hidden.
+* Admin: made At a Glance page work nicely when there is no backup data yet.
+* Sync: now making sure that needed classes are loaded, preventing errors.
+* Sync: cleared out unneeded scheduled jobs.
 
 = 4.4.1 =
 
