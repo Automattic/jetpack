@@ -168,7 +168,7 @@ function jetpack_lytro_shortcode_handler( $atts ) {
 	if ( ! empty( $atts['username'] ) ) {
 		$src = sprintf( 'https://pictures.lytro.com/%s/pictures/%d/embed', $atts['username'], $atts['photo'] );
 	} else {
-		$src = sprintf( 'https://www.lytro.com/living-pictures/%d/embed', $atts['photo'] );
+		$src = sprintf( 'https://pictures.lytro.com/pictures/%d/embed', $atts['photo'] );
 	}
 
 	// Add query args and build the iframe.
