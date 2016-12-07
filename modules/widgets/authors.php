@@ -8,13 +8,17 @@
  * 2. The number of posts to be displayed per author (defaults to 0)
  * 3. Avatar size
  */
-class Widget_Authors extends WP_Widget {
+class Jetpack_Widget_Authors extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'authors',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Authors', 'jetpack' ) ),
-			array( 'classname' => 'widget_authors', 'description' => __( 'Display blogs authors with avatars and recent posts.', 'jetpack' ) ),
+			array(
+				'classname' => 'widget_authors',
+				'description' => __( 'Display blogs authors with avatars and recent posts.', 'jetpack' ),
+				'customize_selective_refresh' => true,
+			),
 			array( 'width' => 300 )
 		);
 
@@ -48,22 +52,50 @@ class Widget_Authors extends WP_Widget {
 		// We need to query at least one post to determine whether an author has written any posts or not
 		$query_number = max( $instance['number'], 1 );
 
+		$default_excluded_authors = array();
+		/**
+		 * Filter authors from the Widget Authors widget.
+		 *
+		 * @module widgets
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param array $default_excluded_authors Array of user ID's that will be excluded
+		 */
+		$excluded_authors = apply_filters( 'jetpack_widget_authors_exclude', $default_excluded_authors );
+
 		$authors = get_users( array(
 			'fields' => 'all',
-			'who' => 'authors'
+			'who' => 'authors',
+			'exclude' => (array) $excluded_authors,
 		) );
 
 		echo $args['before_widget'];
-		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
+		$title = apply_filters( 'widget_title', $instance['title'] );
+		echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
 		echo '<ul>';
+
+		$default_post_type = 'post';
+		/**
+		 * Filter types of posts that will be counted in the widget
+		 *
+		 * @module widgets
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param string|array $default_post_type type(s) of posts to count for the widget.
+		 */
+		$post_types = apply_filters( 'jetpack_widget_authors_post_types', $default_post_type );
 
 		foreach ( $authors as $author ) {
 			$r = new WP_Query( array(
 				'author'         => $author->ID,
 				'posts_per_page' => $query_number,
-				'post_type'      => 'post',
+				'post_type'      => $post_types,
 				'post_status'    => 'publish',
 				'no_found_rows'  => true,
+				'has_password'   => false,
 			) );
 
 			if ( ! $r->have_posts() && ! $instance['all'] ) {
@@ -182,7 +214,7 @@ class Widget_Authors extends WP_Widget {
 		$new_instance['number'] = (int) $new_instance['number'];
 		$new_instance['avatar_size'] = (int) $new_instance['avatar_size'];
 
-		Widget_Authors::flush_cache();
+		Jetpack_Widget_Authors::flush_cache();
 
 		return $new_instance;
 	}
@@ -190,5 +222,5 @@ class Widget_Authors extends WP_Widget {
 
 add_action( 'widgets_init', 'jetpack_register_widget_authors' );
 function jetpack_register_widget_authors() {
-	register_widget( 'Widget_Authors' );
+	register_widget( 'Jetpack_Widget_Authors' );
 };
