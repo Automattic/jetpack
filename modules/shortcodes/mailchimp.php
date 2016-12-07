@@ -163,6 +163,10 @@ class MailChimp_Subscriber_Popup {
 			return '';
 		}
 
+		if ( empty( $lcase_attrs ) ) {
+			return '<!-- Missing MailChimp baseUrl, uuid or lid -->';
+		}
+
 		$defaults = array_fill_keys( self::$allowed_js_vars, '' );
 		$defaults = array_merge( $defaults, self::$allowed_config );
 
@@ -183,6 +187,11 @@ class MailChimp_Subscriber_Popup {
 			} else {
 				$config_vars[] = "$key: $value";
 			}
+		}
+
+		// If one of these parameters is missing we can't render the form so exist.
+		if ( empty( $js_vars['baseUrl'] ) || empty( $js_vars['uuid'] ) || empty( $js_vars['lid'] ) ) {
+			return '<!-- Missing MailChimp baseUrl, uuid or lid -->';
 		}
 
 		/** This action is already documented in modules/widgets/gravatar-profile.php */
