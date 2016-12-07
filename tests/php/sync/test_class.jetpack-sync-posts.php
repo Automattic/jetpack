@@ -325,6 +325,26 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ), '[foo]' );
 	}
 
+	function test_sync_post_filter_do_not_expand_jetpack_shortcodes() {
+		add_filter( 'jetpack_sync_do_not_expand_shortcode', array( $this, 'do_not_expand_shortcode' ) );
+		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
+		$this->post->post_content = "[foo]";
+
+		wp_update_post( $this->post );
+		$this->sender->do_sync();
+		
+		remove_filter( 'jetpack_sync_do_not_expand_shortcode', array( $this, 'do_not_expand_shortcode' ) );
+
+		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( $post_on_server->post_content, '[foo]' );
+		$this->assertEquals( trim( $post_on_server->post_content_filtered ), '<p>[foo]</p>' );
+	}
+
+	function do_not_expand_shortcode( $shortcodes ) {
+		$shortcodes['foo'] = array( $this, 'foo_shortcode' );
+		return $shortcodes;
+	}
+
 	function test_sync_changed_post_password() {
 		// Don't set the password if there is non.
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );

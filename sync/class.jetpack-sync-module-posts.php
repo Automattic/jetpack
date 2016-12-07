@@ -177,12 +177,29 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
-		
+		/**
+		 * Filter that is used to not expand some type of shortcodes.
+		 *
+		 * Since we can can expand some type of shortcode better on the .com side and make the
+		 * expansion more relevant to contexts. For example [galleries] and subscription emails
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param array associative array of shortcode tags and callbacks.
+		 */
+		$shortcodes_to_remove  = apply_filters( 'jetpack_sync_do_not_expand_shortcode', array() );
+		foreach( $shortcodes_to_remove as $shortcode => $callback ) {
+			remove_shortcode( $shortcode );
+		}
 		/** This filter is already documented in core. wp-includes/post-template.php */
 		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public  ) {
 
 			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
 			$post->post_excerpt_filtered   = apply_filters( 'the_excerpt', $post->post_excerpt );
+		}
+
+		foreach( $shortcodes_to_remove as $shortcode => $callback ) {
+			add_shortcode( $shortcode, $callback );
 		}
 
 		$this->add_embed();
