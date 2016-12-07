@@ -37,7 +37,7 @@ function jetpack_shortcode_get_hulu_id( $atts ) {
 	if ( isset( $atts['id'] ) ) {
 		// First we check to see if [hulu id=369061] or [hulu id=gQ6Z0I990IWv_VFQI2J7Eg] was used
 		$id = esc_attr( $atts['id'] );
-	} else if ( preg_match( '|www\.hulu\.com/watch/(\d+)|i', $atts[0], $match ) ) {
+	} else if ( isset( $atts[0] ) && preg_match( '|www\.hulu\.com/watch/(\d+)|i', $atts[0], $match ) ) {
 		// this checks for [hulu http://www.hulu.com/watch/369061]
 		$id = (int) $match[1];
 	} else if ( isset( $atts[0] ) ) {
