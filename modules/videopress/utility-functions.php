@@ -240,6 +240,9 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
  * @return int The number of items that were cleaned up.
  */
 function videopress_cleanup_media_library() {
+
+	// Disable this job for now.
+	return 0;
 	$query_args = array(
 		'post_type'      => 'attachment',
 		'post_status'    => 'inherit',
