@@ -29,13 +29,13 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	function __construct() {
 		$widget_ops = array(
 			'classname' => 'blog-stats',
-			'description' => __( 'Show a hit counter for your blog.', 'jetpack' ),
+			'description' => esc_html__( 'Show a hit counter for your blog.', 'jetpack' ),
 			'customize_selective_refresh' => true,
 		);
 		parent::__construct(
 			'blog-stats',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name', __( 'Blog Stats', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', esc_html__( 'Blog Stats', 'jetpack' ) ),
 			$widget_ops
 		);
 		$this->alt_option_name = 'widget_statscounter';
@@ -50,9 +50,9 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 */
 	public function defaults() {
 		return array(
-			'title' => __( 'Blog Stats', 'jetpack' ),
+			'title' => esc_html__( 'Blog Stats', 'jetpack' ),
 			/* Translators: Number of views, plural */
-			'hits'  => __( 'hits', 'jetpack' ),
+			'hits'  => esc_html__( 'hits', 'jetpack' ),
 		);
 	}
 
