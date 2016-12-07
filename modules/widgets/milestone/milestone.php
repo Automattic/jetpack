@@ -29,7 +29,7 @@ class Milestone_Widget extends WP_Widget {
 	function __construct() {
 		$widget = array(
 			'classname'   => 'milestone-widget',
-			'description' => __( 'Display a countdown to a certain date.', 'jetpack' )
+			'description' => __( 'Display a countdown to a certain date.', 'jetpack' ),
 		);
 
 		$control = array(
@@ -65,13 +65,15 @@ class Milestone_Widget extends WP_Widget {
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin' ) );
 		add_action( 'wp_footer', array( __class__, 'localize_script' ) );
 
-		if ( is_active_widget( false, false, $this->id_base, true ) || is_active_widget( false, false, 'monster', true ) )
+		if ( is_active_widget( false, false, $this->id_base, true ) || is_active_widget( false, false, 'monster', true ) ) {
 			add_action( 'wp_head', array( __class__, 'styles_template' ) );
+		}
 	}
 
 	public static function enqueue_admin( $hook_suffix ) {
-		if ( 'widgets.php' == $hook_suffix )
+		if ( 'widgets.php' == $hook_suffix ) {
 			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20111212' );
+		}
 	}
 
 	public static function enqueue_template() {
@@ -143,13 +145,15 @@ class Milestone_Widget extends WP_Widget {
 		$hex = trim( $hex );
 
 		/* Strip recognized prefixes. */
-		if ( 0 === strpos( $hex, '#' ) )
+		if ( 0 === strpos( $hex, '#' ) ) {
 			$hex = substr( $hex, 1 );
-		elseif ( 0 === strpos( $hex, '%23' ) )
+		} elseif ( 0 === strpos( $hex, '%23' ) ) {
 			$hex = substr( $hex, 3 );
+		}
 
-		if ( 0 !== preg_match( '/^[0-9a-fA-F]{6}$/', $hex ) )
+		if ( 0 !== preg_match( '/^[0-9a-fA-F]{6}$/', $hex ) ) {
 			return $prefix . $hex;
+		}
 
 		return 'transparent';
 	}
@@ -162,8 +166,8 @@ class Milestone_Widget extends WP_Widget {
 	 * is still counting down. In all other cases, this
 	 * function will dequeue milestone.js.
 	 *
-     * Hooks into the "wp_footer" action.
-     */
+	 * Hooks into the "wp_footer" action.
+	 */
 	function localize_script() {
 		if ( empty( self::$config_js['instances'] ) ) {
 			wp_dequeue_script( 'milestone' );
@@ -209,8 +213,9 @@ class Milestone_Widget extends WP_Widget {
 		echo $args['before_widget'];
 
 		$title = apply_filters( 'widget_title', $instance['title'] );
-		if ( ! empty( $title ) )
+		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . $title . $args['after_title'];
+		}
 
 		echo '<div class="milestone-content">';
 
@@ -262,10 +267,11 @@ class Milestone_Widget extends WP_Widget {
 	 */
 	function sanitize_range( $n, $floor, $ceil ) {
 		$n = (int) $n;
-		if ( $n < $floor )
+		if ( $n < $floor ) {
 			$n = $floor;
-		else if ( $n > $ceil )
+		} elseif ( $n > $ceil ) {
 			$n = $ceil;
+		}
 		return $n;
 	}
 
