@@ -66,8 +66,9 @@ class Widget_Authors extends WP_Widget {
 				'no_found_rows'  => true,
 			) );
 
-			if ( ! $r->have_posts() && ! $instance['all'] )
+			if ( ! $r->have_posts() && ! $instance['all'] ) {
 				continue;
+			}
 
 			echo '<li>';
 
@@ -75,15 +76,17 @@ class Widget_Authors extends WP_Widget {
 			if ( $r->have_posts() ) {
 				echo '<a href="' . get_author_posts_url( $author->ID ) . '">';
 
-				if ( $instance['avatar_size'] > 1 )
+				if ( $instance['avatar_size'] > 1 ) {
 					echo ' ' . get_avatar( $author->ID, $instance['avatar_size'], '', true ) . ' ';
+				}
 
 				echo '<strong>' . esc_html( $author->display_name ) . '</strong>';
 				echo '</a>';
 			}
 			else if ( $instance['all'] ) {
-				if ( $instance['avatar_size'] > 1 )
+				if ( $instance['avatar_size'] > 1 ) {
 					echo get_avatar( $author->ID, $instance['avatar_size'], '', true ) . ' ';
+				}
 
 				echo '<strong>' . esc_html( $author->display_name ) . '</strong>';
 			}
@@ -95,18 +98,18 @@ class Widget_Authors extends WP_Widget {
 
 			// Display a short list of recent posts for this author
 
-
-			if ( $r->have_posts() ){
+			if ( $r->have_posts() ) {
 				echo '<ul>';
 
 				while ( $r->have_posts() ) {
 					$r->the_post();
 					echo '<li><a href="' . get_permalink() . '">';
 
-					if ( get_the_title() )
+					if ( get_the_title() ) {
 						echo get_the_title();
-					else
+					} else {
 						echo get_the_ID();
+					}
 
 					echo '</a></li>';
 				}
@@ -122,8 +125,9 @@ class Widget_Authors extends WP_Widget {
 
 		wp_reset_postdata();
 
-		if ( '%BEG_OF_TITLE%' != $args['before_title'] )
-			wp_cache_add( $cache_bucket, ob_get_flush(), 'widget');
+		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
+			wp_cache_add( $cache_bucket, ob_get_flush(), 'widget' );
+		}
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'authors' );
@@ -165,6 +169,13 @@ class Widget_Authors extends WP_Widget {
 		<?php
 	}
 
+	/**
+	 * Updates the widget on save and flushes cache.
+	 *
+	 * @param array $new_instance
+	 * @param array $old_instance
+	 * @return array
+	 */
 	public function update( $new_instance, $old_instance ) {
 		$new_instance['title'] = strip_tags( $new_instance['title'] );
 		$new_instance['all'] = isset( $new_instance['all'] );
@@ -177,6 +188,7 @@ class Widget_Authors extends WP_Widget {
 	}
 }
 
-add_action( 'widgets_init', function () {
+add_action( 'widgets_init', 'jetpack_register_widget_authors' );
+function jetpack_register_widget_authors() {
 	register_widget( 'Widget_Authors' );
-} );
+};
