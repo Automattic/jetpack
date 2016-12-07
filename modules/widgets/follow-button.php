@@ -34,7 +34,14 @@ class Follow_Button_Widget extends WP_Widget {
 		echo $args['before_widget'];
 		?>
 
-		<a class="wordpress-follow-button" href="<?php echo esc_url( site_url() ); ?>" data-blog="<?php echo esc_url( site_url() ); ?>" data-lang="<?php echo get_locale(); ?>" <?php if ( ! empty( $attributes ) ) echo implode( ' ', $attributes ); ?>>Follow <?php bloginfo( 'name' ); ?> on WordPress.com</a>
+		<a
+			class="wordpress-follow-button"
+			href="<?php echo esc_url( site_url() ); ?>"
+			data-blog="<?php echo esc_url( site_url() ); ?>"
+			data-lang="<?php echo get_locale(); ?>" <?php if ( ! empty( $attributes ) ) echo implode( ' ', $attributes ); ?>
+		>
+			<?php sprintf( __( 'Follow %s on WordPress.com', 'jetpack' ), get_bloginfo( 'name' ) ); ?>
+		</a>
 		<script type="text/javascript">(function(d){var f = d.getElementsByTagName('SCRIPT')[0], p = d.createElement('SCRIPT');p.type = 'text/javascript';p.async = true;p.src = '//widgets.wp.com/platform.js';f.parentNode.insertBefore(p,f);}(document));</script>
 
 		<?php
