@@ -202,6 +202,15 @@ function jetpack_load_xsl( $type = '' ) {
 
 	$transient_xsl = empty( $type ) ? 'jetpack_sitemap_xsl' : "jetpack_{$type}_sitemap_xsl";
 
+	/**
+	 * Filter transient name.
+	 *
+	 * @module sitemaps
+     *
+     * @param string $transient_xsl XSLT to load.
+	 */
+	$transient_xsl = apply_filters( 'jetpack_sitemap_xsl_transient', $transient_xsl );
+
 	$xsl = get_transient( $transient_xsl );
 
 	if ( $xsl ) {
@@ -250,7 +259,16 @@ function jetpack_print_news_sitemap_xsl() {
 function jetpack_print_sitemap() {
 	global $wpdb, $post;
 
-	$xml = get_transient( 'jetpack_sitemap' );
+	$xml = get_transient(
+		/**
+		 * Filter transient name.
+		 *
+		 * @module sitemaps
+         *
+         * @param string $transient_name By default, it's 'jetpack_sitemap'.
+		 */
+		apply_filters( 'jetpack_sitemap_transient', 'jetpack_sitemap' )
+	);
 
 	if ( $xml ) {
 		header( 'Content-Type: ' . jetpack_sitemap_content_type(), true );
@@ -280,12 +298,28 @@ function jetpack_print_sitemap() {
 	}
 	$post_types_in = join( ",", $post_types_in );
 
-	// use direct query instead because get_posts was acting too heavy for our needs
-	//$posts = get_posts( array( 'numberposts'=>1000, 'post_type'=>$post_types, 'post_status'=>'published' ) );
-	$posts = $wpdb->get_results( "SELECT ID, post_type, post_modified_gmt, comment_count FROM $wpdb->posts WHERE post_status='publish' AND post_type IN ({$post_types_in}) ORDER BY post_modified_gmt DESC LIMIT 1000" );
+	/**
+	 * Filter queried posts.
+	 *
+	 * Use direct query instead because get_posts was acting too heavy for our needs.
+	 * $posts = get_posts( array( 'numberposts'=>1000, 'post_type'=>$post_types, 'post_status'=>'published' ) );
+	 *
+	 * @module sitemaps
+	 *
+	 * @param array|object|null $posts array|object|null Database posts query results.
+     * @param array $post_types Array of post types.
+     * @param string $post_types_in Array of post types as string prepared for DB.
+	 */
+	$posts = apply_filters( 'jetpack_sitemap_posts',
+		$wpdb->get_results( "SELECT ID, post_type, post_modified_gmt, comment_count FROM $wpdb->posts WHERE post_status='publish' AND post_type IN ({$post_types_in}) ORDER BY post_modified_gmt DESC LIMIT 1000" ),
+		$post_types,
+		$post_types_in
+	);
+
 	if ( empty( $posts ) ) {
 		status_header( 404 );
 	}
+
 	header( 'Content-Type: ' . jetpack_sitemap_content_type() );
 	$initstr = jetpack_sitemap_initstr( get_bloginfo( 'charset' ) );
 	$tree    = simplexml_load_string( $initstr );
@@ -315,7 +349,17 @@ function jetpack_print_sitemap() {
 		}
 
 		$post_latest_mod = null;
-		$url             = array( 'loc' => esc_url( get_permalink( $post->ID ) ) );
+		$url             = array( 'loc' => esc_url(
+			/**
+			 * Filter post permalink.
+			 *
+			 * @module sitemaps
+			 *
+			 * @param string|false The permalink URL or false if post does not exist.
+			 * @param int $post Post ID.
+			 */
+			apply_filters( 'jetpack_sitemap_post_permalink', get_permalink( $post->ID ), $post->ID )
+		) );
 
 		// If this post is configured to be the site home, skip since it's added separately later
 		if ( untrailingslashit( get_permalink( $post->ID ) ) == untrailingslashit( get_option( 'home' ) ) ) {
@@ -391,10 +435,10 @@ function jetpack_print_sitemap() {
 		}
 		unset( $post_latest_mod );
 		if ( $post->post_type == 'page' ) {
-			$url['changefreq'] = 'weekly';
+			$url['changefreq'] = __( 'weekly', 'jetpack' );
 			$url['priority']   = '0.6'; // set page priority above default priority of 0.5
 		} else {
-			$url['changefreq'] = 'monthly';
+			$url['changefreq'] = __( 'monthly', 'jetpack' );
 		}
 		/**
 		 * Filter associative array with data to build <url> node and its descendants for current post.
@@ -412,8 +456,8 @@ function jetpack_print_sitemap() {
 	}
 	wp_reset_postdata();
 	$blog_home = array(
-		'loc'        => esc_url( get_option( 'home' ) ),
-		'changefreq' => 'daily',
+		'loc'        => esc_url( home_url( '/' ) ),
+		'changefreq' => __( 'daily', 'jetpack' ),
 		'priority'   => '1.0'
 	);
 	if ( ! empty( $latest_mod ) ) {
@@ -448,7 +492,18 @@ function jetpack_print_sitemap() {
 	$xml = $tree->asXML();
 	unset( $tree );
 	if ( ! empty( $xml ) ) {
-		set_transient( 'jetpack_sitemap', $xml, DAY_IN_SECONDS );
+		set_transient(
+			/**
+			 * Filter transient name.
+			 *
+			 * @module sitemaps
+             *
+             * @param string $transient_name By default, it's 'jetpack_sitemap'.
+			 */
+			apply_filters( 'jetpack_sitemap_transient', 'jetpack_sitemap' ),
+			$xml,
+			DAY_IN_SECONDS
+		);
 		echo $xml;
 	}
 
@@ -465,7 +520,16 @@ function jetpack_print_sitemap() {
  */
 function jetpack_print_news_sitemap() {
 
-	$xml = get_transient( 'jetpack_news_sitemap' );
+	$xml = get_transient(
+		/**
+		 * Filter transient name.
+		 *
+		 * @module sitemaps
+         *
+         * @param string $transient_name By default, it's 'jetpack_news_sitemap'.
+		 */
+		apply_filters( 'jetpack_news_sitemap_transient', 'jetpack_news_sitemap' )
+	);
 
 	if ( $xml ) {
 		header( 'Content-Type: application/xml' );
@@ -544,7 +608,28 @@ function jetpack_print_news_sitemap() {
 	        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
 		>
 		<?php
-		$posts = $wpdb->get_results( $query );
+		/**
+		 * Filter queried posts.
+		 *
+		 * Use direct query instead because get_posts was acting too heavy for our needs.
+		 * $posts = get_posts( array( 'numberposts'=>1000, 'post_type'=>$post_types, 'post_status'=>'published' ) );
+		 *
+		 * @module sitemaps
+		 *
+		 * @param array|object|null $posts array|object|null Database posts query results.
+		 * @param array $post_types Array of post types.
+		 * @param string $post_types_in_string Array of post types as string prepared for DB.
+         * @param string $cur_datetime Contains a date-time string.
+		 * @param int $limit Number of entries to include in news sitemap.
+		 */
+		$posts = apply_filters( 'jetpack_news_sitemap_posts',
+            $wpdb->get_results( $query ),
+            $post_types,
+            $post_types_in_string,
+            $cur_datetime,
+            $limit
+        );
+
 		foreach ( $posts as $post ):
 			setup_postdata( $post );
 
@@ -562,11 +647,21 @@ function jetpack_print_news_sitemap() {
 				continue;
 			}
 
-			$GLOBALS['post']                       = $post;
-			$url                                   = array();
-			$url['loc']                            = get_permalink( $post->ID );
-			$news                                  = array();
-			$news['news:publication']['news:name'] = get_bloginfo_rss( 'name' );
+			$GLOBALS['post'] = $post;
+			$url 		     = array();
+
+			/**
+			 * Filter post permalink.
+			 *
+			 * @module sitemaps
+			 *
+			 * @param string|false The permalink URL or false if post does not exist.
+			 * @param int $post Post ID.
+			 */
+			$url['loc'] = apply_filters( 'jetpack_sitemap_post_permalink', get_permalink( $post->ID ), $post->ID );
+
+			$news 								       = array();
+			$news['news:publication']['news:name']	   = get_bloginfo_rss( 'name' );
 			$news['news:publication']['news:language'] = $language_code;
 			$news['news:publication_date'] = jetpack_w3cdate_from_mysql( $post->post_date_gmt );
 			$news['news:title']            = get_the_title_rss();
@@ -611,7 +706,18 @@ function jetpack_print_news_sitemap() {
 	$xml = ob_get_contents();
 	ob_end_clean();
 	if ( ! empty( $xml ) ) {
-		set_transient( 'jetpack_news_sitemap', $xml, DAY_IN_SECONDS );
+		set_transient(
+			/**
+			 * Filter transient name.
+			 *
+			 * @module sitemaps
+             *
+             * @param string $transient_name By default, it's 'jetpack_news_sitemap'.
+			 */
+			apply_filters( 'jetpack_news_sitemap_transient', 'jetpack_news_sitemap' ),
+			$xml,
+			DAY_IN_SECONDS
+		);
 		echo $xml;
 	}
 
@@ -716,6 +822,9 @@ function jetpack_sitemap_initialize() {
 	add_action( 'publish_page', 'jetpack_sitemap_handle_update', 12, 1 );
 	add_action( 'trash_post', 'jetpack_sitemap_handle_update', 12, 1 );
 	add_action( 'deleted_post', 'jetpack_sitemap_handle_update', 12, 1 );
+
+	// Clear sitemap cache if permalink structure is changed, used mostly because of multilingual plugins.
+	add_action( 'update_option_permalink_structure', 'jetpack_sitemap_handle_update', 12, 1 );
 
 	/**
 	 * Filter whether to make the default sitemap discoverable to robots or not.
