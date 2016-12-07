@@ -25,11 +25,13 @@ class Follow_Button_Widget extends WP_Widget {
 		$attributes = array();
 		$instance = wp_parse_args( (array) $instance, array( 'show_name' => 1, 'show_count' => 0 ) );
 
-		if ( empty( $instance['show_name'] ) )
+		if ( empty( $instance['show_name'] ) ) {
 			$attributes[] = 'data-show-blog-name="false"';
+		}
 
-		if ( ! empty( $instance['show_count'] ) )
+		if ( ! empty( $instance['show_count'] ) ) {
 			$attributes[] = 'data-show-follower-count="true"';
+		}
 
 		echo $args['before_widget'];
 		?>
