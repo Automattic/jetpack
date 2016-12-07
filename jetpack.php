@@ -12,9 +12,6 @@
  * Domain Path: /languages/
  */
 
-// define( 'JETPACK__WPCOM_JSON_API_HOST', 'dbtlr.dev.dfw.wordpress.com' );
-// define( 'JETPACK__WPCOM_JSON_API_HOST_HEADER', 'public-api.wordpress.com' );
-
 define( 'JETPACK__MINIMUM_WP_VERSION', '4.5' );
 
 define( 'JETPACK__VERSION',            '4.5-alpha' );
