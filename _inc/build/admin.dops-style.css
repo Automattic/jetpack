@@ -2185,11 +2185,6 @@ a.dops-notice__action {
       right: calc( 100% + 1px); }
     .dops-clipboard-button-input .dops-clipboard-button:focus::before {
       right: calc( 100% + 3px); }
-.dops-external-link .gridicons-external {
-  color: currentColor;
-  margin-left: 0.5rem;
-  top: 0.125rem;
-  position: relative; }
 .dops-checkbox.dops-checkbox {
   display: inline-block;
   box-sizing: border-box;
@@ -2244,6 +2239,11 @@ a.dops-notice__action {
   .dops-checkbox.dops-checkbox + span {
     display: block;
     margin-left: 24px; }
+.dops-external-link .gridicons-external {
+  color: currentColor;
+  margin-left: 0.5rem;
+  top: 0.125rem;
+  position: relative; }
 .notices-list {
   overflow: hidden; }
   .notices-list.is-pinned {

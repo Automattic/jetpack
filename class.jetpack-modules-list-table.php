@@ -85,7 +85,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				if ( item === undefined ) return; #>
 				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
+						<# if ( 'videopress' !== item.module ) { #>
 						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
+						<# } #>
 					</th>
 					<td class='name column-name'>
 						<span class='info'><a href="{{{item.learn_more_button}}}" target="blank">{{{ item.name }}}</a></span>
@@ -93,9 +95,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<# if ( item.configurable ) { #>
 							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
-						<# if ( item.activated && 'vaultpress' !== item.module && item.available ) { #>
+						<# if ( item.activated && 'vaultpress' !== item.module && item.available && 'videopress' !== item.module ) { #>
 							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
-						<# } else if ( item.available ) { #>
+						<# } else if ( item.available && 'videopress' !== item.module ) { #>
 							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
 						<# } #>
 						</div>
