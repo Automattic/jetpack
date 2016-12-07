@@ -11,7 +11,7 @@
  */
 
 /**
- * Register [mailchimp_subscriber_popup] shortcode and add a filter to 'pre_kses' queue to reverse MailChimp iframe to shortcode.
+ * Register [mailchimp_subscriber_popup] shortcode and add a filter to 'pre_kses' queue to reverse MailChimp embed to shortcode.
  *
  * @since 4.5.0
  */
@@ -32,8 +32,18 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	jetpack_mailchimp_subscriber_popup();
 }
 
+/**
+ * Class MailChimp_Subscriber_Popup
+ *
+ * @since 4.5.0
+ */
 class MailChimp_Subscriber_Popup {
 
+	/**
+	 * Regular expressions to reverse script tags to shortcodes.
+	 *
+	 * @var array
+	 */
 	static $reversal_regexes = array(
 		/* raw examplejs */
 		'/<script type="text\/javascript" src="(https?:)?\/\/s3\.amazonaws.com\/downloads\.mailchimp\.com\/js\/signup-forms\/popup\/embed\.js" data-dojo-config="([^"]*?)"><\/script><script type="text\/javascript">require\(\["mojo\/signup-forms\/Loader"\]\, function\(L\) { L\.start\({([^}]*?)}\) }\)<\/script>/s',
@@ -41,11 +51,21 @@ class MailChimp_Subscriber_Popup {
 		'/&lt;script type="text\/javascript" src="(https?:)?\/\/s3\.amazonaws.com\/downloads\.mailchimp\.com\/js\/signup-forms\/popup\/embed\.js" data-dojo-config="([^"]*?)"&gt;&lt;\/script&gt;&lt;script type="text\/javascript"&gt;require\(\["mojo\/signup-forms\/Loader"]\, function\(L\) { L\.start\({([^}]*?)}\) }\)&lt;\/script&gt;/s',
 	);
 
+	/**
+	 * Allowed configuration attributes. Used in reversal when checking allowed attributes.
+	 *
+	 * @var array
+	 */
 	static $allowed_config = array(
 		'usePlainJson' => 'true',
 		'isDebug'      => 'false',
 	);
 
+	/**
+	 * Allowed JS variables. Used in reversal to whitelist variables.
+	 *
+	 * @var array
+	 */
 	static $allowed_js_vars = array(
 		'baseUrl',
 		'uuid',
@@ -54,7 +74,11 @@ class MailChimp_Subscriber_Popup {
 
 	/**
 	 * Runs the whole reversal.
+	 *
+	 * @since 4.5.0
+	 *
 	 * @param string $content Post Content
+	 *
 	 * @return string Content with embeds replaced
 	 */
 	static function reversal( $content ) {
@@ -99,7 +123,9 @@ class MailChimp_Subscriber_Popup {
 	}
 
 	/**
-	 * Builds the actual shortcode based on passed in attributes
+	 * Builds the actual shortcode based on passed in attributes.
+	 *
+	 * @since 4.5.0
 	 *
 	 * @param array $attrs A valid list of attributes (gets matched against self::$allowed_config and self::$allowed_js_vars)
 	 *
@@ -121,7 +147,9 @@ class MailChimp_Subscriber_Popup {
 	}
 
 	/**
-	 * Parses the shortcode back out to embedded information
+	 * Parses the shortcode back out to embedded information.
+	 *
+	 * @since 4.5.0
 	 *
 	 * @param array $lcase_attrs
 	 *
