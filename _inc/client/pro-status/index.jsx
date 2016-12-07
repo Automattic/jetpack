@@ -27,6 +27,7 @@ import {
 } from 'state/at-a-glance';
 import {
 	getSitePlan,
+	isFetchingSiteData
 } from 'state/site';
 
 const ProStatus = React.createClass( {
@@ -85,6 +86,10 @@ const ProStatus = React.createClass( {
 			}
 
 			if ( 'seo-tools' === feature ) {
+				if ( this.props.fetchingSiteData ) {
+					return '';
+				}
+
 				return (
 					<Button
 						compact={ true }
@@ -97,6 +102,10 @@ const ProStatus = React.createClass( {
 			}
 
 			if ( 'wordads' === feature ) {
+				if ( this.props.fetchingSiteData ) {
+					return '';
+				}
+
 				return (
 					<Button
 						compact={ true }
@@ -168,7 +177,8 @@ export default connect(
 			fetchingPluginsData: isFetchingPluginsData( state ),
 			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
 			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
-			isDevMode: isDevMode( state )
+			isDevMode: isDevMode( state ),
+			fetchingSiteData: isFetchingSiteData( state )
 		};
 	}
 )( ProStatus );
