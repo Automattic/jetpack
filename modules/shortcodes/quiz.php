@@ -148,18 +148,24 @@ class Quiz_Shortcode {
 				self::$scripts_enqueued = true;
 			}
 
-			self::$quiz_params = shortcode_atts(
-				array(
+			$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+			$default_atts = $is_wpcom
+				? array(
 					'trackid' => '',
 					'a8ctraining' => '',
-				),
-				$atts
-			);
+				)
+				: array(
+					'trackid' => '',
+				);
+
+
+			self::$quiz_params = shortcode_atts( $default_atts, $atts );
 
 			if ( ! empty( self::$quiz_params[ 'trackid' ] ) ) {
 				$id .= ' data-trackid="' . esc_attr( self::$quiz_params[ 'trackid' ] ) . '"';
 			}
-			if ( ! empty( self::$quiz_params[ 'a8ctraining' ] ) ) {
+			if ( $is_wpcom && ! empty( self::$quiz_params[ 'a8ctraining' ] ) ) {
 				if ( is_null( self::$username ) ) {
 					self::$username = wp_get_current_user()->user_login;
 				}
