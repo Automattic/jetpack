@@ -144,7 +144,6 @@ class Quiz_Shortcode {
 
 			self::$quiz_params = shortcode_atts(
 				array(
-					'type' => 'radio',
 					'trackid' => '',
 					'a8ctraining' => '',
 				),
