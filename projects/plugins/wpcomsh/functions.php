@@ -161,10 +161,16 @@ function jetpress_get_wpcom_theme_type( $theme_slug ) {
 	return false;
 }
 
-function jetpress_is_wpcom_child_theme( $theme_slug ) {
-	$theme_obj = wp_get_theme( $theme_slug );
+/**
+ * Returns whether the theme is a child theme.
+ *
+ * @param string $theme_slug Slug of the theme to check. Default: Active theme.
+ * @return bool
+ */
+function jetpress_is_wpcom_child_theme( $theme_slug = null ) {
+	$theme = wp_get_theme( $theme_slug );
 
-	return $theme_obj->get('Template');
+	return $theme->get_stylesheet() !== $theme->get_template();
 }
 
 function jetpress_symlink_parent_theme( $child_theme_slug ) {
