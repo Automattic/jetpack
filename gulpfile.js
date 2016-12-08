@@ -273,6 +273,7 @@ frontendcss = [
 	'modules/sharedaddy/sharing.css',
 	'modules/shortcodes/css/slideshow-shortcode.css',
 	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
+	'modules/shortcodes/css/quiz.css',
 	'modules/subscriptions/subscriptions.css',
 	'modules/theme-tools/responsive-videos/responsive-videos.css',
 	'modules/theme-tools/social-menu/social-menu.css',
