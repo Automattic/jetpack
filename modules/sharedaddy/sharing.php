@@ -158,9 +158,9 @@ class Sharing_Admin {
 	}
 
 	public function management_page() {
-		$sharer  = new Sharing_Service();
+		$sharer	 = new Sharing_Service();
 		$enabled = $sharer->get_blog_services();
-		$global  = $sharer->get_global_options();
+		$global	 = $sharer->get_global_options();
 
 		$shows = array_values( get_post_types( array( 'public' => true ) ) );
 		array_unshift( $shows, 'index' );
@@ -238,7 +238,7 @@ class Sharing_Admin {
 						<p><?php _e( 'Services dragged here will appear individually.', 'jetpack' ); ?></p>
 					</td>
 					<td class="services" id="share-drop-target">
-                            <h2 id="drag-instructions" <?php if ( count( $enabled['visible'] ) > 0 ) { echo ' style="display: none"';} ?>><?php _e( 'Drag and drop available services here.', 'jetpack' ); ?></h2>
+							<h2 id="drag-instructions" <?php if ( count( $enabled['visible'] ) > 0 ) { echo ' style="display: none"';} ?>><?php _e( 'Drag and drop available services here.', 'jetpack' ); ?></h2>
 
 								<ul class="services-enabled">
 									<?php foreach ( $enabled['visible'] as $id => $service ) : ?>
@@ -267,7 +267,7 @@ class Sharing_Admin {
 						<h3><?php _e( 'Live Preview', 'jetpack' ); ?></h3>
 					</td>
 					<td class="services">
-                        <h2 <?php echo ( count( $enabled['all'] ) > 0 ) ? ' style="display: none"' : ''; ?>><?php _e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
+						<h2 <?php echo ( count( $enabled['all'] ) > 0 ) ? ' style="display: none"' : ''; ?>><?php _e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
 						<div class="sharedaddy sd-sharing-enabled">
 							<?php if ( count( $enabled['all'] ) > 0 ) : ?>
 							<h3 class="sd-title"><?php echo esc_html( $global['sharing_label'] ); ?></h3>
@@ -311,7 +311,7 @@ class Sharing_Admin {
 										$service = $enabled['hidden'][ $id ];
 									}
 
-									$service->button_style = 'icon-text';   // The archive needs the full text, which is removed in JS later
+									$service->button_style = 'icon-text';	// The archive needs the full text, which is removed in JS later
 									$service->smart = false;
 									$this->output_preview( $service );
 									endforeach; ?>
@@ -339,7 +339,7 @@ class Sharing_Admin {
 						<th scope="row"><label><?php _e( 'Button style', 'jetpack' ); ?></label></th>
 						<td>
 							<select name="button_style" id="button_style">
-                                <option<?php echo ( $global['button_style'] == 'icon-text' ) ? ' selected="selected"' : ''; ?> value="icon-text"><?php _e( 'Icon + text', 'jetpack' ); ?></option>
+								<option<?php echo ( $global['button_style'] == 'icon-text' ) ? ' selected="selected"' : ''; ?> value="icon-text"><?php _e( 'Icon + text', 'jetpack' ); ?></option>
 								<option<?php echo ( $global['button_style'] == 'icon' ) ? ' selected="selected"' : ''; ?> value="icon"><?php _e( 'Icon only', 'jetpack' ); ?></option>
 								<option<?php echo ( $global['button_style'] == 'text' ) ? ' selected="selected"' : ''; ?> value="text"><?php _e( 'Text only', 'jetpack' ); ?></option>
 								<option<?php echo ( $global['button_style'] == 'official' ) ? ' selected="selected"' : ''; ?> value="official"><?php _e( 'Official buttons', 'jetpack' ); ?></option>
@@ -376,11 +376,11 @@ class Sharing_Admin {
 										$label = $post_type_object->labels->name;
 									}
 								?>
-                                <?php 
-                                if ( $br ) { 
-                                    echo '<br />';
-                                } 
-                                ?>
+								<?php 
+								if ( $br ) { 
+									echo '<br />';
+								} 
+								?>
 								<label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
 								<?php
 								$br = true;
