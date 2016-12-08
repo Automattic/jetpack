@@ -47,8 +47,9 @@ if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon )
 
 do_cacheaction( 'cache_init' );
 
-if (!$cache_enabled || $_SERVER["REQUEST_METHOD"] == 'POST')
+if ( ! $cache_enabled || $_SERVER["REQUEST_METHOD"] == 'POST' || isset( $_GET['customize_changeset_uuid'] ) ) {
 	return true;
+}
 
 $file_expired = false;
 $cache_filename = '';
