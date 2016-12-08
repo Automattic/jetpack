@@ -2308,13 +2308,6 @@ class Jetpack {
 			$active = array_diff( $active, array( 'vaultpress' ) );
 		}
 
-		// If this plan supports videopress, force activate module
-		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
-			$active[] = 'videopress';
-		} else {
-			$active = array_diff( $active, array( 'videopress' ) );
-		}
-
 		//If protect is active on the main site of a multisite, it should be active on all sites.
 		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
 			$active[] = 'protect';
