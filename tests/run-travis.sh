@@ -31,8 +31,7 @@ else
 
     gem install sass
     gem install compass
-    npm install yarn@0.16.1
-    yarn
+    npm run build
 
     if $WP_TRAVISCI; then
 	# Everything is fine
