@@ -133,7 +133,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	// Expands wp_insert_post to include filtered content
 	function filter_post_content_and_add_links( $post_object ) {
-		global $post;
+		global $post, $shortcode_tags;
 		$post = $post_object;
 
 		// return non existant post 
@@ -177,6 +177,13 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
+
+		$default_removed_shortcodes = array(
+			'gallery' => $shortcode_tags['gallery'],
+			'slideshow' => $shortcode_tags['slideshow'],
+			'contact-form' => array( 'Grunion_Contact_Form', 'parse' ),
+			'contact-field' => array( 'Grunion_Contact_Form', 'parse_contact_field' )
+		);
 		/**
 		 * Filter that is used to not expand some type of shortcodes.
 		 *
@@ -187,7 +194,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 *
 		 * @param array associative array of shortcode tags and callbacks.
 		 */
-		$shortcodes_to_remove  = apply_filters( 'jetpack_sync_do_not_expand_shortcode', array() );
+		$shortcodes_to_remove  = apply_filters( 'jetpack_sync_do_not_expand_shortcode', $default_removed_shortcodes );
 		foreach( $shortcodes_to_remove as $shortcode => $callback ) {
 			remove_shortcode( $shortcode );
 		}
