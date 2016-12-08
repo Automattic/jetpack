@@ -177,7 +177,6 @@ function jetpress_symlink_parent_theme( $child_theme_slug ) {
 		return false;
 	}
 
-	$parent_theme_slug = $parent_theme_slug . '-wpcom';
 	$parent_theme_type = jetpress_get_wpcom_theme_type( $parent_theme_slug );
 
 	error_log('gonna symlink parent theme');
