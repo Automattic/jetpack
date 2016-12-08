@@ -47,7 +47,7 @@ function jetpack_getty_enable_embeds( $site = 'wpcom' ) {
  * @return mixed
  */
 function wpcom_shortcodereverse_getty( $content ) {
-	if ( false === stripos( $content, 'embed.gettyimages.com/embed' ) )
+	if ( ! is_string( $content ) || false === stripos( $content, 'embed.gettyimages.com/embed' ) )
 		return $content;
 
 	$regexp = '!<iframe\s+src=[\'"](https?:)?//embed\.gettyimages\.com/embed(/|/?\?assets=)(\d+(,\d+)*)[^\'"]*?[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)((?:[\s\w]*))></iframe>!i';

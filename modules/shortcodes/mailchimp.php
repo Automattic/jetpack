@@ -83,7 +83,7 @@ class MailChimp_Subscriber_Popup {
 	 */
 	static function reversal( $content ) {
 		// Bail without the js src
-		if ( false === stripos( $content, 'downloads.mailchimp.com/js/signup-forms/popup/embed.js' ) ) {
+		if ( ! is_string( $content ) || false === stripos( $content, 'downloads.mailchimp.com/js/signup-forms/popup/embed.js' ) ) {
 			return $content;
 		}
 

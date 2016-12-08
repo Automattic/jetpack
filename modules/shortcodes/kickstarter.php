@@ -44,7 +44,7 @@ function jetpack_kickstarter_shortcode( $atts ) {
  * @return string
  */
 function jetpack_kickstarter_embed_to_shortcode( $content ) {
-	if ( false === stripos( $content, 'www.kickstarter.com/projects' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'www.kickstarter.com/projects' ) ) {
 		return $content;
 	}
 

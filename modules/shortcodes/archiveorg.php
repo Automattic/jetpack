@@ -108,7 +108,7 @@ add_shortcode( 'archiveorg', 'jetpack_archiveorg_shortcode' );
  * @return mixed
  */
 function jetpack_archiveorg_embed_to_shortcode( $content ) {
-	if ( false === stripos( $content, 'archive.org/embed/' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'archive.org/embed/' ) ) {
 		return $content;
 	}
 

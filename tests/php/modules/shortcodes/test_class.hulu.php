@@ -100,10 +100,10 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 
 
 	public function test_hulu_embed_to_shortcode() {
-		$embed     = '<iframe width="512" height="288" src="http://www.hulu.com/embed.html?eid=wP5CpYenOIRjJT50LDp2kQ&et=20&st=10&it=i11" frameborder="0" scrolling="no" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>';
-		$shortcode = wpcom_shortcodereverse_huluembed( $embed );
+		$embed     = '<iframe width="512" height="288" src="http://www.hulu.com/embed.html?eid=' . $this->video_eid . '&et=20&st=10&it=i11" frameborder="0" scrolling="no" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>';
+		$shortcode = apply_filters( 'pre_kses', $embed );
 
-		$expected_shortcode = "[hulu $this->video_id]";
+		$expected_shortcode = "[hulu id=$this->video_eid width=512 height=288 start_time=10 end_time=20 thumbnail_frame=11]";
 
 		$this->assertEquals( $expected_shortcode, $shortcode );
 	}

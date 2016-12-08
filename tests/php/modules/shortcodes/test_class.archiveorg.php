@@ -50,6 +50,6 @@ class WP_Test_Jetpack_Shortcodes_ArchiveOrg extends WP_UnitTestCase {
 		$id = 'goodytwoshoes00newyiala';
 		$content = "[archiveorg-book id='$id' width='600' height='300']";
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( "iframe src='http://archive.org/embed/$id' width='600' height='300'", $shortcode_content );
+		$this->assertContains( "iframe src='http://archive.org/stream/$id?ui=embed#mode/1up' width='600' height='300'", $shortcode_content );
 	}
 }

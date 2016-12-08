@@ -93,7 +93,7 @@ add_shortcode( 'archiveorg-book', 'jetpack_archiveorg_book_shortcode' );
  * @return mixed
  */
 function jetpack_archiveorg_book_embed_to_shortcode( $content ) {
-	if ( false === stripos( $content, 'archive.org/stream/' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'archive.org/stream/' ) ) {
 		return $content;
 	}
 
