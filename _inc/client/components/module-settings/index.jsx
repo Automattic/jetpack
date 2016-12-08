@@ -822,24 +822,20 @@ SitemapsSettings = moduleSettingsForm( SitemapsSettings );
 export let WordAdsSettings = React.createClass( {
 	render() {
 		return (
-			this.props.getOptionValue( 'wordads_approved' )
-				? <div>
-					<form onSubmit={ this.props.onSubmit } >
-						<FormFieldset>
-							<ModuleSettingCheckbox
-								name={ 'enable_header_ad' }
-								{ ...this.props }
-								label={ __( 'Display an ad unit at the top of each page.' ) } />
-							<FormButton
-								className="is-primary"
-								isSubmitting={ this.props.isSavingAnyOption() }
-								disabled={ this.props.shouldSaveButtonBeDisabled() } />
-						</FormFieldset>
-					</form>
-				</div>
-				: <div>
-					<p>{ __( 'We are setting up your ads, they will be available soon!' ) }</p>
-				</div>
+			<div>
+				<form onSubmit={ this.props.onSubmit } >
+					<FormFieldset>
+						<ModuleSettingCheckbox
+							name={ 'enable_header_ad' }
+							{ ...this.props }
+							label={ __( 'Display an ad unit at the top of each page.' ) } />
+						<FormButton
+							className="is-primary"
+							isSubmitting={ this.props.isSavingAnyOption() }
+							disabled={ this.props.shouldSaveButtonBeDisabled() } />
+					</FormFieldset>
+				</form>
+			</div>
 		);
 	}
 } );
