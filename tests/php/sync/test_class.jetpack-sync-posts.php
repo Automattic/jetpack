@@ -6,6 +6,7 @@
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
+	protected $test_already = false;
 
 	public function setUp() {
 		parent::setUp();
@@ -928,5 +929,29 @@ That was a cool video.';
 
 		$post_flags = $events[0]->args[1];
 		$this->assertTrue( $post_flags['send_subscription'] );
+	}
+
+
+	public function test_sync_jetpack_publish_post_works_with_interjecting_plugins() {
+		$this->server_event_storage->reset();
+		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
+		$post_id    = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
+
+		$this->sender->do_sync();
+		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+
+		$this->assertEquals( 2, count( $events ) );
+
+		// The first event is the hello post type...
+		$this->assertEquals( $events[1]->args[0], $post_id );
+	}
+
+	function add_a_hello_post_type() {
+		if ( ! $this->test_already  ) {
+			$this->test_already = true;
+			$post_id    = $this->factory->post->create( array( 'post_type' => 'hello' ) );
+			return;
+		}
 	}
 }

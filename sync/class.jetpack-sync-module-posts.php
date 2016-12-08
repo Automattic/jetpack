@@ -4,7 +4,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
-	private $just_published;
+	private $just_published = array();
 
 	public function name() {
 		return 'posts';
@@ -226,14 +226,16 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function save_published( $new_status, $old_status, $post ) {
+
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-			$this->just_published = $post->ID;
+			$this->just_published[] = $post->ID;
 		}
 	}
 
 	public function send_published( $post_ID, $post, $update ) {
-		if ( $this->just_published === $post->ID ) {
-			$this->just_published = null;
+		$found_key = array_search( $post->ID, $this->just_published );
+		if ( false !== $found_key ) {
+			unset( $this->just_published[ $found_key ] );
 			$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
 			do_action( 'jetpack_published_post', $post_ID, $flags );
 		}
