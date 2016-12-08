@@ -2,10 +2,10 @@
 
 /**
  * Module Name: Google Analytics
- * Module Description: MODULE DESCRIPTION COPY.
+ * Module Description: Lets you use <a href="http://analytics.google.com">Google Analytics</a> to track your WordPress site statistics.
  * First Introduced: 4.4
  * Sort Order: 37
- * Requires Connection: No
+ * Requires Connection: Yes
  * Auto Activate: No
  * Feature: Engagement
  * Additional Search Queries: webmaster, google, analytics, console
