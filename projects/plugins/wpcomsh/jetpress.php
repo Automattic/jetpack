@@ -28,50 +28,27 @@ function jetpress_register_theme_hooks() {
 }
 add_action( 'init', 'jetpress_register_theme_hooks' );
 
-function jetpress_disable_premium_themes_editing( $allcaps, $required_cap, $args ) {
-	$requested_cap = $args[0];
+/**
+ * Filters a user's capabilities depending on specific context and/or privilege.
+ *
+ * @param array  $required_caps Returns the user's actual capabilities.
+ * @param string $cap           Capability name.
+ * @return array Primitive caps.
+ */
+function jetpress_map_caps( $required_caps, $cap ) {
 
-	if ( 'edit_themes' !== $requested_cap ) {
-		return $allcaps;
+	switch ( $cap ) {
+		case 'edit_themes':
+			$theme = wp_get_theme();
+			if ( jetpress_is_wpcom_premium_theme( $theme->get_stylesheet() ) && 'Automattic' !== $theme->get( 'Author' ) ) {
+				$required_caps[] = 'do_not_allow';
+			}
+			break;
 	}
 
-	// Bail out for users who can't delete themes.
-	if (
-		! isset( $allcaps['edit_themes'] ) ||
-		! $allcaps['edit_themes']
-	) {
-		return $allcaps;
-	}
-
-	$active_theme_slug = get_template();
-
-	// Bail out if the active theme is not a WPCom theme.
-	if ( ! jetpress_is_maybe_wpcom_theme( $active_theme_slug ) ) {
-		return $allcaps;
-	}
-
-	// Bail out if the active theme is not a WPCom premium one.
-	if ( ! jetpress_is_wpcom_premium_theme( $active_theme_slug ) ) {
-		return $allcaps;
-	}
-
-	$active_theme_obj = wp_get_theme();
-
-	// Bail out if the active WPCom premium theme is made by Automattic.
-	if ( 'Automattic' === $active_theme_obj->get( 'Author' ) ) {
-		return $allcaps;
-	}
-
-	// Finally, if the active WPCom premium theme is not made by Automattic, disable editing it.
-	$allcaps['edit_themes'] = false;
-
-	return $allcaps;
+	return $required_caps;
 }
-
-function jetpress_filter_cap() {
-	add_filter( 'user_has_cap', 'jetpress_disable_premium_themes_editing', 10, 3 );
-}
-add_action( 'admin_init', 'jetpress_filter_cap' );
+add_action( 'map_meta_cap', 'jetpress_map_caps', 10, 2 );
 
 function jetpress_remove_theme_delete_button( $prepared_themes ) {
 	foreach ( $prepared_themes as $theme_slug => $theme_data ) {
