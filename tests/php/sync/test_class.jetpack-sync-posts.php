@@ -702,17 +702,10 @@ http://www.youtube.com/watch?v=dQw4w9WgXcQ
 
 That was a cool video.';
 
-		if ( version_compare( $wp_version, '4.7-alpha', '<' ) ) {
-			$oembeded =
+		$oembeded =
 			'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' width=\'660\' height=\'402\' src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
+<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' #DIMENSIONS# src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
 <p>That was a cool video.</p>'. "\n";
-		} else {
-			$oembeded =
-			'<p>Check out this cool video:</p>
-<p><iframe width="660" height="371" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" allowfullscreen></iframe></p>
-<p>That was a cool video.</p>'. "\n";
-		}
 
 		$filtered = '<p>Check out this cool video:</p>
 <p>http://www.youtube.com/watch?v=dQw4w9WgXcQ</p>
@@ -722,13 +715,33 @@ That was a cool video.';
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $this->post->post_content ), '$oembeded is NOT the same as filtered $this->post->post_content' );
+		$oembeded = explode( '#DIMENSIONS#', $oembeded );
+		$this->assertContains(
+			$oembeded[0],
+			apply_filters( 'the_content', $this->post->post_content ),
+			'$oembeded is NOT the same as filtered $this->post->post_content'
+		);
+		$this->assertContains(
+			$oembeded[1],
+			apply_filters( 'the_content', $this->post->post_content ),
+			'$oembeded is NOT the same as filtered $this->post->post_content'
+		);
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 
 		$this->assertEquals( $filtered, $synced_post->post_content_filtered, '$filtered is NOT the same as $synced_post->post_content_filtered' );
+
 		// do we get the same result after the sync?
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ), '$oembeded is NOT the same as filtered $filtered' );
+		$this->assertContains(
+			$oembeded[0],
+			apply_filters( 'the_content', $this->post->post_content ),
+			'$oembeded is NOT the same as filtered $filtered'
+		);
+		$this->assertContains(
+			$oembeded[1],
+			apply_filters( 'the_content', $this->post->post_content ),
+			'$oembeded is NOT the same as filtered $filtered'
+		);
 	}
 
 	function test_do_not_sync_non_public_post_types_filtered_post_content() {
@@ -759,17 +772,10 @@ That was a cool video.';
 
 That was a cool video.';
 
-		if ( version_compare( $wp_version, '4.7-alpha', '<' ) ) {
-			$oembeded =
-				'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' width=\'660\' height=\'402\' src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
+		$oembeded =
+			'<p>Check out this cool video:</p>
+<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' #DIMENSIONS# src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
 <p>That was a cool video.</p>'. "\n";
-		} else {
-			$oembeded =
-				'<p>Check out this cool video:</p>
-<p><iframe width="200" height="113" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" allowfullscreen></iframe></p>
-<p>That was a cool video.</p>'. "\n";
-		}
 
 		$filtered = '<p>Check out this cool video:</p>
 <p>[embed width=&#8221;123&#8243; height=&#8221;456&#8243;]http://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]</p>
@@ -779,14 +785,39 @@ That was a cool video.';
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $this->post->post_content ), '$oembeded is NOT the same as filtered $this->post->post_content' );
+		$oembeded = explode( '#DIMENSIONS#', $oembeded );
+
+		$this->assertContains(
+			$oembeded[0],
+			apply_filters( 'the_content', $this->post->post_content ),
+			'$oembeded is NOT the same as filtered $this->post->post_content'
+		);
+		$this->assertContains(
+			$oembeded[1],
+			apply_filters( 'the_content', $this->post->post_content ),
+			'$oembeded is NOT the same as filtered $this->post->post_content'
+		);
+
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
-		$this->assertEquals( $filtered, $synced_post->post_content_filtered, '$filtered is NOT the same as $synced_post->post_content_filtered' );
+		$this->assertEquals(
+			$filtered,
+			$synced_post->post_content_filtered,
+			'$filtered is NOT the same as $synced_post->post_content_filtered'
+		);
 
 		// do we get the same result after the sync?
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ), '$oembeded is NOT the same as filtered $filtered' );
+		$this->assertContains(
+			$oembeded[0],
+			apply_filters( 'the_content', $filtered ),
+			'$oembeded is NOT the same as filtered $filtered'
+		);
+		$this->assertContains(
+			$oembeded[1],
+			apply_filters( 'the_content', $filtered ),
+			'$oembeded is NOT the same as filtered $filtered'
+		);
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {

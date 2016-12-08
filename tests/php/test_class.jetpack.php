@@ -497,6 +497,16 @@ EXPECTED;
 		$this->assertFalse( Jetpack::is_development_version() );
 	}
 
+	function test_is_development_mode_constant() {
+		define( 'JETPACK_DEV_DEBUG', true );
+		$this->assertTrue( Jetpack::is_development_mode() );
+	}
+
+	function test_is_development_mode_filter() {
+		add_filter( 'jetpack_development_mode', '__return_true' );
+		$this->assertTrue( Jetpack::is_development_mode() );
+	}
+
 	function test_get_sync_idc_option_sanitizes_out_www_and_protocol() {
 		$original_home    = get_option( 'home' );
 		$original_siteurl = get_option( 'siteurl' );

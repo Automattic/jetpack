@@ -91,7 +91,10 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	protected function create_and_get_request( $route = '', $json_params = array(), $method = 'GET', $params = array() ) {
 		$request = new WP_REST_Request( $method, "/jetpack/v4/$route" );
-		$request->set_header( 'content-type', 'application/json' );
+
+		if ( 'GET' !== $method && !empty( $json_params ) ) {
+			$request->set_header( 'content-type', 'application/json' );
+		}
 		if ( ! empty( $json_params ) ) {
 			$request->set_body( json_encode( $json_params ) );
 		}
