@@ -210,3 +210,18 @@ function jetpress_symlink_parent_theme( $stylesheet ) {
 
 	return jetpress_symlink_theme( $template, jetpress_get_wpcom_theme_type( $template ) );
 }
+
+function jetpress_delete_symlinked_parent_theme( $stylesheet ) {
+	$theme    = wp_get_theme( $stylesheet );
+	$template = $theme->get_template();
+
+	if ( $template === $stylesheet ) {
+		error_log( "Jetpress: Can't unsymlink parent theme. $stylesheet is not a child theme." );
+
+		return false;
+	}
+
+	error_log( 'Jetpress: Unsymlinking parent theme.' );
+
+	return jetpress_delete_symlinked_theme( $template );
+}

@@ -118,7 +118,19 @@ function jetpress_jetpack_wpcom_theme_delete( $result, $theme_slug ) {
 		return false;
 	}
 
-	$result = jetpress_delete_symlinked_theme( $theme_slug );
+	// If a theme is a child theme, we first need to unsymlink the parent theme.
+	if ( jetpress_is_wpcom_child_theme( $theme_slug ) ) {
+		$was_parent_theme_unsymlinked = jetpress_delete_symlinked_parent_theme( $theme_slug );
 
-	return $result;
+		if ( ! $was_parent_theme_unsymlinked ) {
+			return new WP_Error(
+				'wpcom_theme_deletion_falied',
+				"Can't delete specified WPCom theme. Check error log for more details."
+			);
+		}
+	}
+
+	$was_theme_unsymlinked = jetpress_delete_symlinked_theme( $theme_slug );
+
+	return $was_theme_unsymlinked;
 }
