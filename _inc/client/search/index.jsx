@@ -105,7 +105,6 @@ export const SearchResults = ( {
 		let isPro = 'scan' === element[0]
 				 || 'akismet' === element[0]
 				 || 'backups' === element[0]
-				 || 'videopress' === element[0]
 				 || 'seo-tools' === element[0],
 			proProps = {},
 			unavailableDevMode = unavailableInDevMode( element[0] ),
@@ -126,6 +125,8 @@ export const SearchResults = ( {
 			};
 
 			if (
+				'videopress' !== element[0]
+				||
 				'seo-tools' !== element[0]
 				|| (
 					'seo-tools' === element[0]
@@ -153,6 +154,18 @@ export const SearchResults = ( {
 				} else if ( ( 'scan' === element[0] || 'backups' === element[0] ) && isPluginActive( 'vaultpress/vaultpress.php' ) ) {
 					proProps.configure_url = 'https://dashboard.vaultpress.com/';
 				}
+			}
+		}
+
+		if ( 'videopress' === element[0] ) {
+			if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug ) {
+				toggle = <Button
+					compact={ true }
+					primary={ true }
+					href={ 'https://wordpress.com/plans/' + siteRawUrl }
+				>
+					{ __( 'Upgrade' ) }
+				</Button>;
 			}
 		}
 

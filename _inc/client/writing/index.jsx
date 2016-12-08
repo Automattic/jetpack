@@ -28,6 +28,11 @@ import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
 import QuerySite from 'components/data/query-site';
 import ProStatus from 'pro-status';
+import {
+	getSitePlan,
+	isFetchingSiteData
+} from 'state/site';
+import { getSiteRawUrl } from 'state/initial-state';
 
 export const Writing = ( props ) => {
 	let {
@@ -35,7 +40,10 @@ export const Writing = ( props ) => {
 		isModuleActivated,
 		isTogglingModule,
 		getModule,
-		userCanManageModules
+		userCanManageModules,
+		sitePlan,
+		fetchingSiteData,
+		siteRawUrl
 	} = props,
 		isAdmin = userCanManageModules,
 		moduleList = Object.keys( props.moduleList );
@@ -89,12 +97,17 @@ export const Writing = ( props ) => {
 		var isVideoPress = 'videopress' === element[0];
 
 		if ( isVideoPress ) {
-			var vpProps = {
-				module: 'videopress',
-				configure_url: ''
-			};
-
-			toggle = <ProStatus proFeature={ 'videopress' } />;
+			if ( fetchingSiteData ) {
+				toggle = '';
+			} else if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug ) {
+				toggle = <Button
+					compact={ true }
+					primary={ true }
+					href={ 'https://wordpress.com/plans/' + siteRawUrl }
+				>
+					{ __( 'Upgrade' ) }
+				</Button>;
+			}
 
 			element[1] = <span>
 				{ element[1] }
@@ -124,7 +137,7 @@ export const Writing = ( props ) => {
 				) }
 			>
 				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ isVideoPress ? vpProps : getModule( element[0] ) } /> :
+					<AllModuleSettings module={ getModule( element[0] ) } /> :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -158,7 +171,10 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			userCanManageModules: _userCanManageModules( state ),
-			moduleList: getModules( state )
+			moduleList: getModules( state ),
+			sitePlan: getSitePlan( state ),
+			fetchingSiteData: isFetchingSiteData( state ),
+			siteRawUrl: getSiteRawUrl( state )
 		};
 	},
 	( dispatch ) => {
