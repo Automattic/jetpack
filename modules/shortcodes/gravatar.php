@@ -134,9 +134,9 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 					<strong><?php echo esc_html( $user->display_name ); ?></strong>
 					<?php if ( ! empty( $user_location ) ) : ?><br><span class="grofile-location adr"><?php echo esc_html( $user_location ); ?></span><?php endif; ?>
 				</p>
-				<p class="grofile-bio"><strong><?php _e( 'Bio:' ); ?></strong> <?php echo wp_kses_post( $user->description ); ?></p>
+				<p class="grofile-bio"><strong><?php esc_html_e( 'Bio:', 'jetpack' ); ?></strong> <?php echo wp_kses_post( $user->description ); ?></p>
 				<p class="grofile-view">
-					<a href="<?php echo esc_url( $gravatar_url ); ?>"><?php _e( 'View complete profile' ); ?></a>
+					<a href="<?php echo esc_url( $gravatar_url ); ?>"><?php esc_html_e( 'View complete profile', 'jetpack' ); ?></a>
 				</p>
 			</div>
 			<span class="grofile-clear">&nbsp;</span>
