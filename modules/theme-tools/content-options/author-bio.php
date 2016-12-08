@@ -34,6 +34,10 @@ function jetpack_author_bio() {
 			 * Filter the author bio avatar size.
 			 *
 			 * @param int $size The avatar height and width size in pixels.
+			 *
+			 * @module theme-tools
+			 *
+			 * @since 4.5.0
 			 */
 			$author_bio_avatar_size = apply_filters( 'jetpack_author_bio_avatar_size', 48 );
 
