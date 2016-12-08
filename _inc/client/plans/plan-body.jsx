@@ -131,13 +131,13 @@ const PlanBody = React.createClass( {
 								<p>{ __( '13Gb of fast, optimised, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button href="https://vaultpress.com/" className="is-primary">
-											{ __( 'TO DO: Text and link if active' ) }
+										<Button href={ this.props.siteAdminUrl + 'media-new.php' } className="is-primary">
+											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
 										: (
-										<Button href={ 'https://videopress.com' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'TO DO: Text and link if not active' ) }
+										<Button href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/writing' } className="is-primary">
+											{ __( 'Activate VideoPress' ) }
 										</Button>
 									)
 								}
@@ -152,13 +152,13 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Fast, optimised, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button href="https://vaultpress.com/" className="is-primary">
-											{ __( 'TO DO: Text and link if active' ) }
+										<Button href={ this.props.siteAdminUrl + 'media-new.php' } className="is-primary">
+											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
 										: (
-										<Button href={ 'https://videopress.com' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'TO DO: Text and link if not active' ) }
+										<Button href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/writing' } className="is-primary">
+											{ __( 'Activate VideoPress' ) }
 										</Button>
 									)
 								}
