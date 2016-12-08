@@ -13,7 +13,7 @@ class Jetpack_JSON_API_Export_Endpoint extends Jetpack_JSON_API_Endpoint {
 		$args = $this->input();
 
 		// Set up args array
-		$args['download'] = 'true';
+		$args = $this->setup_args($args);
 
 		/**
 		 * Filters the export args.
@@ -31,70 +31,101 @@ class Jetpack_JSON_API_Export_Endpoint extends Jetpack_JSON_API_Endpoint {
 		$string_data = ob_get_clean();
 
 		// Export file is saved to the uploads folder.
-		$file_name = wp_upload_dir()['path'] . '/export.xml';
-		$file_url = wp_upload_dir()['url'] . '/export.xml';
+		$file_name = wp_upload_dir()['path'] . '/export.pdf'; // for uploading to media lib. real format - xml'
 		file_put_contents( $file_name, $string_data );
 
+		// Move export file to wpcom
+		$file_url = wp_upload_dir()['url'] . '/export.pdf';
+		$media_item = $this->transfer_export_to_wpcom($file_url);
+		$wpcom_file_url = $media_item['URL'];
 
 		return array(
 			'status'       => 'success',
-			'download_url' => $file_url,
+			'download_url' => $wpcom_file_url,
 		);
 	}
 
+	private function transfer_export_to_wpcom($export_file_url) {
+		// Upload export file to WPCOM using the media/new API endpoint.
+		$options  = array (
+			'http' =>
+				array (
+					'ignore_errors' => true,
+					'method' => 'POST',
+					'header' =>
+						array (
+							0 => 'authorization: ???',
+							1 => 'Content-Type: application/x-www-form-urlencoded',
+						),
+					'content' =>
+						http_build_query(  array (
+							'media_urls' => $export_file_url,
+						)),
+				),
+		);
+
+		$context  = stream_context_create( $options );
+		$response = file_get_contents(
+			'https://public-api.wordpress.com/rest/v1.1/sites/2426177/media/new',
+			false,
+			$context
+		);
+		$response = json_decode( $response );
+
+		// Return the newly created media item.
+		return $response['media'][0];
+	}
+
 	private function setup_args( $args ) {
-// If the 'download' URL parameter is set, a WXR export file is baked and returned.
-		if ( isset( $_GET['download'] ) ) {
-			$args = array();
+		$prepared_args = array();
 
-			if ( ! isset( $_GET['content'] ) || 'all' == $_GET['content'] ) {
-				$args['content'] = 'all';
-			} elseif ( 'posts' == $_GET['content'] ) {
-				$args['content'] = 'post';
+		if ( ! isset( $args['content'] ) || 'all' == $args['content'] ) {
+			$prepared_args['content'] = 'all';
+		} elseif ( 'posts' == $args['content'] ) {
+			$prepared_args['content'] = 'post';
 
-				if ( $_GET['cat'] ) {
-					$args['category'] = (int) $_GET['cat'];
-				}
-
-				if ( $_GET['post_author'] ) {
-					$args['author'] = (int) $_GET['post_author'];
-				}
-
-				if ( $_GET['post_start_date'] || $_GET['post_end_date'] ) {
-					$args['start_date'] = $_GET['post_start_date'];
-					$args['end_date']   = $_GET['post_end_date'];
-				}
-
-				if ( $_GET['post_status'] ) {
-					$args['status'] = $_GET['post_status'];
-				}
-			} elseif ( 'pages' == $_GET['content'] ) {
-				$args['content'] = 'page';
-
-				if ( $_GET['page_author'] ) {
-					$args['author'] = (int) $_GET['page_author'];
-				}
-
-				if ( $_GET['page_start_date'] || $_GET['page_end_date'] ) {
-					$args['start_date'] = $_GET['page_start_date'];
-					$args['end_date']   = $_GET['page_end_date'];
-				}
-
-				if ( $_GET['page_status'] ) {
-					$args['status'] = $_GET['page_status'];
-				}
-			} elseif ( 'attachment' == $_GET['content'] ) {
-				$args['content'] = 'attachment';
-
-				if ( $_GET['attachment_start_date'] || $_GET['attachment_end_date'] ) {
-					$args['start_date'] = $_GET['attachment_start_date'];
-					$args['end_date']   = $_GET['attachment_end_date'];
-				}
-			} else {
-				$args['content'] = $_GET['content'];
+			if ( $args['cat'] ) {
+				$prepared_args['category'] = (int) $args['cat'];
 			}
 
-			return $args;
+			if ( $args['post_author'] ) {
+				$prepared_args['author'] = (int) $args['post_author'];
+			}
+
+			if ( $args['post_start_date'] || $args['post_end_date'] ) {
+				$prepared_args['start_date'] = $args['post_start_date'];
+				$prepared_args['end_date']   = $args['post_end_date'];
+			}
+
+			if ( $args['post_status'] ) {
+				$prepared_args['status'] = $args['post_status'];
+			}
+		} elseif ( 'pages' == $args['content'] ) {
+			$prepared_args['content'] = 'page';
+
+			if ( $args['page_author'] ) {
+				$prepared_args['author'] = (int) $args['page_author'];
+			}
+
+			if ( $args['page_start_date'] || $args['page_end_date'] ) {
+				$prepared_args['start_date'] = $args['page_start_date'];
+				$prepared_args['end_date']   = $args['page_end_date'];
+			}
+
+			if ( $args['page_status'] ) {
+				$prepared_args['status'] = $args['page_status'];
+			}
+		} elseif ( 'attachment' == $args['content'] ) {
+			$prepared_args['content'] = 'attachment';
+
+			if ( $args['attachment_start_date'] || $args['attachment_end_date'] ) {
+				$prepared_args['start_date'] = $args['attachment_start_date'];
+				$prepared_args['end_date']   = $args['attachment_end_date'];
+			}
+		} else {
+			$prepared_args['content'] = $args['content'];
 		}
+
+		return $prepared_args;
 	}
 }
