@@ -118,7 +118,7 @@ function jetpress_symlink_theme( $theme_slug, $theme_type ) {
 function jetpress_delete_theme_cache( $theme_slug = null ) {
 	$theme = wp_get_theme( $theme_slug );
 
-	if ( ! $theme->errors() ) {
+	if ( $theme instanceof WP_Theme) {
 		$theme->cache_delete();
 	}
 }
