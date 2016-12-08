@@ -40,7 +40,8 @@ function jetpress_map_caps( $required_caps, $cap ) {
 	switch ( $cap ) {
 		case 'edit_themes':
 			$theme = wp_get_theme();
-			if ( jetpress_is_wpcom_premium_theme( $theme->get_stylesheet() )
+			if ( jetpress_is_maybe_wpcom_theme( $theme->get_stylesheet() )
+			     && jetpress_is_wpcom_premium_theme( $theme->get_stylesheet() )
 			     && 'Automattic' !== $theme->get( 'Author' ) ) {
 				$required_caps[] = 'do_not_allow';
 			}
