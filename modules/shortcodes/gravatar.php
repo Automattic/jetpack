@@ -1,8 +1,26 @@
 <?php
+/**
+ * Gravatar shortcode for avatar and profile.
+ *
+ * Usage:
+ *
+ * [gravatar email="user@example.org" size="48"]
+ * [gravatar_profile who="user@example.org"]
+ */
 
-add_shortcode( 'gravatar', 'gravatar_shortcode' );
+add_shortcode( 'gravatar', 'jetpack_gravatar_shortcode' );
+add_shortcode( 'gravatar_profile', 'jetpack_gravatar_profile_shortcode' );
 
-function gravatar_shortcode( $atts ) {
+/**
+ * Get gravatar using the email provided at the specified size.
+ *
+ * @since 4.5.0
+ *
+ * @param array $atts Shortcode attributes.
+ *
+ * @return bool|string
+ */
+function jetpack_gravatar_shortcode( $atts ) {
 	$atts = shortcode_atts( array(
 		'email' => '',
 		'size'  => 96,
@@ -23,7 +41,9 @@ function gravatar_shortcode( $atts ) {
 /**
  * Display Gravatar profile
  *
- * @param array $atts
+ * @since 4.5.0
+ *
+ * @param array $atts Shortcode attributes.
  *
  * @uses shortcode_atts()
  * @uses get_user_by()
@@ -36,16 +56,17 @@ function gravatar_shortcode( $atts ) {
  * @uses esc_url()
  * @uses esc_html()
  * @uses _e()
- * @return string or false
+ *
+ * @return string
  */
-function gravatar_profile_shortcode( $atts ) {
+function jetpack_gravatar_profile_shortcode( $atts ) {
 	// Give each use of the shortcode a unique ID
 	static $instance = 0;
 
 	// Process passed attributes
 	$atts = shortcode_atts( array(
 		'who' => null,
-	), $atts, 'gravatar_profile' );
+	), $atts, 'jetpack_gravatar_profile' );
 
 	// Can specify username, user ID, or email address
 	if ( is_numeric( $atts['who'] ) ) {
@@ -65,8 +86,15 @@ function gravatar_profile_shortcode( $atts ) {
 
 	// Render the shortcode
 	$gravatar_url  = set_url_scheme( 'http://gravatar.com/' . $user->user_login );
-	$avatar_url    = wpcom_get_avatar_url( $user->ID, 96 );
-	$user_location = get_user_attribute( $user->ID, 'location' );
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$avatar_url    = wpcom_get_avatar_url( $user->ID, 96 );
+		$avatar_url    = $avatar_url[0];
+		$user_location = get_user_attribute( $user->ID, 'location' );
+	} else {
+		$avatar_url    = get_avatar_url( $user->user_email, array( 'size' => 96 ) );
+		$user_location = get_user_meta( $user->ID, 'location', true );
+	}
 
 	ob_start();
 
@@ -97,7 +125,7 @@ function gravatar_profile_shortcode( $atts ) {
 			<div class="grofile-left">
 				<div class="grofile-img">
 					<a href="<?php echo esc_url( $gravatar_url ); ?>">
-						<img src="<?php echo esc_url( $avatar_url[0] ); ?>" width="96" height="96" class="no-grav gravatar photo" />
+						<img src="<?php echo esc_url( $avatar_url ); ?>" width="96" height="96" class="no-grav gravatar photo" />
 					</a>
 				</div>
 			</div>
@@ -120,5 +148,3 @@ function gravatar_profile_shortcode( $atts ) {
 
 	return ob_get_clean();
 }
-
-add_shortcode( 'gravatar_profile', 'gravatar_profile_shortcode' );
