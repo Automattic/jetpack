@@ -99,7 +99,7 @@ export const Writing = ( props ) => {
 		if ( isVideoPress ) {
 			if ( fetchingSiteData ) {
 				toggle = '';
-			} else if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug ) {
+			} else if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug || /jetpack_personal*/.test( sitePlan.product_slug ) ) {
 				toggle = <Button
 					compact={ true }
 					primary={ true }

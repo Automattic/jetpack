@@ -36,6 +36,7 @@ import {
 	isFetchingPluginsData,
 	isPluginActive
 } from 'state/site/plugins';
+import { getSiteRawUrl } from 'state/initial-state';
 
 export const SearchResults = ( {
 	siteAdminUrl,
@@ -48,7 +49,8 @@ export const SearchResults = ( {
 	sitePlan,
 	unavailableInDevMode,
 	isFetchingPluginsData,
-	isPluginActive
+	isPluginActive,
+	siteRawUrl
 	} ) => {
 	let modules = getModules(),
 		moduleList = [
@@ -158,7 +160,7 @@ export const SearchResults = ( {
 		}
 
 		if ( 'videopress' === element[0] ) {
-			if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug ) {
+			if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug || /jetpack_personal*/.test( sitePlan.product_slug ) ) {
 				toggle = <Button
 					compact={ true }
 					primary={ true }
@@ -234,7 +236,8 @@ export default connect(
 			sitePlan: getSitePlan( state ),
 			unavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
-			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			siteRawUrl: getSiteRawUrl( state )
 		};
 	},
 	( dispatch ) => {
