@@ -44,7 +44,7 @@ class Milestone_Widget extends WP_Widget {
 			$control
 		);
 
-		self::$dir = trailingslashit( __DIR__ );
+		self::$dir = trailingslashit( dirname( __FILE__ ) );
 		self::$url = plugin_dir_url( __FILE__ );
 		self::$labels = array(
 			'year'    => __( 'year', 'jetpack' ),
