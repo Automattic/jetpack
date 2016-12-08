@@ -129,6 +129,12 @@ class Quiz_Shortcode {
 	 * @return string
 	 */
 	public static function shortcode( $atts, $content = null ) {
+
+		// There's nothing to do if there's nothing enclosed.
+		if ( null == $content ) {
+			return '';
+		}
+
 		$id = '';
 
 		if ( self::is_javascript_unavailable() ) {
@@ -162,7 +168,7 @@ class Quiz_Shortcode {
 		}
 
 		$quiz = self::do_shortcode( $content );
-		return '<div class="quiz"' . $id . '>' . $quiz . '</div>'	;
+		return '<div class="quiz"' . $id . '>' . $quiz . '</div>';
 	}
 
 	/**
@@ -177,6 +183,9 @@ class Quiz_Shortcode {
 	private static function do_shortcode( $content ) {
 		// strip autoinserted line breaks
 		$content = preg_replace( '#(<(?:br /|/?p)>\n?)*(\[/?[a-z]+\])(<(?:br /|/?p)>\n?)*#', '$2', $content );
+
+		// Add internal parameter so it's only rendered when it has it
+		$content = preg_replace( '/\[(question|answer|wrong|explanation)\]/i', '[$1 quiz_item="true"]', $content );
 		$content = do_shortcode( $content );
 		$content = wp_kses( $content, array(
 			'tt' => array(),
@@ -201,7 +210,9 @@ class Quiz_Shortcode {
 	 * @return string
 	 */
 	public static function question_shortcode( $atts, $content = null ) {
-		return '<div class="question">' . self::do_shortcode( $content ) . '</div>';
+		return isset( $atts['quiz_item'] )
+			? '<div class="question">' . self::do_shortcode( $content ) . '</div>'
+			: '';
 	}
 
 	/**
@@ -219,7 +230,9 @@ class Quiz_Shortcode {
 			return self::noscript_info();
 		}
 
-		return '<div class="answer" data-correct="1">' . self::do_shortcode( $content ) . '</div>';
+		return isset( $atts['quiz_item'] )
+			? '<div class="answer" data-correct="1">' . self::do_shortcode( $content ) . '</div>'
+			: '';
 	}
 
 	/**
@@ -237,7 +250,9 @@ class Quiz_Shortcode {
 			return self::noscript_info();
 		}
 
-		return '<div class="answer">' . self::do_shortcode( $content ) . '</div>';
+		return isset( $atts['quiz_item'] )
+			? '<div class="answer">' . self::do_shortcode( $content ) . '</div>'
+			: '';
 	}
 
 	/**
@@ -255,7 +270,9 @@ class Quiz_Shortcode {
 			return self::noscript_info();
 		}
 
-		return '<div class="explanation">' . self::do_shortcode( $content ) . '</div>';
+		return isset( $atts['quiz_item'] )
+			? '<div class="explanation">' . self::do_shortcode( $content ) . '</div>'
+			: '';
 	}
 }
 
