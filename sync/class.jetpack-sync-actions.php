@@ -9,7 +9,8 @@
 class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
-	const DEFAULT_SYNC_CRON_INTERVAL = '1min';
+	const DEFAULT_SYNC_CRON_INTERVAL_NAME = 'jetpack_sync_interval';
+	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 
 	static function init() {
 
@@ -20,6 +21,9 @@ class Jetpack_Sync_Actions {
 
 		if ( self::sync_via_cron_allowed() ) {
 			self::init_sync_cron_jobs();
+		} else if ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
+			wp_clear_scheduled_hook( 'jetpack_sync_cron' );
+			wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
 		}
 
 		// On jetpack authorization, schedule a full sync
@@ -49,7 +53,12 @@ class Jetpack_Sync_Actions {
 		if ( apply_filters( 'jetpack_sync_listener_should_load', true ) ) {
 			self::initialize_listener();
 		}
+		
+		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
 
+	}
+
+	static function add_sender_shutdown() {
 		/**
 		 * Fires on every request before default loading sync sender code.
 		 * Return false to not load sync sender code that serializes pending
@@ -77,7 +86,6 @@ class Jetpack_Sync_Actions {
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
 		}
-
 	}
 
 	static function sync_allowed() {
@@ -126,12 +134,14 @@ class Jetpack_Sync_Actions {
 			$query_args['migrate_for_idc'] = true;
 		}
 
+		$query_args['timeout'] = Jetpack_Sync_Settings::is_doing_cron() ? 30 : 15;
+
 		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
 
 		$rpc = new Jetpack_IXR_Client( array(
 			'url'     => $url,
 			'user_id' => JETPACK_MASTER_USER,
-			'timeout' => 30,
+			'timeout' => $query_args['timeout'],
 		) );
 
 		$result = $rpc->query( 'jetpack.syncActions', $data );
@@ -193,11 +203,14 @@ class Jetpack_Sync_Actions {
 		return true;
 	}
 
-	static function minute_cron_schedule( $schedules ) {
-		if( ! isset( $schedules['1min'] ) ) {
-			$schedules['1min'] = array(
-				'interval' => 60,
-				'display' => esc_html__( 'Every minute', 'jetpack' )
+	static function jetpack_cron_schedule( $schedules ) {
+		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
+			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
+				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
+				'display' => sprintf(
+					esc_html__( 'Every %d minutes', 'jetpack' ),
+					self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60
+				)
 			);
 		}
 		return $schedules;
@@ -274,7 +287,7 @@ class Jetpack_Sync_Actions {
 			return $schedule;
 		}
 
-		return self::DEFAULT_SYNC_CRON_INTERVAL;
+		return self::DEFAULT_SYNC_CRON_INTERVAL_NAME;
 	}
 
 	static function maybe_schedule_sync_cron( $schedule, $hook ) {
@@ -295,7 +308,7 @@ class Jetpack_Sync_Actions {
 
 	static function init_sync_cron_jobs() {
 		// Add a custom "every minute" cron schedule
-		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
+		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
 
 		// cron hooks
 		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
@@ -304,39 +317,42 @@ class Jetpack_Sync_Actions {
 		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
 
 		/**
-		 * Allows overriding of the default incremental sync cron schedule which defaults to once per minute.
+		 * Allows overriding of the default incremental sync cron schedule which defaults to once every 5 minutes.
 		 *
 		 * @since 4.3.2
 		 *
-		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL
+		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL_NAME
 		 */
-		$incremental_sync_cron_schedule = apply_filters( 'jetpack_sync_incremental_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL );
+		$incremental_sync_cron_schedule = apply_filters( 'jetpack_sync_incremental_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL_NAME );
 		self::maybe_schedule_sync_cron( $incremental_sync_cron_schedule, 'jetpack_sync_cron' );
 
 		/**
-		 * Allows overriding of the full sync cron schedule which defaults to once per minute.
+		 * Allows overriding of the full sync cron schedule which defaults to once every 5 minutes.
 		 *
 		 * @since 4.3.2
 		 *
-		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL
+		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL_NAME
 		 */
-		$full_sync_cron_schedule = apply_filters( 'jetpack_sync_full_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL );
+		$full_sync_cron_schedule = apply_filters( 'jetpack_sync_full_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL_NAME );
 		self::maybe_schedule_sync_cron( $full_sync_cron_schedule, 'jetpack_sync_full_cron' );
+	}
+
+	static function cleanup_on_upgrade() {
+		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
+			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
+		}
 	}
 }
 
 /**
  * If the site is using alternate cron, we need to init the listener and sender before cron
  * runs. So, we init at a priority of 9.
- * 
+ *
  * If the site is using a regular cron job, we init at a priority of 90 which gives plugins a chance
  * to add filters before we initialize.
  */
-if ( defined( 'ALTERNATE_WP_CRON' ) && ALTERNATE_WP_CRON ) {
-	add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 9 );
-} else {
-	add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
-}
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ) );

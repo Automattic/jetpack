@@ -178,6 +178,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function get_target_html() {
+		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
 		if ( Jetpack_Sync_Settings::is_syncing() ) {
 			return '';
 		}
@@ -186,7 +187,8 @@ class Jetpack_RelatedPosts {
 
 		if ( $options['show_headline'] ) {
 			$headline = sprintf(
-				'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
+				/** This filter is already documented in modules/sharedaddy/sharing-service.php */
+				apply_filters( 'jetpack_sharing_headline_html', '<h3 class="jp-relatedposts-headline"><em>%s</em></h3>', esc_html__( 'Related', 'jetpack' ), 'related-posts' ),
 				esc_html__( 'Related', 'jetpack' )
 			);
 		} else {
@@ -223,6 +225,7 @@ EOT;
 	 * @returns string
 	 */
 	public function get_target_html_unsupported() {
+		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
 		if ( Jetpack_Sync_Settings::is_syncing() ) {
 			return '';
 		}

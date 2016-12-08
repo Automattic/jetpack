@@ -27,12 +27,14 @@ import {
 	MarkdownSettings,
 	VerificationToolsSettings,
 	SitemapsSettings,
-	VideoPressSettings
+	VideoPressSettings,
+	WordAdsSettings
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
 
 import {
 	getSiteAdminUrl,
+	getSiteRawUrl
 } from 'state/initial-state';
 
 const AllModuleSettingsComponent = React.createClass( {
@@ -68,6 +70,7 @@ const AllModuleSettingsComponent = React.createClass( {
 			case 'protect':
 				return ( <ProtectSettings module={ module }  /> );
 			case 'monitor':
+				module.raw_url = this.props.siteRawUrl;
 				return ( <MonitorSettings module={ module }  /> );
 			case 'scan':
 				return '' === module.configure_url ? (
@@ -91,7 +94,7 @@ const AllModuleSettingsComponent = React.createClass( {
 				if ( '' === module.configure_url ) {
 					return (
 						<div>
-							{ __( 'Your Jetpack plan doesn’t include SEO tools. You must upgrade to Jetpack Professional to use SEO tools.' ) }
+							{ __( 'Make sure your site is easily found on search engines with SEO tools for your content and social posts.' ) }
 						</div>
 					);
 				} else if ( 'checking' === module.configure_url ) {
@@ -99,7 +102,7 @@ const AllModuleSettingsComponent = React.createClass( {
 				} else if ( 'inactive' === module.configure_url ) {
 					return (
 						<div>
-							{ __( 'You have the Professional plan! Activate this module to use the advanced SEO tools.' ) }
+							{ __( 'Activate this module to use the advanced SEO tools.' ) }
 						</div>
 					);
 				} else {
@@ -123,6 +126,8 @@ const AllModuleSettingsComponent = React.createClass( {
 				return ( <VerificationToolsSettings module={ module }  /> );
 			case 'sitemaps':
 				return ( <SitemapsSettings module={ module } { ...this.props } /> );
+			case 'wordads':
+				return ( <WordAdsSettings module={ module } /> );
 			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':
@@ -188,7 +193,8 @@ const AllModuleSettingsComponent = React.createClass( {
 export const AllModuleSettings = connect(
 	( state ) => {
 		return {
-			adminUrl: getSiteAdminUrl( state )
+			adminUrl: getSiteAdminUrl( state ),
+			siteRawUrl: getSiteRawUrl( state )
 		};
 	}
 )( AllModuleSettingsComponent );

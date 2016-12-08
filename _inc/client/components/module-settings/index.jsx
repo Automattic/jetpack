@@ -31,6 +31,8 @@ import {
 
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 
+import ExternalLink from 'components/external-link';
+
 export let VideoPressSettings = React.createClass( {
 	render() {
 		return (
@@ -308,28 +310,16 @@ ProtectSettings = moduleSettingsForm( ProtectSettings );
 export let MonitorSettings = React.createClass( {
 	render() {
 		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<ModuleSettingCheckbox
-						name={ 'monitor_receive_notifications' }
-						{ ...this.props }
-						label={ __( 'Receive Monitor Email Notifications' ) } />
-					<span className="jp-form-setting-explanation">{ __( 'Emails will be sent to ' ) + this.props.adminEmailAddress }. <span>
-						&nbsp;
-						{
-							__( '{{a}}Edit{{/a}}', {
-								components: {
-									a: <a href={ 'https://wordpress.com/settings/account/' } />
-								}
-							} )
+			<span className="jp-form-setting-explanation"><span>
+				{
+
+					__( '{{link}}Configure your Monitor notificaton settings on WordPress.com{{/link}}', {
+						components: {
+							link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={  'https://wordpress.com/settings/security/' + this.props.module.raw_url } />,
 						}
-					</span></span>
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
+					} )
+				}
+			</span></span>
 		)
 	}
 } );
@@ -828,3 +818,30 @@ export let SitemapsSettings = React.createClass( {
 } );
 
 SitemapsSettings = moduleSettingsForm( SitemapsSettings );
+
+export let WordAdsSettings = React.createClass( {
+	render() {
+		return (
+			this.props.getOptionValue( 'wordads_approved' )
+				? <div>
+					<form onSubmit={ this.props.onSubmit } >
+						<FormFieldset>
+							<ModuleSettingCheckbox
+								name={ 'enable_header_ad' }
+								{ ...this.props }
+								label={ __( 'Display an ad unit at the top of each page.' ) } />
+							<FormButton
+								className="is-primary"
+								isSubmitting={ this.props.isSavingAnyOption() }
+								disabled={ this.props.shouldSaveButtonBeDisabled() } />
+						</FormFieldset>
+					</form>
+				</div>
+				: <div>
+					<p>{ __( 'We are setting up your ads, they will be available soon!' ) }</p>
+				</div>
+		);
+	}
+} );
+
+WordAdsSettings = moduleSettingsForm( WordAdsSettings );

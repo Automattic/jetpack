@@ -50,8 +50,8 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			} elseif ( $salted_ans != $correct_ans ) {
 				wp_die(
 				__( '<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Protect API is unavailable.  Please use your browser\'s back button to return to the login form, press the "refresh" button to generate a new math problem, and try to log in again.', 'jetpack' ),
-				__( 'Login Blocked by Jetpack', 'jetpack' ),
-				403
+				'',
+				401
 				);
 			} else {
 				return true;
@@ -77,11 +77,13 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 				<p><input type="submit" value="<?php esc_html_e( 'Continue &rarr;', 'jetpack' ); ?>"></p>
 			</form>
 		<?php
-			$mathage = ob_get_contents();
+			$mathpage = ob_get_contents();
 			ob_end_clean();
-			wp_die( $mathage,
-			__( 'Prove your humanity:', 'jetpack' ),
-			array ( 'response' => 200 )  );
+			wp_die(
+				$mathpage,
+				'',
+				'401'
+			);
 		}
 
 		public function process_generate_math_page() {
@@ -114,7 +116,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 					return '';
 				}
 			}
-			
+
 			$salt = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
 			$num1 = rand( 0, 10 );
 			$num2 = rand( 1, 10 );

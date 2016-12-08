@@ -75,7 +75,7 @@ export const GeneralSettings = ( props ) => {
 				) }
 			>
 				<div className="jp-form-setting-explanation"><div dangerouslySetInnerHTML={ renderLongDescription( getModule( module_slug ) ) } /></div>
-				<div className="jp-module-settings__read-more">
+				<div className="jp-module-settings__learn-more">
 					<Button borderless compact href={ getModule( module_slug ).learn_more_button }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
 			</FoldableCard>

@@ -10,6 +10,8 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 
+		$this->resetCallableAndConstantTimeouts();
+
 		$this->constant_module = Jetpack_Sync_Modules::get_module( "constants" );
 	}
 

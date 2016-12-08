@@ -36,6 +36,7 @@ import {
 	isFetchingPluginsData,
 	isPluginActive
 } from 'state/site/plugins';
+import { getSiteRawUrl } from 'state/initial-state';
 
 export const SearchResults = ( {
 	siteAdminUrl,
@@ -45,9 +46,11 @@ export const SearchResults = ( {
 	getModule,
 	getModules,
 	searchTerm,
+	sitePlan,
 	unavailableInDevMode,
 	isFetchingPluginsData,
-	isPluginActive
+	isPluginActive,
+	siteRawUrl
 	} ) => {
 	let modules = getModules(),
 		moduleList = [
@@ -73,6 +76,7 @@ export const SearchResults = ( {
 				'backup restore pro security'
 			]
 		],
+		hasBusiness = false,
 		cards;
 
 	forEach( modules, function( m ) {
@@ -89,8 +93,21 @@ export const SearchResults = ( {
 		] ) : '';
 	} );
 
+	if (
+		undefined !== typeof sitePlan.product_slug
+		&& (
+			sitePlan.product_slug === 'jetpack_business'
+			|| sitePlan.product_slug === 'jetpack_business_monthly'
+		)
+	) {
+		hasBusiness = true;
+	}
+
 	cards = moduleList.map( ( element ) => {
-		let isPro = 'scan' === element[0] || 'akismet' === element[0] || 'backups' === element[0],
+		let isPro = 'scan' === element[0]
+				 || 'akismet' === element[0]
+				 || 'backups' === element[0]
+				 || 'seo-tools' === element[0],
 			proProps = {},
 			unavailableDevMode = unavailableInDevMode( element[0] ),
 			toggle = unavailableDevMode ? __( 'Unavailable in Dev Mode' ) : (
@@ -108,7 +125,18 @@ export const SearchResults = ( {
 				module: element[0],
 				configure_url: ''
 			};
-			toggle = <ProStatus proFeature={ element[0] } siteAdminUrl={ siteAdminUrl } />;
+
+			if (
+				'videopress' !== element[0]
+				||
+				'seo-tools' !== element[0]
+				|| (
+					'seo-tools' === element[0]
+					&& ! hasBusiness
+				)
+			) {
+				toggle = <ProStatus proFeature={ element[0] } siteAdminUrl={ siteAdminUrl } />;
+			}
 
 			// Add a "pro" button next to the header title
 			element[1] = <span>
@@ -128,6 +156,18 @@ export const SearchResults = ( {
 				} else if ( ( 'scan' === element[0] || 'backups' === element[0] ) && isPluginActive( 'vaultpress/vaultpress.php' ) ) {
 					proProps.configure_url = 'https://dashboard.vaultpress.com/';
 				}
+			}
+		}
+
+		if ( 'videopress' === element[0] ) {
+			if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug || /jetpack_personal*/.test( sitePlan.product_slug ) ) {
+				toggle = <Button
+					compact={ true }
+					primary={ true }
+					href={ 'https://wordpress.com/plans/' + siteRawUrl }
+				>
+					{ __( 'Upgrade' ) }
+				</Button>;
 			}
 		}
 
@@ -159,7 +199,7 @@ export const SearchResults = ( {
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
 				<br/>
-				<div className="jp-module-settings__read-more">
+				<div className="jp-module-settings__learn-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
 				</div>
 			</FoldableCard>
@@ -193,10 +233,11 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			getModules: () => _getModules( state ),
 			searchTerm: () => getSearchTerm( state ),
-			sitePlan: () => getSitePlan( state ),
+			sitePlan: getSitePlan( state ),
 			unavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
-			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			siteRawUrl: getSiteRawUrl( state )
 		};
 	},
 	( dispatch ) => {

@@ -21,6 +21,15 @@ abstract class Jetpack_Admin_Page {
 	static $block_page_rendering_for_idc;
 
 	/**
+	 * Flag to know if we already checked the plan.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @var bool
+	 */
+	static $plan_checked = false;
+
+	/**
 	 * Function called after admin_styles to load any additional needed styles.
 	 *
 	 * @since 4.3.0
@@ -32,10 +41,6 @@ abstract class Jetpack_Admin_Page {
 		self::$block_page_rendering_for_idc = (
 			Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
 		);
-
-		if ( ! self::$block_page_rendering_for_idc ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'additional_styles' ) );
-		}
 	}
 
 	function add_actions() {
@@ -61,6 +66,13 @@ abstract class Jetpack_Admin_Page {
 
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
+
+		if ( ! self::$block_page_rendering_for_idc ) {
+			add_action( "admin_print_styles-$hook", array( $this, 'additional_styles' ) );
+		}
+
+		// Check if the site plan changed and deactivate modules accordingly.
+		add_action( 'current_screen', array( $this, 'check_plan_deactivate_modules' ) );
 
 		// Attach page specific actions in addition to the above
 		$this->add_page_actions( $hook );
@@ -124,8 +136,107 @@ abstract class Jetpack_Admin_Page {
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
 	}
 
+	/**
+	 * Checks if WordPress version is too old to have REST API.
+	 *
+	 * @since 4.3
+	 *
+	 * @return bool
+	 */
 	function is_wp_version_too_old() {
 		global $wp_version;
 		return ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) );
+	}
+
+	/**
+	 * Checks if REST API is enabled.
+	 *
+	 * @since 4.4.2
+	 *
+	 * @return bool
+	 */
+	function is_rest_api_enabled() {
+		return
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			apply_filters( 'rest_enabled', true ) &&
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			apply_filters( 'rest_jsonp_enabled', true ) &&
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			apply_filters( 'rest_authentication_errors', true );
+	}
+
+	/**
+	 * Checks the site plan and deactivates modules that were active but are no longer included in the plan.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param $page
+	 *
+	 * @return bool|array
+	 */
+	function check_plan_deactivate_modules( $page ) {
+		if (
+			Jetpack::is_development_mode()
+			|| ! in_array(
+				$page->base,
+				array(
+					'toplevel_page_jetpack',
+					'admin_page_jetpack_modules',
+					'jetpack_page_vaultpress',
+					'jetpack_page_stats',
+					'jetpack_page_akismet-key-config'
+				)
+			)
+			|| true === self::$plan_checked
+		) {
+			return false;
+		}
+
+		self::$plan_checked = true;
+		$previous = get_option( 'jetpack_active_plan', '' );
+		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/site' ) );
+
+		if ( ! is_object( $response ) || $response->is_error() ) {
+
+			// If we can't get information about the current plan we don't do anything
+			self::$plan_checked = true;
+			return;
+		}
+
+		$current = $response->get_data();
+		$current = json_decode( $current['data'] );
+
+		$to_deactivate = array();
+		if ( isset( $current->plan->product_slug ) ) {
+			if (
+				empty( $previous )
+				|| ! isset( $previous['product_slug'] )
+				|| $previous['product_slug'] !== $current->plan->product_slug
+			) {
+				$active = Jetpack::get_active_modules();
+				switch ( $current->plan->product_slug ) {
+					case 'jetpack_free':
+						$to_deactivate = array( 'seo-tools', 'videopress' );
+						break;
+					case 'jetpack_personal':
+					case 'jetpack_personal_monthly':
+						$to_deactivate = array( 'seo-tools', 'videopress' );
+						break;
+					case 'jetpack_premium':
+					case 'jetpack_premium_monthly':
+						$to_deactivate = array( 'seo-tools' );
+						break;
+				}
+				$to_deactivate = array_intersect( $active, $to_deactivate );
+				if ( ! empty( $to_deactivate ) ) {
+					Jetpack::update_active_modules( array_filter( array_diff( $active, $to_deactivate ) ) );
+				}
+			}
+		}
+		return array(
+			'previous'   => $previous,
+			'current'    => $current,
+			'deactivate' => $to_deactivate
+		);
 	}
 }

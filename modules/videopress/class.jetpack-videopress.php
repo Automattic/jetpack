@@ -36,15 +36,21 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * Fires on init since is_connection_owner should wait until the user is initialized by $wp->init();
+	 * Fires on init
 	 */
 	public function on_init() {
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
-
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
-
-		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
 		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
+
+		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
+			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
+		}
+
+		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
+		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
+
+		add_filter( 'wp_mime_type_icon', array( $this, 'wp_mime_type_icon' ), 10, 3 );
 
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
@@ -104,19 +110,11 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * Filters the VideoPress shortcode options, makes sure that
-	 * the settings set in Jetpack's VideoPress module are applied.
+	 * Register and enqueue VideoPress admin styles.
 	 */
-	public function videopress_shortcode_options( $options ) {
-		$videopress_options = VideoPress_Options::get_options();
-
-		if ( false === $options['freedom'] ) {
-			$options['freedom'] = $videopress_options['freedom'];
-		}
-
-		$options['hd'] = $videopress_options['hd'];
-
-		return $options;
+	public function enqueue_admin_styles() {
+		wp_register_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
+		wp_enqueue_style( 'videopress-admin' );
 	}
 
 	/**
@@ -128,29 +126,31 @@ class Jetpack_VideoPress {
 		}
 
 		if ( $this->should_override_media_uploader() ) {
-			wp_enqueue_script( 'videopress-uploader', plugins_url( 'js/videopress-uploader.js', __FILE__ ), array(
-				'jquery',
-				'wp-plupload'
-			), $this->version );
+			// We're going to replace the standard wp-plupload with our own ... messy, I know, but as of now the
+			// hooks in it are not good enough for us to be able to override / add in just the code we need.
+			// P.S. Please don't take this as an example of good behavior, this is a temporary fix until I
+			// can get a more permanent action / filter system added into the core wp-plupload.js to make this
+			// type of override unnecessary.
+			wp_dequeue_script( 'wp-plupload' );
+
+			wp_enqueue_script(
+				'videopress-plupload',
+				plugins_url( 'js/videopress-plupload.js', __FILE__ ),
+				array(
+					'jquery'
+				),
+				$this->version
+			);
+
+			wp_enqueue_script(
+				'videopress-uploader',
+				plugins_url( 'js/videopress-uploader.js', __FILE__ ),
+				array(
+					'videopress-plupload'
+				),
+				$this->version
+			);
 		}
-
-		wp_enqueue_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
-
-		$caps = array();
-		foreach ( array( 'edit_videos', 'delete_videos' ) as $cap ) {
-			$caps[ $cap ] = $this->can( $cap );
-		}
-
-		// Leaving these as we may need to encorporate them somewhere else
-		$l10n = array(
-			'selectVideoFile'         => __( 'Please select a video file to upload.', 'jetpack' ),
-			'videoUploading'          => __( 'Your video is uploading... Please do not close this window.', 'jetpack' ),
-			'unknownError'            => __( 'An unknown error has occurred. Please try again later.', 'jetpack' ),
-			'videoUploaded'           => __( 'Your video has successfully been uploaded. It will appear in your VideoPress Library shortly.', 'jetpack' ),
-			'VideoPressLibraryRouter' => __( 'VideoPress Library', 'jetpack' ),
-			'uploadVideoRouter'       => __( 'Upload a Video', 'jetpack' ),
-			'insertVideoButton'       => __( 'Insert Video', 'jetpack' ),
-		);
 
 		/**
 		 * Fires after VideoPress scripts are enqueued in the dashboard.
@@ -165,6 +165,8 @@ class Jetpack_VideoPress {
 	 * if it is set to the the objects metadata. this allows us to show the original uploaded
 	 * file on the WPCOM architecture, instead of the locally uplodaded file,
 	 * which doeasn't exist.
+	 *
+	 * TODO: Fix this so that it will return a VideoPress process url, to ensure that it is in MP4 format.
 	 *
 	 * @param string $url
 	 * @param int $post_id
@@ -217,8 +219,15 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
+		$acceptable_pages = array(
+			'post-new.php',
+			'post.php',
+			'upload.php',
+			'customize.php',
+		);
+
 		// Only load on the post, new post, or upload pages.
-		if ( $pagenow !== 'post-new.php' && $pagenow !== 'post.php' && $pagenow !== 'upload.php' ) {
+		if ( !in_array( $pagenow, $acceptable_pages ) ) {
 			return false;
 		}
 
@@ -227,6 +236,96 @@ class Jetpack_VideoPress {
 		return $options['shadow_blog_id'] > 0;
 	}
 
+	/**
+	 * A work-around / hack to make it possible to go to the media library with the add new box open.
+	 *
+	 * @return bool
+	 */
+	public function print_in_footer_open_media_add_new() {
+		global $pagenow;
+
+		// Only load in the admin
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		if ( $pagenow !== 'upload.php' ) {
+			return false;
+		}
+
+		if ( ! isset ( $_GET['action'] ) || $_GET['action'] !== 'add-new' ) {
+			return false;
+		}
+
+		?>
+			<script type="text/javascript">
+				( function( $ ) {
+					window.setTimeout( function() {
+						$('#wp-media-grid .page-title-action').click();
+					}, 500 );
+
+				}( jQuery ) );
+			</script>
+		<?php
+	}
+
+	/**
+	 * Changes the add new menu location, so that VideoPress will be enabled
+	 * when a user clicks that button.
+	 */
+	public function change_add_new_menu_location() {
+		$page = remove_submenu_page( 'upload.php', 'media-new.php' );
+		add_submenu_page( 'upload.php', $page[0], $page[0], 'upload_files', 'upload.php?action=add-new');
+	}
+
+	/**
+	 * Makes sure that all video mimes are added in, as multi site installs can remove them.
+	 *
+	 * @param array $existing_mimes
+	 * @return array
+	 */
+	public function add_video_upload_mimes( $existing_mimes = array() ) {
+		$mime_types = wp_get_mime_types();
+		$video_types = array_filter( $mime_types, array( $this, 'filter_video_mimes' ) );
+
+		foreach ( $video_types as $key => $value ) {
+			$existing_mimes[ $key ] = $value;
+		}
+
+		return $existing_mimes;
+	}
+
+	/**
+	 * Filter designed to get rid of non video mime types.
+	 *
+	 * @param string $value
+	 * @return int
+	 */
+	public function filter_video_mimes( $value ) {
+		return preg_match( '@^video/@', $value );
+  }
+
+	/**
+	 * @param string $icon
+	 * @param string $mime
+	 * @param int $post_id
+	 *
+	 * @return string
+	 */
+	public function wp_mime_type_icon( $icon, $mime, $post_id ) {
+
+		if ( $mime !== 'video/videopress' ) {
+			return $icon;
+		}
+
+		$status = get_post_meta( $post_id, 'videopress_status', true );
+
+		if ( $status === 'complete' ) {
+			return $icon;
+		}
+
+		return get_site_url() . '/wp-content/plugins/jetpack/images/media-video-processing-icon.png';
+	}
 }
 
 // Initialize the module.

@@ -121,6 +121,10 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 		}
 
 		$data = wp_update_term( $term->term_id, $taxonomy, $update );
+		if ( is_wp_error( $data ) ) {
+			return $data;
+		}
+
 		$term = get_term_by( 'id', $data['term_id'], $taxonomy );
 
 		$return = $this->get_taxonomy( $term->slug, $taxonomy, $args['context'] );

@@ -78,7 +78,7 @@ require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-get-e
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-new-endpoint.php' );
 
 // POST /sites/%s/themes/%new
-new Jetpack_JSON_API_Themes_new_Endpoint( array(
+new Jetpack_JSON_API_Themes_New_Endpoint( array(
 	'description'     => 'Install a theme to your jetpack blog',
 	'group'           => '__do_not_document',
 	'stat'            => 'themes:new',
@@ -105,7 +105,7 @@ new Jetpack_JSON_API_Themes_Get_Endpoint( array(
 	'description'     => 'Get a single theme on a jetpack blog',
 	'group'           => '__do_not_document',
 	'stat'            => 'themes:get:1',
-	'method'          => 'POST',
+	'method'          => 'GET',
 	'path'            => '/sites/%s/themes/%s',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',

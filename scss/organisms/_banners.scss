@@ -67,7 +67,13 @@
 }
 
 .jp-wpcom-connect__content-container {
+	max-width: rem( 1200px );
+	position: relative;
 	padding: rem( 32px );
+
+	@include minbreakpoint(tablet) {
+		padding: rem( 32px ) rem( 32px ) rem( 96px ) rem( 32px );
+	};
 }
 
 .jp-wpcom-connect__content-container p {
@@ -78,6 +84,7 @@
 .jp-wpcom-connect__content-container h2 {
 	margin-top: 0;
 	color: #4F748E;
+	line-height: 1.6;
 }
 
 .jp-wpcom-connect__content-icon {
@@ -91,6 +98,13 @@
 	&.jp__slide-is-active {
 		display: block;
 	}
+}
+
+.jp-wpcom-connect__content-container .jp-banner__button-container {
+	@include minbreakpoint(tablet) {
+		position: absolute;
+		bottom: rem( 16px );
+	};
 }
 
 .jp-banner__button-container .dops-button {

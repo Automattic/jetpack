@@ -646,4 +646,55 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 403, $response );
 
 	}
+
+	/**
+	 * Test that a setting using 'enum' property is saved correctly.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_setting_enum_save() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_activate_modules' );
+		wp_set_current_user( $user->ID );
+
+		Jetpack::update_active_modules( array( 'carousel' ) );
+
+		// Test endpoint that will be removed in 4.5
+		$response = $this->create_and_get_request( 'module/carousel', array( 'carousel_background_color' => 'black' ), 'POST' );
+		$this->assertResponseStatus( 200, $response );
+
+		// Test endpoint that will be implemented in 4.5
+		$response = $this->create_and_get_request( 'settings/carousel', array( 'carousel_background_color' => 'white' ), 'POST' );
+		$this->assertResponseStatus( 200, $response );
+
+		$response = $this->create_and_get_request( 'settings', array( 'carousel_background_color' => 'black' ), 'POST' );
+		$this->assertResponseStatus( 200, $response );
+
+	}
+
+	/**
+	 * Test that an arg with array type can be saved.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_setting_array_type() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_activate_modules' );
+		wp_set_current_user( $user->ID );
+
+		Jetpack::update_active_modules( array( 'sharedaddy' ) );
+
+		// Verify that saving another thing fails
+		$response = $this->create_and_get_request( 'settings', array( 'show' => 'post' ), 'POST' );
+		$this->assertResponseStatus( 400, $response );
+
+		$response = $this->create_and_get_request( 'settings', array( 'show' => array( 'post', 'page' ) ), 'POST' );
+		$this->assertResponseStatus( 200, $response );
+
+	}
+
 } // class end

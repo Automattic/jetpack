@@ -135,8 +135,8 @@ function jetpack_get_module_i18n( $key ) {
 
 			'seo-tools' => array(
 				'name' => _x( 'SEO Tools', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Adds tools to enhance your site\'s content for better results on search engines and social media.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Adds tools to enhance your site\'s content for better results on search engines and social media.', 'Jumpstart Description', 'jetpack' ),
+				'description' => _x( 'Better results on search engines and social media.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Better results on search engines and social media.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'sharedaddy' => array(
@@ -206,6 +206,11 @@ function jetpack_get_module_i18n( $key ) {
 				'name' => _x( 'Extra Sidebar Widgets', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Add images, Twitter streams, your site’s RSS links, and more to your sidebar.', 'Module Description', 'jetpack' ),
 			),
+
+			'wordads' => array(
+				'name' => _x( 'Ads', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Earn income by allowing Jetpack to insert high quality ads.', 'Module Description', 'jetpack' ),
+			),
 		);
 	}
 	return $modules[ $key ];
@@ -266,6 +271,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/shortcodes.php
 			//  - modules/widget-visibility.php
 			//  - modules/widgets.php
+			//  - modules/wordads.php
 			'Appearance' =>_x( 'Appearance', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Developers` tag:
@@ -297,6 +303,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Traffic` tag:
 			//  - modules/sitemaps.php
+			//  - modules/wordads.php
 			'Traffic' =>_x( 'Traffic', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Site Stats` tag:

@@ -27,6 +27,7 @@ import {
 } from 'state/at-a-glance';
 import {
 	getSitePlan,
+	isFetchingSiteData
 } from 'state/site';
 
 const ProStatus = React.createClass( {
@@ -84,12 +85,32 @@ const ProStatus = React.createClass( {
 				}
 			}
 
-			if ( 'seo-tools' === feature && 'jetpack_business' !== sitePlan.product_slug ) {
+			if ( 'seo-tools' === feature ) {
+				if ( this.props.fetchingSiteData ) {
+					return '';
+				}
+
 				return (
 					<Button
 						compact={ true }
 						primary={ true }
-						href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl }
+						href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl + '?feature=advanced-seo' }
+					>
+						{ __( 'Upgrade' ) }
+					</Button>
+				);
+			}
+
+			if ( 'wordads' === feature ) {
+				if ( this.props.fetchingSiteData ) {
+					return '';
+				}
+
+				return (
+					<Button
+						compact={ true }
+						primary={ true }
+						href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl + '?feature=jetpack-ads' }
 					>
 						{ __( 'Upgrade' ) }
 					</Button>
@@ -156,7 +177,8 @@ export default connect(
 			fetchingPluginsData: isFetchingPluginsData( state ),
 			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
 			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
-			isDevMode: isDevMode( state )
+			isDevMode: isDevMode( state ),
+			fetchingSiteData: isFetchingSiteData( state )
 		};
 	}
 )( ProStatus );

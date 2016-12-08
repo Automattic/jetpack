@@ -433,9 +433,12 @@ class Nova_Restaurant {
 		add_action( 'current_screen', array( $this, 'current_screen_load' ) );
 
 		//Adjust 'Add Many Items' submenu position
-		$submenu_item = array_pop( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] );
-		$GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE][11] = $submenu_item;
-		ksort( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] );
+		if ( isset( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] ) ) {
+			$submenu_item = array_pop( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] );
+			$GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE][11] = $submenu_item;
+			ksort( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] );
+		}
+
 
 		$this->setup_menu_item_columns();
 
@@ -869,7 +872,7 @@ class Nova_Restaurant {
 				'post_title'   => $_POST['nova_title'][$key],
 				'tax_input'    => array(
 					self::MENU_ITEM_LABEL_TAX => $_POST['nova_labels'][$key],
-					self::MENU_TAX            => $_POST['nova_menu_tax'],
+					self::MENU_TAX            => isset( $_POST['nova_menu_tax'] ) ? $_POST['nova_menu_tax'] : null,
 				),
 			);
 

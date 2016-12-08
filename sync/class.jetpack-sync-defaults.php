@@ -78,6 +78,7 @@ class Jetpack_Sync_Defaults {
 		'jetpack_activated',
 		'jetpack_available_modules',
 		'jetpack_autoupdate_plugins',
+		'jetpack_autoupdate_plugins_translations',
 		'jetpack_autoupdate_themes',
 		'jetpack_autoupdate_themes_translations',
 		'jetpack_autoupdate_core',
@@ -310,7 +311,7 @@ class Jetpack_Sync_Defaults {
 	static $default_post_meta_whitelist = array();
 	static $default_comment_meta_whitelist = array();
 	static $default_disable = 0; // completely disable sending data to wpcom
-	static $default_sync_via_cron = 0; // use cron to sync
+	static $default_sync_via_cron = 1; // use cron to sync
 	static $default_render_filtered_content = 1; // render post_filtered_content
 	static $default_max_enqueue_full_sync = 100; // max number of items to enqueue at a time when running full sync
 	static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue
