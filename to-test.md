@@ -85,6 +85,9 @@ Check out all these new shortcodes available!  Follow the links for descriptions
 [ustream](http://support.wordpress.com/videos/ustream-tv/)
 [ustreamsocial]
 
+### Related Posts in the Customizer
+You can now preview your Related Posts in the Customizer before you save.  Just navigate to the customizer, or click the settings link in the Related Posts card in the Engagement tab to check it out.
+
 During your tests, we'd encourage you to keep your browser console open, and check for any errors in the console and the network tabs.
 
 **Thank you for all your help!**
