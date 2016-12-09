@@ -40,6 +40,11 @@ $testing_checklist = jpbeta_get_testing_list();
 		list-style-type: none;
 	}
 
+	.j-beta-wrap .card img {
+		max-width: 100%;
+		padding: 1em 0;
+	}
+
 	.j-beta-wrap .card pre code {
 		display: block;
 	}
