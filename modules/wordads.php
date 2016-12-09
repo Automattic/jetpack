@@ -1,7 +1,7 @@
 <?php
 /**
- * Module Name: WordAds
- * Module Description: Harness WordPress.com's advertising partners for your own website.
+ * Module Name: Ads
+ * Module Description: Earn income by allowing Jetpack to insert high quality ads.
  * Sort Order: 1
  * First Introduced: 4.5.0
  * Requires Connection: Yes
