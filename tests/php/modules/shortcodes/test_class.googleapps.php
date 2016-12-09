@@ -41,13 +41,13 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 
 	function test_document_variation_1_to_embed() {
 		$embed           = '<iframe src="https://docs.google.com/document/pub?id=1kDatklacdZ_tZUOpWtt_ONzY97Ldj2zFcuO9LBY2Ln4&amp;embedded=true"></iframe>';
-		$expected_output = '<iframe src="https://docs.google.com/document/pub?id=1kDatklacdZ_tZUOpWtt_ONzY97Ldj2zFcuO9LBY2Ln4&#038;embedded=true" frameborder="0" width="100%" height="560" marginheight="0" marginwidth="0"></iframe>';
+		$expected_output = '<iframe src="https://docs.google.com/document/pub?id=1kDatklacdZ_tZUOpWtt_ONzY97Ldj2zFcuO9LBY2Ln4&#038;embedded=true" frameborder="0" width="100%"';
 
 		$shortcode = googleapps_embed_to_shortcode( $embed );
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertEquals( $expected_output, $to_embed );
+		$this->assertContains( $expected_output, $to_embed );
 	}
 
 	function test_document_variation_2() {
@@ -79,14 +79,13 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 
 	function test_document_variation_2_to_embed() {
 		$embed           = '<iframe src="https://docs.google.com/document/d/1wy2kzRYYSQV0ZHe58DOvQwRQ8syrY5AhgUnKkKXk9N8/pub?embedded=true"></iframe>';
-		$expected_output = '<iframe src="https://docs.google.com/document/d/1wy2kzRYYSQV0ZHe58DOvQwRQ8syrY5AhgUnKkKXk9N8/pub?embedded=true" frameborder="0" width="100%" height="560" marginheight="0" marginwidth="0"></iframe>';
+		$expected_output = '<iframe src="https://docs.google.com/document/d/1wy2kzRYYSQV0ZHe58DOvQwRQ8syrY5AhgUnKkKXk9N8/pub?embedded=true" frameborder="0" width="100%"';
 
 		$shortcode = googleapps_embed_to_shortcode( $embed );
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertEquals( $expected_output, $to_embed );
-
+		$this->assertContains( $expected_output, $to_embed );
 	}
 
 	function test_external_document() {
