@@ -835,7 +835,7 @@ EOT;
 					'title'    => esc_html__( 'The WordPress for Android App Gets a Big Facelift', 'jetpack' ),
 					'date'     => $date_now,
 					'format'   => false,
-					'excerpt'  => esc_html__( 'Writing is new again in Android with the new WordPress app.' ),
+					'excerpt'  => esc_html__( 'Writing is new again in Android with the new WordPress app.', 'jetpack' ),
 					'rel'      => 'nofollow',
 					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
 					'img'      => array(
@@ -855,7 +855,7 @@ EOT;
 					'title'    => esc_html__( 'Upgrade Focus, VideoPress for weddings', 'jetpack' ),
 					'date'     => $date_now,
 					'format'   => false,
-					'excerpt'  => esc_html__( 'Weddings are in the spotlight now with VideoPress for weddings.' ),
+					'excerpt'  => esc_html__( 'Weddings are in the spotlight now with VideoPress for weddings.', 'jetpack' ),
 					'rel'      => 'nofollow',
 					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
 					'img'      => array(

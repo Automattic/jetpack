@@ -203,7 +203,7 @@ class Filter_Embedded_HTML_Objects {
 
 		// Log the strip
 		if ( function_exists( 'wp_kses_reject' ) ) {
-			wp_kses_reject( sprintf( __( '<code>%s</code> HTML tag removed as it is not allowed' ), '&lt;' . self::$current_element . '&gt;' ), array( self::$current_element => $attrs ) );
+			wp_kses_reject( sprintf( __( '<code>%s</code> HTML tag removed as it is not allowed', 'jetpack' ), '&lt;' . self::$current_element . '&gt;' ), array( self::$current_element => $attrs ) );
 		}
 
 		// Keep the failed match so we can later replace it with a link,
