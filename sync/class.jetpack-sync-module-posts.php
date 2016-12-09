@@ -181,8 +181,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$default_removed_shortcodes = array(
 			'gallery' => $shortcode_tags['gallery'],
 			'slideshow' => $shortcode_tags['slideshow'],
-			'contact-form' => array( 'Grunion_Contact_Form', 'parse' ),
-			'contact-field' => array( 'Grunion_Contact_Form', 'parse_contact_field' )
 		);
 		/**
 		 * Filter that is used to not expand some type of shortcodes.
