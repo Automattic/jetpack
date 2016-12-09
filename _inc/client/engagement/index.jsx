@@ -30,6 +30,7 @@ import {
 	getSiteAdminUrl,
 	getSiteRawUrl,
 	isSitePublic,
+	getLastPostUrl,
 	userCanManageModules as _userCanManageModules
 } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
@@ -148,8 +149,11 @@ export const Engagement = ( props ) => {
 			}
 		}
 
+		let lastPostUrl = 'related-posts' === element[0]
+			? { lastPostUrl: props.lastPostUrl }
+			: '';
 		let moduleDescription = isModuleActive ?
-			<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
+			<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } { ...lastPostUrl } /> :
 			// Render the long_description if module is deactivated
 			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
 
@@ -262,7 +266,8 @@ export default connect(
 			isSitePublic: isSitePublic( state ),
 			sitePlan: getSitePlan( state ),
 			userCanManageModules: _userCanManageModules( state ),
-			moduleList: getModules( state )
+			moduleList: getModules( state ),
+			lastPostUrl: getLastPostUrl( state )
 		};
 	},
 	( dispatch ) => {
