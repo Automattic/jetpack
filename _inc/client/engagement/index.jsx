@@ -13,8 +13,6 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import QuerySite from 'components/data/query-site';
-import ProStatus from 'pro-status';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -24,6 +22,7 @@ import {
 	getModule as _getModule,
 	getModules
 } from 'state/modules';
+import ProStatus from 'pro-status';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
@@ -43,8 +42,7 @@ export const Engagement = ( props ) => {
 		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
-		getModule,
-		sitePlan
+		getModule
 	} = props,
 		isAdmin = props.userCanManageModules,
 		sitemapsDesc = getModule( 'sitemaps' ).description,
@@ -94,7 +92,6 @@ export const Engagement = ( props ) => {
 		} );
 		cards = cards.filter( ( element, index ) => cards.indexOf( element ) === index );
 	}
-
 	cards = cards.map( ( element ) => {
 		if ( ! includes( moduleList, element[0] ) ) {
 			return null;
@@ -104,7 +101,7 @@ export const Engagement = ( props ) => {
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
 			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] ),
-			isPro = 'seo-tools' === element[0] ||'google-analytics' === element[0] || 'wordads' === element[0],
+			isPro = includes( [ 'seo-tools', 'wordads', 'google-analytics' ], element[0] ),
 			proProps = {
 				module: element[0],
 				configure_url: ''

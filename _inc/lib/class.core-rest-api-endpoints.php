@@ -2105,7 +2105,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				break;
 
 			case 'google-analytics':
-				$wga = get_option( 'wga' );
+				$wga = get_option( 'jetpack_wga' );
 				$code = '';
 				if ( is_array( $wga ) && array_key_exists( 'code', $wga ) ) {
 					 $code = $wga[ 'code' ];

@@ -11,12 +11,6 @@
  * Additional Search Queries: webmaster, google, analytics, console
  */
 
-/**
- * Removes the Google Analytics plugin settings page
- */
-function remove_settings_page() {
-	remove_submenu_page( 'options-general.php', 'wp-google-analytics' );
+if ( Jetpack::active_plan_supports( 'google-analytics' ) ) {
+	include dirname( __FILE__ ) . "/google-analytics/wp-google-analytics.php";
 }
-
-include dirname( __FILE__ ) . "/google-analytics/wp-google-analytics.php";
-add_action( 'admin_menu', 'remove_settings_page' );

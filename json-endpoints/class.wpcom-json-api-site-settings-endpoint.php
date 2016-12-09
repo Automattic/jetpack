@@ -352,12 +352,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'wga':
+				case 'jetpack_wga':
 					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^UA-[\d-]+$/i', $value['code'] ) ) {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
-					$wga = get_option( 'wga', array() );
+					$wga = get_option( 'jetpack_wga', array() );
 					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics
-					if ( update_option( 'wga', $wga ) ) {
+					if ( update_option( 'jetpack_wga', $wga ) ) {
 						$updated[ $key ] = $value;
 					}
 
