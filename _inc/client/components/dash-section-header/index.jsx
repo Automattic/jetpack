@@ -81,3 +81,5 @@ export const DashSectionHeader = React.createClass( {
 		);
 	}
 } );
+
+export default DashSectionHeader;
