@@ -65,13 +65,11 @@ class Quiz_Shortcode {
 	 * @since 4.5.0
 	 */
 	public static function init() {
-		$obj = get_called_class();
-
-		add_shortcode( 'quiz', array( $obj, 'shortcode' ) );
-		add_shortcode( 'question', array( $obj, 'question_shortcode' ) );
-		add_shortcode( 'answer', array( $obj, 'answer_shortcode' ) );
-		add_shortcode( 'wrong', array( $obj, 'wrong_shortcode' ) );
-		add_shortcode( 'explanation', array( $obj, 'explanation_shortcode' ) );
+		add_shortcode( 'quiz', array( __CLASS__, 'shortcode' ) );
+		add_shortcode( 'question', array( __CLASS__, 'question_shortcode' ) );
+		add_shortcode( 'answer', array( __CLASS__, 'answer_shortcode' ) );
+		add_shortcode( 'wrong', array( __CLASS__, 'wrong_shortcode' ) );
+		add_shortcode( 'explanation', array( __CLASS__, 'explanation_shortcode' ) );
 	}
 
 	/**
