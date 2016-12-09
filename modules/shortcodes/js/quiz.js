@@ -16,7 +16,7 @@
         });
 
         return $(shuffled);
-	}
+	};
 })(jQuery);
 
 jQuery( function( $ ) {

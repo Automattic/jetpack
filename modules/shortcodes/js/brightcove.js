@@ -1,6 +1,7 @@
+/* global brightcove, brightcoveData */
 (function($){
 	var script = document.createElement('script'),
-		tld    = ( brightcoveData.tld == 'co.jp' ) ? 'co.jp' : 'com',
+		tld    = 'co.jp' === brightcoveData.tld ? 'co.jp' : 'com',
 		timer  = false;
 
 	// Load Brightcove script
@@ -16,7 +17,7 @@
 	function try_brightcove() {
 		clearTimeout( timer );
 
-		if ( 'object' == typeof brightcove ) {
+		if ( 'object' === typeof brightcove ) {
 			$( document ).ready( brightcove.createExperiences );
 			$( 'body' ).on( 'post-load', brightcove.createExperiences );
 
