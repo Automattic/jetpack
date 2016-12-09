@@ -1,3 +1,5 @@
+/* global blogDisplay, postDetails */
+
 /**
  * customizer.js
  *
