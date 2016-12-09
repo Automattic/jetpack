@@ -96,7 +96,10 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		echo $args['before_widget'];
-		echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+
+		if ( ! empty( $title ) ) {
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+		}
 
 		switch( $instance['type'] ) {
 			case 'person':
