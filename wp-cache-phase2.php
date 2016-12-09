@@ -126,7 +126,10 @@ function wp_cache_get_response_headers() {
 	} else if(function_exists('headers_list')) {
 		$headers = array();
 		foreach(headers_list() as $hdr) {
-			list($header_name, $header_value) = explode(': ', $hdr, 2);
+			$header_parts = explode( ':', $hdr, 2 );
+			$header_name  = isset( $header_parts[0] ) ? trim( $header_parts[0] ) : '';
+			$header_value = isset( $header_parts[1] ) ? trim( $header_parts[1] ) : '';
+
 			$headers[$header_name] = $header_value;
 		}
 	} else
