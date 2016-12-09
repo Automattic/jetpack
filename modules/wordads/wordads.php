@@ -186,6 +186,8 @@ HTML;
 		/**
 		 * Allow third-party tools to disable the display of in post ads.
 		 *
+		 * @module wordads
+		 *
 		 * @since 4.5.0
 		 *
 		 * @param bool true Should the in post unit be disabled. Default to false.
@@ -207,6 +209,8 @@ HTML;
 	function insert_header_ad() {
 		/**
 		 * Allow third-party tools to disable the display of header ads.
+		 *
+		 * @module wordads
 		 *
 		 * @since 4.5.0
 		 *
