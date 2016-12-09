@@ -208,8 +208,8 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'wordads' => array(
-				'name' => _x( 'WordAds', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Harness WordPress.com\'s advertising partners for your own website.', 'Module Description', 'jetpack' ),
+				'name' => _x( 'Ads', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Earn income by allowing Jetpack to insert high quality ads.', 'Module Description', 'jetpack' ),
 			),
 		);
 	}
