@@ -226,18 +226,23 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function save_published( $new_status, $old_status, $post ) {
-
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			$this->just_published[] = $post->ID;
 		}
 	}
 
 	public function send_published( $post_ID, $post, $update ) {
-		$found_key = array_search( $post->ID, $this->just_published );
-		if ( false !== $found_key ) {
-			unset( $this->just_published[ $found_key ] );
-			$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
-			do_action( 'jetpack_published_post', $post_ID, $flags );
+		if ( ! empty( $this->just_published ) ) {
+			$published = array_reverse( array_unique( $this->just_published ) );
+			// in pre 4.7 version of WP send_published might not always happen everytime a save_published call is made
+			foreach ( $published as $just_published_post_ID ) {
+				if ( $post_ID !== $just_published_post_ID ) {
+					$post = get_post( $just_published_post_ID );
+				}
+				$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+				do_action( 'jetpack_published_post', $just_published_post_ID, $flags );
+			}
+			$this->just_published = array();
 		}
 	}
 
