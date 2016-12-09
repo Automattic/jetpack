@@ -178,10 +178,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 
-		$default_removed_shortcodes = array(
-			'gallery' => $shortcode_tags['gallery'],
-			'slideshow' => $shortcode_tags['slideshow'],
-		);
 		/**
 		 * Filter that is used to not expand some type of shortcodes.
 		 *
@@ -190,20 +186,24 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 *
 		 * @since 4.5.0
 		 *
-		 * @param array associative array of shortcode tags and callbacks.
+		 * @param array of shortcode tags to remove.
 		 */
-		$shortcodes_to_remove  = apply_filters( 'jetpack_sync_do_not_expand_shortcode', $default_removed_shortcodes );
-		foreach( $shortcodes_to_remove as $shortcode => $callback ) {
-			remove_shortcode( $shortcode );
+		$shortcodes_to_remove = apply_filters( 'jetpack_sync_do_not_expand_shortcodes', array( 'gallery', 'slideshow' ) );
+		foreach ( $shortcodes_to_remove as $shortcode ) {
+			if ( isset ( $shortcode_tags[ $shortcode ] )  ) {
+				$shortcodes_and_callbacks_to_remove[ $shortcode ] =  $shortcode_tags[ $shortcode ];
+			}
 		}
+
+		array_map( 'remove_shortcode' , array_keys( $shortcodes_and_callbacks_to_remove ) );
+
 		/** This filter is already documented in core. wp-includes/post-template.php */
 		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public  ) {
-
 			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
 			$post->post_excerpt_filtered   = apply_filters( 'the_excerpt', $post->post_excerpt );
 		}
 
-		foreach( $shortcodes_to_remove as $shortcode => $callback ) {
+		foreach ( $shortcodes_and_callbacks_to_remove as $shortcode => $callback ) {
 			add_shortcode( $shortcode, $callback );
 		}
 

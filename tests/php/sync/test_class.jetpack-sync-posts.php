@@ -326,8 +326,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filter_do_not_expand_jetpack_shortcodes() {
-		add_filter( 'jetpack_sync_do_not_expand_shortcode', array( $this, 'do_not_expand_shortcode' ) );
+		add_filter( 'jetpack_sync_do_not_expand_shortcodes', array( $this, 'do_not_expand_shortcode' ) );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
+
 		$this->post->post_content = "[foo]";
 
 		wp_update_post( $this->post );
@@ -341,7 +342,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function do_not_expand_shortcode( $shortcodes ) {
-		$shortcodes['foo'] = array( $this, 'foo_shortcode' );
+		$shortcodes[] = 'foo';
 		return $shortcodes;
 	}
 
