@@ -934,8 +934,9 @@ That was a cool video.';
 
 	public function test_sync_jetpack_publish_post_works_with_interjecting_plugins() {
 		$this->server_event_storage->reset();
+		$this->test_already = false;
 		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
-		$post_id    = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
 		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
 
 		$this->sender->do_sync();
@@ -950,7 +951,7 @@ That was a cool video.';
 	function add_a_hello_post_type() {
 		if ( ! $this->test_already  ) {
 			$this->test_already = true;
-			$post_id    = $this->factory->post->create( array( 'post_type' => 'hello' ) );
+			$post_id = $this->factory->post->create( array( 'post_type' => 'hello' ) );
 			return;
 		}
 	}
