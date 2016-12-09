@@ -6,7 +6,7 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server
 class WP_Test_Jetpack_Core_Api_Authentication extends WP_Test_REST_Controller_Testcase {
 
     /**
-     * @author rooctripaldi
+     * @author roccotripaldi
      * @covers Jetpack->wp_json_authenticate
      * @requires PHP 5.2
      */
@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Core_Api_Authentication extends WP_Test_REST_Controller_Te
     }
 
     /**
-     * @author rooctripaldi
+     * @author roccotripaldi
      * @covers Jetpack->wp_json_authenticate
      * @requires PHP 5.2
      */

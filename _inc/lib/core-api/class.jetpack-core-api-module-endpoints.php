@@ -143,7 +143,6 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		if ( 'GET' === $request->get_method() ) {
 			return $this->get_modules( $request );
 		} else {
-			
 			return $this->activate_modules( $request );
 		}
 	}
