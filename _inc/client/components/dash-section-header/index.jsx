@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
 
-export default React.createClass( {
+export const DashSectionHeader = React.createClass( {
 	displayName: 'DashSectionHeader',
 
 	propTypes: {
