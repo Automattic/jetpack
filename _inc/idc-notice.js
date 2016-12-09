@@ -17,7 +17,10 @@
 		erroredAction = false;
 
 	// Initialize Tracks and bump stats.
-	analytics.initialize( tracksUser.userid, tracksUser.username );
+	if ( analytics ) {
+		analytics.initialize( tracksUser.userid, tracksUser.username );
+	}
+
 	if ( tracksEvent.isAdmin ) {
 		trackAndBumpMCStats( 'notice_view' );
 	} else {
