@@ -48,31 +48,31 @@ function jetpack_kickstarter_embed_to_shortcode( $content ) {
 		return $content;
 	}
 
-    $regexp = '!<iframe((?:\s+\w+=[\'"][^\'"]*[\'"])*)\s+src=[\'"](http://www\.kickstarter\.com/projects/[^/]+/[^/]+)/[^\'"]+[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)>[\s]*</iframe>!i';
-    $regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
+	$regexp     = '!<iframe((?:\s+\w+=[\'"][^\'"]*[\'"])*)\s+src=[\'"](http://www\.kickstarter\.com/projects/[^/]+/[^/]+)/[^\'"]+[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)>[\s]*</iframe>!i';
+	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
-    foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
+	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
 		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
 		}
 
-        foreach ( $matches as $match ) {
-            $url = esc_url( $match[2] );
+		foreach ( $matches as $match ) {
+			$url = esc_url( $match[2] );
 
-            $params = $match[1] . $match[3];
+			$params = $match[1] . $match[3];
 
 			if ( 'regexp_ent' == $reg ) {
 				$params = html_entity_decode( $params );
 			}
 
-            $params = wp_kses_hair( $params, array( 'http' ) );
+			$params = wp_kses_hair( $params, array( 'http' ) );
 
-            $width = isset( $params['width'] ) ? (int) $params['width']['value'] : 0;
+			$width = isset( $params['width'] ) ? (int) $params['width']['value'] : 0;
 
-            $shortcode = '[kickstarter url=' . $url . ( ( !empty( $width ) ) ? " width=$width" : '' ) . ']';
-            $content = str_replace( $match[0], $shortcode, $content );
-        }
-    }
+			$shortcode = '[kickstarter url=' . $url . ( ( ! empty( $width ) ) ? " width=$width" : '' ) . ']';
+			$content   = str_replace( $match[0], $shortcode, $content );
+		}
+	}
 
-    return $content;
+	return $content;
 }

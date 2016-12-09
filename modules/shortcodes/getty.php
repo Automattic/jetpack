@@ -47,23 +47,26 @@ function jetpack_getty_enable_embeds( $site = 'wpcom' ) {
  * @return mixed
  */
 function wpcom_shortcodereverse_getty( $content ) {
-	if ( ! is_string( $content ) || false === stripos( $content, 'embed.gettyimages.com/embed' ) )
+	if ( ! is_string( $content ) || false === stripos( $content, 'embed.gettyimages.com/embed' ) ) {
 		return $content;
+	}
 
 	$regexp = '!<iframe\s+src=[\'"](https?:)?//embed\.gettyimages\.com/embed(/|/?\?assets=)(\d+(,\d+)*)[^\'"]*?[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)((?:[\s\w]*))></iframe>!i';
 	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
 	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
-		if ( !preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) )
+		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
+		}
 
 		foreach ( $matches as $match ) {
 			$ids = esc_html( $match[3] );
 
 			$params = $match[5];
 
-			if ( 'regexp_ent' == $reg )
+			if ( 'regexp_ent' == $reg ) {
 				$params = html_entity_decode( $params );
+			}
 
 			$params = wp_kses_hair( $params, array( 'http' ) );
 
@@ -71,10 +74,12 @@ function wpcom_shortcodereverse_getty( $content ) {
 			$height = isset( $params['height'] ) ? (int) $params['height']['value'] : 0;
 
 			$shortcode = '[getty src="' . esc_attr( $ids ) . '"';
-			if ( $width )
+			if ( $width ) {
 				$shortcode .= ' width="' . esc_attr( $width ) . '"';
-			if ( $height )
+			}
+			if ( $height ) {
 				$shortcode .= ' height="' . esc_attr( $height ) . '"';
+			}
 			$shortcode .= ']';
 
 			$content = str_replace( $match[0], $shortcode, $content );
@@ -86,8 +91,9 @@ function wpcom_shortcodereverse_getty( $content ) {
 	$regexp_ent = str_replace( array( '&amp;#0*58;', '[^&gt;]' ), array( '&amp;#0*58;|&#0*58;', '[^&]' ), htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
 	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
-		if ( !preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) )
+		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
+		}
 
 		foreach ( $matches as $match ) {
 			$content = str_replace( $match[0], $match[1], $content );
@@ -112,14 +118,15 @@ function wpcom_shortcodereverse_getty( $content ) {
  */
 function jetpack_getty_shortcode( $atts, $content = '' ) {
 
-	if ( ! empty( $content ) )
+	if ( ! empty( $content ) ) {
 		$src = $content;
-	elseif ( ! empty( $atts['src'] ) )
+	} elseif ( ! empty( $atts['src'] ) ) {
 		$src = $atts['src'];
-	elseif ( ! empty( $atts[0] ) )
+	} elseif ( ! empty( $atts[0] ) ) {
 		$src = $atts[0];
-	else
+	} else {
 		return '<!-- Missing Getty Source ID -->';
+	}
 
 	$src = preg_replace( '/^(\d+(,\d+)*).*$/', '$1', $src );
 

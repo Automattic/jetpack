@@ -91,30 +91,32 @@ class Jetpack_Brightcove_Shortcode {
 	 *
 	 * @return string
 	 */
-    static public function convert_to_new_studio( $atts ) {
-        $defaults = array(
-            'account_id' => '',
-            'video_id' => '',
-            'player_id' => 'default',
-            'width' => '100%',
-            'height' => '100%',
-        );
-
-        $atts_applied = shortcode_atts( $defaults, $atts, self::$shortcode );
-
-		$player_url = sprintf( '//players.brightcove.net/%s/%s_default/index.html?videoId=%s',
-            esc_attr( $atts_applied[ 'account_id' ] ),
-            esc_attr( $atts_applied[ 'player_id' ] ),
-            esc_attr( $atts_applied[ 'video_id' ] )
+	static public function convert_to_new_studio( $atts ) {
+		$defaults = array(
+			'account_id' => '',
+			'video_id'   => '',
+			'player_id'  => 'default',
+			'width'      => '100%',
+			'height'     => '100%',
 		);
 
-        $output_html = sprintf( '<iframe src="' . esc_url( $player_url ) . '" allowfullscreen webkitallowfullscreen mozallowfullscreen style="width: %spx; height: %spx;"></iframe>',
-            esc_attr( $atts_applied[ 'width' ] ),
-            esc_attr( $atts_applied[ 'height' ] )
-        );
+		$atts_applied = shortcode_atts( $defaults, $atts, self::$shortcode );
 
-        return $output_html;
-    }
+		$player_url = sprintf(
+			'//players.brightcove.net/%s/%s_default/index.html?videoId=%s',
+			esc_attr( $atts_applied['account_id'] ),
+			esc_attr( $atts_applied['player_id'] ),
+			esc_attr( $atts_applied['video_id'] )
+		);
+
+		$output_html = sprintf(
+			'<iframe src="' . esc_url( $player_url ) . '" allowfullscreen webkitallowfullscreen mozallowfullscreen style="width: %spx; height: %spx;"></iframe>',
+			esc_attr( $atts_applied['width'] ),
+			esc_attr( $atts_applied['height'] )
+		);
+
+		return $output_html;
+	}
 
 	/**
 	 * Convert to legacy player format.
