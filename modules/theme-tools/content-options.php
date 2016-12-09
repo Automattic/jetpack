@@ -74,9 +74,9 @@ function jetpack_featured_images_get_settings() {
 	);
 
 	$settings        = array_merge( $settings, array(
-        'archive-option'  => get_option( 'jetpack_content_featured_images_archive', $settings['archive-default'] ),
-        'post-option'     => get_option( 'jetpack_content_featured_images_post', $settings['post-default'] ),
-        'page-option'     => get_option( 'jetpack_content_featured_images_page', $settings['page-default'] ),
+		'archive-option'  => get_option( 'jetpack_content_featured_images_archive', $settings['archive-default'] ),
+		'post-option'     => get_option( 'jetpack_content_featured_images_post', $settings['post-default'] ),
+		'page-option'     => get_option( 'jetpack_content_featured_images_page', $settings['page-default'] ),
 	) );
 
 	return $settings;
