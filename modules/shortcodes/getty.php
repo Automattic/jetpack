@@ -83,7 +83,7 @@ function wpcom_shortcodereverse_getty( $content ) {
 
 	// strip out enclosing div and any other markup
 	$regexp = '%<div class="getty\s[^>]*+>.*?<div[^>]*+>(\[getty[^\]]*+\])\s*</div>.*?</div>%is';
-	$regexp_ent = str_replace( ['&amp;#0*58;', '[^&gt;]'], ['&amp;#0*58;|&#0*58;', '[^&]'], htmlspecialchars( $regexp, ENT_NOQUOTES ) );
+	$regexp_ent = str_replace( array( '&amp;#0*58;', '[^&gt;]' ), array( '&amp;#0*58;|&#0*58;', '[^&]' ), htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
 	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
 		if ( !preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) )
