@@ -29,6 +29,30 @@ class Filter_Embedded_HTML_Objects {
 	static public $html_regexp_filters = array();
 	static public $failed_embeds = array();
 
+	/**
+	 * Store tokens found in Syntax Highlighter.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @var array
+	 */
+	static private $sh_unfiltered_content_tokens;
+
+	/**
+	 * Capture tokens found in Syntax Highlighter and collect them in self::$sh_unfiltered_content_tokens.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @param array $match
+	 *
+	 * @return string
+	 */
+	static public function sh_regexp_callback( $match ) {
+		$token = '[prekses-filter-token-' . mt_rand() . '-' . md5( $match[0] ) . '-' . mt_rand() . ']';
+		self::$sh_unfiltered_content_tokens[$token] = $match[0];
+		return $token;
+	}
+
 	static public function filter( $html ) {
 		if ( ! $html ) {
 			return $html;
@@ -43,6 +67,7 @@ class Filter_Embedded_HTML_Objects {
 		);
 
 		$unfiltered_content_tokens = array();
+		self::$sh_unfiltered_content_tokens = array();
 
 		// Check here to make sure that SyntaxHighlighter is still used. (Just a little future proofing)
 		if ( class_exists( 'SyntaxHighlighter' ) ) {
@@ -55,13 +80,9 @@ class Filter_Embedded_HTML_Objects {
 			if ( isset( $SyntaxHighlighter ) && is_array( $SyntaxHighlighter->shortcodes ) ) {
 				$shortcode_regex = implode( '|', array_map( 'preg_quote', $SyntaxHighlighter->shortcodes ) );
 				$html            = preg_replace_callback(
-					'/\[(' . $shortcode_regex . ')(\s[^\]]*)?\][\s\S]*?\[\/\1\]/m', function ( $match ) use ( &$unfiltered_content_tokens ) {
-					$token                             = '[prekses-filter-token-' . mt_rand() . '-' . md5( $match[0] ) . '-' . mt_rand() . ']';
-					$unfiltered_content_tokens[$token] = $match[0];
-
-					return $token;
-				}, $html
+					'/\[(' . $shortcode_regex . ')(\s[^\]]*)?\][\s\S]*?\[\/\1\]/m', array( __CLASS__, 'sh_regexp_callback' ), $html
 				);
+				$unfiltered_content_tokens = self::$sh_unfiltered_content_tokens;
 			}
 		}
 
