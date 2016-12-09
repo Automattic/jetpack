@@ -487,7 +487,7 @@ class Jetpack {
 			Jetpack_Heartbeat::init();
 		}
 
-		add_action( 'rest_authentication_errors', array( $this, 'wp_rest_authenticate' ) );
+		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authenticate' ) );
 
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
@@ -4750,26 +4750,30 @@ p {
 	// Authenticates requests from Jetpack server to WP API endpoints.
 	// Uses the existing XMLRPC oAuth implementation.
 	function wp_rest_authenticate( $error ) {
+
+		// This parameters assume Jetpack is responsible for authentication.
+		if ( isset( $_GET['token'] ) && isset( $_GET['signature'] ) ) {
+			$verified = $this->verify_xml_rpc_signature();
+
+			if ( false === $verified ) {
+				return new WP_Error( 'token_malformed', 'Authorization token is malformed.', 403 );
+			}
+
+			if ( is_wp_error( $verified ) ) {
+				return $verified;
+			}
+
+			if ( isset( $verified['type'] ) && isset( $verified['user_id'] ) && 'user' === $verified['type']  ) {
+				wp_set_current_user( $verified['user_id'] );
+				return null;
+			}
+		}
+
 		if ( $error ) {
 			return $error;
 		}
 
-		if ( ! isset( $_GET['token'] ) ) {
-			return null;
-		}
-
-		$verified = $this->verify_xml_rpc_signature();
-
-		if ( is_wp_error( $verified ) ) {
-			return $verified;
-		}
-
-		if ( isset( $verified['type'] ) && isset( $verified['user_id'] ) && 'user' === $verified['type']  ) {
-			wp_set_current_user( $verified['user_id'] );
-			return null;
-		}
-
-		return new WP_Error( 'rest_forbidden', 'Sorry. You are not allowed to do that', 403 );
+		return null;
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
