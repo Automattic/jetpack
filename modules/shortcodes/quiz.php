@@ -117,6 +117,17 @@ class Quiz_Shortcode {
 	}
 
 	/**
+	 * Check if we're in WordPress.com.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @return bool
+	 */
+	public static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+	}
+
+	/**
 	 * Parse shortcode arguments and render its output.
 	 *
 	 * @since 4.5.0
@@ -146,9 +157,7 @@ class Quiz_Shortcode {
 				self::$scripts_enqueued = true;
 			}
 
-			$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
-
-			$default_atts = $is_wpcom
+			$default_atts = self::is_wpcom()
 				? array(
 					'trackid' => '',
 					'a8ctraining' => '',
@@ -163,7 +172,7 @@ class Quiz_Shortcode {
 			if ( ! empty( self::$quiz_params[ 'trackid' ] ) ) {
 				$id .= ' data-trackid="' . esc_attr( self::$quiz_params[ 'trackid' ] ) . '"';
 			}
-			if ( $is_wpcom && ! empty( self::$quiz_params[ 'a8ctraining' ] ) ) {
+			if ( self::is_wpcom() && ! empty( self::$quiz_params[ 'a8ctraining' ] ) ) {
 				if ( is_null( self::$username ) ) {
 					self::$username = wp_get_current_user()->user_login;
 				}

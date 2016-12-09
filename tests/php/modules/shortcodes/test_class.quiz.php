@@ -36,20 +36,6 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify [quiz] writes the correct track id and the a8c training id.
-	 *
-	 * @since 4.5.0
-	 */
-	public function test_shortcodes_quiz_id_wpcom() {
-		define( 'IS_WPCOM', true );
-		$user = $this->factory->user->create_and_get();
-		wp_set_current_user( $user->ID );
-
-		$shortcode_content = do_shortcode( '[quiz trackid="the-quiz" a8ctraining="a8c-quiz"][question]What is the right answer?[/question][/quiz]' );
-		$this->assertEquals( '<div class="quiz" data-trackid="the-quiz" data-a8ctraining="a8c-quiz" data-username="' . $user->user_login . '"><div class="question">What is the right answer?</div></div>', $shortcode_content );
-	}
-
-	/**
 	 * Verify that a [question] is not rendered when they're outside a [quiz].
 	 *
 	 * @since 4.5.0
