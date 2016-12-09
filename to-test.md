@@ -1,17 +1,21 @@
-## 4.4
+## 4.5
 
-Jetpack 4.4 is packed with new things and improvements for your favorite modules! We're looking forward to getting your feedback on the following things:
+Jetpack 4.5 is packed with new things and improvements for your favorite modules! We also have some new features that we're very excited about. We're looking forward to getting your feedback on the following things:
 
-### SEO Tools
+### Carousel Lightbox for Single Images
+When Carousel is active, a single image that is linked to the attachment image should open in a lightbox.
+Make sure that regular Caoursel gallery lightboxes work as expected.
+With Carousel disabled Attachment Page should be open instead of Lightbox
+Image linking to Custom URL should open that URL
+Image linking to Media File should open that Media File
+Navigating directly to Lightbox view (URL with hash e.g. #jp-carousel-31) should go to the post with the Lightbox open
+This behavior should be correct for:
+- Post with single image only
+- Post with gallery
+- Post with multiple galleries and single images
+- Multiple post view (e.g. home page)
 
-Jetpack 4.4 tightens the links between Jetpack and WordPress.com, and now allows site owners using our [Jetpack Professional Plan](https://jetpack.com/features/) to manage SEO options from the WordPress.com interface.
-
-To get started, go to Jetpack > Settings > Appearance and enable the SEO Tools module. Then, [go to Settings > SEO on WordPress.com](https://wordpress.com/settings/seo) in the WordPress.com dashboard. After you've picked your site, you should see a number of options on that page. Make sure they can be saved, and are applied on your Jetpack site.
-
-You can learn more about the different options [here](https://en.blog.wordpress.com/2016/10/03/attract-more-visitors-to-your-business-site-with-our-advanced-seo-tools/).
-
-### VideoPress
-
+### VideoPress Integration
 **VideoPress, our Premium video offering, has been completely redesigned to be fully integrated into your Media Library.** It's now easier to upload videos and insert them into your posts and pages.
 We've also improved our Open Graph Meta Tags to make sure VideoPress videos can be embedded in your Facebook Posts.
 
@@ -26,54 +30,63 @@ Once the module is active, you can try the following:
 3. A few minutes after the upload, the video's meta data should be updated (as transcoding finishes), and you can view and edit that meta data from the edit media page in the Media Library.
 4. You should be able to insert those videos into any post or page.
 
-### Shortcodes
+### Ads (formerly WordAds on wordpress.com)
+To test this feature, you'll need to use [Jetpack Premium or Jetpack Professional](https://jetpack.com/features/)
 
-**You can now embed Pinterest Boards, Profiles, and individual Pins in all your posts and pages.** To test this, paste a Pinterest URL on its own line, and it should transform into an embed in your editor as well as on your site.
+Premium and Professional Jetpack plans will allow you to display ads on your site which can make you real money.
+To test, upgrade to a Premium/Pro Jetpack plan and head over to your Jetpack settings Engagement tab and activate the Ads module.
+By default, you will start seeing ads on the bottom of your posts.
+You will also see a new Ads widget that you can dispaly in the sidebar of your theme.
+There is an option in the settings card that will allow you to display ads in the header of your site as well.
 
-### Widgets
+### Contact Form Custom Values for Fields
+You can now set custom fields for the fields of your form.  The value still defaults to the option name if none is set, as it did in prior versions.
+Example useage:
+[contact-form]
+[contact-field label='dropdown' type='select' options='dropdown 1, dropdown 2' values='d1,d2'/]
+[contact-field label='Radio' type='radio' options='Radio 1,Radio 2' values='r1,r2'/]
+[contact-field label='Checkbox' type='checkbox-multiple' options='Checkbox 1,Checkbox 2' values='c1,c2'/]
+[/contact-form]
 
-We've added 2 new widgets to Jetpack:
+Applying those values, you should see the values in the fields when you inspect them on the front end.
 
-**Google Translate**
+### New Widget: Follow Button
+This is a new widget that came from wordpress.com to allow people to follow your site from a widget.
+Add the widget, and have someone follow you!
 
-The Google Translate Widget adds an option for your readers to translate your site on the fly into any language. To test it, enable the widget and pick a language in the dropdown while viewing any page on your site.
+### New Widget: Authors
+This widget allows you to display your authors on the front end of your site.
+Note: it does not come with much styling, so it is up to the theme/user to style as desired.
 
-**My Community**
+### New Widget: Blog Stats
+This simple widget will display the page views on the front end of your site.
+Add it and watch the count grow!
 
-The My Community Widget allows you to show users who have recently interacted with your site. You can learn more about it [here](http://en.support.wordpress.com/widgets/my-community/). Add the widget to your site, and make sure it works as expected!
+### New Widget: Milestone
+With this widget you can display a countdown to an upcoming event or milestone that you set. Set the date/time/name of the event, and check it out in your sidebar.
 
-### Publicize / Subscriptions
+### Lots of new shortcodes from wordpress.com
+Check out all these new shortcodes available!  Follow the links for descriptions on how to use
 
-We've made changes to improve the way both Publicize and Subscription emails were triggered whenever a post is published. To test this, try publishing posts, either by publishing them directly or by scheduling them.
+[spotify](https://en.support.wordpress.com/audio/spotify/)
+[tweet]
+[googleapps](https://en.support.wordpress.com/google-docs/)
+[brightcove]
+[getty]()
+[archiveorg](http://support.wordpress.com/videos/the-internet-archive/)
+[hulu](https://en.support.wordpress.com/videos/hulu/)
+[kickstarter](https://en.support.wordpress.com/videos/kickstarter/)
+[gravatar](https://en.support.wordpress.com/gravatar-shortcode/)
+[gravatar_profile]
+[quiz](https://en.support.wordpress.com/quiz-shortcode/)
+[sitemap](https://en.support.wordpress.com/sitemaps/shortcode/)
+[lytro](https://en.support.wordpress.com/lytro/)
+[mailchip_subscriber_popup]
+[ustream](http://support.wordpress.com/videos/ustream-tv/)
+[ustreamsocial]
 
-We would also invite you to test the Publicize feature for Custom Post Types that support it, like Portfolios [or your own Post Types](https://jetpack.com/support/publicize/#custom-post-types).
-
-### JITM & new plugin banners
-
-We've made 2 changes to help new Jetpack users discover the plugin and its features, and help them get familiar with the different options.
-
-To test the first change, disconnect Jetpack from your WordPress.com account thanks to the link at the bottom of the Jetpack menu. Once you've done that, head to the Plugins menu, deactivate the plugin, and then reactivate it. You should see a new banner at the top of the Plugins page, inviting you to connect to WordPress.com.
-
-Do not hesitate to go through the whole connection flow again as we've also made some improvements there.
-
-We've also added messages in different parts of the dashboard, depending on what Jetpack modules you use:
-
-- If you don't use Akismet, you should see a message in the Comments menu.
-- If you don't use VaultPress, you should see a message after publishing a post, at the top of the post editor.
-- If you don't use VaultPress, you should see a message under Dashboard > Updates.
-
-Once you dismiss one message, all other messages should disappear.
-
-Try clicking on each notice, and make sure the link works whether you're logged in to WordPress.com or not.
-
-### Admin Interface for non-admins
-
-1. Enable the Stats module, and disable the Protect module
-2. Access the Jetpack menu from a non-admin account. Make sure the user only sees what's relevant to their role, with no broken elements in the interface.
-3. Log back in as an admin, go to Jetpack > Settings > Engagement > Site Stats, and grant that other user access to your stats.
-4. Log back in with the other user. They should now have access to Stats.
-5. Log back in as an admin, disable Stats and enable Protect.
-6. Log back in one last time as the other user. The interface should still work.
+### Related Posts in the Customizer
+You can now preview your Related Posts in the Customizer before you save.  Just navigate to the customizer, or click the settings link in the Related Posts card in the Engagement tab to check it out.
 
 During your tests, we'd encourage you to keep your browser console open, and check for any errors in the console and the network tabs.
 
