@@ -23,7 +23,6 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			}
 		}
 
-
 		/**
 		 * Verifies that a user answered the math problem correctly while logging in.
 		 *
