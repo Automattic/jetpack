@@ -128,6 +128,7 @@ export const Engagement = ( props ) => {
 			toggle = __( 'Unavailable in Dev Mode' );
 		} else if ( isAdmin ) {
 			if ( ( 'seo-tools' === element[0] && ! hasBusiness ) ||
+					( 'google-analytics' === element[0] && ! hasBusiness ) ||
 					( 'wordads' === element[0] && ! hasPremiumOrBusiness ) ) {
 				toggle = <ProStatus proFeature={ element[0] } />;
 			} else {
@@ -142,6 +143,10 @@ export const Engagement = ( props ) => {
 				if ( 'wordads' === element[0] && ! isModuleActive ) {
 					wordAdsSubHeader = <WordAdsSubHeaderTos subheader={ element[2] } />
 				}
+			}
+
+			if ( element[0] === 'google-analytics' && ! hasBusiness ) {
+				isModuleActive = false;
 			}
 
 			if ( isPro ) {

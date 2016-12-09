@@ -40,7 +40,6 @@ class JetpackGoogleAnalytics {
 	 */
 	private function __construct() {
 		add_filter( 'init',                     array( $this, 'init' ) );
-		add_action( 'admin_init',               array( $this, 'admin_init' ) );
 		add_action( 'get_footer',               array( $this, 'insert_code' ) );
 		add_action( 'wp_enqueue_scripts',       array( $this, 'track_outgoing' ) );
 	}
@@ -138,66 +137,6 @@ class JetpackGoogleAnalytics {
 			);
 
 		$this->tokens = apply_filters( 'wga_tokens', $this->tokens );
-	}
-
-	/**
-	 * Register our settings
-	 */
-	public function admin_init() {
-
-		register_setting( 'jetpack_wga', 'jetpack_wga', array( $this, 'sanitize_general_options' ) );
-
-	}
-
-	/**
-	 * Sanitize all of the options associated with the plugin
-	 */
-	public function sanitize_general_options( $in ) {
-
-		$out = array();
-
-		// The actual tracking ID.
-		if ( preg_match( '#UA-[\d-]+#', $in['code'], $matches ) ) {
-			$out['code'] = $matches[0];
-		} else {
-			$out['code'] = '';
-		}
-
-		$checkbox_items = array(
-				// Additional items you can track.
-				'log_404s',
-				'log_searches',
-				'log_outgoing',
-				'enable_display_advertising',
-				// Things to ignore.
-				'ignore_admin_area',
-			);
-		global $wp_roles;
-
-		foreach ( $wp_roles->roles as $role => $role_info ) {
-			$checkbox_items[] = 'ignore_role_' . $role;
-		}
-
-		foreach ( $checkbox_items as $checkbox_item ) {
-			if ( isset( $in[ $checkbox_item ] ) && 'true' === $in[ $checkbox_item ] ) {
-				$out[ $checkbox_item ] = 'true';
-			} else {
-				$out[ $checkbox_item ] = 'false';
-			}
-		}
-
-		// Custom variables.
-		for ( $i = 1; $i <= 5; $i++ ) {
-			foreach ( array( 'name', 'value', 'scope' ) as $key ) {
-				if ( isset( $in['custom_vars'][ $i ][ $key ] ) ) {
-					$out['custom_vars'][ $i ][ $key ] = sanitize_text_field( $in['custom_vars'][ $i ][ $key ] );
-				} else {
-					$out['custom_vars'][ $i ][ $key ] = '';
-				}
-			}
-		}
-
-		return $out;
 	}
 
 	/**
