@@ -2778,6 +2778,10 @@ p {
 			Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 		}
 
+		// Delete cached connected user data
+		$transient_key = "jetpack_connected_user_data_" . get_current_user_id();
+		delete_transient( $transient_key );
+
 		// Delete all the sync related data. Since it could be taking up space.
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 		Jetpack_Sync_Sender::get_instance()->uninstall();
@@ -6202,6 +6206,10 @@ p {
 			<style>
 				.fixed .column-user_jetpack {
 					width: 21px;
+				}
+				.jp-emblem-user-admin svg {
+					width: 20px;
+					height: 20px;
 				}
 				.jp-emblem-user-admin path {
 					fill: #8cc258;

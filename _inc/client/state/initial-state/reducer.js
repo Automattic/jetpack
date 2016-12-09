@@ -118,11 +118,11 @@ export function userIsMaster( state ) {
 }
 
 export function getUserWpComLogin( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'login' ] );
+	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'login' ], '' );
 }
 
 export function getUserWpComEmail( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'email' ] );
+	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'email' ], '' );
 }
 
 export function getUserWpComAvatar( state ) {

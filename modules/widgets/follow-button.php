@@ -38,8 +38,8 @@ class Follow_Button_Widget extends WP_Widget {
 
 		<a
 			class="wordpress-follow-button"
-			href="<?php echo esc_url( site_url() ); ?>"
-			data-blog="<?php echo esc_url( site_url() ); ?>"
+			href="<?php echo esc_url( home_url() ); ?>"
+			data-blog="<?php echo esc_url( home_url() ); ?>"
 			data-lang="<?php echo get_locale(); ?>" <?php if ( ! empty( $attributes ) ) echo implode( ' ', $attributes ); ?>
 		>
 			<?php sprintf( __( 'Follow %s on WordPress.com', 'jetpack' ), get_bloginfo( 'name' ) ); ?>
