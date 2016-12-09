@@ -487,7 +487,7 @@ class Jetpack {
 			Jetpack_Heartbeat::init();
 		}
 
-		add_action( 'rest_authentication_errors', array( $this, 'wp_json_authenticate' ) );
+		add_action( 'rest_authentication_errors', array( $this, 'wp_rest_authenticate' ) );
 
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
@@ -4749,22 +4749,27 @@ p {
 
 	// Authenticates requests from Jetpack server to WP API endpoints.
 	// Uses the existing XMLRPC oAuth implementation.
-	function wp_json_authenticate( $error ) {
-		if ( isset( $_GET['token'] ) ) {
-			$verified = $this->verify_xml_rpc_signature();
-
-			if ( is_wp_error( $verified ) ) {
-				return $verified;
-			}
-
-			if ( isset( $verified['type'] ) && isset( $verified['user_id'] ) && 'user' === $verified['type']  ) {
-				wp_set_current_user( $verified['user_id'] );
-				return true;
-			}
-			
-			return new WP_Error( 'rest_forbidden', 'Sorry. You are not allowed to do that', 403 );
+	function wp_rest_authenticate( $error ) {
+		if ( $error ) {
+			return $error;
 		}
-		return $error;
+
+		if ( ! isset( $_GET['token'] ) ) {
+			return null;
+		}
+
+		$verified = $this->verify_xml_rpc_signature();
+
+		if ( is_wp_error( $verified ) ) {
+			return $verified;
+		}
+
+		if ( isset( $verified['type'] ) && isset( $verified['user_id'] ) && 'user' === $verified['type']  ) {
+			wp_set_current_user( $verified['user_id'] );
+			return null;
+		}
+
+		return new WP_Error( 'rest_forbidden', 'Sorry. You are not allowed to do that', 403 );
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
