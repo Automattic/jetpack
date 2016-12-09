@@ -149,8 +149,6 @@ class JetpackGoogleAnalytics {
 
 	}
 
-
-
 	/**
 	 * Sanitize all of the options associated with the plugin
 	 */
