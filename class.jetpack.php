@@ -6203,6 +6203,10 @@ p {
 				.fixed .column-user_jetpack {
 					width: 21px;
 				}
+				.jp-emblem-user-admin svg {
+					width: 20px;
+					height: 20px;
+				}
 				.jp-emblem-user-admin path {
 					fill: #8cc258;
 				}
