@@ -646,7 +646,7 @@ add_action( 'jetpack_module_more_info_wordads', 'jetpack_wordads_more_info' );
  * Google Analytics
  */
 function jetpack_google_analytics_more_link() {
-	echo 'https://jetpack.com/support/';
+	echo 'https://support.wordpress.com/google-analytics/';
 }
 add_action( 'jetpack_learn_more_button_google-analytics', 'jetpack_google_analytics_more_link' );
 
