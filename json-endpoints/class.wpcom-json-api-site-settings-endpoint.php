@@ -356,9 +356,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^UA-[\d-]+$/i', $value['code'] ) ) {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
-					$wga = get_option( 'jetpack_wga', array() );
+
+					$is_wpcom = ! $is_jetpack && defined( 'IS_WPCOM' ) && IS_WPCOM;
+					$option_name = $is_wpcom ? 'wga' : 'jetpack_wga';
+
+					$wga = get_option( $option_name, array() );
 					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics
-					if ( update_option( 'jetpack_wga', $wga ) ) {
+
+					if ( update_option( $option_name, $wga ) ) {
 						$updated[ $key ] = $value;
 					}
 
@@ -367,12 +372,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					/** This action is documented in modules/widgets/social-media-icons.php */
 					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
-					if ( ! $is_jetpack && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					if ( $is_wpcom ) {
 						$business_plugins = WPCOM_Business_Plugins::instance();
 						$business_plugins->activate_plugin( 'wp-google-analytics' );
 					}
 					break;
-
 				case 'jetpack_testimonial':
 				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
