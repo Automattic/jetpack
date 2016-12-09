@@ -17,7 +17,7 @@
 		erroredAction = false;
 
 	// Initialize Tracks and bump stats.
-	if ( analytics ) {
+	if ( 'undefined' !== typeof analytics ) {
 		analytics.initialize( tracksUser.userid, tracksUser.username );
 	}
 
@@ -216,7 +216,7 @@
 			extraProps = {};
 		}
 
-		if ( eventName && eventName.length && analytics && analytics.tracks && analytics.mc ) {
+		if ( eventName && eventName.length && 'undefined' !== typeof analytics && analytics.tracks && analytics.mc ) {
 			// Format for Tracks
 			eventName = eventName.replace( /-/g, '_' );
 			eventName = eventName.indexOf( 'jetpack_idc_' ) !== 0 ? 'jetpack_idc_' + eventName : eventName;
