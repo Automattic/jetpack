@@ -711,9 +711,18 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function sanitize_css_callback( $css, $setting ) {
 		global $wp_customize;
-		return self::sanitize_css( $css, array(
-			'preprocessor' => $wp_customize->get_setting( 'jetpack_custom_css[preprocessor]' )->value(),
-		) );
+		$args = array(
+			'preprocessor' => $wp_customize->get_setting('jetpack_custom_css[preprocessor]')->value(),
+		);
+
+		if ( ! empty( $_POST['customized'] ) ) {
+			$customized = json_decode( $_POST['customized'] );
+			if ( isset( $customized[ 'jetpack_custom_css[preprocessor]' ] ) ) {
+				$args['preprocessor'] = $customized[ 'jetpack_custom_css[preprocessor]' ];
+			}
+		}
+
+		return self::sanitize_css( $css, $args );
 	}
 
 	/**
