@@ -543,6 +543,28 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 	} );
 } );
 
+gulp.task( 'php:module-headings', function( callback ) {
+	var process = spawn(
+		'php',
+		[
+			'tools/build-module-headings-translations.php'
+		]
+	);
+
+	process.stderr.on( 'data', function( data ) {
+		gutil.log( data.toString() );
+	} );
+	process.stdout.on( 'data', function( data ) {
+		gutil.log( data.toString() );
+	} );
+	process.on( 'exit', function( code ) {
+		if ( 0 !== code ) {
+			gutil.log( 'Failed building module headings translations: process exited with code ', code );
+		}
+		callback();
+	} );
+} );
+
 gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
 	var language_packs = [];
 
@@ -595,7 +617,7 @@ gulp.task( 'languages:extract', function( done ) {
 // Default task
 gulp.task(
 	'default',
-	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint']
+	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings']
 );
 gulp.task(
 	'watch',
