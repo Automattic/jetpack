@@ -87,10 +87,17 @@ Check out all these new shortcodes available! Follow the links for descriptions 
 [ustreamsocial]
 
 ### Related Posts in the Customizer
-You can now preview the Related Posts settings in the Customizer before you save. In Jetpack admin screen, go to Settings > Engagement and activate Related Posts if it's not already active. Expand its settings and click on the link: you should be taken to the Customizer, that should load your latest published post.
+You can now preview the Related Posts settings in the Customizer before you save. In Jetpack admin screen, go to Settings > Engagement and activate Related Posts if it's not already active.
+
+Expand its settings and click on the link: you should be taken to the Customizer, that should load your latest published post.
+
 If you launch the Customizer from Appearance > Customize, the Related Posts panel should only show a message prompting you to go to a single post view. Once you're in a single post, the controls for Related Posts should be displayed.
+
 This implementation leverages Customizer's Selective Refresh, so if you're using a theme like TwentySixteen that takes advantage of it, you should see only the Related Posts portion refreshing, not the entire page.
 
-During your tests, we'd encourage you to keep your browser console open, and check for any errors in the console and the network tabs.
+### Final Notes
+During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
+
+To open the Console in Chrome or Firefox, you can press CMD+Alt+i in macOS or F12 in Windows.
 
 **Thank you for all your help!**
