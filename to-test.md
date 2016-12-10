@@ -41,7 +41,7 @@ There is an option in the settings card that will allow you to display ads in th
 
 ### Contact Form Custom Values for Fields
 You can now set custom fields for the fields of your form.  The value still defaults to the option name if none is set, as it did in prior versions.
-Example useage:
+Example usage:
 [contact-form]
 [contact-field label='dropdown' type='select' options='dropdown 1, dropdown 2' values='d1,d2'/]
 [contact-field label='Radio' type='radio' options='Radio 1,Radio 2' values='r1,r2'/]
@@ -66,14 +66,15 @@ Add it and watch the count grow!
 With this widget you can display a countdown to an upcoming event or milestone that you set. Set the date/time/name of the event, and check it out in your sidebar.
 
 ### Lots of new shortcodes from wordpress.com
-Check out all these new shortcodes available!  Follow the links for descriptions on how to use
+Check out all these new shortcodes available! Follow the links for descriptions on how to use
 
 [spotify](https://en.support.wordpress.com/audio/spotify/)
 [tweet]
 [googleapps](https://en.support.wordpress.com/google-docs/)
 [brightcove]
-[getty]()
+[getty]
 [archiveorg](http://support.wordpress.com/videos/the-internet-archive/)
+[archiveorg-book]
 [hulu](https://en.support.wordpress.com/videos/hulu/)
 [kickstarter](https://en.support.wordpress.com/videos/kickstarter/)
 [gravatar](https://en.support.wordpress.com/gravatar-shortcode/)
@@ -86,7 +87,9 @@ Check out all these new shortcodes available!  Follow the links for descriptions
 [ustreamsocial]
 
 ### Related Posts in the Customizer
-You can now preview your Related Posts in the Customizer before you save.  Just navigate to the customizer, or click the settings link in the Related Posts card in the Engagement tab to check it out.
+You can now preview the Related Posts settings in the Customizer before you save. In Jetpack admin screen, go to Settings > Engagement and activate Related Posts if it's not already active. Expand its settings and click on the link: you should be taken to the Customizer, that should load your latest published post.
+If you launch the Customizer from Appearance > Customize, the Related Posts panel should only show a message prompting you to go to a single post view. Once you're in a single post, the controls for Related Posts should be displayed.
+This implementation leverages Customizer's Selective Refresh, so if you're using a theme like TwentySixteen that takes advantage of it, you should see only the Related Posts portion refreshing, not the entire page.
 
 During your tests, we'd encourage you to keep your browser console open, and check for any errors in the console and the network tabs.
 
