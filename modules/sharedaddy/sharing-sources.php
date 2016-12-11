@@ -362,15 +362,7 @@ class Share_Twitter extends Sharing_Source {
 	// 'https://dev.twitter.com/rest/reference/get/help/configuration' ( 2015/02/06 ) short_url_length is 22, short_url_length_https is 23
 	var $short_url_length = 24;
 
-	public function __construct( $id, $settings ) {
-
-		// Live debug
-		if ( !is_array( $settings ) && defined( 'REST_API_REQUEST' ) && REST_API_REQUEST === true ) {
-			$message  = 'Invalid type for ' . __METHOD__ . PHP_EOL;
-			$message .= wp_debug_backtrace_summary();
-			a8c_slack( "@yoavf", $message, null, null, 'share-tw-invalid-type', 100 );
-		}
-
+	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
 		if ( 'official' == $this->button_style )
