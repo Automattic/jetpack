@@ -184,6 +184,28 @@ class Jetpack_Sync_Functions {
 		return set_url_scheme( $new_value, $forced_scheme );
 	}
 
+	public static function get_raw_url( $option_name ) {
+		global $wpdb;
+
+		$value = null;
+		if ( 'home' == $option_name && Jetpack_Constants::is_defined( 'WP_HOME' ) ) {
+			$value = Jetpack_Constants::get_constant( 'WP_HOME' );
+		} else if ( 'siteurl' == $option_name && Jetpack_Constants::is_defined( 'WP_SITEURL' ) ) {
+			$value = Jetpack_Constants::get_constant( 'WP_SITEURL' );
+		} else {
+			// Let's get the option from the database so that we can bypass filters. This will help
+			// ensure that we get more uniform values.
+			$value = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1",
+					$option_name
+				)
+			);
+		}
+
+		return $value;
+	}
+
 	public static function normalize_www_in_url( $option, $url_function ) {
 		$url        = wp_parse_url( call_user_func( $url_function ) );
 		$option_url = wp_parse_url( get_option( $option ) );
