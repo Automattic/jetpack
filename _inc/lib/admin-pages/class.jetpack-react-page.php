@@ -27,8 +27,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page
 		}
 
-		// Adding a redirect meta tag for older WordPress versions
-		if ( $this->is_wp_version_too_old() ) {
+		// Adding a redirect meta tag for older WordPress versions or if the REST API is disabled
+		if ( $this->is_wp_version_too_old() || ! $this->is_rest_api_enabled() ) {
 			$this->is_redirecting = true;
 			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
 		}
@@ -228,6 +228,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			$modules[ $slug ]['long_description'] = html_entity_decode( $data['long_description'] );
 		}
 
+		// Get last post, to build the link to Customizer in the Related Posts module.
+		$last_post = get_posts( array( 'posts_per_page' => 1 ) );
+		if ( $last_post[0] instanceof WP_Post ) {
+			$last_post = get_permalink( $last_post[0]->ID );
+		}
+
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
@@ -278,7 +284,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
 			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false
+			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
+			'lastPostUrl' => esc_url( $last_post ),
 		) );
 	}
 }

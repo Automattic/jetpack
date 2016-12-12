@@ -42,6 +42,7 @@ foreach ( $files as $file ) {
 	foreach ( $all_headers as $field => $regex ) {
 		if ( preg_match( '/^[ \t\/*#@]*' . preg_quote( $regex, '/' ) . ':(.*)$/mi', $file_data, $match ) && $match[1] ) {
 			$string = trim( preg_replace( "/\s*(?:\*\/|\?>).*/", '', $match[1] ) );
+			$string = addcslashes( $string, "''" );
 			if ( 'Module Tags' === $regex ) {
 				$module_tags = array_map( 'trim', explode( ',', $string ) );
 				foreach ( $module_tags as $tag ) {

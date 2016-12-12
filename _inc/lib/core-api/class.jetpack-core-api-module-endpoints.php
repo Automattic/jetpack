@@ -7,19 +7,6 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 	/**
-	 * List of modules that require WPCOM public access.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @var array
-	 */
-	private $modules_requiring_public = array(
-		'photon',
-		'enhanced-distribution',
-		'json-api',
-	);
-
-	/**
 	 * Check if the module requires the site to be publicly accessible from WPCOM.
 	 * If the site meets this requirement, the module is activated. Otherwise an error is returned.
 	 *
@@ -65,17 +52,6 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 				'not_found',
 				esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ),
 				array( 'status' => 404 )
-			);
-		}
-
-		if (
-			in_array( $module_slug, $this->modules_requiring_public )
-			&& ! $this->is_site_public()
-		) {
-			return new WP_Error(
-				'rest_cannot_publish',
-				esc_html__( 'This module requires your site to be set to publicly accessible.', 'jetpack' ),
-				array( 'status' => 424 )
 			);
 		}
 
@@ -1093,9 +1069,9 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		}
 
 		$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
-		if ( is_wp_error( $data ) ) {
+		if ( is_wp_error( $data ) || ! isset( $data->backups->last_backup ) ) {
 			return $data;
-		} else if ( ! $data->backups->last_backup ) {
+		} else if ( empty( $data->backups->last_backup ) ) {
 			return rest_ensure_response( array(
 				'code'    => 'success',
 				'message' => esc_html__( 'VaultPress is active and will back up your site soon.', 'jetpack' ),

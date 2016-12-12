@@ -21,7 +21,7 @@ describe( 'Engagement', () => {
 			return {
 				'name': 'SEO Tools',
 				'description': 'Better results on search engines and social media.',
-				'learn_more_button': 'https://support.wordpress.com/seo-tools/'
+				'learn_more_button': 'https://jetpack.com/support/seo-tools/'
 			}
 		},
 		isUnavailableInDevMode: () => false,
@@ -47,7 +47,7 @@ describe( 'Engagement', () => {
 				free                     : true,
 				introduced               : '4.4',
 				jumpstart_desc           : 'Better results on search engines and social media.',
-				learn_more_button        : 'https://support.wordpress.com/seo-tools/',
+				learn_more_button        : 'https://jetpack.com/support/seo-tools/',
 				long_description         : 'Better results on search engines and social media.',
 				module                   : 'seo-tools',
 				module_tags              : ['Social', 'Appearance'],

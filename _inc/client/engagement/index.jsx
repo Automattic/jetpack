@@ -30,10 +30,12 @@ import {
 	getSiteAdminUrl,
 	getSiteRawUrl,
 	isSitePublic,
+	getLastPostUrl,
 	userCanManageModules as _userCanManageModules
 } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
 import QuerySite from 'components/data/query-site';
+import ExternalLink from 'components/external-link';
 
 export const Engagement = ( props ) => {
 	let {
@@ -65,6 +67,7 @@ export const Engagement = ( props ) => {
 	 */
 	let cards = [
 		[ 'seo-tools', getModule( 'seo-tools' ).name, getModule( 'seo-tools' ).description, getModule( 'seo-tools' ).learn_more_button ],
+		[ 'wordads', getModule( 'wordads' ).name, getModule( 'wordads' ).description, getModule( 'wordads' ).learn_more_button ],
 		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
 		[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description, getModule( 'sharedaddy' ).learn_more_button ],
 		[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
@@ -75,7 +78,7 @@ export const Engagement = ( props ) => {
 		[ 'gravatar-hovercards', getModule( 'gravatar-hovercards' ).name, getModule( 'gravatar-hovercards' ).description, getModule( 'gravatar-hovercards' ).learn_more_button ],
 		[ 'sitemaps', getModule( 'sitemaps' ).name, sitemapsDesc, getModule( 'sitemaps' ).learn_more_button ],
 		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description, getModule( 'enhanced-distribution' ).learn_more_button ],
-		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ]
+		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
 	],
 		nonAdminAvailable = [ 'publicize' ];
 	// Put modules available to non-admin user at the top of the list.
@@ -92,70 +95,75 @@ export const Engagement = ( props ) => {
 		if ( ! includes( moduleList, element[0] ) ) {
 			return null;
 		}
-		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
+
+		let unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
 			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] ),
-			isPro = 'seo-tools' === element[0],
+			isPro = 'seo-tools' === element[0] || 'wordads' === element[0],
 			proProps = {
 				module: element[0],
 				configure_url: ''
 			},
 			isModuleActive = isModuleActivated( element[0] ),
+			planLoaded = 'undefined' !== typeof props.sitePlan.product_slug,
 			hasBusiness = false,
-			planLoaded = false;
+			hasPremiumOrBusiness = false;
 
-		if ( 'undefined' !== typeof props.sitePlan.product_slug ) {
-			planLoaded = true
-		}
+		hasBusiness =
+			planLoaded &&
+			( props.sitePlan.product_slug === 'jetpack_business' ||
+				props.sitePlan.product_slug === 'jetpack_business_monthly' );
 
-		if (
-			planLoaded
-			&& (
-				props.sitePlan.product_slug === 'jetpack_business'
-				|| props.sitePlan.product_slug === 'jetpack_business_monthly'
-			)
-		) {
-			hasBusiness = true;
-		}
+		hasPremiumOrBusiness =
+			planLoaded &&
+			( props.sitePlan.product_slug === 'jetpack_premium' ||
+				props.sitePlan.product_slug === 'jetpack_premium_monthly' ||
+				props.sitePlan.product_slug === 'jetpack_business' ||
+				props.sitePlan.product_slug === 'jetpack_business_monthly' );
 
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
 		} else if ( isAdmin ) {
-			if ( isPro && ! hasBusiness ) {
+			if ( ( 'seo-tools' === element[0] && ! hasBusiness ) ||
+					( 'wordads' === element[0] && ! hasPremiumOrBusiness ) ) {
 				toggle = <ProStatus proFeature={ element[0] } />;
-			} else if ( ! isPro || hasBusiness ) {
-				toggle = <ModuleToggle slug={ element[0] }
-									   activated={ isModuleActive }
-									   toggling={ isTogglingModule( element[0] ) }
-									   toggleModule={ toggleModule } />;
+			} else {
+				toggle =
+					<ModuleToggle
+						slug={ element[0] }
+						activated={ isModuleActive }
+						toggling={ isTogglingModule( element[0] ) }
+						toggleModule={ toggleModule } />;
 			}
 
 			if ( isPro ) {
 				// Add a "pro" button next to the header title
-				element[1] = <span>
-								{ element[1] }
-								<Button compact={ true } href="#/plans">
-									{ __( 'Pro' ) }
-								</Button>
-							 </span>;
+				element[1] =
+					<span>
+						{ element[1] }
+						<Button compact={ true } href="#/plans">
+							{ __( 'Pro' ) }
+						</Button>
+					</span>;
 			}
 		}
 
+		let lastPostUrl = 'related-posts' === element[0]
+			? { lastPostUrl: props.lastPostUrl }
+			: '';
 		let moduleDescription = isModuleActive ?
-			<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } /> :
+			<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } { ...lastPostUrl } /> :
 			// Render the long_description if module is deactivated
 			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
 
 		if ( element[0] === 'seo-tools' ) {
 			if ( 'undefined' === typeof props.sitePlan.product_slug && ! unavailableInDevMode ) {
 				proProps.configure_url = 'checking';
-			} else {
-				if ( props.sitePlan.product_slug === 'jetpack_business' ) {
-					proProps.configure_url = isModuleActive
-						? 'https://wordpress.com/settings/seo/' + props.siteRawUrl
-						: 'inactive';
-				}
+			} else if ( props.sitePlan.product_slug === 'jetpack_business' ) {
+				proProps.configure_url = isModuleActive
+					? 'https://wordpress.com/settings/seo/' + props.siteRawUrl
+					: 'inactive';
 			}
 
 			moduleDescription = <AllModuleSettings module={ proProps } />;
@@ -213,6 +221,21 @@ export const Engagement = ( props ) => {
 							  </div>
 							: ''
 					}
+					{
+						'wordads' === element[0] && isModuleActive
+							? <div className="jp-module-settings__read-more">
+								<span>
+									<ExternalLink
+										className="jp-module-settings__external-link"
+										icon={ true }
+										iconSize={ 16 }
+										href={`https://wordpress.com/ads/earnings/${window.location.hostname}`}>
+											{ __( 'View your earnings' ) }
+									</ExternalLink>
+								</span>
+							</div>
+							: ''
+					}
 
 			</FoldableCard>
 		) : false;
@@ -243,7 +266,8 @@ export default connect(
 			isSitePublic: isSitePublic( state ),
 			sitePlan: getSitePlan( state ),
 			userCanManageModules: _userCanManageModules( state ),
-			moduleList: getModules( state )
+			moduleList: getModules( state ),
+			lastPostUrl: getLastPostUrl( state )
 		};
 	},
 	( dispatch ) => {

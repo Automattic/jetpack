@@ -53,7 +53,12 @@ class Jetpack_Sync_Actions {
 		if ( apply_filters( 'jetpack_sync_listener_should_load', true ) ) {
 			self::initialize_listener();
 		}
+		
+		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
 
+	}
+
+	static function add_sender_shutdown() {
 		/**
 		 * Fires on every request before default loading sync sender code.
 		 * Return false to not load sync sender code that serializes pending
@@ -81,7 +86,6 @@ class Jetpack_Sync_Actions {
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
 		}
-
 	}
 
 	static function sync_allowed() {
@@ -332,20 +336,23 @@ class Jetpack_Sync_Actions {
 		$full_sync_cron_schedule = apply_filters( 'jetpack_sync_full_sync_interval', self::DEFAULT_SYNC_CRON_INTERVAL_NAME );
 		self::maybe_schedule_sync_cron( $full_sync_cron_schedule, 'jetpack_sync_full_cron' );
 	}
+
+	static function cleanup_on_upgrade() {
+		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
+			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
+		}
+	}
 }
 
 /**
  * If the site is using alternate cron, we need to init the listener and sender before cron
  * runs. So, we init at a priority of 9.
- * 
+ *
  * If the site is using a regular cron job, we init at a priority of 90 which gives plugins a chance
  * to add filters before we initialize.
  */
-if ( defined( 'ALTERNATE_WP_CRON' ) && ALTERNATE_WP_CRON ) {
-	add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 9 );
-} else {
-	add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
-}
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ) );

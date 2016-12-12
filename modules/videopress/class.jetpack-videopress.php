@@ -43,9 +43,14 @@ class Jetpack_VideoPress {
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
 		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
 
-		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
+		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
+			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
+		}
 
-		add_action( 'admin_menu', array( $this,'change_add_new_menu_location' ), 999 );
+		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
+		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
+
+		add_filter( 'wp_mime_type_icon', array( $this, 'wp_mime_type_icon' ), 10, 3 );
 
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
@@ -105,6 +110,14 @@ class Jetpack_VideoPress {
 	}
 
 	/**
+	 * Register and enqueue VideoPress admin styles.
+	 */
+	public function enqueue_admin_styles() {
+		wp_register_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
+		wp_enqueue_style( 'videopress-admin' );
+	}
+
+	/**
 	 * Register VideoPress admin scripts.
 	 */
 	public function enqueue_admin_scripts() {
@@ -139,8 +152,6 @@ class Jetpack_VideoPress {
 			);
 		}
 
-		wp_enqueue_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
-
 		/**
 		 * Fires after VideoPress scripts are enqueued in the dashboard.
 		 *
@@ -154,6 +165,8 @@ class Jetpack_VideoPress {
 	 * if it is set to the the objects metadata. this allows us to show the original uploaded
 	 * file on the WPCOM architecture, instead of the locally uplodaded file,
 	 * which doeasn't exist.
+	 *
+	 * TODO: Fix this so that it will return a VideoPress process url, to ensure that it is in MP4 format.
 	 *
 	 * @param string $url
 	 * @param int $post_id
@@ -206,8 +219,15 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
+		$acceptable_pages = array(
+			'post-new.php',
+			'post.php',
+			'upload.php',
+			'customize.php',
+		);
+
 		// Only load on the post, new post, or upload pages.
-		if ( $pagenow !== 'post-new.php' && $pagenow !== 'post.php' && $pagenow !== 'upload.php' ) {
+		if ( !in_array( $pagenow, $acceptable_pages ) ) {
 			return false;
 		}
 
@@ -255,8 +275,56 @@ class Jetpack_VideoPress {
 	 */
 	public function change_add_new_menu_location() {
 		$page = remove_submenu_page( 'upload.php', 'media-new.php' );
-
 		add_submenu_page( 'upload.php', $page[0], $page[0], 'upload_files', 'upload.php?action=add-new');
+	}
+
+	/**
+	 * Makes sure that all video mimes are added in, as multi site installs can remove them.
+	 *
+	 * @param array $existing_mimes
+	 * @return array
+	 */
+	public function add_video_upload_mimes( $existing_mimes = array() ) {
+		$mime_types = wp_get_mime_types();
+		$video_types = array_filter( $mime_types, array( $this, 'filter_video_mimes' ) );
+
+		foreach ( $video_types as $key => $value ) {
+			$existing_mimes[ $key ] = $value;
+		}
+
+		return $existing_mimes;
+	}
+
+	/**
+	 * Filter designed to get rid of non video mime types.
+	 *
+	 * @param string $value
+	 * @return int
+	 */
+	public function filter_video_mimes( $value ) {
+		return preg_match( '@^video/@', $value );
+  }
+
+	/**
+	 * @param string $icon
+	 * @param string $mime
+	 * @param int $post_id
+	 *
+	 * @return string
+	 */
+	public function wp_mime_type_icon( $icon, $mime, $post_id ) {
+
+		if ( $mime !== 'video/videopress' ) {
+			return $icon;
+		}
+
+		$status = get_post_meta( $post_id, 'videopress_status', true );
+
+		if ( $status === 'complete' ) {
+			return $icon;
+		}
+
+		return get_site_url() . '/wp-content/plugins/jetpack/images/media-video-processing-icon.png';
 	}
 }
 

@@ -10,7 +10,6 @@ import { connect } from 'react-redux';
  */
 import {
 	StatsSettings,
-	RelatedPostsSettings,
 	CommentsSettings,
 	LikesSettings,
 	SubscriptionsSettings,
@@ -27,12 +26,14 @@ import {
 	MarkdownSettings,
 	VerificationToolsSettings,
 	SitemapsSettings,
-	VideoPressSettings
+	VideoPressSettings,
+	WordAdsSettings
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
 
 import {
 	getSiteAdminUrl,
+	getSiteRawUrl
 } from 'state/initial-state';
 
 const AllModuleSettingsComponent = React.createClass( {
@@ -68,6 +69,7 @@ const AllModuleSettingsComponent = React.createClass( {
 			case 'protect':
 				return ( <ProtectSettings module={ module }  /> );
 			case 'monitor':
+				module.raw_url = this.props.siteRawUrl;
 				return ( <MonitorSettings module={ module }  /> );
 			case 'scan':
 				return '' === module.configure_url ? (
@@ -111,8 +113,6 @@ const AllModuleSettingsComponent = React.createClass( {
 				}
 			case 'stats':
 				return ( <StatsSettings module={ module }  /> );
-			case 'related-posts':
-				return ( <RelatedPostsSettings module={ module }  /> );
 			case 'comments':
 				return ( <CommentsSettings module={ module }  /> );
 			case 'subscriptions':
@@ -123,6 +123,8 @@ const AllModuleSettingsComponent = React.createClass( {
 				return ( <VerificationToolsSettings module={ module }  /> );
 			case 'sitemaps':
 				return ( <SitemapsSettings module={ module } { ...this.props } /> );
+			case 'wordads':
+				return ( <WordAdsSettings module={ module } /> );
 			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':
@@ -159,6 +161,7 @@ const AllModuleSettingsComponent = React.createClass( {
 						}
 					</div>
 				);
+			case 'related-posts':
 			case 'custom-css':
 			case 'widgets':
 			case 'publicize':
@@ -166,6 +169,12 @@ const AllModuleSettingsComponent = React.createClass( {
 			default:
 				if ( 'publicize' === module.module ) {
 					module.configure_url = this.props.adminUrl + 'options-general.php?page=sharing';
+				}
+				if ( 'related-posts' === module.module ) {
+					module.configure_url = this.props.adminUrl +
+						'customize.php?autofocus[section]=jetpack_relatedposts' +
+						'&return=' + encodeURIComponent( this.props.adminUrl + 'admin.php?page=jetpack#/engagement' ) +
+						'&url=' + encodeURIComponent( this.props.lastPostUrl );
 				}
 				return (
 					<div>
@@ -188,7 +197,8 @@ const AllModuleSettingsComponent = React.createClass( {
 export const AllModuleSettings = connect(
 	( state ) => {
 		return {
-			adminUrl: getSiteAdminUrl( state )
+			adminUrl: getSiteAdminUrl( state ),
+			siteRawUrl: getSiteRawUrl( state )
 		};
 	}
 )( AllModuleSettingsComponent );
