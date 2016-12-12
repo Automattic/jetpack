@@ -166,4 +166,29 @@ if ( ! function_exists( 'jetpack_shortcode_get_videopress_id' ) ) {
 	}
 }
 
+/**
+ * Common element attributes parsing and sanitizing for src, width and height.
+ *
+ * @since 4.5.0
+ *
+ * @param array $attrs  With original values.
+ *
+ * @return array $attrs With sanitized values.
+ */
+function wpcom_shortcodereverse_parseattr( $attrs ) {
+	$defaults = array(
+		'src'    => false,
+		'width'  => false,
+		'height' => false,
+	);
+
+	$attrs = shortcode_atts( $defaults, $attrs );
+
+	$attrs['src']    = strip_tags( $attrs['src'] ); // For sanity
+	$attrs['width']  = ( is_numeric( $attrs['width'] ) ) ? abs( intval( $attrs['width'] ) ) : $defaults['width'];
+	$attrs['height'] = ( is_numeric( $attrs['height'] ) ) ? abs( intval( $attrs['height'] ) ) : $defaults['height'];
+
+	return $attrs;
+}
+
 jetpack_load_shortcodes();

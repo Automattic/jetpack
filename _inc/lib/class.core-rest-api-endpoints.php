@@ -1527,7 +1527,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback'  => __CLASS__ . '::validate_alphanum',
 				'jp_group'          => 'verification-tools',
 			),
-
+			'enable_header_ad' => array(
+				'description'        => esc_html__( 'Display an ad unit at the top of each page.', 'jetpack' ),
+				'type'               => 'boolean',
+				'default'            => 0,
+				'validate_callback'  => __CLASS__ . '::validate_boolean',
+				'jp_group'           => 'wordads',
+			),
+			'wordads_approved' => array(
+				'description'        => esc_html__( 'Is site approved for WordAds?', 'jetpack' ),
+				'type'               => 'boolean',
+				'default'            => 0,
+				'validate_callback'  => __CLASS__ . '::validate_boolean',
+				'jp_group'           => 'wordads',
+			),
 			// Stats
 			'admin_bar' => array(
 				'description'       => esc_html__( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ),

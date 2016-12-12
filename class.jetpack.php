@@ -52,6 +52,7 @@ class Jetpack {
 		'jetpack-top-posts-widget',
 		'jetpack_image_widget',
 		'jetpack-my-community-widget',
+		'wordads',
 	);
 
 	public $plugins_to_deactivate = array(
@@ -2298,13 +2299,6 @@ class Jetpack {
 			$active = array_diff( $active, array( 'vaultpress' ) );
 		}
 
-		// If this plan supports videopress, force activate module
-		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
-			$active[] = 'videopress';
-		} else {
-			$active = array_diff( $active, array( 'videopress' ) );
-		}
-
 		//If protect is active on the main site of a multisite, it should be active on all sites.
 		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
 			$active[] = 'protect';
@@ -2783,6 +2777,10 @@ p {
 
 			Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 		}
+
+		// Delete cached connected user data
+		$transient_key = "jetpack_connected_user_data_" . get_current_user_id();
+		delete_transient( $transient_key );
 
 		// Delete all the sync related data. Since it could be taking up space.
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
@@ -5661,10 +5659,15 @@ p {
 
 		// This is a silly loop depth. Better way?
 		foreach( $deprecated_list AS $hook => $hook_alt ) {
-			if( isset( $wp_filter[ $hook ] ) && is_array( $wp_filter[ $hook ] ) ) {
-				foreach( $wp_filter[$hook] AS $func => $values ) {
+			if ( has_action( $hook ) ) {
+				foreach( $wp_filter[ $hook ] AS $func => $values ) {
 					foreach( $values AS $hooked ) {
-						_deprecated_function( $hook . ' used for ' . $hooked['function'], null, $hook_alt );
+						if ( is_callable( $hooked['function'] ) ) {
+							$function_name = 'an anonymous function';
+						} else {
+							$function_name = $hooked['function'];
+						}
+						_deprecated_function( $hook . ' used for ' . $function_name, null, $hook_alt );
 					}
 				}
 			}
@@ -6203,6 +6206,10 @@ p {
 			<style>
 				.fixed .column-user_jetpack {
 					width: 21px;
+				}
+				.jp-emblem-user-admin svg {
+					width: 20px;
+					height: 20px;
 				}
 				.jp-emblem-user-admin path {
 					fill: #8cc258;
