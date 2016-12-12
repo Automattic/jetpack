@@ -203,6 +203,14 @@ class Jetpack_Sync_Functions {
 			);
 		}
 
+		if ( is_ssl() ) {
+			$scheme = 'https';
+		} else {
+			$scheme = parse_url( $value, PHP_URL_SCHEME );
+		}
+
+		$value = set_url_scheme( $value, $scheme );
+
 		return $value;
 	}
 
