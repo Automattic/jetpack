@@ -37,18 +37,15 @@ jQuery(document).ready(function($) {
 				break;
 			case 39: // right
 				e.preventDefault();
-				gallery.jp_carousel('clearCommentTextAreaValue');
 				gallery.jp_carousel('next');
 				break;
 			case 37: // left
 			case 8: // backspace
 				e.preventDefault();
-				gallery.jp_carousel('clearCommentTextAreaValue');
 				gallery.jp_carousel('previous');
 				break;
 			case 27: // escape
 				e.preventDefault();
-				gallery.jp_carousel('clearCommentTextAreaValue');
 				container.jp_carousel('close');
 				break;
 			default:
@@ -193,13 +190,15 @@ jQuery(document).ready(function($) {
 				.addClass('jp-carousel-next-button')
 				.css({
 					'right'    : '15px'
-				});
+				})
+				.hide();
 
 			previousButton = $('<div><span></span></div>')
 				.addClass('jp-carousel-previous-button')
 				.css({
 					'left'     : 0
-				});
+				})
+				.hide();
 
 			nextButton.add( previousButton ).css( {
 				'position' : 'fixed',
@@ -232,7 +231,7 @@ jQuery(document).ready(function($) {
 
 			container.attr('itemscope', '');
 
-			container.attr('itemtype', 'http://schema.org/ImageGallery');
+			container.attr('itemtype', 'https://schema.org/ImageGallery');
 
 			container.css({
 					'position'   : 'fixed',
@@ -389,10 +388,8 @@ jQuery(document).ready(function($) {
 					$(window).scrollTop(scroll);
 				})
 				.bind('jp_carousel.afterClose', function(){
-					if ( history.pushState ) {
-						history.pushState('', document.title, window.location.pathname + window.location.search);
-					} else {
-						window.location.hash = '';
+					if ( window.location.hash && history.back ) {
+						history.back();
 					}
 					last_known_location_hash = '';
 					gallery.opened = false;
@@ -462,7 +459,7 @@ jQuery(document).ready(function($) {
 
 		open: function(options) {
 			var settings = {
-				'items_selector' : '.gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id]',
+				'items_selector' : '.gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id], img[data-attachment-id]',
 				'start_index': 0
 			},
 			data = $(this).data('carousel-extra');
@@ -525,6 +522,7 @@ jQuery(document).ready(function($) {
 			// make sure to let the page scroll again
 			$('body').css('overflow', originalOverflow);
 			$('html').css('overflow', originalHOverflow);
+			this.jp_carousel( 'clearCommentTextAreaValue' );
 			return container
 				.trigger('jp_carousel.beforeClose')
 				.fadeOut('fast', function(){
@@ -876,7 +874,7 @@ jQuery(document).ready(function($) {
 						.css( 'width', '100%' )
 						.css( 'height', '100%' );
 
-					var slide = $('<div class="jp-carousel-slide" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"></div>')
+					var slide = $('<div class="jp-carousel-slide" itemprop="associatedMedia" itemscope itemtype="https://schema.org/ImageObject"></div>')
 							.hide()
 							.css({
 								//'position' : 'fixed',
@@ -947,6 +945,10 @@ jQuery(document).ready(function($) {
 				large_height      = parseInt( large_size_parts[1], 10 ),
 				medium_width      = parseInt( medium_size_parts[0], 10 ),
 				medium_height     = parseInt( medium_size_parts[1], 10 );
+
+			// Assign max width and height.
+			args.orig_max_width  = args.max_width;
+			args.orig_max_height = args.max_height;
 
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ( 'undefined' !== typeof window.devicePixelRatio && window.devicePixelRatio > 1 ) {
@@ -1051,8 +1053,8 @@ jQuery(document).ready(function($) {
 			desc  = gallery.jp_carousel('parseTitleDesc', data.desc)  || '';
 
 			if ( title.length || desc.length ) {
-				// $('<div />').text(sometext).html() is a trick to go to HTML to plain text (including HTML entities decode, etc)
-				if ( $('<div />').text(title).html() === $('<div />').text(desc).html() ) {
+				// Convert from HTML to plain text (including HTML entities decode, etc)
+				if ( $('<div />').html( title ).text() === $('<div />').html( desc ).text() ) {
 					title = '';
 				}
 
@@ -1327,6 +1329,10 @@ jQuery(document).ready(function($) {
 
 				image.data( 'loaded', 1 );
 			}
+		},
+
+		hasMultipleImages : function () {
+			return gallery.jp_carousel('slides').length > 1;
 		}
 	};
 
@@ -1344,7 +1350,7 @@ jQuery(document).ready(function($) {
 	};
 
 	// register the event listener for starting the gallery
-	$( document.body ).on( 'click', 'div.gallery,div.tiled-gallery', function(e) {
+	$( document.body ).on( 'click.jp-carousel', 'div.gallery,div.tiled-gallery, a.single-image-gallery', function(e) {
 		if ( ! $(this).jp_carousel( 'testForData', e.currentTarget ) ) {
 			return;
 		}
@@ -1359,13 +1365,54 @@ jQuery(document).ready(function($) {
 		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item, .tiled-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item'))});
 	});
 
+	// handle lightbox (single image gallery) for images linking to 'Attachment Page'
+	if ( 1 === Number( jetpackCarouselStrings.single_image_gallery ) ) {
+		// process links that contain img tag with attribute data-attachment-id
+		$( 'a img[data-attachment-id]' ).each(function() {
+			var container = $( this ).parent();
+
+			// skip if image was already added to gallery by shortcode
+			if( container.parent( '.gallery-icon' ).length ) {
+				return;
+			}
+
+			var valid = false;
+
+			// if link points to 'Media File' and flag is set allow it
+			if ( $( container ).attr( 'href' ) === $( this ).attr( 'data-orig-file' ) &&
+				1 === Number( jetpackCarouselStrings.single_image_gallery_media_file )
+			) {
+				valid = true;
+			}
+
+			// if link points to 'Attachment Page' allow it
+			if( $( container ).attr( 'href' ) === $( this ).attr( 'data-permalink' ) ) {
+				valid = true;
+			}
+
+			// links to 'Custom URL' or 'Media File' when flag not set are not valid
+			if( ! valid ) {
+				return;
+			}
+
+			// make this node a gallery recognizable by event listener above
+			$( container ).addClass( 'single-image-gallery' ) ;
+			// blog_id is needed to allow posting comments to correct blog
+			$( container ).data( 'carousel-extra', { blog_id: Number( jetpackCarouselStrings.blog_id ) } );
+		});
+	}
+
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)
-	$( window ).on( 'hashchange', function () {
+	$( window ).on( 'hashchange.jp-carousel', function () {
 
 		var hashRegExp = /jp-carousel-(\d+)/,
 			matches, attachmentId, galleries, selectedThumbnail;
 
 		if ( ! window.location.hash || ! hashRegExp.test( window.location.hash ) ) {
+			if ( gallery && gallery.opened ) {
+				container.jp_carousel( 'close' );
+			}
+
 			return;
 		}
 
@@ -1373,10 +1420,15 @@ jQuery(document).ready(function($) {
 			return;
 		}
 
+		if ( window.location.hash && gallery && !gallery.opened && history.back) {
+			history.back();
+			return;
+		}
+
 		last_known_location_hash = window.location.hash;
 		matches = window.location.hash.match( hashRegExp );
 		attachmentId = parseInt( matches[1], 10 );
-		galleries = $( 'div.gallery, div.tiled-gallery' );
+		galleries = $( 'div.gallery, div.tiled-gallery, a.single-image-gallery' );
 
 		// Find the first thumbnail that matches the attachment ID in the location
 		// hash, then open the gallery that contains it.
@@ -1391,6 +1443,7 @@ jQuery(document).ready(function($) {
 			if ( selectedThumbnail ) {
 				$( selectedThumbnail.gallery )
 					.jp_carousel( 'openOrSelectSlide', selectedThumbnail.index );
+				return false;
 			}
 		});
 	});
