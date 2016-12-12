@@ -772,7 +772,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		) {
 			$subscribe_email = '';
 		} else {
-			global $current_user;
+			$current_user = wp_get_current_user();
 			if ( ! empty( $current_user->user_email ) ) {
 				$subscribe_email = esc_attr( $current_user->user_email );
 			} else {
@@ -1044,6 +1044,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 }
 
 add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
+add_shortcode( 'blog_subscription_form', 'jetpack_do_subscription_form' );
 
 function jetpack_do_subscription_form( $instance ) {
 	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) ? false : true;
