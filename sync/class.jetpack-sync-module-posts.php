@@ -133,7 +133,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	// Expands wp_insert_post to include filtered content
 	function filter_post_content_and_add_links( $post_object ) {
-		global $post;
+		global $post, $shortcode_tags;
 		$post = $post_object;
 
 		// return non existant post 
@@ -177,12 +177,34 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
-		
+
+		/**
+		 * Filter that is used to not expand some type of shortcodes.
+		 *
+		 * Since we can can expand some type of shortcode better on the .com side and make the
+		 * expansion more relevant to contexts. For example [galleries] and subscription emails
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param array of shortcode tags to remove.
+		 */
+		$shortcodes_to_remove = apply_filters( 'jetpack_sync_do_not_expand_shortcodes', array( 'gallery', 'slideshow' ) );
+		foreach ( $shortcodes_to_remove as $shortcode ) {
+			if ( isset ( $shortcode_tags[ $shortcode ] )  ) {
+				$shortcodes_and_callbacks_to_remove[ $shortcode ] =  $shortcode_tags[ $shortcode ];
+			}
+		}
+
+		array_map( 'remove_shortcode' , array_keys( $shortcodes_and_callbacks_to_remove ) );
+
 		/** This filter is already documented in core. wp-includes/post-template.php */
 		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public  ) {
-
 			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
 			$post->post_excerpt_filtered   = apply_filters( 'the_excerpt', $post->post_excerpt );
+		}
+
+		foreach ( $shortcodes_and_callbacks_to_remove as $shortcode => $callback ) {
+			add_shortcode( $shortcode, $callback );
 		}
 
 		$this->add_embed();
