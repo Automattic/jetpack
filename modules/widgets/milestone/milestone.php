@@ -63,7 +63,7 @@ class Milestone_Widget extends WP_Widget {
 
 		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin' ) );
-		add_action( 'wp_footer', array( $this, 'localize_script' ) );
+		add_action( 'wp_footer', array( __class__, 'localize_script' ) );
 
 		if ( is_active_widget( false, false, $this->id_base, true ) || is_active_widget( false, false, 'monster', true ) ) {
 			add_action( 'wp_head', array( __class__, 'styles_template' ) );
@@ -168,7 +168,7 @@ class Milestone_Widget extends WP_Widget {
 	 *
 	 * Hooks into the "wp_footer" action.
 	 */
-	function localize_script() {
+	static function localize_script() {
 		if ( empty( self::$config_js['instances'] ) ) {
 			wp_dequeue_script( 'milestone' );
 			return;
