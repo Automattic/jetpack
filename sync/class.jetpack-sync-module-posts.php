@@ -4,7 +4,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
-	private $just_published;
+	private $just_published = array();
 
 	public function name() {
 		return 'posts';
@@ -179,7 +179,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		/**
-		 * Filter that is used to not expand some type of shortcodes.
+		 * Filter prevents some shortcodes from expanding.
 		 *
 		 * Since we can can expand some type of shortcode better on the .com side and make the
 		 * expansion more relevant to contexts. For example [galleries] and subscription emails
@@ -227,15 +227,42 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function save_published( $new_status, $old_status, $post ) {
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-			$this->just_published = $post->ID;
+			$this->just_published[] = $post->ID;
 		}
 	}
 
 	public function send_published( $post_ID, $post, $update ) {
-		if ( $this->just_published === $post->ID ) {
-			$this->just_published = null;
-			$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
-			do_action( 'jetpack_published_post', $post_ID, $flags );
+		if ( ! empty( $this->just_published ) ) {
+			$published = array_reverse( array_unique( $this->just_published ) );
+			
+			// Pre 4.7 WP does not have run though send_published for every save_published call
+			// So lets clear out any just_published that we recorded 
+			foreach ( $published as $just_published_post_ID ) {
+				if ( $post_ID !== $just_published_post_ID ) {
+					$post = get_post( $just_published_post_ID );
+				}
+
+				/**
+				 * Filter that is used to add to the post flags ( meta data ) when a post gets published
+				 *
+				 * @since 4.4.0
+				 *
+				 * @param mixed array post flags that are added to the post
+				 * @param mixed $post WP_POST object
+				 */
+				$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+
+				/**
+				 * Action that gets synced when a post type gets published.
+				 *
+				 * @since 4.4.0
+				 *
+				 * @param int post_id
+				 * @param mixed array post flags that are added to the post
+				 */
+				do_action( 'jetpack_published_post', $just_published_post_ID, $flags );
+			}
+			$this->just_published = array();
 		}
 	}
 
