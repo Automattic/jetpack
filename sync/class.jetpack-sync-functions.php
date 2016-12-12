@@ -149,13 +149,21 @@ class Jetpack_Sync_Functions {
 			Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) &&
 			Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
-			return self::get_raw_url( 'home' );
+			$home_url = self::get_raw_url( 'home' );
+		} else {
+			$home_url = self::normalize_www_in_url( 'home', 'home_url' );
 		}
 
-		return self::get_protocol_normalized_url(
-			'home_url',
-			self::normalize_www_in_url( 'home', 'home_url' )
-		);
+		$home_url = self::get_protocol_normalized_url( 'home_url', $home_url );
+
+		/**
+		 * Allows overriding of the home_url value that is synced back to WordPress.com.
+		 *
+		 * @since 4.6
+		 *
+		 * @param string $home_url
+		 */
+		return esc_url_raw( apply_filters( 'jetpack_sync_home_url', $home_url ) );
 	}
 
 	public static function site_url() {
@@ -163,13 +171,21 @@ class Jetpack_Sync_Functions {
 			Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) &&
 			Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
-			return self::get_raw_url( 'siteurl' );
+			$site_url =  self::get_raw_url( 'siteurl' );
+		} else {
+			$site_url = self::normalize_www_in_url( 'siteurl', 'site_url' );
 		}
 
-		return self::get_protocol_normalized_url(
-			'site_url',
-			self::normalize_www_in_url( 'siteurl', 'site_url' )
-		);
+		$site_url =  self::get_protocol_normalized_url( 'site_url', $site_url );
+
+		/**
+		 * Allows overriding of the site_url value that is synced back to WordPress.com.
+		 *
+		 * @since 4.6
+		 *
+		 * @param string $site_url
+		 */
+		return esc_url_raw( apply_filters( 'jetpack_sync_site_url', $site_url ) );
 	}
 
 	public static function main_network_site_url() {
