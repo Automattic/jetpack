@@ -553,6 +553,22 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_SERVER['HTTPS'] );
 	}
 
+	function test_urls_are_raw_with_use_raw_url_constant() {
+		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
+		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
+
+		// Test with constant first
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
+		$this->assertTrue( 'http://filteredurl.com' !== Jetpack_Sync_Functions::home_url() );
+		Jetpack_Constants::clear_constants();
+
+		// Now, without, which should return the filtered URL
+		$this->assertEquals( $this->__return_filtered_url(), Jetpack_Sync_Functions::home_url() );
+
+		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
+		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
+	}
+
 	function __return_filtered_url() {
 		return 'http://filteredurl.com';
 	}

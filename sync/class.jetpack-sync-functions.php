@@ -145,6 +145,13 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function home_url() {
+		if (
+			Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) &&
+			Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
+		) {
+			return self::get_raw_url( 'home' );
+		}
+
 		return self::get_protocol_normalized_url(
 			'home_url',
 			self::normalize_www_in_url( 'home', 'home_url' )
@@ -152,6 +159,13 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function site_url() {
+		if (
+			Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) &&
+			Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
+		) {
+			return self::get_raw_url( 'siteurl' );
+		}
+
 		return self::get_protocol_normalized_url(
 			'site_url',
 			self::normalize_www_in_url( 'siteurl', 'site_url' )
