@@ -133,9 +133,17 @@ class Jetpack_Options {
 		if ( ! is_multisite() ) {
 			return false;
 		}
-		return in_array( $option_name, array(
-			'file_data'
-		));
+		return in_array( $option_name, self::get_network_options() );
+	}
+
+	/**
+	 * Return a list of options to be saved in wp_sitemeta table
+	 * in Network sites (wp_options otherwise)
+	 *
+	 * @return array
+	 */
+	public static function get_network_options() {
+		return array( 'file_data' );
 	}
 
 	/**
@@ -175,10 +183,14 @@ class Jetpack_Options {
 	 * @param string $name Option name
 	 * @param mixed $default (optional)
 	 *
-	 * @return mixed|void
+	 * @return mixed
 	 */
 	public static function get_option_and_ensure_autoload( $name, $default ) {
-		$is_network_option = self::is_network_option( $name );
+		// In this function the name is not adjusted by prefixing jetpack_
+		// so if it has already prefixed, we'll replace it and then
+		// check if the option name is a network option or not
+		$jetpack_name = preg_replace( '/^jetpack_/', '', $name, 1 );
+		$is_network_option = self::is_network_option( $jetpack_name );
 		if ( $is_network_option ) {
 			$value = get_site_option( $name );
 		}
@@ -188,10 +200,10 @@ class Jetpack_Options {
 
 		if ( $value === false && $default !== false ) {
 			if ( $is_network_option ) {
-				update_option( $name, $default );
+				update_site_option( $name, $default );
 			}
 			else {
-				update_site_option( $name, $default );
+				update_option( $name, $default );
 			}
 			$value = $default;
 		}
@@ -207,10 +219,10 @@ class Jetpack_Options {
 		$options[ $name ] = $value;
 
 		if ( self::is_network_option( $name ) ) {
-			return update_option( self::$grouped_options[ $group ], $options );
+			return update_site_option( self::$grouped_options[ $group ], $options );
 		}
 		else {
-			return update_site_option( self::$grouped_options[ $group ], $options );
+			return update_option( self::$grouped_options[ $group ], $options );
 		}
 
 

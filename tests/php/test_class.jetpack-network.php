@@ -110,5 +110,41 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		$this->assertContains( 'network-admin', $classes );
 	}
 
+	public function test_is_network_option() {
+		$network_options = Jetpack_Options::get_network_options();
+		foreach ( $network_options as $option_name ) {
+			$this->assertTrue( Jetpack_Options::is_network_option( $option_name ) );
+		}
+		$this->assertFalse( Jetpack_Options::is_network_option( 'version' ) );
+	}
+
+
+	public function test_update_file_data_network_options() {
+		$value = array( 'just', 'a', 'sample' );
+		Jetpack_Options::update_option( 'file_data', $value );
+
+		$this->assertEquals( $value, Jetpack_Options::get_option( 'file_data' ) );
+
+		// Make sure that the option is in wp_sitemeta
+		$this->assertEquals( $value, get_site_option('jetpack_file_data' ) );
+
+		// And is not in wp_options
+		$this->assertFalse( get_option('jetpack_file_data' ) );
+	}
+
+
+	public function test_delete_file_data_network_options() {
+		$value = array( 'just', 'a', 'sample' );
+		Jetpack_Options::update_option( 'file_data', $value );
+		Jetpack_Options::delete_option( 'file_data' );
+		$this->assertFalse( Jetpack_Options::get_option( 'file_data' ) );
+	}
+
+	public function test_get_network_option_and_ensure_autoload() {
+		$default = array( 'just', 'a', 'sample' );
+		$value = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_file_data', $default );
+		$this->assertEquals( $default, Jetpack_Options::get_option( 'file_data' ) );
+	}
+
 } // end class
 endif;
