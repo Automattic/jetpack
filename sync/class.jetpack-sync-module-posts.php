@@ -179,7 +179,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		/**
-		 * Filter that is used to not expand some type of shortcodes.
+		 * Filter prevents some shortcodes from expanding.
 		 *
 		 * Since we can can expand some type of shortcode better on the .com side and make the
 		 * expansion more relevant to contexts. For example [galleries] and subscription emails
@@ -241,7 +241,25 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 				if ( $post_ID !== $just_published_post_ID ) {
 					$post = get_post( $just_published_post_ID );
 				}
+
+				/**
+				 * Filter that is used to add to the post flags ( meta data ) when a post gets published
+				 *
+				 * @since 4.4.0
+				 *
+				 * @param mixed array post flags that are added to the post
+				 * @param mixed $post WP_POST object
+				 */
 				$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+
+				/**
+				 * Action that gets synced when a post type gets published.
+				 *
+				 * @since 4.4.0
+				 *
+				 * @param int post_id
+				 * @param mixed array post flags that are added to the post
+				 */
 				do_action( 'jetpack_published_post', $just_published_post_ID, $flags );
 			}
 			$this->just_published = array();
