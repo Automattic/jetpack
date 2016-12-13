@@ -310,7 +310,7 @@ class Jetpack_JITM {
 	 */
 	function backups_updates_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$url = 'https://wordpress.com/plans/' . $normalized_site_url;
+		$url = 'https://jetpack.com/redirect/?source=jitm-backup-updates&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
 		<div class="jp-jitm" data-track="vaultpress-updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
@@ -337,7 +337,7 @@ class Jetpack_JITM {
 	 */
 	function akismet_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$url = 'https://wordpress.com/plans/' . $normalized_site_url;
+		$url = 'https://jetpack.com/redirect/?source=jitm-akismet&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'akismet' ) );
 		?>
 		<div class="jp-jitm" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
@@ -364,7 +364,7 @@ class Jetpack_JITM {
 	 */
 	function backups_after_publish_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$url = 'https://wordpress.com/plans/' . $normalized_site_url;
+		$url = 'https://jetpack.com/redirect/?source=jitm-backup-publish&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
 		<div class="jp-jitm" data-track="vaultpress-publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
