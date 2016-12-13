@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class Shortcode_Unavailable
+ * Class Jetpack_Shortcode_Unavailable
  */
-class Shortcode_Unavailable {
+class Jetpack_Shortcode_Unavailable {
 	/**
 	 * Set up the actions and filters for the class to listen to.
 	 *
@@ -57,6 +57,6 @@ class Shortcode_Unavailable {
 	}
 }
 
-new Shortcode_Unavailable( array(
+new Jetpack_Shortcode_Unavailable( array(
 	'blip.tv' => __( 'The Blip.tv service has been shut down since August 20th, 2015.', 'jetpack' ),
 ) );
