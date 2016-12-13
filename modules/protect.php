@@ -424,12 +424,13 @@ class Jetpack_Protect_Module {
 	 */
 	function check_login_ability( $preauth = false ) {
 		$ip = jetpack_protect_get_ip();
-		
+
 		// Server is misconfigured and we can't get an IP
-		if( ! $ip ) {
-			/*
-				TODO turn off protect / show message
-			*/
+		if ( ! $ip ) {
+			Jetpack::deactivate_module( 'protect' );
+			ob_start();
+			Jetpack::state( 'message', 'protect_misconfigured_ip' );
+			ob_end_clean();
 			return true;
 		}
 		
