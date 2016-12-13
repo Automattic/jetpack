@@ -33,7 +33,7 @@ const PlanHeader = React.createClass( {
 									{ __( "Hackers, botnets and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios we'll be here to help you restore your site to its former glory." ) }
 								</p>
 								<p className="jp-landing-plans__header-btn-container">
-									<Button href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } className="is-primary">
+									<Button href={ 'https://jetpack.com/redirect/?source=plans-main-top&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Learn more...' ) }
 									</Button>
 								</p>

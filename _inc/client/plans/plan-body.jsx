@@ -216,7 +216,7 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
 								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
 								<p>
-									<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
+									<Button href={ 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
 									</Button>
 								</p>
@@ -235,7 +235,7 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
 								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
 								<p>
-									<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
+									<Button href={ 'https://jetpack.com/redirect/?source=plans-compare-premium&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
 									</Button>
 								</p>

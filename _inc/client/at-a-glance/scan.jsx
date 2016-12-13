@@ -97,7 +97,7 @@ const DashScan = React.createClass( {
 				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
 						components: {
-							a: <a href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } target="_blank" />
+							a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + this.props.siteRawUrl } target="_blank" />
 						}
 					} )
 				);
