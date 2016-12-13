@@ -4750,30 +4750,30 @@ p {
 	// Authenticates requests from Jetpack server to WP API endpoints.
 	// Uses the existing XMLRPC oAuth implementation.
 	function wp_rest_authenticate( $error ) {
-
-		// This parameters assume Jetpack is responsible for authentication.
-		if ( isset( $_GET['token'] ) && isset( $_GET['signature'] ) ) {
-			$verified = $this->verify_xml_rpc_signature();
-
-			if ( false === $verified ) {
-				return new WP_Error( 'token_malformed', 'Authorization token is malformed.', 403 );
-			}
-
-			if ( is_wp_error( $verified ) ) {
-				return $verified;
-			}
-
-			if ( isset( $verified['type'] ) && isset( $verified['user_id'] ) && 'user' === $verified['type']  ) {
-				wp_set_current_user( $verified['user_id'] );
-				return null;
-			}
-		}
-
-		if ( $error ) {
+		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
 
-		return null;
+		if ( ! $error && ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
+			return null;
+		}
+
+		$verified = $this->verify_xml_rpc_signature();
+
+		if ( false === $verified ) {
+			return new WP_Error( 'token_malformed', 'Authorization token is malformed.', 403 );
+		}
+
+		if ( is_wp_error( $verified ) ) {
+			return $verified;
+		}
+
+		if ( isset( $verified['type'] ) && isset( $verified['user_id'] ) && 'user' === $verified['type']  ) {
+			wp_set_current_user( $verified['user_id'] );
+			return null;
+		}
+
+		return true;
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
