@@ -363,7 +363,7 @@ class Jetpack_Carousel {
 			$attributes = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
 			foreach( $attributes as $k => $v ) {
-				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '"';
+				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '" ';
 			}
 			$image_html_with_data = str_replace( '<img ', "<img $attributes_html", $image_html );
 			$content = str_replace( $image_html, $image_html_with_data, $content );
