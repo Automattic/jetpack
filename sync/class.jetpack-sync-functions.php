@@ -225,12 +225,7 @@ class Jetpack_Sync_Functions {
 		} else {
 			// Let's get the option from the database so that we can bypass filters. This will help
 			// ensure that we get more uniform values.
-			$value = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1",
-					$option_name
-				)
-			);
+			$value = Jetpack_Sync_Options::get_option( $option_name );
 		}
 
 		if ( is_ssl() ) {
