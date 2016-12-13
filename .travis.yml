@@ -3,6 +3,15 @@
 # Tell Travis CI we're using PHP
 language: php
 
+# We need notifications for successful builds
+notifications:
+  webhooks:
+    urls:
+      - https://betadownload.jetpack.me/travis.php
+    on_success: always
+    on_failure: never
+    on_start: never
+
 # Setup a global environemnt and overide as needed
 env:
   global:
@@ -29,13 +38,13 @@ matrix:
   include:
   - php: "5.6"
     env: WP_TRAVISCI="npm run test-client"
-  - php: "5.6"
-    env: WP_TRAVISCI="npm run test-gui"
-  - php: "5.2"
-  - php: "5.3"
-  - php: "5.5"
-  - php: "5.6"
-  - php: "7.0"
+#  - php: "5.6"
+#    env: WP_TRAVISCI="npm run test-gui"
+#  - php: "5.2"
+#  - php: "5.3"
+#  - php: "5.5"
+#  - php: "5.6"
+#  - php: "7.0"
 #
 #  - php: hhvm
 #    env: WP_VERSION=master
