@@ -94,7 +94,7 @@ const ProStatus = React.createClass( {
 					<Button
 						compact={ true }
 						primary={ true }
-						href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl + '?feature=advanced-seo' }
+						href={ 'https://jetpack.com/redirect/?source=upgrade-seo&site=' + this.props.siteRawUrl + '&feature=advanced-seo' }
 					>
 						{ __( 'Upgrade' ) }
 					</Button>
@@ -110,7 +110,7 @@ const ProStatus = React.createClass( {
 					<Button
 						compact={ true }
 						primary={ true }
-						href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl + '?feature=jetpack-ads' }
+						href={ 'https://jetpack.com/redirect/?source=upgrade-ads&site=' + this.props.siteRawUrl + '&feature=jetpack-ads' }
 					>
 						{ __( 'Upgrade' ) }
 					</Button>
@@ -126,7 +126,7 @@ const ProStatus = React.createClass( {
 					}
 				} else {
 					btnVals = {
-						href: 'https://wordpress.com/plans/' + this.props.siteRawUrl,
+						href: 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl,
 						text: __( 'Upgrade' )
 					}
 				}

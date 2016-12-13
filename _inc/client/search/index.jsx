@@ -164,7 +164,7 @@ export const SearchResults = ( {
 				toggle = <Button
 					compact={ true }
 					primary={ true }
-					href={ 'https://wordpress.com/plans/' + siteRawUrl }
+					href={ 'https://jetpack.com/redirect/?source=upgrade-videopress&site=' + siteRawUrl }
 				>
 					{ __( 'Upgrade' ) }
 				</Button>;
