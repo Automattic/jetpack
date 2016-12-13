@@ -56,13 +56,7 @@ class Jetpack_Tweet {
 			$transient = "jpt_{$attr['tweet']}";
 			if ( false === $cached_url = get_transient( $transient ) ) {
 				$response = wp_remote_get( "https://twitter.com/statuses/{$attr['tweet']}" );
-				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-
-					// Cache for 15 minutes to avoid making the request over and over.
-					set_transient( $transient, '', 60 * 15 );
-					return '';
-				}
-				if ( ! isset( $response['http_response'] ) ) {
+				if ( 200 !== wp_remote_retrieve_response_code( $response ) || ! isset( $response['http_response'] ) ) {
 
 					// Cache for 15 minutes to avoid making the request over and over.
 					set_transient( $transient, '', 60 * 15 );
