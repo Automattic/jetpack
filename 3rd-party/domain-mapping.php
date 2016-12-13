@@ -17,7 +17,7 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	 *
 	 * @var array
 	 */
-	const TEST_METHODS = array(
+	static $test_methods = array(
 		'hook_wordpress_mu_domain_mapping',
 		'hook_wpmu_dev_domain_mapping'
 	);
@@ -31,11 +31,12 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	}
 
 	private function __construct() {
+		error_log( 'domain mapping construct called' );
 		add_action( 'plugins_loaded', array( $this, 'attempt_to_hook_domain_mapping_plugins' ) );
 	}
 
 	/**
-	 * This function is called on the plugins_loaded action and will loop through the TEST_METHODS
+	 * This function is called on the plugins_loaded action and will loop through the $test_methods
 	 * to try and hook a domain mapping plugin to the Jetpack sync filters for the home_url and site_url callables.
 	 */
 	function attempt_to_hook_domain_mapping_plugins() {
@@ -44,9 +45,9 @@ class Jetpack_3rd_Party_Domain_Mapping {
 		}
 
 		$hooked = false;
-		$count = count( self::TEST_METHODS );
+		$count = count( self::$test_methods );
 		for ( $i = 0; $i < $count && ! $hooked; $i++ ) {
-			$hooked = call_user_func( array( $this, self::TEST_METHODS[ $i ] ) );
+			$hooked = call_user_func( array( $this, self::$test_methods[ $i ] ) );
 		}
 	}
 
