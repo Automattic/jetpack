@@ -15,7 +15,7 @@ class Shortcode_Unavailable {
 	 * Set up the actions and filters for the class to listen to.
 	 */
 	public static function add_hooks() {
-		add_action( 'init', array( __CLASS__, 'add_shortcodes' ), 99 );
+		add_action( 'template_redirect', array( __CLASS__, 'add_shortcodes' ) );
 	}
 
 	/**
