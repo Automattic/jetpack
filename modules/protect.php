@@ -426,7 +426,7 @@ class Jetpack_Protect_Module {
 		$ip = jetpack_protect_get_ip();
 
 		// Server is misconfigured and we can't get an IP
-		if ( ! $ip ) {
+		if ( ! $ip && class_exists( 'Jetpack' ) ) {
 			Jetpack::deactivate_module( 'protect' );
 			ob_start();
 			Jetpack::state( 'message', 'protect_misconfigured_ip' );
