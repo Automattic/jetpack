@@ -25,6 +25,10 @@ class Jetpack_Sync_Actions {
 			wp_clear_scheduled_hook( 'jetpack_sync_cron' );
 			wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
 		}
+		if ( is_multisite() ) {
+			add_action( 'jetpack_full_sync_on_multisite_jetpack_upgrade_cron', array( __CLASS__, 'full_sync_on_multisite_jetpack_upgrade' ), 10, 1 );
+		}
+		
 
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'do_full_sync' ), 10, 0 );
@@ -180,25 +184,61 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function do_initial_sync( $new_version = null, $old_version = null ) {
-		$initial_sync_config = array(
+		$initial_sync_config = self::get_update_full_sync_config();
+		$include_users = false;
+		if ( $old_version && ( version_compare( $old_version, '4.2', '<' ) ) ) {
+			$initial_sync_config['users'] = 'initial';
+			$include_users = true;
+		}
+
+		if ( is_multisite()  ) {
+			// stagger initial syncs for multisite blogs so they don't all pile on top of each other
+			if ( is_main_site() ) {
+				wp_schedule_single_event( time() , 'jetpack_full_sync_on_multisite_jetpack_upgrade_cron', array( $include_users ) );
+			}
+		} else {
+			self::do_full_sync( $initial_sync_config );
+		}
+	}
+
+	static function get_update_full_sync_config() {
+		return array(
 			'options' => true,
 			'network_options' => true,
 			'functions' => true,
 			'constants' => true,
 		);
-
-		if ( $old_version && ( version_compare( $old_version, '4.2', '<' ) ) ) {
+	}
+	
+	static function full_sync_on_multisite_jetpack_upgrade( $include_users = false ) {
+		global $wpdb;
+		$initial_sync_config = self::get_update_full_sync_config();
+		if ( $include_users ) {
 			$initial_sync_config['users'] = 'initial';
 		}
 
-		self::do_full_sync( $initial_sync_config );
+		$max_blog_id = 0;
+		$batch_size = 500;
+
+		while( true ) {
+			$site_ids = $wpdb->get_col( "SELECT blog_id FROM {$wpdb->blogs} WHERE site_id = {$wpdb->siteid} AND spam = '0' AND deleted = '0' AND archived = '0' AND blog_id > {$max_blog_id} ORDER BY blog_id ASC LIMIT {$batch_size}" );
+			if ( ! $site_ids ) {
+				break;
+			}
+
+			foreach ( (array) $site_ids as $site_id ) {
+				switch_to_blog( $site_id );
+				self::do_full_sync( $initial_sync_config );
+				restore_current_blog();
+			}
+			$max_blog_id = end( $site_ids );
+		}
 	}
 
 	static function do_full_sync( $modules = null ) {
 		if ( ! self::sync_allowed() ) {
 			return false;
 		}
-
 		self::initialize_listener();
 		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
 

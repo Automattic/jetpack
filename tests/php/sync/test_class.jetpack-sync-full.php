@@ -1083,10 +1083,16 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		);
 
 		$full_sync_status = $this->full_sync->get_status();
-		$this->assertEquals(
-			$expected_sync_config,
-			$full_sync_status[ 'config' ]
-		);
+		if ( is_multisite() ) {
+			$event = wp_next_scheduled( 'jetpack_full_sync_on_multisite_jetpack_upgrade_cron', array( true ) );
+			$this->assertTrue( ! empty( $event ) );
+		} else {
+			$this->assertEquals(
+				$expected_sync_config,
+				$full_sync_status[ 'config' ]
+			);
+		}
+
 	}
 
 	function test_full_sync_enqueues_limited_number_of_items() {
