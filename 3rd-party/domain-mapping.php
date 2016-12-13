@@ -31,7 +31,6 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	}
 
 	private function __construct() {
-		error_log( 'domain mapping construct called' );
 		add_action( 'plugins_loaded', array( $this, 'attempt_to_hook_domain_mapping_plugins' ) );
 	}
 
