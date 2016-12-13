@@ -195,7 +195,7 @@ const JetpackStateNotices = React.createClass( {
 				status = 'is-info';
 				action = (
 					<NoticeAction
-						href="https://jetpack.com/support/protect/"
+						href="https://jetpack.com/support/security/troubleshooting-protect/"
 					>
 						{ __( 'Learn More' ) }
 					</NoticeAction>
