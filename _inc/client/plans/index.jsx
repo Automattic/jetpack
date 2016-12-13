@@ -29,7 +29,7 @@ export const Plans = React.createClass( {
 			<div>
 				<QuerySite />
 				<div className="jp-landing__plans dops-card">
-					<PlanHeader plan={ sitePlan } />
+					<PlanHeader plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } />
 					<PlanBody plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />
 				</div>
 			</div>
