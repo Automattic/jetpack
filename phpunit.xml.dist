@@ -80,6 +80,9 @@
 		<testsuite name="jitm">
 			<file>tests/php/test_class.jetpack-jitm.php</file>
 		</testsuite>
+		<testsuite name="3rd-party">
+			<directory prefix="test_" suffix=".php">tests/php/3rd-party</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>

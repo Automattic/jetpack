@@ -1,62 +1,113 @@
 <?php
 
-if ( Jetpack_Constants::is_defined( 'SUNRISE' ) ) :
+/**
+ * Class Jetpack_3rd_Party_Domain_Mapping
+ *
+ * This class contains methods that are used to provide compatibility between Jetpack sync and domain mapping plugins.
+ */
+class Jetpack_3rd_Party_Domain_Mapping {
 
 	/**
-	 * Class Jetpack_3rd_Party_Domain_Mapping
+	 * @var Jetpack_3rd_Party_Domain_Mapping
+	 **/
+	private static $instance = null;
+
+	/**
+	 * An array of methods that are used to hook the Jetpack sync filters for home_url and site_url to a mapping plugin.
 	 *
-	 * This class contains methods that are used to provide compatibility between Jetpack sync and domain mapping plugins.
+	 * @var array
 	 */
-	class Jetpack_3rd_Party_Domain_Mapping {
+	const TEST_METHODS = array(
+		'hook_wordpress_mu_domain_mapping',
+		'hook_wpmu_dev_domain_mapping'
+	);
 
-		/**
-		 * This method will test for a constant and function that are known to be used with Donncha's WordPress MU
-		 * Domain Mapping plugin. If conditions are met, we hook the domain_mapping_siteurl() function to Jetpack sync
-		 * filters for home_url and site_url callables.
-		 *
-		 * @return bool
-		 */
-		static function hook_wordpress_mu_domain_mapping() {
-			if ( ! Jetpack_Constants::is_defined( 'DOMAIN_MAPPING' ) || function_exists( 'domain_mapping_siteurl' ) ) {
-				return false;
-			}
-
-			add_filter( 'jetpack_sync_home_url', 'domain_mapping_siteurl' );
-			add_filter( 'jetpack_sync_site_url', 'domain_mapping_siteurl' );
-
-			return true;
+	static function init() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new Jetpack_3rd_Party_Domain_Mapping;
 		}
 
-		/**
-		 * This method will test for a class and method known to be used in WPMU Dev's domain mapping plugin. If the
-		 * method exists, then we'll hook the swap_to_mapped_url() to our Jetpack sync fitlers for home_url and site_url.
-		 *
-		 * @return bool
-		 */
-		static function hook_wpmu_dev_domain_mapping() {
-			if ( ! class_exists( 'domain_map' ) || ! method_exists( 'domain_map', 'utils' ) ) {
-				return false;
-			}
+		return self::$instance;
+	}
 
-			$utils = domain_map::utils();
-			add_filter( 'jetpack_sync_home_url', array( $utils, 'swap_to_mapped_url' ) );
-			add_filter( 'jetpack_sync_site_url', array( $utils, 'swap_to_mapped_url' ) );
+	private function __construct() {
+		add_action( 'plugins_loaded', array( $this, 'attempt_to_hook_domain_mapping_plugins' ) );
+	}
 
-			return true;
+	/**
+	 * This function is called on the plugins_loaded action and will loop through the TEST_METHODS
+	 * to try and hook a domain mapping plugin to the Jetpack sync filters for the home_url and site_url callables.
+	 */
+	function attempt_to_hook_domain_mapping_plugins() {
+		if ( ! Jetpack_Constants::is_defined( 'SUNRISE' ) ) {
+			return;
+		}
+
+		$hooked = false;
+		$count = count( self::TEST_METHODS );
+		for ( $i = 0; $i < $count && ! $hooked; $i++ ) {
+			$hooked = call_user_func( array( $this, self::TEST_METHODS[ $i ] ) );
 		}
 	}
 
 	/**
-	 * This function is called on the plugins_loaded action and will loop through the methods of
-	 * Jetpack_3rd_Party_Domain_Mapping to try and hook a domain mapping plugin to the Jetpack sync
-	 * filters for the home_url and site_url callables.
+	 * This method will test for a constant and function that are known to be used with Donncha's WordPress MU
+	 * Domain Mapping plugin. If conditions are met, we hook the domain_mapping_siteurl() function to Jetpack sync
+	 * filters for home_url and site_url callables.
+	 *
+	 * @return bool
 	 */
-	function jetpack_domain_mapping_hook_compatible_plugins() {
-		$methods = get_class_methods( 'Jetpack_3rd_Party_Domain_Mapping' );
-		do {
-			$method = array_pop( $methods );
-			$hooked = call_user_func( 'Jetpack_3rd_Party_Domain_Mapping', $method );
-		} while( ! $hooked && ! empty( $methods ) );
+	function hook_wordpress_mu_domain_mapping() {
+		if ( ! Jetpack_Constants::is_defined( 'DOMAIN_MAPPING' ) || ! $this->function_exists( 'domain_mapping_siteurl' ) ) {
+			return false;
+		}
+
+		add_filter( 'jetpack_sync_home_url', 'domain_mapping_siteurl' );
+		add_filter( 'jetpack_sync_site_url', 'domain_mapping_siteurl' );
+
+		return true;
 	}
-	add_action( 'plugins_loaded', 'jetpack_domain_mapping_hook_compatible_plugins' );
-endif;
+
+	/**
+	 * This method will test for a class and method known to be used in WPMU Dev's domain mapping plugin. If the
+	 * method exists, then we'll hook the swap_to_mapped_url() to our Jetpack sync filters for home_url and site_url.
+	 *
+	 * @return bool
+	 */
+	function hook_wpmu_dev_domain_mapping() {
+		if ( ! $this->class_exists( 'domain_map' ) || ! $this->method_exists( 'domain_map', 'utils' ) ) {
+			return false;
+		}
+
+		$utils = $this->get_domain_mapping_utils_instance();
+		add_filter( 'jetpack_sync_home_url', array( $utils, 'swap_to_mapped_url' ) );
+		add_filter( 'jetpack_sync_site_url', array( $utils, 'swap_to_mapped_url' ) );
+
+		return true;
+	}
+
+	/*
+	 * Utility Methods
+	 *
+	 * These methods are very minimal, and in most cases, simply pass on arguments. Why create them you ask?
+	 * So that we can test.
+	 */
+
+	public function method_exists( $class, $method ) {
+		return method_exists( $class, $method );
+	}
+
+	public function class_exists( $class ) {
+		return class_exists( $class );
+	}
+
+	public function function_exists( $function ) {
+		return function_exists( $function );
+	}
+
+	public function get_domain_mapping_utils_instance() {
+		return domain_map::utils();
+	}
+}
+
+Jetpack_3rd_Party_Domain_Mapping::init();
