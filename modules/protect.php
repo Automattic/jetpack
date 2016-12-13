@@ -425,6 +425,14 @@ class Jetpack_Protect_Module {
 	function check_login_ability( $preauth = false ) {
 		$ip = jetpack_protect_get_ip();
 		
+		// Server is misconfigured and we can't get an IP
+		if( ! $ip ) {
+			/*
+				TODO turn off protect / show message
+			*/
+			return true;
+		}
+		
 		/**
 		 * Short-circuit check_login_ability. 
 		 *
