@@ -1,31 +1,28 @@
 <?php
 
 /**
- * An associative array of keys being the shortcodes that are unavailable, and a string explaining why.
- */
-$GLOBALS['jetpack_unavailable_shortcodes'] = array(
-	'blip.tv' => __( 'The Blip.tv service has been shut down since August 20th, 2015.', 'jetpack' ),
-);
-
-/**
  * Class Shortcode_Unavailable
  */
 class Shortcode_Unavailable {
 	/**
 	 * Set up the actions and filters for the class to listen to.
+	 *
+	 * @param array $shortcodes An associative array of keys being the shortcodes that are unavailable, and a string explaining why.
 	 */
-	public static function add_hooks() {
-		add_action( 'template_redirect', array( __CLASS__, 'add_shortcodes' ) );
+	public function __construct( $shortcodes ) {
+		$this->shortcodes = $shortcodes;
+
+		add_action( 'template_redirect', array( $this, 'add_shortcodes' ) );
 	}
 
 	/**
 	 * For all of our defined unavailable shortcodes, if something else hasn't
 	 * already claimed them, add a handler to nullify their output.
 	 */
-	public static function add_shortcodes() {
-		foreach ( $GLOBALS['jetpack_unavailable_shortcodes'] as $shortcode => $message ) {
+	public function add_shortcodes() {
+		foreach ( $this->shortcodes as $shortcode => $message ) {
 			if ( ! shortcode_exists( $shortcode ) ) {
-				add_shortcode( $shortcode, array( __CLASS__, 'stub_shortcode' ) );
+				add_shortcode( $shortcode, array( $this, 'stub_shortcode' ) );
 			}
 		}
 	}
@@ -39,10 +36,10 @@ class Shortcode_Unavailable {
 	 * @param string $shortcode
 	 * @return mixed|void
 	 */
-	public static function stub_shortcode( $atts, $content = '', $shortcode = '' ) {
+	public function stub_shortcode( $atts, $content = '', $shortcode = '' ) {
 		$str = '';
-		if ( current_user_can( 'edit_posts' ) && ! empty( $GLOBALS['jetpack_unavailable_shortcodes'][ $shortcode ] ) ) {
-			$str = sprintf( '<div><strong>%s</strong></div>', $GLOBALS['jetpack_unavailable_shortcodes'][ $shortcode ] );
+		if ( current_user_can( 'edit_posts' ) && ! empty( $this->shortcodes[ $shortcode ] ) ) {
+			$str = sprintf( '<div><strong>%s</strong></div>', $this->shortcodes[ $shortcode ] );
 		}
 		/**
 		 * Filter the front-end output of unavailable shortcodes.
@@ -60,4 +57,6 @@ class Shortcode_Unavailable {
 	}
 }
 
-Shortcode_Unavailable::add_hooks();
+new Shortcode_Unavailable( array(
+	'blip.tv' => __( 'The Blip.tv service has been shut down since August 20th, 2015.', 'jetpack' ),
+) );
