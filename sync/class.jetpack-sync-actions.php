@@ -10,7 +10,7 @@ class Jetpack_Sync_Actions {
 	static $sender = null;
 	static $listener = null;
 	const DEFAULT_SYNC_CRON_INTERVAL_NAME = 'jetpack_sync_interval';
-	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
+	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 600; // 10 * MINUTE_IN_SECONDS;
 
 	static function init() {
 
@@ -54,7 +54,7 @@ class Jetpack_Sync_Actions {
 			self::initialize_listener();
 		}
 		
-		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
+		add_action( 'plugins_loaded', array( __CLASS__, 'add_sender_shutdown' ), 90 );
 
 	}
 
@@ -317,13 +317,16 @@ class Jetpack_Sync_Actions {
 		}
 		$schedule = self::sanitize_filtered_sync_cron_schedule( $schedule );
 
+		// stagged the schedule time by some random fraction of the schedule interval
+		// so that on multisites with strong scheduling we don't DOS ourselves.
+		$schedule_time = time() + rand( 0, self::DEFAULT_SYNC_CRON_INTERVAL_VALUE );
 		if ( ! wp_next_scheduled( $hook ) ) {
 			// Schedule a job to send pending queue items once a minute
-			wp_schedule_event( time(), $schedule, $hook );
+			wp_schedule_event( $schedule_time, $schedule, $hook );
 		} else if ( $schedule != wp_get_schedule( $hook ) ) {
 			// If the schedule has changed, update the schedule
 			wp_clear_scheduled_hook( $hook );
-			wp_schedule_event( time(), $schedule, $hook );
+			wp_schedule_event( $schedule_time, $schedule, $hook );
 		}
 	}
 
