@@ -1,5 +1,5 @@
-=== Plugin Name ===
-Contributors: lamosty, obenland
+=== WordPress.com Site Helper ===
+Contributors: lamosty, obenland, automattic
 Tags: WordPress.com
 Requires at least: 4.7
 Tested up to: 4.7
