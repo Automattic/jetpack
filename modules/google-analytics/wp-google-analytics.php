@@ -1,6 +1,4 @@
 <?php
-define( 'JETPACK_WGA_VERSION', '1.4.0' );
-
 /*
 		Copyright 2006  Aaron D. Campbell  (email : wp_plugins@xavisys.com)
 
