@@ -84,6 +84,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Custom Content Types: avoid PHP warnings in the Restaurant Menu Post type. #5777
 * General: fix a bug that would display the wrong connected user for up to 24 hours after they disconnect. #5835
+* JSON API: allow creating a child category from WordPress.com. #5856
 * Sharing: ReCaptcha error fix for the Email sharing button. #5548
 * Shortcodes: add several new shortcodes. #5838
 * Shorcodes: remove the blip.tv shortcode, as the service is now extinct. #5853
