@@ -3,19 +3,22 @@
 Jetpack 4.5 is packed with new things and improvements for your favorite modules! We also have some new features that we're very excited about. We're looking forward to getting your feedback on the following things:
 
 ### Carousel Lightbox for Single Images
+
 When Carousel is active, a single image that is linked to the attachment image should open in a lightbox.
-Make sure that regular Caoursel gallery lightboxes work as expected.
+Make sure that regular Carousel gallery lightboxes work as expected.
 With Carousel disabled Attachment Page should be open instead of Lightbox
 Image linking to Custom URL should open that URL
 Image linking to Media File should open that Media File
 Navigating directly to Lightbox view (URL with hash e.g. #jp-carousel-31) should go to the post with the Lightbox open
 This behavior should be correct for:
+
 - Post with single image only
 - Post with gallery
 - Post with multiple galleries and single images
 - Multiple post view (e.g. home page)
 
 ### VideoPress Integration
+
 **VideoPress, our Premium video offering, has been completely redesigned to be fully integrated into your Media Library.** It's now easier to upload videos and insert them into your posts and pages.
 We've also improved our Open Graph Meta Tags to make sure VideoPress videos can be embedded in your Facebook Posts.
 
@@ -30,61 +33,43 @@ Once the module is active, you can try the following:
 3. A few minutes after the upload, the video's meta data should be updated (as transcoding finishes), and you can view and edit that meta data from the edit media page in the Media Library.
 4. You should be able to insert those videos into any post or page.
 
-### Ads (formerly WordAds on wordpress.com)
+### Ads (formerly WordAds on WordPress.com)
+
 To test this feature, you'll need to use [Jetpack Premium or Jetpack Professional](https://jetpack.com/features/)
 
 Premium and Professional Jetpack plans will allow you to display ads on your site which can make you real money.
 To test, upgrade to a Premium/Pro Jetpack plan and head over to your Jetpack settings Engagement tab and activate the Ads module.
 By default, you will start seeing ads on the bottom of your posts.
-You will also see a new Ads widget that you can dispaly in the sidebar of your theme.
+You will also see a new Ads widget that you can display in the sidebar of your theme.
 There is an option in the settings card that will allow you to display ads in the header of your site as well.
 
-### Contact Form Custom Values for Fields
-You can now set custom fields for the fields of your form.  The value still defaults to the option name if none is set, as it did in prior versions.
-Example usage:
-[contact-form]
-[contact-field label='dropdown' type='select' options='dropdown 1, dropdown 2' values='d1,d2'/]
-[contact-field label='Radio' type='radio' options='Radio 1,Radio 2' values='r1,r2'/]
-[contact-field label='Checkbox' type='checkbox-multiple' options='Checkbox 1,Checkbox 2' values='c1,c2'/]
-[/contact-form]
+### Shortcodes
 
-Applying those values, you should see the values in the fields when you inspect them on the front end.
+We ported existing shortcodes from WordPress.com to Jetpack. Give them a try in a few test posts, and make sure they're rendered properly:
 
-### New Widget: Follow Button
-This is a new widget that came from wordpress.com to allow people to follow your site from a widget.
-Add the widget, and have someone follow you!
+- [`[spotify]`](https://en.support.wordpress.com/audio/spotify/)
+- `[tweet]` to insert specific tweets in your posts, like so: `[tweet tweet="https://twitter.com/jack/statuses/20" align="left" width="350" align="center" lang="es"]`
+- [`[googleapps]`](https://en.support.wordpress.com/google-docs/)
+- `[brightcove]` to embed [Brightcode videos](ttps://support.brightcove.com/en/video-cloud/docs).
+- `[getty]` to insert images, like so: `[getty src="82278805" width="400" height="200"]`
+- [Archive.org videos](http://support.wordpress.com/videos/the-internet-archive/) and books, thanks to the `[archiveorg-book]` shortcode: `[archiveorg-book goodytwoshoes00newyiala]`
+- [`[hulu]`](https://en.support.wordpress.com/videos/hulu/)
+- [`[kickstarter]`](https://en.support.wordpress.com/videos/kickstarter/)
+- [`[gravatar]`](https://en.support.wordpress.com/gravatar-shortcode/)
+- [`[quiz]`](https://en.support.wordpress.com/quiz-shortcode/)
+- [`[sitemap]`](https://en.support.wordpress.com/sitemaps/shortcode/)
+- [`[lytro]`](https://en.support.wordpress.com/lytro/)
+- [Mailchimp Popup forms](https://en.support.wordpress.com/mailchimp/)
+- [`[ustream]`](http://support.wordpress.com/videos/ustream-tv/)
 
-### New Widget: Authors
-This widget allows you to display your authors on the front end of your site.
-Note: it does not come with much styling, so it is up to the theme/user to style as desired.
+### Widgets
 
-### New Widget: Blog Stats
-This simple widget will display the page views on the front end of your site.
-Add it and watch the count grow!
+We've added quite a few new widgets, so make sure you try them all:
 
-### New Widget: Milestone
-With this widget you can display a countdown to an upcoming event or milestone that you set. Set the date/time/name of the event, and check it out in your sidebar.
-
-### Lots of new shortcodes from wordpress.com
-Check out all these new shortcodes available! Follow the links for descriptions on how to use
-
-[spotify](https://en.support.wordpress.com/audio/spotify/)
-[tweet]
-[googleapps](https://en.support.wordpress.com/google-docs/)
-[brightcove]
-[getty]
-[archiveorg](http://support.wordpress.com/videos/the-internet-archive/)
-[archiveorg-book]
-[hulu](https://en.support.wordpress.com/videos/hulu/)
-[kickstarter](https://en.support.wordpress.com/videos/kickstarter/)
-[gravatar](https://en.support.wordpress.com/gravatar-shortcode/)
-[gravatar_profile]
-[quiz](https://en.support.wordpress.com/quiz-shortcode/)
-[sitemap](https://en.support.wordpress.com/sitemaps/shortcode/)
-[lytro](https://en.support.wordpress.com/lytro/)
-[mailchip_subscriber_popup]
-[ustream](http://support.wordpress.com/videos/ustream-tv/)
-[ustreamsocial]
+- **Follow Button**: allow people to follow your site from a widget.
+- **Authors**: display your authors on the front end of your site. *Note: it does not come with much styling, so it is up to the theme/user to style as desired.*
+- **Blog Stats**: A simple stat counter that will display the page views on the front end of your site.
+- **Milestone**: display a countdown to an upcoming event or milestone that you set.
 
 ### Related Posts in the Customizer
 You can now preview the Related Posts settings in the Customizer before you save. In Jetpack admin screen, go to Settings > Engagement and activate Related Posts if it's not already active.
@@ -96,6 +81,7 @@ If you launch the Customizer from Appearance > Customize, the Related Posts pane
 This implementation leverages Customizer's Selective Refresh, so if you're using a theme like TwentySixteen that takes advantage of it, you should see only the Related Posts portion refreshing, not the entire page.
 
 ### Final Notes
+
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
 
 To open the Console in Chrome or Firefox, you can press CMD+Alt+i in macOS or F12 in Windows.
