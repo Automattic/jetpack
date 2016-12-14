@@ -9,6 +9,7 @@
 
 require_once( 'constants.php' );
 require_once( 'functions.php' );
+require_once( 'footer-credit/footer-credit.php' );
 
 function wpcomsh_register_theme_hooks() {
 	add_filter(
