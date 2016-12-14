@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 4.4.1
-Requires at least: 4.5
-Tested up to: 4.6.1
+Stable tag: 4.4.2
+Requires at least: 4.6
+Tested up to: 4.7
 
 Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
 
@@ -75,9 +75,43 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.4.2 =
+
+* Release date:
+* Release post:
+
+**Bug Fixes**
+
+* Custom Content Types: avoid PHP warnings in the Restaurant Menu Post type. #5777
+* General: fix a bug that would display the wrong connected user for up to 24 hours after they disconnect. #5835
+* JSON API: allow creating a child category from WordPress.com. #5856
+* Sharing: ReCaptcha error fix for the Email sharing button. #5548
+* Shortcodes: add several new shortcodes. #5838
+* Shorcodes: remove the blip.tv shortcode, as the service is now extinct. #5853
+* Widget Visibility: allow display of empty categories in the dropdowns. #5770
+
+**Improved Compatibility:**
+
+* WPML: fixed the loading of the compatibility file for WPML so it loads at the right time. #5588
+* Sync: further improve Jetpack's synchronization process to support more plugins. #5671
+
+**Enhancements**
+
+* Carousel: add Carousel view for single images. #5469
+* Contact Form: allow site owners to set value for each option field via the shortcode. #5351
+* JSON API: allow updating translations from the API. #5552, #5594
+* JSON API: allow alternative theme installation methods via the API. #5704
+* Monitor: email checkbox with a link to manage settings on WordPress.com. #5751
+* Related Posts: allow updating Related Posts options from the customizer. #4293
+* Related Posts: add a filter allowing site owners to customize the output of the Related Posts headline. #5740
+* Theme Tools: add new Content Options to the customizer for supported themes. #5825
+* Widgets: add Blog Stats, Authors, Follow, Milestone. #5497, #5511, #5615
+* Widgets: add Tumblr and Twitch to Social Media Icons Widget. #5777, #5799
+
 = 4.4.1 =
 
 * Release date: November 22, 2016
+* Release post: http://wp.me/p1moTy-3JR
 
 **Bug Fixes**
 
