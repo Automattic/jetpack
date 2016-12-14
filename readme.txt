@@ -75,6 +75,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.4.2 =
+
+* Release date:
+* Release post:
+
+**Bug Fixes**
+
+*
+
+**Enhancements**
+
+* Carousel: add Carousel view for single images. #5469
+
 = 4.4.1 =
 
 * Release date: November 22, 2016
