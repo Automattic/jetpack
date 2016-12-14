@@ -78,6 +78,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 4.4.1 =
 
 * Release date: November 22, 2016
+* Release post: http://wp.me/p1moTy-3JR
 
 **Bug Fixes**
 
