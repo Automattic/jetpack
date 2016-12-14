@@ -1,6 +1,6 @@
-=== WordPress.com Site Helper ===
+=== WP.com Site Helper ===
 Contributors: lamosty, obenland, automattic
-Tags: WordPress.com
+Tags: WP.com
 Requires at least: 4.7
 Tested up to: 4.7
 Stable tag: trunk
