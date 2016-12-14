@@ -11,7 +11,7 @@
  * @param string $theme_slug Slug of an installed theme.
  * @return bool              Whether the passed in theme is a WPCom one.
  */
-function jetpress_is_maybe_wpcom_theme( $theme_slug ) {
+function wpcomsh_is_maybe_wpcom_theme( $theme_slug ) {
 	return substr( $theme_slug, -6 ) === '-wpcom';
 }
 
@@ -21,9 +21,9 @@ function jetpress_is_maybe_wpcom_theme( $theme_slug ) {
  * @param string $theme_slug Theme slug.
  * @return bool
  */
-function jetpress_is_wpcom_theme( $theme_slug ) {
-	return jetpress_is_wpcom_premium_theme( $theme_slug ) ||
-		   jetpress_is_wpcom_pub_theme( $theme_slug );
+function wpcomsh_is_wpcom_theme( $theme_slug ) {
+	return wpcomsh_is_wpcom_premium_theme( $theme_slug ) ||
+		   wpcomsh_is_wpcom_pub_theme( $theme_slug );
 }
 
 /**
@@ -32,20 +32,20 @@ function jetpress_is_wpcom_theme( $theme_slug ) {
  * @param string $theme_slug Theme slug.
  * @return bool
  */
-function jetpress_is_wpcom_premium_theme( $theme_slug ) {
+function wpcomsh_is_wpcom_premium_theme( $theme_slug ) {
 	if (
-		! defined( 'JETPRESS_WPCOM_PREMIUM_THEMES_PATH' ) ||
-		! file_exists( JETPRESS_WPCOM_PREMIUM_THEMES_PATH )
+		! defined( 'WPCOMSH_WPCOM_PREMIUM_THEMES_PATH' ) ||
+		! file_exists( WPCOMSH_WPCOM_PREMIUM_THEMES_PATH )
 	) {
 		error_log(
-			"Jetpress: WPCom premium themes folder couldn't be located. " .
-			"Check whether the " . JETPRESS_WPCOM_PREMIUM_THEMES_PATH . " constant points to the correct directory."
+			"WPComSH: WPCom premium themes folder couldn't be located. " .
+			"Check whether the " . WPCOMSH_WPCOM_PREMIUM_THEMES_PATH . " constant points to the correct directory."
 		);
 
 		return false;
 	}
 
-	return file_exists( JETPRESS_WPCOM_PREMIUM_THEMES_PATH . "/${theme_slug}" );
+	return file_exists( WPCOMSH_WPCOM_PREMIUM_THEMES_PATH . "/${theme_slug}" );
 }
 
 /**
@@ -54,20 +54,20 @@ function jetpress_is_wpcom_premium_theme( $theme_slug ) {
  * @param string $theme_slug Theme slug.
  * @return bool
  */
-function jetpress_is_wpcom_pub_theme( $theme_slug ) {
+function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
 	if (
-		! defined( 'JETPRESS_WPCOM_PUB_THEMES_PATH' ) ||
-		! file_exists( JETPRESS_WPCOM_PUB_THEMES_PATH )
+		! defined( 'WPCOMSH_WPCOM_PUB_THEMES_PATH' ) ||
+		! file_exists( WPCOMSH_WPCOM_PUB_THEMES_PATH )
 	) {
 		error_log(
-			"Jetpress: WPCom pub themes folder couldn't be located. " .
-			"Check whether the " . JETPRESS_WPCOM_PUB_THEMES_PATH . " constant points to the correct directory."
+			"WPComSH: WPCom pub themes folder couldn't be located. " .
+			"Check whether the " . WPCOMSH_WPCOM_PUB_THEMES_PATH . " constant points to the correct directory."
 		);
 
 		return false;
 	}
 
-	return file_exists( JETPRESS_WPCOM_PUB_THEMES_PATH . "/${theme_slug}" );
+	return file_exists( WPCOMSH_WPCOM_PUB_THEMES_PATH . "/${theme_slug}" );
 }
 
 /**
@@ -77,13 +77,13 @@ function jetpress_is_wpcom_pub_theme( $theme_slug ) {
  * @param string $theme_type
  * @return bool|WP_Error
  */
-function jetpress_symlink_theme( $theme_slug, $theme_type ) {
+function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	$themes_source_path = '';
 
-	if ( JETPRESS_WPCOM_PUB_THEME_TYPE === $theme_type ) {
-		$themes_source_path = JETPRESS_WPCOM_PUB_THEMES_PATH;
-	} elseif ( JETPRESS_WPCOM_PREMIUM_THEME_TYPE === $theme_type ) {
-		$themes_source_path = JETPRESS_WPCOM_PREMIUM_THEMES_PATH;
+	if ( WPCOMSH_WPCOM_PUB_THEME_TYPE === $theme_type ) {
+		$themes_source_path = WPCOMSH_WPCOM_PUB_THEMES_PATH;
+	} elseif ( WPCOMSH_WPCOM_PREMIUM_THEME_TYPE === $theme_type ) {
+		$themes_source_path = WPCOMSH_WPCOM_PREMIUM_THEMES_PATH;
 	}
 
 	$abs_theme_path = $themes_source_path . '/' . $theme_slug;
@@ -92,16 +92,16 @@ function jetpress_symlink_theme( $theme_slug, $theme_type ) {
 	if ( ! file_exists( $abs_theme_path ) ) {
 		$error_message = "Source theme directory doesn't exists at: ${abs_theme_path}";
 
-		error_log( 'Jetpress: ' . $error_message );
+		error_log( 'WPComSH: ' . $error_message );
 
 		return new WP_Error( 'error_symlinking_theme', $error_message );
 	}
 
 	if ( ! symlink( $abs_theme_path, $abs_theme_symlink_path ) ) {
 		$error_message = "Can't symlink theme with slug: ${theme_slug}." .
-						 "Make sure it exists in the " . JETPRESS_WPCOM_PREMIUM_THEMES_PATH . " directory.";
+						 "Make sure it exists in the " . WPCOMSH_WPCOM_PREMIUM_THEMES_PATH . " directory.";
 
-		error_log( 'Jetpress: ' . $error_message );
+		error_log( 'WPComSH: ' . $error_message );
 
 		return new WP_Error( 'error_symlinking_theme', $error_message );
 	}
@@ -115,7 +115,7 @@ function jetpress_symlink_theme( $theme_slug, $theme_type ) {
  * @param string $theme_slug Optional. Slug of the theme to delete cache for.
  *                           Default: Current theme.
  */
-function jetpress_delete_theme_cache( $theme_slug = null ) {
+function wpcomsh_delete_theme_cache( $theme_slug = null ) {
 	$theme = wp_get_theme( $theme_slug );
 
 	if ( $theme instanceof WP_Theme) {
@@ -129,7 +129,7 @@ function jetpress_delete_theme_cache( $theme_slug = null ) {
  * @param string $theme_slug The slug of a theme.
  * @return bool Whether a theme is symlinked in the themes' directory.
  */
-function jetpress_is_theme_symlinked( $theme_slug ) {
+function wpcomsh_is_theme_symlinked( $theme_slug ) {
 	$theme_root  = get_theme_root();
 	$theme_dir   = "$theme_root/$theme_slug";
 	$site_themes = scandir( $theme_root );
@@ -143,7 +143,7 @@ function jetpress_is_theme_symlinked( $theme_slug ) {
  * @param string $theme_slug The slug of a theme.
  * @return bool|WP_Error True on success, WP_Error on error.
  */
-function jetpress_delete_symlinked_theme( $theme_slug ) {
+function wpcomsh_delete_symlinked_theme( $theme_slug ) {
 	$theme_dir = get_theme_root() . "/$theme_slug";
 
 	if ( file_exists( $theme_dir ) && is_link( $theme_dir ) ) {
@@ -153,7 +153,7 @@ function jetpress_delete_symlinked_theme( $theme_slug ) {
 	}
 
 	error_log(
-		"Jetpress: Can't delete the specified symlinked theme: the path or symlink doesn't exist."
+		"WPComSH: Can't delete the specified symlinked theme: the path or symlink doesn't exist."
 	);
 
 	return new WP_Error(
@@ -168,11 +168,11 @@ function jetpress_delete_symlinked_theme( $theme_slug ) {
  * @param string $theme_slug The slug of a theme.
  * @return false|string Theme type or false if not a wpcom theme.
  */
-function jetpress_get_wpcom_theme_type( $theme_slug ) {
-	if ( jetpress_is_wpcom_premium_theme( $theme_slug ) ) {
-		return JETPRESS_WPCOM_PREMIUM_THEME_TYPE;
-	} elseif ( jetpress_is_wpcom_pub_theme( $theme_slug ) ) {
-		return JETPRESS_WPCOM_PUB_THEME_TYPE;
+function wpcomsh_get_wpcom_theme_type( $theme_slug ) {
+	if ( wpcomsh_is_wpcom_premium_theme( $theme_slug ) ) {
+		return WPCOMSH_WPCOM_PREMIUM_THEME_TYPE;
+	} elseif ( wpcomsh_is_wpcom_pub_theme( $theme_slug ) ) {
+		return WPCOMSH_WPCOM_PUB_THEME_TYPE;
 	}
 
 	return false;
@@ -184,7 +184,7 @@ function jetpress_get_wpcom_theme_type( $theme_slug ) {
  * @param string $theme_slug Slug of the theme to check. Default: Active theme.
  * @return bool
  */
-function jetpress_is_wpcom_child_theme( $theme_slug = null ) {
+function wpcomsh_is_wpcom_child_theme( $theme_slug = null ) {
 	$theme = wp_get_theme( $theme_slug );
 
 	return $theme->get_stylesheet() !== $theme->get_template();
@@ -196,32 +196,32 @@ function jetpress_is_wpcom_child_theme( $theme_slug = null ) {
  * @param string $stylesheet Theme slug.
  * @return bool|WP_Error
  */
-function jetpress_symlink_parent_theme( $stylesheet ) {
+function wpcomsh_symlink_parent_theme( $stylesheet ) {
 	$theme    = wp_get_theme( $stylesheet );
 	$template = $theme->get_template();
 
 	if ( $template === $stylesheet ) {
-		error_log( "Jetpress: Can't symlink parent theme. Current theme is not a child theme." );
+		error_log( "WPComSH: Can't symlink parent theme. Current theme is not a child theme." );
 
 		return false;
 	}
 
-	error_log( 'Jetpress: Symlinking parent theme.' );
+	error_log( 'WPComSH: Symlinking parent theme.' );
 
-	return jetpress_symlink_theme( $template, jetpress_get_wpcom_theme_type( $template ) );
+	return wpcomsh_symlink_theme( $template, wpcomsh_get_wpcom_theme_type( $template ) );
 }
 
-function jetpress_delete_symlinked_parent_theme( $stylesheet ) {
+function wpcomsh_delete_symlinked_parent_theme( $stylesheet ) {
 	$theme    = wp_get_theme( $stylesheet );
 	$template = $theme->get_template();
 
 	if ( $template === $stylesheet ) {
-		error_log( "Jetpress: Can't unsymlink parent theme. $stylesheet is not a child theme." );
+		error_log( "WPComSH: Can't unsymlink parent theme. $stylesheet is not a child theme." );
 
 		return false;
 	}
 
-	error_log( 'Jetpress: Unsymlinking parent theme.' );
+	error_log( 'WPComSH: Unsymlinking parent theme.' );
 
-	return jetpress_delete_symlinked_theme( $template );
+	return wpcomsh_delete_symlinked_theme( $template );
 }
