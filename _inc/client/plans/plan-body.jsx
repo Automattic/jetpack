@@ -136,7 +136,11 @@ const PlanBody = React.createClass( {
 										</Button>
 									)
 										: (
-										<Button href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/engagement' } className="is-primary">
+										<Button
+											onClick={ this.props.activateModule.bind( null, 'wordads' ) }
+											className="is-primary"
+											disabled={ this.props.isActivatingModule( 'wordads' ) }
+										>
 											{ __( 'Activate Ads' ) }
 										</Button>
 									)
@@ -157,7 +161,11 @@ const PlanBody = React.createClass( {
 										</Button>
 									)
 										: (
-										<Button href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/writing' } className="is-primary">
+										<Button
+											onClick={ this.props.activateModule.bind( null, 'videopress' ) }
+											className="is-primary"
+											disabled={ this.props.isActivatingModule( 'videopress' ) }
+										>
 											{ __( 'Activate VideoPress' ) }
 										</Button>
 									)
@@ -178,7 +186,11 @@ const PlanBody = React.createClass( {
 										</Button>
 									)
 										: (
-										<Button href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/writing' } className="is-primary">
+										<Button
+											onClick={ this.props.activateModule.bind( null, 'videopress' ) }
+											className="is-primary"
+											disabled={ this.props.isActivatingModule( 'videopress' ) }
+										>
 											{ __( 'Activate VideoPress' ) }
 										</Button>
 									)
