@@ -84,6 +84,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Sharing: ReCaptcha error fix for the Email sharing button. #5548
 
+**Improved Compatibility:**
+
+* WPML: fixed the loading of the compatibility file for WPML so it loads at the right time. #5588
+
 **Enhancements**
 
 * Carousel: add Carousel view for single images. #5469
