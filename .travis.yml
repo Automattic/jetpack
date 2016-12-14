@@ -84,7 +84,10 @@ script:
 
 sudo: false
 
+# We need notifications for successful builds
+
 notifications:
+   webhooks: https://betadownload.jetpack.me/travis.php
    email:
        - enej.bajgoric@automattic.com
        - georgestephanis@automattic.com
