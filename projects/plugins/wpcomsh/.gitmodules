@@ -1,0 +1,3 @@
+[submodule "footer-credit"]
+	path = footer-credit
+	url = git@github.com:Automattic/at-pressable-footer-credit.git
