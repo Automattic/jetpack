@@ -53,8 +53,8 @@ if [[ $ADD_BETA_VERSION -eq 1 ]]; then
     echo "Now at version $CURRENT_VERSION!"
 fi
 
-yarn
-yarn build-production
+yarn --modules-folder=$TARGET_DIR/node_modules
+NODE_ENV=production BABEL_ENV=production $TARGET_DIR/node_modules/.bin/gulp
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
 # check .git
