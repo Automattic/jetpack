@@ -92,6 +92,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Carousel: add Carousel view for single images. #5469
 * JSON API: allow updating translations from the API. #5552, #5594
+* Related Posts: allow updating Related Posts options from the customizer. #4293
 * Widgets: add Blog Stats, Authors, Follow, Milestone. #5497, #5511, #5615
 
 = 4.4.1 =
