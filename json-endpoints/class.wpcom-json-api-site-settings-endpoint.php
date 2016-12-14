@@ -199,7 +199,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
 					'lang_id'                 => get_option( 'lang_id' ),
-					'wga'                     => get_option( 'wga' ),
+					'wga'                     => $this->get_google_analytics(),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
 					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
 					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
@@ -266,6 +266,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return false;
 	}
 
+	protected function get_google_analytics () {
+		$option_name = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wga' : 'jetpack_wga';
+		return get_option( $option_name );
+	}
 
 	/**
 	 * Updates site settings for authorized users
