@@ -82,7 +82,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
-* Custom Content Types: avoid PHP warnings in the Resturant Menu Post type. #5777
+* Custom Content Types: avoid PHP warnings in the Restaurant Menu Post type. #5777
 * Sharing: ReCaptcha error fix for the Email sharing button. #5548
 * Widget Visibility: allow display of empty categories in the dropdowns. #5770
 
@@ -101,6 +101,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Related Posts: allow updating Related Posts options from the customizer. #4293
 * Related Posts: add a filter allowing site owners to customize the output of the Related Posts headline. #5740
 * Widgets: add Blog Stats, Authors, Follow, Milestone. #5497, #5511, #5615
+* Widgets: add Tumblr to Social Media Icons Widget. #5777
 
 = 4.4.1 =
 
