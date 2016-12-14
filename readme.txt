@@ -83,6 +83,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug Fixes**
 
 * Sharing: ReCaptcha error fix for the Email sharing button. #5548
+* Widget Visibility: allow display of empty categories in the dropdowns. #5770
 
 **Improved Compatibility:**
 
