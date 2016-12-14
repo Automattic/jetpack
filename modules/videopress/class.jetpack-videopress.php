@@ -324,7 +324,7 @@ class Jetpack_VideoPress {
 			return $icon;
 		}
 
-		return get_site_url() . '/wp-content/plugins/jetpack/images/media-video-processing-icon.png';
+		return plugins_url( 'images/media-video-processing-icon.png', JETPACK__PLUGIN_FILE );
 	}
 }
 
