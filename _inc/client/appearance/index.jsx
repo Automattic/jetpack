@@ -26,7 +26,10 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
-import { userCanManageModules } from 'state/initial-state';
+import {
+	userCanManageModules,
+	getThemeData
+} from 'state/initial-state';
 import Settings from 'components/settings';
 
 export const Page = ( props ) => {
@@ -37,7 +40,42 @@ export const Page = ( props ) => {
 		getModule
 	} = props,
 		isAdmin = props.userCanManageModules,
+		infiniteScrollDesc = getModule( 'infinite-scroll' ).description,
+		noInfiniteScrollSupport = ! props.themeData.support.infiniteScroll,
 		moduleList = Object.keys( props.moduleList );
+
+	if ( noInfiniteScrollSupport ) {
+		infiniteScrollDesc =
+			<div>
+				{ infiniteScrollDesc }
+				<p className="jp-form-setting-explanation">
+					{
+						__( "Your theme %(theme)s doesn't currently support Infinite Scroll, which needs data from your theme to function properly.",
+							{
+								args: {
+									theme: props.themeData.name
+								}
+							}
+						)
+					}
+				</p>
+				{
+					props.themeData.hasUpdate
+						? <p className="jp-form-setting-explanation">
+						{
+							__( "There's an update available for your theme. Check if this update adds Infinite Scroll support in {{a}}WordPress Updates{{/a}}.",
+								{
+									components: {
+										a: <a href={ props.siteAdminUrl + 'update-core.php' } className="jetpack-js-stop-propagation" />
+									}
+								}
+							)
+						}
+						</p>
+						: ''
+				}
+			</div>;
+	}
 
 	var cards = [
 		[ 'tiled-gallery', getModule( 'tiled-gallery' ).name, getModule( 'tiled-gallery' ).description, getModule( 'tiled-gallery' ).learn_more_button ],
@@ -46,7 +84,7 @@ export const Page = ( props ) => {
 		[ 'widgets', getModule( 'widgets' ).name, getModule( 'widgets' ).description, getModule( 'widgets' ).learn_more_button ],
 		[ 'widget-visibility', getModule( 'widget-visibility' ).name, getModule( 'widget-visibility' ).description, getModule( 'widget-visibility' ).learn_more_button ],
 		[ 'custom-css', getModule( 'custom-css' ).name, getModule( 'custom-css' ).description, getModule( 'custom-css' ).learn_more_button ],
-		[ 'infinite-scroll', getModule( 'infinite-scroll' ).name, getModule( 'infinite-scroll' ).description, getModule( 'infinite-scroll' ).learn_more_button ],
+		[ 'infinite-scroll', getModule( 'infinite-scroll' ).name, infiniteScrollDesc, getModule( 'infinite-scroll' ).learn_more_button ],
 		[ 'minileven', getModule( 'minileven' ).name, getModule( 'minileven' ).description, getModule( 'minileven' ).learn_more_button ]
 	].map( ( element ) => {
 		if ( ! includes( moduleList, element[0] ) ) {
@@ -60,6 +98,10 @@ export const Page = ( props ) => {
 								toggleModule={ toggleModule } />
 			),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
+
+		if ( 'infinite-scroll' === element[0] && noInfiniteScrollSupport ) {
+			toggle = __( 'Theme support required' );
+		}
 
 		let moduleDescription = isModuleActivated( element[0] ) ?
 			<AllModuleSettings module={ getModule( element[ 0 ] ) } /> :
@@ -132,7 +174,8 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			userCanManageModules: userCanManageModules( state ),
-			moduleList: getModules( state )
+			moduleList: getModules( state ),
+			themeData: getThemeData( state )
 		};
 	},
 	( dispatch ) => {

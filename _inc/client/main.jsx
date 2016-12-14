@@ -184,7 +184,7 @@ const Main = React.createClass( {
 				break;
 			case '/appearance':
 				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Appearance route={ this.props.route } />;
+				pageComponent = <Appearance route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/writing':
 				navComponent = <NavigationSettings route={ this.props.route } />;
