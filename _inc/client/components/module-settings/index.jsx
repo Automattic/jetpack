@@ -877,7 +877,7 @@ export let GoogleAnalyticsSettings = React.createClass( {
 							<TextInput
 								name={ 'google_analytics_tracking_id' }
 								value={ this.props.getOptionValue( 'google_analytics_tracking_id' ) }
-								placeholder={ 'Example: UA-11111111-1' }
+								placeholder={ __( 'Example: UA-11111111-1' ) }
 								className="widefat code"
 								disabled={ this.props.isUpdating( 'google_analytics_tracking_id' ) }
 								onChange={ this.props.onOptionChange } />
