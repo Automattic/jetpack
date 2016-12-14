@@ -87,6 +87,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved Compatibility:**
 
 * WPML: fixed the loading of the compatibility file for WPML so it loads at the right time. #5588
+* Sync: further improve Jetpack's synchronization process to support more plugins. #5671
 
 **Enhancements**
 
