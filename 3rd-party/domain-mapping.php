@@ -58,7 +58,7 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	 * @return bool
 	 */
 	function hook_wordpress_mu_domain_mapping() {
-		if ( ! Jetpack_Constants::is_defined( 'DOMAIN_MAPPING' ) || ! $this->function_exists( 'domain_mapping_siteurl' ) ) {
+		if ( ! Jetpack_Constants::is_defined( 'SUNRISE_LOADED' ) || ! $this->function_exists( 'domain_mapping_siteurl' ) ) {
 			return false;
 		}
 
