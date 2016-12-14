@@ -1,67 +1,89 @@
-## 4.1
+## 4.5
 
-### SSO
+Jetpack 4.5 is packed with new things and improvements for your favorite modules! We also have some new features that we're very excited about. We're looking forward to getting your feedback on the following things:
 
-- **We've completely redesigned and refactored Jetpack's [SSO Module](https://jetpack.com/support/sso/).** It would be great if you could use the module as much as possible, with different users, in different browsers, and different roles on your site. The additional options mentioned at the bottom of [this page](https://jetpack.com/support/sso/) should still work.
+### Carousel Lightbox for Single Images
 
-### Comments
+When Carousel is active, a single image that is linked to the attachment image should open in a lightbox.
+Make sure that regular Carousel gallery lightboxes work as expected.
+With Carousel disabled Attachment Page should be open instead of Lightbox
+Image linking to Custom URL should open that URL
+Image linking to Media File should open that Media File
+Navigating directly to Lightbox view (URL with hash e.g. #jp-carousel-31) should go to the post with the Lightbox open
+This behavior should be correct for:
 
-- We've improved the way comment avatars were stored and displayed. To test, try leaving comments while logged in, logged out, from Twitter, Facebook, Google+, or WordPress.com, and make sure all avatars are always displayed properly.
+- Post with single image only
+- Post with gallery
+- Post with multiple galleries and single images
+- Multiple post view (e.g. home page)
 
-### Contact Form
+### VideoPress Integration
 
-- We've changed the way that contact forms are titled- please use the forms and make sure that responses show up correctly in your wp-admin
-- We've added an unread count to the feedback menu item in your wp-admin/ -- keep in mind that this resets to 0 when you view the page. Test it out, make sure it works!
+**VideoPress, our Premium video offering, has been completely redesigned to be fully integrated into your Media Library.** It's now easier to upload videos and insert them into your posts and pages.
+We've also improved our Open Graph Meta Tags to make sure VideoPress videos can be embedded in your Facebook Posts.
 
-### Custom CSS
+To test this feature, you'll need to use [Jetpack Premium or Jetpack Professional](https://jetpack.com/features/) on your site. If you've purchased one of the upgrades, you'll be able to activate the VideoPress module under Jetpack > Settings > Writing.
 
-- It is now possible to use multiple `display` properties in Custom CSS. You can follow the instructions [here](https://github.com/Automattic/jetpack/issues/4176) to test.
-- We fixed a memory issue with Custom CSS on sites with a very large amount of CSS revisions. To test this, try saving new CSS changes a few times on your site, and make sure you can still access those changes thanks to the Revisions links below the Save button in the Custom CSS editor.
+![VideoPress upgrade](https://cloud.githubusercontent.com/assets/5528445/20008893/b296c05c-a278-11e6-89af-f086aac100fe.png)
 
-### General
+Once the module is active, you can try the following:
 
-- We cleaned up and restyled jetpack related banner notices to match Core notification styles.
-- We've improved our connection process. Previously, you sometimes had to specify a port number for your site when using HTTPS, otherwise Jetpack wasn't properly connected to WordPress.com. From now on, Jetpack will take care of that for you. To test, you can try removing `_SERVER['SERVER_PORT'] = 443;` from a site that uses HTTPS with CloudFlare, for example. When removing this, you should still be able to use features relying on the WordPress.com connection, like [the Post Editor on WordPress.com](https://wordpress.com/post/).
-- We fixed Fatal Errors occuring when Jetpack was activated alongside other plugins using an old `Bitly` class, such as old versions of the official Bitly plugin. To test this, try using Jetpack alongside an old version of that plugin.
-- We improved the connection process when HTTPS isn't properly configured on a site before it's connected to WordPress.com. To test, you can follow the instructions [here](https://github.com/Automattic/jetpack/pull/3816).
+1. Head over to Media > Library or Media > Add New, and try to upload a new video to your site. It should be uploaded to VideoPress right away.
+2. Try uploading a video from your post editor, under Add Media.
+3. A few minutes after the upload, the video's meta data should be updated (as transcoding finishes), and you can view and edit that meta data from the edit media page in the Media Library.
+4. You should be able to insert those videos into any post or page.
 
-### JSON API
+### Ads (formerly WordAds on WordPress.com)
 
-- We updated several API endpoints to match WordPress.com endpoints, with a focus on SAL (Site Abstraction Layer). To test, you can try using several features from the WordPress.com desktop apps or from WordPress.com to manage your Jetpack site, and make sure everything works properly. You should be able to change site settings, publish and update posts and pages, update plugins, customize your theme...
-- We added support for custom taxonomies, to prepare for the upcoming custom post types features in Calypso. You can follow the instructions [here](https://github.com/Automattic/jetpack/pull/4128) to test things.
+To test this feature, you'll need to use [Jetpack Premium or Jetpack Professional](https://jetpack.com/features/)
 
-### Publicize
-
-- We've added a new filter, `jetpack_publicize_capability`, allowing you to give Publicize capabilities to more users. You can read more about it [here](https://github.com/Automattic/jetpack/pull/3740).
-
-### Sharing
-
-- Make sure your sharing buttons display as expected
-- Add Telegram and WhatsApp buttons and make sure they operate properly
+Premium and Professional Jetpack plans will allow you to display ads on your site which can make you real money.
+To test, upgrade to a Premium/Pro Jetpack plan and head over to your Jetpack settings Engagement tab and activate the Ads module.
+By default, you will start seeing ads on the bottom of your posts.
+You will also see a new Ads widget that you can display in the sidebar of your theme.
+There is an option in the settings card that will allow you to display ads in the header of your site as well.
 
 ### Shortcodes
 
-- New Untappd shortcode. To test: Shortcodes enabled, test `[untappd-menu location="65" menu="3355a50d-600d-4956-9491-dd0ac2582053"]`
-- Recipes: new shortcodes and options to create more detailed recipes. To test, you can follow the instructions in [this support document](https://en.support.wordpress.com/recipes/).
-- VideoPress: use HTML5 videos when using the `freedom` shortcode parameter. To test, try using the `force_flash` and `freedom` parameters when inserting VideoPress shortcodes, and check that the video is displayed according to your settings.
-- VideoPress: we've made some changes to the shortcode modal, available when inserting and editing a VideoPress video in the Visual Editor. To test, you can play with shortcode options for a video you've inserted by clicking on the little Pencil icon appearing above the video.
-- Audio: we have completely removed the Audio shortcode, as audio players have been part of WordPress Core for some time, and we didn't include our shortcode for all versions of WordPress above 3.6. To test, try [inserting Audio shortcodes](https://codex.wordpress.org/Audio_Shortcode) into your posts, and make sure no error appears.
+We ported existing shortcodes from WordPress.com to Jetpack. Give them a try in a few test posts, and make sure they're rendered properly:
 
-### Sitemaps
-
-- We made some changes to avoid PHP notices when one of your posts included a slideshow. To test, you can follow the instructions [here](https://github.com/Automattic/jetpack/pull/4068).
-- Sitemaps also support permalinks using `index.php` now. You can follow the instructions [here](https://github.com/Automattic/jetpack/pull/4093) for your tests.
-
-### Support
-
-- We've improved the self-help tools available in the Jetpack Debug menu. To test, you can go to the Jetpack Menu in your dashboard, scroll down, click on "Debug", and make sure there are no errors on the page or in your logs. You should also be able to use the Contact Form to send debug information to the Jetpack Support team.
-
-### Tiled Galleries
-
-- In some cases, like when specific concatenating plugin were used to minify and reorder JavaScript resources, Tiled Galleries would give JavaScript errors, as explained [here](https://github.com/Automattic/jetpack/issues/4179). You should now be able to display Tiled Galleries without any issues.
+- [`[spotify]`](https://en.support.wordpress.com/audio/spotify/)
+- `[tweet]` to insert specific tweets in your posts, like so: `[tweet tweet="https://twitter.com/jack/statuses/20" align="left" width="350" align="center" lang="es"]`
+- [`[googleapps]`](https://en.support.wordpress.com/google-docs/)
+- `[brightcove]` to embed [Brightcode videos](ttps://support.brightcove.com/en/video-cloud/docs).
+- `[getty]` to insert images, like so: `[getty src="82278805" width="400" height="200"]`
+- [Archive.org videos](http://support.wordpress.com/videos/the-internet-archive/) and books, thanks to the `[archiveorg-book]` shortcode: `[archiveorg-book goodytwoshoes00newyiala]`
+- [`[hulu]`](https://en.support.wordpress.com/videos/hulu/)
+- [`[kickstarter]`](https://en.support.wordpress.com/videos/kickstarter/)
+- [`[gravatar]`](https://en.support.wordpress.com/gravatar-shortcode/)
+- [`[quiz]`](https://en.support.wordpress.com/quiz-shortcode/)
+- [`[sitemap]`](https://en.support.wordpress.com/sitemaps/shortcode/)
+- [`[lytro]`](https://en.support.wordpress.com/lytro/)
+- [Mailchimp Popup forms](https://en.support.wordpress.com/mailchimp/)
+- [`[ustream]`](http://support.wordpress.com/videos/ustream-tv/)
 
 ### Widgets
 
-- We've refactored the Contact Info Widget to improve performance. To test, try adding and editing options of a Contact Info Widget.
-- We now use Photon to resize images in the Gallery Widget, thus improving performance of that widget. To test it, add a Gallery widget to your sidebar, set it to use Tiles, and make sure the images are displayed properly and use Photon (i.e. use the `i*.wpcom` domain).
-- You can now set the top posts widget to look at traffic for more than the last 10 days. Try cranking up that setting and make sure nothing breaks.
+We've added quite a few new widgets, so make sure you try them all:
+
+- **Follow Button**: allow people to follow your site from a widget.
+- **Authors**: display your authors on the front end of your site. *Note: it does not come with much styling, so it is up to the theme/user to style as desired.*
+- **Blog Stats**: A simple stat counter that will display the page views on the front end of your site.
+- **Milestone**: display a countdown to an upcoming event or milestone that you set.
+
+### Related Posts in the Customizer
+You can now preview the Related Posts settings in the Customizer before you save. In Jetpack admin screen, go to Settings > Engagement and activate Related Posts if it's not already active.
+
+Expand its settings and click on the link: you should be taken to the Customizer, that should load your latest published post.
+
+If you launch the Customizer from Appearance > Customize, the Related Posts panel should only show a message prompting you to go to a single post view. Once you're in a single post, the controls for Related Posts should be displayed.
+
+This implementation leverages Customizer's Selective Refresh, so if you're using a theme like TwentySixteen that takes advantage of it, you should see only the Related Posts portion refreshing, not the entire page.
+
+### Final Notes
+
+During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
+
+To open the Console in Chrome or Firefox, you can press CMD+Alt+i in macOS or F12 in Windows.
+
+**Thank you for all your help!**
