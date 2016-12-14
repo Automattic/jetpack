@@ -83,6 +83,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug Fixes**
 
 * Custom Content Types: avoid PHP warnings in the Restaurant Menu Post type. #5777
+* General: fix a bug that would display the wrong connected user for up to 24 hours after they disconnect. #5835
 * Sharing: ReCaptcha error fix for the Email sharing button. #5548
 * Widget Visibility: allow display of empty categories in the dropdowns. #5770
 
