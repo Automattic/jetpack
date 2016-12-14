@@ -87,6 +87,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Carousel: add Carousel view for single images. #5469
+* Widgets: add Blog Stats. #5497
 
 = 4.4.1 =
 
