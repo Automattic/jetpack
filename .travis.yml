@@ -3,10 +3,6 @@
 # Tell Travis CI we're using PHP
 language: php
 
-# We need notifications for successful builds
-notifications:
-  webhooks: https://betadownload.jetpack.me/travis.php
-
 # Setup a global environemnt and overide as needed
 env:
   global:
@@ -84,7 +80,10 @@ script:
 
 sudo: false
 
+# We need notifications for successful builds
+
 notifications:
+   webhooks: https://betadownload.jetpack.me/travis.php
    email:
        - enej.bajgoric@automattic.com
        - georgestephanis@automattic.com
