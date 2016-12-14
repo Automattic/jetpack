@@ -86,6 +86,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: fix a bug that would display the wrong connected user for up to 24 hours after they disconnect. #5835
 * Sharing: ReCaptcha error fix for the Email sharing button. #5548
 * Shortcodes: add several new shortcodes. #5838
+* Shorcodes: remove the blip.tv shortcode, as the service is now extinct. #5853
 * Widget Visibility: allow display of empty categories in the dropdowns. #5770
 
 **Improved Compatibility:**
