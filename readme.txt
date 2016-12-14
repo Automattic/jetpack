@@ -87,6 +87,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Carousel: add Carousel view for single images. #5469
+* JSON API: allow updating translations from the API. #5552
 * Widgets: add Blog Stats, Authors, Milestone. #5497, #5511
 
 = 4.4.1 =
