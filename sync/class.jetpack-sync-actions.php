@@ -22,8 +22,7 @@ class Jetpack_Sync_Actions {
 		if ( self::sync_via_cron_allowed() ) {
 			self::init_sync_cron_jobs();
 		} else if ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
-			wp_clear_scheduled_hook( 'jetpack_sync_cron' );
-			wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
+			self::clear_sync_cron_jobs();
 		}
 
 		// On jetpack authorization, schedule a full sync
@@ -311,28 +310,53 @@ class Jetpack_Sync_Actions {
 		return self::DEFAULT_SYNC_CRON_INTERVAL_NAME;
 	}
 
+	static function get_start_time_offset( $schedule = '', $hook = '' ) {
+		$start_time_offset =  is_multisite()
+			? mt_rand( 0, ( 2 * self::DEFAULT_SYNC_CRON_INTERVAL_VALUE ) )
+			: 0;
+
+		/**
+		 * Allows overriding the offset that the sync cron jobs will first run. This can be useful when scheduling
+		 * cron jobs across multiple sites in a network.
+		 *
+		 * @since 4.5
+		 *
+		 * @param int    $start_time_offset
+		 * @param string $hook
+		 * @param string $schedule
+		 */
+		return intval( apply_filters(
+			'jetpack_sync_cron_start_time_offset',
+			$start_time_offset,
+			$hook,
+			$schedule
+		) );
+	}
+
 	static function maybe_schedule_sync_cron( $schedule, $hook ) {
 		if ( ! $hook ) {
 			return;
 		}
 		$schedule = self::sanitize_filtered_sync_cron_schedule( $schedule );
 
+		$start_time = time() + self::get_start_time_offset( $schedule, $hook );
 		if ( ! wp_next_scheduled( $hook ) ) {
 			// Schedule a job to send pending queue items once a minute
-			wp_schedule_event( time(), $schedule, $hook );
+			wp_schedule_event( $start_time, $schedule, $hook );
 		} else if ( $schedule != wp_get_schedule( $hook ) ) {
 			// If the schedule has changed, update the schedule
 			wp_clear_scheduled_hook( $hook );
-			wp_schedule_event( time(), $schedule, $hook );
+			wp_schedule_event( $start_time, $schedule, $hook );
 		}
 	}
 
-	static function init_sync_cron_jobs() {
-		// Add a custom "every minute" cron schedule
-		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
+	static function clear_sync_cron_jobs() {
+		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
+		wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
+	}
 
-		// cron hooks
-		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
+	static function init_sync_cron_jobs() {
+		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
 
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
 		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
@@ -358,9 +382,14 @@ class Jetpack_Sync_Actions {
 		self::maybe_schedule_sync_cron( $full_sync_cron_schedule, 'jetpack_sync_full_cron' );
 	}
 
-	static function cleanup_on_upgrade() {
+	static function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
 		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
+		}
+
+		$is_new_sync_upgrade = version_compare( $old_version, '4.2', '>=' );
+		if ( ! empty( $old_version ) && $is_new_sync_upgrade && version_compare( $old_version, '4.5', '<' ) ) {
+			self::clear_sync_cron_jobs();
 		}
 	}
 
@@ -389,12 +418,9 @@ class Jetpack_Sync_Actions {
 	}
 }
 
-/**
- * If the site is using alternate cron, we need to init the listener and sender before cron
- * runs. So, we init at a priority of 9.
- *
- * If the site is using a regular cron job, we init at a priority of 90 which gives plugins a chance
- * to add filters before we initialize.
+/*
+ * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
+ * with a high priority or sites that use alternate cron.
  */
 add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
@@ -403,4 +429,4 @@ add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocomm
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ) );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );
