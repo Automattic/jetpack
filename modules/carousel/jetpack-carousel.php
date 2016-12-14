@@ -360,10 +360,15 @@ class Jetpack_Carousel {
 
 		foreach ( $selected_images as $attachment_id => $image_html ) {
 			$attachment = get_post( $attachment_id );
+
+			if ( ! $attachment ) {
+				continue;
+			}
+
 			$attributes = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
 			foreach( $attributes as $k => $v ) {
-				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '"';
+				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '" ';
 			}
 			$image_html_with_data = str_replace( '<img ', "<img $attributes_html", $image_html );
 			$content = str_replace( $image_html, $image_html_with_data, $content );

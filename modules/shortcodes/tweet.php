@@ -52,6 +52,32 @@ class Jetpack_Tweet {
 			$attr['tweet'] = $atts[0];
 		}
 
+		if ( ctype_digit( $attr['tweet'] ) ) {
+			$transient = "jpt_{$attr['tweet']}";
+			if ( false === $cached_url = get_transient( $transient ) ) {
+				$response = wp_remote_get( "https://twitter.com/statuses/{$attr['tweet']}" );
+				if ( 200 !== wp_remote_retrieve_response_code( $response ) || ! isset( $response['http_response'] ) ) {
+
+					// Cache for 15 minutes to avoid making the request over and over.
+					set_transient( $transient, '', 60 * 15 );
+					return '';
+				}
+				$http_response = $response['http_response'];
+				$http_response_object = $http_response->get_response_object();
+				if ( empty( $http_response_object->url ) ) {
+
+					// Cache for 15 minutes to avoid making the request over and over.
+					set_transient( $transient, '', 60 * 15 );
+					return '';
+				}
+				$cached_url = isset( $http_response_object->url ) && ! empty( $http_response_object->url )
+					? $http_response_object->url
+					: '';
+				set_transient( $transient, $cached_url, DAY_IN_SECONDS );
+			}
+			$attr['tweet'] = $cached_url;
+		}
+
 		preg_match( '/^http(s|):\/\/twitter\.com(\/\#\!\/|\/)([a-zA-Z0-9_]{1,20})\/status(es)*\/(\d+)$/', $attr['tweet'], $urlbits );
 		if ( isset( $urlbits[5] ) && intval( $urlbits[5] ) ) {
 			$id = 'https://twitter.com/' . $urlbits[3] . '/status/' . intval( $urlbits[5] );

@@ -2519,6 +2519,16 @@ class Jetpack {
 			}
 		}
 
+		// Protect won't work with mis-configured IPs
+		if ( 'protect' === $module ) {
+			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+			if ( ! jetpack_protect_get_ip() ) {
+				error_log( 'hello' );
+				Jetpack::state( 'message', 'protect_misconfigured_ip' );
+				return false;
+			}
+		}
+
 		// Check the file for fatal errors, a la wp-admin/plugins.php::activate
 		Jetpack::state( 'module', $module );
 		Jetpack::state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error
