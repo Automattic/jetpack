@@ -232,7 +232,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function send_published( $post_ID, $post, $update ) {
-		if ( ! empty( $this->just_published ) ) {
+		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
+		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
+			return;
+		}
+
+		if ( ! empty( $this->just_published ) && in_array( $post_ID, $this->just_published ) ) {
 			$published = array_reverse( array_unique( $this->just_published ) );
 			
 			// Pre 4.7 WP does not have run though send_published for every save_published call
