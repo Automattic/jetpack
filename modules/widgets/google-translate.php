@@ -68,7 +68,7 @@ class Google_Translate_Widget extends WP_Widget {
 
 			$title = $instance['title'];
 
-			if ( false === $title ) {
+			if ( ! isset( $title ) ) {
 				$title = $this->default_title;
 			}
 
