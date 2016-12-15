@@ -15,7 +15,7 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', 'Ads' ),
 			array(
-				'description' => __( 'Insert a WordAd wherever you can place a widget.', 'jetpack' ),
+				'description' => __( 'Insert an ad unit wherever you can place a widget.', 'jetpack' ),
 				'customize_selective_refresh' => true
 			)
 		);
