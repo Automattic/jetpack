@@ -143,21 +143,31 @@ function videopress_add_oembed_for_parameter( $oembed_provider ) {
 add_filter( 'oembed_fetch_url', 'videopress_add_oembed_for_parameter' );
 
 /**
- * An intermediary shortcode parser for the Core `[video]` shortcode.
+ * Override the standard video short tag to also process videopress files as well.
  *
- * This lets us convert legacy video embeds over to VideoPress embeds,
- * if the video files have been uploaded and transcoded.
+ * This will, parse the src given, and if it is a videopress file, it will parse as the
+ * VideoPress shortcode instead.
  *
- * @param $attr
+ * @param string $html     Empty variable to be replaced with shortcode markup.
+ * @param array  $attr     Attributes of the video shortcode.
+ * @param string $content  Video shortcode content.
+ * @param int    $instance Unique numeric ID of this video shortcode instance.
  *
- * @return string|void
+ * @return string
  */
-function videopress_shortcode_override_for_core_shortcode( $raw_attr, $contents, $tag ) {
-	$attr = $raw_attr;
+function videopress_code_shortcode_override($html, $attr, $content, $instance) {
+
 	$videopress_guid = null;
 
 	if ( isset( $attr['videopress_guid'] ) ) {
 		$videopress_guid = $attr['videopress_guid'];
+
+	} elseif ( isset ( $attr['src'] ) ) {
+		$url = $attr['src'];
+
+		if ( preg_match( '@videos.videopress.com/([a-z0-9]{8})/@i', $url, $matches ) ) {
+			$videopress_guid = $matches[1];
+		}
 
 	} elseif ( isset( $attr['mp4'] ) ) {
 		$url = $attr['mp4'];
@@ -169,13 +179,13 @@ function videopress_shortcode_override_for_core_shortcode( $raw_attr, $contents,
 
 	if ( $videopress_guid ) {
 		$videopress_attr = array( $videopress_guid );
-		if ( $attr['width'] ) {
+		if ( isset( $attr['width'] ) ) {
 			$videopress_attr['w'] = (int) $attr['width'];
 		}
-		if ( $attr['autoplay'] ) {
+		if ( isset( $attr['autoplay'] ) ) {
 			$videopress_attr['autoplay'] = $attr['autoplay'];
 		}
-		if ( $attr['loop'] ) {
+		if ( isset( $attr['loop'] ) ) {
 			$videopress_attr['loop'] = $attr['loop'];
 		}
 
@@ -183,11 +193,7 @@ function videopress_shortcode_override_for_core_shortcode( $raw_attr, $contents,
 		return videopress_shortcode_callback( $videopress_attr );
 	}
 
-	// Nothing else caught, so fall back to the core shortcode.
-	return call_user_func( $GLOBALS['vp_original_video_shortcode_callback'], $raw_attr, $contents, $tag );
+	return '';
+
 }
-// The callback should nearly always be `wp_video_shortcode` unless some other plugin
-// has overridden it similarly to what we're doing here.
-$GLOBALS['vp_original_video_shortcode_callback'] = $GLOBALS['shortcode_tags']['video'];
-remove_shortcode( 'video' );
-add_shortcode( 'video', 'videopress_shortcode_override_for_core_shortcode' );
+add_filter('wp_video_shortcode_override', 'videopress_code_shortcode_override', 10, 4);
