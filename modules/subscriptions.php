@@ -757,14 +757,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			'description' => esc_html__( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ),
 			'customize_selective_refresh' => true,
 		);
-		$control_ops = array( 'width' => 300 );
 
 		parent::__construct(
 			'blog_subscription',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Blog Subscriptions', 'jetpack' ) ),
-			$widget_ops,
-			$control_ops
+			$widget_ops
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
