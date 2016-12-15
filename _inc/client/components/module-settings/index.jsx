@@ -760,12 +760,13 @@ export let WordAdsSettings = React.createClass( {
 	render() {
 		return (
 			<div>
+				<p>{ __( 'By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!' ) }</p>
 				<form onSubmit={ this.props.onSubmit } >
 					<FormFieldset>
 						<ModuleSettingCheckbox
 							name={ 'enable_header_ad' }
 							{ ...this.props }
-							label={ __( 'Display an ad unit at the top of each page.' ) } />
+							label={ __( 'Display an ad unit at the top of your site.' ) } />
 						<FormButton
 							className="is-primary"
 							isSubmitting={ this.props.isSavingAnyOption() }
