@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import { ModuleToggle } from 'components/module-toggle';
-import forEach from 'lodash/forEach';
+import { includes, forEach } from 'lodash';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import Collection from 'components/search/search-collection.jsx';
@@ -105,11 +105,8 @@ export const SearchResults = ( {
 	}
 
 	cards = moduleList.map( ( element ) => {
-		let isPro = 'scan' === element[0]
-				 || 'akismet' === element[0]
-				 || 'backups' === element[0]
-				 || 'seo-tools' === element[0],
-			proProps = {},
+		const isPro = includes( [ 'scan', 'akismet', 'backups', 'seo-tools', 'google-analytics' ], element[0] );
+		let proProps = {},
 			unavailableDevMode = unavailableInDevMode( element[0] ),
 			toggle = unavailableDevMode ? __( 'Unavailable in Dev Mode' ) : (
 				<ModuleToggle
