@@ -1,19 +1,63 @@
 .milestone-widget fieldset {
 	margin-bottom: 1em;
 }
-.milestone-widget .day,
-.milestone-widget .hour,
-.milestone-widget .minutes,
-.milestone-widget .seconds {
-	text-align: right;
-	width: 2em;
+
+.milestone-widget fieldset * {
+	vertical-align: middle;
 }
-.milestone-widget .year {
-	text-align: right;
-	width: 3.25em;
+
+.jp-ms-mobile-heading {
+	display: none;
 }
-.milestone-widget .assistive-text {
+
+.jp-ms-data-time input[type="text"] {
+	text-align: right;
+	width: 2.1em;
+}
+
+.jp-ms-data-time .month {
+	width: 5.4em;
+	height: 25px;
+}
+
+.customize-control .jp-ms-data-time .month {
+	height: 26px;
+}
+
+.jp-ms-data-time .year[type="text"] {
+	text-align: right;
+	width: 3.2em;
+}
+
+.jp-ms-data-time .assistive-text {
 	position: absolute !important;
 	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
 	clip: rect(1px, 1px, 1px, 1px);
+}
+
+@media screen and (max-width: 782px) {
+	.jp-ms-mobile-heading {
+		display: block;
+		font-weight: 400;
+	}
+
+	.jp-ms-data-time legend {
+		display: none;
+	}
+
+	.date-time-separator {
+		display: block;
+		text-indent: -9999em;
+	}
+
+	.jp-ms-data-time input[type="text"],
+	.jp-ms-data-time .year[type="text"] {
+		width: 3.8em;
+		height: 30px;
+	}
+
+	#wpbody .jp-ms-data-time .month,
+	.customize-control .jp-ms-data-time .month {
+		height: 30px;
+	}
 }
