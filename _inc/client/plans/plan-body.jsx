@@ -156,7 +156,7 @@ const PlanBody = React.createClass( {
 								<p>{ __( '13Gb of fast, optimised, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button href={ this.props.siteAdminUrl + 'media-new.php' } className="is-primary">
+										<Button href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
 											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
@@ -181,7 +181,7 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Fast, optimised, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button href={ this.props.siteAdminUrl + 'media-new.php' } className="is-primary">
+										<Button href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
 											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
