@@ -1024,7 +1024,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 <p>
 	<label for="<?php echo $this->get_field_id( 'subscribe_text' ); ?>">
 		<?php _e( 'Optional text to display to your readers:', 'jetpack' ); ?>
-		<textarea style="width: 95%" id="<?php echo $this->get_field_id( 'subscribe_text' ); ?>" name="<?php echo $this->get_field_name( 'subscribe_text' ); ?>" type="text"><?php echo esc_html( $subscribe_text ); ?></textarea>
+		<textarea class="widefat" id="<?php echo $this->get_field_id( 'subscribe_text' ); ?>" name="<?php echo $this->get_field_name( 'subscribe_text' ); ?>" rows="3"><?php echo esc_html( $subscribe_text ); ?></textarea>
 	</label>
 </p>
 <p>
@@ -1042,7 +1042,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 <p>
 	<label for="<?php echo $this->get_field_id( 'success_message' ); ?>">
 		<?php _e( 'Success Message Text:', 'jetpack' ); ?>
-		<textarea style="width: 95%" id="<?php echo $this->get_field_id( 'success_message' ); ?>" name="<?php echo $this->get_field_name( 'success_message' ); ?>" type="text"><?php echo esc_html( $success_message ); ?></textarea>
+		<textarea class="widefat" id="<?php echo $this->get_field_id( 'success_message' ); ?>" name="<?php echo $this->get_field_name( 'success_message' ); ?>" rows="5"><?php echo esc_html( $success_message ); ?></textarea>
 	</label>
 </p>
 <p>
