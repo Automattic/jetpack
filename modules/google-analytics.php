@@ -11,6 +11,4 @@
  * Additional Search Queries: webmaster, google, analytics, console
  */
 
-if ( Jetpack::active_plan_supports( 'google-analytics' ) ) {
-	include dirname( __FILE__ ) . "/google-analytics/wp-google-analytics.php";
-}
+include dirname( __FILE__ ) . "/google-analytics/wp-google-analytics.php";
