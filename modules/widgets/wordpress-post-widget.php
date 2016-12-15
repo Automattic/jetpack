@@ -734,26 +734,30 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		// Enqueue front end assets.
 		$this->enqueue_scripts();
 
-		echo $args['before_widget'];
+		$content = '';
+
+		$content .= $args['before_widget'];
 
 		if ( empty( $instance['url'] ) ) {
 			if ( current_user_can( 'manage_options' ) ) {
-				echo '<p>';
+				$content .= '<p>';
 				/* Translators: the "Blog URL" field mentioned is the input field labeled as such in the widget form. */
-				esc_html_e( 'The Blog URL is not properly setup in the widget.', 'jetpack' );
-				echo '</p>';
+				$content .= esc_html_e( 'The Blog URL is not properly setup in the widget.', 'jetpack' );
+				$content .= '</p>';
 			}
-			echo $args['after_widget'];
+			$content .= $args['after_widget'];
+
+			echo $content;
 			return;
 		}
 
 		$data = $this->get_blog_data( $instance['url'] );
-
 		// check for errors
 		if ( is_wp_error( $data ) || empty( $data['site_info']['data'] ) ) {
-			echo '<p>' . __( 'Cannot load blog information at this time.', 'jetpack' ) . '</p>';
-			echo $args['after_widget'];
+			$content .= '<p>' . __( 'Cannot load blog information at this time.', 'jetpack' ) . '</p>';
+			$content .= $args['after_widget'];
 
+			echo $content;
 			return;
 		}
 
@@ -762,19 +766,20 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( ! empty( $instance['title'] ) ) {
 			/** This filter is documented in core/src/wp-includes/default-widgets.php */
 			$instance['title'] = apply_filters( 'widget_title', $instance['title'] );
-			echo $args['before_title'] . esc_html( $instance['title'] . ': ' . $site_info->name ) . $args['after_title'];
+			$content .= $args['before_title'] . esc_html( $instance['title'] . ': ' . $site_info->name ) . $args['after_title'];
 		}
 		else {
-			echo $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
+			$content .= $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
 		}
 
-		echo '<div class="jetpack-display-remote-posts">';
+		$content .= '<div class="jetpack-display-remote-posts">';
 
 		if ( is_wp_error( $data['posts']['data'] ) || empty( $data['posts']['data'] ) ) {
-			echo '<p>' . __( 'Cannot load blog posts at this time.', 'jetpack' ) . '</p>';
-			echo '</div><!-- .jetpack-display-remote-posts -->';
-			echo $args['after_widget'];
+			$content .= '<p>' . __( 'Cannot load blog posts at this time.', 'jetpack' ) . '</p>';
+			$content .= '</div><!-- .jetpack-display-remote-posts -->';
+			$content .= $args['after_widget'];
 
+			echo $content;
 			return;
 		}
 
@@ -794,7 +799,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			if ( isset( $instance['open_in_new_window'] ) && $instance['open_in_new_window'] == true ) {
 				$target = ' target="_blank"';
 			}
-			echo '<h4><a href="' . esc_url( $single_post['url'] ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
+			$content .= '<h4><a href="' . esc_url( $single_post['url'] ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
 			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post['featured_image'] ) ) ) {
 				$featured_image = $single_post['featured_image'];
 				/**
@@ -809,16 +814,27 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				 * @param array $args Array of Photon Parameters.
 				 */
 				$image_params = apply_filters( 'jetpack_display_posts_widget_image_params', array() );
-				echo '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"' . $target . '><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
+				$content .= '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"' . $target . '><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
 			}
 
 			if ( $instance['show_excerpts'] == true ) {
-				echo $single_post['excerpt'];
+				$content .= $single_post['excerpt'];
 			}
 		}
 
-		echo '</div><!-- .jetpack-display-remote-posts -->';
-		echo $args['after_widget'];
+		$content .= '</div><!-- .jetpack-display-remote-posts -->';
+		$content .= $args['after_widget'];
+
+		/**
+		 * Filter the WordPress Posts widget content.
+		 *
+		 * @module widgets
+		 *
+		 * @since 4.6.0
+		 *
+		 * @param string $content Widget content.
+		 */
+		echo apply_filters( 'jetpack_display_posts_widget_content', $content );
 	}
 
 	/**
