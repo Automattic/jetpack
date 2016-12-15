@@ -8,16 +8,10 @@ Author URI: http://automattic.com/
 License: GPLv2 or later
 */
 
-class Jetpack_Milestone {
-	public static function init() {
-		add_action( 'widgets_init', array( __class__, 'register_widget' ) );
-	}
-	public static function register_widget() {
-		register_widget( 'Milestone_Widget' );
-	}
+function jetpack_register_widget_milestone() {
+	register_widget( 'Milestone_Widget' );
 }
-
-Jetpack_Milestone::init();
+add_action( 'widgets_init', 'jetpack_register_widget_milestone' );
 
 class Milestone_Widget extends WP_Widget {
 	private static $dir       = null;
@@ -59,25 +53,15 @@ class Milestone_Widget extends WP_Widget {
 		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin' ) );
 		add_action( 'wp_footer', array( $this, 'localize_script' ) );
-		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 
 		if ( is_active_widget( false, false, $this->id_base, true ) || is_active_widget( false, false, 'monster', true ) || is_customize_preview() ) {
 			add_action( 'wp_head', array( __class__, 'styles_template' ) );
 		}
 	}
 
-	/**
-	 * Enqueue assets for Customizer widget control.
-	 *
-	 * @since 4.5.0
-	 */
-	public static function customizer_controls_assets() {
-		wp_enqueue_style( 'milestone-customizer', plugins_url( 'style-admin.css', __FILE__ ), array(), '20161215' );
-	}
-
 	public static function enqueue_admin( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
-			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20111212' );
+			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20161215' );
 		}
 	}
 
@@ -342,9 +326,8 @@ class Milestone_Widget extends WP_Widget {
         </p>
 
 		<fieldset class="jp-ms-data-time">
-			<legend><?php _e( 'Date and Time', 'jetpack' ); ?></legend>
+			<legend><?php esc_html_e( 'Date', 'jetpack' ); ?></legend>
 
-			<label class="jp-ms-mobile-heading"><?php esc_html_e( 'Date', 'jetpack' ); ?></label>
 			<label for="<?php echo $this->get_field_id( 'month' ); ?>" class="assistive-text"><?php _e( 'Month', 'jetpack' ); ?></label>
 			<select id="<?php echo $this->get_field_id( 'month' ); ?>" class="month" name="<?php echo $this->get_field_name( 'month' ); ?>"><?php
 				global $wp_locale;
@@ -359,9 +342,10 @@ class Milestone_Widget extends WP_Widget {
 
 			<label for="<?php echo $this->get_field_id( 'year' ); ?>" class="assistive-text"><?php _e( 'Year', 'jetpack' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'year' ); ?>" class="year" name="<?php echo $this->get_field_name( 'year' ); ?>" type="text" value="<?php echo esc_attr( $instance['year'] ); ?>">
+		</fieldset>
 
-			<span class="date-time-separator">@</span>
-			<label class="jp-ms-mobile-heading"><?php esc_html_e( 'Time', 'jetpack' ); ?></label>
+		<fieldset class="jp-ms-data-time">
+			<legend><?php esc_html_e( 'Time', 'jetpack' ); ?></legend>
 
 			<label for="<?php echo $this->get_field_id( 'hour' ); ?>" class="assistive-text"><?php _e( 'Hour', 'jetpack' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'hour' ); ?>" class="hour" name="<?php echo $this->get_field_name( 'hour' ); ?>" type="text" value="<?php echo esc_attr( $instance['hour'] ); ?>">
