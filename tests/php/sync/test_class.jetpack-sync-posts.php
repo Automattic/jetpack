@@ -375,29 +375,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post->shortlink, wp_get_shortlink( $this->post->ID ) );
 	}
 
-	function test_sync_post_includes_dont_email_post_to_subs() {
-		$post_id = $this->factory->post->create();
-		add_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true );
-
-		$this->sender->do_sync();
-
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
-
-		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
-	}
-
-	function test_sync_post_includes_dont_email_post_to_subs_when_subscription_is_not_active() {
-		Jetpack_Options::update_option( 'active_modules', array() );
-
-		$post_id = $this->factory->post->create();
-
-		$this->sender->do_sync();
-
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
-
-		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
-	}
-
 	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
 		$post_id = $this->factory->post->create();
 		$attachment_id = $this->factory->post->create( array(
