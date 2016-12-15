@@ -59,7 +59,7 @@ We ported existing shortcodes from WordPress.com to Jetpack. Give them a try in 
 - [`[quiz]`](https://en.support.wordpress.com/quiz-shortcode/)
 - [`[sitemap]`](https://en.support.wordpress.com/sitemaps/shortcode/)
 - [`[lytro]`](https://en.support.wordpress.com/lytro/)
-- [Mailchimp Popup forms](https://en.support.wordpress.com/mailchimp/)
+- `[mailchimp_subscriber_popup]` allows you to create MailChimp Subscriber Popup Forms. The shortcode uses the following format: `[mailchimp_subscriber_popup baseUrl="mc.us11.list-manage.com" uuid="your_uuid" lid="your_lid"]`
 - [`[ustream]`](http://support.wordpress.com/videos/ustream-tv/)
 
 ### Widgets
