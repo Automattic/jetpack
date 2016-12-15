@@ -48,7 +48,7 @@ class Jetpack_Related_Posts_Customize {
 				'title' 	  => esc_html__( 'Related Posts', 'jetpack' ),
 				'description' => '',
 				'capability'  => 'edit_theme_options',
-				'priority' 	  => 89,
+				'priority' 	  => 200,
 			)
 		);
 
