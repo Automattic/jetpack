@@ -59,10 +59,20 @@ class Milestone_Widget extends WP_Widget {
 		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin' ) );
 		add_action( 'wp_footer', array( $this, 'localize_script' ) );
+		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 
 		if ( is_active_widget( false, false, $this->id_base, true ) || is_active_widget( false, false, 'monster', true ) || is_customize_preview() ) {
 			add_action( 'wp_head', array( __class__, 'styles_template' ) );
 		}
+	}
+
+	/**
+	 * Enqueue assets for Customizer widget control.
+	 *
+	 * @since 4.5.0
+	 */
+	public static function customizer_controls_assets() {
+		wp_enqueue_style( 'milestone-customizer', plugins_url( 'style-admin.css', __FILE__ ), array(), '20161215' );
 	}
 
 	public static function enqueue_admin( $hook_suffix ) {
