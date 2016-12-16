@@ -1,6 +1,11 @@
 <?php
-if ( ! class_exists( 'Jetpack_Media_Summary' ) && defined('IS_WPCOM') && IS_WPCOM )
-	include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
+if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
+	if ( defined('IS_WPCOM') && IS_WPCOM ) {
+		include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
+	} else {
+		jetpack_require_lib( 'class.media-summary' );
+	}
+}
 
 /**
  * Better OG Image Tags for Image Post Formats
@@ -86,7 +91,9 @@ function enhanced_og_video( $tags ) {
 
 	$tags['og:image']            = $summary['image'];
 	$tags['og:image:secure_url'] = $summary['secure']['image'];
-	$tags['og:video:type']       = 'application/x-shockwave-flash';
+
+	// This should be html by default for youtube/vimeo, since we're linking to HTML pages.
+	$tags['og:video:type'] = isset( $summary['video_type'] ) ? $summary['video_type'] : 'text/html';
 
 	$video_url        = $summary['video'];
 	$secure_video_url = $summary['secure']['video'];

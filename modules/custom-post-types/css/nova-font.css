@@ -11,7 +11,8 @@
 }
 
 #menu-posts-nova_menu_item:before,
-#dashboard_right_now .nova-menu-count a:before {
+#dashboard_right_now .nova-menu-count a:before,
+#dashboard_right_now .nova-menu-count span:before {
 	font-family: 'nova-font';
 	speak: none;
 	font-style: normal;
@@ -24,6 +25,6 @@
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
-#dashboard_right_now .nova-menu-count a:before {
+#dashboard_right_now .nova-menu-count a:before, #dashboard_right_now .nova-menu-count span:before {
 	content: '\e603';
 }

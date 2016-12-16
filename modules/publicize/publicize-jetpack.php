@@ -27,7 +27,7 @@ class Publicize extends Publicize_Base {
 
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 4 );
 
-		add_action( 'transition_post_status', array( $this, 'save_publicized' ), 10, 3 );
+		add_action( 'wp_insert_post', array( $this, 'save_publicized' ), 11, 3 );
 
 		add_filter( 'jetpack_twitter_cards_site_tag', array( $this, 'enhaced_twitter_cards_site_tag' ) );
 
@@ -68,13 +68,11 @@ class Publicize extends Publicize_Base {
 		<div id="message" class="updated jetpack-message jp-connect">
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-text-container">
-					<h4>
 					<p><?php printf(
 						esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack' ) ) ),
 						'<strong>' . esc_html( $blog_name ) . '</strong>'
 					); ?></p>
 					<p><?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?></p>
-					</h4>
 				</div>
 				<div class="jetpack-install-container">
 					<p class="submit"><a href="<?php echo $jetpack->build_connect_url( false, menu_page_url( 'sharing', false ) ); ?>" class="button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
@@ -239,7 +237,7 @@ class Publicize extends Publicize_Base {
 		?>
 		<div id="message" class="jetpack-message jetpack-err">
 			<div class="squeezer">
-				<h4><?php echo wp_kses( $error, array( 'a' => array( 'href' => true ), 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h4>
+				<h2><?php echo wp_kses( $error, array( 'a' => array( 'href' => true ), 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h2>
 				<?php if ( $code ) : ?>
 				<p><?php printf( __( 'Error code: %s', 'jetpack' ), esc_html( stripslashes( $code ) ) ); ?></p>
 				<?php endif; ?>
@@ -280,6 +278,15 @@ class Publicize extends Publicize_Base {
 	*/
 	// on WordPress.com this is/calls Keyring::admin_url
 	function api_url( $service = false, $params = array() ) {
+		/**
+		 * Filters the API URL used to interact with WordPress.com.
+		 *
+		 * @module publicize
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param string https://public-api.wordpress.com/connect/?jetpack=publicize Default Publicize API URL.
+		 */
 		$url = apply_filters( 'publicize_api_url', 'https://public-api.wordpress.com/connect/?jetpack=publicize' );
 
 		if ( $service )
@@ -352,7 +359,25 @@ class Publicize extends Publicize_Base {
 	}
 
 	function flag_post_for_publicize( $new_status, $old_status, $post ) {
-		// Stub only. Doesn't need to do anything on Jetpack Client
+		if ( 'publish' == $new_status && 'publish' != $old_status ) {
+			/**
+			 * Determines whether a post being published gets publicized.
+			 *
+			 * Side-note: Possibly our most alliterative filter name.
+			 *
+			 * @module publicize
+			 *
+			 * @since 4.1.0
+			 *
+			 * @param bool $should_publicize Should the post be publicized? Default to true.
+			 * @param WP_POST $post Current Post object.
+			 */
+			$should_publicize = apply_filters( 'publicize_should_publicize_published_post', true, $post );
+
+			if ( $should_publicize ) {
+				update_post_meta( $post->ID, $this->PENDING, true );
+			}
+		}
 	}
 
 	function test_connection( $service_name, $connection ) {
@@ -398,9 +423,21 @@ class Publicize extends Publicize_Base {
 	 * Save a flag locally to indicate that this post has already been Publicized via the selected
 	 * connections.
 	 */
-	function save_publicized( $new_status, $old_status, $post ) {
+	function save_publicized( $post_ID, $post, $update ) {
 		// Only do this when a post transitions to being published
-		if ( 'publish' == $new_status && 'publish' != $old_status ) {
+		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
+			$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+			if ( ! empty( $connected_services ) ) {
+				/**
+				 * Fires when a post is saved that has is marked as pending publicizing
+				 *
+				 * @since 4.1.0
+				 *
+				 * @param int The post ID
+				 */
+				do_action( 'jetpack_publicize_post', $post->ID );
+			}
+			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}
 	}

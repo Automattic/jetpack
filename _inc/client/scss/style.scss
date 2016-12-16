@@ -1,0 +1,49 @@
+// ==========================================================================
+// Jetpack Admin styles
+//
+// This is an import of all component CSS that is bundled with each component.
+// Please keep these imports sorted and use specificity to ensure that
+// stylesheet order does not matter.
+
+// example: @import '../components/card/style';
+// ==========================================================================
+
+// Functions
+@import 'functions/rem';
+
+// Variables
+@import 'variables/colors';
+@import 'variables/layout';
+
+// Mixins
+@import 'mixins/breakpoints';
+@import 'mixins/clear-fix';
+@import 'mixins/long-content-fade';
+
+// General
+@import 'shared/main';
+
+// Components
+@import '../components/dash-item/style';
+@import '../components/dash-section-header/style';
+@import '../components/foldable-card/style';
+@import '../components/footer/style';
+@import '../components/loading-placeholder/style';
+@import '../components/jetpack-connect/style';
+@import '../components/jumpstart/style';
+@import '../components/masthead/style';
+@import '../components/module-settings/style';
+@import '../components/support-card/style';
+@import '../components/forms/styles';
+@import '../components/tags-input/style';
+@import '../components/admin-notices/style';
+
+
+// Page Templates
+@import '../at-a-glance/style';
+@import '../plans/style';
+@import '../apps/style';
+
+.dops-search__input[type="search"] {
+	width: 100%;
+}

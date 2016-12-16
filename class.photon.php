@@ -45,9 +45,6 @@ class Jetpack_Photon {
 	 * @return null
 	 */
 	private function setup() {
-		// Display warning if site is private
-		add_action( 'jetpack_activate_module_photon', array( $this, 'action_jetpack_activate_module_photon' ) );
-
 		if ( ! function_exists( 'jetpack_photon_url' ) )
 			return;
 
@@ -58,19 +55,12 @@ class Jetpack_Photon {
 		// Core image retrieval
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
 
+		// Responsive image srcset substitution
+		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ), 10, 4 );
+		add_filter( 'wp_calculate_image_sizes', array( $this, 'filter_sizes' ), 1, 2 ); // Early so themes can still easily filter.
+
 		// Helpers for maniuplated images
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
-	}
-
-	/**
-	 * Check if site is private and warn user if it is
-	 *
-	 * @uses Jetpack::check_privacy
-	 * @action jetpack_activate_module_photon
-	 * @return null
-	 */
-	public function action_jetpack_activate_module_photon() {
-		Jetpack::check_privacy( __FILE__ );
 	}
 
 	/**
@@ -88,7 +78,7 @@ class Jetpack_Photon {
 	public static function parse_images_from_html( $content ) {
 		$images = array();
 
-		if ( preg_match_all( '#(?:<a[^>]+?href=["|\'](?P<link_url>[^\s]+?)["|\'][^>]*?>\s*)?(?P<img_tag><img[^>]+?src=["|\'](?P<img_url>[^\s]+?)["|\'].*?>){1}(?:\s*</a>)?#is', $content, $images ) ) {
+		if ( preg_match_all( '#(?:<a[^>]+?href=["|\'](?P<link_url>[^\s]+?)["|\'][^>]*?>\s*)?(?P<img_tag><img[^>]*?\s+?src=["|\'](?P<img_url>[^\s]+?)["|\'].*?>){1}(?:\s*</a>)?#is', $content, $images ) ) {
 			foreach ( $images as $key => $unused ) {
 				// Simplify the output as much as possible, mostly for confirming test results.
 				if ( is_numeric( $key ) && $key > 0 )
@@ -151,7 +141,17 @@ class Jetpack_Photon {
 				// Identify image source
 				$src = $src_orig = $images['img_url'][ $index ];
 
-				// Allow specific images to be skipped
+				/**
+				 * Allow specific images to be skipped by Photon.
+				 *
+				 * @module photon
+				 *
+				 * @since 2.0.3
+				 *
+				 * @param bool false Should Photon ignore this image. Default to false.
+				 * @param string $src Image URL.
+				 * @param string $tag Image Tag (Image HTML output).
+				 */
 				if ( apply_filters( 'jetpack_photon_skip_image', false, $src, $tag ) )
 					continue;
 
@@ -195,7 +195,30 @@ class Jetpack_Photon {
 					}
 
 					// WP Attachment ID, if uploaded to this site
-					if ( preg_match( '#class=["|\']?[^"\']*wp-image-([\d]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $attachment_id ) && ( 0 === strpos( $src, $upload_dir['baseurl'] ) || apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) ) ) ) {
+					if (
+						preg_match( '#class=["|\']?[^"\']*wp-image-([\d]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $attachment_id ) &&
+						(
+							0 === strpos( $src, $upload_dir['baseurl'] ) ||
+							/**
+							 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
+							 *
+							 * @module photon
+							 *
+							 * @since 2.0.3
+							 *
+							 * @param bool false Was the image uploaded to the local site. Default to false.
+							 * @param array $args {
+							 * 	 Array of image details.
+							 *
+							 * 	 @type $src Image URL.
+							 * 	 @type tag Image tag (Image HTML output).
+							 * 	 @type $images Array of information about the image.
+							 * 	 @type $index Image index.
+							 * }
+							 */
+							apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) )
+						)
+					) {
 						$attachment_id = intval( array_pop( $attachment_id ) );
 
 						if ( $attachment_id ) {
@@ -211,13 +234,13 @@ class Jetpack_Photon {
 
 									// Prevent image distortion if a detected dimension exceeds the image's natural dimensions
 									if ( ( false !== $width && $width > $src_per_wp[1] ) || ( false !== $height && $height > $src_per_wp[2] ) ) {
-										$width = false == $width ? false : min( $width, $src_per_wp[1] );
-										$height = false == $height ? false : min( $height, $src_per_wp[2] );
+										$width = false === $width ? false : min( $width, $src_per_wp[1] );
+										$height = false === $height ? false : min( $height, $src_per_wp[2] );
 									}
 
 									// If no width and height are found, max out at source image's natural dimensions
 									// Otherwise, respect registered image sizes' cropping setting
-									if ( false == $width && false == $height ) {
+									if ( false === $width && false === $height ) {
 										$width = $src_per_wp[1];
 										$height = $src_per_wp[2];
 										$transform = 'fit';
@@ -275,6 +298,26 @@ class Jetpack_Photon {
 					elseif ( false !== $height )
 						$args['h'] = $height;
 
+					/**
+					 * Filter the array of Photon arguments added to an image when it goes through Photon.
+					 * By default, only includes width and height values.
+					 * @see https://developer.wordpress.com/docs/photon/api/
+					 *
+					 * @module photon
+					 *
+					 * @since 2.0.0
+					 *
+					 * @param array $args Array of Photon Arguments.
+					 * @param array $args {
+					 * 	 Array of image details.
+					 *
+					 * 	 @type $tag Image tag (Image HTML output).
+					 * 	 @type $src Image URL.
+					 * 	 @type $src_orig Original Image URL.
+					 * 	 @type $width Image width.
+					 * 	 @type $height Image height.
+					 * }
+					 */
 					$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height' ) );
 
 					$photon_url = jetpack_photon_url( $src, $args );
@@ -361,16 +404,40 @@ class Jetpack_Photon {
 	 */
 	public function filter_image_downsize( $image, $attachment_id, $size ) {
 		// Don't foul up the admin side of things, and provide plugins a way of preventing Photon from being applied to images.
-		if ( is_admin() || apply_filters( 'jetpack_photon_override_image_downsize', false, compact( 'image', 'attachment_id', 'size' ) ) )
+		if (
+			is_admin() ||
+			/**
+			 * Provide plugins a way of preventing Photon from being applied to images retrieved from WordPress Core.
+			 *
+			 * @module photon
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param bool false Stop Photon from being applied to the image. Default to false.
+			 * @param array $args {
+			 * 	 Array of image details.
+			 *
+			 * 	 @type $image Image URL.
+			 * 	 @type $attachment_id Attachment ID of the image.
+			 * 	 @type $size Image size. Can be a string (name of the image size, e.g. full) or an integer.
+			 * }
+			 */
+			apply_filters( 'jetpack_photon_override_image_downsize', false, compact( 'image', 'attachment_id', 'size' ) )
+		)
 			return $image;
 
 		// Get the image URL and proceed with Photon-ification if successful
 		$image_url = wp_get_attachment_url( $attachment_id );
 
+		// Set this to true later when we know we have size meta.
+		$has_size_meta = false;
+
 		if ( $image_url ) {
 			// Check if image URL should be used with Photon
 			if ( ! self::validate_image_url( $image_url ) )
 				return $image;
+
+			$intermediate = true; // For the fourth array item returned by the image_downsize filter.
 
 			// If an image is requested with a size known to WordPress, use that size's settings with Photon
 			if ( ( is_string( $size ) || is_int( $size ) ) && array_key_exists( $size, self::image_sizes() ) ) {
@@ -379,18 +446,32 @@ class Jetpack_Photon {
 
 				$photon_args = array();
 
-				// `full` is a special case in WP
-				// To ensure filter receives consistent data regardless of requested size, `$image_args` is overridden with dimensions of original image.
+				$image_meta = image_get_intermediate_size( $attachment_id, $size );
+
+				// 'full' is a special case: We need consistent data regardless of the requested size.
 				if ( 'full' == $size ) {
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
+					$intermediate = false;
+				} elseif ( ! $image_meta ) {
+					// If we still don't have any image meta at this point, it's probably from a custom thumbnail size
+					// for an image that was uploaded before the custom image was added to the theme.  Try to determine the size manually.
+					$image_meta = wp_get_attachment_metadata( $attachment_id );
+
 					if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
-						// 'crop' is true so Photon's `resize` method is used
-						$image_args = array(
-							'width'  => $image_meta['width'],
-							'height' => $image_meta['height'],
-							'crop'   => true
-						);
+						$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $image_args['width'], $image_args['height'], $image_args['crop'] );
+						if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
+							$image_meta['width'] = $image_resized[6];
+							$image_meta['height'] = $image_resized[7];
+						}
 					}
+				}
+
+				if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
+					$image_args['width']  = $image_meta['width'];
+					$image_args['height'] = $image_meta['height'];
+
+					list( $image_args['width'], $image_args['height'] ) = image_constrain_size_for_editor( $image_args['width'], $image_args['height'], $size, 'display' );
+					$has_size_meta = true;
 				}
 
 				// Expose determined arguments to a filter before passing to Photon
@@ -405,24 +486,48 @@ class Jetpack_Photon {
 					}
 				} else {
 					if ( ( 'resize' === $transform ) && $image_meta = wp_get_attachment_metadata( $attachment_id ) ) {
-						// Lets make sure that we don't upscale images since wp never upscales them as well
-						$smaller_width  = ( ( $image_meta['width']  < $image_args['width']  ) ? $image_meta['width']  : $image_args['width']  );
-						$smaller_height = ( ( $image_meta['height'] < $image_args['height'] ) ? $image_meta['height'] : $image_args['height'] );
+						if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
+							// Lets make sure that we don't upscale images since wp never upscales them as well
+							$smaller_width  = ( ( $image_meta['width']  < $image_args['width']  ) ? $image_meta['width']  : $image_args['width']  );
+							$smaller_height = ( ( $image_meta['height'] < $image_args['height'] ) ? $image_meta['height'] : $image_args['height'] );
 
-						$photon_args[ $transform ] = $smaller_width . ',' . $smaller_height;
+							$photon_args[ $transform ] = $smaller_width . ',' . $smaller_height;
+						}
 					} else {
 						$photon_args[ $transform ] = $image_args['width'] . ',' . $image_args['height'];
 					}
 
 				}
 
+
+				/**
+				 * Filter the Photon Arguments added to an image when going through Photon, when that image size is a string.
+				 * Image size will be a string (e.g. "full", "medium") when it is known to WordPress.
+				 *
+				 * @module photon
+				 *
+				 * @since 2.0.0
+				 *
+				 * @param array $photon_args Array of Photon arguments.
+				 * @param array $args {
+				 * 	 Array of image details.
+				 *
+				 * 	 @type $image_args Array of Image arguments (width, height, crop).
+				 * 	 @type $image_url Image URL.
+				 * 	 @type $attachment_id Attachment ID of the image.
+				 * 	 @type $size Image size. Can be a string (name of the image size, e.g. full) or an integer.
+				 * 	 @type $transform Value can be resize or fit.
+				 *                    @see https://developer.wordpress.com/docs/photon/api
+				 * }
+				 */
 				$photon_args = apply_filters( 'jetpack_photon_image_downsize_string', $photon_args, compact( 'image_args', 'image_url', 'attachment_id', 'size', 'transform' ) );
 
 				// Generate Photon URL
 				$image = array(
 					jetpack_photon_url( $image_url, $photon_args ),
-					false,
-					false
+					$has_size_meta ? $image_args['width'] : false,
+					$has_size_meta ? $image_args['height'] : false,
+					$intermediate
 				);
 			} elseif ( is_array( $size ) ) {
 				// Pull width and height values from the provided array, if possible
@@ -430,26 +535,222 @@ class Jetpack_Photon {
 				$height = isset( $size[1] ) ? (int) $size[1] : false;
 
 				// Don't bother if necessary parameters aren't passed.
-				if ( ! $width || ! $height )
+				if ( ! $width || ! $height ) {
 					return $image;
+				}
+
+				$image_meta = wp_get_attachment_metadata( $attachment_id );
+				if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
+					$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $width, $height );
+
+					if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
+						$width = $image_resized[6];
+						$height = $image_resized[7];
+					} else {
+						$width = $image_meta['width'];
+						$height = $image_meta['height'];
+					}
+
+					$has_size_meta = true;
+				}
+
+				list( $width, $height ) = image_constrain_size_for_editor( $width, $height, $size );
 
 				// Expose arguments to a filter before passing to Photon
 				$photon_args = array(
 					'fit' => $width . ',' . $height
 				);
 
+				/**
+				 * Filter the Photon Arguments added to an image when going through Photon,
+				 * when the image size is an array of height and width values.
+				 *
+				 * @module photon
+				 *
+				 * @since 2.0.0
+				 *
+				 * @param array $photon_args Array of Photon arguments.
+				 * @param array $args {
+				 * 	 Array of image details.
+				 *
+				 * 	 @type $width Image width.
+				 * 	 @type height Image height.
+				 * 	 @type $image_url Image URL.
+				 * 	 @type $attachment_id Attachment ID of the image.
+				 * }
+				 */
 				$photon_args = apply_filters( 'jetpack_photon_image_downsize_array', $photon_args, compact( 'width', 'height', 'image_url', 'attachment_id' ) );
 
 				// Generate Photon URL
 				$image = array(
 					jetpack_photon_url( $image_url, $photon_args ),
-					false,
-					false
+					$has_size_meta ? $width : false,
+					$has_size_meta ? $height : false,
+					$intermediate
 				);
 			}
 		}
 
 		return $image;
+	}
+
+	/**
+	 * Filters an array of image `srcset` values, replacing each URL with its Photon equivalent.
+	 *
+	 * @since 3.8.0
+	 * @since 4.0.4 Added automatically additional sizes beyond declared image sizes.
+	 * @param array $sources An array of image urls and widths.
+	 * @uses self::validate_image_url, jetpack_photon_url, Jetpack_Photon::parse_from_filename
+	 * @uses Jetpack_Photon::strip_image_dimensions_maybe, Jetpack::get_content_width
+	 * @return array An array of Photon image urls and widths.
+	 */
+	public function filter_srcset_array( $sources, $size_array, $image_src, $image_meta ) {
+		$upload_dir = wp_upload_dir();
+
+		foreach ( $sources as $i => $source ) {
+			if ( ! self::validate_image_url( $source['url'] ) ) {
+				continue;
+			}
+
+			/** This filter is already documented in class.photon.php */
+			if ( apply_filters( 'jetpack_photon_skip_image', false, $source['url'], $source ) ) {
+				continue;
+			}
+
+			$url = $source['url'];
+			list( $width, $height ) = Jetpack_Photon::parse_dimensions_from_filename( $url );
+
+			// It's quicker to get the full size with the data we have already, if available
+			if ( isset( $image_meta['file'] ) ) {
+				$url = trailingslashit( $upload_dir['baseurl'] ) . $image_meta['file'];
+			} else {
+				$url = Jetpack_Photon::strip_image_dimensions_maybe( $url );
+			}
+
+			$args = array();
+			if ( 'w' === $source['descriptor'] ) {
+				if ( $height && ( $source['value'] == $width ) ) {
+					$args['resize'] = $width . ',' . $height;
+				} else {
+					$args['w'] = $source['value'];
+				}
+
+			}
+
+			$sources[ $i ]['url'] = jetpack_photon_url( $url, $args );
+		}
+
+		/**
+		 * At this point, $sources is the original srcset with Photonized URLs.
+		 * Now, we're going to construct additional sizes based on multiples of the content_width.
+		 * This will reduce the gap between the largest defined size and the original image.
+		 */
+
+		/**
+		 * Filter the multiplier Photon uses to create new srcset items.
+		 * Return false to short-circuit and bypass auto-generation.
+		 *
+		 * @module photon
+		 *
+		 * @since 4.0.4
+		 *
+		 * @param array|bool $multipliers Array of multipliers to use or false to bypass.
+		 */
+		$multipliers = apply_filters( 'jetpack_photon_srcset_multipliers', array( 2, 3 ) );
+		$url         = trailingslashit( $upload_dir['baseurl'] ) . $image_meta['file'];
+
+		if (
+			/** Short-circuit via jetpack_photon_srcset_multipliers filter. */
+			is_array( $multipliers )
+			/** This filter is already documented in class.photon.php */
+			&& ! apply_filters( 'jetpack_photon_skip_image', false, $url, null )
+			/** Verify basic meta is intact. */
+			&& isset( $image_meta['width'] ) && isset( $image_meta['height'] ) && isset( $image_meta['file'] )
+			/** Verify we have the requested width/height. */
+			&& isset( $size_array[0] ) && isset( $size_array[1] )
+			) {
+
+			$fullwidth  = $image_meta['width'];
+			$fullheight = $image_meta['height'];
+			$reqwidth   = $size_array[0];
+			$reqheight  = $size_array[1];
+
+			$constrained_size = wp_constrain_dimensions( $fullwidth, $fullheight, $reqwidth );
+			$expected_size = array( $reqwidth, $reqheight );
+
+			if ( abs( $constrained_size[0] - $expected_size[0] ) <= 1 && abs( $constrained_size[1] - $expected_size[1] ) <= 1 ) {
+				$crop = 'soft';
+				$base = Jetpack::get_content_width() ? Jetpack::get_content_width() : 1000; // Provide a default width if none set by the theme.
+			}
+			else {
+				$crop = 'hard';
+				$base = $reqwidth;
+			}
+
+
+			$currentwidths = array_keys( $sources );
+			$newsources = null;
+
+			foreach ( $multipliers as $multiplier ) {
+
+				$newwidth = $base * $multiplier;
+				foreach ( $currentwidths as $currentwidth ){
+					// If a new width would be within 100 pixes of an existing one or larger than the full size image, skip.
+					if ( abs( $currentwidth - $newwidth ) < 50 || ( $newwidth > $fullwidth ) ) {
+						continue 2; // Back to the foreach ( $multipliers as $multiplier )
+					}
+				} // foreach ( $currentwidths as $currentwidth ){
+
+				if ( 'soft' == $crop ) {
+					$args = array(
+						'w' => $newwidth,
+					);
+				}
+				else { // hard crop, e.g. add_image_size( 'example', 200, 200, true );
+					$args = array(
+						'zoom'   => $multiplier,
+						'resize' => $reqwidth . ',' . $reqheight,
+					);
+				}
+
+				$newsources[ $newwidth ] = array(
+					'url'         => jetpack_photon_url( $url, $args ),
+					'descriptor'  => 'w',
+					'value'       => $newwidth,
+					);
+			} // foreach ( $multipliers as $multiplier )
+			if ( is_array( $newsources ) ) {
+				$sources = array_merge( $sources, $newsources );
+			}
+		} // if ( isset( $image_meta['width'] ) && isset( $image_meta['file'] ) )
+
+		return $sources;
+	}
+
+	/**
+	 * Filters an array of image `sizes` values, using $content_width instead of image's full size.
+	 *
+	 * @since 4.0.4
+	 * @since 4.1.0 Returns early for images not within the_content.
+	 * @param array $sizes An array of media query breakpoints.
+	 * @param array $size  Width and height of the image
+	 * @uses Jetpack::get_content_width
+	 * @return array An array of media query breakpoints.
+	 */
+	public function filter_sizes( $sizes, $size ) {
+		if ( ! doing_filter( 'the_content' ) ){
+			return $sizes;
+		}
+		$content_width = Jetpack::get_content_width();
+		if ( ! $content_width ) {
+			$content_width = 1000;
+		}
+
+		if ( ( is_array( $size ) && $size[0] < $content_width ) ) {
+			return $sizes;
+		}
+
+		return sprintf( '(max-width: %1$dpx) 100vw, %1$dpx', $content_width );
 	}
 
 	/**
@@ -479,8 +780,22 @@ class Jetpack_Photon {
 		) );
 
 		// Bail if scheme isn't http or port is set that isn't port 80
-		if ( ( 'http' != $url_info['scheme'] || ! in_array( $url_info['port'], array( 80, null ) ) ) && apply_filters( 'jetpack_photon_reject_https', true ) )
+		if (
+			( 'http' != $url_info['scheme'] || ! in_array( $url_info['port'], array( 80, null ) ) ) &&
+			/**
+			 * Allow Photon to fetch images that are served via HTTPS.
+			 *
+			 * @module photon
+			 *
+			 * @since 2.4.0
+			 * @since 3.9.0 Default to false.
+			 *
+			 * @param bool $reject_https Should Photon ignore images using the HTTPS scheme. Default to false.
+			 */
+			apply_filters( 'jetpack_photon_reject_https', false )
+		) {
 			return false;
+		}
 
 		// Bail if no host is found
 		if ( is_null( $url_info['host'] ) )
@@ -500,6 +815,17 @@ class Jetpack_Photon {
 
 		// If we got this far, we should have an acceptable image URL
 		// But let folks filter to decline if they prefer.
+		/**
+		 * Overwrite the results of the validation steps an image goes through before to be considered valid to be used by Photon.
+		 *
+		 * @module photon
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param bool true Is the image URL valid and can it be used by Photon. Default to true.
+		 * @param string $url Image URL.
+		 * @param array $parsed_url Array of information about the image.
+		 */
 		return apply_filters( 'photon_validate_image_url', true, $url, $parsed_url );
 	}
 

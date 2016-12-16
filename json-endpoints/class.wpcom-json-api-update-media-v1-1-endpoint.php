@@ -20,23 +20,23 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$input = $this->input( true );
 		$insert = array();
 
-		if ( ! empty( $input['title'] ) ) {
+		if ( isset( $input['title'] ) ) {
 			$insert['post_title'] = $input['title'];
 		}
 
-		if ( ! empty( $input['caption'] ) ) {
+		if ( isset( $input['caption'] ) ) {
 			$insert['post_excerpt'] = $input['caption'];
 		}
 
-		if ( ! empty( $input['description'] ) ) {
+		if ( isset( $input['description'] ) ) {
 			$insert['post_content'] = $input['description'];
 		}
 
-		if ( ! empty( $input['parent_id'] ) ) {
+		if ( isset( $input['parent_id'] ) ) {
 			$insert['post_parent'] = $input['parent_id'];
 		}
 
-		if ( ! empty( $input['alt'] ) ) {
+		if ( isset( $input['alt'] ) ) {
 			$alt = wp_strip_all_tags( $input['alt'], true );
 			update_post_meta( $media_id, '_wp_attachment_image_alt', $alt );
 		}
@@ -57,7 +57,7 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			);
 		
 			foreach ( $id3_keys as $key => $label ) {
-				if ( ! empty( $input[ $key ] ) ) {
+				if ( isset( $input[ $key ] ) ) {
 					$changed = true;
 					$id3data[ $key ] = wp_strip_all_tags( $input[ $key ], true );
 				}

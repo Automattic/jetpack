@@ -1,0 +1,238 @@
+.jp-landing__plans.dops-card {
+	padding: 0;
+}
+
+.jp-landing__plans {
+
+	.dops-button {
+		margin-right: 10px;
+	}
+}
+
+.jp-landing-plans__header {
+	background: $gray-dark;
+
+	@include breakpoint( ">660px" ) {
+		padding: rem( 32px ) 0 0;
+	}
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 32px );
+	}
+}
+
+.jp-landing-plans__header-img-container {
+	margin: rem( 32px ) 0 0;
+	overflow: hidden;
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	@include breakpoint( "<660px" ) {
+		margin-bottom: 0;
+	}
+}
+
+.jp-landing-plans__header-img {
+	max-width: 100%; // needs proper srcsets
+
+	@include breakpoint( "<660px" ) {
+		margin-top: rem( 32px );
+	}
+
+	@include breakpoint( ">660px" ) {
+		margin: 0 rem( -32px ) 0 rem( 32px ); // off-canvas effect
+	}
+}
+
+// clouds are a little hacky, but works for IE11 -jg
+.jp-landing-plans__clouds {
+	position: relative;
+	overflow: hidden;
+	padding-top: rem( 80px );
+
+	img {
+		position: absolute;
+		bottom: -2px;
+		left: -5%;
+		right: -5%;
+		height: auto;
+		width: 110%;
+	}
+
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+// end IE11 cloud hack
+
+.jp-landing-plans__header-col-left {
+	flex-basis: 60%;
+
+	@include breakpoint( ">660px" ) {
+		padding-left: rem( 32px );
+	}
+}
+
+.jp-landing-plans__header-col-right {
+	flex-basis: 40%;
+}
+
+.jp-landing-plans__header-title,
+.jp-landing-plans__header-description {
+	line-height: 1.5;
+
+	@include breakpoint( ">660px" ) {
+		text-align: center;
+	}
+}
+
+.jp-landing-plans__header-title,
+.jp-landing-plans__header-subtitle {
+	color: $white;
+	font-weight: 400;
+	margin: 0;
+}
+
+.jp-landing-plans__header-title {
+	font-size: rem( 20px );
+}
+
+.jp-landing-plans__header-description {
+	font-size: rem( 14px );
+	margin: 0;
+	padding-bottom: rem( 16px );
+}
+
+.jp-landing-plans__header-subtitle {
+	font-size: rem( 16px );
+	line-height: 1.25;
+}
+
+.jp-landing-plans__header-description,
+.jp-landing-plans__header-text {
+	color: lighten($gray, 10%);
+}
+
+.jp-landing-plans__header-text {
+	font-size: rem( 14px );
+	padding: rem( 24px ) 0;
+	margin: 0;
+}
+
+.jp-landing-plans__header-btn-container {
+	margin: 0;
+}
+
+.jp-landing__plan-features-card {
+	box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
+		0 1px 2px lighten( $gray, 30% );
+	border-radius: 3px;
+
+	@include breakpoint( ">660px" ) {
+		margin-bottom: rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		margin-bottom: rem( 16px );
+	}
+
+	@include breakpoint( ">480px" ) {
+		padding: rem( 32px );
+	}
+
+	@include breakpoint( "<480px" ) {
+		padding: rem( 16px );
+	}
+
+	&:last-of-type {
+		margin-bottom: 0;
+	}
+}
+
+.jp-landing__plan-features-title {
+	margin: 0;
+}
+
+.jp-landing__plan-features {
+
+	@include breakpoint( ">660px" ) {
+		padding: 0 rem( 32px ) rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 16px );
+	}
+}
+
+.jp-landing__plan-card {
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+	}
+
+	@include breakpoint( ">660px" ) {
+		padding: rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 32px ) rem( 32px ) rem( 16px );
+	}
+
+	.jp-landing__plan-features-title,
+	.jp-landing__plan-features-text {
+		padding: 0;
+
+		@include breakpoint( ">660px" ) {
+			margin-left: rem( 32px );
+		}
+	}
+
+	.jp-landing__plan-features-title {
+		margin-bottom: rem( 16px );
+	}
+}
+
+.jp-landing__plan-card-img {
+
+	@include breakpoint( "<660px" ) {
+		float: right;
+		margin: 0 0 rem( 32px ) rem( 32px );
+	}
+
+	@include breakpoint( "<480px" ) {
+		display: none;
+	}
+}
+
+.jp-landing__plan-icon {
+	width: rem( 120px );
+
+	@include breakpoint( "<660px" ) {
+		width: rem( 100px );
+	}
+}
+
+.jp-landing__plan-card-img.is-placeholder {
+	width: rem( 120px );
+	height: rem( 85px );
+
+	& + .jp-landing__plan-card-current {
+		width: 80%;
+	}
+}
+
+.jp-landing__plan-features-title.is-placeholder {
+	height: rem( 24px );
+	max-width: 50%;
+}
+
+.jp-landing__plan-features-text.is-placeholder {
+	height: rem( 44px );
+	max-width: 75%;
+}

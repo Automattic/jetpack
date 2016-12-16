@@ -20,6 +20,7 @@ class WPCOM_JSON_API_Get_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpo
 			return $return;
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'taxonomies' );
 
 		return $return;

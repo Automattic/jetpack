@@ -8,6 +8,7 @@
 
 			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
 
-			<?php 
+			<?php
 				Jetpack::init()->load_view( 'admin/network-activated-notice.php' );
-				do_action( 'jetpack_notices' ); 
+				/** This action is already documented in views/admin/admin-page.php */
+				do_action( 'jetpack_notices' );

@@ -1,12 +1,14 @@
 <?php
 /**
  * Module Name: Infinite Scroll
- * Module Description: Add support for infinite scroll to your theme.
+ * Module Description: Automatically load new content when a visitor scrolls.
  * Sort Order: 26
  * First Introduced: 2.0
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Appearance
+ * Feature: Appearance
+ * Additional Search Queries: scroll, infinite, infinite scroll
  */
 
 /**
@@ -94,7 +96,8 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * @return html
 	 */
 	public function setting_google_analytics() {
-		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( $this->option_name_google_analytics, false ), false ) . ' /> ' . __( 'Track each Infinite Scroll post load as a page view in Google Analytics', 'jetpack' ) . '</br><small>' . __( 'By checking the box above, each new set of posts loaded via Infinite Scroll will be recorded as a page view in Google Analytics.', 'jetpack' ) . '</small>' . '</label>';
+		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( $this->option_name_google_analytics, false ), false ) . ' /> ' . esc_html__( 'Track each Infinite Scroll post load as a page view in Google Analytics', 'jetpack' )  . '</label>';
+		echo '<p class="description">' . esc_html__( 'Check the box above to record each new set of posts loaded via Infinite Scroll as a page view in Google Analytics.', 'jetpack' ) . '</p>';
 	}
 
 	/**
@@ -123,6 +126,7 @@ class Jetpack_Infinite_Scroll_Extras {
 		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) )
 			return;
 
+		/** This filter is already documented in modules/infinite-scroll/infinity.php */
 		$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
 
 		if ( is_readable( $customization_file ) ) {
@@ -168,7 +172,7 @@ class Jetpack_Infinite_Scroll_Extras {
 		}
 
 		// Check if Google Analytics tracking is requested
-		$settings['google_analytics'] = (bool) get_option( $this->option_name_google_analytics );
+		$settings['google_analytics'] = (bool) Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
 
 		return $settings;
 	}
@@ -187,8 +191,20 @@ class Jetpack_Infinite_Scroll_Extras {
 	public function action_wp_enqueue_scripts() {
 		// Do not load scripts and styles on singular pages and static pages
 		$load_scripts_and_styles = ! ( is_singular() || is_page() );
-		if ( ! apply_filters( 'jetpack_infinite_scroll_load_scripts_and_styles', $load_scripts_and_styles ) )
+		if (
+			/**
+			 * Allow plugins to enqueue all Infinite Scroll scripts and styles on singular pages as well.
+			 *
+			 *  @module infinite-scroll
+			 *
+			 * @since 3.1.0
+			 *
+			 * @param bool $load_scripts_and_styles Should scripts and styles be loaded on singular pahes and static pages. Default to false.
+			 */
+			! apply_filters( 'jetpack_infinite_scroll_load_scripts_and_styles', $load_scripts_and_styles )
+		) {
 			return;
+		}
 
 		// VideoPress stand-alone plugin
 		global $videopress;
@@ -198,11 +214,12 @@ class Jetpack_Infinite_Scroll_Extras {
 
 		// VideoPress Jetpack module
 		if ( Jetpack::is_module_active( 'videopress' ) ) {
-			Jetpack_VideoPress_Shortcode::enqueue_scripts();
+			wp_enqueue_script( 'videopress' );
 		}
 
 		// Fire the post_gallery action early so Carousel scripts are present.
 		if ( Jetpack::is_module_active( 'carousel' ) ) {
+			/** This filter is already documented in core/wp-includes/media.php */
 			do_action( 'post_gallery', '', '' );
 		}
 
@@ -212,12 +229,18 @@ class Jetpack_Infinite_Scroll_Extras {
 		}
 
 		// Core's Audio and Video Shortcodes
-		if ( 'mediaelement' === apply_filters( 'wp_audio_shortcode_library', 'mediaelement' ) ) {
+		if (
+			/** This filter is already documented in core/wp-includes/media.php */
+			'mediaelement' === apply_filters( 'wp_audio_shortcode_library', 'mediaelement' )
+		) {
 			wp_enqueue_style( 'wp-mediaelement' );
 			wp_enqueue_script( 'wp-mediaelement' );
 		}
 
-		if ( 'mediaelement' === apply_filters( 'wp_video_shortcode_library', 'mediaelement' ) ) {
+		if (
+			/** This filter is already documented in core/wp-includes/media.php */
+			'mediaelement' === apply_filters( 'wp_video_shortcode_library', 'mediaelement' )
+		) {
 			wp_enqueue_style( 'wp-mediaelement' );
 			wp_enqueue_script( 'wp-mediaelement' );
 		}

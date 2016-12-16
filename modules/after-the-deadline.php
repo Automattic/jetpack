@@ -1,12 +1,14 @@
 <?php
 /**
  * Module Name: Spelling and Grammar
- * Module Description: Check your spelling, style, and grammar with the After the Deadline proofreading service.
+ * Module Description: Check your spelling, style, and grammar.
  * Sort Order: 6
  * First Introduced: 1.1
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
+ * Feature: Writing
+ * Additional Search Queries: after the deadline, afterthedeadline, spell, spellchecker, spelling, grammar, proofreading, style, language, cliche
  */
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -17,7 +19,8 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	}
 	add_filter( 'atd_http_post_timeout', 'AtD_http_post_timeout_action' );
 	function AtD_http_post_error_action( $code ) {
-		bump_stats_extras( 'atd-remote-error', $code );
+		/** This action is documented in modules/widgets/social-media-icons.php */
+		do_action( 'jetpack_bump_stats_extras', 'atd-remote-error', $code );
 	}
 	add_action( 'atd_http_post_error', 'AtD_http_post_error_action' );
 	function AtD_service_domain_action() {
@@ -46,7 +49,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		exit;
 	}
 	function AtD_update_setting( $user_id, $name, $value ) {
-		update_user_meta( $user_id, $name, $value );
+		return update_user_meta( $user_id, $name, $value );
 	}
 	function AtD_get_setting( $user_id, $name, $single = true ) {
 		return get_user_meta( $user_id, $name, $single );
@@ -63,7 +66,7 @@ include( dirname( __FILE__ ) . '/after-the-deadline/config-options.php' );
 include( dirname( __FILE__ ) . '/after-the-deadline/config-unignore.php' );
 include( dirname( __FILE__ ) . '/after-the-deadline/proxy.php' );
 
-define( 'ATD_VERSION', '20140527' );
+define( 'ATD_VERSION', '20150715' );
 
 /*
  * Display the AtD configuration options
@@ -128,7 +131,7 @@ function register_AtD_button( $buttons ) {
 function add_AtD_tinymce_plugin( $plugin_array ) {
 	$plugin = ATD_TINYMCE_4 ? 'plugin' : 'editor_plugin';
 
-	$plugin_array['AtD'] = plugins_url( 'after-the-deadline/tinymce/' . $plugin . '.js?v=' . ATD_VERSION, __FILE__ );
+	$plugin_array['AtD'] = add_query_arg( 'v', ATD_VERSION, plugins_url( 'after-the-deadline/tinymce/' . $plugin . '.js', __FILE__ ) );
 	return $plugin_array;
 }
 
@@ -296,6 +299,8 @@ function AtD_should_load_on_page() {
 	 * Allows scripts to be loaded via AtD in admin.
 	 *
 	 * By default, AtD only enqueues JS on certain admin pages to reduce bloat. The filter allows additional pages to have AtD JS.
+	 *
+	 * @module after-the-deadline
 	 *
 	 * @since 1.2.3
 	 *

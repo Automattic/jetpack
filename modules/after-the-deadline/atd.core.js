@@ -6,7 +6,7 @@
  * Contact     : raffi@automattic.com
  */
 
-/* jshint sub: true, devel: true, onevar: false, smarttabs: true */
+/* jshint sub: true, devel: true, onevar: false, smarttabs: true, loopfunc: true */
 /* exported EXPORTED_SYMBOLS, atd_sprintf */
 
 /* EXPORTED_SYMBOLS is set so this file can be a JavaScript Module */
@@ -359,13 +359,67 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 		ecount = 0, /* track number of highlighted errors */
 		parent = this,
 		bogus = this._isTinyMCE ? ' data-mce-bogus="1"' : '',
-		emptySpan = '<span class="mceItemHidden"' + bogus + '>&nbsp;</span>';
+		emptySpan = '<span class="mceItemHidden"' + bogus + '>&nbsp;</span>',
+		textOnlyMode;
+
+	/**
+	 * Split a text node into an ordered list of siblings:
+	 * - text node to the left of the match
+	 * - the element replacing the match
+	 * - text node to the right of the match
+	 *
+	 * We have to leave the text to the left and right of the match alone
+	 * in order to prevent XSS
+	 *
+	 * @return array
+	 */
+	function splitTextNode( textnode, regexp, replacement ) {
+		var text = textnode.nodeValue,
+			index = text.search( regexp ),
+			match = text.match( regexp ),
+			captured = [],
+			cursor;
+
+		if ( index < 0 || ! match.length ) {
+			return [ textnode ];
+		}
+
+		if ( index > 0 ) {
+			// capture left text node
+			captured.push( document.createTextNode( text.substr( 0, index ) ) );
+		}
+
+		// capture the replacement of the matched string
+		captured.push( parent.create( match[0].replace( regexp, replacement ) ) );
+
+		cursor = index + match[0].length;
+
+		if ( cursor < text.length ) {
+			// capture right text node
+			captured.push( document.createTextNode( text.substr( cursor ) ) );
+		}
+
+		return captured;
+	}
+
+	function _isInPre( node ) {
+		if ( node ) {
+			while ( node.parentNode ) {
+				if ( node.nodeName === 'PRE' ) {
+					return true;
+				}
+				node = node.parentNode;
+			}
+		}
+
+		return false;
+	}
 
 	/* Collect all text nodes */
 	/* Our goal--ignore nodes that are already wrapped */
 
 	this._walk( container_nodes, function( n ) {
-		if ( n.nodeType === 3 && ! parent.isMarkedNode( n ) ) {
+		if ( n.nodeType === 3 && ! parent.isMarkedNode( n ) && ! _isInPre( n ) ) {
 			nl.push( n );
 		}
 	});
@@ -439,6 +493,8 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 					   because eventually the whole thing gets wrapped in an mceItemHidden span and from there it's necessary to
 					   handle each node individually. */
 					var bringTheHurt = function( node ) {
+						var span, splitNodes;
+
 						if ( node.nodeType === 3 ) {
 							ecount++;
 
@@ -447,7 +503,28 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 							if ( parent.isIE() && node.nodeValue.length > 0 && node.nodeValue.substr(0, 1) === ' ' ) {
 								return parent.create( emptySpan + node.nodeValue.substr( 1, node.nodeValue.length - 1 ).replace( regexp, result ), false );
 							} else {
-								return parent.create( node.nodeValue.replace( regexp, result ), false );
+								if ( textOnlyMode ) {
+									return parent.create( node.nodeValue.replace( regexp, result ), false );
+								}
+
+								span = parent.create( '<span />' );
+								if ( typeof textOnlyMode === 'undefined' ) {
+									// cache this to avoid adding / removing nodes unnecessarily
+									textOnlyMode = typeof span.appendChild !== 'function';
+									if ( textOnlyMode ) {
+										parent.remove( span );
+										return parent.create( node.nodeValue.replace( regexp, result ), false );
+									}
+								}
+
+								// "Visual" mode
+								splitNodes = splitTextNode( node, regexp, result );
+								for ( var i = 0; i < splitNodes.length; i++ ) {
+									span.appendChild( splitNodes[i] );
+								}
+
+								node = span;
+								return node;
 							}
 						}
 						else {

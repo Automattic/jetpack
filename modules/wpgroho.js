@@ -25,6 +25,10 @@ WPGroHo = jQuery.extend( {
 }, WPGroHo );
 
 jQuery( document ).ready( function() {
+	if ( 'undefined' === typeof Gravatar ) {
+		return;
+	}
+
 	Gravatar.profile_cb = function( h, d ) {
 		WPGroHo.syncProfileData( h, d );
 	};

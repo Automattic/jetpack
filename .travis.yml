@@ -3,63 +3,105 @@
 # Tell Travis CI we're using PHP
 language: php
 
-# PHP version used in first build configuration.
-php:
-    - "5.5"
+# We need notifications for successful builds
+notifications:
+  webhooks: https://betadownload.jetpack.me/travis.php
 
-# WordPress version used in first build configuration.
+# Setup a global environemnt and overide as needed
 env:
-    - WP_VERSION=master
+  global:
+    - WP_TRAVISCI=phpunit
+
+cache:
+  directories:
+    - ~/.yarn
+    - ~/.nvm
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
 
+# Test WP trunk/master and two latest versions on minimum (5.2).
+# Test WP latest two versions (4.5, 4.3) on most popular (5.5, 5.6).
+# Test WP latest stable (4.5) on other supported PHP (5.3, 5.4).
+# Test WP trunk/master on edge platforms (7.0, hhvm, PHP nightly).
+
 # WP_VERSION specifies the tag to use. The way these tests are configured to run
 # requires at least WordPress 3.8. Specify "master" to test against SVN trunk.
 
-# Note that Travis CI supports listing these above to automatically build a
-# matrix of configurations, but we're being nice here by manually building a
-# total of four configurations even though we're testing 4 versions of PHP
-# along with 2 versions of WordPress (which would build 8 configs otherwise).
-# This takes half as long to run while still providing adequate coverage.
-
 matrix:
   include:
-#    - php: "5.3"
-#      env: WP_VERSION=master
-#    - php: "5.4"
-#      env: WP_VERSION=3.8
-#    - php: "5.2"
-#      env: WP_VERSION=3.8
+  - php: "5.6"
+    env: WP_TRAVISCI="npm run test-client"
+  - php: "5.6"
+    env: WP_TRAVISCI="npm run test-gui"
+  - php: "5.2"
+  - php: "5.3"
+  - php: "5.5"
+  - php: "5.6"
+  - php: "7.0"
+#
+#  - php: hhvm
+#    env: WP_VERSION=master
+#    sudo: required
+#    dist: trusty
+#    group: edge
+#    addons:
+#      apt:
+#        packages:
+#        - mysql-server-5.6
+#        - mysql-client-core-5.6
+#        - mysql-client-5.6
+
+#
+# Allow failure tests did not prove that useful, but we might bring them back
+# so leaving this here as a reminder
+#
+#  allow_failures:
+#  - php: "hhvm"
+#  - php: "nightly"
+
+# whitelist branches for the "push" build check.
+branches:
+  only:
+    - master
+    - master-stable
+    - /^branch-.*$/
 
 # Clones WordPress and configures our testing environment.
 before_script:
+    - phpenv config-rm xdebug.ini
+    - source ~/.nvm/nvm.sh && nvm install 5
     - export PLUGIN_SLUG=$(basename $(pwd))
-    - git clone --depth=1 git://develop.git.wordpress.org/ /tmp/wordpress
-# - git clone . "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - cd ..
-    - mv $PLUGIN_SLUG "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - cd /tmp/wordpress
-    - git checkout $WP_VERSION
-    - mysql -e "CREATE DATABASE wordpress_tests;" -uroot
-    - cp wp-tests-config-sample.php wp-tests-config.php
-    - sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
-    - sed -i "s/yourusernamehere/travis/" wp-tests-config.php
-    - sed -i "s/yourpasswordhere//" wp-tests-config.php
-    - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
+    - source ~/.nvm/nvm.sh
+    - nvm install 6
+    - nvm use 6
+    - ./tests/prepare-wordpress.sh
+    - mysql -e "set global wait_timeout = 3600;"
 
-script: phpunit
+script:
+    - ./tests/run-travis.sh
+
+sudo: false
+
+# We need notifications for successful builds
 
 notifications:
+   webhooks: https://betadownload.jetpack.me/travis.php
    email:
        - enej.bajgoric@automattic.com
        - georgestephanis@automattic.com
        - jeremy@automattic.com
        - miguel@automattic.com
-       - tony.kovanen@automattic.com
        - rocco@automattic.com
        - smart@automattic.com
        - eric.binnion@automattic.com
        - allendav@automattic.com
        - beau@automattic.com
+       - kraft@automattic.com
+       # Encrypted Slack notification address.
+       - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
+
+addons:
+  code_climate:
+    repo_token: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8

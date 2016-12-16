@@ -12,7 +12,7 @@
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='get_protect_key' />
 			<p class="submit">
-				<?php _e( 'An API key is needed for Jetpack Protect.', 'jetpack' ); ?>
+				<?php _e( 'An API key is needed for Protect.', 'jetpack' ); ?>
 				<br /><br /><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Get an API Key', 'jetpack' ) ); ?>' />
 			</p>
 		</form>
@@ -22,7 +22,7 @@
 
 	<?php
 	global $current_user;
-	$whitelist = jetpack_protect_format_whitelist( $this->whitelist ); // todo remove 'local' from schema when we merge next iteration on calypso
+	$whitelist = jetpack_protect_format_whitelist();
 	?>
 	<div class="protect-whitelist">
 
@@ -30,17 +30,30 @@
 			<h3><?php _e( 'Whitelist Management', 'jetpack' ); ?></h3>
 
 			<?php if( ! empty( $this->whitelist_error ) ) : ?>
-				<p class="error"><?php  _e('One of your IP addresses was not valid.', 'jetpack'); ?></p>
+				<p class="error"><?php  _e( 'One of your IP addresses was not valid.', 'jetpack' ); ?></p>
 			<?php endif; ?>
 
 			<?php if( $this->whitelist_saved === true ) : ?>
-				<p class="success"><?php  _e('Whitelist saved.', 'jetpack'); ?></p>
+				<p class="success"><?php  _e( 'Whitelist saved.', 'jetpack' ); ?></p>
 			<?php endif; ?>
 
 			<p>
-				<?php _e( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack.', 'jetpack' ); ?><br />
-				<strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), $this->user_ip ); ?></strong>
+				<?php _e( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack. ', 'jetpack' ); ?><br />
+
+				<?php if ( is_multisite() && current_user_can( 'manage_network' ) ) : ?>
+					<a href="<?php echo network_admin_url( 'admin.php?page=jetpack-settings' ); ?>">
+						<?php _e( 'You can manage your network-wide whitelist via the network admin.', 'jetpack' ); ?>
+					</a><br />
+				<?php endif; ?>
+
+				<small>
+					<?php _e( 'Make sure to add your most frequently used IP addresses as they can change between your home, office or other locations. Removing an IP address from the list below will remove it from your whitelist.', 'jetpack' ); ?>
+				</small>
 			</p>
+
+
+
+			<p><strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), $this->user_ip ); ?></strong></p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
 			<textarea name="whitelist"><?php echo implode( PHP_EOL, $whitelist['local'] ); ?></textarea>

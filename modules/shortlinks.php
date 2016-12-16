@@ -1,15 +1,17 @@
 <?php
 /**
  * Module Name: WP.me Shortlinks
- * Module Description: Enable WP.me-powered shortlinks for all posts and pages.
+ * Module Description: Create short and simple links for all posts and pages.
  * Sort Order: 8
  * First Introduced: 1.1
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Social
+ * Feature: Writing
+ * Additional Search Queries: shortlinks, wp.me
  */
 
-add_filter( 'get_shortlink', 'wpme_get_shortlink_handler', 1, 4 );
+add_filter( 'pre_get_shortlink', 'wpme_get_shortlink_handler', 1, 4 );
 
 if ( !function_exists( 'wpme_dec2sixtwo' ) ) {
 	function wpme_dec2sixtwo( $num ) {

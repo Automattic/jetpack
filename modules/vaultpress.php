@@ -1,13 +1,15 @@
 <?php
 /**
- * Module Name: VaultPress
- * Module Description: Protect your site with automatic backups and security scans. (Subscription required.)
+ * Module Name: Data Backups
+ * Module Description: Off-site backups, security scans, and automatic fixes.
  * First Introduced: 0:1.2
  * Sort Order: 32
  * Deactivate: false
  * Free: false
  * Requires Connection: Yes
  * Auto Activate: Yes
+ * Feature: Security, Health
+ * Additional Search Queries: vaultpress, backup, security
  */
 
 add_action( 'jetpack_modules_loaded', 'vaultpress_jetpack_stub' );

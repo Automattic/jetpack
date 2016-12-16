@@ -19,6 +19,8 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 		/**
 		* Change the timeout time for AtD post.
 		*
+		* @module after-the-deadline
+		*
 		* @since 1.2.3
 		*
 		* @param int $var Timeout time in seconds, default 15.
@@ -40,6 +42,8 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 		/**
 		 * Fires when there is a post error to AtD.
 		 *
+		 * @module after-the-deadline
+		 *
 		 * @since 1.2.3
 		 *
 		 * @param int|string http-error The error that AtD runs into.
@@ -47,7 +51,7 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 		do_action( 'atd_http_post_error', 'http-error' );
 		return array();
 	} elseif ( 200 != $code ) {
-		/** This action is documented in modules/after-the-deadline/proxy.php */ 
+		/** This action is documented in modules/after-the-deadline/proxy.php */
 		do_action( 'atd_http_post_error', $code );
 	}
 
@@ -69,6 +73,8 @@ function AtD_redirect_call() {
 	$url = $_GET['url'];
 	/**
 	 * Change the AtD service domain.
+	 *
+	 * @module after-the-deadline
 	 *
 	 * @since 1.2.3
 	 *

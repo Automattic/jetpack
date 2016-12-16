@@ -1,19 +1,20 @@
 <?php
 /**
  * Module Name: Publicize
- * Module Description: Share new posts on social media networks automatically.
+ * Module Description: Automated social marketing.
  * Sort Order: 10
  * Recommendation Order: 7
  * First Introduced: 2.0
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
- * Feature: Recommended
+ * Feature: Engagement
+ * Additional Search Queries: facebook, twitter, google+, googleplus, google, path, tumblr, linkedin, social, tweet, connections, sharing
  */
 
 class Jetpack_Publicize {
 
-	var $in_jetpack = true;
+	public $in_jetpack = true;
 
 	function __construct() {
 		global $publicize_ui;
@@ -23,7 +24,6 @@ class Jetpack_Publicize {
 		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'jetpack_configuration_load' ) );
-			add_action( 'init', array( $this, 'sync_posts_init' ), 999 );
 		}
 
 		require_once dirname( __FILE__ ) . '/publicize/publicize.php';
@@ -41,42 +41,10 @@ class Jetpack_Publicize {
 
 		// Jetpack specific checks / hooks
 		if ( $this->in_jetpack) {
-			add_action( 'jetpack_activate_module_publicize',   array( $this, 'module_state_toggle' ) );
-			add_action( 'jetpack_deactivate_module_publicize', array( $this, 'module_state_toggle' ) );
-			add_filter( 'jetpack_sync_post_module_custom_data', array( $this, 'sync_post_module_custom_data' ), 10, 2 );
 			// if sharedaddy isn't active, the sharing menu hasn't been added yet
 			$active = Jetpack::get_active_modules();
 			if ( in_array( 'publicize', $active ) && !in_array( 'sharedaddy', $active ) )
 				add_action( 'admin_menu', array( &$publicize_ui, 'sharing_menu' ) );
-		}
-	}
-
-	function sync_posts_init() {
-		$post_types = array( 'post', 'page' );
-		$all_post_types = get_post_types();
-		foreach ( $all_post_types as $post_type ) {
-			// sync Custom Post Types that support publicize
-			if ( post_type_supports( $post_type, 'publicize' ) ) {
-				$post_types[] = $post_type;
-			}
-		}
-		Jetpack_Sync::sync_posts( __FILE__, array(
-			'post_types' => $post_types,
-		) );
-	}
-
-	function sync_post_module_custom_data( $custom_data, $post ) {
-		if ( post_type_supports( get_post_type( $post ), 'publicize' ) ) {
-			$custom_data['cpt_publicizeable'] = true;
-		}
-		return $custom_data;
-	}
-
-	function module_state_toggle() {
-		// extra check that we are on the JP blog, just incase
-		if ( class_exists( 'Jetpack' ) && $this->in_jetpack ) {
-			$jetpack = Jetpack::init();
-			$jetpack->sync->register( 'noop' );
 		}
 	}
 
@@ -289,8 +257,8 @@ class Publicize_Util {
 		}
 		$done[$post_id] = true;
 
-		if ( function_exists( 'bump_stats_extras' ) )
-			bump_stats_extras( 'publicize_url', $bin );
+		/** This action is documented in modules/widgets/social-media-icons.php */
+		do_action( 'jetpack_bump_stats_extras', 'publicize_url', $bin );
 	}
 
 	public static function build_sprintf( $args ) {
@@ -337,4 +305,3 @@ function publicize_init() {
 }
 
 }
-

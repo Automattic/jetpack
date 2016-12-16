@@ -8,9 +8,18 @@
 
 class Jetpack_RSS_Links_Widget extends WP_Widget {
 
-	function Jetpack_RSS_Links_Widget() {
-		$widget_ops = array( 'classname' => 'widget_rss_links', 'description' => __( "Links to your blog's RSS feeds", 'jetpack' ) );
-		$this->WP_Widget( 'rss_links', __( 'RSS Links (Jetpack)', 'jetpack' ), $widget_ops );
+	function __construct() {
+		$widget_ops = array(
+			'classname' => 'widget_rss_links',
+			'description' => __( "Links to your blog's RSS feeds", 'jetpack' ),
+			'customize_selective_refresh' => true,
+		);
+		parent::__construct(
+			'rss_links',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
+			apply_filters( 'jetpack_widget_name', __( 'RSS Links', 'jetpack' ) ),
+			$widget_ops
+		);
 	}
 
 	function widget( $args, $instance ) {
@@ -18,6 +27,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 
 		extract( $args );
 
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		echo $before_widget;
 
@@ -38,6 +48,9 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		if ( 'text' == $instance['format'] ) echo '</ul>';
 
 		echo "\n" . $after_widget;
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'rss-links' );
 	}
 
 	/**
@@ -98,7 +111,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			'image'      => __( 'Image Link', 'jetpack' ),
 			'text-image' => __( 'Text & Image Links', 'jetpack' )
 		);
-		echo '<p><label for="' . $this->get_field_id( 'format' ) . '">' . __( 'Format:', 'jetpack' ) . '
+		echo '<p><label for="' . $this->get_field_id( 'format' ) . '">' . _x( 'Format:', 'Noun', 'jetpack' ) . '
 		<select class="widefat" id="' . $this->get_field_id( 'format' ) . '" name="' . $this->get_field_name( 'format' ) . '" onchange="if ( this.value == \'text\' ) jQuery( \'#' . $this->get_field_id( 'image-settings' ) . '\' ).fadeOut(); else jQuery( \'#' . $this->get_field_id( 'image-settings' ) . '\' ).fadeIn();">';
 		foreach ( $formats as $format_option => $label ) {
 			echo '<option value="' . esc_attr( $format_option ) . '"';
@@ -157,19 +170,41 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 
 		$link_item = '';
 		$format = $args['format'];
-		
+
+		/**
+		 * Filters the target link attribute for the RSS link in the RSS widget.
+		 *
+		 * @module widgets
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param bool false Control whether the link should open in a new tab. Default to false.
+		 */
 		if ( apply_filters( 'jetpack_rsslinks_widget_target_blank', false ) ) {
 			$link_target = '_blank';
 		} else {
 			$link_target = '_self';
 		}
-		
-		if ( 'image' == $format || 'text-image' == $format )
-			$link_item = '<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '"><img src="' . esc_url( plugins_url( 'images/rss/' . $args['imagecolor'] . '-' . $args['imagesize'] . '.png', dirname( dirname( __FILE__ ) ) ) ) . '" alt="RSS Feed" /></a>';
-		if ( 'text-image' == $format )
+
+		if ( 'image' == $format || 'text-image' == $format ) {
+			/**
+			 * Filters the image used as RSS icon in the RSS widget.
+			 *
+			 * @module widgets
+			 *
+			 * @since 3.6.0
+			 *
+			 * @param string $var URL of RSS Widget icon.
+			 */
+			$link_image = apply_filters( 'jetpack_rss_widget_icon', plugins_url( 'images/rss/' . $args['imagecolor'] . '-' . $args['imagesize'] . '.png', dirname( dirname( __FILE__ ) ) ) );
+			$link_item = '<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '"><img src="' . esc_url( $link_image ) . '" alt="RSS Feed" /></a>';
+		}
+		if ( 'text-image' == $format ) {
 			$link_item .= '&nbsp;<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__( 'RSS - ' . $type_text, 'jetpack' ). '</a>';
-		if ( 'text' == $format )
+		}
+		if ( 'text' == $format ) {
 			$link_item = '<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__( 'RSS - ' . $type_text, 'jetpack' ). '</a>';
+		}
 
 		if ( 'text' == $format )
 			echo '<li>';
@@ -182,10 +217,9 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			echo '</p>';
 
 	}
-} //Class Jetpack_RSS_Links_Widget
+} // Class Jetpack_RSS_Links_Widget
 
 function jetpack_rss_links_widget_init() {
 	register_widget( 'Jetpack_RSS_Links_Widget' );
 }
 add_action( 'widgets_init', 'jetpack_rss_links_widget_init' );
-?>

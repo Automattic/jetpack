@@ -96,21 +96,6 @@ div.publicize-service-right li {
 	font-size: 14px;
 }
 
-.publicize-info {
-	display: inline-block;
-	width: 16px;
-	height: 16px;
-	background-image: url( ../info-2x.png );
-	background-size: 16px 16px;
-	text-indent: -99999px;
-	float: right;
-	cursor: help;
-	text-decoration: none;
-	margin-left: 10px;
-	margin-top:3px;
-	font-size: 10%;
-}
-
 .pub-disconnect-button {
 	-webkit-border-image: none;
 	border-bottom-color: #CCC;

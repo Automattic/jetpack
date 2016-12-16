@@ -79,6 +79,14 @@ class VideoPress_Video {
 	public $title;
 
 	/**
+	 * Video description
+	 *
+	 * @var string
+	 * @since 4.4
+	 */
+	public $description;
+
+	/**
 	 * Directionality of title text. ltr or rtl
 	 *
 	 * @var string
@@ -166,7 +174,7 @@ class VideoPress_Video {
 	 * @var string $guid VideoPress unique identifier
 	 * @var int $maxwidth maximum requested video width. final width and height are calculated on VideoPress servers based on the aspect ratio of the original video upload.
 	 */
-	public function __construct( $guid, $maxwidth = 0 ) {
+	public function __construct( $guid, $maxwidth = 640 ) {
 		$this->guid = $guid;
 
 		$maxwidth = absint( $maxwidth );
@@ -175,8 +183,14 @@ class VideoPress_Video {
 
 		$data = $this->get_data();
 		if ( is_wp_error( $data ) || empty( $data ) ) {
-			$this->error = $data;
-			return;
+			/** This filter is documented in modules/videopress/class.videopress-player.php */
+			if ( ! apply_filters( 'jetpack_videopress_use_legacy_player', false ) ) {
+				// Unlike the Flash player, the new player does it's own error checking, age gate, etc.
+				$data = (object) array( 'guid' => $guid, 'width' => $maxwidth, 'height' => $maxwidth / 16 * 9 );
+			} else {
+				$this->error = $data;
+				return;
+			}
 		}
 
 		if ( isset( $data->blog_id ) )
@@ -187,6 +201,9 @@ class VideoPress_Video {
 
 		if ( isset( $data->title ) && $data->title !== '' )
 			$this->title = trim( str_replace( '&nbsp;', ' ', $data->title ) );
+
+		if ( isset( $data->description ) && $data->description !== '' )
+			$this->description = trim( $data->description );
 
 		if ( isset( $data->text_direction ) && $data->text_direction === 'rtl' )
 			$this->text_direction = 'rtl';
@@ -248,7 +265,10 @@ class VideoPress_Video {
 		if ( empty( $expires_header ) || ! is_string( $expires_header ) )
 			return false;
 
-		if ( class_exists( 'DateTime' ) && class_exists( 'DateTimeZone' ) ) {
+		if (
+			class_exists( 'DateTimeZone' )
+			&& method_exists( 'DateTime', 'createFromFormat' )
+		) {
 			$expires_date = DateTime::createFromFormat( 'D, d M Y H:i:s T', $expires_header, new DateTimeZone( 'UTC' ) );
 			if ( $expires_date instanceOf DateTime )
 				return date_format( $expires_date, 'U' );

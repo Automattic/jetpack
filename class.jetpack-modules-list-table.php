@@ -18,8 +18,16 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		$this->items = $this->all_items = Jetpack_Admin::init()->get_modules();
 		$this->items = $this->filter_displayed_table_items( $this->items );
+		/**
+		 * Filters the list of modules available to be displayed in the Jetpack Settings screen.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array $this->items Array of Jetpack modules.
+		 */
 		$this->items = apply_filters( 'jetpack_modules_list_table_items', $this->items );
-		$this->_column_headers = array( $this->get_columns(), array(), array() );
+		$this->_column_headers = array( $this->get_columns(), array(), array(), 'name' );
+		$modal_info = isset( $_GET['info'] ) ? $_GET['info'] : false;
 
 		wp_register_script(
 			'models.jetpack-modules',
@@ -46,17 +54,26 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		);
 
 		wp_localize_script( 'jetpack-modules-list-table', 'jetpackModulesData', array(
-			'modules' => $this->all_items,
+			'modules' => Jetpack::get_translated_modules( $this->all_items ),
 			'i18n'    => array(
 				'search_placeholder' => __( 'Search Modules…', 'jetpack' ),
 			),
+			'modalinfo' => $this->module_info_check( $modal_info, $this->all_items ),
 			'nonces'  => array(
 				'bulk' => wp_create_nonce( 'bulk-jetpack_page_jetpack_modules' ),
 			),
 		) );
 
 		wp_enqueue_script( 'jetpack-modules-list-table' );
-		add_action( 'admin_footer', array( $this, 'js_templates' ), 9 );
+
+		/**
+		 * Filters the js_templates callback value.
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param array array( $this, 'js_templates' ) js_templates callback.
+		 */
+		add_action( 'admin_footer', apply_filters( 'jetpack_modules_list_table_js_template_callback', array( $this, 'js_templates' ) ), 9 );
 	}
 
 	function js_templates() {
@@ -65,21 +82,22 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			<# var i = 0;
 			if ( data.items.length ) {
 			_.each( data.items, function( item, key, list ) {
-				if ( item === undefined ) return;
-				#>
+				if ( item === undefined ) return; #>
 				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
+						<# if ( 'videopress' !== item.module ) { #>
 						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
+						<# } #>
 					</th>
 					<td class='name column-name'>
-						<span class='info'><a href="#">{{{ item.name }}}</a></span>
+						<span class='info'><a href="{{{item.learn_more_button}}}" target="blank">{{{ item.name }}}</a></span>
 						<div class="row-actions">
 						<# if ( item.configurable ) { #>
 							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
-						<# if ( item.activated && 'vaultpress' !== item.module ) { #>
+						<# if ( item.activated && 'vaultpress' !== item.module && item.available && 'videopress' !== item.module ) { #>
 							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
-						<# } else if ( item.available ) { #>
+						<# } else if ( item.available && 'videopress' !== item.module ) { #>
 							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
 						<# } #>
 						</div>
@@ -115,10 +133,13 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'all' => sprintf( $format, $title, $count, $url, $current ),
 		);
 		foreach ( $module_tags_unique as $title => $count ) {
-			if( 'Jumpstart' == $title ) {
+			if ( 'Jumpstart' == $title ) {
 				continue;
 			}
 			$key           = sanitize_title( $title );
+			if ( 'centralized-management' === $key && Jetpack::is_module_active( 'manage' ) ) {
+				continue;
+			}
 			$display_title = esc_html( wptexturize( $title ) );
 			$url           = esc_url( add_query_arg( 'module_tag', urlencode( $title ) ) );
 			$current       = '';
@@ -148,7 +169,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		if ( ! is_array( $module ) || empty( $module ) )
 			return false;
 
-		return ! ( $module['requires_connection'] && ! Jetpack::is_active() );
+		if ( Jetpack::is_development_mode() ) {
+			return ! ( $module['requires_connection'] );
+		} else {
+			return Jetpack::is_active();
+		}
 	}
 
 	static function is_module_displayed( $module ) {
@@ -232,7 +257,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 	function column_name( $item ) {
 		$actions = array(
-			'info' => sprintf( '<a href="%s">%s</a>', esc_url( '#' ), esc_html__( 'Module Info', 'jetpack' ) ),
+			'info' => sprintf( '<a href="%s" target="blank">%s</a>', esc_url( $item['learn_more_button'] ), esc_html__( 'Feature Info', 'jetpack' ) ),
 		);
 
 		if ( ! empty( $item['configurable'] ) ) {
@@ -266,14 +291,13 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 	function column_description( $item ) {
 		ob_start();
+		/** This action is documented in class.jetpack-admin.php */
 		echo apply_filters( 'jetpack_short_module_description', $item['description'], $item['module'] );
+		/** This action is documented in class.jetpack-admin.php */
 		do_action( 'jetpack_learn_more_button_' . $item['module'] );
 		echo '<div id="more-info-' . $item['module'] . '" class="more-info">';
-		if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $item['module'] ) ) {
-			do_action( 'jetpack_module_more_info_connected_' . $item['module'] );
-		} else {
-			do_action( 'jetpack_module_more_info_' . $item['module'] );
-		}
+		/** This action is documented in class.jetpack-admin.php */
+		do_action( 'jetpack_module_more_info_' . $item['module'] );
 		echo '</div>';
 		return ob_get_clean();
 	}
@@ -294,6 +318,15 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				break;
 			default:
 				return print_r( $item, true );
+		}
+	}
+
+	//Check if the info parameter provided in the URL corresponds to an actual module
+	function module_info_check( $info = false, $modules ) {
+		if ( false == $info ) {
+			return false;
+		} else if ( array_key_exists( $info, $modules ) ) {
+			return $info;
 		}
 	}
 

@@ -31,16 +31,53 @@ class Jetpack_Holiday_Snow_Settings {
 	}
 
 	public function holiday_snow_option_updated() {
+
+		/**
+		 * Fires when the holiday snow option is updated.
+		 *
+		 * @module theme-tools
+		 *
+		 * @since 2.0.3
+		 */
 		do_action( 'jetpack_holiday_snow_option_updated' );
 	}
 }
 
 function jetpack_holiday_snow_script() {
+
+	/**
+	 * Allow holiday snow.
+	 *
+	 * Note: there's no actual randomness involved in whether it snows
+	 * or not, despite the filter mentioning a "chance of snow."
+	 *
+	 * @module theme-tools
+	 *
+	 * @since 2.0.3
+	 *
+	 * @param bool True to allow snow, false to disable it.
+	 */
 	if ( ! apply_filters( 'jetpack_holiday_chance_of_snow', true ) )
 		return;
 
+	/**
+	 * Fires when it's snowing.
+	 *
+	 * @module theme-tools
+	 *
+	 * @since 2.0.3
+	 */
 	do_action( 'jetpack_holiday_snowing' );
 
+	/**
+	 * Filter the holiday snow JavaScript URL.
+	 *
+	 * @module theme-tools
+	 *
+	 * @since 2.0.3
+	 *
+	 * @param str URL to the holiday snow JavaScript file.
+	 */
 	$snowstorm_url = apply_filters( 'jetpack_holiday_snow_js_url', plugins_url( 'holiday-snow/snowstorm.js', __FILE__ ) );
 	wp_enqueue_script( 'snowstorm', $snowstorm_url, array(), '1.43.20111201' );
 }
@@ -58,6 +95,16 @@ function jetpack_maybe_holiday_snow() {
 }
 
 function jetpack_holiday_snow_option_name() {
+
+	/**
+	 * Filter the holiday snow option name.
+	 *
+	 * @module theme-tools
+	 *
+	 * @since 2.0.3
+	 *
+	 * @param str The holiday snow option name.
+	 */
 	return apply_filters( 'jetpack_holiday_snow_option_name', 'jetpack_holiday_snow_enabled' );
 }
 
@@ -68,6 +115,19 @@ function jetpack_is_holiday_snow_season() {
 
 	$snow = ( $today >= $first_snow_day || $today < $last_snow_day );
 
+	/**
+	 * Filter whether it's winter or not.
+	 *
+	 * You can use this filter if, for example, you live in the
+	 * Southern Hemisphere. In that case, the dates for winter
+	 * above are incorrect for your location.
+	 *
+	 * @module theme-tools
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param bool $snow True if it's snow season, false if not.
+	 */
 	return apply_filters( 'jetpack_is_holiday_snow_season', $snow );
 }
 

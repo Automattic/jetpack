@@ -6,7 +6,7 @@ if( ! class_exists( 'WP_List_Table' ) ) {
 
 class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 
-	
+
 	public function get_columns() {
 		// site name, status, username connected under
 		$columns = array(
@@ -26,10 +26,13 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		$this->process_bulk_action();
 
 		// Get sites
-		$sites = $jpms->wp_get_sites( array( 'exclude_blogs' => array( 1 ) ) );
-		
+		$sites = $jpms->wp_get_sites( array(
+			'exclude_blogs' => array( 1 ),
+			'archived'      => false,
+		) );
+
 		// Setup pagination
-		$per_page = 40;
+		$per_page = 25;
 		$current_page = $this->get_pagenum();
 		$total_items = count( $sites );
 		$sites = array_slice( $sites, ( ( $current_page-1 ) * $per_page ), $per_page );
@@ -55,15 +58,15 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
             		'edit'      	=> '<a href="' . network_admin_url( 'site-info.php?id=' . $item->blog_id )  .  '">' . __( 'Edit', 'jetpack' ) . '</a>',
         		'dashboard'	=> '<a href="' . get_admin_url( $item->blog_id, '', 'admin' ) . '">Dashboard</a>',
 			'view'		=> '<a href="' . get_site_url( $item->blog_id, '', 'admin' ) . '">View</a>',
-			'jetpack-' . $item->blog_id	=> '<a href="' . $jp_url . '">Jetpack</a>', 
+			'jetpack-' . $item->blog_id	=> '<a href="' . $jp_url . '">Jetpack</a>',
 		);
 
   		return sprintf('%1$s %2$s', '<strong>' . get_blog_option( $item->blog_id, 'blogname' ) . '</strong>', $this->row_actions($actions) );
 	}
 
 	public function column_blog_path( $item ) {
-		return 
-                         '<a href="' . 
+		return
+                         '<a href="' .
                          get_site_url( $item->blog_id, '', 'admin' ) .
                          '">' .
                          str_replace( array( 'http://', 'https://' ), '', get_site_url( $item->blog_id, '', 'admin' ) ) .
@@ -75,8 +78,18 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		$jp = Jetpack::init();
 
 		switch_to_blog( $item->blog_id );
+
+		if ( ! is_plugin_active( 'jetpack/jetpack.php' ) ) {
+			$title = __( 'Jetpack is not active on this site.', 'jetpack' );
+			$action = array(
+				'manage-plugins' => '<a href="' . get_admin_url( $item->blog_id, 'plugins.php', 'admin' ) . '">' . __( 'Manage Plugins', 'jetpack' ) . '</a>',
+			);
+			restore_current_blog();
+			return sprintf( '%1$s %2$s', $title, $this->row_actions( $action ) );
+		}
+
 		if( $jp->is_active() ) {
-		   // Build url for disconnecting 
+		   // Build url for disconnecting
 		    $url = $jpms->get_url( array(
 			'name'	    => 'subsitedisconnect',
 			'site_id'   => $item->blog_id,
@@ -86,7 +99,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		    return '<a href="' . $url . '">Disconnect</a>';
 		}
 		restore_current_blog();
-		
+
 		// Build URL for connecting
 		$url = $jpms->get_url( array(
 		    'name'	=> 'subsiteregister',
@@ -107,7 +120,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 	function column_cb($item) {
         	return sprintf(
             		'<input type="checkbox" name="bulk[]" value="%s" />', $item->blog_id
-        	);    
+        	);
     	}
 
 	public function process_bulk_action() {
@@ -123,7 +136,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
             		case 'connect':
                 		foreach( $_POST['bulk'] as $k => $site ) {
 							$jpms->do_subsiteregister( $site );
-						} 
+						}
 				break;
             		case 'disconnect':
                 		foreach( $_POST['bulk'] as $k => $site ) {

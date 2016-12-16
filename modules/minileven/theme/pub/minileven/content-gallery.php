@@ -11,6 +11,11 @@
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
 		<div class="entry-heading">
+			<?php if ( '1' == get_option( 'wp_mobile_featured_images' ) && minileven_show_featured_images() ) : ?>
+				<div class="entry-thumbnail">
+					<a href="<?php the_permalink(); ?>" title="<?php echo esc_attr( sprintf( __( 'Permalink to %s', 'jetpack' ), the_title_attribute( 'echo=0' ) ) ); ?>" rel="<?php the_ID(); ?>" class="minileven-featured-thumbnail"><?php the_post_thumbnail(); ?></a>
+				</div><!-- .entry-thumbnail -->
+			<?php endif; ?>
 			<h2 class="entry-title"><a href="<?php the_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a></h2>
 			<h3 class="entry-format"><?php _e( 'Gallery', 'jetpack' ); ?></h3>
 		</div>

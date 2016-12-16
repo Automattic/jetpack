@@ -2,8 +2,8 @@
 
 class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 
-	var $date_range = array();
-	var $page_handle = array();
+	public $date_range = array();
+	public $page_handle = array();
 
 	function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
@@ -25,6 +25,10 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'invalid_number',  'The NUMBER parameter must be less than or equal to 100.', 400 );
 		}
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
 		if ( isset( $args['before'] ) ) {
 			$this->date_range['before'] = $args['before'];
 		}
@@ -32,13 +36,10 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$this->date_range['after'] = $args['after'];
 		}
 
-
-
-        $query = array(
+		$query = array(
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
-			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
-			'offset'         => isset( $args['offset'] ) ? $args['offset'] : null,
+			'post_parent'    => isset( $args['post_ID'] ) ? $args['post_ID'] : null,
 			'posts_per_page' => $args['number'],
 			'post_mime_type' => isset( $args['mime_type'] ) ? $args['mime_type'] : null,
 			'order'          => isset( $args['order'] ) ? $args['order'] : 'DESC',

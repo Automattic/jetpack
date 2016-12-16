@@ -59,7 +59,7 @@ class WPCOM_JSON_API_List_Comments_Walker extends Walker {
 
 // @todo permissions
 class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpoint {
-	var $response_format = array(
+	public $response_format = array(
 		'found'    => '(int) The total number of comments found that match the request (ignoring limits, offsets, and pagination).',
 		'site_ID'  => '(int) The site ID',
 		'comments' => '(array:comment) An array of comment objects.',
@@ -229,7 +229,9 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 		if ( $args['hierarchical'] ) {
 			$walker = new WPCOM_JSON_API_List_Comments_Walker;
 			$comment_ids = $walker->paged_walk( $comments, get_option( 'thread_comments_depth', -1 ), isset( $args['page'] ) ? $args['page'] : 1 , $args['number'] );
-			$comments = array_map( 'get_comment', $comment_ids );
+			if ( ! empty( $comment_ids ) ) {
+				$comments = array_map( 'get_comment', $comment_ids );
+			}
 		}
 
 		$return = array();
@@ -244,14 +246,17 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 				break;
 			case 'comments' :
 				$return_comments = array();
-				foreach ( $comments as $comment ) {
-					$the_comment = $this->get_comment( $comment->comment_ID, $args['context'] );
-					if ( $the_comment && !is_wp_error( $the_comment ) ) {
-						$return_comments[] = $the_comment;
+				if ( ! empty( $comments ) ) {
+					foreach ( $comments as $comment ) {
+						$the_comment = $this->get_comment( $comment->comment_ID, $args['context'] );
+						if ( $the_comment && !is_wp_error( $the_comment ) ) {
+							$return_comments[] = $the_comment;
+						}
 					}
 				}
 
 				if ( $return_comments ) {
+					/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 					do_action( 'wpcom_json_api_objects', 'comments', count( $return_comments ) );
 				}
 

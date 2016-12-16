@@ -7,7 +7,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * The current error object
 	 */
-	var $error = null;
+	public $error = null;
 
 	/**
 	 * Whitelist of the XML-RPC methods available to the Jetpack Server. If the
@@ -28,12 +28,10 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.testAPIUserCode'   => array( $this, 'test_api_user_code' ),
 				'jetpack.featuresAvailable' => array( $this, 'features_available' ),
 				'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
-				'jetpack.getPost'           => array( $this, 'get_post' ),
-				'jetpack.getPosts'          => array( $this, 'get_posts' ),
-				'jetpack.getComment'        => array( $this, 'get_comment' ),
-				'jetpack.getComments'       => array( $this, 'get_comments' ),
 				'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
 				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
+				'jetpack.syncObject'        => array( $this, 'sync_object' ),
+				'jetpack.idcUrlValidation'  => array( $this, 'validate_urls_for_idc_mitigation' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -41,9 +39,26 @@ class Jetpack_XMLRPC_Server {
 				$jetpack_methods['jetpack.updateAttachmentParent'] = array( $this, 'update_attachment_parent' );
 			}
 
+			/**
+			 * Filters the XML-RPC methods available to Jetpack for authenticated users.
+			 *
+			 * @since 1.1.0
+			 *
+			 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
+			 * @param array $core_methods Available core XML-RPC methods.
+			 * @param WP_User $user Information about a given WordPress user.
+			 */
 			$jetpack_methods = apply_filters( 'jetpack_xmlrpc_methods', $jetpack_methods, $core_methods, $user );
 		}
 
+		/**
+		 * Filters the XML-RPC methods available to Jetpack for unauthenticated users.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
+		 * @param array $core_methods Available core XML-RPC methods.
+		 */
 		return apply_filters( 'jetpack_xmlrpc_unauthenticated_methods', $jetpack_methods, $core_methods );
 	}
 
@@ -53,14 +68,78 @@ class Jetpack_XMLRPC_Server {
 	function bootstrap_xmlrpc_methods() {
 		return array(
 			'jetpack.verifyRegistration' => array( $this, 'verify_registration' ),
+			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
 		);
+	}
+
+	function authorize_xmlrpc_methods() {
+		return array(
+			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+			'jetpack.activateManage'    => array( $this, 'activate_manage' ),
+		);
+	}
+
+	function activate_manage( $request ) {
+		foreach( array( 'secret', 'state' ) as $required ) {
+			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
+				return $this->error( new Jetpack_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ) );
+			}
+		}
+		$verified = $this->verify_action( array( 'activate_manage', $request['secret'], $request['state'] ) );
+		if ( is_a( $verified, 'IXR_Error' ) ) {
+			return $verified;
+		}
+		$activated = Jetpack::activate_module( 'manage', false, false );
+		if ( false === $activated || ! Jetpack::is_module_active( 'manage' ) ) {
+			return $this->error( new Jetpack_Error( 'activation_error', 'There was an error while activating the module.', 500 ) );
+		}
+		return 'active';
+	}
+
+	function remote_authorize( $request ) {
+		foreach( array( 'secret', 'state', 'redirect_uri', 'code' ) as $required ) {
+			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
+				return $this->error( new Jetpack_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ) );
+			}
+		}
+
+		if ( ! get_user_by( 'id', $request['state'] ) ) {
+			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ) );
+		}
+
+		if ( Jetpack::is_active() && Jetpack::is_user_connected( $request['state'] ) ) {
+			return $this->error( new Jetpack_Error( 'already_connected', 'User already connected.', 400 ) );
+		}
+
+		$verified = $this->verify_action( array( 'authorize', $request['secret'], $request['state'] ) );
+
+		if ( is_a( $verified, 'IXR_Error' ) ) {
+			return $verified;
+		}
+
+		wp_set_current_user( $request['state'] );
+
+		$client_server = new Jetpack_Client_Server;
+		$result = $client_server->authorize( $request );
+
+		if ( is_wp_error( $result ) ) {
+			return $this->error( $result );
+		}
+		// Creates a new secret, allowing someone to activate the manage module for up to 1 day after authorization.
+		$secrets = Jetpack::init()->generate_secrets( 'activate_manage', DAY_IN_SECONDS );
+		@list( $secret ) = explode( ':', $secrets );
+		$response = array(
+			'result' => $result,
+			'activate_manage' => $secret,
+		);
+		return $response;
 	}
 
 	/**
 	* Verifies that Jetpack.WordPress.com received a registration request from this site
 	*/
-	function verify_registration( $verify_secret ) {
-		return $this->verify_action( array( 'register', $verify_secret ) );
+	function verify_registration( $data ) {
+		return $this->verify_action( array( 'register', $data[0], $data[1] ) );
 	}
 
 	/**
@@ -70,34 +149,65 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * verify_secret_1_missing
 	 * verify_secret_1_malformed
-	 * verify_secrets_missing: No longer have verification secrets stored
+	 * verify_secrets_missing: verification secrets are not found in database
+	 * verify_secrets_incomplete: verification secrets are only partially found in database
+	 * verify_secrets_expired: verification secrets have expired
 	 * verify_secrets_mismatch: stored secret_1 does not match secret_1 sent by Jetpack.WordPress.com
+	 * state_missing: required parameter of state not found
+	 * state_malformed: state is not a digit
+	 * invalid_state: state in request does not match the stored state
+	 *
+	 * The 'authorize' and 'register' actions have additional error codes
+	 *
+	 * state_missing: a state ( user id ) was not supplied
+	 * state_malformed: state is not the correct data type
+	 * invalid_state: supplied state does not match the stored state
 	 */
 	function verify_action( $params ) {
 		$action = $params[0];
 		$verify_secret = $params[1];
+		$state = isset( $params[2] ) ? $params[2] : '';
 
 		if ( empty( $verify_secret ) ) {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_missing', sprintf( 'The required "%s" parameter is missing.', 'secret_1' ), 400 ) );
-		} else if ( !is_string( $verify_secret ) ) {
+		} else if ( ! is_string( $verify_secret ) ) {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_malformed', sprintf( 'The required "%s" parameter is malformed.', 'secret_1' ), 400 ) );
 		}
 
 		$secrets = Jetpack_Options::get_option( $action );
-		if ( !$secrets || is_wp_error( $secrets ) ) {
+		if ( ! $secrets || is_wp_error( $secrets ) ) {
 			Jetpack_Options::delete_option( $action );
-			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
+			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification secrets not found', 400 ) );
 		}
 
-		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', $secrets );
-		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
+		@list( $secret_1, $secret_2, $secret_eol, $user_id ) = explode( ':', $secrets );
+
+		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) ) {
 			Jetpack_Options::delete_option( $action );
-			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
+			return $this->error( new Jetpack_Error( 'verify_secrets_incomplete', 'Verification secrets are incomplete', 400 ) );
 		}
 
-		if ( $verify_secret !== $secret_1 ) {
+		if ( $secret_eol < time() ) {
+			Jetpack_Options::delete_option( $action );
+			return $this->error( new Jetpack_Error( 'verify_secrets_expired', 'Verification took too long', 400 ) );
+		}
+
+		if ( ! hash_equals( $verify_secret, $secret_1 ) ) {
 			Jetpack_Options::delete_option( $action );
 			return $this->error( new Jetpack_Error( 'verify_secrets_mismatch', 'Secret mismatch', 400 ) );
+		}
+
+		if ( in_array( $action, array( 'authorize', 'register' ) ) ) {
+			// 'authorize' and 'register' actions require further testing
+			if ( empty( $state ) ) {
+				return $this->error( new Jetpack_Error( 'state_missing', sprintf( 'The required "%s" parameter is missing.', 'state' ), 400 ) );
+			} else if ( ! ctype_digit( $state ) ) {
+				return $this->error( new Jetpack_Error( 'state_malformed', sprintf( 'The required "%s" parameter is malformed.', 'state' ), 400 ) );
+			}
+			if ( empty( $user_id ) || $user_id !== $state ) {
+				Jetpack_Options::delete_option( $action );
+				return $this->error( new Jetpack_Error( 'invalid_state', 'State is invalid', 400 ) );
+			}
 		}
 
 		Jetpack_Options::delete_option( $action );
@@ -108,7 +218,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Wrapper for wp_authenticate( $username, $password );
 	 *
-	 * @return WP_User|IXR_Error
+	 * @return WP_User|bool
 	 */
 	function login() {
 		Jetpack::init()->require_jetpack_authentication();
@@ -131,7 +241,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Returns the current error as an IXR_Error
 	 *
-	 * @return null|IXR_Error
+	 * @return bool|IXR_Error
 	 */
 	function error( $error = null ) {
 		if ( !is_null( $error ) ) {
@@ -157,7 +267,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Just authenticates with the given Jetpack credentials.
 	 *
-	 * @return bool|IXR_Error
+	 * @return string The current Jetpack version number
 	 */
 	function test_connection() {
 		return JETPACK__VERSION;
@@ -199,7 +309,7 @@ class Jetpack_XMLRPC_Server {
 			'code'      => (string) $api_user_code,
 		) ), $jetpack_token->secret );
 
-		if ( $hmac !== $verify ) {
+		if ( ! hash_equals( $hmac, $verify ) ) {
 			return false;
 		}
 
@@ -228,9 +338,38 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	/**
+	 * Returns any object that is able to be synced
+	 */
+	function sync_object( $args ) {
+		// e.g. posts, post, 5
+		list( $module_name, $object_type, $id ) = $args;
+		require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-modules.php';
+		require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-sender.php';
+
+		$sync_module = Jetpack_Sync_Modules::get_module( $module_name );
+		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+
+		return $codec->encode( $sync_module->get_object_by_id( $object_type, $id ) );
+	}
+
+	/**
+	 * Returns the home URL and site URL for the current site which can be used on the WPCOM side for
+	 * IDC mitigation to decide whether sync should be allowed if the home and siteurl values differ between WPCOM
+	 * and the remote Jetpack site.
+	 *
+	 * @return array
+	 */
+	function validate_urls_for_idc_mitigation() {
+		return array(
+			'home'    => get_home_url(),
+			'siteurl' => get_site_url(),
+		);
+	}
+
+	/**
 	 * Returns what features are available. Uses the slug of the module files.
 	 *
-	 * @return array|IXR_Error
+	 * @return array
 	 */
 	function features_available() {
 		$raw_modules = Jetpack::get_available_modules();
@@ -245,7 +384,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Returns what features are enabled. Uses the slug of the modules files.
 	 *
-	 * @return array|IXR_Error
+	 * @return array
 	 */
 	function features_enabled() {
 		$raw_modules = Jetpack::get_active_modules();
@@ -255,54 +394,6 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		return $modules;
-	}
-
-	function get_post( $id ) {
-		if ( !$id = (int) $id ) {
-			return false;
-		}
-
-		$jetpack = Jetpack::init();
-
-		$post = $jetpack->sync->get_post( $id );
-		return $post;
-	}
-
-	function get_posts( $args ) {
-		list( $post_ids ) = $args;
-		$post_ids = array_map( 'intval', (array) $post_ids );
-		$jp = Jetpack::init();
-		$sync_data = $jp->sync->get_content( array( 'posts' => $post_ids ) );
-
-		return $sync_data;
-	}
-
-	function get_comment( $id ) {
-		if ( !$id = (int) $id ) {
-			return false;
-		}
-
-		$jetpack = Jetpack::init();
-
-		$comment = $jetpack->sync->get_comment( $id );
-		if ( !is_array( $comment ) )
-			return false;
-
-		$post = $jetpack->sync->get_post( $comment['comment_post_ID'] );
-		if ( !$post ) {
-			return false;
-		}
-
-		return $comment;
-	}
-
-	function get_comments( $args ) {
-		list( $comment_ids ) = $args;
-		$comment_ids = array_map( 'intval', (array) $comment_ids );
-		$jp = Jetpack::init();
-		$sync_data = $jp->sync->get_content( array( 'comments' => $comment_ids ) );
-
-		return $sync_data;
 	}
 
 	function update_attachment_parent( $args ) {
@@ -322,8 +413,8 @@ class Jetpack_XMLRPC_Server {
 		$method       = (string) $json_api_args[0];
 		$url          = (string) $json_api_args[1];
 		$post_body    = is_null( $json_api_args[2] ) ? null : (string) $json_api_args[2];
-		$my_id        = (int) $json_api_args[3];
 		$user_details = (array) $json_api_args[4];
+		$locale       = (string) $json_api_args[5];
 
 		if ( !$verify_api_user_args ) {
 			$user_id = 0;
@@ -347,11 +438,31 @@ class Jetpack_XMLRPC_Server {
 		error_log( "METHOD: $method" );
 		error_log( "URL: $url" );
 		error_log( "POST BODY: $post_body" );
-		error_log( "MY JETPACK ID: $my_id" );
 		error_log( "VERIFY_ARGS: " . print_r( $verify_api_user_args, 1 ) );
 		error_log( "VERIFIED USER_ID: " . (int) $user_id );
 		error_log( "-- end json api via jetpack debugging -- " );
 		*/
+
+		if ( 'en' !== $locale ) {
+			// .org mo files are named slightly different from .com, and all we have is this the locale -- try to guess them.
+			$new_locale = $locale;
+			if ( strpos( $locale, '-' ) !== false ) {
+				$locale_pieces = explode( '-', $locale );
+				$new_locale = $locale_pieces[0];
+				$new_locale .= ( ! empty( $locale_pieces[1] ) ) ? '_' . strtoupper( $locale_pieces[1] ) : '';
+			} else {
+				// .com might pass 'fr' because thats what our language files are named as, where core seems
+				// to do fr_FR - so try that if we don't think we can load the file.
+				if ( ! file_exists( WP_LANG_DIR . '/' . $locale . '.mo' ) ) {
+					$new_locale =  $locale . '_' . strtoupper( $locale );
+				}
+			}
+
+			if ( file_exists( WP_LANG_DIR . '/' . $new_locale . '.mo' ) ) {
+				unload_textdomain( 'default' );
+				load_textdomain( 'default', WP_LANG_DIR . '/' . $new_locale . '.mo' );
+			}
+		}
 
 		$old_user = wp_get_current_user();
 		wp_set_current_user( $user_id );

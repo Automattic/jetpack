@@ -4,9 +4,11 @@ class Upcoming_Events_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			'upcoming_events_widget',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Upcoming Events', 'jetpack' ) ),
 			array(
 				'description' => __( 'Display upcoming events from an iCalendar feed.', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 		if ( is_active_widget( false, false, $this->id_base ) ) {
@@ -86,6 +88,9 @@ class Upcoming_Events_Widget extends WP_Widget {
 		}
 		echo $events;
 		echo $args['after_widget'];
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
 	}
 }
 

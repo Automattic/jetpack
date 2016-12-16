@@ -9,6 +9,16 @@ class Jetpack_Gallery_Settings {
 	}
 
 	function admin_init() {
+		/**
+		 * Filter the available gallery types.
+		 *
+		 * @module shortcodes, tiled-gallery
+		 *
+		 * @since 2.5.1
+		 *
+		 * @param array $value Array of the default thumbnail grid gallery type. Default array contains one key, ‘default’.
+		 *
+		 */
 		$this->gallery_types = apply_filters( 'jetpack_gallery_types', array( 'default' => __( 'Thumbnail Grid', 'jetpack' ) ) );
 
 		// Enqueue the media UI only if needed.
@@ -37,6 +47,16 @@ class Jetpack_Gallery_Settings {
 	 * Outputs a view template which can be used with wp.media.template
 	 */
 	function print_media_templates() {
+		/**
+		 * Filter the default gallery type.
+		 *
+		 * @module tiled-gallery
+		 *
+		 * @since 2.5.1
+		 *
+		 * @param string $value A string of the gallery type. Default is ‘default’.
+		 *
+		 */
 		$default_gallery_type = apply_filters( 'jetpack_default_gallery_type', 'default' );
 
 		?>

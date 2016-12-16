@@ -1,0 +1,110 @@
+.jp-masthead {
+	background-color: $white;
+	text-align: center;
+	box-shadow: 0 1px 0 transparentize( lighten( $gray, 20% ), .5 ),
+		0 1px 2px lighten( $gray, 30% );
+
+	@media (max-width: rem( 720px ) ) {
+		padding: 0 rem( 20px );
+	}
+}
+
+.jp-masthead__inside-container {
+	padding: rem( 6px ) 0;
+	margin: 0 auto;
+	width: 100%;
+	max-width: rem( 720px );
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.jp-masthead__logo-container {
+	padding: rem( 5px ) 0 0;
+}
+
+.jp-masthead__logo {
+	width: rem( 166px );
+	height: rem( 29px ); // for IE
+	fill: $green-secondary;
+}
+
+.jp-masthead__logo-link {
+	display: inline-block;
+	outline: none;
+	vertical-align: middle;
+
+	&:focus {
+		line-height: 0; // fixes rectangle gap
+		box-shadow: 0 0 0 2px $blue-light;
+	}
+
+	& + code {
+		margin: 0 10px;
+		padding: 5px 9px;
+		border-radius: 2px;
+		background: #e6ecf1;
+		color: #647a88;
+	}
+}
+
+.jp-masthead__links {
+	display: flex;
+	flex-flow: row wrap;
+	flex: 2 50%;
+	justify-content: flex-end;
+	margin: 0;
+
+	@include breakpoint( "<480px" ) {
+		padding-right: rem( 10px );
+	}
+}
+
+.jp-masthead__link-li {
+	margin: 0;
+	padding: 0;
+}
+
+.jp-masthead__link {
+	font-style: normal;
+	color: $blue-wordpress;
+	padding: rem( 10px );
+	display: inline-block;
+
+	&:visited {
+		color: $blue-wordpress;
+	}
+
+	&:active,
+	&:hover {
+		color: $blue-medium;
+	}
+
+	&:hover {
+		text-decoration: underline;
+	}
+
+	.dashicons {
+		display: none;
+	}
+
+	@include breakpoint( "<480px" ) {
+
+		&:hover,
+		&:active {
+			text-decoration: none;
+		}
+		.dashicons {
+			display: block;
+			font-size: rem( 28px );
+		}
+		span + span {
+			display: none;
+		}
+	}
+}
+
+.jp-masthead__link-li {
+	&:last-of-type .jp-masthead__link {
+		padding-right: 0;
+	}
+}

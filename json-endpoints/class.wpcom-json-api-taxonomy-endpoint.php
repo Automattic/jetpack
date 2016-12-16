@@ -1,6 +1,6 @@
 <?php
 abstract class WPCOM_JSON_API_Taxonomy_Endpoint extends WPCOM_JSON_API_Endpoint {
-	var $category_object_format = array(
+	public $category_object_format = array(
 		'ID'          => '(int) The category ID.',
 		'name'        => "(string) The name of the category.",
 		'slug'        => "(string) The slug of the category.",
@@ -10,7 +10,7 @@ abstract class WPCOM_JSON_API_Taxonomy_Endpoint extends WPCOM_JSON_API_Endpoint 
 		'meta'        => '(object) Meta data',
 	);
 
-	var $tag_object_format = array(
+	public $tag_object_format = array(
 		'ID'          => '(int) The tag ID.',
 		'name'        => "(string) The name of the tag.",
 		'slug'        => "(string) The slug of the tag.",

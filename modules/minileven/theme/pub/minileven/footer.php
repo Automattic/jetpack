@@ -14,6 +14,17 @@
 
 </div><!-- #wrapper -->
 
+<?php
+	/**
+	* Fires before the Mobile Theme's <footer> tag.
+	*
+	* @module minileven
+	*
+	* @since 3.7.0
+	*/
+	do_action( 'jetpack_mobile_footer_before' );
+?>
+
 <footer id="colophon" role="contentinfo">
 	<div id="site-generator">
 
@@ -29,6 +40,8 @@
 			 *
 			 * By default, a promo to download the native apps is added to this action.
 			 *
+			 * @module minileven
+			 *
 			 * @since 1.8.0
 			 */
 			do_action( 'wp_mobile_theme_footer' );
@@ -36,12 +49,14 @@
 			/**
 			 * Fires before the credit links in the Mobile Theme's footer.
 			 *
+			 * @module minilven
+			 *
 			 * @since 1.8.0
 			 */
 			do_action( 'minileven_credits' );
 		?>
 
-		<a href="<?php echo esc_url( __( 'http://wordpress.org/', 'jetpack' ) ); ?>" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'jetpack' ); ?>" rel="generator"><?php printf( __( 'Proudly powered by %s', 'jetpack' ), 'WordPress' ); ?></a>
+		<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'jetpack' ) ); ?>" target="_blank" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'jetpack' ); ?>" rel="generator"><?php printf( __( 'Proudly powered by %s', 'jetpack' ), 'WordPress' ); ?></a>
 	</div>
 </footer><!-- #colophon -->
 

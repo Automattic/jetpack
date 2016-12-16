@@ -7,6 +7,10 @@ class WPCOM_JSON_API_Get_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
 		//upload_files can probably be used for other endpoints but we want contributors to be able to use media too
 		if ( ! current_user_can( 'edit_posts', $media_id ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );

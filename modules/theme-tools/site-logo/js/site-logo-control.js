@@ -87,10 +87,11 @@
 		 */
 		pick: function() {
 			// get the attachment from the modal frame
-			var attachment = this.frame.state().get( 'selection' ).first().toJSON();
-			attachment = this.reduceMembers( attachment );
-			// set the setting - the callback will take care of rendering
-			this.setting( attachment );
+			var attachment = this.frame.state().get( 'selection' ).single();
+			if ( 'image' === attachment.get( 'type' ) ) {
+				// set the setting - the callback will take care of rendering
+				this.setting( this.reduceMembers( attachment.toJSON() ) );
+			}
 		},
 		/**
 		 * Reduces the attachment object to just the few desired members.

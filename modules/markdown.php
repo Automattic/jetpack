@@ -8,6 +8,8 @@
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Writing
+ * Feature: Writing
+ * Additional Search Queries: md, markdown
  */
 
 include dirname( __FILE__ ) . '/markdown/easy-markdown.php';

@@ -1,9 +1,9 @@
 <?php
 
 class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
-	var $date_range = array();
+	public $date_range = array();
 
-	var $response_format = array(
+	public $response_format = array(
 		'found'    => '(int) The total number of posts found that match the request (ignoring limits, offsets, and pagination).',
 		'posts'    => '(array:post) An array of post objects.',
 	);
@@ -104,7 +104,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		if ( isset( $args['meta_key'] ) ) {
 			$show = false;
-			if ( $this->is_metadata_public( $args['meta_key'] ) )
+			if ( WPCOM_JSON_API_Metadata::is_public( $args['meta_key'] ) )
 				$show = true;
 			if ( current_user_can( 'edit_post_meta', $query['post_type'], $args['meta_key'] ) )
 				$show = true;
@@ -232,6 +232,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				}
 
 				if ( $posts ) {
+					/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 					do_action( 'wpcom_json_api_objects', 'posts', count( $posts ) );
 				}
 

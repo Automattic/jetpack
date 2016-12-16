@@ -1,0 +1,205 @@
+.jp-jetpack-connect__container {
+	text-align: center;
+
+	// modding header__label specifically on the connection page.
+	.dops-section-header__label {
+		margin: rem( 1px) ; // allows box-shadow of parent to display properly.
+		padding: rem( 16px );
+		font-size: rem( 16px );
+		font-weight: 400;
+		border-bottom: 1px lighten( $gray, 30% ) solid;
+	}
+}
+
+.jp-jetpack-connect__cta {
+	@include breakpoint( "<660px" ) {
+		text-align: left;
+	}
+	.jp-jetpack-connect__description {
+		padding: 0 0 rem( 16px );
+	}
+}
+
+.jp-jetpack-connect__container-title,
+.jp-jetpack-connect__container-subtitle {
+	font-weight: 400;
+}
+
+.jp-jetpack-connect__container-subtitle {
+	&:first-of-type {
+		margin: 0;
+		padding: rem( 16px );
+	}
+	@include breakpoint( ">660px" ) {
+		font-size: rem( 20px );
+	}
+	@include breakpoint( "<660px" ) {
+		text-align: left;
+	}
+}
+
+.jp-jetpack-connect__description {
+	padding: rem( 16px );
+	font-size: rem( 16px );
+
+	@include breakpoint( ">960px" ) {
+		padding: 0 10%;
+		margin-bottom: rem( 32px );
+	}
+	@include breakpoint( "<660px" ) {
+		font-size: rem( 14px );
+		text-align: left;
+		margin-top: 0;
+		padding: rem( 16px ) 0;
+	}
+}
+
+.jp-jetpack-connect__link {
+	font-style: italic;
+}
+
+.jp-jetpack-connect__button {
+	margin: 0 0 rem( 12px );
+}
+
+.jp-jetpack-connect__feature {
+	padding: 0;
+}
+
+.jp-jetpack-connect__header {
+	position: relative;
+
+	&:first-of-type {
+
+		@include breakpoint( ">960px" ) {
+			background: transparent url('../../images/long-clouds.svg') 50% 110% no-repeat;
+			background-size: 100% 63px;
+			padding-bottom: rem( 50px );
+		}
+
+		@include breakpoint( "<960px" ) {
+			border-bottom: 1px lighten( $gray, 30% ) solid;
+			background-image: none;
+		}
+	}
+
+	@include breakpoint( ">960px" ) { padding-top: rem( 16px ); }
+
+	.jp-jetpack-connect__description {
+		@include breakpoint( "<660px" ) {
+			padding: 0 rem( 16px ) rem( 16px );
+		}
+	}
+}
+
+.jp-jetpack-connect__header-img-container {
+	position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+
+	@include breakpoint( "<960px" ) {
+		display: none;
+	}
+}
+
+.jp-jetpack-connect__header-img {
+	margin: 0 auto;
+	max-width: 100%;
+	z-index: 1001;
+	position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	&:first-of-type {
+
+		@include breakpoint( ">960px" ) { bottom: -15px; }
+	}
+	&:last-of-type {
+		z-index: 999;
+	}
+}
+
+// Adjust the padding for traffic header img
+.jp-jetpack-connect__traffic .jp-jetpack-connect__header {
+	&:first-of-type {
+
+		@include breakpoint( ">960px" ) {
+			padding-bottom: rem( 200px );
+			background:
+				url('../../images/stars-right.svg') no-repeat,
+				url('../../images/stars-left.svg') no-repeat,
+				$white;
+			background-position: 95% 50%, 5% 50%;
+			background-size: 100px, 125px;
+		}
+	}
+}
+
+.jp-jetpack-connect__interior-container {
+	padding: rem( 16px );
+	background: lighten( $gray, 33% ); // if you alter this, ensure the corresponding svg colors are changed to match
+
+	@include breakpoint( ">960px" ) {
+		padding: rem( 24px ) rem( 16px ) rem( 16px );
+	}
+}
+
+.jp-jetpack-connect__interior-container .jp-jetpack-connect__container-subtitle {
+
+	@include breakpoint( "<960px" ) {
+		padding: rem( 16px ) 0 0;
+	}
+
+	@include breakpoint( ">660px" ) {
+		margin-top: rem( 24px );
+	}
+}
+
+.jp-jetpack-connect__feature-list {
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+
+	@include breakpoint( ">960px" ) {
+		margin-top: rem( 16px );
+	}
+	@include breakpoint( ">660px" ) {
+		flex-wrap: nowrap;
+	}
+	@include breakpoint( "<660px" ) {
+		margin: rem( -8px ) rem( -16px ) 0; // to avoid altering multiple other elements
+	}
+}
+
+.jp-jetpack-connect__feature-list-column {
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+	text-align: left;
+	background: $white;
+
+	@include breakpoint( ">660px" ) {
+		flex-grow: 1;
+		flex-shrink: 0;
+		flex-basis: 33%;
+	}
+
+	@include breakpoint( "<660px" ) {
+		flex-basis: 100%;
+		margin-bottom: rem( 8px );
+	}
+}
+
+.jp-jetpack-connect__feature-content {
+	padding: rem( 16px );
+}
+
+.jp-jetpack-connect__feature-content-title {
+	margin: 0;
+}
+
+.jp-jetpack-connect__feature-image {
+	max-width: 100%;
+	margin: 0 auto;
+}

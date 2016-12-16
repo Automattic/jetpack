@@ -14,19 +14,30 @@ add_action( 'init', 'jetpack_load_theme_tools', 30 );
 
 /**
  * Load theme compat file if it exists.
- *
- * A theme could add its own compat files here if they like. For example:
- *
- * add_filter( 'jetpack_theme_compat_files', 'mytheme_jetpack_compat_file' );
- * function mytheme_jetpack_compat_file( $files ) {
- *     $files['mytheme'] = locate_template( 'jetpack-compat.php' );
- *     return $files;
- * }
  */
 function jetpack_load_theme_compat() {
+
+	/**
+	 * Filter theme compat files.
+	 *
+	 * Themes can add their own compat files here if they like. For example:
+	 *
+	 * add_filter( 'jetpack_theme_compat_files', 'mytheme_jetpack_compat_file' );
+	 * function mytheme_jetpack_compat_file( $files ) {
+	 *     $files['mytheme'] = locate_template( 'jetpack-compat.php' );
+	 *     return $files;
+	 * }
+	 *
+	 * @module theme-tools
+	 *
+	 * @since 2.8.0
+	 *
+	 * @param array Associative array of theme compat files to load.
+	 */
 	$compat_files = apply_filters( 'jetpack_theme_compat_files', array(
 		'twentyfourteen' => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentyfourteen.php',
 		'twentyfifteen'  => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentyfifteen.php',
+		'twentysixteen'  => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentysixteen.php',
 	) );
 
 	_jetpack_require_compat_file( get_stylesheet(), $compat_files );

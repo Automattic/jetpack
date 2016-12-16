@@ -4,7 +4,7 @@ if( ! class_exists( 'WP_List_Table' ) )
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
 class Jetpack_Omnisearch_Posts extends WP_List_Table {
-	var $post_type = 'post',
+	public $post_type = 'post',
 	    $post_type_object;
 
 	function __construct( $post_type = 'post' ) {
@@ -30,6 +30,7 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, esc_html( $this->post_type_obj->labels->search_items ) );
 		$html = '<h2>' . esc_html( $this->post_type_obj->labels->name ) . $search_link .'</h2>';
 
+		/** This action is documented in modules/omnisearch/omnisearch-core.php */
 		$num_results = apply_filters( 'omnisearch_num_results', 5 );
 
 		$this->posts = get_posts( array(
@@ -71,13 +72,16 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 	function column_post_title( $post ) {
 		$actions = array();
 		if ( current_user_can( $this->post_type_obj->cap->edit_post, $post ) ) {
+			$post_title = sprintf( '<a href="%s">%s</a>', esc_url( get_edit_post_link( $post->ID ) ), wptexturize( $post->post_title ) );
 			$actions['edit'] = sprintf( '<a href="%s">%s</a>', esc_url( get_edit_post_link( $post->ID ) ), esc_html( $this->post_type_obj->labels->edit_item ) );
+		} else {
+			$post_title = wptexturize( $post->post_title );
 		}
 		if ( current_user_can( $this->post_type_obj->cap->delete_post, $post ) ) {
 			$actions['delete'] = sprintf( '<a href="%s">%s</a>', esc_url( get_delete_post_link( $post->ID ) ), esc_html__('Trash', 'jetpack') );
 		}
 		$actions['view'] = sprintf( '<a href="%s">%s</a>', esc_url( get_permalink( $post->ID ) ), esc_html( $this->post_type_obj->labels->view_item ) );
-		return wptexturize( $post->post_title ) . $this->row_actions( $actions );
+		return $post_title . $this->row_actions( $actions );
 	}
 
 	function column_date( $post ) {
@@ -131,4 +135,3 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 		}
 	}
 }
-

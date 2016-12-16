@@ -6,8 +6,18 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 	 */
 	class Jetpack_Protect_Math_Authenticate {
 
+		static $loaded;
+
 		function __construct() {
+
+			if ( self::$loaded ) {
+				return;
+			}
+
+			self::$loaded = 1;
+
 			add_action( 'login_form', array( $this, 'math_form' ) );
+
 			if( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
 				add_action( 'init', array( $this, 'process_generate_math_page' ) );
 			}
@@ -37,7 +47,11 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			if ( ! $correct_ans || !$_POST['jetpack_protect_num'] ) {
 				Jetpack_Protect_Math_Authenticate::generate_math_page();
 			} elseif ( $salted_ans != $correct_ans ) {
-				wp_die( __( '<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Jetpack Protect API is unavailable.  Please use your browser\'s back button to return to the login form, press the "refresh" button to generate a new math problem, and try to log in again.', 'jetpack' ) );
+				wp_die(
+				__( '<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Protect API is unavailable.  Please use your browser\'s back button to return to the login form, press the "refresh" button to generate a new math problem, and try to log in again.', 'jetpack' ),
+				'',
+				401
+				);
 			} else {
 				return true;
 			}
@@ -61,15 +75,19 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 				<h3><?php _e( 'Your answer was incorrect, please try again.', 'jetpack' ); ?></h3>
 			<?php endif ?>
 
-			<form action="<?php echo home_url(); ?>" method="post" accept-charset="utf-8">
+			<form action="<?php echo wp_login_url(); ?>" method="post" accept-charset="utf-8">
 				<?php Jetpack_Protect_Math_Authenticate::math_form(); ?>
 				<input type="hidden" name="jetpack_protect_process_math_form" value="1" id="jetpack_protect_process_math_form" />
-				<p><input type="submit" value="Continue &rarr;"></p>
+				<p><input type="submit" value="<?php esc_html_e( 'Continue &rarr;', 'jetpack' ); ?>"></p>
 			</form>
 		<?php
-			$mathage = ob_get_contents();
+			$mathpage = ob_get_contents();
 			ob_end_clean();
-			wp_die( $mathage );
+			wp_die(
+				$mathpage,
+				'',
+				'401'
+			);
 		}
 
 		public function process_generate_math_page() {
@@ -101,7 +119,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			$ans  = sha1( $salt . $sum );
 			?>
 			<div style="margin: 5px 0 20px;">
-				<strong>Prove your humanity: </strong>
+				<strong><?php esc_html_e( 'Prove your humanity:', 'jetpack' ); ?> </strong>
 				<?php echo $num1 ?> &nbsp; + &nbsp; <?php echo $num2 ?> &nbsp; = &nbsp;
 				<input type="input" name="jetpack_protect_num" value="" size="2" />
 				<input type="hidden" name="jetpack_protect_answer" value="<?php echo $ans; ?>" />

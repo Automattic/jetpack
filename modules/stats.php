@@ -1,14 +1,15 @@
 <?php
 /**
- * Module Name: WordPress.com Stats
- * Module Description: Monitor your stats with clear, concise reports and no additional load on your server.
+ * Module Name: Site Stats
+ * Module Description: Collect valuable traffic stats and insights.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 1.1
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: WordPress.com Stats, Recommended
- * Feature: Recommended
+ * Module Tags: Site Stats, Recommended
+ * Feature: Engagement
+ * Additional Search Queries: statistics, tracking, analytics, views, traffic, stats
  */
 
 if ( defined( 'STATS_VERSION' ) ) {
@@ -20,21 +21,6 @@ defined( 'STATS_DASHBOARD_SERVER' ) or define( 'STATS_DASHBOARD_SERVER', 'dashbo
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
 
-// Tell HQ about changed settings
-Jetpack_Sync::sync_options( __FILE__,
-	'stats_options',
-	'home',
-	'siteurl',
-	'blogname',
-	'blogdescription',
-	'gmt_offset',
-	'timezone_string',
-	'page_on_front',
-	'permalink_structure',
-	'category_base',
-	'tag_base'
-);
-
 function stats_load() {
 	global $wp_roles;
 
@@ -42,14 +28,6 @@ function stats_load() {
 	Jetpack::module_configuration_load( __FILE__, 'stats_configuration_load' );
 	Jetpack::module_configuration_head( __FILE__, 'stats_configuration_head' );
 	Jetpack::module_configuration_screen( __FILE__, 'stats_configuration_screen' );
-
-	// Tell HQ about changed posts
-	$post_stati = get_post_stati( array( 'public' => true ) ); // All public post stati
-	$post_stati[] = 'private';                                 // Content from private stati will be redacted
-	Jetpack_Sync::sync_posts( __FILE__, array(
-		'post_types' => get_post_types( array( 'public' => true ) ), // All public post types
-		'post_stati' => $post_stati,
-	) );
 
 	// Generate the tracking code after wp() has queried for posts.
 	add_action( 'template_redirect', 'stats_template_redirect', 1 );
@@ -66,17 +44,25 @@ function stats_load() {
 	if ( isset( $_GET['oldwidget'] ) ) {
 		// Old one.
 		add_action( 'wp_dashboard_setup', 'stats_register_dashboard_widget' );
-	} elseif ( current_user_can( 'view_stats' ) ) {
-		// New way.
-		add_action( 'load-index.php', 'stats_enqueue_dashboard_head' );
-		add_action( 'wp_dashboard_setup', 'stats_register_widget_control_callback' ); // hacky but works
-		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
+	} else {
+		add_action( 'admin_init', 'stats_merged_widget_admin_init' );
 	}
 
 	add_filter( 'jetpack_xmlrpc_methods', 'stats_xmlrpc_methods' );
 
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
+}
+
+/**
+ * Delay conditional for current_user_can to after init.
+ */
+function stats_merged_widget_admin_init() {
+	if ( current_user_can( 'view_stats' ) ) {
+		add_action( 'load-index.php', 'stats_enqueue_dashboard_head' );
+		add_action( 'wp_dashboard_setup', 'stats_register_widget_control_callback' ); // hacky but works
+		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
+	}
 }
 
 function stats_enqueue_dashboard_head() {
@@ -112,7 +98,7 @@ function stats_map_meta_caps( $caps, $cap, $user_id, $args ) {
 		$stats_roles = stats_get_option( 'roles' );
 
 		// Is the users role in the available stats roles?
-		if ( in_array( $user_role, $stats_roles ) ) {
+		if ( is_array( $stats_roles ) && in_array( $user_role, $stats_roles ) ) {
 			$caps = array( 'read' );
 		}
 	}
@@ -121,12 +107,10 @@ function stats_map_meta_caps( $caps, $cap, $user_id, $args ) {
 }
 
 function stats_template_redirect() {
-	global $wp_the_query, $current_user, $stats_footer;
+	global $current_user, $stats_footer;
 
-	if ( is_feed() || is_robots() || is_trackback() )
+	if ( is_feed() || is_robots() || is_trackback() || is_preview() )
 		return;
-
-	$options = stats_get_options();
 
 	// Should we be counting this user's views?
 	if ( !empty( $current_user->ID ) ) {
@@ -137,6 +121,24 @@ function stats_template_redirect() {
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
 	add_action( 'wp_head', 'stats_add_shutdown_action' );
+
+	$script = set_url_scheme( '//stats.wp.com/e-' . gmdate( 'YW' ) . '.js' );
+	$data = stats_build_view_data();
+	$data_stats_array = stats_array( $data );
+
+	$stats_footer = <<<END
+<script type='text/javascript' src='{$script}' async defer></script>
+<script type='text/javascript'>
+	_stq = window._stq || [];
+	_stq.push([ 'view', {{$data_stats_array}} ]);
+	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
+</script>
+
+END;
+}
+
+function stats_build_view_data() {
+	global $wp_the_query;
 
 	$blog = Jetpack_Options::get_option( 'id' );
 	$tz = get_option( 'gmt_offset' );
@@ -162,18 +164,7 @@ function stats_template_redirect() {
 		$post = '0';
 	}
 
-	$script = set_url_scheme( '//stats.wp.com/e-' . gmdate( 'YW' ) . '.js' );
-	$data = stats_array( compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' ) );
-
-	$stats_footer = <<<END
-<script type='text/javascript' src='{$script}' async defer></script>
-<script type='text/javascript'>
-	_stq = window._stq || [];
-	_stq.push([ 'view', {{$data}} ]);
-	_stq.push([ 'clickTrackerInit', '{$blog}', '{$post}' ]);
-</script>
-
-END;
+	return compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' );
 }
 
 function stats_add_shutdown_action() {
@@ -190,8 +181,9 @@ function stats_footer() {
 function stats_get_options() {
 	$options = get_option( 'stats_options' );
 
-	if ( !isset( $options['version'] ) || $options['version'] < STATS_VERSION )
+	if ( ! isset( $options['version'] ) || $options['version'] < STATS_VERSION ) {
 		$options = stats_upgrade_options( $options );
+	}
 
 	return $options;
 }
@@ -213,11 +205,11 @@ function stats_set_option( $option, $value ) {
 
 	$options[$option] = $value;
 
-	stats_set_options($options);
+	return stats_set_options($options);
 }
 
 function stats_set_options($options) {
-	update_option( 'stats_options', $options );
+	return update_option( 'stats_options', $options );
 }
 
 function stats_upgrade_options( $options ) {
@@ -245,7 +237,9 @@ function stats_upgrade_options( $options ) {
 
 	$new_options['version'] = STATS_VERSION;
 
-	stats_set_options( $new_options );
+	if ( !  stats_set_options( $new_options ) ) {
+		return false;
+	}
 
 	stats_update_blog();
 
@@ -253,6 +247,15 @@ function stats_upgrade_options( $options ) {
 }
 
 function stats_array( $kvs ) {
+	/**
+	 * Filter the options added to the JavaScript Stats tracking code.
+	 *
+	 * @module stats
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $kvs Array of options about the site and page you're on.
+	 */
 	$kvs = apply_filters( 'stats_array', $kvs );
 	$kvs = array_map( 'addslashes', $kvs );
 	foreach ( $kvs as $k => $v )
@@ -350,28 +353,39 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 <?php
 }
 
-function stats_reports_page() {
+function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['dashboard'] ) )
 		return stats_dashboard_widget_content();
 
 	$blog_id = stats_get_option( 'blog_id' );
+	$domain = Jetpack::build_raw_urls( get_home_url() );
 
-	if ( !isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
+	if ( ! $main_chart_only && !isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
 		$nojs_url = add_query_arg( 'nojs', '1' );
 		$http = is_ssl() ? 'https' : 'http';
 		// Loading message
 		// No JS fallback message
 ?>
 <div class="wrap">
-	<h2><?php esc_html_e( 'Site Stats', 'jetpack'); ?> <a style="font-size:13px;" href="<?php echo esc_url( admin_url('admin.php?page=jetpack&configure=stats') ); ?>"><?php esc_html_e( 'Configure', 'jetpack'); ?></a></h2>
+	<h2><?php esc_html_e( 'Site Stats', 'jetpack'); ?> <?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?><a style="font-size:13px;" href="<?php echo esc_url( admin_url('admin.php?page=jetpack&configure=stats') ); ?>"><?php esc_html_e( 'Configure', 'jetpack'); ?></a><?php endif; ?></h2>
 </div>
 <div id="stats-loading-wrap" class="wrap">
 <p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php
-/** This filter is documented in modules/shortcodes/audio.php */
-echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" ) ); ?>" /></p>
-<p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo $blog_id; ?>"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
-<p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with Javascript enabled.', 'jetpack' ); ?><br />
-<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without Javascript', 'jetpack' ); ?></a>.</p>
+echo esc_url(
+	/**
+	 * Sets external resource URL.
+	 *
+	 * @module stats
+	 *
+	 * @since 1.4.0
+	 *
+	 * @param string $args URL of external resource.
+	 */
+	apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" )
+); ?>" /></p>
+<p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo $domain; ?>" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
+<p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
+<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without JavaScript', 'jetpack' ); ?></a>.</p>
 </div>
 <?php
 		return;
@@ -392,6 +406,8 @@ echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i
 	if ( get_locale() !== 'en_US' ) {
 		$q['jp_lang'] = get_locale();
 	}
+	// Only show the main chart, without extra header data, or metaboxes.
+	$q['main_chart_only'] = $main_chart_only;
 	$args = array(
 		'view' => array( 'referrers', 'postviews', 'searchterms', 'clicks', 'post', 'table' ),
 		'numdays' => 'int',
@@ -463,6 +479,11 @@ echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i
 		$body = stats_convert_admin_urls( $body );
 		echo $body;
 	}
+
+	if ( isset( $_GET['page'] ) && 'stats' === $_GET['page'] && ! isset( $_GET['chart'] ) ) {
+		JetpackTracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_stats' ) );
+	}
+
 	if ( isset( $_GET['noheader'] ) )
 		die;
 }
@@ -647,8 +668,6 @@ function stats_admin_bar_head() {
 }
 
 function stats_admin_bar_menu( &$wp_admin_bar ) {
-	$blog_id = stats_get_option( 'blog_id' );
-
 	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ); // no menu_page_url() blog-side.
 
 	$img_src = esc_attr( add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours-scale' ), $url ) );
@@ -814,18 +833,15 @@ function stats_dashboard_widget_control() {
 
 function stats_jetpack_dashboard_widget() {
 	?>
-	<h3>
-		<span class="js-toggle-stats_dashboard_widget_control">
-			<?php esc_html_e( 'Configure', 'jetpack' ); ?>
-		</span>
-		<?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
-	</h3>
-	<form id="stats_dashboard_widget_control" action="<?php esc_url( admin_url() ); ?>" method="post">
+	<form id="stats_dashboard_widget_control" action="<?php echo esc_url( admin_url() ); ?>" method="post">
 		<?php stats_dashboard_widget_control(); ?>
 		<?php wp_nonce_field( 'edit-dashboard-widget_dashboard_stats', 'dashboard-widget-nonce' ); ?>
 		<input type="hidden" name="widget_id" value="dashboard_stats" />
 		<?php submit_button( __( 'Submit', 'jetpack' ) ); ?>
 	</form>
+	<span id="js-toggle-stats_dashboard_widget_control">
+		<?php esc_html_e( 'Configure', 'jetpack' ); ?>
+	</span>
 	<div id="dashboard_stats">
 		<div class="inside">
 			<div style="height: 250px;"></div>
@@ -833,16 +849,22 @@ function stats_jetpack_dashboard_widget() {
 	</div>
 	<script>
 		jQuery(document).ready(function($){
-			$('.js-toggle-stats_dashboard_widget_control').click(function(e){
+			var $toggle = $('#js-toggle-stats_dashboard_widget_control');
+
+			$toggle.parent().prev().append( $toggle );
+			$toggle.show().click(function(e){
 				e.preventDefault();
+				e.stopImmediatePropagation();
 				$(this).parent().toggleClass('controlVisible');
 				$('#stats_dashboard_widget_control').slideToggle();
 			});
 		});
 	</script>
 	<style>
-		.js-toggle-stats_dashboard_widget_control {
+		#js-toggle-stats_dashboard_widget_control {
+			display: none;
 			float: right;
+			margin-top: 0.2em;
 			font-weight: 400;
 			color: #444;
 			font-size: .8em;
@@ -869,39 +891,36 @@ function stats_jetpack_dashboard_widget() {
 function stats_register_widget_control_callback() {
 	$GLOBALS['wp_dashboard_control_callbacks']['dashboard_stats'] = 'stats_dashboard_widget_control';
 }
-// Javascript and CSS for dashboard widget
+// JavaScript and CSS for dashboard widget
 function stats_dashboard_head() { ?>
 <script type="text/javascript">
 /* <![CDATA[ */
-jQuery(window).load( function() {
-	jQuery( function($) {
-		resizeChart();
-		jQuery(window).resize( _.debounce( function(){
-			resizeChart();
-		}, 100) );
-	} );
+jQuery( function($) {
+	var dashStats = jQuery( '#dashboard_stats div.inside' );
 
-	function resizeChart() {
-		var dashStats = jQuery( '#dashboard_stats div.inside' );
-
-		if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
-			return;
-		}
-
-		if ( ! dashStats.length ) {
-			dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
-			var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
-			var args = 'width=' + dashStats.width() + '&height=' + h.toString();
-		} else {
-			if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
-				var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
-			} else {
-				var args = 'width=' + ( dashStats.width() * 2 ).toString();
-			}
-		}
-
-		dashStats.not( '.dashboard-widget-control' ).load( 'admin.php?page=stats&noheader&dashboard&' + args );
+	if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
+		return;
 	}
+
+	if ( ! dashStats.length ) {
+		dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
+		var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
+		var args = 'width=' + dashStats.width() + '&height=' + h.toString();
+	} else {
+		if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
+			var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
+		} else {
+			var args = 'width=' + ( dashStats.width() * 2 ).toString();
+		}
+	}
+
+	dashStats
+		.not( '.dashboard-widget-control' )
+		.load( 'admin.php?page=stats&noheader&dashboard&' + args );
+
+	jQuery( window ).one( 'resize', function() {
+		jQuery( '#stat-chart' ).css( 'width', 'auto' );
+	} );
 } );
 /* ]]> */
 </script>
@@ -954,7 +973,7 @@ jQuery(window).load( function() {
 #top-search p {
 	color: #999;
 }
-#stats-info h4 {
+#stats-info h3 {
 	font-size: 1em;
 	margin: 0 0 .5em 0 !important;
 }
@@ -1023,7 +1042,8 @@ function stats_dashboard_widget_content() {
 
 	$post_ids = array();
 
-	$csv_args = array( 'top' => '&limit=8', 'search' => '&limit=5' );
+	$csv_end_date = date( 'Y-m-d', current_time( 'timestamp' ) );
+	$csv_args = array( 'top' => "&limit=8&end=$csv_end_date", 'search' => "&limit=5&end=$csv_end_date" );
 	/* translators: Stats dashboard widget postviews list: "$post_title $views Views" */
 	$printf = __( '%1$s %2$s Views' , 'jetpack' );
 
@@ -1050,7 +1070,7 @@ function stats_dashboard_widget_content() {
 <div id="stats-info">
 	<div id="top-posts" class='stats-section'>
 		<div class="stats-section-inner">
-		<h4 class="heading"><?php _e( 'Top Posts' , 'jetpack' ); ?></h4>
+		<h3 class="heading"><?php _e( 'Top Posts' , 'jetpack' ); ?></h3>
 		<?php
 		if ( empty( $top_posts ) ) {
 			?>
@@ -1074,7 +1094,7 @@ function stats_dashboard_widget_content() {
 	</div>
 	<div id="top-search" class='stats-section'>
 		<div class="stats-section-inner">
-		<h4 class="heading"><?php _e( 'Top Searches' , 'jetpack' ); ?></h4>
+		<h3 class="heading"><?php _e( 'Top Searches' , 'jetpack' ); ?></h3>
 		<?php
 		if ( empty( $searches ) ) {
 			?>
@@ -1109,7 +1129,7 @@ function stats_print_wp_remote_error( $get, $url ) {
 	}
 ?>
 	<div class="wrap">
-	<p><?php printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s">contact support</a>. In your report please include the information below.', 'jetpack' ), 'http://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
+	<p><?php printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s" target="_blank">contact support</a>. In your report please include the information below.', 'jetpack' ), 'http://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
 	<pre>
 	User Agent: "<?php echo esc_html( $_SERVER['HTTP_USER_AGENT'] ); ?>"
 	Page URL: "http<?php echo (is_ssl()?'s':'') . '://' . esc_html( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ); ?>"
@@ -1138,6 +1158,35 @@ function stats_print_wp_remote_error( $get, $url ) {
 	<?php
 }
 
+/**
+ * Get stats from WordPress.com
+ *
+ * @param string $table The stats which you want to retrieve: postviews, or searchterms
+ * @param array $args {
+ *     An associative array of arguments.
+ *
+ *      @type bool    $end        The last day of the desired time frame. Format is 'Y-m-d' (e.g. 2007-05-01)
+ *                                and default timezone is UTC date. Default value is Now.
+ *      @type string  $days       The length of the desired time frame. Default is 30. Maximum 90 days.
+ *      @type int     $limit      The maximum number of records to return. Default is 10. Maximum 100.
+ *      @type int     $post_id    The ID of the post to retrieve stats data for
+ *      @type string  $summarize  If present, summarizes all matching records. Default Null.
+ *
+ * }
+ *
+ * @return array {
+ *      An array of post view data, each post as an array
+ *
+ *      array {
+ *          The post view data for a single post
+ *
+ *          @type string  $post_id         The ID of the post
+ *          @type string  $post_title      The title of the post
+ *          @type string  $post_permalink  The permalink for the post
+ *          @type string  $views           The number of views for the post within the $num_days specified
+ *      }
+ * }
+ */
 function stats_get_csv( $table, $args = null ) {
 	$defaults = array( 'end' => false, 'days' => false, 'limit' => 3, 'post_id' => false, 'summarize' => '' );
 
@@ -1223,6 +1272,74 @@ function stats_str_getcsv( $csv ) {
 	while ( false !== $row = fgetcsv( $temp, 2000 ) )
 		$data[] = $row;
 	fclose( $temp );
+
+	return $data;
+}
+
+/**
+ * Abstract out building the rest api stats path.
+ *
+ * @param  string $resource
+ * @return string
+ */
+function jetpack_stats_api_path( $resource = '' ) {
+	$resource = ltrim( $resource, '/' );
+	return sprintf( '/sites/%d/stats/%s', stats_get_option( 'blog_id' ), $resource );
+}
+
+/**
+ * Fetches stats data from the REST API.  Caches locally for 5 minutes.
+ *
+ * @link: https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
+ *
+ * @param  array|string   $args     The args that are passed to the endpoint
+ * @param  string         $resource Optional sub-endpoint following /stats/
+ * @return array|WP_Error
+ */
+function stats_get_from_restapi( $args = array(), $resource = '' ) {
+	$endpoint    = jetpack_stats_api_path( $resource );
+	$api_version = '1.1';
+	$args        = wp_parse_args( $args, array() );
+	$cache_key   = md5( implode( '|', array( $endpoint, $api_version, serialize( $args ) ) ) );
+
+	// Get cache
+	$stats_cache = Jetpack_Options::get_option( 'restapi_stats_cache', array() );
+	if ( ! is_array( $stats_cache ) ) {
+		$stats_cache = array();
+	}
+
+	// Return or expire this key
+	if ( isset( $stats_cache[ $cache_key ] ) ) {
+		$time = key( $stats_cache[ $cache_key ] );
+		if ( time() - $time < ( 5 * MINUTE_IN_SECONDS ) ) {
+			$cached_stats = $stats_cache[ $cache_key ][ $time ];
+			$cached_stats = (object) array_merge( array( 'cached_at' => $time ), (array) $cached_stats );
+			return $cached_stats;
+		}
+		unset( $stats_cache[ $cache_key ] );
+	}
+
+	// Do the dirty work.
+	$response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, $args );
+	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		// If bad, just return it, don't cache.
+		return $response;
+	}
+
+	$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+	// Expire old keys
+	foreach ( $stats_cache as $k => $cache ) {
+		if ( ! is_array( $cache ) || ( 5 * MINUTE_IN_SECONDS ) < time() - key( $cache ) ) {
+			unset( $stats_cache[ $k ] );
+		}
+	}
+
+	// Set cache
+	$stats_cache[ $cache_key ] = array(
+		time() => $data,
+	);
+	Jetpack_Options::update_option( 'restapi_stats_cache', $stats_cache, false );
 
 	return $data;
 }

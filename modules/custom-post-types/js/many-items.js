@@ -97,7 +97,7 @@
 		var tbody = this.find( 'tbody:last' ),
 			row = tbody.find( 'tr:first' ).clone();
 
-		$( row ).find( 'input' ).attr( 'value', '' );
+		$( row ).find( 'input, textarea' ).val( '' );
 		$( row ).appendTo( tbody );
 	};
 

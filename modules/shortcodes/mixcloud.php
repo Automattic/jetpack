@@ -22,7 +22,7 @@ function mixcloud_shortcode( $atts, $content = null ) {
 	if ( empty( $atts[0] ) && empty( $content ) )
 		return "<!-- mixcloud error: invalid mixcloud resource -->";
 
-	$regular_expression = "#((?<=mixcloud.com/)([A-Za-z0-9_-]+/[A-Za-z0-9_-]+))|^([A-Za-z0-9_-]+/[A-Za-z0-9_-]+)#i";
+	$regular_expression = '#((?<=mixcloud.com/)([A-Za-z0-9%-]+/[A-Za-z0-9%-]+))|^([A-Za-z0-9%-]+/[A-Za-z0-9%-]+)#i';
 	preg_match( $regular_expression, $content, $match );
 	if ( ! empty( $match ) ) {
 		$resource_id = trim( $match[0] );

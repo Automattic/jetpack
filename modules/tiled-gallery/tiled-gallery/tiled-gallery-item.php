@@ -7,12 +7,21 @@ abstract class Jetpack_Tiled_Gallery_Item {
 		$this->grayscale = $grayscale;
 
 		$this->image_title = $this->image->post_title;
+
 		$this->image_alt = get_post_meta( $this->image->ID, '_wp_attachment_image_alt', true );
+		// If no Alt value, use the caption
+		if ( empty( $this->image_alt ) && ! empty( $this->image->post_excerpt ) ) {
+			$this->image_alt = trim( strip_tags( $this->image->post_excerpt ) );
+		}
+		// If still no Alt value, use the title
+		if ( empty( $this->image_alt ) && ! empty( $this->image->post_title ) ) {
+			$this->image_alt = trim( strip_tags( $this->image->post_title ) );
+		}
+
 		$this->orig_file = wp_get_attachment_url( $this->image->ID );
 		$this->link = $needs_attachment_link ? get_attachment_link( $this->image->ID ) : $this->orig_file;
 
-		$this->img_src = add_query_arg( array( 'w' => $this->image->width, 'h' => $this->image->height, 'crop' => true ), $this->orig_file );
-
+		$this->img_src = jetpack_photon_url( $this->orig_file, array( 'resize' => sprintf( '%d,%d', $this->image->width, $this->image->height ) ) );
 	}
 
 	public function fuzzy_image_meta() {

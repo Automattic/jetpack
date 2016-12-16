@@ -2,14 +2,6 @@
 // Settings
 // ==========================================================================
 
-.jetpack_page_jetpack_modules {
-	.wrap {
-		@include breakpoint(phone){
-			padding: 0 0 1em;
-		}
-	}
-}
-
 .page-content.configure {
 	margin-top: 0;
 }
@@ -46,19 +38,6 @@
 				top: 0;
 			}
 		}
-
-		.tablenav.top {
-			float: left;
-
-			.actions {
-				@media (max-width: 900px) {
-					display: block;
-				}
-				@media (max-width: 782px) {
-					margin-top: 6px;
-				}
-			}
-		}
 	}
 }
 
@@ -78,15 +57,6 @@
 	}
 }
 
-.module-actions.landing-page {
-	float: right;
-	margin-right: 15px;
-
-	a {
-		font-size: 0.6em;
-	}
-}
-
 .table-bordered.jetpack-modules {
 	border: none;
 	margin-bottom: 0;
@@ -102,9 +72,6 @@
 		&:hover {
 			.genericon {
 				display: inline-block;
-			}
-			td .row-actions span a {
-				opacity: 1;
 			}
 		}
 		&.active {
@@ -123,13 +90,18 @@
 			}
 		}
 		&.unavailable {
-			opacity: 0.3;
 			input {
 				display: none;
 			}
 		}
-		&#vaultpress {
-			opacity: 1;
+		&.deprecated {
+			span {
+				color: #888;
+			}
+			.dep-msg {
+				margin-right: 10px;
+				color: #555;
+			}
 		}
 		th,
 		td {
@@ -153,12 +125,6 @@
 
 				span {
 					margin-left: 5px;
-					a {
-						opacity: 0;
-						&:focus {
-							opacity: 1;
-						}
-					}
 				}
 
 				@media (max-width: 530px) {
@@ -170,6 +136,26 @@
 					visibility: visible;
 				};
 
+			}
+		}
+	}
+	&.with-transparency tr.jetpack-module {
+
+		&:hover {
+			td .row-actions span a {
+				opacity: 1;
+			}
+		}
+		&.unavailable {
+			opacity: 0.3;
+		}
+		&#vaultpress {
+			opacity: 1;
+		}
+		td .row-actions span a {
+			opacity: 0;
+			&:focus {
+				opacity: 1;
 			}
 		}
 	}
@@ -255,8 +241,6 @@
 	.manage-right {
 		margin: 0;
 		padding: 0;
-		/*position: absolute;
-		right: 0;*/
 		float: right;
 		width: 35%;
 		z-index: 1;
@@ -275,10 +259,10 @@
 		}
 		&.show {
 			display: block;
-			position: fixed;
 			overflow-y: auto;
 			overflow-x: hidden;
 			position: absolute;
+			z-index: 100000; // sits on top of wp-admin bar
 		}
 		.search-bar {
 			margin-bottom: 18px;
@@ -322,10 +306,10 @@
 				border-radius:2px;
 				margin-left:-5px;
 				background: #0D72B2;
-				color:#FFF;
+				color: #fff;
 
 				.count{
-					color:#BCD7E7;
+					color: #BCD7E7;
 					font-weight:200;
 				}
 			}
@@ -354,6 +338,39 @@
 				margin: 0;
 				padding: 0;
 			}
-		}
+		} // < 782
 	}
 }
+
+@media (max-width: 782px) {
+
+		// Fix to override particular wp-list-table changes in core - July 2015
+		.wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.column-primary):not(.check-column) {
+			padding: 11px 10px;
+			display: block;
+		}
+		.manage-right.show .subsubsub li {
+				padding: 5px;
+			}
+
+} // < 782
+
+@media (max-width: 650px) {
+
+	.table-bordered.jetpack-modules tr.jetpack-module.deprecated td .row-actions {
+		float: none;
+		padding-left: 18px;
+	}
+}
+
+@media (max-width: 430px) {
+
+		// Hide activate / config links on really small screens. Users can still utlize these actions by tapping on the title of the module
+		.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
+			display: none;
+		}
+
+		.table-bordered.jetpack-modules tr.jetpack-module.deprecated td .row-actions {
+			display: block;
+		}
+} // < 430

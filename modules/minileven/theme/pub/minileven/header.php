@@ -47,6 +47,8 @@
 		/**
 		 * Fires before Minileven header.
 		 *
+		 * @module minileven
+		 *
 		 * @since 3.4.0
 		 */
 		 do_action( 'jetpack_mobile_header_before' );
@@ -56,6 +58,8 @@
 
 		/**
 		 * Fires after Minileven header.
+		 *
+		 * @module minilven
 		 *
 		 * @since 3.4.0
 		 */

@@ -60,11 +60,20 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 */
 	public function __construct() {
 		$this->use_code_shortcode  = class_exists( 'SyntaxHighlighter' );
-		$this->preserve_shortcodes = function_exists( 'get_shortcode_regex' );
+		/**
+		 * Allow processing shortcode contents.
+		 *
+		 * @module markdown
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param boolean $preserve_shortcodes Defaults to $this->preserve_shortcodes.
+		 */
+		$this->preserve_shortcodes = apply_filters( 'jetpack_markdown_preserve_shortcodes', $this->preserve_shortcodes ) && function_exists( 'get_shortcode_regex' );
 		$this->preserve_latex      = function_exists( 'latex_markup' );
 		$this->strip_paras         = function_exists( 'wpautop' );
 
-		parent::MarkdownExtra_Parser();
+		parent::__construct();
 	}
 
 	/**
@@ -92,6 +101,22 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 
 		// escape line-beginning # chars that do not have a space after them.
 		$text = preg_replace_callback( '|^#{1,6}( )?|um', array( $this, '_doEscapeForHashWithoutSpacing' ), $text );
+
+		/**
+		 * Allow third-party plugins to define custom patterns that won't be processed by Markdown.
+		 *
+		 * @module markdown
+		 *
+		 * @since 3.9.2
+		 *
+		 * @param array $custom_patterns Array of custom patterns to be ignored by Markdown.
+		 */
+		$custom_patterns = apply_filters( 'jetpack_markdown_preserve_pattern', array() );
+		if ( is_array( $custom_patterns ) && ! empty( $custom_patterns ) ) {
+			foreach ( $custom_patterns as $pattern ) {
+				$text = preg_replace_callback( $pattern, array( $this, '_doRemoveText'), $text );
+			}
+		}
 
 		// run through core Markdown
 		$text = parent::transform( $text );
@@ -148,6 +173,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	public function do_codeblock_preserve( $matches ) {
 		$block = stripslashes( $matches[3] );
 		$block = esc_html( $block );
+		$block = str_replace( '\\', '\\\\', $block );
 		$open = $matches[1] . $matches[2] . "\n";
 		return $open . $block . $matches[4];
 	}
@@ -264,10 +290,10 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 */
 	protected function get_shortcode_regex() {
 		$pattern = get_shortcode_regex();
-		
+
 		// don't match markdown link anchors that could be mistaken for shortcodes.
-		$pattern .= '(?!\()'; 
-		
+		$pattern .= '(?!\()';
+
 		return "/$pattern/s";
 	}
 
