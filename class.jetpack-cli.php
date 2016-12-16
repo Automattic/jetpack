@@ -561,8 +561,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	public function sync( $args, $assoc_args ) {
-		if ( ! Jetpack::is_active() ) {
-			WP_CLI::error( __( 'Jetpack must be connected to WordPress.com to sync.', 'jetpack' ) );
+		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
+			WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site.', 'jetpack' ) );
 		}
 
 		$action = isset( $args[0] ) ? $args[0] : 'status';
