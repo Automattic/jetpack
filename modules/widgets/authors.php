@@ -166,7 +166,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	}
 
 	public function form( $instance ) {
-		$instance = wp_parse_args( $instance, array( 'title' => '', 'all' => false, 'avatar_size' => 48, 'number' => 0 ) );
+		$instance = wp_parse_args( $instance, array( 'title' => '', 'all' => false, 'avatar_size' => 48, 'number' => 5 ) );
 
 		?>
 		<p>
