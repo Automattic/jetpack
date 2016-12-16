@@ -1272,10 +1272,6 @@ class The_Neverending_Home_Page {
 			$results['type'] = 'empty';
 		}
 
-		if ( is_customize_preview() ) {
-			$wp_customize->remove_preview_signature();
-		}
-
 		wp_send_json(
 			/**
 			 * Filter the Infinite Scroll results.
