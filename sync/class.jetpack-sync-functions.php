@@ -16,14 +16,40 @@ class Jetpack_Sync_Functions {
 
 	public static function get_taxonomies() {
 		global $wp_taxonomies;
+		$cloned_taxonomies = array();
 
-		return $wp_taxonomies;
+		foreach ( (array) $wp_taxonomies as $key => $taxonomy ) {
+			$cloned_taxonomy = new stdClass();
+			foreach( (array) get_object_vars( $taxonomy ) as $var_key => $value ) {
+				if ( in_array( $var_key, array( 'update_count_callback', 'meta_box_cb' ) ) ) {
+					continue;
+				}
+				$cloned_taxonomy->$var_key = $value;
+			}
+
+			$cloned_taxonomies[ $key ] = $cloned_taxonomy;
+		}
+
+		return $cloned_taxonomies;
 	}
 
 	public static function get_post_types() {
 		global $wp_post_types;
+		$cloned_post_types = array();
 
-		return $wp_post_types;
+		foreach ( (array) $wp_post_types as $key => $post_type ) {
+			$cloned_post_type = new stdClass();
+			foreach ( (array) get_object_vars( $post_type ) as $var_key => $value ) {
+				if ( 'register_meta_box_cb' == $var_key ) {
+					continue;
+				}
+				$cloned_post_type->$var_key = $value;
+			}
+
+			$cloned_post_types[ $key ] = $cloned_post_type;
+		}
+
+		return $cloned_post_types;
 	}
 
 	public static function get_post_type_features() {
