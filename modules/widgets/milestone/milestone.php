@@ -95,7 +95,7 @@ class Milestone_Widget extends WP_Widget {
 .milestone-content {
 	line-height: 2;
 	margin-top: 5px;
-	max-width: 17em;
+	max-width: 100%;
 	padding: 0;
 	text-align: center;
 }
