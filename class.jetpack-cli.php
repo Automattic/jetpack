@@ -560,6 +560,23 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 	}
 
+	/**
+	 * Manage Jetpack Sync
+	 *
+	 * ## OPTIONS
+	 *
+	 * status : Print the current sync status
+	 * start  : Start a full sync from this site to WordPress.com
+	 * queue  : Print the current contents of a queue
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack sync status
+	 * wp jetpack sync start --modules=functions --sync_wait_time=5
+	 * wp jetpack sync queue --queue=full_sync
+	 *
+	 * @synopsis <status|start|queue> [--<field>=<value>]
+	 */
 	public function sync( $args, $assoc_args ) {
 		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
 			WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site.', 'jetpack' ) );
@@ -607,7 +624,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				Jetpack_Sync_Settings::update_settings( $sync_settings );
 
 				// Convert comma-delimited string of modules to an array
-				if ( isset( $assoc_args['modules'] ) && ! empty( $assoc_args['modules'] ) ) {
+				if ( ! empty( $assoc_args['modules'] ) ) {
 					$modules = array_map( 'trim', explode( ',', $assoc_args['modules'] ) );
 
 					// Convert the array so that the keys are the module name and the value is true to indicate
@@ -635,7 +652,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				// Kick off a full sync
-				if ( Jetpack_Sync_Actions::do_full_sync() ) {
+				if ( Jetpack_Sync_Actions::do_full_sync( $modules ) ) {
 					if ( $modules ) {
 						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: ', 'jetpack' ), join( ', ', $modules ) ) );
 					} else {
@@ -656,12 +673,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 				// Keep sending to WPCOM until there's nothing to send
 				$i = 1;
 				do {
-					if ( 1 == $i++ ) {
-						WP_CLI::log( __( 'Sending data to WordPress.com', 'jetpack' ) );
-					} else {
-						WP_CLI::log( __( 'Sending more data to WordPress.com', 'jetpack' ) );
-					}
 					$result = Jetpack_Sync_Actions::$sender->do_full_sync();
+					if ( $result ) {
+						if ( 1 == $i++ ) {
+							WP_CLI::log( __( 'Sent data to WordPress.com', 'jetpack' ) );
+						} else {
+							WP_CLI::log( __( 'Sent more data to WordPress.com', 'jetpack' ) );
+						}
+					}
 				} while ( $result );
 
 				// Reset sync settings to original.
@@ -670,7 +689,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::success( __( 'Finished syncing to WordPress.com', 'jetpack' ) );
 				break;
 			case 'queue':
-				$queue_name = isset( $args[1] ) ? $args[1] : 'sync';
+				$queue_name = isset( $assoc_args['queue'] ) ? $assoc_args['queue'] : 'sync';
 
 				$allowed_queues = array(
 					'sync',
