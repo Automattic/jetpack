@@ -18,11 +18,11 @@ class Jetpack_Sync_Functions {
 		global $wp_taxonomies;
 		$wp_taxonomies_without_callbacks = array();
 		foreach ( $wp_taxonomies as $taxonomy_name => $taxonomy ) {
-			$sanatized_taxonomy = self::sanitize_taxonomy( $taxonomy );
-			if ( ! empty( $sanatized_taxonomy ) ) {
-				$wp_taxonomies_without_callbacks[ $taxonomy_name ] = $sanatized_taxonomy;
+			$sanitized_taxonomy = self::sanitize_taxonomy( $taxonomy );
+			if ( ! empty( $sanitized_taxonomy ) ) {
+				$wp_taxonomies_without_callbacks[ $taxonomy_name ] = $sanitized_taxonomy;
 	 		} else {
-				error_log( 'Jepack encountered a recusive taxobomy:' . $taxonomy_name );
+				error_log( 'Jetpack: Encountered a recusive taxonomy:' . $taxonomy_name );
 			}
 		}
 		return $wp_taxonomies_without_callbacks;
@@ -34,7 +34,7 @@ class Jetpack_Sync_Functions {
 	public static function sanitize_taxonomy( $taxonomy ) {
 
 		// Lets clone the taxonomy object instead of modifing the global one.
-		$cloned_taxonomy = json_decode( json_encode( $taxonomy ) );
+		$cloned_taxonomy = json_decode( wp_json_encode( $taxonomy ) );
 
 		// recursive taxonomies are no fun.
 		if ( is_null( $cloned_taxonomy ) ) {
@@ -45,7 +45,6 @@ class Jetpack_Sync_Functions {
 		     ! in_array( $cloned_taxonomy->meta_box_cb, array( 'post_tags_meta_box', 'post_categories_meta_box' ) ) ) {
 			$cloned_taxonomy->meta_box_cb = null;
 		}
-
 		// Remove update call back
 		if ( isset( $cloned_taxonomy->update_count_callback ) &&
 		     ! is_null( $cloned_taxonomy->update_count_callback ) ) {
@@ -56,7 +55,6 @@ class Jetpack_Sync_Functions {
 		     'WP_REST_Terms_Controller' !== $cloned_taxonomy->rest_controller_class ) {
 			$cloned_taxonomy->rest_controller_class = null;
 		}
-
 		return $cloned_taxonomy;
 	}
 

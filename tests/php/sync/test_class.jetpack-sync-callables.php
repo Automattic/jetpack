@@ -477,15 +477,15 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertContains( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
 	}
 
-	function test_callable_get_taxonomies_as_regular_objects() {
+	function test_calling_taxonomies_do_not_modify_global() {
 		global $wp_taxonomies;
 		// adds taxonomies.
 		$test = new ABC_FOO_TEST_Taxonomy_Example();
 		$this->setSyncClientDefaults();
 		$sync_callable_taxonomies = Jetpack_Sync_Functions::get_taxonomies();
 
-		$this->assertTrue( is_null( $sync_callable_taxonomies['example']->update_count_callback ) );
-		$this->assertTrue( is_null( $sync_callable_taxonomies['example']->meta_box_cb ) );
+		$this->assertNull( $sync_callable_taxonomies['example']->update_count_callback );
+		$this->assertNull( $sync_callable_taxonomies['example']->meta_box_cb );
 
 		$this->assertNotNull( $wp_taxonomies['example']->update_count_callback );
 		$this->assertNotNull( $wp_taxonomies['example']->meta_box_cb );
@@ -521,6 +521,38 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
 	}
 
+	function test_taxonomies_objects_do_not_have_meta_box_callback() {
+
+		new ABC_FOO_TEST_Taxonomy_Example();
+		$taxonomies = Jetpack_Sync_Functions::get_taxonomies();
+		$taxonomy = $taxonomies['example'];
+
+		$this->assertInternalType( 'object', $taxonomy );
+		// Did we get rid of the expected attributes?
+		$this->assertNull( $taxonomy->update_count_callback, "example has the update_count_callback attribute, which should be removed since it is a callback" );
+		$this->assertNull( $taxonomy->meta_box_cb, "example has the meta_box_cb attribute, which should be removed since it is a callback" );
+		$this->assertNull( $taxonomy->rest_controller_class );
+		// Did we preserve the expected attributes?
+		$check_object_vars = array(
+			'labels',
+			'description',
+			'public',
+			'publicly_queryable',
+			'hierarchical',
+			'show_ui',
+			'show_in_menu',
+			'show_in_nav_menus',
+			'show_tagcloud',
+			'show_in_quick_edit',
+			'show_admin_column',
+			'rewrite',
+		);
+		foreach ( $check_object_vars as $test ) {
+			$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
+		}
+
+	}
+
 }
 
 
@@ -533,6 +565,7 @@ class ABC_FOO_TEST_Taxonomy_Example {
 			array(
 				'meta_box_cb' => 'bob',
 				'update_count_callback' => array( $this, 'callback_update_count_callback_tags' ),
+				'rest_controller_class' => 'tom'
 			)
 		);
 	}
