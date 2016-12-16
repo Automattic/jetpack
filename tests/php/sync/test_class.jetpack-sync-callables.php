@@ -494,22 +494,22 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sanitize_sync_taxonomies_method() {
 		
-		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'meta_box_cb' => 'post_tags_meta_box' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_tags_meta_box' ) );
 		$this->assertEquals( $sanitized->meta_box_cb, 'post_tags_meta_box' );
 
-		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'meta_box_cb' => 'post_categories_meta_box' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_categories_meta_box' ) );
 		$this->assertEquals( $sanitized->meta_box_cb, 'post_categories_meta_box' );
 
-		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'meta_box_cb' => 'banana' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'banana' ) );
 		$this->assertEquals( $sanitized->meta_box_cb, null );
 
-		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'update_count_callback' => 'banana' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'update_count_callback' => 'banana' ) );
 		$this->assertFalse( isset( $sanitized->update_count_callback ) );
 
-		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'rest_controller_class' => 'banana' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'banana' ) );
 		$this->assertEquals( $sanitized->rest_controller_class, null );
 
-		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'rest_controller_class' => 'WP_REST_Terms_Controller' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'WP_REST_Terms_Controller' ) );
 
 		$this->assertEquals( $sanitized->rest_controller_class, 'WP_REST_Terms_Controller' );
 

@@ -18,7 +18,12 @@ class Jetpack_Sync_Functions {
 		global $wp_taxonomies;
 		$wp_taxonomies_without_callbacks = array();
 		foreach ( $wp_taxonomies as $taxonomy_name => $taxonomy ) {
-			$wp_taxonomies_without_callbacks[ $taxonomy_name ] = self::sanitize_taxonomie( $taxonomy);
+			$sanatized_taxonomy = self::sanitize_taxonomy( $taxonomy );
+			if ( ! empty( $sanatized_taxonomy ) ) {
+				$wp_taxonomies_without_callbacks[ $taxonomy_name ] = $sanatized_taxonomy;
+	 		} else {
+				error_log( 'Jepack encountered a recusive taxobomy:' . $taxonomy_name );
+			}
 		}
 		return $wp_taxonomies_without_callbacks;
 	}
@@ -26,7 +31,7 @@ class Jetpack_Sync_Functions {
 	/**
 	 * Removes any callback data since we will not be able to process it on our side anyways.
 	 */
-	public static function sanitize_taxonomie( $taxonomy ) {
+	public static function sanitize_taxonomy( $taxonomy ) {
 
 		// Lets clone the taxonomy object instead of modifing the global one.
 		$cloned_taxonomy = json_decode( json_encode( $taxonomy ) );
