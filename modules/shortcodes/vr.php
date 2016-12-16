@@ -68,7 +68,12 @@ function jetpack_vr_viewer_shortcode( $atts ) {
 		return jetpack_vr_viewer_get_html( $url_params );
 	}
 
-	return '[vr] shortcode requires a data source to be given';
+	// add check for user
+	if ( current_user_can('editor') || current_user_can('administrator') ) {
+		return '[vr] shortcode requires a data source to be given';
+	} else {
+		return '';
+	}
 }
 
 add_shortcode( 'vr', 'jetpack_vr_viewer_shortcode' );
