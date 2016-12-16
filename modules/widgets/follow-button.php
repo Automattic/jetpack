@@ -1,6 +1,7 @@
 <?php
 
-add_action( 'widgets_init', 'follow_button_register_widget' );
+// @todo Fix performance issues before shipping.
+//add_action( 'widgets_init', 'follow_button_register_widget' );
 function follow_button_register_widget() {
 	if ( Jetpack::is_active() ) {
 		register_widget( 'Follow_Button_Widget' );
