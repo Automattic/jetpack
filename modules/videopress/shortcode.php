@@ -129,6 +129,9 @@ add_shortcode( 'wpvideo',    'videopress_shortcode_callback' );
  */
 wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'http://public-api.wordpress.com/oembed/1.0/', true );
 
+// Register a VideoPress handler for direct links to .mov files (and potential other non-handled types later).
+wp_embed_register_handler( 'video', '#^https?://videos.(videopress.com|files.wordpress.com)/.+?\.(mov)$#i', apply_filters( 'wp_video_embed_handler', 'wp_embed_handler_video' ), 10 );
+
 /**
  * Adds a `for` query parameter to the oembed provider request URL.
  * @param String $oembed_provider
