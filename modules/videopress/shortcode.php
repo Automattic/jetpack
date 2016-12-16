@@ -165,15 +165,15 @@ function videopress_code_shortcode_override($html, $attr, $content, $instance) {
 	} elseif ( isset ( $attr['src'] ) ) {
 		$url = $attr['src'];
 
-		if ( preg_match( '@videos.videopress.com/([a-z0-9]{8})/@i', $url, $matches ) ) {
-			$videopress_guid = $matches[1];
+		if ( preg_match( '@videos.(videopress\.com|files\.wordpress\.com)/([a-z0-9]{8})/@i', $url, $matches ) ) {
+			$videopress_guid = $matches[2];
 		}
 
 	} elseif ( isset( $attr['mp4'] ) ) {
 		$url = $attr['mp4'];
 
-		if ( preg_match( '@videos.videopress.com/([a-z0-9]{8})/@', $url, $matches ) ) {
-			$videopress_guid = $matches[1];
+		if ( preg_match( '@videos.(videopress\.com|files\.wordpress\.com)/([a-z0-9]{8})/@i', $url, $matches ) ) {
+			$videopress_guid = $matches[2];
 		}
 	}
 
