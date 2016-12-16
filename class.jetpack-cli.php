@@ -582,15 +582,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$action = isset( $args[0] ) ? $args[0] : 'status';
 
-		$allowed_actions = array(
-			'status',
-			'start',
-		);
-
-		if ( ! in_array( $action, $allowed_actions ) ) {
-			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
-		}
-
 		switch ( $action ) {
 			case 'status':
 				$status = Jetpack_Sync_Actions::get_sync_status();
@@ -710,23 +701,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$queue_name = isset( $args[0] ) ? $args[0] : 'sync';
 		$action = isset( $args[1] ) ? $args[1] : 'peek';
-
-		$allowed_queues = array(
-			'incremental',
-			'full',
-		);
-
-		if ( ! in_array( $queue_name, $allowed_queues ) ) {
-			WP_CLI::error( sprintf( __( '%s is not a valid queue.', 'jetpack' ), $queue_name ) );
-		}
-
-		$allowed_actions = array(
-			'peek',
-		);
-
-		if ( ! in_array( $action, $allowed_actions ) ) {
-			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
-		}
 
 		// We map the queue name that way we can support more friendly queue names in the commands, but still use
 		// the queue name that the code expects.
