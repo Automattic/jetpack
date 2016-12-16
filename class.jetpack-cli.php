@@ -684,9 +684,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * status : Print the current sync status
-	 * start  : Start a full sync from this site to WordPress.com
-	 * queue  : Print the current contents of a queue
+	 * peek : List the 100 front-most items on the queue.
 	 *
 	 * ## EXAMPLES
 	 *
