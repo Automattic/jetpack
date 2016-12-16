@@ -665,6 +665,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::log( __( 'Initialized a new full sync', 'jetpack' ) );
 					}
 				} else {
+
+					// Reset sync settings to original.
+					Jetpack_Sync_Settings::update_settings( $original_settings );
+
 					if ( $modules ) {
 						WP_CLI::error( sprintf( __( 'Could not start a new full sync', 'jetpack' ), join( ', ', $modules ) ) );
 					} else {
