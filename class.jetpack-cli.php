@@ -670,7 +670,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					Jetpack_Sync_Settings::update_settings( $original_settings );
 
 					if ( $modules ) {
-						WP_CLI::error( sprintf( __( 'Could not start a new full sync', 'jetpack' ), join( ', ', $modules ) ) );
+						WP_CLI::error( sprintf( __( 'Could not start a new full sync with modules: %s', 'jetpack' ), join( ', ', $modules ) ) );
 					} else {
 						WP_CLI::error( __( 'Could not start a new full sync', 'jetpack' ) );
 					}
