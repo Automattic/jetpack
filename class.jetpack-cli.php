@@ -559,6 +559,136 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 		}
 	}
+
+	public function sync( $args, $assoc_args ) {
+		if ( ! Jetpack::is_active() ) {
+			WP_CLI::error( __( 'Jetpack must be connected to WordPress.com to sync.', 'jetpack' ) );
+		}
+
+		$action = isset( $args[0] ) ? $args[0] : 'status';
+
+		$allowed_actions = array(
+			'status',
+			'start'
+		);
+
+		if ( ! in_array( $action, $allowed_actions ) ) {
+			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
+		}
+
+		switch ( $action ) {
+			case 'status':
+				require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
+				require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
+
+				$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+				$sender      = Jetpack_Sync_Sender::get_instance();
+				$queue       = $sender->get_sync_queue();
+				$full_queue  = $sender->get_full_sync_queue();
+				$cron_timestamps = array_keys( _get_cron_array() );
+				$next_cron = $cron_timestamps[0] - time();
+
+				$status = array_merge(
+					$sync_module->get_status(),
+					array(
+						'cron_size'             => count( $cron_timestamps ),
+						'next_cron'             => $next_cron,
+						'queue_size'            => $queue->size(),
+						'queue_lag'             => $queue->lag(),
+						'queue_next_sync'       => ( $sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
+						'full_queue_size'       => $full_queue->size(),
+						'full_queue_lag'        => $full_queue->lag(),
+						'full_queue_next_sync'  => ( $sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
+					)
+				);
+
+				$collection = array();
+				foreach ( $status as $key => $item ) {
+					$collection[]  = array(
+						'option' => $key,
+						'value' => is_scalar( $item ) ? $item : json_encode( $item )
+					);
+				}
+
+				WP_CLI\Utils\format_items( 'table', $collection, array( 'option', 'value' ) );
+				break;
+			case 'start':
+				// Get the original settings so that we can restore them later
+				$original_settings = Jetpack_Sync_Settings::get_settings();
+
+				// Initialize sync settigns so we can sync as quickly as possible
+				$sync_settings = wp_parse_args(
+					array_intersect_key( $assoc_args, Jetpack_Sync_Settings::$valid_settings ),
+					array(
+						'sync_wait_time' => 0,
+						'enqueue_wait_time' => 0,
+						'queue_max_writes_sec' => 10000,
+						'max_queue_size_full_sync' => 100000
+					)
+				);
+				Jetpack_Sync_Settings::update_settings( $sync_settings );
+
+				// Convert comma-delimited string of modules to an array
+				if ( isset( $assoc_args['modules'] ) && ! empty( $assoc_args['modules'] ) ) {
+					$modules = array_map( 'trim', explode( ',', $args['modules'] ) );
+
+					// Convert the array so that the keys are the module name and the value is true to indicate
+					// that we want to sync the module
+					$modules = array_map( '__return_true', array_flip( $modules ) );
+				}
+
+				foreach ( array( 'posts', 'comments', 'users' ) as $module_name ) {
+					if (
+						'users' === $module_name &&
+						isset( $assoc_args[ $module_name ] ) &&
+						'initial' === $assoc_args[ $module_name ]
+					) {
+						$modules[ 'users' ] = 'initial';
+					} elseif ( isset( $assoc_args[ $module_name ] ) ) {
+						$ids = explode( ',', $assoc_args[ $module_name ] );
+						if ( count( $ids ) > 0 ) {
+							$modules[ $module_name ] = $ids;
+						}
+					}
+				}
+
+				if ( empty( $modules ) ) {
+					$modules = null;
+				}
+
+				// Kick off a full sync
+				if ( Jetpack_Sync_Actions::do_full_sync() ) {
+					if ( $modules ) {
+						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: ', 'jetpack' ), join( ', ', $modules ) ) );
+					} else {
+						WP_CLI::log( __( 'Initialized a new full sync', 'jetpack' ) );
+					}
+				} else {
+					if ( $modules ) {
+						WP_CLI::error( sprintf( __( 'Could not start a new full sync', 'jetpack' ), join( ', ', $modules ) ) );
+					} else {
+						WP_CLI::error( __( 'Could not start a new full sync', 'jetpack' ) );
+					}
+				}
+
+				// Keep sending to WPCOM until there's nothing to send
+				$i = 1;
+				do {
+					if ( 1 == $i++ ) {
+						WP_CLI::log( __( 'Sending data to WordPress.com', 'jetpack' ) );
+					} else {
+						WP_CLI::log( __( 'Sending more data to WordPress.com', 'jetpack' ) );
+					}
+					$result = Jetpack_Sync_Actions::$sender->do_full_sync();
+				} while ( $result );
+
+				// Reset sync settings to original.
+				Jetpack_Sync_Settings::update_settings( $original_settings );
+
+				WP_CLI::success( __( 'Finished syncing to WordPress.com', 'jetpack' ) );
+				break;
+		}
+	}
 }
 
 /*
