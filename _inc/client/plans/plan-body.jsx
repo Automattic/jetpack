@@ -153,7 +153,7 @@ const PlanBody = React.createClass( {
 						includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( '13Gb of fast, optimised, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
+								<p>{ __( '13Gb of fast, optimized, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
 										<Button href={ this.props.siteAdminUrl + 'media-new.php' } className="is-primary">
@@ -178,7 +178,7 @@ const PlanBody = React.createClass( {
 						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( 'Fast, optimised, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
+								<p>{ __( 'Fast, optimized, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
 										<Button href={ this.props.siteAdminUrl + 'media-new.php' } className="is-primary">
