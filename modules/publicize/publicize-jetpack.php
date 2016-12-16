@@ -27,6 +27,8 @@ class Publicize extends Publicize_Base {
 
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 4 );
 
+		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
+
 		add_action( 'wp_insert_post', array( $this, 'save_publicized' ), 11, 3 );
 
 		add_filter( 'jetpack_twitter_cards_site_tag', array( $this, 'enhaced_twitter_cards_site_tag' ) );
@@ -440,6 +442,25 @@ class Publicize extends Publicize_Base {
 			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}
+	}
+
+	function set_post_flags( $flags, $post ) {
+		$flags[ 'publicize_post' ] = false;
+		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
+			return $flags;
+		}
+
+		if ( ! apply_filters( 'publicize_should_publicize_published_post', true, $post ) ) {
+			return $flags;
+		}
+
+		$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+		if ( empty( $connected_services ) ) {
+			return $flags;
+		}
+
+		$flags[ 'publicize_post' ] = true;
+		return $flags;
 	}
 
 	/**

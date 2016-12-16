@@ -4,6 +4,7 @@ require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
 class WP_Test_Publicize extends WP_UnitTestCase {
 
 	private $fired_publicized_post = false;
+	private $in_publish_filter = false;
 	private $publicized_post_id = null;
 	private $post;
 
@@ -20,6 +21,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		Jetpack_Options::update_options( array( 'publicize_connections' => array( 'not_empty' ) ) );
 
 		add_action( 'jetpack_publicize_post', array( $this, 'publicized_post' ), 10, 1 );
+		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
 	}
 
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {
@@ -74,12 +76,18 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	function assertPublicized( $should_have_publicized, $post ) {
 		if ( $should_have_publicized ) {
 			$this->assertTrue( $this->fired_publicized_post );
-			$this->assertEquals( $post->ID, $this->publicized_post_id );	
+			$this->assertEquals( $post->ID, $this->publicized_post_id );
+			$this->assertTrue( $this->in_publish_filter );
 		} else {
 			$this->assertFalse( $this->fired_publicized_post );
 			$this->assertNull( $this->publicized_post_id );
+			$this->assertFalse( $this->in_publish_filter );
 		}
-		
+	}
+
+	function set_post_flags_check( $flags, $post ) {
+		$this->in_publish_filter = $flags['publicize_post'];
+		return $flags;
 	}
 
 	function publicized_post( $post_id ) {
