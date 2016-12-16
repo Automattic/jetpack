@@ -31,6 +31,7 @@ import {
 	getThemeData
 } from 'state/initial-state';
 import Settings from 'components/settings';
+import CardMessages from 'components/card-messages';
 
 export const Page = ( props ) => {
 	let {
@@ -45,36 +46,7 @@ export const Page = ( props ) => {
 		moduleList = Object.keys( props.moduleList );
 
 	if ( noInfiniteScrollSupport ) {
-		infiniteScrollDesc =
-			<div>
-				{ infiniteScrollDesc }
-				<p className="jp-form-setting-explanation">
-					{
-						__( "Your theme %(theme)s doesn't currently support Infinite Scroll, which needs data from your theme to function properly.",
-							{
-								args: {
-									theme: props.themeData.name
-								}
-							}
-						)
-					}
-				</p>
-				{
-					props.themeData.hasUpdate
-						? <p className="jp-form-setting-explanation">
-						{
-							__( "There's an update available for your theme. Check if this update adds Infinite Scroll support in {{a}}WordPress Updates{{/a}}.",
-								{
-									components: {
-										a: <a href={ props.siteAdminUrl + 'update-core.php' } className="jetpack-js-stop-propagation" />
-									}
-								}
-							)
-						}
-						</p>
-						: ''
-				}
-			</div>;
+		infiniteScrollDesc = <CardMessages module="infinite-scroll" desc={ infiniteScrollDesc } themeData={ props.themeData } />;
 	}
 
 	var cards = [
