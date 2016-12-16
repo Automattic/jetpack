@@ -66,7 +66,6 @@ We ported existing shortcodes from WordPress.com to Jetpack. Give them a try in 
 
 We've added quite a few new widgets, so make sure you try them all:
 
-- **Follow Button**: allow people to follow your site from a widget.
 - **Authors**: display your authors on the front end of your site. *Note: it does not come with much styling, so it is up to the theme/user to style as desired.*
 - **Blog Stats**: A simple stat counter that will display the page views on the front end of your site.
 - **Milestone**: display a countdown to an upcoming event or milestone that you set.
