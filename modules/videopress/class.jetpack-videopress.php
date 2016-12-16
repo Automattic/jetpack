@@ -52,6 +52,10 @@ class Jetpack_VideoPress {
 
 		add_filter( 'wp_mime_type_icon', array( $this, 'wp_mime_type_icon' ), 10, 3 );
 
+
+		// Register a VideoPress handler for direct links to .mov files (and potential other non-handled types later).
+		wp_embed_register_handler( 'video', '#^https?://videos.(videopress.com|files.wordpress.com)/.+?\.(mov)$#i', apply_filters( 'wp_video_embed_handler', 'wp_embed_handler_video' ), 10 );
+
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
 	}
