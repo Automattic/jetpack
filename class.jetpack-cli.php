@@ -579,30 +579,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch ( $action ) {
 			case 'status':
-				require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
-				require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-
-				$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-				$sender      = Jetpack_Sync_Sender::get_instance();
-				$queue       = $sender->get_sync_queue();
-				$full_queue  = $sender->get_full_sync_queue();
-				$cron_timestamps = array_keys( _get_cron_array() );
-				$next_cron = $cron_timestamps[0] - time();
-
-				$status = array_merge(
-					$sync_module->get_status(),
-					array(
-						'cron_size'             => count( $cron_timestamps ),
-						'next_cron'             => $next_cron,
-						'queue_size'            => $queue->size(),
-						'queue_lag'             => $queue->lag(),
-						'queue_next_sync'       => ( $sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
-						'full_queue_size'       => $full_queue->size(),
-						'full_queue_lag'        => $full_queue->lag(),
-						'full_queue_next_sync'  => ( $sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
-					)
-				);
-
+				$status = Jetpack_Sync_Actions::get_sync_status();
 				$collection = array();
 				foreach ( $status as $key => $item ) {
 					$collection[]  = array(
