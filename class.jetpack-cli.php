@@ -561,21 +561,19 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Manage Jetpack Sync
+	 * Get the status of or start a new Jetpack sync.
 	 *
 	 * ## OPTIONS
 	 *
 	 * status : Print the current sync status
 	 * start  : Start a full sync from this site to WordPress.com
-	 * queue  : Print the current contents of a queue
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack sync status
 	 * wp jetpack sync start --modules=functions --sync_wait_time=5
-	 * wp jetpack sync queue --queue=full_sync
 	 *
-	 * @synopsis <status|start|queue> [--<field>=<value>]
+	 * @synopsis <status|start> [--<field>=<value>]
 	 */
 	public function sync( $args, $assoc_args ) {
 		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
@@ -587,7 +585,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$allowed_actions = array(
 			'status',
 			'start',
-			'queue',
 		);
 
 		if ( ! in_array( $action, $allowed_actions ) ) {
@@ -688,18 +685,51 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				WP_CLI::success( __( 'Finished syncing to WordPress.com', 'jetpack' ) );
 				break;
-			case 'queue':
-				$queue_name = isset( $assoc_args['queue'] ) ? $assoc_args['queue'] : 'sync';
+		}
+	}
 
-				$allowed_queues = array(
-					'sync',
-					'full_sync',
-				);
+	/**
+	 * List the contents of a specific Jetpack sync queue.
+	 *
+	 * ## OPTIONS
+	 *
+	 * status : Print the current sync status
+	 * start  : Start a full sync from this site to WordPress.com
+	 * queue  : Print the current contents of a queue
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack sync_queue full_sync peek
+	 *
+	 * @synopsis <sync|full_sync> <peek>
+	 */
+	public function sync_queue( $args, $assoc_args ) {
+		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
+			WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site.', 'jetpack' ) );
+		}
 
-				if ( ! in_array( $queue_name, $allowed_queues ) ) {
-					WP_CLI::error( sprintf( __( '%s is not a valid queue.', 'jetpack' ), $queue_name ) );
-				}
+		$queue_name = isset( $args[0] ) ? $args[0] : 'sync';
+		$action = isset( $args[1] ) ? $args[1] : 'peek';
 
+		$allowed_queues = array(
+			'sync',
+			'full_sync',
+		);
+
+		if ( ! in_array( $queue_name, $allowed_queues ) ) {
+			WP_CLI::error( sprintf( __( '%s is not a valid queue.', 'jetpack' ), $queue_name ) );
+		}
+
+		$allowed_actions = array(
+			'peek',
+		);
+
+		if ( ! in_array( $action, $allowed_actions ) ) {
+			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
+		}
+
+		switch( $action ) {
+			case 'peek':
 				require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-queue.php';
 				$queue = new Jetpack_Sync_Queue( $queue_name );
 				$items = $queue->peek( 100 );
@@ -716,7 +746,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 							'microtime'       => $item[3],
 							'importing'       => (string) $item[4],
 						);
- 					}
+					}
 					WP_CLI\Utils\format_items(
 						'table',
 						$collection,
@@ -729,7 +759,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 						)
 					);
 				}
-
 				break;
 		}
 	}
