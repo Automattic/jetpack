@@ -36,6 +36,10 @@ class Jetpack_Sync_Functions {
 		// Lets clone the taxonomy object instead of modifing the global one.
 		$cloned_taxonomy = json_decode( json_encode( $taxonomy ) );
 
+		// recursive taxonomies are no fun.
+		if ( is_null( $cloned_taxonomy ) ) {
+			return null;
+		}
 		// Remove any meta_box_cb if they are not the default wp ones.
 		if ( isset( $cloned_taxonomy->meta_box_cb ) &&
 		     ! in_array( $cloned_taxonomy->meta_box_cb, array( 'post_tags_meta_box', 'post_categories_meta_box' ) ) ) {
