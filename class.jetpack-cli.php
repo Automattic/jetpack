@@ -701,7 +701,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * wp jetpack sync_queue full_sync peek
 	 *
-	 * @synopsis <sync|full_sync> <peek>
+	 * @synopsis <incremental|full_sync> <peek>
 	 */
 	public function sync_queue( $args, $assoc_args ) {
 		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
@@ -712,8 +712,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$action = isset( $args[1] ) ? $args[1] : 'peek';
 
 		$allowed_queues = array(
-			'sync',
-			'full_sync',
+			'incremental',
+			'full',
 		);
 
 		if ( ! in_array( $queue_name, $allowed_queues ) ) {
@@ -728,10 +728,18 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
 
+		// We map the queue name that way we can support more friendly queue names in the commands, but still use
+		// the queue name that the code expects.
+		$queue_name_map = $allowed_queues = array(
+			'incremental' => 'sync',
+			'full'        => 'full_sync',
+		);
+		$mapped_queue_name = isset( $queue_name_map[ $queue_name ] ) ? $queue_name_map[ $queue_name ] : $queue_name;
+
 		switch( $action ) {
 			case 'peek':
 				require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-queue.php';
-				$queue = new Jetpack_Sync_Queue( $queue_name );
+				$queue = new Jetpack_Sync_Queue( $mapped_queue_name );
 				$items = $queue->peek( 100 );
 
 				if ( empty( $items ) ) {
