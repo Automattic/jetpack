@@ -71,37 +71,47 @@ export const Page = ( props ) => {
 			),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '';
 
-		if ( 'infinite-scroll' === element[0] && noInfiniteScrollSupport ) {
-			toggle = __( 'Theme support required' );
-		}
-
 		let moduleDescription = isModuleActivated( element[0] ) ?
 			<AllModuleSettings module={ getModule( element[ 0 ] ) } /> :
 			// Render the long_description if module is deactivated
 			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
 
-		return (
-			<FoldableCard
-				className={ customClasses }
-				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
-				header={ element[1] }
-				subheader={ element[2] }
-				summary={ toggle }
-				expandedSummary={ toggle }
-				clickableHeaderText={ true }
-				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
-					{
-						card: element[0],
-						path: props.route.path
-					}
-				) }
-			>
-				{ moduleDescription }
-				<div className="jp-module-settings__learn-more">
-					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
-				</div>
-			</FoldableCard>
+		let learnMore = (
+			<div className="jp-module-settings__learn-more">
+				<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
+			</div>
 		);
+
+		if ( 'infinite-scroll' === element[0] && noInfiniteScrollSupport ) {
+			toggle = __( 'Theme support required' );
+			moduleDescription = '';
+			learnMore = '';
+			customClasses += ' jp-card-no-expand';
+		}
+
+		let componentProps = {
+			className          : customClasses,
+			key                : `module-card_${element[0]}` /* https://fb.me/react-warning-keys */,
+			header             : element[1],
+			subheader          : element[2],
+			summary            : toggle,
+			expandedSummary    : toggle,
+			clickableHeaderText: true,
+			onOpen             : () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+				{
+					card: element[0],
+					path: props.route.path
+				}
+			)
+		};
+
+		// If there are no description or learn more to render, don't render children.
+		// This is in cases like when a theme doesn't support Infinite Scroll. We don't
+		// render the children so the arrow pointing downwards isn't rendered.
+		return '' !== moduleDescription || '' !== learnMore
+			? <FoldableCard { ...componentProps } >{ moduleDescription }{ learnMore }</FoldableCard>
+			: <FoldableCard { ...componentProps } ></FoldableCard>
+		;
 	} );
 
 	return (
