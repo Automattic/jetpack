@@ -29,9 +29,7 @@
         <testsuite name="json-api">
             <file>php/test_class.json-api-jetpack-endpoints.php</file>
         </testsuite>
-        <testsuite name="contact-form">
-            <directory prefix="test_" suffix=".php">php/modules/contact-form</directory>
-        </testsuite>
+
         <testsuite name="infinite-scroll">
             <directory prefix="test_" suffix=".php">php/modules/infinite-scroll</directory>
         </testsuite>
@@ -52,6 +50,9 @@
         </testsuite>
         <testsuite name="sso">
             <directory prefix="test_" suffix=".php">php/modules/sso</directory>
+        </testsuite>
+        <testsuite name="contact-form">
+            <directory prefix="test_" suffix=".php">php/modules/contact-form</directory>
         </testsuite>
         <testsuite name="sync">
             <directory prefix="test_" suffix=".php">php/sync</directory>
