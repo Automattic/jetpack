@@ -69,7 +69,7 @@ function jetpack_vr_viewer_shortcode( $atts ) {
 	}
 
 	// add check for user
-	if ( current_user_can('editor') || current_user_can('administrator') ) {
+	if ( current_user_can( 'edit_posts' ) ) {
 		return '[vr] shortcode requires a data source to be given';
 	} else {
 		return '';
