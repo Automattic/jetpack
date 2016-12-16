@@ -476,10 +476,75 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertContains( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
 	}
+
+	function test_callable_get_taxonomies_as_regular_objects() {
+		global $wp_taxonomies;
+		// adds taxonomies.
+		$test = new ABC_FOO_TEST_Taxonomy_Example();
+		$this->setSyncClientDefaults();
+		$sync_callable_taxonomies = Jetpack_Sync_Functions::get_taxonomies();
+
+		$this->assertTrue( is_null( $sync_callable_taxonomies['example']->update_count_callback ) );
+		$this->assertTrue( is_null( $sync_callable_taxonomies['example']->meta_box_cb ) );
+
+		$this->assertNotNull( $wp_taxonomies['example']->update_count_callback );
+		$this->assertNotNull( $wp_taxonomies['example']->meta_box_cb );
+
+	}
+
+	function test_sanitize_sync_taxonomies_method() {
+		
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'meta_box_cb' => 'post_tags_meta_box' ) );
+		$this->assertEquals( $sanitized->meta_box_cb, 'post_tags_meta_box' );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'meta_box_cb' => 'post_categories_meta_box' ) );
+		$this->assertEquals( $sanitized->meta_box_cb, 'post_categories_meta_box' );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'meta_box_cb' => 'banana' ) );
+		$this->assertEquals( $sanitized->meta_box_cb, null );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'update_count_callback' => 'banana' ) );
+		$this->assertFalse( isset( $sanitized->update_count_callback ) );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'rest_controller_class' => 'banana' ) );
+		$this->assertEquals( $sanitized->rest_controller_class, null );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomie( (object) array( 'rest_controller_class' => 'WP_REST_Terms_Controller' ) );
+
+		$this->assertEquals( $sanitized->rest_controller_class, 'WP_REST_Terms_Controller' );
+
+	}
 	
 	function add_www_subdomain_to_siteurl( $url ) {
 		$parsed_url = parse_url( $url );
 
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
+	}
+
+}
+
+
+class ABC_FOO_TEST_Taxonomy_Example {
+	function __construct() {
+
+		register_taxonomy(
+			'example',
+			'posts',
+			array(
+				'meta_box_cb' => 'bob',
+				'update_count_callback' => array( $this, 'callback_update_count_callback_tags' ),
+			)
+		);
+	}
+	function callback_update_count_callback_tags() {
+		return 123;
+	}
+
+	// Prevent this class being used as part of a Serialization injection attack
+	public function __clone() {
+		wp_die( __( 'Cheatin’ uh?' ) );
+	}
+	public function __wakeup() {
+		wp_die( __( 'Cheatin’ uh?' ) );
 	}
 }

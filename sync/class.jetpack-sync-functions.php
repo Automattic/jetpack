@@ -16,8 +16,39 @@ class Jetpack_Sync_Functions {
 
 	public static function get_taxonomies() {
 		global $wp_taxonomies;
+		$wp_taxonomies_without_callbacks = array();
+		foreach ( $wp_taxonomies as $taxonomy_name => $taxonomy ) {
+			$wp_taxonomies_without_callbacks[ $taxonomy_name ] = self::sanitize_taxonomie( $taxonomy);
+		}
+		return $wp_taxonomies_without_callbacks;
+	}
 
-		return $wp_taxonomies;
+	/**
+	 * Removes any callback data since we will not be able to process it on our side anyways.
+	 */
+	public static function sanitize_taxonomie( $taxonomy ) {
+
+		// Lets clone the taxonomy object instead of modifing the global one.
+		$cloned_taxonomy = json_decode( json_encode( $taxonomy ) );
+
+		// Remove any meta_box_cb if they are not the default wp ones.
+		if ( isset( $cloned_taxonomy->meta_box_cb ) &&
+		     ! in_array( $cloned_taxonomy->meta_box_cb, array( 'post_tags_meta_box', 'post_categories_meta_box' ) ) ) {
+			$cloned_taxonomy->meta_box_cb = null;
+		}
+
+		// Remove update call back
+		if ( isset( $cloned_taxonomy->update_count_callback ) &&
+		     ! is_null( $cloned_taxonomy->update_count_callback ) ) {
+			$cloned_taxonomy->update_count_callback = null;
+		}
+		// Remove rest_controller_class if it something other then the default.
+		if ( isset( $cloned_taxonomy->rest_controller_class )  &&
+		     'WP_REST_Terms_Controller' !== $cloned_taxonomy->rest_controller_class ) {
+			$cloned_taxonomy->rest_controller_class = null;
+		}
+
+		return $cloned_taxonomy;
 	}
 
 	public static function get_post_types() {
