@@ -19,30 +19,28 @@ export const CardMessages = props => {
 					{ props.desc }
 					<p className="jp-form-setting-explanation">
 						{
-							__( "Your theme %(theme)s doesn't currently support Infinite Scroll, which needs data from your theme to function properly.",
-								{
+							__( "The current version of your theme, {{strong}}%(theme)s{{/strong}}, doesn't support Infinite Scroll.", {
 									args: {
 										theme: props.themeData.name
+									},
+									components: {
+										strong: <strong />
 									}
 								}
 							)
 						}
-					</p>
-					{
-						props.themeData.hasUpdate
-							? <p className="jp-form-setting-explanation">
-							{
-								__( "There's an update available for your theme. Check if this update adds Infinite Scroll support in {{a}}WordPress Updates{{/a}}.",
-									{
+						{ ' ' }
+						{
+							props.themeData.hasUpdate
+								? __( "Check if the {{a}}latest version{{/a}} adds support.", {
 										components: {
 											a: <a href={ props.siteAdminUrl + 'update-core.php' } className="jetpack-js-stop-propagation" />
 										}
 									}
-								)
-							}
-						</p>
-							: ''
-					}
+								  )
+								: ''
+						}
+					</p>
 				</div>
 			);
 			break;
