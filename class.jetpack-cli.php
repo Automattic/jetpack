@@ -569,7 +569,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$allowed_actions = array(
 			'status',
-			'start'
+			'start',
+			'queue',
 		);
 
 		if ( ! in_array( $action, $allowed_actions ) ) {
@@ -630,7 +631,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				// Convert comma-delimited string of modules to an array
 				if ( isset( $assoc_args['modules'] ) && ! empty( $assoc_args['modules'] ) ) {
-					$modules = array_map( 'trim', explode( ',', $args['modules'] ) );
+					$modules = array_map( 'trim', explode( ',', $assoc_args['modules'] ) );
 
 					// Convert the array so that the keys are the module name and the value is true to indicate
 					// that we want to sync the module
@@ -686,6 +687,49 @@ class Jetpack_CLI extends WP_CLI_Command {
 				Jetpack_Sync_Settings::update_settings( $original_settings );
 
 				WP_CLI::success( __( 'Finished syncing to WordPress.com', 'jetpack' ) );
+				break;
+			case 'queue':
+				$queue_name = isset( $args[1] ) ? $args[1] : 'sync';
+
+				$allowed_queues = array(
+					'sync',
+					'full_sync',
+				);
+
+				if ( ! in_array( $queue_name, $allowed_queues ) ) {
+					WP_CLI::error( sprintf( __( '%s is not a valid queue.', 'jetpack' ), $queue_name ) );
+				}
+
+				require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-queue.php';
+				$queue = new Jetpack_Sync_Queue( $queue_name );
+				$items = $queue->peek( 100 );
+
+				if ( empty( $items ) ) {
+					WP_CLI::log( sprintf( __( 'Nothing is in the %s queue', 'jetpack' ), $queue_name  ) );
+				} else {
+					$collection = array();
+					foreach ( $items as $item ) {
+						$collection[] = array(
+							'action'          => $item[0],
+							'args'            => json_encode( $item[1] ),
+							'current_user_id' => $item[2],
+							'microtime'       => $item[3],
+							'importing'       => (string) $item[4],
+						);
+ 					}
+					WP_CLI\Utils\format_items(
+						'table',
+						$collection,
+						array(
+							'action',
+							'args',
+							'current_user_id',
+							'microtime',
+							'importing',
+						)
+					);
+				}
+
 				break;
 		}
 	}
