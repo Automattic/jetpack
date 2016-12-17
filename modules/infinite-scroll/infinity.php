@@ -1121,7 +1121,6 @@ class The_Neverending_Home_Page {
 	 * @return string or null
 	 */
 	function query() {
-		global $wp_customize;
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
