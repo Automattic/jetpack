@@ -409,7 +409,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
-			'has' => array( 'shortcode' => 10 ),
+			'has' => array( 'shortcode' => 8 ),
 			'shortcode' => array(
 				'youtube' => array(
 					'count' => 2,
@@ -466,10 +466,11 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
-			'has' => array( 'embed' => 2 ),
+			'has' => array( 'embed' => 3 ),
 			'embed' => array( 'url' => array(
 				'www.youtube.com/watch?v=r0cN_bpLrxk',
 				'vimeo.com/44633289',
+				'twitter.com/mremy'
 			) ),
 		);
 
