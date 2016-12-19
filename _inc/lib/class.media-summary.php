@@ -6,7 +6,7 @@
  */
 class Jetpack_Media_Summary {
 
-	static $cache = array();
+	private static $cache = array();
 
 	static function get( $post_id, $blog_id = 0, $args = array() ) {
 
@@ -24,7 +24,7 @@ class Jetpack_Media_Summary {
 			$blog_id = get_current_blog_id();
 		}
 
-		$cache_key = md5( "{$blog_id}_{$post_id}_{$args['max_words']}_{$args['max_chars']}" );
+		$cache_key = "{$blog_id}_{$post_id}_{$args['max_words']}_{$args['max_chars']}";
 		if ( isset( self::$cache[ $cache_key ] ) ) {
 			return self::$cache[ $cache_key ];
 		}
