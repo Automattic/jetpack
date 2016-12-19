@@ -25,7 +25,7 @@ function jetpack_vr_viewer_get_viewer_url_params( $params ) {
 		$url_params['view'] = $params['view'];
 	}
 
-	if ( $params['preview'] ) {
+	if ( isset( $params['preview'] ) && $params['preview'] ) {
 		$url_params['preview'] = 1;
 	}
 
@@ -68,10 +68,12 @@ function jetpack_vr_viewer_get_html( $url_params ) {
 
 	$iframe = add_query_arg( $url_params, 'https://vr.me.sh/view/' );
 
+	// set some defaults
 	$maxwidth = ( isset( $content_width ) ) ? $content_width : 720;
+	$view = ( isset( $url_params['view'] ) ) ? $url_params['view'] : 'cinema';
 
 	$rtn  = '<div style="position: relative; max-width: ' . $maxwidth . 'px; margin-left: auto; margin-right: auto; overflow: hidden;">';
-	$rtn .= '<div style="padding-top: '. jetpack_vr_viewer_iframe_padding( $url_params['view'] ).';"></div>';
+	$rtn .= '<div style="padding-top: '. jetpack_vr_viewer_iframe_padding( $view ).';"></div>';
 	$rtn .= '<iframe style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; height: 100%" allowfullscreen="true" frameborder="0" width="100%" height="300" src="'.esc_url( $iframe ).'">';
 	$rtn .= '</iframe>';
 	$rtn .= '</div>';
