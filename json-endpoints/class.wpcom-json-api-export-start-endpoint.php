@@ -34,15 +34,15 @@ class WPCOM_JSON_API_Export_Start_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$string_data = ob_get_clean();
 
 		// Export file is saved to the uploads folder.
-		$file_name = wp_upload_dir()['path'] . '/export.xml';
-		file_put_contents( $file_name, $string_data );
+		$file_name = '/export_' . wp_create_nonce() . '.xml';
+		$file_path = wp_upload_dir()['path'] . $file_name;
+		file_put_contents( $file_path, $string_data );
 
-		$file_url = wp_upload_dir()['url'] . '/export.xml';
+		$file_url = wp_upload_dir()['url'] . $file_name;
 		return array(
 			'status'        => 'success',
 			'download_url'  => $file_url
 		);
-		//return $result;
 	}
 
 	private function setup_args( $args ) {
