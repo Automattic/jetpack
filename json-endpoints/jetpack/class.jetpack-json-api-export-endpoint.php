@@ -1,6 +1,6 @@
 <?php
 
-// POST /sites/%s/export
+// POST /sites/%s/exports/start
 class Jetpack_JSON_API_Export_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected $needed_capabilities = 'export';
 
@@ -31,49 +31,15 @@ class Jetpack_JSON_API_Export_Endpoint extends Jetpack_JSON_API_Endpoint {
 		$string_data = ob_get_clean();
 
 		// Export file is saved to the uploads folder.
-		$file_name = wp_upload_dir()['path'] . '/export.pdf'; // for uploading to media lib. real format - xml'
+		$file_name = wp_upload_dir()['path'] . '/export.xml'; // for uploading to media lib. real format - xml'
 		file_put_contents( $file_name, $string_data );
 
-		// Move export file to wpcom
-		$file_url = wp_upload_dir()['url'] . '/export.pdf';
-		$media_item = $this->transfer_export_to_wpcom($file_url);
-		$wpcom_file_url = $media_item['URL'];
-
+		$file_url = wp_upload_dir()['url'] . '/export.xml';
 		return array(
-			'status'       => 'success',
-			'download_url' => $wpcom_file_url,
+			'status'        => 'success',
+			'download_url'  => $file_url
 		);
-	}
-
-	private function transfer_export_to_wpcom($export_file_url) {
-		// Upload export file to WPCOM using the media/new API endpoint.
-		$options  = array (
-			'http' =>
-				array (
-					'ignore_errors' => true,
-					'method' => 'POST',
-					'header' =>
-						array (
-							0 => 'authorization: ???',
-							1 => 'Content-Type: application/x-www-form-urlencoded',
-						),
-					'content' =>
-						http_build_query(  array (
-							'media_urls' => $export_file_url,
-						)),
-				),
-		);
-
-		$context  = stream_context_create( $options );
-		$response = file_get_contents(
-			'https://public-api.wordpress.com/rest/v1.1/sites/2426177/media/new',
-			false,
-			$context
-		);
-		$response = json_decode( $response );
-
-		// Return the newly created media item.
-		return $response['media'][0];
+		//return $result;
 	}
 
 	private function setup_args( $args ) {

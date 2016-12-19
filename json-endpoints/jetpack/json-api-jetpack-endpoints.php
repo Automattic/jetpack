@@ -1061,13 +1061,13 @@ new Jetpack_JSON_API_Cron_Unschedule_Endpoint( array(
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-export-endpoint.php' );
-// POST /sites/%s/export
+// POST /sites/%s/exports/start
 new Jetpack_JSON_API_Export_Endpoint( array (
 	'method' => 'POST',
 	'description' => 'Export site data.',
 	'group' => '__do_not_document',
 	'stat' => 'export',
-	'path' => '/sites/%s/export',
+	'path' => '/sites/%s/exports/start',
 	'path_labels' => array(
 		'$site' => '(int|string) Site ID or domain',
 	),
