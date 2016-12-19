@@ -35,7 +35,7 @@ class Follow_Button_Widget extends WP_Widget {
 		}
 
 		if ( class_exists( 'GP_Locales' ) ) {
-			$wpcom_locale_object = GP_Locales::by_field( 'wp_locale', get_locale() );
+			$wpcom_locale_object = GP_Locales::by_field( 'wp_locale', $wpcom_locale );
 			if ( $wpcom_locale_object instanceof GP_Locale ) {
 				$wpcom_locale = $wpcom_locale_object->slug;
 			}
