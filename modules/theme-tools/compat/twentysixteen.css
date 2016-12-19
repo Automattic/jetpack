@@ -188,6 +188,20 @@
 	margin-bottom: 0.875em
 }
 
+/* Authors Widget */
+.widget_authors > ul {
+	margin-left: 0;
+}
+
+.widget_authors > ul > li {
+	margin-bottom: 1em;
+	list-style: none;
+}
+
+.widget_authors img {
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
 
 /**
  * Shortcodes

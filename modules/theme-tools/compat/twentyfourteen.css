@@ -138,6 +138,9 @@ img[id*="botd"] {
 }
 
 /* Authors Widget */
+.widget.widget_authors li > ul {
+	margin-left: 0;
+}
 
 .widget_authors li {
 	margin-bottom: 9px;
@@ -149,6 +152,7 @@ img[id*="botd"] {
 
 .widget_authors img {
 	margin-right: 5px;
+	margin-bottom: 5px;
 }
 
 /* Contact Info Widget */
