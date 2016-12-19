@@ -1,15 +1,18 @@
 <?php
 
 // POST /sites/%s/exports/start
-class Jetpack_JSON_API_Export_Endpoint extends Jetpack_JSON_API_Endpoint {
+class WPCOM_JSON_API_Export_Start_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected $needed_capabilities = 'export';
 
-	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
-		parent::validate_call( $_blog_id, $capability, false );
-	}
+	function callback( $path = '', $blog_id = 0 ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
 
-	protected function result() {
-
+		if ( !current_user_can( $this->needed_capabilities ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot export', 403 );
+		}
 		$args = $this->input();
 
 		// Set up args array
@@ -31,7 +34,7 @@ class Jetpack_JSON_API_Export_Endpoint extends Jetpack_JSON_API_Endpoint {
 		$string_data = ob_get_clean();
 
 		// Export file is saved to the uploads folder.
-		$file_name = wp_upload_dir()['path'] . '/export.xml'; // for uploading to media lib. real format - xml'
+		$file_name = wp_upload_dir()['path'] . '/export.xml';
 		file_put_contents( $file_name, $string_data );
 
 		$file_url = wp_upload_dir()['url'] . '/export.xml';
