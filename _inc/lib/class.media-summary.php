@@ -25,7 +25,7 @@ class Jetpack_Media_Summary {
 		}
 
 		$cache_key = md5( "{$blog_id}_{$post_id}_{$args['max_words']}_{$args['max_chars']}" );
-		if ( isset( self::$cache[ $cache_key ] ) ){
+		if ( isset( self::$cache[ $cache_key ] ) ) {
 			return self::$cache[ $cache_key ];
 		}
 
