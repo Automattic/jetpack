@@ -93,6 +93,7 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function rest_api_custom_css() {
 		header( 'Content-type: text/css' );
+		header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + YEAR_IN_SECONDS ) . ' GMT' );
 		echo wp_get_custom_css();
 		exit;
 	}
@@ -182,8 +183,12 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function wp_custom_css_cb() {
 		$styles = wp_get_custom_css();
-		if ( strlen( $styles ) > 2000 && ! is_customize_preview() ) : ?>
-			<link rel="stylesheet" type="text/css" id="wp-custom-css" href="<?php echo esc_url( get_rest_url( null, '/jetpack/v4/custom-css' ) ); ?>" />
+		if ( strlen( $styles ) > 2000 && ! is_customize_preview() ) :
+			// Add a cache buster to the url.
+			$url = get_rest_url( null, '/jetpack/v4/custom-css' );
+			$url = add_query_arg( 'cachebuster', substr( md5( $styles ), -10 ), $url );
+			?>
+			<link rel="stylesheet" type="text/css" id="wp-custom-css" href="<?php echo esc_url( $url ); ?>" />
 		<?php elseif ( $styles || is_customize_preview() ) : ?>
 			<style type="text/css" id="wp-custom-css">
 				<?php echo strip_tags( $styles ); // Note that esc_html() cannot be used because `div &gt; span` is not interpreted properly. ?>
