@@ -1,5 +1,19 @@
 <?php
 
+// VR Viewer Shortcode
+// converts [vr] shortcode to an iframe viewer hosted on vr.me.sh
+
+
+/**
+ * Scrub URL paramaters for VR viewer
+ * @param url_params - parameter array which is passed to the jetpack_vr_viewer
+ * @param url_params['url'] - url of 360 media
+ * @param url_params['guid'] - guid for videopress
+ * @param url_params['view'] - cinema, 360 - controls if panaroma view, or 360
+ * @param url_params['rotation'] - number for rotating media
+ * @param url_params['preview'] - show preview image or not
+ * @return url_params array or false
+ */
 function jetpack_vr_viewer_get_viewer_url_params( $params ) {
 	$url_params = array();
 
@@ -24,6 +38,11 @@ function jetpack_vr_viewer_get_viewer_url_params( $params ) {
 	return false;
 }
 
+/**
+ * Get padding for IFRAME depending on view type
+ * @param view - string cinema, 360 - default cinema
+ * @return css padding
+ */
 function jetpack_vr_viewer_iframe_padding( $view ) {
 	if ( $view === '360' ) {
 		return '100%'; // 1:1 square aspect for 360
@@ -32,6 +51,18 @@ function jetpack_vr_viewer_iframe_padding( $view ) {
 	return '50%'; // 2:1 panorama aspect
 }
 
+/**
+ * Create HTML for VR Viewer IFRAME and wrapper
+ * The viewer code is hosted on vr.me.sh site which is then displayed
+ * within posts via an IFRAME. This function returns the IFRAME html.
+ * @param url_params - parameter array which is passed to the jetpack_vr_viewer
+ * @param url_params['url'] - url of 360 media
+ * @param url_params['guid'] - guid for videopress
+ * @param url_params['view'] - cinema, 360 - controls if panaroma view, or 360
+ * @param url_params['rotation'] - number for rotating media
+ * @param url_params['preview'] - show preview image or not
+ * @return html - an iframe for viewer
+ */
 function jetpack_vr_viewer_get_html( $url_params ) {
 	global $content_width;
 
@@ -48,6 +79,21 @@ function jetpack_vr_viewer_get_html( $url_params ) {
 	return $rtn;
 }
 
+/**
+ * Convert [vr] shortcode to viewer
+ *
+ * Shortcode example:
+ * [vr url="https://en-blog.files.wordpress.com/2016/12/regents_park.jpg" view="360"]
+ *
+ * VR Viewer embed code:
+ * <div style="position: relative; max-width: 720px; margin-left: auto; margin-right: auto; overflow: hidden;">
+ * <div style="padding-top: 100%;"></div>
+ * <iframe style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; height: 100%" allowfullscreen="true" frameborder="0" width="100%" height="400" src="https://vr.me.sh/view/?view=360&amp;url=https://en-blog.files.wordpress.com/2016/12/regents_park.jpg">
+ * </iframe>
+ * </div>
+ *
+ * @return html - complete vr viewer html
+ */
 function jetpack_vr_viewer_shortcode( $atts ) {
 
 	$params = shortcode_atts( array(
