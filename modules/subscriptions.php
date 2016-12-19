@@ -752,7 +752,11 @@ Jetpack_Subscriptions::init();
 
 class Jetpack_Subscriptions_Widget extends WP_Widget {
 	function __construct() {
-		$widget_ops  = array( 'classname' => 'jetpack_subscription_widget', 'description' => __( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ) );
+		$widget_ops  = array(
+			'classname' => 'jetpack_subscription_widget',
+			'description' => esc_html__( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ),
+			'customize_selective_refresh' => true,
+		);
 		$control_ops = array( 'width' => 300 );
 
 		parent::__construct(
@@ -762,6 +766,20 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$widget_ops,
 			$control_ops
 		);
+
+		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
+		}
+	}
+
+	/**
+	 * Enqueue the form's CSS.
+	 *
+	 * @since 4.5.0
+	 */
+	function enqueue_style() {
+		wp_register_style( 'jetpack-subscriptions', plugins_url( 'subscriptions/subscriptions.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack-subscriptions' );
 	}
 
 	function widget( $args, $instance ) {
@@ -772,7 +790,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		) {
 			$subscribe_email = '';
 		} else {
-			global $current_user;
+			$current_user = wp_get_current_user();
 			if ( ! empty( $current_user->user_email ) ) {
 				$subscribe_email = esc_attr( $current_user->user_email );
 			} else {
@@ -806,10 +824,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		 * @param int $widget_id Widget ID.
 		 */
 		$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
-
-		// Enqueue the form's CSS
-		wp_register_style( 'jetpack-subscriptions', plugins_url( 'subscriptions/subscriptions.css', __FILE__ ) );
-		wp_enqueue_style( 'jetpack-subscriptions' );
 
 		// Display the subscription form
 		echo $args['before_widget'];
@@ -1044,6 +1058,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 }
 
 add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
+add_shortcode( 'blog_subscription_form', 'jetpack_do_subscription_form' );
 
 function jetpack_do_subscription_form( $instance ) {
 	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) ? false : true;

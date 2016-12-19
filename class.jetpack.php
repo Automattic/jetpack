@@ -52,6 +52,7 @@ class Jetpack {
 		'jetpack-top-posts-widget',
 		'jetpack_image_widget',
 		'jetpack-my-community-widget',
+		'wordads',
 	);
 
 	public $plugins_to_deactivate = array(
@@ -2298,13 +2299,6 @@ class Jetpack {
 			$active = array_diff( $active, array( 'vaultpress' ) );
 		}
 
-		// If this plan supports videopress, force activate module
-		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
-			$active[] = 'videopress';
-		} else {
-			$active = array_diff( $active, array( 'videopress' ) );
-		}
-
 		//If protect is active on the main site of a multisite, it should be active on all sites.
 		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
 			$active[] = 'protect';
@@ -2522,6 +2516,16 @@ class Jetpack {
 				Jetpack::state( 'deactivated_plugins', $module );
 				wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
 				exit;
+			}
+		}
+
+		// Protect won't work with mis-configured IPs
+		if ( 'protect' === $module ) {
+			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+			if ( ! jetpack_protect_get_ip() ) {
+				error_log( 'hello' );
+				Jetpack::state( 'message', 'protect_misconfigured_ip' );
+				return false;
 			}
 		}
 
@@ -2783,6 +2787,10 @@ p {
 
 			Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 		}
+
+		// Delete cached connected user data
+		$transient_key = "jetpack_connected_user_data_" . get_current_user_id();
+		delete_transient( $transient_key );
 
 		// Delete all the sync related data. Since it could be taking up space.
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
@@ -6208,6 +6216,10 @@ p {
 			<style>
 				.fixed .column-user_jetpack {
 					width: 21px;
+				}
+				.jp-emblem-user-admin svg {
+					width: 20px;
+					height: 20px;
 				}
 				.jp-emblem-user-admin path {
 					fill: #8cc258;

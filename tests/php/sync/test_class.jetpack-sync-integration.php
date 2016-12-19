@@ -132,6 +132,16 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) );
 	}
 
+	function test_loads_sender_if_listener_queues_actions() {
+		remove_all_filters( 'jetpack_sync_sender_should_load' );
+		Jetpack_Sync_Actions::$sender = null;
+
+		$this->listener->enqueue_action( 'test_action', array( 'test_arg' ), $this->listener->get_sync_queue() );
+
+		$this->assertTrue( !! has_filter( 'jetpack_sync_sender_should_load', '__return_true' ) );
+		$this->assertTrue( Jetpack_Sync_Actions::$sender !== null );
+	}
+
 	/**
 	 * Utility functions
 	 */

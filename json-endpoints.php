@@ -2031,6 +2031,7 @@ new WPCOM_JSON_API_Update_Term_Endpoint( array(
 	'request_format' => array(
 		'name'        => '(string) Name of the term',
 		'description' => '(string) A description of the term',
+		'parent'      => '(int) The parent ID for the term, if hierarchical',
 	),
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/new',
 	'example_request_data' => array(
@@ -2057,6 +2058,7 @@ new WPCOM_JSON_API_Update_Term_Endpoint( array(
 	'request_format' => array(
 		'name'        => '(string) Name of the term',
 		'description' => '(string) A description of the term',
+		'parent'      => '(int) The parent ID for the term, if hierarchical',
 	),
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/slug:testing-term',
 	'example_request_data' => array(
@@ -2717,7 +2719,7 @@ new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
 	),
 	'request_format' => array(
 		'name'       => '(string) The name for your custom sharing button, used as a label on the button itself',
-		'URL'        => '(string) The URL to use for share links, including optional placeholders (%post_title%, %post_url%, %post_full_url%, %post_excerpt%, %post_tags%)',
+		'URL'        => '(string) The URL to use for share links, including optional placeholders (%post_id%, %post_title%, %post_slug%, %post_url%, %post_full_url%, %post_excerpt%, %post_tags%, %home_url%)',
 		'icon'       => '(string) The full URL to a 16x16 icon to display on the sharing button',
 		'enabled'    => '(bool) Is the button currently enabled for the site?',
 		'visibility' => '(string) If enabled, the visibility of the sharing button, either "visible" (default) or "hidden"',

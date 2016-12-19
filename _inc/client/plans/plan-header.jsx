@@ -26,14 +26,14 @@ const PlanHeader = React.createClass( {
 						</p>
 						<div className="jp-landing-plans__header-img-container">
 							<div className="jp-landing-plans__header-col-left">
-								<h3 className="jp-landing-plans__header-subtitle">{ __( "Just $3.50 monthly or $39 per year" ) }</h3>
+								<h3 className="jp-landing-plans__header-subtitle">{ __( "How much is your website worth?" ) }</h3>
 								<p className="jp-landing-plans__header-text">
-									{ __( "How much is your website worth? For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up." ) }
+									{ __( "For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up." ) }
 									<br /><br />
 									{ __( "Hackers, botnets and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios we'll be here to help you restore your site to its former glory." ) }
 								</p>
 								<p className="jp-landing-plans__header-btn-container">
-									<Button href={ 'https://wordpress.com/plans/' + window.Initial_State.rawUrl } className="is-primary">
+									<Button href={ 'https://jetpack.com/redirect/?source=plans-main-top&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Learn more...' ) }
 									</Button>
 								</p>
@@ -54,7 +54,7 @@ const PlanHeader = React.createClass( {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Free Jetpack Plan' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'Upgrade to a paid plan to unlock world-class security, spam protection tools, and priority support.' ) }</p>
+							<p className="jp-landing__plan-features-text">{ __( 'Upgrade to a paid plan to unlock world-class security, spam protection tools, priority support, SEO and monetization tools.' ) }</p>
 						</div>
 					</div>
 				);
@@ -84,7 +84,7 @@ const PlanHeader = React.createClass( {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Premium plan' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'With this plan you are provided with spam-protection, daily backups (up to 30 days), unlimited backup storage, security scanning, 13Gb of ad-free video hosting, and priority support.' ) }</p>
+							<p className="jp-landing__plan-features-text">{ __( 'With this plan you are provided with spam-protection, daily backups (up to 30 days), unlimited backup storage, security scanning, 13Gb of ad-free video hosting, income generation from ads, and priority support.' ) }</p>
 						</div>
 					</div>
 				);
@@ -99,7 +99,7 @@ const PlanHeader = React.createClass( {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Professional plan' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'You get spam-protection, real-time backups (unlimited archive), unlimited backup storage, security scanning, unlimited ad-free video hosting, SEO tools, PollDaddy, and priority support.' ) }</p>
+							<p className="jp-landing__plan-features-text">{ __( 'You get spam-protection, real-time backups (unlimited archive), unlimited backup storage, security scanning, unlimited ad-free video hosting, income generation from ads, SEO tools, PollDaddy, and priority support.' ) }</p>
 						</div>
 					</div>
 				);

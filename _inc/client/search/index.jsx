@@ -36,6 +36,7 @@ import {
 	isFetchingPluginsData,
 	isPluginActive
 } from 'state/site/plugins';
+import { getSiteRawUrl } from 'state/initial-state';
 
 export const SearchResults = ( {
 	siteAdminUrl,
@@ -48,7 +49,8 @@ export const SearchResults = ( {
 	sitePlan,
 	unavailableInDevMode,
 	isFetchingPluginsData,
-	isPluginActive
+	isPluginActive,
+	siteRawUrl
 	} ) => {
 	let modules = getModules(),
 		moduleList = [
@@ -105,7 +107,6 @@ export const SearchResults = ( {
 		let isPro = 'scan' === element[0]
 				 || 'akismet' === element[0]
 				 || 'backups' === element[0]
-				 || 'videopress' === element[0]
 				 || 'seo-tools' === element[0],
 			proProps = {},
 			unavailableDevMode = unavailableInDevMode( element[0] ),
@@ -126,6 +127,8 @@ export const SearchResults = ( {
 			};
 
 			if (
+				'videopress' !== element[0]
+				||
 				'seo-tools' !== element[0]
 				|| (
 					'seo-tools' === element[0]
@@ -153,6 +156,18 @@ export const SearchResults = ( {
 				} else if ( ( 'scan' === element[0] || 'backups' === element[0] ) && isPluginActive( 'vaultpress/vaultpress.php' ) ) {
 					proProps.configure_url = 'https://dashboard.vaultpress.com/';
 				}
+			}
+		}
+
+		if ( 'videopress' === element[0] ) {
+			if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug || /jetpack_personal*/.test( sitePlan.product_slug ) ) {
+				toggle = <Button
+					compact={ true }
+					primary={ true }
+					href={ 'https://jetpack.com/redirect/?source=upgrade-videopress&site=' + siteRawUrl }
+				>
+					{ __( 'Upgrade' ) }
+				</Button>;
 			}
 		}
 
@@ -221,7 +236,8 @@ export default connect(
 			sitePlan: getSitePlan( state ),
 			unavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
-			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			siteRawUrl: getSiteRawUrl( state )
 		};
 	},
 	( dispatch ) => {

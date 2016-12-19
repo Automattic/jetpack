@@ -79,7 +79,7 @@ function jetpack_holiday_snow_script() {
 	 * @param str URL to the holiday snow JavaScript file.
 	 */
 	$snowstorm_url = apply_filters( 'jetpack_holiday_snow_js_url', plugins_url( 'holiday-snow/snowstorm.js', __FILE__ ) );
-	wp_enqueue_script( 'snowstorm', $snowstorm_url, array(), '1.43.20111201' );
+	wp_enqueue_script( 'snowstorm', $snowstorm_url, array(), '1.43.20111201', true );
 }
 
 function jetpack_maybe_holiday_snow() {
