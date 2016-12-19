@@ -50,6 +50,7 @@ if [[ $ADD_BETA_VERSION -eq 1 ]]; then
     CURRENT_VERSION="`$GET_VERSION_SCRIPT`"
 
     sed -i -e 's/Version: .*$/Version: '$CURRENT_VERSION'/' jetpack.php
+    echo $CURRENT_VERSION > version.txt
     echo "Now at version $CURRENT_VERSION!"
 fi
 
@@ -57,10 +58,6 @@ yarn --modules-folder=$TARGET_DIR/node_modules
 NODE_ENV=production BABEL_ENV=production $TARGET_DIR/node_modules/.bin/gulp
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
-# check .git
-for file in $( cat "$TARGET_DIR/.gitignore" | grep -v '#' 2>/dev/null ); do
-    rm -rf $TARGET_DIR/$file
-done
 # check .svnignore
 for file in $( cat "$TARGET_DIR/.svnignore" 2>/dev/null ); do
     rm -rf $TARGET_DIR/$file
