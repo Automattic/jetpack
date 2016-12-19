@@ -23,7 +23,6 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'customize_preview_init', array( __CLASS__, 'customize_preview_init' ) );
 		add_filter( '_wp_post_revision_fields', array( __CLASS__, '_wp_post_revision_fields' ), 10, 2 );
 		add_action( 'load-revision.php', array( __CLASS__, 'load_revision_php' ) );
-		add_action( 'rest_api_init', array( __CLASS__, 'rest_api_init' ) );
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
 
@@ -69,6 +68,10 @@ class Jetpack_Custom_CSS_Enhancements {
 		remove_action( 'wp_head', 'wp_custom_css_cb', 11 ); // 4.7.0 had it at 11, 4.7.1 moved it to 101.
 		remove_action( 'wp_head', 'wp_custom_css_cb', 101 );
 		add_action( 'wp_head', array( __CLASS__, 'wp_custom_css_cb' ), 101 );
+
+		if ( isset( $_GET['custom-css'] ) ) {
+			self::print_linked_custom_css();
+		}
 	}
 
 	/**
@@ -79,19 +82,9 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 
 	/**
-	 * Register REST API endpoints.
-	 */
-	public static function rest_api_init() {
-		register_rest_route( 'jetpack/v4', '/custom-css', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => array( __CLASS__, 'rest_api_custom_css' ),
-		) );
-	}
-
-	/**
 	 * Print the current Custom CSS. This is for linking instead of printing directly.
 	 */
-	public static function rest_api_custom_css() {
+	public static function print_linked_custom_css() {
 		header( 'Content-type: text/css' );
 		header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + YEAR_IN_SECONDS ) . ' GMT' );
 		echo wp_get_custom_css();
@@ -185,8 +178,8 @@ class Jetpack_Custom_CSS_Enhancements {
 		$styles = wp_get_custom_css();
 		if ( strlen( $styles ) > 2000 && ! is_customize_preview() ) :
 			// Add a cache buster to the url.
-			$url = get_rest_url( null, '/jetpack/v4/custom-css' );
-			$url = add_query_arg( 'cachebuster', substr( md5( $styles ), -10 ), $url );
+			$url = home_url( '/' );
+			$url = add_query_arg( 'custom-css', substr( md5( $styles ), -10 ), $url );
 			?>
 			<link rel="stylesheet" type="text/css" id="wp-custom-css" href="<?php echo esc_url( $url ); ?>" />
 		<?php elseif ( $styles || is_customize_preview() ) : ?>
