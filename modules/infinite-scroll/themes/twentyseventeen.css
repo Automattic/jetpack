@@ -40,7 +40,7 @@
 	background: #1a1a1a;
 	border-radius: 2px;
 	color: #fff;
-	font-family: Montserrat, "Helvetica Neue", sans-serif;
+	font-family: Merriweather, Georgia, serif;
 	font-size: inherit;
 	font-weight: 700;
 	letter-spacing: 0.046875em;
@@ -73,7 +73,7 @@ body #infinite-footer .container {
 }
 
 body #infinite-footer .blog-info {
-	font-family: Montserrat, "Helvetica Neue", sans-serif;
+	font-family: Merriweather, Georgia, serif;
 	height: 2.1875em;
 	line-height: 2.1875em;
 }
@@ -110,8 +110,8 @@ body #infinite-footer .blog-credits a:focus {
 	}
 
 	#infinite-handle {
-		text-align: center;
 		margin: 0 0 1em 0;
+		text-align: center;
 	}
 	
 	.has-sidebar #infinite-handle {
