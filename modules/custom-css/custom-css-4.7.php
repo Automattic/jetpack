@@ -23,6 +23,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'customize_preview_init', array( __CLASS__, 'customize_preview_init' ) );
 		add_filter( '_wp_post_revision_fields', array( __CLASS__, '_wp_post_revision_fields' ), 10, 2 );
 		add_action( 'load-revision.php', array( __CLASS__, 'load_revision_php' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'rest_api_init' ) );
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
 
@@ -64,6 +65,10 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), array( 'customize-controls', 'underscore', 'jetpack-codemirror' ), JETPACK__VERSION, true );
 
 		wp_register_script( 'jetpack-customizer-css-preview', plugins_url( 'custom-css/js/core-customizer-css-preview.js', __FILE__ ), array( 'customize-selective-refresh' ), JETPACK__VERSION, true );
+
+		remove_action( 'wp_head', 'wp_custom_css_cb', 11 ); // 4.7.0 had it at 11, 4.7.1 moved it to 101.
+		remove_action( 'wp_head', 'wp_custom_css_cb', 101 );
+		add_action( 'wp_head', array( __CLASS__, 'wp_custom_css_cb' ), 101 );
 	}
 
 	/**
@@ -71,6 +76,25 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function customize_preview_init() {
 		add_filter( 'wp_get_custom_css', array( __CLASS__, 'customize_preview_wp_get_custom_css' ) );
+	}
+
+	/**
+	 * Register REST API endpoints.
+	 */
+	public static function rest_api_init() {
+		register_rest_route( 'jetpack/v4', '/custom-css', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => array( __CLASS__, 'rest_api_custom_css' ),
+		) );
+	}
+
+	/**
+	 * Print the current Custom CSS. This is for linking instead of printing directly.
+	 */
+	public static function rest_api_custom_css() {
+		header( 'Content-type: text/css' );
+		echo wp_get_custom_css();
+		exit;
 	}
 
 	/**
@@ -151,6 +175,20 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function get_css_post( $stylesheet = '' ) {
 		return wp_get_custom_css_post( $stylesheet );
+	}
+
+	/**
+	 * Override Core's `wp_custom_css_cb` method to provide linking to custom css.
+	 */
+	public static function wp_custom_css_cb() {
+		$styles = wp_get_custom_css();
+		if ( strlen( $styles ) > 2000 && ! is_customize_preview() ) : ?>
+			<link rel="stylesheet" type="text/css" id="wp-custom-css" href="<?php echo esc_url( get_rest_url( null, '/jetpack/v4/custom-css' ) ); ?>" />
+		<?php elseif ( $styles || is_customize_preview() ) : ?>
+			<style type="text/css" id="wp-custom-css">
+				<?php echo strip_tags( $styles ); // Note that esc_html() cannot be used because `div &gt; span` is not interpreted properly. ?>
+			</style>
+		<?php endif;
 	}
 
 	/**
