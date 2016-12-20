@@ -83,4 +83,4 @@ clean:
 	@echo "===== removing '$(BUILD_PATH)' ====="
 	rm -rf $(BUILD_PATH)
 
-.PHONY: git.fetch submodules release clean
+.PHONY: check git.fetch submodules release clean
