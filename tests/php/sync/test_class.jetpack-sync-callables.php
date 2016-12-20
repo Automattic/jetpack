@@ -555,7 +555,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 }
 
-
+/* Example Test Taxonomy */
 class ABC_FOO_TEST_Taxonomy_Example {
 	function __construct() {
 
