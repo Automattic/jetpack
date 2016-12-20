@@ -6,14 +6,9 @@
 .milestone-widget .minutes,
 .milestone-widget .seconds {
 	text-align: right;
-	width: 2em;
+	width: 2.2em;
 }
 .milestone-widget .year {
 	text-align: right;
 	width: 3.25em;
-}
-.milestone-widget .assistive-text {
-	position: absolute !important;
-	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
-	clip: rect(1px, 1px, 1px, 1px);
 }

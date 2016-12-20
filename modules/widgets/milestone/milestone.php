@@ -177,10 +177,10 @@ class Milestone_Widget extends WP_Widget {
 		wp_localize_script( 'milestone', 'MilestoneConfig', self::$config_js );
 	}
 
-    /**
-     * Widget
-     */
-    function widget( $args, $instance ) {
+	/**
+	 * Widget
+	 */
+	function widget( $args, $instance ) {
 		$instance = $this->sanitize_instance( $instance );
 
 		$milestone = mktime( $instance['hour'], $instance['min'], 0, $instance['month'], $instance['day'], $instance['year'] );
@@ -245,16 +245,16 @@ class Milestone_Widget extends WP_Widget {
 
 		echo $args['after_widget'];
 
-	    /** This action is documented in modules/widgets/gravatar-profile.php */
-	    do_action( 'jetpack_stats_extra', 'widget_view', 'milestone' );
-    }
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'milestone' );
+	}
 
-    /**
-     * Update
-     */
-    function update( $new_instance, $old_instance ) {
+	/**
+	 * Update
+	 */
+	function update( $new_instance, $old_instance ) {
 		return $this->sanitize_instance( $new_instance );
-    }
+	}
 
 	/*
 	 * Make sure that a number is within a certain range.
@@ -318,47 +318,52 @@ class Milestone_Widget extends WP_Widget {
 		return $clean;
 	}
 
-    /**
-     * Form
-     */
-    function form( $instance ) {
+	/**
+	 * Form
+	 */
+	function form( $instance ) {
 		$instance = $this->sanitize_instance( $instance );
-        ?>
+		?>
 
 	<div class="milestone-widget">
-        <p>
-        	<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title', 'jetpack' ); ?></label>
-        	<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
-        </p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+		</p>
 
-        <p>
-        	<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Event', 'jetpack' ); ?></label>
-        	<input class="widefat" id="<?php echo $this->get_field_id( 'event' ); ?>" name="<?php echo $this->get_field_name( 'event' ); ?>" type="text" value="<?php echo esc_attr( $instance['event'] ); ?>" />
-        </p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Event', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'event' ); ?>" name="<?php echo $this->get_field_name( 'event' ); ?>" type="text" value="<?php echo esc_attr( $instance['event'] ); ?>" />
+		</p>
 
 		<fieldset>
-			<legend><?php _e( 'Date and Time', 'jetpack' ); ?></legend>
+			<p><?php _e( 'Date' ); ?></p>
 
-			<label for="<?php echo $this->get_field_id( 'month' ); ?>" class="assistive-text"><?php _e( 'Month', 'jetpack' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'month' ); ?>"><?php _e( 'Month', 'jetpack' ); ?></label>
 			<select id="<?php echo $this->get_field_id( 'month' ); ?>" class="month" name="<?php echo $this->get_field_name( 'month' ); ?>"><?php
 				global $wp_locale;
 				for ( $i = 1; $i < 13; $i++ ) {
 					$monthnum = zeroise( $i, 2 );
 					echo '<option value="' . esc_attr( $monthnum ) . '"' . selected( $i, $instance['month'], false ) . '>' . $monthnum . '-' . $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) ) . '</option>';
 				}
-			?></select>
+				?></select>
 
-			<label for="<?php echo $this->get_field_id( 'day' ); ?>" class="assistive-text"><?php _e( 'Day', 'jetpack' ); ?></label>
-			<input id="<?php echo $this->get_field_id( 'day' ); ?>" class="day" name="<?php echo $this->get_field_name( 'day' ); ?>" type="text" value="<?php echo esc_attr( $instance['day'] ); ?>">,
+			<label for="<?php echo $this->get_field_id( 'day' ); ?>"><?php _e( 'Day', 'jetpack' ); ?></label>
+			<input id="<?php echo $this->get_field_id( 'day' ); ?>" class="day" name="<?php echo $this->get_field_name( 'day' ); ?>" type="text" value="<?php echo esc_attr( $instance['day'] ); ?>">
 
-			<label for="<?php echo $this->get_field_id( 'year' ); ?>" class="assistive-text"><?php _e( 'Year', 'jetpack' ); ?></label>
+
+			<label for="<?php echo $this->get_field_id( 'year' ); ?>"><?php _e( 'Year', 'jetpack' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'year' ); ?>" class="year" name="<?php echo $this->get_field_name( 'year' ); ?>" type="text" value="<?php echo esc_attr( $instance['year'] ); ?>">
 
-			@ <label for="<?php echo $this->get_field_id( 'hour' ); ?>" class="assistive-text"><?php _e( 'Hour', 'jetpack' ); ?></label>
+
+			<p><?php _e( 'Time' ); ?></p>
+
+
+			<label for="<?php echo $this->get_field_id( 'hour' ); ?>"><?php _e( 'Hour', 'jetpack' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'hour' ); ?>" class="hour" name="<?php echo $this->get_field_name( 'hour' ); ?>" type="text" value="<?php echo esc_attr( $instance['hour'] ); ?>">
 
-			<label for="<?php echo $this->get_field_id( 'min' ); ?>" class="assistive-text"><?php _e( 'Minutes', 'jetpack' ); ?></label>
-			: <input id="<?php echo $this->get_field_id( 'min' ); ?>" class="minutes" name="<?php echo $this->get_field_name( 'min' ); ?>" type="text" value="<?php echo esc_attr( $instance['min'] ); ?>">
+			<label for="<?php echo $this->get_field_id( 'min' ); ?>"><?php _e( 'Minutes', 'jetpack' ); ?></label>
+			<input id="<?php echo $this->get_field_id( 'min' ); ?>" class="minutes" name="<?php echo $this->get_field_name( 'min' ); ?>" type="text" value="<?php echo esc_attr( $instance['min'] ); ?>">
 		</fieldset>
 
 		<p>
@@ -368,5 +373,5 @@ class Milestone_Widget extends WP_Widget {
 	</div>
 
 		<?php
-    }
+	}
 }
