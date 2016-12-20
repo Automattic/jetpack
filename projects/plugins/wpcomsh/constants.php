@@ -17,7 +17,7 @@ if ( file_exists( "$current_dir/private-constants.php" ) ) {
 	require_once( 'private-constants.php' );
 } else if (
 	! defined( 'WPCOMSH_WPCOM_PUB_THEMES_PATH' ) ||
-    ! defined( 'WPCOMSH_WPCOM_PREMIUM_THEMES_PATH' )
+	! defined( 'WPCOMSH_WPCOM_PREMIUM_THEMES_PATH' )
 ) {
 	// This won't work. Just a fallback so functions in this plugin return false instead of warning/error.
 	define( 'WPCOMSH_WPCOM_PUB_THEMES_PATH', $current_dir );
