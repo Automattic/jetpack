@@ -188,6 +188,11 @@ class Jetpack_Custom_CSS_Data_Migration {
 	 */
 	public static function get_all_revisions() {
 		$post = self::get_post();
+
+		if ( ! $post ) {
+			return array();
+		}
+
 		$revisions = wp_get_post_revisions( $post->ID, array(
 			'posts_per_page' => -1,
 			'orderby'        => 'date',
