@@ -49,52 +49,55 @@ Scroller = function( settings ) {
 
 	// We have two type of infinite scroll
 	// cases 'scroll' and 'click'
+	
+	if ( settings.have_posts ) {
+		
+		if ( type == 'scroll' ) {
+			// Bind refresh to the scroll event
+			// Throttle to check for such case every 300ms
 
-	if ( type == 'scroll' ) {
-		// Bind refresh to the scroll event
-		// Throttle to check for such case every 300ms
+			// On event the case becomes a fact
+			this.window.bind( 'scroll.infinity', function() {
+				this.throttle = true;
+			});
 
-		// On event the case becomes a fact
-		this.window.bind( 'scroll.infinity', function() {
-			this.throttle = true;
-		});
+			// Go back top method
+			self.gotop();
 
-		// Go back top method
-		self.gotop();
+			setInterval( function() {
+				if ( this.throttle ) {
+					// Once the case is the case, the action occurs and the fact is no more
+					this.throttle = false;
+					// Reveal or hide footer
+					self.thefooter();
+					// Fire the refresh
+					self.refresh();
+	                self.determineURL(); // determine the url 
+				}
+			}, 250 );
 
-		setInterval( function() {
-			if ( this.throttle ) {
-				// Once the case is the case, the action occurs and the fact is no more
-				this.throttle = false;
-				// Reveal or hide footer
-				self.thefooter();
+			// Ensure that enough posts are loaded to fill the initial viewport, to compensate for short posts and large displays.
+			self.ensureFilledViewport();
+			this.body.bind( 'post-load', { self: self }, self.checkViewportOnLoad );
+		} else if ( type == 'click' ) {
+			if ( this.click_handle ) {
+				this.element.append( this.handle );
+			}
+
+			this.body.delegate( '#infinite-handle', 'click.infinity', function() {
+				// Handle the handle
+				if ( self.click_handle ) {
+					$( '#infinite-handle' ).remove();
+				}
+
 				// Fire the refresh
 				self.refresh();
-                self.determineURL(); // determine the url 
-			}
-		}, 250 );
-
-		// Ensure that enough posts are loaded to fill the initial viewport, to compensate for short posts and large displays.
-		self.ensureFilledViewport();
-		this.body.bind( 'post-load', { self: self }, self.checkViewportOnLoad );
-	} else if ( type == 'click' ) {
-		if ( this.click_handle ) {
-			this.element.append( this.handle );
+			});
 		}
 
-		this.body.delegate( '#infinite-handle', 'click.infinity', function() {
-			// Handle the handle
-			if ( self.click_handle ) {
-				$( '#infinite-handle' ).remove();
-			}
-
-			// Fire the refresh
-			self.refresh();
-		});
+		// Initialize any Core audio or video players loaded via IS
+		this.body.bind( 'post-load', { self: self }, self.initializeMejs );
 	}
-
-	// Initialize any Core audio or video players loaded via IS
-	this.body.bind( 'post-load', { self: self }, self.initializeMejs );
 };
 
 /**
