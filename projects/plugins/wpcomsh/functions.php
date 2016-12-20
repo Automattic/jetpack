@@ -15,6 +15,16 @@ function wpcomsh_is_maybe_wpcom_theme( $theme_slug ) {
 	return substr( $theme_slug, -6 ) === '-wpcom';
 }
 
+function wpcomsh_remove_theme_wpcom_suffix( $theme_slug_with_suffix ) {
+	if ( wpcomsh_is_maybe_wpcom_theme( $theme_slug_with_suffix ) ) {
+		return substr( $theme_slug_with_suffix, 0, -6 );
+	}
+
+	error_log( "WPComSH: wpcomsh_remove_theme_wpcom_suffix() called with a non-wpcom theme slug" );
+
+	return false;
+}
+
 /**
  * Whether the theme is a wpcom theme.
  *
@@ -35,7 +45,8 @@ function wpcomsh_is_wpcom_theme( $theme_slug ) {
 function wpcomsh_is_wpcom_premium_theme( $theme_slug ) {
 	if (
 		! defined( 'WPCOMSH_WPCOM_PREMIUM_THEMES_PATH' ) ||
-		! file_exists( WPCOMSH_WPCOM_PREMIUM_THEMES_PATH )
+		! file_exists( WPCOMSH_WPCOM_PREMIUM_THEMES_PATH ) ||
+		! wpcomsh_remove_theme_wpcom_suffix( $theme_slug )
 	) {
 		error_log(
 			"WPComSH: WPCom premium themes folder couldn't be located. " .
@@ -45,7 +56,11 @@ function wpcomsh_is_wpcom_premium_theme( $theme_slug ) {
 		return false;
 	}
 
-	return file_exists( WPCOMSH_WPCOM_PREMIUM_THEMES_PATH . "/${theme_slug}" );
+	return file_exists(
+		WPCOMSH_WPCOM_PREMIUM_THEMES_PATH .
+		'/' .
+		wpcomsh_remove_theme_wpcom_suffix( $theme_slug )
+	);
 }
 
 /**
@@ -57,7 +72,8 @@ function wpcomsh_is_wpcom_premium_theme( $theme_slug ) {
 function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
 	if (
 		! defined( 'WPCOMSH_WPCOM_PUB_THEMES_PATH' ) ||
-		! file_exists( WPCOMSH_WPCOM_PUB_THEMES_PATH )
+		! file_exists( WPCOMSH_WPCOM_PUB_THEMES_PATH ) ||
+		! wpcomsh_remove_theme_wpcom_suffix( $theme_slug )
 	) {
 		error_log(
 			"WPComSH: WPCom pub themes folder couldn't be located. " .
@@ -67,7 +83,11 @@ function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
 		return false;
 	}
 
-	return file_exists( WPCOMSH_WPCOM_PUB_THEMES_PATH . "/${theme_slug}" );
+	return file_exists(
+		WPCOMSH_WPCOM_PUB_THEMES_PATH .
+		'/' .
+        wpcomsh_remove_theme_wpcom_suffix( $theme_slug )
+	);
 }
 
 /**
@@ -86,7 +106,7 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 		$themes_source_path = WPCOMSH_WPCOM_PREMIUM_THEMES_PATH;
 	}
 
-	$abs_theme_path = $themes_source_path . '/' . $theme_slug;
+	$abs_theme_path = $themes_source_path . '/' . wpcomsh_remove_theme_wpcom_suffix( $theme_slug );
 	$abs_theme_symlink_path = get_theme_root() . '/' . $theme_slug;
 
 	if ( ! file_exists( $abs_theme_path ) ) {
