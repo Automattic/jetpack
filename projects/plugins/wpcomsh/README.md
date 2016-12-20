@@ -35,19 +35,13 @@ This plugin removes the "Delete" button of all the WPCom themes (both pub and pr
 
 ### Installation
 
-Clone this repository into `wp-content/mu-plugins` of your self-hosted Jetpack site. As the `mu-plugins` loader doesn't parse folders and only `.php` files, create a new file called `wpcomsh-loader.php` with the following contents:
-
-```php
-<?php
-
-require_once( WPMU_PLUGIN_DIR . '/wpcomsh/wpcomsh.php' );
-```
+Clone this repository into `wp-content/plugins` of your self-hosted Jetpack site and activate it.
 
 Now, make two folders named `wpcom-premium-themes` and `wpcom-pub-themes` somewhere on your filesystem (e.g. `/home/<your-user-name>/`) and put two different themes into these folders (e.g. put twentyfifteen to the premium themes folder and twentyfourteen to the pub themes folder) so you know which theme is where.
 
 Rename the directory names of the two themes so they have the `-wpcom` suffix (e.g. `twentyfifteen-wpcom`). `-wpcom` suffix indicates that the theme is a WPCom one.
 
-Open the `constants.php` file located in the main folder of this plugin and edit the `WPCOM_PUB_THEMES_PATH` and `WPCOM_PREMIUM_THEMES_PATH` to point to your newly created directories.
+Open the `constants.php` file located in the main folder of this plugin and edit or add the `WPCOM_PUB_THEMES_PATH` and `WPCOM_PREMIUM_THEMES_PATH` to point to your newly created directories.
 
 At this moment, the plugin is ready for testing.
 
@@ -90,6 +84,16 @@ After making any request to the self-hosted site, check the theme origin (source
 The WPCom themes will be read-only on the filesystem. If a theme is read-only, the theme Editor doesn't show the "Save" button so the theme's source code can be viewed only. You can verify this by giving your WPCom theme read-execute permissions with this command (`chmod -R 555 <your-wpcom-theme-dir>`) and then navigating to the theme's Editor.
 
 If you have any questions regarding the testing/installation instructions, don't hesitate to contact me directly on Slack: @lamosty.
+
+## Contributing
+
+Open a Pull Request and tag me (@lamosty) for a review. If you need to make a new plugin Release, you can run the following command which will create a new `.zip` file of the plugin in the `releases/` sub-folder.
+
+```
+make build VERSION=<your-release-version>
+```
+
+For example: `make build VERSION=1.1`. However, at the moment, you need to edit the plugin version specified in `wpcomsh.php` manually.
 
 ## References and links
 
