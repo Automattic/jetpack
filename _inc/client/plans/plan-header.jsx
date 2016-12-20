@@ -34,7 +34,7 @@ const PlanHeader = React.createClass( {
 								</p>
 								<p className="jp-landing-plans__header-btn-container">
 									<Button href={ 'https://jetpack.com/redirect/?source=plans-main-top&site=' + this.props.siteRawUrl } className="is-primary">
-										{ __( 'Learn more...' ) }
+										{ __( 'Learn more' ) }
 									</Button>
 								</p>
 							</div>
