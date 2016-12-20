@@ -1121,6 +1121,8 @@ class The_Neverending_Home_Page {
 	 * @return string or null
 	 */
 	function query() {
+		global $wp_customize;
+		global $wp_version;
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
@@ -1269,6 +1271,11 @@ class The_Neverending_Home_Page {
 			/** This action is already documented in modules/infinite-scroll/infinity.php */
 			do_action( 'infinite_scroll_empty' );
 			$results['type'] = 'empty';
+		}
+
+		// This should be removed when WordPress 4.8 is released.
+		if ( version_compare( $wp_version, '4.7', '<' ) && is_customize_preview() ) {
+			$wp_customize->remove_preview_signature();
 		}
 
 		wp_send_json(
