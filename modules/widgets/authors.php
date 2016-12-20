@@ -18,8 +18,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 				'classname' => 'widget_authors',
 				'description' => __( 'Display blogs authors with avatars and recent posts.', 'jetpack' ),
 				'customize_selective_refresh' => true,
-			),
-			array( 'width' => 300 )
+			)
 		);
 
 		add_action( 'publish_post', array( __CLASS__, 'flush_cache' ) );
