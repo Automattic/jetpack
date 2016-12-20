@@ -191,7 +191,9 @@ class Jetpack_Sync_Actions {
 			$include_users = true;
 		}
 
-		if ( is_multisite()  ) {
+		if ( is_multisite() &&
+		     // Is Jetpack network activated
+		     in_array( 'jetpack/jetpack.php' , array_keys( get_site_option( 'active_sitewide_plugins' ) ) ) ) {
 			// stagger initial syncs for multisite blogs so they don't all pile on top of each other
 			if ( is_main_site() ) {
 				wp_schedule_single_event( time() , 'jetpack_full_sync_on_multisite_jetpack_upgrade_cron', array( $include_users ) );
