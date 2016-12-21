@@ -82,6 +82,7 @@ class Jetpack_Options {
 			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
 			'hide_jitm',                    // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
 			'custom_css_4.7_migration',     // (bool)   Whether Custom CSS has scanned for and migrated any legacy CSS CPT entries to the new Core format.
+			'jetpack_network_version'       // (int)    The version the network is on. Used to stagger the initial full sync.
 		);
 	}
 

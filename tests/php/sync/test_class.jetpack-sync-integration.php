@@ -34,9 +34,8 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
 
-		if ( is_multisite( ) ) {
-			$event = wp_next_scheduled( 'jetpack_full_sync_on_multisite_jetpack_upgrade_cron', array( true ) );
-			$this->assertTrue( ! empty( $event ) );
+		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_main_site() ) {
+			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		} else {
 			$this->assertEquals( $sync_status['config'], $expected_sync_config );
 		}
@@ -44,31 +43,25 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_upgrading_from_42_plus_does_not_includes_users_in_initial_sync() {
-
+		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_main_site() ) {
+			$this->markTestSkipped( 'Not applicable for jetpack when it is not network activated.' );
+		}
 		$initial_sync_without_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true );
 		$initial_sync_with_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true, 'users' => 'initial' );
 
 		do_action( 'updating_jetpack_version', '4.3', '4.2' );
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
 		$sync_config = $sync_status[ 'config' ];
-		if ( is_multisite( ) ) {
-			$event = wp_next_scheduled( 'jetpack_full_sync_on_multisite_jetpack_upgrade_cron', array( false ) );
-			$this->assertTrue( ! empty( $event ) );
-		} else {
-			$this->assertEquals( $initial_sync_without_users_config, $sync_config );
-			$this->assertNotEquals( $initial_sync_with_users_config, $sync_config );
-		}
 
+		$this->assertEquals( $initial_sync_without_users_config, $sync_config );
+		$this->assertNotEquals( $initial_sync_with_users_config, $sync_config );
 
 		do_action( 'updating_jetpack_version', '4.2', '4.1' );
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
 		$sync_config = $sync_status[ 'config' ];
-		if ( is_multisite( ) ) {
-			$event = wp_next_scheduled( 'jetpack_full_sync_on_multisite_jetpack_upgrade_cron', array( true ) );
-			$this->assertTrue( ! empty( $event ) );
-		} else {
-			$this->assertEquals( $initial_sync_with_users_config, $sync_config );
-		}
+
+		$this->assertEquals( $initial_sync_with_users_config, $sync_config );
+
 	}
 
 	function test_schedules_incremental_sync_cron() {
@@ -159,11 +152,10 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 
 	function test_adds_full_sync_on_jetpack_plugin_update() {
-
-		if ( ! is_multisite() ) {
-			$this->markTestSkipped( 'Not compatible with multisite mode' );
+		if ( ! is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
+			$this->markTestSkipped( 'Not applicable for jetpack when it is not network activated.' );
 		}
-
+		Jetpack_Options::update_option( 'jetpack_network_version', 0 );
 		// Reset the settings to use the default values.
 		Jetpack_Sync_Settings::reset_data();
 
@@ -174,36 +166,89 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
             'network_options' => 1
 		);
 
-		add_action( 'jetpack_full_sync_end', array( $this, 'sleep_one_sec') );
+		$count = 0;
+		while( $count < 5 ) {
+			$this->factory->blog->create();
+			$count++;
+		}
 
+		add_filter( 'jetpack_sync_network_upgrade_ramp_up_increment', array( $this, 'ramp_up_increment_by_four' ) );
+		// one more just for good measuer
 		$blog_id = $this->factory->blog->create();
 		$this->server_replica_storage->reset();
 
-		$full_sync = $this->full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
-		Jetpack_Sync_Actions::full_sync_on_multisite_jetpack_upgrade();
-		remove_action( 'jetpack_full_sync_end', array( $this, 'sleep_one_sec') );
+		// We are staring off with a blank slate
+		$this->assertEquals( 0, Jetpack_Options::get_option( 'jetpack_network_version', 0 ) );
+		$this->assertFalse( (bool) wp_next_scheduled( Jetpack_Sync_Actions::UPDATE_RAMP_UP_CRON_NAME ) );
 
-		$full_sync_status = $full_sync->get_status();
-		$this->assertEquals( $full_config, $full_sync_status['config'], 'config is not equal on main blog' );
-		$this->assertEquals( $full_config, $full_sync_status['total'], 'total is not equal on main blog' );
+		// New Jetpack version
+		do_action( 'updating_jetpack_version', JETPACK__VERSION, '1.0' );
+
+		// Test that the main site sync as expected
+		$this->assertEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'jetpack_network_version' ) );
+
+		// Test that we schedule a cron job that will bump ramp_up value
+		$next_ramp_up_increase = wp_next_scheduled( Jetpack_Sync_Actions::UPDATE_RAMP_UP_CRON_NAME );
+		$this->assertTrue( (bool) $next_ramp_up_increase );
+
+		// Lets check that the next ramp_up is set as expected
+		$this->assertTrue( ( $next_ramp_up_increase - time() ) <= Jetpack_Sync_Actions::get_next_ramp_up_interval() );
+		$this->assertEquals( Jetpack_Sync_Actions::get_ramp_up_increment(), get_site_option( Jetpack_Sync_Actions::UPDATE_RAMP_UP_NETWORK_OPTION ) );
 
 		switch_to_blog( $blog_id );
+		// Test that we didn't bump the network version for this site just yet
+		$this->assertNotEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'jetpack_network_version' ) );
 
-		$full_sync_status_blog_2 = $full_sync->get_status();
+		// Test that when we load the secondary site that the sync doesn't happen just yet
+		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync() );
 
-		$this->assertNotEquals( $full_sync_status['started'], $full_sync_status_blog_2['started'] );
-		$this->assertNotEquals( $full_sync_status['queue_finished'], $full_sync_status_blog_2['queue_finished'] );
-		$this->assertEquals( $full_config, $full_sync_status_blog_2['config'], 'config is not equal on secondary blog' );
-		$this->assertEquals( $full_config, $full_sync_status_blog_2['total'], 'total is not equal on secondary blog');
+		Jetpack_Sync_Actions::init();
+		$this->assertNotEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'jetpack_network_version' ) );
+
+		Jetpack_Sync_Actions::jetpack_network_ramp_up_bump();
+
+		// Test that the sync happends when we reach 100 Ramp UP
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync() );
+		Jetpack_Sync_Actions::init();
+		$this->assertEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'jetpack_network_version' ), 'Didn' );
+
+		restore_current_blog();
 	}
 
-	function sleep_one_sec() {
-		sleep( 1 );
+	function test_can_do_inital_sync_method() {
+		Jetpack_Options::update_option( 'jetpack_network_version', 0 );
+
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1, 10 ) );
+
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 10, 10 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 110, 10 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 510, 10 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1110, 10 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1210, 10 ) );
+
+		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 12, 10 ) );
+		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 112, 10 ) );
+		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 1112, 10 ) );
+
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 49, 50 ) );
+		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 51, 50 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 110, 50 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 510, 50 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1110, 50 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1210, 50 ) );
+
+		// We update the version so we do not need to do the inital sync.
+		Jetpack_Options::update_option( 'jetpack_network_version', JETPACK__VERSION );
+		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 1, 10 ) );
 	}
 
 	/**
 	 * Utility functions
 	 */
+
+	function ramp_up_increment_by_four( $ramp_up ) {
+		return 4;
+	}
 
 	function __return_hourly_schedule() {
 		return 'hourly';

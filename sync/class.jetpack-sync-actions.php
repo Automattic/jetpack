@@ -11,6 +11,11 @@ class Jetpack_Sync_Actions {
 	static $listener = null;
 	const DEFAULT_SYNC_CRON_INTERVAL_NAME = 'jetpack_sync_interval';
 	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
+	
+	const UPDATE_RAMP_UP_CRON_NAME = 'jetpack_network_version_up_cron';
+	const UPDATE_RAMP_UP_NETWORK_OPTION = 'jetpack_sync_network_upgrade_ramp_up';
+	const UPDATE_RAMP_UP_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
+	const UPDATE_RAMP_UP_INCREMENT = 10; // Percentage of sites that the intervals increments by.
 
 	static function init() {
 
@@ -25,10 +30,15 @@ class Jetpack_Sync_Actions {
 			wp_clear_scheduled_hook( 'jetpack_sync_cron' );
 			wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
 		}
-		if ( is_multisite() ) {
-			add_action( 'jetpack_full_sync_on_multisite_jetpack_upgrade_cron', array( __CLASS__, 'full_sync_on_multisite_jetpack_upgrade' ), 10, 1 );
+		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
+			// Add cron action that bump ups the avalue.
+			add_action( self::UPDATE_RAMP_UP_CRON_NAME, array( __CLASS__, 'jetpack_network_ramp_up_bump' ), 10, 1 );
+
+			// Did we update the option already?
+			if ( self::can_do_initial_sync() ) {
+				self::do_initial_sync( JETPACK__VERSION, Jetpack_Options::get_option( 'jetpack_network_version', 0 ), true );
+			}
 		}
-		
 
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'do_full_sync' ), 10, 0 );
@@ -57,9 +67,33 @@ class Jetpack_Sync_Actions {
 		if ( apply_filters( 'jetpack_sync_listener_should_load', true ) ) {
 			self::initialize_listener();
 		}
-		
+
 		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
 
+	}
+
+	static function can_do_initial_sync( $current_blog_id = null, $ramp_up = null ) {
+		$network_version = Jetpack_Options::get_option( 'jetpack_network_version', 0 );
+
+		if ( $network_version === JETPACK__VERSION ) {
+			return false;
+		}
+
+		if ( empty( $ramp_up ) ) {
+			$ramp_up = get_site_option( self::UPDATE_RAMP_UP_NETWORK_OPTION );
+		}
+
+		if ( $current_blog_id === null ) {
+			$current_blog_id = get_current_blog_id();
+		}
+		// if $ramp_up is 10 - (0 - 10), (100 - 110) , (200 - 210)  etc.
+		// So about 10% of sites should be allowed to update
+		// It doesm't depended on the total nubver of sites.
+		if ( ( $current_blog_id % 100 ) <= $ramp_up ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	static function add_sender_shutdown() {
@@ -183,23 +217,32 @@ class Jetpack_Sync_Actions {
 		return $response;
 	}
 
-	static function do_initial_sync( $new_version = null, $old_version = null ) {
+	static function do_initial_sync( $new_version = null, $old_version = null, $network_site = false ) {
 		$initial_sync_config = self::get_update_full_sync_config();
-		$include_users = false;
+
 		if ( $old_version && ( version_compare( $old_version, '4.2', '<' ) ) ) {
 			$initial_sync_config['users'] = 'initial';
-			$include_users = true;
 		}
 
-		if ( is_multisite() &&
-		     // Is Jetpack network activated
-		     in_array( 'jetpack/jetpack.php' , array_keys( get_site_option( 'active_sitewide_plugins' ) ) ) ) {
-			// stagger initial syncs for multisite blogs so they don't all pile on top of each other
+		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! $network_site ) {
+
+			// Set up Ramp up of Jetpack Full Sync.
 			if ( is_main_site() ) {
-				wp_schedule_single_event( time() , 'jetpack_full_sync_on_multisite_jetpack_upgrade_cron', array( $include_users ) );
+				update_site_option( self::UPDATE_RAMP_UP_NETWORK_OPTION, self::get_ramp_up_increment() );
+
+				// By default the value is set to 10
+				if ( self::get_ramp_up_increment() < 100 ) {
+					wp_schedule_single_event( time() + self::get_next_ramp_up_interval() , self::UPDATE_RAMP_UP_CRON_NAME );
+				}
+
+				// Sync the main site right away
+				self::do_full_sync( $initial_sync_config );
+				Jetpack_Options::update_option( 'jetpack_network_version', JETPACK__VERSION );
+
 			}
 		} else {
 			self::do_full_sync( $initial_sync_config );
+			Jetpack_Options::update_option( 'jetpack_network_version', JETPACK__VERSION );
 		}
 	}
 
@@ -211,30 +254,38 @@ class Jetpack_Sync_Actions {
 			'constants' => true,
 		);
 	}
-	
-	static function full_sync_on_multisite_jetpack_upgrade( $include_users = false ) {
-		global $wpdb;
-		$initial_sync_config = self::get_update_full_sync_config();
-		if ( $include_users ) {
-			$initial_sync_config['users'] = 'initial';
+
+	static function get_ramp_up_increment() {
+		/**
+		 * Allows you to change the percantage at which the update ramp up happends.
+		 * This value should be a integer less then 100
+		 *
+		 * Default is self::UPDATE_RAMP_UP_INCREMENT
+		 * @since 4.5.0
+		 */
+		$increment = (int) apply_filters( 'jetpack_sync_network_upgrade_ramp_up_increment', self::UPDATE_RAMP_UP_INCREMENT );
+		return ( $increment >= 1 && $increment <= 100 ) ? $increment : self::UPDATE_RAMP_UP_INCREMENT;
+	}
+
+	static function get_next_ramp_up_interval() {
+		/**
+		 * Allows you to change the percantage at which the update ramp up happends.
+		 * This value should be a integer less then 100
+		 *
+		 * Default is self::UPDATE_RAMP_UP_INCREMENT
+		 * @since 4.5.0
+		 * @param int interval value in seconds at which point the next ramp up is suppose to happen.
+		 */
+		return (int) apply_filters( 'jetpack_sync_network_upgrade_ramp_up_interval', self::UPDATE_RAMP_UP_INTERVAL_VALUE );
+	}
+
+	static function jetpack_network_ramp_up_bump() {
+		$ramp_up = get_site_option( self::UPDATE_RAMP_UP_NETWORK_OPTION );
+		if ( $ramp_up < 100 ) {
+			update_site_option( self::UPDATE_RAMP_UP_NETWORK_OPTION, $ramp_up + self::get_ramp_up_increment() );
+			wp_schedule_single_event( time() + self::get_next_ramp_up_interval(), self::UPDATE_RAMP_UP_CRON_NAME );
 		}
 
-		$max_blog_id = 0;
-		$batch_size = 500;
-
-		while( true ) {
-			$site_ids = $wpdb->get_col( "SELECT blog_id FROM {$wpdb->blogs} WHERE site_id = {$wpdb->siteid} AND spam = '0' AND deleted = '0' AND archived = '0' AND blog_id > {$max_blog_id} ORDER BY blog_id ASC LIMIT {$batch_size}" );
-			if ( ! $site_ids ) {
-				break;
-			}
-
-			foreach ( (array) $site_ids as $site_id ) {
-				switch_to_blog( $site_id );
-				self::do_full_sync( $initial_sync_config );
-				restore_current_blog();
-			}
-			$max_blog_id = end( $site_ids );
-		}
 	}
 
 	static function do_full_sync( $modules = null ) {

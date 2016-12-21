@@ -50,6 +50,10 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
+
+		if ( is_multisite() && getenv( 'NETWORK_ACTIVE' ) ) { //
+			add_filter( 'pre_site_option_active_sitewide_plugins', array( $this, 'jetpack_network_active' ) );
+		}
 	}
 
 	public function setSyncClientDefaults() {
@@ -103,6 +107,10 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	function serverReceive( $data, $codec, $sent_timestamp, $queue_id ) {
 		return $this->server->receive( $data, null, $sent_timestamp, $queue_id );
+	}
+	// Add 
+	function jetpack_network_active() {
+		return array( 'jetpack/jetpack.php' => time() );
 	}
 }
 
