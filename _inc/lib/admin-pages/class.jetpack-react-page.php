@@ -432,10 +432,9 @@ function jetpack_current_user_data() {
  * and replace `jetpack_get_locale()` in this file with `get_user_locale()`.
  */
 function jetpack_get_locale() {
-	global $wp_version;
 	$locale = get_locale();
 
-	if ( version_compare( $wp_version , '4.6.1', '>') ) {
+	if ( function_exists( 'get_user_locale' ) ) {
 		$locale = get_user_locale();
 	}
 
