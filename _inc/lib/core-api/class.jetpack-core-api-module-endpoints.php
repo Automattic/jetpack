@@ -189,12 +189,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 * @return bool|WP_Error True if modules were activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function activate_modules( $data ) {
-		$body = $data->get_body();
-		$params = json_decode( $body, true );
-
-		if ( ! $params ) {
-			$params = $data->get_json_params();
-		}
+		$params = $data->get_json_params();
 
 		if (
 			! isset( $params['modules'] )

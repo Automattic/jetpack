@@ -129,7 +129,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 		self::route(
 			'/module/all/active',
 			'Jetpack_Core_API_Module_List_Endpoint',
-			WP_REST_Server::EDITABLE
+			WP_REST_Server::EDITABLE,
+			NULL,
+			array(
+				'modules' => array(
+					'default'           => '',
+					'type'              => 'array',
+					'required'          => true,
+					'validate_callback' => __CLASS__ . '::validate_module_list',
+				),
+				'active' => array(
+					'default'           => true,
+					'type'              => 'boolean',
+					'required'          => false,
+					'validate_callback' => __CLASS__ . '::validate_boolean',
+				),
+			)
 		);
 
 		Jetpack::load_xml_rpc_client();
