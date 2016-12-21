@@ -22,6 +22,8 @@ if ( ! class_exists( 'WP_Test_REST_Controller_Testcase' ) ) {
 			$wp_rest_server = null;
 		}
 
+		// Not used in Jetpack
+		/*
 		abstract public function test_register_routes();
 
 		abstract public function test_context_param();
@@ -39,6 +41,7 @@ if ( ! class_exists( 'WP_Test_REST_Controller_Testcase' ) ) {
 		abstract public function test_prepare_item();
 
 		abstract public function test_get_item_schema();
+		*/
 
 	}
 }
