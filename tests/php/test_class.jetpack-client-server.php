@@ -3,6 +3,7 @@
 class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	static public function setUpBeforeClass() {
+		parent::setUpBeforeClass();
 		self::$ignore_files = TRUE;
 	}
 
