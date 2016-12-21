@@ -6,7 +6,8 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server
 class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_REST_Controller_Testcase {
 	protected static $admin_id;
 
-	public function setUpBeforeClass() {
+	public static function setUpBeforeClass() {
+		parent::setUpBeforeClass();
 		self::$admin_id = $this->factory->user->create( array(
 			'role' => 'administrator',
 		) );
