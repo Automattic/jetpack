@@ -4620,6 +4620,13 @@ p {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-ixr-client.php';
 	}
 
+	/**
+	 * Resets the saved XMLRPC verification in between testing requests.
+	 */
+	public function reset_xmlrpc_verification() {
+		$this->xmlrpc_verification = null;
+	}
+
 	function verify_xml_rpc_signature() {
 		if ( $this->xmlrpc_verification ) {
 			return $this->xmlrpc_verification;

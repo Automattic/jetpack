@@ -133,6 +133,7 @@ class Jetpack_Signature {
 			}
 		}
 
+		error_log( json_encode( compact( 'body', 'body_hash', 'verify_body_hash' ) ) );
 		if ( empty( $body ) ) {
 			if ( $body_hash ) {
 				return new Jetpack_Error( 'invalid_body_hash', 'The body hash does not match.' );
@@ -144,6 +145,7 @@ class Jetpack_Signature {
 		}
 
 		$parsed = parse_url( $url );
+		error_log( json_encode( compact( 'url', 'parsed' ) ) );
 		if ( !isset( $parsed['host'] ) ) {
 			return new Jetpack_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ) );
 		}
@@ -192,6 +194,9 @@ class Jetpack_Signature {
 		$normalized_request_pieces = array_merge( $normalized_request_pieces, $this->normalized_query_parameters( isset( $parsed['query'] ) ? $parsed['query'] : '' ) );
 
 		$normalized_request_string = join( "\n", $normalized_request_pieces ) . "\n";
+
+		$secret = $this->secret;
+		error_log( json_encode( compact( 'normalized_request_string', 'secret' ) ) );
 
 		return base64_encode( hash_hmac( 'sha1', $normalized_request_string, $this->secret, true ) );
 	}
