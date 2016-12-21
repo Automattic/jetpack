@@ -4763,7 +4763,7 @@ p {
 		$verified = $this->verify_xml_rpc_signature();
 
 		if ( false === $verified ) {
-			return new WP_Error( 'token_malformed', 'Authorization token is malformed.', 403 );
+			return new WP_Error( 'token_malformed', 'Authorization token is malformed.', array( 'status' => 400 ) );
 		}
 
 		if ( is_wp_error( $verified ) ) {

@@ -19,6 +19,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	public function tearDown() {
 		parent::tearDown();
+		unset( $_GET['token'], $_GET['signature'] );
 		remove_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
 		wp_set_current_user( 0 );
 		remove_filter( 'rest_authentication_errors', array( $this, 'verify_signature_true' ), 1000 );
@@ -29,10 +30,35 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	 * @covers Jetpack->wp_rest_authenticate
 	 * @requires PHP 5.2
 	 */
-	public function test_jetpack_rest_api_authentication_fail_no_token() {
+	public function test_jetpack_rest_api_authentication_fail_no_token_or_signature() {
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response = $this->server->dispatch( $request );
-		$this->assertErrorResponse( 'rest_forbidden', $response );
+		// From https://github.com/WordPress/WordPress/blob/4.7/wp-includes/rest-api/class-wp-rest-server.php#L902
+		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
+	}
+
+	/**
+	 * @author jnylen0
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
+	 */
+	public function test_jetpack_rest_api_authentication_fail_no_token() {
+		$_GET['signature'] = 'invalid';
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
+		$response = $this->server->dispatch( $request );
+		$this->assertErrorResponse( 'token_malformed', $response, 400 );
+	}
+
+	/**
+	 * @author jnylen0
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
+	 */
+	public function test_jetpack_rest_api_authentication_fail_no_signature() {
+		$_GET['token'] = 'invalid';
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
+		$response = $this->server->dispatch( $request );
+		$this->assertErrorResponse( 'token_malformed', $response, 400 );
 	}
 
 	/**
@@ -43,13 +69,9 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	public function test_jetpack_rest_api_authentication_fail_invalid_token() {
 		$_GET['token'] = 'invalid';
 		$_GET['signature'] = 'invalid';
-
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response = $this->server->dispatch( $request );
-
-		unset( $_GET['token'], $_GET['signature'] );
-
-		$this->assertErrorResponse( 'token_malformed', $response );
+		$this->assertErrorResponse( 'token_malformed', $response, 400 );
 	}
 
 	/**
