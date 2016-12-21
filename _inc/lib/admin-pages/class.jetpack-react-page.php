@@ -149,7 +149,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function get_i18n_data() {
 
-		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . jetpack_get_locale() . '.json';
+		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . jetpack_get_user_locale() . '.json';
 
 		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
 			$locale_data = @file_get_contents( $i18n_json );
@@ -203,7 +203,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$localeSlug = explode( '_', jetpack_get_locale() );
+		$localeSlug = explode( '_', jetpack_get_user_locale() );
 		$localeSlug = $localeSlug[0];
 
 		// Collecting roles that can view site stats
@@ -429,9 +429,9 @@ function jetpack_current_user_data() {
  * @return string
  *
  * @todo Remove this function when WordPress 4.8 is released
- * and replace `jetpack_get_locale()` in this file with `get_user_locale()`.
+ * and replace `jetpack_get_user_locale()` in this file with `get_user_locale()`.
  */
-function jetpack_get_locale() {
+function jetpack_get_user_locale() {
 	$locale = get_locale();
 
 	if ( function_exists( 'get_user_locale' ) ) {
