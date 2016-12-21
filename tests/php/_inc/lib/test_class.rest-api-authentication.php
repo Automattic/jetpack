@@ -19,10 +19,16 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	public function tearDown() {
 		parent::tearDown();
-		unset( $_GET['token'], $_GET['signature'] );
+		unset(
+			$_GET['token'],
+			$_GET['timestamp'],
+			$_GET['nonce'],
+			$_GET['body-hash'],
+			$_GET['signature']
+		);
 		remove_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
+		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
 		wp_set_current_user( 0 );
-		remove_filter( 'rest_authentication_errors', array( $this, 'verify_signature_true' ), 1000 );
 	}
 
 	/**
@@ -80,24 +86,26 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_authentication_success() {
-		add_filter( 'rest_authentication_errors', array( $this, 'verify_signature_true' ), 1000 );
-
+		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
+		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce'] = 'testing_123';
+		$_GET['body-hash'] = '';
+		$_GET['signature'] = 'abc';
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response = $this->server->dispatch( $request );
+		error_log( $response->get_data() );
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertEquals( 'Protect', $data['name'] );
 	}
 
-	/**
-	 * Emulates a successful run through Jetpack::wp_rest_authenticate and Jetpack::verify_xml_rpc_signature
-	 * without having to actually call Jetpack Server to verify signature.
-	 *
-	 * @return null
-	 */
-	public function verify_signature_true() {
-		wp_set_current_user( self::$admin_id );
-		return null;
+	public function mock_jetpack_private_options( $value, $option_name ) {
+		$user_tokens = array();
+		$user_tokens[ self::$admin_id ] = 'pretend_this_is_valid.secret.' . self::$admin_id;
+		return array(
+			'user_tokens' => $user_tokens,
+		);
 	}
 
 	/**
