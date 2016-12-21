@@ -32,7 +32,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		self::$factory = new JetpackSyncTestObjectFactory();
 	}
 
-	function setUp() {
+	public function setUp() {
 		parent::setUp();
 
 		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
@@ -57,7 +57,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		}
 	}
 
-	function tearDown() {
+	public function tearDown() {
 		parent::tearDown();
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
