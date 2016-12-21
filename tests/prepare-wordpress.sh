@@ -32,6 +32,12 @@ for WP_SLUG in 'latest' 'previous'; do
 	cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_SLUG/src/wp-content/plugins/$PLUGIN_SLUG"
 	cd /tmp/wordpress-$WP_SLUG
 
+	if [ $WP_SLUG != previous ]; then
+		echo 'Unprops @pento ...'
+		curl 'https://core.trac.wordpress.org/changeset/39626?format=diff&new=39626' | patch -R -p2
+		echo 'Unprops complete'
+	fi
+
 	cp wp-tests-config-sample.php wp-tests-config.php
 	sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
 	sed -i "s/yourusernamehere/root/" wp-tests-config.php
