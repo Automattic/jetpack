@@ -4751,11 +4751,13 @@ p {
 	// Uses the existing XMLRPC oAuth implementation.
 	function wp_rest_authenticate( $error ) {
 		if ( is_wp_error( $error ) ) {
+			// A previous authentication method failed.
 			return $error;
 		}
 
-		if ( ! $error && ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
-			return null;
+		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
+			// Nothing to do for this authentication method.
+			return $error;
 		}
 
 		$verified = $this->verify_xml_rpc_signature();
@@ -4770,10 +4772,10 @@ p {
 
 		if ( isset( $verified['type'] ) && isset( $verified['user_id'] ) && 'user' === $verified['type']  ) {
 			wp_set_current_user( $verified['user_id'] );
-			return null;
+			return true; // Authentication successful.
 		}
 
-		return true;
+		return null; // Nothing to do for this authentication method.
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
