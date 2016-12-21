@@ -1,9 +1,9 @@
 <?php
 
-require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-rest-controller-testcase.php';
+require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-jetpack-rest-testcase.php';
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server.php';
 
-class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_REST_Controller_Testcase {
+class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testcase {
 	protected static $admin_id;
 
 	public static function setUpBeforeClass() {
