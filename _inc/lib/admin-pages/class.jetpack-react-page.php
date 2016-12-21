@@ -436,8 +436,8 @@ function jetpack_get_locale() {
 	$locale = get_locale();
 
 	if ( version_compare( $wp_version , '4.6.1', '>') ) {
-
 		$locale = get_user_locale();
 	}
+
 	return $locale;
 }
