@@ -82,22 +82,29 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Carousel: fix infinite loop on posts that have attachments that were returning null. #5867
+* Cli: avoid PHP Notice when running `wp jetpack` from the command line. #5874
 * Custom Content Types: avoid PHP warnings in the Restaurant Menu Post type. #5777
 * General: fix a bug that would display the wrong connected user for up to 24 hours after they disconnect. #5835
+* Infinite Scroll: remove deprecated function call to prevent notices when using Infinite Scroll in Customizer. #5934
 * JSON API: allow creating a child category from WordPress.com. #5856
 * Sharing: ReCaptcha error fix for the Email sharing button. #5548
 * Shortcodes: add several new shortcodes. #5838
 * Shorcodes: remove the blip.tv shortcode, as the service is now extinct. #5853
 * Widget Visibility: allow display of empty categories in the dropdowns. #5770
+* Widgets: various layout fixes for multiple widgets in the customizer and in the Widgets admin screen. #5905
+* Widgets: Translate: display default title if no custom title was set. #5906
 
 **Improved Compatibility:**
 
+* Protect: deactivate Protect and show an admin notice if a server is misconfigured and we can't get an IP address. #5866
 * WPML: fixed the loading of the compatibility file for WPML so it loads at the right time. #5588
 * Sync: further improve Jetpack's synchronization process to support more plugins. #5671
 
 **Enhancements**
 
 * Carousel: add Carousel view for single images. #5469
+* Cli: add `sync` commands to Jetpack's WP Cli commands. #5933
 * Contact Form: allow site owners to set value for each option field via the shortcode. #5351
 * JSON API: allow updating translations from the API. #5552, #5594
 * JSON API: allow alternative theme installation methods via the API. #5704
@@ -105,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Related Posts: allow updating Related Posts options from the customizer. #4293
 * Related Posts: add a filter allowing site owners to customize the output of the Related Posts headline. #5740
 * Theme Tools: add new Content Options to the customizer for supported themes. #5825
+* Theme Tools: load Holiday Snow in Footer Instead of Head. #5931
 * Widgets: add Blog Stats, Authors, Follow, Milestone. #5497, #5511, #5615
 * Widgets: add Tumblr and Twitch to Social Media Icons Widget. #5777, #5799
 
