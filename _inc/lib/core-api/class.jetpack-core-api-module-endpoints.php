@@ -191,11 +191,11 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	public static function activate_modules( $data ) {
 		$body = $data->get_body();
 		$params = json_decode( $body, true );
-		
-		if( ! $params ) {
+
+		if ( ! $params ) {
 			$params = $data->get_json_params();
 		}
-		
+
 		if (
 			! isset( $params['modules'] )
 			|| ! is_array( $params['modules'] )
