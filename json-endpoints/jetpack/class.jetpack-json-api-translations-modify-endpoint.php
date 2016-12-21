@@ -18,15 +18,12 @@ class Jetpack_JSON_API_Translations_Modify_Endpoint extends Jetpack_JSON_API_Tra
 	}
 
 	protected function update() {
-		$args = $this->input();
-
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 		$upgrader = new Language_Pack_Upgrader( new Automatic_Upgrader_Skin() );
 		$result = $upgrader->bulk_upgrade();
 
 		$this->log = $upgrader->skin->get_upgrade_messages();
-		
-		return $result;
+		$this->success = ( ! is_wp_error( $result ) ) ? (bool) $result : false;
 	}
 }

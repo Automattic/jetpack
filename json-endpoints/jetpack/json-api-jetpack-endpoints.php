@@ -909,7 +909,8 @@ new Jetpack_JSON_API_Translations_Endpoint( array(
 	),
 	'response_format' => array(
 		'translations' => '(array) A list of translations that are available',
-		'autoupdate' => '(bool) Whether or not we automatically update translations'
+		'autoupdate' => '(bool) Whether or not we automatically update translations',
+		'log'     => '(array:safehtml) An array of log strings.',
 	),
 	'example_request_data' => array(
 		'headers' => array(
@@ -932,7 +933,7 @@ new Jetpack_JSON_API_Translations_Modify_Endpoint( array(
 	),
 	'response_format' => array(
 		'translations' => '(array) A list of translations that are available',
-		'autoupdate' => '(bool) Whether or not we automatically update translations'
+		'autoupdate' => '(bool) Whether or not we automatically update translations',
 	),
 	'example_request_data' => array(
 		'headers' => array(
@@ -953,11 +954,9 @@ new Jetpack_JSON_API_Translations_Modify_Endpoint( array(
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
-	'request_format' => array(
-		'version'   => '(string) The core version to update',
-	),
 	'response_format' => array(
 		'log'     => '(array:safehtml) An array of log strings.',
+		'success' => '(bool) Was the operation successful'
 	),
 	'example_request_data' => array(
 		'headers' => array(
