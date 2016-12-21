@@ -168,7 +168,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		) ) . "\n", 'secret', true ) );
 		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response = $this->server->dispatch( $this->request );
-		error_log( json_encode( $response->get_data() ) );
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertEquals( 'Protect', $data['name'] );
@@ -252,7 +251,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->request->set_header( 'Content-Type', 'application/json' );
 		$this->request->set_body( '{"modules":[]}' );
 		$response = $this->server->dispatch( $this->request );
-		error_log( json_encode( $response->get_data() ) );
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertEquals( 'success', $data['code'] );

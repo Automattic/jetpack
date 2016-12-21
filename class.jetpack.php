@@ -4703,8 +4703,6 @@ p {
 		$signature = $jetpack_signature->sign_current_request(
 			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body, )
 		);
-		$get = $_GET;
-		error_log( json_encode( compact( 'get', 'signature' ) ) );
 
 		if ( ! $signature ) {
 			return false;
