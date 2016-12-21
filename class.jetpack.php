@@ -492,6 +492,11 @@ class Jetpack {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
 
+		add_action( 'jetpack_clean_exports', array( 'Jetpack', 'clean_exports' ) );
+		if ( ! wp_next_scheduled( 'jetpack_clean_exports' ) ) {
+			wp_schedule_single_event( time() + 600, 'jetpack_clean_exports' );
+		}
+
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
@@ -2741,6 +2746,7 @@ p {
 	 */
 	public static function disconnect( $update_activated_state = true ) {
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
+		wp_clear_scheduled_hook( 'jetpack_clean_exports' );
 		Jetpack::clean_nonces( true );
 
 		// If the site is in an IDC because sync is not allowed,
@@ -4882,6 +4888,18 @@ p {
 		for ( $i = 0; $i < 1000; $i++ ) {
 			if ( ! $wpdb->query( $sql ) ) {
 				break;
+			}
+		}
+	}
+
+	public static function clean_exports() {
+		$upload_dir = wp_upload_dir();
+		$export_glob = $upload_dir['path'] . '/export_*xml';
+		$ten_minutes_ago = time() - 600;
+		foreach ( glob( $export_glob ) as $export_filename ) {
+			// delete files more than 10 minutes old
+			if ( filemtime( $export_filename ) < $ten_minutes_ago ) {
+				unlink( $export_filename );
 			}
 		}
 	}
