@@ -16,7 +16,7 @@ class WPCOM_JSON_API_Export_Start_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$args = $this->input();
 
 		// Set up args array
-		$args = $this->setup_args($args);
+		$args = $this->setup_args( $args );
 
 		/**
 		 * Filters the export args.
@@ -45,54 +45,61 @@ class WPCOM_JSON_API_Export_Start_Endpoint extends WPCOM_JSON_API_Endpoint {
 		);
 	}
 
+	/**
+	 * setup_args is the glue between the wpcom API request and the .org exporter.
+	 * It translates the parameters for partial exports from one format to the other.
+	 *
+	 * @param $args - Parameters received from the API request
+	 *
+	 * @return array - Parameters for the .org exporter
+	 */
 	private function setup_args( $args ) {
 		$prepared_args = array();
 
-		if ( ! isset( $args['content'] ) || 'all' == $args['content'] ) {
+		/**
+		 * Export options.
+		 *
+		 */
+
+		// Export everything
+		if ( empty( $args['post_type'] ) || 'all' === $args['post_type'] ) {
 			$prepared_args['content'] = 'all';
-		} elseif ( 'posts' == $args['content'] ) {
-			$prepared_args['content'] = 'post';
 
-			if ( $args['cat'] ) {
-				$prepared_args['category'] = (int) $args['cat'];
+			// Export posts or pages
+		} elseif ( 'post' === $args['post_type'] || 'page' === $args['post_type'] ) {
+			$prepared_args['content'] = $args['post_type'];
+
+			if ( ! empty( $args['category'] ) ) {
+				$prepared_args['category'] = absint( $args['category'] );
 			}
 
-			if ( $args['post_author'] ) {
-				$prepared_args['author'] = (int) $args['post_author'];
+			if ( ! empty( $args['author'] ) ) {
+				$prepared_args['author'] = absint( $args['author'] );
 			}
 
-			if ( $args['post_start_date'] || $args['post_end_date'] ) {
-				$prepared_args['start_date'] = $args['post_start_date'];
-				$prepared_args['end_date']   = $args['post_end_date'];
+			if ( ! empty( $args['start_date'] ) ) {
+				$prepared_args['start_date'] = $args['start_date'];
 			}
 
-			if ( $args['post_status'] ) {
-				$prepared_args['status'] = $args['post_status'];
-			}
-		} elseif ( 'pages' == $args['content'] ) {
-			$prepared_args['content'] = 'page';
-
-			if ( $args['page_author'] ) {
-				$prepared_args['author'] = (int) $args['page_author'];
+			if ( ! empty( $args['end_date'] ) ) {
+				// WPCOM_Async_Exporter->sanitize_args() will set this to the last day of the provided month
+				$prepared_args['end_date'] = $args['end_date'];
 			}
 
-			if ( $args['page_start_date'] || $args['page_end_date'] ) {
-				$prepared_args['start_date'] = $args['page_start_date'];
-				$prepared_args['end_date']   = $args['page_end_date'];
-			}
+			if ( ! empty( $args['status'] ) ) {
+				$exportable_post_statuses = get_post_stati( array( 'internal' => false ) );
 
-			if ( $args['page_status'] ) {
-				$prepared_args['status'] = $args['page_status'];
+				if ( in_array( $args['status'], $exportable_post_statuses, true ) ) {
+					$prepared_args['status'] = $args['status'];
+				}
 			}
-		} elseif ( 'attachment' == $args['content'] ) {
-			$prepared_args['content'] = 'attachment';
-
-			if ( $args['attachment_start_date'] || $args['attachment_end_date'] ) {
-				$prepared_args['start_date'] = $args['attachment_start_date'];
-				$prepared_args['end_date']   = $args['attachment_end_date'];
-			}
+			// Export a custom post type.
 		} else {
-			$prepared_args['content'] = $args['content'];
+			$exportable_post_types = get_post_types( array( 'can_export' => true ), 'names' );
+
+			if ( in_array( $args['post_type'], $exportable_post_types, true ) ) {
+				$prepared_args['content'] = $args['post_type'];
+			}
 		}
 
 		return $prepared_args;

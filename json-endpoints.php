@@ -3033,41 +3033,22 @@ new WPCOM_JSON_API_Export_Start_Endpoint( array (
 	'path_labels' => array(
 		'$site' => '(int|string) Site ID or domain',
 	),
-	'request_format' => array(
-		'content'               => '(string=all) The content to export',
-		'cat'                   => '(string=0|slug) The slug of the category to export',
-		'post_author'           => '(integer=0) The Id of the author to export his posts',
-		'post_start_date'       => '(string=0) The start month of posts to export. Format: YYYY-MM',
-		'post_end_date'         => '(string=0) The end month of posts to export. Format: YYYY-MM',
-		'post_status'           => '(string=0) The status of the posts to export',
-		'page_author'           => '(integer=0) The Id of the author to export his pages',
-		'page_start_date'       => '(string=0) The start month of pages to export. Format: YYYY-MM',
-		'page_end_date'         => '(string=0) The end month of pages to export. Format: YYYY-MM',
-		'page_status'           => '(string=0) The status of the pages to export',
-		'attachment_start_date' => '(string=0) The start month of media to export. Format: YYYY-MM',
-		'attachment_end_date'   => '(string=0) The end month of media to export. Format: YYYY-MM',
+	'request_format'  => array(
+		'post_type'       => '(string) Post type. Optional (default is "all" post types).',
+		'category'        => '(int) Category ID. Optional (defaults to all categories).',
+		'author'          => '(int) Author user ID. Optional (defaults to all authors).',
+		'start_date'      => '(string) Export posts from this month onwards. Format is yyyy-mm. Optional.',
+		'end_date'        => '(string) Export posts up to the end of this month. Format is yyyy-mm. Optional.',
+		'status'          => '(string) The publishing status of the posts to export. Optional (defaults to "all" posts).',
 	),
 	'response_format' => array(
+		'ID'            => '(Integer) The ID of the export, if started successfully',
 		'status'        => '(string) The status of the export. Values are success|fail',
 		'download_url'  => '(string) The URL of the export file to download from the Jetpack site.'
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/export',
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/exports/start',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
-		'body' => array(
-			'content'               => 'all',
-			'cat'                   => '0',
-			'post_author'           => '0',
-			'post_start_date'       => '0',
-			'post_end_date'         => '0',
-			'post_status'           => '0',
-			'page_author'           => '0',
-			'page_start_date'       => '0',
-			'page_end_date'         => '0',
-			'page_status'           => '0',
-			'attachment_start_date' => '0',
-			'attachment_end_date'   => '0',
-		),
 	),
 ) );
 
