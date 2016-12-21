@@ -4,33 +4,24 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-rest-controller
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server.php';
 
 class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_REST_Controller_Testcase {
+	protected static $admin_id;
+
+	public function setUpBeforeClass() {
+		self::$admin_id = $this->factory->user->create( array(
+			'role' => 'administrator',
+		) );
+	}
 
 	public function setUp() {
 		parent::setUp();
 		add_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
-		switch ( $this->getName() ) {
-			case 'test_jetpack_rest_api_authentication_fail_invalid_token':
-				$_GET['token'] = 'invalid';
-				$_GET['signature'] = 'invalid';
-				break;
-			case 'test_jetpack_rest_api_authentication_success':
-				add_filter( 'rest_authentication_errors', array( $this, 'verify_signature_true' ), 1000 );
-				break;
-		}
 	}
 
 	public function tearDown() {
 		parent::tearDown();
-		remove_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ) );
-		switch ( $this->getName() ) {
-			case 'test_jetpack_rest_api_authentication_fail_invalid_token':
-				unset( $_GET['token'], $_GET['signature'] );
-				break;
-			case 'test_jetpack_rest_api_authentication_success':
-				wp_set_current_user( 0 );
-				remove_filter( 'rest_authentication_errors', array( $this, 'verify_signature_true' ), 1000 );
-				break;
-		}
+		remove_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
+		wp_set_current_user( 0 );
+		remove_filter( 'rest_authentication_errors', array( $this, 'verify_signature_true' ), 1000 );
 	}
 
 	/**
@@ -50,8 +41,14 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_REST_Controller_Te
 	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_authentication_fail_invalid_token() {
+		$_GET['token'] = 'invalid';
+		$_GET['signature'] = 'invalid';
+
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response = $this->server->dispatch( $request );
+
+		unset( $_GET['token'], $_GET['signature'] );
+
 		$this->assertErrorResponse( 'token_malformed', $response );
 	}
 
@@ -61,6 +58,8 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_REST_Controller_Te
 	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_authentication_success() {
+		add_filter( 'rest_authentication_errors', array( $this, 'verify_signature_true' ), 1000 );
+
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
@@ -75,10 +74,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_REST_Controller_Te
 	 * @return null
 	 */
 	public function verify_signature_true() {
-		$user = $this->factory->user->create_and_get( array(
-			'role' => 'administrator'
-		) );
-		wp_set_current_user( $user->ID );
+		wp_set_current_user( self::$admin_id );
 		return null;
 	}
 
