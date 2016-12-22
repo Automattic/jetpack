@@ -38,7 +38,12 @@ export function connectModuleOptions( Component ) {
 	return connect(
 		( state, ownProps ) => {
 			return {
-				validValues: ( option_name ) => getModuleOptionValidValues( state, ownProps.module.module, option_name ),
+				validValues: ( option_name, module_slug = '' ) => {
+					if ( 'object' === typeof ownProps.module && 'undefined' !== typeof ownProps.module.module ) {
+						module_slug = ownProps.module.module;
+					}
+					return getModuleOptionValidValues( state, module_slug, option_name );
+				},
 				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
 				getSettingCurrentValue: ( setting_name ) => getSetting( state, setting_name ),
 				getSiteRoles: () => getSiteRoles( state ),
