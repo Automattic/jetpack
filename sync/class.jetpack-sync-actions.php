@@ -185,7 +185,7 @@ class Jetpack_Sync_Actions {
 			'constants' => true,
 		);
 
-		if ( $old_version && ( version_compare( $old_version, '4.2', '<' ) ) ) {
+		if ( ! $old_version || ( version_compare( $old_version, '4.2', '<' ) ) ) {
 			$initial_sync_config['users'] = 'initial';
 		}
 
