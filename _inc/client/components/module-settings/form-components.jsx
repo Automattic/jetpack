@@ -55,6 +55,21 @@ export const ModuleSettingRadios = React.createClass( {
 	}
 } );
 
+export const ModuleSettingSelect = React.createClass( {
+	render() {
+		let validValues = this.props.validValues;
+		return (
+			<select name={ this.props.name } value={ this.props.value } onChange={ this.props.onOptionChange }>
+				{
+					Object.keys( validValues ).map( key => {
+						return <option value={ key } key={ `option-${ this.props.option_name }-${key}` } >{ validValues[ key ] }</option>;
+					} )
+				}
+			</select>
+		);
+	}
+} );
+
 export const ModuleSettingMultipleSelectCheckboxes = React.createClass( {
 	getDefaultProps() {
 		return {

@@ -16,7 +16,7 @@ import {
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { ModuleSettingCheckbox, ModuleSettingRadios } from 'components/module-settings/form-components';
+import { ModuleSettingCheckbox, ModuleSettingRadios, ModuleSettingSelect } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 
 export const Comments = moduleSettingsForm(
@@ -55,10 +55,12 @@ export const Comments = moduleSettingsForm(
 					</FormFieldset>
 					<FormFieldset>
 						<FormLegend>{ __( 'Color Scheme' ) }</FormLegend>
-						<ModuleSettingRadios
+						<ModuleSettingSelect
 							name={ 'jetpack_comment_form_color_scheme' }
+							value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
+							onChange={ this.props.onOptionChange }
 							{ ...this.props }
-							validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme', 'comments' ) } />
+							validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme', 'comments' ) }/>
 					</FormFieldset>
 				</SettingsCard>
 			);
