@@ -13,7 +13,7 @@ import { connectModuleOptions } from 'components/module-settings/connect-module-
  * High order component that provides a <form> with functionality
  * to handle input values on the forms' own React component state.
  *
- * @param  {React.Component} Component The component with a top level form element
+ * @param  {React.Component} InnerComponent The component with a top level form element
  * @return {[React.Component]}	The component with new functionality
  */
 export function ModuleSettingsForm( InnerComponent ) {
@@ -69,10 +69,8 @@ export function ModuleSettingsForm( InnerComponent ) {
 		},
 
 		shouldSaveButtonBeDisabled() {
-			let shouldItBeEnabled = false;
 			// Check if the form is not currently dirty
-			shouldItBeEnabled = ! this.isSavingAnyOption() && this.isDirty();
-			return ! shouldItBeEnabled;
+			return this.isSavingAnyOption() || ! this.isDirty();
 		},
 		isDirty() {
 			return !! Object.keys( this.state.options ).length;
