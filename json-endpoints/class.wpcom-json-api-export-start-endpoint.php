@@ -2,7 +2,6 @@
 
 // POST /sites/%s/exports/start
 class WPCOM_JSON_API_Export_Start_Endpoint extends WPCOM_JSON_API_Endpoint {
-	protected $needed_capabilities = 'export';
 
 	function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
@@ -10,7 +9,7 @@ class WPCOM_JSON_API_Export_Start_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
-		if ( !current_user_can( $this->needed_capabilities ) ) {
+		if ( !current_user_can( 'export' ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot export', 403 );
 		}
 		$args = $this->input();
@@ -30,15 +29,18 @@ class WPCOM_JSON_API_Export_Start_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// Using output buffering to catch the exporter response and write it to a file.
 		include( ABSPATH . 'wp-admin/includes/export.php' );
 		ob_start();
-		export_wp( $args);
+		export_wp( $args );
 		$string_data = ob_get_clean();
 
-		// Export file is saved to the uploads folder.
+		// Export file is saved to the uploads folder. File is later removed via cron.
+		// File name includes a nonce to make file name harder to guess.
 		$file_name = '/export_' . wp_create_nonce() . '.xml';
-		$file_path = wp_upload_dir()['path'] . $file_name;
+		// Get WordPress upload dir. Avoid dereferencing to support older PHP versions.
+		$upload_dir = wp_upload_dir();
+		$file_path = $upload_dir['path'] . $file_name;
 		file_put_contents( $file_path, $string_data );
 
-		$file_url = wp_upload_dir()['url'] . $file_name;
+		$file_url = $upload_dir['url'] . $file_name;
 		return array(
 			'status'        => 'success',
 			'download_url'  => $file_url
