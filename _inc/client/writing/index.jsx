@@ -7,15 +7,9 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import {
-	isActivatingModule,
-	isDeactivatingModule,
-	getModule as _getModule,
-	getModules
-} from 'state/modules';
+import { getModule as _getModule } from 'state/modules';
 import { getSettings as _getSettings } from 'state/settings';
-import { isUnavailableInDevMode } from 'state/connection';
-import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
+import QuerySite from 'components/data/query-site';
 import { Composing } from './composing';
 
 export const Writing = React.createClass( {
@@ -38,14 +32,8 @@ export default connect(
 	( state ) => {
 		return {
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			getSettings: () => _getSettings( state ),
-			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			userCanManageModules: _userCanManageModules( state ),
-			moduleList: getModules( state ),
-			sitePlan: getSitePlan( state ),
-			fetchingSiteData: isFetchingSiteData( state ),
-			siteRawUrl: getSiteRawUrl( state )
-		};
+			getSettings: () => _getSettings( state )
+		}
 	},
 	( dispatch ) => {
 		return {};
