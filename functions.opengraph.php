@@ -290,7 +290,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		$author = get_queried_object();
 		if ( function_exists( 'get_avatar_url' ) ) {
 			// Prefer the core function get_avatar_url() if available, WP 4.2+
-			$image['src'] = get_avatar_url( $author->user_email, array( 'size' => $width ) );
+			$image = get_avatar_url( $author->user_email, array( 'size' => $width ) );
 		}
 		else {
 			$has_filter = has_filter( 'pre_option_show_avatars', '__return_true' );
@@ -304,7 +304,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 			if ( ! empty( $avatar ) && ! is_wp_error( $avatar ) ) {
 				if ( preg_match( '/src=["\']([^"\']+)["\']/', $avatar, $matches ) );
-					$image['src'] = wp_specialchars_decode( $matches[1], ENT_QUOTES );
+					$image = wp_specialchars_decode( $matches[1], ENT_QUOTES );
 			}
 		}
 	}
