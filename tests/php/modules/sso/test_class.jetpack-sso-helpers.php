@@ -9,7 +9,8 @@ require_once( dirname( __FILE__ ) . '/../../../../modules/sso/class.jetpack-sso-
 class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	protected $user_data;
 
-	function setUp() {
+	public function setUp() {
+		parent::setUp();
 		$this->user_data = (object) array(
 			'ID'           => 123456789,
 			'email'        => 'ssouser@testautomattic.com',
