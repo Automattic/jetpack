@@ -48,7 +48,7 @@ class Jetpack_Related_Posts_Customize {
 				'title' 	  => esc_html__( 'Related Posts', 'jetpack' ),
 				'description' => '',
 				'capability'  => 'edit_theme_options',
-				'priority' 	  => 89,
+				'priority' 	  => 200,
 			)
 		);
 
@@ -148,6 +148,12 @@ class Jetpack_Related_Posts_Customize {
 		$transport = isset( $wp_customize->selective_refresh ) ? 'postMessage' : 'refresh';
 		return apply_filters(
 			'jetpack_related_posts_customize_options', array(
+				'enabled'       => array(
+					'control_type' => 'hidden',
+					'default'      => 1,
+					'setting_type' => 'option',
+					'transport'    => $transport,
+				),
 				'show_headline'       => array(
 					'label'        => esc_html__( 'Show a headline', 'jetpack' ),
 					'description'  => esc_html__( 'This helps to clearly separate the related posts from post content.', 'jetpack' ),

@@ -476,10 +476,108 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertContains( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
 	}
+
+	function test_calling_taxonomies_do_not_modify_global() {
+		global $wp_taxonomies;
+		// adds taxonomies.
+		$test = new ABC_FOO_TEST_Taxonomy_Example();
+		$this->setSyncClientDefaults();
+		$sync_callable_taxonomies = Jetpack_Sync_Functions::get_taxonomies();
+
+		$this->assertNull( $sync_callable_taxonomies['example']->update_count_callback );
+		$this->assertNull( $sync_callable_taxonomies['example']->meta_box_cb );
+
+		$this->assertNotNull( $wp_taxonomies['example']->update_count_callback );
+		$this->assertNotNull( $wp_taxonomies['example']->meta_box_cb );
+
+	}
+
+	function test_sanitize_sync_taxonomies_method() {
+		
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_tags_meta_box' ) );
+		$this->assertEquals( $sanitized->meta_box_cb, 'post_tags_meta_box' );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_categories_meta_box' ) );
+		$this->assertEquals( $sanitized->meta_box_cb, 'post_categories_meta_box' );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'banana' ) );
+		$this->assertEquals( $sanitized->meta_box_cb, null );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'update_count_callback' => 'banana' ) );
+		$this->assertFalse( isset( $sanitized->update_count_callback ) );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'banana' ) );
+		$this->assertEquals( $sanitized->rest_controller_class, null );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'WP_REST_Terms_Controller' ) );
+
+		$this->assertEquals( $sanitized->rest_controller_class, 'WP_REST_Terms_Controller' );
+
+	}
 	
 	function add_www_subdomain_to_siteurl( $url ) {
 		$parsed_url = parse_url( $url );
 
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
+	}
+
+	function test_taxonomies_objects_do_not_have_meta_box_callback() {
+
+		new ABC_FOO_TEST_Taxonomy_Example();
+		$taxonomies = Jetpack_Sync_Functions::get_taxonomies();
+		$taxonomy = $taxonomies['example'];
+
+		$this->assertInternalType( 'object', $taxonomy );
+		// Did we get rid of the expected attributes?
+		$this->assertNull( $taxonomy->update_count_callback, "example has the update_count_callback attribute, which should be removed since it is a callback" );
+		$this->assertNull( $taxonomy->meta_box_cb, "example has the meta_box_cb attribute, which should be removed since it is a callback" );
+		$this->assertNull( $taxonomy->rest_controller_class );
+		// Did we preserve the expected attributes?
+		$check_object_vars = array(
+			'labels',
+			'description',
+			'public',
+			'publicly_queryable',
+			'hierarchical',
+			'show_ui',
+			'show_in_menu',
+			'show_in_nav_menus',
+			'show_tagcloud',
+			'show_in_quick_edit',
+			'show_admin_column',
+			'rewrite',
+		);
+		foreach ( $check_object_vars as $test ) {
+			$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
+		}
+
+	}
+
+}
+
+/* Example Test Taxonomy */
+class ABC_FOO_TEST_Taxonomy_Example {
+	function __construct() {
+
+		register_taxonomy(
+			'example',
+			'posts',
+			array(
+				'meta_box_cb' => 'bob',
+				'update_count_callback' => array( $this, 'callback_update_count_callback_tags' ),
+				'rest_controller_class' => 'tom'
+			)
+		);
+	}
+	function callback_update_count_callback_tags() {
+		return 123;
+	}
+
+	// Prevent this class being used as part of a Serialization injection attack
+	public function __clone() {
+		wp_die( __( 'Cheatin’ uh?' ) );
+	}
+	public function __wakeup() {
+		wp_die( __( 'Cheatin’ uh?' ) );
 	}
 }

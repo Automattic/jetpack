@@ -342,6 +342,30 @@ class Jetpack_Sync_Actions {
 			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
 		}
 	}
+
+	static function get_sync_status() {
+		self::initialize_sender();
+
+		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$queue       = self::$sender->get_sync_queue();
+		$full_queue  = self::$sender->get_full_sync_queue();
+		$cron_timestamps = array_keys( _get_cron_array() );
+		$next_cron = $cron_timestamps[0] - time();
+
+		return array_merge(
+			$sync_module->get_status(),
+			array(
+				'cron_size'             => count( $cron_timestamps ),
+				'next_cron'             => $next_cron,
+				'queue_size'            => $queue->size(),
+				'queue_lag'             => $queue->lag(),
+				'queue_next_sync'       => ( self::$sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
+				'full_queue_size'       => $full_queue->size(),
+				'full_queue_lag'        => $full_queue->lag(),
+				'full_queue_next_sync'  => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
+			)
+		);
+	}
 }
 
 /**

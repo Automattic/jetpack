@@ -1169,7 +1169,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$file = basename( wp_get_attachment_url( $media_item->ID ) );
 		$file_info = pathinfo( $file );
-		$ext  = $file_info['extension'];
+		$ext  = isset( $file_info['extension'] ) ? $file_info['extension'] : null;
 
 		$response = array(
 			'ID'           => $media_item->ID,
