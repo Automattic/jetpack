@@ -171,7 +171,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		$result_method->setAccessible( true );
 		$result = $result_method->invoke( $endpoint );
 
-		$this->assertEqualSets( 'success', $result['status'] );
+		$this->assertEqual( 'success', $result['status'] );
 	}
 
 
