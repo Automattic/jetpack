@@ -762,7 +762,7 @@ class Jetpack_Likes {
 	function post_likes( $content ) {
 		global $post;
 
-		if ( ! $this->is_likes_visible() )
+		if ( ! $post instanceof WP_Post || ! $this->is_likes_visible() )
 			return $content;
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
