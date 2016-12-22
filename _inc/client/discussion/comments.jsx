@@ -27,8 +27,6 @@ export const Comments = moduleSettingsForm(
 		},
 
 		render() {
-			let comments = this.props.getModule( 'comments' );
-
 			return (
 				<SettingsCard header={ __( 'Comments', { context: 'Settings header' } ) } { ...this.props } >
 					<ModuleToggle slug={ 'comments' }
@@ -61,6 +59,20 @@ export const Comments = moduleSettingsForm(
 							onChange={ this.props.onOptionChange }
 							{ ...this.props }
 							validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme', 'comments' ) }/>
+					</FormFieldset>
+					<hr />
+					<FormFieldset>
+						<ModuleToggle slug={ 'gravatar-hovercards' }
+									  compact
+									  activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
+									  toggling={ this.props.isSavingAnyOption() }
+									  toggleModule={ this.toggleModule }>
+							<span className="jp-form-toggle-explanation">
+								{
+									this.props.getModule( 'gravatar-hovercards' ).description
+								}
+							</span>
+						</ModuleToggle>
 					</FormFieldset>
 				</SettingsCard>
 			);
