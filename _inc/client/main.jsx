@@ -32,6 +32,7 @@ import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/setting
 
 import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
+import Discussion from 'discussion';
 import Security from 'security/index.jsx';
 import Appearance from 'appearance/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
@@ -186,6 +187,10 @@ const Main = React.createClass( {
 				navComponent = <NavigationSettings route={ this.props.route } />;
 				pageComponent = <Engagement route={ this.props.route } />;
 				break;
+			case '/discussion':
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Discussion route={ this.props.route } />;
+				break;
 			case '/security':
 				navComponent = <NavigationSettings route={ this.props.route } />;
 				pageComponent = <Security route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
@@ -266,6 +271,7 @@ window.wpNavMenuClassChange = function() {
 		'#/settings',
 		'#/general',
 		'#/engagement',
+		'#/discussion',
 		'#/security',
 		'#/appearance',
 		'#/writing',

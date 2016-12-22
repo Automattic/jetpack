@@ -100,39 +100,6 @@ export let LikesSettings = React.createClass( {
 
 LikesSettings = moduleSettingsForm( LikesSettings );
 
-export let CommentsSettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<FormLegend>{ __( 'Comments headline' ) }</FormLegend>
-					<FormLabel>
-						<TextInput
-							name={ 'highlander_comment_form_prompt' }
-							value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
-							disabled={ this.props.isUpdating( 'highlander_comment_form_prompt' ) }
-							onChange={ this.props.onOptionChange} />
-					</FormLabel>
-					<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend>{ __( 'Color Scheme' ) }</FormLegend>
-					<ModuleSettingRadios
-						name={ 'jetpack_comment_form_color_scheme' }
-						{ ...this.props }
-						validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme' ) } />
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-CommentsSettings = moduleSettingsForm( CommentsSettings );
-
 export let SubscriptionsSettings = React.createClass( {
 	render() {
 		return (

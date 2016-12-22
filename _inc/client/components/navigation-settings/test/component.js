@@ -91,7 +91,7 @@ describe( 'NavigationSettings', () => {
 		const wrapper = shallow( <NavigationSettings { ...testProps } /> );
 
 		it( 'renders tabs with General, Engagement, Security, Appearance, Writing', () => {
-			expect( wrapper.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'General,Engagement,Security,Appearance,Writing' );
+			expect( wrapper.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'General,Engagement,Discussion,Security,Appearance,Writing' );
 		} );
 
 		it( 'displays Search', () => {

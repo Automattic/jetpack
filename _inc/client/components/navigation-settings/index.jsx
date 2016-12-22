@@ -78,6 +78,11 @@ export const NavigationSettings = React.createClass( {
 						{ __( 'Engagement', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
+						path="#discussion"
+						selected={ this.props.route.path === '/discussion' }>
+						{ __( 'Discussion', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
 						path="#security"
 						selected={ this.props.route.path === '/security' }>
 						{ __( 'Security', { context: 'Navigation item.' } ) }
