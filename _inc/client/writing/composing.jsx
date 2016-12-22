@@ -1,12 +1,8 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
-import Button from 'components/button';
-import Card from 'components/card';
 import React from 'react';
-import SectionHeader from 'components/section-header';
-import TagsInput from 'components/tags-input';
+import analytics from 'lib/analytics';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -22,6 +18,8 @@ import { getModule as _getModule } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
+import TagsInput from 'components/tags-input';
+import SettingsCard from 'components/settings-card';
 
 export const Composing = moduleSettingsForm(
 	React.createClass( {
@@ -111,50 +109,34 @@ export const Composing = moduleSettingsForm(
 			let atd = this.props.getModule( 'after-the-deadline' );
 
 			return (
-				<form>
-					<SectionHeader label={ __( 'Composing', { context: 'Settings header' } ) }>
-						<Button
-							primary
-							compact
-							isSubmitting={ this.props.isSavingAnyOption() }
-							onClick={ this.props.onSubmit }
-						>
-							{
-								this.props.isSavingAnyOption() ?
-								__( 'Saving…', { context: 'Button caption' } ) :
-								__( 'Save settings', { context: 'Button caption' } )
-							}
-						</Button>
-					</SectionHeader>
-					<Card>
-						<FormFieldset>
-							<ModuleToggle slug={ 'markdown' }
-										  compact
-										  activated={ this.props.getOptionValue( 'markdown' ) }
-										  toggling={ this.props.isSavingAnyOption() }
-										  toggleModule={ this.toggleModule }>
-								<span className="jp-form-toggle-explanation">
-									{ markdown.description }
-								</span>
-							</ModuleToggle>
-						</FormFieldset>
-						<FormFieldset>
-							<ModuleToggle slug={ 'after-the-deadline' }
-										  compact
-										  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
-										  toggling={ this.props.isSavingAnyOption() }
-										  toggleModule={ this.toggleModule }>
-								<span className="jp-form-toggle-explanation">
-									{ atd.description }
-								</span>
-							</ModuleToggle>
-						</FormFieldset>
-						{ this.props.getOptionValue( 'after-the-deadline' )
-						  ? this.getAtdSettings()
-						  : ''
-						}
-					</Card>
-				</form>
+				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }>
+					<FormFieldset>
+						<ModuleToggle slug={ 'markdown' }
+									  compact
+									  activated={ this.props.getOptionValue( 'markdown' ) }
+									  toggling={ this.props.isSavingAnyOption() }
+									  toggleModule={ this.toggleModule }>
+							<span className="jp-form-toggle-explanation">
+								{ markdown.description }
+							</span>
+						</ModuleToggle>
+					</FormFieldset>
+					<FormFieldset>
+						<ModuleToggle slug={ 'after-the-deadline' }
+									  compact
+									  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
+									  toggling={ this.props.isSavingAnyOption() }
+									  toggleModule={ this.toggleModule }>
+							<span className="jp-form-toggle-explanation">
+								{ atd.description }
+							</span>
+						</ModuleToggle>
+					</FormFieldset>
+					{ this.props.getOptionValue( 'after-the-deadline' )
+					  ? this.getAtdSettings()
+					  : ''
+					}
+				</SettingsCard>
 			);
 		}
 	} )
