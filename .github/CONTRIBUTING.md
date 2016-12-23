@@ -34,7 +34,7 @@ If you'd like to contribute but don't know where to get started, you can take a 
 - All issues labeled with [the "Community" milestone](https://github.com/Automattic/jetpack/issues?q=is%3Aopen+is%3Aissue+milestone%3ACommunity) are fair game. That's a great way to contribute new features and fix small issues within Jetpack.
 - ["Whisky"](https://github.com/Automattic/jetpack/labels/Whisky%20Ticket) issues are important bugs or enhancements. Take a crack at it if you feel adventurous! :)
 
-Are you new to Git? You can [follow these detailed steps to find out how to submit your first patch.](guides/submit-patch.md)
+Are you new to Git? You can [follow these detailed steps to find out how to submit your first patch.](/docs/guides/submit-patch.md)
 
 #### We’re Here To Help
 

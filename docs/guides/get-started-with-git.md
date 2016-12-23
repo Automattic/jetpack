@@ -1,6 +1,6 @@
 # Check out Jetpack's Source Code
 
-Most software projects, including WordPress, use a version-control system to keep track of source code and revisions. Jetpack is available right here on[GitHub](https://github.com/). Here are the basics of downloading Jetpack using Git.
+Most software projects, including WordPress, use a version-control system to keep track of source code and revisions. Jetpack is available right here on [GitHub](https://github.com/). Here are the basics of downloading Jetpack using Git.
 
 (If you're not familiar with Git and GitHub, [the GitHub Guides videos](http://www.youtube.com/user/GitHubGuides) are a great place to start.)
 

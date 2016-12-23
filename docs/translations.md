@@ -2,7 +2,7 @@
 
 ## Who translates Jetpack? How can I get involved?
 
-Anyone can help by suggesting new translations [here](https://translate.wordpress.org/projects/wp-plugins/jetpack/).a
+Anyone can help by suggesting new translations [here](https://translate.wordpress.org/projects/wp-plugins/jetpack/).
 
 Once you've suggested a new translation, [a GlotPress validator](https://make.wordpress.org/polyglots/teams/) will review it. They will then approve, reject, or change your suggestions. Once your changes get approved, they are automatically shipped to all Jetpack users using WordPress in your language.
 

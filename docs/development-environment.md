@@ -1,5 +1,4 @@
-Development Workflow
-========================
+# Development Environment
 
 The javascript and CSS components of this plugin's admin interface need to be built in order to get the runtime bundle (`_inc/build/admin.js`)
 

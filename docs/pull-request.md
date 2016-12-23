@@ -7,7 +7,7 @@ When you’re first starting out, your natural instinct when creating a new feat
 Once you know what the first small piece of your feature will be, follow this general process while working:
 
 1. [Create a new branch, following our Git Workflow.](git-workflow.md)
-2. Make your first commit: any will do even if empty or trivial, but we need something in order to create the initial pull request. Create the pull request and prefix the name with the section of the product, _e.g._ _Sharing: add new Facebook button_. Don’t worry too much if there’s no obvious prefix.
+2. Make your first commit: we need something in order to create the initial pull request. Create the pull request and prefix the name with the section of the product, _e.g._ _Sharing: add new Facebook button_. Don’t worry too much if there’s no obvious prefix.
   - Write a detailed description of the problem you are solving, the part of Jetpack it affects, and how you plan on going about solving it.
   - If you have write access, add the **<span class="label status-in-progress">[Status] In Progress</span>** label or wait until somebody adds it. This indicates that the pull request isn’t ready for a review and may still be incomplete. On the other hand, it welcomes early feedback and encourages collaboration during the development process.
 3. Start developing and pushing out commits to your new branch.
