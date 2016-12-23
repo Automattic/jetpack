@@ -16,7 +16,7 @@ import {
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { ModuleSettingCheckbox, ModuleSettingRadios, ModuleSettingSelect } from 'components/module-settings/form-components';
+import { ModuleSettingSelect } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 
 export const Comments = moduleSettingsForm(
@@ -70,6 +70,18 @@ export const Comments = moduleSettingsForm(
 							<span className="jp-form-toggle-explanation">
 								{
 									this.props.getModule( 'gravatar-hovercards' ).description
+								}
+							</span>
+						</ModuleToggle>
+						<br />
+						<ModuleToggle slug={ 'markdown' }
+									  compact
+									  activated={ !!this.props.getOptionValue( 'wpcom_publish_comments_with_markdown' ) }
+									  toggling={ this.props.isSavingAnyOption() }
+									  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'wpcom_publish_comments_with_markdown' ) }>
+							<span className="jp-form-toggle-explanation">
+								{
+									__( 'Use Markdown for comments.' )
 								}
 							</span>
 						</ModuleToggle>
