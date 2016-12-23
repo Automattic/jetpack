@@ -218,9 +218,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		$post->permalink               = get_permalink( $post->ID );
 		$post->shortlink               = wp_get_shortlink( $post->ID );
-		$post->dont_email_post_to_subs = Jetpack::is_module_active( 'subscriptions' ) ?
-				get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) :
-				true; // Don't email subscription if the subscription module is not active.
 
 		return $post;
 	}
@@ -232,7 +229,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function send_published( $post_ID, $post, $update ) {
-		if ( ! empty( $this->just_published ) ) {
+		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
+		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
+			return;
+		}
+
+		if ( ! empty( $this->just_published ) && in_array( $post_ID, $this->just_published ) ) {
 			$published = array_reverse( array_unique( $this->just_published ) );
 			
 			// Pre 4.7 WP does not have run though send_published for every save_published call

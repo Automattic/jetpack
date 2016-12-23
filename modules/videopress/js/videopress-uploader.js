@@ -53,7 +53,7 @@ window.wp = window.wp || {};
 					name: '',
 					nonces: { update: '', 'delete': '', edit: '' },
 					orientation: '',
-					sizes: {},
+					sizes: undefined,
 					status: '',
 					subtype: mimeParts[1] || '',
 					title: media.title || '',
