@@ -56,6 +56,28 @@ export function ModuleSettingsForm( InnerComponent ) {
 			this.setState( { options: newOptions } );
 			return true;
 		},
+		/**
+		 * Receives an option and the module it depends on.
+		 * If the module is active, only the option is added to the list of form values to send.
+		 * If it's inactive, an additional option stating that the module must be activated is added to the list.
+		 *
+		 * @param {string} module
+		 * @param {string} moduleOption
+		 */
+		updateFormStateModuleOption( module, moduleOption ) {
+
+			// If the module is active, we pass the value to set.
+			if ( this.getOptionValue( module ) ) {
+				this.updateFormStateOptionValue( moduleOption, ! this.getOptionValue( moduleOption ) );
+			} else {
+
+				// If the module is inactive, we pass the module to activate and the value to set.
+				this.updateFormStateOptionValue( {
+					[ module ]: true,
+					[ moduleOption ]: true
+				} );
+			}
+		},
 		componentDidUpdate() {
 			if ( this.isDirty() ) {
 				this.props.setUnsavedSettingsFlag();
@@ -97,6 +119,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 					onSubmit={ this.onSubmit }
 					onOptionChange={ this.onOptionChange }
 					updateFormStateOptionValue={ this.updateFormStateOptionValue }
+					updateFormStateModuleOption={ this.updateFormStateModuleOption }
 					shouldSaveButtonBeDisabled={ this.shouldSaveButtonBeDisabled }
 					isSavingAnyOption={ this.isSavingAnyOption }
 					{ ...this.props } />
