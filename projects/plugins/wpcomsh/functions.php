@@ -44,20 +44,20 @@ function wpcomsh_is_wpcom_theme( $theme_slug ) {
  */
 function wpcomsh_is_wpcom_premium_theme( $theme_slug ) {
 	if (
-		! defined( 'WPCOMSH_WPCOM_PREMIUM_THEMES_PATH' ) ||
-		! file_exists( WPCOMSH_WPCOM_PREMIUM_THEMES_PATH ) ||
+		! defined( 'WPCOMSH_PREMIUM_THEMES_PATH' ) ||
+		! file_exists( WPCOMSH_PREMIUM_THEMES_PATH ) ||
 		! wpcomsh_remove_theme_wpcom_suffix( $theme_slug )
 	) {
 		error_log(
 			"WPComSH: WPCom premium themes folder couldn't be located. " .
-			"Check whether the " . WPCOMSH_WPCOM_PREMIUM_THEMES_PATH . " constant points to the correct directory."
+			"Check whether the " . WPCOMSH_PREMIUM_THEMES_PATH . " constant points to the correct directory."
 		);
 
 		return false;
 	}
 
 	return file_exists(
-		WPCOMSH_WPCOM_PREMIUM_THEMES_PATH .
+		WPCOMSH_PREMIUM_THEMES_PATH .
 		'/' .
 		wpcomsh_remove_theme_wpcom_suffix( $theme_slug )
 	);
@@ -71,20 +71,20 @@ function wpcomsh_is_wpcom_premium_theme( $theme_slug ) {
  */
 function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
 	if (
-		! defined( 'WPCOMSH_WPCOM_PUB_THEMES_PATH' ) ||
-		! file_exists( WPCOMSH_WPCOM_PUB_THEMES_PATH ) ||
+		! defined( 'WPCOMSH_PUB_THEMES_PATH' ) ||
+		! file_exists( WPCOMSH_PUB_THEMES_PATH ) ||
 		! wpcomsh_remove_theme_wpcom_suffix( $theme_slug )
 	) {
 		error_log(
 			"WPComSH: WPCom pub themes folder couldn't be located. " .
-			"Check whether the " . WPCOMSH_WPCOM_PUB_THEMES_PATH . " constant points to the correct directory."
+			"Check whether the " . WPCOMSH_PUB_THEMES_PATH . " constant points to the correct directory."
 		);
 
 		return false;
 	}
 
 	return file_exists(
-		WPCOMSH_WPCOM_PUB_THEMES_PATH .
+		WPCOMSH_PUB_THEMES_PATH .
 		'/' .
         wpcomsh_remove_theme_wpcom_suffix( $theme_slug )
 	);
@@ -100,10 +100,10 @@ function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
 function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	$themes_source_path = '';
 
-	if ( WPCOMSH_WPCOM_PUB_THEME_TYPE === $theme_type ) {
-		$themes_source_path = WPCOMSH_WPCOM_PUB_THEMES_PATH;
-	} elseif ( WPCOMSH_WPCOM_PREMIUM_THEME_TYPE === $theme_type ) {
-		$themes_source_path = WPCOMSH_WPCOM_PREMIUM_THEMES_PATH;
+	if ( WPCOMSH_PUB_THEME_TYPE === $theme_type ) {
+		$themes_source_path = WPCOMSH_PUB_THEMES_PATH;
+	} elseif ( WPCOMSH_PREMIUM_THEME_TYPE === $theme_type ) {
+		$themes_source_path = WPCOMSH_PREMIUM_THEMES_PATH;
 	}
 
 	$abs_theme_path = $themes_source_path . '/' . wpcomsh_remove_theme_wpcom_suffix( $theme_slug );
@@ -119,7 +119,7 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 
 	if ( ! symlink( $abs_theme_path, $abs_theme_symlink_path ) ) {
 		$error_message = "Can't symlink theme with slug: ${theme_slug}." .
-						 "Make sure it exists in the " . WPCOMSH_WPCOM_PREMIUM_THEMES_PATH . " directory.";
+						 "Make sure it exists in the " . WPCOMSH_PREMIUM_THEMES_PATH . " directory.";
 
 		error_log( 'WPComSH: ' . $error_message );
 
@@ -190,9 +190,9 @@ function wpcomsh_delete_symlinked_theme( $theme_slug ) {
  */
 function wpcomsh_get_wpcom_theme_type( $theme_slug ) {
 	if ( wpcomsh_is_wpcom_premium_theme( $theme_slug ) ) {
-		return WPCOMSH_WPCOM_PREMIUM_THEME_TYPE;
+		return WPCOMSH_PREMIUM_THEME_TYPE;
 	} elseif ( wpcomsh_is_wpcom_pub_theme( $theme_slug ) ) {
-		return WPCOMSH_WPCOM_PUB_THEME_TYPE;
+		return WPCOMSH_PUB_THEME_TYPE;
 	}
 
 	return false;
