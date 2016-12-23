@@ -77,50 +77,77 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.5 =
 
-* Release date:
-* Release post:
+* Release date: January 16, 2017
+* Release post: http://wp.me/p1moTy-3Kc
 
-**Bug Fixes**
+This release introduces a brand new module, Jetpack Ads, as well as a brand new VideoPress feature, and a lot of new shortcodes and widgets.
 
-* Admin Page: numerous design improvements. #5976, #5978, #5983
-* Carousel: fix infinite loop on posts that have attachments that were returning null. #5867
-* Cli: avoid PHP Notice when running `wp jetpack` from the command line. #5874
-* Custom Content Types: avoid PHP warnings in the Restaurant Menu Post type. #5777
-* General: fix a bug that would display the wrong connected user for up to 24 hours after they disconnect. #5835
-* Infinite Scroll: remove deprecated function call to prevent notices when using Infinite Scroll in Customizer. #5934
-* JSON API: allow creating a child category from WordPress.com. #5856
-* Sharing: ReCaptcha error fix for the Email sharing button. #5548
-* Shortcodes: add several new shortcodes. #5838, #5917
+**Enhancements**
+
+* Ads: a new module to allow you to display High Quality Ads on your site, and generate income from your site. #5465
+* Carousel: add Carousel view for single images. #5469
+* Cli: add `sync` commands to Jetpack's WP Cli commands. #5933
+* Contact Form: allow site owners to set value for each option field via the shortcode. #5351
+* Custom CSS: enqueue Custom CSS in a separate stylesheet when it includes more than 2,000 characters. #5974
+* General: display a new Jetpack connection banner to everyone. #6087
+* JSON API: allow updating translations from the API. #5552, #5594
+* JSON API: allow alternative theme installation methods via the API. #5704
+* JSON API: Public Custom Post Types are now automatically available via the WordPress.com REST API as well. #5487
+* JSON API: add a token based authentication mechanism to the REST API in order for the site to be able to receive authenticated requests from WordPress.com. #5418
+* Monitor: email checkbox with a link to manage settings on WordPress.com. #5751
+* Protect: clarify explanations on IP whitelisting settings screen. #6046
+* Related Posts: allow updating Related Posts options from the customizer. #4293
+* Related Posts: add a filter allowing site owners to customize the output of the Related Posts headline. #5740
+* Sharing: add new variables for the custom sharing buttons. #5832
+* Shortcodes: add several new shortcodes. #5838, #5917, #6059
 * Shorcodes: remove the blip.tv shortcode, as the service is now extinct. #5853
-* Widget Visibility: allow display of empty categories in the dropdowns. #5770
-* Widgets: various layout fixes for multiple widgets in the customizer and in the Widgets admin screen. #5905
-* Widgets: Translate: display default title if no custom title was set. #5906
+* Stats: always use HTTPS when making Stats queries. #5968
+* Theme Tools: add new Content Options to the customizer for supported themes. #5825
+* Theme Tools: load Holiday Snow in Footer Instead of Head. #5931
+* VideoPress: refreshed admin interface, seamless integration with the core Media manager, tied with Jetpack Plans. #5457
+* Widgets: add Blog Stats, Authors, Follow, Milestone. #5497, #5511, #5615
+* Widgets: add Tumblr and Twitch to Social Media Icons Widget. #5777, #5799
+* Widgets: improve Facebook widget settings to avoid confusion when editing width and height settings. #6012
+* Widgets: changes to Image Widget settings to provide more explanation and better error messages. #6013
+* Widgets: Display Posts: improve error messages displayed to site admins. #6015
+* Widgets: add new Upcoming Events widget. #6063
 
 **Improved Compatibility:**
 
 * Protect: deactivate Protect and show an admin notice if a server is misconfigured and we can't get an IP address. #5866
 * WPML: fixed the loading of the compatibility file for WPML so it loads at the right time. #5588
-* Sync: further improve Jetpack's synchronization process to support more plugins. #5671
+* Sync: further improve Jetpack's synchronization process to support more plugins and use less resources. #5671 #5999
+* Sync: improve compatibility and avoid stuck Cron jobs on sites using tools like Cavalcade. #5879
+* WooCommerce: sync selected WooCommerce data (order items and order item meta) to WordPress.com. #5708
 
-**Enhancements**
+**Bug Fixes**
 
-* Carousel: add Carousel view for single images. #5469
-* Cli: add `sync` commands to Jetpack's WP Cli commands. #5933
-* Contact Form: allow site owners to set value for each option field via the shortcode. #5351
-* JSON API: allow updating translations from the API. #5552, #5594
-* JSON API: allow alternative theme installation methods via the API. #5704
-* Monitor: email checkbox with a link to manage settings on WordPress.com. #5751
-* Related Posts: allow updating Related Posts options from the customizer. #4293
-* Related Posts: add a filter allowing site owners to customize the output of the Related Posts headline. #5740
-* Sharing: add new variables for the custom sharing buttons. #5832
-* Theme Tools: add new Content Options to the customizer for supported themes. #5825
-* Theme Tools: load Holiday Snow in Footer Instead of Head. #5931
-* Widgets: add Blog Stats, Authors, Follow, Milestone. #5497, #5511, #5615
-* Widgets: add Tumblr and Twitch to Social Media Icons Widget. #5777, #5799
+* Admin Page: numerous design improvements. #5976, #5978, #5983
+* Admin Page: accessibility improvements. #5998 #6023
+* Carousel: fix infinite loop on posts that have attachments that were returning null. #5867
+* Cli: avoid PHP Notice when running `wp jetpack` from the command line. #5874
+* Custom Content Types: avoid PHP warnings in the Restaurant Menu Post type. #5777
+* General: fix a bug that would display the wrong connected user for up to 24 hours after they disconnect. #5835
+* Infinite Scroll: remove deprecated function call to prevent notices when using Infinite Scroll in Customizer. #5934
+* Internationalization: make sure the Jetpack Dashboard widgets can support long titles. #5565
+* JSON API: allow creating a child category from WordPress.com. #5856
+* JSON API: fix detection of request content type, based on available headers passed down by the web server. #6095
+* Related Posts: a colon is no longer added using CSS after "Related" heading when using Twenty Fourteen or Twenty Sixteen themes. #5932
+* Sharing: ReCaptcha error fix for the Email sharing button. #5548
+* Shortcodes: make sure Instagram embeds load when using Infinite Scroll. #5963
+* Shortcodes: the jQuery Cycle script used by slideshow galleries is now minified resulting in faster loading times. #6024
+* Site Icon: make sure it can be displayed on WordPress.com site management interface. #6025
+* Sync: set a default time limit of 30 seconds when sending sync requests via Cron. #5996
+* Sync: synchronize supported shortcodes on a site. #6030
+* Widget Visibility: allow display of empty categories in the dropdowns. #5770
+* Widgets: various layout fixes for multiple widgets in the customizer and in the Widgets admin screen. #5905
+* Widgets: Translate: display default title if no custom title was set. #5906
+* Widgets: Top Posts: avoid layout issues when using Grid layout and when a post doesn't include an image. #6014
 
 = 4.4.2 =
 
 * Release date: December 6, 2016
+* Release post: http://wp.me/p1moTy-3JR
 
 This release improves Jetpack compatibility with WordPress 4.7.
 
