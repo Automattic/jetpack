@@ -11,6 +11,7 @@ import { getModule as _getModule } from 'state/modules';
 import { getSettings as _getSettings } from 'state/settings';
 import QuerySite from 'components/data/query-site';
 import { Comments } from './comments';
+import { Subscriptions } from './subscriptions';
 
 export const Discussion = React.createClass( {
 	displayName: 'DiscussionSettings',
@@ -22,6 +23,11 @@ export const Discussion = React.createClass( {
 				<Comments
 					settings={ this.props.getSettings() }
 					getModule={ this.props.getModule }
+				/>
+				<Subscriptions
+					settings={ this.props.getSettings() }
+					getModule={ this.props.getModule }
+					siteRawUrl={ this.props.siteRawUrl }
 				/>
 			</div>
 		);
