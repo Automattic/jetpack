@@ -37,10 +37,21 @@ export function ModuleSettingsForm( InnerComponent ) {
 
 			this.updateFormStateOptionValue( optionName, optionValue );
 		},
-		updateFormStateOptionValue( optionName, optionValue ) {
+		/**
+		 * Updates the list of form values to save, usually options to set or modules to activate.
+		 * Receives an object with key => value pairs to set multiple options or a string and a value to set a single option.
+		 *
+		 * @param   {string|object} optionMaybeOptions
+		 * @param   {*}             optionValue
+		 * @returns {boolean}
+		 */
+		updateFormStateOptionValue( optionMaybeOptions, optionValue = undefined ) {
+			if ( 'string' === typeof optionMaybeOptions ) {
+				optionMaybeOptions = { [ optionMaybeOptions ]: optionValue };
+			}
 			const newOptions = {
 				...this.state.options,
-				[ optionName ]: optionValue
+				...optionMaybeOptions
 			};
 			this.setState( { options: newOptions } );
 			return true;
