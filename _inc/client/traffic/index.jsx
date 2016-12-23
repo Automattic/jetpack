@@ -28,30 +28,78 @@ export const Traffic = React.createClass( {
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
+
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return <span />;
+		}
+
+		// Getting text data about modules and seeing if it's being searched for
+		let list = [
+			this.props.module( 'seo-tools' ),
+			this.props.module( 'wordads' ),
+			this.props.module( 'stats' ),
+			this.props.module( 'related-posts' ),
+			this.props.module( 'verification-tools' )
+		].map( function( m ) {
+			if ( ! this.props.searchTerm ) {
+				return true;
+			}
+
+			let text = [
+				m.module,
+				m.name,
+				m.description,
+				m.learn_more_button,
+				m.long_description,
+				m.search_terms,
+				m.additional_search_queries,
+				m.short_description,
+				m.feature ? m.feature.toString() : ''
+			].toString();
+
+			return text.toLowerCase().indexOf( this.props.searchTerm ) > -1;
+		}, this);
+
+		let seoSettings = (
+			<SEO
+				{ ...commonProps }
+				configureUrl={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl }
+			/>
+		);
+		let adSettings = (
+			<Ads
+				{ ...commonProps }
+				configureUrl={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
+			/>
+		);
+		let statsSettings = (
+			<SiteStats
+				{ ...commonProps }
+			/>
+		);
+		let relatedPostsSettings = (
+			<RelatedPosts
+				{ ...commonProps }
+				configureUrl={ this.props.siteAdminUrl +
+					'customize.php?autofocus[section]=jetpack_relatedposts' +
+					'&return=' + encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
+					'&url=' + encodeURIComponent( this.props.lastPostUrl ) }
+			/>
+		);
+		let verificationSettings = (
+			<VerificationServices
+				{ ...commonProps }
+			/>
+		);
+
 		return (
 			<div>
 				<QuerySite />
-				<SEO
-					{ ...commonProps }
-					configureUrl={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl }
-				/>
-				<Ads
-					{ ...commonProps }
-					configureUrl={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
-				/>
-				<SiteStats
-					{ ...commonProps }
-				/>
-				<RelatedPosts
-					{ ...commonProps }
-					configureUrl={ this.props.siteAdminUrl +
-						'customize.php?autofocus[section]=jetpack_relatedposts' +
-						'&return=' + encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
-						'&url=' + encodeURIComponent( this.props.lastPostUrl ) }
-				/>
-				<VerificationServices
-					{ ...commonProps }
-				/>
+				{ list[0] ? seoSettings : '' }
+				{ list[1] ? adSettings : '' }
+				{ list[2] ? statsSettings : '' }
+				{ list[3] ? relatedPostsSettings : '' }
+				{ list[4] ? verificationSettings : '' }
 			</div>
 		);
 	}

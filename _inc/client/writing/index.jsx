@@ -27,11 +27,17 @@ export const Writing = React.createClass( {
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
+
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return <span />;
+		}
+
 		return (
 			<div>
 				<QuerySite />
 				<Composing
 					{ ...commonProps } />
+					searchTerm={ this.props.searchTerm }
 				<Media
 					{ ...commonProps } />
 				<CustomContentTypes

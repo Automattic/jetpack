@@ -48,6 +48,10 @@ export const Engagement = ( props ) => {
 		sitemapsDesc = getModule( 'sitemaps' ).description,
 		moduleList = Object.keys( props.moduleList );
 
+	if ( ! props.active ) {
+		return <span />;
+	}
+
 	if ( ! props.isSitePublic ) {
 		sitemapsDesc = <span>
 			{ sitemapsDesc }

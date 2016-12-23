@@ -145,38 +145,69 @@ export const Composing = moduleSettingsForm(
 				atd = this.props.getModule( 'after-the-deadline' ),
 				atdUnavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' );
 
+			// Getting text data about modules and seeing if it's being searched for
+			let list = [ markdown, atd ].map( function( m ) {
+				if ( ! this.props.searchTerm ) {
+					return true;
+				}
+
+				let text = [
+					m.module,
+					m.name,
+					m.description,
+					m.learn_more_button,
+					m.long_description,
+					m.search_terms,
+					m.additional_search_queries,
+					m.short_description,
+					m.feature.toString()
+				].toString();
+
+				return text.toLowerCase().indexOf( this.props.searchTerm ) > -1;
+			}, this);
+
+			let markdownSettings = (
+				<FormFieldset support={ markdown.learn_more_button }>
+					<ModuleToggle slug="markdown"
+								  compact
+								  activated={ this.props.getOptionValue( 'markdown' ) }
+								  toggling={ this.props.isSavingAnyOption( 'markdown' ) }
+								  toggleModule={ this.props.toggleModuleNow }>
+						<span className="jp-form-toggle-explanation">
+							{ markdown.description }
+						</span>
+					</ModuleToggle>
+				</FormFieldset>
+			);
+
+			let atdSettings = (
+				<FormFieldset support={ atd.learn_more_button }>
+					<ModuleToggle slug="after-the-deadline"
+								  compact
+								  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
+								  toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
+								  toggleModule={ this.props.toggleModuleNow }>
+						<span className="jp-form-toggle-explanation">
+							{ atd.description }
+						</span>
+					</ModuleToggle>
+					{
+						this.props.getOptionValue( 'after-the-deadline' )
+							? <InlineExpand label={ __( 'Fancy options' ) }>{ this.getAtdSettings() }</InlineExpand>
+							: ''
+					}
+				</FormFieldset>
+			);
+
+			// If we don't have any element to show, return early
+			if ( ! list.some( function( element ) { return !! element; } ) ) {
+				return <span />;
+			}
+
 			return (
 				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }>
-					<SettingsGroup support={ markdown.learn_more_button }>
-						<FormFieldset>
-							<ModuleToggle
-								slug="markdown"
-								compact
-								activated={ this.props.getOptionValue( 'markdown' ) }
-								toggling={ this.props.isSavingAnyOption( 'markdown' ) }
-								toggleModule={ this.props.toggleModuleNow }>
-								<span className="jp-form-toggle-explanation">
-									{ markdown.description }
-								</span>
-							</ModuleToggle>
-						</FormFieldset>
-					</SettingsGroup>
-					<SettingsGroup hasChild disableInDevMode module={ atd }>
-						<ModuleToggle
-							slug="after-the-deadline"
-							compact
-							disabled={ atdUnavailableInDevMode }
-							activated={ this.props.getOptionValue( 'after-the-deadline' ) }
-							toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
-							toggleModule={ this.props.toggleModuleNow }>
-							<span className="jp-form-toggle-explanation">
-								{ atd.description }
-							</span>
-						</ModuleToggle>
-						<FormFieldset>
-							<InlineExpand label={ __( 'Advanced Options' ) }>{ this.getAtdSettings() }</InlineExpand>
-						</FormFieldset>
-					</SettingsGroup>
+					{ list[0] ? markdownSettings : '' }
+					{ list[1] ? atdSettings : '' }
 				</SettingsCard>
 			);
 		}

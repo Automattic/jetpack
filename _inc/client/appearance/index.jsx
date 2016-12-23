@@ -41,6 +41,10 @@ export const Page = ( props ) => {
 		isAdmin = props.userCanManageModules,
 		moduleList = Object.keys( props.moduleList );
 
+	if ( '/appearance' !== props.route.path ) {
+		return <span />;
+	}
+
 	var cards = [
 		[ 'tiled-gallery', getModule( 'tiled-gallery' ).name, getModule( 'tiled-gallery' ).description, getModule( 'tiled-gallery' ).learn_more_button ],
 		[ 'photon', getModule( 'photon' ).name, getModule( 'photon' ).description, getModule( 'photon' ).learn_more_button ],
