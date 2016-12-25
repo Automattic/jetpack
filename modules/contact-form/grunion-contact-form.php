@@ -14,12 +14,12 @@ define( 'GRUNION_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GRUNION_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 if ( is_admin() ) {
-	require_once GRUNION_PLUGIN_DIR . '/admin.php';
+	require_once GRUNION_PLUGIN_DIR . 'admin.php';
 }
 
 add_action( 'rest_api_init', 'grunion_contact_form_require_endpoint' );
 function grunion_contact_form_require_endpoint() {
-	require_once GRUNION_PLUGIN_DIR . '/class-grunion-contact-form-endpoint.php';
+	require_once GRUNION_PLUGIN_DIR . 'class-grunion-contact-form-endpoint.php';
 }
 
 /**
