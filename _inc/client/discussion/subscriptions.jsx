@@ -13,6 +13,7 @@ import {
 	FormFieldset,
 	FormLabel
 } from 'components/forms';
+import ExternalLink from 'components/external-link';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
@@ -40,13 +41,7 @@ export const Subscriptions = moduleSettingsForm(
 						</span>
 					</ModuleToggle>
 					<p>
-						{
-							__( 'View your {{a}}Email Followers{{/a}}', {
-								components: {
-									a: <a href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl } />
-								}
-							} )
-						}
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
 					</p>
 					<FormFieldset>
 						<ModuleSettingCheckbox
