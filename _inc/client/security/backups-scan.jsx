@@ -45,13 +45,6 @@ export const BackupsScan = moduleSettingsForm(
 					<p>
 						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href="https://dashboard.vaultpress.com/" >{ __( 'Configure your Security Scans' ) }</ExternalLink>
 					</p>
-					<p>
-						<a href="javascript:alert( 'Needs coding' );">
-						{
-							__( 'Reveal API key (needs coding)' )
-						}
-						</a>
-					</p>
 				</SettingsCard>
 			);
 		}

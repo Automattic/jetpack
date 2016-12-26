@@ -34,13 +34,6 @@ export const Antispam = moduleSettingsForm(
 							{ ...this.props }
 							label={ __( 'Show the number of approved comments beside each comment author.' ) } />
 					</FormFieldset>
-					<p>
-						<a href="javascript:alert( 'Needs coding' );">
-							{
-								__( 'Reveal API key (needs coding)' )
-							}
-						</a>
-					</p>
 				</SettingsCard>
 			);
 		}
