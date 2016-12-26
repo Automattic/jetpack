@@ -58,7 +58,6 @@ export const Subscriptions = moduleSettingsForm(
 							{ ...this.props }
 							label={ __( 'Show a "follow comments" option in the comment form.' ) } />
 					</FormFieldset>
-
 				</SettingsCard>
 			);
 		}
