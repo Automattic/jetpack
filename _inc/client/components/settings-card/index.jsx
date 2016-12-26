@@ -30,7 +30,8 @@ export const SettingsCard = props => {
 			? props.support
 			: module && '' !== module.learn_more_button
 				? module.learn_more_button
-				: false;
+				: false,
+		isSaving = props.isSavingAnyOption();
 
 	return (
 		<form>
@@ -38,9 +39,14 @@ export const SettingsCard = props => {
 				{
 					props.hideButton
 						? ''
-						: <Button primary compact isSubmitting={ props.isSavingAnyOption() } onClick={ props.onSubmit }>
+						: <Button
+							primary
+							compact
+							isSubmitting={ isSaving }
+							onClick={ isSaving ? () => {} : props.onSubmit }
+							disabled={ isSaving }>
 							{
-								props.isSavingAnyOption()
+								isSaving
 									? __( 'Saving…', { context: 'Button caption' } )
 									: __( 'Save settings', { context: 'Button caption' } )
 							}
