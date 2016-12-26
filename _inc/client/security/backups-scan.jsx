@@ -4,17 +4,11 @@
 import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import TextInput from 'components/text-input';
 
 /**
  * Internal dependencies
  */
-import {
-	FormFieldset,
-	FormLabel
-} from 'components/forms';
 import ExternalLink from 'components/external-link';
-import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 
