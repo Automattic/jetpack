@@ -34,6 +34,7 @@ import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
 import Discussion from 'discussion';
 import Security from 'security/index.jsx';
+import Traffic from 'traffic';
 import Appearance from 'appearance/index.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import Writing from 'writing/index.jsx';
@@ -194,6 +195,10 @@ const Main = React.createClass( {
 			case '/security':
 				navComponent = <NavigationSettings route={ this.props.route } />;
 				pageComponent = <Security route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
+				break;
+			case '/traffic':
+				navComponent = <NavigationSettings route={ this.props.route } />;
+				pageComponent = <Traffic route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } />;
 				break;
 			case '/appearance':
 				navComponent = <NavigationSettings route={ this.props.route } />;
