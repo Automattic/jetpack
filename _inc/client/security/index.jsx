@@ -11,6 +11,7 @@ import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import QuerySite from 'components/data/query-site';
 import { BackupsScan } from './backups-scan';
+import { Antispam } from './antispam';
 import { Protect } from './protect';
 import { SSO } from './sso';
 
@@ -22,6 +23,10 @@ export const Security = React.createClass( {
 			<div>
 				<QuerySite />
 				<BackupsScan
+					settings={ this.props.settings }
+					getModule={ this.props.module }
+				/>
+				<Antispam
 					settings={ this.props.settings }
 					getModule={ this.props.module }
 				/>
