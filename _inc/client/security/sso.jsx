@@ -10,13 +10,12 @@ import TextInput from 'components/text-input';
  * Internal dependencies
  */
 import { FormFieldset } from 'components/forms';
-import ExternalLink from 'components/external-link';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 
-export const Subscriptions = moduleSettingsForm(
+export const SSO = moduleSettingsForm(
 	React.createClass( {
 
 		toggleModule( name, value ) {
@@ -25,7 +24,7 @@ export const Subscriptions = moduleSettingsForm(
 
 		render() {
 			return (
-				<SettingsCard header={ __( 'Subscriptions', { context: 'Settings header' } ) } { ...this.props } >
+				<SettingsCard header={ __( 'WordPress.com log in', { context: 'Settings header' } ) } { ...this.props } >
 					<ModuleToggle slug={ 'subscriptions' }
 								  compact
 								  activated={ this.props.getOptionValue( 'subscriptions' ) }
@@ -33,22 +32,24 @@ export const Subscriptions = moduleSettingsForm(
 								  toggleModule={ this.toggleModule }>
 						<span className="jp-form-toggle-explanation">
 							{
-								__( 'Allow users to subscribe to your posts and comments and receive notifications via email.' )
+								__( 'Allow log-in using WordPress.com accounts.' )
 							}
 						</span>
 					</ModuleToggle>
-					<p>
-						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
+					<p className="jp-form-setting-explanation">
+						{
+							__( 'Use WordPress.com’s secure authentication.' )
+						}
 					</p>
 					<FormFieldset>
 						<ModuleSettingCheckbox
-							name={ 'stb_enabled' }
+							name={ 'jetpack_sso_match_by_email' }
 							{ ...this.props }
-							label={ __( 'Show a "follow blog" options in the comment form' ) } />
+							label={ __( 'Match By Email' ) } />
 						<ModuleSettingCheckbox
-							name={ 'stc_enabled' }
+							name={ 'jetpack_sso_require_two_step' }
 							{ ...this.props }
-							label={ __( 'Show a "follow comments" option in the comment form.' ) } />
+							label={ __( 'Require Two-Step Authentication' ) } />
 					</FormFieldset>
 				</SettingsCard>
 			);
