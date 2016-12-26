@@ -170,47 +170,6 @@ export let StatsSettings = React.createClass( {
 
 StatsSettings = moduleSettingsForm( StatsSettings );
 
-export let ProtectSettings = React.createClass( {
-	render() {
-		const maybeShowIp = this.props.currentIp ?
-			<p>{ __( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } ) }</p> :
-			'';
-
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<FormLegend>{ __( 'Whitelist Management' ) }</FormLegend>
-					<p>{ __( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack.' ) }</p>
-					<small>{ __( 'Make sure to add your most frequently used IP addresses as they can change between your home, office or other locations. Removing an IP address from the list below will remove it from your whitelist.' ) }</small>
-					{ maybeShowIp }
-					<FormLabel>
-						<Textarea
-							name={ 'jetpack_protect_global_whitelist' }
-							placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
-							onChange={ this.props.onOptionChange }
-							value={ this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local } />
-					</FormLabel>
-					<span className="jp-form-setting-explanation">{ __( 'IPv4 and IPv6 are acceptable. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
-						components: {
-							br: <br/>
-						}
-					} ) }</span>
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-ProtectSettings.propTypes = {
-	currentIp: React.PropTypes.string.isRequired
-};
-
-ProtectSettings = moduleSettingsForm( ProtectSettings );
-
 export let MonitorSettings = React.createClass( {
 	render() {
 		return (
