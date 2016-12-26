@@ -27,7 +27,11 @@ export const BackupsScan = moduleSettingsForm(
 
 		render() {
 			return (
-				<SettingsCard header={ __( 'Backups and security scanning', { context: 'Settings header' } ) } { ...this.props } hideButton={ true } >
+				<SettingsCard
+					{ ...this.props }
+					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
+					support="https://vaultpress.com/jetpack/"
+					hideButton>
 					<span>
 						{
 							__( 'Your site is backed up and threat-free.' )

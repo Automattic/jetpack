@@ -24,7 +24,10 @@ export const SSO = moduleSettingsForm(
 
 		render() {
 			return (
-				<SettingsCard header={ __( 'WordPress.com log in', { context: 'Settings header' } ) } { ...this.props } >
+				<SettingsCard
+					{ ...this.props }
+					module="sso"
+					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
 					<ModuleToggle slug={ 'subscriptions' }
 								  compact
 								  activated={ this.props.getOptionValue( 'subscriptions' ) }

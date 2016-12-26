@@ -25,7 +25,9 @@ export const Subscriptions = moduleSettingsForm(
 
 		render() {
 			return (
-				<SettingsCard header={ __( 'Subscriptions', { context: 'Settings header' } ) } { ...this.props } >
+				<SettingsCard
+					{ ...this.props }
+					module="subscriptions">
 					<ModuleToggle slug={ 'subscriptions' }
 								  compact
 								  activated={ this.props.getOptionValue( 'subscriptions' ) }

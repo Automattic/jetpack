@@ -69,7 +69,10 @@ export const Protect = moduleSettingsForm(
 
 		render() {
 			return (
-				<SettingsCard header={ __( 'Brute force protection', { context: 'Settings header' } ) } { ...this.props } >
+				<SettingsCard
+					{ ...this.props }
+					module="protect"
+					header={ __( 'Brute force protection', { context: 'Settings header' } ) } >
 					<ModuleToggle slug={ 'protect' }
 								  compact
 								  activated={ this.props.getOptionValue( 'protect' ) }

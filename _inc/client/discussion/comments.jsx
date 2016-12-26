@@ -28,7 +28,9 @@ export const Comments = moduleSettingsForm(
 
 		render() {
 			return (
-				<SettingsCard header={ __( 'Comments', { context: 'Settings header' } ) } { ...this.props } >
+				<SettingsCard
+					{ ...this.props }
+					module="comments">
 					<ModuleToggle slug={ 'comments' }
 								  compact
 								  activated={ this.props.getOptionValue( 'comments' ) }
