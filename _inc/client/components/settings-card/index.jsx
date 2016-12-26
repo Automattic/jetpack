@@ -20,18 +20,22 @@ export const SettingsCard = props => {
 	return (
 		<form>
 			<SectionHeader label={ props.header }>
-				<Button
-					primary
-					compact
-					isSubmitting={ props.isSavingAnyOption() }
-					onClick={ props.onSubmit }
-				>
-					{
-						props.isSavingAnyOption() ?
-							__( 'Saving…', { context: 'Button caption' } ) :
-							__( 'Save settings', { context: 'Button caption' } )
-					}
-				</Button>
+				{
+					! props.hideButton
+						?	<Button
+								primary
+								compact
+								isSubmitting={ props.isSavingAnyOption() }
+								onClick={ props.onSubmit }
+							>
+								{
+									props.isSavingAnyOption() ?
+										__( 'Saving…', { context: 'Button caption' } ) :
+										__( 'Save settings', { context: 'Button caption' } )
+								}
+							</Button>
+						:	''
+				}
 			</SectionHeader>
 			<Card>
 				{ props.children }
