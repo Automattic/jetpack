@@ -22,7 +22,7 @@ export const SettingsCard = props => {
 			<SectionHeader label={ props.header }>
 				{
 					! props.hideButton
-						?	<Button
+						? <Button
 								primary
 								compact
 								isSubmitting={ props.isSavingAnyOption() }
@@ -33,8 +33,8 @@ export const SettingsCard = props => {
 										__( 'Saving…', { context: 'Button caption' } ) :
 										__( 'Save settings', { context: 'Button caption' } )
 								}
-							</Button>
-						:	''
+						  </Button>
+						: ''
 				}
 			</SectionHeader>
 			<Card>
