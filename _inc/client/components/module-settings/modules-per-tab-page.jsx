@@ -10,10 +10,7 @@ import { connect } from 'react-redux';
  */
 import {
 	StatsSettings,
-	CommentsSettings,
 	LikesSettings,
-	SubscriptionsSettings,
-	ProtectSettings,
 	MonitorSettings,
 	SingleSignOnSettings,
 	MinilevenSettings,
@@ -23,8 +20,6 @@ import {
 	PostByEmailSettings,
 	CustomContentTypesSettings,
 	MarkdownSettings,
-	VerificationToolsSettings,
-	SitemapsSettings,
 	VideoPressSettings,
 	WordAdsSettings
 } from 'components/module-settings/';
@@ -61,8 +56,6 @@ const AllModuleSettingsComponent = React.createClass( {
 				return ( <CarouselSettings module={ module }  /> );
 			case 'infinite-scroll':
 				return ( <InfiniteScrollSettings module={ module }  /> );
-			case 'protect':
-				return ( <ProtectSettings module={ module }  /> );
 			case 'monitor':
 				module.raw_url = this.props.siteRawUrl;
 				return ( <MonitorSettings module={ module }  /> );
@@ -82,8 +75,6 @@ const AllModuleSettingsComponent = React.createClass( {
 						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your Security Scans' ) }</ExternalLink>
 					</div>
 				);
-			case 'sso':
-				return ( <SingleSignOnSettings module={ module }  /> );
 			case 'seo-tools':
 				if ( '' === module.configure_url ) {
 					return (
@@ -106,18 +97,8 @@ const AllModuleSettingsComponent = React.createClass( {
 						</div>
 					);
 				}
-			case 'stats':
-				return ( <StatsSettings module={ module }  /> );
-			case 'comments':
-				return ( <CommentsSettings module={ module }  /> );
-			case 'subscriptions':
-				return ( <SubscriptionsSettings module={ module } { ...this.props } /> );
 			case 'likes':
 				return ( <LikesSettings module={ module }  /> );
-			case 'verification-tools':
-				return ( <VerificationToolsSettings module={ module }  /> );
-			case 'sitemaps':
-				return ( <SitemapsSettings module={ module } { ...this.props } /> );
 			case 'wordads':
 				return ( <WordAdsSettings module={ module } /> );
 			case 'gravatar-hovercards':

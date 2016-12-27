@@ -100,32 +100,6 @@ export let LikesSettings = React.createClass( {
 
 LikesSettings = moduleSettingsForm( LikesSettings );
 
-export let SubscriptionsSettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormLegend>{ __( 'Can readers subscribe to your posts, comments or both?' ) }</FormLegend>
-				<FormFieldset>
-					<ModuleSettingCheckbox
-						name={ "stb_enabled" }
-						{ ...this.props }
-						label={ __( 'Show a "follow blog" options in the comment form' ) } />
-					<ModuleSettingCheckbox
-						name={ 'stc_enabled' }
-						{ ...this.props }
-						label={ __( 'Show a "follow comments" option in the comment form.' ) } />
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-SubscriptionsSettings = moduleSettingsForm( SubscriptionsSettings );
-
 export let MonitorSettings = React.createClass( {
 	render() {
 		return (
@@ -144,31 +118,6 @@ export let MonitorSettings = React.createClass( {
 } );
 
 MonitorSettings = moduleSettingsForm( MonitorSettings );
-
-export let SingleSignOnSettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<ModuleSettingCheckbox
-						name={ 'jetpack_sso_match_by_email' }
-						{ ...this.props }
-						label={ __( 'Match By Email' ) } />
-					<ModuleSettingCheckbox
-						name={ 'jetpack_sso_require_two_step' }
-						{ ...this.props }
-						label={ __( 'Require Two-Step Authentication' ) } />
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-SingleSignOnSettings = moduleSettingsForm( SingleSignOnSettings );
 
 export let CarouselSettings = React.createClass( {
 	render() {
@@ -259,103 +208,6 @@ export let MinilevenSettings = React.createClass( {
  } );
 
 MinilevenSettings = moduleSettingsForm( MinilevenSettings );
-
-export let VerificationToolsSettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<p className="jp-form-setting-explanation">
-						{
-							__( 'Enter your meta key "content" value to verify your blog with {{a}}Google Search Console{{/a}}, {{a1}}Bing Webmaster Center{{/a1}} and {{a2}}Pinterest Site Verification{{/a2}}.', {
-								components: {
-									a: <a href="https://www.google.com/webmasters/tools/" target="_blank" />,
-									a1: <a href="http://www.bing.com/webmaster/" target="_blank" />,
-									a2: <a href="https://pinterest.com/website/verify/" target="_blank" />
-								}
-							} )
-						}
-					</p>
-
-					<div className="dops-card">
-						<FormLabel>
-							<FormLegend>Google</FormLegend>
-							<TextInput
-								name={ 'google' }
-								value={ this.props.getOptionValue( 'google' ) }
-								placeholder={ 'Example: dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8' }
-								className="widefat code"
-								disabled={ this.props.isUpdating( 'google' ) }
-								onChange={ this.props.onOptionChange} />
-						</FormLabel>
-						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example:' ) }
-							&nbsp;&lt;meta name='google-site-verification' content='<strong className="code">dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8</strong>'&gt;
-						</span>
-					</div>
-
-					<div className="dops-card">
-						<FormLabel>
-							<FormLegend>Bing</FormLegend>
-							<TextInput
-								name={ 'bing' }
-								value={ this.props.getOptionValue( 'bing' ) }
-								placeholder={ 'Example: 12C1203B5086AECE94EB3A3D9830B2E' }
-								className="widefat code"
-								disabled={ this.props.isUpdating( 'bing' ) }
-								onChange={ this.props.onOptionChange} />
-						</FormLabel>
-						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example:' ) }
-							&nbsp;&lt;meta name='msvalidate.01' content='<strong>12C1203B5086AECE94EB3A3D9830B2E</strong>'&gt;
-						</span>
-					</div>
-
-					<div className="dops-card">
-						<FormLabel>
-							<FormLegend>Pinterest</FormLegend>
-							<TextInput
-								name={ 'pinterest' }
-								value={ this.props.getOptionValue( 'pinterest' ) }
-								placeholder={ 'Example: f100679e6048d45e4a0b0b92dce1efce' }
-								className="widefat code"
-								disabled={ this.props.isUpdating( 'pinterest' ) }
-								onChange={ this.props.onOptionChange} />
-						</FormLabel>
-						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example:' ) }
-							&nbsp;&lt;meta name='p:domain_verify' content='<strong>f100679e6048d45e4a0b0b92dce1efce</strong>'&gt;
-						</span>
-					</div>
-
-					<div className="dops-card">
-						<FormLabel>
-							<FormLegend>Yandex</FormLegend>
-							<TextInput
-								name={ 'yandex' }
-								value={ this.props.getOptionValue( 'yandex' ) }
-								placeholder={ 'Example: 44d68e1216009f40' }
-								className="widefat code"
-								disabled={ this.props.isUpdating( 'yandex' ) }
-								onChange={ this.props.onOptionChange} />
-						</FormLabel>
-						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example:' ) }
-							&nbsp;&lt;meta name='yandex-verification' content='<strong>44d68e1216009f40</strong>'&gt;
-						</span>
-					</div>
-
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-VerificationToolsSettings = moduleSettingsForm( VerificationToolsSettings );
 
 export let TiledGallerySettings = React.createClass( {
 	render() {
@@ -487,39 +339,7 @@ CustomContentTypesSettings.propTypes = {
 
 CustomContentTypesSettings = moduleSettingsForm( CustomContentTypesSettings );
 
-export let SitemapsSettings = React.createClass( {
-	render() {
-		let sitemap_url = get( this.props, [ 'module', 'extra', 'sitemap_url' ], '' ),
-			news_sitemap_url = get( this.props, [ 'module', 'extra', 'news_sitemap_url' ], '' );
-		return (
-			<div>
-				<p>{ __( 'Search engines will find the sitemaps at these locations:' ) }</p>
-				<p>{
-					__( 'Sitemap: {{a}}%(url)s{{/a}}', {
-						components: {
-							a: <a href={ sitemap_url } target="_blank" />
-						},
-						args: {
-							url: sitemap_url
-						}
-					} )
-				}</p>
-				<p>{
-					__( 'News Sitemap: {{a}}%(url)s{{/a}}', {
-						components: {
-							a: <a href={ news_sitemap_url } target="_blank" />
-						},
-						args: {
-							url: news_sitemap_url
-						}
-					} )
-				}</p>
-			</div>
-		)
-	}
-} );
-
-SitemapsSettings = moduleSettingsForm( SitemapsSettings );
+;
 
 export let WordAdsSettings = React.createClass( {
 	render() {
