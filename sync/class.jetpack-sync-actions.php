@@ -239,6 +239,11 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = self::$sender->do_sync();
+
+			// if we are time-limited, only do one cycle
+			if ( !! ini_get('max_execution_time') ) {
+				return;
+			}
 		} while ( $result );
 	}
 
@@ -262,6 +267,11 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = self::$sender->do_full_sync();
+
+			// if we are time-limited, only do one cycle
+			if ( !! ini_get('max_execution_time') ) {
+				return;
+			}
 		} while ( $result );
 	}
 
