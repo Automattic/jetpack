@@ -12,6 +12,8 @@ import { getSettings } from 'state/settings';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
 import { SiteStats } from './site-stats';
+import { RelatedPosts } from './related-posts';
+import { getLastPostUrl } from 'state/initial-state';
 
 export const Traffic = React.createClass( {
 	displayName: 'TrafficSettings',
@@ -29,6 +31,14 @@ export const Traffic = React.createClass( {
 					settings={ this.props.settings }
 					getModule={ this.props.module }
 				/>
+				<RelatedPosts
+					settings={ this.props.settings }
+					getModule={ this.props.module }
+					configureUrl={ this.props.siteAdminUrl +
+						'customize.php?autofocus[section]=jetpack_relatedposts' +
+						'&return=' + encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
+						'&url=' + encodeURIComponent( this.props.lastPostUrl ) }
+				/>
 			</div>
 		);
 	}
@@ -38,7 +48,8 @@ export default connect(
 	( state ) => {
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
-			settings: getSettings( state )
+			settings: getSettings( state ),
+			lastPostUrl: getLastPostUrl( state )
 		}
 	}
 )( Traffic );
