@@ -11,6 +11,7 @@ import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
+import { SiteStats } from './site-stats';
 
 export const Traffic = React.createClass( {
 	displayName: 'TrafficSettings',
@@ -23,6 +24,10 @@ export const Traffic = React.createClass( {
 					settings={ this.props.settings }
 					getModule={ this.props.module }
 					configureUrl={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl }
+				/>
+				<SiteStats
+					settings={ this.props.settings }
+					getModule={ this.props.module }
 				/>
 			</div>
 		);
