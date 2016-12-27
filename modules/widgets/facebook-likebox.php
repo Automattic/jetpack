@@ -10,7 +10,7 @@ function jetpack_facebook_likebox_init() {
 }
 
 /**
- * Facebook Page Plugin (formely known as the Like Box)
+ * Facebook Page Plugin (formerly known as the Like Box)
  * Display a Facebook Page Plugin as a widget (replaces the old like box plugin)
  * https://developers.facebook.com/docs/plugins/page-plugin
  */
@@ -52,7 +52,6 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			echo '<!-- Invalid Facebook Page URL -->';
 			return;
 		}
-
 
 		$title    = apply_filters( 'widget_title', $instance['title'] );
 		$page_url = set_url_scheme( $like_args['href'], 'https' );
@@ -224,7 +223,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	}
 
 	function is_valid_facebook_url( $url ) {
-		return ( FALSE !== strpos( $url, 'facebook.com' ) ) ? TRUE : FALSE;
+		return ( false !== strpos( $url, 'facebook.com' ) ) ? true : false;
 	}
 
 	function normalize_int_value( $value, $default = 0, $max = 0, $min = 0 ) {
@@ -295,5 +294,3 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		return $locale;
 	}
 }
-
-// END
