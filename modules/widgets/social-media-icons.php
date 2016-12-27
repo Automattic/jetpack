@@ -22,16 +22,17 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		);
 
 		$this->defaults = array(
-			'title'              => __( 'Social', 'jetpack' ),
-			'facebook_username'  => '',
-			'twitter_username'   => '',
-			'instagram_username' => '',
-			'pinterest_username' => '',
-			'linkedin_username'  => '',
-			'github_username'    => '',
-			'youtube_username'   => '',
-			'vimeo_username'     => '',
+			'title'               => __( 'Social', 'jetpack' ),
+			'facebook_username'   => '',
+			'twitter_username'    => '',
+			'instagram_username'  => '',
+			'pinterest_username'  => '',
+			'linkedin_username'   => '',
+			'github_username'     => '',
+			'youtube_username'    => '',
+			'vimeo_username'      => '',
 			'googleplus_username' => '',
+			'flickr_username'     => '',
 		);
 
 		$this->services = array(
@@ -44,6 +45,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'youtube'    => array( 'YouTube', 'https://www.youtube.com/%s/' ),
 			'vimeo'      => array( 'Vimeo', 'https://vimeo.com/%s/' ),
 			'googleplus' => array( 'Google+', 'https://plus.google.com/u/0/%s/' ),
+			'flickr'     => array( 'Flickr', 'https://www.flickr.com/photos/%s/' ),
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
