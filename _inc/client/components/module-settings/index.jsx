@@ -126,50 +126,6 @@ export let SubscriptionsSettings = React.createClass( {
 
 SubscriptionsSettings = moduleSettingsForm( SubscriptionsSettings );
 
-export let StatsSettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<FormLegend>{ __( 'Admin Bar' ) }</FormLegend>
-					<ModuleSettingCheckbox
-						name={ 'admin_bar' }
-						{ ...this.props }
-						label={ __( 'Put a chart showing 48 hours of views in the admin bar' ) } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend>{ __( 'Smiley' ) }</FormLegend>
-					<ModuleSettingCheckbox
-						name={ 'hide_smile' }
-						{ ...this.props }
-						label={ __( 'Hide the stats smiley face image. The image helps collect stats but should still work when hidden.' ) } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
-					<ModuleSettingMultipleSelectCheckboxes
-						name={ 'count_roles' }
-						{ ...this.props }
-						validValues={ this.props.getSiteRoles() } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend>{ __( 'Report Visibility: Select the roles that will be able to view stats reports' ) }</FormLegend>
-					<ModuleSettingMultipleSelectCheckboxes
-						always_checked={ [ 'administrator' ] }
-						name={ 'roles' }
-						{ ...this.props }
-						validValues={ this.props.getSiteRoles() } />
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		);
-	}
-} );
-
-StatsSettings = moduleSettingsForm( StatsSettings );
-
 export let MonitorSettings = React.createClass( {
 	render() {
 		return (

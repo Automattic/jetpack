@@ -15,8 +15,12 @@ import {
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { ModuleSettingSelect } from 'components/module-settings/form-components';
+import {
+	ModuleSettingSelect,
+	ModuleSettingMultipleSelectCheckboxes
+} from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
+import InlineExpand from 'components/inline-expand';
 
 export const SiteStats = moduleSettingsForm(
 	React.createClass( {
@@ -56,6 +60,23 @@ export const SiteStats = moduleSettingsForm(
 							</span>
 						</ModuleToggle>
 					</FormFieldset>
+					<InlineExpand label={ __( 'Serious options' ) }>
+						<FormFieldset>
+							<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
+							<ModuleSettingMultipleSelectCheckboxes
+								name={ 'count_roles' }
+								{ ...this.props }
+								validValues={ this.props.getSiteRoles() } />
+						</FormFieldset>
+						<FormFieldset>
+							<FormLegend>{ __( 'Report Visibility: Select the roles that will be able to view stats reports' ) }</FormLegend>
+							<ModuleSettingMultipleSelectCheckboxes
+								always_checked={ [ 'administrator' ] }
+								name={ 'roles' }
+								{ ...this.props }
+								validValues={ this.props.getSiteRoles() } />
+						</FormFieldset>
+					</InlineExpand>
 				</SettingsCard>
 			);
 		}
