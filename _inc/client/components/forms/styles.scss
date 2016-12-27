@@ -6,7 +6,7 @@
 	}
 }
 
-.jp-form-legend {
+.jp-form-legend, .jp-form-label-wide {
 	padding: 0;
 	margin-bottom: rem( 5px );
 	font-size: rem( 14px );
@@ -18,6 +18,10 @@
 	font-size: rem( 14px );
 	line-height: 1.5;
 	margin-bottom: rem( 5px );
+}
+
+.jp-form-label-wide {
+	display: block;
 }
 
 .jp-form-label input[type="radio"] + span {

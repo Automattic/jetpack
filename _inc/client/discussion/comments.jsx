@@ -43,8 +43,8 @@ export const Comments = moduleSettingsForm(
 						</span>
 					</ModuleToggle>
 					<FormFieldset>
-						<FormLegend>{ __( 'Comments headline' ) }</FormLegend>
 						<FormLabel>
+							<span className="jp-form-label-wide">{ __( 'Comments headline' ) }</span>
 							<TextInput
 								name={ 'highlander_comment_form_prompt' }
 								value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
@@ -52,15 +52,15 @@ export const Comments = moduleSettingsForm(
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
-					</FormFieldset>
-					<FormFieldset>
-						<FormLegend>{ __( 'Color Scheme' ) }</FormLegend>
-						<ModuleSettingSelect
-							name={ 'jetpack_comment_form_color_scheme' }
-							value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
-							onChange={ this.props.onOptionChange }
-							{ ...this.props }
-							validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme', 'comments' ) }/>
+						<FormLabel>
+							<span className="jp-form-label-wide">{ __( 'Color Scheme' ) }</span>
+							<ModuleSettingSelect
+								name={ 'jetpack_comment_form_color_scheme' }
+								value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
+								onChange={ this.props.onOptionChange }
+								{ ...this.props }
+								validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme', 'comments' ) }/>
+						</FormLabel>
 					</FormFieldset>
 					<hr />
 					<FormFieldset>

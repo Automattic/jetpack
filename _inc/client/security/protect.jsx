@@ -106,13 +106,13 @@ export const Protect = moduleSettingsForm(
 							: ''
 					}
 					<FormFieldset>
-						<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
 						<FormLabel>
-						<Textarea
-							name={ 'jetpack_protect_global_whitelist' }
-							placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
-							onChange={ this.updateText }
-							value={ this.state.whitelist } />
+							<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
+							<Textarea
+								name={ 'jetpack_protect_global_whitelist' }
+								placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
+								onChange={ this.updateText }
+								value={ this.state.whitelist } />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
 							{
