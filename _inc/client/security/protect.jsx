@@ -8,6 +8,7 @@ import TextInput from 'components/text-input';
 import Button from 'components/button';
 import Textarea from 'components/textarea';
 import includes from 'lodash/includes';
+import ExternalLink from 'components/external-link';
 
 /**
  * Internal dependencies
@@ -17,7 +18,6 @@ import {
 	FormLegend,
 	FormLabel
 } from 'components/forms';
-import ExternalLink from 'components/external-link';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';

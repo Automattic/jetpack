@@ -13,6 +13,7 @@ import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
 import { SiteStats } from './site-stats';
 import { RelatedPosts } from './related-posts';
+import { VerificationServices } from './verification-services';
 import { getLastPostUrl } from 'state/initial-state';
 
 export const Traffic = React.createClass( {
@@ -38,6 +39,10 @@ export const Traffic = React.createClass( {
 						'customize.php?autofocus[section]=jetpack_relatedposts' +
 						'&return=' + encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
 						'&url=' + encodeURIComponent( this.props.lastPostUrl ) }
+				/>
+				<VerificationServices
+					settings={ this.props.settings }
+					getModule={ this.props.module }
 				/>
 			</div>
 		);
