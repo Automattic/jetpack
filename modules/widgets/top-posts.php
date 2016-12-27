@@ -156,11 +156,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$get_image_options = array(
 				'fallback_to_avatars' => true,
 				'gravatar_default' => apply_filters( 'jetpack_static_url', set_url_scheme( 'http://en.wordpress.com/i/logo/white-gray-80.png' ) ),
+				'avatar_size' => 40,
 			);
 			if ( 'grid' == $display ) {
 				$get_image_options['avatar_size'] = 200;
-			} else {
-				$get_image_options['avatar_size'] = 40;
 			}
 			$get_image_options = apply_filters( 'jetpack_top_posts_widget_image_options', $get_image_options );
 		}
@@ -196,7 +195,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		case 'grid' :
 			wp_enqueue_style( 'widget-grid-and-list' );
 			foreach ( $posts as &$post ) {
-				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true ) );
+				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true, 'avatar_size' => (int) $get_image_options['avatar_size'] ) );
 				$post['image'] = $image['src'];
 				if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
 					$size = (int) $get_image_options['avatar_size'];
