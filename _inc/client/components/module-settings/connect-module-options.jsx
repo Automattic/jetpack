@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { connect } from 'react-redux';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -39,7 +40,7 @@ export function connectModuleOptions( Component ) {
 		( state, ownProps ) => {
 			return {
 				validValues: ( option_name, module_slug = '' ) => {
-					if ( 'object' === typeof ownProps.module && 'undefined' !== typeof ownProps.module.module ) {
+					if ( 'string' === typeof get( ownProps, [ 'module', 'module' ] ) ) {
 						module_slug = ownProps.module.module;
 					}
 					return getModuleOptionValidValues( state, module_slug, option_name );

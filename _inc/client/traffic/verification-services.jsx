@@ -100,7 +100,7 @@ export const VerificationServices = moduleSettingsForm(
 							].map( item => (
 								<FormLabel
 									className="jp-form-input-with-prefix"
-									key={ `verification_service_${ item.id }` /* https://fb.me/react-warning-keys */ }>
+									key={ `verification_service_${ item.id }` }>
 									<span>{ item.label }</span>
 									<TextInput
 										name={ item.id }
@@ -121,15 +121,17 @@ export const VerificationServices = moduleSettingsForm(
 								{
 									[
 										{
+											id: 'sitemap',
 											label: __( 'Sitemaps' ),
 											url: sitemap_url
 										},
 										{
+											id: 'news_sitemap',
 											label: __( 'News Sitemaps' ),
 											url: news_sitemap_url
 										}
 									].map( item => (
-										<li>
+										<li key={ `xml_${ item.id }` }>
 											<strong>{ item.label }</strong>
 											<br />
 											<ExternalLink icon={ true } target="_blank" href={ item.url }>{ item.url }</ExternalLink>

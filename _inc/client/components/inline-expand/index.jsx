@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import Gridicon from 'components/gridicon';
+import classNames from 'classnames';
 
 export const InlineExpand = React.createClass( {
 
@@ -49,14 +50,8 @@ export const InlineExpand = React.createClass( {
 	},
 
 	render: function() {
-		let isExpanded = this.state.expanded
-				? ' is-expanded'
-				: '',
-			extraClasses = this.props.className
-				? ' ' + this.props.className
-				: '';
 		return (
-			<div className={ 'jp-inline-expand' + extraClasses + isExpanded }>
+			<div className={ classNames( 'jp-inline-expand', this.props.className, { 'is-expanded': this.state.expanded } ) }>
 				{
 					<a className="jp-inline-expand-action" onClick={ this.onClick }>
 						{
