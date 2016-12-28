@@ -136,14 +136,6 @@
 	display: inline-block;
 }
 
-.widget_authors .avatar {
-	margin-right: 5px;
-}
-
-.widget_authors a {
-	border: 0;
-}
-
 .widget_authors ul {
 	list-style: none;
 	margin: 0;
