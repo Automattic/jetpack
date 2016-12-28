@@ -423,6 +423,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'api_cache':
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( delete_option( 'jetpack_api_cache_enabled' ) ) {
+							$updated[ $key ] = false;
+						}
+					} else if ( update_option( 'jetpack_api_cache_enabled', true ) ) {
+						$updated[ $key ] = true;
+					}
+					break;
+
 				case 'timezone_string':
 					// Map UTC+- timezones to gmt_offsets and set timezone_string to empty
 					// https://github.com/WordPress/WordPress/blob/4.4.2/wp-admin/options.php#L175
