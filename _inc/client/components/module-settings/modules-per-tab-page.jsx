@@ -19,7 +19,6 @@ import {
 	TiledGallerySettings,
 	PostByEmailSettings,
 	CustomContentTypesSettings,
-	MarkdownSettings,
 	VideoPressSettings,
 	WordAdsSettings
 } from 'components/module-settings/';

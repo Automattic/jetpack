@@ -11,8 +11,7 @@ import { translate as __ } from 'i18n-calypso';
 import {
 	FormFieldset,
 	FormLegend,
-	FormLabel,
-	FormButton
+	FormLabel
 } from 'components/forms';
 import { getModule as _getModule } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
@@ -20,6 +19,7 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import TagsInput from 'components/tags-input';
 import SettingsCard from 'components/settings-card';
+import InlineExpand from 'components/inline-expand';
 
 export const Composing = moduleSettingsForm(
 	React.createClass( {
@@ -110,7 +110,7 @@ export const Composing = moduleSettingsForm(
 
 			return (
 				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }>
-					<FormFieldset>
+					<FormFieldset support={ markdown.learn_more_button }>
 						<ModuleToggle slug={ 'markdown' }
 									  compact
 									  activated={ this.props.getOptionValue( 'markdown' ) }
@@ -121,7 +121,8 @@ export const Composing = moduleSettingsForm(
 							</span>
 						</ModuleToggle>
 					</FormFieldset>
-					<FormFieldset>
+					<hr />
+					<FormFieldset support={ atd.learn_more_button }>
 						<ModuleToggle slug={ 'after-the-deadline' }
 									  compact
 									  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
@@ -131,11 +132,12 @@ export const Composing = moduleSettingsForm(
 								{ atd.description }
 							</span>
 						</ModuleToggle>
+						{
+							this.props.getOptionValue( 'after-the-deadline' )
+								? <InlineExpand label={ __( 'Fancy options' ) }>{ this.getAtdSettings() }</InlineExpand>
+								: ''
+						}
 					</FormFieldset>
-					{ this.props.getOptionValue( 'after-the-deadline' )
-					  ? this.getAtdSettings()
-					  : ''
-					}
 				</SettingsCard>
 			);
 		}
