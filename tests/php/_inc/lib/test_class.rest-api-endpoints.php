@@ -732,7 +732,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertTrue( $response_data['carousel'] );
 
 		$this->assertArrayHasKey( 'jetpack_holiday_snow_enabled', $response_data );
-		$this->assertEquals( 'letitsnow', $response_data['jetpack_holiday_snow_enabled'] );
+		$this->assertTrue( $response_data['jetpack_holiday_snow_enabled'] );
 
 	}
 
