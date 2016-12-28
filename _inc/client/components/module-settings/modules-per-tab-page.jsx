@@ -18,7 +18,6 @@ import {
 	InfiniteScrollSettings,
 	TiledGallerySettings,
 	PostByEmailSettings,
-	CustomContentTypesSettings,
 	VideoPressSettings,
 	WordAdsSettings
 } from 'components/module-settings/';
@@ -45,8 +44,6 @@ const AllModuleSettingsComponent = React.createClass( {
 				);
 			case 'post-by-email':
 				return ( <PostByEmailSettings module={ module }  /> );
-			case 'custom-content-types':
-				return ( <CustomContentTypesSettings module={ module }  /> );
 			case 'tiled-gallery':
 				return ( <TiledGallerySettings module={ module }  /> );
 			case 'minileven':

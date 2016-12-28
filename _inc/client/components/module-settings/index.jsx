@@ -285,62 +285,6 @@ PostByEmailSettings.propTypes = {
 
 PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 
-export let CustomContentTypesSettings = React.createClass( {
-	render() {
-		let portfolioConfigure = () => {
-			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_portfolio' ) ?
-				'' :
-				<Button
-					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-portfolio' }
-					compact={ true }
-				>{ __( 'Configure Portfolios' ) }</Button>;
-		};
-
-		let testimonialConfigure = () => {
-			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_testimonial' ) ?
-				'' :
-				<Button
-					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-testimonial' }
-					compact={ true }
-				>{ __( 'Configure Testimonials' ) }</Button>;
-		};
-
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<ModuleSettingCheckbox
-						name={ 'jetpack_portfolio' }
-						{ ...this.props }
-						label={ __( 'Enable Portfolio Projects for this site.' ) }
-					/>
-					<ModuleSettingCheckbox
-						name={ 'jetpack_testimonial' }
-						{ ...this.props }
-						label={ __( 'Enable Testimonials for this site.' ) }
-					/>
-					<br/>
-					{ portfolioConfigure() }
-					{ testimonialConfigure() }
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-CustomContentTypesSettings.propTypes = {
-	siteAdminUrl: React.PropTypes.string.isRequired
-};
-
-CustomContentTypesSettings = moduleSettingsForm( CustomContentTypesSettings );
-
-;
-
 export let WordAdsSettings = React.createClass( {
 	render() {
 		return (
