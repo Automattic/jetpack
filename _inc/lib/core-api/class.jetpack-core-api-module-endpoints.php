@@ -365,7 +365,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *     Array of parameters received by request.
 	 * }
 	 *
-	 * @return mixed|void|WP_Error
+	 * @return array
 	 */
 	public function get_all_options( $data ) {
 		$response = array();
