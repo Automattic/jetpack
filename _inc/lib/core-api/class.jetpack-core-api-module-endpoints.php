@@ -299,7 +299,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 */
 	public function process( $data ) {
 		if ( 'GET' === $data->get_method() ) {
-			if ( isset( $data['slug'] ) && Jetpack::is_module( $data['slug'] ) ) {
+			if ( isset( $data['slug'] ) ) {
 				return $this->get_module( $data );
 			}
 
