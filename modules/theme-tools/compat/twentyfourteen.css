@@ -150,11 +150,6 @@ img[id*="botd"] {
 	margin-bottom: 0;
 }
 
-.widget_authors img {
-	margin-right: 5px;
-	margin-bottom: 5px;
-}
-
 /* Contact Info Widget */
 
 .widget_contact_info > div {
