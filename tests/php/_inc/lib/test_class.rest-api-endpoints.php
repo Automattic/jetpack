@@ -700,4 +700,40 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 	}
 
+	/**
+	 * Test that a setting is retrieved correctly.
+	 * Here we test three types of settings:
+	 * - module settings
+	 * - module activation state
+	 * - misc setting (holiday snow)
+	 *
+	 * @since 4.6.0
+	 */
+	public function test_settings_retrieve() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_activate_modules' );
+		wp_set_current_user( $user->ID );
+
+		Jetpack::update_active_modules( array( 'carousel' ) );
+		update_option( 'carousel_background_color', 'white' );
+		update_option( 'jetpack_holiday_snow_enabled', 'letitsnow' );
+
+		$response = $this->create_and_get_request( 'settings', array(), 'GET' );
+		$response_data = $response->get_data();
+
+		$this->assertResponseStatus( 200, $response );
+
+		$this->assertArrayHasKey( 'carousel_background_color', $response_data );
+		$this->assertEquals( 'white', $response_data['carousel_background_color'] );
+
+		$this->assertArrayHasKey( 'carousel', $response_data );
+		$this->assertTrue( $response_data['carousel'] );
+
+		$this->assertArrayHasKey( 'jetpack_holiday_snow_enabled', $response_data );
+		$this->assertTrue( $response_data['jetpack_holiday_snow_enabled'] );
+
+	}
+
 } // class end
