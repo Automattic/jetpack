@@ -217,12 +217,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			self::get_updateable_parameters()
 		);
 
-		// Return miscellaneous settings
-		register_rest_route( 'jetpack/v4', '/settings', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::get_settings',
-			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-		) );
+		// Return all module settings
+		self::route(
+			'/settings',
+			'Jetpack_Core_API_Data',
+			WP_REST_Server::READABLE,
+			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) )
+		);
 
 		// Reset all Jetpack options
 		register_rest_route( 'jetpack/v4', '/options/(?P<options>[a-z\-]+)', array(
@@ -556,24 +557,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'build_connect_url_failed', esc_html__( 'Unable to build the connect URL.  Please reload the page and try again.', 'jetpack' ), array( 'status' => 400 ) );
-	}
-
-	/**
-	 * Get miscellaneous settings for this Jetpack installation, like Holiday Snow.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @return object $response {
-	 *     Array of miscellaneous settings.
-	 *
-	 *     @type bool $holiday-snow Did Jack steal Christmas?
-	 * }
-	 */
-	public static function get_settings() {
-		$response = array(
-			self::holiday_snow_option_name() => get_option( self::holiday_snow_option_name() ) == 'letitsnow',
-		);
-		return rest_ensure_response( $response );
 	}
 
 	/**
