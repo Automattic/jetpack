@@ -158,7 +158,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$holiday_snow = (bool) get_option( jetpack_holiday_snow_option_name() );
 				}
 
-				$api_cache = $is_jetpack ? get_option( 'jetpack_api_cache_enabled' ) : true;
+				$api_cache = $is_jetpack ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 
 				$response[ $key ] = array(
 
