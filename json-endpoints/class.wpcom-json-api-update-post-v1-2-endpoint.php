@@ -115,9 +115,9 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 		}
 
-		if ( function_exists( 'wpcom_switch_to_locale' ) ) {
+		if ( function_exists( 'wpcom_switch_to_blog_locale' ) ) {
 			// fixes calypso-pre-oss #12476: respect blog locale when creating the post slug
-			wpcom_switch_to_locale( get_blog_lang_code( $blog_id ) );
+			wpcom_switch_to_blog_locale( $blog_id );
 		}
 
 		 // If date is set, $this->input will set date_gmt, date still needs to be adjusted f
