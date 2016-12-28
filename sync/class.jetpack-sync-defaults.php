@@ -108,6 +108,7 @@ class Jetpack_Sync_Defaults {
 		'uninstall_plugins',
 		'advanced_seo_front_page_description', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
 		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
+		'jetpack_api_cache_enabled',
 	);
 
 	static $default_constants_whitelist = array(
