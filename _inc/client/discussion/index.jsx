@@ -10,33 +10,24 @@ import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import QuerySite from 'components/data/query-site';
-import { BackupsScan } from './backups-scan';
-import { Antispam } from './antispam';
-import { Protect } from './protect';
-import { SSO } from './sso';
+import { Comments } from './comments';
+import { Subscriptions } from './subscriptions';
 
-export const Security = React.createClass( {
-	displayName: 'SecuritySettings',
+export const Discussion = React.createClass( {
+	displayName: 'DiscussionSettings',
 
 	render() {
 		return (
 			<div>
 				<QuerySite />
-				<BackupsScan
+				<Comments
 					settings={ this.props.settings }
 					getModule={ this.props.module }
 				/>
-				<Antispam
+				<Subscriptions
 					settings={ this.props.settings }
 					getModule={ this.props.module }
-				/>
-				<Protect
-					settings={ this.props.settings }
-					getModule={ this.props.module }
-				/>
-				<SSO
-					settings={ this.props.settings }
-					getModule={ this.props.module }
+					siteRawUrl={ this.props.siteRawUrl }
 				/>
 			</div>
 		);
@@ -50,4 +41,4 @@ export default connect(
 			settings: getSettings( state )
 		}
 	}
-)( Security );
+)( Discussion );

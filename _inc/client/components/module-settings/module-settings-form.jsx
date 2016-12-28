@@ -13,7 +13,7 @@ import { connectModuleOptions } from 'components/module-settings/connect-module-
  * High order component that provides a <form> with functionality
  * to handle input values on the forms' own React component state.
  *
- * @param  {React.Component} Component The component with a top level form element
+ * @param  {React.Component} InnerComponent The component with a top level form element
  * @return {[React.Component]}	The component with new functionality
  */
 export function ModuleSettingsForm( InnerComponent ) {
@@ -37,13 +37,46 @@ export function ModuleSettingsForm( InnerComponent ) {
 
 			this.updateFormStateOptionValue( optionName, optionValue );
 		},
-		updateFormStateOptionValue( optionName, optionValue ) {
+		/**
+		 * Updates the list of form values to save, usually options to set or modules to activate.
+		 * Receives an object with key => value pairs to set multiple options or a string and a value to set a single option.
+		 *
+		 * @param   {string|object} optionMaybeOptions
+		 * @param   {*}             optionValue
+		 * @returns {boolean}
+		 */
+		updateFormStateOptionValue( optionMaybeOptions, optionValue = undefined ) {
+			if ( 'string' === typeof optionMaybeOptions ) {
+				optionMaybeOptions = { [ optionMaybeOptions ]: optionValue };
+			}
 			const newOptions = {
 				...this.state.options,
-				[ optionName ]: optionValue
+				...optionMaybeOptions
 			};
 			this.setState( { options: newOptions } );
 			return true;
+		},
+		/**
+		 * Receives an option and the module it depends on.
+		 * If the module is active, only the option is added to the list of form values to send.
+		 * If it's inactive, an additional option stating that the module must be activated is added to the list.
+		 *
+		 * @param {string} module
+		 * @param {string} moduleOption
+		 */
+		updateFormStateModuleOption( module, moduleOption ) {
+
+			// If the module is active, we pass the value to set.
+			if ( this.getOptionValue( module ) ) {
+				this.updateFormStateOptionValue( moduleOption, ! this.getOptionValue( moduleOption ) );
+			} else {
+
+				// If the module is inactive, we pass the module to activate and the value to set.
+				this.updateFormStateOptionValue( {
+					[ module ]: true,
+					[ moduleOption ]: true
+				} );
+			}
 		},
 		componentDidUpdate() {
 			if ( this.isDirty() ) {
@@ -69,10 +102,8 @@ export function ModuleSettingsForm( InnerComponent ) {
 		},
 
 		shouldSaveButtonBeDisabled() {
-			let shouldItBeEnabled = false;
 			// Check if the form is not currently dirty
-			shouldItBeEnabled = ! this.isSavingAnyOption() && this.isDirty();
-			return ! shouldItBeEnabled;
+			return this.isSavingAnyOption() || ! this.isDirty();
 		},
 		isDirty() {
 			return !! Object.keys( this.state.options ).length;
@@ -88,6 +119,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 					onSubmit={ this.onSubmit }
 					onOptionChange={ this.onOptionChange }
 					updateFormStateOptionValue={ this.updateFormStateOptionValue }
+					updateFormStateModuleOption={ this.updateFormStateModuleOption }
 					shouldSaveButtonBeDisabled={ this.shouldSaveButtonBeDisabled }
 					isSavingAnyOption={ this.isSavingAnyOption }
 					{ ...this.props } />
