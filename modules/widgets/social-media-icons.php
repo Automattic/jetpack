@@ -137,8 +137,22 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				continue;
 			}
 			$index += 10;
-			if (
-				'googleplus' === $service
+
+			/** Check if full URL entered in configuration, use it instead of tinkering **/
+			if ( substr( $username, 0, 5 ) === "http:"
+				|| substr( $username, 0, 6 ) === "https:"
+			   ) {			
+				$html[ $index ] =
+					'<a href="' . $username
+					. '" class="genericon genericon-' . $service . '" target="_blank"><span class="screen-reader-text">'
+					. 'View our profile on '. $service_name 
+					. '</span></a>';
+
+				continue;
+			}
+
+
+			if ( 'googleplus' === $service
 				&& ! is_numeric( $username )
 				&& substr( $username, 0, 1 ) !== '+'
 			) {
