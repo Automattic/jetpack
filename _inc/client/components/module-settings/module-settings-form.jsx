@@ -61,14 +61,26 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * If the module is active, only the option is added to the list of form values to send.
 		 * If it's inactive, an additional option stating that the module must be activated is added to the list.
 		 *
-		 * @param {string} module
-		 * @param {string} moduleOption
+		 * @param {string}  module
+		 * @param {string}  moduleOption
+		 * @param {boolean} deactivate
 		 */
-		updateFormStateModuleOption( module, moduleOption ) {
+		updateFormStateModuleOption( module, moduleOption, deactivate = false ) {
 
-			// If the module is active, we pass the value to set.
+			// If the module is active, check if we're going to update the option or update and deactivate.
 			if ( this.getOptionValue( module ) ) {
-				this.updateFormStateOptionValue( moduleOption, ! this.getOptionValue( moduleOption ) );
+				if ( deactivate ) {
+
+					// If after toggling the option the module is no longer needed to be active, deactivate it.
+					this.updateFormStateOptionValue( {
+						[ module ]: false,
+						[ moduleOption ]: ! this.getOptionValue( moduleOption )
+					} );
+				} else {
+
+					// We pass the value to set.
+					this.updateFormStateOptionValue( moduleOption, ! this.getOptionValue( moduleOption ) );
+				}
 			} else {
 
 				// If the module is inactive, we pass the module to activate and the value to set.
