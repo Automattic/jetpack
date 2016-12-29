@@ -281,29 +281,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 	}
 
-	public static function route( $path, $classname, $method,
-		$constructor_arguments = NULL,
-		$endpoint_arguments = NULL
-	) {
-		if ( ! empty( $constructor_arguments ) ) {
-			$endpoint = new $classname( $constructor_arguments );
-		} else {
-			$endpoint = new $classname();
-		}
-
-		$parameters = array(
-			'methods' => $method,
-			'callback' => array( $endpoint, 'process' ),
-			'permission_callback' => array( $endpoint, 'can_request' )
-		);
-
-		if ( ! empty( $endpoint_arguments ) ) {
-			$parameters['args'] = $endpoint_arguments;
-		}
-
-		register_rest_route( 'jetpack/v4', $path, $parameters );
-	}
-
 	/**
 	 * Handles dismissing of Jetpack Notices
 	 *
