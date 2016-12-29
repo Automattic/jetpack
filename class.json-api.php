@@ -30,6 +30,8 @@ class WPCOM_JSON_API {
 	public $trapped_error = null;
 	public $did_output = false;
 
+	public $extra_headers = array();
+
 	/**
 	 * @return WPCOM_JSON_API instance
 	 */
@@ -324,7 +326,7 @@ class WPCOM_JSON_API {
 		$output_status_code = $this->output_status_code;
 		$this->set_output_status_code();
 
-		return $this->output( $output_status_code, $response );
+		return $this->output( $output_status_code, $response, 'application/json', $this->extra_headers );
 	}
 
 	function process_request( WPCOM_JSON_API_Endpoint $endpoint, $path_pieces ) {
@@ -349,7 +351,7 @@ class WPCOM_JSON_API {
 		$this->output_status_code = $code;
 	}
 
-	function output( $status_code, $response = null, $content_type = 'application/json' ) {
+	function output( $status_code, $response = null, $content_type = 'application/json', $extra = array() ) {
 		// In case output() was called before the callback returned
 		if ( $this->did_output ) {
 			if ( $this->exit )
@@ -369,6 +371,9 @@ class WPCOM_JSON_API {
 		if ( 'text/plain' === $content_type ) {
 			status_header( (int) $status_code );
 			header( 'Content-Type: text/plain' );
+			foreach( $extra as $key => $value ) {
+				header( "$key: $value" );
+			}
 			echo $response;
 			if ( $this->exit ) {
 				exit;
@@ -380,14 +385,20 @@ class WPCOM_JSON_API {
 		$response = $this->filter_fields( $response );
 
 		if ( isset( $this->query['http_envelope'] ) && self::is_truthy( $this->query['http_envelope'] ) ) {
+			$headers = array(
+				array(
+					'name' => 'Content-Type',
+					'value' => $content_type,
+				)
+			);
+			
+			foreach( $extra as $key => $value ) {
+				$headers[] = array( 'name' => $key, 'value' => $value );
+			}
+
 			$response = array(
 				'code' => (int) $status_code,
-				'headers' => array(
-					array(
-						'name' => 'Content-Type',
-						'value' => $content_type,
-					),
-				),
+				'headers' => $headers,
 				'body' => $response,
 			);
 			$status_code = 200;
