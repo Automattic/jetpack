@@ -5,6 +5,7 @@ import React from 'react';
 import analytics from 'lib/analytics';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
+import FormToggle from 'components/form/form-toggle';
 
 /**
  * Internal dependencies
@@ -14,28 +15,39 @@ import {
 	FormLegend,
 	FormLabel
 } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 
 export const CustomContentTypes = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
-		contentTypeConfigure( module, type, legend ) {
-			return ! this.props.getOptionCurrentValue( module, 'jetpack_' + type )
+		contentTypeConfigure( type, legend ) {
+			return ! this.props.getSettingCurrentValue( 'jetpack_' + type, 'custom-content-types' )
 				? ''
-				: <Button
-					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
-					href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-' + type }
-					compact={ true }>
+				: <Button compact href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-' + type }>
 					{
 						legend
 					}
 				  </Button>;
+		},
+
+		getInitialState() {
+			return {
+				testimonial: this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ),
+				portfolio: this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' )
+			};
+		},
+
+		updateCPTs( type ) {
+			let deactivate = 'testimonial' === type
+				? ! ( ( ! this.state.testimonial ) || this.state.portfolio )
+				: ! ( ( ! this.state.portfolio ) || this.state.testimonial );
+
+			this.props.updateFormStateModuleOption( 'custom-content-types', 'jetpack_' + type, deactivate );
+
+			this.setState( {
+				[ type ]: ! this.state[ type ]
+			} );
 		},
 
 		render() {
@@ -48,44 +60,42 @@ export const CustomContentTypes = moduleSettingsForm(
 								module.description
 							}
 						</p>
-						<ModuleToggle slug={ 'custom-content-types' }
-									  compact
-									  activated={ this.props.getOptionValue( 'jetpack_testimonial' ) }
-									  toggling={ this.props.isSavingAnyOption() }
-									  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'jetpack_testimonial' ) }>
+						<FormToggle compact
+									checked={ this.state.testimonial }
+									disabled={ this.props.isSavingAnyOption() }
+									onChange={ e => this.updateCPTs( 'testimonial' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
 									__( 'Enable Testimonial custom content types.' )
 								}
 							</span>
-						</ModuleToggle>
+						</FormToggle>
 						<p>
 							{
 								__( "The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials." )
 							}
 						</p>
 						{
-							this.contentTypeConfigure( module.module, 'testimonial', __( 'Configure Testimonials' ) )
+							this.contentTypeConfigure( 'testimonial', __( 'Configure Testimonials' ) )
 						}
 						<br />
-						<ModuleToggle slug={ 'custom-content-types' }
-									  compact
-									  activated={ this.props.getOptionValue( 'jetpack_portfolio' ) }
-									  toggling={ this.props.isSavingAnyOption() }
-									  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'jetpack_portfolio' ) }>
+						<FormToggle compact
+									checked={ this.state.portfolio }
+									disabled={ this.props.isSavingAnyOption() }
+									onChange={ e => this.updateCPTs( 'portfolio' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
 									__( 'Enable Portfolio custom content types.' )
 								}
 							</span>
-						</ModuleToggle>
+						</FormToggle>
 						<p>
 							{
 								__( "The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios." )
 							}
 						</p>
 						{
-							this.contentTypeConfigure( module.module, 'portfolio', __( 'Configure Portfolios' ) )
+							this.contentTypeConfigure( 'portfolio', __( 'Configure Portfolios' ) )
 						}
 					</FormFieldset>
 				</SettingsCard>
