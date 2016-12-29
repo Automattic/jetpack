@@ -2729,6 +2729,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'wpcom_publish_comments_with_markdown' => '(bool) Whether markdown is enabled for comments',
 		'amp_is_enabled'   => '(bool) Whether AMP is enabled for this site',
 		'site_icon'                    => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
+		'api_cache'                    => '(bool) Turn on/off the Jetpack JSON API cache'
 	),
 
 	'response_format' => array(
@@ -2804,7 +2805,8 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'advanced_seo_title_formats'   => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 		'amp_is_enabled'               => '(bool) Whether AMP is enabled for this site',
-		'podcasting_archive'           => '(string) The post category, if any, used for publishing podcasts'
+		'podcasting_archive'           => '(string) The post category, if any, used for publishing podcasts',
+		'api_cache'                    => '(bool) Turn on/off the Jetpack JSON API cache',
 	),
 
 	'response_format' => array(
