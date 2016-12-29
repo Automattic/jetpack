@@ -92,7 +92,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		$data_attribs = array(
 			'width',
-			'height',
 			'theme',
 			'link-color',
 			'border-color',
@@ -170,15 +169,10 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			$instance['width'] = '';
 		}
 
-		$height = (int) $new_instance['height'];
-		if ( $height ) {
-			// From publish.twitter.com: height >= 200
-			$instance['height'] = max( $height, 200 );
-		} else {
-			$instance['height'] = '';
-		}
-
 		$tweet_limit = (int) $new_instance['tweet-limit'];
+		if ( $tweet_limit > 20 ) {
+			$tweet_limit = 20;
+		}
 		$instance['tweet-limit'] = ( $tweet_limit ? $tweet_limit : null );
 
 		// If they entered something that might be a full URL, try to parse it out
@@ -255,7 +249,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		$defaults = array(
 			'title'        => esc_html__( 'Follow me on Twitter', 'jetpack' ),
 			'width'        => '',
-			'height'       => '400',
 			'widget-id'    => '',
 			'link-color'   => '#f96e5b',
 			'border-color' => '#e8e8e8',
@@ -305,21 +298,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'height' ); ?>">
-				<?php esc_html_e( 'Height (px; at least 200):', 'jetpack' ); ?>
-			</label>
-			<input
-				class="widefat"
-				id="<?php echo $this->get_field_id( 'height' ); ?>"
-				name="<?php echo $this->get_field_name( 'height' ); ?>"
-				type="number" min="200"
-				value="<?php echo esc_attr( $instance['height'] ); ?>"
-			/>
-		</p>
-
-		<p>
 			<label for="<?php echo $this->get_field_id( 'tweet-limit' ); ?>">
-				<?php esc_html_e( '# of Tweets Shown:', 'jetpack' ); ?>
+				<?php esc_html_e( '# of Tweets Shown (1 to 20):', 'jetpack' ); ?>
 			</label>
 			<input
 				class="widefat"
