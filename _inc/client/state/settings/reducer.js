@@ -103,11 +103,15 @@ export function getSettings( state ) {
 
 /**
  * Returns a value of a certain setting
- * @param  {Object} state Global state tree
- * @param  {String} key   Setting name
- * @return {Mixed}       Settings value
+ * @param  {Object} state      Global state tree
+ * @param  {String} key        Name of setting or module option to return.
+ * @param  {String} moduleName If present, it will check if the module is active before returning it.
+ * @return {undefined|*}       Settings value or undefined if a module was specified and it wasn't active.
  */
-export function getSetting( state, key ) {
+export function getSetting( state, key, moduleName = '' ) {
+	if ( '' !== moduleName && ! get( state.jetpack.settings.items, moduleName, false ) ) {
+		return undefined;
+	}
 	return get( state.jetpack.settings.items, key, undefined );
 }
 

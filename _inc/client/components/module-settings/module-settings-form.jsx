@@ -106,8 +106,8 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * Retrieves an option from an existing module, or from an array of modules
 		 * if the form was initialized with an array
 		 */
-		getOptionValue( settingName ) {
-			const currentValue = this.props.getSettingCurrentValue( settingName );
+		getOptionValue( settingName, module = '' ) {
+			const currentValue = this.props.getSettingCurrentValue( settingName, module );
 			return typeof this.state.options[ settingName ] !== 'undefined'
 				 ? this.state.options[ settingName ]
 				 : currentValue;
