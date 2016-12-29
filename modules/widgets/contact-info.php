@@ -10,7 +10,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 	add_action( 'widgets_init', 'jetpack_contact_info_widget_init' );
 
 	/**
-	 * Makes a custom Widget for displaying Resturant Location, Hours and Contact Info available.
+	 * Makes a custom Widget for displaying Restaurant Location/Map, Hours, and Contact Info available.
 	 *
 	 * @package WordPress
 	 */
@@ -22,13 +22,13 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		function __construct() {
 			$widget_ops = array(
 				'classname' => 'widget_contact_info',
-				'description' => __( 'Display your location, hours, and contact information.', 'jetpack' ),
+				'description' => __( 'Display a map with your location, hours, and contact information.', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			);
 			parent::__construct(
 				'widget_contact_info',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
-				apply_filters( 'jetpack_widget_name', __( 'Contact Info', 'jetpack' ) ),
+				apply_filters( 'jetpack_widget_name', __( 'Contact Info & Map', 'jetpack' ) ),
 				$widget_ops
 			);
 			$this->alt_option_name = 'widget_contact_info';
