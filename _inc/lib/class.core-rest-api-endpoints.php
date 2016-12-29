@@ -59,6 +59,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		Jetpack::load_xml_rpc_client();
 		$ixr_client = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
 		$core_api_endpoint = new Jetpack_Core_API_Data( $ixr_client );
+		$module_list_endpoint = new Jetpack_Core_API_Module_List_Endpoint();
+		$module_data_endpoint = new Jetpack_Core_API_Module_Data_Endpoint();
+		$module_toggle_endpoint = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
 
 		// Get current connection status of Jetpack
 		register_rest_route( 'jetpack/v4', '/connection', array(
@@ -123,19 +126,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Return all modules
-		self::route(
-			'module/all',
-			'Jetpack_Core_API_Module_List_Endpoint',
-			WP_REST_Server::READABLE
-		);
+		register_rest_route( 'jetpack/v4', '/module/all', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => array( $module_list_endpoint, 'process' ),
+			'permission_callback' => array( $module_list_endpoint, 'can_request' ),
+		) );
 
 		// Activate many modules
-		self::route(
-			'/module/all/active',
-			'Jetpack_Core_API_Module_List_Endpoint',
-			WP_REST_Server::EDITABLE,
-			NULL,
-			array(
+		register_rest_route( 'jetpack/v4', '/module/all/active', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => array( $module_list_endpoint, 'process' ),
+			'permission_callback' => array( $module_list_endpoint, 'can_request' ),
+			'args' => array(
 				'modules' => array(
 					'default'           => '',
 					'type'              => 'array',
@@ -152,23 +154,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'validate_callback' => __CLASS__ . '::validate_boolean',
 				),
 			)
-		);
+		) );
 
 		// Return a single module and update it when needed
-		self::route(
-			'/module/(?P<slug>[a-z\-]+)',
-			'Jetpack_Core_API_Data',
-			WP_REST_Server::READABLE,
-			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) )
-		);
+		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => array( $core_api_endpoint, 'process' ),
+			'permission_callback' => array( $core_api_endpoint, 'can_request' ),
+		) );
 
 		// Activate and deactivate a module
-		self::route(
-			'/module/(?P<slug>[a-z\-]+)/active',
-			'Jetpack_Core_API_Module_Toggle_Endpoint',
-			WP_REST_Server::EDITABLE,
-			new Jetpack_IXR_Client(),
-			array(
+		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/active', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => array( $module_toggle_endpoint, 'process' ),
+			'permission_callback' => array( $module_toggle_endpoint, 'can_request' ),
+			'args' => array(
 				'active' => array(
 					'default'           => true,
 					'type'              => 'boolean',
@@ -176,25 +176,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'validate_callback' => __CLASS__ . '::validate_boolean',
 				),
 			)
-		);
+		) );
 
 		// Update a module
-		self::route(
-			'/module/(?P<slug>[a-z\-]+)',
-			'Jetpack_Core_API_Data',
-			WP_REST_Server::EDITABLE,
-			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
-			self::get_updateable_parameters()
-		);
+		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => array( $core_api_endpoint, 'process' ),
+			'permission_callback' => array( $core_api_endpoint, 'can_request' ),
+			'args' => self::get_updateable_parameters( 'any' )
+		) );
 
 		// Get data for a specific module, i.e. Protect block count, WPCOM stats,
 		// Akismet spam count, etc.
-		self::route(
-			'/module/(?P<slug>[a-z\-]+)/data',
-			'Jetpack_Core_API_Module_Data_Endpoint',
-			WP_REST_Server::READABLE,
-			NULL,
-			array(
+		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/data', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => array( $module_data_endpoint, 'process' ),
+			'permission_callback' => array( $module_data_endpoint, 'can_request' ),
+			'args' => array(
 				'range' => array(
 					'default'           => 'day',
 					'type'              => 'string',
@@ -202,7 +200,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'validate_callback' => __CLASS__ . '::validate_string',
 				),
 			)
-		);
+		) );
 
 		// Update any Jetpack module option or setting
 		register_rest_route( 'jetpack/v4', '/settings', array(
