@@ -21,7 +21,7 @@ add_shortcode( 'geogebra', 'geogebra_shortcode_handler' );
 function geogebra_shortcode_handler( $attr ) {
 
 	if ( ! isset( $attr['id'] ) ) {
-		return 'Geogebra shortcode: must provide an id!';
+		return '<!-- Missing GeoGebra Applet ID -->';
 	}
 
 	$keyval = shortcode_atts(
@@ -43,7 +43,7 @@ function geogebra_shortcode_handler( $attr ) {
 		$attr
 	);
 
-	$embed_url  = 'http://www.geogebra.org/material/iframe/id/' . $keyval['id'];
+	$embed_url  = 'https://www.geogebra.org/material/iframe/id/' . $keyval['id'];
 	$embed_url .= '/height/' . $keyval['height'];
 	$embed_url .= '/width/' . $keyval['width'];
 	$embed_url .= '/border/' . $keyval['border'];
