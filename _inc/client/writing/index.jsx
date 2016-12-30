@@ -14,6 +14,7 @@ import { Composing } from './composing';
 import { Media } from './media';
 import { CustomContentTypes } from './custom-content-types';
 import { ThemeEnhancements } from './theme-enhancements';
+import { PostByEmail } from './post-by-email';
 
 export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
@@ -35,6 +36,10 @@ export const Writing = React.createClass( {
 					getModule={ this.props.module }
 				/>
 				<ThemeEnhancements
+					settings={ this.props.settings }
+					getModule={ this.props.module }
+				/>
+				<PostByEmail
 					settings={ this.props.settings }
 					getModule={ this.props.module }
 				/>

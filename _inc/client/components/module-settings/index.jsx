@@ -3,12 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import TagsInput from 'components/tags-input';
-import ClipboardButtonInput from 'components/clipboard-button-input';
-import ConnectButton from 'components/connect-button';
 import get from 'lodash/get';
-import Button from 'components/button';
 
 /**
  * Internal dependencies
@@ -115,61 +110,6 @@ export let MonitorSettings = React.createClass( {
 } );
 
 MonitorSettings = moduleSettingsForm( MonitorSettings );
-
-export let PostByEmailSettings = React.createClass( {
-	regeneratePostByEmailAddress( event ) {
-		event.preventDefault();
-		this.props.regeneratePostByEmailAddress();
-	},
-	address() {
-		const currentValue = this.props.getOptionValue( 'post_by_email_address' );
-		// If the module Post-by-email is enabled BUT it's configured as disabled
-		// Its value is set to false
-		if ( currentValue === false ) {
-			return '';
-		}
-		return currentValue;
-	},
-	render() {
-		return (
-			this.props.isCurrentUserLinked ?
-				<form>
-					<FormFieldset>
-						<FormLabel>
-							<FormLegend>{ __( 'Email Address' ) }</FormLegend>
-							<ClipboardButtonInput
-								value={ this.address() }
-								copy={ __( 'Copy', { context: 'verb' } ) }
-								copied={ __( 'Copied!' ) }
-								prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
-							/>
-							<FormButton
-								onClick={ this.regeneratePostByEmailAddress } >
-								{ __( 'Regenerate address' ) }
-							</FormButton>
-						</FormLabel>
-					</FormFieldset>
-				</form>
-				:
-				<div>
-					{
-						<div className="jp-connection-settings">
-							<div className="jp-connection-settings__headline">{ __( 'Link your account to WordPress.com to start using this feature.' ) }</div>
-							<div className="jp-connection-settings__actions">
-								<ConnectButton connectUser={ true } from="post-by-email" />
-							</div>
-						</div>
-					}
-				</div>
-		)
-	}
-} );
-
-PostByEmailSettings.propTypes = {
-	isCurrentUserLinked: React.PropTypes.bool.isRequired
-};
-
-PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 
 export let WordAdsSettings = React.createClass( {
 	render() {

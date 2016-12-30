@@ -13,7 +13,6 @@ import {
 	LikesSettings,
 	MonitorSettings,
 	SingleSignOnSettings,
-	PostByEmailSettings,
 	VideoPressSettings,
 	WordAdsSettings
 } from 'components/module-settings/';
@@ -38,8 +37,6 @@ const AllModuleSettingsComponent = React.createClass( {
 						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href='/wp-admin/admin.php?page=omnisearch'>{ __( 'Search your content.' ) }</ExternalLink>
 					</div>
 				);
-			case 'post-by-email':
-				return ( <PostByEmailSettings module={ module }  /> );
 			case 'monitor':
 				module.raw_url = this.props.siteRawUrl;
 				return ( <MonitorSettings module={ module }  /> );
