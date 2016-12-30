@@ -38,14 +38,27 @@
 }
 
 .jp-landing-plans__header-img {
-	max-width: 100%; // needs proper srcsets
+	max-width: 100%;
+}
 
-	@include breakpoint( "<660px" ) {
-		margin-top: rem( 32px );
-	}
+.jp-landing-plans__header-col-left {
+	flex-basis: 45%;
 
 	@include breakpoint( ">660px" ) {
-		margin: 0 rem( -32px ) 0 rem( 32px ); // off-canvas effect
+		padding-left: rem( 32px );
+	}
+}
+
+.jp-landing-plans__header-col-right {
+	flex-basis: 55%;
+
+	@include breakpoint( ">660px" ) {
+		padding: 0 rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		text-align: center;
+		padding-top: rem( 32px );
 	}
 }
 
