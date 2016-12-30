@@ -119,35 +119,6 @@ export let MonitorSettings = React.createClass( {
 
 MonitorSettings = moduleSettingsForm( MonitorSettings );
 
-export let CarouselSettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<FormLegend> { __( 'Mobile Promos' ) } </FormLegend>
-					<ModuleSettingCheckbox
-						name={ 'carousel_display_exif' }
-						{ ...this.props }
-						label={ __( 'Show photo metadata (Exif) in carousel, when available' ) } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend> { __( 'Background Color' ) }</FormLegend>
-					<ModuleSettingRadios
-						name={ 'carousel_background_color' }
-						{ ...this.props }
-						validValues={ this.props.validValues( 'carousel_background_color' ) } />
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-CarouselSettings = moduleSettingsForm( CarouselSettings );
-
 export let InfiniteScrollSettings = React.createClass( {
 	render() {
 		return (
@@ -208,27 +179,6 @@ export let MinilevenSettings = React.createClass( {
  } );
 
 MinilevenSettings = moduleSettingsForm( MinilevenSettings );
-
-export let TiledGallerySettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<ModuleSettingCheckbox
-						name={ 'tiled_galleries' }
-						{ ...this.props }
-						label={ __( 'Display all your gallery pictures in a cool mosaic' ) } />
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-TiledGallerySettings = moduleSettingsForm( TiledGallerySettings );
 
 export let PostByEmailSettings = React.createClass( {
 	regeneratePostByEmailAddress( event ) {

@@ -11,6 +11,7 @@ import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import QuerySite from 'components/data/query-site';
 import { Composing } from './composing';
+import { Media } from './media';
 import { CustomContentTypes } from './custom-content-types';
 
 export const Writing = React.createClass( {
@@ -21,6 +22,10 @@ export const Writing = React.createClass( {
 			<div>
 				<QuerySite />
 				<Composing
+					settings={ this.props.settings }
+					getModule={ this.props.module }
+				/>
+				<Media
 					settings={ this.props.settings }
 					getModule={ this.props.module }
 				/>

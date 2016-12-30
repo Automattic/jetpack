@@ -14,9 +14,7 @@ import {
 	MonitorSettings,
 	SingleSignOnSettings,
 	MinilevenSettings,
-	CarouselSettings,
 	InfiniteScrollSettings,
-	TiledGallerySettings,
 	PostByEmailSettings,
 	VideoPressSettings,
 	WordAdsSettings
@@ -44,12 +42,8 @@ const AllModuleSettingsComponent = React.createClass( {
 				);
 			case 'post-by-email':
 				return ( <PostByEmailSettings module={ module }  /> );
-			case 'tiled-gallery':
-				return ( <TiledGallerySettings module={ module }  /> );
 			case 'minileven':
 				return ( <MinilevenSettings module={ module }  /> );
-			case 'carousel':
-				return ( <CarouselSettings module={ module }  /> );
 			case 'infinite-scroll':
 				return ( <InfiniteScrollSettings module={ module }  /> );
 			case 'monitor':
@@ -102,7 +96,6 @@ const AllModuleSettingsComponent = React.createClass( {
 			case 'latex':
 			case 'shortlinks':
 			case 'shortcodes':
-			case 'photon':
 			case 'widget-visibility':
 			case 'notifications':
 			case 'enhanced-distribution':
