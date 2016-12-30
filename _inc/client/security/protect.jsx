@@ -24,10 +24,6 @@ import SettingsCard from 'components/settings-card';
 export const Protect = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		getInitialState() {
 			return {
 				whitelist: this.props.getOptionValue( 'jetpack_protect_global_whitelist' )
@@ -77,7 +73,7 @@ export const Protect = moduleSettingsForm(
 								  compact
 								  activated={ isProtectActive }
 								  toggling={ this.props.isSavingAnyOption() }
-								  toggleModule={ this.toggleModule }>
+								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'protect' ).description

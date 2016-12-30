@@ -33,10 +33,6 @@ export const Composing = moduleSettingsForm(
 			);
 		},
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		getAtdSettings() {
 			let ignoredPhrases = this.props.getOptionValue( 'ignored_phrases' );
 			return (
@@ -108,7 +104,7 @@ export const Composing = moduleSettingsForm(
 									  compact
 									  activated={ this.props.getOptionValue( 'markdown' ) }
 									  toggling={ this.props.isSavingAnyOption() }
-									  toggleModule={ this.toggleModule }>
+									  toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
 								{ markdown.description }
 							</span>
@@ -120,7 +116,7 @@ export const Composing = moduleSettingsForm(
 									  compact
 									  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
 									  toggling={ this.props.isSavingAnyOption() }
-									  toggleModule={ this.toggleModule }>
+									  toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
 								{ atd.description }
 							</span>

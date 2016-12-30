@@ -22,10 +22,6 @@ import SettingsCard from 'components/settings-card';
 export const PostByEmail = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		regeneratePostByEmailAddress( event ) {
 			event.preventDefault();
 			this.props.regeneratePostByEmailAddress();
@@ -51,7 +47,7 @@ export const PostByEmail = moduleSettingsForm(
 								  compact
 								  activated={ isPbeActive }
 								  toggling={ this.props.isSavingAnyOption() }
-								  toggleModule={ this.toggleModule }>
+								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'post-by-email' ).description

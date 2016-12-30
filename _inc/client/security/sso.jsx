@@ -18,10 +18,6 @@ import SettingsCard from 'components/settings-card';
 export const SSO = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		render() {
 			let isSSOActive = this.props.getOptionValue( 'sso' );
 			return (
@@ -33,7 +29,7 @@ export const SSO = moduleSettingsForm(
 								  compact
 								  activated={ isSSOActive }
 								  toggling={ this.props.isSavingAnyOption() }
-								  toggleModule={ this.toggleModule }>
+								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'sso' ).description

@@ -19,10 +19,6 @@ import SettingsCard from 'components/settings-card';
 export const Subscriptions = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		render() {
 			let isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' );
 			return (
@@ -33,7 +29,7 @@ export const Subscriptions = moduleSettingsForm(
 								  compact
 								  activated={ isSubscriptionsActive }
 								  toggling={ this.props.isSavingAnyOption() }
-								  toggleModule={ this.toggleModule }>
+								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'subscriptions' ).description

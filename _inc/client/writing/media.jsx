@@ -25,10 +25,11 @@ export const Media = moduleSettingsForm(
 			if ( 'photon' === name ) {
 
 				// Carousel depends on Photon. Deactivate it if Photon is deactivated.
-				this.props.updateFormStateOptionValue( false === ! value
-					? { photon: false, 'tiled-gallery': false, tiled_galleries: false }
-					: { photon: true, 'tiled-gallery': true, tiled_galleries: true }
-				);
+				if ( false === ! value ) {
+					this.props.updateOptions( { photon: false, 'tiled-gallery': false, tiled_galleries: false } );
+				} else {
+					this.props.updateOptions( { photon: true, 'tiled-gallery': true, tiled_galleries: true } );
+				}
 			} else {
 				this.props.updateFormStateOptionValue( name, !value );
 			}
@@ -65,7 +66,7 @@ export const Media = moduleSettingsForm(
 					<ModuleToggle slug={ 'carousel' }
 								  compact
 								  activated={ isCarouselActive }
-								  toggleModule={ this.toggleModule }>
+								  toggleModule={ this.props.toggleModuleNow }>
 								<span className="jp-form-toggle-explanation">
 									{
 										carousel.description

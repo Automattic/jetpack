@@ -25,10 +25,6 @@ import InlineExpand from 'components/inline-expand';
 export const SiteStats = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		render() {
 			return (
 				<SettingsCard

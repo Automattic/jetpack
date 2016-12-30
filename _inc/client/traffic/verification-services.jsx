@@ -23,10 +23,6 @@ import SettingsCard from 'components/settings-card';
 export const VerificationServices = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		render() {
 			let module = this.props.getModule( 'sitemaps' ),
 				sitemap_url = get( module, [ 'extra', 'sitemap_url' ], '' ),

@@ -56,7 +56,10 @@ export const CustomContentTypes = moduleSettingsForm(
 		render() {
 			let module = this.props.getModule( 'custom-content-types' );
 			return (
-				<SettingsCard module="custom-content-types" { ...this.props }>
+				<SettingsCard
+					{ ...this.props }
+					module="custom-content-types"
+					hideButton>
 					<FormFieldset>
 						<p>
 							{
