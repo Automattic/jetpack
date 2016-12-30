@@ -3,10 +3,21 @@
  * Geogebra embeds
  *
  * @link https://www.geogebra.org/
+ *
+ * @package Jetpack
  */
 
 add_shortcode( 'geogebra', 'geogebra_shortcode_handler' );
 
+/**
+ * Constructs a GeoGebra embed iframe. There is no official API doc for this,
+ * but the URL format is simple to reverse engineer from the embed code generated
+ * by tube.geogebra.org.
+ *
+ * @param array $attr Array of shortcode attributes.
+ *
+ * @return string The iframe element.
+ */
 function geogebra_shortcode_handler( $attr ) {
 
 	if ( ! isset( $attr['id'] ) ) {
@@ -18,7 +29,7 @@ function geogebra_shortcode_handler( $attr ) {
 			'id'          => null,
 			'height'      => 480,
 			'width'       => 640,
-			'border'      => "888888",
+			'border'      => '888888',
 			'input-bar'   => null,
 			'style-bar'   => null,
 			'menu-bar'    => null,
