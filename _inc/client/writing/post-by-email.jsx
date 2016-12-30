@@ -42,7 +42,8 @@ export const PostByEmail = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					module="post-by-email">
+					module="post-by-email"
+					hideButton>
 					<ModuleToggle slug="post-by-email"
 								  compact
 								  activated={ isPbeActive }

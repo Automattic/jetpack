@@ -10,15 +10,15 @@ import get from 'lodash/get';
 import {
 	updateModuleOptions,
 	getModuleOption,
-	getModuleOptionValidValues,
-	regeneratePostByEmailAddress
+	getModuleOptionValidValues
 } from 'state/modules';
 import {
 	getSetting,
 	updateSettings,
 	isUpdatingSetting,
 	setUnsavedSettingsFlag,
-	clearUnsavedSettingsFlag
+	clearUnsavedSettingsFlag,
+	regeneratePostByEmailAddress
 } from 'state/settings';
 import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
 import {

@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import assign from 'lodash/assign';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -112,10 +113,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * if the form was initialized with an array
 		 */
 		getOptionValue( settingName, module = '' ) {
-			const currentValue = this.props.getSettingCurrentValue( settingName, module );
-			return typeof this.state.options[ settingName ] !== 'undefined'
-				 ? this.state.options[ settingName ]
-				 : currentValue;
+			return get( this.state.options, settingName, this.props.getSettingCurrentValue( settingName, module ) );
 		},
 
 		shouldSaveButtonBeDisabled() {
