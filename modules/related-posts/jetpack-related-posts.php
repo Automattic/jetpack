@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20150408';
+	const VERSION = '20161230';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	/**
@@ -55,6 +55,7 @@ class Jetpack_RelatedPosts {
 	protected $_convert_charset;
 	protected $_previous_post_id;
 	protected $_found_shortcode = false;
+	protected $_citations_enabled = false;
 
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
@@ -72,6 +73,22 @@ class Jetpack_RelatedPosts {
 
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_action( 'wp', array( $this, 'action_frontend_init' ) );
+	}
+
+	protected function set_citations_enabled() {
+		if ( ! is_automattician() )
+			return;
+		$whitelist = array(
+			56857843, //elasticsearchp2
+			//14838835, //datap2
+			//86187505, //readersquadp2
+		);
+
+		$_blog_id = get_current_blog_id();
+		if ( in_array( $_blog_id, $whitelist ) )
+			$this->_citations_enabled = true;
+		else
+			$this->_citations_enabled = false;
 	}
 
 	/**
@@ -109,6 +126,7 @@ class Jetpack_RelatedPosts {
 	 * @returns null
 	 */
 	public function action_frontend_init() {
+		$this->set_citations_enabled();
 		// Add a shortcode handler that outputs nothing, this gets overridden later if we can display related content
 		add_shortcode( self::SHORTCODE, array( $this, 'get_target_html_unsupported' ) );
 
@@ -172,10 +190,17 @@ class Jetpack_RelatedPosts {
 		$options = $this->get_options();
 
 		if ( $options['show_headline'] ) {
-			$headline = sprintf(
-				'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
-				esc_html__( 'Related', 'jetpack' )
-			);
+			if ( $this->_citations_enabled ) {
+				$headline = sprintf(
+					'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
+					esc_html__( 'Potential Citations', 'jetpack' )
+				);
+			} else {
+				$headline = sprintf(
+					'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
+					esc_html__( 'Related', 'jetpack' )
+				);
+			}
 		} else {
 			$headline = '';
 		}
@@ -234,8 +259,12 @@ EOT;
 				$this->_options['show_headline'] = true;
 			if ( ! isset( $this->_options['show_thumbnails'] ) )
 				$this->_options['show_thumbnails'] = false;
-			if ( empty( $this->_options['size'] ) || (int)$this->_options['size'] < 1 )
-				$this->_options['size'] = 3;
+			if ( empty( $this->_options['size'] ) || (int)$this->_options['size'] < 1 ) {
+				if ( $this->_citations_enabled )
+					$this->_options['size'] = 12;
+				else
+					$this->_options['size'] = 3;
+			}
 
 			/**
 			 * Filter Related Posts basic options.
@@ -725,8 +754,20 @@ EOT;
 			'items' => array(),
 		);
 
-		if ( count( $related_posts ) == $options['size'] )
-			$response['items'] = $related_posts;
+		if ( $this->_citations_enabled ) {
+			if ( count( $related_posts ) > 3 ) {
+				$i = 0;
+				foreach( $related_posts as $p ) {
+					$response['items'][$i][] = $p;
+					$i++;
+					if ( 3 == $i )
+						$i = 0;
+				}
+			}
+		} else {
+			if ( count( $related_posts ) == $options['size'] )
+				$response['items'] = $related_posts;
+		}
 
 		echo json_encode( $response );
 
@@ -1174,13 +1215,25 @@ EOT;
 	 * @return null
 	 */
 	protected function _enqueue_assets( $script, $style ) {
-		if ( $script )
-			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), array( 'jquery' ), self::VERSION );
-		if ( $style ){
-			if( is_rtl() ) {
-				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'rtl/related-posts-rtl.css', __FILE__ ), array(), self::VERSION );
+		if ( $script ) {
+			if ( $this->_citations_enabled )
+				wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'auto-citations.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+			else
+				wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+		}
+		if ( $style ) {
+			if ( $this->_citations_enabled ) {
+				if ( is_rtl() ) {
+					wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'rtl/auto-citations-rtl.css', __FILE__ ), array(), self::VERSION );
+				} else {
+					wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'auto-citations.css', __FILE__ ), array(), self::VERSION );
+				}
 			} else {
-				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
+				if ( is_rtl() ) {
+					wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'rtl/related-posts-rtl.css', __FILE__ ), array(), self::VERSION );
+				} else {
+					wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
+				}
 			}
 		}
 	}
