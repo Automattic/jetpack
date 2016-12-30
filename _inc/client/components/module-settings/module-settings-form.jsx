@@ -90,6 +90,9 @@ export function ModuleSettingsForm( InnerComponent ) {
 				} );
 			}
 		},
+		toggleModuleNow( module ) {
+			this.props.updateOptions( { [ module ]: ! this.getOptionValue( module ) } );
+		},
 		componentDidUpdate() {
 			if ( this.isDirty() ) {
 				this.props.setUnsavedSettingsFlag();
@@ -131,6 +134,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 					onSubmit={ this.onSubmit }
 					onOptionChange={ this.onOptionChange }
 					updateFormStateOptionValue={ this.updateFormStateOptionValue }
+					toggleModuleNow={ this.toggleModuleNow }
 					updateFormStateModuleOption={ this.updateFormStateModuleOption }
 					shouldSaveButtonBeDisabled={ this.shouldSaveButtonBeDisabled }
 					isSavingAnyOption={ this.isSavingAnyOption }
