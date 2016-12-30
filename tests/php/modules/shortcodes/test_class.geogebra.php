@@ -100,4 +100,20 @@ class WP_Test_Jetpack_Shortcodes_GeoGebra extends WP_UnitTestCase {
 			do_shortcode( '[geogebra id="0" pan-zoom="true"]' )
 		);
 	}
+
+	/**
+	 * Verify that toolbar help only renders if toolbar also renders.
+	 *
+	 * @since TODO
+	 */
+	public function test_shortcodes_geogebra_tool_bar_help() {
+		$this->assertNotContains(
+			'/stbh/true',
+			do_shortcode( '[geogebra id="0" tool-help="true"]' )
+		);
+		$this->assertContains(
+			'/stbh/true',
+			do_shortcode( '[geogebra id="0" tool-bar="true" tool-help="true"]' )
+		);
+	}
 }
