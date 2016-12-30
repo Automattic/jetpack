@@ -72,19 +72,21 @@ export function ModuleSettingsForm( InnerComponent ) {
 				if ( deactivate ) {
 
 					// If after toggling the option the module is no longer needed to be active, deactivate it.
-					this.updateFormStateOptionValue( {
+					this.props.updateOptions( {
 						[ module ]: false,
 						[ moduleOption ]: ! this.getOptionValue( moduleOption )
 					} );
 				} else {
 
 					// We pass the value to set.
-					this.updateFormStateOptionValue( moduleOption, ! this.getOptionValue( moduleOption ) );
+					this.props.updateOptions( {
+						[ moduleOption ]: ! this.getOptionValue( moduleOption )
+					} );
 				}
 			} else {
 
 				// If the module is inactive, we pass the module to activate and the value to set.
-				this.updateFormStateOptionValue( {
+				this.props.updateOptions( {
 					[ module ]: true,
 					[ moduleOption ]: true
 				} );
