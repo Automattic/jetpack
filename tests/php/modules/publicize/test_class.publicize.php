@@ -90,4 +90,42 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	function prevent_publicize_post( $should_publicize, $post ) {
 		return false;
 	}
+
+	/**
+	 * Verifies two methods of making custom post types publicizeable,
+	 * as given in the Jetpack documentation.
+	 *
+	 * @see https://jetpack.com/support/publicize/
+	 *
+	 * @covers Publicize::post_type_is_publicizeable()
+	 * @since 4.6.0
+	 */
+	public function test_publicize_post_type_is_publicizeable_cpt() {
+		$publicize = publicize_init();
+
+		$this->assertFalse(
+			$publicize->post_type_is_publicizeable( 'unpub-post-type' )
+		);
+
+		// Method 1: Directly call add_post_type_support.
+		add_post_type_support( 'pub-post-type-1', 'publicize' );
+
+		$this->assertTrue(
+			$publicize->post_type_is_publicizeable( 'pub-post-type-1' )
+		);
+
+		// Method 2: Add support at registration time.
+		register_post_type(
+			'pub-post-type-2',
+			array(
+				'label'    => 'publicizeable-post-type-2',
+				'supports' => array( 'publicize' ),
+			)
+		);
+
+		$this->assertTrue(
+			$publicize->post_type_is_publicizeable( 'pub-post-type-2' )
+		);
+	}
+
 }
