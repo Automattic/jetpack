@@ -170,6 +170,14 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			$instance['width'] = '';
 		}
 
+		$height = (int) $new_instance['height'];
+		if ( $height ) {
+			// From publish.twitter.com: height >= 200
+			$instance['height'] = max( $height, 200 );
+		} else {
+			$instance['height'] = '';
+		}
+
 		$tweet_limit = (int) $new_instance['tweet-limit'];
 		if ( $tweet_limit > 20 ) {
 			$tweet_limit = 20;
@@ -250,6 +258,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		$defaults = array(
 			'title'        => esc_html__( 'Follow me on Twitter', 'jetpack' ),
 			'width'        => '',
+			'height'       => '400',
 			'widget-id'    => '',
 			'link-color'   => '#f96e5b',
 			'border-color' => '#e8e8e8',
@@ -295,6 +304,19 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				name="<?php echo $this->get_field_name( 'width' ); ?>"
 				type="number" min="220" max="1200"
 				value="<?php echo esc_attr( $instance['width'] ); ?>"
+			/>
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'height' ); ?>">
+				<?php esc_html_e( 'Height (px; at least 200):', 'jetpack' ); ?>
+			</label>
+			<input
+				class="widefat"
+				id="<?php echo $this->get_field_id( 'height' ); ?>"
+				name="<?php echo $this->get_field_name( 'height' ); ?>"
+				type="number" min="200"
+				value="<?php echo esc_attr( $instance['height'] ); ?>"
 			/>
 		</p>
 
