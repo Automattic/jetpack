@@ -1,6 +1,6 @@
 <?php
 foreach ( $rows as $row ): ?>
-	<div class="gallery-row"
+	<div class="gallery-row<?php if ( 1 === count( $row->images ) ) echo ' gallery-singleton-row' ?>"
 		style="width: <?php echo esc_attr( $row->width ); ?>px; height: <?php echo esc_attr( $row->height ); ?>px;"
 		data-original-width="<?php echo esc_attr( $row->width ); ?>"
 		data-original-height="<?php echo esc_attr( $row->height ); ?>"
