@@ -92,6 +92,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		$data_attribs = array(
 			'width',
+			'height',
 			'theme',
 			'link-color',
 			'border-color',
