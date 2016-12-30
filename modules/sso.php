@@ -4,7 +4,7 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' 
 
 /**
  * Module Name: Single Sign On
- * Module Description: Secure user authentication with WordPress.com.
+ * Module Description: Allow log-in using WordPress.com accounts.
  * Jumpstart Description: Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.
  * Sort Order: 30
  * Recommendation Order: 5
