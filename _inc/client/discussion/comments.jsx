@@ -27,6 +27,9 @@ export const Comments = moduleSettingsForm(
 		},
 
 		render() {
+			let comments = this.props.getModule( 'comments' ),
+				gravatar = this.props.getModule( 'gravatar-hovercards' ),
+				markdown = this.props.getModule( 'markdown' );
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -38,7 +41,7 @@ export const Comments = moduleSettingsForm(
 								  toggleModule={ this.toggleModule }>
 						<span className="jp-form-toggle-explanation">
 							{
-								__( 'Use Jetpack comments. Let readers use their WordPress.com,	Twitter, Facebook or Google+ to leave comments on your posts and pages.' )
+								comments.description
 							}
 						</span>
 					</ModuleToggle>
@@ -63,7 +66,7 @@ export const Comments = moduleSettingsForm(
 						</FormLabel>
 					</FormFieldset>
 					<hr />
-					<FormFieldset>
+					<FormFieldset support={ gravatar.learn_more_button }>
 						<ModuleToggle slug={ 'gravatar-hovercards' }
 									  compact
 									  activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
@@ -71,11 +74,12 @@ export const Comments = moduleSettingsForm(
 									  toggleModule={ this.toggleModule }>
 							<span className="jp-form-toggle-explanation">
 								{
-									this.props.getModule( 'gravatar-hovercards' ).description
+									gravatar.description
 								}
 							</span>
 						</ModuleToggle>
-						<br />
+					</FormFieldset>
+					<FormFieldset support={ markdown.learn_more_button }>
 						<ModuleToggle slug={ 'markdown' }
 									  compact
 									  activated={ !!this.props.getOptionValue( 'wpcom_publish_comments_with_markdown' ) }
@@ -83,7 +87,7 @@ export const Comments = moduleSettingsForm(
 									  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'wpcom_publish_comments_with_markdown' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
-									__( 'Use Markdown for comments.' )
+									__( 'Enable Markdown use for comments.' )
 								}
 							</span>
 						</ModuleToggle>

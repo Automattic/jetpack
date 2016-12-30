@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Comments
- * Module Description: Allow comments with WordPress.com, Twitter, Facebook, or Google+.
+ * Module Description: Use Jetpack comments. Let readers use their WordPress.com, Twitter, Facebook or Google+ to leave comments on your posts and pages.
  * First Introduced: 1.4
  * Sort Order: 20
  * Requires Connection: Yes

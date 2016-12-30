@@ -24,34 +24,39 @@ export const Subscriptions = moduleSettingsForm(
 		},
 
 		render() {
+			let isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' );
 			return (
 				<SettingsCard
 					{ ...this.props }
 					module="subscriptions">
 					<ModuleToggle slug={ 'subscriptions' }
 								  compact
-								  activated={ this.props.getOptionValue( 'subscriptions' ) }
+								  activated={ isSubscriptionsActive }
 								  toggling={ this.props.isSavingAnyOption() }
 								  toggleModule={ this.toggleModule }>
 						<span className="jp-form-toggle-explanation">
 							{
-								__( 'Allow users to subscribe to your posts and comments and receive notifications via email.' )
+								this.props.getModule( 'subscriptions' ).description
 							}
 						</span>
 					</ModuleToggle>
-					<p>
-						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
-					</p>
-					<FormFieldset>
-						<ModuleSettingCheckbox
-							name={ 'stb_enabled' }
-							{ ...this.props }
-							label={ __( 'Show a "follow blog" options in the comment form' ) } />
-						<ModuleSettingCheckbox
-							name={ 'stc_enabled' }
-							{ ...this.props }
-							label={ __( 'Show a "follow comments" option in the comment form.' ) } />
-					</FormFieldset>
+					{
+						isSubscriptionsActive
+							? <FormFieldset>
+								<p>
+									<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
+								</p>
+								<ModuleSettingCheckbox
+									name={ 'stb_enabled' }
+									{ ...this.props }
+									label={ __( 'Show a "follow blog" option in the comment form' ) } />
+								<ModuleSettingCheckbox
+									name={ 'stc_enabled' }
+									{ ...this.props }
+									label={ __( 'Show a "follow comments" option in the comment form.' ) } />
+							  </FormFieldset>
+							: ''
+					}
 				</SettingsCard>
 			);
 		}
