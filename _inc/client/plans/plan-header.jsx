@@ -15,7 +15,7 @@ const PlanHeader = React.createClass( {
 		let starrySky = '',
 			planCard = '';
 		switch ( this.props.plan ) {
-			case 'jetpack_business':
+			case 'jetpack_free':
 				starrySky = (
 					<div className="jp-landing-plans__header">
 						<h2 className="jp-landing-plans__header-title">
