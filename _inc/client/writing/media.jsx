@@ -4,7 +4,6 @@
 import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import TextInput from 'components/text-input';
 
 /**
  * Internal dependencies
@@ -37,7 +36,8 @@ export const Media = moduleSettingsForm(
 
 		render() {
 			let photon   = this.props.getModule( 'photon' ),
-				carousel = this.props.getModule( 'carousel' );
+				carousel = this.props.getModule( 'carousel' ),
+				isCarouselActive = this.props.getOptionValue( 'carousel' );
 
 			return (
 				<SettingsCard
@@ -64,7 +64,7 @@ export const Media = moduleSettingsForm(
 					<hr />
 					<ModuleToggle slug={ 'carousel' }
 								  compact
-								  activated={ this.props.getOptionValue( 'carousel' ) }
+								  activated={ isCarouselActive }
 								  toggleModule={ this.toggleModule }>
 								<span className="jp-form-toggle-explanation">
 									{
@@ -73,22 +73,22 @@ export const Media = moduleSettingsForm(
 								</span>
 					</ModuleToggle>
 					{
-						this.props.getSettingCurrentValue( 'carousel' )
+						isCarouselActive
 							? <FormFieldset support={ carousel.learn_more_button }>
-							<ModuleSettingCheckbox
-								name={ 'carousel_display_exif' }
-								{ ...this.props }
-								label={ __( 'Show photo metadata (Exif) in carousel, when available' ) } />
-							<FormLabel>
-								<span className="jp-form-label-wide">{ __( 'Background color' ) }</span>
-								<ModuleSettingSelect
-									name={ 'carousel_background_color' }
-									value={ this.props.getOptionValue( 'carousel_background_color' ) }
-									onChange={ this.props.onOptionChange }
+								<ModuleSettingCheckbox
+									name={ 'carousel_display_exif' }
 									{ ...this.props }
-									validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
-							</FormLabel>
-						</FormFieldset>
+									label={ __( 'Show photo metadata (Exif) in carousel, when available' ) } />
+								<FormLabel>
+									<FormLegend className="jp-form-label-wide">{ __( 'Background color' ) }</FormLegend>
+									<ModuleSettingSelect
+										name={ 'carousel_background_color' }
+										value={ this.props.getOptionValue( 'carousel_background_color' ) }
+										onChange={ this.props.onOptionChange }
+										{ ...this.props }
+										validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
+								</FormLabel>
+							  </FormFieldset>
 							: ''
 					}
 				</SettingsCard>

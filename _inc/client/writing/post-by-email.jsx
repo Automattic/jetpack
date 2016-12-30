@@ -61,8 +61,8 @@ export const PostByEmail = moduleSettingsForm(
 					{
 						isPbeActive
 							? <FormFieldset>
-								<FormLabel className="jp-form-label-wide">
-									{ __( 'Email Address' ) }
+								<FormLabel>
+									<FormLegend>{ __( 'Email Address' ) }</FormLegend>
 									<ClipboardButtonInput
 										value={ this.address() }
 										copy={ __( 'Copy', { context: 'verb' } ) }

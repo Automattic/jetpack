@@ -22,6 +22,9 @@ export const CustomContentTypes = moduleSettingsForm(
 	React.createClass( {
 
 		contentTypeConfigure( type, legend ) {
+			if ( ! this.state[ type ] ) {
+				return '';
+			}
 			return ! this.props.getSettingCurrentValue( 'jetpack_' + type, 'custom-content-types' )
 				? ''
 				: <Button compact href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-' + type }>
@@ -70,11 +73,15 @@ export const CustomContentTypes = moduleSettingsForm(
 								}
 							</span>
 						</FormToggle>
-						<p>
-							{
-								__( "The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials." )
-							}
-						</p>
+						{
+							this.state.testimonial
+								? <p className="jp-form-setting-explanation">
+									{
+										__( "The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials." )
+									}
+								  </p>
+								: ''
+						}
 						{
 							this.contentTypeConfigure( 'testimonial', __( 'Configure Testimonials' ) )
 						}
@@ -89,11 +96,15 @@ export const CustomContentTypes = moduleSettingsForm(
 								}
 							</span>
 						</FormToggle>
-						<p>
-							{
-								__( "The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios." )
-							}
-						</p>
+						{
+							this.state.portfolio
+								? <p className="jp-form-setting-explanation">
+									{
+										__( "The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios." )
+									}
+								  </p>
+								: ''
+						}
 						{
 							this.contentTypeConfigure( 'portfolio', __( 'Configure Portfolios' ) )
 						}

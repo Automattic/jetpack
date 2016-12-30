@@ -13,7 +13,7 @@ import {
 	FormLegend,
 	FormLabel
 } from 'components/forms';
-import { getModule as _getModule } from 'state/modules';
+import { getModule } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
@@ -23,14 +23,10 @@ import InlineExpand from 'components/inline-expand';
 
 export const Composing = moduleSettingsForm(
 	React.createClass( {
-		getCheckbox( setting, label, isAtd = true ) {
-			let markdown = this.props.getModule( 'markdown' );
-			let atd = this.props.getModule( 'after-the-deadline' );
-
+		getCheckbox( setting, label ) {
 			return(
 				<ModuleSettingCheckbox
 					name={ setting }
-					module={ isAtd ? atd : markdown }
 					label={ label }
 					{ ...this.props }
 				/>
@@ -42,6 +38,7 @@ export const Composing = moduleSettingsForm(
 		},
 
 		getAtdSettings() {
+			let ignoredPhrases = this.props.getOptionValue( 'ignored_phrases' );
 			return (
 				<div>
 					<FormFieldset>
@@ -56,8 +53,7 @@ export const Composing = moduleSettingsForm(
 						</FormLegend>
 						<span className="jp-form-setting-explanation">
 							{ __(
-								  'The proofreader supports English, French, ' +
-								  'German, Portuguese and Spanish.'
+								  'The proofreader supports English, French, German, Portuguese and Spanish.'
 							  ) }
 						</span>
 						{
@@ -91,13 +87,10 @@ export const Composing = moduleSettingsForm(
 							name="ignored_phrases"
 							placeholder={ __( 'Add a phrase' ) }
 							value={
-								(
-									'undefined' !== typeof this.props.getOptionValue( 'ignored_phrases' )
-									&& '' !== this.props.getOptionValue( 'ignored_phrases' )
-								)
-								 ? this.props.getOptionValue( 'ignored_phrases' ).split( ',' )
-								 : []
-								  }
+								'undefined' !== typeof ignoredPhrases && '' !== ignoredPhrases
+									 ? ignoredPhrases.split( ',' )
+									 : []
+							}
 							onChange={ this.props.onOptionChange } />
 					</FormFieldset>
 				</div>
@@ -105,8 +98,8 @@ export const Composing = moduleSettingsForm(
 		},
 
 		render() {
-			let markdown = this.props.getModule( 'markdown' );
-			let atd = this.props.getModule( 'after-the-deadline' );
+			let markdown = this.props.getModule( 'markdown' ),
+				atd = this.props.getModule( 'after-the-deadline' );
 
 			return (
 				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }>
