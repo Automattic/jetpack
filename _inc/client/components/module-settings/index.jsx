@@ -4,8 +4,6 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
-import TextInput from 'components/text-input';
-import Textarea from 'components/textarea';
 import TagsInput from 'components/tags-input';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 import ConnectButton from 'components/connect-button';
@@ -25,8 +23,7 @@ import {
 
 import {
 	ModuleSettingRadios,
-	ModuleSettingCheckbox,
-	ModuleSettingMultipleSelectCheckboxes
+	ModuleSettingCheckbox
 } from 'components/module-settings/form-components';
 
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
@@ -118,67 +115,6 @@ export let MonitorSettings = React.createClass( {
 } );
 
 MonitorSettings = moduleSettingsForm( MonitorSettings );
-
-export let InfiniteScrollSettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<ModuleSettingCheckbox
-						name={ 'infinite_scroll' }
-						{ ...this.props }
-						label={ __( 'Scroll infinitely (Shows 7 posts on each load)' ) } />
-					<ModuleSettingCheckbox
-						name={ 'infinite_scroll_google_analytics' }
-						{ ...this.props }
-						label={ __( 'Track each infinite Scroll post load as a page view in Google Analytics' ) } />
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
-} );
-
-InfiniteScrollSettings = moduleSettingsForm( InfiniteScrollSettings );
-
-export let MinilevenSettings = React.createClass( {
-	render() {
-		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<FormLegend> { __( 'Excerpts' ) } </FormLegend>
-						<ModuleSettingRadios
-							name={ 'wp_mobile_excerpt' }
-							{ ...this.props }
-							validValues={ this.props.validValues( 'wp_mobile_excerpt' ) } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend> { __( 'Featured Images' ) } </FormLegend>
-						<ModuleSettingRadios
-							name={ 'wp_mobile_featured_images' }
-							{ ...this.props }
-							validValues={ this.props.validValues( 'wp_mobile_featured_images' ) } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLegend> { __( 'Mobile Promos' ) } </FormLegend>
-					<ModuleSettingCheckbox
-						name={ 'wp_mobile_app_promos' }
-						{ ...this.props }
-						label={ __( 'Show a promo for the WordPress mobile apps in the footer of the mobile theme' ) } />
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
-		)
-	}
- } );
-
-MinilevenSettings = moduleSettingsForm( MinilevenSettings );
 
 export let PostByEmailSettings = React.createClass( {
 	regeneratePostByEmailAddress( event ) {

@@ -13,6 +13,7 @@ import QuerySite from 'components/data/query-site';
 import { Composing } from './composing';
 import { Media } from './media';
 import { CustomContentTypes } from './custom-content-types';
+import { ThemeEnhancements } from './theme-enhancements';
 
 export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
@@ -30,6 +31,10 @@ export const Writing = React.createClass( {
 					getModule={ this.props.module }
 				/>
 				<CustomContentTypes
+					settings={ this.props.settings }
+					getModule={ this.props.module }
+				/>
+				<ThemeEnhancements
 					settings={ this.props.settings }
 					getModule={ this.props.module }
 				/>

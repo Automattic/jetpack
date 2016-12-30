@@ -1177,32 +1177,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Mobile Theme
 			'wp_mobile_excerpt' => array(
 				'description'       => esc_html__( 'Excerpts', 'jetpack' ),
-				'type'              => 'string',
-				'default'           => 'disabled',
-				'enum'              => array(
-					'enabled',
-					'disabled',
-				),
-				'enum_labels' => array(
-					'enabled'  => esc_html__( 'Enable excerpts on front page and on archive pages', 'jetpack' ),
-					'disabled' => esc_html__( 'Show full posts on front page and on archive pages', 'jetpack' ),
-				),
-				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'minileven',
 			),
 			'wp_mobile_featured_images' => array(
 				'description'       => esc_html__( 'Featured Images', 'jetpack' ),
-				'type'              => 'string',
-				'default'           => 'disabled',
-				'enum'              => array(
-					'enabled',
-					'disabled',
-				),
-				'enum_labels' => array(
-					'enabled'  => esc_html__( 'Display featured images', 'jetpack' ),
-					'disabled' => esc_html__( 'Hide all featured images', 'jetpack' ),
-				),
-				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'minileven',
 			),
 			'wp_mobile_app_promos' => array(
@@ -2121,16 +2105,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options['guess_lang']['current_value'] = self::cast_value( isset( $atd_options['true'] ), $options[ 'guess_lang' ] );
 				$options['ignored_phrases']['current_value'] = AtD_get_setting( get_current_user_id(), 'AtD_ignored_phrases' );
 				unset( $options['unignore_phrase'] );
-				break;
-
-			case 'minileven':
-				$options['wp_mobile_excerpt']['current_value'] =
-					1 === intval( $options['wp_mobile_excerpt']['current_value'] ) ?
-					'enabled' : 'disabled';
-
-				$options['wp_mobile_featured_images']['current_value'] =
-					1 === intval( $options['wp_mobile_featured_images']['current_value'] ) ?
-					'enabled' : 'disabled';
 				break;
 
 			case 'stats':
