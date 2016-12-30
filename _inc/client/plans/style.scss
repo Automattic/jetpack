@@ -70,8 +70,12 @@
 }
 // end IE11 cloud hack
 
+.jp-landing-plans__header-img {
+	max-width: 100%;
+}
+
 .jp-landing-plans__header-col-left {
-	flex-basis: 60%;
+	flex-basis: 45%;
 
 	@include breakpoint( ">660px" ) {
 		padding-left: rem( 32px );
@@ -79,7 +83,15 @@
 }
 
 .jp-landing-plans__header-col-right {
-	flex-basis: 40%;
+	flex-basis: 55%;
+
+	@include breakpoint( ">660px" ) {
+		padding: 0 rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		text-align: center;
+	}
 }
 
 .jp-landing-plans__header-title,
