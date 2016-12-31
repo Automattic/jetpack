@@ -9,23 +9,15 @@ class Jetpack_Slideshow_Shortcode {
 	function __construct() {
 		global $shortcode_tags;
 
-		$needs_scripts = false;
-
 		// Only if the slideshow shortcode has not already been defined.
 		if ( ! array_key_exists( 'slideshow', $shortcode_tags ) ) {
 			add_shortcode( 'slideshow', array( $this, 'shortcode_callback' ) );
-			$needs_scripts = true;
 		}
 
 		// Only if the gallery shortcode has not been redefined.
 		if ( isset( $shortcode_tags['gallery'] ) && 'gallery_shortcode' === $shortcode_tags['gallery'] ) {
 			add_filter( 'post_gallery', array( $this, 'post_gallery' ), 1002, 2 );
 			add_filter( 'jetpack_gallery_types', array( $this, 'add_gallery_type' ), 10 );
-			$needs_scripts = true;
-		}
-
-		if ( $needs_scripts ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_scripts' ), 1 );
 		}
 
 		/**
@@ -273,23 +265,9 @@ class Jetpack_Slideshow_Shortcode {
 	}
 
 	/**
-	 * Infinite Scroll needs the scripts to be present at all times
-	 */
-	function maybe_enqueue_scripts() {
-		if ( is_home() && current_theme_supports( 'infinite-scroll' ) ) {
-			$this->enqueue_scripts();
-		}
-	}
-
-	/**
 	 * Actually enqueues the scripts and styles.
 	 */
 	function enqueue_scripts() {
-		static $enqueued = false;
-
-		if ( $enqueued ) {
-			return;
-		}
 
 		wp_enqueue_script( 'jquery-cycle', plugins_url( '/js/jquery.cycle.min.js', __FILE__ ), array( 'jquery' ), '20161231', true );
 		wp_enqueue_script( 'jetpack-slideshow', plugins_url( '/js/slideshow-shortcode.js', __FILE__ ), array( 'jquery-cycle' ), '20121214.1', true );
@@ -318,12 +296,10 @@ class Jetpack_Slideshow_Shortcode {
 				)
 			)
 		);
-
-		$enqueued = true;
 	}
 
 	public static function init() {
-		$gallery = new Jetpack_Slideshow_Shortcode;
+		new Jetpack_Slideshow_Shortcode;
 	}
 }
 
