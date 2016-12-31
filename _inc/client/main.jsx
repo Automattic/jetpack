@@ -275,10 +275,9 @@ window.wpNavMenuClassChange = function() {
 	const settingRoutes = [
 		'#/settings',
 		'#/general',
-		'#/engagement',
 		'#/discussion',
 		'#/security',
-		'#/appearance',
+		'#/traffic',
 		'#/writing',
 		'#/search'
 	],
