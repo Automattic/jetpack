@@ -93,3 +93,94 @@ function geogebra_shortcode_handler( $attr ) {
 
 	return $content;
 }
+
+/**
+ * Replace embedded geogebra iframes with shortcodes.
+ *
+ * @since TODO
+ *
+ * @param string $content String to replace iframes in.
+ *
+ * @return string String with iframes replaced.
+ */
+function geogebra_embed_to_shortcode( $content ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'geogebra.org/materials' ) ) {
+		return $content;
+	}
+
+	$regex = '%(<iframe[^>]*?src="https://www.geogebra.org/material/[^>]*>[^<]*<\/iframe>)%';
+
+	if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) ) {
+		return $content;
+	}
+
+	foreach ( $matches as $match ) {
+
+		$shortcode = '[geogebra';
+
+		$id_regex = '%/id/([^/])*/%';
+		if ( ! preg_match( $id_regex, $match, $id_match ) ) {
+			return $content;
+		} else {
+			$shortcode .= ' id="' . $id_match[1] . '"';
+		}
+
+		$height_regex = '%/height/([0-9])*/%';
+		if ( ! preg_match( $height_regex, $match, $height_match ) ) {
+			return $content;
+		} else {
+			$shortcode .= ' height="' . $height_match[1] . '"';
+		}
+
+		$width_regex = '%/width/([0-9])*/%';
+		if ( ! preg_match( $width_regex, $match, $width_match ) ) {
+			return $content;
+		} else {
+			$shortcode .= ' width="' . $width_match[1] . '"';
+		}
+
+		if ( false !== strpos( $match, '/ai/true' ) ) {
+			$shortcode .= ' input-bar="true"';
+		}
+
+		if ( false !== strpos( $match, '/asb/true' ) ) {
+			$shortcode .= ' style-bar="true"';
+		}
+
+		if ( false !== strpos( $match, '/smb/true' ) ) {
+			$shortcode .= ' menu-bar="true"';
+		}
+
+		if ( false !== strpos( $match, '/stb/true' ) ) {
+			$shortcode .= ' tool-bar="true"';
+
+			if ( false !== strpos( $match, '/stbh/true' ) ) {
+				$shortcode .= ' tool-help="true"';
+			}
+		}
+
+		if ( false !== strpos( $match, '/sri/true' ) ) {
+			$shortcode .= ' reset-icon="true"';
+		}
+
+		if ( false !== strpos( $match, '/rc/true' ) ) {
+			$shortcode .= ' right-click="true"';
+		}
+
+		if ( false !== strpos( $match, '/ld/true' ) ) {
+			$shortcode .= ' drag-labels="true"';
+		}
+
+		if ( false !== strpos( $match, '/sdz/true' ) ) {
+			$shortcode .= ' pan-zoom="true"';
+		}
+
+		$shortcode .= ']';
+
+		$content = str_replace( $match[0], $shortcode, $content );
+	}
+
+	return $content;
+}
+
+add_filter( 'pre_kses', 'geogebra_embed_to_shortcode' );
