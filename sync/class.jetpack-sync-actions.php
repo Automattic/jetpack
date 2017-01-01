@@ -227,21 +227,7 @@ class Jetpack_Sync_Actions {
 		}
 
 		self::initialize_sender();
-
-		do {
-			$next_sync_time = self::$sender->get_next_sync_time( 'sync' );
-
-			if ( $next_sync_time ) {
-				$delay = $next_sync_time - time() + 1;
-				if ( $delay > 15 ) {
-					break;
-				} elseif ( $delay > 0 ) {
-					sleep( $delay );
-				}
-			}
-
-			$result = self::$sender->do_sync();
-		} while ( $result );
+		self::$sender->do_sync();
 	}
 
 	static function do_cron_full_sync() {
@@ -250,21 +236,7 @@ class Jetpack_Sync_Actions {
 		}
 
 		self::initialize_sender();
-
-		do {
-			$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
-
-			if ( $next_sync_time ) {
-				$delay = $next_sync_time - time() + 1;
-				if ( $delay > 15 ) {
-					break;
-				} elseif ( $delay > 0 ) {
-					sleep( $delay );
-				}
-			}
-
-			$result = self::$sender->do_full_sync();
-		} while ( $result );
+		self::$sender->do_full_sync();
 	}
 
 	static function initialize_listener() {
