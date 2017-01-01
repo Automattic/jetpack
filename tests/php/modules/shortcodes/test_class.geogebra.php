@@ -3,7 +3,7 @@
 class WP_Test_Jetpack_Shortcodes_GeoGebra extends WP_UnitTestCase {
 
 	/**
-	 * Verify that [geogebra] exists.
+	 * Check that [geogebra] shortcode exists.
 	 *
 	 * @since TODO
 	 */
@@ -12,7 +12,7 @@ class WP_Test_Jetpack_Shortcodes_GeoGebra extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that rendering a geogebra shortcode with no ID attribute
+	 * Check that rendering a geogebra shortcode with no ID attribute
 	 * returns an error comment.
 	 *
 	 * @since TODO
@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Shortcodes_GeoGebra extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that rendering the shortcode returns a GeoGebra iframe.
+	 * Check that rendering the shortcode returns a GeoGebra iframe.
 	 *
 	 * @since TODO
 	 */
@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Shortcodes_GeoGebra extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that optional shortcode attributes are rendered.
+	 * Check that optional shortcode attributes are rendered.
 	 *
 	 * @since TODO
 	 */
@@ -102,7 +102,7 @@ class WP_Test_Jetpack_Shortcodes_GeoGebra extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that toolbar help only renders if toolbar also renders.
+	 * Check that toolbar help only renders if toolbar also renders.
 	 *
 	 * @since TODO
 	 */
@@ -115,5 +115,41 @@ class WP_Test_Jetpack_Shortcodes_GeoGebra extends WP_UnitTestCase {
 			'/stbh/true',
 			do_shortcode( '[geogebra id="0" tool-bar="true" tool-help="true"]' )
 		);
+	}
+
+	/**
+	 * Check that plain geogebra iframes are converted to shortcodes.
+	 *
+	 * @covers geogebra_embed_to_shortcode
+	 * @since TODO
+	 */
+	public function test_shortcodes_geogebra_from_isolated_iframe() {
+		$iframe = '<iframe scrolling="no" src="https://www.geogebra.org/material/iframe/id/m3Zgkq9g/width/567/height/496/border/888888" width="567px" height="496px" style="border:0px;"> </iframe>';
+
+		$shortcode = '[geogebra id="m3Zgkq9g" height="496" width="567"]';
+
+		$this->assertEquals( $shortcode, geogebra_embed_to_shortcode( $iframe ) );
+	}
+
+	/**
+	 * Check that geogebra iframes with path parameters are converted to shortcodes.
+	 *
+	 * @covers geogebra_embed_to_shortcode
+	 * @since TODO
+	 */
+	public function test_shortcodes_geogebra_from_isolated_iframe_with_params() {
+		// Check some parameters.
+		$iframe_1 = '<iframe scrolling="no" src="https://www.geogebra.org/material/iframe/id/DpseMPzu/width/662/height/394/border/888888/smb/true/ai/true" width="662px" height="394px" style="border:0px;"> </iframe>';
+
+		$shortcode_1 = '[geogebra id="DpseMPzu" height="394" width="662" input-bar="true" menu-bar="true"]';
+
+		$this->assertEquals( $shortcode_1, geogebra_embed_to_shortcode( $iframe_1 ) );
+
+		// Check some more parameters.
+		$iframe_2 = '<iframe scrolling="no" src="https://www.geogebra.org/material/iframe/id/DpseMPzu/width/662/height/394/border/888888/stb/true/sri/true/ld/true" width="662px" height="394px" style="border:0px;"> </iframe>';
+
+		$shortcode_2 = '[geogebra id="DpseMPzu" height="394" width="662" tool-bar="true" reset-icon="true" drag-labels="true"]';
+
+		$this->assertEquals( $shortcode_2, geogebra_embed_to_shortcode( $iframe_2 ) );
 	}
 }

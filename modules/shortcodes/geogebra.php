@@ -104,7 +104,7 @@ function geogebra_shortcode_handler( $attr ) {
  * @return string String with iframes replaced.
  */
 function geogebra_embed_to_shortcode( $content ) {
-	if ( ! is_string( $content ) || false === stripos( $content, 'geogebra.org/materials' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'geogebra.org/material' ) ) {
 		return $content;
 	}
 
@@ -118,60 +118,60 @@ function geogebra_embed_to_shortcode( $content ) {
 
 		$shortcode = '[geogebra';
 
-		$id_regex = '%/id/([^/])*/%';
-		if ( ! preg_match( $id_regex, $match, $id_match ) ) {
+		$id_regex = '%/id/([^/]*)/%';
+		if ( ! preg_match( $id_regex, $match[0], $id_match ) ) {
 			return $content;
 		} else {
 			$shortcode .= ' id="' . $id_match[1] . '"';
 		}
 
-		$height_regex = '%/height/([0-9])*/%';
-		if ( ! preg_match( $height_regex, $match, $height_match ) ) {
+		$height_regex = '%/height/([0-9]*)/%';
+		if ( ! preg_match( $height_regex, $match[0], $height_match ) ) {
 			return $content;
 		} else {
 			$shortcode .= ' height="' . $height_match[1] . '"';
 		}
 
-		$width_regex = '%/width/([0-9])*/%';
-		if ( ! preg_match( $width_regex, $match, $width_match ) ) {
+		$width_regex = '%/width/([0-9]*)/%';
+		if ( ! preg_match( $width_regex, $match[0], $width_match ) ) {
 			return $content;
 		} else {
 			$shortcode .= ' width="' . $width_match[1] . '"';
 		}
 
-		if ( false !== strpos( $match, '/ai/true' ) ) {
+		if ( false !== strpos( $match[0], '/ai/true' ) ) {
 			$shortcode .= ' input-bar="true"';
 		}
 
-		if ( false !== strpos( $match, '/asb/true' ) ) {
+		if ( false !== strpos( $match[0], '/asb/true' ) ) {
 			$shortcode .= ' style-bar="true"';
 		}
 
-		if ( false !== strpos( $match, '/smb/true' ) ) {
+		if ( false !== strpos( $match[0], '/smb/true' ) ) {
 			$shortcode .= ' menu-bar="true"';
 		}
 
-		if ( false !== strpos( $match, '/stb/true' ) ) {
+		if ( false !== strpos( $match[0], '/stb/true' ) ) {
 			$shortcode .= ' tool-bar="true"';
 
-			if ( false !== strpos( $match, '/stbh/true' ) ) {
+			if ( false !== strpos( $match[0], '/stbh/true' ) ) {
 				$shortcode .= ' tool-help="true"';
 			}
 		}
 
-		if ( false !== strpos( $match, '/sri/true' ) ) {
+		if ( false !== strpos( $match[0], '/sri/true' ) ) {
 			$shortcode .= ' reset-icon="true"';
 		}
 
-		if ( false !== strpos( $match, '/rc/true' ) ) {
+		if ( false !== strpos( $match[0], '/rc/true' ) ) {
 			$shortcode .= ' right-click="true"';
 		}
 
-		if ( false !== strpos( $match, '/ld/true' ) ) {
+		if ( false !== strpos( $match[0], '/ld/true' ) ) {
 			$shortcode .= ' drag-labels="true"';
 		}
 
-		if ( false !== strpos( $match, '/sdz/true' ) ) {
+		if ( false !== strpos( $match[0], '/sdz/true' ) ) {
 			$shortcode .= ' pan-zoom="true"';
 		}
 
