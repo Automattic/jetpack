@@ -146,6 +146,16 @@ class Jetpack_Related_Posts_Customize {
 	 */
 	function get_options( $wp_customize ) {
 		$transport = isset( $wp_customize->selective_refresh ) ? 'postMessage' : 'refresh';
+
+		// Get the correct translated string for preview in WP 4.7 and later.
+		$switched_locale = function_exists( 'switch_to_locale' )
+			? switch_to_locale( get_user_locale() )
+			: false;
+		$headline = __( 'Related', 'jetpack' );
+		if ( $switched_locale ) {
+			restore_previous_locale();
+		}
+
 		return apply_filters(
 			'jetpack_related_posts_customize_options', array(
 				'enabled'       => array(
@@ -166,7 +176,7 @@ class Jetpack_Related_Posts_Customize {
 					'label'        => '',
 					'description'  => esc_html__( 'Enter text to use as headline.', 'jetpack' ),
 					'control_type' => 'text',
-					'default'      => esc_html__( 'Related', 'jetpack' ),
+					'default'      => esc_html( $headline ),
 					'setting_type' => 'option',
 					'transport'    => $transport,
 				),

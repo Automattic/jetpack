@@ -113,7 +113,7 @@ class Jetpack_Sync_Actions {
 		Jetpack_Sync_Settings::set_importing( true );
 	}
 
-	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id ) {
+	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
 		Jetpack::load_xml_rpc_client();
 
 		$query_args = array(
@@ -123,6 +123,8 @@ class Jetpack_Sync_Actions {
 			'queue'     => $queue_id,       // sync or full_sync
 			'home'      => get_home_url(),  // Send home url option to check for Identity Crisis server-side
 			'siteurl'   => get_site_url(),  // Send siteurl option to check for Identity Crisis server-side
+			'cd'        => sprintf( '%.4f', $checkout_duration),   // Time spent retrieving queue items from the DB
+			'pd'        => sprintf( '%.4f', $preprocess_duration), // Time spent converting queue items into data to send
 		);
 
 		// Has the site opted in to IDC mitigation?
@@ -226,6 +228,9 @@ class Jetpack_Sync_Actions {
 
 		self::initialize_sender();
 
+		$time_limit = Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
+		$start_time = time();
+
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time( 'sync' );
 
@@ -239,7 +244,7 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = self::$sender->do_sync();
-		} while ( $result );
+		} while ( $result && ( $start_time + $time_limit ) > time() );
 	}
 
 	static function do_cron_full_sync() {
@@ -248,6 +253,9 @@ class Jetpack_Sync_Actions {
 		}
 
 		self::initialize_sender();
+
+		$time_limit = Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
+		$start_time = time();
 
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
@@ -262,7 +270,7 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = self::$sender->do_full_sync();
-		} while ( $result );
+		} while ( $result && ( $start_time + $time_limit ) > time() );
 	}
 
 	static function initialize_listener() {
@@ -275,7 +283,7 @@ class Jetpack_Sync_Actions {
 		self::$sender = Jetpack_Sync_Sender::get_instance();
 
 		// bind the sending process
-		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 4 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 6 );
 	}
 
 	static function sanitize_filtered_sync_cron_schedule( $schedule ) {
