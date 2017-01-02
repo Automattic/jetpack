@@ -463,14 +463,21 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	protected function build_meta_response( &$response ) {
+		$links = array(
+			'self'     => (string) $this->links->get_site_link( $this->site->blog_id ),
+			'help'     => (string) $this->links->get_site_link( $this->site->blog_id, 'help'      ),
+			'posts'    => (string) $this->links->get_site_link( $this->site->blog_id, 'posts/'    ),
+			'comments' => (string) $this->links->get_site_link( $this->site->blog_id, 'comments/' ),
+			'xmlrpc'   => (string) $this->site->get_xmlrpc_url(),
+		);
+
+		$icon = $this->site->get_icon();
+		if ( ! empty( $icon ) && ! empty( $icon['media_id'] ) ) {
+			$links['site_icon'] = (string) $this->links->get_site_link( $this->site->blog_id, 'media/' . $icon['media_id'] );
+		}
+
 		$response['meta'] = (object) array(
-			'links' => (object) array(
-				'self'     => (string) $this->links->get_site_link( $this->site->blog_id ),
-				'help'     => (string) $this->links->get_site_link( $this->site->blog_id, 'help'      ),
-				'posts'    => (string) $this->links->get_site_link( $this->site->blog_id, 'posts/'    ),
-				'comments' => (string) $this->links->get_site_link( $this->site->blog_id, 'comments/' ),
-				'xmlrpc'   => (string) $this->site->get_xmlrpc_url(),
-			),
+			'links' => (object) $links
 		);
 	}
 
