@@ -5,6 +5,8 @@
  * @link https://www.geogebra.org/
  *
  * @package Jetpack
+ * @module shortcodes
+ * @since TODO
  */
 
 add_shortcode( 'geogebra', 'geogebra_shortcode_handler' );
@@ -13,6 +15,9 @@ add_shortcode( 'geogebra', 'geogebra_shortcode_handler' );
  * Constructs a GeoGebra embed iframe. There is no official API doc for this,
  * but the URL format is simple to reverse engineer from the embed code generated
  * by tube.geogebra.org.
+ *
+ * @module shortcodes
+ * @since TODO
  *
  * @param array $attr Array of shortcode attributes.
  *
@@ -97,6 +102,7 @@ function geogebra_shortcode_handler( $attr ) {
 /**
  * Replace embedded geogebra iframes with shortcodes.
  *
+ * @module shortcodes
  * @since TODO
  *
  * @param string $content String to replace iframes in.
