@@ -125,6 +125,11 @@ export function ModuleSettingsForm( InnerComponent ) {
 			// Check if the form is not currently dirty
 			return this.isSavingAnyOption() || ! this.isDirty();
 		},
+		/**
+		 * Check if there are unsaved settings in the card.
+		 *
+		 * @returns {Boolean}
+		 */
 		isDirty() {
 			return !! Object.keys( this.state.options ).length;
 		},
@@ -149,6 +154,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 					updateFormStateModuleOption={ this.updateFormStateModuleOption }
 					shouldSaveButtonBeDisabled={ this.shouldSaveButtonBeDisabled }
 					isSavingAnyOption={ this.isSavingAnyOption }
+					isDirty={ this.isDirty }
 					{ ...this.props } />
 			);
 		}
