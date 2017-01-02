@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -29,7 +30,12 @@ const Apps = ( props ) => {
 					<div className="jp-landing-apps__header-col-left">
 						<h3 className="jp-landing-apps__subtitle">{ __( 'Feel the performance' ) }</h3>
 						<p className="jp-landing-apps__sub-description">{ __( "All the WordPress apps are built for speed. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around." ) }</p>
-						<Button href={ 'http://apps.wordpress.com' }	target="_blank" className="is-primary">
+						<Button
+							href={ 'http://apps.wordpress.com' }
+							target="_blank"
+							className="is-primary"
+							onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_apps_download_click', {} ) }
+						>
 							{ __( 'Download the Free Apps' ) }
 						</Button>
 					</div>
