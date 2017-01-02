@@ -128,17 +128,6 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return get_bloginfo( 'language' );
 	}
 
-	function get_icon() {
-		if ( function_exists( 'get_site_icon_url' ) && function_exists( 'jetpack_photon_url' ) ) {
-			return array(
-				'img' => (string) jetpack_photon_url( get_site_icon_url( 80, '', get_current_blog_id() ), array( 'w' => 80 ), 'https' ),
-				'ico' => (string) jetpack_photon_url( get_site_icon_url( 16, '', get_current_blog_id() ), array( 'w' => 16 ), 'https' ),
-			);
-		}
-
-		return null;
-	}
-
 	function is_jetpack() {
 		return true;
 	}
