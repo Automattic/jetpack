@@ -7,9 +7,41 @@
  * Author URI: http://automattic.com/
  */
 
+define( 'WPCOMSH__PLUGIN_FILE', __FILE__ );
+
+
 require_once( 'constants.php' );
 require_once( 'functions.php' );
 require_once( 'footer-credit/footer-credit.php' );
+
+function wpcomsh_register_plugins_action_links() {
+	// Hide WPComSH "Deactivate" and "Edit" links on WP Admin Plugins page
+	add_filter(
+		'plugin_action_links_' . plugin_basename( WPCOMSH__PLUGIN_FILE ),
+		'wpcomsh_hide_wpcomsh_plugin_links'
+	);
+
+	// If Jetpack is loaded, hide its "Deactivate" and "Edit" links on WP Admin Plugins page
+	if ( defined( 'JETPACK__PLUGIN_FILE' ) ) {
+		add_filter(
+			'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_FILE ),
+			'wpcomsh_hide_jetpack_plugin_links'
+		);
+	}
+
+}
+add_action( 'admin_init', 'wpcomsh_register_plugins_action_links' );
+
+function wpcomsh_hide_wpcomsh_plugin_links() {
+	return array();
+}
+
+function wpcomsh_hide_jetpack_plugin_links( $links ) {
+	unset( $links['deactivate'] );
+	unset( $links['edit'] );
+
+	return $links;
+}
 
 function wpcomsh_register_theme_hooks() {
 	add_filter(
