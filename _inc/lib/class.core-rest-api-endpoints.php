@@ -1749,7 +1749,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool
 	 */
 	public static function validate_alphanum( $value = '', $request, $param ) {
-		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/[a-z0-9]+/i', $value ) ) ) {
+		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^[a-z0-9]+$/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string.', 'jetpack' ), $param ) );
 		}
 		return true;
