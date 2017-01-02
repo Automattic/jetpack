@@ -27,7 +27,7 @@ export const RelatedPosts = moduleSettingsForm(
 								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
-								__( 'Use Jetpack comments. Let readers use their WordPress.com,	Twitter, Facebook or Google+ to leave comments on your posts and pages.' )
+								__( 'Show related content after posts.' )
 							}
 						</span>
 					</ModuleToggle>
