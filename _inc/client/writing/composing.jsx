@@ -100,10 +100,10 @@ export const Composing = moduleSettingsForm(
 			return (
 				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }>
 					<FormFieldset support={ markdown.learn_more_button }>
-						<ModuleToggle slug={ 'markdown' }
+						<ModuleToggle slug="markdown"
 									  compact
 									  activated={ this.props.getOptionValue( 'markdown' ) }
-									  toggling={ this.props.isSavingAnyOption() }
+									  toggling={ this.props.isSavingAnyOption( 'markdown' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
 								{ markdown.description }
@@ -112,10 +112,10 @@ export const Composing = moduleSettingsForm(
 					</FormFieldset>
 					<hr />
 					<FormFieldset support={ atd.learn_more_button }>
-						<ModuleToggle slug={ 'after-the-deadline' }
+						<ModuleToggle slug="after-the-deadline"
 									  compact
 									  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
-									  toggling={ this.props.isSavingAnyOption() }
+									  toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
 								{ atd.description }

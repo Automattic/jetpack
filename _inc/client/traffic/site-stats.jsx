@@ -32,10 +32,10 @@ export const SiteStats = moduleSettingsForm(
 					header={ __( 'Site stats' ) }
 					module="stats">
 					<FormFieldset>
-						<ModuleToggle slug={ 'stats' }
+						<ModuleToggle slug="stats"
 									  compact
 									  activated={ !!this.props.getOptionValue( 'admin_bar' ) }
-									  toggling={ this.props.isSavingAnyOption() }
+									  toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
 									  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
@@ -44,10 +44,10 @@ export const SiteStats = moduleSettingsForm(
 							</span>
 						</ModuleToggle>
 						<br />
-						<ModuleToggle slug={ 'stats' }
+						<ModuleToggle slug="stats"
 									  compact
 									  activated={ !!this.props.getOptionValue( 'hide_smile' ) }
-									  toggling={ this.props.isSavingAnyOption() }
+									  toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
 									  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }>
 							<span className="jp-form-toggle-explanation">
 								{

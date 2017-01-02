@@ -25,10 +25,10 @@ export const SSO = moduleSettingsForm(
 					{ ...this.props }
 					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
-					<ModuleToggle slug={ 'sso' }
+					<ModuleToggle slug="sso"
 								  compact
 								  activated={ isSSOActive }
-								  toggling={ this.props.isSavingAnyOption() }
+								  toggling={ this.props.isSavingAnyOption( 'sso' ) }
 								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{

@@ -62,7 +62,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 										<ModuleToggle slug={ item.module }
 													  compact
 													  activated={ this.props.getOptionValue( item.module ) }
-													  toggling={ this.props.isSavingAnyOption() }
+													  toggling={ this.props.isSavingAnyOption( item.module ) }
 													  toggleModule={ this.props.toggleModuleNow }>
 										<span className="jp-form-toggle-explanation">
 										{

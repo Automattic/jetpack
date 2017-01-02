@@ -20,10 +20,10 @@ export const RelatedPosts = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="related-posts">
-					<ModuleToggle slug={ 'related-posts' }
+					<ModuleToggle slug="related-posts"
 								  compact
 								  activated={ this.props.getOptionValue( 'related-posts' ) }
-								  toggling={ this.props.isSavingAnyOption() }
+								  toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
 								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{

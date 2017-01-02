@@ -69,10 +69,10 @@ export const Protect = moduleSettingsForm(
 					{ ...this.props }
 					module="protect"
 					header={ __( 'Brute force protection', { context: 'Settings header' } ) } >
-					<ModuleToggle slug={ 'protect' }
+					<ModuleToggle slug="protect"
 								  compact
 								  activated={ isProtectActive }
-								  toggling={ this.props.isSavingAnyOption() }
+								  toggling={ this.props.isSavingAnyOption( 'protect' ) }
 								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{

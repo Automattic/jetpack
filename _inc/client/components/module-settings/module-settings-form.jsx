@@ -62,9 +62,9 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * If the module is active, only the option is added to the list of form values to send.
 		 * If it's inactive, an additional option stating that the module must be activated is added to the list.
 		 *
-		 * @param {string}  module
-		 * @param {string}  moduleOption
-		 * @param {boolean} deactivate
+		 * @param {String}  module
+		 * @param {String}  moduleOption
+		 * @param {Boolean} deactivate
 		 */
 		updateFormStateModuleOption( module, moduleOption, deactivate = false ) {
 
@@ -93,6 +93,11 @@ export function ModuleSettingsForm( InnerComponent ) {
 				} );
 			}
 		},
+		/**
+		 * Instantly activate or deactivate a module.
+		 *
+		 * @param {String} module
+		 */
 		toggleModuleNow( module ) {
 			this.props.updateOptions( { [ module ]: ! this.getOptionValue( module ) } );
 		},
@@ -123,9 +128,15 @@ export function ModuleSettingsForm( InnerComponent ) {
 		isDirty() {
 			return !! Object.keys( this.state.options ).length;
 		},
-		isSavingAnyOption() {
-			// Check if any of the updated options is still saving
-			return this.props.isUpdating();
+		/**
+		 * Checks if a setting is currently being saved.
+		 *
+		 * @param {String|Array} settings
+		 *
+		 * @returns {Boolean} True if specified settings are being saved, false otherwise.
+		 */
+		isSavingAnyOption( settings = '' ) {
+			return this.props.isUpdating( settings );
 		},
 		render() {
 			return (

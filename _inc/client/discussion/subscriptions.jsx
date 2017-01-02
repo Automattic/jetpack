@@ -25,10 +25,10 @@ export const Subscriptions = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="subscriptions">
-					<ModuleToggle slug={ 'subscriptions' }
+					<ModuleToggle slug="subscriptions"
 								  compact
 								  activated={ isSubscriptionsActive }
-								  toggling={ this.props.isSavingAnyOption() }
+								  toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
 								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{

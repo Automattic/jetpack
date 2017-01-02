@@ -47,7 +47,7 @@ export const PostByEmail = moduleSettingsForm(
 					<ModuleToggle slug="post-by-email"
 								  compact
 								  activated={ isPbeActive }
-								  toggling={ this.props.isSavingAnyOption() }
+								  toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
 								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{

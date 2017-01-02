@@ -4,6 +4,8 @@
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import includes from 'lodash/includes';
+import some from 'lodash/some';
 
 /**
  * Internal dependencies
@@ -43,7 +45,8 @@ export const items = ( state = {}, action ) => {
 
 export const initialRequestsState = {
 	fetchingSettingsList: false,
-	updatingSetting: false
+	updatingSetting: false,
+	settingsSent: []
 };
 
 export const requests = ( state = initialRequestsState, action ) => {
@@ -61,14 +64,16 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SETTING_UPDATE:
 		case JETPACK_SETTINGS_UPDATE:
 			return assign( {}, state, {
-				updatingSetting: true
+				updatingSetting: true,
+				settingsSent: Object.keys( action.updatedOptions )
 			} );
 		case JETPACK_SETTING_UPDATE_FAIL:
 		case JETPACK_SETTING_UPDATE_SUCCESS:
 		case JETPACK_SETTINGS_UPDATE_FAIL:
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
 			return assign( {}, state, {
-				updatingSetting: false
+				updatingSetting: false,
+				settingsSent: []
 			} );
 		default:
 			return state;
@@ -129,11 +134,15 @@ export function isFetchingSettingsList( state ) {
 /**
  * Returns true if we are currently making a request to update a setting's option
  *
- * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether option is being updated on the setting
+ * @param  {Object}        state    Global state tree
+ * @param  {String|Array} settings Single or multiple settings to check if they're being saved or not.
+ * @return {Boolean}                Whether option is being updated on the setting
  */
-export function isUpdatingSetting( state ) {
-	return state.jetpack.settings.requests.updatingSetting;
+export function isUpdatingSetting( state, settings = '' ) {
+	if ( 'object' === typeof settings ) {
+		return some( state.jetpack.settings.requests.settingsSent, item => includes( settings, item ) );
+	}
+	return includes( state.jetpack.settings.requests.settingsSent, settings );
 }
 
 /**

@@ -45,10 +45,10 @@ export const Media = moduleSettingsForm(
 					{ ...this.props }
 					header={ __( 'Media' ) }>
 					<FormFieldset support={ photon.learn_more_button }>
-						<ModuleToggle slug={ 'photon' }
+						<ModuleToggle slug="photon"
 									  compact
 									  activated={ this.props.getOptionValue( 'photon' ) }
-									  toggling={ this.props.isSavingAnyOption() }
+									  toggling={ this.props.isSavingAnyOption( 'photon' ) }
 									  toggleModule={ this.toggleModule }>
 							<span className="jp-form-toggle-explanation">
 								{
@@ -63,9 +63,10 @@ export const Media = moduleSettingsForm(
 						</ModuleToggle>
 					</FormFieldset>
 					<hr />
-					<ModuleToggle slug={ 'carousel' }
+					<ModuleToggle slug="carousel"
 								  compact
 								  activated={ isCarouselActive }
+								  toggling={ this.props.isSavingAnyOption( 'carousel' ) }
 								  toggleModule={ this.props.toggleModuleNow }>
 								<span className="jp-form-toggle-explanation">
 									{

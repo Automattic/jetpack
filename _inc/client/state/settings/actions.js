@@ -88,7 +88,8 @@ export const updateSettings = ( newOptionValues ) => {
 			{ id: `module-setting-update` }
 		) );
 		dispatch( {
-			type: JETPACK_SETTINGS_UPDATE
+			type: JETPACK_SETTINGS_UPDATE,
+			updatedOptions: newOptionValues
 		} );
 
 		return restApi.updateSettings( newOptionValues ).then( success => {

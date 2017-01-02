@@ -30,10 +30,10 @@ export const Comments = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="comments">
-					<ModuleToggle slug={ 'comments' }
+					<ModuleToggle slug="comments"
 								  compact
 								  activated={ this.props.getOptionValue( 'comments' ) }
-								  toggling={ this.props.isSavingAnyOption() }
+								  toggling={ this.props.isSavingAnyOption( 'comments' ) }
 								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
@@ -67,10 +67,10 @@ export const Comments = moduleSettingsForm(
 					}
 					<hr />
 					<FormFieldset support={ gravatar.learn_more_button }>
-						<ModuleToggle slug={ 'gravatar-hovercards' }
+						<ModuleToggle slug="gravatar-hovercards"
 									  compact
 									  activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
-									  toggling={ this.props.isSavingAnyOption() }
+									  toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
 								{
@@ -80,10 +80,10 @@ export const Comments = moduleSettingsForm(
 						</ModuleToggle>
 					</FormFieldset>
 					<FormFieldset support={ markdown.learn_more_button }>
-						<ModuleToggle slug={ 'markdown' }
+						<ModuleToggle slug="markdown"
 									  compact
 									  activated={ !!this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
-									  toggling={ this.props.isSavingAnyOption() }
+									  toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
 									  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'wpcom_publish_comments_with_markdown' ) }>
 							<span className="jp-form-toggle-explanation">
 								{

@@ -48,7 +48,7 @@ export function connectModuleOptions( Component ) {
 				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
 				getSettingCurrentValue: ( setting_name, moduleName = '' ) => getSetting( state, setting_name, moduleName ),
 				getSiteRoles: () => getSiteRoles( state ),
-				isUpdating: () => isUpdatingSetting( state ),
+				isUpdating: settingName => isUpdatingSetting( state, settingName ),
 				adminEmailAddress: getAdminEmailAddress( state ),
 				currentIp: getCurrentIp( state ),
 				siteAdminUrl: getSiteAdminUrl( state ),
