@@ -2,7 +2,7 @@
 
 (function() {
 	var instagramEmbed = function() {
-		if ( 'undefined' !== typeof window.instgrm && window.instgrm.Embeds && 'function' === typeof instgrm.Embeds.process ) {
+		if ( 'undefined' !== typeof window.instgrm && window.instgrm.Embeds && 'function' === typeof window.instgrm.Embeds.process ) {
 			window.instgrm.Embeds.process();
 		} else {
 			var s = document.createElement( 'script' );
