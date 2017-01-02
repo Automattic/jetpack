@@ -55,7 +55,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	function get_id() {
-		return $this->platform->token->blog_id;	
+		return $this->platform->token->blog_id;
 	}
 
 	function has_videopress() {
