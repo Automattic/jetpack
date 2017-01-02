@@ -873,8 +873,12 @@ EOT;
 
 			$current_post = get_post();
 
-			/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
-			$excluded_posts = apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', array( $current_post->ID ) );
+			// Exclude current post after filtering to make sure it's excluded and not lost during filtering.
+			$excluded_posts = array_merge(
+				/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
+				apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', array() ),
+				array( $current_post->ID )
+			);
 
 			// Fetch posts with featured image.
 			$with_post_thumbnails = get_posts( array(
