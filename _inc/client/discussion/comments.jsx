@@ -12,11 +12,11 @@ import TextInput from 'components/text-input';
 import {
 	FormFieldset,
 	FormLegend,
-	FormLabel
+	FormLabel,
+	FormSelect
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { ModuleSettingSelect } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 
 export const Comments = moduleSettingsForm(
@@ -55,7 +55,7 @@ export const Comments = moduleSettingsForm(
 								<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
 								<FormLabel>
 									<span className="jp-form-label-wide">{ __( 'Color Scheme' ) }</span>
-									<ModuleSettingSelect
+									<FormSelect
 										name={ 'jetpack_comment_form_color_scheme' }
 										value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
 										onChange={ this.props.onOptionChange }

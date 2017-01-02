@@ -5,10 +5,12 @@ var React = require( 'react' ),
 	classnames = require( 'classnames' );
 import classNames from 'classnames';
 import omit from 'lodash/omit';
+import forOwn from 'lodash/forown';
 import isEmpty from 'lodash/isEmpty';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
+import SelectDropdown from 'components/select-dropdown';
 
 export const FormFieldset = React.createClass( {
 
@@ -170,5 +172,25 @@ export const FormButton = React.createClass( {
 				{ isEmpty( this.props.children ) ? this.getDefaultButtonAction() : this.props.children }
 			</Button>
 		);
+	}
+} );
+
+export const FormSelect = React.createClass( {
+	handleOnSelect: function( option ) {
+		this.props.onOptionChange( {
+			target: {
+				type: 'select',
+				name: this.props.name,
+				value: option.value
+			}
+		} );
+	},
+
+	render() {
+		let validValues = [];
+		forOwn( this.props.validValues, ( label, value ) => {
+			validValues.push( { label: label, value: value } );
+		} );
+		return <SelectDropdown options={ validValues } onSelect={ this.handleOnSelect } initialSelected={ this.props.value } />;
 	}
 } );

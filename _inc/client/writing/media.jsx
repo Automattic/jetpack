@@ -11,11 +11,12 @@ import { translate as __ } from 'i18n-calypso';
 import {
 	FormFieldset,
 	FormLegend,
-	FormLabel
+	FormLabel,
+	FormSelect
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { ModuleSettingSelect, ModuleSettingCheckbox } from 'components/module-settings/form-components';
+import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 
 export const Media = moduleSettingsForm(
@@ -83,10 +84,9 @@ export const Media = moduleSettingsForm(
 									label={ __( 'Show photo metadata (Exif) in carousel, when available' ) } />
 								<FormLabel>
 									<FormLegend className="jp-form-label-wide">{ __( 'Background color' ) }</FormLegend>
-									<ModuleSettingSelect
+									<FormSelect
 										name={ 'carousel_background_color' }
 										value={ this.props.getOptionValue( 'carousel_background_color' ) }
-										onChange={ this.props.onOptionChange }
 										{ ...this.props }
 										validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
 								</FormLabel>
