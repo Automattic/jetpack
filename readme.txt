@@ -6,41 +6,37 @@ Tested up to: 4.6
 Stable tag: 1.8.5
 License: GPLv2
 
-VaultPress is a subscription service offering realtime backup, automated security scanning, and support from WordPress experts.
+VaultPress is a subscription service offering real-time backup, automated security scanning, and support from WordPress experts.
 
 == Description ==
 
-[VaultPress](http://vaultpress.com/?utm_source=plugin-readme&utm_medium=description&utm_campaign=1.0) is a real-time backup and security scanning service designed and built by [Automattic](http://automattic.com/), the same company that operates 25+ million sites on WordPress.com.
+[VaultPress](http://vaultpress.com/plans) is a real-time backup and security scanning service designed and built by [Automattic](http://automattic.com/), the same company that operates (and backs up!) millions of sites on WordPress.com.
 
-The VaultPress plugin provides the required functionality to backup and synchronize every post, comment, media file, revision and dashboard settings on our servers. To start safeguarding your site, you need to sign up for a VaultPress subscription.
+VaultPress is now powered by Jetpack and effortlessly backs up every post, comment, media file, revision, and dashboard setting on your site to our servers. With VaultPress you're protected against hackers, malware, accidental damage, and host outages.
 
-[wpvideo TxdSIdpO]
-
-For more information, check out [VaultPress.com](http://vaultpress.com/).
+To subscribe visit [VaultPress.com](http://vaultpress.com/plans).
 
 == Installation ==
 
-1. Search for VaultPress in the WordPress.org plugin directory and click install. Or, upload the files to your `wp-content/vaultpress/` folder.
-2. Visit `wp-admin/plugins.php` and activate the VaultPress plugin.
-3. Head to `wp-admin/admin.php?page=vaultpress` and enter your site&rsquo;s registration key. You can purchase your registration key at [VaultPress.com](http://vaultpress.com/plugin/?utm_source=plugin-readme&utm_medium=installation&utm_campaign=1.0)
+1. [Visit our plans page](http://vaultpress.com/plans) and choose the subscription best suited to your needs.
+2. Follow the on-screen instructions to check-out and pay.
+3. We will automatically install and configure VaultPress for you.
 
-You can find more detailed instructions at [http://vaultpress.com/](http://help.vaultpress.com/install-vaultpress/?utm_source=plugin-readme&utm_medium=description&utm_campaign=1.0)
+If you run into any difficulties please [contact us](https://vaultpress.com/contact/)
 
 == Frequently Asked Questions ==
 
 View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaultpress.com/faq/?utm_source=plugin-readme&utm_medium=faq&utm_campaign=1.0)
 
-= What’s included in each VaultPress plan? =
+= What’s included in each plan? =
 
-All plans include Daily or Realtime Backups, Downloadable Archives for Restoring, Vitality Statistics, and the Activity Log.
+All plans include automated daily backups (unlimited storage space) of your entire site, 1-click restores, stats, priority support, brute force attack protection, uptime monitoring, spam protection, site migration, and an activity log. 
 
-The Lite plan provides Daily Backups, a 30-day backup archive and automated restores.
+The Personal and Premium plans are limited to a 30-day backup archive while Professional is unlimited.
 
-The Basic plan provides Realtime Backups to protect your changes as they happen and support services.
+The Premium and Professional plans also offer automated security scanning against malware and infiltrations with the Professional plan also offering automated threat resolution. 
 
-The Premium plan provides priority recovery and support services, along with site migration assistance. The Premium plan provides automated security scanning of Core, Theme, and Plugin files.
-
-Update-to-date pricing and features can always be found on the [Plans &amp; Pricing](http://vaultpress.com/plugin/?utm_source=plugin-readme&utm_medium=installation&utm_campaign=1.0) page.
+[Visit our site](https://vaultpress.com/contact/) for more detail and up-to-date information.
 
 = How many sites can I protect with VaultPress? =
 
