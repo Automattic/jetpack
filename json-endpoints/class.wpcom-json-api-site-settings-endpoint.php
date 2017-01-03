@@ -524,7 +524,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// settings are stored as deletable numeric (all empty
 					// values as delete intent), validated as media image
 					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
-						if ( delete_option( $key ) ) {
+						if ( delete_option( $key ) || apply_filters( 'rest_api_site_icon_cleared', false ) ) {
 							$updated[ $key ] = null;
 						}
 					} else if ( is_numeric( $value ) ) {
