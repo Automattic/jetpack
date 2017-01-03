@@ -269,7 +269,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( isset( $parsed_data->error ) ) {
 			return new WP_Error(
 				'remote_error',
-				__( 'We cannot display information for this blog.', 'jetpack' ),
+				__( 'It looks like the WordPress site URL is incorrectly configured. Please check it in your widget settings.', 'jetpack' ),
 				$parsed_data->error
 			);
 		}
