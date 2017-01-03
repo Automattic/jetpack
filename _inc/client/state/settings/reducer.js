@@ -4,8 +4,11 @@
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import merge from 'lodash/merge';
 import includes from 'lodash/includes';
 import some from 'lodash/some';
+import filter from 'lodash/filter';
+import mapValues from 'lodash/mapvalues';
 
 /**
  * Internal dependencies
@@ -45,8 +48,7 @@ export const items = ( state = {}, action ) => {
 
 export const initialRequestsState = {
 	fetchingSettingsList: false,
-	updatingSetting: false,
-	settingsSent: []
+	settingsSent: {}
 };
 
 export const requests = ( state = initialRequestsState, action ) => {
@@ -63,17 +65,15 @@ export const requests = ( state = initialRequestsState, action ) => {
 
 		case JETPACK_SETTING_UPDATE:
 		case JETPACK_SETTINGS_UPDATE:
-			return assign( {}, state, {
-				updatingSetting: true,
-				settingsSent: Object.keys( action.updatedOptions )
+			return merge( {}, state, {
+				settingsSent: mapValues( action.updatedOptions, item => true )
 			} );
 		case JETPACK_SETTING_UPDATE_FAIL:
 		case JETPACK_SETTING_UPDATE_SUCCESS:
 		case JETPACK_SETTINGS_UPDATE_FAIL:
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
-			return assign( {}, state, {
-				updatingSetting: false,
-				settingsSent: []
+			return merge( {}, state, {
+				settingsSent: mapValues( action.updatedOptions, item => false )
 			} );
 		default:
 			return state;
@@ -140,9 +140,9 @@ export function isFetchingSettingsList( state ) {
  */
 export function isUpdatingSetting( state, settings = '' ) {
 	if ( 'object' === typeof settings ) {
-		return some( state.jetpack.settings.requests.settingsSent, item => includes( settings, item ) );
+		return some( filter( state.jetpack.settings.requests.settingsSent, ( item, key ) => includes( settings, key ) ), item => item );
 	}
-	return includes( state.jetpack.settings.requests.settingsSent, settings );
+	return state.jetpack.settings.requests.settingsSent[ settings ];
 }
 
 /**

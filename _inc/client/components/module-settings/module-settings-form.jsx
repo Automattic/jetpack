@@ -108,9 +108,13 @@ export function ModuleSettingsForm( InnerComponent ) {
 		},
 		onSubmit( event ) {
 			event.preventDefault();
-			this.props.updateOptions( assign( {}, this.state.options ) );
-			this.props.clearUnsavedSettingsFlag();
-			this.setState( { options: {} } )
+			this.props.updateOptions( this.state.options )
+				.then( () => {
+					this.setState( { options: {} } );
+				} )
+				.then( () => {
+					this.props.clearUnsavedSettingsFlag();
+				} );
 		},
 
 		/**
