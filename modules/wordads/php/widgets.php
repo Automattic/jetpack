@@ -31,8 +31,8 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			$instance['unit'] = 'mrec';
 		}
 
-		$about  = __( 'About these ads', 'jetpack' );
-		$width =  WordAds::$ad_tag_ids[$instance['unit']]['width'];
+		$about = __( 'About these ads', 'jetpack' );
+		$width = WordAds::$ad_tag_ids[$instance['unit']]['width'];
 		$height = WordAds::$ad_tag_ids[$instance['unit']]['height'];
 
 		$snippet = '';
