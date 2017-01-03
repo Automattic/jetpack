@@ -31,9 +31,6 @@
 		<testsuite name="json-api">
 			<file>tests/php/test_class.json-api-jetpack-endpoints.php</file>
 		</testsuite>
-		<testsuite name="contact-form">
-			<directory prefix="test_" suffix=".php">tests/php/modules/contact-form</directory>
-		</testsuite>
 		<testsuite name="infinite-scroll">
 			<directory prefix="test_" suffix=".php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
@@ -69,6 +66,9 @@
 		</testsuite>
 		<testsuite name="idc">
 			<file>tests/php/test_class.jetpack-idc.php</file>
+		</testsuite>
+		<testsuite name="contact-form">
+			<directory prefix="test_" suffix=".php">tests/php/modules/contact-form</directory>
 		</testsuite>
 	</testsuites>
 	<groups>

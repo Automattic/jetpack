@@ -75,13 +75,13 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 	function assertPublicized( $should_have_publicized, $post ) {
 		if ( $should_have_publicized ) {
-			$this->assertTrue( $this->fired_publicized_post );
-			$this->assertEquals( $post->ID, $this->publicized_post_id );
-			$this->assertTrue( $this->in_publish_filter );
+			$this->assertTrue( $this->fired_publicized_post, 'Not Fired on publicize post' );
+			$this->assertEquals( $post->ID, $this->publicized_post_id, 'Is not the same post ID' );
+			$this->assertTrue( $this->in_publish_filter, 'Not in filter' );
 		} else {
-			$this->assertFalse( $this->fired_publicized_post );
-			$this->assertNull( $this->publicized_post_id );
-			$this->assertFalse( $this->in_publish_filter );
+			$this->assertFalse( $this->fired_publicized_post, 'Fired publicize post' );
+			$this->assertNull( $this->publicized_post_id, 'Not Null' );
+			$this->assertFalse( $this->in_publish_filter, 'in filter' );
 		}
 	}
 
