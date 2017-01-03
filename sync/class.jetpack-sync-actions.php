@@ -257,11 +257,12 @@ class Jetpack_Sync_Actions {
 
 	static function get_ramp_up_increment() {
 		/**
-		 * Allows you to change the percantage at which the update ramp up happends.
+		 * Allows you to change the percentage at which the update ramp up happens.
 		 * This value should be a integer less then 100
 		 *
 		 * Default is self::UPDATE_RAMP_UP_INCREMENT
 		 * @since 4.5.0
+		 * @param int increment value
 		 */
 		$increment = (int) apply_filters( 'jetpack_sync_network_upgrade_ramp_up_increment', self::UPDATE_RAMP_UP_INCREMENT );
 		return ( $increment >= 1 && $increment <= 100 ) ? $increment : self::UPDATE_RAMP_UP_INCREMENT;
@@ -269,12 +270,12 @@ class Jetpack_Sync_Actions {
 
 	static function get_next_ramp_up_interval() {
 		/**
-		 * Allows you to change the percantage at which the update ramp up happends.
+		 * Allows you to change the percentage at which the update ramp up happens.
 		 * This value should be a integer less then 100
 		 *
 		 * Default is self::UPDATE_RAMP_UP_INCREMENT
 		 * @since 4.5.0
-		 * @param int interval value in seconds at which point the next ramp up is suppose to happen.
+		 * @param int interval value in seconds at which point the next ramp up is supposed to happen.
 		 */
 		return (int) apply_filters( 'jetpack_sync_network_upgrade_ramp_up_interval', self::UPDATE_RAMP_UP_INTERVAL_VALUE );
 	}
