@@ -253,8 +253,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			);
 			if ( 'grid' == $display ) {
 				$get_image_options['avatar_size'] = 200;
-			} else {
-				$get_image_options['avatar_size'] = 40;
 			}
 			/**
 			 * Top Posts Widget Image options.
@@ -312,7 +310,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		case 'list' :
 		case 'grid' :
 			foreach ( $posts as &$post ) {
-				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true ) );
+				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true, 'avatar_size' => (int) $get_image_options['avatar_size'] ) );
 				$post['image'] = $image['src'];
 				if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
 					$size = (int) $get_image_options['avatar_size'];

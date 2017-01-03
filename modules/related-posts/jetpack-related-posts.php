@@ -866,7 +866,56 @@ EOT;
 					'classes'  => array()
 				),
 			);
-			$options['size'] = 3;
+
+			for ( $total = 0; $total < $options['size'] - 3; $total++ ) {
+				$related_posts[] = $related_posts[ $total ];
+			}
+
+			$current_post = get_post();
+
+			// Exclude current post after filtering to make sure it's excluded and not lost during filtering.
+			$excluded_posts = array_merge(
+				/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
+				apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', array() ),
+				array( $current_post->ID )
+			);
+
+			// Fetch posts with featured image.
+			$with_post_thumbnails = get_posts( array(
+				'posts_per_page'   => $options['size'],
+				'post__not_in'     => $excluded_posts,
+				'post_type'        => $current_post->post_type,
+				'meta_key'         => '_thumbnail_id',
+				'suppress_filters' => false,
+			) );
+
+			// If we don't have enough, fetch posts without featured image.
+			if ( 0 < ( $more = $options['size'] - count( $with_post_thumbnails ) ) ) {
+				$no_post_thumbnails = get_posts( array(
+					'posts_per_page'  => $more,
+					'post__not_in'    => $excluded_posts,
+					'post_type'       => $current_post->post_type,
+					'meta_query' => array(
+						array(
+							'key'     => '_thumbnail_id',
+							'compare' => 'NOT EXISTS',
+						),
+					),
+					'suppress_filters' => false,
+				) );
+			} else {
+				$no_post_thumbnails = array();
+			}
+
+			foreach ( array_merge( $with_post_thumbnails, $no_post_thumbnails ) as $index => $real_post ) {
+				$related_posts[ $index ]['id']      = $real_post->ID;
+				$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
+				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->_get_title( $real_post->post_title, $real_post->post_content ) );
+				$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
+				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
+				$related_posts[ $index ]['img']     = $this->_generate_related_post_image_params( $real_post->ID );
+				$related_posts[ $index ]['context'] = $this->_generate_related_post_context( $real_post->ID );
+			}
 		} else {
 			$related_posts = $this->get_for_post_id(
 				get_the_ID(),
