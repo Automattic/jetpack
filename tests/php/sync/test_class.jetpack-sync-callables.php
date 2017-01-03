@@ -78,6 +78,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'hosting_provider'                 => Jetpack_Sync_Functions::get_hosting_provider(),
 			'locale'                           => get_locale(),
 			'site_icon_url'                    => Jetpack_Sync_Functions::site_icon_url(),
+			'shortcodes'                       => Jetpack_Sync_Functions::get_shortcodes(),
 		);
 
 		if ( is_multisite() ) {

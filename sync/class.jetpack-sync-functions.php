@@ -28,6 +28,11 @@ class Jetpack_Sync_Functions {
 		return $wp_taxonomies_without_callbacks;
 	}
 
+	public static function get_shortcodes() {
+		global $shortcode_tags;
+		return array_keys( $shortcode_tags );
+	}
+
 	/**
 	 * Removes any callback data since we will not be able to process it on our side anyways.
 	 */
