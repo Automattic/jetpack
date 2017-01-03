@@ -145,7 +145,7 @@ export const SearchResults = ( {
 					compact={ true }
 					href="#/plans"
 				>
-					{ __( 'Pro' ) }
+					{ __( 'Paid' ) }
 				</Button>
 			</span>;
 

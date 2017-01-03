@@ -79,7 +79,7 @@ export const Page = ( props ) => {
 					compact={ true }
 					href="#/plans"
 				>
-					{ __( 'Pro' ) }
+					{ __( 'Paid' ) }
 				</Button>
 			</span>;
 
