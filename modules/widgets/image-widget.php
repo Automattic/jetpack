@@ -104,7 +104,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 			}
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		} else {
-			if ( current_user_can('edit_theme_options') ) {
+			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo '<p>' . sprintf( __( 'Image missing or invalid URL. Please check the Image widget URL in your <a href="%s">widget settings</a>.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
 			}
 		}
