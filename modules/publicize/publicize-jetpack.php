@@ -476,12 +476,11 @@ class Publicize extends Publicize_Base {
 			return $flags;
 		}
 
-		$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+		$connected_services = $this->get_services( 'connected' );
+
 		if ( empty( $connected_services ) ) {
 			return $flags;
 		}
-
-		if( )
 
 		$flags['publicize_post'] = true;
 
