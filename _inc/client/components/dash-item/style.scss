@@ -46,10 +46,6 @@
 		color: darken( $gray, 20% );
 	}
 
-	.dops-section-header__label:before {
-		@include long-content-fade( $color : $white );
-	}
-
 	&.is-working,
 	&.is-premium-inactive {
 		.dops-section-header__actions {
@@ -78,14 +74,16 @@
 
 // conditional styles for content when items are inactive
 .jp-dash-item__is-inactive {
-	.dops-section-header .dops-section-header__label:before {
-		@include long-content-fade( $color : $gray-light );
-	}
-
 	.dops-card {
 		background-color: $gray-light;
 	}
+	.dops-section-header__label-text {
+		padding-right: rem( 8px );
 
+		&:before {
+			@include long-content-fade( $size: 8px, $color : $gray-light );
+		}
+	}
 	.jp-dash-item__description {
 		font-style: italic;
 		color: darken( $gray, 20% );
