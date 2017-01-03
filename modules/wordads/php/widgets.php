@@ -27,9 +27,14 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			return false;
 		}
 
+		if ( ! isset( $instance['unit'] ) ) {
+			$instance['unit'] = 'mrec';
+		}
+
 		$about = __( 'About these ads', 'jetpack' );
 		$width = WordAds::$ad_tag_ids[$instance['unit']]['width'];
 		$height = WordAds::$ad_tag_ids[$instance['unit']]['height'];
+
 		$snippet = '';
 		if ( $wordads->option( 'wordads_house', true ) ) {
 			$ad_url = 'https://s0.wp.com/wp-content/blog-plugins/wordads/house/';
