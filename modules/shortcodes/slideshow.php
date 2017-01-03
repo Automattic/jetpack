@@ -107,14 +107,14 @@ class Jetpack_Slideshow_Shortcode {
 	}
 
 	function shortcode_callback( $attr ) {
-		global $post;
+		$post_id = get_the_ID();
 
 		$attr = shortcode_atts(
 			array(
 				'trans'     => 'fade',
 				'order'     => 'ASC',
 				'orderby'   => 'menu_order ID',
-				'id'        => $post->ID,
+				'id'        => $post_id,
 				'include'   => '',
 				'exclude'   => '',
 				'autostart' => true,
@@ -200,7 +200,7 @@ class Jetpack_Slideshow_Shortcode {
 		if ( is_feed() ) {
 			return sprintf(
 				'<a href="%s">%s</a>',
-				esc_url( get_permalink( $post->ID ) . '#' . $gallery_instance . '-slideshow' ),
+				esc_url( get_permalink( $post_id ) . '#' . $gallery_instance . '-slideshow' ),
 				esc_html__( 'Click to view slideshow.', 'jetpack' )
 			);
 		}
@@ -303,4 +303,4 @@ class Jetpack_Slideshow_Shortcode {
 	}
 }
 
-add_action( 'init', array( 'Jetpack_Slideshow_Shortcode', 'init' ) );
+Jetpack_Slideshow_Shortcode::init();
