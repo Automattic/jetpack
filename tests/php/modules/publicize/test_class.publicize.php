@@ -18,7 +18,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
-		Jetpack_Options::update_options( array( 'publicize_connections' => array( 'not_empty' ) ) );
+		Jetpack_Options::update_options( array( 'publicize_connections' => array( 'facebook' => array( 'id_number' => array( 'connection_data' => array( 'user_id' => 0 ) ) ) ) ) );
 
 		add_action( 'jetpack_publicize_post', array( $this, 'publicized_post' ), 10, 1 );
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
