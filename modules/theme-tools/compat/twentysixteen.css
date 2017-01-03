@@ -500,10 +500,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 	font-weight: 400;
 }
 
-.entry-content #jp-relatedposts .jp-relatedposts-headline em:after {
-	content: ":";
-}
-
 .jp-relatedposts-items:before,
 .jp-relatedposts-items:after {
 	content: "";
