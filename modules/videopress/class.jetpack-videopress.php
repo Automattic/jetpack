@@ -52,6 +52,8 @@ class Jetpack_VideoPress {
 
 		add_filter( 'wp_mime_type_icon', array( $this, 'wp_mime_type_icon' ), 10, 3 );
 
+		$this->add_media_new_notice();
+
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
 	}
@@ -107,6 +109,22 @@ class Jetpack_VideoPress {
 		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
+	}
+
+	/**
+	 * Add a notice to the top of the media-new.php to let the user know how to upload a video.
+	 */
+	public function add_media_new_notice() {
+		global $pagenow;
+
+		if ( $pagenow != 'media-new.php' ) {
+			return;
+		}
+
+		$jitm = Jetpack_JITM::init();
+
+		add_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) );
+		add_action( 'admin_notices', array( $jitm, 'videopress_media_upload_warning_msg' ) );
 	}
 
 	/**
