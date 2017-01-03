@@ -114,7 +114,7 @@ export const Writing = ( props ) => {
 					compact={ true }
 					href="#/plans"
 				>
-					{ __( 'Pro' ) }
+					{ __( 'Paid' ) }
 				</Button>
 			</span>;
 		}

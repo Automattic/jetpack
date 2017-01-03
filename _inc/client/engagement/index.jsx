@@ -143,7 +143,7 @@ export const Engagement = ( props ) => {
 					<span>
 						{ element[1] }
 						<Button compact={ true } href="#/plans">
-							{ __( 'Pro' ) }
+							{ __( 'Paid' ) }
 						</Button>
 					</span>;
 			}
