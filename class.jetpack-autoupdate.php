@@ -52,6 +52,11 @@ class Jetpack_Autoupdate {
 	}
 
 	public function autoupdate_translation( $update, $item ) {
+		// Autoupdate all translations
+		if ( Jetpack_Options::get_option( 'autoupdate_translations', false ) ) {
+			return true;
+		}
+		
 		// Themes
 		$autoupdate_themes_translations = Jetpack_Options::get_option( 'autoupdate_themes_translations', array() );
 		$autoupdate_theme_list          = Jetpack_Options::get_option( 'autoupdate_themes', array() );
