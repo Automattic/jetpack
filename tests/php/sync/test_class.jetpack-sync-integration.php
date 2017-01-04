@@ -24,12 +24,12 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		global $wpdb;
 
-		$expected_sync_config = array( 
-			'options' => true, 
+		$expected_sync_config = array(
+			'options'         => true,
 			'network_options' => true,
-			'functions' => true, 
-			'constants' => true, 
-			'users' => 'initial'
+			'functions'       => true,
+			'constants'       => true,
+			'users'           => 'initial'
 		);
 
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
@@ -46,19 +46,30 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		if ( ! is_main_site() ) {
 			$this->markTestSkipped( 'Not applicable for jetpack when it is not network activated.' );
 		}
-		$initial_sync_without_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true );
-		$initial_sync_with_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true, 'users' => 'initial' );
+		$initial_sync_without_users_config = array(
+			'options'         => true,
+			'functions'       => true,
+			'constants'       => true,
+			'network_options' => true
+		);
+		$initial_sync_with_users_config    = array(
+			'options'         => true,
+			'functions'       => true,
+			'constants'       => true,
+			'network_options' => true,
+			'users'           => 'initial'
+		);
 
 		do_action( 'updating_jetpack_version', '4.3', '4.2' );
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
-		$sync_config = $sync_status[ 'config' ];
+		$sync_config = $sync_status['config'];
 
 		$this->assertEquals( $initial_sync_without_users_config, $sync_config );
 		$this->assertNotEquals( $initial_sync_with_users_config, $sync_config );
 
 		do_action( 'updating_jetpack_version', '4.2', '4.1' );
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
-		$sync_config = $sync_status[ 'config' ];
+		$sync_config = $sync_status['config'];
 
 		$this->assertEquals( $initial_sync_with_users_config, $sync_config );
 
@@ -70,7 +81,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$timestamp = wp_next_scheduled( 'jetpack_sync_cron' );
 		// we need to check a while in the past because the task got scheduled at
 		// the beginning of the entire test run, not at the beginning of this test :)
-		$this->assertTrue( $timestamp > time()-HOUR_IN_SECONDS );
+		$this->assertTrue( $timestamp > time() - HOUR_IN_SECONDS );
 	}
 
 	function test_default_schedule_incremental_sync_cron() {
@@ -93,7 +104,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	function test_schedules_full_sync_cron() {
 		Jetpack_Sync_Actions::init_sync_cron_jobs();
 		$timestamp = wp_next_scheduled( 'jetpack_sync_full_cron' );
-		$this->assertTrue( $timestamp > time()-HOUR_IN_SECONDS );
+		$this->assertTrue( $timestamp > time() - HOUR_IN_SECONDS );
 	}
 
 	function test_default_schedule_full_sync_cron() {
@@ -152,7 +163,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 
 	function test_adds_full_sync_on_jetpack_plugin_update() {
-		if( ! is_multisite() ) {
+		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Not applicable for jetpack not running as part of MU.' );
 		}
 
@@ -161,31 +172,37 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Sync_Settings::reset_data();
 
 		$full_config = array(
-			'constants' => 1,
-			'functions' => 1,
-            'options' => 1,
-            'network_options' => 1
+			'constants'       => 1,
+			'functions'       => 1,
+			'options'         => 1,
+			'network_options' => 1
 		);
 
 		$count = 0;
-		while( $count < 5 ) {
+		while ( $count < 5 ) {
 			$this->factory->blog->create();
-			$count++;
+			$count ++;
 		}
 
 		// one more just for good measuer
 		$blog_id = $this->factory->blog->create();
 		$this->server_replica_storage->reset();
 
-		add_filter( 'jetpack_network_ramp_up_blogs_per_second', array( $this, 'jetpack_network_ramp_up_blogs_per_second' ) );
+		add_filter( 'jetpack_network_ramp_up_blogs_per_second', array(
+			$this,
+			'jetpack_network_ramp_up_blogs_per_second'
+		) );
 
 		self::fake_version_update();
 		// Main site should have the right version right away
 		$this->assertEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'network_version', 0 ), 'Main site doesnt have the right version' );
-		
+
 		switch_to_blog( $blog_id );
 
-		$this->assertTrue( (bool) has_action( 'shutdown', array( 'Jetpack_Sync_Actions', 'maybe_start_initial_sync' ) ), 'No shutdown event registed' );
+		$this->assertTrue( (bool) has_action( 'shutdown', array(
+			'Jetpack_Sync_Actions',
+			'maybe_start_initial_sync'
+		) ), 'No shutdown event registed' );
 
 		// Pretend that the site gets a visit
 		self::fake_version_update();
