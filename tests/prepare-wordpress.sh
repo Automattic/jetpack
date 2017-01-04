@@ -3,7 +3,7 @@
 # If this is an NPM environment test we don't need a developer WordPress checkout
 
 if [ "$WP_TRAVISCI" != "phpunit" ]; then
-	exit 0;
+    exit 0;
 fi
 
 # This prepares a developer checkout of WordPress for running the test suite on Travis
@@ -12,32 +12,36 @@ mysql -u root -e "CREATE DATABASE wordpress_tests;"
 
 CURRENT_DIR=$(pwd)
 
-for WP_SLUG in 'latest' 'previous'; do
-	echo "Preparing $WP_SLUG WordPress...";
+for WP_SLUG in 'master' 'latest' 'previous'; do
+    echo "Preparing $WP_SLUG WordPress...";
 
-	cd $CURRENT_DIR/..
-
-	case $WP_SLUG in
+    cd $CURRENT_DIR/..
+    
+    case $WP_SLUG in
 	master)
-		git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
-		;;
+	    git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
+	    cd /tmp/wordpress-master/src
+	    composer install
+	    ;;
 	latest)
-		git clone --depth=1 --branch `php ./$PLUGIN_SLUG/tests/get-wp-version.php` git://develop.git.wordpress.org/ /tmp/wordpress-latest
-		;;
+	    git clone --depth=1 --branch `php ./$PLUGIN_SLUG/tests/get-wp-version.php` git://develop.git.wordpress.org/ /tmp/wordpress-latest
+	    ;;
 	previous)
-		git clone --depth=1 --branch `php ./$PLUGIN_SLUG/tests/get-wp-version.php --previous` git://develop.git.wordpress.org/ /tmp/wordpress-previous
-		;;
-	esac
+	    git clone --depth=1 --branch `php ./$PLUGIN_SLUG/tests/get-wp-version.php --previous` git://develop.git.wordpress.org/ /tmp/wordpress-previous
+	    ;;
+    esac
 
-	cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_SLUG/src/wp-content/plugins/$PLUGIN_SLUG"
-	cd /tmp/wordpress-$WP_SLUG
+    cd $CURRENT_DIR/..
 
-	cp wp-tests-config-sample.php wp-tests-config.php
-	sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
-	sed -i "s/yourusernamehere/root/" wp-tests-config.php
-	sed -i "s/yourpasswordhere//" wp-tests-config.php
+    cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_SLUG/src/wp-content/plugins/$PLUGIN_SLUG"
+    cd /tmp/wordpress-$WP_SLUG
 
-	echo "Done!";
+    cp wp-tests-config-sample.php wp-tests-config.php
+    sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
+    sed -i "s/yourusernamehere/root/" wp-tests-config.php
+    sed -i "s/yourpasswordhere//" wp-tests-config.php
+
+    echo "Done!";
 done
 
 exit 0;
