@@ -398,7 +398,7 @@ class Jetpack_Sync_Actions {
 add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
 // Check for WooCommerce support
-add_action( 'init', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
