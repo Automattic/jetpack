@@ -15,10 +15,6 @@ import SettingsCard from 'components/settings-card';
 export const SEO = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		render() {
 			return (
 				<SettingsCard

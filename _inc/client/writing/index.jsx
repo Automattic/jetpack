@@ -7,10 +7,14 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { getModule as _getModule } from 'state/modules';
-import { getSettings as _getSettings } from 'state/settings';
+import { getModule } from 'state/modules';
+import { getSettings } from 'state/settings';
 import QuerySite from 'components/data/query-site';
 import { Composing } from './composing';
+import { Media } from './media';
+import { CustomContentTypes } from './custom-content-types';
+import { ThemeEnhancements } from './theme-enhancements';
+import { PostByEmail } from './post-by-email';
 
 export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
@@ -20,8 +24,24 @@ export const Writing = React.createClass( {
 			<div>
 				<QuerySite />
 				<Composing
-					settings={ this.props.getSettings() }
-					getModule={ this.props.getModule }
+					settings={ this.props.settings }
+					getModule={ this.props.module }
+				/>
+				<Media
+					settings={ this.props.settings }
+					getModule={ this.props.module }
+				/>
+				<CustomContentTypes
+					settings={ this.props.settings }
+					getModule={ this.props.module }
+				/>
+				<ThemeEnhancements
+					settings={ this.props.settings }
+					getModule={ this.props.module }
+				/>
+				<PostByEmail
+					settings={ this.props.settings }
+					getModule={ this.props.module }
 				/>
 			</div>
 		);
@@ -31,8 +51,8 @@ export const Writing = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			getModule: ( module_name ) => _getModule( state, module_name ),
-			getSettings: () => _getSettings( state )
+			module: ( module_name ) => getModule( state, module_name ),
+			settings: getSettings( state )
 		}
 	},
 	( dispatch ) => {

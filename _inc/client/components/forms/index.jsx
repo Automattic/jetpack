@@ -5,9 +5,12 @@ var React = require( 'react' ),
 	classnames = require( 'classnames' );
 import classNames from 'classnames';
 import omit from 'lodash/omit';
+import forOwn from 'lodash/forown';
 import isEmpty from 'lodash/isEmpty';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
+import Gridicon from 'components/gridicon';
+import SelectDropdown from 'components/select-dropdown';
 
 export const FormFieldset = React.createClass( {
 
@@ -16,6 +19,16 @@ export const FormFieldset = React.createClass( {
 	render: function() {
 		return (
 			<fieldset { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'jp-form-fieldset' ) } >
+				{
+					this.props.support
+						? <div className="jp-module-settings__learn-more">
+							<Button borderless compact href={ this.props.support }>
+								<Gridicon icon="help-outline" />
+								<span className="screen-reader-text">{ __( 'Learn More' ) }</span>
+							</Button>
+						  </div>
+						: ''
+				}
 				{ this.props.children }
 			</fieldset>
 		);
@@ -159,5 +172,25 @@ export const FormButton = React.createClass( {
 				{ isEmpty( this.props.children ) ? this.getDefaultButtonAction() : this.props.children }
 			</Button>
 		);
+	}
+} );
+
+export const FormSelect = React.createClass( {
+	handleOnSelect: function( option ) {
+		this.props.onOptionChange( {
+			target: {
+				type: 'select',
+				name: this.props.name,
+				value: option.value
+			}
+		} );
+	},
+
+	render() {
+		let validValues = [];
+		forOwn( this.props.validValues, ( label, value ) => {
+			validValues.push( { label: label, value: value } );
+		} );
+		return <SelectDropdown options={ validValues } onSelect={ this.handleOnSelect } initialSelected={ this.props.value } />;
 	}
 } );

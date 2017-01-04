@@ -88,7 +88,8 @@ export const updateSettings = ( newOptionValues ) => {
 			{ id: `module-setting-update` }
 		) );
 		dispatch( {
-			type: JETPACK_SETTINGS_UPDATE
+			type: JETPACK_SETTINGS_UPDATE,
+			updatedOptions: newOptionValues
 		} );
 
 		return restApi.updateSettings( newOptionValues ).then( success => {
@@ -117,6 +118,60 @@ export const updateSettings = ( newOptionValues ) => {
 			dispatch( createNotice(
 				'is-error',
 				__( 'Error updating settings. %(error)s', {
+					args: {
+						error: error
+					}
+				} ),
+				{ id: `module-setting-update` }
+			) );
+		} );
+	};
+};
+
+export const regeneratePostByEmailAddress = () => {
+	return ( dispatch, getState ) => {
+
+		const newOptionValues = {
+			post_by_email_address: 'regenerate'
+		};
+
+		dispatch( removeNotice( `module-setting-update` ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Updating Post by Email address…' ),
+			{ id: `module-setting-update` }
+		) );
+		dispatch( {
+			type: JETPACK_SETTINGS_UPDATE
+		} );
+
+		return restApi.updateSettings( newOptionValues ).then( success => {
+			dispatch( {
+				type: JETPACK_SETTINGS_UPDATE_SUCCESS,
+				updatedOptions: {
+					post_by_email_address: success.post_by_email_address
+				},
+				success: success
+			} );
+
+			dispatch( removeNotice( `module-setting-update` ) );
+			dispatch( createNotice(
+				'is-success',
+				__( 'Regenerated Post by Email address.' ),
+				{ id: `module-setting-update` }
+			) );
+		} ).catch( error => {
+			dispatch( {
+				type: JETPACK_SETTINGS_UPDATE_FAIL,
+				success: false,
+				error: error,
+				updatedOptions: newOptionValues
+			} );
+
+			dispatch( removeNotice( `module-setting-update` ) );
+			dispatch( createNotice(
+				'is-error',
+				__( 'Error regenerating Post by Email address. %(error)s', {
 					args: {
 						error: error
 					}

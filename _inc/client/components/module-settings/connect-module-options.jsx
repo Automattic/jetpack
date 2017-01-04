@@ -10,15 +10,15 @@ import get from 'lodash/get';
 import {
 	updateModuleOptions,
 	getModuleOption,
-	getModuleOptionValidValues,
-	regeneratePostByEmailAddress
+	getModuleOptionValidValues
 } from 'state/modules';
 import {
 	getSetting,
 	updateSettings,
 	isUpdatingSetting,
 	setUnsavedSettingsFlag,
-	clearUnsavedSettingsFlag
+	clearUnsavedSettingsFlag,
+	regeneratePostByEmailAddress
 } from 'state/settings';
 import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
 import {
@@ -46,9 +46,9 @@ export function connectModuleOptions( Component ) {
 					return getModuleOptionValidValues( state, module_slug, option_name );
 				},
 				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
-				getSettingCurrentValue: ( setting_name ) => getSetting( state, setting_name ),
+				getSettingCurrentValue: ( setting_name, moduleName = '' ) => getSetting( state, setting_name, moduleName ),
 				getSiteRoles: () => getSiteRoles( state ),
-				isUpdating: () => isUpdatingSetting( state ),
+				isUpdating: settingName => isUpdatingSetting( state, settingName ),
 				adminEmailAddress: getAdminEmailAddress( state ),
 				currentIp: getCurrentIp( state ),
 				siteAdminUrl: getSiteAdminUrl( state ),

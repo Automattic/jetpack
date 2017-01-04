@@ -44,7 +44,7 @@ export const SettingsCard = props => {
 							compact
 							isSubmitting={ isSaving }
 							onClick={ isSaving ? () => {} : props.onSubmit }
-							disabled={ isSaving }>
+							disabled={ isSaving || ! props.isDirty() }>
 							{
 								isSaving
 									? __( 'Saving…', { context: 'Button caption' } )

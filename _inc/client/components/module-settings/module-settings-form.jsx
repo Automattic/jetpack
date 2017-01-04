@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import assign from 'lodash/assign';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -61,22 +62,44 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * If the module is active, only the option is added to the list of form values to send.
 		 * If it's inactive, an additional option stating that the module must be activated is added to the list.
 		 *
-		 * @param {string} module
-		 * @param {string} moduleOption
+		 * @param {String}  module
+		 * @param {String}  moduleOption
+		 * @param {Boolean} deactivate
 		 */
-		updateFormStateModuleOption( module, moduleOption ) {
+		updateFormStateModuleOption( module, moduleOption, deactivate = false ) {
 
-			// If the module is active, we pass the value to set.
+			// If the module is active, check if we're going to update the option or update and deactivate.
 			if ( this.getOptionValue( module ) ) {
-				this.updateFormStateOptionValue( moduleOption, ! this.getOptionValue( moduleOption ) );
+				if ( deactivate ) {
+
+					// If after toggling the option the module is no longer needed to be active, deactivate it.
+					this.props.updateOptions( {
+						[ module ]: false,
+						[ moduleOption ]: ! this.getOptionValue( moduleOption )
+					} );
+				} else {
+
+					// We pass the value to set.
+					this.props.updateOptions( {
+						[ moduleOption ]: ! this.getOptionValue( moduleOption )
+					} );
+				}
 			} else {
 
 				// If the module is inactive, we pass the module to activate and the value to set.
-				this.updateFormStateOptionValue( {
+				this.props.updateOptions( {
 					[ module ]: true,
 					[ moduleOption ]: true
 				} );
 			}
+		},
+		/**
+		 * Instantly activate or deactivate a module.
+		 *
+		 * @param {String} module
+		 */
+		toggleModuleNow( module ) {
+			this.props.updateOptions( { [ module ]: ! this.getOptionValue( module ) } );
 		},
 		componentDidUpdate() {
 			if ( this.isDirty() ) {
@@ -85,32 +108,44 @@ export function ModuleSettingsForm( InnerComponent ) {
 		},
 		onSubmit( event ) {
 			event.preventDefault();
-			this.props.updateOptions( assign( {}, this.state.options ) );
-			this.props.clearUnsavedSettingsFlag();
-			this.setState( { options: {} } )
+			this.props.updateOptions( this.state.options )
+				.then( () => {
+					this.setState( { options: {} } );
+				} )
+				.then( () => {
+					this.props.clearUnsavedSettingsFlag();
+				} );
 		},
 
 		/**
 		 * Retrieves an option from an existing module, or from an array of modules
 		 * if the form was initialized with an array
 		 */
-		getOptionValue( settingName ) {
-			const currentValue = this.props.getSettingCurrentValue( settingName );
-			return typeof this.state.options[ settingName ] !== 'undefined'
-				 ? this.state.options[ settingName ]
-				 : currentValue;
+		getOptionValue( settingName, module = '' ) {
+			return get( this.state.options, settingName, this.props.getSettingCurrentValue( settingName, module ) );
 		},
 
 		shouldSaveButtonBeDisabled() {
 			// Check if the form is not currently dirty
 			return this.isSavingAnyOption() || ! this.isDirty();
 		},
+		/**
+		 * Check if there are unsaved settings in the card.
+		 *
+		 * @returns {Boolean}
+		 */
 		isDirty() {
 			return !! Object.keys( this.state.options ).length;
 		},
-		isSavingAnyOption() {
-			// Check if any of the updated options is still saving
-			return this.props.isUpdating();
+		/**
+		 * Checks if a setting is currently being saved.
+		 *
+		 * @param {String|Array} settings
+		 *
+		 * @returns {Boolean} True if specified settings are being saved, false otherwise.
+		 */
+		isSavingAnyOption( settings = '' ) {
+			return this.props.isUpdating( settings );
 		},
 		render() {
 			return (
@@ -119,9 +154,11 @@ export function ModuleSettingsForm( InnerComponent ) {
 					onSubmit={ this.onSubmit }
 					onOptionChange={ this.onOptionChange }
 					updateFormStateOptionValue={ this.updateFormStateOptionValue }
+					toggleModuleNow={ this.toggleModuleNow }
 					updateFormStateModuleOption={ this.updateFormStateModuleOption }
 					shouldSaveButtonBeDisabled={ this.shouldSaveButtonBeDisabled }
 					isSavingAnyOption={ this.isSavingAnyOption }
+					isDirty={ this.isDirty }
 					{ ...this.props } />
 			);
 		}

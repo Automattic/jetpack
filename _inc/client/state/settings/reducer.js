@@ -4,6 +4,11 @@
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import merge from 'lodash/merge';
+import includes from 'lodash/includes';
+import some from 'lodash/some';
+import filter from 'lodash/filter';
+import mapValues from 'lodash/mapvalues';
 
 /**
  * Internal dependencies
@@ -43,7 +48,7 @@ export const items = ( state = {}, action ) => {
 
 export const initialRequestsState = {
 	fetchingSettingsList: false,
-	updatingSetting: false
+	settingsSent: {}
 };
 
 export const requests = ( state = initialRequestsState, action ) => {
@@ -60,15 +65,15 @@ export const requests = ( state = initialRequestsState, action ) => {
 
 		case JETPACK_SETTING_UPDATE:
 		case JETPACK_SETTINGS_UPDATE:
-			return assign( {}, state, {
-				updatingSetting: true
+			return merge( {}, state, {
+				settingsSent: mapValues( action.updatedOptions, item => true )
 			} );
 		case JETPACK_SETTING_UPDATE_FAIL:
 		case JETPACK_SETTING_UPDATE_SUCCESS:
 		case JETPACK_SETTINGS_UPDATE_FAIL:
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
-			return assign( {}, state, {
-				updatingSetting: false
+			return merge( {}, state, {
+				settingsSent: mapValues( action.updatedOptions, item => false )
 			} );
 		default:
 			return state;
@@ -103,11 +108,15 @@ export function getSettings( state ) {
 
 /**
  * Returns a value of a certain setting
- * @param  {Object} state Global state tree
- * @param  {String} key   Setting name
- * @return {Mixed}       Settings value
+ * @param  {Object} state      Global state tree
+ * @param  {String} key        Name of setting or module option to return.
+ * @param  {String} moduleName If present, it will check if the module is active before returning it.
+ * @return {undefined|*}       Settings value or undefined if a module was specified and it wasn't active.
  */
-export function getSetting( state, key ) {
+export function getSetting( state, key, moduleName = '' ) {
+	if ( '' !== moduleName && ! get( state.jetpack.settings.items, moduleName, false ) ) {
+		return undefined;
+	}
 	return get( state.jetpack.settings.items, key, undefined );
 }
 
@@ -125,11 +134,15 @@ export function isFetchingSettingsList( state ) {
 /**
  * Returns true if we are currently making a request to update a setting's option
  *
- * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether option is being updated on the setting
+ * @param  {Object}        state    Global state tree
+ * @param  {String|Array} settings Single or multiple settings to check if they're being saved or not.
+ * @return {Boolean}                Whether option is being updated on the setting
  */
-export function isUpdatingSetting( state ) {
-	return state.jetpack.settings.requests.updatingSetting;
+export function isUpdatingSetting( state, settings = '' ) {
+	if ( 'object' === typeof settings ) {
+		return some( filter( state.jetpack.settings.requests.settingsSent, ( item, key ) => includes( settings, key ) ), item => item );
+	}
+	return state.jetpack.settings.requests.settingsSent[ settings ];
 }
 
 /**

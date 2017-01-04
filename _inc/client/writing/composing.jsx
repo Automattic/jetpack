@@ -11,37 +11,30 @@ import { translate as __ } from 'i18n-calypso';
 import {
 	FormFieldset,
 	FormLegend,
-	FormLabel,
-	FormButton
+	FormLabel
 } from 'components/forms';
-import { getModule as _getModule } from 'state/modules';
+import { getModule } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import TagsInput from 'components/tags-input';
 import SettingsCard from 'components/settings-card';
+import InlineExpand from 'components/inline-expand';
 
 export const Composing = moduleSettingsForm(
 	React.createClass( {
-		getCheckbox( setting, label, isAtd = true ) {
-			let markdown = this.props.getModule( 'markdown' );
-			let atd = this.props.getModule( 'after-the-deadline' );
-
+		getCheckbox( setting, label ) {
 			return(
 				<ModuleSettingCheckbox
 					name={ setting }
-					module={ isAtd ? atd : markdown }
 					label={ label }
 					{ ...this.props }
 				/>
 			);
 		},
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		getAtdSettings() {
+			let ignoredPhrases = this.props.getOptionValue( 'ignored_phrases' );
 			return (
 				<div>
 					<FormFieldset>
@@ -56,8 +49,7 @@ export const Composing = moduleSettingsForm(
 						</FormLegend>
 						<span className="jp-form-setting-explanation">
 							{ __(
-								  'The proofreader supports English, French, ' +
-								  'German, Portuguese and Spanish.'
+								  'The proofreader supports English, French, German, Portuguese and Spanish.'
 							  ) }
 						</span>
 						{
@@ -91,13 +83,10 @@ export const Composing = moduleSettingsForm(
 							name="ignored_phrases"
 							placeholder={ __( 'Add a phrase' ) }
 							value={
-								(
-									'undefined' !== typeof this.props.getOptionValue( 'ignored_phrases' )
-									&& '' !== this.props.getOptionValue( 'ignored_phrases' )
-								)
-								 ? this.props.getOptionValue( 'ignored_phrases' ).split( ',' )
-								 : []
-								  }
+								'undefined' !== typeof ignoredPhrases && '' !== ignoredPhrases
+									 ? ignoredPhrases.split( ',' )
+									 : []
+							}
 							onChange={ this.props.onOptionChange } />
 					</FormFieldset>
 				</div>
@@ -105,37 +94,39 @@ export const Composing = moduleSettingsForm(
 		},
 
 		render() {
-			let markdown = this.props.getModule( 'markdown' );
-			let atd = this.props.getModule( 'after-the-deadline' );
+			let markdown = this.props.getModule( 'markdown' ),
+				atd = this.props.getModule( 'after-the-deadline' );
 
 			return (
 				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }>
-					<FormFieldset>
-						<ModuleToggle slug={ 'markdown' }
+					<FormFieldset support={ markdown.learn_more_button }>
+						<ModuleToggle slug="markdown"
 									  compact
 									  activated={ this.props.getOptionValue( 'markdown' ) }
-									  toggling={ this.props.isSavingAnyOption() }
-									  toggleModule={ this.toggleModule }>
+									  toggling={ this.props.isSavingAnyOption( 'markdown' ) }
+									  toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
 								{ markdown.description }
 							</span>
 						</ModuleToggle>
 					</FormFieldset>
-					<FormFieldset>
-						<ModuleToggle slug={ 'after-the-deadline' }
+					<hr />
+					<FormFieldset support={ atd.learn_more_button }>
+						<ModuleToggle slug="after-the-deadline"
 									  compact
 									  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
-									  toggling={ this.props.isSavingAnyOption() }
-									  toggleModule={ this.toggleModule }>
+									  toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
+									  toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
 								{ atd.description }
 							</span>
 						</ModuleToggle>
+						{
+							this.props.getOptionValue( 'after-the-deadline' )
+								? <InlineExpand label={ __( 'Fancy options' ) }>{ this.getAtdSettings() }</InlineExpand>
+								: ''
+						}
 					</FormFieldset>
-					{ this.props.getOptionValue( 'after-the-deadline' )
-					  ? this.getAtdSettings()
-					  : ''
-					}
 				</SettingsCard>
 			);
 		}

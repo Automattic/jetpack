@@ -12,78 +12,82 @@ import TextInput from 'components/text-input';
 import {
 	FormFieldset,
 	FormLegend,
-	FormLabel
+	FormLabel,
+	FormSelect
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { ModuleSettingSelect } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 
 export const Comments = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		render() {
+			let comments = this.props.getModule( 'comments' ),
+				gravatar = this.props.getModule( 'gravatar-hovercards' ),
+				markdown = this.props.getModule( 'markdown' );
 			return (
 				<SettingsCard
 					{ ...this.props }
 					module="comments">
-					<ModuleToggle slug={ 'comments' }
+					<ModuleToggle slug="comments"
 								  compact
 								  activated={ this.props.getOptionValue( 'comments' ) }
-								  toggling={ this.props.isSavingAnyOption() }
-								  toggleModule={ this.toggleModule }>
+								  toggling={ this.props.isSavingAnyOption( 'comments' ) }
+								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
-								__( 'Use Jetpack comments. Let readers use their WordPress.com,	Twitter, Facebook or Google+ to leave comments on your posts and pages.' )
+								comments.description
 							}
 						</span>
 					</ModuleToggle>
-					<FormFieldset>
-						<FormLabel>
-							<span className="jp-form-label-wide">{ __( 'Comments headline' ) }</span>
-							<TextInput
-								name={ 'highlander_comment_form_prompt' }
-								value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
-								disabled={ this.props.isUpdating( 'highlander_comment_form_prompt' ) }
-								onChange={ this.props.onOptionChange} />
-						</FormLabel>
-						<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
-						<FormLabel>
-							<span className="jp-form-label-wide">{ __( 'Color Scheme' ) }</span>
-							<ModuleSettingSelect
-								name={ 'jetpack_comment_form_color_scheme' }
-								value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
-								onChange={ this.props.onOptionChange }
-								{ ...this.props }
-								validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme', 'comments' ) }/>
-						</FormLabel>
-					</FormFieldset>
+					{
+						this.props.getOptionValue( 'comments' )
+							? <FormFieldset>
+								<FormLabel>
+									<span className="jp-form-label-wide">{ __( 'Comments headline' ) }</span>
+									<TextInput
+										name={ 'highlander_comment_form_prompt' }
+										value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
+										disabled={ this.props.isUpdating( 'highlander_comment_form_prompt' ) }
+										onChange={ this.props.onOptionChange } />
+								</FormLabel>
+								<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
+								<FormLabel>
+									<span className="jp-form-label-wide">{ __( 'Color Scheme' ) }</span>
+									<FormSelect
+										name={ 'jetpack_comment_form_color_scheme' }
+										value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
+										onChange={ this.props.onOptionChange }
+										{ ...this.props }
+										validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme', 'comments' ) }/>
+								</FormLabel>
+							  </FormFieldset>
+							: ''
+					}
 					<hr />
-					<FormFieldset>
-						<ModuleToggle slug={ 'gravatar-hovercards' }
+					<FormFieldset support={ gravatar.learn_more_button }>
+						<ModuleToggle slug="gravatar-hovercards"
 									  compact
 									  activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
-									  toggling={ this.props.isSavingAnyOption() }
-									  toggleModule={ this.toggleModule }>
+									  toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
+									  toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
 								{
-									this.props.getModule( 'gravatar-hovercards' ).description
+									gravatar.description
 								}
 							</span>
 						</ModuleToggle>
-						<br />
-						<ModuleToggle slug={ 'markdown' }
+					</FormFieldset>
+					<FormFieldset support={ markdown.learn_more_button }>
+						<ModuleToggle slug="markdown"
 									  compact
-									  activated={ !!this.props.getOptionValue( 'wpcom_publish_comments_with_markdown' ) }
-									  toggling={ this.props.isSavingAnyOption() }
+									  activated={ !!this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
+									  toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
 									  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'wpcom_publish_comments_with_markdown' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
-									__( 'Use Markdown for comments.' )
+									__( 'Enable Markdown use for comments.' )
 								}
 							</span>
 						</ModuleToggle>

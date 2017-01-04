@@ -26,11 +26,11 @@ export const BackupsScan = moduleSettingsForm(
 					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 					support="https://vaultpress.com/jetpack/"
 					hideButton>
-					<span>
+					<p>
 						{
 							__( 'Your site is backed up and threat-free.' )
 						}
-					</span>
+					</p>
 					<p className="jp-form-setting-explanation">
 						{
 							__( 'You can see the information about your backups and security scanning in the "At a Glance" section.' )

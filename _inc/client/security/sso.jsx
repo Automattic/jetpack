@@ -18,42 +18,45 @@ import SettingsCard from 'components/settings-card';
 export const SSO = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		render() {
+			let isSSOActive = this.props.getOptionValue( 'sso' );
 			return (
 				<SettingsCard
 					{ ...this.props }
 					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
-					<ModuleToggle slug={ 'subscriptions' }
+					<ModuleToggle slug="sso"
 								  compact
-								  activated={ this.props.getOptionValue( 'subscriptions' ) }
-								  toggling={ this.props.isSavingAnyOption() }
-								  toggleModule={ this.toggleModule }>
+								  activated={ isSSOActive }
+								  toggling={ this.props.isSavingAnyOption( 'sso' ) }
+								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
-								__( 'Allow log-in using WordPress.com accounts.' )
+								this.props.getModule( 'sso' ).description
 							}
 						</span>
 					</ModuleToggle>
-					<p className="jp-form-setting-explanation">
-						{
-							__( 'Use WordPress.com’s secure authentication.' )
-						}
-					</p>
-					<FormFieldset>
-						<ModuleSettingCheckbox
-							name={ 'jetpack_sso_match_by_email' }
-							{ ...this.props }
-							label={ __( 'Match By Email' ) } />
-						<ModuleSettingCheckbox
-							name={ 'jetpack_sso_require_two_step' }
-							{ ...this.props }
-							label={ __( 'Require Two-Step Authentication' ) } />
-					</FormFieldset>
+					{
+						isSSOActive
+							? <div>
+								<p className="jp-form-setting-explanation">
+									{
+										__( 'Use WordPress.com’s secure authentication.' )
+									}
+								</p>
+								<FormFieldset>
+									<ModuleSettingCheckbox
+										name={ 'jetpack_sso_match_by_email' }
+										{ ...this.props }
+										label={ __( 'Match accounts using email addresses.' ) } />
+									<ModuleSettingCheckbox
+										name={ 'jetpack_sso_require_two_step' }
+										{ ...this.props }
+										label={ __( 'Require two step authentication.' ) } />
+								</FormFieldset>
+							  </div>
+							: ''
+					}
 				</SettingsCard>
 			);
 		}

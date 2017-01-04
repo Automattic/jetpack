@@ -13,13 +13,6 @@ import {
 	LikesSettings,
 	MonitorSettings,
 	SingleSignOnSettings,
-	MinilevenSettings,
-	CarouselSettings,
-	InfiniteScrollSettings,
-	TiledGallerySettings,
-	PostByEmailSettings,
-	CustomContentTypesSettings,
-	MarkdownSettings,
 	VideoPressSettings,
 	WordAdsSettings
 } from 'components/module-settings/';
@@ -44,18 +37,6 @@ const AllModuleSettingsComponent = React.createClass( {
 						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href='/wp-admin/admin.php?page=omnisearch'>{ __( 'Search your content.' ) }</ExternalLink>
 					</div>
 				);
-			case 'post-by-email':
-				return ( <PostByEmailSettings module={ module }  /> );
-			case 'custom-content-types':
-				return ( <CustomContentTypesSettings module={ module }  /> );
-			case 'tiled-gallery':
-				return ( <TiledGallerySettings module={ module }  /> );
-			case 'minileven':
-				return ( <MinilevenSettings module={ module }  /> );
-			case 'carousel':
-				return ( <CarouselSettings module={ module }  /> );
-			case 'infinite-scroll':
-				return ( <InfiniteScrollSettings module={ module }  /> );
 			case 'monitor':
 				module.raw_url = this.props.siteRawUrl;
 				return ( <MonitorSettings module={ module }  /> );
@@ -101,12 +82,10 @@ const AllModuleSettingsComponent = React.createClass( {
 				return ( <LikesSettings module={ module }  /> );
 			case 'wordads':
 				return ( <WordAdsSettings module={ module } /> );
-			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':
 			case 'shortlinks':
 			case 'shortcodes':
-			case 'photon':
 			case 'widget-visibility':
 			case 'notifications':
 			case 'enhanced-distribution':

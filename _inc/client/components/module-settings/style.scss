@@ -20,6 +20,11 @@
 	position: absolute;
 	top: 12px;
 	right: 17px;
+
+	.jp-form-fieldset & {
+		top: -12px;
+		right:-7px;
+	}
 }
 
 // Connection Settings styles

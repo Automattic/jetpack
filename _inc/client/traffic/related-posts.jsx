@@ -15,23 +15,19 @@ import SettingsCard from 'components/settings-card';
 export const RelatedPosts = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		render() {
 			return (
 				<SettingsCard
 					{ ...this.props }
 					module="related-posts">
-					<ModuleToggle slug={ 'related-posts' }
+					<ModuleToggle slug="related-posts"
 								  compact
 								  activated={ this.props.getOptionValue( 'related-posts' ) }
-								  toggling={ this.props.isSavingAnyOption() }
-								  toggleModule={ this.toggleModule }>
+								  toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
+								  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
-								__( 'Use Jetpack comments. Let readers use their WordPress.com,	Twitter, Facebook or Google+ to leave comments on your posts and pages.' )
+								__( 'Show related content after posts.' )
 							}
 						</span>
 					</ModuleToggle>

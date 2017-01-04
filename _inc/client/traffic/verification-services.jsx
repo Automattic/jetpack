@@ -23,10 +23,6 @@ import SettingsCard from 'components/settings-card';
 export const VerificationServices = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
 		render() {
 			let module = this.props.getModule( 'sitemaps' ),
 				sitemap_url = get( module, [ 'extra', 'sitemap_url' ], '' ),
@@ -80,22 +76,22 @@ export const VerificationServices = moduleSettingsForm(
 								{
 									id: 'google',
 									label: __( 'Google' ),
-									placeholder: 'Example: dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8'
+									placeholder: '<meta name="google-site-verification" content="1234" />'
 								},
 								{
 									id: 'bing',
 									label: __( 'Bing' ),
-									placeholder: 'Example: 12C1203B5086AECE94EB3A3D9830B2E'
+									placeholder: '<meta name="msvalidate.01" content="1234" />'
 								},
 								{
 									id: 'pinterest',
 									label: __( 'Pinterest' ),
-									placeholder: 'Example: f100679e6048d45e4a0b0b92dce1efce'
+									placeholder: '<meta name="p:domain_verify" content="1234" />'
 								},
 								{
 									id: 'yandex',
 									label: __( 'Yandex' ),
-									placeholder: 'Example: 44d68e1216009f40'
+									placeholder: '<meta name="yandex-verification" content="1234" />'
 								}
 							].map( item => (
 								<FormLabel
