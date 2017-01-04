@@ -97,7 +97,7 @@ function stats_ignore_db_version( $version ) {
 	if (
 		is_admin() &&
 		isset( $_GET['page'] ) && 'stats' === $_GET['page'] &&
-		0 === isset( $_GET['chart'] ) && strpos( $_GET['chart'], 'admin-bar-hours' )
+		isset( $_GET['chart'] ) && strpos($_GET['chart'], 'admin-bar-hours') === 0
 	) {
 		global $wp_db_version;
 		return $wp_db_version;
