@@ -103,7 +103,7 @@ class Jetpack_Sync_Actions {
 		 */
 		$blogs_per_seconds = (int) apply_filters( 'jetpack_network_ramp_up_blogs_per_second', self::NETWORK_UPDATE_RAMP_UP_BLOGS_PER_SECOND );
 		$time_difference = ( $current_time - $version_updated );
-		
+
 		return ( $current_blog_id <= ( $time_difference  * $blogs_per_seconds ) );
 	}
 
@@ -235,7 +235,7 @@ class Jetpack_Sync_Actions {
 			$initial_sync_config['users'] = 'initial';
 		}
 
-		if ( $network_site || ! is_multisite() ) {
+		if ( $network_site || is_main_site() ) {
 			self::do_full_sync( $initial_sync_config );
 			Jetpack_Options::update_option( 'network_version', JETPACK__VERSION );
 		}

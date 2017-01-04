@@ -34,8 +34,8 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
 
-		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_main_site() ) {
-			$this->markTestSkipped( 'Not compatible with multisite mode' );
+		if ( ! is_main_site() ) {
+			$this->markTestSkipped( 'Not compatible with not main site' );
 		} else {
 			$this->assertEquals( $sync_status['config'], $expected_sync_config );
 		}
@@ -43,7 +43,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_upgrading_from_42_plus_does_not_includes_users_in_initial_sync() {
-		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_main_site() ) {
+		if ( ! is_main_site() ) {
 			$this->markTestSkipped( 'Not applicable for jetpack when it is not network activated.' );
 		}
 		$initial_sync_without_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true );
@@ -176,32 +176,31 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		// one more just for good measuer
 		$blog_id = $this->factory->blog->create();
 		$this->server_replica_storage->reset();
+
 		add_filter( 'jetpack_network_ramp_up_blogs_per_second', array( $this, 'jetpack_network_ramp_up_blogs_per_second' ) );
-		// We are staring off with a blank slate
-		$this->assertEquals( 0, Jetpack_Options::get_option( 'network_version', 0 ) );
 
-		self::version_update();
-		sleep( 1 );
-		// instead of waiting for
-		Jetpack_Sync_Actions::maybe_start_initial_sync();
-		// Test that the main site sync as expected
-		$this->assertEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'network_version' ) );
-
+		self::fake_version_update();
+		// Main site should have the right version right away
+		$this->assertEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'network_version', 0 ), 'Main site doesnt have the right version' );
+		
 		switch_to_blog( $blog_id );
 
-		self::version_update();
-		Jetpack_Sync_Actions::maybe_start_initial_sync();
-		// Test that we didn't bump the network version for this site just yet
+		$this->assertTrue( (bool) has_action( 'shutdown', array( 'Jetpack_Sync_Actions', 'maybe_start_initial_sync' ) ), 'No shutdown event registed' );
 
-		$this->assertNotEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'network_version' ) );
+		// Pretend that the site gets a visit
+		self::fake_version_update();
+		Jetpack_Sync_Actions::maybe_start_initial_sync();
+
+		// Test that we didn't bump the network version for this site just yet
+		$this->assertEquals( 0, Jetpack_Options::get_option( 'network_version', 0 ), 'Network version not equal to 0 after right away' );
 
 		sleep( 1 );
 
 		Jetpack_Sync_Actions::maybe_start_initial_sync();
-		$this->assertNotEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'network_version' ) );
+		$this->assertEquals( 0, Jetpack_Options::get_option( 'network_version', 0 ), 'Network version not equal to 0 after 1 second' );
 
 		sleep( 3 );
-		
+
 		Jetpack_Sync_Actions::maybe_start_initial_sync();
 		$this->assertEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'network_version' ) );
 
@@ -235,7 +234,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		return 2;
 	}
 
-	static function version_update() {
+	static function fake_version_update() {
 		do_action( 'updating_jetpack_version', JETPACK__VERSION, 'old version' );
 		Jetpack_Options::update_option( 'version', JETPACK__VERSION . ':' . time() );
 	}
