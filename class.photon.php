@@ -126,7 +126,7 @@ class Jetpack_Photon {
 			$content_width = Jetpack::get_content_width();
 
 			$image_sizes = self::image_sizes();
-			$upload_dir = wp_upload_dir();
+			$upload_dir = wp_get_upload_dir();
 
 			foreach ( $images[0] as $index => $tag ) {
 				// Default to resize, though fit may be used in certain cases where a dimension cannot be ascertained
@@ -605,7 +605,7 @@ class Jetpack_Photon {
 	 * @return array An array of Photon image urls and widths.
 	 */
 	public function filter_srcset_array( $sources, $size_array, $image_src, $image_meta ) {
-		$upload_dir = wp_upload_dir();
+		$upload_dir = wp_get_upload_dir();
 
 		foreach ( $sources as $i => $source ) {
 			if ( ! self::validate_image_url( $source['url'] ) ) {
@@ -841,7 +841,7 @@ class Jetpack_Photon {
 		// Build URL, first removing WP's resized string so we pass the original image to Photon
 		if ( preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) ) {
 			$stripped_src = str_replace( $src_parts[1], '', $src );
-			$upload_dir = wp_upload_dir();
+			$upload_dir = wp_get_upload_dir();
 
 			// Extracts the file path to the image minus the base url
 			$file_path = substr( $stripped_src, strlen ( $upload_dir['baseurl'] ) );
