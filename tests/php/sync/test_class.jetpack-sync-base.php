@@ -51,7 +51,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
 
-		if ( is_multisite() && getenv( 'NETWORK_ACTIVE' ) ) { //
+		if ( is_multisite() && getenv( 'NETWORK_ACTIVE' ) ) {
 			add_filter( 'pre_site_option_active_sitewide_plugins', array( $this, 'jetpack_network_active' ) );
 		}
 	}
