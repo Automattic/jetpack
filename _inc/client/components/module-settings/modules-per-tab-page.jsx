@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
  */
 import {
 	StatsSettings,
+	RelatedPostsSettings,
 	CommentsSettings,
 	LikesSettings,
 	SubscriptionsSettings,
@@ -113,6 +114,8 @@ const AllModuleSettingsComponent = React.createClass( {
 				}
 			case 'stats':
 				return ( <StatsSettings module={ module }  /> );
+			case 'related-posts':
+				return ( <RelatedPostsSettings module={ module } lastPostUrl={ this.props.lastPostUrl } /> );
 			case 'comments':
 				return ( <CommentsSettings module={ module }  /> );
 			case 'subscriptions':
@@ -161,7 +164,6 @@ const AllModuleSettingsComponent = React.createClass( {
 						}
 					</div>
 				);
-			case 'related-posts':
 			case 'custom-css':
 			case 'widgets':
 			case 'publicize':
@@ -169,12 +171,6 @@ const AllModuleSettingsComponent = React.createClass( {
 			default:
 				if ( 'publicize' === module.module ) {
 					module.configure_url = this.props.adminUrl + 'options-general.php?page=sharing';
-				}
-				if ( 'related-posts' === module.module ) {
-					module.configure_url = this.props.adminUrl +
-						'customize.php?autofocus[section]=jetpack_relatedposts' +
-						'&return=' + encodeURIComponent( this.props.adminUrl + 'admin.php?page=jetpack#/engagement' ) +
-						'&url=' + encodeURIComponent( this.props.lastPostUrl );
 				}
 				return (
 					<div>
