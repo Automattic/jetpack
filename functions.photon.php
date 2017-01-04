@@ -127,10 +127,12 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	$image_host_path = $image_url_parts['host'] . $image_url_parts['path'];
 
-	// Figure out which CDN subdomain to use
-	srand( crc32( $image_host_path ) );
-	$subdomain = rand( 0, 2 );
-	srand();
+	// Figure out which CDN subdomain to use for this site
+	$subdomain_seed = (int) Jetpack_Options::get_option( 'id' );
+	if ( empty( $subdomain_seed ) && !empty( $_SERVER['HTTP_HOST'] ) ) {
+		$subdomain_seed = crc32( $_SERVER['HTTP_HOST'] ); // Fallback to site domain
+	}
+	$subdomain = abs( $subdomain_seed % 3 ); // abs() for 32bit system crc
 
 	/**
 	 * Filters the domain used by the Photon module.
