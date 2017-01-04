@@ -13,38 +13,6 @@ import { getSiteAdminUrl } from 'state/initial-state';
 export const CardMessages = props => {
 
 	switch ( props.module ) {
-		case 'infinite-scroll':
-			return (
-				<div>
-					{ props.desc }
-					<p className="jp-form-setting-explanation">
-						{
-							__( "The current version of your theme, {{strong}}%(theme)s{{/strong}}, doesn't support Infinite Scroll.", {
-									args: {
-										theme: props.themeData.name
-									},
-									components: {
-										strong: <strong />
-									}
-								}
-							)
-						}
-						{ ' ' }
-						{
-							props.themeData.hasUpdate
-								? __( "Check if the {{a}}latest version{{/a}} adds support.", {
-										components: {
-											a: <a href={ props.siteAdminUrl + 'update-core.php' } className="jetpack-js-stop-propagation" />
-										}
-									}
-								  )
-								: ''
-						}
-					</p>
-				</div>
-			);
-			break;
-
 		case 'sitemaps':
 			return (
 				<span>
