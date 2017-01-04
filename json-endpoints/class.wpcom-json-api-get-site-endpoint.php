@@ -93,6 +93,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'advanced_seo_title_formats',
 		'verification_services_codes',
 		'podcasting_archive',
+		'is_domain_only',
 	);
 
 	protected static $jetpack_response_field_additions = array( 
@@ -456,6 +457,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'podcasting_archive':
 					$options[ $key ] = $site->get_podcasting_archive();
 					break;
+				case 'is_domain_only':
+					$blog_options = get_blog_option( $this->site->blog_id, 'options' );
+					$options[ $key ] = ! empty ( $blog_options['is_domain_only'] ) ? (bool) $blog_options['is_domain_only'] : false;
 			}
 		}
 
