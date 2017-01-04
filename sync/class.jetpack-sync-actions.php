@@ -12,10 +12,7 @@ class Jetpack_Sync_Actions {
 	const DEFAULT_SYNC_CRON_INTERVAL_NAME = 'jetpack_sync_interval';
 	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 	
-	const UPDATE_RAMP_UP_CRON_NAME = 'jetpack_network_version_up_cron';
-	const UPDATE_RAMP_UP_NETWORK_OPTION = 'jetpack_sync_network_upgrade_ramp_up';
-	const UPDATE_RAMP_UP_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
-	const UPDATE_RAMP_UP_INCREMENT = 10; // Percentage of sites that the intervals increments by.
+	const NETWORK_UPDATE_RAMP_UP_BLOGS_PER_SECOND = 10;
 
 	static function init() {
 
@@ -30,14 +27,11 @@ class Jetpack_Sync_Actions {
 			wp_clear_scheduled_hook( 'jetpack_sync_cron' );
 			wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
 		}
-		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
-			// Add cron action that bump ups the avalue.
-			add_action( self::UPDATE_RAMP_UP_CRON_NAME, array( __CLASS__, 'jetpack_network_ramp_up_bump' ), 10, 1 );
 
-			// Did we update the option already?
-			if ( self::can_do_initial_sync() ) {
-				self::do_initial_sync( JETPACK__VERSION, Jetpack_Options::get_option( 'jetpack_network_version', 0 ), true );
-			}
+		// Multi sites shouldn't  do a full sync all at once
+		// If we haven't update yet lets see if we should do it.
+		if ( is_multisite() && Jetpack_Options::get_option( 'network_version', 0 ) !== JETPACK__VERSION ) {
+			add_action( 'shutdown', array( __CLASS__, 'maybe_start_initial_sync' ), 1 );
 		}
 
 		// On jetpack authorization, schedule a full sync
@@ -72,28 +66,45 @@ class Jetpack_Sync_Actions {
 
 	}
 
-	static function can_do_initial_sync( $current_blog_id = null, $ramp_up = null ) {
-		$network_version = Jetpack_Options::get_option( 'jetpack_network_version', 0 );
-
-		if ( $network_version === JETPACK__VERSION ) {
-			return false;
+	static function maybe_start_initial_sync() {
+		if ( ! self::can_do_initial_sync() ) {
+			return;
 		}
+		// Previous
+		$previous_version_and_time = Jetpack_Options::get_option( 'old_version', 0 );
+		$previous_version = explode( ':', $previous_version_and_time );
+		self::do_initial_sync( JETPACK__VERSION, $previous_version[ 0 ], true );
+	}
 
-		if ( empty( $ramp_up ) ) {
-			$ramp_up = get_site_option( self::UPDATE_RAMP_UP_NETWORK_OPTION );
-		}
-
-		if ( $current_blog_id === null ) {
+	static function can_do_initial_sync( $current_blog_id = null, $current_time = null ) {
+		if ( empty( $current_blog_id ) ) {
 			$current_blog_id = get_current_blog_id();
 		}
-		// if $ramp_up is 10 - (0 - 10), (100 - 110) , (200 - 210)  etc.
-		// So about 10% of sites should be allowed to update
-		// It doesm't depended on the total nubver of sites.
-		if ( ( $current_blog_id % 100 ) <= $ramp_up ) {
-			return true;
+		if ( empty( $current_time ) ) {
+			$current_time = time();
 		}
 
-		return false;
+		$version_with_time = explode( ':', Jetpack_Options::get_option( 'version', 0 ) );
+		if ( ! isset( $version_with_time[ 1 ] ) ) {
+			// This is not very likely to happen.
+			// lets set it to 0 so that the update happends right away
+			$version_with_time[ 1 ] = 0;
+		}
+		$version_updated = $version_with_time[ 1 ];
+
+		/**
+		 * Allows the dev to change the number of blogs that the nework is allowed update per second.
+		 * By default this value is set to 10 blogs per second.
+		 * The blogs blog_id determins if a site can update.
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param int the number of blogs per second that should be allowed to update.
+		 */
+		$blogs_per_seconds = (int) apply_filters( 'jetpack_network_ramp_up_blogs_per_second', self::NETWORK_UPDATE_RAMP_UP_BLOGS_PER_SECOND );
+		$time_difference = ( $current_time - $version_updated );
+		
+		return ( $current_blog_id <= ( $time_difference  * $blogs_per_seconds ) );
 	}
 
 	static function add_sender_shutdown() {
@@ -224,25 +235,9 @@ class Jetpack_Sync_Actions {
 			$initial_sync_config['users'] = 'initial';
 		}
 
-		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! $network_site ) {
-
-			// Set up Ramp up of Jetpack Full Sync.
-			if ( is_main_site() ) {
-				update_site_option( self::UPDATE_RAMP_UP_NETWORK_OPTION, self::get_ramp_up_increment() );
-
-				// By default the value is set to 10
-				if ( self::get_ramp_up_increment() < 100 ) {
-					wp_schedule_single_event( time() + self::get_next_ramp_up_interval() , self::UPDATE_RAMP_UP_CRON_NAME );
-				}
-
-				// Sync the main site right away
-				self::do_full_sync( $initial_sync_config );
-				Jetpack_Options::update_option( 'jetpack_network_version', JETPACK__VERSION );
-
-			}
-		} else {
+		if ( $network_site || ! is_multisite() ) {
 			self::do_full_sync( $initial_sync_config );
-			Jetpack_Options::update_option( 'jetpack_network_version', JETPACK__VERSION );
+			Jetpack_Options::update_option( 'network_version', JETPACK__VERSION );
 		}
 	}
 
@@ -253,40 +248,6 @@ class Jetpack_Sync_Actions {
 			'functions' => true,
 			'constants' => true,
 		);
-	}
-
-	static function get_ramp_up_increment() {
-		/**
-		 * Allows you to change the percentage at which the update ramp up happens.
-		 * This value should be a integer less then 100
-		 *
-		 * Default is self::UPDATE_RAMP_UP_INCREMENT
-		 * @since 4.5.0
-		 * @param int increment value
-		 */
-		$increment = (int) apply_filters( 'jetpack_sync_network_upgrade_ramp_up_increment', self::UPDATE_RAMP_UP_INCREMENT );
-		return ( $increment >= 1 && $increment <= 100 ) ? $increment : self::UPDATE_RAMP_UP_INCREMENT;
-	}
-
-	static function get_next_ramp_up_interval() {
-		/**
-		 * Allows you to change the percentage at which the update ramp up happens.
-		 * This value should be a integer less then 100
-		 *
-		 * Default is self::UPDATE_RAMP_UP_INCREMENT
-		 * @since 4.5.0
-		 * @param int interval value in seconds at which point the next ramp up is supposed to happen.
-		 */
-		return (int) apply_filters( 'jetpack_sync_network_upgrade_ramp_up_interval', self::UPDATE_RAMP_UP_INTERVAL_VALUE );
-	}
-
-	static function jetpack_network_ramp_up_bump() {
-		$ramp_up = get_site_option( self::UPDATE_RAMP_UP_NETWORK_OPTION );
-		if ( $ramp_up < 100 ) {
-			update_site_option( self::UPDATE_RAMP_UP_NETWORK_OPTION, $ramp_up + self::get_ramp_up_increment() );
-			wp_schedule_single_event( time() + self::get_next_ramp_up_interval(), self::UPDATE_RAMP_UP_CRON_NAME );
-		}
-
 	}
 
 	static function do_full_sync( $modules = null ) {

@@ -152,10 +152,11 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 
 	function test_adds_full_sync_on_jetpack_plugin_update() {
-		if ( ! is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
-			$this->markTestSkipped( 'Not applicable for jetpack when it is not network activated.' );
+		if( ! is_multisite() ) {
+			$this->markTestSkipped( 'Not applicable for jetpack not running as part of MU.' );
 		}
-		Jetpack_Options::update_option( 'jetpack_network_version', 0 );
+
+		Jetpack_Options::update_option( 'network_version', 0 );
 		// Reset the settings to use the default values.
 		Jetpack_Sync_Settings::reset_data();
 
@@ -172,82 +173,71 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 			$count++;
 		}
 
-		add_filter( 'jetpack_sync_network_upgrade_ramp_up_increment', array( $this, 'ramp_up_increment_by_four' ) );
 		// one more just for good measuer
 		$blog_id = $this->factory->blog->create();
 		$this->server_replica_storage->reset();
-
+		add_filter( 'jetpack_network_ramp_up_blogs_per_second', array( $this, 'jetpack_network_ramp_up_blogs_per_second' ) );
 		// We are staring off with a blank slate
-		$this->assertEquals( 0, Jetpack_Options::get_option( 'jetpack_network_version', 0 ) );
-		$this->assertFalse( (bool) wp_next_scheduled( Jetpack_Sync_Actions::UPDATE_RAMP_UP_CRON_NAME ) );
+		$this->assertEquals( 0, Jetpack_Options::get_option( 'network_version', 0 ) );
 
-		// New Jetpack version
-		do_action( 'updating_jetpack_version', JETPACK__VERSION, '1.0' );
-
+		self::version_update();
+		sleep( 1 );
+		// instead of waiting for
+		Jetpack_Sync_Actions::maybe_start_initial_sync();
 		// Test that the main site sync as expected
-		$this->assertEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'jetpack_network_version' ) );
-
-		// Test that we schedule a cron job that will bump ramp_up value
-		$next_ramp_up_increase = wp_next_scheduled( Jetpack_Sync_Actions::UPDATE_RAMP_UP_CRON_NAME );
-		$this->assertTrue( (bool) $next_ramp_up_increase );
-
-		// Lets check that the next ramp_up is set as expected
-		$this->assertTrue( ( $next_ramp_up_increase - time() ) <= Jetpack_Sync_Actions::get_next_ramp_up_interval() );
-		$this->assertEquals( Jetpack_Sync_Actions::get_ramp_up_increment(), get_site_option( Jetpack_Sync_Actions::UPDATE_RAMP_UP_NETWORK_OPTION ) );
+		$this->assertEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'network_version' ) );
 
 		switch_to_blog( $blog_id );
+
+		self::version_update();
+		Jetpack_Sync_Actions::maybe_start_initial_sync();
 		// Test that we didn't bump the network version for this site just yet
-		$this->assertNotEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'jetpack_network_version' ) );
 
-		// Test that when we load the secondary site that the sync doesn't happen just yet
-		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync() );
+		$this->assertNotEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'network_version' ) );
 
-		Jetpack_Sync_Actions::init();
-		$this->assertNotEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'jetpack_network_version' ) );
+		sleep( 1 );
 
-		Jetpack_Sync_Actions::jetpack_network_ramp_up_bump();
+		Jetpack_Sync_Actions::maybe_start_initial_sync();
+		$this->assertNotEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'network_version' ) );
 
-		// Test that the sync happends when we reach 100 Ramp UP
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync() );
-		Jetpack_Sync_Actions::init();
-		$this->assertEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'jetpack_network_version' ), 'Didn' );
+		sleep( 3 );
+		
+		Jetpack_Sync_Actions::maybe_start_initial_sync();
+		$this->assertEquals( JETPACK__VERSION, Jetpack_Options::get_option( 'network_version' ) );
 
 		restore_current_blog();
 	}
 
 	function test_can_do_inital_sync_method() {
-		Jetpack_Options::update_option( 'jetpack_network_version', 0 );
+		// Set up
+		$current_time = time();
+		Jetpack_Options::update_option( 'version', JETPACK__VERSION . ':' . $current_time );
 
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1, 10 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1, ( $current_time + 1 ) ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 10, ( $current_time + 1 ) ) );
+		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 11, ( $current_time + 1 ) ) );
 
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 10, 10 ) );
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 110, 10 ) );
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 510, 10 ) );
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1110, 10 ) );
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1210, 10 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 11, ( $current_time + 2 ) ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 20, ( $current_time + 2 ) ) );
+		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 21, ( $current_time + 2 ) ) );
 
-		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 12, 10 ) );
-		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 112, 10 ) );
-		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 1112, 10 ) );
-
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 49, 50 ) );
-		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 51, 50 ) );
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 110, 50 ) );
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 510, 50 ) );
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1110, 50 ) );
-		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1210, 50 ) );
-
-		// We update the version so we do not need to do the inital sync.
-		Jetpack_Options::update_option( 'jetpack_network_version', JETPACK__VERSION );
-		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 1, 10 ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1, ( $current_time + 101 ) ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1001, ( $current_time + 101 ) ) );
+		$this->assertTrue( Jetpack_Sync_Actions::can_do_initial_sync( 1010, ( $current_time + 101 ) ) );
+		$this->assertFalse( Jetpack_Sync_Actions::can_do_initial_sync( 1011, ( $current_time + 101 ) ) );
 	}
 
 	/**
 	 * Utility functions
 	 */
 
-	function ramp_up_increment_by_four( $ramp_up ) {
-		return 4;
+	function jetpack_network_ramp_up_blogs_per_second( $blogs_per_second ) {
+		return 2;
+	}
+
+	static function version_update() {
+		do_action( 'updating_jetpack_version', JETPACK__VERSION, 'old version' );
+		Jetpack_Options::update_option( 'version', JETPACK__VERSION . ':' . time() );
 	}
 
 	function __return_hourly_schedule() {
