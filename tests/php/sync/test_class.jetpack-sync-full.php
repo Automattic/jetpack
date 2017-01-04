@@ -1056,6 +1056,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_initial_sync_doesnt_sync_subscribers() {
+		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_main_site() ) {
+			$this->markTestSkipped( 'Not applicable for jetpack sites that are part of a network but not the main site' );
+		}
 		$this->factory->user->create( array( 'user_login' => 'theauthor', 'role' => 'author' ) );
 		$this->factory->user->create( array( 'user_login' => 'theadmin', 'role' => 'administrator' ) );
 		foreach( range( 1, 10 ) as $i ) {
@@ -1087,6 +1090,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$expected_sync_config,
 			$full_sync_status[ 'config' ]
 		);
+
+
 	}
 
 	function test_full_sync_enqueues_limited_number_of_items() {

@@ -5,6 +5,7 @@
     <php>
         <const name="WP_TESTS_MULTISITE" value="1" />
         <const name="PHPUNIT_JETPACK_TESTSUITE" value="true"/>
+        <env name="NETWORK_ACTIVE" value="false"/>
     </php>
     <testsuites>
         <testsuite name="general">
