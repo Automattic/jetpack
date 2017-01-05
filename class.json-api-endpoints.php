@@ -1576,7 +1576,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		return false;
+		return ! empty( $post_type_object->public );
 	}
 
 	/**
