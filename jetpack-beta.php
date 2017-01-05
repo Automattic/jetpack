@@ -51,7 +51,6 @@ if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
 	define( 'JETPACK_PLUGIN_FOLDER', 'jetpack' );
 }
 
-
 /**
  * Confirm Jetpack is at least installed before doing anything
  * Curiously, developers are discouraged from using WP_PLUGIN_DIR and not given a
@@ -83,7 +82,7 @@ elseif ( ! class_exists( 'Jetpack_Beta_Tester' ) ) :
 			delete_site_transient( 'update_plugins' );
 			delete_site_transient( 'jetpack_latest_tag' );
 		}
-		
+
 		/**
 		 * Constructor
 		 */
@@ -110,7 +109,15 @@ elseif ( ! class_exists( 'Jetpack_Beta_Tester' ) ) :
 			if ( is_admin() ) {
 				require JPBETA__DIR . 'jetpack-beta-admin.php';
 				self::$admin = new Jetpack_Beta_Admin();
+
+				if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+					require JPBETA__DIR . 'pressable.php';
+					Jetpack_Beta_Pressable::instance();
+				}
+
 			}
+
+
 		}
 
 		/**
@@ -377,3 +384,4 @@ if ( ! function_exists( 'jetpack_beta_jetpack_not_installed' ) ) {
 		echo '<div class="error"><p>' . sprintf( __( 'Jetpack Beta Tester requires %s to be installed.', 'jpbeta' ), '<a href="https://jetpack.com" target="_blank">Jetpack</a>' ) . '</p></div>';
 	}
 }
+

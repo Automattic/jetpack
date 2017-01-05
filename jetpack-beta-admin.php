@@ -29,18 +29,20 @@ class Jetpack_Beta_Admin {
 	function save_settings() {
 		// Most recent release
 		if ( isset( $_POST['jp_beta_recent_save_nonce'] ) && wp_verify_nonce( $_POST['jp_beta_recent_save_nonce'], 'jp_beta_recent_save' ) ) {
-			update_option( 'jp_beta_type', sanitize_text_field( $_POST['version_type'] ) );
 
-			if ( ! isset( $_POST['auto_update'] ) || ! $_POST['auto_update'] ) {
-				update_option( 'jp_beta_autoupdate', 'no' );
-			} else {
-				update_option( 'jp_beta_autoupdate', 'sure' );
-			}
-
-			// Resets the plugin data
-			Jetpack_Beta_Tester::activate();
+			$autoupdate = ( ! isset( $_POST['auto_update'] ) || ! $_POST['auto_update'] )
+				? 'no' : 'sure';
+				update_option( 'jp_beta_autoupdate', $autoupdate );
 
 			add_action( 'admin_notices', array( $this, 'success_message' ) );
+
+			if ( get_option( 'jp_beta_type' ) !== $_POST['version_type'] ) {
+				add_action( 'admin_notices', array( $this, 'update_plugin_message' ) );
+				update_option( 'jp_beta_type', sanitize_text_field( $_POST['version_type'] ) );
+
+				// Resets the plugin data
+				Jetpack_Beta_Tester::activate();
+			}
 		}
 	}
 
@@ -75,13 +77,20 @@ class Jetpack_Beta_Admin {
 	}
 
 	function success_message() {
-		$update_url = wp_nonce_url( self_admin_url('update.php?action=upgrade-plugin&plugin=' . JETPACK_PLUGIN_ID ), 'upgrade-plugin_' . JETPACK_PLUGIN_ID );
-		// $update_url = self_admin_url( 'plugins.php?action=upgrade-plugin&plugin=' . JETPACK_PLUGIN_ID )
 		?>
 		<div id="message" class="updated settings-error notice is-dismissible">
-			<p><?php _e( 'Settings Saved!', 'jpbeta' ); ?><br/><br/>
-				<a href="<?php echo esc_url( $update_url ); ?> "
-				   class="button button-primary"><?php _e( 'Please click here to update now.', 'jpbeta' ); ?></a></p>
+			<p><?php _e( 'Settings Saved!', 'jpbeta' ); ?></p>
+		</div>
+		<?php
+	}
+
+	function update_plugin_message() {
+		$update_url = wp_nonce_url( self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . JETPACK_PLUGIN_ID ), 'upgrade-plugin_' . JETPACK_PLUGIN_ID );
+		?>
+		<div id="message" class="updated settings-error notice is-dismissible">
+			<p><?php _e( 'A new Jetpack Version was selected', 'jpbeta' ); ?> <a href="<?php echo esc_url( $update_url ); ?> "
+			   class="button button-primary"><?php _e( 'Update Now.', 'jpbeta' ); ?></a>
+			</p>
 		</div>
 		<?php
 	}

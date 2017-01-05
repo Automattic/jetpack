@@ -93,18 +93,28 @@ $jp_beta_autoupdate = get_option( 'jp_beta_autoupdate' );
 
 			<form method="post" id="jp_beta_choose_type">
 				<ul>
-					<li><p>
-							<input type="radio" name="version_type" value="latest"
-								<?php checked( $jp_beta_type !== 'rc_only' ); ?>>
-							<strong><?php _e( 'Bleeding Edge', 'jpbeta' ); ?></strong></p>
-						<p><?php _e( 'This might be updated anywhere from once a week to multiple times a day.', 'jpbeta' ); ?></p>
-					</li>
-					<li><p>
-							<input type="radio" name="version_type" value="rc_only"
-								<?php checked( $jp_beta_type === 'rc_only' ); ?>>
-							<strong><?php _e( 'Tagged Beta Releases', 'jpbeta' ); ?></strong></p>
-						<p><?php _e( 'These are our tagged pre-releases, and there are generally 2-3 per Jetpack version.', 'jpbeta' ); ?></p>
-					</li>
+					<?php if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) { ?>
+						<li><p>
+								<strong><?php _e( 'Tagged Beta Releases', 'jpbeta' ); ?></strong></p>
+							<p><?php _e( 'These are our tagged pre-releases, and there are generally 2-3 per Jetpack version.', 'jpbeta' ); ?></p>
+						</li>
+						<input type="hidden" name="version_type" value="rc_only" />
+					<?php  } else { ?>
+
+						<li><p>
+								<input type="radio" name="version_type" value="latest"
+									<?php checked( $jp_beta_type !== 'rc_only' ); ?>>
+								<strong><?php _e( 'Bleeding Edge', 'jpbeta' ); ?></strong></p>
+							<p><?php _e( 'This might be updated anywhere from once a week to multiple times a day.', 'jpbeta' ); ?></p>
+						</li>
+						<li><p>
+								<input type="radio" name="version_type" value="rc_only"
+									<?php checked( $jp_beta_type === 'rc_only' ); ?>>
+								<strong><?php _e( 'Tagged Beta Releases', 'jpbeta' ); ?></strong></p>
+							<p><?php _e( 'These are our tagged pre-releases, and there are generally 2-3 per Jetpack version.', 'jpbeta' ); ?></p>
+						</li>
+
+					<?php } ?>
 				</ul>
 				<ul class="autoupdate">
 					<li><p><input type="checkbox" name="auto_update"
