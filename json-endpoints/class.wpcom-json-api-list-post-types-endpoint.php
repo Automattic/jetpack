@@ -9,7 +9,7 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'map_meta_cap' => 'map_meta_cap',
 		'cap'          => 'capabilities',
 		'hierarchical' => 'hierarchical',
-		'show_in_ui'   => 'show_in_ui',
+		'show_ui'   => 'show_ui',
 		'publicly_queryable' => 'publicly_queryable',
 	);
 
