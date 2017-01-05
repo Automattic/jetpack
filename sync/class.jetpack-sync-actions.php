@@ -286,6 +286,18 @@ class Jetpack_Sync_Actions {
 		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 6 );
 	}
 
+	static function initialize_woocommerce() {
+		if ( class_exists( 'WooCommerce' ) ) {
+			add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
+		}
+	}
+
+	static function add_woocommerce_sync_module( $sync_modules ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-woocommerce.php';
+		$sync_modules[] = 'Jetpack_Sync_Module_WooCommerce';
+		return $sync_modules;
+	}
+
 	static function sanitize_filtered_sync_cron_schedule( $schedule ) {
 		$schedule = sanitize_key( $schedule );
 		$schedules = wp_get_schedules();
@@ -385,6 +397,10 @@ class Jetpack_Sync_Actions {
  */
 add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
+// Check for WooCommerce support
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
+
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ) );
+
