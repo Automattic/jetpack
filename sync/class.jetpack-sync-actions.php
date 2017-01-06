@@ -310,7 +310,7 @@ class Jetpack_Sync_Actions {
 		return self::DEFAULT_SYNC_CRON_INTERVAL_NAME;
 	}
 
-	static function get_start_time_offset() {
+	static function get_start_time_offset( $schedule = '', $hook = '' ) {
 		$start_time_offset =  is_multisite()
 			? mt_rand( 0, ( 2 * self::DEFAULT_SYNC_CRON_INTERVAL_VALUE ) )
 			: 0;
@@ -321,9 +321,16 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @since 4.5
 		 *
-		 * @param int $start_time_offset
+		 * @param int    $start_time_offset
+		 * @param string $hook
+		 * @param string $schedule
 		 */
-		return intval( apply_filters( 'jetpack_sync_cron_start_time_offset', $start_time_offset ) );
+		return intval( apply_filters(
+			'jetpack_sync_cron_start_time_offset',
+			$start_time_offset,
+			$hook,
+			$schedule
+		) );
 	}
 
 	static function maybe_schedule_sync_cron( $schedule, $hook ) {
@@ -333,7 +340,7 @@ class Jetpack_Sync_Actions {
 		$schedule = self::sanitize_filtered_sync_cron_schedule( $schedule );
 
 
-		$start_time = time() + self::get_start_time_offset();
+		$start_time = time() + self::get_start_time_offset( $schedule, $hook );
 		if ( ! wp_next_scheduled( $hook ) ) {
 			// Schedule a job to send pending queue items once a minute
 			wp_schedule_event( $start_time, $schedule, $hook );
