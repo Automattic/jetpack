@@ -80,8 +80,8 @@ class Jetpack_RelatedPosts {
 			return;
 		$whitelist = array(
 			56857843, //elasticsearchp2
-			//14838835, //datap2
-			//86187505, //readersquadp2
+			14838835, //datap2
+			86187505, //readersquadp2
 		);
 
 		$_blog_id = get_current_blog_id();
@@ -572,6 +572,70 @@ EOT;
 	}
 
 	/**
+	 * Gets an array of auto citations for the given post_id.
+	 *
+	 * @param int $post_id
+	 * @param array $args - params to use when building ElasticSearch filters to narrow down the search domain.
+	 * @uses get_options, wp_parse_args, apply_filters
+	 * @return array
+	 */
+	public function get_auto_citation_posts( $post_id, array $args ) {
+		$options = $this->get_options();
+		if ( ! $options['enabled'] || 0 == (int)$post_id )
+			return array();
+
+		$defaults = array(
+			'size' => 12,
+			'date_range' => array(),
+			'seed' => mt_rand( 0, 10 ), //auto citations should change
+		);
+		$args = wp_parse_args( $args, $defaults );
+
+		$filters = array();
+
+		$results = $this->_get_auto_citation_posts( $post_id, $args['size'], $filters );
+
+		$posts = array();
+		foreach( $results as $i => $item )
+			$posts[] = $this->_get_autocite_post_data_for_post( $item, $i, $post_id );
+
+		return $posts;
+	}
+
+
+	/**
+	 * Returns a UTF-8 encoded array of post information for the given post_id
+	 *
+	 * @param int $post_id
+	 * @param int $position
+	 * @param int $origin The post id that this is related to
+	 * @uses get_post, get_permalink, remove_query_arg, get_post_format, apply_filters
+	 * @return array
+	 */
+	protected function _get_autocite_post_data_for_post( $item, $position, $origin ) {
+		switch_to_blog( $item['blog_id'] );
+
+		$post = get_post( $item['post_id'] );
+
+		$data = array(
+			'id' => $post->ID,
+			'url' => get_permalink( $post->ID ),
+			'url_meta' => array( 'origin' => $origin, 'position' => $position ),
+			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
+			'date' => get_the_date( '', $post->ID ),
+			'format' => get_post_format( $post->ID ),
+			'excerpt' => $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ),
+			'rel' => 'nofollow',
+			'context' => $item['context'],
+			'img' => '',
+		);
+
+		restore_current_blog();
+		return $data;
+	}
+
+
+	/**
 	 * =========================
 	 * PRIVATE UTILITY FUNCTIONS
 	 * =========================
@@ -739,12 +803,16 @@ EOT;
 		header( 'Content-type: application/json; charset=utf-8' ); // JSON can only be UTF-8
 		send_nosniff_header();
 
-		$related_posts = $this->get_for_post_id(
-			get_the_ID(),
-			array(
-				'exclude_post_ids' => $excludes,
-			)
-		);
+		if ( $this->_citations_enabled ) {
+			$related_posts = $this->get_auto_citation_posts( get_the_ID(), array() );
+		} else {
+			$related_posts = $this->get_for_post_id(
+				get_the_ID(),
+				array(
+					'exclude_post_ids' => $excludes,
+				)
+			);
+		}
 
 		$options = $this->get_options();
 
@@ -1317,4 +1385,18 @@ class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
 
 		return $hits;
 	}
+
+	/**
+	 * Workhorse method to return array of auto citation posts ids matched by ElasticSearch.
+	 *
+	 * @param int $post_id
+	 * @param int $size
+	 * @param array $filters
+	 * @uses wp_remote_post, is_wp_error, wp_remote_retrieve_body
+	 * @return array
+	 */
+	protected function _get_auto_citation_posts( $post_id, $size, array $filters ) {
+		return array();
+	}
+
 }
