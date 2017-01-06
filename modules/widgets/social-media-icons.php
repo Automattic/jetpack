@@ -53,6 +53,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'instagram_username'  => '',
 			'pinterest_username'  => '',
 			'linkedin_username'   => '',
+			'linkedin_is_company' => false,
 			'github_username'     => '',
 			'youtube_username'    => '',
 			'vimeo_username'      => '',
@@ -67,7 +68,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'twitter'    => array( 'Twitter', 'https://twitter.com/%s/' ),
 			'instagram'  => array( 'Instagram', 'https://instagram.com/%s/' ),
 			'pinterest'  => array( 'Pinterest', 'https://www.pinterest.com/%s/' ),
-			'linkedin'   => array( 'LinkedIn', 'https://www.linkedin.com/in/%s/' ),
+			'linkedin'   => array( 'LinkedIn', 'https://www.linkedin.com/%s/' ),
 			'github'     => array( 'GitHub', 'https://github.com/%s/' ),
 			'youtube'    => array( 'YouTube', 'https://www.youtube.com/%s/' ),
 			'vimeo'      => array( 'Vimeo', 'https://vimeo.com/%s/' ),
@@ -148,6 +149,14 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				$link_username = 'channel/' . $username;
 			} else if ( 'youtube' === $service ) {
 				$link_username = 'user/' . $username;
+			}
+			if ( 'linkedin' === $service ) {
+				// Check if the name is a company name and change the URL
+				if ( ! empty( $instance[ $service . '_is_company' ] ) ) {
+					$link_username = 'company/' . $username;
+				} else {
+					$link_username = 'in/' . $username;
+				}
 			}
 			/**
 			 * Fires for each profile link in the social icons widget. Can be used
@@ -240,6 +249,15 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 						type="text"
 						value="<?php echo esc_attr( $instance[ $service . '_username' ] ); ?>"
 					/>
+					<?php if ( 'linkedin' === $service ): ?>
+						<input
+								class="checkbox"
+								type="checkbox"
+								name="<?php echo $this->get_field_name( $service . '_is_company' ); ?>"
+								<?php checked( $instance[ $service . '_is_company' ], 1 ); ?>
+							/>
+						<label for="<?php echo esc_attr( $this->get_field_id( $service . '_is_company' ) ); ?>">This is a company page.</label>
+					<?php endif ?>
 				</p>
 			<?php
 		}
@@ -258,6 +276,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		foreach ( $new_instance as $field => $value ) {
 			$instance[ $field ] = sanitize_text_field( $new_instance[ $field ] );
 		}
+		$instance['linkedin_is_company'] = isset( $new_instance['linkedin_is_company'] );
 		// Stats.
 		$stats = $instance;
 		unset( $stats['title'] );
