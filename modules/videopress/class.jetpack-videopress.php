@@ -342,7 +342,7 @@ class Jetpack_VideoPress {
 			return $icon;
 		}
 
-		return plugins_url( 'images/media-video-processing-icon.png', JETPACK__PLUGIN_FILE );
+		return 'https://wordpress.com/wp-content/mu-plugins/videopress/images/media-video-processing-icon.png';
 	}
 }
 
