@@ -141,6 +141,19 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( Jetpack_Sync_Actions::$sender !== null );
 	}
 
+	function test_cleanup_cron_jobs_with_non_staggered_start() {
+		Jetpack_Sync_Actions::init_sync_cron_jobs();
+
+		$this->assertInternalType( 'integer', wp_next_scheduled( 'jetpack_sync_cron' ) );
+		$this->assertInternalType( 'integer', wp_next_scheduled( 'jetpack_sync_full_cron' ) );
+
+		/** This action is documented in class.jetpack.php */
+		do_action( 'updating_jetpack_version', '4.5', '4.2.1' );
+
+		$this->assertFalse( wp_next_scheduled( 'jetpack_sync_cron' ) );
+		$this->assertFalse( wp_next_scheduled( 'jetpack_sync_full_cron' ) );
+	}
+
 	/**
 	 * Utility functions
 	 */
