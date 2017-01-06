@@ -179,6 +179,15 @@
 	}
 }
 
+.jp-landing__plan-features-icon {
+
+	@include breakpoint( ">660px" ) {
+		float: right;
+		margin: 0 0 rem( 32px ) rem( 32px );
+	}
+
+}
+
 .jp-landing__plan-features-title {
 	margin: 0;
 }
