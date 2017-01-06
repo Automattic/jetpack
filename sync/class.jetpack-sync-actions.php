@@ -339,7 +339,6 @@ class Jetpack_Sync_Actions {
 		}
 		$schedule = self::sanitize_filtered_sync_cron_schedule( $schedule );
 
-
 		$start_time = time() + self::get_start_time_offset( $schedule, $hook );
 		if ( ! wp_next_scheduled( $hook ) ) {
 			// Schedule a job to send pending queue items once a minute
@@ -357,7 +356,6 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function init_sync_cron_jobs() {
-		// Add a custom "every minute" cron schedule
 		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
 
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
@@ -420,12 +418,9 @@ class Jetpack_Sync_Actions {
 	}
 }
 
-/**
- * If the site is using alternate cron, we need to init the listener and sender before cron
- * runs. So, we init at a priority of 9.
- *
- * If the site is using a regular cron job, we init at a priority of 90 which gives plugins a chance
- * to add filters before we initialize.
+/*
+ * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
+ * with a high priority or sites that use alternate cron.
  */
 add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
