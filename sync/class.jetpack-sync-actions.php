@@ -319,7 +319,7 @@ class Jetpack_Sync_Actions {
 
 		// stagger the schedule time by some random fraction of the 2 x schedule interval (somewhat arbitrarily)
 		// so that on multisites with strong scheduling we don't DOS ourselves.
-		$schedule_time = time() + mt_rand( 0, 2*self::DEFAULT_SYNC_CRON_INTERVAL_VALUE );
+		$schedule_time = time() + mt_rand( 0, ( 2 * self::DEFAULT_SYNC_CRON_INTERVAL_VALUE ) );
 		if ( ! wp_next_scheduled( $hook ) ) {
 			// Schedule a job to send pending queue items once a minute
 			wp_schedule_event( $schedule_time, $schedule, $hook );
