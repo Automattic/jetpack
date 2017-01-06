@@ -37,16 +37,15 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $sync_status['config'], $expected_sync_config );
 	}
 
-	function test_upgrading_from_42_plus_does_not_includes_users_in_initial_sync() {
+	function test_upgrading_from_42_plus_does_not_start_an_initial_sync() {
 
-		$initial_sync_without_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true );
 		$initial_sync_with_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true, 'users' => 'initial' );
 
 		do_action( 'updating_jetpack_version', '4.3', '4.2' );
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
 		$sync_config = $sync_status[ 'config' ];
 
-		$this->assertEquals( $initial_sync_without_users_config, $sync_config );
+		$this->assertNull( $sync_config );
 		$this->assertNotEquals( $initial_sync_with_users_config, $sync_config );
 
 		do_action( 'updating_jetpack_version', '4.2', '4.1' );
