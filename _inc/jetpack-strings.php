@@ -365,7 +365,7 @@ __( "Match By Email", "jetpack" ), // _inc/client/components/module-settings/ind
 __( "{{a}}Edit{{/a}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:303
 __( "Emails will be sent to ", "jetpack" ), // _inc/client/components/module-settings/index.jsx:300
 __( "Receive Monitor Email Notifications", "jetpack" ), // _inc/client/components/module-settings/index.jsx:299
-__( "IPv4 and IPv6 are acceptable. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100", "jetpack" ), // _inc/client/components/module-settings/index.jsx:270
+__( "IPv4 and IPv6 are acceptable. Enter multiple IPs on separate lines. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100", "jetpack" ), // _inc/client/components/module-settings/index.jsx:270
 __( "Make sure to add your most frequently used IP addresses as they can change between your home, office or other locations. Removing an IP address from the list below will remove it from your whitelist.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:261
 __( "Whitelisting an IP address prevents it from ever being blocked by Jetpack.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:260
 __( "Whitelist Management", "jetpack" ), // _inc/client/components/module-settings/index.jsx:259
