@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://github.com/Automattic/jetpack-beta
  * Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master-stable branch on GitHub. DO NOT USE IN PRODUCTION.
- * Version: 2.0
+ * Version: 2.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -375,6 +375,9 @@ elseif ( ! class_exists( 'Jetpack_Beta_Tester' ) ) :
 
 	register_activation_hook( __FILE__, array( 'Jetpack_Beta_Tester', 'activate' ) );
 	add_action( 'init', array( 'Jetpack_Beta_Tester', 'instance' ) );
+
+	require_once 'autoupdate-self.php';
+	add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
 endif;
 /**
  * Jetpack Not Installed Notice
