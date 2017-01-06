@@ -25,7 +25,7 @@ import { isDevMode } from 'state/connection';
 
 const DashScan = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Malware Scanning' ),
+		const labelName = __( 'Security Scanning' ),
 			hasSitePlan = false !== this.props.sitePlan,
 			vpData = this.props.vaultPressData,
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
