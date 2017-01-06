@@ -154,6 +154,22 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( wp_next_scheduled( 'jetpack_sync_full_cron' ) );
 	}
 
+	function test_cron_start_time_offset_has_randomness() {
+		Jetpack_Sync_Actions::clear_sync_cron_jobs();
+
+		if ( is_multisite() ) {
+			$values = array();
+			for ( $i = 0; $i < 10; $i++ ) {
+				$values[] = Jetpack_Sync_Actions::get_start_time_offset();
+			}
+
+			$this->assertGreaterThan( 1, array_unique( $values ) );
+
+		} else {
+			$this->assertEquals( 0, Jetpack_Sync_Actions::get_start_time_offset() );
+		}
+	}
+
 	/**
 	 * Utility functions
 	 */
