@@ -70,15 +70,3 @@
 @keyframes pulse-light {
 	50% { background-color: lighten( $gray, 30% ); }
 }
-
-// Help tooltip
-.jp-info__tooltip {
-	.dops-popover__inner{
-		padding: 6px 8px;
-		color: #4f748e;
-
-		a, .gridicon {
-			vertical-align: text-bottom;
-		}
-	}
-}

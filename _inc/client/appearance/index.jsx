@@ -6,12 +6,13 @@ import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
-import Popover from 'components/popover';
+import InfoPopover from 'components/info-popover';
 import Tooltip from 'components/tooltip';
 import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
 import analytics from 'lib/analytics';
 import ExternalLink from 'components/external-link';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -36,14 +37,6 @@ import {
 import Settings from 'components/settings';
 
 export const Page = React.createClass( {
-	getInitialState() {
-		return { showPopover: false };
-	},
-
-	toggleInfo: function(){
-		this.setState( { showPopover: ! this.state.showPopover } );
-	},
-
 	render() {
 		let {
 				toggleModule,
@@ -91,25 +84,12 @@ export const Page = React.createClass( {
 			);
 
 			if ( 'infinite-scroll' === element[0] && noInfiniteScrollSupport ) {
-				let tooltipRef = element[0] + '_button';
 				toggle = (
-					<Button borderless compact onClick={ this.toggleInfo } ref={ tooltipRef } className="jp-info__button">
-						<Gridicon icon="info-outline" size={ 18 }/><span className="screen-reader-text">{ __( 'Learn More' ) }</span>
-						<Popover context={ this.refs && this.refs[ tooltipRef ] }
-								 isVisible={ this.state.showPopover }
-								 onClose={ () => {} }
-								 className="jp-info__tooltip"
-								 id={ 'popover__' + element[0] }
-								 position="bottom">
-							<ExternalLink icon={ true } iconSize={ 16 } href={ element[3] } target="_blank" onClick={ () => {
-								this.setState( { showPopover: false } );
-							} }>
-								{
-									__( 'Theme support required.' )
-								}
-							</ExternalLink>
-						</Popover>
-					</Button>
+					<InfoPopover screenReaderText={ __( 'Learn more' ) }>
+						<ExternalLink icon={ true } iconSize={ 14 } href={ element[3] } target="_blank">
+							{ __( 'Theme support required.' ) }
+						</ExternalLink>
+					</InfoPopover>
 				);
 				toggleExpanded = '';
 				moduleDescription = '';
