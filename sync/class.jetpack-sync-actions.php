@@ -22,8 +22,7 @@ class Jetpack_Sync_Actions {
 		if ( self::sync_via_cron_allowed() ) {
 			self::init_sync_cron_jobs();
 		} else if ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
-			wp_clear_scheduled_hook( 'jetpack_sync_cron' );
-			wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
+			self::clear_sync_cron_jobs();
 		}
 
 		// On jetpack authorization, schedule a full sync
@@ -311,23 +310,43 @@ class Jetpack_Sync_Actions {
 		return self::DEFAULT_SYNC_CRON_INTERVAL_NAME;
 	}
 
+	static function get_start_time_offset() {
+		$start_time_offset =  is_multisite()
+			? mt_rand( 0, ( 2 * self::DEFAULT_SYNC_CRON_INTERVAL_VALUE ) )
+			: 0;
+
+		/**
+		 * Allows overriding the offset that the sync cron jobs will first run. This can be useful when scheduling
+		 * cron jobs across multiple sites in a network.
+		 *
+		 * @since 4.5
+		 *
+		 * @param int $start_time_offset
+		 */
+		return intval( apply_filters( 'jetpack_sync_cron_start_time_offset', $start_time_offset ) );
+	}
+
 	static function maybe_schedule_sync_cron( $schedule, $hook ) {
 		if ( ! $hook ) {
 			return;
 		}
 		$schedule = self::sanitize_filtered_sync_cron_schedule( $schedule );
 
-		// stagger the schedule time by some random fraction of the 2 x schedule interval (somewhat arbitrarily)
-		// so that on multisites with strong scheduling we don't DOS ourselves.
-		$schedule_time = time() + mt_rand( 0, ( 2 * self::DEFAULT_SYNC_CRON_INTERVAL_VALUE ) );
+
+		$start_time = time() + self::get_start_time_offset();
 		if ( ! wp_next_scheduled( $hook ) ) {
 			// Schedule a job to send pending queue items once a minute
-			wp_schedule_event( $schedule_time, $schedule, $hook );
+			wp_schedule_event( $start_time, $schedule, $hook );
 		} else if ( $schedule != wp_get_schedule( $hook ) ) {
 			// If the schedule has changed, update the schedule
 			wp_clear_scheduled_hook( $hook );
-			wp_schedule_event( $schedule_time, $schedule, $hook );
+			wp_schedule_event( $start_time, $schedule, $hook );
 		}
+	}
+
+	static function clear_sync_cron_jobs() {
+		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
+		wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
 	}
 
 	static function init_sync_cron_jobs() {
@@ -358,9 +377,14 @@ class Jetpack_Sync_Actions {
 		self::maybe_schedule_sync_cron( $full_sync_cron_schedule, 'jetpack_sync_full_cron' );
 	}
 
-	static function cleanup_on_upgrade() {
+	static function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
 		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
+		}
+
+		$is_new_sync_upgrade = version_compare( $old_version, '4.2', '>=' );
+		if ( ! empty( $old_version ) && $is_new_sync_upgrade && version_compare( $old_version, '4.5', '<' ) ) {
+			self::clear_sync_cron_jobs();
 		}
 	}
 
