@@ -22,6 +22,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'profile_update', array( $this, 'save_user_handler' ), 10, 2 );
 		add_action( 'add_user_to_blog', array( $this, 'save_user_handler' ) );
 		add_action( 'jetpack_sync_save_user', $callable, 10, 2 );
+		add_action( 'jetpack_sync_user_locale', $callable, 10, 2 );
 
 		add_action( 'deleted_user', $callable, 10, 2 );
 		add_action( 'remove_user_from_blog', $callable, 10, 2 );
@@ -32,9 +33,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'remove_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
 
 		// user capabilities
-		add_action( 'added_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
-		add_action( 'updated_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
-		add_action( 'deleted_user_meta', array( $this, 'save_user_cap_handler' ), 10, 4 );
+		add_action( 'added_user_meta', array( $this, 'maybe_save_user_meta' ), 10, 4 );
+		add_action( 'updated_user_meta', array( $this, 'maybe_save_user_meta' ), 10, 4 );
+		add_action( 'deleted_user_meta', array( $this, 'maybe_save_user_meta' ), 10, 4 );
 
 		// user authentication
 		add_action( 'wp_login', $callable, 10, 2 );
@@ -107,7 +108,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	function save_user_handler( $user_id, $old_user_data = null ) {
-
 		// ensure we only sync users who are members of the current blog
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
 			return;
@@ -151,8 +151,20 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		do_action( 'jetpack_sync_save_user', $user );
 	}
 
-	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
+	function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) {
+		
+		if ( $meta_key === 'locale' ) {
+			if( current_filter() === 'deleted_user_meta' ) {
+				do_action( 'jetpack_sync_user_locale', $user_id, '' );
+			} else {
+				do_action( 'jetpack_sync_user_locale', $user_id, $value );
+			}
+		}
 
+		$this->save_user_cap_handler( $meta_id, $user_id, $meta_key, $value );
+	}
+
+	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
 		// if a user is currently being removed as a member of this blog, we don't fire the event
 		if ( current_filter() === 'deleted_user_meta'
 		     &&

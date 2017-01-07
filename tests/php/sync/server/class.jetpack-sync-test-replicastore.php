@@ -21,6 +21,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	private $terms;
 	private $object_terms;
 	private $users;
+	private $users_locale;
 	private $allowed_mime_types;
 	private $checksum_fields;
 
@@ -41,6 +42,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->terms           = array();
 		$this->object_terms    = array();
 		$this->users           = array();
+		$this->users_locale     = array();
 	}
 
 	function full_sync_start( $config ) {
@@ -505,6 +507,14 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function get_user( $user_id ) {
 		return isset( $this->users[ $user_id ] ) ? $this->users[ $user_id ] : null;
+	}
+
+	function upsert_user_locale( $user_id, $user_locale ) {
+		$this->users_locale[ $user_id ] = $user_locale;
+	}
+
+	function get_user_locale( $user_id ) {
+		return isset( $this->users_locale[ $user_id ] ) ? $this->users_locale[ $user_id ] : null;
 	}
 
 	function get_allowed_mime_types( $user_id ) {

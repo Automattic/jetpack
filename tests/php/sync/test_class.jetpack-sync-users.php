@@ -412,6 +412,40 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $synced_user, $retrieved_user );
 	}
 
+	public function test_update_user_locale_is_synced() {
+		global $wp_version;
+		if ( version_compare( $wp_version, 4.7, '<' ) ) {
+			$this->markTestSkipped( 'WP 4.7 and up supports user local' );
+			return;
+		}
+
+		update_user_meta( $this->user_id, 'locale', 'en_GB' );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_user_locale' );
+		$this->assertNotEmpty( $event );
+
+		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
+		$this->assertEquals( get_user_locale( $this->user_id ), $server_user_local );
+	}
+
+	public function test_delete_user_locale_is_synced() {
+		global $wp_version;
+		if ( version_compare( $wp_version, 4.7, '<' ) ) {
+			$this->markTestSkipped( 'WP 4.7 and up supports user local' );
+			return;
+		}
+
+		delete_user_meta( $this->user_id, 'locale' );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_user_locale' );
+		$this->assertNotEmpty( $event );
+
+		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
+		$this->assertEquals( '', $server_user_local );
+	}
+
 	protected function assertUsersEqual( $user1, $user2 ) {
 		// order-independent comparison
 		$user1_array = get_object_vars( $user1->data );
