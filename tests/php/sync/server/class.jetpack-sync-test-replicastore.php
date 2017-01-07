@@ -531,6 +531,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			$this->allowed_mime_types[ $user->ID ] = $user->data->allowed_mime_types;
 			unset( $user->data->allowed_mime_types );
 		}
+
+		if ( isset( $user->data->locale ) ) {
+			$this->users_locale[ $user->ID ] = $user->data->locale;
+			unset( $user->data->locale );
+		}
 		$this->users[ $user->ID ] = $user;
 	}
 

@@ -75,7 +75,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function add_to_user( $user ) {
 		$user->allowed_mime_types = get_allowed_mime_types( $user );
-
+		if ( function_exists( 'get_user_locale' ) ) {
+			$user->locale = get_user_locale( $user->ID );
+		}
+		
 		return $user;
 	}
 

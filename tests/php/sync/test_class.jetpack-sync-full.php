@@ -189,6 +189,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 11, $this->server_replica_storage->user_count() );
 		$user = $this->server_replica_storage->get_user( $user_id );
 		$this->assertEquals( get_allowed_mime_types( $user_id ), $this->server_replica_storage->get_allowed_mime_types( $user_id ) );
+
+		if ( function_exists( 'get_user_locale' ) ) {
+			$this->assertEquals( get_user_locale( $user_id ), $this->server_replica_storage->get_user_locale( $user_id ) );
+		}
 		// Lets make sure that we don't send users passwords around.
 		$this->assertFalse( isset( $user->data->user_pass ) );
 	}
