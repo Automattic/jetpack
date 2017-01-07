@@ -75,10 +75,14 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function add_to_user( $user ) {
 		$user->allowed_mime_types = get_allowed_mime_types( $user );
-		if ( function_exists( 'get_user_locale' ) ) {
-			$user->locale = get_user_locale( $user->ID );
-		}
 		
+		if ( function_exists( 'get_user_locale' ) ) {
+
+			// Only set the user locale if it is different from the site local
+			if ( get_locale() !== get_user_locale( $user->ID ) ) {
+				$user->locale = get_user_locale( $user->ID );
+			}
+		}
 		return $user;
 	}
 
@@ -157,15 +161,15 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) {
 		
 		if ( $meta_key === 'locale' ) {
-			if( current_filter() === 'deleted_user_meta' ) {
 				do_action( 'jetpack_sync_user_locale', $user_id, '' );
+			if ( current_filter() === 'deleted_user_meta' ) {
 			} else {
 				do_action( 'jetpack_sync_user_locale', $user_id, $value );
 			}
 		}
-
 		$this->save_user_cap_handler( $meta_id, $user_id, $meta_key, $value );
 	}
+
 
 	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
 		// if a user is currently being removed as a member of this blog, we don't fire the event

@@ -171,20 +171,21 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_users() {
-		for ( $i = 0; $i < 10; $i += 1 ) {
+		$first_user_id = $this->factory->user->create();
+		for ( $i = 0; $i < 9; $i += 1 ) {
 			$user_id = $this->factory->user->create();
 		}
 
+		update_user_meta( $user_id, 'locale', 'en_GB' );
 		// simulate emptying the server storage
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
-
+		
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
 		$users = get_users();
 		// 10 + 1 = 1 users gets always created.
-
 
 		$this->assertEquals( 11, $this->server_replica_storage->user_count() );
 		$user = $this->server_replica_storage->get_user( $user_id );
@@ -192,6 +193,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		if ( function_exists( 'get_user_locale' ) ) {
 			$this->assertEquals( get_user_locale( $user_id ), $this->server_replica_storage->get_user_locale( $user_id ) );
+			$this->assertNull( $this->server_replica_storage->get_user_locale( $first_user_id ) );
 		}
 		// Lets make sure that we don't send users passwords around.
 		$this->assertFalse( isset( $user->data->user_pass ) );

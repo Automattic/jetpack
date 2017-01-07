@@ -42,7 +42,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->terms           = array();
 		$this->object_terms    = array();
 		$this->users           = array();
-		$this->users_locale     = array();
+		$this->users_locale    = array();
 	}
 
 	function full_sync_start( $config ) {
