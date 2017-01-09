@@ -312,7 +312,7 @@ add_action( 'jetpack_learn_more_button_carousel', 'jetpack_carousel_learn_more_b
 
 function jetpack_carousel_more_info() { ?>
 	<?php esc_html_e(
-		'With Carousel active, any standard WordPress galleries you have embedded in posts or pages will
+		'With Carousel active, any standard WordPress galleries or single images you have embedded in posts or pages will
 		launch a full-screen photo browsing experience with comments and EXIF metadata.'
 		, 'jetpack' ); ?>
 <?php

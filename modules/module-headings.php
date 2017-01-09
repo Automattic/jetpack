@@ -19,7 +19,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Transform image galleries into gorgeous, full-screen slideshows.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Brings your photos and images to life as full-size, easily navigable galleries.', 'Jumpstart Description', 'jetpack' ),
 			),
 
