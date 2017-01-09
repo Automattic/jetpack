@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20161230';
+	const VERSION = '20170109';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	/**
