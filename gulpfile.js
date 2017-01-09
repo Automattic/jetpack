@@ -448,8 +448,7 @@ gulp.task( 'js:hint', function() {
 		'modules/**/*.js',
 		'!_inc/*.min.js',
 		'!modules/*.min.',
-		'!modules/**/*.min.js',
-		'!modules/google-analytics/*.js'
+		'!modules/**/*.min.js'
 	] )
 		.pipe( jshint( '.jshintrc' ) )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )

@@ -9,7 +9,6 @@ modules/shortcodes/js/jmpress.js
 modules/shortcodes/js/jmpress.min.js
 modules/shortcodes/js/jquery.cycle.min.js
 modules/theme-tools/responsive-videos/responsive-videos.min.js
-modules/google-analytics/wp-google-analytics.js
 
 todo:
 modules/infinite-scroll/infinity.js
