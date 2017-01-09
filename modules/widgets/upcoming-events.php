@@ -71,14 +71,10 @@ class Upcoming_Events_Widget extends WP_Widget {
 	function widget( $args, $instance ) {
 		jetpack_require_lib( 'icalendar-reader' );
 
-		$events = icalendar_render_events( $instance['feed-url'], array(
-			'context' => 'widget',
-			'number' => $instance['count']
-		) );
-
-		// nothing to display?
-		if ( ! $events )
-			$events = sprintf( '<p>%s</p>', __( 'No upcoming events', 'jetpack' ) );
+		$ical = new iCalendarReader();
+		$events = $ical->get_events( $instance['feed-url'], $instance['count'] );
+		$events = $this->apply_timezone_offset( $events );
+		$ical->timezone = null;
 
 		echo $args['before_widget'];
 		if ( ! empty( $instance['title'] ) ) {
@@ -86,11 +82,73 @@ class Upcoming_Events_Widget extends WP_Widget {
 			echo esc_html( $instance['title'] );
 			echo $args['after_title'];
 		}
-		echo $events;
+
+		if ( ! $events ) : // nothing to display?
+?>
+			<p><?php echo __( 'No upcoming events', 'jetpack' ) ?></p>
+<?php
+		else :
+?>
+			<ul class="upcoming-events">
+				<?php foreach ( $events as $event ) : ?>
+				<li>
+					<strong class="event-summary"><?php echo $ical->escape( stripslashes( $event['SUMMARY'] ) ); ?></strong>
+					<span class="event-when"><?php echo $ical->formatted_date( $event ); ?></span>
+					<?php if ( ! empty( $event['LOCATION'] ) ) : ?>
+						<span class="event-location"><?php echo $ical->escape( stripslashes( $event['LOCATION'] ) ); ?></span>
+					<?php endif; ?>
+					<?php if ( ! empty( $event['DESCRIPTION'] ) ) : ?>
+						<span class="event-description"><?php echo wp_trim_words( $ical->escape( stripcslashes( $event['DESCRIPTION'] ) ) ); ?></span>
+					<?php endif; ?>
+				</li>
+				<?php endforeach; ?>
+			</ul>
+<?php
+		endif;
+
 		echo $args['after_widget'];
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
+	}
+
+	function apply_timezone_offset( $events ) {
+		if ( ! $events ) {
+			return $events;
+		}
+
+		// get timezone offset from the timezone name.
+		$timezone_name = get_option( 'timezone_string' );
+		if ( $timezone_name ) {
+			$timezone = new DateTimeZone( $timezone_name );
+			$offset = $timezone->getOffset( new DateTime( 'now', new DateTimeZone( 'UTC' ) ) );
+		} else {
+			// fallback - gmt_offset option
+			$offset = get_option( 'gmt_offset' ) * 3600;
+		}
+
+		// generate a DateInterval object from the timezone offset
+		$interval_string = sprintf( '%d minutes', $offset / 60 );
+		$interval = date_interval_create_from_date_string( $interval_string );
+
+		$offsetted_events = array();
+
+		foreach ( $events as $event ) {
+			// Don't handle all-day events
+			if ( 8 < strlen( $event['DTSTART'] ) ) {
+				$start_time = new DateTime( $event['DTSTART'] );
+				$start_time->add( $interval );
+				$end_time = new DateTime( $event['DTEND'] );
+				$end_time->add( $interval );
+
+				$event['DTSTART'] = $start_time->format( 'YmdHis\Z' );
+				$event['DTEND'] = $end_time->format( 'YmdHis\Z' );
+			}
+
+			$offsetted_events[] = $event;
+		}
+
+		return $offsetted_events;
 	}
 }
 
