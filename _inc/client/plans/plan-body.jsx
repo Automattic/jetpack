@@ -28,10 +28,10 @@ const PlanBody = React.createClass( {
 	render() {
 		let planCard = '';
 		switch ( this.props.plan ) {
-      		case 'jetpack_personal':
-      		case 'jetpack_personal_monthly':
-      		case 'jetpack_premium':
-      		case 'jetpack_premium_monthly':
+			case 'jetpack_personal':
+			case 'jetpack_personal_monthly':
+			case 'jetpack_premium':
+			case 'jetpack_premium_monthly':
 			case 'jetpack_business':
 			case 'jetpack_business_monthly':
 				planCard = (
@@ -224,6 +224,32 @@ const PlanBody = React.createClass( {
 								}
 							</div>
 						: ''
+					}
+
+					{
+						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
+							<div className="jp-landing__plan-features-card">
+								<h3 className="jp-landing__plan-features-title">{ __( 'Google Analytics' ) }</h3>
+								<p>{ __( 'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.' ) }</p>
+								{
+									this.props.isFetchingPluginsData ? '' :
+									this.props.isModuleActivated( 'google-analytics' ) ? (
+										<Button href={ 'https://wordpress.com/settings/analytics/' + this.props.siteRawUrl } className="is-primary">
+											{ __( 'Configure Google Analytics' ) }
+										</Button>
+									)
+									: (
+										<Button
+											onClick={ this.props.activateModule.bind( null, 'google-analytics' ) }
+											className="is-primary"
+												disabled={ this.props.isActivatingModule( 'google-analytics' ) }
+										>
+											{ __( 'Activate Google Analytics' ) }
+										</Button>
+									)
+								}
+							</div>
+							: ''
 					}
 
 					{
