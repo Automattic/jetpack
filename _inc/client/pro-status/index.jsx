@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import { includes } from 'lodash';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 
@@ -121,7 +122,7 @@ const ProStatus = React.createClass( {
 				);
 			}
 
-			if ( 'google-analytics' === feature && 'jetpack_business' !== sitePlan.product_slug ) {
+			if ( 'google-analytics' === feature && ! includes( [ 'jetpack_business', 'jetpack_business_monthly' ], sitePlan.product_slug ) ) {
 				return (
 					<Button
 						compact={ true }
