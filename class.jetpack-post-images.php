@@ -91,7 +91,17 @@ class Jetpack_PostImages {
 
 		$permalink = get_permalink( $post->ID );
 
+		/**
+		 *  Juggle global post object because the gallery shortcode uses the
+		 *  global object.
+		 *
+		 *  See core ticket:
+		 *  https://core.trac.wordpress.org/ticket/39304
+		 */
+		$juggle_post = $GLOBALS['post'];
+		$GLOBALS['post'] = $post;
 		$gallery_images = get_post_galleries_images( $post->ID, false );
+		$GLOBALS['post'] = $juggle_post;
 
 		foreach ( $gallery_images as $galleries ) {
 			foreach ( $galleries as $src ) {
