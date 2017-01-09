@@ -458,8 +458,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$options[ $key ] = $site->get_podcasting_archive();
 					break;
 				case 'is_domain_only':
-					$blog_options = get_blog_option( $this->site->blog_id, 'options' );
-					$options[ $key ] = ! empty ( $blog_options['is_domain_only'] ) ? (bool) $blog_options['is_domain_only'] : false;
+					$options[ $key ] = $site->is_domain_only();
+					break;
 			}
 		}
 
