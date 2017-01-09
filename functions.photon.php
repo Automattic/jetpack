@@ -128,11 +128,18 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	$image_host_path = $image_url_parts['host'] . $image_url_parts['path'];
 
 	// Figure out which CDN subdomain to use for this site
-	$subdomain_seed = (int) Jetpack_Options::get_option( 'id' );
-	if ( empty( $subdomain_seed ) && !empty( $_SERVER['HTTP_HOST'] ) ) {
-		$subdomain_seed = crc32( $_SERVER['HTTP_HOST'] ); // Fallback to site domain
+	if ( class_exists( 'Jetpack_Server' ) ) {
+		// Is WordPress.com
+		$subdomain = get_current_blog_id();
+	} elseif ( (int) Jetpack_Options::get_option( 'id' ) > 0 ) {
+		// Is connected Jetpack
+		$subdomain = Jetpack_Options::get_option( 'id' );
+	} else {
+		// Fallback to site domain
+		$subdomain = crc32( (string) $_SERVER['HTTP_HOST'] );
 	}
-	$subdomain = abs( $subdomain_seed % 3 ); // abs() for 32bit system crc
+	// abs() for 32bit system CRCs
+	$subdomain = abs( (int) $subdomain % 3 );
 
 	/**
 	 * Filters the domain used by the Photon module.
