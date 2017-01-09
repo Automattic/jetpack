@@ -37,7 +37,6 @@ class JetpackGoogleAnalytics {
 	 * @return void
 	 */
 	private function __construct() {
-		add_filter( 'init',                     array( $this, 'init' ) );
 		add_action( 'get_footer',               array( $this, 'insert_code' ) );
 		add_action( 'wp_enqueue_scripts',       array( $this, 'track_outgoing' ) );
 	}
@@ -51,90 +50,6 @@ class JetpackGoogleAnalytics {
 		}
 
 		return self::$instance;
-	}
-
-	public function init() {
-		$this->tokens = array(
-				array(
-						'token'            => '%the_author%',
-						'callback'         => 'get_the_author',
-						'callback_returns' => 'string',
-						'description'      => __( 'Post author for current view', 'jetpack' ),
-						'retval'           => __( "Post author's display name", 'jetpack' ),
-						'ignore_when'      => array(
-								'is_home',
-								'is_front_page',
-								'is_post_type_archive',
-								'is_page',
-								'is_date',
-								'is_category',
-								'is_tag',
-							),
-					),
-				array(
-						'token'            => '%the_category%',
-						'callback'         => array( $this, 'token_the_category' ),
-						'callback_returns' => 'string',
-						'description'      => __( 'Categories assigned to a post', 'jetpack' ),
-						'retval'           => __( 'Category names in a commma-separated list', 'jetpack' ),
-						'ignore_when'      => array(
-								'is_home',
-								'is_front_page',
-								'is_page',
-								'is_post_type_archive',
-								'is_author',
-								'is_tag',
-							),
-					),
-				array(
-						'token'            => '%context%',
-						'callback'         => array( $this, 'token_context' ),
-						'callback_returns' => 'string',
-						'description'      => __( 'Which view the visitor is on', 'jetpack' ),
-						'retval'           => __( "Samples: 'home', 'category', 'post', 'author'" ),
-					),
-				array(
-						'token'            => '%the_date%',
-						'callback'         => 'get_the_date',
-						'callback_returns' => 'string',
-						'description'      => __( 'Publication date for the current view', 'jetpack' ),
-						'retval'           => __( "Format specified by 'Date Format' in Settings -> General", 'jetpack' ),
-						'ignore_when'      => array(
-								'is_home',
-								'is_front_page',
-								'is_post_type_archive',
-								'is_page',
-								'is_author',
-								'is_category',
-								'is_tag',
-							),
-					),
-				array(
-						'token'            => '%the_tags%',
-						'callback'         => array( $this, 'token_the_tags' ),
-						'callback_returns' => 'string',
-						'description'      => __( 'Tags assigned to a post', 'jetpack' ),
-						'retval'           => __( 'Tag names in a commma-separated list', 'jetpack' ),
-						'ignore_when'      => array(
-								'is_home',
-								'is_front_page',
-								'is_page',
-								'is_post_type_archive',
-								'is_date',
-								'is_category',
-								'is_author',
-							),
-					),
-				array(
-						'token'            => '%is_user_logged_in%',
-						'callback'         => 'is_user_logged_in',
-						'callback_returns' => 'bool',
-						'description'      => __( 'Whether or not the viewer is logged in', 'jetpack' ),
-						'retval'           => __( "'true' or 'false'", 'jetpack' ),
-					),
-			);
-
-		$this->tokens = apply_filters( 'wga_tokens', $this->tokens );
 	}
 
 	/**
@@ -210,57 +125,6 @@ class JetpackGoogleAnalytics {
 		$custom_vars = array(
 			"_gaq.push(['_setAccount', '{$tracking_id}']);",
 		);
-
-		// Add custom variables specified by the user.
-		foreach ( $this->_get_options( 'custom_vars', array() ) as $i => $custom_var ) {
-			if ( empty( $custom_var['name'] ) || empty( $custom_var['value'] ) ) {
-				continue;
-			}
-
-			// Check whether a token was used with this custom var, and replace with value if so.
-			$all_tokens = wp_list_pluck( $this->tokens, 'token' );
-			if ( in_array( $custom_var['value'], $all_tokens, true ) ) {
-				$token = array_pop( wp_filter_object_list( $this->tokens, array( 'token' => $custom_var['value'] ) ) );
-
-				// Allow tokens to return empty values for specific contexts.
-				$ignore = false;
-				if ( ! empty( $token['ignore_when'] ) ) {
-					foreach ( (array) $token['ignore_when'] as $conditional ) {
-						if ( is_callable( $conditional ) ) {
-							$ignore = call_user_func( $conditional );
-							if ( $ignore ) {
-								break;
-							}
-						}
-					}
-				}
-
-				// If we aren't set to ignore this context, possibly execute the callback.
-				if ( ! $ignore && ! empty( $token['callback'] ) && is_callable( $token['callback'] ) ) {
-					$replace = call_user_func( $token['callback'] );
-				} else {
-					$replace = '';
-				}
-
-				if ( ! empty( $token['callback_returns'] ) && 'bool' === $token['callback_returns'] ) {
-					$replace = ( $replace ) ? 'true' : 'false';
-				}
-
-				// Replace our token with the value.
-				$custom_var['value'] = str_replace( $custom_var['value'], $replace, $custom_var['value'] );
-			}
-
-			$atts = array(
-					"'_setCustomVar'",
-					intval( $i ),
-					"'" . esc_js( $custom_var['name'] ) . "'",
-					"'" . esc_js( $custom_var['value'] ) . "'",
-				);
-			if ( $custom_var['scope'] ) {
-				$atts[] = intval( $custom_var['scope'] );
-			}
-			$custom_vars[] = '_gaq.push([' . implode( ', ', $atts ) . ']);';
-		}
 
 		$track = array();
 		if ( is_404() && ( ! isset( $wga['log_404s'] ) || 'false' !== $wga['log_404s'] ) ) {
