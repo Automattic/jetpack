@@ -198,19 +198,6 @@ class JetpackGoogleAnalytics {
 				} else {
 					return $o[ $option ];
 				}
-			} else {
-				if ( 'ignore_role_' === substr( $option, 0, 12 ) ) {
-					global $wp_roles;
-					// Backwards compat for when the tracking information was stored as a cap.
-					$maybe_role = str_replace( 'ignore_role_', '', $option );
-					if ( isset( $wp_roles->roles[ $maybe_role ] ) ) {
-						if ( isset( $wp_roles->roles[ $maybe_role ]['capabilities']['wga_no_track'] ) && $wp_roles->roles[ $maybe_role ]['capabilities']['wga_no_track'] ) {
-							return 'true';
-						}
-					}
-					return false;
-				}
-				return $default;
 			}
 		} else {
 			return $o;
