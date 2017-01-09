@@ -539,4 +539,9 @@ abstract class SAL_Site {
 
 		return ( $is_freshly_pressed || $is_daily_post );
 	}
+
+	function is_domain_only() {
+		$options = get_option( 'options' );
+		return ! empty ( $options['is_domain_only'] ) ? (bool) $options['is_domain_only'] : false;
+	}
 }
