@@ -51,7 +51,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'google-analytics' => array(
 				'name' => _x( 'Google Analytics', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Collect traffic stats and insights with Google Analytics.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Lets you use Google Analytics to track your WordPress site statistics.', 'Module Description', 'jetpack' ),
 			),
 
 			'gravatar-hovercards' => array(
