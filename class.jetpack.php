@@ -4788,14 +4788,14 @@ p {
 		if ( $_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
 			return new WP_Error(
 				'rest_invalid_request',
-				'This request method is not supported.',
+				__( 'This request method is not supported.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
 		}
 		if ( $_SERVER['REQUEST_METHOD'] !== 'POST' && ! empty( $this->HTTP_RAW_POST_DATA ) ) {
 			return new WP_Error(
 				'rest_invalid_request',
-				'This request method does not support body parameters.',
+				__( 'This request method does not support body parameters.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -4806,7 +4806,7 @@ p {
 		) {
 			return new WP_Error(
 				'rest_invalid_request',
-				'This Content-Type is not supported.',
+				__( 'This Content-Type is not supported.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -4825,7 +4825,7 @@ p {
 		) {
 			return new WP_Error(
 				'rest_invalid_signature',
-				'The request is not signed correctly.',
+				__( 'The request is not signed correctly.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
 		}
