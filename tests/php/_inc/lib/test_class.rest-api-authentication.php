@@ -276,7 +276,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$jetpack = Jetpack::init();
 		$jetpack->reset_xmlrpc_verification();
 		// Set POST body for Jetpack::verify_xml_rpc_signature
-		$jetpack->HTTP_RAW_POST_DATA = $this->request->get_body();
+		$GLOBALS['HTTP_RAW_POST_DATA'] = $this->request->get_body();
 		// Set host and URL for Jetpack_Signature::sign_current_request
 		$_SERVER['HTTP_HOST'] = 'example.org';
 		$_SERVER['REQUEST_URI'] = $this->request->get_route() . '?qstest=yep';
