@@ -64,6 +64,14 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), array( 'customize-controls', 'underscore', 'jetpack-codemirror' ), JETPACK__VERSION, true );
 
 		wp_register_script( 'jetpack-customizer-css-preview', plugins_url( 'custom-css/js/core-customizer-css-preview.js', __FILE__ ), array( 'customize-selective-refresh' ), JETPACK__VERSION, true );
+
+		remove_action( 'wp_head', 'wp_custom_css_cb', 11 ); // 4.7.0 had it at 11, 4.7.1 moved it to 101.
+		remove_action( 'wp_head', 'wp_custom_css_cb', 101 );
+		add_action( 'wp_head', array( __CLASS__, 'wp_custom_css_cb' ), 101 );
+
+		if ( isset( $_GET['custom-css'] ) ) {
+			self::print_linked_custom_css();
+		}
 	}
 
 	/**
@@ -71,6 +79,16 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function customize_preview_init() {
 		add_filter( 'wp_get_custom_css', array( __CLASS__, 'customize_preview_wp_get_custom_css' ) );
+	}
+
+	/**
+	 * Print the current Custom CSS. This is for linking instead of printing directly.
+	 */
+	public static function print_linked_custom_css() {
+		header( 'Content-type: text/css' );
+		header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + YEAR_IN_SECONDS ) . ' GMT' );
+		echo wp_get_custom_css();
+		exit;
 	}
 
 	/**
@@ -151,6 +169,24 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function get_css_post( $stylesheet = '' ) {
 		return wp_get_custom_css_post( $stylesheet );
+	}
+
+	/**
+	 * Override Core's `wp_custom_css_cb` method to provide linking to custom css.
+	 */
+	public static function wp_custom_css_cb() {
+		$styles = wp_get_custom_css();
+		if ( strlen( $styles ) > 2000 && ! is_customize_preview() ) :
+			// Add a cache buster to the url.
+			$url = home_url( '/' );
+			$url = add_query_arg( 'custom-css', substr( md5( $styles ), -10 ), $url );
+			?>
+			<link rel="stylesheet" type="text/css" id="wp-custom-css" href="<?php echo esc_url( $url ); ?>" />
+		<?php elseif ( $styles || is_customize_preview() ) : ?>
+			<style type="text/css" id="wp-custom-css">
+				<?php echo strip_tags( $styles ); // Note that esc_html() cannot be used because `div &gt; span` is not interpreted properly. ?>
+			</style>
+		<?php endif;
 	}
 
 	/**
