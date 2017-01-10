@@ -183,10 +183,18 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		$tweet_limit = (int) $new_instance['tweet-limit'];
-		if ( $tweet_limit > 20 ) {
-			$tweet_limit = 20;
+		if ( $tweet_limit ) {
+			$instance['tweet-limit'] = min( max( $tweet_limit, 1 ), 20 );
+			/**
+			 * A timeline with a specified limit is expanded to the height of those Tweets.
+			 * The specified height value no longer applies, so reject the height value
+			 * when a valid limit is set: a widget attempting to save both limit 5 and
+			 * height 400 would be saved with just limit 5.
+			 */
+			$instance['height'] = '';
+		} else {
+			$instance['tweet-limit'] = null;
 		}
-		$instance['tweet-limit'] = ( $tweet_limit ? $tweet_limit : null );
 
 		// If they entered something that might be a full URL, try to parse it out
 		if ( is_string( $new_instance['widget-id'] ) ) {
