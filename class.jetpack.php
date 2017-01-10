@@ -4772,6 +4772,15 @@ p {
 			return $error;
 		}
 
+		// Ensure that we always have the request body available.  If we don't
+		// do this, the signing code will try to read the request body from
+		// 'php://input/', but this fails in older PHP versions because the WP
+		// REST API code may have already read it, and this can only be done
+		// once prior to PHP 5.6.  The WP REST API code stores the request body
+		// in $HTTP_RAW_POST_DATA, so grab it from there and put it where the
+		// signature verification code will see it.
+		$this->HTTP_RAW_POST_DATA = $GLOBALS['HTTP_RAW_POST_DATA'];
+
 		$verified = $this->verify_xml_rpc_signature();
 
 		if ( is_wp_error( $verified ) ) {
