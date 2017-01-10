@@ -4781,6 +4781,36 @@ p {
 		// signature verification code will see it.
 		$this->HTTP_RAW_POST_DATA = $GLOBALS['HTTP_RAW_POST_DATA'];
 
+		// Only support specific request parameters that have been tested and
+		// are known to work with signature verification.  A different method
+		// can be passed to the WP REST API via the '?_method=' parameter if
+		// needed.
+		if ( $_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
+			return new WP_Error(
+				'rest_invalid_request',
+				'This request method is not supported.',
+				array( 'status' => 400 )
+			);
+		}
+		if ( $_SERVER['REQUEST_METHOD'] !== 'POST' && ! empty( $this->HTTP_RAW_POST_DATA ) ) {
+			return new WP_Error(
+				'rest_invalid_request',
+				'This request method does not support body parameters.',
+				array( 'status' => 400 )
+			);
+		}
+		if (
+			isset( $_SERVER['CONTENT_TYPE'] ) &&
+			$_SERVER['CONTENT_TYPE'] !== 'application/x-www-form-urlencoded' &&
+			$_SERVER['CONTENT_TYPE'] !== 'application/json'
+		) {
+			return new WP_Error(
+				'rest_invalid_request',
+				'This Content-Type is not supported.',
+				array( 'status' => 400 )
+			);
+		}
+
 		$verified = $this->verify_xml_rpc_signature();
 
 		if ( is_wp_error( $verified ) ) {
