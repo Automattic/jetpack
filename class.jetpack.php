@@ -4759,8 +4759,8 @@ p {
 		return new WP_User( $token_details['user_id'] );
 	}
 
-	// Authenticates requests from Jetpack server to WP API endpoints.
-	// Uses the existing XMLRPC oAuth implementation.
+	// Authenticates requests from Jetpack server to WP REST API endpoints.
+	// Uses the existing XMLRPC request signing implementation.
 	function wp_rest_authenticate( $error ) {
 		if ( is_wp_error( $error ) ) {
 			// A previous authentication method failed.
