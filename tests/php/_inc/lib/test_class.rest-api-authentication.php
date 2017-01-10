@@ -269,18 +269,23 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * Ensures that these tests pass through Jetpack::wp_rest_authenticate,
-	 * otherwise WP_REST_Server::dispatch doesn't bother to check authorization.
+	 * because WP_REST_Server::dispatch doesn't call any auth logic (in a real
+	 * request, this would all happen earlier).
 	 */
 	public function rest_pre_dispatch( $result, $server ) {
 		// Reset Jetpack::xmlrpc_verification saved state
 		$jetpack = Jetpack::init();
-		$jetpack->reset_xmlrpc_verification();
+		$jetpack->reset_saved_auth_state();
 		// Set POST body for Jetpack::verify_xml_rpc_signature
 		$GLOBALS['HTTP_RAW_POST_DATA'] = $this->request->get_body();
 		// Set host and URL for Jetpack_Signature::sign_current_request
 		$_SERVER['HTTP_HOST'] = 'example.org';
 		$_SERVER['REQUEST_URI'] = $this->request->get_route() . '?qstest=yep';
 		$_SERVER['REQUEST_METHOD'] = $this->request->get_method();
+		$user_id = apply_filters( 'determine_current_user', false );
+		if ( $user_id ) {
+			wp_set_current_user( $user_id );
+		}
 		$auth = $server->check_authentication();
 		if ( true === $auth ) {
 			return $result;
