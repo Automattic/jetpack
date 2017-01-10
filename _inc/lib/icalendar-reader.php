@@ -737,10 +737,10 @@ class iCalendarReader {
 		<table class="upcoming-events">
 			<thead>
 				<tr>
-					<th>Location</th>
-					<th>When</th>
-					<th>Summary</th>
-					<th>Description</th>
+					<th><?php esc_html_e( 'Location', 'jetpack' ); ?></th>
+					<th><?php esc_html_e( 'When', 'jetpack' ); ?></th>
+					<th><?php esc_html_e( 'Summary', 'jetpack' ); ?></th>
+					<th><?php esc_html_e( 'Description', 'jetpack' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
