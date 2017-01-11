@@ -121,12 +121,12 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 			'ico' => wp_get_attachment_image_url( $icon_id, array( 16, 16 ) )
 		) );
 
-		if ( current_user_can( 'edit_posts', $icon_id ) ) {
-			$icon['media_id'] = (int) $icon_id;
-		}
-
 		if ( empty( $icon ) ) {
 			return null;
+		}
+
+		if ( current_user_can( 'edit_posts', $icon_id ) ) {
+			$icon['media_id'] = (int) $icon_id;
 		}
 
 		return $icon;
