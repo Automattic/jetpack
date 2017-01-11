@@ -419,11 +419,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( current_user_can( 'edit_post_meta', $post_id , $meta['meta_key'] ) )
 						$show = true;
 
-					// Only business plan subscribers can view custom meta description
-					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						if ( 'advanced_seo_description' == $meta['meta_key'] && ! A8C\SEO\Helpers\is_enabled_advanced_seo() ) {
-							$show = false;
-						}
+					// Only business plan subscribers can view custom meta description.
+					if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY == $meta['meta_key'] && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+						$show = false;
 					}
 
 					if ( !$show )
