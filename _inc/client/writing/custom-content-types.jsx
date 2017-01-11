@@ -60,22 +60,22 @@ export const CustomContentTypes = moduleSettingsForm(
 					{ ...this.props }
 					module="custom-content-types"
 					hideButton>
-					<FormFieldset>
-						<p>
+					<p>
+						{
+							module.description
+						}
+					</p>
+					<FormToggle compact
+								checked={ this.state.testimonial }
+								disabled={ this.props.isSavingAnyOption() }
+								onChange={ e => this.updateCPTs( 'testimonial' ) }>
+						<span className="jp-form-toggle-explanation">
 							{
-								module.description
+								__( 'Enable Testimonial custom content types.' )
 							}
-						</p>
-						<FormToggle compact
-									checked={ this.state.testimonial }
-									disabled={ this.props.isSavingAnyOption() }
-									onChange={ e => this.updateCPTs( 'testimonial' ) }>
-							<span className="jp-form-toggle-explanation">
-								{
-									__( 'Enable Testimonial custom content types.' )
-								}
-							</span>
-						</FormToggle>
+						</span>
+					</FormToggle>
+					<FormFieldset>
 						{
 							this.state.testimonial
 								? <p className="jp-form-setting-explanation">
@@ -88,17 +88,18 @@ export const CustomContentTypes = moduleSettingsForm(
 						{
 							this.contentTypeConfigure( 'testimonial', __( 'Configure Testimonials' ) )
 						}
-						<br />
-						<FormToggle compact
-									checked={ this.state.portfolio }
-									disabled={ this.props.isSavingAnyOption() }
-									onChange={ e => this.updateCPTs( 'portfolio' ) }>
-							<span className="jp-form-toggle-explanation">
-								{
-									__( 'Enable Portfolio custom content types.' )
-								}
-							</span>
-						</FormToggle>
+					</FormFieldset>
+					<FormToggle compact
+								checked={ this.state.portfolio }
+								disabled={ this.props.isSavingAnyOption() }
+								onChange={ e => this.updateCPTs( 'portfolio' ) }>
+						<span className="jp-form-toggle-explanation">
+							{
+								__( 'Enable Portfolio custom content types.' )
+							}
+						</span>
+					</FormToggle>
+					<FormFieldset>
 						{
 							this.state.portfolio
 								? <p className="jp-form-setting-explanation">

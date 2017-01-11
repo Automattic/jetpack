@@ -45,25 +45,22 @@ export const Media = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Media' ) }>
-					<FormFieldset support={ photon.learn_more_button }>
-						<ModuleToggle slug="photon"
-									  compact
-									  activated={ this.props.getOptionValue( 'photon' ) }
-									  toggling={ this.props.isSavingAnyOption( 'photon' ) }
-									  toggleModule={ this.toggleModule }>
-							<span className="jp-form-toggle-explanation">
-								{
-									photon.description
-								}
-							</span>
-							<span className="jp-form-setting-explanation">
-								{
-									__( 'Enabling Photon is required to use Tiled Galleries.' )
-								}
-							</span>
-						</ModuleToggle>
-					</FormFieldset>
-					<hr />
+					<ModuleToggle slug="photon"
+								  compact
+								  activated={ this.props.getOptionValue( 'photon' ) }
+								  toggling={ this.props.isSavingAnyOption( 'photon' ) }
+								  toggleModule={ this.toggleModule }>
+						<span className="jp-form-toggle-explanation">
+							{
+								photon.description
+							}
+						</span>
+					</ModuleToggle>
+					<span className="jp-form-setting-explanation">
+						{
+							__( 'Enabling Photon is required to use Tiled Galleries.' )
+						}
+					</span>
 					<ModuleToggle slug="carousel"
 								  compact
 								  activated={ isCarouselActive }

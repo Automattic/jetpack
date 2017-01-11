@@ -58,18 +58,18 @@ export const ThemeEnhancements = moduleSettingsForm(
 						].map( item => {
 							return (
 								<div key={ `theme_enhancement_${ item.module }` }>
+									<ModuleToggle slug={ item.module }
+												  compact
+												  activated={ this.props.getOptionValue( item.module ) }
+												  toggling={ this.props.isSavingAnyOption( item.module ) }
+												  toggleModule={ this.props.toggleModuleNow }>
+									<span className="jp-form-toggle-explanation">
+									{
+										item.description
+									}
+									</span>
+									</ModuleToggle>
 									<FormFieldset support={ item.learn_more_button }>
-										<ModuleToggle slug={ item.module }
-													  compact
-													  activated={ this.props.getOptionValue( item.module ) }
-													  toggling={ this.props.isSavingAnyOption( item.module ) }
-													  toggleModule={ this.props.toggleModuleNow }>
-										<span className="jp-form-toggle-explanation">
-										{
-											item.description
-										}
-										</span>
-										</ModuleToggle>
 										{
 											this.props.getOptionValue( item.module )
 												? item.checkboxes.map( chkbx => {

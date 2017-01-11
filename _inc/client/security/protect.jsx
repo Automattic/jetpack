@@ -79,12 +79,12 @@ export const Protect = moduleSettingsForm(
 								this.props.getModule( 'protect' ).description
 							}
 						</span>
-						<p className="jp-form-setting-explanation">
-							{
-								__( 'Secure user authentication.' )
-							}
-						</p>
 					</ModuleToggle>
+					<p className="jp-form-setting-explanation">
+						{
+							__( 'Secure user authentication.' )
+						}
+					</p>
 					{
 						isProtectActive
 							? <div>
