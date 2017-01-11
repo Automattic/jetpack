@@ -135,6 +135,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'modules' => array(
 					'default'           => '',
 					'type'              => 'array',
+					'items'             => array(
+						'type'          => 'string',
+					),
 					'required'          => true,
 					'validate_callback' => __CLASS__ . '::validate_module_list',
 				),
