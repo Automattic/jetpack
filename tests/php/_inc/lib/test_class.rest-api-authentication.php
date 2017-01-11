@@ -28,12 +28,14 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 				unset( $this->server_values[ $key ] );
 			}
 		}
+		$_GET['_for'] = 'jetpack';
 		add_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
 	}
 
 	public function tearDown() {
 		parent::tearDown();
 		unset(
+			$_GET['_for'],
 			$_GET['token'],
 			$_GET['timestamp'],
 			$_GET['nonce'],

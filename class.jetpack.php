@@ -4770,6 +4770,11 @@ p {
 			return $user;
 		}
 
+		if ( ! isset( $_GET['_for'] ) || $_GET['_for'] !== 'jetpack' ) {
+			// Nothing to do for this authentication method.
+			return null;
+		}
+
 		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
 			// Nothing to do for this authentication method.
 			return null;
