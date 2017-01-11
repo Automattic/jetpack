@@ -299,7 +299,7 @@ export let ProtectSettings = React.createClass( {
 							onChange={ this.props.onOptionChange }
 							value={ this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local } />
 					</FormLabel>
-					<span className="jp-form-setting-explanation">{ __( 'IPv4 and IPv6 are acceptable. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
+					<span className="jp-form-setting-explanation">{ __( 'IPv4 and IPv6 are acceptable. Enter multiple IPs on separate lines. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
 						components: {
 							br: <br/>
 						}
