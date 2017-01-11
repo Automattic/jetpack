@@ -1,8 +1,9 @@
 <?php
-require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-rest-controller-testcase.php';
+
+require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-jetpack-rest-testcase.php';
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server.php';
 
-class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_REST_Controller_Testcase {
+class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_REST_Testcase {
 
 	public function setUp() {
 		parent::setUp();
@@ -52,13 +53,4 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_REST_Con
 			array( '/jetpack/v4/settings/(?P<slug>[a-z\-]+)', 'POST', 'Jetpack_Core_API_Data' ),
 		);
 	}
-
-	public function test_update_item() {}
-	public function test_context_param() {}
-	public function test_get_items() {}
-	public function test_get_item() {}
-	public function test_create_item() {}
-	public function test_delete_item() {}
-	public function test_prepare_item() {}
-	public function test_get_item_schema() {}
 }

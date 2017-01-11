@@ -59,7 +59,7 @@ class Jetpack_Signature {
 
 		$url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
 
-		if ( array_key_exists( 'body', $override ) && !is_null( $override['body'] ) ) {
+		if ( array_key_exists( 'body', $override ) && ! empty( $override['body'] ) ) {
 			$body = $override['body'];
 		} else if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 			$body = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
@@ -73,6 +73,10 @@ class Jetpack_Signature {
 			}
 
 		} else {
+			$body = null;
+		}
+
+		if ( empty( $body ) ) {
 			$body = null;
 		}
 
