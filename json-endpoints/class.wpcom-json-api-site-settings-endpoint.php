@@ -445,57 +445,36 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
-				case 'advanced_seo_front_page_description':
-					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						// allow valid subscriptions and also the grandfathered accounts
-						// from the initial deployment (see below)
-						if ( ! ( A8C\SEO\Helpers\is_enabled_advanced_seo() || get_option( 'seo_meta_description' ) ) ) {
-							return new WP_Error( 'unauthorized', __( 'Advanced SEO is not enabled for this site.' ), 403 );
-						}
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_grandfathered_front_page_meta() ) {
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'Jetpack' ), 403 );
+					}
 
-						if ( ! is_string( $value ) ) {
-							return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.' ), 400 );
-						}
+					if ( ! is_string( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.', 'Jetpack' ), 400 );
+					}
 
-						$front_page_description = sanitize_text_field( $value );
+					$new_description = Jetpack_SEO_Utils::update_front_page_meta_description( $value );
 
-						// The seo front page meta description should be shorter than 300 characters
-						$front_page_description = mb_substr( $front_page_description, 0, 300 );
-
-						$can_set_meta = A8C\SEO\Helpers\is_enabled_advanced_seo();
-						$has_old_meta = ! empty( get_option( 'seo_meta_description' ) );
-						$is_grandfathered = $has_old_meta && ! $can_set_meta;
-						$option_name = $is_grandfathered ? 'seo_meta_description' : 'advanced_seo_front_page_description';
-
-						$did_update = update_option( $option_name, $front_page_description );
-
-						if ( $did_update ) {
-							$updated['advanced_seo_front_page_description'] = $front_page_description;
-						}
-
-						if ( $did_update && $has_old_meta && $can_set_meta ) {
-							delete_option( 'seo_meta_description' );
-						}
+					if ( ! empty( $new_description ) ) {
+						$updated[ $key ] = $new_description;
 					}
 					break;
 
-				case 'advanced_seo_title_formats':
-					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						if ( ! A8C\SEO\Helpers\is_enabled_advanced_seo() ) {
-							return new WP_Error( 'unauthorized', __( 'Advanced SEO is not enabled for this site.' ), 403 );
-						}
-
-						if ( ! A8C\SEO\Titles\are_valid_title_formats( $value ) ) {
-							return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.' ), 400 );
-						}
-
-						$new_title_formats = A8C\SEO\Titles\update_title_formats( $value );
-
-						if ( update_option( 'advanced_seo_title_formats', $new_title_formats ) ) {
-							$updated[ $key ] = $new_title_formats;
-						}
+				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION:
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'Jetpack' ), 403 );
 					}
 
+					if ( ! Jetpack_SEO_Titles::are_valid_title_formats( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.', 'Jetpack' ), 400 );
+					}
+
+					$new_title_formats = Jetpack_SEO_Titles::update_title_formats( $value );
+
+					if ( ! empty( $new_title_formats ) ) {
+						$updated[ $key ] = $new_title_formats;
+					}
 					break;
 
 				case 'verification_services_codes':
