@@ -89,8 +89,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'headstart',
 		'headstart_is_fresh',
 		'ak_vp_bundle_enabled',
-		'advanced_seo_front_page_description',
-		'advanced_seo_title_formats',
+		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION,
+		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION,
 		'verification_services_codes',
 		'podcasting_archive',
 		'is_domain_only',
@@ -439,17 +439,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'ak_vp_bundle_enabled' :
 					$options[ $key ] = $site->get_ak_vp_bundle_enabled();
 					break;
-				case 'advanced_seo_front_page_description' :
-					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						$options[ $key ] = $site->get_advanced_seo_front_page_description();
-					}
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION :
+					$options[ $key ] = $site->get_jetpack_seo_front_page_description();
 					break;
-				case 'advanced_seo_title_formats':
-					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						if ( A8C\SEO\Helpers\is_enabled_advanced_seo() ) {
-							$options[ $key ] = $site->get_advanced_seo_title_formats();
-						}
-					}
+				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION:
+					$options[ $key ] = $site->get_jetpack_seo_title_formats();
 					break;
 				case 'verification_services_codes' :
 					$options[ $key ] = $site->get_verification_services_codes();
