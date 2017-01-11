@@ -8,6 +8,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
  		'description'       => '(string) Tagline or description of site',
  		'URL'               => '(string) Full URL to the site',
 		'lang'              => '(string) Primary language code of the site',
+		'locale_variant'    => '(string) Locale variant code for the site, if set',
 		'settings'          => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site.',
 	);
 
@@ -137,6 +138,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'URL' :
 				$response[$key] = (string) home_url();
 				break;
+			case 'locale_variant':
+				$blog_locale_variant = wpcom_l10n_get_blog_locale_variant();
+				if ( $blog_locale_variant ) {
+					$response[$key] = $blog_locale_variant;
+				}
+				break;
 			case 'settings':
 
 				$jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
@@ -198,7 +205,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'comment_max_links'       => (int) get_option( 'comment_max_links' ),
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
-					'lang_id'                 => get_option( 'lang_id' ),
+					'lang_id'                 => get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) ),
 					'wga'                     => get_option( 'wga' ),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
 					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
@@ -213,9 +220,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_testimonial_posts_per_page' => (int) get_option( 'jetpack_testimonial_posts_per_page', '10' ),
 					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
 					'jetpack_portfolio_posts_per_page' => (int) get_option( 'jetpack_portfolio_posts_per_page', '10' ),
-					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
+					'markdown_supported'      => true,
+					'wpcom_publish_posts_with_markdown' => (bool) WPCom_Markdown::is_posting_enabled(),
+					'wpcom_publish_comments_with_markdown' => (bool) WPCom_Markdown::is_commenting_enabled(),
+					'amp_is_supported'        => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
+					'amp_is_enabled'          => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
+					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 					'api_cache'               => $api_cache,
 				);
 
@@ -273,7 +285,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return (array)
 	 */
 	public function update_settings() {
-
 		// $this->input() retrieves posted arguments whitelisted and casted to the $request_format
 		// specs that get passed in when this class is instantiated
 		/**
@@ -286,6 +297,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		 * @param array $input Associative array of site settings to be updated.
 		 */
 		$input = apply_filters( 'rest_api_update_site_settings', $this->input() );
+
+		$blog_id = get_current_blog_id();
 
 		$jetpack_relatedposts_options = array();
 		$sharing_options = array();
@@ -504,6 +517,38 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					if ( update_option( 'verification_services_codes', $verification_codes ) ) {
 						$updated[ $key ] = $verification_codes;
+					}
+					break;
+
+				case 'wpcom_publish_posts_with_markdown':
+				case 'wpcom_publish_comments_with_markdown':
+					$coerce_value = (bool) $value;
+					if ( update_option( $key, $coerce_value ) ) {
+						$updated[ $key ] = $coerce_value;
+					}
+					break;
+
+				case 'amp_is_enabled':
+					if ( function_exists( 'wpcom_update_amp_enabled' ) ) {
+						$saved = wpcom_update_amp_enabled( $blog_id, $value );
+						if ( $saved ) {
+							$updated[ $key ] = (bool) $value;
+						}
+					}
+					break;
+
+				case 'site_icon':
+					// settings are stored as deletable numeric (all empty
+					// values as delete intent), validated as media image
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( delete_option( $key ) || apply_filters( 'rest_api_site_icon_cleared', false ) ) {
+							$updated[ $key ] = null;
+						}
+					} else if ( is_numeric( $value ) ) {
+						$coerce_value = (int) $value;
+						if ( wp_attachment_is_image( $coerce_value ) && update_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
+						}
 					}
 					break;
 
