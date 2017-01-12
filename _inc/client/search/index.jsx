@@ -37,6 +37,7 @@ import {
 	isPluginActive
 } from 'state/site/plugins';
 import { getSiteRawUrl } from 'state/initial-state';
+import { WordAdsSubHeaderTos } from 'engagement'
 
 export const SearchResults = ( {
 	siteAdminUrl,
@@ -118,7 +119,12 @@ export const SearchResults = ( {
 					toggleModule={ toggleModule }
 				/>
 			),
-			customClasses = unavailableDevMode ? 'devmode-disabled' : '';
+			customClasses = unavailableDevMode ? 'devmode-disabled' : '',
+			wordAdsSubHeader = element[2];
+
+		if ( 'wordads' === element[0] && ! isModuleActivated( element[0] ) ) {
+			wordAdsSubHeader = <WordAdsSubHeaderTos subheader={ element[2] } />
+		}
 
 		if ( isPro ) {
 			proProps = {
@@ -181,7 +187,7 @@ export const SearchResults = ( {
 				className={ customClasses }
 				header={ element[1] }
 				searchTerms={ element.toString().replace( /<(?:.|\n)*?>/gm, '' ) }
-				subheader={ element[2] }
+				subheader={ 'wordads' === element[0] ? wordAdsSubHeader : element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
