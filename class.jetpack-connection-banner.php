@@ -62,12 +62,13 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
-	 * Will initialize hooks to display the new and legacy connection banners if the current user can
+	 * Will initialize hooks to display the new (as of 4.4) connection banner if the current user can
 	 * connect Jetpack, if Jetpack has not been deactivated, and if the current page is the plugins page.
 	 *
 	 * This method should not be called if the site is connected to WordPress.com or if the site is in development mode.
 	 *
 	 * @since 4.4.0
+	 * @since 4.5.0 Made the new (as of 4.4) connection banner display to everyone by default.
 	 *
 	 * @param $current_screen
 	 */
@@ -81,13 +82,8 @@ class Jetpack_Connection_Banner {
 			return;
 		}
 
-		if ( self::check_ab_test_not_expired() && 2 == self::get_random_connection_banner_value() ) {
-			add_action( 'admin_notices', array( $this, 'render_banner' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
-		} else {
-			add_action( 'admin_notices', array( $this, 'render_legacy_banner' ) );
-
-		}
+		add_action( 'admin_notices', array( $this, 'render_banner' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
 
 		add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
 
