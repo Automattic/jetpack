@@ -130,10 +130,15 @@ const ProStatus = React.createClass( {
 					}
 
 					if ( 'scan' === feature && ! hasBusiness && ! hasPremium ) {
-						btnVals = {
-							href: 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl,
-							text: __( 'Upgrade' )
-						}
+						return (
+							<Button
+								compact={ true }
+								primary={ true }
+								href={ 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl }
+							>
+								{ __( 'Upgrade' ) }
+							</Button>
+						);
 					}
 				} else {
 					btnVals = {
@@ -157,7 +162,7 @@ const ProStatus = React.createClass( {
 				);
 			}
 
-			return active && installed ?
+			return active && installed && sitePlan.product_slug ?
 				<span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>
 				: '';
 		};
