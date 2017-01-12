@@ -254,7 +254,7 @@ export const Engagement = ( props ) => {
 	);
 };
 
-const WordAdsSubHeaderTos = React.createClass( {
+export const WordAdsSubHeaderTos = React.createClass( {
 	render() {
 		return (
 			<div>
