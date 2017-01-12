@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: VideoPress
- * Module Description: Powerful, simple video hosting for WordPress
+ * Module Description: Powerful, simple video hosting for WordPress.
  * First Introduced: 2.5
  * Free: false
  * Requires Connection: Yes
