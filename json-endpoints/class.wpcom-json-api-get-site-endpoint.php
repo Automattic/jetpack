@@ -26,6 +26,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'updates'           => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
 		'jetpack_modules'   => '(array) A list of active Jetpack modules.',
 		'meta'              => '(object) Meta data',
+		'quota'             => '(array) An array describing how much space a user has left for uploads',
 	);
 
 	protected static $no_member_fields = array(
@@ -292,6 +293,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'plan' :
 				$response[ $key ] = $this->site->get_plan();
+				break;
+			case 'quota' :
+				$response[ $key ] = $this->site->get_quota();
 				break;
 		}
 
