@@ -108,7 +108,8 @@ export const Engagement = ( props ) => {
 			isModuleActive = isModuleActivated( element[0] ),
 			planLoaded = 'undefined' !== typeof props.sitePlan.product_slug,
 			hasBusiness = false,
-			hasPremiumOrBusiness = false;
+			hasPremiumOrBusiness = false,
+			wordAdsSubHeader = element[2];
 
 		hasBusiness =
 			planLoaded &&
@@ -135,6 +136,11 @@ export const Engagement = ( props ) => {
 						activated={ isModuleActive }
 						toggling={ isTogglingModule( element[0] ) }
 						toggleModule={ toggleModule } />;
+
+				// Add text about TOS if inactive
+				if ( 'wordads' === element[0] && ! isModuleActive ) {
+					wordAdsSubHeader = <WordAdsSubHeaderTos subheader={ element[2] } />
+				}
 			}
 
 			if ( isPro ) {
@@ -174,7 +180,7 @@ export const Engagement = ( props ) => {
 				className={ customClasses }
 				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 				header={ element[1] }
-				subheader={ element[2] }
+				subheader={ 'wordads' === element[0] ? wordAdsSubHeader : element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
@@ -247,6 +253,24 @@ export const Engagement = ( props ) => {
 		</div>
 	);
 };
+
+export const WordAdsSubHeaderTos = React.createClass( {
+	render() {
+		return (
+			<div>
+				{ this.props.subheader }
+				<br/>
+				<small>
+					{ __( 'By activating ads, you agree to the Automattic Ads {{link}}Terms of Service{{/link}}.', {
+						components: {
+							link: <a href="https://wordpress.com/automattic-ads-tos/" target="_blank" />
+						}
+					} ) }
+				</small>
+			</div>
+		)
+	}
+} );
 
 function renderLongDescription( module ) {
 	// Rationale behind returning an object and not just the string
