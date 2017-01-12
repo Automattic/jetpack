@@ -96,12 +96,10 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	// You can't run a Photon URL through Photon again because query strings are stripped.
 	// So if the image is already a Photon URL, append the new arguments to the existing URL.
-	if (
-		in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) )
-		|| $image_url_parts['host'] === parse_url( $custom_photon_url, PHP_URL_HOST )
-	) {
+	$is_wpcom_host = in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) );
+	if ( $is_wpcom_host || $image_url_parts['host'] === parse_url( $custom_photon_url, PHP_URL_HOST ) ) {
 		$photon_url = add_query_arg( $args, $image_url );
-		return jetpack_photon_url_scheme( $photon_url, $scheme );
+		return jetpack_photon_url_scheme( $photon_url, $is_wpcom_host ? 'https' : $scheme );
 	}
 
 	/**
@@ -235,7 +233,11 @@ add_filter( 'jetpack_photon_any_extension_for_domain',   'jetpack_photon_allow_f
 
 function jetpack_photon_url_scheme( $url, $scheme ) {
 	if ( ! in_array( $scheme, array( 'http', 'https', 'network_path' ) ) ) {
-		$scheme = 'https';
+		if ( preg_match( '#^(https?:)?//#', $url ) ) {
+			return $url;
+		}
+
+		$scheme = 'http';
 	}
 
 	if ( 'network_path' == $scheme ) {
