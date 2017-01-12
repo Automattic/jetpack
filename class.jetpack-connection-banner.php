@@ -22,43 +22,14 @@ class Jetpack_Connection_Banner {
 	 */
 	private function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
+		add_action( 'updating_jetpack_version', array( $this, 'cleanup_on_upgrade' ), 10, 2 );
 	}
 
-	/**
-	 * Checks whether the connection banner A/B test should be ran.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @param null $now
-	 *
-	 * @return bool
-	 */
-	static function check_ab_test_not_expired( $now = null ) {
-		// Get the current timestamp in GMT
-		$now = empty( $now ) ? current_time( 'timestamp', 1 ) : $now;
-
-		// Arguments are hour, minute, second, month, day, year. So, we are getting the timestamp for GMT timestamp
-		// for the 15th of December 2016.
-		$expiration = gmmktime( 0, 0, 0, 12, 15, 2016 );
-
-		return $expiration >= $now;
-	}
-
-	/**
-	 * Gets the value for which connection banner to show, and initializes if not set.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return int
-	 */
-	static function get_random_connection_banner_value() {
-		$random_connection_banner = Jetpack_Options::get_option( 'connection_banner_ab' );
-		if ( ! $random_connection_banner ) {
-			$random_connection_banner = mt_rand( 1, 2 );
-			Jetpack_Options::update_option( 'connection_banner_ab', $random_connection_banner );
+	function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
+		if ( version_compare( $old_version, '4.4', '>=' ) && version_compare( $old_version, '4.5', '<' ) ) {
+			// We don't use `Jetpack_Options` here since the option is no longer in that class.
+			delete_option( 'jetpack_connection_banner_ab' );
 		}
-
-		return $random_connection_banner;
 	}
 
 	/**
