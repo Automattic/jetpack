@@ -128,7 +128,7 @@ const PlanBody = React.createClass( {
 						includes( [ 'jetpack_premium', 'jetpack_premium_monthly', 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Ads' ) }</h3>
-								<p>{ __( 'Earn income by allowing Jetpack to insert high quality ads (powered by WordAds).' ) }</p>
+								<p>{ __( 'Earn income by allowing Jetpack to display high quality ads (powered by WordAds).' ) }</p>
 								{
 									this.props.isModuleActivated( 'wordads' ) ? (
 										<Button href={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl } className="is-primary">
