@@ -246,7 +246,7 @@ function jetpack_photon_url_scheme( $url, $scheme ) {
 		$scheme_slashes = "$scheme://";
 	}
 
-	return preg_replace( '#^[a-z:]+//#i', $scheme_slashes, $url );
+	return preg_replace( '#^([a-z:]+)?//#i', $scheme_slashes, $url );
 }
 
 function jetpack_photon_allow_facebook_graph_domain( $allow = false, $domain ) {
