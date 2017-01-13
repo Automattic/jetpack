@@ -123,6 +123,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		wp_update_post( $post );
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
