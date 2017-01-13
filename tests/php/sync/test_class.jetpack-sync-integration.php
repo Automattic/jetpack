@@ -170,6 +170,18 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
+	function test_sync_settings_updates_on_upgrade() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Jetpack_Sync_Settings::get_settings();
+
+		$this->assertEquals( 1, Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) );
+
+		/** This action is documented in class.jetpack.php */
+		do_action( 'updating_jetpack_version', '4.5', '4.3' );
+
+		$this->assertEquals( 0, Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) );
+	}
+
 	/**
 	 * Utility functions
 	 */
