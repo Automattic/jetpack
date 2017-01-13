@@ -1282,6 +1282,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 	function __construct( $attributes, $content = null ) {
 		global $post;
+		
+		// Force attributes to be an array to work on PHP 7.1
+		$attributes = (array) $attributes;
 
 		// Set up the default subject and recipient for this form
 		$default_to = '';
