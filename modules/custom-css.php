@@ -52,7 +52,9 @@ function custom_css_loaded() {
 }
 
 function custom_css_configuration_load() {
-	wp_safe_redirect( admin_url( 'themes.php?page=editcss#settingsdiv' ) );
+	wp_safe_redirect( Jetpack_Custom_CSS_Enhancements::customizer_link( array(
+		'return_url' => wp_get_referer(),
+	) ) );
 	exit;
 }
 
