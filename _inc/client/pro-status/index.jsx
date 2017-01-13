@@ -49,6 +49,10 @@ const ProStatus = React.createClass( {
 			'vaultpress/vaultpress.php' :
 			'akismet/akismet.php';
 
+		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
+			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
+			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug );
+
 		let getStatus = ( feature, active, installed ) => {
 			let vpData = this.props.getVaultPressData();
 
@@ -124,6 +128,18 @@ const ProStatus = React.createClass( {
 						href: `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }`,
 						text: __( 'Set up' )
 					}
+
+					if ( 'scan' === feature && ! hasBusiness && ! hasPremium ) {
+						return (
+							<Button
+								compact={ true }
+								primary={ true }
+								href={ 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl }
+							>
+								{ __( 'Upgrade' ) }
+							</Button>
+						);
+					}
 				} else {
 					btnVals = {
 						href: 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl,
@@ -146,7 +162,7 @@ const ProStatus = React.createClass( {
 				);
 			}
 
-			return active && installed ?
+			return active && installed && sitePlan.product_slug ?
 				<span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>
 				: '';
 		};
