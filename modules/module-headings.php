@@ -194,7 +194,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'videopress' => array(
 				'name' => _x( 'VideoPress', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Powerful, simple video hosting for WordPress', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Powerful, simple video hosting for WordPress.', 'Module Description', 'jetpack' ),
 			),
 
 			'widget-visibility' => array(
@@ -209,7 +209,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'wordads' => array(
 				'name' => _x( 'Ads', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Earn income by allowing Jetpack to insert high quality ads.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Earn income by allowing Jetpack to display high quality ads.', 'Module Description', 'jetpack' ),
 			),
 		);
 	}
