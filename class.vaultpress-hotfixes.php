@@ -61,7 +61,7 @@ class VaultPress_Hotfixes {
 					switch ( $vulnerable_script ) {
 						case 'upload.php':
 							$pma_config_file = realpath( dirname( $_SERVER['SCRIPT_FILENAME'] ) . DIRECTORY_SEPARATOR . 'paam-config-ajax.php' );
-							if ( ! in_array( $pma_config_file, get_included_files() ) ) {
+							if ( false === $pma_config_file || ! in_array( $pma_config_file, get_included_files() ) ) {
 								break;
 							}
 						default:
