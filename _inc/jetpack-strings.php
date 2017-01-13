@@ -19,9 +19,6 @@ __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/action
 __( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:35
 __( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:28
 __( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:22
-__( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:47
-__( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:37
-__( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:29
 __( "Error regenerating %(slug)s address. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:304
 __( "Regenerated %(slug)s address .", "jetpack" ), // _inc/client/state/modules/actions.js:286
 __( "Updating %(slug)s address…", "jetpack" ), // _inc/client/state/modules/actions.js:266
@@ -34,6 +31,9 @@ __( "Deactivating %(slug)s…", "jetpack" ), // _inc/client/state/modules/action
 __( "%(slug)s failed to activate. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:127
 __( "%(slug)s has been activated.", "jetpack" ), // _inc/client/state/modules/actions.js:110
 __( "Activating %(slug)s…", "jetpack" ), // _inc/client/state/modules/actions.js:94
+__( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:47
+__( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:37
+__( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:29
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:82
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:68
 __( "Show falling snow on my blog from Dec 1st until Jan 4th.", "jetpack" ), // _inc/client/appearance/index.jsx:113
@@ -116,16 +116,17 @@ __( "{{a}}Activate Protect{{/a}} to keep your site protected from malicious logi
 __( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/at-a-glance/protect.jsx:64
 __( "Total malicious attacks blocked on your site.", "jetpack" ), // _inc/client/at-a-glance/protect.jsx:52
 __( "Jetpack is actively blocking malicious login attempts. Data will display here soon!", "jetpack" ), // _inc/client/at-a-glance/protect.jsx:40
-__( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:116
-__( "For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:98
-__( "For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:90
-__( "No threats found, you're good to go!", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:80
-__( "{{a}}Contact Support{{/a}}", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:65
-__( "{{a}}View details at VaultPress.com{{/a}}", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:63
-_n( "Uh oh, %(number)s threat found.", "Uh oh, %(number)s threats found.", 1, "jetpack" ), // _inc/client/at-a-glance/scan.jsx:53
-__( "Threats found", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:50
-__( "Loading…", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:37
-__( "Security Scanning", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:28
+__( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:134
+__( "For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:116
+__( "For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:108
+__( "Loading…", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:103
+__( "No threats found, you're good to go!", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:93
+__( "{{a}}Contact Support{{/a}}", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:78
+__( "{{a}}View details at VaultPress.com{{/a}}", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:76
+_n( "Uh oh, %(number)s threat found.", "Uh oh, %(number)s threats found.", 1, "jetpack" ), // _inc/client/at-a-glance/scan.jsx:66
+__( "Threats found", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:63
+__( "Loading…", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:49
+__( "Security Scanning", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:29
 __( "{{a}}Activate Site Verification{{/a}} to verify your site and increase ranking with Google, Bing, and Pinterest.", "jetpack" ), // _inc/client/at-a-glance/site-verification.jsx:43
 __( "Site Verification Tools are active. Ensure your site is verified with Google, Bing, and Pinterest for more accurate indexing and ranking. {{a}}Verify now{{/a}}", "jetpack" ), // _inc/client/at-a-glance/site-verification.jsx:27
 __( "Site Verification Tools", "jetpack" ), // _inc/client/at-a-glance/site-verification.jsx:21
@@ -187,7 +188,7 @@ __( "13Gb of fast, optimized, and ad-free video hosting for your site (powered b
 __( "Video Hosting", "jetpack" ), // _inc/client/plans/plan-body.jsx:155
 __( "Activate Ads", "jetpack" ), // _inc/client/plans/plan-body.jsx:144
 __( "View your earnings", "jetpack" ), // _inc/client/plans/plan-body.jsx:135
-__( "Earn income by allowing Jetpack to insert high quality ads (powered by WordAds).", "jetpack" ), // _inc/client/plans/plan-body.jsx:131
+__( "Earn income by allowing Jetpack to display high quality ads (powered by WordAds).", "jetpack" ), // _inc/client/plans/plan-body.jsx:131
 __( "Ads", "jetpack" ), // _inc/client/plans/plan-body.jsx:130
 __( "Configure VaultPress", "jetpack" ), // _inc/client/plans/plan-body.jsx:119
 __( "View your security dashboard", "jetpack" ), // _inc/client/plans/plan-body.jsx:114
@@ -221,15 +222,16 @@ __( "For less than the price of a coffee a month you can rest easy knowing your 
 __( "How much is your website worth?", "jetpack" ), // _inc/client/plans/plan-header.jsx:29
 __( "The Personal Plan keeps your data, site, and hard work safe.", "jetpack" ), // _inc/client/plans/plan-header.jsx:25
 __( "Introducing our most affordable backups and security plan yet", "jetpack" ), // _inc/client/plans/plan-header.jsx:22
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:150
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:135
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:130
-__( "Set up", "jetpack" ), // _inc/client/pro-status/index.jsx:125
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:115
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:99
-__( "Invalid Key", "jetpack" ), // _inc/client/pro-status/index.jsx:81
-__( "Threats found!", "jetpack" ), // _inc/client/pro-status/index.jsx:66
-__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/pro-status/index.jsx:56
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:166
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:151
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:146
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:139
+__( "Set up", "jetpack" ), // _inc/client/pro-status/index.jsx:129
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:119
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:103
+__( "Invalid Key", "jetpack" ), // _inc/client/pro-status/index.jsx:85
+__( "Threats found!", "jetpack" ), // _inc/client/pro-status/index.jsx:70
+__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/pro-status/index.jsx:60
 __( "No Results Found.", "jetpack" ), // _inc/client/search/index.jsx:220
 __( "Learn More", "jetpack" ), // _inc/client/search/index.jsx:209
 __( "Upgrade", "jetpack" ), // _inc/client/search/index.jsx:175
