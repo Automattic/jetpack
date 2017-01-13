@@ -11,7 +11,8 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	static $activated_modules = array();
 	static $deactivated_modules = array();
 
-	function tearDown() {
+	public function tearDown() {
+		parent::tearDown();
 		Jetpack_Constants::clear_constants();
 	}
 
@@ -495,6 +496,12 @@ EXPECTED;
 	function test_is_dev_version_false_with_number_dot_number_dot_number() {
 		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3.1' );
 		$this->assertFalse( Jetpack::is_development_version() );
+	}
+
+	function test_is_development_mode_filter() {
+		add_filter( 'jetpack_development_mode', '__return_true' );
+		$this->assertTrue( Jetpack::is_development_mode() );
+		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
 
 	function test_get_sync_idc_option_sanitizes_out_www_and_protocol() {

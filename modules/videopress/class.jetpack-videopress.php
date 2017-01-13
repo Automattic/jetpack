@@ -48,9 +48,11 @@ class Jetpack_VideoPress {
 		}
 
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
-		add_action( 'admin_menu', array( $this,'change_add_new_menu_location' ), 999 );
 		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
 
+		add_filter( 'wp_mime_type_icon', array( $this, 'wp_mime_type_icon' ), 10, 3 );
+
+		$this->add_media_new_notice();
 
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
@@ -110,6 +112,22 @@ class Jetpack_VideoPress {
 	}
 
 	/**
+	 * Add a notice to the top of the media-new.php to let the user know how to upload a video.
+	 */
+	public function add_media_new_notice() {
+		global $pagenow;
+
+		if ( $pagenow != 'media-new.php' ) {
+			return;
+		}
+
+		$jitm = Jetpack_JITM::init();
+
+		add_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) );
+		add_action( 'admin_notices', array( $jitm, 'videopress_media_upload_warning_msg' ) );
+	}
+
+	/**
 	 * Register and enqueue VideoPress admin styles.
 	 */
 	public function enqueue_admin_styles() {
@@ -166,6 +184,8 @@ class Jetpack_VideoPress {
 	 * file on the WPCOM architecture, instead of the locally uplodaded file,
 	 * which doeasn't exist.
 	 *
+	 * TODO: Fix this so that it will return a VideoPress process url, to ensure that it is in MP4 format.
+	 *
 	 * @param string $url
 	 * @param int $post_id
 	 *
@@ -217,8 +237,15 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
+		$acceptable_pages = array(
+			'post-new.php',
+			'post.php',
+			'upload.php',
+			'customize.php',
+		);
+
 		// Only load on the post, new post, or upload pages.
-		if ( $pagenow !== 'post-new.php' && $pagenow !== 'post.php' && $pagenow !== 'upload.php' ) {
+		if ( !in_array( $pagenow, $acceptable_pages ) ) {
 			return false;
 		}
 
@@ -266,7 +293,6 @@ class Jetpack_VideoPress {
 	 */
 	public function change_add_new_menu_location() {
 		$page = remove_submenu_page( 'upload.php', 'media-new.php' );
-
 		add_submenu_page( 'upload.php', $page[0], $page[0], 'upload_files', 'upload.php?action=add-new');
 	}
 
@@ -295,6 +321,28 @@ class Jetpack_VideoPress {
 	 */
 	public function filter_video_mimes( $value ) {
 		return preg_match( '@^video/@', $value );
+  }
+
+	/**
+	 * @param string $icon
+	 * @param string $mime
+	 * @param int $post_id
+	 *
+	 * @return string
+	 */
+	public function wp_mime_type_icon( $icon, $mime, $post_id ) {
+
+		if ( $mime !== 'video/videopress' ) {
+			return $icon;
+		}
+
+		$status = get_post_meta( $post_id, 'videopress_status', true );
+
+		if ( $status === 'complete' ) {
+			return $icon;
+		}
+
+		return 'https://wordpress.com/wp-content/mu-plugins/videopress/images/media-video-processing-icon.png';
 	}
 }
 

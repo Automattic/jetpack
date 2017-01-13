@@ -10,7 +10,7 @@
  * Auto Activate: Yes
  * Module Tags: Photos and Videos, Social, Writing, Appearance
  * Feature: Writing
- * Additional Search Queries: shortcodes, shortcode, embeds, media, bandcamp, blip.tv, dailymotion, facebook, flickr, google calendars, google maps, google+, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube
+ * Additional Search Queries: shortcodes, shortcode, embeds, media, bandcamp, dailymotion, facebook, flickr, google calendars, google maps, google+, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube
  */
 
 /**
@@ -164,6 +164,31 @@ if ( ! function_exists( 'jetpack_shortcode_get_videopress_id' ) ) {
 			return 0;
 		}
 	}
+}
+
+/**
+ * Common element attributes parsing and sanitizing for src, width and height.
+ *
+ * @since 4.5.0
+ *
+ * @param array $attrs  With original values.
+ *
+ * @return array $attrs With sanitized values.
+ */
+function wpcom_shortcodereverse_parseattr( $attrs ) {
+	$defaults = array(
+		'src'    => false,
+		'width'  => false,
+		'height' => false,
+	);
+
+	$attrs = shortcode_atts( $defaults, $attrs );
+
+	$attrs['src']    = strip_tags( $attrs['src'] ); // For sanity
+	$attrs['width']  = ( is_numeric( $attrs['width'] ) ) ? abs( intval( $attrs['width'] ) ) : $defaults['width'];
+	$attrs['height'] = ( is_numeric( $attrs['height'] ) ) ? abs( intval( $attrs['height'] ) ) : $defaults['height'];
+
+	return $attrs;
 }
 
 jetpack_load_shortcodes();

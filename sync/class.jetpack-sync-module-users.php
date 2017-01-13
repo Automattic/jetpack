@@ -65,7 +65,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		// this create a new user object and stops the passing of the object by reference.
 		$user = unserialize( serialize( $user ) );
 
-		if ( is_object( $user->data ) ) {
+		if ( is_object( $user ) && is_object( $user->data ) ) {
 			unset( $user->data->user_pass );
 		}
 
@@ -98,7 +98,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function expand_logout_username( $args, $user_id ) {
 		$user  = get_userdata( $user_id );
 		$user  = $this->sanitize_user( $user );
-		$login = $user->data->user_login;
+		$login = '';
+		if( is_object( $user ) && is_object( $user->data ) ) {
+			$login = $user->data->user_login;
+		}
 
 		return array( $login, $user );
 	}

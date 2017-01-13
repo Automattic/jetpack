@@ -310,7 +310,7 @@ class Jetpack_JITM {
 	 */
 	function backups_updates_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$url = 'https://wordpress.com/plans/' . $normalized_site_url;
+		$url = 'https://jetpack.com/redirect/?source=jitm-backup-updates&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
 		<div class="jp-jitm" data-track="vaultpress-updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
@@ -337,7 +337,7 @@ class Jetpack_JITM {
 	 */
 	function akismet_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$url = 'https://wordpress.com/plans/' . $normalized_site_url;
+		$url = 'https://jetpack.com/redirect/?source=jitm-akismet&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'akismet' ) );
 		?>
 		<div class="jp-jitm" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
@@ -364,7 +364,7 @@ class Jetpack_JITM {
 	 */
 	function backups_after_publish_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$url = 'https://wordpress.com/plans/' . $normalized_site_url;
+		$url = 'https://jetpack.com/redirect/?source=jitm-backup-publish&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
 		<div class="jp-jitm" data-track="vaultpress-publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
@@ -384,6 +384,34 @@ class Jetpack_JITM {
 		$jetpack = Jetpack::init();
 		$jetpack->stat( 'jitm', 'vaultpress-publish-viewed-' . JETPACK__VERSION );
 		$jetpack->do_stats( 'server_side' );
+	}
+
+	/**
+	 * Display a JITM style message for the media-new page.
+	 *
+	 * @since 4.5
+	 */
+	function videopress_media_upload_warning_msg() {
+		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'videopress' ) );
+
+		$upload_url   = admin_url( 'upload.php' );
+		$new_post_url = admin_url( 'post-new.php' );
+
+		$msg = sprintf( __( 'Only videos uploaded from within the <a href="%s">media library</a> or while creating a <a href="%s">new post</a> will be fully hosted by WordPress.com.', 'jetpack' ), esc_url( $upload_url ), esc_url( $new_post_url ) );
+		?>
+        <div class="jp-jitm" data-track="videopress-upload-warning" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
+            <!-- <a href="#" data-module="videopress" class="dismiss"><span class="genericon genericon-close"></span></a>-->
+
+			<?php echo self::get_emblem(); ?>
+
+            <p class="msg">
+				<?php echo $msg; ?>
+            </p>
+            <p>
+                <a href="<?php echo esc_url( $upload_url ); ?>" title="<?php esc_attr_e( 'Upload a Video', 'jetpack' ); ?>" data-module="videopress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-videopress-upload" class="button button-jetpack launch jptracks"><?php esc_html_e( 'Upload a Video Now', 'jetpack' ); ?></a>
+            </p>
+        </div>
+		<?php
 	}
 
 	/*

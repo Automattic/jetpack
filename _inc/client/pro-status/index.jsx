@@ -27,6 +27,7 @@ import {
 } from 'state/at-a-glance';
 import {
 	getSitePlan,
+	isFetchingSiteData
 } from 'state/site';
 
 const ProStatus = React.createClass( {
@@ -47,6 +48,10 @@ const ProStatus = React.createClass( {
 			pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature ?
 			'vaultpress/vaultpress.php' :
 			'akismet/akismet.php';
+
+		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
+			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
+			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug );
 
 		let getStatus = ( feature, active, installed ) => {
 			let vpData = this.props.getVaultPressData();
@@ -85,11 +90,31 @@ const ProStatus = React.createClass( {
 			}
 
 			if ( 'seo-tools' === feature ) {
+				if ( this.props.fetchingSiteData ) {
+					return '';
+				}
+
 				return (
 					<Button
 						compact={ true }
 						primary={ true }
-						href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl }
+						href={ 'https://jetpack.com/redirect/?source=upgrade-seo&site=' + this.props.siteRawUrl + '&feature=advanced-seo' }
+					>
+						{ __( 'Upgrade' ) }
+					</Button>
+				);
+			}
+
+			if ( 'wordads' === feature ) {
+				if ( this.props.fetchingSiteData ) {
+					return '';
+				}
+
+				return (
+					<Button
+						compact={ true }
+						primary={ true }
+						href={ 'https://jetpack.com/redirect/?source=upgrade-ads&site=' + this.props.siteRawUrl + '&feature=jetpack-ads' }
 					>
 						{ __( 'Upgrade' ) }
 					</Button>
@@ -103,9 +128,21 @@ const ProStatus = React.createClass( {
 						href: `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }`,
 						text: __( 'Set up' )
 					}
+
+					if ( 'scan' === feature && ! hasBusiness && ! hasPremium ) {
+						return (
+							<Button
+								compact={ true }
+								primary={ true }
+								href={ 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl }
+							>
+								{ __( 'Upgrade' ) }
+							</Button>
+						);
+					}
 				} else {
 					btnVals = {
-						href: 'https://wordpress.com/plans/' + this.props.siteRawUrl,
+						href: 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl,
 						text: __( 'Upgrade' )
 					}
 				}
@@ -125,7 +162,7 @@ const ProStatus = React.createClass( {
 				);
 			}
 
-			return active && installed ?
+			return active && installed && sitePlan.product_slug ?
 				<span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>
 				: '';
 		};
@@ -156,7 +193,8 @@ export default connect(
 			fetchingPluginsData: isFetchingPluginsData( state ),
 			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
 			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
-			isDevMode: isDevMode( state )
+			isDevMode: isDevMode( state ),
+			fetchingSiteData: isFetchingSiteData( state )
 		};
 	}
 )( ProStatus );

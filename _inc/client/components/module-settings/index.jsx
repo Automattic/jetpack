@@ -31,6 +31,8 @@ import {
 
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 
+import ExternalLink from 'components/external-link';
+
 export let VideoPressSettings = React.createClass( {
 	render() {
 		return (
@@ -91,11 +93,11 @@ export let RelatedPostsSettings = React.createClass( {
 				{
 					previews.map( ( preview, i ) => (
 						<span key={ `preview_${ i }` } className="jp-related-posts-preview__item" >
-							{
+  							{
 								show_thumbnails ? <img src={ preview.url } /> : ''
 							}
 							<span><a href="#/engagement"> { preview.text } </a></span>
-						</span>
+  						</span>
 					) )
 				}
 			</div>
@@ -105,6 +107,19 @@ export let RelatedPostsSettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
+					{
+						__( '{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}', {
+							components: {
+								span: <span className="jp-form-setting-explanation" />,
+								ExternalLink: <ExternalLink
+									className="jp-module-settings__external-link"
+									href={ this.props.siteAdminUrl +
+									'customize.php?autofocus[section]=jetpack_relatedposts' +
+									'&return=' + encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/engagement' ) +
+									'&url=' + encodeURIComponent( this.props.lastPostUrl ) } />
+							}
+						} )
+					}
 					<ModuleSettingCheckbox
 						name={ 'show_headline' }
 						label={ __( 'Show a "Related" header to more clearly separate the related section from posts' ) }
@@ -284,7 +299,7 @@ export let ProtectSettings = React.createClass( {
 							onChange={ this.props.onOptionChange }
 							value={ this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local } />
 					</FormLabel>
-					<span className="jp-form-setting-explanation">{ __( 'IPv4 and IPv6 are acceptable. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
+					<span className="jp-form-setting-explanation">{ __( 'IPv4 and IPv6 are acceptable. Enter multiple IPs on separate lines. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
 						components: {
 							br: <br/>
 						}
@@ -308,28 +323,16 @@ ProtectSettings = moduleSettingsForm( ProtectSettings );
 export let MonitorSettings = React.createClass( {
 	render() {
 		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<ModuleSettingCheckbox
-						name={ 'monitor_receive_notifications' }
-						{ ...this.props }
-						label={ __( 'Receive Monitor Email Notifications' ) } />
-					<span className="jp-form-setting-explanation">{ __( 'Emails will be sent to ' ) + this.props.adminEmailAddress }. <span>
-						&nbsp;
-						{
-							__( '{{a}}Edit{{/a}}', {
-								components: {
-									a: <a href={ 'https://wordpress.com/settings/account/' } />
-								}
-							} )
+			<span className="jp-form-setting-explanation"><span>
+				{
+
+					__( '{{link}}Configure your Monitor notificaton settings on WordPress.com{{/link}}', {
+						components: {
+							link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={  'https://wordpress.com/settings/security/' + this.props.module.raw_url } />,
 						}
-					</span></span>
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
+					} )
+				}
+			</span></span>
 		)
 	}
 } );
@@ -828,3 +831,27 @@ export let SitemapsSettings = React.createClass( {
 } );
 
 SitemapsSettings = moduleSettingsForm( SitemapsSettings );
+
+export let WordAdsSettings = React.createClass( {
+	render() {
+		return (
+			<div>
+				<p>{ __( 'By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!' ) }</p>
+				<form onSubmit={ this.props.onSubmit } >
+					<FormFieldset>
+						<ModuleSettingCheckbox
+							name={ 'enable_header_ad' }
+							{ ...this.props }
+							label={ __( 'Display an ad unit at the top of your site.' ) } />
+						<FormButton
+							className="is-primary"
+							isSubmitting={ this.props.isSavingAnyOption() }
+							disabled={ this.props.shouldSaveButtonBeDisabled() } />
+					</FormFieldset>
+				</form>
+			</div>
+		);
+	}
+} );
+
+WordAdsSettings = moduleSettingsForm( WordAdsSettings );

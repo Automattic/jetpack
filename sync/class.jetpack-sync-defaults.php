@@ -82,6 +82,7 @@ class Jetpack_Sync_Defaults {
 		'jetpack_autoupdate_themes',
 		'jetpack_autoupdate_themes_translations',
 		'jetpack_autoupdate_core',
+		'jetpack_autoupdate_translations',
 		'carousel_background_color',
 		'carousel_display_exif',
 		'jetpack_portfolio',
@@ -108,6 +109,7 @@ class Jetpack_Sync_Defaults {
 		'uninstall_plugins',
 		'advanced_seo_front_page_description', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
 		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
+		'jetpack_api_cache_enabled',
 	);
 
 	static $default_constants_whitelist = array(
@@ -127,6 +129,7 @@ class Jetpack_Sync_Defaults {
 		'DISABLE_WP_CRON',
 		'ALTERNATE_WP_CRON',
 		'WP_CRON_LOCK_TIMEOUT',
+		'PHP_VERSION'
 	);
 
 	static $default_callable_whitelist = array(
@@ -143,6 +146,7 @@ class Jetpack_Sync_Defaults {
 		'taxonomies'                       => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
 		'post_types'                       => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
 		'post_type_features'               => array( 'Jetpack_Sync_Functions', 'get_post_type_features' ),
+		'shortcodes'                       => array( 'Jetpack_Sync_Functions', 'get_shortcodes' ),
 		'rest_api_allowed_post_types'      => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_post_types' ),
 		'rest_api_allowed_public_metadata' => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_public_metadata' ),
 		'sso_is_two_step_required'         => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
@@ -318,4 +322,5 @@ class Jetpack_Sync_Defaults {
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
 	static $default_sync_queue_lock_timeout = 120; // 2 minutes
+	static $default_cron_sync_time_limit = 30; // 30 seconds
 }

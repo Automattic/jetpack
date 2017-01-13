@@ -81,9 +81,13 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 				<p><input type="submit" value="<?php esc_html_e( 'Continue &rarr;', 'jetpack' ); ?>"></p>
 			</form>
 		<?php
-			$mathage = ob_get_contents();
+			$mathpage = ob_get_contents();
 			ob_end_clean();
-			wp_die( $mathage );
+			wp_die(
+				$mathpage,
+				'',
+				'401'
+			);
 		}
 
 		public function process_generate_math_page() {

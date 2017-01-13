@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync_start_config;
 	private $synced_user_ids;
 
-	function setUp() {
+	public function setUp() {
 		parent::setUp();
 		$this->full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
 	}

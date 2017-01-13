@@ -26,6 +26,7 @@ class Jetpack {
 	public $xmlrpc_server = null;
 
 	private $xmlrpc_verification = null;
+	private $rest_authentication_status = null;
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
@@ -52,6 +53,7 @@ class Jetpack {
 		'jetpack-top-posts-widget',
 		'jetpack_image_widget',
 		'jetpack-my-community-widget',
+		'wordads',
 	);
 
 	public $plugins_to_deactivate = array(
@@ -485,6 +487,9 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			Jetpack_Heartbeat::init();
 		}
+
+		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
+		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
 
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
@@ -2298,13 +2303,6 @@ class Jetpack {
 			$active = array_diff( $active, array( 'vaultpress' ) );
 		}
 
-		// If this plan supports videopress, force activate module
-		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
-			$active[] = 'videopress';
-		} else {
-			$active = array_diff( $active, array( 'videopress' ) );
-		}
-
 		//If protect is active on the main site of a multisite, it should be active on all sites.
 		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
 			$active[] = 'protect';
@@ -2522,6 +2520,16 @@ class Jetpack {
 				Jetpack::state( 'deactivated_plugins', $module );
 				wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
 				exit;
+			}
+		}
+
+		// Protect won't work with mis-configured IPs
+		if ( 'protect' === $module ) {
+			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+			if ( ! jetpack_protect_get_ip() ) {
+				error_log( 'hello' );
+				Jetpack::state( 'message', 'protect_misconfigured_ip' );
+				return false;
 			}
 		}
 
@@ -2783,6 +2791,10 @@ p {
 
 			Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 		}
+
+		// Delete cached connected user data
+		$transient_key = "jetpack_connected_user_data_" . get_current_user_id();
+		delete_transient( $transient_key );
 
 		// Delete all the sync related data. Since it could be taking up space.
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
@@ -4462,7 +4474,12 @@ p {
 		} elseif ( 408 == $code ) {
 			return new Jetpack_Error( 'wpcom_408', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
 		} elseif ( ! empty( $json->error ) ) {
-			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+			if ( 'xml_rpc-32700' == $json->error && ! function_exists( 'xml_parser_create' ) ) {
+				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack' );
+			} else {
+				$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+			}
+			
 			return new Jetpack_Error( (string) $json->error, $error_description, $code );
 		} elseif ( 200 != $code ) {
 			return new Jetpack_Error( 'wpcom_bad_response', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
@@ -4610,6 +4627,14 @@ p {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-ixr-client.php';
 	}
 
+	/**
+	 * Resets the saved authentication state in between testing requests.
+	 */
+	public function reset_saved_auth_state() {
+		$this->xmlrpc_verification = null;
+		$this->rest_authentication_status = null;
+	}
+
 	function verify_xml_rpc_signature() {
 		if ( $this->xmlrpc_verification ) {
 			return $this->xmlrpc_verification;
@@ -4682,6 +4707,7 @@ p {
 		} else {
 			$body = null;
 		}
+
 		$signature = $jetpack_signature->sign_current_request(
 			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body, )
 		);
@@ -4734,6 +4760,108 @@ p {
 		nocache_headers();
 
 		return new WP_User( $token_details['user_id'] );
+	}
+
+	// Authenticates requests from Jetpack server to WP REST API endpoints.
+	// Uses the existing XMLRPC request signing implementation.
+	function wp_rest_authenticate( $user ) {
+		if ( ! empty( $user ) ) {
+			// Another authentication method is in effect.
+			return $user;
+		}
+
+		if ( ! isset( $_GET['_for'] ) || $_GET['_for'] !== 'jetpack' ) {
+			// Nothing to do for this authentication method.
+			return null;
+		}
+
+		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
+			// Nothing to do for this authentication method.
+			return null;
+		}
+
+		// Ensure that we always have the request body available.  At this
+		// point, the WP REST API code to determine the request body has not
+		// run yet.  That code may try to read from 'php://input' later, but
+		// this can only be done once per request in PHP versions prior to 5.6.
+		// So we will go ahead and perform this read now if needed, and save
+		// the request body where both the Jetpack signature verification code
+		// and the WP REST API code can see it.
+		if ( ! isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ) {
+			$GLOBALS['HTTP_RAW_POST_DATA'] = file_get_contents( 'php://input' );
+		}
+		$this->HTTP_RAW_POST_DATA = $GLOBALS['HTTP_RAW_POST_DATA'];
+
+		// Only support specific request parameters that have been tested and
+		// are known to work with signature verification.  A different method
+		// can be passed to the WP REST API via the '?_method=' parameter if
+		// needed.
+		if ( $_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_request',
+				__( 'This request method is not supported.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+		if ( $_SERVER['REQUEST_METHOD'] !== 'POST' && ! empty( $this->HTTP_RAW_POST_DATA ) ) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_request',
+				__( 'This request method does not support body parameters.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+		if (
+			isset( $_SERVER['CONTENT_TYPE'] ) &&
+			$_SERVER['CONTENT_TYPE'] !== 'application/x-www-form-urlencoded' &&
+			$_SERVER['CONTENT_TYPE'] !== 'application/json'
+		) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_request',
+				__( 'This Content-Type is not supported.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+
+		$verified = $this->verify_xml_rpc_signature();
+
+		if ( is_wp_error( $verified ) ) {
+			$this->rest_authentication_status = $verified;
+			return null;
+		}
+
+		if (
+			false === $verified ||
+			! isset( $verified['type'] ) ||
+			'user' !== $verified['type'] ||
+			empty( $verified['user_id'] )
+		) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_signature',
+				__( 'The request is not signed correctly.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+
+		// Authentication successful.
+		$this->rest_authentication_status = true;
+		return $verified['user_id'];
+	}
+
+	/**
+	 * Report authentication status to the WP REST API.
+	 *
+	 * @param  WP_Error|mixed $result Error from another authentication handler, null if we should handle it, or another value if not
+	 * @return WP_Error|boolean|null {@see WP_JSON_Server::check_authentication}
+	 */
+	public function wp_rest_authentication_errors( $value ) {
+		if ( $value !== null ) {
+			return $value;
+		}
+		return $this->rest_authentication_status;
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
@@ -5661,10 +5789,15 @@ p {
 
 		// This is a silly loop depth. Better way?
 		foreach( $deprecated_list AS $hook => $hook_alt ) {
-			if( isset( $wp_filter[ $hook ] ) && is_array( $wp_filter[ $hook ] ) ) {
-				foreach( $wp_filter[$hook] AS $func => $values ) {
+			if ( has_action( $hook ) ) {
+				foreach( $wp_filter[ $hook ] AS $func => $values ) {
 					foreach( $values AS $hooked ) {
-						_deprecated_function( $hook . ' used for ' . $hooked['function'], null, $hook_alt );
+						if ( is_callable( $hooked['function'] ) ) {
+							$function_name = 'an anonymous function';
+						} else {
+							$function_name = $hooked['function'];
+						}
+						_deprecated_function( $hook . ' used for ' . $function_name, null, $hook_alt );
 					}
 				}
 			}
@@ -6203,6 +6336,10 @@ p {
 			<style>
 				.fixed .column-user_jetpack {
 					width: 21px;
+				}
+				.jp-emblem-user-admin svg {
+					width: 20px;
+					height: 20px;
 				}
 				.jp-emblem-user-admin path {
 					fill: #8cc258;

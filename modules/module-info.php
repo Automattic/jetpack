@@ -312,7 +312,7 @@ add_action( 'jetpack_learn_more_button_carousel', 'jetpack_carousel_learn_more_b
 
 function jetpack_carousel_more_info() { ?>
 	<?php esc_html_e(
-		'With Carousel active, any standard WordPress galleries you have embedded in posts or pages will
+		'With Carousel active, any standard WordPress galleries or single images you have embedded in posts or pages will
 		launch a full-screen photo browsing experience with comments and EXIF metadata.'
 		, 'jetpack' ); ?>
 <?php
@@ -625,3 +625,19 @@ function jetpack_xml_sitemap_more_info() {
 }
 add_action( 'jetpack_module_more_info_sitemaps', 'jetpack_xml_sitemap_more_info' );
 // XML Sitemap: STOP
+
+/**
+ * WordAds
+ */
+function jetpack_wordads_more_link() {
+	echo 'https://wordads.co/';
+}
+add_action( 'jetpack_learn_more_button_wordads', 'jetpack_wordads_more_link' );
+
+function jetpack_wordads_more_info() {
+	esc_html_e(
+		'By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_wordads', 'jetpack_wordads_more_info' );
+// WordAds: STOP

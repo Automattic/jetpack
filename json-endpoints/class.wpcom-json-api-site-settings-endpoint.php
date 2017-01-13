@@ -158,6 +158,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$holiday_snow = (bool) get_option( jetpack_holiday_snow_option_name() );
 				}
 
+				$api_cache = $is_jetpack ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
+
 				$response[ $key ] = array(
 
 					// also exists as "options"
@@ -214,6 +216,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
+					'api_cache'               => $api_cache,
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -416,6 +419,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							$updated[ $key ] = false;
 						}
 					} else if ( function_exists( 'jetpack_holiday_snow_option_name' ) && update_option( jetpack_holiday_snow_option_name(), 'letitsnow' ) ) {
+						$updated[ $key ] = true;
+					}
+					break;
+
+				case 'api_cache':
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( delete_option( 'jetpack_api_cache_enabled' ) ) {
+							$updated[ $key ] = false;
+						}
+					} else if ( update_option( 'jetpack_api_cache_enabled', true ) ) {
 						$updated[ $key ] = true;
 					}
 					break;

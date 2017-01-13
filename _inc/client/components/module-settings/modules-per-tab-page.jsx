@@ -27,12 +27,14 @@ import {
 	MarkdownSettings,
 	VerificationToolsSettings,
 	SitemapsSettings,
-	VideoPressSettings
+	VideoPressSettings,
+	WordAdsSettings
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
 
 import {
 	getSiteAdminUrl,
+	getSiteRawUrl
 } from 'state/initial-state';
 
 const AllModuleSettingsComponent = React.createClass( {
@@ -68,6 +70,7 @@ const AllModuleSettingsComponent = React.createClass( {
 			case 'protect':
 				return ( <ProtectSettings module={ module }  /> );
 			case 'monitor':
+				module.raw_url = this.props.siteRawUrl;
 				return ( <MonitorSettings module={ module }  /> );
 			case 'scan':
 				return '' === module.configure_url ? (
@@ -112,7 +115,7 @@ const AllModuleSettingsComponent = React.createClass( {
 			case 'stats':
 				return ( <StatsSettings module={ module }  /> );
 			case 'related-posts':
-				return ( <RelatedPostsSettings module={ module }  /> );
+				return ( <RelatedPostsSettings module={ module } lastPostUrl={ this.props.lastPostUrl } /> );
 			case 'comments':
 				return ( <CommentsSettings module={ module }  /> );
 			case 'subscriptions':
@@ -123,6 +126,8 @@ const AllModuleSettingsComponent = React.createClass( {
 				return ( <VerificationToolsSettings module={ module }  /> );
 			case 'sitemaps':
 				return ( <SitemapsSettings module={ module } { ...this.props } /> );
+			case 'wordads':
+				return ( <WordAdsSettings module={ module } /> );
 			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':
@@ -188,7 +193,8 @@ const AllModuleSettingsComponent = React.createClass( {
 export const AllModuleSettings = connect(
 	( state ) => {
 		return {
-			adminUrl: getSiteAdminUrl( state )
+			adminUrl: getSiteAdminUrl( state ),
+			siteRawUrl: getSiteRawUrl( state )
 		};
 	}
 )( AllModuleSettingsComponent );
