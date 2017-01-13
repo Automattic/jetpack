@@ -286,6 +286,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filtered_content_was_filtered() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_content = "[foo]";
 
@@ -314,6 +315,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filtered_excerpt_was_filtered() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_excerpt = "[foo]";
 
@@ -327,6 +330,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filter_do_not_expand_jetpack_shortcodes() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		add_filter( 'jetpack_sync_do_not_expand_shortcodes', array( $this, 'do_not_expand_shortcode' ) );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 
@@ -558,6 +563,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_contact_form_shortcode_from_filtered_content() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
 		$this->post->post_content = '<p>This post has a contact form:[contact-form][contact-field label=\'Name\' type=\'name\' required=\'1\'/][/contact-form]</p>';
@@ -576,6 +583,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_likes_from_filtered_content() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		// initial sync sets the screen to 'sync', then `is_admin` returns `true`
 		set_current_screen( 'front' );
 
@@ -600,6 +610,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_sharedaddy_from_filtered_content() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
 		set_current_screen( 'front' );
 		add_filter( 'sharing_show', '__return_true' );
@@ -626,6 +639,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_related_posts_from_filtered_content() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
 
@@ -646,6 +662,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_related_posts_shortcode_from_filtered_content() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
 
@@ -665,6 +684,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_that_we_apply_the_right_filters_to_post_content_and_excerpt() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		add_filter( 'the_content', array( $this, 'the_content_filter' ), 1000 );
 		add_filter( 'the_excerpt', array( $this, 'the_excerpt_filter' ), 1000 );
 
@@ -692,57 +714,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		return 'the_excerpt';
 	}
 
-	function test_embed_is_disabled_on_the_content_filter_during_sync() {
-		global $wp_version;
-		$content =
-'Check out this cool video:
-
-http://www.youtube.com/watch?v=dQw4w9WgXcQ
-
-That was a cool video.';
-
-		$oembeded =
-			'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' #DIMENSIONS# src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
-<p>That was a cool video.</p>'. "\n";
-
-		$filtered = '<p>Check out this cool video:</p>
-<p>http://www.youtube.com/watch?v=dQw4w9WgXcQ</p>
-<p>That was a cool video.</p>'. "\n";
-
-		$this->post->post_content = $content;
-
-		wp_update_post( $this->post );
-
-		$oembeded = explode( '#DIMENSIONS#', $oembeded );
-		$this->assertContains(
-			$oembeded[0],
-			apply_filters( 'the_content', $this->post->post_content ),
-			'$oembeded is NOT the same as filtered $this->post->post_content'
-		);
-		$this->assertContains(
-			$oembeded[1],
-			apply_filters( 'the_content', $this->post->post_content ),
-			'$oembeded is NOT the same as filtered $this->post->post_content'
-		);
-		$this->sender->do_sync();
-		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
-
-		$this->assertEquals( $filtered, $synced_post->post_content_filtered, '$filtered is NOT the same as $synced_post->post_content_filtered' );
-
-		// do we get the same result after the sync?
-		$this->assertContains(
-			$oembeded[0],
-			apply_filters( 'the_content', $this->post->post_content ),
-			'$oembeded is NOT the same as filtered $filtered'
-		);
-		$this->assertContains(
-			$oembeded[1],
-			apply_filters( 'the_content', $this->post->post_content ),
-			'$oembeded is NOT the same as filtered $filtered'
-		);
-	}
-
 	function test_do_not_sync_non_public_post_types_filtered_post_content() {
 		$args = array(
 			'public' => false,
@@ -761,6 +732,8 @@ That was a cool video.';
 	}
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		global $wp_version;
 

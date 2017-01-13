@@ -390,6 +390,9 @@ class Jetpack_Sync_Actions {
 		$is_new_sync_upgrade = version_compare( $old_version, '4.2', '>=' );
 		if ( ! empty( $old_version ) && $is_new_sync_upgrade && version_compare( $old_version, '4.5', '<' ) ) {
 			self::clear_sync_cron_jobs();
+			Jetpack_Sync_Settings::update_settings( array(
+				'render_filtered_content' => Jetpack_Sync_Defaults::$default_render_filtered_content
+			) );
 		}
 	}
 
