@@ -227,18 +227,6 @@ const PlanBody = React.createClass( {
 					}
 
 					{
-						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Surveys & Polls' ) }</h3>
-								<p>{ __( 'Unlimited surveys, unlimited responses. Use the survey editor to create surveys quickly and easily. Collect responses via your website, email or on your iPad or iPhone.' ) }</p>
-								<Button href="https://polldaddy.com/dashboard/" className="is-primary">
-									{ __( 'Create a new poll' ) }
-								</Button>
-							</div>
-							: ''
-					}
-
-					{
 						includes( [ 'jetpack_personal', 'jetpack_personal_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Need more? Running a business site?' ) }</h3>
@@ -246,7 +234,6 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'Daily and on-demand security scanning' ) }</p>
 								<p> &mdash; { __( 'Real-time backups and one-click threat resolution' ) }</p>
 								<p> &mdash; { __( 'Unlimited and ad-free video hosting' ) }</p>
-								<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
 								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
 								<p> &mdash; { __( 'Income generation from ads' ) }</p>
 								<p>
@@ -266,7 +253,6 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'On-demand security scanning' ) }</p>
 								<p> &mdash; { __( 'Real-time backups' ) }</p>
 								<p> &mdash; { __( 'One-click threat resolution' ) }</p>
-								<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
 								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
 								<p> &mdash; { __( 'Income generation from ads' ) }</p>
 								<p>
