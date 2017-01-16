@@ -535,8 +535,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			// track new jetpack_relatedposts options against old
 			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
 			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
-				foreach( $jetpack_relatedposts_options as $key => $value ) {
-					if ( $value !== $old_relatedposts_options[ $key ] ) {
+				foreach ( $jetpack_relatedposts_options as $key => $value ) {
+					if ( isset( $old_relatedposts_options[ $key ] ) && $value !== $old_relatedposts_options[ $key ] ) {
 						$updated[ 'jetpack_relatedposts_' . $key ] = $value;
 					}
 				}

@@ -414,7 +414,7 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 
 		// Remove menus from all custom menu widget locations
 		foreach ( $nav_menu_widgets as &$widget ) {
-			if ( is_array( $widget ) && $widget['nav_menu'] == $menu_id ) {
+			if ( is_array( $widget ) && isset( $widget['nav_menu'] ) &&  $widget['nav_menu'] == $menu_id ) {
 				$widget['nav_menu'] = 0;
 			}
 		}
