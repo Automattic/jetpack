@@ -50,11 +50,8 @@ matrix:
 #        - mysql-client-core-5.6
 #        - mysql-client-5.6
 
-#
-# Allow failure tests did not prove that useful, but we might bring them back
-# so leaving this here as a reminder
-#
-#  allow_failures:
+  allow_failures:
+  - php: "7.1"
 #  - php: "hhvm"
 #  - php: "nightly"
 
