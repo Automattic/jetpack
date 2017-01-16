@@ -77,7 +77,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.5 =
 
-* Release date: January 16, 2017
+* Release date: January 17, 2017
 * Release post: http://wp.me/p1moTy-3Kc
 
 This release introduces a brand new module, Jetpack Ads, as well as a brand new VideoPress feature, and a lot of new shortcodes and widgets.
