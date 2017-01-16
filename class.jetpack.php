@@ -4812,10 +4812,17 @@ p {
 			);
 			return null;
 		}
+
+		if ( ! empty( $_SERVER['CONTENT_TYPE'] ) ) {
+			$content_type = $_SERVER['CONTENT_TYPE'];
+		} elseif ( ! empty( $_SERVER['HTTP_CONTENT_TYPE'] ) ) {
+			$content_type = $_SERVER['HTTP_CONTENT_TYPE'];
+		}
+
 		if (
-			isset( $_SERVER['CONTENT_TYPE'] ) &&
-			$_SERVER['CONTENT_TYPE'] !== 'application/x-www-form-urlencoded' &&
-			$_SERVER['CONTENT_TYPE'] !== 'application/json'
+			isset( $content_type ) &&
+			$content_type !== 'application/x-www-form-urlencoded' &&
+			$content_type !== 'application/json'
 		) {
 			$this->rest_authentication_status = new WP_Error(
 				'rest_invalid_request',

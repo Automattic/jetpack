@@ -394,7 +394,7 @@ class Jetpack_JITM {
 	function videopress_media_upload_warning_msg() {
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'videopress' ) );
 
-		$upload_url   = admin_url( 'upload.php' );
+		$upload_url   = add_query_arg( 'mode', 'grid', admin_url( 'upload.php' ) );
 		$new_post_url = admin_url( 'post-new.php' );
 
 		$msg = sprintf( __( 'Only videos uploaded from within the <a href="%s">media library</a> or while creating a <a href="%s">new post</a> will be fully hosted by WordPress.com.', 'jetpack' ), esc_url( $upload_url ), esc_url( $new_post_url ) );

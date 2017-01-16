@@ -159,7 +159,11 @@ class Publicize extends Publicize_Base {
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
 					$verification = Jetpack::create_nonce( 'publicize' );
-
+					if ( is_wp_error( $verification ) ) {
+						$url = Jetpack::admin_url( 'jetpack#/settings' );
+						wp_die( sprintf( __( "Jetpack is not connected. Please connect Jetpack by visiting <a href='%s'>Settings</a>.", 'jetpack' ), $url ) );
+						
+					}
 					$stats_options = get_option( 'stats_options' );
 					$wpcom_blog_id = Jetpack_Options::get_option( 'id' );
 					$wpcom_blog_id = ! empty( $wpcom_blog_id ) ? $wpcom_blog_id : $stats_options['blog_id'];
@@ -450,7 +454,7 @@ class Publicize extends Publicize_Base {
 	function save_publicized( $post_ID, $post, $update ) {
 		// Only do this when a post transitions to being published
 		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
-			$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+			$connected_services = $this->get_services( 'connected' );
 			if ( ! empty( $connected_services ) ) {
 				/**
 				 * Fires when a post is saved that has is marked as pending publicizing
