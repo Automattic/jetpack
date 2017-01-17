@@ -1,5 +1,5 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 4.4.2
 Requires at least: 4.6
@@ -75,38 +75,98 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 4.4.2 =
+= 4.5 =
 
-* Release date:
-* Release post:
+* Release date: January 17, 2017
+* Release post: http://wp.me/p1moTy-3Kc
 
-**Bug Fixes**
+This release introduces a brand-new module, Jetpack Ads, a brand-new VideoPress feature, and a lot of new shortcodes and widgets.
 
-* Custom Content Types: avoid PHP warnings in the Restaurant Menu Post type. #5777
-* General: fix a bug that would display the wrong connected user for up to 24 hours after they disconnect. #5835
-* JSON API: allow creating a child category from WordPress.com. #5856
-* Sharing: ReCaptcha error fix for the Email sharing button. #5548
-* Shortcodes: add several new shortcodes. #5838
-* Shorcodes: remove the blip.tv shortcode, as the service is now extinct. #5853
-* Widget Visibility: allow display of empty categories in the dropdowns. #5770
+**Exciting New Features and Improvements:**
 
-**Improved Compatibility:**
-
-* WPML: fixed the loading of the compatibility file for WPML so it loads at the right time. #5588
-* Sync: further improve Jetpack's synchronization process to support more plugins. #5671
+* Generate revenue from your site with an all-new WordAds feature, which when enabled displays high-quality ads for your visitors.
+* Today we are proud to release a fully redesigned VideoPress interface for easy uploading, management, and add-free playback of your fantastic videos now fully integrated with your Jetpack Premium or Professional plans.
+* Spice up your sidebar with new widgets that display blog stats, author info, "Follow my blog" buttons, and even an event countdown.
+* Embed your amazing 360° photos with the VR shortcode
+* Link your visitors to your Tumblr or Twitch pages using the new icons in the Social Media Icons Widget.
 
 **Enhancements**
 
-* Carousel: add Carousel view for single images. #5469
-* Contact Form: allow site owners to set value for each option field via the shortcode. #5351
-* JSON API: allow updating translations from the API. #5552, #5594
-* JSON API: allow alternative theme installation methods via the API. #5704
-* Monitor: email checkbox with a link to manage settings on WordPress.com. #5751
-* Related Posts: allow updating Related Posts options from the customizer. #4293
-* Related Posts: add a filter allowing site owners to customize the output of the Related Posts headline. #5740
-* Theme Tools: add new Content Options to the customizer for supported themes. #5825
-* Widgets: add Blog Stats, Authors, Follow, Milestone. #5497, #5511, #5615
-* Widgets: add Tumblr and Twitch to Social Media Icons Widget. #5777, #5799
+* Use the beautiful Jetpack carousel feature to display single images.
+* Turn on and update Related Posts right from the Customizer.
+* Customize the output of the Related Posts headline using a new filter.
+
+**Performance and Security Improvements:**
+
+* Your Custom CSS will now be served in a separate stylesheet when it is more than 2,000 characters.
+* Your Stats queries are now always being made over HTTPS.
+* Holiday Snow files now load in the footer, but rest assured the snow still falls from above.
+* We have improved Jetpack's synchronization process to support more plugins and use less resources.
+* The jQuery Cycle script used by slideshow galleries is now minified, resulting in faster loading times.
+
+**Slightly Less Exciting Enhancements:**
+
+* The JSON API now allows updating translations and alternative theme installation methods.
+* Public Custom Post Types are now automatically available via the WordPress.com REST API.
+* We've added a token-based authentication mechanism to the REST API in order for the site to be able to receive authenticated requests from WordPress.com.
+* Use `sync` commands in Jetpack's WP CLI.
+* You can now set the value for options directly in the Contact Form shortcode.
+* Updated some verbiage around IP Whitelisting on the Protect settings screen.
+* Custom sharing buttons got some new variables.
+* RIP blip.tv — we've removed your shortcode.
+* Improved Image and Display Posts Widget settings to provide more explanation and better error messages.
+* We've added a few new Content Options to the Customizer for supported themes.
+* Improved the Facebook Widget to avoid confusion when editing width and height settings.
+* Added and improved a few shortcodes.
+
+**Improved Compatibility:**
+
+* If your server is misconfigured and we can't get an IP address we're going to deactivate Protect and send you a notice so you're in the loop.
+* The WPML compatibility file wasn't loading at the right time, but we've fixed that.
+* We've improved compatibility with tools like Cavalcade to avoid stuck Cron jobs.
+* Some selected WooCommerce data (order items and order item meta) are now syncing to WordPress.com.
+
+**Bug Fixes**
+
+* You'll notice numerous design improvements to the Jetpack UI.
+* Accessibility is important to us so we've made some improvements there.
+* Missing attachments in the Carousel were causing an infinite loop, but we've corrected that.
+* Eliminated a PHP Notice when running the CLI `wp jetpack` command.
+* PHP warnings in the Restaurant Menu Post type have seen their last day with us.
+* Fixed a bug that displayed the wrong connected user for up to 24 hours after they disconnected.
+* Removed a deprecated function to prevent notices when using Infinite Scroll in the Customizer.
+* Long titles in Jetpack widgets weren't looking so great, so we cleaned them up.
+* Before now you weren't able to create a child category from WordPress.com. Now you can!
+* Rogue colons were showing up in the related posts area on sites with the Twenty Fourteen and Twenty Sixteen themes.
+* Fixed a ReCaptcha error on the Email sharing button.
+* Confirmed Instagram embeds actually load when using Infinite Scroll.
+* Site Icons now display on the WordPress.com site management interface.
+* Set a default time limit of 30 seconds when sending sync requests via Cron.
+* Synchronized supported shortcodes on a site.
+* Fixed an issue where empty categories weren't showing with the Widget Visibility feature dropdown.
+* Fixed various little bugs when working with multiple widgets in the Customizer and in the Widgets admin screen.
+* Added a Translate Widget default title in case you haven't defined one.
+* The Top Posts Widget now avoids layout issues when using the Grid layout while displaying a post without an image.
+
+= 4.4.2 =
+
+* Release date: December 6, 2016
+* Release post: http://wp.me/p1moTy-3JR
+
+This release improves Jetpack compatibility with WordPress 4.7.
+
+**Compatibility changes**
+
+* Custom CSS: Made the Custom CSS feature of Jetpack compatible with the CSS Customizer editor in WordPress 4.7.
+* Sync: improved compatibility with the wp-missed-schedule plugin.
+
+**Bug Fixes**
+
+* Featured Content: made sure there is no infinite loop when removing the featured tag from the tag list.
+* Admin: made sure help tabs are not being hidden.
+* Admin: made At a Glance page work nicely when there is no backup data yet.
+* Sync: now making sure that needed classes are loaded, preventing errors.
+* Sync: cleared out unneeded scheduled jobs.
 
 = 4.4.1 =
 
