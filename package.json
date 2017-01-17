@@ -1,6 +1,6 @@
 {
   "name": "Jetpack",
-  "version": "4.4.0-alpha",
+  "version": "4.5.0-rc1",
   "description": "[Jetpack](http://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
   "homepage": "http://jetpack.com",
   "author": "Automattic",
@@ -13,15 +13,18 @@
     "url": "https://github.com/Automattic/jetpack/issues"
   },
   "scripts": {
-    "watch": "gulp watch",
+    "watch": "./node_modules/.bin/gulp watch",
     "clean-client": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map _inc/build/*.html",
     "distclean": "rm -rf node_modules",
-    "build": "yarn && gulp",
-    "build-client": "gulp",
-    "build-production": "yarn run clean && yarn run build && yarn run build-languages && gulp languages:extract && NODE_ENV=production BABEL_ENV=production yarn run build",
-    "build-languages": "gulp languages",
+    "build": "yarn && yarn build-client",
+    "build-client": "./node_modules/.bin/gulp",
+    "build-production": "yarn clean-client && yarn build-languages && ./node_modules/.bin/gulp languages:extract && NODE_ENV=production BABEL_ENV=production yarn build",
+    "build-languages": "./node_modules/.bin/gulp languages",
     "lint": "eslint _inc/client -c .eslintrc",
-    "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js"
+    "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
+    "add-textdomain": "./node_modules/.bin/grunt addtextdomain",
+    "build-pot": "./node_modules/.bin/grunt makepot",
+    "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui"
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
@@ -45,6 +48,7 @@
     "eslint-plugin-react": "3.6.3",
     "extract-text-webpack-plugin": "0.9.1",
     "glotpress-js": "0.0.6",
+    "grunt-cli": "^1.2.0",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.0.2",
     "gulp-babel": "^5.2.1",
@@ -73,6 +77,7 @@
     "history": "2.0.0",
     "i18n-calypso": "github:automattic/i18n-calypso",
     "jsdom": "^9.2.1",
+    "jsdom-global": "^2.1.0",
     "jshint": "2.9.1",
     "jshint-stylish": "~2.1.0",
     "lodash": "^4.9.0",
@@ -97,6 +102,10 @@
     "babel-register": "^6.8.0",
     "chai": "^3.5.0",
     "commander": "2.3.0",
+    "enzyme": "^2.4.1",
+    "glob": "^7.1.1",
+    "grunt": "^0.4.2",
+    "grunt-wp-i18n": "~0.4.6",
     "gulp-uglify": "^2.0.0",
     "mocha": "^2.4.5",
     "mockery": "^1.4.1",
@@ -108,6 +117,6 @@
     "webpack-dev-server": "1.14.0"
   },
   "engines": {
-    "node": ">=0.8"
+    "node": ">=5.11.1"
   }
 }

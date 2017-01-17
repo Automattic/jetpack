@@ -94,7 +94,13 @@ var webpackConfig = {
 			}
 		}),
 		new ExtractTextPlugin( '[name].dops-style.css' )
-	]
+	],
+	externals: {
+		'react/addons': true,
+		'react/lib/ExecutionEnvironment': true,
+		'react/lib/ReactContext': true,
+		jsdom: 'window'
+	}
 };
 
 if ( NODE_ENV === 'production' ) {

@@ -1,12 +1,5 @@
 <?php
 
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- */
-
 require_once dirname( __FILE__ ) . '/class.json-api-date.php';
 require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
 
@@ -87,6 +80,12 @@ abstract class SAL_Site {
 	abstract public function get_plan();
 
 	abstract public function get_ak_vp_bundle_enabled();
+
+	abstract public function get_jetpack_seo_front_page_description();
+
+	abstract public function get_jetpack_seo_title_formats();
+
+	abstract public function get_verification_services_codes();
 
 	abstract public function before_render();
 

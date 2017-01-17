@@ -52,91 +52,22 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 // GET /sites/%s/sync/status
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-
-		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-		$sender      = Jetpack_Sync_Sender::get_instance();
-		$queue       = $sender->get_sync_queue();
-		$full_queue  = $sender->get_full_sync_queue();
-		$cron_timestamps = array_keys( _get_cron_array() );
-		$cron_age = microtime( true ) - $cron_timestamps[0];
-
-		return array_merge(
-			$sync_module->get_status(),
-			array(
-				'cron_size'             => count( $cron_timestamps ),
-				'oldest_cron'           => $cron_age,
-				'queue_size'            => $queue->size(),
-				'queue_lag'             => $queue->lag(),
-				'queue_next_sync'       => ( $sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
-				'full_queue_size'       => $full_queue->size(),
-				'full_queue_lag'        => $full_queue->lag(),
-				'full_queue_next_sync'  => ( $sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
-			)
-		);
+		return Jetpack_Sync_Actions::get_sync_status();
 	}
 }
 
 // GET /sites/%s/data-check
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-
-		$sender     = Jetpack_Sync_Sender::get_instance();
-		$sync_queue = $sender->get_sync_queue();
-
-		// lock sending from the queue while we compare checksums with the server
-		$result = $sync_queue->lock( 30 ); // tries to acquire the lock for up to 30 seconds
-
-		if ( ! $result ) {
-			$sync_queue->unlock();
-
-			return new WP_Error( 'unknown_error', 'Unknown error trying to lock the sync queue' );
-		}
-
-		if ( is_wp_error( $result ) ) {
-			$sync_queue->unlock();
-
-			return $result;
-		}
-
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
-
 		$store = new Jetpack_Sync_WP_Replicastore();
-
-		$result = $store->checksum_all();
-
-		$sync_queue->unlock();
-
-		return $result;
-
+		return $store->checksum_all();
 	}
 }
 
 // GET /sites/%s/data-histogram
 class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-
-		$sender     = Jetpack_Sync_Sender::get_instance();
-		$sync_queue = $sender->get_sync_queue();
-
-		// lock sending from the queue while we compare checksums with the server
-		$result = $sync_queue->lock( 30 ); // tries to acquire the lock for up to 30 seconds
-
-		if ( ! $result ) {
-			$sync_queue->unlock();
-
-			return new WP_Error( 'unknown_error', 'Unknown error trying to lock the sync queue' );
-		}
-
-		if ( is_wp_error( $result ) ) {
-			$sync_queue->unlock();
-
-			return $result;
-		}
-
 		$args = $this->query_args();
 
 		if ( isset( $args['columns'] ) ) {
@@ -146,15 +77,9 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
-
 		$store = new Jetpack_Sync_WP_Replicastore();
 
-		$result = $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'] );
-
-		$sync_queue->unlock();
-
-		return $result;
-
+		return $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'] );
 	}
 }
 

@@ -91,7 +91,9 @@ function enhanced_og_video( $tags ) {
 
 	$tags['og:image']            = $summary['image'];
 	$tags['og:image:secure_url'] = $summary['secure']['image'];
-	$tags['og:video:type']       = 'application/x-shockwave-flash';
+
+	// This should be html by default for youtube/vimeo, since we're linking to HTML pages.
+	$tags['og:video:type'] = isset( $summary['video_type'] ) ? $summary['video_type'] : 'text/html';
 
 	$video_url        = $summary['video'];
 	$secure_video_url = $summary['secure']['video'];

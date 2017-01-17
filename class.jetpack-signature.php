@@ -59,11 +59,24 @@ class Jetpack_Signature {
 
 		$url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
 
-		if ( array_key_exists( 'body', $override ) && !is_null( $override['body'] ) ) {
+		if ( array_key_exists( 'body', $override ) && ! empty( $override['body'] ) ) {
 			$body = $override['body'];
 		} else if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 			$body = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
+
+			// Convert the $_POST to the body, if the body was empty. This is how arrays are hashed
+			// and encoded on the Jetpack side.
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				if ( empty( $body ) && is_array( $_POST ) && count( $_POST ) > 0 ) {
+					$body = $_POST;
+				}
+			}
+
 		} else {
+			$body = null;
+		}
+
+		if ( empty( $body ) ) {
 			$body = null;
 		}
 
@@ -96,6 +109,16 @@ class Jetpack_Signature {
 			return new Jetpack_Error( 'token_mismatch', 'Incorrect token' );
 		}
 
+		// If we got an array at this point, let's encode it, so we can see what it looks like as a string.
+		if ( is_array( $body ) ) {
+			if ( count( $body ) > 0 ) {
+				$body = json_encode( $body );
+
+			} else {
+				$body = '';
+			}
+		}
+
 		$required_parameters = array( 'token', 'timestamp', 'nonce', 'method', 'url' );
 		if ( !is_null( $body ) ) {
 			$required_parameters[] = 'body_hash';
@@ -114,7 +137,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		if ( is_null( $body ) ) {
+		if ( empty( $body ) ) {
 			if ( $body_hash ) {
 				return new Jetpack_Error( 'invalid_body_hash', 'The body hash does not match.' );
 			}

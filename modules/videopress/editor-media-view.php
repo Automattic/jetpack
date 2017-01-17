@@ -201,13 +201,15 @@ function videopress_media_send_to_editor( $html, $id, $attachment ) {
 	$videopress_guid = get_post_meta( $id, 'videopress_guid', true );
 	if ( $videopress_guid && videopress_is_valid_guid( $videopress_guid ) ) {
 		if ( '[video ' === substr( $html, 0, 7 ) ) {
-			$replace = sprintf( ' videopress_guid="%1$s"][/video]', esc_attr( $videopress_guid ) );
-			$html = str_replace( '][/video]', $replace, $html );
+			$html = sprintf( '[videopress %1$s]', esc_attr( $videopress_guid ) );
+
 		} elseif ( '<a href=' === substr( $html, 0, 8 ) ) {
 			// We got here because `wp_attachment_is()` returned false for
 			// video, because there isn't a local copy of the file.
 			$html = sprintf( '[videopress %1$s]', esc_attr( $videopress_guid ) );
 		}
+	} elseif ( videopress_is_attachment_without_guid( $id ) ) {
+		$html = sprintf( '[videopress postid=%d]', $id );
 	}
 	return $html;
 }

@@ -248,10 +248,17 @@ class Jetpack_Debugger {
 				<p class="jetpack-show-contact-form"><?php echo sprintf( __( 'If none of these help you find a solution, <a href="%s">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ), Jetpack::admin_url( array( 'page' => 'jetpack-debugger', 'contact' => true ) ) ); ?>
 				</p>
 				<?php endif; ?>
+				<hr />
 				<?php if ( Jetpack::is_active() ) : ?>
-					<hr />
 					<div id="connected-user-details">
 						<p><?php printf( __( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ), esc_html( Jetpack::get_master_user_email() ) ); ?></p>
+					</div>
+				<?php else : ?>
+					<div id="dev-mode-details">
+						<p><?php printf(
+							__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
+							'https://jetpack.com/support/development-mode/'
+						); ?></p>
 					</div>
 				<?php endif; ?>
 			</div>
@@ -291,7 +298,7 @@ class Jetpack_Debugger {
 					</div>
 
 					<div id="email_div" class="formbox">
-						<label class="h" for="your_email"><?php esc_html_e( 'E-mail', 'jetpack' ); ?></label>
+						<label class="h" for="your_email"><?php esc_html_e( 'Email', 'jetpack' ); ?></label>
 			  			<span class="errormsg"><?php esc_html_e( 'Use a valid email address.', 'jetpack' ); ?></span>
 						<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email, 'jetpack'); ?>" size="40">
 					</div>

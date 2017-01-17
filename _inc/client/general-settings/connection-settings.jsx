@@ -28,7 +28,7 @@ const ConnectionSettings = React.createClass( {
 
 		const maybeShowLinkUnlinkBtn = this.props.userIsMaster
 			? null
-			: <ConnectButton connectUser={ true } />;
+			: <ConnectButton connectUser={ true } from="connection-settings" />;
 
 		return this.props.isDevMode ?
 			(

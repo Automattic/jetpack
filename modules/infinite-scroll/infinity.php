@@ -768,7 +768,7 @@ class The_Neverending_Home_Page {
 			'google_analytics' => false,
 			'offset'           => self::wp_query()->get( 'paged' ),
 			'history'          => array(
-				'host'                 => preg_replace( '#^http(s)?://#i', '', untrailingslashit( get_option( 'home' ) ) ),
+				'host'                 => preg_replace( '#^http(s)?://#i', '', untrailingslashit( esc_url( get_home_url() ) ) ),
 				'path'                 => self::get_request_path(),
 				'use_trailing_slashes' => $wp_rewrite->use_trailing_slashes,
 				'parameters'           => self::get_request_parameters(),
@@ -1122,6 +1122,7 @@ class The_Neverending_Home_Page {
 	 */
 	function query() {
 		global $wp_customize;
+		global $wp_version;
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
@@ -1272,7 +1273,8 @@ class The_Neverending_Home_Page {
 			$results['type'] = 'empty';
 		}
 
-		if ( is_customize_preview() ) {
+		// This should be removed when WordPress 4.8 is released.
+		if ( version_compare( $wp_version, '4.7', '<' ) && is_customize_preview() ) {
 			$wp_customize->remove_preview_signature();
 		}
 

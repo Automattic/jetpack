@@ -31,6 +31,25 @@ import {
 
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 
+import ExternalLink from 'components/external-link';
+
+export let VideoPressSettings = React.createClass( {
+	render() {
+		return (
+			<div>
+				<p className="jp-form-setting-explanation">
+					{ __( 'The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.' ) }
+				</p>
+				<p className="jp-form-setting-explanation">
+					{ __( 'To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!' ) }
+				</p>
+			</div>
+		)
+	}
+} );
+
+VideoPressSettings = moduleSettingsForm( VideoPressSettings );
+
 export let SharedaddySettings = React.createClass( {
 	render() {
 		return (
@@ -74,11 +93,11 @@ export let RelatedPostsSettings = React.createClass( {
 				{
 					previews.map( ( preview, i ) => (
 						<span key={ `preview_${ i }` } className="jp-related-posts-preview__item" >
-							{
+  							{
 								show_thumbnails ? <img src={ preview.url } /> : ''
 							}
-							<span><a href="#/discussion"> { preview.text } </a></span>
-						</span>
+							<span><a href="#/engagement"> { preview.text } </a></span>
+  						</span>
 					) )
 				}
 			</div>
@@ -88,6 +107,19 @@ export let RelatedPostsSettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
+					{
+						__( '{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}', {
+							components: {
+								span: <span className="jp-form-setting-explanation" />,
+								ExternalLink: <ExternalLink
+									className="jp-module-settings__external-link"
+									href={ this.props.siteAdminUrl +
+									'customize.php?autofocus[section]=jetpack_relatedposts' +
+									'&return=' + encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/engagement' ) +
+									'&url=' + encodeURIComponent( this.props.lastPostUrl ) } />
+							}
+						} )
+					}
 					<ModuleSettingCheckbox
 						name={ 'show_headline' }
 						label={ __( 'Show a "Related" header to more clearly separate the related section from posts' ) }
@@ -274,7 +306,7 @@ export let ProtectSettings = React.createClass( {
 							onChange={ this.props.onOptionChange }
 							value={ this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local } />
 					</FormLabel>
-					<span className="jp-form-setting-explanation">{ __( 'IPv4 and IPv6 are acceptable. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
+					<span className="jp-form-setting-explanation">{ __( 'IPv4 and IPv6 are acceptable. Enter multiple IPs on separate lines. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
 						components: {
 							br: <br/>
 						}
@@ -298,28 +330,16 @@ ProtectSettings = moduleSettingsForm( ProtectSettings );
 export let MonitorSettings = React.createClass( {
 	render() {
 		return (
-			<form onSubmit={ this.props.onSubmit } >
-				<FormFieldset>
-					<ModuleSettingCheckbox
-						name={ 'monitor_receive_notifications' }
-						{ ...this.props }
-						label={ __( 'Receive Monitor Email Notifications' ) } />
-					<span className="jp-form-setting-explanation">{ __( 'Emails will be sent to ' ) + this.props.adminEmailAddress }. <span>
-						&nbsp;
-						{
-							__( '{{a}}Edit{{/a}}', {
-								components: {
-									a: <a href={ 'https://wordpress.com/settings/account/' } />
-								}
-							} )
+			<span className="jp-form-setting-explanation"><span>
+				{
+
+					__( '{{link}}Configure your Monitor notificaton settings on WordPress.com{{/link}}', {
+						components: {
+							link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={  'https://wordpress.com/settings/security/' + this.props.module.raw_url } />,
 						}
-					</span></span>
-					<FormButton
-						className="is-primary"
-						isSubmitting={ this.props.isSavingAnyOption() }
-						disabled={ this.props.shouldSaveButtonBeDisabled() } />
-				</FormFieldset>
-			</form>
+					} )
+				}
+			</span></span>
 		)
 	}
 } );
@@ -470,8 +490,8 @@ export let VerificationToolsSettings = React.createClass( {
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example: ' ) }
-							&lt;meta name='google-site-verification' content='<strong className="code">dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8</strong>'&gt;
+							{ __( 'Meta key example:' ) }
+							&nbsp;&lt;meta name='google-site-verification' content='<strong className="code">dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8</strong>'&gt;
 						</span>
 					</div>
 
@@ -487,8 +507,8 @@ export let VerificationToolsSettings = React.createClass( {
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example: ' ) }
-							&lt;meta name='msvalidate.01' content='<strong>12C1203B5086AECE94EB3A3D9830B2E</strong>'&gt;
+							{ __( 'Meta key example:' ) }
+							&nbsp;&lt;meta name='msvalidate.01' content='<strong>12C1203B5086AECE94EB3A3D9830B2E</strong>'&gt;
 						</span>
 					</div>
 
@@ -504,8 +524,25 @@ export let VerificationToolsSettings = React.createClass( {
 								onChange={ this.props.onOptionChange} />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
-							{ __( 'Meta key example: ' ) }
-							&lt;meta name='p:domain_verify' content='<strong>f100679e6048d45e4a0b0b92dce1efce</strong>'&gt;
+							{ __( 'Meta key example:' ) }
+							&nbsp;&lt;meta name='p:domain_verify' content='<strong>f100679e6048d45e4a0b0b92dce1efce</strong>'&gt;
+						</span>
+					</div>
+
+					<div className="dops-card">
+						<FormLabel>
+							<FormLegend>Yandex</FormLegend>
+							<TextInput
+								name={ 'yandex' }
+								value={ this.props.getOptionValue( 'yandex' ) }
+								placeholder={ 'Example: 44d68e1216009f40' }
+								className="widefat code"
+								disabled={ this.props.isUpdating( 'yandex' ) }
+								onChange={ this.props.onOptionChange} />
+						</FormLabel>
+						<span className="jp-form-setting-explanation">
+							{ __( 'Meta key example:' ) }
+							&nbsp;&lt;meta name='yandex-verification' content='<strong>44d68e1216009f40</strong>'&gt;
 						</span>
 					</div>
 
@@ -582,7 +619,7 @@ export let PostByEmailSettings = React.createClass( {
 						<div className="jp-connection-settings">
 							<div className="jp-connection-settings__headline">{ __( 'Link your account to WordPress.com to start using this feature.' ) }</div>
 							<div className="jp-connection-settings__actions">
-								<ConnectButton connectUser={ true } />
+								<ConnectButton connectUser={ true } from="post-by-email" />
 							</div>
 						</div>
 					}
@@ -801,3 +838,27 @@ export let SitemapsSettings = React.createClass( {
 } );
 
 SitemapsSettings = moduleSettingsForm( SitemapsSettings );
+
+export let WordAdsSettings = React.createClass( {
+	render() {
+		return (
+			<div>
+				<p>{ __( 'By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!' ) }</p>
+				<form onSubmit={ this.props.onSubmit } >
+					<FormFieldset>
+						<ModuleSettingCheckbox
+							name={ 'enable_header_ad' }
+							{ ...this.props }
+							label={ __( 'Display an ad unit at the top of your site.' ) } />
+						<FormButton
+							className="is-primary"
+							isSubmitting={ this.props.isSavingAnyOption() }
+							disabled={ this.props.shouldSaveButtonBeDisabled() } />
+					</FormFieldset>
+				</form>
+			</div>
+		);
+	}
+} );
+
+WordAdsSettings = moduleSettingsForm( WordAdsSettings );

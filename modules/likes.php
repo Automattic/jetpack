@@ -299,7 +299,7 @@ class Jetpack_Likes {
 	<script type="text/javascript">
 	jQuery( function( $ )  {
 		var table = $( '#social_notifications_like' ).parents( 'table:first' ),
-			header = table.prevAll( 'h3:first' ),
+			header = table.prevAll( 'h2:first' ),
 			newParent = $( '#moderation_notify' ).parent( 'label' ).parent();
 
 		if ( !table.length || !header.length || !newParent.length ) {
@@ -974,6 +974,7 @@ class Jetpack_Likes {
 	 * similar logic and filters apply here, too.
 	 */
 	function is_likes_visible() {
+		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
 		if ( Jetpack_Sync_Settings::is_syncing() ) {
 			return false;
 		}

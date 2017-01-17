@@ -102,7 +102,17 @@ class Jetpack_PostImages {
 
 		$permalink = get_permalink( $post->ID );
 
+		/**
+		 *  Juggle global post object because the gallery shortcode uses the
+		 *  global object.
+		 *
+		 *  See core ticket:
+		 *  https://core.trac.wordpress.org/ticket/39304
+		 */
+		$juggle_post = $GLOBALS['post'];
+		$GLOBALS['post'] = $post;
 		$galleries = get_post_galleries( $post->ID, false );
+		$GLOBALS['post'] = $juggle_post;
 
 		foreach ( $galleries as $gallery ) {
 			if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] && ! empty( $gallery['ids'] ) ) {
@@ -353,8 +363,8 @@ class Jetpack_PostImages {
 			}
 
 			$url = blavatar_url( $domain, 'img', $size );
-		} elseif ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) {
-			$url = jetpack_site_icon_url( null, $size, $default = false );
+		} elseif ( function_exists( 'has_site_icon' ) && has_site_icon() ) {
+			$url = get_site_icon_url( $size );
 		} else {
 			return array();
 		}

@@ -183,8 +183,16 @@ export function getModuleOption( state, module_slug, option_name ) {
 	return get( state.jetpack.modules.items, [ module_slug, 'options', option_name, 'current_value' ] );
 }
 
-export function getModuleOptionValidValues( state, module_slug, option_name ) {
-	return get( state.jetpack.modules.items, [ module_slug, 'options', option_name, 'enum' ], false );
+/**
+ * Return a list of key & value pairs admitted.
+ *
+ * @param  {Object}  state   Global state tree.
+ * @param  {String}  group   Slug of the set of settings to check.
+ * @param  {String}  setting Setting to check for valid values.
+ * @return {Array}           The list of key => value pairs.
+ */
+export function getModuleOptionValidValues( state, group, setting ) {
+	return get( state.jetpack.modules.items, [ group, 'options', setting, 'enum_labels' ], false );
 }
 
 /**

@@ -7,7 +7,9 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 	protected $sharing_service;
 
 	protected function setup() {
-		$this->sharing_service = new Sharing_Service();
+		if ( class_exists( 'Sharing_Service' ) ) {
+			$this->sharing_service = new Sharing_Service();
+		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error( 'forbidden', 'You do not have the capability to manage sharing buttons for this site', 403 );
@@ -30,7 +32,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 			// Status is either "disabled" or the visibility value
 			$response['visibility'] = $this->get_button_visibility( $button );
 		}
-		
+
 		if ( ! empty( $button->icon ) ) {
 			// Only pre-defined sharing buttons include genericon
 			$response['genericon'] = $button->icon;
@@ -137,7 +139,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 		if ( $visibility_changed || $is_disabling ) {
 			// Remove from all other visibilities
 			foreach ( $blog_services as $service_visibility => $services ) {
-				if ( $service_visibility !== $button['visibility'] || $is_disabling ) {
+				if ( $is_disabling || $service_visibility !== $button['visibility']  ) {
 					unset( $blog_services[ $service_visibility ][ $service_id ] );
 				}
 			}

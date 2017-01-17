@@ -384,6 +384,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'safehtml' :
 			$return[$key] = wp_kses( (string) $value, wp_kses_allowed_html() );
 			break;
+		case 'zip' :
 		case 'media' :
 			if ( is_array( $value ) ) {
 				if ( isset( $value['name'] ) && is_array( $value['name'] ) ) {
@@ -1168,7 +1169,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$file = basename( wp_get_attachment_url( $media_item->ID ) );
 		$file_info = pathinfo( $file );
-		$ext  = $file_info['extension'];
+		$ext  = isset( $file_info['extension'] ) ? $file_info['extension'] : null;
 
 		$response = array(
 			'ID'           => $media_item->ID,
@@ -1474,17 +1475,30 @@ abstract class WPCOM_JSON_API_Endpoint {
 	function copy_hooks( $from_hook, $to_hook, $base_paths ) {
 		global $wp_filter;
 		foreach ( $wp_filter as $hook => $actions ) {
-			if ( $from_hook <> $hook )
+
+			if ( $from_hook != $hook ) {
 				continue;
+			}
+
 			foreach ( (array) $actions as $priority => $callbacks ) {
 				foreach( $callbacks as $callback_key => $callback_data ) {
 					$callback = $callback_data['function'];
-					$reflection = $this->get_reflection( $callback ); // use reflection api to determine filename where function is defined
+
+					// use reflection api to determine filename where function is defined
+					$reflection = $this->get_reflection( $callback );
+
 					if ( false !== $reflection ) {
 						$file_name = $reflection->getFileName();
 						foreach( $base_paths as $base_path ) {
-							if ( 0 === strpos( $file_name, $base_path ) ) { // only copy hooks with functions which are part of the specified files
-								$wp_filter[ $to_hook ][ $priority ][ 'cph' . $callback_key ] = $callback_data;
+
+							// only copy hooks with functions which are part of the specified files
+							if ( 0 === strpos( $file_name, $base_path ) ) {
+								add_action(
+									$to_hook,
+									$callback_data['function'],
+									$priority,
+									$callback_data['accepted_args']
+								);
 							}
 						}
 					}
@@ -1539,18 +1553,30 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	function is_post_type_allowed( $post_type ) {
 		// if the post type is empty, that's fine, WordPress will default to post
-		if ( empty( $post_type ) )
+		if ( empty( $post_type ) ) {
 			return true;
+		}
 
 		// allow special 'any' type
-		if ( 'any' == $post_type )
+		if ( 'any' == $post_type ) {
 			return true;
+		}
 
 		// check for allowed types
-		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) )
+		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) ) {
 			return true;
+		}
 
-		return false;
+		if ( $post_type_object = get_post_type_object( $post_type ) ) {
+			if ( ! empty( $post_type_object->show_in_rest ) ) {
+				return $post_type_object->show_in_rest;
+			}
+			if ( ! empty( $post_type_object->publicly_queryable ) ) {
+				return $post_type_object->publicly_queryable;
+			}
+		}
+
+		return ! empty( $post_type_object->public );
 	}
 
 	/**

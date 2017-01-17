@@ -11,7 +11,8 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	static $activated_modules = array();
 	static $deactivated_modules = array();
 
-	function tearDown() {
+	public function tearDown() {
+		parent::tearDown();
 		Jetpack_Constants::clear_constants();
 	}
 
@@ -158,7 +159,7 @@ EXPECTED;
 
 		$this->assertTrue( $seen_bundle );
 	}
-	
+
 	/**
 	 * @author tonykova
 	 * @covers Jetpack::implode_frontend_css
@@ -276,7 +277,7 @@ EXPECTED;
 		$editor_user = $this->factory->user->create( array( 'role' => 'editor' ) );
 		wp_update_user( array( 'ID' => $editor_user, 'role' => 'administrator' ) );
 
-		$this->assertEquals( 0, get_transient( 'jetpack_other_linked_admins' ) );
+		$this->assertFalse( get_transient( 'jetpack_other_linked_admins' ) );
 	}
 
 	public function test_demoting_admin_clear_other_linked_admins_transiet() {
@@ -284,7 +285,18 @@ EXPECTED;
 		$admin_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_update_user( array( 'ID' => $admin_user, 'role' => 'editor' ) );
 
-		$this->assertEquals( 0, get_transient( 'jetpack_other_linked_admins' ) );
+		$this->assertFalse( get_transient( 'jetpack_other_linked_admins' ) );
+	}
+
+	public function test_null_old_roles_clears_linked_admins_transient() {
+		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
+		$admin_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_update_user( array( 'ID' => $admin_user, 'role' => 'editor' ) );
+
+		/** This action is documented in wp-includes/class-wp-user.php */
+		do_action( 'set_user_role', $admin_user, 'contributor' );
+
+		$this->assertFalse( get_transient( 'jetpack_other_linked_admins' ) );
 	}
 
 	function test_changing_non_admin_roles_does_not_clear_other_linked_admins_transient() {
@@ -303,8 +315,20 @@ EXPECTED;
 		$this->assertFalse( Jetpack::get_other_linked_admins() );
 	}
 
-	function test_idc_optin_defaults_to_false() {
+	function test_idc_optin_default() {
+		if ( is_multisite() ) {
+			$this->assertFalse( Jetpack::sync_idc_optin() );
+		} else {
+			$this->assertTrue( Jetpack::sync_idc_optin() );
+		}
+	}
+
+	function test_idc_optin_false_when_sunrise() {
+		Jetpack_Constants::set_constant( 'SUNRISE', true );
+
 		$this->assertFalse( Jetpack::sync_idc_optin() );
+
+		Jetpack_Constants::clear_constants();
 	}
 
 	function test_idc_optin_filter_overrides_development_version() {
@@ -474,6 +498,12 @@ EXPECTED;
 		$this->assertFalse( Jetpack::is_development_version() );
 	}
 
+	function test_is_development_mode_filter() {
+		add_filter( 'jetpack_development_mode', '__return_true' );
+		$this->assertTrue( Jetpack::is_development_mode() );
+		remove_filter( 'jetpack_development_mode', '__return_true' );
+	}
+
 	function test_get_sync_idc_option_sanitizes_out_www_and_protocol() {
 		$original_home    = get_option( 'home' );
 		$original_siteurl = get_option( 'siteurl' );
@@ -487,7 +517,7 @@ EXPECTED;
 		);
 
 		$this->assertSame( $expected, Jetpack::get_sync_error_idc_option() );
-		
+
 		// Cleanup
 		update_option( 'home', $original_home );
 		update_option( 'siteurl', $original_siteurl );

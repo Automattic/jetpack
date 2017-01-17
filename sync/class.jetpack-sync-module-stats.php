@@ -23,6 +23,6 @@ class Jetpack_Sync_Module_Stats extends Jetpack_Sync_Module {
 	}
 
 	public function add_stats() {
-		return array( Jetpack::get_stat_data( false ) );
+		return array( Jetpack::get_stat_data( false, false ) );
 	}
 }

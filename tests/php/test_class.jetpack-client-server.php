@@ -2,9 +2,12 @@
 
 class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
-	public function setUp() {
+	static public function setUpBeforeClass() {
+		parent::setUpBeforeClass();
 		self::$ignore_files = TRUE;
+	}
 
+	public function setUp() {
 		parent::setUp();
 	}
 

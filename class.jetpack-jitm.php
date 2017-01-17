@@ -40,7 +40,12 @@ class Jetpack_JITM {
 		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
-
+	
+	function get_emblem()
+	{
+		return '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
+	}
+	
 	/**
 	 * Prepare actions according to screen and post type.
 	 *
@@ -83,9 +88,8 @@ class Jetpack_JITM {
 		<div class="jp-jitm">
 			<a href="#" data-module="manage" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-			<div class="jp-emblem">
-				<?php echo Jetpack::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
+
 			<p class="msg">
 				<?php esc_html_e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
 			</p>
@@ -114,9 +118,8 @@ class Jetpack_JITM {
 		<div class="jp-jitm">
 			<a href="#" data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-			<div class="jp-emblem">
-				<?php echo Jetpack::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
+
 			<p class="msg">
 				<?php esc_html_e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
 			</p>
@@ -143,9 +146,8 @@ class Jetpack_JITM {
 			<div class="jp-jitm" data-track="photon-modal">
 				<a href="#" data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-				<div class="jp-emblem">
-					<?php echo Jetpack::get_jp_emblem(); ?>
-				</div>
+				<?php echo self::get_emblem(); ?>
+
 				<p class="msg">
 					<?php esc_html_e( 'Let Jetpack deliver your images optimized and faster than ever.', 'jetpack' ); ?>
 				</p>
@@ -211,9 +213,8 @@ class Jetpack_JITM {
 			<div class="jp-jitm">
 				<a href="#" data-module="manage-pi" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-				<div class="jp-emblem">
-					<?php echo Jetpack::get_jp_emblem(); ?>
-				</div>
+			<?php echo self::get_emblem(); ?>
+
 				<?php if ( ! $manage_active ) : ?>
 					<p class="msg">
 						<?php esc_html_e( 'Save time with automated plugin updates.', 'jetpack' ); ?>
@@ -253,9 +254,7 @@ class Jetpack_JITM {
 			?>
 			<div class="jp-jitm">
 				<a href="#"  data-module="editor" class="dismiss"><span class="genericon genericon-close"></span></a>
-				<div class="jp-emblem">
-					<?php echo Jetpack::get_jp_emblem(); ?>
-				</div>
+				<?php echo self::get_emblem(); ?>
 				<p class="msg">
 					<?php esc_html_e( 'Try the brand new editor.', 'jetpack' ); ?>
 				</p>
@@ -283,10 +282,7 @@ class Jetpack_JITM {
 		?>
 		<div class="jp-jitm">
 			<a href="#" data-module="stats" class="dismiss"><span class="genericon genericon-close"></span></a>
-
-			<div class="jp-emblem">
-				<?php echo Jetpack::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
 			<p class="msg">
 				<?php esc_html_e( 'Track detailed stats on this post and the rest of your site.', 'jetpack' ); ?>
 			</p>
@@ -314,15 +310,12 @@ class Jetpack_JITM {
 	 */
 	function backups_updates_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$url = 'https://wordpress.com/plans/' . $normalized_site_url;
+		$url = 'https://jetpack.com/redirect/?source=jitm-backup-updates&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
 		<div class="jp-jitm" data-track="vaultpress-updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
 			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
-
-			<div class="jp-emblem">
-				<?php echo self::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
 			<p class="msg">
 				<?php esc_html_e( 'Backups are recommended to protect your site before you make any changes.', 'jetpack' ); ?>
 			</p>
@@ -344,15 +337,12 @@ class Jetpack_JITM {
 	 */
 	function akismet_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$url = 'https://wordpress.com/plans/' . $normalized_site_url;
+		$url = 'https://jetpack.com/redirect/?source=jitm-akismet&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'akismet' ) );
 		?>
 		<div class="jp-jitm" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
 			<a href="#" data-module="akismet" class="dismiss"><span class="genericon genericon-close"></span></a>
-
-			<div class="jp-emblem">
-				<?php echo self::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
 			<p class="msg">
 				<?php esc_html_e( "Spam affects your site's legitimacy, protect your site with Akismet.", 'jetpack' ); ?>
 			</p>
@@ -374,15 +364,14 @@ class Jetpack_JITM {
 	 */
 	function backups_after_publish_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$url = 'https://wordpress.com/plans/' . $normalized_site_url;
+		$url = 'https://jetpack.com/redirect/?source=jitm-backup-publish&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
 		<div class="jp-jitm" data-track="vaultpress-publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
 			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-			<div class="jp-emblem">
-				<?php echo self::get_jp_emblem(); ?>
-			</div>
+			<?php echo self::get_emblem(); ?>
+
 			<p class="msg">
 				<?php esc_html_e( "Great job! Now let's make sure your hard work is never lost, backup everything with VaultPress.", 'jetpack' ); ?>
 			</p>
@@ -395,6 +384,34 @@ class Jetpack_JITM {
 		$jetpack = Jetpack::init();
 		$jetpack->stat( 'jitm', 'vaultpress-publish-viewed-' . JETPACK__VERSION );
 		$jetpack->do_stats( 'server_side' );
+	}
+
+	/**
+	 * Display a JITM style message for the media-new page.
+	 *
+	 * @since 4.5
+	 */
+	function videopress_media_upload_warning_msg() {
+		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'videopress' ) );
+
+		$upload_url   = add_query_arg( 'mode', 'grid', admin_url( 'upload.php' ) );
+		$new_post_url = admin_url( 'post-new.php' );
+
+		$msg = sprintf( __( 'Only videos uploaded from within the <a href="%s">media library</a> or while creating a <a href="%s">new post</a> will be fully hosted by WordPress.com.', 'jetpack' ), esc_url( $upload_url ), esc_url( $new_post_url ) );
+		?>
+        <div class="jp-jitm" data-track="videopress-upload-warning" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
+            <!-- <a href="#" data-module="videopress" class="dismiss"><span class="genericon genericon-close"></span></a>-->
+
+			<?php echo self::get_emblem(); ?>
+
+            <p class="msg">
+				<?php echo $msg; ?>
+            </p>
+            <p>
+                <a href="<?php echo esc_url( $upload_url ); ?>" title="<?php esc_attr_e( 'Upload a Video', 'jetpack' ); ?>" data-module="videopress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-videopress-upload" class="button button-jetpack launch jptracks"><?php esc_html_e( 'Upload a Video Now', 'jetpack' ); ?></a>
+            </p>
+        </div>
+		<?php
 	}
 
 	/*
@@ -454,13 +471,15 @@ class Jetpack_JITM {
 		return is_array( self::$jetpack_hide_jitm );
 	}
 }
-/**
- * Filter to turn off all just in time messages
- *
- * @since 3.7.0
- *
- * @param bool true Whether to show just in time messages.
- */
-if ( apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
+if (
+	/**
+	 * Filter to turn off all just in time messages
+	 *
+	 * @since 3.7.0
+	 *
+	 * @param bool true Whether to show just in time messages.
+	 */
+	apply_filters( 'jetpack_just_in_time_msgs', false )
+) {
 	Jetpack_JITM::init();
 }

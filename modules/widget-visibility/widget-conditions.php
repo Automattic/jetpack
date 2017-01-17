@@ -46,7 +46,7 @@ class Jetpack_Widget_Conditions {
 				<option value=""><?php _e( 'All category pages', 'jetpack' ); ?></option>
 				<?php
 
-				$categories = get_categories( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
+				$categories = get_categories( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC', 'hide_empty' => false ) );
 				usort( $categories, array( __CLASS__, 'strcasecmp_name' ) );
 
 				foreach ( $categories as $category ) {
@@ -86,7 +86,7 @@ class Jetpack_Widget_Conditions {
 				<option value=""><?php _e( 'All tag pages', 'jetpack' ); ?></option>
 				<?php
 
-				$tags = get_tags( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
+				$tags = get_tags( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC', 'hide_empty' => false ) );
 				usort( $tags, array( __CLASS__, 'strcasecmp_name' ) );
 
 				foreach ( $tags as $tag ) {
@@ -142,8 +142,21 @@ class Jetpack_Widget_Conditions {
 				?>
 				<option value=""><?php _e( 'All taxonomy pages', 'jetpack' ); ?></option>
 				<?php
-
-				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
+				$taxonomies = get_taxonomies(
+					/**
+					 * Filters args passed to get_taxonomies.
+					 *
+					 * @see https://developer.wordpress.org/reference/functions/get_taxonomies/
+					 *
+					 * @since 4.4.0
+					 *
+					 * @module widget-visibility
+					 *
+					 * @param array $args Widget Visibility taxonomy arguments.
+					 */
+					apply_filters( 'jetpack_widget_visibility_tax_args', array( '_builtin' => false ) ),
+					'objects'
+				);
 				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
 
 				$parts = explode( '_tax_', $minor );

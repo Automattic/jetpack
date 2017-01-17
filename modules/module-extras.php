@@ -15,10 +15,15 @@ $tools = array(
 	'theme-tools/site-logo.php',
 	'theme-tools/site-breadcrumbs.php',
 	'theme-tools/social-menu.php',
+	'theme-tools/content-options.php',
 	'custom-post-types/comics.php',
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
 	'theme-tools.php',
+	'seo-tools/jetpack-seo-utils.php',
+	'seo-tools/jetpack-seo-titles.php',
+	'seo-tools/jetpack-seo-posts.php',
+	'verification-tools/verification-tools-utils.php',
 );
 
 /**

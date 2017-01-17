@@ -75,11 +75,37 @@ new Jetpack_JSON_API_Themes_List_Endpoint( array(
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-get-endpoint.php' );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-new-endpoint.php' );
+
+// POST /sites/%s/themes/%new
+new Jetpack_JSON_API_Themes_New_Endpoint( array(
+	'description'     => 'Install a theme to your jetpack blog',
+	'group'           => '__do_not_document',
+	'stat'            => 'themes:new',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/themes/new',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'zip'       => '(zip) Theme package zip file. multipart/form-data encoded. ',
+	),
+	'response_format' => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/new'
+) );
+
+
+
 new Jetpack_JSON_API_Themes_Get_Endpoint( array(
 	'description'     => 'Get a single theme on a jetpack blog',
 	'group'           => '__do_not_document',
 	'stat'            => 'themes:get:1',
-	'method'          => 'POST',
+	'method'          => 'GET',
 	'path'            => '/sites/%s/themes/%s',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
@@ -240,6 +266,28 @@ new Jetpack_JSON_API_Plugins_Get_Endpoint( array(
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-endpoint.php' );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-new-endpoint.php' );
+// POST /sites/%s/plugins/new
+new Jetpack_JSON_API_Plugins_New_Endpoint( array(
+	'description'     => 'Install a plugin to a Jetpack site by uploading a zip file',
+	'group'           => '__do_not_document',
+	'stat'            => 'plugins:new',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/plugins/new',
+	'path_labels' => array(
+		'$site'   => '(int|string) Site ID or domain',
+	),
+	'request_format' => array(
+		'zip'       => '(zip) Plugin package zip file. multipart/form-data encoded. ',
+	),
+	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/new'
+) );
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'description'     => 'Activate/Deactivate a Plugin on your Jetpack Site, or set automatic updates',
@@ -611,7 +659,7 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue',
 		'full_queue_next_sync' => '(float) Time in seconds before trying to sync the full sync queue again',
 		'cron_size' => '(int) Size of the current cron array',
-		'oldest_cron' => '(int) Age in seconds of the oldest scheduled cron job - a good indicator if cron isn\'t running',
+		'next_cron' => '(int) The number of seconds till the next item in cron.',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
 ) );
@@ -848,6 +896,76 @@ new Jetpack_JSON_API_Maybe_Auto_Update_Endpoint( array(
 
 ) );
 
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-translations-endpoint.php' );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-translations-modify-endpoint.php' );
+
+new Jetpack_JSON_API_Translations_Endpoint( array(
+	'description'     => 'Gets info about a Jetpack blog\'s core installation',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/translations',
+	'stat'            => 'translations',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'translations' => '(array) A list of translations that are available',
+		'autoupdate' => '(bool) Whether or not we automatically update translations',
+		'log'     => '(array:safehtml) An array of log strings.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/translations'
+) );
+
+new Jetpack_JSON_API_Translations_Modify_Endpoint( array(
+	'description'     => 'Toggle automatic core updates for a Jetpack blog',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/translations',
+	'stat'            => 'translations',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'autoupdate'   => '(bool) Whether or not we automatically update translations',
+	),
+	'response_format' => array(
+		'translations' => '(array) A list of translations that are available',
+		'autoupdate' => '(bool) Whether or not we automatically update translations',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'autoupdate' => true,
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/translations'
+) );
+
+new Jetpack_JSON_API_Translations_Modify_Endpoint( array(
+	'description'     => 'Update All Translations installation on a Jetpack blog',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/translations/update',
+	'stat'            => 'translations:update',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'log'     => '(array:safehtml) An array of log strings.',
+		'success' => '(bool) Was the operation successful'
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/translations/update'
+) );
+
 // Options
 require_once( $json_jetpack_endpoints_dir . 'class.wpcom-json-api-get-option-endpoint.php' );
 
@@ -900,6 +1018,114 @@ new WPCOM_JSON_API_Update_Option_Endpoint( array (
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 		'body' => array(
 			'option_value' => 'My new blog name'
+		),
+	),
+) );
+
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-cron-endpoint.php' );
+
+// GET /sites/%s/cron
+new Jetpack_JSON_API_Cron_Endpoint( array(
+	'description'     => 'Fetches the cron array',
+	'group'           => '__do_not_document',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/cron',
+	'stat'            => 'cron-get',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'cron_array' => '(array) The cron array',
+		'current_timestamp' => '(int) Current server timestamp'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/cron',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+) );
+
+// POST /sites/%s/cron
+new Jetpack_JSON_API_Cron_Post_Endpoint( array(
+	'description'     => 'Process items in the cron',
+	'group'           => '__do_not_document',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/cron',
+	'stat'            => 'cron-run',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'hooks'       => '(array) List of hooks to run if they have been scheduled (optional)',
+	),
+	'response_format' => array(
+		'success' => '(array) Of processed hooks with their arguments'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/cron',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'hooks'   => array( 'jetpack_sync_cron' )
+		),
+	),
+) );
+
+// POST /sites/%s/cron/schedule
+new Jetpack_JSON_API_Cron_Schedule_Endpoint( array(
+	'description'     => 'Schedule one or a recurring hook to fire at a particular time',
+	'group'           => '__do_not_document',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/cron/schedule',
+	'stat'            => 'cron-schedule',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'hook'             => '(string) Hook name that should run when the event is scheduled',
+		'timestamp'        => '(int) Timestamp when the event should take place, has to be in the future',
+		'arguments'        => '(string) JSON Object of arguments that the hook will use (optional)',
+		'recurrence'       => '(string) How often the event should take place. If empty only one event will be scheduled. Possible values 1min, hourly, twicedaily, daily (optional) '
+	),
+	'response_format' => array(
+		'success' => '(bool) Was the event scheduled?'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/cron/schedule',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'hook'      => 'jetpack_sync_cron',
+			'arguments' => '[]',
+			'recurrence'=> '1min',
+			'timestamp' => 1476385523
+		),
+	),
+) );
+
+// POST /sites/%s/cron/unschedule
+new Jetpack_JSON_API_Cron_Unschedule_Endpoint( array(
+	'description'     => 'Unschedule one or all events with a particular hook and arguments',
+	'group'           => '__do_not_document',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/cron/unschedule',
+	'stat'            => 'cron-unschedule',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'hook'             => '(string) Name of the hook that should be unscheduled',
+		'timestamp'        => '(int) Timestamp of the hook that you want to unschedule. This will unschedule only 1 event. (optional)',
+		'arguments'        => '(string) JSON Object of arguments that the hook has been scheduled with (optional)',
+	),
+	'response_format' => array(
+		'success' => '(bool) Was the event unscheduled?'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/cron/unschedule',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'hook'      => 'jetpack_sync_cron',
+			'arguments' => '[]',
+			'timestamp' => 1476385523
 		),
 	),
 ) );

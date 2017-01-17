@@ -1,0 +1,56 @@
+div.quiz {
+	border: 1px solid #deede3;
+	background-color: #f3f3f3;
+	padding: 1em;
+	line-height: 1.3em;
+	margin-bottom: 2em;
+	border-radius: .2em;
+}
+
+div.quiz div.question {
+	margin-bottom: .5em;
+	font-weight: bold;
+}
+
+div.quiz div.answer {
+	cursor: pointer;
+	margin-bottom: .5em;
+	padding: 1em 0 1em 1em;
+	border-bottom: 1px dotted #999;
+}
+div.quiz div.answer.last {
+	padding-bottom: 0;
+	margin-bottom: 0;
+	border-bottom: 0;
+}
+
+div.quiz div.answer.correct {
+	color: green;
+}
+
+div.quiz div.answer.wrong {
+	color: red;
+}
+
+div.quiz div.answer div.explanation {
+	display: none;
+}
+
+div.quiz div.answer.correct div.explanation, div.quiz div.answer.wrong div.explanation {
+	display: block;
+	color: black;
+	font-size: 90%;
+	margin-top: 1em;
+}
+
+div.quiz div.answer.correct div.explanation tt, div.quiz div.answer.wrong div.explanation tt {
+	font-size: 85%;
+}
+
+div.quiz pre {
+	font: 15px Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
+	background: transparent;
+	margin: 0;
+	padding: 0;
+}
+
