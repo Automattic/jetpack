@@ -17,7 +17,11 @@ import Gridicon from 'components/gridicon';
 /**
  * Internal dependencies
  */
-import { filterSearch } from 'state/search';
+import {
+	filterSearch,
+	focusSearch,
+	getSearchFocus as _getSearchFocus
+} from 'state/search';
 import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber
@@ -31,19 +35,42 @@ export const NavigationSettings = React.createClass( {
 		if ( currentHash.indexOf( 'search' ) === -1 ) {
 			window.location.hash = 'search';
 		}
+		this.props.onSearchFocus( true );
 	},
 
 	onSearch( term ) {
 		if ( term.length >= 3 ) {
 			analytics.tracks.recordEvent( 'jetpack_wpa_search_term', { term: term.toLowerCase() } );
 		}
+
 		this.props.searchForTerm( trim( term || '' ).toLowerCase() );
+
+		if ( 0 === term.length ) {
+
+			// Calling close handler to show what was previously shown to the user
+			this.onClose();
+		} else {
+
+			// Calling open handler in case the search was previously closed due to zero
+			// length search term
+			this.openSearch();
+		}
 	},
 
 	onClose: function() {
 		let currentHash = window.location.hash;
 		if ( currentHash.indexOf( 'search' ) > -1 ) {
 			this.context.router.goBack();
+		}
+	},
+
+	onBlur: function() {
+		this.props.onSearchFocus( false );
+
+		// If the user has navigated back a page, we discard the search term
+		// on blur
+		if ( currentHash.indexOf( 'search' ) === -1 ) {
+			this.props.searchForTerm( false );
 		}
 	},
 
@@ -58,7 +85,11 @@ export const NavigationSettings = React.createClass( {
 					onSearchOpen={ this.openSearch }
 					onSearch={ this.onSearch }
 					onSearchClose={ this.onClose }
-					isOpen={ '/search' === this.props.route.path }
+					onBlur={ this.onBlur }
+					isOpen={
+						'/search' === this.props.route.path
+						|| this.props.searchHasFocus
+					}
 				/>
 			);
 		}
@@ -143,12 +174,14 @@ export default connect(
 			userCanManageModules: _userCanManageModules( state ),
 			isSubscriber: _userIsSubscriber( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
-			isModuleActivated: module => isModuleActivated( state, module )
+			isModuleActivated: module => isModuleActivated( state, module ),
+			searchHasFocus: _getSearchFocus( state )
 		};
 	},
 	( dispatch ) => {
 		return {
-			searchForTerm: ( term ) => dispatch( filterSearch( term ) )
+			searchForTerm: ( term ) => dispatch( filterSearch( term ) ),
+			onSearchFocus: ( hasFocus ) => dispatch( focusSearch( hasFocus ) )
 		}
 	}
 )( NavigationSettings );

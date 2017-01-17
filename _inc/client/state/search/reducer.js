@@ -8,7 +8,9 @@ import { combineReducers } from 'redux';
  * Internal dependencies
  */
 import {
-	JETPACK_SEARCH_TERM
+	JETPACK_SEARCH_TERM,
+	JETPACK_SEARCH_FOCUS,
+	JETPACK_SEARCH_BLUR
 } from 'state/action-types';
 
 const searchTerm = ( state = false, action ) => {
@@ -21,8 +23,22 @@ const searchTerm = ( state = false, action ) => {
 	}
 };
 
+const searchFocus = ( state = false, action ) => {
+	switch ( action.type ) {
+		case JETPACK_SEARCH_FOCUS:
+			return true;
+
+		case JETPACK_SEARCH_BLUR:
+			return false;
+
+		default:
+			return state;
+	}
+};
+
 export const reducer = combineReducers( {
-	searchTerm
+	searchTerm,
+	searchFocus
 } );
 
 /**
@@ -33,4 +49,14 @@ export const reducer = combineReducers( {
  */
 export function getSearchTerm( state ) {
 	return state.jetpack.search.searchTerm;
+}
+
+/**
+ * Returns the Search Focus state
+ *
+ * @param  {Object} state  Global state tree
+ * @return {Boolean}       Whether the search input has focus
+ */
+export function getSearchFocus( state ) {
+	return state.jetpack.search.searchFocus;
 }
