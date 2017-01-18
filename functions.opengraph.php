@@ -268,7 +268,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 		// Grab obvious image if $post is an attachment page for an image
 		if ( is_attachment( $post->ID ) && 'image' == substr( $post->post_mime_type, 0, 5 ) ) {
-			$image['url'] = wp_get_attachment_url( $post->ID );
+			$image['src'] = wp_get_attachment_url( $post->ID );
 		}
 
 		// Attempt to find something good for this post using our generalized PostImages code
