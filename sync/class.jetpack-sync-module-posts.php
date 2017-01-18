@@ -178,6 +178,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 
+		$shortcodes_and_callbacks_to_remove = array();
 		/**
 		 * Filter prevents some shortcodes from expanding.
 		 *
