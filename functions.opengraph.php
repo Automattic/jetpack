@@ -261,22 +261,20 @@ function jetpack_og_tags() {
 }
 
 function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 200x200
-	$image = '';
+	$image = array();
 
 	if ( is_singular() && ! is_home() ) {
 		global $post;
-		$image = '';
 
 		// Grab obvious image if $post is an attachment page for an image
 		if ( is_attachment( $post->ID ) && 'image' == substr( $post->post_mime_type, 0, 5 ) ) {
-			$image = wp_get_attachment_url( $post->ID );
+			$image['url'] = wp_get_attachment_url( $post->ID );
 		}
 
 		// Attempt to find something good for this post using our generalized PostImages code
-		if ( ! $image && class_exists( 'Jetpack_PostImages' ) ) {
+		if ( empty( $image ) && class_exists( 'Jetpack_PostImages' ) ) {
 			$post_images = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
 			if ( $post_images && ! is_wp_error( $post_images ) ) {
-				$image = array();
 				foreach ( (array) $post_images as $post_image ) {
 					$image['src'] = $post_image['src'];
 					if ( isset( $post_image['src_width'], $post_image['src_height'] ) ) {
@@ -288,8 +286,6 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		}
 	} else if ( is_author() ) {
 		$author = get_queried_object();
-		$image  = array();
-
 		if ( function_exists( 'get_avatar_url' ) ) {
 			// Prefer the core function get_avatar_url() if available, WP 4.2+
 			$image['src'] = get_avatar_url( $author->user_email, array( 'size' => $width ) );
@@ -309,14 +305,6 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 					$image['src'] = wp_specialchars_decode( $matches[1], ENT_QUOTES );
 			}
 		}
-	}
-
-	if ( empty( $image ) ) {
-		$image = array();
-	} else if ( ! is_array( $image ) ) {
-		$image = array(
-			'src' => $image
-		);
 	}
 
 	// First fall back, blavatar
