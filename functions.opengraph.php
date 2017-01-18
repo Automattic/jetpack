@@ -288,6 +288,8 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		}
 	} else if ( is_author() ) {
 		$author = get_queried_object();
+		$image  = array();
+
 		if ( function_exists( 'get_avatar_url' ) ) {
 			// Prefer the core function get_avatar_url() if available, WP 4.2+
 			$image['src'] = get_avatar_url( $author->user_email, array( 'size' => $width ) );
