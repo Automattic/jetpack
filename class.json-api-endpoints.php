@@ -1497,7 +1497,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		foreach ( $wp_filter as $hook => $actions ) {
 			if ( $from_hook <> $hook )
 				continue;
-			foreach ( (array) $actions as $priority => $callbacks ) {
+
+			if ( ! has_action( $hook ) )
+				continue;
+
+			foreach ( $actions as $priority => $callbacks ) {
 				foreach( $callbacks as $callback_key => $callback_data ) {
 					$callback = $callback_data['function'];
 					$reflection = $this->get_reflection( $callback ); // use reflection api to determine filename where function is defined
@@ -1505,7 +1509,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 						$file_name = $reflection->getFileName();
 						foreach( $base_paths as $base_path ) {
 							if ( 0 === strpos( $file_name, $base_path ) ) { // only copy hooks with functions which are part of the specified files
-								$wp_filter[ $to_hook ][ $priority ][ 'cph' . $callback_key ] = $callback_data;
+								add_action( $to_hook, $callback_data['function'], $priority, $callback_data['accepted_args'] );
 							}
 						}
 					}
