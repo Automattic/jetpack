@@ -360,10 +360,10 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	if ( empty( $image ) && ( function_exists( 'has_site_icon') && has_site_icon() ) ) {
 		$max_side = max( $width, $height );
 		$image_url = get_site_icon_url( $max_side );
+		$image_id = get_option( 'site_icon' );
 
 		$img_width  = '';
 		$img_height = '';
-		$image_id = attachment_url_to_postid( $image_url );
 		$image_size = wp_get_attachment_image_src( $image_id, $max_side >= 512
 			? 'full'
 			: array( $max_side, $max_side ) );
