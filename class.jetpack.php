@@ -603,14 +603,22 @@ class Jetpack {
 		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'dismiss' == $_REQUEST['jitmActionToTake'] ) {
 			// get the hide_jitm options array
 			$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
-			$module_slug = $_REQUEST['jitmModule'];
+			$jitm_name = $_REQUEST['jitmName'];
 
-			if( ! $jetpack_hide_jitm ) {
+			if( ! $jetpack_hide_jitm || ! is_array( $jetpack_hide_jitm ) ) {
 				$jetpack_hide_jitm = array(
-					$module_slug => 'hide'
+					$jitm_name => array (
+						'last_dismissed' => time(),
+						'dismiss_count'  => 1
+				) );
+			} elseif ( ! is_array( $jetpack_hide_jitm[ $jitm_name ] ) ) {
+				$jetpack_hide_jitm[ $jitm_name ] = array (
+						'last_dismissed' => time(),
+						'dismiss_count'  => 1
 				);
 			} else {
-				$jetpack_hide_jitm[$module_slug] = 'hide';
+				$jetpack_hide_jitm[ $jitm_name ]['last_dismissed'] = time();
+				$jetpack_hide_jitm[ $jitm_name ]['dismiss_count']++;
 			}
 
 			Jetpack_Options::update_option( 'hide_jitm', $jetpack_hide_jitm );

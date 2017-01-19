@@ -43,6 +43,7 @@
 			// ajax request to save dismiss and never show again
 			data.jitmActionToTake = 'dismiss';
 			module_slug = $self.data( 'module' );
+			data.jitmName = $self.data( 'jitm' );
 			data.jitmModule = module_slug;
 
 			$.post( jitmL10n.ajaxurl, data, function ( response ) {

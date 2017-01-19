@@ -35,7 +35,7 @@ class Jetpack_JITM {
 	}
 
 	private function __construct() {
-		if ( ! Jetpack::is_active() || self::is_jitm_dismissed() ) {
+		if ( ! Jetpack::is_active() ) {
 			return;
 		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
@@ -61,21 +61,46 @@ class Jetpack_JITM {
 		}
 
 		if ( 'edit-comments' == $screen->base && ! Jetpack::is_plugin_active( 'akismet/akismet.php' ) ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'admin_notices', array( $this, 'akismet_msg' ) );
+			return $this->enqueue_jitm( 'akismet' );
 		}
-		elseif (
+		
+		if (
 			'post' == $screen->base
 			&& ( isset( $_GET['message'] ) && 6 == $_GET['message'] )
 			&& ! Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' )
 		) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'edit_form_top', array( $this, 'backups_after_publish_msg' ) );
+			return $this->enqueue_jitm( 'backups_after_publish' );
 		}
-		elseif ( 'update-core' == $screen->base && ! Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'admin_notices', array( $this, 'backups_updates_msg' ) );
+		
+		if ( 'update-core' == $screen->base && ! Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) ) {
+			return $this->enqueue_jitm( 'backups_updates' );
 		}
+	}
+	
+	/*
+	 * Checks to see if JITM has been dismissed, and, if not, enqueues it
+	 *
+	 */
+	function enqueue_jitm( $jitm_slug )
+	{
+		if( ! $jitm_slug ) {
+			return;
+		}
+		
+		$hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
+		// Don't show the JITM if it's been seen in the last 6 months or dismissed twice in the past.
+		if( is_array( $hide_jitm ) &&
+			is_array( $hide_jitm[ $jitm_slug ] ) &&
+			( 
+				strtotime( $hide_jitm[ $jitm_slug ]['last_dismissed'] ) < strtotime( '6 months ago' ) ||
+				$hide_jitm[ $jitm_slug ]['dismiss_count'] >= 2
+			)
+		) {
+			return;
+		}
+		
+		add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+		add_action( 'admin_notices', array( $this, $jitm_slug . '_msg' ) );
 	}
 
 	/*
@@ -86,7 +111,7 @@ class Jetpack_JITM {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 		?>
 		<div class="jp-jitm">
-			<a href="#" data-module="manage" class="dismiss"><span class="genericon genericon-close"></span></a>
+			<a href="#" data-module="manage" data-jitm="manage" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<?php echo self::get_emblem(); ?>
 
@@ -116,7 +141,7 @@ class Jetpack_JITM {
 	function photon_msg() {
 		?>
 		<div class="jp-jitm">
-			<a href="#" data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
+			<a href="#" data-module="photon" data-jitm="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<?php echo self::get_emblem(); ?>
 
@@ -211,7 +236,7 @@ class Jetpack_JITM {
 		if ( ! $manage_active && $plugin_auto_update_disabled && $plugin_can_auto_update && self::$auto_updates_allowed ) :
 			?>
 			<div class="jp-jitm">
-				<a href="#" data-module="manage-pi" class="dismiss"><span class="genericon genericon-close"></span></a>
+				<a href="#" data-module="manage-pi" data-jitm="manage_pi" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<?php echo self::get_emblem(); ?>
 
@@ -253,7 +278,7 @@ class Jetpack_JITM {
 			if ( ! $editor_dismissed ) :
 			?>
 			<div class="jp-jitm">
-				<a href="#"  data-module="editor" class="dismiss"><span class="genericon genericon-close"></span></a>
+				<a href="#"  data-module="editor" data-jitm="editor" class="dismiss"><span class="genericon genericon-close"></span></a>
 				<?php echo self::get_emblem(); ?>
 				<p class="msg">
 					<?php esc_html_e( 'Try the brand new editor.', 'jetpack' ); ?>
@@ -281,7 +306,7 @@ class Jetpack_JITM {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 		?>
 		<div class="jp-jitm">
-			<a href="#" data-module="stats" class="dismiss"><span class="genericon genericon-close"></span></a>
+			<a href="#" data-module="stats" data-jitm="stats" class="dismiss"><span class="genericon genericon-close"></span></a>
 			<?php echo self::get_emblem(); ?>
 			<p class="msg">
 				<?php esc_html_e( 'Track detailed stats on this post and the rest of your site.', 'jetpack' ); ?>
@@ -313,7 +338,7 @@ class Jetpack_JITM {
 		$url = 'https://jetpack.com/redirect/?source=jitm-backup-updates&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
-		<div class="jp-jitm" data-track="vaultpress-updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
+		<div class="jp-jitm" data-track="vaultpress-updates" data-jitm="backups_updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
 			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
 			<?php echo self::get_emblem(); ?>
 			<p class="msg">
@@ -341,7 +366,7 @@ class Jetpack_JITM {
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'akismet' ) );
 		?>
 		<div class="jp-jitm" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
-			<a href="#" data-module="akismet" class="dismiss"><span class="genericon genericon-close"></span></a>
+			<a href="#" data-module="akismet" data-jitm="akismet" class="dismiss"><span class="genericon genericon-close"></span></a>
 			<?php echo self::get_emblem(); ?>
 			<p class="msg">
 				<?php esc_html_e( "Spam affects your site's legitimacy, protect your site with Akismet.", 'jetpack' ); ?>
@@ -367,7 +392,7 @@ class Jetpack_JITM {
 		$url = 'https://jetpack.com/redirect/?source=jitm-backup-publish&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
-		<div class="jp-jitm" data-track="vaultpress-publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
+		<div class="jp-jitm" data-track="vaultpress-publish" data-jitm="backups_after_publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
 			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<?php echo self::get_emblem(); ?>
@@ -451,24 +476,6 @@ class Jetpack_JITM {
 				'jitm_stats_url' => $jitm_stats_url
 			)
 		);
-	}
-
-	/**
-	 * Check if a JITM was dismissed or not. Currently, dismissing one JITM will dismiss all of them.
-	 *
-	 * @since 3.8.2
-	 *
-	 * @return bool
-	 */
-	function is_jitm_dismissed() {
-		if ( is_null( self::$jetpack_hide_jitm ) ) {
-
-			// The option returns false when nothing was dismissed
-			self::$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
-		}
-
-		// so if it's not an array, it means no JITM was dismissed
-		return is_array( self::$jetpack_hide_jitm );
 	}
 }
 if (
