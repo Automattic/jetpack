@@ -1303,11 +1303,10 @@ class Jetpack {
 
 		if ( defined( 'JETPACK_DEV_DEBUG' ) ) {
 			$development_mode = JETPACK_DEV_DEBUG;
+		} elseif ( $site_url = site_url() ) {
+			$development_mode = false === strpos( $site_url, '.' );
 		}
 
-		elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
-			$development_mode = true;
-		}
 		/**
 		 * Filters Jetpack's development mode.
 		 *
