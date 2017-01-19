@@ -81,7 +81,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		echo $args['before_widget'];
 
 		$title = isset( $instance['title'] ) ? $instance['title'] : '';
-		
+
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title );
 		if ( ! empty( $title ) ) {
@@ -222,7 +222,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'noheader',
 			'nofooter',
 			'noborders',
-			'transparent'
+			'transparent',
+			'noscrollbar',
 		);
 		if ( isset( $new_instance['chrome'] ) ) {
 			foreach ( $new_instance['chrome'] as $chrome ) {
@@ -412,6 +413,16 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			/>
 			<label for="<?php echo $this->get_field_id( 'chrome-noborders' ); ?>">
 				<?php esc_html_e( 'No Borders', 'jetpack' ); ?>
+			</label>
+			<br />
+			<input
+				type="checkbox"<?php checked( in_array( 'noscrollbar', $instance['chrome'] ) ); ?>
+				id="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>"
+				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
+				value="noscrollbar"
+			/>
+			<label for="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>">
+				<?php esc_html_e( 'No Scrollbar', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
