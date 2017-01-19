@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import FormToggle from 'components/form/form-toggle';
 
@@ -10,11 +11,13 @@ import FormToggle from 'components/form/form-toggle';
  */
 import { FormFieldset } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
+import { getModule } from 'state/modules';
+import { isModuleFound as _isModuleFound } from 'state/search';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const ThemeEnhancements = moduleSettingsForm(
+const ThemeEnhancements = moduleSettingsForm(
 	React.createClass( {
 
 		/**
@@ -48,6 +51,13 @@ export const ThemeEnhancements = moduleSettingsForm(
 		},
 
 		render() {
+			if (
+				! this.props.isModuleFound( 'infinite-scroll' )
+				&& ! this.props.isModuleFound( 'minileven' )
+			) {
+				return <span />;
+			}
+
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -56,7 +66,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 					{
 						[
 							{
-								...this.props.getModule( 'infinite-scroll' ),
+								...this.props.module( 'infinite-scroll' ),
 								checkboxes: [
 									{
 										key: 'infinite_scroll',
@@ -69,7 +79,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 								]
 							},
 							{
-								...this.props.getModule( 'minileven' ),
+								...this.props.module( 'minileven' ),
 								checkboxes: [
 									{
 										key: 'wp_mobile_excerpt',
@@ -87,6 +97,11 @@ export const ThemeEnhancements = moduleSettingsForm(
 							}
 						].map( item => {
 							let isItemActive = this.props.getOptionValue( item.module );
+
+							if ( ! this.props.isModuleFound( item.module ) ) {
+								return <span />;
+							}
+
 							return (
 								<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` }  support={ item.learn_more_button }>
 									<ModuleToggle
@@ -131,3 +146,12 @@ export const ThemeEnhancements = moduleSettingsForm(
 		}
 	} )
 );
+
+export default connect(
+	( state ) => {
+		return {
+			module: ( module_name ) => getModule( state, module_name ),
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
+		}
+	}
+)( ThemeEnhancements );

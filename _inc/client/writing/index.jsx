@@ -11,11 +11,11 @@ import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import QuerySite from 'components/data/query-site';
-import { Composing } from './composing';
-import { Media } from './media';
-import { CustomContentTypes } from './custom-content-types';
-import { ThemeEnhancements } from './theme-enhancements';
-import { PostByEmail } from './post-by-email';
+import Composing from './composing';
+import Media from './media';
+import CustomContentTypes from './custom-content-types';
+import ThemeEnhancements from './theme-enhancements';
+import PostByEmail from './post-by-email';
 
 export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
@@ -32,20 +32,19 @@ export const Writing = React.createClass( {
 			return <span />;
 		}
 
+		let commonProps = {
+			settings: this.props.settings,
+			getModule: this.props.module
+		};
+
 		return (
 			<div>
 				<QuerySite />
-				<Composing
-					{ ...commonProps } />
-					searchTerm={ this.props.searchTerm }
-				<Media
-					{ ...commonProps } />
-				<CustomContentTypes
-					{ ...commonProps } />
-				<ThemeEnhancements
-					{ ...commonProps } />
-				<PostByEmail
-					{ ...commonProps } />
+				<Composing { ...commonProps } />
+				<Media { ...commonProps } />
+				<CustomContentTypes { ...commonProps } />
+				<ThemeEnhancements { ...commonProps } />
+				<PostByEmail { ...commonProps } />
 			</div>
 		);
 	}

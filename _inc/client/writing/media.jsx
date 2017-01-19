@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import FormToggle from 'components/form/form-toggle';
 
@@ -18,8 +19,10 @@ import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { getModule } from 'state/modules';
+import { isModuleFound as _isModuleFound } from 'state/search';
 
-export const Media = moduleSettingsForm(
+const Media = moduleSettingsForm(
 	React.createClass( {
 
 		/**
@@ -62,74 +65,102 @@ export const Media = moduleSettingsForm(
 		},
 
 		render() {
-			let photon   = this.props.getModule( 'photon' ),
-				carousel = this.props.getModule( 'carousel' ),
+			if (
+				! this.props.isModuleFound( 'photon' )
+				&& ! this.props.isModuleFound( 'carousel' )
+			) {
+
+				// Nothing to show here
+				return <span />;
+			}
+
+			let photon   = this.props.module( 'photon' ),
+				carousel = this.props.module( 'carousel' ),
 				isCarouselActive = this.props.getOptionValue( 'carousel' );
 
-			return (
-				<SettingsCard
-					{ ...this.props }
-					header={ __( 'Media' ) }>
-					<SettingsGroup hasChild disableInDevMode module={ photon }>
-						<ModuleToggle
-							slug="photon"
-							compact
-							disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
-							activated={ this.props.getOptionValue( 'photon' ) }
-							toggling={ this.props.isSavingAnyOption( 'photon' ) }
-							toggleModule={ this.toggleModule }
-						>
+			let photonSettings = (
+				<SettingsGroup hasChild disableInDevMode module={ photon }>
+					<ModuleToggle
+						slug="photon"
+						compact
+						disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
+						activated={ this.props.getOptionValue( 'photon' ) }
+						toggling={ this.props.isSavingAnyOption( 'photon' ) }
+						toggleModule={ this.toggleModule }
+					>
 						<span className="jp-form-toggle-explanation">
 							{
 								photon.description
 							}
 						</span>
-						</ModuleToggle>
-						<span className="jp-form-setting-explanation">
+					</ModuleToggle>
+					<span className="jp-form-setting-explanation">
+						{
+							__( 'Enabling Photon is required to use Tiled Galleries.' )
+						}
+					</span>
+				</SettingsGroup>
+			);
+
+			let carouselSettings = (
+				<SettingsGroup hasChild support={ carousel.learn_more_button }>
+					<ModuleToggle
+						slug="carousel"
+						compact
+						activated={ isCarouselActive }
+						toggling={ this.props.isSavingAnyOption( 'carousel' ) }
+						toggleModule={ this.props.toggleModuleNow }
+					>
+						<span className="jp-form-toggle-explanation">
 							{
-								__( 'Enabling Photon is required to use Tiled Galleries.' )
+								carousel.description
 							}
 						</span>
-					</SettingsGroup>
-					<SettingsGroup hasChild support={ carousel.learn_more_button }>
-						<ModuleToggle
-							slug="carousel"
+					</ModuleToggle>
+					<FormFieldset>
+						<FormToggle
 							compact
-							activated={ isCarouselActive }
-							toggling={ this.props.isSavingAnyOption( 'carousel' ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-								<span className="jp-form-toggle-explanation">
-									{
-										carousel.description
-									}
-								</span>
-						</ModuleToggle>
-						<FormFieldset>
-							<FormToggle
-								compact
-								checked={ this.state.carousel_display_exif }
-								disabled={ ! isCarouselActive || this.props.isSavingAnyOption() }
-								onChange={ () => this.updateOptions( 'carousel_display_exif' ) }>
-									<span className="jp-form-toggle-explanation">
-										{
-											__( 'Show photo metadata (Exif) in carousel, when available' )
-										}
-									</span>
-							</FormToggle>
-							<FormLabel>
-								<FormLegend className="jp-form-label-wide">{ __( 'Background color' ) }</FormLegend>
-								<FormSelect
-									name={ 'carousel_background_color' }
-									value={ this.props.getOptionValue( 'carousel_background_color' ) }
-									disabled={ ! isCarouselActive || this.props.isSavingAnyOption( 'carousel_background_color' ) }
-									{ ...this.props }
-									validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
-							</FormLabel>
-						</FormFieldset>
-					</SettingsGroup>
+							checked={ this.state.carousel_display_exif }
+							disabled={ ! isCarouselActive || this.props.isSavingAnyOption() }
+							onChange={ () => this.updateOptions( 'carousel_display_exif' ) }>
+							<span className="jp-form-toggle-explanation">
+								{
+									__( 'Show photo metadata (Exif) in carousel, when available' )
+								}
+							</span>
+						</FormToggle>
+						<FormLabel>
+							<FormLegend className="jp-form-label-wide">
+								{ __( 'Background color' ) }
+							</FormLegend>
+							<FormSelect
+								name={ 'carousel_background_color' }
+								value={ this.props.getOptionValue( 'carousel_background_color' ) }
+								disabled={ ! isCarouselActive || this.props.isSavingAnyOption( 'carousel_background_color' ) }
+								{ ...this.props }
+								validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
+						</FormLabel>
+					</FormFieldset>
+				</SettingsGroup>
+			);
+
+			return (
+				<SettingsCard
+					{ ...this.props }
+					header={ __( 'Media' ) }>
+					{ this.props.isModuleFound( 'photon' ) && photonSettings }
+					{ this.props.isModuleFound( 'carousel' ) && carouselSettings }
 				</SettingsCard>
 			);
 		}
 	} )
 );
+
+export default connect(
+	( state ) => {
+		return {
+			module: ( module_name ) => getModule( state, module_name ),
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
+		}
+	}
+)( Media );

@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { isModuleFound as _isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
 import { Ads } from './ads';
@@ -29,36 +30,29 @@ export const Traffic = React.createClass( {
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
 
+		let found = {
+			seo: this.props.isModuleFound( 'seo-tools' ),
+			ads: this.props.isModuleFound( 'wordads' ),
+			stats: this.props.isModuleFound( 'stats' ),
+			related: this.props.isModuleFound( 'related-posts' ),
+			verification: this.props.isModuleFound( 'verification-tools' ),
+			sitemaps: this.props.isModuleFound( 'sitemaps' )
+		};
+
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return <span />;
 		}
 
-		// Getting text data about modules and seeing if it's being searched for
-		let list = [
-			this.props.module( 'seo-tools' ),
-			this.props.module( 'wordads' ),
-			this.props.module( 'stats' ),
-			this.props.module( 'related-posts' ),
-			this.props.module( 'verification-tools' )
-		].map( function( m ) {
-			if ( ! this.props.searchTerm ) {
-				return true;
-			}
-
-			let text = [
-				m.module,
-				m.name,
-				m.description,
-				m.learn_more_button,
-				m.long_description,
-				m.search_terms,
-				m.additional_search_queries,
-				m.short_description,
-				m.feature ? m.feature.toString() : ''
-			].toString();
-
-			return text.toLowerCase().indexOf( this.props.searchTerm ) > -1;
-		}, this);
+		if (
+			! found.seo
+			&& ! found.ads
+			&& ! found.stats
+			&& ! found.related
+			&& ! found.verification
+			&& ! found.sitemaps
+		) {
+			return <span />;
+		}
 
 		let seoSettings = (
 			<SEO
@@ -95,11 +89,11 @@ export const Traffic = React.createClass( {
 		return (
 			<div>
 				<QuerySite />
-				{ list[0] ? seoSettings : '' }
-				{ list[1] ? adSettings : '' }
-				{ list[2] ? statsSettings : '' }
-				{ list[3] ? relatedPostsSettings : '' }
-				{ list[4] ? verificationSettings : '' }
+				{ found.seo && seoSettings }
+				{ found.ads && adSettings }
+				{ found.stats && statsSettings }
+				{ found.related && relatedPostsSettings }
+				{ ( found.verification || found.sitemaps ) && verificationSettings }
 			</div>
 		);
 	}
@@ -112,6 +106,7 @@ export default connect(
 			settings: getSettings( state ),
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 			lastPostUrl: getLastPostUrl( state )
 		}
 	}
