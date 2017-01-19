@@ -90,7 +90,7 @@ class Jetpack_JITM {
 		$hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
 		// Don't show the JITM if it's been seen in the last 6 months or dismissed twice in the past.
 		if( is_array( $hide_jitm ) &&
-			is_array( $hide_jitm[ $jitm_slug ] ) &&
+			isset( $hide_jitm[ $jitm_slug ] ) && is_array( $hide_jitm[ $jitm_slug ] ) &&
 			( 
 				strtotime( $hide_jitm[ $jitm_slug ]['last_dismissed'] ) < strtotime( '6 months ago' ) ||
 				$hide_jitm[ $jitm_slug ]['dismiss_count'] >= 2

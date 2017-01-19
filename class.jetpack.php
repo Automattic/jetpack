@@ -611,7 +611,7 @@ class Jetpack {
 						'last_dismissed' => time(),
 						'dismiss_count'  => 1
 				) );
-			} elseif ( ! is_array( $jetpack_hide_jitm[ $jitm_name ] ) ) {
+			} elseif ( ! isset( $jetpack_hide_jitm[ $jitm_name ] ) || ! is_array( $jetpack_hide_jitm[ $jitm_name ] ) ) {
 				$jetpack_hide_jitm[ $jitm_name ] = array (
 						'last_dismissed' => time(),
 						'dismiss_count'  => 1
