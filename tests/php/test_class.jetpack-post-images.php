@@ -57,7 +57,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 */
 	public function test_from_gallery_is_array() {
 		$post_id = $this->factory->post->create( array(
-			'post_content' => '[gallery]',
+			'post_content' => '[gallery 1,2,3]',
 		) );
 
 		$images = Jetpack_PostImages::from_gallery( $post_id );
