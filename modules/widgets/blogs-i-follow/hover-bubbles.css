@@ -1,0 +1,118 @@
+/*
+	TODO: Obtain and register the real WPCOM hover bubbles stylesheet,
+	then delete this file.
+ */
+
+/*
+	Hover Bubbles
+*/
+
+#wpadminbar div.wpcom-bubble,
+div.wpcom-bubble {
+	width: 210px;
+	background: #fff;
+	background: rgba(255, 255, 255, 0.99);
+	border: none;
+	position: absolute;
+	top: 32px;
+	padding: 10px 16px;
+	z-index: 10000;
+	cursor: default;
+	opacity: 0;
+	display: none;
+	-webkit-box-shadow: 0 0 2px rgba(0, 0, 0, 0.15), 0 3px 8px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: 0 0 2px rgba(0, 0, 0, 0.15), 0 3px 8px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.15), 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+#wpadminbar div.wpcom-bubble:after,
+#wpadminbar div.wpcom-bubble:before,
+div.wpcom-bubble:after,
+div.wpcom-bubble:before {
+	border: solid transparent;
+	content: ' ';
+	height: 0;
+	left: 50%;
+	margin-left: -6px;
+	position: absolute;
+	width: 0;
+}
+
+#wpadminbar div.wpcom-bubble.bubble-left:after,
+#wpadminbar div.wpcom-bubble.bubble-left:before,
+div.wpcom-bubble.bubble-left:after,
+div.wpcom-bubble.bubble-left:before {
+	left: 14px;
+}
+
+#wpadminbar div.wpcom-bubble.bubble-right:after,
+#wpadminbar div.wpcom-bubble.bubble-right:before,
+div.wpcom-bubble.bubble-right:after,
+div.wpcom-bubble.bubble-right:before {
+	left: auto;
+	right: 3px;
+}
+
+#wpadminbar div.wpcom-bubble:after,
+div.wpcom-bubble:after {
+	border-width: 6px;
+	border-bottom-color: #fff;
+	top: -12px;
+}
+
+#wpadminbar div.wpcom-bubble:before,
+div.wpcom-bubble:before {
+	border-width: 8px;
+	border-bottom-color: #eee;
+	border-bottom-color: rgba(0, 0, 0, 0.05);
+	top: -16px;
+	margin-left: -8px;
+}
+
+#wpadminbar div.wpcom-bubble.fadein,
+div.wpcom-bubble.fadein {
+	display: block;
+	opacity: 1;
+	-webkit-animation-fill-mode: forwards;
+	-webkit-backface-visibility: none;
+	-webkit-animation-name: reset, fadein;
+	-webkit-animation-duration: .25s;
+	-webkit-animation-timing-function: ease-in;
+}
+	@-webkit-keyframes fadein {
+		0% {
+		    opacity: 0;
+		}
+		100% {
+		    opacity: 1;
+		}
+	}
+
+#wpadminbar div.wpcom-bubble div.bubble-txt,
+div.wpcom-bubble div.bubble-txt {
+	line-height: 1.5;
+	font-size: 13px;
+	color: #555;
+	text-shadow: none;
+}
+
+#wpadminbar div.wpcom-bubble div.bubble-txt,
+div.wpcom-bubble div.bubble-txt a {
+	line-height: 1.5;
+}
+
+#wpadminbar div.wpcom-bubble div a,
+#wpadminbar div.wpcom-bubble div span,
+div.wpcom-bubble div a,
+div.wpcom-bubble div span {
+	display: inline;
+	padding: 0;
+	margin: 0;
+	color: #1e8cbe;
+	text-shadow: none;
+	line-height: 100%;
+}
+
+#wpadminbar div.wpcom-bubble div a:hover {
+	color: #f1831e;
+}

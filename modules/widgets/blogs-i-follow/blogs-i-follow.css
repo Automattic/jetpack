@@ -34,3 +34,18 @@ div.wpcom-bubble.wpcom-follow-bubble a.wpcom-following {
 div.wpcom-bubble.wpcom-follow-bubble a.wpcom-following {
 	background-position: -2px -759px!important;
 }
+
+.widget_jp_blogs_i_follow .widget-grid-view-image {
+	display: inline-block;
+	float: none;
+	max-width: 20%;
+}
+
+.widget_jp_blogs_i_follow .widget-grid-view-image a,
+.widget_jp_blogs_i_follow .widget-grid-view-image:nth-child(even) a {
+	margin: 0 0.4375em 0.4375em 0;
+}
+
+.widget_jp_blogs_i_follow .widgets-grid-layout {
+	margin-bottom: -0.4375em;
+}

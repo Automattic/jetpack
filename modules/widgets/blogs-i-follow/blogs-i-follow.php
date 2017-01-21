@@ -339,8 +339,20 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		wp_enqueue_style(
 			'blogs-i-follow-widget',
 			plugins_url( 'blogs-i-follow.css', __FILE__ ),
-			array( 'widget-grid-and-list' ),
+			array(),
 			'20120712a'
+		);
+		wp_enqueue_style(
+			'blogs-i-follow-widget-grid',
+			plugins_url( 'widget-grid-and-list.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
+		wp_enqueue_style(
+			'blogs-i-follow-widget-bubbles',
+			plugins_url( 'hover-bubbles.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
 		);
 	}
 
