@@ -1,0 +1,36 @@
+/*
+	Blogs I Follow Widget
+*/
+
+div.wpcom-follow-gravatar a {
+	display: block;
+}
+
+div.wpcom-bubble.wpcom-follow-bubble {
+	width: auto;
+	min-width: 85px;
+	max-width: 210px;
+	opacity: 1;
+}
+
+div.wpcom-bubble.wpcom-follow-bubble p {
+	margin: 4px 0 0 0;
+}
+div.wpcom-bubble.wpcom-follow-bubble p small {
+	padding-right: 5px;
+	margin-bottom: 3px;
+}
+
+div.wpcom-bubble.wpcom-follow-bubble a.wpcom-follow,
+div.wpcom-bubble.wpcom-follow-bubble a.wpcom-following {
+	width: auto!important;
+	float: none!important;
+	margin: 0!important;
+	padding-top: 0!important;
+	padding-left: 14px!important;
+	background-position: -2px -159px!important;
+}
+
+div.wpcom-bubble.wpcom-follow-bubble a.wpcom-following {
+	background-position: -2px -759px!important;
+}
