@@ -1,5 +1,5 @@
 jQuery(document).ready(function($){
-	wpcom_followed_blogs = {
+	var wpcom_followed_blogs = {
 
 		setup_avatar_tips: function() {
 
@@ -7,7 +7,7 @@ jQuery(document).ready(function($){
 				$( this ).data( 'hover', false );
 			});
 
-			$( '.wpcom-follow-gravatar' ).on( 'mouseenter', 'a', function( e ) {
+			$( '.wpcom-follow-gravatar' ).on( 'mouseenter', 'a', function() {
 				$( this ).data( 'hover', true );
 				var $self                    = $(this),
 					$bubble                  = $( '#' + $self.data( 'id' ) ),
@@ -39,20 +39,22 @@ jQuery(document).ready(function($){
 
 			});
 
-			$( '.wpcom-follow-bubbles' ).on( 'mouseenter', 'div', function( e ) {
+			$( '.wpcom-follow-bubbles' ).on( 'mouseenter', 'div', function() {
 				$( this ).data( 'hover', true );
 			});
 
-			$( '.wpcom-follow-bubbles > div, .wpcom-follow-gravatar a' ).on( 'mouseleave', null, function( e ) {
+			$( '.wpcom-follow-bubbles > div, .wpcom-follow-gravatar a' ).on( 'mouseleave', null, function() {
 				var $self = $(this);
 
 				// determine if current event is occuring on the bubble or on the bla/gra/vatar & set vars accordingly
+				var $bubble;
+				var $gravatar;
 				if ( $self.hasClass('wpcom-bubble') ) {
-					var $bubble = $self;
-					var $gravatar = $('.wpcom-follow-gravatar a[data-id="' + $self.attr('id') + '"]');
+					$bubble = $self;
+					$gravatar = $('.wpcom-follow-gravatar a[data-id="' + $self.attr('id') + '"]');
 				} else {
-					var $bubble = $( '#' + $self.data( 'id' ) );
-					var $gravatar = $self;
+					$bubble = $( '#' + $self.data( 'id' ) );
+					$gravatar = $self;
 				}
 
 				$self.data( 'hover', false );
@@ -67,7 +69,7 @@ jQuery(document).ready(function($){
 
 		}
 
-	}
+	};
 
 	wpcom_followed_blogs.setup_avatar_tips();
 });
