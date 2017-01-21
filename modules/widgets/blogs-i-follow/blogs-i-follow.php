@@ -4,8 +4,8 @@
  * Plugin Name: Blogs I Follow Widget
  */
 
-require __DIR__ . '/compat.php';
-require __DIR__ . '/interface-blogs-i-follow-datastore.php';
+include dirname( __FILE__ ) . '/compat.php';
+include dirname( __FILE__ ) . '/interface-blogs-i-follow-datastore.php';
 
 /**
  * Register the widget for use in Appearance -> Widgets
