@@ -5,6 +5,7 @@
  */
 
 require __DIR__ . '/compat.php';
+require __DIR__ . '/interface-blogs-i-follow-datastore.php';
 
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -29,6 +30,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	static $expiration     = 300;
 	static $avatar_size    = 200;
 	static $default_avatar = 'en.wordpress.com/i/logo/wpcom-gray-white.png';
+	private $datastore;
 
 	/**
 	 * class constructor
@@ -47,6 +49,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		}
 
 		$this->subscriptions = array();
+		$this->datastore = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			? new Blogs_I_Follow_WPCOM_Datastore
+			: new Blogs_I_Follow_Jetpack_Datastore;
 	}
 
 	/**
@@ -102,12 +107,13 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	function get_subscriptions() {
 		$this->subscriptions[$this->id] = get_transient( $this->id . '-subscriptions' );
 
-		if ( empty( $this->subscriptions[$this->id] ) ) {
+		// TODO: Remove DEBUG
+		if ( WP_DEBUG || empty( $this->subscriptions[$this->id] ) ) {
 			delete_transient( $this->id . '-widget' );
 
 			$this->subscriptions[$this->id] = array();
 			$this->subscriptions[$this->id]['user_id'] = $this->user_id;
-			$this->subscriptions[$this->id]['subscriptions'] = wpcom_subs_get_blogs( array( 'user_id' => $this->user_id, 'public_only' => true ) );
+			$this->subscriptions[$this->id]['subscriptions'] = $this->datastore->get_followed_blogs( array( 'user_id' => $this->user_id, 'public_only' => true ) );
 
 			if ( is_array( $this->subscriptions[$this->id]['subscriptions'] ) ) {
 				foreach ( $this->subscriptions[$this->id]['subscriptions'] as &$sub ) {
