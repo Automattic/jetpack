@@ -12,7 +12,10 @@ require __DIR__ . '/compat.php';
 add_action( 'widgets_init', 'jetpack_blogs_i_follow_widget_init' );
 
 function jetpack_blogs_i_follow_widget_init() {
-	register_widget( 'Jetpack_Widget_Blogs_I_Follow' );
+	// TODO: Remove the temporary debug check
+	if ( Jetpack::is_active() || WP_DEBUG ) {
+		register_widget( 'Jetpack_Widget_Blogs_I_Follow' );
+	}
 }
 
 /**
