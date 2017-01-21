@@ -142,6 +142,16 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		return ( empty( $subscriptions ) && get_current_user_id() != $this->user_id );
 	}
 
+	/**
+	 * Infer the blog name from the subcription URL(s) when the name is not available
+	 *
+	 * @param array $subscription the subscription data lacking a blog name
+	 * @return string the inferred blog name
+	 */
+	function get_inferred_blog_name( $subscription ) {
+		return rtrim( str_replace( 'http://', '', empty( $subscription['blog_url'] ) ? $subscription['feed_url'] : $subscription['blog_url'] ), '/' );
+	}
+
 	function grid_view( $subscriptions ) {
 		wp_enqueue_style( 'hover-bubbles' );
 
@@ -150,8 +160,6 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		$output = get_transient( $this->id . '-widget' );
 
 		if ( empty( $output ) ) {
-			if ( ! ( count( $subscriptions ) % 2 == 0 ) )
-				unset( $subscriptions[$counter-1] ); // we ended up with an odd number
 
 			$output  = '';
 
@@ -177,8 +185,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 				if ( !$img )
 					continue;
 
+				$blog_name = empty( $subscription['blog_name'] ) ? $this->get_inferred_blog_name( $subscription ) : $subscription['blog_name'];
 				$output .= "<div class='widget-grid-view-image wpcom-follow-gravatar'>";
-				$output .= "<a href='"  . esc_url( $subscription['blog_url'] ) . "' title='" . esc_attr( $subscription['blog_name'] ) . "' data-id='" . esc_attr( 'wpcom-bubble-' . $this->id . '-' . $i ) . "' class='bump-view' data-bump-view='bif'>";
+				$output .= "<a href='"  . esc_url( $subscription['blog_url'] ) . "' title='" . esc_attr( $blog_name ) . "' data-id='" . esc_attr( 'wpcom-bubble-' . $this->id . '-' . $i ) . "' class='bump-view' data-bump-view='bif'>";
 				$output .= $img;
 				$output .= "</a>";
 				$output .= "</div>";
@@ -206,8 +215,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 				if ( 'http://' === $sub['blog_url'] )
 					$sub['blog_url'] = $sub['feed_url'];
 
-				if ( empty( $sub['blog_name'] ) )
-					$sub['blog_name'] = rtrim( str_replace( 'http://', '', empty( $sub['blog_url'] ) ? $sub['feed_url'] : $sub['blog_url'] ), '/' );
+				if ( empty( $sub['blog_name'] ) ) {
+					$sub['blog_name'] = $this->get_inferred_blog_name($sub);
+				}
 
 				$output .= '<li><a href="' . esc_url( $sub['blog_url'] ) . '" class="bump-view" data-bump-view="bif">' . esc_html( $sub['blog_name'] ) . '</a></li>';
 			}
@@ -353,7 +363,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 					$i++;
 					$description = get_blog_option( $subscription['blog_id'], 'blogdescription' );
 					$description = ( !empty( $description ) ) ? '<small>' .  $description . '</small>' : '';
-					$output .= '<div id="' . esc_attr( 'wpcom-bubble-' . $widget_id . '-' . $i ) . '" class="wpcom-bubble wpcom-follow-bubble"><div class="bubble-txt"><a href="' . esc_url( $subscription['blog_url'] ) . '" class="bump-view" data-bump-view="bif">' . $subscription['blog_name'] . '</a><p>' . $description . '</p></div></div>';
+					$blog_name = empty( $subscription['blog_name'] ) ? $this->get_inferred_blog_name( $subscription ) : $subscription['blog_name'];
+					$output .= '<div id="' . esc_attr( 'wpcom-bubble-' . $widget_id . '-' . $i ) . '" class="wpcom-bubble wpcom-follow-bubble"><div class="bubble-txt"><a href="' . esc_url( $subscription['blog_url'] ) . '" class="bump-view" data-bump-view="bif">' . $blog_name . '</a><p>' . $description . '</p></div></div>';
 				}
 
 				$output .= '</div>';
