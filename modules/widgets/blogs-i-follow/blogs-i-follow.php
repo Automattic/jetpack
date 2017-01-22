@@ -237,8 +237,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	function get_friendly_message() {
 		$message = sprintf(
 			__( 'You are not yet following any blogs. Try <a href="%1$s">finding your friends</a> or check out our <a href="%2$s">recommended blogs</a>.', 'jetpack' ),
-			esc_url( get_blog_locale() . '.wordpress.com/find-friends' ) . '" target="_blank',
-			esc_url( get_blog_locale() . '.wordpress.com/recommendations' ) . '" target="_blank'
+			esc_url( $this->datastore->get_blog_locale() . '.wordpress.com/find-friends' ) . '" target="_blank',
+			esc_url( $this->datastore->get_blog_locale() . '.wordpress.com/recommendations' ) . '" target="_blank'
 		);
 
 		return '<p>' . $message . '</p>';
