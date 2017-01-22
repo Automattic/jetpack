@@ -5,7 +5,7 @@
  */
 
 include dirname( __FILE__ ) . '/compat.php';
-include dirname( __FILE__ ) . '/interface-blogs-i-follow-datastore.php';
+include dirname( __FILE__ ) . '/blogs-i-follow-adapter.php';
 
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -30,7 +30,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	static $expiration     = 300;
 	static $avatar_size    = 200;
 	static $default_avatar = 'en.wordpress.com/i/logo/wpcom-gray-white.png';
-	private $datastore;
+	private $adapter;
 
 	/**
 	 * class constructor
@@ -49,9 +49,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		}
 
 		$this->subscriptions = array();
-		$this->datastore = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
-			? new Blogs_I_Follow_WPCOM_Datastore
-			: new Blogs_I_Follow_Jetpack_Datastore;
+		$this->adapter = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			? new Blogs_I_Follow_WPCOM_adapter
+			: new Blogs_I_Follow_Jetpack_adapter;
 	}
 
 	/**
@@ -113,7 +113,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 			$this->subscriptions[$this->id] = array();
 			$this->subscriptions[$this->id]['user_id'] = $this->user_id;
-			$this->subscriptions[$this->id]['subscriptions'] = $this->datastore->get_followed_blogs( array( 'user_id' => $this->user_id, 'public_only' => true ) );
+			$this->subscriptions[$this->id]['subscriptions'] = $this->adapter->get_followed_blogs( array( 'user_id' => $this->user_id, 'public_only' => true ) );
 
 			if ( is_array( $this->subscriptions[$this->id]['subscriptions'] ) ) {
 				foreach ( $this->subscriptions[$this->id]['subscriptions'] as &$sub ) {
@@ -237,8 +237,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	function get_friendly_message() {
 		$message = sprintf(
 			__( 'You are not yet following any blogs. Try <a href="%1$s">finding your friends</a> or check out our <a href="%2$s">recommended blogs</a>.', 'jetpack' ),
-			esc_url( $this->datastore->get_blog_locale() . '.wordpress.com/find-friends' ) . '" target="_blank',
-			esc_url( $this->datastore->get_blog_locale() . '.wordpress.com/recommendations' ) . '" target="_blank'
+			esc_url( $this->adapter->get_blog_locale() . '.wordpress.com/find-friends' ) . '" target="_blank',
+			esc_url( $this->adapter->get_blog_locale() . '.wordpress.com/recommendations' ) . '" target="_blank'
 		);
 
 		return '<p>' . $message . '</p>';

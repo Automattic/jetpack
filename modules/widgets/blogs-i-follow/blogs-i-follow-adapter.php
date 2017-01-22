@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Interface to access the data needed by the Blogs I Follow widget.
+ * Interface to encapsulate data and settings needed by the Blogs I Follow widget.
  *
  * This allows the plugin code to stay in sync between WordPress.com and Jetpack,
- * leaving the data particulars to each flavor.
+ * leaving the particulars to each flavor.
  */
-interface iBlogs_I_Follow_Datastore {
+interface iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs( $args );
 	public function get_blog_locale();
 }
 
-class Blogs_I_Follow_Jetpack_Datastore implements iBlogs_I_Follow_Datastore {
+class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 	/**
 	 * Converts data from the WordPress.com REST API into a format usable by the plugin
 	 *
@@ -66,10 +66,11 @@ class Blogs_I_Follow_Jetpack_Datastore implements iBlogs_I_Follow_Datastore {
 	}
 }
 
-class Blogs_I_Follow_WPCOM_Datastore implements iBlogs_I_Follow_Datastore {
+class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs($args) {
 		return wpcom_subs_get_blogs($args);
 	}
+
 	public function get_blog_locale() {
 		return get_blog_locale();
 	}
