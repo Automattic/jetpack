@@ -16,7 +16,7 @@ import {
 	SubscriptionsSettings,
 	ProtectSettings,
 	MonitorSettings,
-	SingleSignOnSettings,
+	SecureSignOnSettings,
 	MinilevenSettings,
 	CarouselSettings,
 	InfiniteScrollSettings,
@@ -89,7 +89,7 @@ const AllModuleSettingsComponent = React.createClass( {
 					</div>
 				);
 			case 'sso':
-				return ( <SingleSignOnSettings module={ module }  /> );
+				return ( <SecureSignOnSettings module={ module }  /> );
 			case 'seo-tools':
 				if ( '' === module.configure_url ) {
 					return (
