@@ -4,11 +4,11 @@
 //add_action( 'widgets_init', 'follow_button_register_widget' );
 function follow_button_register_widget() {
 	if ( Jetpack::is_active() ) {
-		register_widget( 'Follow_Button_Widget' );
+		register_widget( 'Jetpack_Follow_Button_Widget' );
 	}
 }
 
-class Follow_Button_Widget extends WP_Widget {
+class Jetpack_Follow_Button_Widget extends WP_Widget {
 
 	public function __construct() {
 		parent::__construct(

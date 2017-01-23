@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Google_Translate_Widget extends WP_Widget {
+class Jetpack_Google_Translate_Widget extends WP_Widget {
 	static $instance = null;
 
 	/**
@@ -136,6 +136,6 @@ class Google_Translate_Widget extends WP_Widget {
  * Register the widget for use in Appearance -> Widgets.
  */
 function jetpack_google_translate_widget_init() {
-	register_widget( 'Google_Translate_Widget' );
+	register_widget( 'Jetpack_Google_Translate_Widget' );
 }
 add_action( 'widgets_init', 'jetpack_google_translate_widget_init' );
