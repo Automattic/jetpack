@@ -23,7 +23,13 @@ const ThemeEnhancements = moduleSettingsForm(
 		/**
 		 * Get options for initial state.
 		 *
-		 * @returns {{infinite_scroll: *, infinite_scroll_google_analytics: *, wp_mobile_excerpt: *, wp_mobile_featured_images: *, wp_mobile_app_promos: *}}
+		 * @returns {Object} {{
+		 * infinite_scroll: *,
+		*		infinite_scroll_google_analytics: *,
+		*		wp_mobile_excerpt: *,
+		*		wp_mobile_featured_images: *,
+		*		wp_mobile_app_promos: *
+		 * }}
 		 */
 		getInitialState() {
 			return {
@@ -38,8 +44,8 @@ const ThemeEnhancements = moduleSettingsForm(
 		/**
 		 * Update state so toggles are updated.
 		 *
-		 * @param {string} optionName
-		 * @param {string} module
+		 * @param {string} optionName option slug
+		 * @param {string} module module slug
 		 */
 		updateOptions( optionName, module ) {
 			this.setState(
@@ -64,9 +70,10 @@ const ThemeEnhancements = moduleSettingsForm(
 					hideButton
 					header={ __( 'Theme enhancements' ) }>
 					{
+
 						[
 							{
-								...this.props.module( 'infinite-scroll' ),
+								...this.props.getModule( 'infinite-scroll' ),
 								checkboxes: [
 									{
 										key: 'infinite_scroll',
@@ -79,7 +86,7 @@ const ThemeEnhancements = moduleSettingsForm(
 								]
 							},
 							{
-								...this.props.module( 'minileven' ),
+								...this.props.getModule( 'minileven' ),
 								checkboxes: [
 									{
 										key: 'wp_mobile_excerpt',
@@ -103,11 +110,11 @@ const ThemeEnhancements = moduleSettingsForm(
 							}
 
 							return (
-								<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` }  support={ item.learn_more_button }>
+								<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
 									<ModuleToggle
 										slug={ item.module }
 										compact
-										activated={ isItemActive }
+										pactivated={ isItemActive }
 										toggling={ this.props.isSavingAnyOption( item.module ) }
 										toggleModule={ this.props.toggleModuleNow }
 									>

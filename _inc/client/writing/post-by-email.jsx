@@ -42,7 +42,8 @@ const PostByEmail = moduleSettingsForm(
 
 		render() {
 			let postByEmail = this.props.getModule( 'post-by-email' ),
-				isPbeActive = this.props.getOptionValue( 'post-by-email' );
+				isPbeActive = this.props.getOptionValue( 'post-by-email' ),
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'post-by-email' );
 
 			if ( ! this.props.isModuleFound( 'post-by-email' ) ) {
 				return <span />;

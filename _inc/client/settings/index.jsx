@@ -10,7 +10,6 @@ import Discussion from 'discussion';
 import Engagement from 'engagement/index.jsx';
 import Security from 'security/index.jsx';
 import Traffic from 'traffic';
-import Appearance from 'appearance/index.jsx';
 import Writing from 'writing/index.jsx';
 
 export default React.createClass( {
@@ -42,11 +41,6 @@ export default React.createClass( {
 					siteRawUrl={ this.props.siteRawUrl }
 					siteAdminUrl={ this.props.siteAdminUrl }
 					active={ ( '/traffic' === this.props.route.path ) }
-					{ ...commonProps }
-				/>
-				<Appearance
-					route={ this.props.route }
-					active={ ( '/appearance' === this.props.route.path ) }
 					{ ...commonProps }
 				/>
 				<Writing

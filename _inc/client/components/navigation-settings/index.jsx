@@ -65,6 +65,7 @@ export const NavigationSettings = React.createClass( {
 	},
 
 	onBlur: function() {
+		let currentHash = window.location.hash;
 		this.props.onSearchFocus( false );
 
 		// If the user has navigated back a page, we discard the search term

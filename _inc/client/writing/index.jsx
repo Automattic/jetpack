@@ -32,11 +32,6 @@ export const Writing = React.createClass( {
 			return <span />;
 		}
 
-		let commonProps = {
-			settings: this.props.settings,
-			getModule: this.props.module
-		};
-
 		return (
 			<div>
 				<QuerySite />

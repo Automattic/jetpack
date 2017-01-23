@@ -28,7 +28,7 @@ const Media = moduleSettingsForm(
 		/**
 		 * Get options for initial state.
 		 *
-		 * @returns {{carousel_display_exif: Boolean}}
+		 * @returns {Object} {{carousel_display_exif: Boolean}}
 		 */
 		getInitialState() {
 			return {
@@ -39,7 +39,7 @@ const Media = moduleSettingsForm(
 		/**
 		 * Update state so toggles are updated.
 		 *
-		 * @param {string} optionName
+		 * @param {string} optionName option slug
 		 */
 		updateOptions( optionName ) {
 			this.setState(
@@ -52,7 +52,6 @@ const Media = moduleSettingsForm(
 
 		toggleModule( name, value ) {
 			if ( 'photon' === name ) {
-
 				// Carousel depends on Photon. Deactivate it if Photon is deactivated.
 				if ( false === ! value ) {
 					this.props.updateOptions( { photon: false, 'tiled-gallery': false, tiled_galleries: false } );
@@ -69,12 +68,11 @@ const Media = moduleSettingsForm(
 				! this.props.isModuleFound( 'photon' )
 				&& ! this.props.isModuleFound( 'carousel' )
 			) {
-
 				// Nothing to show here
 				return <span />;
 			}
 
-			let photon   = this.props.module( 'photon' ),
+			let photon = this.props.module( 'photon' ),
 				carousel = this.props.module( 'carousel' ),
 				isCarouselActive = this.props.getOptionValue( 'carousel' );
 

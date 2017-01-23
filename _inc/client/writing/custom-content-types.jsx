@@ -75,7 +75,7 @@ const CustomContentTypes = moduleSettingsForm(
 						<FormFieldset>
 							<p className="jp-form-setting-explanation">
 								{
-									__( "The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials." )
+									__( 'The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials.' )
 								}
 							</p>
 							<p>
@@ -97,7 +97,7 @@ const CustomContentTypes = moduleSettingsForm(
 						<FormFieldset>
 							<p className="jp-form-setting-explanation">
 								{
-									__( "The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios." )
+									__( 'The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios.' )
 								}
 							</p>
 							<p>
