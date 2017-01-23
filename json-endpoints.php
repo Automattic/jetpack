@@ -2717,6 +2717,9 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'holidaysnow'                  => '(bool) Enable snowfall on frontend of site?',
 		'timezone_string'              => '(string) PHP-compatible timezone string like \'UTC-5\'',
 		'gmt_offset'                   => '(int) Site offset from UTC in hours',
+		'date_format'                  => '(string) PHP Date-compatible date format',
+		'time_format'                  => '(string) PHP Date-compatible time format',
+		'start_of_week'                => '(int) Starting day of week (0 = Sunday, 6 = Saturday)',
 		'jetpack_testimonial'          => '(bool) Whether testimonial custom post type is enabled for the site',
 		'jetpack_testimonial_posts_per_page' => '(int) Number of testimonials to show per page',
 		'jetpack_portfolio'            => '(bool) Whether portfolio custom post type is enabled for the site',
@@ -2801,6 +2804,9 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'holidaysnow'                  => '(bool) Enable snowfall on frontend of site?',
 		'timezone_string'              => '(string) PHP-compatible timezone string like \'UTC-5\'',
 		'gmt_offset'                   => '(int) Site offset from UTC in hours',
+		'date_format'                  => '(string) PHP Date-compatible date format',
+		'time_format'                  => '(string) PHP Date-compatible time format',
+		'start_of_week'                => '(int) Starting day of week (0 = Sunday, 6 = Saturday)',
 		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The seo meta description for the site.',
 		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
@@ -3379,5 +3385,5 @@ new WPCOM_JSON_API_Publicize_Endpoint( array(
 		'body' => array(
 			'message'   => 'Hello World',
 		)
-	)	
+	)
  ) );
