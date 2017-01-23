@@ -691,7 +691,7 @@ function sharing_display( $text = '', $echo = false ) {
 					/**
 					 * Filter the sharing buttons' headline structure.
 					 *
-					 * @module sharing
+					 * @module sharedaddy
 					 *
 					 * @since 4.4.0
 					 *
