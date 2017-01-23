@@ -76,6 +76,18 @@ class Jetpack_JITM {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'backups_updates_msg' ) );
 		}
+		elseif ( ! Jetpack::is_plugin_active( 'woocommerce-services/woocommerce-services.php' ) ) {
+			 $pages_to_display = array(
+				 'woocommerce_page_wc-settings', // WooCommerce > Settings
+				 'edit-shop_order', // WooCommerce > Orders
+				 'shop_order', // WooCommerce > Edit Order
+			 );
+
+			if ( in_array( $screen->id, $pages_to_display ) ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+				add_action( 'admin_notices', array( $this, 'woocommerce_services_msg' ) );
+			}
+		}
 	}
 
 	/*
@@ -412,6 +424,56 @@ class Jetpack_JITM {
             </p>
         </div>
 		<?php
+	}
+
+	/**
+	 * Display message prompting user to install WooCommerce Services.
+	 *
+	 * @since 4.6
+	 */
+	function woocommerce_services_msg() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			return;
+		}
+
+		if ( isset( self::$jetpack_hide_jitm['woocommerce_services'] ) ) {
+			return;
+		}
+
+		if ( ! function_exists( 'wc_get_base_location' ) ) {
+			return;
+		}
+
+		$base_location   = wc_get_base_location();
+		$store_in_usa    = ( 'US' == $base_location['country'] );
+		$store_in_canada = ( 'CA' == $base_location['country'] );
+
+		if ( $store_in_usa ) {
+			$message = __( 'Try our new service for USPS shipping & label-printing.', 'jetpack' );
+		}
+		elseif ( $store_in_canada ) {
+			$message = __( 'Try our new Canada Post shipping service.', 'jetpack' );
+		}
+		else {
+			return;
+		}
+
+		?>
+		<div class="jp-jitm">
+			<a href="#"  data-module="woocommerce_services" class="dismiss"><span class="genericon genericon-close"></span></a>
+			<?php echo self::get_emblem(); ?>
+			<p class="msg">
+				<?php echo esc_html( $message ); ?>
+			</p>
+			<p>
+				<a href="#" target="_blank" title="<?php esc_attr_e( 'Install WooCommerce Services', 'jetpack' ); ?>" data-module="woocommerce_services" class="button button-jetpack launch show-after-enable"><?php esc_html_e( 'Install WooCommerce Services', 'jetpack' ); ?></a>
+			</p>
+		</div>
+		<?php
+		//jitm is being viewed, track it
+		$jetpack = Jetpack::init();
+		$jetpack->stat( 'jitm', 'woocommerce_services-viewed-' . JETPACK__VERSION );
+		$jetpack->do_stats( 'server_side' );
 	}
 
 	/*
