@@ -4,8 +4,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'WC_Connect_Admin_Setup_Wizard' ) ) :
-
 class WC_Services_Installer {
 
 	public function notice() {
@@ -63,5 +61,3 @@ $wc_services_installer = new WC_Services_Installer();
 
 add_action( 'init', array( $wc_services_installer, 'try_install' ) );
 add_action( 'admin_notices', array( $wc_services_installer, 'notice' ) );
-
-endif;
