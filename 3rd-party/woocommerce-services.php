@@ -6,20 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WC_Services_Installer {
 
-	public function notice() {
-		$this->try_install();
-		$link = add_query_arg( array( 'wc-services-action' => 'install' ) );
-?>
-		<div class="notice notice-warning">
-			<p>
-				Hello World. <a href="<?php echo $link; ?>">install</a>
-			</p>
-		</div>
-<?php
-	}
-
 	public function try_install() {
 		$install = filter_input( INPUT_GET, 'wc-services-action' );
+
 		if ( 'install' === $install ) {
 			$this->install();
 			wp_redirect( esc_url_raw( remove_query_arg( array( 'wc-services-action' ) ) ) );
@@ -60,4 +49,3 @@ class WC_Services_Installer {
 $wc_services_installer = new WC_Services_Installer();
 
 add_action( 'init', array( $wc_services_installer, 'try_install' ) );
-add_action( 'admin_notices', array( $wc_services_installer, 'notice' ) );
