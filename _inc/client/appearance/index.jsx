@@ -85,7 +85,10 @@ export const Page = React.createClass( {
 
 			if ( 'infinite-scroll' === element[0] && noInfiniteScrollSupport ) {
 				toggle = (
-					<InfoPopover screenReaderText={ __( 'Learn more' ) }>
+					<InfoPopover
+						className="jp-module-settings__infinite-scroll"
+						screenReaderText={ __( 'Learn more' ) }
+					>
 						<ExternalLink icon={ true } iconSize={ 14 } href={ element[3] } target="_blank">
 							{ __( 'Theme support required.' ) }
 						</ExternalLink>
