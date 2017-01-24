@@ -35,9 +35,10 @@ class WP_Test_Jetpack_Sync_SSO extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sync_sso_new_user_override_filter_true() {
 		add_filter( 'jetpack_sso_new_user_override', '__return_true' );
+		update_option( 'default_role', 'subscriber' );
 		$this->sender->do_sync();
 		$callableValue = $this->server_replica_storage->get_callable( 'sso_new_user_override' );
-		$this->assertTrue( $callableValue );
+		$this->assertEquals( 'subscriber', $callableValue );
 		remove_filter( 'jetpack_sso_new_user_override', '__return_true' );
 	}
 
