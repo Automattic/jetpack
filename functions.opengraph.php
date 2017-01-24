@@ -264,16 +264,14 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	$image = array();
 
 	if ( is_singular() && ! is_home() ) {
-		global $post;
-
-		// Grab obvious image if $post is an attachment page for an image
-		if ( is_attachment( $post->ID ) && 'image' == substr( $post->post_mime_type, 0, 5 ) ) {
-			$image['src'] = wp_get_attachment_url( $post->ID );
+		// Grab obvious image if post is an attachment page for an image
+		if ( is_attachment( get_the_ID() ) && 'image' == substr( get_post_mime_type(), 0, 5 ) ) {
+			$image['src'] = wp_get_attachment_url( get_the_ID() );
 		}
 
 		// Attempt to find something good for this post using our generalized PostImages code
 		if ( empty( $image ) && class_exists( 'Jetpack_PostImages' ) ) {
-			$post_images = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
+			$post_images = Jetpack_PostImages::get_images( get_the_ID(), array( 'width' => $width, 'height' => $height ) );
 			if ( $post_images && ! is_wp_error( $post_images ) ) {
 				foreach ( (array) $post_images as $post_image ) {
 					$image['src'] = $post_image['src'];
