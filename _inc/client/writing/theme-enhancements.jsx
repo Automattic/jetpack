@@ -57,7 +57,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 							}
 						].map( item => {
 							return (
-								<div key={ `theme_enhancement_${ item.module }` }>
+								<div className="jp-form-has-child" key={ `theme_enhancement_${ item.module }` }>
 									<ModuleToggle slug={ item.module }
 												  compact
 												  activated={ this.props.getOptionValue( item.module ) }

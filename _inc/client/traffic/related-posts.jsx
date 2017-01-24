@@ -54,24 +54,25 @@ export const RelatedPosts = moduleSettingsForm(
 					{ ...this.props }
 					hideButton
 					module="related-posts">
-					<ModuleToggle slug="related-posts"
-								  compact
-								  activated={ isRelatedPostsActive }
-								  toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
-								  toggleModule={ this.props.toggleModuleNow }>
+					<div className="jp-form-has-child">
+						<ModuleToggle slug="related-posts"
+									  compact
+									  activated={ isRelatedPostsActive }
+									  toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
+									  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Show related content after posts.' )
 							}
 						</span>
-					</ModuleToggle>
-					{
-						// Only show controls if Related Posts module:
-						// - is active and it's not being toggled off
-						// - is inactive and it's being toggled on.
-						( isRelatedPostsActive && ! this.props.isSavingAnyOption( 'related-posts' ) ) ||
-						( ! isRelatedPostsActive && this.props.isSavingAnyOption( 'related-posts' ) )
-							? <FormFieldset>
+						</ModuleToggle>
+						{
+							// Only show controls if Related Posts module:
+							// - is active and it's not being toggled off
+							// - is inactive and it's being toggled on.
+							( isRelatedPostsActive && ! this.props.isSavingAnyOption( 'related-posts' ) ) ||
+							( ! isRelatedPostsActive && this.props.isSavingAnyOption( 'related-posts' ) )
+								? <FormFieldset>
 								{
 									__( '{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}', {
 										components: {
@@ -135,9 +136,10 @@ export const RelatedPosts = moduleSettingsForm(
 										) )
 									}
 								</Card>
-							  </FormFieldset>
-							: ''
-					}
+							</FormFieldset>
+								: ''
+						}
+					</div>
 				</SettingsCard>
 			);
 		}

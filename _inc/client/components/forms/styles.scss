@@ -95,3 +95,10 @@
 		border-left: 0;
 	}
 }
+
+.jp-form-has-child {
+	& > .jp-form-fieldset,
+	& > .jp-form-setting-explanation {
+		margin-left: rem( 36px );
+	}
+}

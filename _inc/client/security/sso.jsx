@@ -25,26 +25,26 @@ export const SSO = moduleSettingsForm(
 					{ ...this.props }
 					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
-					<ModuleToggle slug="sso"
-								  compact
-								  activated={ isSSOActive }
-								  toggling={ this.props.isSavingAnyOption( 'sso' ) }
-								  toggleModule={ this.props.toggleModuleNow }>
+					<div className="jp-form-has-child">
+						<ModuleToggle slug="sso"
+									  compact
+									  activated={ isSSOActive }
+									  toggling={ this.props.isSavingAnyOption( 'sso' ) }
+									  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'sso' ).description
 							}
 						</span>
-					</ModuleToggle>
-					{
-						isSSOActive
-							? <div>
-								<p className="jp-form-setting-explanation">
-									{
-										__( 'Use WordPress.com’s secure authentication.' )
-									}
-								</p>
-								<FormFieldset>
+						</ModuleToggle>
+						{
+							isSSOActive
+								? <FormFieldset>
+									<p className="jp-form-setting-explanation">
+										{
+											__( 'Use WordPress.com’s secure authentication.' )
+										}
+									</p>
 									<ModuleSettingCheckbox
 										name={ 'jetpack_sso_match_by_email' }
 										{ ...this.props }
@@ -53,10 +53,10 @@ export const SSO = moduleSettingsForm(
 										name={ 'jetpack_sso_require_two_step' }
 										{ ...this.props }
 										label={ __( 'Require two step authentication.' ) } />
-								</FormFieldset>
-							  </div>
-							: ''
-					}
+								  </FormFieldset>
+								: ''
+						}
+					</div>
 				</SettingsCard>
 			);
 		}

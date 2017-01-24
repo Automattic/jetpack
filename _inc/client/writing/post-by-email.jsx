@@ -44,20 +44,21 @@ export const PostByEmail = moduleSettingsForm(
 					{ ...this.props }
 					module="post-by-email"
 					hideButton>
-					<ModuleToggle slug="post-by-email"
-								  compact
-								  activated={ isPbeActive }
-								  toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
-								  toggleModule={ this.props.toggleModuleNow }>
+					<div className="jp-form-has-child">
+						<ModuleToggle slug="post-by-email"
+									  compact
+									  activated={ isPbeActive }
+									  toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
+									  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'post-by-email' ).description
 							}
 						</span>
-					</ModuleToggle>
-					{
-						isPbeActive
-							? <FormFieldset>
+						</ModuleToggle>
+						{
+							isPbeActive
+								? <FormFieldset>
 								<FormLabel>
 									<FormLegend>{ __( 'Email Address' ) }</FormLegend>
 									<ClipboardButtonInput
@@ -71,9 +72,10 @@ export const PostByEmail = moduleSettingsForm(
 									onClick={ this.regeneratePostByEmailAddress } >
 									{ __( 'Regenerate address' ) }
 								</Button>
-							  </FormFieldset>
-							: ''
-					}
+							</FormFieldset>
+								: ''
+						}
+					</div>
 				</SettingsCard>
 			);
 		}

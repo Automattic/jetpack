@@ -45,36 +45,39 @@ export const Media = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Media' ) }>
-					<ModuleToggle slug="photon"
-								  compact
-								  activated={ this.props.getOptionValue( 'photon' ) }
-								  toggling={ this.props.isSavingAnyOption( 'photon' ) }
-								  toggleModule={ this.toggleModule }>
+					<div className="jp-form-has-child">
+						<ModuleToggle slug="photon"
+									  compact
+									  activated={ this.props.getOptionValue( 'photon' ) }
+									  toggling={ this.props.isSavingAnyOption( 'photon' ) }
+									  toggleModule={ this.toggleModule }>
 						<span className="jp-form-toggle-explanation">
 							{
 								photon.description
 							}
 						</span>
-					</ModuleToggle>
-					<span className="jp-form-setting-explanation">
-						{
-							__( 'Enabling Photon is required to use Tiled Galleries.' )
-						}
-					</span>
-					<ModuleToggle slug="carousel"
-								  compact
-								  activated={ isCarouselActive }
-								  toggling={ this.props.isSavingAnyOption( 'carousel' ) }
-								  toggleModule={ this.props.toggleModuleNow }>
+						</ModuleToggle>
+						<span className="jp-form-setting-explanation">
+							{
+								__( 'Enabling Photon is required to use Tiled Galleries.' )
+							}
+						</span>
+					</div>
+					<div className="jp-form-has-child">
+						<ModuleToggle slug="carousel"
+									  compact
+									  activated={ isCarouselActive }
+									  toggling={ this.props.isSavingAnyOption( 'carousel' ) }
+									  toggleModule={ this.props.toggleModuleNow }>
 								<span className="jp-form-toggle-explanation">
 									{
 										carousel.description
 									}
 								</span>
-					</ModuleToggle>
-					{
-						isCarouselActive
-							? <FormFieldset support={ carousel.learn_more_button }>
+						</ModuleToggle>
+						{
+							isCarouselActive
+								? <FormFieldset support={ carousel.learn_more_button }>
 								<ModuleSettingCheckbox
 									name={ 'carousel_display_exif' }
 									{ ...this.props }
@@ -87,9 +90,10 @@ export const Media = moduleSettingsForm(
 										{ ...this.props }
 										validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
 								</FormLabel>
-							  </FormFieldset>
-							: ''
-					}
+							</FormFieldset>
+								: ''
+						}
+					</div>
 				</SettingsCard>
 			);
 		}

@@ -65,54 +65,58 @@ export const CustomContentTypes = moduleSettingsForm(
 							module.description
 						}
 					</p>
-					<FormToggle compact
-								checked={ this.state.testimonial }
-								disabled={ this.props.isSavingAnyOption() }
-								onChange={ e => this.updateCPTs( 'testimonial' ) }>
+					<div className="jp-form-has-child">
+						<FormToggle compact
+									checked={ this.state.testimonial }
+									disabled={ this.props.isSavingAnyOption() }
+									onChange={ e => this.updateCPTs( 'testimonial' ) }>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Enable Testimonial custom content types.' )
 							}
 						</span>
-					</FormToggle>
-					<FormFieldset>
-						{
-							this.state.testimonial
-								? <p className="jp-form-setting-explanation">
+						</FormToggle>
+						<FormFieldset>
+							{
+								this.state.testimonial
+									? <p className="jp-form-setting-explanation">
 									{
 										__( "The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials." )
 									}
-								  </p>
-								: ''
-						}
-						{
-							this.contentTypeConfigure( 'testimonial', __( 'Configure Testimonials' ) )
-						}
-					</FormFieldset>
-					<FormToggle compact
-								checked={ this.state.portfolio }
-								disabled={ this.props.isSavingAnyOption() }
-								onChange={ e => this.updateCPTs( 'portfolio' ) }>
+								</p>
+									: ''
+							}
+							{
+								this.contentTypeConfigure( 'testimonial', __( 'Configure Testimonials' ) )
+							}
+						</FormFieldset>
+					</div>
+					<div className="jp-form-has-child">
+						<FormToggle compact
+									checked={ this.state.portfolio }
+									disabled={ this.props.isSavingAnyOption() }
+									onChange={ e => this.updateCPTs( 'portfolio' ) }>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Enable Portfolio custom content types.' )
 							}
 						</span>
-					</FormToggle>
-					<FormFieldset>
-						{
-							this.state.portfolio
-								? <p className="jp-form-setting-explanation">
+						</FormToggle>
+						<FormFieldset>
+							{
+								this.state.portfolio
+									? <p className="jp-form-setting-explanation">
 									{
 										__( "The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios." )
 									}
-								  </p>
-								: ''
-						}
-						{
-							this.contentTypeConfigure( 'portfolio', __( 'Configure Portfolios' ) )
-						}
-					</FormFieldset>
+								</p>
+									: ''
+							}
+							{
+								this.contentTypeConfigure( 'portfolio', __( 'Configure Portfolios' ) )
+							}
+						</FormFieldset>
+					</div>
 				</SettingsCard>
 			);
 		}

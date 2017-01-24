@@ -25,20 +25,21 @@ export const Subscriptions = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="subscriptions">
-					<ModuleToggle slug="subscriptions"
-								  compact
-								  activated={ isSubscriptionsActive }
-								  toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
-								  toggleModule={ this.props.toggleModuleNow }>
+					<div className="jp-form-has-child">
+						<ModuleToggle slug="subscriptions"
+									  compact
+									  activated={ isSubscriptionsActive }
+									  toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
+									  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'subscriptions' ).description
 							}
 						</span>
-					</ModuleToggle>
-					{
-						isSubscriptionsActive
-							? <FormFieldset>
+						</ModuleToggle>
+						{
+							isSubscriptionsActive
+								? <FormFieldset>
 								<p>
 									<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
 								</p>
@@ -50,9 +51,10 @@ export const Subscriptions = moduleSettingsForm(
 									name={ 'stc_enabled' }
 									{ ...this.props }
 									label={ __( 'Show a "follow comments" option in the comment form.' ) } />
-							  </FormFieldset>
-							: ''
-					}
+							</FormFieldset>
+								: ''
+						}
+					</div>
 				</SettingsCard>
 			);
 		}

@@ -111,22 +111,24 @@ export const Composing = moduleSettingsForm(
 						</ModuleToggle>
 					</FormFieldset>
 					<hr />
-					<FormFieldset support={ atd.learn_more_button }>
+					<div className="jp-form-has-child">
 						<ModuleToggle slug="after-the-deadline"
 									  compact
 									  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
 									  toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
-							<span className="jp-form-toggle-explanation">
-								{ atd.description }
-							</span>
+						<span className="jp-form-toggle-explanation">
+							{ atd.description }
+						</span>
 						</ModuleToggle>
-						{
-							this.props.getOptionValue( 'after-the-deadline' )
-								? <InlineExpand label={ __( 'Fancy options' ) }>{ this.getAtdSettings() }</InlineExpand>
-								: ''
-						}
-					</FormFieldset>
+						<FormFieldset support={ atd.learn_more_button }>
+							{
+								this.props.getOptionValue( 'after-the-deadline' )
+									? <InlineExpand label={ __( 'Fancy options' ) }>{ this.getAtdSettings() }</InlineExpand>
+									: ''
+							}
+						</FormFieldset>
+					</div>
 				</SettingsCard>
 			);
 		}
