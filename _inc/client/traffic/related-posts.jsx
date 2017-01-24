@@ -16,7 +16,10 @@ import {
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import SettingsCard from 'components/settings-card';
+import {
+	SettingsCard,
+	SettingsGroup
+} from 'components/settings-card';
 
 export const RelatedPosts = moduleSettingsForm(
 	React.createClass( {
@@ -54,7 +57,7 @@ export const RelatedPosts = moduleSettingsForm(
 					{ ...this.props }
 					hideButton
 					module="related-posts">
-					<div className="jp-form-has-child">
+					<SettingsGroup hasChild support={ this.props.getModule( 'related-posts' ).learn_more_button }>
 						<ModuleToggle slug="related-posts"
 									  compact
 									  activated={ isRelatedPostsActive }
@@ -139,7 +142,7 @@ export const RelatedPosts = moduleSettingsForm(
 							</FormFieldset>
 								: ''
 						}
-					</div>
+					</SettingsGroup>
 				</SettingsCard>
 			);
 		}

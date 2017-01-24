@@ -13,7 +13,10 @@ import { FormFieldset } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
-import SettingsCard from 'components/settings-card';
+import {
+	SettingsCard,
+	SettingsGroup
+} from 'components/settings-card';
 
 export const SSO = moduleSettingsForm(
 	React.createClass( {
@@ -25,7 +28,7 @@ export const SSO = moduleSettingsForm(
 					{ ...this.props }
 					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
-					<div className="jp-form-has-child">
+					<SettingsGroup hasChild support={ this.props.getModule( 'sso' ).learn_more_button }>
 						<ModuleToggle slug="sso"
 									  compact
 									  activated={ isSSOActive }
@@ -56,7 +59,7 @@ export const SSO = moduleSettingsForm(
 								  </FormFieldset>
 								: ''
 						}
-					</div>
+					</SettingsGroup>
 				</SettingsCard>
 			);
 		}

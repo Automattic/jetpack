@@ -62,7 +62,7 @@
 
 .jp-form-fieldset {
 
-	margin-bottom: 4em;
+	margin-bottom: rem( 24px );
 	position: relative;
 
 	.jp-form-legend + .jp-form-setting-explanation {
@@ -71,6 +71,10 @@
 
 	.jp-form-setting-explanation + .jp-form-label {
 		margin-top: rem( 16px );
+	}
+
+	&:last-child {
+		margin-bottom: 0;
 	}
 }
 
@@ -96,7 +100,21 @@
 	}
 }
 
+.jp-form-settings-card {
+	margin-bottom: rem( 24px );
+
+	& > .jp-form-settings-group {
+		margin: 0;
+	}
+}
+
 .jp-form-has-child {
+	margin-bottom: rem( 24px );
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
 	& > .jp-form-fieldset,
 	& > .jp-form-setting-explanation {
 		margin-left: rem( 36px );

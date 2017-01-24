@@ -17,7 +17,10 @@ import {
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import SettingsCard from 'components/settings-card';
+import {
+	SettingsCard,
+	SettingsGroup
+} from 'components/settings-card';
 
 export const Comments = moduleSettingsForm(
 	React.createClass( {
@@ -30,7 +33,7 @@ export const Comments = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="comments">
-					<div className="jp-form-has-child">
+					<SettingsGroup hasChild support={ comments.learn_more_button }>
 						<ModuleToggle slug="comments"
 									  compact
 									  activated={ this.props.getOptionValue( 'comments' ) }
@@ -66,34 +69,35 @@ export const Comments = moduleSettingsForm(
 								  </FormFieldset>
 								: ''
 						}
-					</div>
-					<hr />
-					<FormFieldset support={ gravatar.learn_more_button }>
-						<ModuleToggle slug="gravatar-hovercards"
-									  compact
-									  activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
-									  toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+					</SettingsGroup>
+					<SettingsGroup>
+						<FormFieldset support={ gravatar.learn_more_button }>
+							<ModuleToggle slug="gravatar-hovercards"
+										  compact
+										  activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
+										  toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
+										  toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
 								{
 									gravatar.description
 								}
 							</span>
-						</ModuleToggle>
-					</FormFieldset>
-					<FormFieldset support={ markdown.learn_more_button }>
-						<ModuleToggle slug="markdown"
-									  compact
-									  activated={ !!this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
-									  toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
-									  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'wpcom_publish_comments_with_markdown' ) }>
+							</ModuleToggle>
+						</FormFieldset>
+						<FormFieldset support={ markdown.learn_more_button }>
+							<ModuleToggle slug="markdown"
+										  compact
+										  activated={ !!this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
+										  toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
+										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'wpcom_publish_comments_with_markdown' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
 									__( 'Enable Markdown use for comments.' )
 								}
 							</span>
-						</ModuleToggle>
-					</FormFieldset>
+							</ModuleToggle>
+						</FormFieldset>
+					</SettingsGroup>
 				</SettingsCard>
 			);
 		}

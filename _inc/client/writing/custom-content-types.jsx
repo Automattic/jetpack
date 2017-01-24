@@ -16,7 +16,10 @@ import {
 	FormLabel
 } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import SettingsCard from 'components/settings-card';
+import {
+	SettingsCard,
+	SettingsGroup
+} from 'components/settings-card';
 
 export const CustomContentTypes = moduleSettingsForm(
 	React.createClass( {
@@ -60,21 +63,21 @@ export const CustomContentTypes = moduleSettingsForm(
 					{ ...this.props }
 					module="custom-content-types"
 					hideButton>
-					<p>
-						{
-							module.description
-						}
-					</p>
-					<div className="jp-form-has-child">
+					<SettingsGroup hasChild support={ module.learn_more_button }>
+						<p>
+							{
+								module.description
+							}
+						</p>
 						<FormToggle compact
 									checked={ this.state.testimonial }
 									disabled={ this.props.isSavingAnyOption() }
 									onChange={ e => this.updateCPTs( 'testimonial' ) }>
-						<span className="jp-form-toggle-explanation">
-							{
-								__( 'Enable Testimonial custom content types.' )
-							}
-						</span>
+							<span className="jp-form-toggle-explanation">
+								{
+									__( 'Enable Testimonial custom content types.' )
+								}
+							</span>
 						</FormToggle>
 						<FormFieldset>
 							{
@@ -86,21 +89,21 @@ export const CustomContentTypes = moduleSettingsForm(
 								</p>
 									: ''
 							}
-							{
-								this.contentTypeConfigure( 'testimonial', __( 'Configure Testimonials' ) )
-							}
+							<p>
+								{
+									this.contentTypeConfigure( 'testimonial', __( 'Configure Testimonials' ) )
+								}
+							</p>
 						</FormFieldset>
-					</div>
-					<div className="jp-form-has-child">
 						<FormToggle compact
 									checked={ this.state.portfolio }
 									disabled={ this.props.isSavingAnyOption() }
 									onChange={ e => this.updateCPTs( 'portfolio' ) }>
-						<span className="jp-form-toggle-explanation">
-							{
-								__( 'Enable Portfolio custom content types.' )
-							}
-						</span>
+							<span className="jp-form-toggle-explanation">
+								{
+									__( 'Enable Portfolio custom content types.' )
+								}
+							</span>
 						</FormToggle>
 						<FormFieldset>
 							{
@@ -112,11 +115,13 @@ export const CustomContentTypes = moduleSettingsForm(
 								</p>
 									: ''
 							}
-							{
-								this.contentTypeConfigure( 'portfolio', __( 'Configure Portfolios' ) )
-							}
+							<p>
+								{
+									this.contentTypeConfigure( 'portfolio', __( 'Configure Portfolios' ) )
+								}
+							</p>
 						</FormFieldset>
-					</div>
+					</SettingsGroup>
 				</SettingsCard>
 			);
 		}

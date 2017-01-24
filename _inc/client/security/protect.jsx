@@ -19,7 +19,10 @@ import {
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import SettingsCard from 'components/settings-card';
+import {
+	SettingsCard,
+	SettingsGroup
+} from 'components/settings-card';
 
 export const Protect = moduleSettingsForm(
 	React.createClass( {
@@ -69,7 +72,7 @@ export const Protect = moduleSettingsForm(
 					{ ...this.props }
 					module="protect"
 					header={ __( 'Brute force protection', { context: 'Settings header' } ) } >
-					<div className="jp-form-has-child">
+					<SettingsGroup hasChild support={ this.props.getModule( 'protect' ).learn_more_button }>
 						<ModuleToggle slug="protect"
 									  compact
 									  activated={ isProtectActive }
@@ -125,7 +128,7 @@ export const Protect = moduleSettingsForm(
 								  </FormFieldset>
 								: ''
 						}
-					</div>
+					</SettingsGroup>
 				</SettingsCard>
 			)
 		}

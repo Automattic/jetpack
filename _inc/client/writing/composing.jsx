@@ -18,7 +18,10 @@ import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import TagsInput from 'components/tags-input';
-import SettingsCard from 'components/settings-card';
+import {
+	SettingsCard,
+	SettingsGroup
+} from 'components/settings-card';
 import InlineExpand from 'components/inline-expand';
 
 export const Composing = moduleSettingsForm(
@@ -99,36 +102,37 @@ export const Composing = moduleSettingsForm(
 
 			return (
 				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }>
-					<FormFieldset support={ markdown.learn_more_button }>
-						<ModuleToggle slug="markdown"
-									  compact
-									  activated={ this.props.getOptionValue( 'markdown' ) }
-									  toggling={ this.props.isSavingAnyOption( 'markdown' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
-							<span className="jp-form-toggle-explanation">
-								{ markdown.description }
-							</span>
-						</ModuleToggle>
-					</FormFieldset>
-					<hr />
-					<div className="jp-form-has-child">
+					<SettingsGroup support={ markdown.learn_more_button }>
+						<FormFieldset>
+							<ModuleToggle slug="markdown"
+										  compact
+										  activated={ this.props.getOptionValue( 'markdown' ) }
+										  toggling={ this.props.isSavingAnyOption( 'markdown' ) }
+										  toggleModule={ this.props.toggleModuleNow }>
+								<span className="jp-form-toggle-explanation">
+									{ markdown.description }
+								</span>
+							</ModuleToggle>
+						</FormFieldset>
+					</SettingsGroup>
+					<SettingsGroup hasChild support={ atd.learn_more_button }>
 						<ModuleToggle slug="after-the-deadline"
 									  compact
 									  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
 									  toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
-						<span className="jp-form-toggle-explanation">
-							{ atd.description }
-						</span>
+							<span className="jp-form-toggle-explanation">
+								{ atd.description }
+							</span>
 						</ModuleToggle>
-						<FormFieldset support={ atd.learn_more_button }>
+						<FormFieldset>
 							{
 								this.props.getOptionValue( 'after-the-deadline' )
 									? <InlineExpand label={ __( 'Fancy options' ) }>{ this.getAtdSettings() }</InlineExpand>
 									: ''
 							}
 						</FormFieldset>
-					</div>
+					</SettingsGroup>
 				</SettingsCard>
 			);
 		}
