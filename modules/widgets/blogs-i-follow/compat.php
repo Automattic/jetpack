@@ -13,6 +13,3 @@ function get_blog_option() {
 endif;
 function blavatar_domain() {}
 function blavatar_exists() {}
-function staticize_subdomain( $url ) {
-	return $url;
-}

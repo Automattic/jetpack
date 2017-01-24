@@ -9,6 +9,7 @@
 interface iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs( $args );
 	public function get_blog_locale();
+	public function staticize_subdomain( $url );
 }
 
 class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
@@ -64,6 +65,10 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 	public function get_blog_locale() {
 		return substr( get_locale(), 0, 2 );
 	}
+
+	public function staticize_subdomain( $url ) {
+		return Jetpack::staticize_subdomain( $url );
+	}
 }
 
 class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
@@ -73,5 +78,9 @@ class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 
 	public function get_blog_locale() {
 		return get_blog_locale();
+	}
+
+	public function staticize_subdomain( $url ) {
+		return staticize_subdomain( $url );
 	}
 }
