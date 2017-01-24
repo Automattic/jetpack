@@ -58,7 +58,8 @@ class Jetpack_SSO_Helpers {
 		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
 
 		/**
-		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations.
+		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations. 
+		 * If you return a string that corresponds to a user role, the user will be given that role.
 		 *
 		 * @module sso
 		 *
@@ -68,7 +69,17 @@ class Jetpack_SSO_Helpers {
 		 * @param bool        $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
 		 * @param object|null $user_data         An object containing the user data returned from WordPress.com.
 		 */
-		return (bool) apply_filters( 'jetpack_sso_new_user_override', $new_user_override, $user_data );
+		$role = apply_filters( 'jetpack_sso_new_user_override', $new_user_override, $user_data );
+
+		if ( $role ) {
+			if ( is_string( $role ) && get_role( $role ) ) {
+				return $role;
+			} else {
+				return get_option( 'default_role' );
+			}
+		}
+
+		return false;
 	}
 
 	/**
