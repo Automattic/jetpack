@@ -846,13 +846,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 * }
 	 *
 	 * @return bool|WP_Error True if Jumpstart succeeded. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public static function jumpstart_activate( $data ) {
+	public static function jumpstart_activate( $request ) {
 		$modules = Jetpack::get_available_modules();
 		$activate_modules = array();
 		foreach ( $modules as $module ) {
@@ -930,13 +930,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 * }
 	 *
 	 * @return bool|WP_Error True if Jumpstart was disabled or was nothing to dismiss. Otherwise, a WP_Error instance with a message.
 	 */
-	public static function jumpstart_deactivate( $data ) {
+	public static function jumpstart_deactivate( $request ) {
 
 		// If dismissed, flag the jumpstart option as such.
 		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
@@ -2360,7 +2360,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.2.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
@@ -2368,7 +2368,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public static function get_plugin( $data ) {
+	public static function get_plugin( $request ) {
 
 		$plugins = self::core_get_plugins();
 
@@ -2376,7 +2376,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'no_plugins_found', esc_html__( 'This site has no plugins.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		$plugin = stripslashes( $data['plugin'] );
+		$plugin = stripslashes( $request['plugin'] );
 
 		if ( ! in_array( $plugin, array_keys( $plugins ) ) ) {
 			return new WP_Error( 'plugin_not_found', esc_html( sprintf( __( 'Plugin %s is not installed.', 'jetpack' ), $plugin ) ), array( 'status' => 404 ) );

@@ -12,7 +12,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -21,11 +21,11 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 *
 	 * @return WP_REST_Response|WP_Error A REST response if the request was served successfully, otherwise an error.
 	 */
-	public function process( $data ) {
-		if ( $data['active'] ) {
-			return $this->activate_module( $data );
+	public function process( $request ) {
+		if ( $request['active'] ) {
+			return $this->activate_module( $request );
 		} else {
-			return $this->deactivate_module( $data );
+			return $this->deactivate_module( $request );
 		}
 	}
 
@@ -34,7 +34,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|WP_REST_Request $data {
+	 * @param string|WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -42,10 +42,10 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 *
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public function activate_module( $data ) {
-		$module_slug = isset( $data['slug'] )
-			? $data['slug']
-			: $data;
+	public function activate_module( $request ) {
+		$module_slug = isset( $request['slug'] )
+			? $request['slug']
+			: $request;
 
 		if ( ! Jetpack::is_module( $module_slug ) ) {
 			return new WP_Error(
@@ -74,7 +74,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|WP_REST_Request $data {
+	 * @param string|WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -82,10 +82,10 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 *
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public function deactivate_module( $data ) {
-		$module_slug = isset( $data['slug'] )
-			? $data['slug']
-			: $data;
+	public function deactivate_module( $request ) {
+		$module_slug = isset( $request['slug'] )
+			? $request['slug']
+			: $request;
 
 		if ( ! Jetpack::is_module( $module_slug ) ) {
 			return new WP_Error(
@@ -292,19 +292,19 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data
+	 * @param WP_REST_Request $request
 	 *
 	 * @return bool|mixed|void|WP_Error
 	 */
-	public function process( $data ) {
-		if ( 'GET' === $data->get_method() ) {
-			if ( isset( $data['slug'] ) ) {
-				return $this->get_module( $data );
+	public function process( $request ) {
+		if ( 'GET' === $request->get_method() ) {
+			if ( isset( $request['slug'] ) ) {
+				return $this->get_module( $request );
 			}
 
-			return $this->get_all_options( $data );
+			return $this->get_all_options( $request );
 		} else {
-			return $this->update_data( $data );
+			return $this->update_data( $request );
 		}
 	}
 
@@ -313,7 +313,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -321,12 +321,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @return mixed|void|WP_Error
 	 */
-	public function get_module( $data ) {
-		if ( Jetpack::is_module( $data['slug'] ) ) {
+	public function get_module( $request ) {
+		if ( Jetpack::is_module( $request['slug'] ) ) {
 
-			$module = Jetpack::get_module( $data['slug'] );
+			$module = Jetpack::get_module( $request['slug'] );
 
-			$module['options'] = Jetpack_Core_Json_Api_Endpoints::prepare_options_for_response( $data['slug'] );
+			$module['options'] = Jetpack_Core_Json_Api_Endpoints::prepare_options_for_response( $request['slug'] );
 
 			if (
 				isset( $module['requires_connection'] )
@@ -336,7 +336,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				$module['activated'] = false;
 			}
 
-			$i18n = jetpack_get_module_i18n( $data['slug'] );
+			$i18n = jetpack_get_module_i18n( $request['slug'] );
 			if ( isset( $module['name'] ) ) {
 				$module['name'] = $i18n['name'];
 			}
@@ -360,13 +360,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @since 4.6.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 * }
 	 *
 	 * @return array
 	 */
-	public function get_all_options( $data ) {
+	public function get_all_options( $request ) {
 		$response = array();
 
 		$modules = Jetpack::get_available_modules();
@@ -944,7 +944,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 *
 	 * @since 4.1.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $date Date range to restrict results to.
@@ -952,9 +952,9 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 *
 	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
 	 */
-	public function get_stats_data( WP_REST_Request $data ) {
+	public function get_stats_data( WP_REST_Request $request ) {
 		// Get parameters to fetch Stats data.
-		$range = $data->get_param( 'range' );
+		$range = $request->get_param( 'range' );
 
 		// If no parameters were passed.
 		if (
@@ -1166,8 +1166,6 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 * decides if the current user has enough privileges to act.
 	 *
 	 * @since 4.3.0
-	 *
-	 * @param WP_REST_Request $request
 	 *
 	 * @return bool does a current user have enough privileges.
 	 */
