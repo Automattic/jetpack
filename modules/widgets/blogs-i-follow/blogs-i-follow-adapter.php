@@ -4,7 +4,7 @@
  * Interface to encapsulate data and settings needed by the Blogs I Follow widget.
  *
  * This allows the plugin code to stay in sync between WordPress.com and Jetpack,
- * leaving the particulars to each flavor.
+ * leaving the particulars to each implementation below.
  */
 interface iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs( $args );
@@ -16,6 +16,14 @@ interface iBlogs_I_Follow_Adapter {
 	public function get_blavatar( $blog_url, $avatar_size );
 }
 
+/**
+ * Implements Blogs I Follow functionality specific to the Jetpack plugin
+ *
+ * Provides equivalent functionality (where possible) to WPCOM for Jetpack
+ * plugin users. Each function has an analagous implementation in WPCOM.
+ *
+ * @see Blogs_I_Follow_WPCOM_Adapter
+ */
 class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 	/**
 	 * Converts data from the WordPress.com REST API into a format usable by the plugin
@@ -23,6 +31,10 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 	 * The read/following/mine API is not identical in its contents or format to the private
 	 * WPCOM tables used for Blogs I Follow. The data must be translated into a format that
 	 * loosely conforms to what the plugin expects.
+	 *
+	 * @param object $subscription The subscription element retrieved from the REST API
+	 * @return array The return value is an array reformmated to be similar to the data
+	 * format used in WPCOM
 	 */
 	private function convert_rest_subscription( $subscription ) {
 		return array(
@@ -36,8 +48,13 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 
 	/**
 	 * Retrieve the user's followed blogs from the WordPress.com REST API
+	 *
+	 * @param array $args An array of arguments used by WPCOM (including the
+	 * user id). It is ignored by this function as the REST API call will be
+	 * done on behalf of the Jetpack-connected account.
+	 * @return array The return value is an array of blog subscription arrays
 	 */
-	public function get_followed_blogs($args) {
+	public function get_followed_blogs( $args ) {
 		$request_args = array(
 			'url' => 'https://public-api.wordpress.com/rest/v1.1/read/following/mine',
 			'user_id' => JETPACK_MASTER_USER,
@@ -66,30 +83,72 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 		}
 	}
 
+	/**
+	 * Returns the configured locale
+	 *
+	 * @return string The return value is a two-character locale string, e.g. 'en'
+	 */
 	public function get_blog_locale() {
 		return substr( get_locale(), 0, 2 );
 	}
 
+	/**
+	 * Passes the given url into Jetpack's version of staticize_subdomain
+	 *
+	 * @param string $url The URL to pass through
+	 * @return string The return value is identical if $url is a non-A8C domain,
+	 * otherwise it is processed to provide a special A8C URL.
+	 */
 	public function staticize_subdomain( $url ) {
 		return Jetpack::staticize_subdomain( $url );
 	}
 
+	/**
+	 * Increments usage stats for this widget
+	 */
 	public function stats_extra() {
 		do_action( 'jetpack_stats_extra', 'widget_view', 'blogs_i_follow' );
 	}
 
-	public function enable_follow_buttons() {
-	}
+	/**
+	 * Provides a no-op implementation for Jetpack
+	 */
+	public function enable_follow_buttons() {}
 
+	/**
+	 * Provides a no-op implementation for Jetpack
+	 *
+	 * @param int $blog_id The identifier of the blog from which the option
+	 * should be retrieved
+	 * @param string $option The option to be queried for the given blog
+	 * @return The return value is always NULL. Currently Jetpack can't retrieve
+	 * options for outside blogs.
+	 */
 	public function get_blog_option( $blog_id, $option ) {
 		return NULL;
 	}
 
+	/**
+	 * Provides a no-op implementation for Jetpack
+	 *
+	 * @param string $blog_url The blog URL whose blavatar is being requested
+	 * @param int $avatar_size The size being requested for the blavatar
+	 * @return The return value is always NULL. Currently this widget can't retrieve
+	 * external blavatars.
+	 */
 	public function get_blavatar( $blog_url, $avatar_size ) {
 		return NULL;
 	}
 }
 
+/**
+ * Implements Blogs I Follow functionality specific to WordPress.com
+ *
+ * Each function passes through to the WPCOM-only functionality needed for
+ * Blogs I Follow in that environment. As each function here is only forwarding
+ * on, refer to the WPCOM implementations of the below functions for further
+ * documentation on what each is doing.
+ */
 class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs($args) {
 		return wpcom_subs_get_blogs($args);
