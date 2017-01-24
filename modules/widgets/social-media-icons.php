@@ -256,7 +256,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 								name="<?php echo $this->get_field_name( $service . '_is_company' ); ?>"
 								<?php checked( $instance[ $service . '_is_company' ], 1 ); ?>
 							/>
-						<label for="<?php echo esc_attr( $this->get_field_id( $service . '_is_company' ) ); ?>">This is a company page.</label>
+						<label for="<?php echo esc_attr( $this->get_field_id( $service . '_is_company' ) ); ?>"><?php esc_html_e( 'This is a company page.', 'jetpack' ); ?></label>
 					<?php endif ?>
 				</p>
 			<?php
