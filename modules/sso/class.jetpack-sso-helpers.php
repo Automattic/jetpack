@@ -54,19 +54,32 @@ class Jetpack_SSO_Helpers {
 	 *
 	 * @return bool
 	 */
-	static function new_user_override() {
+	static function new_user_override( $user_data = null ) {
 		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
 
 		/**
-		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations.
+		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations. 
+		 * If you return a string that corresponds to a user role, the user will be given that role.
 		 *
 		 * @module sso
 		 *
 		 * @since 2.6.0
+		 * @since 4.6   $user_data object is now passed to the jetpack_sso_new_user_override filter
 		 *
-		 * @param bool $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
+		 * @param bool        $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
+		 * @param object|null $user_data         An object containing the user data returned from WordPress.com.
 		 */
-		return (bool) apply_filters( 'jetpack_sso_new_user_override', $new_user_override );
+		$role = apply_filters( 'jetpack_sso_new_user_override', $new_user_override, $user_data );
+
+		if ( $role ) {
+			if ( is_string( $role ) && get_role( $role ) ) {
+				return $role;
+			} else {
+				return get_option( 'default_role' );
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -221,6 +234,11 @@ class Jetpack_SSO_Helpers {
 		$user->last_name    = $user_data->last_name;
 		$user->url          = $user_data->url;
 		$user->description  = $user_data->description;
+
+		if ( isset( $user_data->role ) && $user_data->role ) {
+			$user->role     = $user_data->role;
+		}
+
 		wp_update_user( $user );
 
 		update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );

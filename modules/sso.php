@@ -655,7 +655,8 @@ class Jetpack_SSO {
 		}
 
 		// If we've still got nothing, create the user.
-		if ( empty( $user ) && ( get_option( 'users_can_register' ) || Jetpack_SSO_Helpers::new_user_override() ) ) {
+		$new_user_override_role = false;
+		if ( empty( $user ) && ( get_option( 'users_can_register' ) || ( $new_user_override_role = Jetpack_SSO_Helpers::new_user_override( $user_data ) ) ) ) {
 			/**
 			 * If not matching by email we still need to verify the email does not exist
 			 * or this blows up
@@ -665,6 +666,11 @@ class Jetpack_SSO {
 			 * user, then we know that email is unused, so it's safe to add.
 			 */
 			if ( Jetpack_SSO_Helpers::match_by_email() || ! get_user_by( 'email', $user_data->email ) ) {
+				
+				if ( $new_user_override_role ) {
+					$user_data->role = $new_user_override_role;
+				}
+
 				$user = Jetpack_SSO_Helpers::generate_user( $user_data );
 				if ( ! $user ) {
 					JetpackTracking::record_user_event( 'sso_login_failed', array(
@@ -674,7 +680,7 @@ class Jetpack_SSO {
 					return;
 				}
 
-				$user_found_with = Jetpack_SSO_Helpers::new_user_override()
+				$user_found_with = $new_user_override_role
 					? 'user_created_new_user_override'
 					: 'user_created_users_can_register';
 			} else {
