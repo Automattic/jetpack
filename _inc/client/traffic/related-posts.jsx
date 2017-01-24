@@ -11,7 +11,8 @@ import FormToggle from 'components/form/form-toggle';
  * Internal dependencies
  */
 import {
-	FormFieldset
+	FormFieldset,
+	FormLabel
 } from 'components/forms';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import { ModuleToggle } from 'components/module-toggle';
@@ -76,70 +77,77 @@ export const RelatedPosts = moduleSettingsForm(
 							( isRelatedPostsActive && ! this.props.isSavingAnyOption( 'related-posts' ) ) ||
 							( ! isRelatedPostsActive && this.props.isSavingAnyOption( 'related-posts' ) )
 								? <FormFieldset>
-								{
-									__( '{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}', {
-										components: {
-											span: <span className="jp-form-setting-explanation" />,
-											ExternalLink: <ExternalLink
-												className="jp-module-settings__external-link"
-												href={ this.props.configureUrl } />
-										}
-									} )
-								}
-								<FormToggle compact
-											checked={ this.state.show_headline }
-											disabled={ this.props.isSavingAnyOption() }
-											onChange={ e => this.updateOptions( 'show_headline' ) }>
-									<span className="jp-form-toggle-explanation">
-										{
-											__( 'Show a "Related" header to more clearly separate the related section from posts' )
-										}
-									</span>
-								</FormToggle>
-								<br />
-								<FormToggle compact
-											checked={ this.state.show_thumbnails }
-											disabled={ this.props.isSavingAnyOption() }
-											onChange={ e => this.updateOptions( 'show_thumbnails' ) }>
-									<span className="jp-form-toggle-explanation">
-										{
-											__( 'Use a large and visually striking layout' )
-										}
-									</span>
-								</FormToggle>
-								<Card className="jp-related-posts-preview">
-									{
-										this.state.show_headline
-											? <div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div>
-											: ''
-									}
-									{
-										[
+									<FormToggle compact
+												checked={ this.state.show_headline }
+												disabled={ this.props.isSavingAnyOption() }
+												onChange={ e => this.updateOptions( 'show_headline' ) }>
+										<span className="jp-form-toggle-explanation">
 											{
-												url : '1-wpios-ipad-3-1-viewsite.png',
-												text: __( 'Big iPhone/iPad Update Now Available' )
-											},
-											{
-												url : 'wordpress-com-news-wordpress-for-android-ui-update2.jpg',
-												text: __( 'The WordPress for Android App Gets a Big Facelift' )
-											},
-											{
-												url : 'videopresswedding.jpg',
-												text: __( 'Upgrade Focus: VideoPress For Weddings' )
+												__( 'Show a "Related" header to more clearly separate the related section from posts' )
 											}
-										].map( ( item, index ) => (
-											<span key={ `preview_${ index }` } className="jp-related-posts-preview__item">
-												{
-													this.state.show_thumbnails
-														? <img src={ `https://jetpackme.files.wordpress.com/2014/08/${ item.url }?w=350&h=200&crop=1` } />
-														: ''
-												}
-												<span><a href="#/traffic">{ item.text }</a></span>
-											</span>
-										) )
+										</span>
+									</FormToggle>
+									<br />
+									<FormToggle compact
+												checked={ this.state.show_thumbnails }
+												disabled={ this.props.isSavingAnyOption() }
+												onChange={ e => this.updateOptions( 'show_thumbnails' ) }>
+										<span className="jp-form-toggle-explanation">
+											{
+												__( 'Use a large and visually striking layout' )
+											}
+										</span>
+									</FormToggle>
+									{
+										__( '{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}', {
+											components: {
+												span: <span className="jp-form-setting-explanation" />,
+												ExternalLink: <ExternalLink
+													className="jp-module-settings__external-link"
+													href={ this.props.configureUrl } />
+											}
+										} )
 									}
-								</Card>
-							</FormFieldset>
+									<FormLabel className="jp-form-label-wide">{ __( 'Preview' ) }</FormLabel>
+									<Card className="jp-related-posts-preview">
+										{
+											this.state.show_headline
+												? <div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div>
+												: ''
+										}
+										{
+											[
+												{
+													url : '1-wpios-ipad-3-1-viewsite.png',
+													text: __( 'Big iPhone/iPad Update Now Available' ),
+													context: __( 'In "Mobile"' )
+												},
+												{
+													url : 'wordpress-com-news-wordpress-for-android-ui-update2.jpg',
+													text: __( 'The WordPress for Android App Gets a Big Facelift' ),
+													context: __( 'In "Mobile"' )
+												},
+												{
+													url : 'videopresswedding.jpg',
+													text: __( 'Upgrade Focus: VideoPress For Weddings' ),
+													context: __( 'In "Upgrade"' )
+												}
+											].map( ( item, index ) => (
+												<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
+													{
+														this.state.show_thumbnails
+															? <img src={ `https://jetpackme.files.wordpress.com/2014/08/${ item.url }?w=350&h=200&crop=1` } />
+															: ''
+													}
+													<h4 className="jp-related-posts-preview__post-title"><a href="#/traffic">{ item.text }</a></h4>
+													<p  className="jp-related-posts-preview__post-context">
+														{ item.context }
+													</p>
+												</div>
+											) )
+										}
+									</Card>
+								 </FormFieldset>
 								: ''
 						}
 					</SettingsGroup>
