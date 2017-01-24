@@ -17,7 +17,10 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
-import SettingsCard from 'components/settings-card';
+import {
+	SettingsCard,
+	SettingsGroup
+} from 'components/settings-card';
 
 export const Media = moduleSettingsForm(
 	React.createClass( {
@@ -45,54 +48,55 @@ export const Media = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Media' ) }>
-					<FormFieldset support={ photon.learn_more_button }>
+					<SettingsGroup hasChild support={ photon.learn_more_button }>
 						<ModuleToggle slug="photon"
 									  compact
 									  activated={ this.props.getOptionValue( 'photon' ) }
 									  toggling={ this.props.isSavingAnyOption( 'photon' ) }
 									  toggleModule={ this.toggleModule }>
-							<span className="jp-form-toggle-explanation">
-								{
-									photon.description
-								}
-							</span>
-							<span className="jp-form-setting-explanation">
-								{
-									__( 'Enabling Photon is required to use Tiled Galleries.' )
-								}
-							</span>
+						<span className="jp-form-toggle-explanation">
+							{
+								photon.description
+							}
+						</span>
 						</ModuleToggle>
-					</FormFieldset>
-					<hr />
-					<ModuleToggle slug="carousel"
-								  compact
-								  activated={ isCarouselActive }
-								  toggling={ this.props.isSavingAnyOption( 'carousel' ) }
-								  toggleModule={ this.props.toggleModuleNow }>
+						<span className="jp-form-setting-explanation">
+							{
+								__( 'Enabling Photon is required to use Tiled Galleries.' )
+							}
+						</span>
+					</SettingsGroup>
+					<SettingsGroup hasChild support={ carousel.learn_more_button }>
+						<ModuleToggle slug="carousel"
+									  compact
+									  activated={ isCarouselActive }
+									  toggling={ this.props.isSavingAnyOption( 'carousel' ) }
+									  toggleModule={ this.props.toggleModuleNow }>
 								<span className="jp-form-toggle-explanation">
 									{
 										carousel.description
 									}
 								</span>
-					</ModuleToggle>
-					{
-						isCarouselActive
-							? <FormFieldset support={ carousel.learn_more_button }>
-								<ModuleSettingCheckbox
-									name={ 'carousel_display_exif' }
-									{ ...this.props }
-									label={ __( 'Show photo metadata (Exif) in carousel, when available' ) } />
-								<FormLabel>
-									<FormLegend className="jp-form-label-wide">{ __( 'Background color' ) }</FormLegend>
-									<FormSelect
-										name={ 'carousel_background_color' }
-										value={ this.props.getOptionValue( 'carousel_background_color' ) }
+						</ModuleToggle>
+						{
+							isCarouselActive
+								? <FormFieldset>
+									<ModuleSettingCheckbox
+										name={ 'carousel_display_exif' }
 										{ ...this.props }
-										validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
-								</FormLabel>
-							  </FormFieldset>
-							: ''
-					}
+										label={ __( 'Show photo metadata (Exif) in carousel, when available' ) } />
+									<FormLabel>
+										<FormLegend className="jp-form-label-wide">{ __( 'Background color' ) }</FormLegend>
+										<FormSelect
+											name={ 'carousel_background_color' }
+											value={ this.props.getOptionValue( 'carousel_background_color' ) }
+											{ ...this.props }
+											validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
+									</FormLabel>
+								  </FormFieldset>
+								: ''
+						}
+					</SettingsGroup>
 				</SettingsCard>
 			);
 		}

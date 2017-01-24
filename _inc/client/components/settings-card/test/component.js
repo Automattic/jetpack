@@ -9,7 +9,7 @@ import sinon from 'sinon';
 /**
  * Internal dependencies
  */
-import { SettingsCard } from '../index';
+import { SettingsCard, SettingsGroup } from '../index';
 
 describe( 'SettingsCard', () => {
 
@@ -23,11 +23,13 @@ describe( 'SettingsCard', () => {
 			}
 		),
 		isSavingAnyOption: () => false,
+		isDirty: () => true,
 		header: '',
 		support: ''
 	};
 
-	const wrapper = shallow( <SettingsCard { ...testProps } /> );
+	const wrapper = shallow( <SettingsCard { ...testProps } /> ),
+		  settingsGroup = shallow( <SettingsGroup support={ testProps.getModule().learn_more_button } /> );
 
 	it( 'renders a heading', () => {
 		expect( wrapper.find( 'SectionHeader' ) ).to.have.length( 1 );
@@ -38,10 +40,10 @@ describe( 'SettingsCard', () => {
 	} );
 
 	it( 'the learn more icon is linked to the correct URL', () => {
-		expect( wrapper.find( 'Button' ).get(1).props.href ).to.be.equal( 'https://jetpack.com/support/protect' );
+		expect( settingsGroup.find( 'Button' ).get(0).props.href ).to.be.equal( 'https://jetpack.com/support/protect' );
 	} );
 
-	it( "when not saving, it's enabled", () => {
+	it( "when not saving and has settings to save, it's enabled", () => {
 		expect( wrapper.find( 'Button' ).get(0).props.disabled ).to.be.false;
 	} );
 
@@ -52,14 +54,15 @@ describe( 'SettingsCard', () => {
 			support: 'https://jetpack.com/'
 		} );
 
-		const wrapper = shallow( <SettingsCard { ...testProps } /> );
+		const wrapper = shallow( <SettingsCard { ...testProps } /> ),
+			  settingsGroup = shallow( <SettingsGroup support={ testProps.support } /> );
 
 		it( 'the header has priority over module.name', () => {
 			expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'A custom header' );
 		} );
 
 		it( 'the learn more icon will be linked to the custom URL', () => {
-			expect( wrapper.find( 'Button' ).get(1).props.href ).to.be.equal( 'https://jetpack.com/' );
+			expect( settingsGroup.find( 'Button' ).get(0).props.href ).to.be.equal( 'https://jetpack.com/' );
 		} );
 
 	} );

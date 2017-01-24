@@ -17,7 +17,10 @@ import {
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import SettingsCard from 'components/settings-card';
+import {
+	SettingsCard,
+	SettingsGroup
+} from 'components/settings-card';
 
 export const PostByEmail = moduleSettingsForm(
 	React.createClass( {
@@ -38,42 +41,45 @@ export const PostByEmail = moduleSettingsForm(
 		},
 
 		render() {
-			let isPbeActive = this.props.getOptionValue( 'post-by-email' );
+			let postByEmail = this.props.getModule( 'post-by-email' ),
+				isPbeActive = this.props.getOptionValue( 'post-by-email' );
 			return (
 				<SettingsCard
 					{ ...this.props }
 					module="post-by-email"
 					hideButton>
-					<ModuleToggle slug="post-by-email"
-								  compact
-								  activated={ isPbeActive }
-								  toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
-								  toggleModule={ this.props.toggleModuleNow }>
+					<SettingsGroup hasChild support={ postByEmail.learn_more_button }>
+						<ModuleToggle slug="post-by-email"
+									  compact
+									  activated={ isPbeActive }
+									  toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
+									  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'post-by-email' ).description
 							}
 						</span>
-					</ModuleToggle>
-					{
-						isPbeActive
-							? <FormFieldset>
-								<FormLabel>
-									<FormLegend>{ __( 'Email Address' ) }</FormLegend>
-									<ClipboardButtonInput
-										value={ this.address() }
-										copy={ __( 'Copy', { context: 'verb' } ) }
-										copied={ __( 'Copied!' ) }
-										prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
-									/>
-								</FormLabel>
-								<Button
-									onClick={ this.regeneratePostByEmailAddress } >
-									{ __( 'Regenerate address' ) }
-								</Button>
-							  </FormFieldset>
-							: ''
-					}
+						</ModuleToggle>
+						{
+							isPbeActive
+								? <FormFieldset>
+									<FormLabel>
+										<FormLegend>{ __( 'Email Address' ) }</FormLegend>
+										<ClipboardButtonInput
+											value={ this.address() }
+											copy={ __( 'Copy', { context: 'verb' } ) }
+											copied={ __( 'Copied!' ) }
+											prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+										/>
+									</FormLabel>
+									<Button
+										onClick={ this.regeneratePostByEmailAddress } >
+										{ __( 'Regenerate address' ) }
+									</Button>
+								  </FormFieldset>
+								: ''
+						}
+					</SettingsGroup>
 				</SettingsCard>
 			);
 		}

@@ -18,7 +18,10 @@ import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import TagsInput from 'components/tags-input';
-import SettingsCard from 'components/settings-card';
+import {
+	SettingsCard,
+	SettingsGroup
+} from 'components/settings-card';
 import InlineExpand from 'components/inline-expand';
 
 export const Composing = moduleSettingsForm(
@@ -99,19 +102,20 @@ export const Composing = moduleSettingsForm(
 
 			return (
 				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }>
-					<FormFieldset support={ markdown.learn_more_button }>
-						<ModuleToggle slug="markdown"
-									  compact
-									  activated={ this.props.getOptionValue( 'markdown' ) }
-									  toggling={ this.props.isSavingAnyOption( 'markdown' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
-							<span className="jp-form-toggle-explanation">
-								{ markdown.description }
-							</span>
-						</ModuleToggle>
-					</FormFieldset>
-					<hr />
-					<FormFieldset support={ atd.learn_more_button }>
+					<SettingsGroup support={ markdown.learn_more_button }>
+						<FormFieldset>
+							<ModuleToggle slug="markdown"
+										  compact
+										  activated={ this.props.getOptionValue( 'markdown' ) }
+										  toggling={ this.props.isSavingAnyOption( 'markdown' ) }
+										  toggleModule={ this.props.toggleModuleNow }>
+								<span className="jp-form-toggle-explanation">
+									{ markdown.description }
+								</span>
+							</ModuleToggle>
+						</FormFieldset>
+					</SettingsGroup>
+					<SettingsGroup hasChild support={ atd.learn_more_button }>
 						<ModuleToggle slug="after-the-deadline"
 									  compact
 									  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
@@ -121,12 +125,14 @@ export const Composing = moduleSettingsForm(
 								{ atd.description }
 							</span>
 						</ModuleToggle>
-						{
-							this.props.getOptionValue( 'after-the-deadline' )
-								? <InlineExpand label={ __( 'Fancy options' ) }>{ this.getAtdSettings() }</InlineExpand>
-								: ''
-						}
-					</FormFieldset>
+						<FormFieldset>
+							{
+								this.props.getOptionValue( 'after-the-deadline' )
+									? <InlineExpand label={ __( 'Fancy options' ) }>{ this.getAtdSettings() }</InlineExpand>
+									: ''
+							}
+						</FormFieldset>
+					</SettingsGroup>
 				</SettingsCard>
 			);
 		}

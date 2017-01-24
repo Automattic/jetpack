@@ -68,6 +68,15 @@
 
 
 // Related Posts Preview styles
+.jp-related-posts-preview {
+	position: relative;
+	margin-top: rem( 8px );
+	padding: rem( 16px ) rem( 8px );
+	width: 100%;
+	background: #f3f6f8;
+	box-sizing: border-box;
+	box-shadow: none;
+}
 .jp-related-posts-settings__preview-label {
 	margin-bottom: rem( 8px );
 	margin-top: rem( 24px );
@@ -75,17 +84,22 @@
 	font-weight: 600;
 }
 
-.jp-related-posts-preview {
-	text-align: center;
+.jp-related-posts-preview__title {
+	margin: 0 0 rem( 11px ) rem( 8px );
+	font-size: rem( 11px );
+	font-weight: 600;
 }
 
-.jp-related-posts-preview__title {
-	text-align: left;
-	color: $gray;
-	font-weight: 600;
-	margin-left: rem( 8px );
-	margin-bottom: rem( 16px );
-	text-transform: uppercase;
+.jp-related-posts-preview__post-title {
+	font-size: rem( 15px );
+	font-weight: 400;
+	margin: 0;
+}
+
+.jp-related-posts-preview__post-context {
+	font-size: rem( 15px );
+	opacity: .6;
+	margin: 0;
 }
 
 .jp-related-posts-preview__item {
@@ -93,7 +107,7 @@
 	display: inline-block;
 	width: 33.33%;
 	padding: rem( 8px );
-	text-align: left;
+	vertical-align: top;
 
 	@include breakpoint( "<480px" ) {
 		width: 100%;

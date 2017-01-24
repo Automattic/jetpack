@@ -4,6 +4,7 @@
 import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -12,7 +13,10 @@ import { FormFieldset } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
-import SettingsCard from 'components/settings-card';
+import {
+	SettingsCard,
+	SettingsGroup
+} from 'components/settings-card';
 
 export const ThemeEnhancements = moduleSettingsForm(
 	React.createClass( {
@@ -35,8 +39,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 										key: 'infinite_scroll_google_analytics',
 										label: __( 'Track each infinite Scroll post load as a page view in Google Analytics' )
 									}
-								],
-								separator: true
+								]
 							},
 							{
 								...this.props.getModule( 'minileven' ),
@@ -57,19 +60,19 @@ export const ThemeEnhancements = moduleSettingsForm(
 							}
 						].map( item => {
 							return (
-								<div key={ `theme_enhancement_${ item.module }` }>
+								<Card compact className="jp-form-has-child" key={ `theme_enhancement_${ item.module }` }>
+									<ModuleToggle slug={ item.module }
+												  compact
+												  activated={ this.props.getOptionValue( item.module ) }
+												  toggling={ this.props.isSavingAnyOption( item.module ) }
+												  toggleModule={ this.props.toggleModuleNow }>
+									<span className="jp-form-toggle-explanation">
+									{
+										item.description
+									}
+									</span>
+									</ModuleToggle>
 									<FormFieldset support={ item.learn_more_button }>
-										<ModuleToggle slug={ item.module }
-													  compact
-													  activated={ this.props.getOptionValue( item.module ) }
-													  toggling={ this.props.isSavingAnyOption( item.module ) }
-													  toggleModule={ this.props.toggleModuleNow }>
-										<span className="jp-form-toggle-explanation">
-										{
-											item.description
-										}
-										</span>
-										</ModuleToggle>
 										{
 											this.props.getOptionValue( item.module )
 												? item.checkboxes.map( chkbx => {
@@ -83,12 +86,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 												: ''
 										}
 									</FormFieldset>
-									{
-										item.separator
-											? <hr />
-											: ''
-									}
-								</div>
+								</Card>
 							);
 						} )
 					}
