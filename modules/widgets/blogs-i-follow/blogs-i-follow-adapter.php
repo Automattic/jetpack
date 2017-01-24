@@ -11,6 +11,7 @@ interface iBlogs_I_Follow_Adapter {
 	public function get_blog_locale();
 	public function staticize_subdomain( $url );
 	public function stats_extra();
+	public function enable_follow_buttons();
 }
 
 class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
@@ -74,6 +75,9 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 	public function stats_extra() {
 		do_action( 'jetpack_stats_extra', 'widget_view', 'blogs_i_follow' );
 	}
+
+	public function enable_follow_buttons() {
+	}
 }
 
 class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
@@ -91,5 +95,9 @@ class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 
 	public function stats_extra() {
 		stats_extra( 'widget_view', 'blogs_i_follow' );
+	}
+
+	public function enable_follow_buttons() {
+		enable_follow_buttons();
 	}
 }

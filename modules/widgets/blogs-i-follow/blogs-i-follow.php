@@ -326,7 +326,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * @return void
 	 */
 	function enqueue_script() {
-		enable_follow_buttons();
+		// TODO: This seems to have no effect in WPCOM and there is no Jetpack equivalent.
+		// Should the call to enable_follow_buttons be removed?
+		$this->adapter->enable_follow_buttons();
 		wp_enqueue_script( 'jp-widget-follow-blogs', plugins_url( 'blogs-i-follow.js', __FILE__ ), array( 'jquery' ), false, true );
 		wp_enqueue_script( 'widget-bump-view' );
 	}
