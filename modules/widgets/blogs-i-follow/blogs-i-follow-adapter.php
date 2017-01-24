@@ -13,6 +13,7 @@ interface iBlogs_I_Follow_Adapter {
 	public function stats_extra();
 	public function enable_follow_buttons();
 	public function get_blog_option( $blog_id, $option );
+	public function get_blavatar( $blog_url, $avatar_size );
 }
 
 class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
@@ -83,6 +84,10 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 	public function get_blog_option( $blog_id, $option ) {
 		return NULL;
 	}
+
+	public function get_blavatar( $blog_url, $avatar_size ) {
+		return NULL;
+	}
 }
 
 class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
@@ -108,5 +113,10 @@ class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 
 	public function get_blog_option( $blog_id, $option ) {
 		return get_blog_option( $blog_id, $option );
+	}
+
+	public function get_blavatar( $blog_url, $avatar_size ) {
+		$domain = blavatar_domain( $blog_url );
+		return blavatar_exists( $domain ) ? get_blavatar( $blog_url, $avatar_size ) : NULL;
 	}
 }

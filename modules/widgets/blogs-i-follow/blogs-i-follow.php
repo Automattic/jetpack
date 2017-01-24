@@ -174,9 +174,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 				if ( 'http://' === $subscription['blog_url'] )
 					$subscription['blog_url'] = $subscription['feed_url'];
 
-				$domain = blavatar_domain( $subscription['blog_url'] );
-				if ( blavatar_exists( $domain ) )
-					$img = get_blavatar( $subscription['blog_url'], self::$avatar_size );
+				$img = $this->adapter->get_blavatar( $subscription['blog_url'], self::$avatar_size );
 
 				if ( !$img ) {
 					if ( !empty( $subscription['blog_id'] ) ) {
