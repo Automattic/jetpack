@@ -288,11 +288,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return array|wp-error
 	 */
-	public static function dismiss_notice( $data ) {
-		$notice = $data['notice'];
-		$param = $data->get_json_params();
+	public static function dismiss_notice( $request ) {
+		$notice = $request['notice'];
 
-		if ( ! isset( $param['dismissed'] ) || $param['dismissed'] !== true ) {
+		if ( ! isset( $request['dismissed'] ) || $request['dismissed'] !== true ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid parameter "dismissed".', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
@@ -512,10 +511,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @since 4.3.0
 	 * @return bool|WP_Error True if Jetpack successfully disconnected.
 	 */
-	public static function disconnect_site( $data ) {
-		$param = $data->get_json_params();
+	public static function disconnect_site( $request ) {
 
-		if ( ! isset( $param['isActive'] ) || $param['isActive'] !== false ) {
+		if ( ! isset( $request['isActive'] ) || $request['isActive'] !== false ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
@@ -581,13 +579,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data
+	 * @param WP_REST_Request $request
 	 *
 	 * @return object Jetpack miscellaneous settings.
 	 */
-	public static function update_setting( $data ) {
+	public static function update_setting( $request ) {
 		// Get parameters to update the module.
-		$param = $data->get_json_params();
+		$param = $request->get_params();
 
 		// Exit if no parameters were passed.
 		if ( ! is_array( $param ) ) {
@@ -626,10 +624,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error True if user successfully unlinked.
 	 */
-	public static function unlink_user( $data ) {
-		$param = $data->get_json_params();
+	public static function unlink_user( $request ) {
 
-		if ( ! isset( $param['linked'] ) || $param['linked'] !== false ) {
+		if ( ! isset( $request['linked'] ) || $request['linked'] !== false ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
@@ -752,7 +749,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $options Available options to reset are options|modules
@@ -760,15 +757,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error True if options were reset. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public static function reset_jetpack_options( $data ) {
-		$param = $data->get_json_params();
+	public static function reset_jetpack_options( $request ) {
 
-		if ( ! isset( $param['reset'] ) || $param['reset'] !== true ) {
+		if ( ! isset( $request['reset'] ) || $request['reset'] !== true ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		if ( isset( $data['options'] ) ) {
-			$data = $data['options'];
+		if ( isset( $request['options'] ) ) {
+			$data = $request['options'];
 
 			switch( $data ) {
 				case ( 'options' ) :
@@ -830,19 +826,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 * }
 	 *
 	 * @return bool|WP_Error True if toggling Jumpstart succeeded. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public static function jumpstart_toggle( $data ) {
-		$param = $data->get_json_params();
+	public static function jumpstart_toggle( $request ) {
 
-		if ( $param[ 'active' ] ) {
-			return self::jumpstart_activate( $data );
+		if ( $request[ 'active' ] ) {
+			return self::jumpstart_activate( $request );
 		} else {
-			return self::jumpstart_deactivate( $data );
+			return self::jumpstart_deactivate( $request );
 		}
 	}
 

@@ -180,7 +180,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -188,12 +188,11 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 *
 	 * @return bool|WP_Error True if modules were activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public static function activate_modules( $data ) {
-		$params = $data->get_json_params();
+	public static function activate_modules( $request ) {
 
 		if (
-			! isset( $params['modules'] )
-			|| ! is_array( $params['modules'] )
+			! isset( $request['modules'] )
+			|| ! is_array( $request['modules'] )
 		) {
 			return new WP_Error(
 				'not_found',
@@ -205,7 +204,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		$activated = array();
 		$failed = array();
 
-		foreach ( $params['modules'] as $module ) {
+		foreach ( $request['modules'] as $module ) {
 			if ( Jetpack::activate_module( $module, false, false ) ) {
 				$activated[] = $module;
 			} else {
@@ -396,7 +395,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $data {
+	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -404,26 +403,26 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @return bool|WP_Error True if module was updated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public function update_data( $data ) {
+	public function update_data( $request ) {
 
 		// If it's null, we're trying to update many module options from different modules.
-		if ( is_null( $data['slug'] ) ) {
+		if ( is_null( $request['slug'] ) ) {
 
 			// Value admitted by Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list that will make it return all module options.
 			// It will not be passed. It's just checked in this method to pass that method a string or array.
-			$data['slug'] = 'any';
+			$request['slug'] = 'any';
 		} else {
-			if ( ! Jetpack::is_module( $data['slug'] ) ) {
+			if ( ! Jetpack::is_module( $request['slug'] ) ) {
 				return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 			}
 
-			if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
+			if ( ! Jetpack::is_module_active( $request['slug'] ) ) {
 				return new WP_Error( 'inactive', esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' ), array( 'status' => 409 ) );
 			}
 		}
 
 		// Get parameters to update the module.
-		$params = $data->get_json_params();
+		$params = $request->get_params();
 
 		// Exit if no parameters were passed.
 		if ( ! is_array( $params ) ) {
@@ -431,9 +430,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		// Get available module options.
-		$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'any' === $data['slug']
+		$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'any' === $request['slug']
 			? $params
-			: $data['slug']
+			: $request['slug']
 		);
 
 		// Prepare to toggle module if needed
