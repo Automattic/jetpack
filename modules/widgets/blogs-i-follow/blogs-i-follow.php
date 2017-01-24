@@ -94,8 +94,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 			echo $this->get_friendly_message();
 		}
 
+		// Track the usage stats for this widget
 		echo $args['after_widget'];
-		stats_extra( 'widget_view', 'blogs_i_follow' );
+		$this->adapter->stats_extra();
 	}
 
 	/**

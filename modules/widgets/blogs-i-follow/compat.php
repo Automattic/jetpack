@@ -4,7 +4,6 @@
 // be invoked so long as the Jetpack plugin never believes it is WPCOM.
 function wpcom_subs_get_blogs() {}
 function enable_follow_buttons() {}
-function stats_extra() {}
 function get_blog_locale() {}
 if ( ! function_exists( 'get_blog_option' ) ) :
 function get_blog_option() {
