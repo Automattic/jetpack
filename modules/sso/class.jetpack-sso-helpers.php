@@ -234,6 +234,11 @@ class Jetpack_SSO_Helpers {
 		$user->last_name    = $user_data->last_name;
 		$user->url          = $user_data->url;
 		$user->description  = $user_data->description;
+
+		if ( isset( $user_data->role ) && $user_data->role ) {
+			$user->role     = $user_data->role;
+		}
+
 		wp_update_user( $user );
 
 		update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );

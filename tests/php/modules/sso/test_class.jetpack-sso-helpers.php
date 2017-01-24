@@ -211,6 +211,12 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertFalse( Jetpack_SSO_Helpers::generate_user( $this->user_data ) );
 	}
 
+	function test_generate_user_sets_user_role_when_provided() {
+		$this->user_data->role = 'administrator';
+		$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
+		$this->assertContains( 'administrator', get_userdata( $user->ID )->roles );
+	}
+
 	function test_extend_auth_cookie_casts_to_int() {
 		add_filter( 'jetpack_sso_auth_cookie_expirtation', array( $this, '__return_string_value' ) );
 		$this->assertSame( intval( $this->__return_string_value() ), Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
