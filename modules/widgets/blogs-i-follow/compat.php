@@ -16,6 +16,3 @@ function blavatar_exists() {}
 function staticize_subdomain( $url ) {
 	return $url;
 }
-function http() {
-	return 'https';
-}
