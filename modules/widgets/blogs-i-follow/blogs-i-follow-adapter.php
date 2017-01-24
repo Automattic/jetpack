@@ -12,6 +12,7 @@ interface iBlogs_I_Follow_Adapter {
 	public function staticize_subdomain( $url );
 	public function stats_extra();
 	public function enable_follow_buttons();
+	public function get_blog_option( $blog_id, $option );
 }
 
 class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
@@ -78,6 +79,10 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 
 	public function enable_follow_buttons() {
 	}
+
+	public function get_blog_option( $blog_id, $option ) {
+		return NULL;
+	}
 }
 
 class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
@@ -99,5 +104,9 @@ class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 
 	public function enable_follow_buttons() {
 		enable_follow_buttons();
+	}
+
+	public function get_blog_option( $blog_id, $option ) {
+		return get_blog_option( $blog_id, $option );
 	}
 }

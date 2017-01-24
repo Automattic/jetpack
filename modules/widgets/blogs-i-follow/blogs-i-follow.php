@@ -179,7 +179,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 					$img = get_blavatar( $subscription['blog_url'], self::$avatar_size );
 
 				if ( !$img ) {
-					if ( !empty( $subscription['blog_id'] ) && $email = get_blog_option( $subscription['blog_id'], 'admin_email' ) ) {
+					if ( !empty( $subscription['blog_id'] ) ) {
+						$email = $this->adapter->get_blog_option( $subscription['blog_id'], 'admin_email' );
 						$http = is_ssl() ? 'https' : 'http';
 						$img = get_avatar( $email, self::$avatar_size, $this->adapter->staticize_subdomain( esc_url_raw( $http . '://' . self::$default_avatar ) ) );
 					}
@@ -377,10 +378,12 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 				foreach ( $sub['subscriptions'] as $subscription ) {
 					$i++;
-					$description = get_blog_option( $subscription['blog_id'], 'blogdescription' );
+					$description = $this->adapter->get_blog_option( $subscription['blog_id'], 'blogdescription' );
 					$description = ( !empty( $description ) ) ? '<small>' .  $description . '</small>' : '';
 					$blog_name = empty( $subscription['blog_name'] ) ? $this->get_inferred_blog_name( $subscription ) : $subscription['blog_name'];
-					$output .= '<div id="' . esc_attr( 'wpcom-bubble-' . $widget_id . '-' . $i ) . '" class="wpcom-bubble wpcom-follow-bubble"><div class="bubble-txt"><a href="' . esc_url( $subscription['blog_url'] ) . '" class="bump-view" data-bump-view="bif">' . $blog_name . '</a><p>' . $description . '</p></div></div>';
+					$output .= '<div id="' . esc_attr( 'wpcom-bubble-' . $widget_id . '-' . $i ) . '" class="wpcom-bubble wpcom-follow-bubble"><div class="bubble-txt"><a href="' . esc_url( $subscription['blog_url'] ) . '" class="bump-view" data-bump-view="bif">' . $blog_name . '</a>';
+					$output .= empty( $description ) ? '' : '<p>' . $description . '</p>';
+					$output .= '</div></div>';
 				}
 
 				$output .= '</div>';
