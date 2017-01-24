@@ -422,7 +422,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		// Get parameters to update the module.
-		$params = $request->get_params();
+		$params = $this->parse_settings_request_body( $request );
 
 		// Exit if no parameters were passed.
 		if ( ! is_array( $params ) ) {
@@ -836,6 +836,32 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 			return current_user_can( 'jetpack_configure_modules' );
 		}
+	}
+
+	/**
+	 * Allows the `settings` and `module/<slug>` EDITABLE endpoints to accept both JSON and multi-part POST bodies.
+	 *
+	 * @param $request A WP REST API Request Object
+	 * @return array|bool
+	 */
+	public function parse_settings_request_body( $request ) {
+		if ( is_array( $request->get_json_params() ) ) {
+			return $request->get_json_params();
+		}
+		$params = $request->get_body_params();
+		if ( ! is_array( $params ) ) {
+			return false;
+		}
+		$parsed = array_filter( $params, function( $key ) {
+			if ( is_int( $key ) ) {
+				return false;
+			}
+			if ( in_array( $key, array( 'slug', 'context' ) ) ) {
+				return false;
+			}
+			return true;
+		}, ARRAY_FILTER_USE_KEY );
+		return $parsed;
 	}
 }
 
