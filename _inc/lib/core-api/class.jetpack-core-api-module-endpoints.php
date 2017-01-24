@@ -852,15 +852,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		if ( ! is_array( $params ) ) {
 			return false;
 		}
-		$parsed = array_filter( $params, function( $key ) {
-			if ( is_int( $key ) ) {
-				return false;
-			}
-			if ( in_array( $key, array( 'slug', 'context' ) ) ) {
-				return false;
-			}
-			return true;
-		}, ARRAY_FILTER_USE_KEY );
+		$parsed = array_filter( $params, 'is_string' );
+		$parsed = array_diff_key( $parsed, array_flip( array( 'context', 'slug' ) ) );
 		return $parsed;
 	}
 }
