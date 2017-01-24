@@ -655,7 +655,7 @@ class Jetpack_SSO {
 		}
 
 		// If we've still got nothing, create the user.
-		if ( empty( $user ) && ( get_option( 'users_can_register' ) || Jetpack_SSO_Helpers::new_user_override() ) ) {
+		if ( empty( $user ) && ( get_option( 'users_can_register' ) || Jetpack_SSO_Helpers::new_user_override( $user_data ) ) ) {
 			/**
 			 * If not matching by email we still need to verify the email does not exist
 			 * or this blows up

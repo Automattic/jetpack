@@ -54,7 +54,7 @@ class Jetpack_SSO_Helpers {
 	 *
 	 * @return bool
 	 */
-	static function new_user_override() {
+	static function new_user_override( $user_data = null ) {
 		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
 
 		/**
@@ -63,10 +63,12 @@ class Jetpack_SSO_Helpers {
 		 * @module sso
 		 *
 		 * @since 2.6.0
+		 * @since 4.6   $user_data object is now passed to the jetpack_sso_new_user_override filter
 		 *
-		 * @param bool $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
+		 * @param bool        $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
+		 * @param object|null $user_data         An object containing the user data returned from WordPress.com.
 		 */
-		return (bool) apply_filters( 'jetpack_sso_new_user_override', $new_user_override );
+		return (bool) apply_filters( 'jetpack_sso_new_user_override', $new_user_override, $user_data );
 	}
 
 	/**
