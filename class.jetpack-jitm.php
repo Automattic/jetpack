@@ -459,9 +459,13 @@ class Jetpack_JITM {
 		}
 
 		?>
-		<div class="jp-jitm">
+		<div class="jp-jitm woo-jitm">
 			<a href="#"  data-module="woocommerce_services" class="dismiss"><span class="genericon genericon-close"></span></a>
-			<?php echo self::get_emblem(); ?>
+			<div class="jp-emblem">
+				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
+					<path d="M18,8h-2V7c0-1.105-0.895-2-2-2H4C2.895,5,2,5.895,2,7v10h2c0,1.657,1.343,3,3,3s3-1.343,3-3h4c0,1.657,1.343,3,3,3s3-1.343,3-3h2v-5L18,8z M7,18.5c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S7.828,18.5,7,18.5z M4,14V7h10v7H4z M17,18.5c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S17.828,18.5,17,18.5z" />
+				</svg>
+			</div>
 			<p class="msg">
 				<?php echo esc_html( $message ); ?>
 			</p>
