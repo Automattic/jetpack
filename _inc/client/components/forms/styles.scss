@@ -52,10 +52,17 @@
 	}
 }
 
+.jp-form-settings-group {
+	.form-toggle__switch {
+		float: left;
+		margin-top: 2px;
+	}
+}
+
 .jp-form-toggle-explanation {
-	margin-left: rem( 10px );
+	display: block;
+	margin-left: rem( 36px );
 	font-size: rem( 14px );
-	line-height: 2;
 	word-break: break-word;
 	vertical-align: middle;
 }
