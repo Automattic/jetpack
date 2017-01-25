@@ -681,8 +681,7 @@ class Jetpack_Photon {
 			if ( abs( $constrained_size[0] - $expected_size[0] ) <= 1 && abs( $constrained_size[1] - $expected_size[1] ) <= 1 ) {
 				$crop = 'soft';
 				$base = Jetpack::get_content_width() ? Jetpack::get_content_width() : 1000; // Provide a default width if none set by the theme.
-			}
-			else {
+			} else {
 				$crop = 'hard';
 				$base = $reqwidth;
 			}
@@ -705,8 +704,7 @@ class Jetpack_Photon {
 					$args = array(
 						'w' => $newwidth,
 					);
-				}
-				else { // hard crop, e.g. add_image_size( 'example', 200, 200, true );
+				} else { // hard crop, e.g. add_image_size( 'example', 200, 200, true );
 					$args = array(
 						'zoom'   => $multiplier,
 						'resize' => $reqwidth . ',' . $reqheight,
@@ -720,7 +718,11 @@ class Jetpack_Photon {
 					);
 			} // foreach ( $multipliers as $multiplier )
 			if ( is_array( $newsources ) ) {
-				$sources = array_replace( $sources, $newsources );
+				if ( function_exists( 'array_replace' ) ) { // PHP 5.3+, preferred
+					$sources = array_replace( $sources, $newsources );
+				} else { // For PHP 5.2 using WP shim function
+					$sources = array_replace_recursive( $sources, $newsources );
+				}
 			}
 		} // if ( isset( $image_meta['width'] ) && isset( $image_meta['file'] ) )
 
