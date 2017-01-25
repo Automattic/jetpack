@@ -25,7 +25,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'comments' => array(
 				'name' => _x( 'Comments', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Use Jetpack comments. Let readers use their WordPress.com, Twitter, Facebook or Google+ to leave comments on your posts and pages.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Allow comments with WordPress.com, Twitter, Facebook, or Google+.', 'Module Description', 'jetpack' ),
 			),
 
 			'contact-form' => array(
@@ -36,7 +36,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'custom-content-types' => array(
 				'name' => _x( 'Custom Content Types', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Display different types of content on your site with custom content types.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Organize and display different types of content on your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'custom-css' => array(
@@ -119,7 +119,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'protect' => array(
 				'name' => _x( 'Protect', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Prevent brute force attacks.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Prevent and block malicious login attempts.', 'Module Description', 'jetpack' ),
 			),
 
 			'publicize' => array(
@@ -162,7 +162,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'sso' => array(
 				'name' => _x( 'Single Sign On', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Allow log-in using WordPress.com accounts.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Secure user authentication with WordPress.com.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' ),
 			),
 
@@ -173,7 +173,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'subscriptions' => array(
 				'name' => _x( 'Subscriptions', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Allow users to subscribe to your posts and comments and receive notifications via email.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Notify your readers of new posts and comments by email.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.', 'Jumpstart Description', 'jetpack' ),
 			),
 
