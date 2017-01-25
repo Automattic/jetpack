@@ -89,6 +89,10 @@ class Filter_Embedded_HTML_Objects {
 		foreach ( $regexps as $element => $regexp ) {
 			self::$current_element = $element;
 
+			if ( ! is_string( $html )  || ! is_string( $element ) ) {
+				continue;
+			}
+
 			if ( false !== stripos( $html, "<$element" ) ) {
 				if ( $new_html = preg_replace_callback( $regexp, array( __CLASS__, 'dispatch' ), $html ) ) {
 					$html = $new_html;
