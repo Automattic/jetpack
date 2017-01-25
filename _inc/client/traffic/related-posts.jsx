@@ -87,7 +87,6 @@ export const RelatedPosts = moduleSettingsForm(
 											}
 										</span>
 									</FormToggle>
-									<br />
 									<FormToggle compact
 												checked={ this.state.show_thumbnails }
 												disabled={ this.props.isSavingAnyOption() }
