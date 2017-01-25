@@ -18,6 +18,31 @@ class Jetpack_Debugger {
 		}
 	}
 
+	private static function what_jetpack_plan() {
+		$plan = Jetpack::get_active_plan();
+		$plan = $plan['product_slug'];
+		switch ( $plan ){
+			case 'jetpack_free' :
+			default :
+				$plan = 'Free';
+				break;
+			case 'jetpack_premium' :
+			case 'jetpack_premium_monthly' :
+				$plan = 'Premium';
+				break;
+			case 'jetpack_personal' :
+			case 'jetpack_personal_monthly' :
+				$plan = "Personal";
+				break;
+			case 'jetpack_business' :
+			case 'jetpack_business_monthly' :
+				$plan = "Business";
+				break;
+		}
+
+		return 'JetpackPlan' . $plan;
+	}
+
 	static function seconds_to_time( $seconds ) {
 		$units = array(
 			"week"   => 7*24*3600,
@@ -80,6 +105,7 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "JETPACK__PLUGIN_DIR: " . JETPACK__PLUGIN_DIR );
 		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
 		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
+		$debug_info .= "\r\n" . esc_html( "PLAN: " . self::what_jetpack_plan() );
 
 		$debug_info .= "\r\n";
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
