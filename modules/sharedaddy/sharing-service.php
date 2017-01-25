@@ -175,7 +175,7 @@ class Sharing_Service {
 		 * This avoids issues on sites with corrupted options.
 		 * @see https://github.com/Automattic/jetpack/issues/6121
 		 */
-		if ( ! is_array( $options ) || ! isset( $options['button_style'] ) ) {
+		if ( ! is_array( $options ) || ! isset( $options['button_style'], $options['global'] ) ) {
 			$options = array( 'global' => $this->get_global_options() );
 		}
 
