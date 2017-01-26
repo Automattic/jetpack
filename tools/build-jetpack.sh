@@ -27,7 +27,8 @@ shift $((OPTIND-1))
 
 GET_VERSION_SCRIPT="`pwd`/tools/get-version.sh"
 TARGET_BRANCH=${1:-master}
-TARGET_DIR=${2:-"/tmp/jetpack"}
+TARGET_REPO=${2:-"Automattic/jetpack"}
+TARGET_DIR=${3:-"/tmp/jetpack"}
 
 [ "$1" = "--" ] && shift
 
@@ -40,7 +41,7 @@ fi
 git clone \
     --branch $TARGET_BRANCH \
     --depth 1000 \
-    https://github.com/Automattic/jetpack.git \
+    git://github.com/$TARGET_REPO.git \
     $TARGET_DIR
 
 cd $TARGET_DIR
