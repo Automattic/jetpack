@@ -96,6 +96,10 @@ class VaultPress {
 
 		// force a connection check after an activation
 		$this->clear_connection();
+		
+		if ( get_option( 'vaultpress_auto_connect' ) ) {
+			$this->register_via_jetpack( true );
+		}
 	}
 
 	function deactivate() {
@@ -425,7 +429,7 @@ class VaultPress {
 
 			// if registering via Jetpack, get a key...
 			if ( isset( $_POST['key_source'] ) && 'jetpack' === $_POST['key_source'] ) {
-				$registration_key = $this->register_via_jetpack();
+				$registration_key = $this->get_key_via_jetpack();
 				if ( is_wp_error( $registration_key ) ) {
 					$this->update_option( 'connection_error_code', -2 );
 					$this->update_option(
@@ -2483,18 +2487,27 @@ JS;
 		return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage() );
 	}
 
-	function register_via_jetpack() {
+	function get_key_via_jetpack( $already_purchased = false ) {
 		if ( !class_exists('Jetpack') )
 			return false;
 
 		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
-		$xml->query( 'vaultpress.registerSite' );
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => Jetpack_Options::get_option( 'master_user' ) ) );
+		$xml->query( 'vaultpress.registerSite', $already_purchased );
 		if ( ! $xml->isError() ) {
 			return $xml->getResponse();
 		}
 
 		return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage() );
+	}
+	
+	function register_via_jetpack( $already_purchased = false ) {
+		$registration_key = $this->get_key_via_jetpack( $already_purchased );
+		if ( is_wp_error( $registration_key ) ) {
+			return $registration_key;
+		}
+		
+		return self::register( $registration_key );
 	}
 }
 
@@ -2536,5 +2549,10 @@ if ( isset( $_GET['vaultpress'] ) && $_GET['vaultpress'] ) {
 // only load hotfixes if it's not a VP request
 require_once( dirname( __FILE__ ) . '/class.vaultpress-hotfixes.php' );
 $hotfixes = new VaultPress_Hotfixes();
+
+// Add a helper method to WP CLI for auto-registerion via Jetpack
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once( dirname( __FILE__ ) . '/class.vaultpress-cli.php' );
+}
 
 include_once( dirname( __FILE__ ) . '/cron-tasks.php' );
