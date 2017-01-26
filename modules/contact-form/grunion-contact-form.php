@@ -2067,7 +2067,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'post_status'  => addslashes( $feedback_status ),
 			'post_parent'  => (int) $post->ID,
 			'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
-			'post_content' => $post_content // so that search will pick up this data
+			'post_content' => $post_content, // so that search will pick up this data
 			'post_name'    => $feedback_id,
 		) );
 
