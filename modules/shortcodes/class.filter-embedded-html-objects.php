@@ -89,7 +89,7 @@ class Filter_Embedded_HTML_Objects {
 		foreach ( $regexps as $element => $regexp ) {
 			self::$current_element = $element;
 
-			if ( ! is_string( $html )  || ! is_string( $element ) ) {
+			if ( ! is_string( $html ) ) {
 				continue;
 			}
 
