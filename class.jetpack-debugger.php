@@ -21,24 +21,6 @@ class Jetpack_Debugger {
 	private static function what_jetpack_plan() {
 		$plan = Jetpack::get_active_plan();
 		$plan = $plan['product_slug'];
-		switch ( $plan ){
-			case 'jetpack_free' :
-			default :
-				$plan = 'Free';
-				break;
-			case 'jetpack_premium' :
-			case 'jetpack_premium_monthly' :
-				$plan = 'Premium';
-				break;
-			case 'jetpack_personal' :
-			case 'jetpack_personal_monthly' :
-				$plan = "Personal";
-				break;
-			case 'jetpack_business' :
-			case 'jetpack_business_monthly' :
-				$plan = "Business";
-				break;
-		}
 
 		return 'JetpackPlan' . $plan;
 	}
