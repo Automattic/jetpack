@@ -2059,7 +2059,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		IP: {$comment_author_IP}\n
 		" . $all_values_string;
 			
-		$post_content = addslashes( wp_kses( $post_content_string , array() ) ),
+		$post_content = addslashes( wp_kses( $post_content_string , array() ) );
 		
 		$post_id = wp_insert_post( array(
 			'post_date'    => addslashes( $feedback_time ),
