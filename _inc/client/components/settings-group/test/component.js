@@ -9,7 +9,7 @@ import sinon from 'sinon';
 /**
  * Internal dependencies
  */
-import SettingsGroup from '../index';
+import { SettingsGroup } from '../index';
 
 describe( 'SettingsGroup', () => {
 
