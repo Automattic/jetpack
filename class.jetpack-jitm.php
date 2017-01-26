@@ -338,8 +338,8 @@ class Jetpack_JITM {
 		$url = 'https://jetpack.com/redirect/?source=jitm-backup-updates&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
-		<div class="jp-jitm" data-track="vaultpress-updates" data-jitm="backups_updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
-			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
+		<div class="jp-jitm" data-track="vaultpress-updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
+			<a href="#" data-module="vaultpress" data-jitm="backups_updates" class="dismiss"><span class="genericon genericon-close"></span></a>
 			<?php echo self::get_emblem(); ?>
 			<p class="msg">
 				<?php esc_html_e( 'Backups are recommended to protect your site before you make any changes.', 'jetpack' ); ?>
@@ -392,8 +392,8 @@ class Jetpack_JITM {
 		$url = 'https://jetpack.com/redirect/?source=jitm-backup-publish&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
-		<div class="jp-jitm" data-track="vaultpress-publish" data-jitm="backups_after_publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
-			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
+		<div class="jp-jitm" data-track="vaultpress-publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
+			<a href="#" data-module="vaultpress" data-jitm="backups_after_publish" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<?php echo self::get_emblem(); ?>
 
