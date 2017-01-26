@@ -7,11 +7,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WC_Services_Installer {
 
 	public function try_install() {
-		$install = filter_input( INPUT_GET, 'wc-services-action' );
+		$action = filter_input( INPUT_GET, 'wc-services-action' );
 
-		if ( 'install' === $install ) {
+		if ( 'install' === $action ) {
+			check_admin_referer( 'wc-services-install' );
+
 			$this->install();
-			wp_redirect( esc_url_raw( remove_query_arg( array( 'wc-services-action' ) ) ) );
+
+			wp_safe_redirect( remove_query_arg( array( 'wc-services-action', '_wpnonce' ) ) );
+
 			exit;
 		}
 	}

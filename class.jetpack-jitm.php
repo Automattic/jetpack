@@ -458,6 +458,8 @@ class Jetpack_JITM {
 			return;
 		}
 
+		$install_url = wp_nonce_url( add_query_arg( array( 'wc-services-action' => 'install' ) ), 'wc-services-install' );
+
 		?>
 		<div class="jp-jitm woo-jitm">
 			<a href="#"  data-module="woocommerce_services" class="dismiss"><span class="genericon genericon-close"></span></a>
@@ -470,7 +472,7 @@ class Jetpack_JITM {
 				<?php echo esc_html( $message ); ?>
 			</p>
 			<p>
-				<a href="<?php echo esc_url( add_query_arg( array( 'wc-services-action' => 'install' ) ) ); ?>" target="_blank" title="<?php esc_attr_e( 'Install WooCommerce Services', 'jetpack' ); ?>" data-module="woocommerce_services" class="button button-jetpack launch show-after-enable"><?php esc_html_e( 'Install WooCommerce Services', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( $install_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Install WooCommerce Services', 'jetpack' ); ?>" data-module="woocommerce_services" class="button button-jetpack launch show-after-enable"><?php esc_html_e( 'Install WooCommerce Services', 'jetpack' ); ?></a>
 			</p>
 		</div>
 		<?php
