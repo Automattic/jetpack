@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
@@ -14,8 +13,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import {
-	SettingsCard,
-	SettingsGroup
+	SettingsCard
 } from 'components/settings-card';
 
 export const ThemeEnhancements = moduleSettingsForm(
@@ -25,7 +23,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Theme enhancements' ) }>
+					header={ __( 'Theme Enhancements' ) }>
 					{
 						[
 							{
@@ -62,10 +60,10 @@ export const ThemeEnhancements = moduleSettingsForm(
 							return (
 								<Card compact className="jp-form-has-child jp-form-settings-group" key={ `theme_enhancement_${ item.module }` }>
 									<ModuleToggle slug={ item.module }
-												  compact
-												  activated={ this.props.getOptionValue( item.module ) }
-												  toggling={ this.props.isSavingAnyOption( item.module ) }
-												  toggleModule={ this.props.toggleModuleNow }>
+										compact
+										activated={ this.props.getOptionValue( item.module ) }
+										toggling={ this.props.isSavingAnyOption( item.module ) }
+										toggleModule={ this.props.toggleModuleNow }>
 									<span className="jp-form-toggle-explanation">
 									{
 										item.description
@@ -82,7 +80,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 														label={ chkbx.label }
 														key={ `${ item.module }_${ chkbx.key }`}
 													/>
-												  } )
+												} )
 												: ''
 										}
 									</FormFieldset>

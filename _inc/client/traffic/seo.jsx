@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import ExternalLink from 'components/external-link';
@@ -22,7 +21,7 @@ export const SEO = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Search engine optimization', { context: 'Settings header' } ) }
+					header={ __( 'Search Engine Optimization', { context: 'Settings header' } ) }
 					hideButton>
 					<SettingsGroup support="https://jetpack.com/support/seo-tools/">
 						<p>
