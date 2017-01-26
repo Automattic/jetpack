@@ -19,10 +19,8 @@ import {
 	ModuleSettingSelect,
 	ModuleSettingMultipleSelectCheckboxes
 } from 'components/module-settings/form-components';
-import {
-	SettingsCard,
-	SettingsGroup
-} from 'components/settings-card';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 import InlineExpand from 'components/inline-expand';
 
 export const SiteStats = moduleSettingsForm(

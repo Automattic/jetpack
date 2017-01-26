@@ -18,10 +18,8 @@ import {
 } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingSelect } from 'components/module-settings/form-components';
-import {
-	SettingsCard,
-	SettingsGroup
-} from 'components/settings-card';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 
 export const VerificationServices = moduleSettingsForm(
 	React.createClass( {
