@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
@@ -24,82 +23,19 @@ import {
 	getModule as _getModule,
 	getModules
 } from 'state/modules';
-import { ModuleToggle } from 'components/module-toggle';
 import { userCanManageModules } from 'state/initial-state';
 
 export const GeneralSettings = ( props ) => {
-	let {
-		toggleModule,
-		isModuleActivated,
-		isTogglingModule,
-		getModule
-	} = props,
-		isAdmin = props.userCanManageModules,
+	let	isAdmin = props.userCanManageModules,
 		moduleList = Object.keys( props.moduleList );
-
-	const moduleCard = ( module_slug ) => {
-		var unavailableInDevMode = props.isUnavailableInDevMode( module_slug ),
-			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
-			toggle = '';
-
-		if ( unavailableInDevMode ) {
-			toggle = () => __( 'Unavailable in Dev Mode' );
-		} else if ( isAdmin ) {
-			toggle = ( module_name ) =>
-				<ModuleToggle
-					slug={ module_name }
-					activated={ isModuleActivated( module_name ) }
-					toggling={ isTogglingModule( module_name ) }
-					toggleModule={ toggleModule }
-				/>;
-		}
-
-		if ( ! isAdmin || ! includes( moduleList, module_slug ) ) {
-			return null;
-		}
-
-		return (
-			<FoldableCard
-				className={ customClasses }
-				header={ getModule( module_slug ).name }
-				subheader={ getModule( module_slug ).description }
-				clickableHeaderText={ true }
-				disabled={ ! isAdmin }
-				summary={ isAdmin ? toggle( module_slug ) : '' }
-				expandedSummary={ isAdmin ? toggle( module_slug ) : '' }
-				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
-					{
-						card: module_slug,
-						path: props.route.path
-					}
-				) }
-			>
-				<div className="jp-form-setting-explanation"><div dangerouslySetInnerHTML={ renderLongDescription( getModule( module_slug ) ) } /></div>
-				<div className="jp-module-settings__learn-more">
-					<Button borderless compact href={ getModule( module_slug ).learn_more_button }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
-				</div>
-			</FoldableCard>
-		);
-	};
 
 	return (
 		<div>
-			<FoldableCard
-				header={ __( 'Connection Settings' ) }
-				subheader={ __( 'Manage your Jetpack connection.' ) }
-				clickableHeaderText={ true }
-				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
-					{
-						card: 'connection_settings',
-						path: props.route.path
-					}
-				) }
-			>
-				<ConnectionSettings { ...props } />
-			</FoldableCard>
-			{ isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' ) }
-			{ moduleCard( 'notes' ) }
-			{ moduleCard( 'json-api' ) }
+			<h3>{ __( 'Connections' ) }</h3>
+			<div className="jp-connections">
+				<ConnectionSettings { ...props } type="site" />
+				<ConnectionSettings { ...props } type="user" />
+			</div>
 		</div>
 	);
 };

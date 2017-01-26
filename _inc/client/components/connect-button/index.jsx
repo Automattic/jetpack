@@ -5,6 +5,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
+import Card from 'components/card';
+import SectionHeader from 'components/section-header';
+import Modal from 'components/modal';
 
 /**
  * Internal dependencies
@@ -26,14 +29,68 @@ export const ConnectButton = React.createClass( {
 
 	propTypes: {
 		connectUser: React.PropTypes.bool,
-		from: React.PropTypes.string
+		from: React.PropTypes.string,
+		asLink: React.PropTypes.bool
 	},
 
 	getDefaultProps() {
 		return {
 			connectUser: false,
-			from: ''
+			from: '',
+			asLink: false
 		};
+	},
+
+	getInitialState() {
+		return {
+			showModal: false
+		};
+	},
+
+	handleOpenModal( e ) {
+		e.preventDefault();
+		this.setState( { showModal: true } );
+	},
+
+	handleCloseModal() {
+		this.setState( { showModal: false } );
+	},
+
+	disconnectSite() {
+		this.handleCloseModal();
+		this.props.disconnectSite();
+	},
+
+	getModal() {
+		return this.state.showModal && (
+			<Modal title={ __( 'Manage Site Connection' ) } onRequestClose={ this.handleCloseModal } initialFocus="">
+				<SectionHeader label={ __( 'Manage Site Connection' ) } />
+				<Card className="jp-connection-settings__modal-body">
+					{
+						__( 'Disconnecting Jetpack means that most features will be disabled, including all security services, content delivery, related posts, promotion and SEO tools, and all features in paid plans.' )
+					}
+					<div className="jp-connection-settings__modal-actions">
+						<Button
+							borderless
+							className="jp-connection-settings__cancel"
+							onClick={ this.handleCloseModal }>
+							{
+								__( 'Cancel' )
+							}
+						</Button>
+						<Button
+							scary
+							primary
+							className="jp-connection-settings__disconnect"
+							onClick={ this.disconnectSite }>
+							{
+								__( 'Disconnect' )
+							}
+						</Button>
+					</div>
+				</Card>
+			</Modal>
+		);
 	},
 
 	renderUserButton: function() {
@@ -42,11 +99,11 @@ export const ConnectButton = React.createClass( {
 		if ( this.props.isLinked ) {
 			return (
 				<div>
-					<Button
+					<a
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking } >
 						{ __( 'Unlink me from WordPress.com' ) }
-					</Button>
+					</a>
 				</div>
 			);
 		}
@@ -57,20 +114,16 @@ export const ConnectButton = React.createClass( {
 			connectUrl += '&additional-user';
 		}
 
-		return (
-			<Button
-				className="is-primary jp-jetpack-connect__button"
-				href={ connectUrl }
-				disabled={ this.props.fetchingConnectUrl } >
-				{ __( 'Link to WordPress.com' ) }
-			</Button>
-		);
-	},
+		let buttonProps = {
+				className: 'is-primary jp-jetpack-connect__button',
+				href: connectUrl,
+				disabled: this.props.fetchingConnectUrl
+			},
+			connectLegend = __( 'Link to WordPress.com' );
 
-	disconnectSite() {
-		if ( window.confirm( __( 'Do you really want to disconnect your site from WordPress.com?' ) ) ) {
-			this.props.disconnectSite();
-		}
+		return this.props.asLink
+			? <a { ...buttonProps }>{ connectLegend }</a>
+			: <Button { ...buttonProps }>{ connectLegend }</Button>;
 	},
 
 	renderContent: function() {
@@ -80,11 +133,11 @@ export const ConnectButton = React.createClass( {
 
 		if ( this.props.isSiteConnected ) {
 			return (
-				<Button
-					onClick={ this.disconnectSite }
+				<a
+					onClick={ this.handleOpenModal }
 					disabled={ this.props.isDisconnecting }>
-					{ __( 'Disconnect Jetpack' ) }
-				</Button>
+					{ __( 'Manage site connection' ) }
+				</a>
 			);
 		}
 
@@ -93,14 +146,16 @@ export const ConnectButton = React.createClass( {
 			connectUrl += `&from=${ this.props.from }`;
 		}
 
-		return (
-			<Button
-				className="is-primary jp-jetpack-connect__button"
-				href={ connectUrl }
-				disabled={ this.props.fetchingConnectUrl }>
-				{ __( 'Connect Jetpack' ) }
-			</Button>
-		);
+		let buttonProps = {
+				className: 'is-primary jp-jetpack-connect__button',
+				href: connectUrl,
+				disabled: this.props.fetchingConnectUrl
+			},
+			connectLegend = __( 'Connect Jetpack' );
+
+		return this.props.asLink
+			? <a { ...buttonProps }>{ connectLegend }</a>
+			: <Button { ...buttonProps }>{ connectLegend }</Button>;
 	},
 
 	render() {
@@ -108,6 +163,7 @@ export const ConnectButton = React.createClass( {
 			<div>
 				<QueryConnectUrl />
 				{ this.renderContent() }
+				{ this.getModal() }
 			</div>
 		);
 	}
