@@ -52,9 +52,9 @@ export const Subscriptions = moduleSettingsForm(
 										name={ 'stc_enabled' }
 										{ ...this.props }
 										label={ __( 'Show a "follow comments" option in the comment form.' ) } />
-									<p>
-										<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
-									</p>
+										<p>
+											<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
+										</p>
 									</FormFieldset>
 								: ''
 						}
