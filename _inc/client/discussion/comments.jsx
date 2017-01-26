@@ -31,7 +31,7 @@ export const Comments = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="comments">
-					<SettingsGroup hasChild disableInDevMode module={ comments }>
+					<SettingsGroup hasChild disableInDevMode useCompactNotices module={ comments }>
 						<ModuleToggle slug="comments"
 									  compact
 									  activated={ this.props.getOptionValue( 'comments' ) }

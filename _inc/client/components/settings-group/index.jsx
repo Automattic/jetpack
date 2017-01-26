@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import classNames from 'classnames';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
 
 /**
  * Internal dependencies
@@ -25,30 +27,45 @@ export const SettingsGroup = props => {
 				: false,
 		// Disable in Dev Mode
 		disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
-
 	return (
-		<Card className={ classNames( 'jp-form-settings-group', { 'jp-form-has-child': props.hasChild, 'jp-form-settings-disable': disableInDevMode } ) }>
+		<div className="jp-form-settings-group">
+			<Card className={ classNames( { 'jp-form-has-child': props.hasChild, 'jp-form-settings-disable': disableInDevMode, 'jp-form-settings-has-compact-notice': props.useCompactNotices } ) }>
+				{
+					disableInDevMode
+						? <div className="jp-form-block-click"></div>
+						: ''
+				}
+				{
+					support
+						? <div className="jp-module-settings__learn-more">
+							<Button borderless compact href={ support }>
+								<Gridicon icon="help-outline" />
+								<span className="screen-reader-text">{ __( 'Learn More' ) }</span>
+							</Button>
+						  </div>
+						: ''
+				}
+				{
+					props.children
+				}
+			</Card>
 			{
 				disableInDevMode
-					? <div className="jp-form-block-click">
-						<div className="jp-form-setting-explanation jp-devmode-message">{ __( 'Feature unavailable in Dev Mode.' ) }</div>
-					  </div>
+					? (
+						<SimpleNotice
+							isCompact={ props.useCompactNotices }
+							className="jp-form-devmode-message"
+							status="is-warning"
+							showDismiss={ false }
+							text={ __( 'This feature is unavailable in Development Mode.' ) }>
+							<NoticeAction href="https://jetpack.com/development-mode/">
+								{ __( 'Learn More' ) }
+							</NoticeAction>
+						</SimpleNotice>
+					)
 					: ''
 			}
-			{
-				support
-					? <div className="jp-module-settings__learn-more">
-						<Button borderless compact href={ support }>
-							<Gridicon icon="help-outline" />
-							<span className="screen-reader-text">{ __( 'Learn More' ) }</span>
-						</Button>
-					  </div>
-					: ''
-			}
-			{
-				props.children
-			}
-		</Card>
+		</div>
 	);
 };
 

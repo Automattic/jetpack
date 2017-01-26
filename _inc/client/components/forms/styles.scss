@@ -71,6 +71,7 @@
 }
 
 .jp-form-fieldset {
+	margin-bottom: rem( 24px );
 	position: relative;
 
 	.jp-form-legend + .jp-form-setting-explanation {
@@ -88,7 +89,6 @@
 }
 
 .jp-form-input-with-prefix {
-
 	display: inline-flex;
 	width: 100%;
 	margin-bottom: rem( 24px );
@@ -112,8 +112,18 @@
 .jp-form-settings-card {
 	margin-bottom: rem( 24px );
 
-	& > .jp-form-settings-group {
-		margin: 0;
+	.jp-form-settings-group {
+		position: relative;
+		margin-bottom: 0;
+
+		.form-toggle__switch {
+			float: left;
+			margin-top: 2px;
+		}
+
+		& > .dops-card:first-child {
+			margin-bottom: 0;
+		}
 	}
 }
 
@@ -138,13 +148,16 @@
 	background: rgba( 255,255,255,.8 );
 	width: 100%;
 	height: 100%;
-	text-align: center;
-	display: flex;
-	align-items: center;
-	justify-content: center;
 }
-.jp-devmode-message {
-	background: #fff;
-	padding: 0 3px;
-	margin: 0;
+
+.jp-form-devmode-message.is-compact {
+	width: 100%;
+	padding: 0 1rem;
+	position: absolute;
+	top: -24px;
+	z-index: 1;
+}
+
+.jp-form-settings-has-compact-notice {
+	margin-top: 24px;
 }

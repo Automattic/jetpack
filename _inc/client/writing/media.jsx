@@ -46,7 +46,7 @@ export const Media = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Media' ) }>
-					<SettingsGroup hasChild disableInDevMode module={ photon }>
+					<SettingsGroup hasChild disableInDevMode useCompactNotices module={ photon }>
 						<ModuleToggle slug="photon"
 									  compact
 									  activated={ this.props.getOptionValue( 'photon' ) }
