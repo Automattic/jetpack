@@ -46,7 +46,6 @@ export const SiteStats = moduleSettingsForm(
 								}
 							</span>
 							</ModuleToggle>
-							<br />
 							<ModuleToggle slug="stats"
 										  compact
 										  activated={ !!this.props.getOptionValue( 'hide_smile' ) }

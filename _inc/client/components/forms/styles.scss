@@ -1,9 +1,5 @@
 .jp-form-fieldset {
 	clear: both;
-
-	+ .jp-form-fieldset {
-		margin-top: rem( 24px );
-	}
 }
 
 .jp-form-legend, .jp-form-label-wide {
@@ -53,6 +49,11 @@
 }
 
 .jp-form-settings-group {
+	.form-toggle__label {
+		display: block;
+		margin-top: 4px;
+		margin-bottom: 4px;
+	}
 	.form-toggle__switch {
 		float: left;
 		margin-top: 2px;
@@ -68,8 +69,6 @@
 }
 
 .jp-form-fieldset {
-
-	margin-bottom: rem( 24px );
 	position: relative;
 
 	.jp-form-legend + .jp-form-setting-explanation {
