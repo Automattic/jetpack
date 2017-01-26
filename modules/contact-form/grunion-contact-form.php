@@ -2038,26 +2038,29 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * with this work around. */
 		add_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10, 2 );
 
-		$disabled_functions = explode( ',', ini_get( 'disable_functions' ) );
+		$all_values_string = '';
 		
 		// Avoid warnings when print_r() has been disabled on hosting provider for security reasons
-		if ( ! in_array( 'print_r', $disabled_functions ) ) {
-			$all_values_string = print_r( $all_values, true );
-		}
-		// If print_r is disabled, try to use var_export as an alternative solution
-		elseif ( ! in_array( 'var_export', $disabled_functions ) ) {
-			$all_values_string = var_export( $all_values, true );
-		}
-		else {
-			$all_values_string = '';
+		// function_exists will return false for functions disabled with the disable_functions ini directive
+		if ( function_exists( 'print_r' ) ) {
+			$all_values_string = apply_filters( 'grunion_print_all_values', @print_r( $all_values, true ), $all_values );
+		} elseif ( function_exists( 'var_export' ) ) {
+			$all_values_string = apply_filters( 'grunion_print_all_values', @var_export( $all_values, true ), $all_values );
+		} else {
+			$all_values_string = "Array\n(\n";
+			foreach ( $all_values as $key => $value )  {
+				$all_values_string .= "\t[$key] => $value\n";
+			}
+			$all_values_string .= ')';
 		}
 		
-		$post_content_string =  $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\n
-		AUTHOR EMAIL: {$comment_author_email}\n
-		AUTHOR URL: {$comment_author_url}\n
-		SUBJECT: {$subject}\n
-		IP: {$comment_author_IP}\n
-		" . $all_values_string;
+		$post_content_string =  $comment_content . "\n<!--more-->\n"
+			. "AUTHOR: {$comment_author}\n"
+			. "AUTHOR EMAIL: {$comment_author_email}\n"
+			. "AUTHOR URL: {$comment_author_url}\n"
+			. "SUBJECT: {$subject}\n"
+			. "IP: {$comment_author_IP}\n"
+			. $all_values_string;
 			
 		$post_content = addslashes( wp_kses( $post_content_string , array() ) );
 		
