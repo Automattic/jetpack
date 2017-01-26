@@ -2038,13 +2038,36 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * with this work around. */
 		add_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10, 2 );
 
+		$disabled_functions = explode( ',', ini_get( 'disable_functions' ) );
+		
+		// Avoid warnings when print_r() has been disabled on hosting provider for security reasons
+		if ( ! in_array( 'print_r', $disabled_functions ) ) {
+			$all_values_string = print_r( $all_values, true );
+		}
+		// If print_r is disabled, try to use var_export as an alternative solution
+		elseif ( ! in_array( 'var_export', $disabled_functions ) ) {
+			$all_values_string = var_export( $all_values, true );
+		}
+		else {
+			$all_values_string = '';
+		}
+		
+		$post_content_string =  $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\n
+		AUTHOR EMAIL: {$comment_author_email}\n
+		AUTHOR URL: {$comment_author_url}\n
+		SUBJECT: {$subject}\n
+		IP: {$comment_author_IP}\n
+		" . $all_values_string;
+			
+		$post_content = addslashes( wp_kses( $post_content_string , array() ) ),
+		
 		$post_id = wp_insert_post( array(
 			'post_date'    => addslashes( $feedback_time ),
 			'post_type'    => 'feedback',
 			'post_status'  => addslashes( $feedback_status ),
 			'post_parent'  => (int) $post->ID,
 			'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
-			'post_content' => addslashes( wp_kses( $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . print_r( $all_values, true ), array() ) ), // so that search will pick up this data
+			'post_content' => $post_content // so that search will pick up this data
 			'post_name'    => $feedback_id,
 		) );
 
