@@ -10,10 +10,8 @@ import ExternalLink from 'components/external-link';
  * Internal dependencies
  */
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import {
-	SettingsCard,
-	SettingsGroup
-} from 'components/settings-card';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 
 export const SEO = moduleSettingsForm(
 	React.createClass( {
