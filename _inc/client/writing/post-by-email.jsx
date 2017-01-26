@@ -46,7 +46,7 @@ export const PostByEmail = moduleSettingsForm(
 					{ ...this.props }
 					module="post-by-email"
 					hideButton>
-					<SettingsGroup hasChild support={ postByEmail.learn_more_button }>
+					<SettingsGroup hasChild disableInDevMode module={ postByEmail }>
 						<ModuleToggle slug="post-by-email"
 									  compact
 									  activated={ isPbeActive }

@@ -111,7 +111,7 @@ export const Composing = moduleSettingsForm(
 							</ModuleToggle>
 						</FormFieldset>
 					</SettingsGroup>
-					<SettingsGroup hasChild support={ atd.learn_more_button }>
+					<SettingsGroup hasChild disableInDevMode module={ atd }>
 						<ModuleToggle slug="after-the-deadline"
 							compact
 							activated={ this.props.getOptionValue( 'after-the-deadline' ) }

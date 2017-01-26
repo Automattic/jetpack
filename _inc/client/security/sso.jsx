@@ -26,7 +26,7 @@ export const SSO = moduleSettingsForm(
 					{ ...this.props }
 					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
-					<SettingsGroup hasChild support={ this.props.getModule( 'sso' ).learn_more_button }>
+					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'sso' ) }>
 						<ModuleToggle slug="sso"
 									  compact
 									  activated={ isSSOActive }

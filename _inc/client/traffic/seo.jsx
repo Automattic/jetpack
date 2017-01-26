@@ -22,7 +22,7 @@ export const SEO = moduleSettingsForm(
 					{ ...this.props }
 					header={ __( 'Search Engine Optimization', { context: 'Settings header' } ) }
 					hideButton>
-					<SettingsGroup support="https://jetpack.com/support/seo-tools/">
+					<SettingsGroup disableInDevMode module={ { module: 'seo-tools' } } support="https://jetpack.com/support/seo-tools/">
 						<p>
 							{
 								__( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",

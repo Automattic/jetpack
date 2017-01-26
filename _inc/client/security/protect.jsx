@@ -70,7 +70,7 @@ export const Protect = moduleSettingsForm(
 					{ ...this.props }
 					module="protect"
 					header={ __( 'Brute force protection', { context: 'Settings header' } ) } >
-					<SettingsGroup hasChild support={ this.props.getModule( 'protect' ).learn_more_button }>
+					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'protect' ) }>
 						<ModuleToggle slug="protect"
 									  compact
 									  activated={ isProtectActive }

@@ -27,7 +27,7 @@ export const Subscriptions = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="subscriptions">
-					<SettingsGroup hasChild support={ subscriptions.learn_more_button }>
+					<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
 						<ModuleToggle slug="subscriptions"
 									  compact
 									  activated={ isSubscriptionsActive }

@@ -33,7 +33,7 @@ export const SiteStats = moduleSettingsForm(
 					{ ...this.props }
 					header={ __( 'Site stats' ) }
 					module="stats">
-					<SettingsGroup support={ stats.learn_more_button }>
+					<SettingsGroup disableInDevMode module={ stats }>
 						<FormFieldset>
 							<ModuleToggle slug="stats"
 										  compact

@@ -56,7 +56,7 @@ export const RelatedPosts = moduleSettingsForm(
 					{ ...this.props }
 					hideButton
 					module="related-posts">
-					<SettingsGroup hasChild support={ this.props.getModule( 'related-posts' ).learn_more_button }>
+					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'related-posts' ) }>
 						<ModuleToggle slug="related-posts"
 									  compact
 									  activated={ isRelatedPostsActive }
