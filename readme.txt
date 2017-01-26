@@ -49,7 +49,7 @@ Yes, VaultPress supports Multisite installs. Each site will require its own subs
 == Changelog ==
 = 1.8.6 - 26 January 2016 =
 * Compatibility updates
-* Security hotfixes for REST API and YouTube embed security issues fixed in WP 1.4.2
+* Security hotfixes
 * Improved performance for security scanner
 * Misc small bugfixes
 
