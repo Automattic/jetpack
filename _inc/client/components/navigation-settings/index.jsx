@@ -73,14 +73,14 @@ export const NavigationSettings = React.createClass( {
 						{ __( 'General', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
+						path="#writing"
+						selected={ this.props.route.path === '/writing' }>
+						{ __( 'Writing', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
 						path="#discussion"
 						selected={ this.props.route.path === '/discussion' }>
 						{ __( 'Discussion', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
-						path="#security"
-						selected={ this.props.route.path === '/security' }>
-						{ __( 'Security', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
 						path="#traffic"
@@ -88,9 +88,9 @@ export const NavigationSettings = React.createClass( {
 						{ __( 'Traffic', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
-						path="#writing"
-						selected={ this.props.route.path === '/writing' }>
-						{ __( 'Writing', { context: 'Navigation item.' } ) }
+						path="#security"
+						selected={ this.props.route.path === '/security' }>
+						{ __( 'Security', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
 			);
