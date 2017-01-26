@@ -17,10 +17,8 @@ import {
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import {
-	SettingsCard,
-	SettingsGroup
-} from 'components/settings-card';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 
 export const RelatedPosts = moduleSettingsForm(
 	React.createClass( {
@@ -87,7 +85,6 @@ export const RelatedPosts = moduleSettingsForm(
 											}
 										</span>
 									</FormToggle>
-									<br />
 									<FormToggle compact
 												checked={ this.state.show_thumbnails }
 												disabled={ this.props.isSavingAnyOption() }

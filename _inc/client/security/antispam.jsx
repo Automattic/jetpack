@@ -10,10 +10,8 @@ import { translate as __ } from 'i18n-calypso';
 import { FormFieldset } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
-import {
-	SettingsCard,
-	SettingsGroup
-} from 'components/settings-card';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 
 export const Antispam = moduleSettingsForm(
 	React.createClass( {

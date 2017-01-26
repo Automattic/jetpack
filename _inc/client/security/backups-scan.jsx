@@ -9,10 +9,8 @@ import { translate as __ } from 'i18n-calypso';
  */
 import ExternalLink from 'components/external-link';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import {
-	SettingsCard,
-	SettingsGroup
-} from 'components/settings-card';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 
 export const BackupsScan = moduleSettingsForm(
 	React.createClass( {

@@ -277,6 +277,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 //				'othersLinked' => Jetpack::get_other_linked_admins(),
 				'currentUser'  => jetpack_current_user_data(),
 			),
+			'siteData' => array(
+				'icon' => has_site_icon()
+					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
+					: '',
+			),
 			'locale' => $this->get_i18n_data(),
 			'localeSlug' => $localeSlug,
 			'jetpackStateNotices' => array(

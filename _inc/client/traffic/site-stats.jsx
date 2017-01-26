@@ -16,10 +16,8 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import {
 	ModuleSettingMultipleSelectCheckboxes
 } from 'components/module-settings/form-components';
-import {
-	SettingsCard,
-	SettingsGroup
-} from 'components/settings-card';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 import InlineExpand from 'components/inline-expand';
 
 export const SiteStats = moduleSettingsForm(
@@ -45,7 +43,6 @@ export const SiteStats = moduleSettingsForm(
 								}
 							</span>
 							</ModuleToggle>
-							<br />
 							<ModuleToggle slug="stats"
 											compact
 											activated={ !!this.props.getOptionValue( 'hide_smile' ) }

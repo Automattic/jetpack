@@ -12,9 +12,8 @@ import { FormFieldset } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
-import {
-	SettingsCard
-} from 'components/settings-card';
+import { SettingsCard } from 'components/settings-card';
+import { SettingsGroup } from 'components/settings-group';
 
 export const ThemeEnhancements = moduleSettingsForm(
 	React.createClass( {
