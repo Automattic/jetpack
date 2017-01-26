@@ -38,7 +38,6 @@ class JetpackGoogleAnalytics {
 	 */
 	private function __construct() {
 		add_action( 'get_footer',               array( $this, 'insert_code' ) );
-		add_action( 'wp_enqueue_scripts',       array( $this, 'track_outgoing' ) );
 	}
 
 	/**
@@ -106,19 +105,8 @@ class JetpackGoogleAnalytics {
 			return $this->_output_or_return( '<!-- Your Google Analytics Plugin is missing the tracking ID -->', $output );
 		}
 
-		// get our plugin options.
-		$wga = $this->_get_options();
-		// If the user's role has wga_no_track set to true, return without inserting code.
-		if ( is_user_logged_in() ) {
-			$current_user = wp_get_current_user();
-			$role = array_shift( $current_user->roles );
-			if ( 'true' === $this->_get_options( 'ignore_role_' . $role ) ) {
-				return $this->_output_or_return( '<!-- Google Analytics Plugin is set to ignore your user role -->', $output );
-			}
-		}
-
-		// If $admin is true (we're in the admin_area), and we've been told to ignore_admin_area, return without inserting code.
-		if ( is_admin() && ( ! isset( $wga['ignore_admin_area'] ) || 'false' !== $wga['ignore_admin_area'] ) ) {
+		// If we're in the admin_area, return without inserting code.
+		if ( is_admin() ) {
 			return $this->_output_or_return( '<!-- Your Google Analytics Plugin is set to ignore Admin area -->', $output );
 		}
 
@@ -127,10 +115,10 @@ class JetpackGoogleAnalytics {
 		);
 
 		$track = array();
-		if ( is_404() && ( ! isset( $wga['log_404s'] ) || 'false' !== $wga['log_404s'] ) ) {
+		if ( is_404() ) {
 			// This is a 404 and we are supposed to track them.
 			$custom_vars[] = "_gaq.push( [ '_trackEvent', '404', document.location.href, document.referrer ] );";
-		} elseif ( is_search() && ( ! isset( $wga['log_searches'] ) || 'false' !== $wga['log_searches'] ) ) {
+		} elseif ( is_search() ) {
 			// Set track for searches, if it's a search, and we are supposed to.
 			$track['data'] = sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ); // Input var okay.
 			$track['code'] = 'search';
@@ -145,35 +133,21 @@ class JetpackGoogleAnalytics {
 			$custom_vars[] = "_gaq.push(['_trackPageview']);";
 		}
 
-		if ( 'true' === $wga['enable_display_advertising'] ) {
-			$async_code = "<script type='text/javascript'>
-								var _gaq = _gaq || [];
-								%custom_vars%
+		$async_code = "<script type='text/javascript'>
+							var _gaq = _gaq || [];
+							%custom_vars%
 
-								(function() {
-									var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-									ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
-									var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-								})();
-							</script>";
-		} else {
-			$async_code = "<script type='text/javascript'>
-								var _gaq = _gaq || [];
-								%custom_vars%
-
-								(function() {
-									var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-									ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-									var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-								})();
-							</script>";
-		}
+							(function() {
+								var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+								ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+								var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+							})();
+						</script>";
 
 		$custom_vars_string = implode( "\r\n", $custom_vars );
 		$async_code = str_replace( '%custom_vars%', $custom_vars_string, $async_code );
 
 		return $this->_output_or_return( $async_code, $output );
-
 	}
 
 	/**
