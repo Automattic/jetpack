@@ -203,45 +203,6 @@ class JetpackGoogleAnalytics {
 			return $o;
 		}
 	}
-
-	/**
-	 * Callback for %the_category% token
-	 */
-	public function token_the_category() {
-		return implode( ', ', wp_list_pluck( (array) get_the_category(), 'name' ) );
-	}
-
-	/**
-	 * Callback for %context% token
-	 */
-	public function token_context() {
-		if ( is_admin() ) {
-			return 'admin';
-		} elseif ( is_home() || is_front_page() ) {
-			return 'home';
-		} elseif ( is_tax() || is_tag() || is_category() ) {
-			return get_queried_object()->taxonomy;
-		} elseif ( is_author() ) {
-			return 'author';
-		} elseif ( is_singular() || is_single() || is_page() ) {
-			return get_post_type();
-		} elseif ( is_search() ) {
-			return 'search';
-		} elseif ( is_date() ) {
-			return 'date';
-		} elseif ( is_archive() ) {
-			return 'archive';
-		} elseif ( is_404() ) {
-			return '404';
-		}
-	}
-
-	/**
-	 * Callback for %the_tags% token
-	 */
-	public function token_the_tags() {
-		return implode( ', ', wp_list_pluck( (array) get_the_tags(), 'name' ) );
-	}
 }
 
 global $wp_google_analytics;
