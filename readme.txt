@@ -1,11 +1,11 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
-Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti spam, sharing, SEO, video, stats
+Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti spam, social sharing, SEO, video, stats
 Stable tag: 4.5
 Requires at least: 4.6
 Tested up to: 4.7
 
-Increase traffic and security with stats, related posts, search optimization, attack protection, backups, content delivery, & malware scanning.
+Increase traffic and security with stats, related posts, search engine optimization, attack protection, backups, content delivery, & malware scanning.
 
 == Description ==
 
@@ -15,33 +15,34 @@ Whatever sort of site you’re running, Jetpack’s features are designed to kee
 Traffic is the lifeblood of any website. Jetpack includes:
 
 * [free] site stats and analytics
-* [free] automatic content promotion and sharing tools
+* [free] automatic promotion and sharing on Facebook, Twitter, LinkedIn, and WordPress.com
 * [free] related posts
-* [paid] search engine optimization tools
+* [paid] search engine optimization tools for Google, Bing, Twitter, Facebook, and WordPress.com
+* [paid] advert programme that includes AdSense, WordAds, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
 
 = Security and Backup Services =
 Stop worrying about data loss, downtime, and hacking. Jetpack provides: 
 
 * [free] brute force attack protection
-* [free] downtime monitoring
-* [free] secure authentication
-* [paid] malware scanning and threat resolution
+* [free] downtime and uptime monitoring
+* [free] secure and two-factor authentication
+* [paid] malware scanning, code scanning, and threat resolution
 * [paid] site backups, restores, and migrations
 
 = Writing and Content Creation =
-Jetpack improves your publishing process with:
+Jetpack helps your writing and image creation processes with:
 
 * [free] a high-speed CDN for your images
 * [free] carousels, slideshows, and tiled galleries
 * [free] embed media from YouTube, Google Documents, Spotify and more
-* [free] sidebar customization and more
-* [paid] high-speed, ad-free video hosting
+* [free] sidebar customization including Facebook feeds, Twitter feeds, and RSS feeds
+* [paid] high-speed, ad-free, and high-definition video hosting
 
 = Discussion and Community =
 Create a connection with your readers and keep them coming back to your site with:
 
 * [free] email subscriptions
-* [free] comments with social login
+* [free] comments with Facebook, Twitter, and social logins
 * [free] multiple contact forms
 * [free] infinite scroll
 
