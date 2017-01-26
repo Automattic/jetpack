@@ -5,11 +5,11 @@ Stable tag: 4.5
 Requires at least: 4.6
 Tested up to: 4.7
 
-Increase traffic and security with stats, related posts, search engine optimization, attack protection, backups, content delivery, & malware scanning.
+The one plugin you need for stats, related posts, search engine optimization, social sharing, protection, backups, faster content, and email lists.
 
 == Description ==
 
-Whatever sort of site you’re running, Jetpack’s features are designed to keep your site secure, elevate your brand, and engage with more readers better.
+Whatever sort of site you’re running, Jetpack’s features are designed to keep your site secure, increase traffic, and engage your readers.
 
 = Traffic and SEO Tools =
 Traffic is the lifeblood of any website. Jetpack includes:
