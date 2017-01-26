@@ -80,7 +80,8 @@
 		margin-top: rem( 16px );
 	}
 
-	&:last-child {
+	&:last-child,
+	& > p:last-child {
 		margin-bottom: 0;
 	}
 }
