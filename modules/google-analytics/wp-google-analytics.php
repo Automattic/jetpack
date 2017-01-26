@@ -100,7 +100,7 @@ class JetpackGoogleAnalytics {
 		// If $output is not a boolean false, set it to true (default).
 		$output = ( false !== $output);
 
-		$tracking_id = $this->_get_options( 'code' );
+		$tracking_id = $this->_get_tracking_code();
 		if ( empty( $tracking_id ) ) {
 			return $this->_output_or_return( '<!-- Your Google Analytics Plugin is missing the tracking ID -->', $output );
 		}
@@ -151,33 +151,20 @@ class JetpackGoogleAnalytics {
 	}
 
 	/**
-	 * Used to get one or all of our plugin options
+	 * Used to get the tracking code option
 	 *
-	 * @param string[optional] $option - Name of options you want.  Do not use if you want ALL options.
-	 * @param boolean[optiona] $default - Default value.
-	 * @return array of options, or option value.
+	 * @return tracking code option value.
 	 */
-	private function _get_options( $option = null, $default = false ) {
-
+	private function _get_tracking_code() {
 		$o = get_option( 'jetpack_wga' );
 
-		if ( isset( $option ) ) {
-			if ( isset( $o[ $option ] ) ) {
-				if ( 'code' === $option ) {
-					if ( preg_match( '#UA-[\d-]+#', $o[ $option ], $matches ) ) {
-						return $matches[0];
-					} else {
-						return '';
-					}
-				} else {
-					return $o[ $option ];
-				}
-			}
-		} else {
-			return $o;
+		if ( isset( $o['code'] ) && preg_match( '#UA-[\d-]+#', $o['code'], $matches ) ) {
+				return $o['code'];
 		}
+
+		return '';
 	}
 }
 
-global $wp_google_analytics;
-$wp_google_analytics = JetpackGoogleAnalytics::get_instance();
+global $jetpack_google_analytics;
+$jetpack_google_analytics = JetpackGoogleAnalytics::get_instance();
