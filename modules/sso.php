@@ -132,7 +132,7 @@ class Jetpack_SSO {
 	public function login_enqueue_scripts() {
 		global $action;
 
-		if ( ! in_array( $action, array( 'jetpack-sso', 'login' ) ) ) {
+		if ( ! Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 			return;
 		}
 
@@ -154,7 +154,7 @@ class Jetpack_SSO {
 	public function login_body_class( $classes ) {
 		global $action;
 
-		if ( ! in_array( $action, array( 'jetpack-sso', 'login' ) ) ) {
+		if ( ! Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 			return $classes;
 		}
 
@@ -385,7 +385,7 @@ class Jetpack_SSO {
 			exit;
 		}
 
-		if ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
+		if ( $this->wants_to_login() ) {
 			$this->display_sso_login_form();
 		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
