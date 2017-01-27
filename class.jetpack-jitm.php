@@ -444,17 +444,13 @@ class Jetpack_JITM {
 			return;
 		}
 
-		$base_location   = wc_get_base_location();
-		$store_in_usa    = ( 'US' == $base_location['country'] );
-		$store_in_canada = ( 'CA' == $base_location['country'] );
+		$base_location = wc_get_base_location();
 
-		if ( $store_in_usa ) {
+		if ( 'US' === $base_location['country'] ) {
 			$message = __( 'Try our new service for USPS shipping & label-printing.', 'jetpack' );
-		}
-		elseif ( $store_in_canada ) {
+		} elseif ( 'CA' === $base_location['country'] ) {
 			$message = __( 'Try our new Canada Post shipping service.', 'jetpack' );
-		}
-		else {
+		} else {
 			return;
 		}
 
