@@ -31,13 +31,14 @@ class WC_Services_Installer {
 				return;
 			}
 
-			$result = $this->install();
+			$result   = $this->install();
+			$redirect = wp_get_referer();
 
-			wp_safe_redirect( add_query_arg( array(
-				'wc-services-action'        => false,
-				'_wpnonce'                  => false,
-				'wc-services-install-error' => ( false === $result ),
-			) ) );
+			if ( false === $result ) {
+				$redirect = add_query_arg( 'wc-services-install-error', true, $redirect );
+			}
+
+			wp_safe_redirect( $redirect );
 
 			exit;
 		}
