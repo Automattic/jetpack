@@ -475,7 +475,6 @@ class Jetpack_JITM {
 		//jitm is being viewed, track it
 		$jetpack = Jetpack::init();
 		$jetpack->stat( 'jitm', 'woocommerce_services-viewed-' . JETPACK__VERSION );
-		$jetpack->do_stats( 'server_side' );
 	}
 
 	/*
