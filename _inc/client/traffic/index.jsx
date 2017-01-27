@@ -11,6 +11,7 @@ import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
+import GoogleAnalytics from './google-analytics';
 import { SiteStats } from './site-stats';
 import { RelatedPosts } from './related-posts';
 import { VerificationServices } from './verification-services';
@@ -44,6 +45,7 @@ export const Traffic = React.createClass( {
 					settings={ this.props.settings }
 					getModule={ this.props.module }
 				/>
+				<GoogleAnalytics settings={ this.props.settings } getModule={ this.props.module } />
 			</div>
 		);
 	}
