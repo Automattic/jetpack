@@ -15,6 +15,10 @@ class WC_Services_Installer {
 		if ( isset( $_GET['wc-services-action'] ) && ( 'install' === $_GET['wc-services-action'] ) ) {
 			check_admin_referer( 'wc-services-install' );
 
+			if ( ! current_user_can( 'install_plugins' ) ) {
+				return;
+			}
+
 			$result = $this->install();
 
 			wp_safe_redirect( add_query_arg( array(

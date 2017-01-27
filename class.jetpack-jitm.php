@@ -432,7 +432,7 @@ class Jetpack_JITM {
 	 * @since 4.6
 	 */
 	function woocommerce_services_msg() {
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! current_user_can( 'install_plugins' ) ) {
 			return;
 		}
 
