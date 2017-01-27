@@ -11,6 +11,10 @@
 add_action( 'wp_head', 'jetpack_og_tags' );
 
 function jetpack_og_tags() {
+	echo jetpack_og_get_tags();
+}
+
+function jetpack_og_get_tags() {
 	/**
 	 * Allow Jetpack to output Open Graph Meta Tags.
 	 *
@@ -23,7 +27,7 @@ function jetpack_og_tags() {
 	 */
 	if ( false === apply_filters( 'jetpack_enable_opengraph', true ) ) {
 		_deprecated_function( 'jetpack_enable_opengraph', '2.0.3', 'jetpack_enable_open_graph' );
-		return;
+		return "";
 	}
 
 	// Disable the widont filter on WP.com to avoid stray &nbsps
@@ -100,10 +104,12 @@ function jetpack_og_tags() {
 
 		$tags['og:url']         = get_permalink( $data->ID );
 		if ( ! post_password_required() ) {
-			if ( ! empty( $data->post_excerpt ) ) {
-				$tags['og:description'] = preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $data->post_excerpt, array() ) ) );
+			$excerpt = get_the_excerpt( $data );
+			if ( ! empty( $excerpt ) && ! empty( $data->post_excerpt ) ) {
+				$tags['og:description'] = preg_replace( '@https?://[\S]+@', '', $excerpt
+ );
 			} else {
-				$exploded_content_on_more_tag = explode( '<!--more-->', $data->post_content );
+				$exploded_content_on_more_tag = explode( '<!--more-->', apply_filters( 'the_content', $data->post_content ) );
 				$tags['og:description'] = wp_trim_words( preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $exploded_content_on_more_tag[0], array() ) ) ) );
 			}
 		}
@@ -160,7 +166,7 @@ function jetpack_og_tags() {
 	 * @param bool true Do not return any Open Graph Meta tags if we don't have any info about a post.
 	 */
 	if ( empty( $tags ) && apply_filters( 'jetpack_open_graph_return_if_empty', true ) )
-		return;
+		return "";
 
 	$tags['og:site_name'] = get_bloginfo( 'name' );
 
@@ -257,7 +263,7 @@ function jetpack_og_tags() {
 			}
 		}
 	}
-	echo $og_output;
+	return $og_output;
 }
 
 function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 200x200
