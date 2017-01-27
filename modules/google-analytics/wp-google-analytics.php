@@ -28,9 +28,7 @@ class JetpackGoogleAnalytics {
 	 * @var JetpackGoogleAnalytics - Static property to hold our singleton instance
 	 */
 	static $instance = false;
-
-	var $tokens = array();
-
+	
 	/**
 	 * This is our constructor, which is private to force the use of get_instance()
 	 *
