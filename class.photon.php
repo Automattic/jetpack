@@ -720,7 +720,7 @@ class Jetpack_Photon {
 					);
 			} // foreach ( $multipliers as $multiplier )
 			if ( is_array( $newsources ) ) {
-				$sources = array_merge( $sources, $newsources );
+				$sources = array_replace( $sources, $newsources );
 			}
 		} // if ( isset( $image_meta['width'] ) && isset( $image_meta['file'] ) )
 

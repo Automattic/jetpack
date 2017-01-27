@@ -75,9 +75,11 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		remove_filter( 'jetpack_sso_match_by_email', '__return_false' );
 	}
 
-	function test_sso_helpers_new_user_override_filter_true() {
+	function test_sso_helpers_new_user_override_filter_true_returns_default_role() {
+		add_role( 'foo', 'Foo' );
+		update_option( 'default_role', 'foo' );
 		add_filter( 'jetpack_sso_new_user_override', '__return_true' );
-		$this->assertTrue( Jetpack_SSO_Helpers::new_user_override() );
+		$this->assertEquals( 'foo', Jetpack_SSO_Helpers::new_user_override() );
 		remove_filter( 'jetpack_sso_new_user_override', '__return_true' );
 	}
 
@@ -85,6 +87,20 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		add_filter( 'jetpack_sso_new_user_override', '__return_false' );
 		$this->assertFalse( Jetpack_SSO_Helpers::new_user_override() );
 		remove_filter( 'jetpack_sso_new_user_override', '__return_false' );
+	}
+
+	function test_sso_helpers_new_user_override_filter_rolename() {
+		add_filter( 'jetpack_sso_new_user_override', array( $this, 'return_administrator' ) );
+		$this->assertEquals( 'administrator', Jetpack_SSO_Helpers::new_user_override() );
+		remove_filter( 'jetpack_sso_new_user_override', array( $this, 'return_administrator' ) );
+	}
+
+	function test_sso_helpers_new_user_override_filter_bad_rolename_returns_default() {
+		add_role( 'foo', 'Foo' );
+		update_option( 'default_role', 'foo' );
+		add_filter( 'jetpack_sso_new_user_override', array( $this, 'return_foobarbaz' ) );
+		$this->assertEquals( 'foo', Jetpack_SSO_Helpers::new_user_override() );
+		remove_filter( 'jetpack_sso_new_user_override', array( $this, 'return_foobarbaz' ) );
 	}
 
 	function test_sso_helpers_sso_bypass_default_login_form_filter_true() {
@@ -195,6 +211,12 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertFalse( Jetpack_SSO_Helpers::generate_user( $this->user_data ) );
 	}
 
+	function test_generate_user_sets_user_role_when_provided() {
+		$this->user_data->role = 'administrator';
+		$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
+		$this->assertContains( 'administrator', get_userdata( $user->ID )->roles );
+	}
+
 	function test_extend_auth_cookie_casts_to_int() {
 		add_filter( 'jetpack_sso_auth_cookie_expirtation', array( $this, '__return_string_value' ) );
 		$this->assertSame( intval( $this->__return_string_value() ), Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
@@ -207,5 +229,13 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 
 	function __return_string_value() {
 		return '1';
+	}
+
+	function return_administrator() {
+		return 'administrator';
+	}
+
+	function return_foobarbaz() {
+		return 'foobarbaz';
 	}
 }
