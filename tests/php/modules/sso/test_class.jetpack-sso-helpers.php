@@ -236,6 +236,12 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		add_filter( 'jetpack_sso_allowed_actions', array( $this, 'allow_hello_world_login_action_for_sso' ) );
 	}
 
+	function test_is_sso_for_json_api_auth() {
+		$this->assertTrue( Jetpack_SSO_Helpers::is_sso_for_json_api_auth( 'http://website.com/wordpress/wp-login.php?action=jetpack_json_api_authorization' ) );
+		$this->assertFalse( Jetpack_SSO_Helpers::is_sso_for_json_api_auth( 'http://website.com/wordpress/wp-login.php?action=loggedout' ) );
+		$this->assertFalse( Jetpack_SSO_Helpers::is_sso_for_json_api_auth( 'http://website.com/wordpress/wp-login.php' ) );
+	}
+
 	function __return_string_value() {
 		return '1';
 	}

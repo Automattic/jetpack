@@ -8,6 +8,9 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
  * @since 4.1.0
  */
 class Jetpack_SSO_Helpers {
+	static $stashed_get_params = array();
+	static $stashed_post_params = array();
+
 	/**
 	 * Determine if the login form should be hidden or not
 	 *
@@ -175,6 +178,7 @@ class Jetpack_SSO_Helpers {
 	 * default for $api_base due to restrictions with testing constants in our tests.
 	 *
 	 * @since 4.3.0
+	 * @since 4.6.0 Added public-api.wordpress.com as an allowed redirect
 	 *
 	 * @param array $hosts
 	 * @param string $api_base
@@ -282,6 +286,44 @@ class Jetpack_SSO_Helpers {
 			'jetpack_json_api_authorization',
 		) );
 	    return in_array( $action, $allowed_actions_for_sso );
+	}
+
+	static function is_sso_for_json_api_auth( $original_request ) {
+		$original_request = esc_url_raw( $original_request );
+
+		$parsed_url = wp_parse_url( $original_request );
+		if ( empty( $parsed_url ) || empty( $parsed_url['query'] ) ) {
+			return false;
+		}
+
+		$args = array();
+		wp_parse_str( $parsed_url['query'], $args );
+
+		if ( empty( $args ) || empty( $args['action'] ) ) {
+			return false;
+		}
+
+		return 'jetpack_json_api_authorization' === $args['action'];
+	}
+
+	static function set_superglobal_values_for_json_api_auth( $original_request ) {
+		$original_request = esc_url_raw( $original_request );
+
+		$parsed_url = wp_parse_url( $original_request );
+		if ( empty( $parsed_url ) || empty( $parsed_url['query'] ) ) {
+			return false;
+		}
+
+		self::$stashed_get_params = $_GET;
+		self::$stashed_post_params = $_POST;
+
+		wp_parse_str( $parsed_url['query'], $_GET );
+		$_POST['jetpack_json_api_original_query'] = $original_request;
+	}
+
+	static function reset_superglobal_values_after_json_api_auth() {
+		$_POST = self::$stashed_post_params;
+		$_GET = self::$stashed_get_params;
 	}
 }
 
