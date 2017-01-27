@@ -6,9 +6,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WC_Services_Installer {
 
-	public function init() {
-		$this->add_error_notice();
-		$this->try_install();
+	/**
+	 * @var WC_Services_Installer
+	 **/
+	private static $instance = null;
+
+	static function init() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new WC_Services_Installer();
+		}
+		return self::$instance;
+	}
+
+	public function __construct() {
+		add_action( 'admin_init', array( $this, 'add_error_notice' ) );
+		add_action( 'admin_init', array( $this, 'try_install' ) );
 	}
 
 	public function try_install() {
@@ -72,6 +84,4 @@ class WC_Services_Installer {
 	}
 }
 
-$wc_services_installer = new WC_Services_Installer();
-
-add_action( 'admin_init', array( $wc_services_installer, 'init' ) );
+WC_Services_Installer::init();
