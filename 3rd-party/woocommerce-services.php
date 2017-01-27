@@ -12,9 +12,7 @@ class WC_Services_Installer {
 	}
 
 	public function try_install() {
-		$action = filter_input( INPUT_GET, 'wc-services-action' );
-
-		if ( 'install' === $action ) {
+		if ( isset( $_GET['wc-services-action'] ) && ( 'install' === $_GET['wc-services-action'] ) ) {
 			check_admin_referer( 'wc-services-install' );
 
 			$result = $this->install();
@@ -30,9 +28,7 @@ class WC_Services_Installer {
 	}
 
 	public function add_error_notice() {
-		$error = filter_input( INPUT_GET, 'wc-services-install-error' );
-
-		if ( $error ) {
+		if ( ! empty( $_GET['wc-services-install-error'] ) ) {
 			add_action( 'admin_notices', array( $this, 'error_notice' ) );
 		}
 	}
