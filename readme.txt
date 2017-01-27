@@ -18,7 +18,7 @@ Traffic is the lifeblood of any website. Jetpack includes:
 * [free] automatic promotion and sharing on Facebook, Twitter, LinkedIn, and WordPress.com
 * [free] related posts
 * [paid] search engine optimization tools for Google, Bing, Twitter, Facebook, and WordPress.com
-* [paid] advert programme that includes AdSense, WordAds, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
+* [paid] advertising program that includes the best of AdSense, AdWords, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
 
 = Security and Backup Services =
 Stop worrying about data loss, downtime, and hacking. Jetpack provides: 
@@ -35,16 +35,17 @@ Jetpack helps your writing and image creation processes with:
 * [free] a high-speed CDN for your images
 * [free] carousels, slideshows, and tiled galleries
 * [free] embed media from YouTube, Google Documents, Spotify and more
-* [free] sidebar customization including Facebook feeds, Twitter feeds, and RSS feeds
+* [free] sidebar customization including Facebook, Twitter, and RSS feeds
+* [free] extra sidebar widgets including blog stats, calendar, and author widgets
 * [paid] high-speed, ad-free, and high-definition video hosting
 
 = Discussion and Community =
 Create a connection with your readers and keep them coming back to your site with:
 
 * [free] email subscriptions
-* [free] comments with Facebook, Twitter, and social logins
-* [free] multiple contact forms
-* [free] infinite scroll
+* [free] comments with Facebook, Twitter, and Google social logins
+* [free] fully-customizable contact forms
+* [free] infinite scroll for your posts
 
 = Expert Support =
 We have an entire team of happiness engineers ready to help you. Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
@@ -68,24 +69,24 @@ Alternatively install Jetpack via the plugin directory, or by uploading the file
 = Is Jetpack Free? =
 Yes! Jetpack's core features are and always will be free. 
 
-These include: [site stats](https://jetpack.com/features/traffic/site-stats), a [high-speed CDN](https://jetpack.com/features/writing/content-delivery-network/) for images, [related posts](https://jetpack.com/features/traffic/related-posts) indexing, [downtime monitoring](https://jetpack.com/features/security/downtime-monitoring), brute force [attack protection](https://jetpack.com/features/security/brute-force-attack-protection), [automated publishing](https://jetpack.com/features/traffic/automatic-publishing/), [sidebar customization](https://jetpack.com/features/writing/sidebar-customization/), and many more.
+These include: [site stats](https://jetpack.com/features/traffic/site-stats), a [high-speed CDN](https://jetpack.com/features/writing/content-delivery-network/) for images, [related posts](https://jetpack.com/features/traffic/related-posts), [downtime monitoring](https://jetpack.com/features/security/downtime-monitoring), brute force [attack protection](https://jetpack.com/features/security/brute-force-attack-protection), [automated publishing](https://jetpack.com/features/traffic/automatic-publishing/), [sidebar customization](https://jetpack.com/features/writing/sidebar-customization/), and many more.
 
 = Should I purchase a paid plan? =
-Jetpack's paid services include automated backups, security scanning, spam filtering, video hosting, site monetization, advanced SEO tools, and dedicated priority support.
+Jetpack's paid services include automated backups, security scanning, spam filtering, video hosting, site monetization, SEO tools, and dedicated priority support.
 
 Not every site requires an extra layer of protection and advanced tools but if your site is important to you, you should [consider upgrading](https://jetpack.com/pricing).
 
 = Why do I need a WordPress.com account? =
 
-Jetpack and its services are provided by WordPress.com so for Jetpack to function, a WordPress.com account is required. (Think of it like a Jetpack account!)
+Jetpack and its services are provided by WordPress.com so for Jetpack to function, a (free) WordPress.com account is required. (Think of it like a Jetpack account!)
 
 = I already have a WordPress account, but it's not working. What's going on? =
 
-A WordPress.com account is different to the one you use to log into your self-hosted WordPress. If you can log into [WordPress.com])https://wordpress.com) then you already have a WordPress.com account. If you can't, you can easily create one [during installation](https://jetpack.com/install?from=wporg).
+A WordPress.com account is different to the one you use to log into your self-hosted WordPress. If you can log into [WordPress.com](https://wordpress.com) then you already have a WordPress.com account. If you can't, you can easily create one [during installation](https://jetpack.com/install?from=wporg).
 
 = How do I view my stats? =
 
-Once you've installed Jetpack your stats will be available on your Jetpack dashboard or on WordPress.com.
+Once you've installed Jetpack your stats will be available on on [WordPress.com/Stats](https://wordpress.com/stats), on the official [WordPress mobile apps](https://apps.wordpress.com/mobile/), and on your Jetpack dashboard.
 
 = How do I contribute to Jetpack? =
 
