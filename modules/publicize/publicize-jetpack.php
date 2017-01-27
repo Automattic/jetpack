@@ -480,7 +480,7 @@ class Publicize extends Publicize_Base {
 			return $flags;
 		}
 
-		$connected_services = Jetpack_Options::get_option( 'publicize_connections' )
+		$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
 
 		if ( empty( $connected_services ) ) {
 			return $flags;
