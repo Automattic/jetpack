@@ -227,6 +227,15 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertGreaterThan( 2 * DAY_IN_SECONDS, Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
 	}
 
+	function test_display_sso_form_for_action() {
+		// Let's test the default cases
+		$this->assertTrue( Jetpack_SSO_Helpers::display_sso_form_for_action( 'login' ) );
+		$this->assertTrue( Jetpack_SSO_Helpers::display_sso_form_for_action( 'jetpack_json_api_authorization' ) );
+		$this->assertFalse( Jetpack_SSO_Helpers::display_sso_form_for_action( 'hello_world' ) );
+
+		add_filter( 'jetpack_sso_allowed_actions', array( $this, 'allow_hello_world_login_action_for_sso' ) );
+	}
+
 	function __return_string_value() {
 		return '1';
 	}
@@ -237,5 +246,10 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 
 	function return_foobarbaz() {
 		return 'foobarbaz';
+	}
+
+	function allow_hello_world_login_action_for_sso( $actions ) {
+		$actions[] = 'hello_world';
+		return $actions;
 	}
 }

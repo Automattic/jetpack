@@ -258,6 +258,30 @@ class Jetpack_SSO_Helpers {
 		 */
 		return intval( apply_filters( 'jetpack_sso_auth_cookie_expirtation', YEAR_IN_SECONDS ) );
 	}
+
+	/**
+	 * Determines if the SSO form should be displayed for the current action.
+	 *
+	 * @param string $action
+	 *
+	 * @return bool  Is SSO allowed for the current action?
+	 */
+	static function display_sso_form_for_action( $action ) {
+		/**
+		 * Allows plugins the ability to overwrite actions where the SSO form is allowed to be used.
+		 *
+		 * @module sso
+		 *
+		 * @since 4.6.0
+		 *
+		 * @param array $allowed_actions_for_sso
+		 */
+		$allowed_actions_for_sso = (array) apply_filters( 'jetpack_sso_allowed_actions', array(
+			'login',
+			'jetpack_json_api_authorization',
+		) );
+	    return in_array( $action, $allowed_actions_for_sso );
+	}
 }
 
 endif;

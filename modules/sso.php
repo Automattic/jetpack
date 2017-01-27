@@ -325,7 +325,7 @@ class Jetpack_SSO {
 		// And now the exceptions
 		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action;
 
-		if ( 'login' == $action ) {
+		if ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 			$wants_to_login = true;
 		}
 
@@ -385,7 +385,7 @@ class Jetpack_SSO {
 			exit;
 		}
 
-		if ( 'login' === $action ) {
+		if ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 			$this->display_sso_login_form();
 		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
