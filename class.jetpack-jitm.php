@@ -446,12 +446,15 @@ class Jetpack_JITM {
 
 		$base_location = wc_get_base_location();
 
-		if ( 'US' === $base_location['country'] ) {
-			$message = __( 'Try our new service for USPS shipping & label-printing.', 'jetpack' );
-		} elseif ( 'CA' === $base_location['country'] ) {
-			$message = __( 'Try our new Canada Post shipping service.', 'jetpack' );
-		} else {
-			return;
+		switch ( $base_location['country'] ) {
+			case 'US':
+				$message = __( 'Try our new service for USPS shipping & label-printing.', 'jetpack' );
+				break;
+			case 'CA':
+				$message = __( 'Try our new Canada Post shipping service.', 'jetpack' );
+				break;
+			default:
+				return;
 		}
 
 		$install_url = wp_nonce_url( add_query_arg( array( 'wc-services-action' => 'install' ) ), 'wc-services-install' );
