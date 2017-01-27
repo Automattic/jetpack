@@ -27,22 +27,20 @@ const SettingsCard = props => {
 		<form className="jp-form-settings-card">
 			<SectionHeader label={ header }>
 				{
-					props.hideButton
-						? ''
-						: (
-							<Button
-								primary
-								compact
-								isSubmitting={ isSaving }
-								onClick={ isSaving ? () => {} : props.onSubmit }
-								disabled={ isSaving || ! props.isDirty() }>
-								{
-									isSaving
-										? __( 'Saving…', { context: 'Button caption' } )
-										: __( 'Save settings', { context: 'Button caption' } )
-								}
-							</Button>
-						)
+					! props.hideButton && (
+						<Button
+							primary
+							compact
+							isSubmitting={ isSaving }
+							onClick={ isSaving ? () => {} : props.onSubmit }
+							disabled={ isSaving || ! props.isDirty() }>
+							{
+								isSaving
+									? __( 'Saving…', { context: 'Button caption' } )
+									: __( 'Save settings', { context: 'Button caption' } )
+							}
+						</Button>
+					)
 				}
 			</SectionHeader>
 			{ props.children }
