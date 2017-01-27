@@ -20,7 +20,7 @@ function twitter_timeline_shortcode( $atts ) {
 	$output = '<a class="twitter-timeline"';
 
 	$partner = apply_filters( 'jetpack_twitter_partner_id', 'jetpack' );
-	if ( false !== $partner ) {
+	if ( ! empty( $partner ) ) {
 		$output .= ' data-partner="' . esc_attr( $partner ) . '"';
 	}
 	if ( is_numeric( $atts['width'] ) ) {

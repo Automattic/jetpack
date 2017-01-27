@@ -113,7 +113,7 @@ class Jetpack_Tweet {
 
 		// Add Twitter partner ID to track embeds from Jetpack
 		$partner = apply_filters( 'jetpack_twitter_partner_id', 'jetpack' );
-		if ( false !== $partner ) {
+		if ( ! empty( $partner ) ) {
 			$provider = add_query_arg( 'partner', $partner, $provider );
 		}
 
