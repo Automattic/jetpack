@@ -188,6 +188,7 @@ class Jetpack_SSO_Helpers {
 
 		$hosts[] = 'wordpress.com';
 		$hosts[] = 'jetpack.wordpress.com';
+		$hosts[] = 'public-api.wordpress.com';
 
 		if (
 			( Jetpack::is_development_mode() || Jetpack::is_development_version() ) &&
