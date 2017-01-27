@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -12,8 +11,8 @@ import { FormFieldset } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
-import { SettingsCard } from 'components/settings-card';
-import { SettingsGroup } from 'components/settings-group';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 
 export const ThemeEnhancements = moduleSettingsForm(
 	React.createClass( {
@@ -57,7 +56,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 							}
 						].map( item => {
 							return (
-								<Card compact className="jp-form-has-child jp-form-settings-group" key={ `theme_enhancement_${ item.module }` }>
+								<SettingsGroup compact hasChild key={ `theme_enhancement_${ item.module }` }>
 									<ModuleToggle slug={ item.module }
 										compact
 										activated={ this.props.getOptionValue( item.module ) }
@@ -83,7 +82,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 												: ''
 										}
 									</FormFieldset>
-								</Card>
+								</SettingsGroup>
 							);
 						} )
 					}
