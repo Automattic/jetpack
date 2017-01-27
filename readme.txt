@@ -15,7 +15,7 @@ Whatever sort of site you’re running, Jetpack’s features are designed to kee
 Traffic is the lifeblood of any website. Jetpack includes:
 
 * [free] site stats and analytics
-* [free] automatic promotion and sharing on Facebook, Twitter, LinkedIn, and WordPress.com
+* [free] automatic promotion and sharing on Facebook, Twitter, LinkedIn, Tumblr, Reddit, and WhatsApp
 * [free] related posts
 * [paid] search engine optimization tools for Google, Bing, Twitter, Facebook, and WordPress.com
 * [paid] advertising program that includes the best of AdSense, AdWords, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
