@@ -49,9 +49,7 @@ export const Composing = moduleSettingsForm(
 						<FormLegend> { __( 'Automatic Language Detection' ) }
 						</FormLegend>
 						<span className="jp-form-setting-explanation">
-							{ __(
-								  'The proofreader supports English, French, German, Portuguese and Spanish.'
-							  ) }
+							{ __( 'The proofreader supports English, French, German, Portuguese and Spanish.' ) }
 						</span>
 						{
 							this.getCheckbox(
@@ -85,8 +83,8 @@ export const Composing = moduleSettingsForm(
 							placeholder={ __( 'Add a phrase' ) }
 							value={
 								'undefined' !== typeof ignoredPhrases && '' !== ignoredPhrases
-									 ? ignoredPhrases.split( ',' )
-									 : []
+								? ignoredPhrases.split( ',' )
+								: []
 							}
 							onChange={ this.props.onOptionChange } />
 					</FormFieldset>
@@ -103,10 +101,10 @@ export const Composing = moduleSettingsForm(
 					<SettingsGroup support={ markdown.learn_more_button }>
 						<FormFieldset>
 							<ModuleToggle slug="markdown"
-										  compact
-										  activated={ this.props.getOptionValue( 'markdown' ) }
-										  toggling={ this.props.isSavingAnyOption( 'markdown' ) }
-										  toggleModule={ this.props.toggleModuleNow }>
+								compact
+								activated={ this.props.getOptionValue( 'markdown' ) }
+								toggling={ this.props.isSavingAnyOption( 'markdown' ) }
+								toggleModule={ this.props.toggleModuleNow }>
 								<span className="jp-form-toggle-explanation">
 									{ markdown.description }
 								</span>
@@ -115,10 +113,10 @@ export const Composing = moduleSettingsForm(
 					</SettingsGroup>
 					<SettingsGroup hasChild support={ atd.learn_more_button }>
 						<ModuleToggle slug="after-the-deadline"
-									  compact
-									  activated={ this.props.getOptionValue( 'after-the-deadline' ) }
-									  toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+							compact
+							activated={ this.props.getOptionValue( 'after-the-deadline' ) }
+							toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
+							toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
 								{ atd.description }
 							</span>
@@ -126,7 +124,7 @@ export const Composing = moduleSettingsForm(
 						<FormFieldset>
 							{
 								this.props.getOptionValue( 'after-the-deadline' )
-									? <InlineExpand label={ __( 'Fancy options' ) }>{ this.getAtdSettings() }</InlineExpand>
+									? <InlineExpand label={ __( 'Advanced Options' ) }>{ this.getAtdSettings() }</InlineExpand>
 									: ''
 							}
 						</FormFieldset>

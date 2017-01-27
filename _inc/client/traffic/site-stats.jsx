@@ -58,7 +58,7 @@ export const SiteStats = moduleSettingsForm(
 							</span>
 							</ModuleToggle>
 						</FormFieldset>
-						<InlineExpand label={ __( 'Serious options' ) }>
+						<InlineExpand label={ __( 'Advanced Options' ) }>
 							<FormFieldset>
 								<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
 								<ModuleSettingMultipleSelectCheckboxes
