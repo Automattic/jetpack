@@ -67,9 +67,8 @@ class WC_Services_Installer {
 
 		$result = activate_plugin( 'connect-for-woocommerce/woocommerce-connect-client.php' );
 
-		if ( is_wp_error( $result ) ) {
-			return false;
-		}
+		// activate_plugin() returns null on success
+		return is_null( $result );
 	}
 }
 
