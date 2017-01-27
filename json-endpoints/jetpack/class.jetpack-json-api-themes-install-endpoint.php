@@ -11,7 +11,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 	protected $download_links      = array();
 
 	protected function install() {
-
+		$allowed_themes = get_site_option( 'allowedthemes' );
 		foreach ( $this->themes as $theme ) {
 
 			/**
@@ -56,19 +56,26 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 			if ( ! $result ) {
 				$error = $this->log[ $theme ]['error'] = __( 'An unknown error occurred during installation', 'jetpack' );
+				continue;
 			}
 
 			elseif ( ! self::is_installed_theme( $theme ) ) {
 				$error = $this->log[ $theme ]['error'] = __( 'There was an error installing your theme', 'jetpack' );
+				continue;
 			}
 
 			elseif ( $upgrader ) {
 				$this->log[ $theme ][] = $upgrader->skin->get_upgrade_messages();
 			}
+			$allowed_themes[ $theme ] = true;
 		}
 
 		if ( ! $this->bulk && isset( $error ) ) {
 			return  new WP_Error( 'install_error', $error, 400 );
+		}
+		
+		if ( is_multisite() ) {
+			update_site_option( 'allowedthemes', $allowed_themes );
 		}
 
 		return true;
@@ -77,6 +84,9 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 	protected function validate_themes() {
 		if ( empty( $this->themes ) || ! is_array( $this->themes ) ) {
 			return new WP_Error( 'missing_themes', __( 'No themes found.', 'jetpack' ) );
+		}
+		if ( ! is_main_site() ) {
+			return new WP_Error( 'subsite_install', __( 'Themes cannot be installed on subsites in a multi-site network', 'jetpack' ) );
 		}
 		foreach( $this->themes as $index => $theme ) {
 
