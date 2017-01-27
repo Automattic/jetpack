@@ -150,7 +150,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			'http://fakesite.com/jetpack.'
 		);
 		$this->assertInternalType( 'array', $hosts );
-		$this->assertCount( 3, $hosts );
+		$this->assertCount( 4, $hosts );
 		$this->assertContains( 'test.com', $hosts );
 		$this->assertContains( 'wordpress.com', $hosts );
 		$this->assertContains( 'jetpack.wordpress.com', $hosts );
@@ -165,7 +165,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			'http://fakesite.com/jetpack.'
 		);
 		$this->assertInternalType( 'array', $hosts );
-		$this->assertCount( 4, $hosts );
+		$this->assertCount( 5, $hosts );
 		$this->assertContains( 'fakesite.com', $hosts );
 		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
@@ -177,7 +177,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			'http://fakesite.com/jetpack.'
 		);
 		$this->assertInternalType( 'array', $hosts );
-		$this->assertCount( 4, $hosts );
+		$this->assertCount( 5, $hosts );
 		$this->assertContains( 'fakesite.com', $hosts );
 		remove_filter( 'jetpack_development_version', '__return_true' );
 	}
