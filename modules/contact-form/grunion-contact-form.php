@@ -1287,6 +1287,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$default_to = '';
 		$default_subject = '[' . get_option( 'blogname' ) . ']';
 
+		if ( ! isset( $attributes ) || ! is_array( $attributes ) ) {
+			$attributes = array();
+		}
+
 		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
 			$default_to .= get_option( 'admin_email' );
 			$attributes['id'] = 'widget-' . $attributes['widget'];
