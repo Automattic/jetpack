@@ -22,14 +22,17 @@ export const SettingsGroup = props => {
 	let module = props.module,
 		support = props.support
 			? props.support
-			: module && '' !== module.learn_more_button
-				? module.learn_more_button
-				: false,
+			: false,
 		// Disable in Dev Mode
 		disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
+
+	if ( ! support && module && '' !== module.learn_more_button ) {
+		support = module.learn_more_button;
+	}
+
 	return (
 		<div className="jp-form-settings-group">
-			<Card className={ classNames( { 'jp-form-has-child': props.hasChild, 'jp-form-settings-disable': disableInDevMode, 'jp-form-settings-has-compact-notice': props.useCompactNotices } ) }>
+			<Card className={ classNames( { 'jp-form-has-child': props.hasChild, 'jp-form-settings-disable': disableInDevMode, 'jp-form-settings-has-compact-notice': props.useCompactNotices && disableInDevMode } ) }>
 				{
 					disableInDevMode
 						? <div className="jp-form-block-click"></div>
@@ -37,12 +40,14 @@ export const SettingsGroup = props => {
 				}
 				{
 					support
-						? <div className="jp-module-settings__learn-more">
-							<Button borderless compact href={ support }>
-								<Gridicon icon="help-outline" />
-								<span className="screen-reader-text">{ __( 'Learn More' ) }</span>
-							</Button>
-						  </div>
+						? (
+							<div className="jp-module-settings__learn-more">
+								<Button borderless compact href={ support }>
+									<Gridicon icon="help-outline" />
+									<span className="screen-reader-text">{ __( 'Learn More' ) }</span>
+								</Button>
+							</div>
+						)
 						: ''
 				}
 				{
@@ -79,4 +84,4 @@ export default connect(
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name )
 		};
 	}
-)(SettingsGroup);
+)( SettingsGroup );
