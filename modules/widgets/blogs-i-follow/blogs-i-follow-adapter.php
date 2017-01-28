@@ -8,7 +8,6 @@
  */
 interface iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs( $args );
-	public function enable_follow_buttons();
 	public function get_blog_option( $blog_id, $option );
 	public function get_blavatars( $subscriptions, $avatar_size );
 }
@@ -76,11 +75,6 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 			return $followed_blogs;
 		}
 	}
-
-	/**
-	 * Provides a no-op implementation for Jetpack
-	 */
-	public function enable_follow_buttons() {}
 
 	/**
 	 * Provides a no-op implementation for Jetpack
@@ -152,10 +146,6 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs($args) {
 		return wpcom_subs_get_blogs($args);
-	}
-
-	public function enable_follow_buttons() {
-		enable_follow_buttons();
 	}
 
 	public function get_blog_option( $blog_id, $option ) {
