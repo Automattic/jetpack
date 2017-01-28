@@ -191,6 +191,10 @@ export const FormSelect = React.createClass( {
 		forOwn( this.props.validValues, ( label, value ) => {
 			validValues.push( { label: label, value: value } );
 		} );
-		return <SelectDropdown options={ validValues } onSelect={ this.handleOnSelect } initialSelected={ this.props.value } />;
+		return <SelectDropdown
+			options={ validValues }
+			onSelect={ this.handleOnSelect }
+			disabled={ this.props.disabled }
+			initialSelected={ this.props.value } />;
 	}
 } );
