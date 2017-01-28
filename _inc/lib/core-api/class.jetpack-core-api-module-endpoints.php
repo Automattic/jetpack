@@ -726,18 +726,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				foreach ( $not_updated as $not_updated_option => $not_updated_message ) {
 					if ( ! empty( $not_updated_message ) ) {
 						$not_updated_messages[] = sprintf(
-						/* Translators: the first variable is a module option or slug, or setting. The second is the error message . */
-							__( 'Extra info for %1$s: %2$s', 'jetpack' ),
+							/* Translators: the first variable is a module option or slug, or setting. The second is the error message . */
+							__( '%1$s: %2$s', 'jetpack' ),
 							$not_updated_option, $not_updated_message );
 					}
 				}
 				if ( ! empty( $error ) ) {
 					$error .= ' ';
 				}
-				$error .= sprintf(
-				/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
-					_n( 'Option not updated: %s.', 'Options not updated: %s.', $not_updated_count, 'jetpack' ),
-					join( ', ', array_keys( $not_updated ) ) );
 				if ( ! empty( $not_updated_messages ) ) {
 					$error .= ' ' . join( '. ', $not_updated_messages );
 				}
