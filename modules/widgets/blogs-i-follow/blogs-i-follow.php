@@ -13,8 +13,7 @@ function jetpack_blogs_i_follow_widget_init() {
 	// TODO: Remove the temporary debug check
 	if ( Jetpack::is_active() || WP_DEBUG ) {
 		register_widget( 'Jetpack_Widget_Blogs_I_Follow' );
-		add_filter( 'jetpack_get_blog_subscriptions', array( 'Jetpack_Widget_Blogs_I_Follow', 'get_blog_subscriptions' ), 10, 1 );
-		add_filter( 'jetpack_get_blog_blavatars', array( 'Jetpack_Widget_Blogs_I_Follow', 'get_blog_blavatars' ), 10, 3 );
+		add_filter( 'jetpack_populate_blog_subscriptions', array( 'Jetpack_Widget_Blogs_I_Follow', 'populate_blog_subscriptions' ), 10, 1 );
 	}
 }
 
@@ -123,7 +122,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * done on behalf of the Jetpack-connected account.
 	 * @return array The return value is an array of blog subscription arrays
 	 */
-	public static function get_blog_subscriptions( $args ) {
+	public static function populate_blog_subscriptions( $args ) {
 		$request_args = array(
 			'url' => 'https://public-api.wordpress.com/rest/v1.1/read/following/mine',
 			'user_id' => JETPACK_MASTER_USER,
@@ -145,6 +144,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 			$response_body = '{"subscriptions":[{"ID":"324825249","blog_ID":"114798305","URL":"http:\/\/design.blog","date_subscribed":"2017-01-17T03:12:32+00:00","meta":{"links":{"site":"https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/114798305"}}},{"ID":"324824892","blog_ID":"0","URL":"http:\/\/daringfireball.net\/feeds\/main","date_subscribed":"2017-01-17T03:09:48+00:00","meta":{"links":{"feed":"https:\/\/public-api.wordpress.com\/rest\/v1\/read\/feed\/20787116"}}},{"ID":"324823266","blog_ID":"122690821","URL":"http:\/\/followtesting.wordpress.com","date_subscribed":"2017-01-17T02:57:51+00:00","meta":{"links":{"site":"https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/122690821"}}}]}';
 			$response_body = json_decode( $response_body );
 			$followed_blogs = array_map( array('Jetpack_Widget_Blogs_I_Follow', 'convert_rest_subscription'), $response_body->subscriptions );
+			$followed_blogs = Jetpack_Widget_Blogs_I_Follow::populate_blog_details( $followed_blogs );
 			return $followed_blogs;
 		}
 	}
@@ -165,8 +165,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 			$this->subscriptions[$this->id] = array();
 			$this->subscriptions[$this->id]['user_id'] = $this->user_id;
 			$subscription_args = array( 'user_id' => $this->user_id, 'public_only' => true );
-			// TODO: For WordPress.com, hook into this filter and return wpcom_subs_get_blogs
-			$this->subscriptions[$this->id]['subscriptions'] = apply_filters( 'jetpack_get_blog_subscriptions', null, $subscription_args );
+			// TODO: For WordPress.com, hook into this filter and use wpcom_subs_get_blogs
+			// and other related functions to populate the subscription data
+			$this->subscriptions[$this->id]['subscriptions'] = apply_filters( 'jetpack_populate_blog_subscriptions', null, $subscription_args );
 
 			if ( is_array( $this->subscriptions[$this->id]['subscriptions'] ) ) {
 				foreach ( $this->subscriptions[$this->id]['subscriptions'] as &$sub ) {
@@ -212,7 +213,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * subscription given that has an associated blog_id (e.g. blogs that are hosted on
 	 * WordPress.com).
 	 *
-	 * @see Jetpack_Widget_Blogs_I_Follow::get_blog_blavatars
+	 * @see Jetpack_Widget_Blogs_I_Follow::populate_blog_details
 	 * @see Jetpack_Widget_Blogs_I_Follow::convert_rest_subscription
 	 *
 	 * @param array $subscriptions An array of arrays holding blog subscription data
@@ -239,11 +240,10 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * Retrieves blavatars for the given subscriptions using the WordPress.com REST API
 	 *
 	 * @param array $subscriptions Array containing arrays of subscription data
-	 * @param int $avatar_size The size being requested for the blavatar (ignored)
 	 * @return array The return value is an array of blog_id => img tag pairs where the
 	 * img tag is set to the blavatar URL
 	 */
-	public static function get_blog_blavatars( $ignored, $subscriptions, $avatar_size ) {
+	public static function populate_blog_details( $subscriptions ) {
 		$batched_blavatar_query = Jetpack_Widget_Blogs_I_Follow::create_blavatar_query( $subscriptions );
 		$response = wp_remote_get( 'https://public-api.wordpress.com/rest/v1.2/batch/?' . $batched_blavatar_query );
 		if ( is_wp_error( $response ) ) {
@@ -255,12 +255,22 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 				return NULL;
 			}
 			$response_body = json_decode( $response_body );
+			// Process the JSON response, collecting the blavatars and the blog descriptions
 			foreach ($response_body as $site) {
-				if (isset($site->ID) && isset($site->icon) && isset($site->icon->img)) {
+				if ( isset( $site->ID ) && isset( $site->icon ) && isset( $site->icon->img ) ) {
 					$blavatars[$site->ID] = '<img src="' . $site->icon->img . '" />';
 				}
+				if ( isset( $site->ID ) && isset( $site->description ) ) {
+					$descriptions[$site->ID] = $site->description;
+				}
 			}
-			return $blavatars;
+			// Update the subscriptions array with the additional fields retrieved from the API request
+			foreach ($subscriptions as &$subscription) {
+				$blog_id = $subscription['blog_id'];
+				$subscription['blavatar_img_tag'] = isset( $blavatars[ $blog_id ] ) ? $blavatars[ $blog_id ] : null;
+				$subscription['description'] = isset( $descriptions[ $blog_id ] ) ? $descriptions[ $blog_id ] : null;
+			}
+			return $subscriptions;
 		}
 	}
 
@@ -278,19 +288,14 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 			$output .= "<div class='widgets-grid-layout no-grav'>";
 
-			// TODO: For WordPress.com, hook into this filter and retrieve the blavatars using
-			// blavatar_domain/blavatar_exists/get_blavatar
-			$imgs = apply_filters( 'jetpack_get_blog_blavatars', null, $subscriptions, self::$avatar_size );
-
 			$i = 0;
 			foreach ( $subscriptions as $subscription ) {
 				$i++;
-				$img = false;
 
 				if ( 'http://' === $subscription['blog_url'] )
 					$subscription['blog_url'] = $subscription['feed_url'];
 
-				$img = isset($imgs[ $subscription['blog_id'] ]) ? $imgs[ $subscription['blog_id'] ] : NULL;
+				$img = isset( $subscription['blavatar_img_tag'] ) ? $subscription['blavatar_img_tag'] : null;
 
 				if ( !$img ) {
 					if ( !empty( $subscription['blog_id'] ) ) {
