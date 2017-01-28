@@ -4,9 +4,6 @@
  * Plugin Name: Blogs I Follow Widget
  */
 
-include dirname( __FILE__ ) . '/compat.php';
-include dirname( __FILE__ ) . '/blogs-i-follow-adapter.php';
-
 /**
  * Register the widget for use in Appearance -> Widgets
  */
@@ -17,6 +14,7 @@ function jetpack_blogs_i_follow_widget_init() {
 	if ( Jetpack::is_active() || WP_DEBUG ) {
 		register_widget( 'Jetpack_Widget_Blogs_I_Follow' );
 		add_filter( 'jetpack_get_blog_subscriptions', array( 'Jetpack_Widget_Blogs_I_Follow', 'get_blog_subscriptions' ), 10, 1 );
+		add_filter( 'jetpack_get_blog_blavatars', array( 'Jetpack_Widget_Blogs_I_Follow', 'get_blog_blavatars' ), 10, 3 );
 	}
 }
 
@@ -31,7 +29,6 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	static $expiration     = 300;
 	static $avatar_size    = 200;
 	static $default_avatar = 'en.wordpress.com/i/logo/wpcom-gray-white.png';
-	private $adapter;
 
 	/**
 	 * class constructor
@@ -50,9 +47,6 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		}
 
 		$this->subscriptions = array();
-		$this->adapter = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
-			? new Blogs_I_Follow_WPCOM_adapter
-			: new Blogs_I_Follow_Jetpack_adapter;
 	}
 
 	/**
@@ -211,6 +205,65 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		return rtrim( str_replace( 'http://', '', empty( $subscription['blog_url'] ) ? $subscription['feed_url'] : $subscription['blog_url'] ), '/' );
 	}
 
+	/**
+	 * Creates the query string for a batch REST API call to the /sites/$site endpoint
+	 *
+	 * Constructs a URL query of the form: 'urls[]=XXX&urls[]=YYY&urls[]=ZZZ' for each
+	 * subscription given that has an associated blog_id (e.g. blogs that are hosted on
+	 * WordPress.com).
+	 *
+	 * @see Jetpack_Widget_Blogs_I_Follow::get_blog_blavatars
+	 * @see Jetpack_Widget_Blogs_I_Follow::convert_rest_subscription
+	 *
+	 * @param array $subscriptions An array of arrays holding blog subscription data
+	 * @return string The return value is a url query string suitable for appending to
+	 * a /batch REST API call
+	 */
+	private static function create_blavatar_query( $subscriptions ) {
+		$url_string = "";
+		$needs_leading_ampersand = false;
+		foreach ( $subscriptions as $subscription ) {
+			if ( $subscription['blog_id'] === 0 ) {
+				continue;
+			}
+			if ( true === $needs_leading_ampersand ) {
+				$url_string .= "&";
+			}
+			$url_string .= 'urls[]=/sites/' . $subscription['blog_id'];
+			$needs_leading_ampersand = true;
+		}
+		return $url_string;
+	}
+
+	/**
+	 * Retrieves blavatars for the given subscriptions using the WordPress.com REST API
+	 *
+	 * @param array $subscriptions Array containing arrays of subscription data
+	 * @param int $avatar_size The size being requested for the blavatar (ignored)
+	 * @return array The return value is an array of blog_id => img tag pairs where the
+	 * img tag is set to the blavatar URL
+	 */
+	public static function get_blog_blavatars( $ignored, $subscriptions, $avatar_size ) {
+		$batched_blavatar_query = Jetpack_Widget_Blogs_I_Follow::create_blavatar_query( $subscriptions );
+		$response = wp_remote_get( 'https://public-api.wordpress.com/rest/v1.2/batch/?' . $batched_blavatar_query );
+		if ( is_wp_error( $response ) ) {
+			// TODO: Handle error appropriately
+			return NULL;
+		} else {
+			$response_body = wp_remote_retrieve_body( $response );
+			if ( empty( $response_body ) ) {
+				return NULL;
+			}
+			$response_body = json_decode( $response_body );
+			foreach ($response_body as $site) {
+				if (isset($site->ID) && isset($site->icon) && isset($site->icon->img)) {
+					$blavatars[$site->ID] = '<img src="' . $site->icon->img . '" />';
+				}
+			}
+			return $blavatars;
+		}
+	}
+
 	function grid_view( $subscriptions ) {
 		wp_enqueue_style( 'hover-bubbles' );
 
@@ -225,7 +278,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 			$output .= "<div class='widgets-grid-layout no-grav'>";
 
-			$imgs = $this->adapter->get_blavatars( $subscriptions, self::$avatar_size );
+			// TODO: For WordPress.com, hook into this filter and retrieve the blavatars using
+			// blavatar_domain/blavatar_exists/get_blavatar
+			$imgs = apply_filters( 'jetpack_get_blog_blavatars', null, $subscriptions, self::$avatar_size );
 
 			$i = 0;
 			foreach ( $subscriptions as $subscription ) {
