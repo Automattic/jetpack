@@ -6354,4 +6354,13 @@ p {
 			</style>
 		<?php }
 	}
+
+	/**
+	 * Return blog locale as a two-character string
+	 *
+	 * @return string The blog's locale, e.g. 'en' or 'it'
+	 */
+	public static function get_blog_locale() {
+		return substr( get_locale(), 0, 2 );
+	}
 }
