@@ -32,8 +32,7 @@ export const SettingsGroup = props => {
 		<div className="jp-form-settings-group">
 			<Card className={ classNames( {
 				'jp-form-has-child': props.hasChild,
-				'jp-form-settings-disable': disableInDevMode,
-				'jp-form-settings-has-compact-notice': props.useCompactNotices && disableInDevMode
+				'jp-form-settings-disable': disableInDevMode
 			} ) }>
 				{
 					disableInDevMode && <div className="jp-form-block-click"></div>

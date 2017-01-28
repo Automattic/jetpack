@@ -122,7 +122,7 @@ export const DevModeNotice = React.createClass( {
 					showDismiss={ false }
 					status="is-basic"
 					text={ text }
-					status="is-warning"
+					status="is-info"
 				>
 					<NoticeAction
 						href="https://jetpack.com/development-mode/">
