@@ -7,7 +7,6 @@
  * leaving the particulars to each implementation below.
  */
 interface iBlogs_I_Follow_Adapter {
-	public function get_followed_blogs( $args );
 	public function get_blavatars( $subscriptions, $avatar_size );
 }
 
@@ -20,61 +19,6 @@ interface iBlogs_I_Follow_Adapter {
  * @see Blogs_I_Follow_WPCOM_Adapter
  */
 class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
-	/**
-	 * Converts data from the WordPress.com REST API into a format usable by the plugin
-	 *
-	 * The read/following/mine API is not identical in its contents or format to the private
-	 * WPCOM tables used for Blogs I Follow. The data must be translated into a format that
-	 * loosely conforms to what the plugin expects.
-	 *
-	 * @param object $subscription The subscription element retrieved from the REST API
-	 * @return array The return value is an array reformmated to be similar to the data
-	 * format used in WPCOM
-	 */
-	private function convert_rest_subscription( $subscription ) {
-		return array(
-			'id' => intval( $subscription->ID ),
-			'blog_id' => intval( $subscription->blog_ID ),
-			'blog_url' => $subscription->URL,
-			'feed_url' => $subscription->URL,
-			'date_subscribed' => $subscription->date_subscribed,
-		);
-	}
-
-	/**
-	 * Retrieve the user's followed blogs from the WordPress.com REST API
-	 *
-	 * @param array $args An array of arguments used by WPCOM (including the
-	 * user id). It is ignored by this function as the REST API call will be
-	 * done on behalf of the Jetpack-connected account.
-	 * @return array The return value is an array of blog subscription arrays
-	 */
-	public function get_followed_blogs( $args ) {
-		$request_args = array(
-			'url' => 'https://public-api.wordpress.com/rest/v1.1/read/following/mine',
-			'user_id' => JETPACK_MASTER_USER,
-			'method' => 'GET',
-		);
-		$response = Jetpack_Client::remote_request( $request_args );
-		// TODO: Remove the placeholder false value
-		if ( false && is_wp_error( $response ) ) {
-			// TODO: Handle error appropriately
-			return array();
-		} else {
-			// TODO: Enable this and remove the dummy data once REST API authentication is working
-			/*
-			$response_body = wp_remote_retrieve_body( $response );
-			if ( empty( $response_body ) ) {
-				return array();
-			}
-			*/
-			$response_body = '{"subscriptions":[{"ID":"324825249","blog_ID":"114798305","URL":"http:\/\/design.blog","date_subscribed":"2017-01-17T03:12:32+00:00","meta":{"links":{"site":"https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/114798305"}}},{"ID":"324824892","blog_ID":"0","URL":"http:\/\/daringfireball.net\/feeds\/main","date_subscribed":"2017-01-17T03:09:48+00:00","meta":{"links":{"feed":"https:\/\/public-api.wordpress.com\/rest\/v1\/read\/feed\/20787116"}}},{"ID":"324823266","blog_ID":"122690821","URL":"http:\/\/followtesting.wordpress.com","date_subscribed":"2017-01-17T02:57:51+00:00","meta":{"links":{"site":"https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/122690821"}}}]}';
-			$response_body = json_decode( $response_body );
-			$followed_blogs = array_map( array( $this, 'convert_rest_subscription' ), $response_body->subscriptions );
-			return $followed_blogs;
-		}
-	}
-
 	public function create_blavatar_query( $subscriptions ) {
 		$url_string = "";
 		$needs_leading_ampersand = false;
@@ -130,10 +74,6 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
  * documentation on what each is doing.
  */
 class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
-	public function get_followed_blogs($args) {
-		return wpcom_subs_get_blogs($args);
-	}
-
 	public function get_blavatars( $subscription, $avatar_size ) {
 		// TODO: Implement for WPCOM
 		$domain = blavatar_domain( $subscription['blog_url'] );

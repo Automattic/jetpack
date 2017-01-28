@@ -16,6 +16,7 @@ function jetpack_blogs_i_follow_widget_init() {
 	// TODO: Remove the temporary debug check
 	if ( Jetpack::is_active() || WP_DEBUG ) {
 		register_widget( 'Jetpack_Widget_Blogs_I_Follow' );
+		add_filter( 'jetpack_get_blog_subscriptions', array( 'Jetpack_Widget_Blogs_I_Follow', 'get_blog_subscriptions' ), 10, 1 );
 	}
 }
 
@@ -100,6 +101,61 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	}
 
 	/**
+	 * Converts data from the WordPress.com REST API into a format usable by the plugin
+	 *
+	 * The read/following/mine API is not identical in its contents or format to the private
+	 * WPCOM tables used for Blogs I Follow. The data must be translated into a format that
+	 * loosely conforms to what the plugin expects.
+	 *
+	 * @param object $subscription The subscription element retrieved from the REST API
+	 * @return array The return value is an array reformmated to be similar to the data
+	 * format used in WPCOM
+	 */
+	private static function convert_rest_subscription( $subscription ) {
+		return array(
+			'id' => intval( $subscription->ID ),
+			'blog_id' => intval( $subscription->blog_ID ),
+			'blog_url' => $subscription->URL,
+			'feed_url' => $subscription->URL,
+			'date_subscribed' => $subscription->date_subscribed,
+		);
+	}
+
+	/**
+	 * Retrieve the user's followed blogs from the WordPress.com REST API
+	 *
+	 * @param array $args An array of arguments used by WPCOM (including the
+	 * user id). It is ignored by this function as the REST API call will be
+	 * done on behalf of the Jetpack-connected account.
+	 * @return array The return value is an array of blog subscription arrays
+	 */
+	public static function get_blog_subscriptions( $args ) {
+		$request_args = array(
+			'url' => 'https://public-api.wordpress.com/rest/v1.1/read/following/mine',
+			'user_id' => JETPACK_MASTER_USER,
+			'method' => 'GET',
+		);
+		$response = Jetpack_Client::remote_request( $request_args );
+		// TODO: Remove the placeholder false value
+		if ( false && is_wp_error( $response ) ) {
+			// TODO: Handle error appropriately
+			return array();
+		} else {
+			// TODO: Enable this and remove the dummy data once REST API authentication is working
+			/*
+			$response_body = wp_remote_retrieve_body( $response );
+			if ( empty( $response_body ) ) {
+				return array();
+			}
+			*/
+			$response_body = '{"subscriptions":[{"ID":"324825249","blog_ID":"114798305","URL":"http:\/\/design.blog","date_subscribed":"2017-01-17T03:12:32+00:00","meta":{"links":{"site":"https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/114798305"}}},{"ID":"324824892","blog_ID":"0","URL":"http:\/\/daringfireball.net\/feeds\/main","date_subscribed":"2017-01-17T03:09:48+00:00","meta":{"links":{"feed":"https:\/\/public-api.wordpress.com\/rest\/v1\/read\/feed\/20787116"}}},{"ID":"324823266","blog_ID":"122690821","URL":"http:\/\/followtesting.wordpress.com","date_subscribed":"2017-01-17T02:57:51+00:00","meta":{"links":{"site":"https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/122690821"}}}]}';
+			$response_body = json_decode( $response_body );
+			$followed_blogs = array_map( array('Jetpack_Widget_Blogs_I_Follow', 'convert_rest_subscription'), $response_body->subscriptions );
+			return $followed_blogs;
+		}
+	}
+
+	/**
 	 * get the subscriptions used by the widget
 	 * result is cached using a transient
 	 *
@@ -114,7 +170,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 			$this->subscriptions[$this->id] = array();
 			$this->subscriptions[$this->id]['user_id'] = $this->user_id;
-			$this->subscriptions[$this->id]['subscriptions'] = $this->adapter->get_followed_blogs( array( 'user_id' => $this->user_id, 'public_only' => true ) );
+			$subscription_args = array( 'user_id' => $this->user_id, 'public_only' => true );
+			// TODO: For WordPress.com, hook into this filter and return wpcom_subs_get_blogs
+			$this->subscriptions[$this->id]['subscriptions'] = apply_filters( 'jetpack_get_blog_subscriptions', null, $subscription_args );
 
 			if ( is_array( $this->subscriptions[$this->id]['subscriptions'] ) ) {
 				foreach ( $this->subscriptions[$this->id]['subscriptions'] as &$sub ) {
