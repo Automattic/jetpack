@@ -1,13 +1,11 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import Textarea from 'components/textarea';
 import includes from 'lodash/includes';
-import ExternalLink from 'components/external-link';
 
 /**
  * Internal dependencies
@@ -69,13 +67,13 @@ export const Protect = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
-					header={ __( 'Brute force protection', { context: 'Settings header' } ) } >
+					header={ __( 'Brute Force Protection', { context: 'Settings header' } ) } >
 					<SettingsGroup hasChild support={ this.props.getModule( 'protect' ).learn_more_button }>
 						<ModuleToggle slug="protect"
-									  compact
-									  activated={ isProtectActive }
-									  toggling={ this.props.isSavingAnyOption( 'protect' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+							compact
+							activated={ isProtectActive }
+							toggling={ this.props.isSavingAnyOption( 'protect' ) }
+							toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'protect' ).description
@@ -123,7 +121,7 @@ export const Protect = moduleSettingsForm(
 											} )
 										}
 									</span>
-								  </FormFieldset>
+								</FormFieldset>
 								: ''
 						}
 					</SettingsGroup>

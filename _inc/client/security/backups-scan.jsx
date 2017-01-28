@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 
@@ -24,7 +23,7 @@ export const BackupsScan = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
+					header={ __( 'Backups and Security Scanning', { context: 'Settings header' } ) }
 					hideButton>
 					<SettingsGroup support="https://vaultpress.com/jetpack/">
 						<p>

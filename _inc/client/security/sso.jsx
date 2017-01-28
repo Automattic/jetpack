@@ -1,10 +1,8 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import TextInput from 'components/text-input';
 
 /**
  * Internal dependencies
@@ -25,13 +23,13 @@ export const SSO = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="sso"
-					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
+					header={ __( 'WordPress.com Log In', { context: 'Settings header' } ) }>
 					<SettingsGroup hasChild support={ this.props.getModule( 'sso' ).learn_more_button }>
 						<ModuleToggle slug="sso"
-									  compact
-									  activated={ isSSOActive }
-									  toggling={ this.props.isSavingAnyOption( 'sso' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+							compact
+							activated={ isSSOActive }
+							toggling={ this.props.isSavingAnyOption( 'sso' ) }
+							toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'sso' ).description
@@ -54,7 +52,7 @@ export const SSO = moduleSettingsForm(
 										name={ 'jetpack_sso_require_two_step' }
 										{ ...this.props }
 										label={ __( 'Require two step authentication.' ) } />
-								  </FormFieldset>
+								</FormFieldset>
 								: ''
 						}
 					</SettingsGroup>

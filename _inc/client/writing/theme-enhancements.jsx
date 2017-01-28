@@ -1,10 +1,8 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -23,7 +21,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Theme enhancements' ) }>
+					header={ __( 'Theme Enhancements' ) }>
 					{
 						[
 							{
@@ -58,12 +56,12 @@ export const ThemeEnhancements = moduleSettingsForm(
 							}
 						].map( item => {
 							return (
-								<Card compact className="jp-form-has-child jp-form-settings-group" key={ `theme_enhancement_${ item.module }` }>
+								<SettingsGroup compact hasChild key={ `theme_enhancement_${ item.module }` }>
 									<ModuleToggle slug={ item.module }
-												  compact
-												  activated={ this.props.getOptionValue( item.module ) }
-												  toggling={ this.props.isSavingAnyOption( item.module ) }
-												  toggleModule={ this.props.toggleModuleNow }>
+										compact
+										activated={ this.props.getOptionValue( item.module ) }
+										toggling={ this.props.isSavingAnyOption( item.module ) }
+										toggleModule={ this.props.toggleModuleNow }>
 									<span className="jp-form-toggle-explanation">
 									{
 										item.description
@@ -80,11 +78,11 @@ export const ThemeEnhancements = moduleSettingsForm(
 														label={ chkbx.label }
 														key={ `${ item.module }_${ chkbx.key }`}
 													/>
-												  } )
+												} )
 												: ''
 										}
 									</FormFieldset>
-								</Card>
+								</SettingsGroup>
 							);
 						} )
 					}

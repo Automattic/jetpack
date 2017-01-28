@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 
@@ -10,13 +9,11 @@ import { translate as __ } from 'i18n-calypso';
  */
 import {
 	FormFieldset,
-	FormLegend,
-	FormLabel
+	FormLegend
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import {
-	ModuleSettingSelect,
 	ModuleSettingMultipleSelectCheckboxes
 } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
@@ -31,15 +28,15 @@ export const SiteStats = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Site stats' ) }
+					header={ __( 'Site Stats' ) }
 					module="stats">
 					<SettingsGroup support={ stats.learn_more_button }>
 						<FormFieldset>
 							<ModuleToggle slug="stats"
-										  compact
-										  activated={ !!this.props.getOptionValue( 'admin_bar' ) }
-										  toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
-										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }>
+											compact
+											activated={ !!this.props.getOptionValue( 'admin_bar' ) }
+											toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
+											toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
 									__( 'Put a chart showing 48 hours of views in the admin bar.' )
@@ -47,10 +44,10 @@ export const SiteStats = moduleSettingsForm(
 							</span>
 							</ModuleToggle>
 							<ModuleToggle slug="stats"
-										  compact
-										  activated={ !!this.props.getOptionValue( 'hide_smile' ) }
-										  toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
-										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }>
+											compact
+											activated={ !!this.props.getOptionValue( 'hide_smile' ) }
+											toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
+											toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
 									__( 'Hide the stats smiley face image. The image helps collect stats, but should work when hidden.' )
