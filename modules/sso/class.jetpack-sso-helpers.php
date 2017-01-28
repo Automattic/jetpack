@@ -8,7 +8,16 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
  * @since 4.1.0
  */
 class Jetpack_SSO_Helpers {
+	/**
+	 * An array used to store the contents of $_GET before overriding $_GET.
+	 * @var array
+	 */
 	static $stashed_get_params = array();
+
+	/**
+	 * An array used to store the content of $_POST before overriding $_POST.
+	 * @var array
+	 */
 	static $stashed_post_params = array();
 
 	/**
@@ -285,9 +294,17 @@ class Jetpack_SSO_Helpers {
 			'login',
 			'jetpack_json_api_authorization',
 		) );
-	    return in_array( $action, $allowed_actions_for_sso );
+		return in_array( $action, $allowed_actions_for_sso );
 	}
 
+	/**
+	 * Given a URL that is the original request which kicked off the SSO flow, this function returns whether
+	 * the request was for Jetpack JSON API authorization by checking the value of `$action`.
+	 *
+	 * @param string $original_request
+	 *
+	 * @return bool Was the original request for JSON API authorization?
+	 */
 	static function is_sso_for_json_api_auth( $original_request ) {
 		$original_request = esc_url_raw( $original_request );
 
@@ -306,6 +323,15 @@ class Jetpack_SSO_Helpers {
 		return 'jetpack_json_api_authorization' === $args['action'];
 	}
 
+	/**
+	 * Given a URL that is the original request which kicked off the SSO flow, this function stores the contents of
+	 * $_GET and $_POST into static variables of this class and then updates $_GET and $_POST to match the original
+	 * request. This is done so that we can verify the JSON API authorization request.
+	 *
+	 * @param string $original_request
+	 *
+	 * @return bool Were the superglobal values updated to mathch the original request?
+	 */
 	static function set_superglobal_values_for_json_api_auth( $original_request ) {
 		$original_request = esc_url_raw( $original_request );
 
@@ -319,8 +345,14 @@ class Jetpack_SSO_Helpers {
 
 		wp_parse_str( $parsed_url['query'], $_GET );
 		$_POST['jetpack_json_api_original_query'] = $original_request;
+
+		return true;
 	}
 
+	/**
+	 * This function is meant to be run after calling self::set_superglobal_values_for_json_api_auth( $original_request)
+	 * and resets the superglobals back to their original values.
+	 */
 	static function reset_superglobal_values_after_json_api_auth() {
 		$_POST = self::$stashed_post_params;
 		$_GET = self::$stashed_get_params;
