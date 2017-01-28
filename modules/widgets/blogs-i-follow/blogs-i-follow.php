@@ -183,7 +183,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 					if ( !empty( $subscription['blog_id'] ) ) {
 						$email = $this->adapter->get_blog_option( $subscription['blog_id'], 'admin_email' );
 						$http = is_ssl() ? 'https' : 'http';
-						$img = get_avatar( $email, self::$avatar_size, $this->adapter->staticize_subdomain( esc_url_raw( $http . '://' . self::$default_avatar ) ) );
+						$img = get_avatar( $email, self::$avatar_size, apply_filters( 'jetpack_static_url', esc_url_raw( $http . '://' . self::$default_avatar ) ) );
 					}
 				}
 				if ( !$img )

@@ -8,7 +8,6 @@
  */
 interface iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs( $args );
-	public function staticize_subdomain( $url );
 	public function enable_follow_buttons();
 	public function get_blog_option( $blog_id, $option );
 	public function get_blavatars( $subscriptions, $avatar_size );
@@ -76,17 +75,6 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 			$followed_blogs = array_map( array( $this, 'convert_rest_subscription' ), $response_body->subscriptions );
 			return $followed_blogs;
 		}
-	}
-
-	/**
-	 * Passes the given url into Jetpack's version of staticize_subdomain
-	 *
-	 * @param string $url The URL to pass through
-	 * @return string The return value is identical if $url is a non-A8C domain,
-	 * otherwise it is processed to provide a special A8C URL.
-	 */
-	public function staticize_subdomain( $url ) {
-		return Jetpack::staticize_subdomain( $url );
 	}
 
 	/**
@@ -164,10 +152,6 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs($args) {
 		return wpcom_subs_get_blogs($args);
-	}
-
-	public function staticize_subdomain( $url ) {
-		return staticize_subdomain( $url );
 	}
 
 	public function enable_follow_buttons() {
