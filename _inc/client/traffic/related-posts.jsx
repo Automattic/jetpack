@@ -14,7 +14,6 @@ import {
 	FormFieldset,
 	FormLabel
 } from 'components/forms';
-import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
@@ -38,7 +37,7 @@ export const RelatedPosts = moduleSettingsForm(
 		/**
 		 * Update state so preview is updated instantly and toggle options.
 		 *
-		 * @param optionName
+		 * @param {string} optionName
 		 */
 		updateOptions( optionName ) {
 			this.setState(
@@ -50,7 +49,8 @@ export const RelatedPosts = moduleSettingsForm(
 		},
 
 		render() {
-			let isRelatedPostsActive = this.props.getOptionValue( 'related-posts' );
+			let isRelatedPostsActive = this.props.getOptionValue( 'related-posts' ),
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'related-posts' );
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -59,6 +59,7 @@ export const RelatedPosts = moduleSettingsForm(
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'related-posts' ) }>
 						<ModuleToggle slug="related-posts"
 									  compact
+									  disabled={ unavailableInDevMode }
 									  activated={ isRelatedPostsActive }
 									  toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
@@ -72,12 +73,12 @@ export const RelatedPosts = moduleSettingsForm(
 							// Only show controls if Related Posts module:
 							// - is active and it's not being toggled off
 							// - is inactive and it's being toggled on.
-							( isRelatedPostsActive && ! this.props.isSavingAnyOption( 'related-posts' ) ) ||
-							( ! isRelatedPostsActive && this.props.isSavingAnyOption( 'related-posts' ) )
-								? <FormFieldset>
+							( ( isRelatedPostsActive && ! this.props.isSavingAnyOption( 'related-posts' ) ) ||
+							( ! isRelatedPostsActive && this.props.isSavingAnyOption( 'related-posts' ) ) ) && (
+								<FormFieldset>
 									<FormToggle compact
 												checked={ this.state.show_headline }
-												disabled={ this.props.isSavingAnyOption() }
+												disabled={ unavailableInDevMode || this.props.isSavingAnyOption() }
 												onChange={ e => this.updateOptions( 'show_headline' ) }>
 										<span className="jp-form-toggle-explanation">
 											{
@@ -87,7 +88,7 @@ export const RelatedPosts = moduleSettingsForm(
 									</FormToggle>
 									<FormToggle compact
 												checked={ this.state.show_thumbnails }
-												disabled={ this.props.isSavingAnyOption() }
+												disabled={ unavailableInDevMode || this.props.isSavingAnyOption() }
 												onChange={ e => this.updateOptions( 'show_thumbnails' ) }>
 										<span className="jp-form-toggle-explanation">
 											{
@@ -108,9 +109,9 @@ export const RelatedPosts = moduleSettingsForm(
 									<FormLabel className="jp-form-label-wide">{ __( 'Preview' ) }</FormLabel>
 									<Card className="jp-related-posts-preview">
 										{
-											this.state.show_headline
-												? <div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div>
-												: ''
+											this.state.show_headline && (
+												<div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div>
+											)
 										}
 										{
 											[
@@ -132,9 +133,9 @@ export const RelatedPosts = moduleSettingsForm(
 											].map( ( item, index ) => (
 												<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
 													{
-														this.state.show_thumbnails
-															? <img src={ `https://jetpackme.files.wordpress.com/2014/08/${ item.url }?w=350&h=200&crop=1` } />
-															: ''
+														this.state.show_thumbnails && (
+															<img src={ `https://jetpackme.files.wordpress.com/2014/08/${ item.url }?w=350&h=200&crop=1` } />
+														)
 													}
 													<h4 className="jp-related-posts-preview__post-title"><a href="#/traffic">{ item.text }</a></h4>
 													<p  className="jp-related-posts-preview__post-context">
@@ -144,8 +145,8 @@ export const RelatedPosts = moduleSettingsForm(
 											) )
 										}
 									</Card>
-								 </FormFieldset>
-								: ''
+								</FormFieldset>
+							)
 						}
 					</SettingsGroup>
 				</SettingsCard>

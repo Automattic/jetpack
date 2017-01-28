@@ -58,7 +58,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 							}
 						].map( item => {
 							return (
-								<Card compact className="jp-form-has-child jp-form-settings-group" key={ `theme_enhancement_${ item.module }` }>
+								<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` }>
 									<ModuleToggle slug={ item.module }
 												  compact
 												  activated={ this.props.getOptionValue( item.module ) }
@@ -72,19 +72,19 @@ export const ThemeEnhancements = moduleSettingsForm(
 									</ModuleToggle>
 									<FormFieldset support={ item.learn_more_button }>
 										{
-											this.props.getOptionValue( item.module )
-												? item.checkboxes.map( chkbx => {
+											this.props.getOptionValue( item.module ) && (
+												item.checkboxes.map( chkbx => {
 													return <ModuleSettingCheckbox
 														name={ chkbx.key }
 														{ ...this.props }
 														label={ chkbx.label }
 														key={ `${ item.module }_${ chkbx.key }`}
 													/>
-												  } )
-												: ''
+												} )
+											)
 										}
 									</FormFieldset>
-								</Card>
+								</SettingsGroup>
 							);
 						} )
 					}

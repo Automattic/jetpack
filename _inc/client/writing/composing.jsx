@@ -10,10 +10,8 @@ import { translate as __ } from 'i18n-calypso';
  */
 import {
 	FormFieldset,
-	FormLegend,
-	FormLabel
+	FormLegend
 } from 'components/forms';
-import { getModule } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
@@ -100,7 +98,8 @@ export const Composing = moduleSettingsForm(
 				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }>
 					<SettingsGroup support={ markdown.learn_more_button }>
 						<FormFieldset>
-							<ModuleToggle slug="markdown"
+							<ModuleToggle
+								slug="markdown"
 								compact
 								activated={ this.props.getOptionValue( 'markdown' ) }
 								toggling={ this.props.isSavingAnyOption( 'markdown' ) }
@@ -111,9 +110,11 @@ export const Composing = moduleSettingsForm(
 							</ModuleToggle>
 						</FormFieldset>
 					</SettingsGroup>
-					<SettingsGroup hasChild disableInDevMode useCompactNotices module={ atd }>
-						<ModuleToggle slug="after-the-deadline"
+					<SettingsGroup hasChild disableInDevMode module={ atd }>
+						<ModuleToggle
+							slug="after-the-deadline"
 							compact
+							disabled={ this.props.isUnavailableInDevMode( 'after-the-deadline' ) }
 							activated={ this.props.getOptionValue( 'after-the-deadline' ) }
 							toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
 							toggleModule={ this.props.toggleModuleNow }>
@@ -123,9 +124,9 @@ export const Composing = moduleSettingsForm(
 						</ModuleToggle>
 						<FormFieldset>
 							{
-								this.props.getOptionValue( 'after-the-deadline' )
-									? <InlineExpand label={ __( 'Advanced Options' ) }>{ this.getAtdSettings() }</InlineExpand>
-									: ''
+								this.props.getOptionValue( 'after-the-deadline' ) && (
+									<InlineExpand label={ __( 'Advanced Options' ) }>{ this.getAtdSettings() }</InlineExpand>
+								)
 							}
 						</FormFieldset>
 					</SettingsGroup>

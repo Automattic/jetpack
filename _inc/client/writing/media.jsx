@@ -46,9 +46,10 @@ export const Media = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Media' ) }>
-					<SettingsGroup hasChild disableInDevMode useCompactNotices module={ photon }>
+					<SettingsGroup hasChild disableInDevMode module={ photon }>
 						<ModuleToggle slug="photon"
 									  compact
+									  disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
 									  activated={ this.props.getOptionValue( 'photon' ) }
 									  toggling={ this.props.isSavingAnyOption( 'photon' ) }
 									  toggleModule={ this.toggleModule }>
@@ -77,8 +78,8 @@ export const Media = moduleSettingsForm(
 								</span>
 						</ModuleToggle>
 						{
-							isCarouselActive
-								? <FormFieldset>
+							isCarouselActive && (
+								<FormFieldset>
 									<ModuleSettingCheckbox
 										name={ 'carousel_display_exif' }
 										{ ...this.props }
@@ -91,8 +92,8 @@ export const Media = moduleSettingsForm(
 											{ ...this.props }
 											validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
 									</FormLabel>
-								  </FormFieldset>
-								: ''
+								</FormFieldset>
+							)
 						}
 					</SettingsGroup>
 				</SettingsCard>

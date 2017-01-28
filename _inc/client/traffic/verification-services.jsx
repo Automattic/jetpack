@@ -17,7 +17,6 @@ import {
 	FormLabel
 } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { ModuleSettingSelect } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 

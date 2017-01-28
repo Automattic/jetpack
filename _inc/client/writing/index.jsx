@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
  */
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
+import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import QuerySite from 'components/data/query-site';
 import { Composing } from './composing';
 import { Media } from './media';
@@ -20,29 +21,25 @@ export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
 
 	render() {
+		const commonProps = {
+			settings: this.props.settings,
+			getModule: this.props.module,
+			isDevMode: this.props.isDevMode,
+			isUnavailableInDevMode: this.props.isUnavailableInDevMode
+		};
 		return (
 			<div>
 				<QuerySite />
 				<Composing
-					settings={ this.props.settings }
-					getModule={ this.props.module }
-				/>
+					{ ...commonProps } />
 				<Media
-					settings={ this.props.settings }
-					getModule={ this.props.module }
-				/>
+					{ ...commonProps } />
 				<CustomContentTypes
-					settings={ this.props.settings }
-					getModule={ this.props.module }
-				/>
+					{ ...commonProps } />
 				<ThemeEnhancements
-					settings={ this.props.settings }
-					getModule={ this.props.module }
-				/>
+					{ ...commonProps } />
 				<PostByEmail
-					settings={ this.props.settings }
-					getModule={ this.props.module }
-				/>
+					{ ...commonProps } />
 			</div>
 		);
 	}
@@ -51,11 +48,10 @@ export const Writing = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			module: ( module_name ) => getModule( state, module_name ),
-			settings: getSettings( state )
+			module: module_name => getModule( state, module_name ),
+			settings: getSettings( state ),
+			isDevMode: isDevMode( state ),
+			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name )
 		}
-	},
-	( dispatch ) => {
-		return {};
 	}
 )( Writing );
