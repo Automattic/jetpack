@@ -96,7 +96,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 		// Track the usage stats for this widget
 		echo $args['after_widget'];
-		$this->adapter->stats_extra();
+		do_action( 'jetpack_stats_extra', 'widget_view', 'blogs_i_follow' );
 	}
 
 	/**

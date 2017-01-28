@@ -10,7 +10,6 @@ interface iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs( $args );
 	public function get_blog_locale();
 	public function staticize_subdomain( $url );
-	public function stats_extra();
 	public function enable_follow_buttons();
 	public function get_blog_option( $blog_id, $option );
 	public function get_blavatars( $subscriptions, $avatar_size );
@@ -101,13 +100,6 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 	}
 
 	/**
-	 * Increments usage stats for this widget
-	 */
-	public function stats_extra() {
-		do_action( 'jetpack_stats_extra', 'widget_view', 'blogs_i_follow' );
-	}
-
-	/**
 	 * Provides a no-op implementation for Jetpack
 	 */
 	public function enable_follow_buttons() {}
@@ -190,10 +182,6 @@ class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 
 	public function staticize_subdomain( $url ) {
 		return staticize_subdomain( $url );
-	}
-
-	public function stats_extra() {
-		stats_extra( 'widget_view', 'blogs_i_follow' );
 	}
 
 	public function enable_follow_buttons() {
