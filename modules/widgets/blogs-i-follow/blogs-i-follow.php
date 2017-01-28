@@ -144,7 +144,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	}
 
 	/**
-	 * Infer the blog name from the subcription URL(s) when the name is not available
+	 * Infer the blog name from the subscription URL(s) when the name is not available
 	 *
 	 * @param array $subscription the subscription data lacking a blog name
 	 * @return string the inferred blog name
@@ -160,11 +160,14 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		// make either queries or HTTP requests, so they are slow.
 		$output = get_transient( $this->id . '-widget' );
 
-		if ( empty( $output ) ) {
+		// TODO: Remove WP_DEBUG
+		if ( WP_DEBUG || empty( $output ) ) {
 
 			$output  = '';
 
 			$output .= "<div class='widgets-grid-layout no-grav'>";
+
+			$imgs = $this->adapter->get_blavatars( $subscriptions, self::$avatar_size );
 
 			$i = 0;
 			foreach ( $subscriptions as $subscription ) {
@@ -174,7 +177,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 				if ( 'http://' === $subscription['blog_url'] )
 					$subscription['blog_url'] = $subscription['feed_url'];
 
-				$img = $this->adapter->get_blavatar( $subscription['blog_url'], self::$avatar_size );
+				$img = isset($imgs[ $subscription['blog_id'] ]) ? $imgs[ $subscription['blog_id'] ] : NULL;
 
 				if ( !$img ) {
 					if ( !empty( $subscription['blog_id'] ) ) {

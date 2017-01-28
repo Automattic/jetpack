@@ -13,7 +13,7 @@ interface iBlogs_I_Follow_Adapter {
 	public function stats_extra();
 	public function enable_follow_buttons();
 	public function get_blog_option( $blog_id, $option );
-	public function get_blavatar( $blog_url, $avatar_size );
+	public function get_blavatars( $subscriptions, $avatar_size );
 }
 
 /**
@@ -38,8 +38,8 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 	 */
 	private function convert_rest_subscription( $subscription ) {
 		return array(
-			'id' => $subscription->ID,
-			'blog_id' => $subscription->blog_ID,
+			'id' => intval( $subscription->ID ),
+			'blog_id' => intval( $subscription->blog_ID ),
 			'blog_url' => $subscription->URL,
 			'feed_url' => $subscription->URL,
 			'date_subscribed' => $subscription->date_subscribed,
@@ -69,16 +69,13 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 			// TODO: Enable this and remove the dummy data once REST API authentication is working
 			/*
 			$response_body = wp_remote_retrieve_body( $response );
-
 			if ( empty( $response_body ) ) {
 				return array();
 			}
 			*/
 			$response_body = '{"subscriptions":[{"ID":"324825249","blog_ID":"114798305","URL":"http:\/\/design.blog","date_subscribed":"2017-01-17T03:12:32+00:00","meta":{"links":{"site":"https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/114798305"}}},{"ID":"324824892","blog_ID":"0","URL":"http:\/\/daringfireball.net\/feeds\/main","date_subscribed":"2017-01-17T03:09:48+00:00","meta":{"links":{"feed":"https:\/\/public-api.wordpress.com\/rest\/v1\/read\/feed\/20787116"}}},{"ID":"324823266","blog_ID":"122690821","URL":"http:\/\/followtesting.wordpress.com","date_subscribed":"2017-01-17T02:57:51+00:00","meta":{"links":{"site":"https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/122690821"}}}]}';
-
 			$response_body = json_decode( $response_body );
 			$followed_blogs = array_map( array( $this, 'convert_rest_subscription' ), $response_body->subscriptions );
-
 			return $followed_blogs;
 		}
 	}
@@ -128,6 +125,22 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 		return NULL;
 	}
 
+	public function create_blavatar_query( $subscriptions ) {
+		$url_string = "";
+		$needs_leading_ampersand = false;
+		foreach ( $subscriptions as $subscription ) {
+			if ( $subscription['blog_id'] === 0 ) {
+				continue;
+			}
+			if ( true === $needs_leading_ampersand ) {
+				$url_string .= "&";
+			}
+			$url_string .= 'urls[]=/sites/' . $subscription['blog_id'];
+			$needs_leading_ampersand = true;
+		}
+		return $url_string;
+	}
+
 	/**
 	 * Provides a no-op implementation for Jetpack
 	 *
@@ -136,8 +149,25 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 	 * @return The return value is always NULL. Currently this widget can't retrieve
 	 * external blavatars.
 	 */
-	public function get_blavatar( $blog_url, $avatar_size ) {
-		return NULL;
+	public function get_blavatars( $subscriptions, $avatar_size ) {
+		$batched_blavatar_query = $this->create_blavatar_query( $subscriptions );
+		$response = wp_remote_get( 'https://public-api.wordpress.com/rest/v1.2/batch/?' . $batched_blavatar_query );
+		if ( is_wp_error( $response ) ) {
+			// TODO: Handle error appropriately
+			return NULL;
+		} else {
+			$response_body = wp_remote_retrieve_body( $response );
+			if ( empty( $response_body ) ) {
+				return NULL;
+			}
+			$response_body = json_decode( $response_body );
+			foreach ($response_body as $site) {
+				if (isset($site->ID) && isset($site->icon) && isset($site->icon->img)) {
+					$blavatars[$site->ID] = '<img src="' . $site->icon->img . '" />';
+				}
+			}
+			return $blavatars;
+		}
 	}
 }
 
@@ -174,8 +204,9 @@ class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 		return get_blog_option( $blog_id, $option );
 	}
 
-	public function get_blavatar( $blog_url, $avatar_size ) {
-		$domain = blavatar_domain( $blog_url );
-		return blavatar_exists( $domain ) ? get_blavatar( $blog_url, $avatar_size ) : NULL;
+	public function get_blavatars( $subscription, $avatar_size ) {
+		// TODO: Implement for WPCOM
+		$domain = blavatar_domain( $subscription['blog_url'] );
+		return blavatar_exists( $domain ) ? get_blavatar( $subscription['blog_url'], $avatar_size ) : NULL;
 	}
 }
