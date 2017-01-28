@@ -258,10 +258,13 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 			// Process the JSON response, collecting the blavatars and the blog descriptions
 			foreach ($response_body as $site) {
 				if ( isset( $site->ID ) && isset( $site->icon ) && isset( $site->icon->img ) ) {
-					$blavatars[$site->ID] = '<img src="' . $site->icon->img . '" />';
+					$blavatars[ $site->ID ] = '<img src="' . $site->icon->img . '" />';
 				}
 				if ( isset( $site->ID ) && isset( $site->description ) ) {
-					$descriptions[$site->ID] = $site->description;
+					$descriptions[ $site->ID ] = $site->description;
+				}
+				if ( isset( $site->ID ) && isset( $site->name ) ) {
+					$blog_names[ $site->ID ] = $site->name;
 				}
 			}
 			// Update the subscriptions array with the additional fields retrieved from the API request
@@ -269,6 +272,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 				$blog_id = $subscription['blog_id'];
 				$subscription['blavatar_img_tag'] = isset( $blavatars[ $blog_id ] ) ? $blavatars[ $blog_id ] : null;
 				$subscription['description'] = isset( $descriptions[ $blog_id ] ) ? $descriptions[ $blog_id ] : null;
+				$subscription['blog_name'] = isset( $blog_names[ $blog_id ] ) ? $blog_names[ $blog_id ] : null;
 			}
 			return $subscriptions;
 		}
