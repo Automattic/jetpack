@@ -8,7 +8,6 @@
  */
 interface iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs( $args );
-	public function get_blog_option( $blog_id, $option );
 	public function get_blavatars( $subscriptions, $avatar_size );
 }
 
@@ -76,19 +75,6 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 		}
 	}
 
-	/**
-	 * Provides a no-op implementation for Jetpack
-	 *
-	 * @param int $blog_id The identifier of the blog from which the option
-	 * should be retrieved
-	 * @param string $option The option to be queried for the given blog
-	 * @return The return value is always NULL. Currently Jetpack can't retrieve
-	 * options for outside blogs.
-	 */
-	public function get_blog_option( $blog_id, $option ) {
-		return NULL;
-	}
-
 	public function create_blavatar_query( $subscriptions ) {
 		$url_string = "";
 		$needs_leading_ampersand = false;
@@ -146,10 +132,6 @@ class Blogs_I_Follow_Jetpack_Adapter implements iBlogs_I_Follow_Adapter {
 class Blogs_I_Follow_WPCOM_Adapter implements iBlogs_I_Follow_Adapter {
 	public function get_followed_blogs($args) {
 		return wpcom_subs_get_blogs($args);
-	}
-
-	public function get_blog_option( $blog_id, $option ) {
-		return get_blog_option( $blog_id, $option );
 	}
 
 	public function get_blavatars( $subscription, $avatar_size ) {

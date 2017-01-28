@@ -181,7 +181,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 				if ( !$img ) {
 					if ( !empty( $subscription['blog_id'] ) ) {
-						$email = $this->adapter->get_blog_option( $subscription['blog_id'], 'admin_email' );
+						// TODO: On WordPress.com, register this filter for get_blog_option. The admin email
+						// is not available via the REST API, so Jetpack currently cannot retrieve it.
+						$email = apply_filters( 'wpcom_blog_option', null, $subscription['blog_id'], 'admin_email' );
 						$http = is_ssl() ? 'https' : 'http';
 						$img = get_avatar( $email, self::$avatar_size, apply_filters( 'jetpack_static_url', esc_url_raw( $http . '://' . self::$default_avatar ) ) );
 					}
@@ -379,7 +381,10 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 				foreach ( $sub['subscriptions'] as $subscription ) {
 					$i++;
-					$description = $this->adapter->get_blog_option( $subscription['blog_id'], 'blogdescription' );
+					$description = isset( $subscription['description'] ) ? $subscription['description'] : null;
+					// TODO: For WordPress.com, $subscription['description'] will not be set. Hook into the filter
+					// below and return the result of get_blog_option
+					$description = apply_filters( 'wpcom_blog_option', $description, $subscription['blog_id'], 'blogdescription' );
 					$description = ( !empty( $description ) ) ? '<small>' .  $description . '</small>' : '';
 					$blog_name = empty( $subscription['blog_name'] ) ? $this->get_inferred_blog_name( $subscription ) : $subscription['blog_name'];
 					$output .= '<div id="' . esc_attr( 'wpcom-bubble-' . $widget_id . '-' . $i ) . '" class="wpcom-bubble wpcom-follow-bubble"><div class="bubble-txt"><a href="' . esc_url( $subscription['blog_url'] ) . '" class="bump-view" data-bump-view="bif">' . $blog_name . '</a>';
