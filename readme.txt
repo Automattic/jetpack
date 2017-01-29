@@ -1,54 +1,54 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
-Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti spam, social sharing, SEO, video, stats
+Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
 Stable tag: 4.5
 Requires at least: 4.6
 Tested up to: 4.7
 
-The one plugin you need for stats, related posts, search engine optimization, social sharing, protection, backups, faster content, and email lists.
+The one plugin you need for stats, related posts, search engine optimization, social sharing, protection, backups, speed, and email list management.
 
 == Description ==
 
-Whatever sort of site you’re running, Jetpack’s features are designed to keep your site secure, increase traffic, and engage your readers.
+Keep any WordPress site secure, increase traffic, and engage your readers.
 
 = Traffic and SEO Tools =
 Traffic is the lifeblood of any website. Jetpack includes:
 
-* [free] site stats and analytics
-* [free] automatic promotion and sharing on Facebook, Twitter, LinkedIn, Tumblr, Reddit, and WhatsApp
-* [free] related posts
-* [paid] search engine optimization tools for Google, Bing, Twitter, Facebook, and WordPress.com
-* [paid] advertising program that includes the best of AdSense, AdWords, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
+* [free] Site stats and analytics
+* [free] Automatic sharing on Facebook, Twitter, LinkedIn, Tumblr, Reddit, and WhatsApp
+* [free] Related posts
+* [paid] Search engine optimization tools for Google, Bing, Twitter, Facebook, and WordPress.com
+* [paid] Advertising program that includes the best of AdSense, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
 
 = Security and Backup Services =
 Stop worrying about data loss, downtime, and hacking. Jetpack provides: 
 
-* [free] brute force attack protection
-* [free] downtime and uptime monitoring
-* [free] secure and two-factor authentication
-* [paid] malware scanning, code scanning, and threat resolution
-* [paid] site backups, restores, and migrations
+* [free] Brute force attack protection
+* [free] Downtime and uptime monitoring
+* [free] Secured logins and two-factor authentication
+* [paid] Malware scanning, code scanning, and threat resolution
+* [paid] Site backups, restores, and migrations
 
-= Writing and Content Creation =
-Jetpack helps your writing and image creation processes with:
+= Content Creation =
+Add rich, beautifully-presented media -- no graphic design expertise necessary:
 
-* [free] a high-speed CDN for your images
-* [free] carousels, slideshows, and tiled galleries
-* [free] embed media from YouTube, Google Documents, Spotify and more
-* [free] sidebar customization including Facebook, Twitter, and RSS feeds
-* [free] extra sidebar widgets including blog stats, calendar, and author widgets
-* [paid] high-speed, ad-free, and high-definition video hosting
+* [free] A high-speed CDN for your images
+* [free] Carousels, slideshows, and tiled galleries
+* [free] Simple embeds from YouTube, Google Documents, Spotify and more
+* [free] Sidebar customization including Facebook, Twitter, and RSS feeds
+* [free] Extra sidebar widgets including blog stats, calendar, and author widgets
+* [paid] High-speed, ad-free, and high-definition video hosting
 
 = Discussion and Community =
 Create a connection with your readers and keep them coming back to your site with:
 
-* [free] email subscriptions
-* [free] comments with Facebook, Twitter, and Google social logins
-* [free] fully-customizable contact forms
-* [free] infinite scroll for your posts
+* [free] Email subscriptions
+* [free] Comment login with Facebook, Twitter, and Google
+* [free] Fully-customizable contact forms
+* [free] Infinite scroll for your posts
 
 = Expert Support =
-We have an entire team of happiness engineers ready to help you. Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
+We have an entire team of Happiness Engineers ready to help you. Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
 
 = Paid Services =
 Most of Jetpack's features and services are free. Jetpack also provides advanced security and backup services, video hosting, site monetization, priority support, and more SEO tools in three [simple and affordable plans](https://jetpack.com/pricing).
@@ -62,27 +62,27 @@ Installation is free, quick, and easy. Set up <a href="https://jetpack.com/insta
 Installation is free, quick, and easy. [Install Jetpack from our site](https://jetpack.com/install?from=wporg) in minutes.
 
 = Manual Alternatives =
-Alternatively install Jetpack via the plugin directory, or by uploading the files manually to your server, and then follow the on-screen instructions. If you need additional help [read our detailed instructions](http://jetpack.com/support/installing-jetpack/).
+Alternatively, install Jetpack via the plugin directory, or upload the files manually to your server and follow the on-screen instructions. If you need additional help [read our detailed instructions](http://jetpack.com/support/installing-jetpack/).
 
 == Frequently Asked Questions ==
 
 = Is Jetpack Free? =
 Yes! Jetpack's core features are and always will be free. 
 
-These include: [site stats](https://jetpack.com/features/traffic/site-stats), a [high-speed CDN](https://jetpack.com/features/writing/content-delivery-network/) for images, [related posts](https://jetpack.com/features/traffic/related-posts), [downtime monitoring](https://jetpack.com/features/security/downtime-monitoring), brute force [attack protection](https://jetpack.com/features/security/brute-force-attack-protection), [automated publishing](https://jetpack.com/features/traffic/automatic-publishing/), [sidebar customization](https://jetpack.com/features/writing/sidebar-customization/), and many more.
+These include: [site stats](https://jetpack.com/features/traffic/site-stats), a [high-speed CDN](https://jetpack.com/features/writing/content-delivery-network/) for images, [related posts](https://jetpack.com/features/traffic/related-posts), [downtime monitoring](https://jetpack.com/features/security/downtime-monitoring), brute force [attack protection](https://jetpack.com/features/security/brute-force-attack-protection), [automated sharing](https://jetpack.com/features/traffic/automatic-publishing/) to social networks, [sidebar customization](https://jetpack.com/features/writing/sidebar-customization/), and many more.
 
 = Should I purchase a paid plan? =
-Jetpack's paid services include automated backups, security scanning, spam filtering, video hosting, site monetization, SEO tools, and dedicated priority support.
+Jetpack's paid services include automated backups, security scanning, spam filtering, video hosting, site monetization, SEO tools, and priority support.
 
-Not every site requires an extra layer of protection and advanced tools but if your site is important to you, you should [consider upgrading](https://jetpack.com/pricing).
+If you're interested in learning more about the extra layers of protection and advanced tools available, learn more about our [paid plans](https://jetpack.com/pricing).
 
 = Why do I need a WordPress.com account? =
 
-Jetpack and its services are provided by WordPress.com so for Jetpack to function, a (free) WordPress.com account is required. (Think of it like a Jetpack account!)
+Since Jetpack and its services are provided and hosted by WordPress.com, a WordPress.com account is required for Jetpack to function.
 
-= I already have a WordPress account, but it's not working. What's going on? =
+= I already have a WordPress account, but Jetpack isn't working. What's going on? =
 
-A WordPress.com account is different to the one you use to log into your self-hosted WordPress. If you can log into [WordPress.com](https://wordpress.com) then you already have a WordPress.com account. If you can't, you can easily create one [during installation](https://jetpack.com/install?from=wporg).
+A WordPress.com account is different from the account you use to log into your self-hosted WordPress. If you can log into [WordPress.com](https://wordpress.com), then you already have a WordPress.com account. If you can't, you can easily create one [during installation](https://jetpack.com/install?from=wporg).
 
 = How do I view my stats? =
 
