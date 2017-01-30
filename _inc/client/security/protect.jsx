@@ -7,7 +7,6 @@ import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import Textarea from 'components/textarea';
 import includes from 'lodash/includes';
-import ExternalLink from 'components/external-link';
 
 /**
  * Internal dependencies
@@ -64,15 +63,17 @@ export const Protect = moduleSettingsForm(
 		},
 
 		render() {
-			let isProtectActive = this.props.getOptionValue( 'protect' );
+			let isProtectActive = this.props.getOptionValue( 'protect' ),
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'protect' );
 			return (
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
 					header={ __( 'Brute force protection', { context: 'Settings header' } ) } >
-					<SettingsGroup hasChild support={ this.props.getModule( 'protect' ).learn_more_button }>
+					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'protect' ) }>
 						<ModuleToggle slug="protect"
 									  compact
+									  disabled={ unavailableInDevMode }
 									  activated={ isProtectActive }
 									  toggling={ this.props.isSavingAnyOption( 'protect' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
@@ -88,27 +89,28 @@ export const Protect = moduleSettingsForm(
 							}
 						</p>
 						{
-							isProtectActive
-								? <FormFieldset>
+							isProtectActive && (
+								<FormFieldset>
 									{
-										this.props.currentIp
-											? <p>
-											{
-												__( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
-											}
-											<br />
-											{
-												<Button
-													disabled={ this.currentIpIsWhitelisted() }
-													onClick={ this.addToWhitelist }
-													compact >{ __( 'Add to whitelist' ) }</Button>
-											}
-										</p>
-											: ''
+										this.props.currentIp && (
+											<p>
+												{
+													__( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
+												}
+												<br />
+												{
+													<Button
+														disabled={ unavailableInDevMode || this.currentIpIsWhitelisted() }
+														onClick={ this.addToWhitelist }
+														compact >{ __( 'Add to whitelist' ) }</Button>
+												}
+											</p>
+										)
 									}
 									<FormLabel>
 										<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
 										<Textarea
+											disabled={ unavailableInDevMode }
 											name={ 'jetpack_protect_global_whitelist' }
 											placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
 											onChange={ this.updateText }
@@ -123,8 +125,8 @@ export const Protect = moduleSettingsForm(
 											} )
 										}
 									</span>
-								  </FormFieldset>
-								: ''
+								</FormFieldset>
+							)
 						}
 					</SettingsGroup>
 				</SettingsCard>

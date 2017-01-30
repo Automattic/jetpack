@@ -26,7 +26,7 @@ export const BackupsScan = moduleSettingsForm(
 					{ ...this.props }
 					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 					hideButton>
-					<SettingsGroup support="https://vaultpress.com/jetpack/">
+					<SettingsGroup disableInDevMode module={ { module: 'backups' } } support="https://vaultpress.com/jetpack/">
 						<p>
 							{
 								__( 'Your site is backed up and threat-free.' )
@@ -37,9 +37,13 @@ export const BackupsScan = moduleSettingsForm(
 								__( 'You can see the information about your backups and security scanning in the "At a Glance" section.' )
 							}
 						</p>
-						<p>
-							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href="https://dashboard.vaultpress.com/" >{ __( 'Configure your Security Scans' ) }</ExternalLink>
-						</p>
+						{
+							! this.props.isUnavailableInDevMode( 'backups' ) && (
+								<p>
+									<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href="https://dashboard.vaultpress.com/" >{ __( 'Configure your Security Scans' ) }</ExternalLink>
+								</p>
+							)
+						}
 					</SettingsGroup>
 				</SettingsCard>
 			);

@@ -25,15 +25,17 @@ export const Comments = moduleSettingsForm(
 
 		render() {
 			let comments = this.props.getModule( 'comments' ),
+				commentsUnavailableInDevMode = this.props.isUnavailableInDevMode( 'comments' ),
 				gravatar = this.props.getModule( 'gravatar-hovercards' ),
 				markdown = this.props.getModule( 'markdown' );
 			return (
 				<SettingsCard
 					{ ...this.props }
 					module="comments">
-					<SettingsGroup hasChild support={ comments.learn_more_button }>
+					<SettingsGroup hasChild disableInDevMode module={ comments }>
 						<ModuleToggle slug="comments"
 									  compact
+									  disabled={ commentsUnavailableInDevMode }
 									  activated={ this.props.getOptionValue( 'comments' ) }
 									  toggling={ this.props.isSavingAnyOption( 'comments' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
@@ -44,14 +46,14 @@ export const Comments = moduleSettingsForm(
 						</span>
 						</ModuleToggle>
 						{
-							this.props.getOptionValue( 'comments' )
-								? <FormFieldset>
+							this.props.getOptionValue( 'comments' ) && (
+								<FormFieldset>
 									<FormLabel>
 										<span className="jp-form-label-wide">{ __( 'Comments headline' ) }</span>
 										<TextInput
 											name={ 'highlander_comment_form_prompt' }
 											value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
-											disabled={ this.props.isUpdating( 'highlander_comment_form_prompt' ) }
+											disabled={ commentsUnavailableInDevMode || this.props.isUpdating( 'highlander_comment_form_prompt' ) }
 											onChange={ this.props.onOptionChange } />
 									</FormLabel>
 									<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
@@ -60,12 +62,13 @@ export const Comments = moduleSettingsForm(
 										<FormSelect
 											name={ 'jetpack_comment_form_color_scheme' }
 											value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
+											disabled={ commentsUnavailableInDevMode }
 											onChange={ this.props.onOptionChange }
 											{ ...this.props }
 											validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme', 'comments' ) }/>
 									</FormLabel>
-								  </FormFieldset>
-								: ''
+								</FormFieldset>
+							)
 						}
 					</SettingsGroup>
 					<SettingsGroup>

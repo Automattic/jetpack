@@ -10,15 +10,11 @@ import { translate as __ } from 'i18n-calypso';
  */
 import {
 	FormFieldset,
-	FormLegend,
-	FormLabel
+	FormLegend
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import {
-	ModuleSettingSelect,
-	ModuleSettingMultipleSelectCheckboxes
-} from 'components/module-settings/form-components';
+import { ModuleSettingMultipleSelectCheckboxes } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import InlineExpand from 'components/inline-expand';
@@ -27,16 +23,18 @@ export const SiteStats = moduleSettingsForm(
 	React.createClass( {
 
 		render() {
-			let stats = this.props.getModule( 'stats' );
+			let stats = this.props.getModule( 'stats' ),
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'stats' );
 			return (
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Site stats' ) }
 					module="stats">
-					<SettingsGroup support={ stats.learn_more_button }>
+					<SettingsGroup disableInDevMode module={ stats }>
 						<FormFieldset>
 							<ModuleToggle slug="stats"
 										  compact
+										  disabled={ unavailableInDevMode }
 										  activated={ !!this.props.getOptionValue( 'admin_bar' ) }
 										  toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
 										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }>
@@ -48,6 +46,7 @@ export const SiteStats = moduleSettingsForm(
 							</ModuleToggle>
 							<ModuleToggle slug="stats"
 										  compact
+										  disabled={ unavailableInDevMode }
 										  activated={ !!this.props.getOptionValue( 'hide_smile' ) }
 										  toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
 										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }>
@@ -58,22 +57,30 @@ export const SiteStats = moduleSettingsForm(
 							</span>
 							</ModuleToggle>
 						</FormFieldset>
-						<InlineExpand label={ __( 'Advanced Options' ) }>
-							<FormFieldset>
-								<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
-								<ModuleSettingMultipleSelectCheckboxes
-									name={ 'count_roles' }
-									{ ...this.props }
-									validValues={ this.props.getSiteRoles() } />
-							</FormFieldset>
-							<FormFieldset>
-								<FormLegend>{ __( 'Report Visibility: Select the roles that will be able to view stats reports' ) }</FormLegend>
-								<ModuleSettingMultipleSelectCheckboxes
-									always_checked={ [ 'administrator' ] }
-									name={ 'roles' }
-									{ ...this.props }
-									validValues={ this.props.getSiteRoles() } />
-							</FormFieldset>
+						<InlineExpand
+							disabled={ unavailableInDevMode }
+							label={ __( 'Advanced Options' ) }>
+							{
+								! unavailableInDevMode && (
+									<div>
+										<FormFieldset>
+											<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
+											<ModuleSettingMultipleSelectCheckboxes
+												name={ 'count_roles' }
+												{ ...this.props }
+												validValues={ this.props.getSiteRoles() } />
+										</FormFieldset>
+										<FormFieldset>
+											<FormLegend>{ __( 'Report Visibility: Select the roles that will be able to view stats reports' ) }</FormLegend>
+											<ModuleSettingMultipleSelectCheckboxes
+												always_checked={ [ 'administrator' ] }
+												name={ 'roles' }
+												{ ...this.props }
+												validValues={ this.props.getSiteRoles() } />
+										</FormFieldset>
+									</div>
+								)
+							}
 						</InlineExpand>
 					</SettingsGroup>
 				</SettingsCard>

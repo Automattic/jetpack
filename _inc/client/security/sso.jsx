@@ -4,7 +4,6 @@
 import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import TextInput from 'components/text-input';
 
 /**
  * Internal dependencies
@@ -20,15 +19,17 @@ export const SSO = moduleSettingsForm(
 	React.createClass( {
 
 		render() {
-			let isSSOActive = this.props.getOptionValue( 'sso' );
+			let isSSOActive = this.props.getOptionValue( 'sso' ),
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'sso' );
 			return (
 				<SettingsCard
 					{ ...this.props }
 					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
-					<SettingsGroup hasChild support={ this.props.getModule( 'sso' ).learn_more_button }>
+					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'sso' ) }>
 						<ModuleToggle slug="sso"
 									  compact
+									  disabled={ unavailableInDevMode }
 									  activated={ isSSOActive }
 									  toggling={ this.props.isSavingAnyOption( 'sso' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
@@ -39,8 +40,8 @@ export const SSO = moduleSettingsForm(
 						</span>
 						</ModuleToggle>
 						{
-							isSSOActive
-								? <FormFieldset>
+							isSSOActive && (
+								<FormFieldset>
 									<p className="jp-form-setting-explanation">
 										{
 											__( 'Use WordPress.com’s secure authentication.' )
@@ -49,13 +50,15 @@ export const SSO = moduleSettingsForm(
 									<ModuleSettingCheckbox
 										name={ 'jetpack_sso_match_by_email' }
 										{ ...this.props }
+										disabled={ unavailableInDevMode  }
 										label={ __( 'Match accounts using email addresses.' ) } />
 									<ModuleSettingCheckbox
 										name={ 'jetpack_sso_require_two_step' }
 										{ ...this.props }
+										disabled={ unavailableInDevMode  }
 										label={ __( 'Require two step authentication.' ) } />
-								  </FormFieldset>
-								: ''
+								</FormFieldset>
+							)
 						}
 					</SettingsGroup>
 				</SettingsCard>

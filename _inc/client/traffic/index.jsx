@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
  */
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
+import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
 import { SiteStats } from './site-stats';
@@ -20,29 +21,31 @@ export const Traffic = React.createClass( {
 	displayName: 'TrafficSettings',
 
 	render() {
+		const commonProps = {
+			settings: this.props.settings,
+			getModule: this.props.module,
+			isDevMode: this.props.isDevMode,
+			isUnavailableInDevMode: this.props.isUnavailableInDevMode
+		};
 		return (
 			<div>
 				<QuerySite />
 				<SEO
-					settings={ this.props.settings }
-					getModule={ this.props.module }
+					{ ...commonProps }
 					configureUrl={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl }
 				/>
 				<SiteStats
-					settings={ this.props.settings }
-					getModule={ this.props.module }
+					{ ...commonProps }
 				/>
 				<RelatedPosts
-					settings={ this.props.settings }
-					getModule={ this.props.module }
+					{ ...commonProps }
 					configureUrl={ this.props.siteAdminUrl +
 						'customize.php?autofocus[section]=jetpack_relatedposts' +
 						'&return=' + encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
 						'&url=' + encodeURIComponent( this.props.lastPostUrl ) }
 				/>
 				<VerificationServices
-					settings={ this.props.settings }
-					getModule={ this.props.module }
+					{ ...commonProps }
 				/>
 			</div>
 		);
@@ -52,8 +55,10 @@ export const Traffic = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			module: ( module_name ) => getModule( state, module_name ),
+			module: module_name => getModule( state, module_name ),
 			settings: getSettings( state ),
+			isDevMode: isDevMode( state ),
+			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			lastPostUrl: getLastPostUrl( state )
 		}
 	}

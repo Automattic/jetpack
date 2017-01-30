@@ -46,9 +46,10 @@ export const PostByEmail = moduleSettingsForm(
 					{ ...this.props }
 					module="post-by-email"
 					hideButton>
-					<SettingsGroup hasChild support={ postByEmail.learn_more_button }>
+					<SettingsGroup hasChild disableInDevMode module={ postByEmail }>
 						<ModuleToggle slug="post-by-email"
 									  compact
+									  disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
 									  activated={ isPbeActive }
 									  toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
@@ -59,8 +60,8 @@ export const PostByEmail = moduleSettingsForm(
 						</span>
 						</ModuleToggle>
 						{
-							isPbeActive
-								? <FormFieldset>
+							isPbeActive && (
+								<FormFieldset>
 									<FormLabel>
 										<FormLegend>{ __( 'Email Address' ) }</FormLegend>
 										<ClipboardButtonInput
@@ -74,8 +75,8 @@ export const PostByEmail = moduleSettingsForm(
 										onClick={ this.regeneratePostByEmailAddress } >
 										{ __( 'Regenerate address' ) }
 									</Button>
-								  </FormFieldset>
-								: ''
+								</FormFieldset>
+							)
 						}
 					</SettingsGroup>
 				</SettingsCard>
