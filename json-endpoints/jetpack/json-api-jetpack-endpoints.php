@@ -1139,7 +1139,7 @@ new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 	'group'          => '__do_not_document',
 	'method'         => 'GET',
 	'path'           => '/sites/%s/posts/%d/backup',
-	'stat'           => 'cron-unschedule',
+	'stat'           => 'posts:1:backup',
 	'path_labels'    => array(
 		'$site' => '(int|string) The site ID, The site domain',
 		'$post' => '(int) The post ID',
