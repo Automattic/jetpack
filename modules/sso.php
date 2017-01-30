@@ -372,14 +372,9 @@ class Jetpack_SSO {
 			// Save cookies so we can handle redirects after SSO
 			$this->save_cookies();
 
-			if ( 'jetpack_json_api_authorization' == $action ) {
-				Jetpack::init()->verify_json_api_authorization_request();
-			}
-
 			/**
 			 * Check to see if the site admin wants to automagically forward the user
-			 * to the WordPress.com login page AND  that the request to wp-login.php
-			 * is not something other than login (Like logout!)
+			 * to the WordPress.com login page.
 			 */
 			if ( Jetpack_SSO_Helpers::bypass_login_forward_wpcom() ) {
 				add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
@@ -857,11 +852,6 @@ class Jetpack_SSO {
 	 * @return string            The WordPress.com SSO URL.
 	 */
 	function get_sso_url_or_die( $reauth = false, $args = array() ) {
-		global $action;
-		if ( 'jetpack_json_api_authorization' == $action ) {
-			Jetpack::init()->verify_json_api_authorization_request();
-		}
-
 		if ( empty( $reauth ) ) {
 			$sso_redirect = $this->build_sso_url( $args );
 		} else {
