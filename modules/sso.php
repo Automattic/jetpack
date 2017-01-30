@@ -384,16 +384,17 @@ class Jetpack_SSO {
 					exit;
 				}
 			}
-		} else if ( $this->wants_to_login() ) {
+		} else if ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 
 			// Save cookies so we can handle redirects after SSO
 			$this->save_cookies();
 
 			/**
 			 * Check to see if the site admin wants to automagically forward the user
-			 * to the WordPress.com login page.
+			 * to the WordPress.com login page AND  that the request to wp-login.php
+			 * is not something other than login (Like logout!)
 			 */
-			if ( Jetpack_SSO_Helpers::bypass_login_forward_wpcom() ) {
+			if ( Jetpack_SSO_Helpers::bypass_login_forward_wpcom() && $this->wants_to_login() ) {
 				add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 				$reauth = ! empty( $_GET['force_reauth'] );
 				$sso_url = $this->get_sso_url_or_die( $reauth );
