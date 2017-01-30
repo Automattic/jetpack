@@ -71,7 +71,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	if ( empty( $image_url ) )
 		return $image_url;
 
-	$image_url_parts = @parse_url( $image_url );
+	$image_url_parts = @jetpack_photon_parse_url( $image_url );
 
 	// Unable to parse
 	if ( ! is_array( $image_url_parts ) || empty( $image_url_parts['host'] ) || empty( $image_url_parts['path'] ) )
@@ -98,7 +98,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	// So if the image is already a Photon URL, append the new arguments to the existing URL.
 	if (
 		in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) )
-		|| $image_url_parts['host'] === parse_url( $custom_photon_url, PHP_URL_HOST )
+		|| $image_url_parts['host'] === jetpack_photon_parse_url( $custom_photon_url, PHP_URL_HOST )
 	) {
 		$photon_url = add_query_arg( $args, $image_url );
 		return jetpack_photon_url_scheme( $photon_url, $scheme );
@@ -258,6 +258,24 @@ function jetpack_photon_allow_facebook_graph_domain( $allow = false, $domain ) {
 	}
 
 	return $allow;
+}
+
+/**
+ * A wrapper for PHP's parse_url, prepending assumed scheme for network path
+ * URLs. PHP versions 5.4.6 and earlier do not correctly parse without scheme.
+ *
+ * @see http://php.net/manual/en/function.parse-url.php#refsect1-function.parse-url-changelog
+ *
+ * @param string $url The URL to parse
+ * @param integer $component Retrieve specific URL component
+ * @return mixed Result of parse_url
+ */
+function jetpack_photon_parse_url( $url, $component = -1 ) {
+	if ( 0 === strpos( $url, '//' ) ) {
+		$url = ( is_ssl() ? 'https:' : 'http:' ) . $url;
+	}
+
+	return parse_url( $url, $component );
 }
 
 add_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 4 );
