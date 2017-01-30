@@ -108,6 +108,12 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			}
 		}
 
+		/** This filter is documented in modules/shortcodes/tweet.php */
+		$partner = apply_filters( 'jetpack_twitter_partner_id', 'jetpack' );
+		if ( ! empty( $partner ) ) {
+			echo ' data-partner="' . esc_attr( $partner ) . '"';
+		}
+
 		if ( ! empty( $instance['chrome'] ) && is_array( $instance['chrome'] ) ) {
 			echo ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
 		}
