@@ -86,10 +86,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'page_on_front',
 		'page_for_posts',
 		'headstart',
+		'headstart_is_fresh',
 		'ak_vp_bundle_enabled',
-		'verification_services_codes',
 		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION,
 		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION,
+		'verification_services_codes',
+		'podcasting_archive',
+		'is_domain_only',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -174,7 +177,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			array_intersect( $default_fields, $this->fields_to_include ) :
 			$default_fields;
 
-		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
+		if ( ! is_user_member_of_blog( get_current_user_id(), $blog_id ) ) {
 			$response_keys = array_intersect( $response_keys, self::$no_member_fields );
 		}
 
@@ -429,6 +432,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'headstart' :
 					$options[ $key ] = $site->is_headstart();
 					break;
+				case 'headstart_is_fresh' :
+					$options[ $key ] = $site->is_headstart_fresh();
+					break;
 				case 'ak_vp_bundle_enabled' :
 					$options[ $key ] = $site->get_ak_vp_bundle_enabled();
 					break;
@@ -440,6 +446,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'verification_services_codes' :
 					$options[ $key ] = $site->get_verification_services_codes();
+					break;
+				case 'podcasting_archive':
+					$options[ $key ] = $site->get_podcasting_archive();
+					break;
+				case 'is_domain_only':
+					$options[ $key ] = $site->is_domain_only();
 					break;
 			}
 		}
@@ -480,7 +492,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$token_details = (object) $this->api->token_details;
-		if ( is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) || 'blog' === $token_details->access ) {
+
+		if ( is_user_member_of_blog( get_current_user_id(), $response->ID ) || 'blog' === $token_details->access ) {
 			$wpcom_member_response = $this->render_response_keys( self::$jetpack_response_field_member_additions );
 
 			foreach( $wpcom_member_response as $key => $value ) {

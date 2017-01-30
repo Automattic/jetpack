@@ -10,15 +10,17 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_End
 
 		$args = $this->query_args();
 
+		$site = $this->get_platform()->get_site( $blog_id );
+
 		if ( false !== strpos( $path, '/posts/slug:' ) ) {
-			$post_id = $this->get_platform()->get_site( $blog_id )->get_post_id_by_name( $post_id );
+			$post_id = $site->get_post_id_by_name( $post_id );
 			if ( is_wp_error( $post_id ) ) {
 				return $post_id;
 			}
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM &&
-				! in_array( get_post_type( $post_id ), array( false, 'post', 'page', 'revision' ) ) ) {
+				! in_array( get_post_type( $post_id ), array( false, 'post', 'revision' ) ) ) {
 			$this->load_theme_functions();
 		}
 
@@ -28,7 +30,7 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_End
 			return $return;
 		}
 
-		if ( ! $this->current_user_can_access_post_type( $return['type'], $args['context'] ) ) {
+		if ( ! $site->current_user_can_access_post_type( $return['type'], $args['context'] ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
