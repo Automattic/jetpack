@@ -267,7 +267,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Back-end widget form.
+	 * Back end widget form.
 	 *
 	 * @see WP_Widget::form()
 	 *

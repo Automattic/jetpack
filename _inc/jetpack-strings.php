@@ -131,7 +131,7 @@ __( "Site Verification Tools are active. Ensure your site is verified with Googl
 __( "Site Verification Tools", "jetpack" ), // _inc/client/at-a-glance/site-verification.jsx:21
 __( "Need help? A Happiness Engineer can answer questions about your site, your account or how to do about anything.", "jetpack" ), // _inc/client/plans/plan-body.jsx:120
 __( "Enjoy priority support", "jetpack" ), // _inc/client/plans/plan-body.jsx:119
-__( "Bulletproof spam filtering protects your brand, your readers, and improves SEO. Brute force login protection helps maintain peace of mind and keeps your backend safe from intruders.", "jetpack" ), // _inc/client/plans/plan-body.jsx:115
+__( "Bulletproof spam filtering protects your brand, your readers, and improves SEO. Brute force login protection helps maintain peace of mind and keeps your back end safe from intruders.", "jetpack" ), // _inc/client/plans/plan-body.jsx:115
 __( "Lock out the bad guys", "jetpack" ), // _inc/client/plans/plan-body.jsx:114
 __( "Realtime backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense and brute-force login protection - all in one place and optimized for WordPress.", "jetpack" ), // _inc/client/plans/plan-body.jsx:111
 __( "Maximum grade security", "jetpack" ), // _inc/client/plans/plan-body.jsx:110
