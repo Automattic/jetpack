@@ -715,7 +715,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$items = $queue->peek( 100 );
 
 				if ( empty( $items ) ) {
-					/* translators: %s is the ame of the queue, either 'incremental' or 'full' */
+					/* translators: %s is the name of the queue, either 'incremental' or 'full' */
 					WP_CLI::log( sprintf( __( 'Nothing is in the queue: %s', 'jetpack' ), $queue_name  ) );
 				} else {
 					$collection = array();
