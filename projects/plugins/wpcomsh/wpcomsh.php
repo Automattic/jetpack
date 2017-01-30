@@ -11,7 +11,6 @@ define( 'WPCOMSH__PLUGIN_FILE', __FILE__ );
 
 
 require_once( 'constants.php' );
-require_once( 'functions.php' );
 require_once( 'footer-credit/footer-credit.php' );
 
 function wpcomsh_register_plugins_action_links() {
@@ -68,6 +67,7 @@ add_action( 'init', 'wpcomsh_register_theme_hooks' );
  * @return array Primitive caps.
  */
 function wpcomsh_map_caps( $required_caps, $cap ) {
+	require_once( 'functions.php' );
 
 	switch ( $cap ) {
 		case 'edit_themes':
@@ -85,6 +85,8 @@ function wpcomsh_map_caps( $required_caps, $cap ) {
 add_action( 'map_meta_cap', 'wpcomsh_map_caps', 10, 2 );
 
 function wpcomsh_remove_theme_delete_button( $prepared_themes ) {
+	require_once( 'functions.php' );
+
 	foreach ( $prepared_themes as $theme_slug => $theme_data ) {
 		if ( wpcomsh_is_maybe_wpcom_theme( $theme_slug ) ) {
 			$prepared_themes[ $theme_slug ]['actions']['delete'] = '';
@@ -97,6 +99,8 @@ add_filter( 'wp_prepare_themes_for_js', 'wpcomsh_remove_theme_delete_button' );
 
 
 function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) {
+	require_once( 'functions.php' );
+
 	$theme_type = wpcomsh_get_wpcom_theme_type( $theme_slug );
 
 	// If we are dealing with a non WPCom theme, don't interfere.
@@ -143,6 +147,8 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) {
 }
 
 function wpcomsh_jetpack_wpcom_theme_delete( $result, $theme_slug ) {
+	require_once( 'functions.php' );
+
 	if (
 		! wpcomsh_is_wpcom_theme( $theme_slug ) ||
 		! wpcomsh_is_theme_symlinked( $theme_slug )
