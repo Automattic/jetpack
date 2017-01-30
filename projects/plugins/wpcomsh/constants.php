@@ -20,11 +20,6 @@ if (
 	// This won't work. Just a fallback so functions in this plugin return false instead of warning/error.
 	define( 'WPCOMSH_PUB_THEMES_PATH', $current_dir );
 	define( 'WPCOMSH_PREMIUM_THEMES_PATH', $current_dir );
-
-	error_log(
-		'WPComSH: define WPCOMSH_PUB_THEMES_PATH and WPCOMSH_PREMIUM_THEMES_PATH ' .
-		'so they point to the correct WPCom themes paths.'
-	);
 }
 
 define( 'WPCOMSH_PUB_THEME_TYPE', 'wpcom_pub_theme_type' );
