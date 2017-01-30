@@ -146,7 +146,7 @@ class Jetpack_Sync_Functions {
 
 	public static function home_url() {
 		if (
-			Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) &&
+			! Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) ||
 			Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
 			$home_url = self::get_raw_url( 'home' );
@@ -168,7 +168,7 @@ class Jetpack_Sync_Functions {
 
 	public static function site_url() {
 		if (
-			Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) &&
+			! Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) ||
 			Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
 			$site_url =  self::get_raw_url( 'siteurl' );

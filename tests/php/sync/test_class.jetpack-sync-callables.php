@@ -204,9 +204,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_replica_storage->reset();
 
-		// We set the filters here to simulate how setting the WP_HOME and WP_SITEURL constant works.
-		add_filter( 'option_home',    array( $this, 'return_https_site_com_blog' ) );
-		add_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
+		update_option( 'home', $this->return_https_site_com_blog() );
+		update_option( 'siteurl', $this->return_https_site_com_blog() );
 
 		/**
 		 * Used to signal that the callables await transient should be cleared. Clearing the await transient is useful
@@ -228,8 +227,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Cleanup
 		unset( $_SERVER['HTTPS'] );
-		remove_filter( 'option_home',    array( $this, 'return_https_site_com_blog' ) );
-		remove_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
+
+		update_option( 'home', $original_home_option );
+		update_option( 'siteurl', $original_siteurl_option );
 	}
 
 	function test_home_site_urls_synced_while_migrate_for_idc_set() {
@@ -268,25 +268,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $main_network, $this->server_replica_storage->get_callable( 'main_network_site' ) );
 
 		Jetpack_Options::delete_option( 'migrate_for_idc' );
-	}
-
-	function test_scheme_switching_does_not_cause_sync() {
-		$this->setSyncClientDefaults();
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
-		$_SERVER['HTTPS'] = 'off';
-		$home_url         = home_url();
-		$this->sender->do_sync();
-
-		$this->assertEquals( $home_url, $this->server_replica_storage->get_callable( 'home_url' ) );
-
-		// this sets is_ssl() to return true.
-		$_SERVER['HTTPS'] = 'on';
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		$this->sender->do_sync();
-
-		unset( $_SERVER['HTTPS'] );
-		$this->assertEquals( $home_url, $this->server_replica_storage->get_callable( 'home_url' ) );
 	}
 
 	function return_example_com() {
@@ -553,17 +534,17 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_SERVER['HTTPS'] );
 	}
 
-	function test_urls_are_raw_with_use_raw_url_constant() {
+	function test_user_can_stop_raw_urls() {
 		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
 
 		// Test with constant first
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
 		$this->assertTrue( 'http://filteredurl.com' !== Jetpack_Sync_Functions::home_url() );
-		Jetpack_Constants::clear_constants();
 
 		// Now, without, which should return the filtered URL
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', false );
 		$this->assertEquals( $this->__return_filtered_url(), Jetpack_Sync_Functions::home_url() );
+		Jetpack_Constants::clear_constants();
 
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
