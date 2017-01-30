@@ -292,6 +292,7 @@ class Jetpack_SSO_Helpers {
 		 */
 		$allowed_actions_for_sso = (array) apply_filters( 'jetpack_sso_allowed_actions', array(
 			'login',
+			'jetpack-sso',
 			'jetpack_json_api_authorization',
 		) );
 		return in_array( $action, $allowed_actions_for_sso );

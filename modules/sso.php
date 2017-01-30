@@ -367,7 +367,24 @@ class Jetpack_SSO {
 			add_filter( 'jetpack_remove_login_form', '__return_true' );
 		}
 
-		if ( $this->wants_to_login() ) {
+		 if ( 'jetpack-sso' === $action ) {
+			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
+				$this->handle_login();
+				$this->display_sso_login_form();
+			} else {
+				if ( Jetpack::is_staging_site() ) {
+					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
+				} else {
+					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
+					add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
+					$reauth = ! empty( $_GET['force_reauth'] );
+					$sso_url = $this->get_sso_url_or_die( $reauth );
+					JetpackTracking::record_user_event( 'sso_login_redirect_success' );
+					wp_safe_redirect( $sso_url );
+					exit;
+				}
+			}
+		} else if ( $this->wants_to_login() ) {
 
 			// Save cookies so we can handle redirects after SSO
 			$this->save_cookies();
@@ -386,24 +403,6 @@ class Jetpack_SSO {
 			}
 
 			$this->display_sso_login_form();
-
-		} elseif ( 'jetpack-sso' === $action ) {
-			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
-				$this->handle_login();
-				$this->display_sso_login_form();
-			} else {
-				if ( Jetpack::is_staging_site() ) {
-					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
-				} else {
-					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
-					add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
-					$reauth = ! empty( $_GET['force_reauth'] );
-					$sso_url = $this->get_sso_url_or_die( $reauth );
-					JetpackTracking::record_user_event( 'sso_login_redirect_success' );
-					wp_safe_redirect( $sso_url );
-					exit;
-				}
-			}
 		}
 	}
 
