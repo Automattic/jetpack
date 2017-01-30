@@ -340,10 +340,21 @@ class Jetpack_SSO_Helpers {
 			return false;
 		}
 
+		$args = array();
+		wp_parse_str( $parsed_url['query'], $args );
+
+		if ( empty( $args ) || empty( $args['action'] ) ) {
+			return false;
+		}
+
+		if ( 'jetpack_json_api_authorization' !== $args['action'] ) {
+			return false;
+		}
+
 		self::$stashed_get_params = $_GET;
 		self::$stashed_post_params = $_POST;
 
-		wp_parse_str( $parsed_url['query'], $_GET );
+		$_GET = $args;
 		$_POST['jetpack_json_api_original_query'] = $original_request;
 
 		return true;

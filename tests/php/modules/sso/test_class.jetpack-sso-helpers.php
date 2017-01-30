@@ -242,6 +242,50 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertFalse( Jetpack_SSO_Helpers::is_sso_for_json_api_auth( 'http://website.com/wordpress/wp-login.php' ) );
 	}
 
+	function test_set_superglobal_values_for_json_api_auth_false() {
+		$this->assertFalse( Jetpack_SSO_Helpers::set_superglobal_values_for_json_api_auth( 'http://website.com/wordpress/wp-login.php?action=loggedout' ) );
+		$this->assertFalse( Jetpack_SSO_Helpers::set_superglobal_values_for_json_api_auth( 'http://website.com' ) );
+		$this->assertFalse( Jetpack_SSO_Helpers::set_superglobal_values_for_json_api_auth( '' ) );
+	}
+
+	function test_set_superglobal_values_for_json_api_auth_stashes_superglobals() {
+		Jetpack_SSO_Helpers::$stashed_get_params = Jetpack_SSO_Helpers::$stashed_post_params = array();
+
+		$_POST = $_GET = array(
+			'foo' => 'bar'
+		);
+
+		$this->assertTrue( Jetpack_SSO_Helpers::set_superglobal_values_for_json_api_auth(
+			'http://website.com/wordpress/wp-login.php?action=jetpack_json_api_authorization&token=my-special-token'
+		) );
+
+		$this->assertSame( array( 'foo' => 'bar' ), Jetpack_SSO_Helpers::$stashed_get_params );
+		$this->assertSame( array( 'foo' => 'bar' ), Jetpack_SSO_Helpers::$stashed_post_params );
+
+		$this->assertTrue( isset( $_GET['token'] ) );
+		$this->assertTrue( isset( $_GET['action'] ) );
+
+		$this->assertSame( $_GET['token'], 'my-special-token' );
+		$this->assertSame( $_GET['action'], 'jetpack_json_api_authorization' );
+	}
+
+	function test_reset_superglobal_values_after_json_api_auth() {
+		Jetpack_SSO_Helpers::$stashed_get_params = Jetpack_SSO_Helpers::$stashed_post_params = array(
+			'foo' => 'bar'
+		);
+
+		$_GET = array(
+			'action' => 'jetpack_json_api_authorization',
+			'token'  => 'my-special-token'
+		);
+		$_POST = array();
+
+		Jetpack_SSO_Helpers::reset_superglobal_values_after_json_api_auth();
+
+		$this->assertSame( array( 'foo' => 'bar' ), $_GET );
+		$this->assertSame( array( 'foo' => 'bar' ), $_POST );
+	}
+
 	function __return_string_value() {
 		return '1';
 	}
