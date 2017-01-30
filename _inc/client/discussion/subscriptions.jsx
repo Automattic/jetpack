@@ -4,6 +4,7 @@
 import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
+import FormToggle from 'components/form/form-toggle';
 
 /**
  * Internal dependencies
@@ -12,12 +13,37 @@ import { FormFieldset } from 'components/forms';
 import ExternalLink from 'components/external-link';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export const Subscriptions = moduleSettingsForm(
 	React.createClass( {
+
+		/**
+		 * Get options for initial state.
+		 *
+		 * @returns {{stb_enabled: *, stc_enabled: *}}
+		 */
+		getInitialState() {
+			return {
+				stb_enabled: this.props.getOptionValue( 'stb_enabled', 'subscriptions' ),
+				stc_enabled: this.props.getOptionValue( 'stc_enabled', 'subscriptions' )
+			};
+		},
+
+		/**
+		 * Update state so toggles are updated.
+		 *
+		 * @param {string} optionName
+		 */
+		updateOptions( optionName ) {
+			this.setState(
+				{
+					[ optionName ]: ! this.state[ optionName ]
+				},
+				this.props.updateFormStateModuleOption( 'subscriptions', optionName )
+			);
+		},
 
 		render() {
 			let subscriptions = this.props.getModule( 'subscriptions' ),
@@ -26,6 +52,7 @@ export const Subscriptions = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
+					hideButton
 					module="subscriptions">
 					<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
 						<ModuleToggle slug="subscriptions"
@@ -43,18 +70,30 @@ export const Subscriptions = moduleSettingsForm(
 						{
 							isSubscriptionsActive && (
 								<FormFieldset>
-									<ModuleSettingCheckbox
-										name={ 'stb_enabled' }
-										{ ...this.props }
-										disabled={ unavailableInDevMode }
-										label={ __( 'Show a "follow blog" option in the comment form' ) } />
-									<ModuleSettingCheckbox
-										name={ 'stc_enabled' }
-										{ ...this.props }
-										disabled={ unavailableInDevMode }
-										label={ __( 'Show a "follow comments" option in the comment form.' ) } />
+									<FormToggle
+										compact
+										checked={ this.state.stb_enabled }
+										disabled={ unavailableInDevMode || this.props.isSavingAnyOption() }
+										onChange={ e => this.updateOptions( 'stb_enabled' ) }>
+										<span className="jp-form-toggle-explanation">
+											{
+												__( 'Show a "follow blog" option in the comment form' )
+											}
+										</span>
+									</FormToggle>
+									<FormToggle
+										compact
+										checked={ this.state.stc_enabled }
+										disabled={ unavailableInDevMode || this.props.isSavingAnyOption() }
+										onChange={ e => this.updateOptions( 'stc_enabled' ) }>
+										<span className="jp-form-toggle-explanation">
+											{
+												__( 'Show a "follow comments" option in the comment form.' )
+											}
+										</span>
+									</FormToggle>
 									{
-										unavailableInDevMode && (
+										! unavailableInDevMode && (
 											<p>
 												<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
 											</p>

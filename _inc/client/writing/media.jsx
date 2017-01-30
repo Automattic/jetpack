@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
+import FormToggle from 'components/form/form-toggle';
 
 /**
  * Internal dependencies
@@ -16,12 +16,36 @@ import {
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export const Media = moduleSettingsForm(
 	React.createClass( {
+
+		/**
+		 * Get options for initial state.
+		 *
+		 * @returns {{carousel_display_exif: Boolean}}
+		 */
+		getInitialState() {
+			return {
+				carousel_display_exif: this.props.getOptionValue( 'carousel_display_exif', 'carousel' )
+			};
+		},
+
+		/**
+		 * Update state so toggles are updated.
+		 *
+		 * @param {string} optionName
+		 */
+		updateOptions( optionName ) {
+			this.setState(
+				{
+					[ optionName ]: ! this.state[ optionName ]
+				},
+				this.props.updateFormStateModuleOption( 'carousel', optionName )
+			);
+		},
 
 		toggleModule( name, value ) {
 			if ( 'photon' === name ) {
@@ -80,10 +104,17 @@ export const Media = moduleSettingsForm(
 						{
 							isCarouselActive && (
 								<FormFieldset>
-									<ModuleSettingCheckbox
-										name={ 'carousel_display_exif' }
-										{ ...this.props }
-										label={ __( 'Show photo metadata (Exif) in carousel, when available' ) } />
+									<FormToggle
+										compact
+										checked={ this.state.carousel_display_exif }
+										disabled={ this.props.isSavingAnyOption() }
+										onChange={ e => this.updateOptions( 'carousel_display_exif' ) }>
+										<span className="jp-form-toggle-explanation">
+											{
+												__( 'Show photo metadata (Exif) in carousel, when available' )
+											}
+										</span>
+									</FormToggle>
 									<FormLabel>
 										<FormLegend className="jp-form-label-wide">{ __( 'Background color' ) }</FormLegend>
 										<FormSelect
