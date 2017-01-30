@@ -358,15 +358,6 @@ class Jetpack_SSO {
 			}
 		}
 
-		/**
-		 * If the user is attempting to logout AND the auto-forward to WordPress.com
-		 * login is set then we need to ensure we do not auto-forward the user and get
-		 * them stuck in an infinite logout loop.
-		 */
-		if ( isset( $_GET['loggedout'] ) && Jetpack_SSO_Helpers::bypass_login_forward_wpcom() ) {
-			add_filter( 'jetpack_remove_login_form', '__return_true' );
-		}
-
 		 if ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
