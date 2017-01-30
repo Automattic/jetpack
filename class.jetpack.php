@@ -4840,22 +4840,23 @@ p {
 		}
 
 		if (
-			false === $verified ||
-			! isset( $verified['type'] ) ||
-			'user' !== $verified['type'] ||
-			empty( $verified['user_id'] )
+			$verified &&
+			isset( $verified['type'] ) &&
+			'user' === $verified['type'] &&
+			! empty( $verified['user_id'] )
 		) {
-			$this->rest_authentication_status = new WP_Error(
-				'rest_invalid_signature',
-				__( 'The request is not signed correctly.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return null;
+			// Authentication successful.
+			$this->rest_authentication_status = true;
+			return $verified['user_id'];
 		}
 
-		// Authentication successful.
-		$this->rest_authentication_status = true;
-		return $verified['user_id'];
+		// Something else went wrong.  Probably a signature error.
+		$this->rest_authentication_status = new WP_Error(
+			'rest_invalid_signature',
+			__( 'The request is not signed correctly.', 'jetpack' ),
+			array( 'status' => 400 )
+		);
+		return null;
 	}
 
 	/**
