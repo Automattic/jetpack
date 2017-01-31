@@ -9,18 +9,6 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
  */
 class Jetpack_SSO_Helpers {
 	/**
-	 * An array used to store the contents of $_GET before overriding $_GET.
-	 * @var array
-	 */
-	static $stashed_get_params = array();
-
-	/**
-	 * An array used to store the content of $_POST before overriding $_POST.
-	 * @var array
-	 */
-	static $stashed_post_params = array();
-
-	/**
 	 * Determine if the login form should be hidden or not
 	 *
 	 * @return bool
@@ -276,6 +264,8 @@ class Jetpack_SSO_Helpers {
 	/**
 	 * Determines if the SSO form should be displayed for the current action.
 	 *
+	 * @since 4.6.0
+	 *
 	 * @param string $action
 	 *
 	 * @return bool  Is SSO allowed for the current action?
@@ -299,15 +289,19 @@ class Jetpack_SSO_Helpers {
 	}
 
 	/**
-	 * Given a URL that is the original request which kicked off the SSO flow, this function returns whether
-	 * the request was for Jetpack JSON API authorization by checking the value of `$action`.
+	 * This method returns an environment array that is meant to simulate `$_REQUEST` when the initial
+	 * JSON API auth request was made.
 	 *
-	 * @param string $original_request
+	 * @since 4.6.0
 	 *
-	 * @return bool Was the original request for JSON API authorization?
+	 * @return array|bool
 	 */
-	static function is_sso_for_json_api_auth( $original_request ) {
-		$original_request = esc_url_raw( $original_request );
+	static function get_json_api_auth_environment() {
+		if ( empty( $_COOKIE['jetpack_sso_original_request'] ) ) {
+			return false;
+		}
+
+		$original_request = esc_url_raw( $_COOKIE['jetpack_sso_original_request'] );
 
 		$parsed_url = wp_parse_url( $original_request );
 		if ( empty( $parsed_url ) || empty( $parsed_url['query'] ) ) {
@@ -321,53 +315,14 @@ class Jetpack_SSO_Helpers {
 			return false;
 		}
 
-		return 'jetpack_json_api_authorization' === $args['action'];
-	}
-
-	/**
-	 * Given a URL that is the original request which kicked off the SSO flow, this function stores the contents of
-	 * $_GET and $_POST into static variables of this class and then updates $_GET and $_POST to match the original
-	 * request. This is done so that we can verify the JSON API authorization request.
-	 *
-	 * @param string $original_request
-	 *
-	 * @return bool Were the superglobal values updated to mathch the original request?
-	 */
-	static function set_superglobal_values_for_json_api_auth( $original_request ) {
-		$original_request = esc_url_raw( $original_request );
-
-		$parsed_url = wp_parse_url( $original_request );
-		if ( empty( $parsed_url ) || empty( $parsed_url['query'] ) ) {
+		if ( 'jetpack_json_api_authorization' != $args['action'] ) {
 			return false;
 		}
 
-		$args = array();
-		wp_parse_str( $parsed_url['query'], $args );
-
-		if ( empty( $args ) || empty( $args['action'] ) ) {
-			return false;
-		}
-
-		if ( 'jetpack_json_api_authorization' !== $args['action'] ) {
-			return false;
-		}
-
-		self::$stashed_get_params = $_GET;
-		self::$stashed_post_params = $_POST;
-
-		$_GET = $args;
-		$_POST['jetpack_json_api_original_query'] = $original_request;
-
-		return true;
-	}
-
-	/**
-	 * This function is meant to be run after calling self::set_superglobal_values_for_json_api_auth( $original_request)
-	 * and resets the superglobals back to their original values.
-	 */
-	static function reset_superglobal_values_after_json_api_auth() {
-		$_POST = self::$stashed_post_params;
-		$_GET = self::$stashed_get_params;
+		return array_merge(
+			$args,
+			array( 'jetpack_json_api_original_query' => $original_request )
+		);
 	}
 }
 

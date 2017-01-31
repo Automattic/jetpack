@@ -731,11 +731,9 @@ class Jetpack_SSO {
 				setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 			}
 
-			$original_request = ! empty( $_COOKIE['jetpack_sso_original_request'] )
-				? esc_url_raw( $_COOKIE['jetpack_sso_original_request'] )
-				: false;
+			$json_api_auth_environment = Jetpack_SSO_Helpers::get_json_api_auth_environment();
 
-			$is_json_api_auth = Jetpack_SSO_Helpers::is_sso_for_json_api_auth( $original_request );
+			$is_json_api_auth = ! empty( $json_api_auth_environment );
 			$is_user_connected = Jetpack::is_user_connected( $user->ID );
 			JetpackTracking::record_user_event( 'sso_user_logged_in', array(
 				'user_found_with'  => $user_found_with,
@@ -746,10 +744,7 @@ class Jetpack_SSO {
 
 			if ( $is_json_api_auth ) {
 				add_filter( 'login_redirect', array( Jetpack::init(), 'add_token_to_login_redirect_json_api_authorization' ), 10, 3 );
-
-				Jetpack_SSO_Helpers::set_superglobal_values_for_json_api_auth( $original_request );
-				Jetpack::init()->verify_json_api_authorization_request();
-				Jetpack_SSO_Helpers::reset_superglobal_values_after_json_api_auth();
+				Jetpack::init()->verify_json_api_authorization_request( $json_api_auth_environment );
 			} else if ( ! $is_user_connected ) {
 				$calypso_env = ! empty( $_GET['calypso_env'] )
 					? sanitize_key( $_GET['calypso_env'] )

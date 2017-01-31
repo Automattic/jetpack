@@ -236,54 +236,33 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		add_filter( 'jetpack_sso_allowed_actions', array( $this, 'allow_hello_world_login_action_for_sso' ) );
 	}
 
-	function test_is_sso_for_json_api_auth() {
-		$this->assertTrue( Jetpack_SSO_Helpers::is_sso_for_json_api_auth( 'http://website.com/wordpress/wp-login.php?action=jetpack_json_api_authorization' ) );
-		$this->assertFalse( Jetpack_SSO_Helpers::is_sso_for_json_api_auth( 'http://website.com/wordpress/wp-login.php?action=loggedout' ) );
-		$this->assertFalse( Jetpack_SSO_Helpers::is_sso_for_json_api_auth( 'http://website.com/wordpress/wp-login.php' ) );
-	}
+	function test_get_json_api_auth_environment() {
+		// With no cookie returns false
+		$_COOKIE['jetpack_sso_original_request'] = '';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
 
-	function test_set_superglobal_values_for_json_api_auth_false() {
-		$this->assertFalse( Jetpack_SSO_Helpers::set_superglobal_values_for_json_api_auth( 'http://website.com/wordpress/wp-login.php?action=loggedout' ) );
-		$this->assertFalse( Jetpack_SSO_Helpers::set_superglobal_values_for_json_api_auth( 'http://website.com' ) );
-		$this->assertFalse( Jetpack_SSO_Helpers::set_superglobal_values_for_json_api_auth( '' ) );
-	}
+		// With empty query, returns false
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
 
-	function test_set_superglobal_values_for_json_api_auth_stashes_superglobals() {
-		Jetpack_SSO_Helpers::$stashed_get_params = Jetpack_SSO_Helpers::$stashed_post_params = array();
+		// With empty no action query argument, returns false
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?hello=world';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
 
-		$_POST = $_GET = array(
-			'foo' => 'bar'
-		);
+		// When action is not for JSON API auth, return false
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?action=loggedout';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
 
-		$this->assertTrue( Jetpack_SSO_Helpers::set_superglobal_values_for_json_api_auth(
-			'http://website.com/wordpress/wp-login.php?action=jetpack_json_api_authorization&token=my-special-token'
-		) );
-
-		$this->assertSame( array( 'foo' => 'bar' ), Jetpack_SSO_Helpers::$stashed_get_params );
-		$this->assertSame( array( 'foo' => 'bar' ), Jetpack_SSO_Helpers::$stashed_post_params );
-
-		$this->assertTrue( isset( $_GET['token'] ) );
-		$this->assertTrue( isset( $_GET['action'] ) );
-
-		$this->assertSame( $_GET['token'], 'my-special-token' );
-		$this->assertSame( $_GET['action'], 'jetpack_json_api_authorization' );
-	}
-
-	function test_reset_superglobal_values_after_json_api_auth() {
-		Jetpack_SSO_Helpers::$stashed_get_params = Jetpack_SSO_Helpers::$stashed_post_params = array(
-			'foo' => 'bar'
-		);
-
-		$_GET = array(
+		// If we pass the other tests, then let's make sure we get the right information back
+		$original_request = 'http://website.com/wp-login.php?action=jetpack_json_api_authorization&token=my-token';
+		$_COOKIE['jetpack_sso_original_request'] = $original_request;
+		$environment = Jetpack_SSO_Helpers::get_json_api_auth_environment();
+		$this->assertInternalType( 'array', $environment );
+		$this->assertSame( $environment, array(
 			'action' => 'jetpack_json_api_authorization',
-			'token'  => 'my-special-token'
-		);
-		$_POST = array();
-
-		Jetpack_SSO_Helpers::reset_superglobal_values_after_json_api_auth();
-
-		$this->assertSame( array( 'foo' => 'bar' ), $_GET );
-		$this->assertSame( array( 'foo' => 'bar' ), $_POST );
+			'token'  => 'my-token',
+			'jetpack_json_api_original_query' => $original_request,
+		) );
 	}
 
 	function __return_string_value() {
