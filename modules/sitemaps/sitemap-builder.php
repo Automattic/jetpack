@@ -11,6 +11,7 @@ require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
 require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
 require_once dirname( __FILE__ ) . '/sitemap-finder.php';
 require_once dirname( __FILE__ ) . '/sitemap-tree.php';
+require_once dirname( __FILE__ ) . '/sitemap-state.php';
 
 if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 	require_once dirname( __FILE__ ) . '/sitemap-logger.php';
@@ -88,6 +89,45 @@ class Jetpack_Sitemap_Builder {
 		);
 
 		return;
+	}
+
+	public function build_next_sitemap() {
+		$state = Jetpack_Sitemap_State::check_out();
+
+		// Quit if the state is locked.
+		if ( false === $state ) {
+			return;
+		}
+
+		// Page Sitemap
+		if ( 'page-sitemap' === $state['sitemap-type'] ) {
+			$result = $this->build_one_page_sitemap(
+				$state['number'],
+				$state['last-added']
+			);
+
+			if ( true === $result['any_left'] ) {
+				Jetpack_Sitemap_State::check_in( array(
+					'sitemap-type'  => 'page-sitemap',
+					'last-added'    => $result['last_id'],
+					'number'        => $state['number'] + 1,
+          'last-modified' => $result['last_modified'],
+				) );
+				return;
+			} else {
+				Jetpack_Sitemap_State::check_in( array(
+					'sitemap-type'  => 'page-sitemap-index',
+					'last-added'    => 0,
+					'number'        => 1,
+					'last-modified' => '1970-01-01 00:00:00',
+				) );
+				return;
+			}
+		} else {
+			Jetpack_Sitemap_State::check_in(
+				Jetpack_Sitemap_State::initial()
+			);
+		}
 	}
 
 	/**

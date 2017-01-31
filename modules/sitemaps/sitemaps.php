@@ -51,7 +51,7 @@ class Jetpack_Sitemap_Manager {
 	 * @since 4.6.0
 	 * @var int SITEMAP_INTERVAL Number of seconds between sitemap generations.
 	 */
-	const SITEMAP_INTERVAL = 60;
+	const SITEMAP_INTERVAL = 10;
 
 	/**
 	 * @see Jetpack_Sitemap_Librarian
@@ -362,7 +362,7 @@ class Jetpack_Sitemap_Manager {
 
 		add_action(
 			'jp_sitemap_cron_hook',
-			array( $sitemap_builder, 'build_all_sitemaps' )
+			array( $sitemap_builder, 'build_next_sitemap' )
 		);
 
 		if ( ! wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {

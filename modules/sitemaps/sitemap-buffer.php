@@ -42,7 +42,7 @@ class Jetpack_Sitemap_Buffer {
 	 * @link http://www.sitemaps.org/
 	 * @since 4.6.0
 	 */
-	const SITEMAP_MAX_ITEMS = 50000;
+	const SITEMAP_MAX_ITEMS = 20; // 50000;
 
 	/**
 	 * Maximum size (in url nodes) of a news sitemap xml file.
