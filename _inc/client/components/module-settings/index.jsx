@@ -405,7 +405,7 @@ export let InfiniteScrollSettings = React.createClass( {
 					<ModuleSettingCheckbox
 						name={ 'infinite_scroll_google_analytics' }
 						{ ...this.props }
-						label={ __( 'Track each infinite Scroll post load as a page view in Google Analytics' ) } />
+						label={ __( 'Track each scroll load (7 posts by default) as a page view in Google Analytics' ) } />
 					<FormButton
 						className="is-primary"
 						isSubmitting={ this.props.isSavingAnyOption() }
