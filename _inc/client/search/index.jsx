@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
 import { ModuleToggle } from 'components/module-toggle';
 import forEach from 'lodash/forEach';
+import includes from 'lodash/includes';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import Collection from 'components/search/search-collection.jsx';
@@ -105,16 +106,14 @@ export const SearchResults = ( {
 	}
 
 	cards = moduleList.map( ( element ) => {
-		let isPro = 'scan' === element[0]
-				 || 'akismet' === element[0]
-				 || 'backups' === element[0]
-				 || 'seo-tools' === element[0],
-			proProps = {},
+		const isPro = includes( [ 'scan', 'akismet', 'backups', 'seo-tools', 'google-analytics' ], element[0] );
+		let proProps = {},
+			isModuleActive = isModuleActivated( element[0] ),
 			unavailableDevMode = unavailableInDevMode( element[0] ),
 			toggle = unavailableDevMode ? __( 'Unavailable in Dev Mode' ) : (
 				<ModuleToggle
 					slug={ element[0] }
-					activated={ isModuleActivated( element[0] ) }
+					activated={ isModuleActive }
 					toggling={ isTogglingModule( element[0] ) }
 					toggleModule={ toggleModule }
 				/>
@@ -122,7 +121,7 @@ export const SearchResults = ( {
 			customClasses = unavailableDevMode ? 'devmode-disabled' : '',
 			wordAdsSubHeader = element[2];
 
-		if ( 'wordads' === element[0] && ! isModuleActivated( element[0] ) ) {
+		if ( 'wordads' === element[0] && ! isModuleActive ) {
 			wordAdsSubHeader = <WordAdsSubHeaderTos subheader={ element[2] } />
 		}
 
@@ -132,13 +131,17 @@ export const SearchResults = ( {
 				configure_url: ''
 			};
 
-			if (
+			if ( (
 				'videopress' !== element[0]
 				||
 				'seo-tools' !== element[0]
 				|| (
 					'seo-tools' === element[0]
 					&& ! hasBusiness
+				) )
+				&& (
+					'google-analytics' !== element[0]
+					|| ( 'google-analytics' === element[0] && ! hasBusiness )
 				)
 			) {
 				toggle = <ProStatus proFeature={ element[0] } siteAdminUrl={ siteAdminUrl } />;
@@ -199,7 +202,7 @@ export const SearchResults = ( {
 				) }
 			>
 				{
-					isModuleActivated( element[0] ) || isPro ?
+					isModuleActive || isPro ?
 						<AllModuleSettings module={ isPro ? proProps : getModule( element[0] ) } /> :
 						// Render the long_description if module is deactivated
 						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
