@@ -120,7 +120,7 @@ export const SearchResults = ( {
 			customClasses = unavailableDevMode ? 'devmode-disabled' : '',
 			wordAdsSubHeader = element[2];
 
-		if ( 'wordads' === element[0] && ! isModuleActivated( element[0] ) ) {
+		if ( 'wordads' === element[0] && ! isModuleActive ) {
 			wordAdsSubHeader = <WordAdsSubHeaderTos subheader={ element[2] } />
 		}
 
