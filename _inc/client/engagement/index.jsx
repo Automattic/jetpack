@@ -68,6 +68,7 @@ export const Engagement = ( props ) => {
 	let cards = [
 		[ 'seo-tools', getModule( 'seo-tools' ).name, getModule( 'seo-tools' ).description, getModule( 'seo-tools' ).learn_more_button ],
 		[ 'wordads', getModule( 'wordads' ).name, getModule( 'wordads' ).description, getModule( 'wordads' ).learn_more_button ],
+		[ 'google-analytics', getModule( 'google-analytics' ).name, getModule( 'google-analytics' ).description, getModule( 'google-analytics' ).learn_more_button ],
 		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
 		[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description, getModule( 'sharedaddy' ).learn_more_button ],
 		[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
@@ -79,7 +80,6 @@ export const Engagement = ( props ) => {
 		[ 'sitemaps', getModule( 'sitemaps' ).name, sitemapsDesc, getModule( 'sitemaps' ).learn_more_button ],
 		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description, getModule( 'enhanced-distribution' ).learn_more_button ],
 		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
-		[ 'google-analytics', getModule( 'google-analytics' ).name, getModule( 'google-analytics' ).description, getModule( 'google-analytics' ).learn_more_button ],
 	],
 		nonAdminAvailable = [ 'publicize' ];
 	// Put modules available to non-admin user at the top of the list.
