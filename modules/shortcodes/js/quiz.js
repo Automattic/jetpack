@@ -20,16 +20,16 @@
 })(jQuery);
 
 jQuery( function( $ ) {
-	$( '.quiz' ).each( function() {
+	$( '.jetpack-quiz' ).each( function() {
 		var quiz = $(this);
-		quiz.find( 'div.answer' ).shuffleQuiz();
+		quiz.find( 'div.jetpack-quiz-answer' ).shuffleQuiz();
 		quiz.find( 'div[data-correct]' ).removeAttr( 'data-correct' ).data( 'correct', 1 );
-		quiz.find( 'div.answer:last' ).addClass( 'last' );
+		quiz.find( 'div.jetpack-quiz-answer:last' ).addClass( 'last' );
 	});
 
-	$( 'div.quiz' ).on( 'click', 'div.answer', function() {
+	$( 'div.jetpack-quiz' ).on( 'click', 'div.jetpack-quiz-answer', function() {
 		var trackid, answer = $( this ),
-			quiz = answer.closest( 'div.quiz' );
+			quiz = answer.closest( 'div.jetpack-quiz' );
 
 		if  ( quiz.data( 'a8ctraining' ) ) {
 			new Image().src = '//pixel.wp.com/b.gif?v=wpcom-no-pv&x_trainingchaos-' + quiz.data( 'username' ) + '=' + quiz.data( 'a8ctraining' ) + '&rand=' + Math.random();
