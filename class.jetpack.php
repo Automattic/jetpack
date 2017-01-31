@@ -1246,6 +1246,7 @@ class Jetpack {
 				'videopress',
 				'akismet',
 				'vaultpress',
+				'wordads',
 			);
 		}
 
@@ -1262,6 +1263,7 @@ class Jetpack {
 				'vaultpress',
 				'seo-tools',
 				'google-analytics',
+				'wordads',
 			);
 		}
 
