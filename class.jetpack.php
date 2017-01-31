@@ -6361,6 +6361,8 @@ p {
 	 * @return string The blog's locale, e.g. 'en' or 'it'
 	 */
 	public static function get_blog_locale() {
-		return substr( get_locale(), 0, 2 );
+		// The locale shortcode may be longer than two characters. Split on the underscore to be safe.
+		$locale_slug = explode( '_', get_locale() );
+		return $locale_slug[0];
 	}
 }
