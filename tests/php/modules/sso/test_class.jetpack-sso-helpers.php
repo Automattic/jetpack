@@ -234,6 +234,8 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertFalse( Jetpack_SSO_Helpers::display_sso_form_for_action( 'hello_world' ) );
 
 		add_filter( 'jetpack_sso_allowed_actions', array( $this, 'allow_hello_world_login_action_for_sso' ) );
+		$this->assertTrue( Jetpack_SSO_Helpers::display_sso_form_for_action( 'hello_world' ) );
+		remove_filter( 'jetpack_sso_allowed_actions', array( $this, 'allow_hello_world_login_action_for_sso' ) );
 	}
 
 	function test_get_json_api_auth_environment() {
