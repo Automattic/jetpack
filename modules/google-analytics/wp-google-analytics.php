@@ -18,17 +18,17 @@
 */
 
 /**
- * JetpackGoogleAnalytics is the class that handles ALL of the plugin functionality.
+ * Jetpack_Google_Analytics is the class that handles ALL of the plugin functionality.
  * It helps us avoid name collisions
  * http://codex.wordpress.org/Writing_a_Plugin#Avoiding_Function_Name_Collisions
  */
-class JetpackGoogleAnalytics {
+class Jetpack_Google_Analytics {
 
 	/**
-	 * @var JetpackGoogleAnalytics - Static property to hold our singleton instance
+	 * @var Jetpack_Google_Analytics - Static property to hold our singleton instance
 	 */
 	static $instance = false;
-	
+
 	/**
 	 * This is our constructor, which is private to force the use of get_instance()
 	 *
@@ -165,4 +165,4 @@ class JetpackGoogleAnalytics {
 }
 
 global $jetpack_google_analytics;
-$jetpack_google_analytics = JetpackGoogleAnalytics::get_instance();
+$jetpack_google_analytics = Jetpack_Google_Analytics::get_instance();
