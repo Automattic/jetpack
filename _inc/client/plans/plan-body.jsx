@@ -242,7 +242,7 @@ const PlanBody = React.createClass( {
 										<Button
 											onClick={ this.props.activateModule.bind( null, 'google-analytics' ) }
 											className="is-primary"
-												disabled={ this.props.isActivatingModule( 'google-analytics' ) }
+											disabled={ this.props.isActivatingModule( 'google-analytics' ) }
 										>
 											{ __( 'Activate Google Analytics' ) }
 										</Button>
