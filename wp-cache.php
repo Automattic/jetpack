@@ -1704,7 +1704,11 @@ function wp_cache_edit_max_time () {
 		} elseif ( $valid_nonce ) { // clock
 			wp_clear_scheduled_hook( 'wp_cache_gc' );
 			$cache_schedule_type = 'time';
-			if ( !isset( $_POST[ 'cache_scheduled_time' ] ) || $_POST[ 'cache_scheduled_time' ] == '' )
+			if ( !isset( $_POST[ 'cache_scheduled_time' ] ) ||
+				$_POST[ 'cache_scheduled_time' ] == '' ||
+				5 != strlen( $_POST[ 'cache_scheduled_time' ] ) ||
+				":" != substr( $_POST[ 'cache_scheduled_time' ], 2, 1 )
+			)
 				$_POST[ 'cache_scheduled_time' ] = '00:00';
 			$cache_scheduled_time = $_POST[ 'cache_scheduled_time' ];
 			$schedules = wp_get_schedules();
@@ -1753,12 +1757,12 @@ function wp_cache_edit_max_time () {
 	echo '<input name="action" value="expirytime" type="hidden" />';
 	echo '<table class="form-table">';
 	echo '<tr><td><label for="wp_max_time"><strong>' . __( 'Cache Timeout', 'wp-super-cache' ) . '</strong></label></td>';
-	echo "<td><input type='text' id='wp_max_time' size=6 name='wp_max_time' value='$cache_max_time' /> " . __( "seconds", 'wp-super-cache' ) . "</td></tr>\n";
+	echo "<td><input type='text' id='wp_max_time' size=6 name='wp_max_time' value='" . esc_attr( $cache_max_time ) . "' /> " . __( "seconds", 'wp-super-cache' ) . "</td></tr>\n";
 	echo "<tr><td></td><td>" . __( 'How long should cached pages remain fresh? Set to 0 to disable garbage collection. A good starting point is 3600 seconds.', 'wp-super-cache' ) . "</td></tr>\n";
 	echo '<tr><td valign="top"><strong>' . __( 'Scheduler', 'wp-super-cache' ) . '</strong></td><td><table cellpadding=0 cellspacing=0><tr><td valign="top"><input type="radio" id="schedule_interval" name="cache_schedule_type" value="interval" ' . checked( 'interval', $cache_schedule_type, false ) . ' /></td><td valign="top"><label for="cache_interval_time">' . __( 'Timer:', 'wp-super-cache' ) . '</label></td>';
-	echo "<td><input type='text' id='cache_interval_time' size=6 name='cache_time_interval' value='$cache_time_interval' /> " . __( "seconds", 'wp-super-cache' ) . '<br />' . __( 'Check for stale cached files every <em>interval</em> seconds.', 'wp-super-cache' ) . "</td></tr>";
+	echo "<td><input type='text' id='cache_interval_time' size=6 name='cache_time_interval' value='" . esc_attr( $cache_time_interval ) . "' /> " . __( "seconds", 'wp-super-cache' ) . '<br />' . __( 'Check for stale cached files every <em>interval</em> seconds.', 'wp-super-cache' ) . "</td></tr>";
 	echo '<tr><td valign="top"><input type="radio" id="schedule_time" name="cache_schedule_type" value="time" ' . checked( 'time', $cache_schedule_type, false ) . ' /></td><td valign="top"><label for="schedule_time">' . __( 'Clock:', 'wp-super-cache' ) . '</label></td>';
-	echo "<td><input type=\"text\" size=5 id='cache_scheduled_time' name='cache_scheduled_time' value=\"$cache_scheduled_time\" /> " . __( "HH:MM", 'wp-super-cache' ) . "<br />" . __( 'Check for stale cached files at this time <strong>(UTC)</strong> or starting at this time every <em>interval</em> below.', 'wp-super-cache' ) . "</td></tr>";
+	echo "<td><input type=\"text\" size=5 id='cache_scheduled_time' name='cache_scheduled_time' value=\"" . esc_attr( $cache_scheduled_time ) . "\" /> " . __( "HH:MM", 'wp-super-cache' ) . "<br />" . __( 'Check for stale cached files at this time <strong>(UTC)</strong> or starting at this time every <em>interval</em> below.', 'wp-super-cache' ) . "</td></tr>";
 	$schedules = wp_get_schedules();
 	echo "<tr><td><br /></td><td><label for='cache_scheduled_select'>" . __( 'Interval:', 'wp-super-cache' ) . "</label></td><td><select id='cache_scheduled_select' name='cache_schedule_interval' size=1>";
 	foreach( $schedules as $desc => $details ) {
