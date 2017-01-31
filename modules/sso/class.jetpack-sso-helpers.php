@@ -175,6 +175,7 @@ class Jetpack_SSO_Helpers {
 	 * default for $api_base due to restrictions with testing constants in our tests.
 	 *
 	 * @since 4.3.0
+	 * @since 4.6.0 Added public-api.wordpress.com as an allowed redirect
 	 *
 	 * @param array $hosts
 	 * @param string $api_base
@@ -188,6 +189,7 @@ class Jetpack_SSO_Helpers {
 
 		$hosts[] = 'wordpress.com';
 		$hosts[] = 'jetpack.wordpress.com';
+		$hosts[] = 'public-api.wordpress.com';
 
 		if (
 			( Jetpack::is_development_mode() || Jetpack::is_development_version() ) &&
@@ -257,6 +259,70 @@ class Jetpack_SSO_Helpers {
 		 * @param int YEAR_IN_SECONDS
 		 */
 		return intval( apply_filters( 'jetpack_sso_auth_cookie_expirtation', YEAR_IN_SECONDS ) );
+	}
+
+	/**
+	 * Determines if the SSO form should be displayed for the current action.
+	 *
+	 * @since 4.6.0
+	 *
+	 * @param string $action
+	 *
+	 * @return bool  Is SSO allowed for the current action?
+	 */
+	static function display_sso_form_for_action( $action ) {
+		/**
+		 * Allows plugins the ability to overwrite actions where the SSO form is allowed to be used.
+		 *
+		 * @module sso
+		 *
+		 * @since 4.6.0
+		 *
+		 * @param array $allowed_actions_for_sso
+		 */
+		$allowed_actions_for_sso = (array) apply_filters( 'jetpack_sso_allowed_actions', array(
+			'login',
+			'jetpack-sso',
+			'jetpack_json_api_authorization',
+		) );
+		return in_array( $action, $allowed_actions_for_sso );
+	}
+
+	/**
+	 * This method returns an environment array that is meant to simulate `$_REQUEST` when the initial
+	 * JSON API auth request was made.
+	 *
+	 * @since 4.6.0
+	 *
+	 * @return array|bool
+	 */
+	static function get_json_api_auth_environment() {
+		if ( empty( $_COOKIE['jetpack_sso_original_request'] ) ) {
+			return false;
+		}
+
+		$original_request = esc_url_raw( $_COOKIE['jetpack_sso_original_request'] );
+
+		$parsed_url = wp_parse_url( $original_request );
+		if ( empty( $parsed_url ) || empty( $parsed_url['query'] ) ) {
+			return false;
+		}
+
+		$args = array();
+		wp_parse_str( $parsed_url['query'], $args );
+
+		if ( empty( $args ) || empty( $args['action'] ) ) {
+			return false;
+		}
+
+		if ( 'jetpack_json_api_authorization' != $args['action'] ) {
+			return false;
+		}
+
+		return array_merge(
+			$args,
+			array( 'jetpack_json_api_original_query' => $original_request )
+		);
 	}
 }
 

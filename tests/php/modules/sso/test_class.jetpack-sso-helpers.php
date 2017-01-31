@@ -150,7 +150,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			'http://fakesite.com/jetpack.'
 		);
 		$this->assertInternalType( 'array', $hosts );
-		$this->assertCount( 3, $hosts );
+		$this->assertCount( 4, $hosts );
 		$this->assertContains( 'test.com', $hosts );
 		$this->assertContains( 'wordpress.com', $hosts );
 		$this->assertContains( 'jetpack.wordpress.com', $hosts );
@@ -165,7 +165,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			'http://fakesite.com/jetpack.'
 		);
 		$this->assertInternalType( 'array', $hosts );
-		$this->assertCount( 4, $hosts );
+		$this->assertCount( 5, $hosts );
 		$this->assertContains( 'fakesite.com', $hosts );
 		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
@@ -177,7 +177,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			'http://fakesite.com/jetpack.'
 		);
 		$this->assertInternalType( 'array', $hosts );
-		$this->assertCount( 4, $hosts );
+		$this->assertCount( 5, $hosts );
 		$this->assertContains( 'fakesite.com', $hosts );
 		remove_filter( 'jetpack_development_version', '__return_true' );
 	}
@@ -227,6 +227,46 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertGreaterThan( 2 * DAY_IN_SECONDS, Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
 	}
 
+	function test_display_sso_form_for_action() {
+		// Let's test the default cases
+		$this->assertTrue( Jetpack_SSO_Helpers::display_sso_form_for_action( 'login' ) );
+		$this->assertTrue( Jetpack_SSO_Helpers::display_sso_form_for_action( 'jetpack_json_api_authorization' ) );
+		$this->assertFalse( Jetpack_SSO_Helpers::display_sso_form_for_action( 'hello_world' ) );
+
+		add_filter( 'jetpack_sso_allowed_actions', array( $this, 'allow_hello_world_login_action_for_sso' ) );
+		$this->assertTrue( Jetpack_SSO_Helpers::display_sso_form_for_action( 'hello_world' ) );
+		remove_filter( 'jetpack_sso_allowed_actions', array( $this, 'allow_hello_world_login_action_for_sso' ) );
+	}
+
+	function test_get_json_api_auth_environment() {
+		// With no cookie returns false
+		$_COOKIE['jetpack_sso_original_request'] = '';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
+
+		// With empty query, returns false
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
+
+		// With empty no action query argument, returns false
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?hello=world';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
+
+		// When action is not for JSON API auth, return false
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?action=loggedout';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
+
+		// If we pass the other tests, then let's make sure we get the right information back
+		$original_request = 'http://website.com/wp-login.php?action=jetpack_json_api_authorization&token=my-token';
+		$_COOKIE['jetpack_sso_original_request'] = $original_request;
+		$environment = Jetpack_SSO_Helpers::get_json_api_auth_environment();
+		$this->assertInternalType( 'array', $environment );
+		$this->assertSame( $environment, array(
+			'action' => 'jetpack_json_api_authorization',
+			'token'  => 'my-token',
+			'jetpack_json_api_original_query' => $original_request,
+		) );
+	}
+
 	function __return_string_value() {
 		return '1';
 	}
@@ -237,5 +277,10 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 
 	function return_foobarbaz() {
 		return 'foobarbaz';
+	}
+
+	function allow_hello_world_login_action_for_sso( $actions ) {
+		$actions[] = 'hello_world';
+		return $actions;
 	}
 }
