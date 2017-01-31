@@ -123,6 +123,10 @@ const ProStatus = React.createClass( {
 			}
 
 			if ( 'google-analytics' === feature && ! includes( [ 'jetpack_business', 'jetpack_business_monthly' ], sitePlan.product_slug ) ) {
+				if ( this.props.fetchingSiteData ) {
+					return '';
+				}
+
 				return (
 					<Button
 						compact={ true }
