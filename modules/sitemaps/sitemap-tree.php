@@ -110,7 +110,7 @@ class Jetpack_Sitemap_Tree {
 	private $build_one;
 
 	/**
-	 * Construct a new Jetpack_Sitemap_Builder object.
+	 * Construct a new Jetpack_Sitemap_Tree object.
 	 *
 	 * @access public
 	 * @since 4.6.0
