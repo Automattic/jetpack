@@ -23,6 +23,9 @@ class WC_Services_Installer {
 		add_action( 'admin_init', array( $this, 'try_install' ) );
 	}
 
+	/**
+	 * Verify the intent to install WooCommerce Services, and kick off installation.
+	 */
 	public function try_install() {
 		if ( isset( $_GET['wc-services-action'] ) && ( 'install' === $_GET['wc-services-action'] ) ) {
 			check_admin_referer( 'wc-services-install' );
@@ -44,12 +47,18 @@ class WC_Services_Installer {
 		}
 	}
 
+	/**
+	 * Set up installation error admin notice.
+	 */
 	public function add_error_notice() {
 		if ( ! empty( $_GET['wc-services-install-error'] ) ) {
 			add_action( 'admin_notices', array( $this, 'error_notice' ) );
 		}
 	}
 
+	/**
+	 * Notify the user that the installation of WooCommerce Services failed.
+	 */
 	public function error_notice() {
 		?>
 		<div class="notice notice-error is-dismissible">
@@ -58,6 +67,11 @@ class WC_Services_Installer {
 		<?php
 	}
 
+	/**
+	 * Download, install, and activate the WooCommerce Services plugin.
+	 *
+	 * @return bool result of installation/activation
+	 */
 	private function install() {
 		include_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		include_once( ABSPATH . '/wp-admin/includes/plugin-install.php' );
