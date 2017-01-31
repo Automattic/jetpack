@@ -65,6 +65,7 @@ branches:
     - master
     - master-stable
     - /^branch-.*$/
+    - feature/settings-overhaul
 
 # Clones WordPress and configures our testing environment.
 before_script:
