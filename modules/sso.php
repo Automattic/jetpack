@@ -743,8 +743,9 @@ class Jetpack_SSO {
 			) );
 
 			if ( $is_json_api_auth ) {
-				add_filter( 'login_redirect', array( Jetpack::init(), 'add_token_to_login_redirect_json_api_authorization' ), 10, 3 );
 				Jetpack::init()->verify_json_api_authorization_request( $json_api_auth_environment );
+				Jetpack::init()->store_json_api_authorization_token( $user->user_login, $user );
+
 			} else if ( ! $is_user_connected ) {
 				$calypso_env = ! empty( $_GET['calypso_env'] )
 					? sanitize_key( $_GET['calypso_env'] )
