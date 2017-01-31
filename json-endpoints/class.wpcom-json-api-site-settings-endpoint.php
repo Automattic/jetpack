@@ -361,7 +361,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
 
-					$is_wpcom = ! $is_jetpack && defined( 'IS_WPCOM' ) && IS_WPCOM;
+					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 					$option_name = $is_wpcom ? 'wga' : 'jetpack_wga';
 
 					$wga = get_option( $option_name, array() );
