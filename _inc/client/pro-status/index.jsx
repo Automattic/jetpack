@@ -127,7 +127,7 @@ const ProStatus = React.createClass( {
 					<Button
 						compact={ true }
 						primary={ true }
-						href={ 'https://jetpack.com/redirect/?source=upgrade-google-analytics' + this.props.siteRawUrl + '?feature=google-analytics' }
+						href={ 'https://jetpack.com/redirect/?source=upgrade-google-analytics&site=' + this.props.siteRawUrl + '&feature=google-analytics' }
 					>
 						{ __( 'Upgrade' ) }
 					</Button>
