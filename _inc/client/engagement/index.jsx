@@ -179,6 +179,12 @@ export const Engagement = ( props ) => {
 			}
 
 			moduleDescription = <AllModuleSettings module={ proProps } />;
+		} else if ( element[0] === 'google-analytics' ) {
+			proProps.configure_url = isModuleActive
+				? 'https://wordpress.com/settings/analytics/' + props.siteRawUrl
+				: 'inactive';
+
+			moduleDescription = <AllModuleSettings module={ proProps } />;
 		}
 
 		return adminAndNonAdmin ? (
