@@ -65,7 +65,7 @@ class WC_Services_Installer {
 		include_once( ABSPATH . '/wp-admin/includes/class-wp-upgrader.php' );
 		include_once( ABSPATH . '/wp-admin/includes/class-plugin-upgrader.php' );
 
-		$api = plugins_api( 'plugin_information', array( 'slug' => 'connect-for-woocommerce' ) );
+		$api = plugins_api( 'plugin_information', array( 'slug' => 'woocommerce-services' ) );
 
 		if ( is_wp_error( $api ) ) {
 			return false;
@@ -78,7 +78,7 @@ class WC_Services_Installer {
 			return false;
 		}
 
-		$result = activate_plugin( 'connect-for-woocommerce/woocommerce-connect-client.php' );
+		$result = activate_plugin( 'woocommerce-services/woocommerce-services.php' );
 
 		// activate_plugin() returns null on success
 		return is_null( $result );
