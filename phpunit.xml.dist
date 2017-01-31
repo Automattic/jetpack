@@ -37,6 +37,9 @@
 		<testsuite name="infinite-scroll">
 			<directory prefix="test_" suffix=".php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
+		<testsuite name="likes">
+			<directory prefix="test_" suffix=".php">tests/php/modules/likes</directory>
+		</testsuite>
 		<testsuite name="publicize">
 			<directory prefix="test_" suffix=".php">tests/php/modules/publicize</directory>
 		</testsuite>
