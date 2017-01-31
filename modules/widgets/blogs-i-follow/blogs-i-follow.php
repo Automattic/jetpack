@@ -156,10 +156,10 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * @return array the subscriptions
 	 */
 	function get_subscriptions() {
-		$this->subscriptions[$this->id] = get_transient( $this->id . '-subscriptions' );
+		$this->subscriptions[ $this->id ] = get_transient( $this->id . '-subscriptions' );
 
 		// TODO: Remove DEBUG
-		if ( WP_DEBUG || empty( $this->subscriptions[$this->id] ) ) {
+		if ( WP_DEBUG || empty( $this->subscriptions[ $this->id ] ) ) {
 			delete_transient( $this->id . '-widget' );
 
 			$this->subscriptions[$this->id] = array();
@@ -203,7 +203,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * @return string the inferred blog name
 	 */
 	function get_inferred_blog_name( $subscription ) {
-		return rtrim( str_replace( 'http://', '', empty( $subscription['blog_url'] ) ? $subscription['feed_url'] : $subscription['blog_url'] ), '/' );
+		return rtrim( str_replace( array( 'http://', 'https://' ), '', empty( $subscription['blog_url'] ) ? $subscription['feed_url'] : $subscription['blog_url'] ), '/' );
 	}
 
 	/**
@@ -256,7 +256,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 			}
 			$response_body = json_decode( $response_body );
 			// Process the JSON response, collecting the blavatars and the blog descriptions
-			foreach ($response_body as $site) {
+			foreach ( $response_body as $site ) {
 				if ( isset( $site->ID ) && isset( $site->icon ) && isset( $site->icon->img ) ) {
 					$blavatars[ $site->ID ] = '<img src="' . $site->icon->img . '" />';
 				}
@@ -268,7 +268,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 				}
 			}
 			// Update the subscriptions array with the additional fields retrieved from the API request
-			foreach ($subscriptions as &$subscription) {
+			foreach ( $subscriptions as &$subscription ) {
 				$blog_id = $subscription['blog_id'];
 				$subscription['blavatar_img_tag'] = isset( $blavatars[ $blog_id ] ) ? $blavatars[ $blog_id ] : null;
 				$subscription['description'] = isset( $descriptions[ $blog_id ] ) ? $descriptions[ $blog_id ] : null;
