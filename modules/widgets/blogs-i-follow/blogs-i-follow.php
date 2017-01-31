@@ -207,33 +207,14 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	}
 
 	/**
-	 * Creates the query string for a batch REST API call to the /sites/$site endpoint
+	 * Creates a string for a REST API call to the /sites/$site endpoint
 	 *
-	 * Constructs a URL query of the form: 'urls[]=XXX&urls[]=YYY&urls[]=ZZZ' for each
-	 * subscription given that has an associated blog_id (e.g. blogs that are hosted on
-	 * WordPress.com).
-	 *
-	 * @see Jetpack_Widget_Blogs_I_Follow::populate_blog_details
-	 * @see Jetpack_Widget_Blogs_I_Follow::convert_rest_subscription
-	 *
-	 * @param array $subscriptions An array of arrays holding blog subscription data
-	 * @return string The return value is a url query string suitable for appending to
-	 * a /batch REST API call
+	 * @param array $subscription Array containing data for a single blog subscription
+	 * @return string The return value is a string for the REST endpoint to get information
+	 * about the subscribed blog
 	 */
-	private static function create_blavatar_query( $subscriptions ) {
-		$url_string = "";
-		$needs_leading_ampersand = false;
-		foreach ( $subscriptions as $subscription ) {
-			if ( $subscription['blog_id'] === 0 ) {
-				continue;
-			}
-			if ( true === $needs_leading_ampersand ) {
-				$url_string .= "&";
-			}
-			$url_string .= 'urls[]=/sites/' . $subscription['blog_id'];
-			$needs_leading_ampersand = true;
-		}
-		return $url_string;
+	private static function get_subscription_blog_id( $subscription ) {
+		return '/sites/' . $subscription['blog_id'];
 	}
 
 	/**
@@ -244,7 +225,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * img tag is set to the blavatar URL
 	 */
 	public static function populate_blog_details( $subscriptions ) {
-		$batched_blavatar_query = Jetpack_Widget_Blogs_I_Follow::create_blavatar_query( $subscriptions );
+		$blog_ids = array_map( array( 'Jetpack_Widget_Blogs_I_Follow', 'get_subscription_blog_id' ), $subscriptions );
+		$batched_blavatar_query = build_query( array( 'urls' => $blog_ids ) );
 		$response = wp_remote_get( 'https://public-api.wordpress.com/rest/v1.2/batch/?' . $batched_blavatar_query );
 		if ( is_wp_error( $response ) ) {
 			// TODO: Handle error appropriately
