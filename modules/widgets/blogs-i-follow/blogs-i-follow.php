@@ -167,6 +167,17 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 			$subscription_args = array( 'user_id' => $this->user_id, 'public_only' => true );
 			// TODO: For WordPress.com, hook into this filter and use wpcom_subs_get_blogs
 			// and other related functions to populate the subscription data
+			/**
+			 * Retrieve a collection of the user's WordPress.com blog subscriptions
+			 *
+			 * @module widgets
+			 *
+			 * @since 4.7.0
+			 *
+			 * @param array $subscription_args Used by WordPress.com to retrieve the user's blog subscriptions
+			 * @return array The return value is an array of subscription arrays with information about each
+			 * followed blog
+			 */
 			$this->subscriptions[$this->id]['subscriptions'] = apply_filters( 'jetpack_populate_blog_subscriptions', null, $subscription_args );
 
 			if ( is_array( $this->subscriptions[$this->id]['subscriptions'] ) ) {
@@ -287,6 +298,17 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 					if ( !empty( $subscription['blog_id'] ) ) {
 						// TODO: On WordPress.com, register this filter for get_blog_option. The admin email
 						// is not available via the REST API, so Jetpack currently cannot retrieve it.
+						/**
+						 * Allow blog options from external WordPress.com blogs to be retrieved
+						 *
+						 * @module widgets
+						 *
+						 * @since 4.7.0
+						 *
+						 * @param int $blog_id The blog's ID
+						 * @param string option The option to be retrieved, e.g. 'admin_email'
+						 * @return mixed The return value is the value of the requested option, or null if the option cannot be found
+						 */
 						$email = apply_filters( 'wpcom_blog_option', null, $subscription['blog_id'], 'admin_email' );
 						$http = is_ssl() ? 'https' : 'http';
 						$img = get_avatar( $email, self::$avatar_size, apply_filters( 'jetpack_static_url', esc_url_raw( $http . '://' . self::$default_avatar ) ) );
@@ -347,6 +369,15 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	function get_friendly_message() {
 		$message = sprintf(
 			__( 'You are not yet following any blogs. Try <a href="%1$s">finding your friends</a> or check out our <a href="%2$s">recommended blogs</a>.', 'jetpack' ),
+			/**
+			 * Allow blog locales to be retrieved from WordPress.com or Jetpack
+			 *
+			 * @module widgets
+			 *
+			 * @since 4.7.0
+			 *
+			 * @return string The return value is the locale shortcode for the blog, e.g. 'en' or 'it'
+			 */
 			esc_url( apply_filters('jetpack_blog_locale', null) . '.wordpress.com/find-friends' ) . '" target="_blank',
 			esc_url( apply_filters('jetpack_blog_locale', null) . '.wordpress.com/recommendations' ) . '" target="_blank'
 		);
