@@ -114,6 +114,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Sync: fix issues with some sites failing to sync posts that have illegal multibyte characters. #6155
+
 **Improved Compatibility**
 
 * Fix notices and warnings when using Jetpack on a server running PHP 7.1. #6118
