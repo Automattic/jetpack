@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved Compatibility**
 
 * Fix notices and warnings when using Jetpack on a server running PHP 7.1. #6118, #5821
+* Contact Form: avoid PHP warnings on servers where `print_r()` is disabled. #6234
 * Photon: avoid PHP notices when using plugins that do srcset CDN replacement. #6126, #6170
 * Sharing: force get sharing options when saved options are incorrect due to site configuration issues. Avoids potential fatal errors. #6122
 * Shortcodes: prefix the new Quiz Shortcode CSS classes to avoid conflicts with other Quiz plugins. #6232
