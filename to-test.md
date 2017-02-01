@@ -80,6 +80,10 @@ The widget should then be displayed properly on your site. In a browser inspecto
 
 **Google Translate Widget:** like for the widget above, we've prefixed the widget class name to avoid conflicts.
 
+### WordPress.com REST API
+
+We've fixed numerous warnings and notices that appeared in error logs when creating or editing items on [WordPress.com](https://wordpress.com). To test this, browse WordPress.com while looking at your site's `debug.log`. Create posts, edit categories, update plugins, ... Nothing should generate PHP notices or warnings.
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
