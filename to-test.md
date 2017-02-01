@@ -10,6 +10,13 @@ Once the module is enabled, go to **Settings → Analytics** [on WordPress.com](
 
 Once you've added the tracking ID, you should be able to see the Google Analytics tracking code in the source code of all pages on your site.
 
+### Widgets
+
+**Twitter Widget:** We've added back an option that had been removed by mistake in a previous Jetpack release. To use the No Scrollbar" option, you should not specify a number of tweets in the widget settings, and check the "No Scrollbar" option.
+
+**Top Posts Widget:** We've fixed layout issues when the Top Posts Widget was set to use the "List" layout. To test this fix, go to Appearance > Widgets, and create a new Top Posts Widget. Then, choose the list layout.
+The widget should then be displayed properly on your site. In a browser inspector, check the widget's image URLs. They should use Photon and should include `resize=40,40` at the end of the URL.
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
