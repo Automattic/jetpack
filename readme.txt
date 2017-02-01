@@ -118,6 +118,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Ads: deactivate the module when the site doesn't use a plan that support Jetpack Ads. #6242
+
 = 4.5 =
 
 * Release date: January 17, 2017
