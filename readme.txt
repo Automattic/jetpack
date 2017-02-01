@@ -123,6 +123,7 @@ Sharing: force get sharing options when saved options are incorrect due to site 
 
 * Admin Page: fix layout issues in IE11. #6109
 * Ads: deactivate the module when the site doesn't use a plan that support Jetpack Ads. #6242
+* Sync: avoid PHP notices with the Shortcodes module. #6115
 * WordPress.com REST API: fix notices and warnings when updating data from the WordPress.com central interface. #6104
 
 = 4.5 =
