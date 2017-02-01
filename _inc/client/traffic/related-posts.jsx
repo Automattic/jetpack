@@ -65,7 +65,7 @@ export const RelatedPosts = moduleSettingsForm(
 									  toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
-								__( 'Show related content after posts.' )
+								__( 'Show related content after posts' )
 							}
 						</span>
 						</ModuleToggle>

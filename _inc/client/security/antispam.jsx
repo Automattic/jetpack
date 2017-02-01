@@ -31,7 +31,7 @@ export const Antispam = moduleSettingsForm(
 							<ModuleSettingCheckbox
 								name={ 'akismet_show_user_comments_approved' }
 								{ ...this.props }
-								label={ __( 'Show the number of approved comments beside each comment author.' ) } />
+								label={ __( 'Show the number of approved comments beside each comment author' ) } />
 						</FormFieldset>
 					</SettingsGroup>
 				</SettingsCard>

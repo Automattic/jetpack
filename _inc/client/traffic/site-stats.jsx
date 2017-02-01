@@ -103,7 +103,7 @@ export const SiteStats = moduleSettingsForm(
 										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }>
 								<span className="jp-form-toggle-explanation">
 									{
-										__( 'Put a chart showing 48 hours of views in the admin bar.' )
+										__( 'Put a chart showing 48 hours of views in the admin bar' )
 									}
 								</span>
 							</ModuleToggle>
@@ -115,7 +115,7 @@ export const SiteStats = moduleSettingsForm(
 										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }>
 								<span className="jp-form-toggle-explanation">
 									{
-										__( 'Hide the stats smiley face image. The image helps collect stats, but should work when hidden.' )
+										__( 'Hide the stats smiley face image (The image helps collect stats, but should work when hidden.)' )
 									}
 								</span>
 							</ModuleToggle>
