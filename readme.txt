@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Ads: deactivate the module when the site doesn't use a plan that support Jetpack Ads. #6242
 * Sync: avoid PHP notices with the Shortcodes module. #6115
 * Twitter Widget: add noscrollbar option back. #6131
+* Top Posts Widget: fix image size when using the List Layout. #6140
 * WordPress.com REST API: fix notices and warnings when updating data from the WordPress.com central interface. #6104
 
 = 4.5 =
