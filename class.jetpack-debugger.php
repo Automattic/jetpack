@@ -20,8 +20,7 @@ class Jetpack_Debugger {
 
 	private static function what_jetpack_plan() {
 		$plan = Jetpack::get_active_plan();
-		$plan = $plan['product_slug'];
-
+		$plan = $plan['class'];
 		return 'JetpackPlan' . $plan;
 	}
 
