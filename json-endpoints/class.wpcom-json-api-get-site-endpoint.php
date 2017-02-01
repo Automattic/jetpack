@@ -179,11 +179,31 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			array_intersect( $default_fields, $this->fields_to_include ) :
 			$default_fields;
 
-		if ( ! is_user_member_of_blog( get_current_user_id(), $blog_id ) ) {
+		if ( ! $this->has_blog_access( $this->api->token_details, $blog_id ) ) {
 			$response_keys = array_intersect( $response_keys, self::$no_member_fields );
 		}
 
 		return $this->render_response_keys( $response_keys );
+	}
+
+	private function has_blog_access( $token_details, $blog_id ) {
+		if ( is_user_member_of_blog( get_current_user_id(), $blog_id ) ) {
+			return true;
+		}
+
+		$token_details = (array) $token_details;
+		if ( ! isset( $token_details['access'], $token_details['auth'], $token_details['blog_id'] ) ) {
+			return false;
+		}
+
+		if (
+			'jetpack' === $token_details['auth'] &&
+			'blog' === $token_details['access'] &&
+			$blog_id === $token_details['blog_id']
+		) {
+			return true;
+		}
+		return false;
 	}
 
 	private function render_response_keys( &$response_keys ) {
@@ -496,9 +516,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$response->{ $key } = $value;
 		}
 
-		$token_details = (object) $this->api->token_details;
-
-		if ( is_user_member_of_blog( get_current_user_id(), $response->ID ) || 'blog' === $token_details->access ) {
+		if ( $this->has_blog_access( $this->api->token_details, $response->ID ) ) {
 			$wpcom_member_response = $this->render_response_keys( self::$jetpack_response_field_member_additions );
 
 			foreach( $wpcom_member_response as $key => $value ) {
