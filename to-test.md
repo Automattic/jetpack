@@ -76,7 +76,7 @@ You'll want to make sure the quiz is then properly displayed in your theme.
 **Top Posts Widget:** We've fixed layout issues when the Top Posts Widget was set to use the "List" layout. To test this fix, go to Appearance > Widgets, and create a new Top Posts Widget. Then, choose the list layout.
 The widget should then be displayed properly on your site. In a browser inspector, check the widget's image URLs. They should use Photon and should include `resize=40,40` at the end of the URL.
 
-**Upcoming Events Widget:** We've made to that widget to avoid conflicts with other plugins using the sane class name. Try adding that widget to your site, then update to Jetpack 4.6 Beta and see if the widget is still there and is displayed properly.
+**Upcoming Events Widget:** We've made changes to that widget to avoid conflicts with other plugins using the sane class name. Try adding that widget to your site, then update to Jetpack 4.6 Beta and see if the widget is still there and is displayed properly.
 
 **Google Translate Widget:** like for the widget above, we've prefixed the widget class name to avoid conflicts.
 
