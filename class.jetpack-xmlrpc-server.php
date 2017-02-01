@@ -10,6 +10,11 @@ class Jetpack_XMLRPC_Server {
 	public $error = null;
 
 	/**
+	 * The current user
+	 */
+	public $user = null;
+
+	/**
 	 * Whitelist of the XML-RPC methods available to the Jetpack Server. If the
 	 * user is not authenticated (->login()) then the methods are never added,
 	 * so they will get a "does not exist" error.
@@ -20,9 +25,9 @@ class Jetpack_XMLRPC_Server {
 			'jetpack.verifyAction' => array( $this, 'verify_action' ),
 		);
 
-		$user = $this->login();
+		$this->user = $this->login();
 
-		if ( $user ) {
+		if ( $this->user ) {
 			$jetpack_methods = array_merge( $jetpack_methods, array(
 				'jetpack.testConnection'    => array( $this, 'test_connection' ),
 				'jetpack.testAPIUserCode'   => array( $this, 'test_api_user_code' ),
@@ -48,7 +53,7 @@ class Jetpack_XMLRPC_Server {
 			 * @param array $core_methods Available core XML-RPC methods.
 			 * @param WP_User $user Information about a given WordPress user.
 			 */
-			$jetpack_methods = apply_filters( 'jetpack_xmlrpc_methods', $jetpack_methods, $core_methods, $user );
+			$jetpack_methods = apply_filters( 'jetpack_xmlrpc_methods', $jetpack_methods, $core_methods, $this->user );
 		}
 
 		/**
@@ -321,6 +326,12 @@ class Jetpack_XMLRPC_Server {
 	* @return boolean
 	*/
 	function disconnect_blog() {
+		
+		// For tracking
+		if ( ! empty( $this->user->ID ) ) {
+			wp_set_current_user( $this->user->ID );
+		}
+
 		Jetpack::log( 'disconnect' );
 		Jetpack::disconnect();
 
