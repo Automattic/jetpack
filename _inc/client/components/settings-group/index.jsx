@@ -35,7 +35,7 @@ export const SettingsGroup = props => {
 				'jp-form-settings-disable': disableInDevMode
 			} ) }>
 				{
-					disableInDevMode && <div className="jp-form-block-click"></div>
+					disableInDevMode && <div className="jp-form-block-fade"></div>
 				}
 				{
 					support && (

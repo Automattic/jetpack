@@ -88,46 +88,42 @@ export const Protect = moduleSettingsForm(
 								__( 'Secure user authentication.' )
 							}
 						</p>
-						{
-							isProtectActive && (
-								<FormFieldset>
-									{
-										this.props.currentIp && (
-											<p>
-												{
-													__( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
-												}
-												<br />
-												{
-													<Button
-														disabled={ unavailableInDevMode || this.currentIpIsWhitelisted() }
-														onClick={ this.addToWhitelist }
-														compact >{ __( 'Add to whitelist' ) }</Button>
-												}
-											</p>
-										)
-									}
-									<FormLabel>
-										<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
-										<Textarea
-											disabled={ unavailableInDevMode }
-											name={ 'jetpack_protect_global_whitelist' }
-											placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
-											onChange={ this.updateText }
-											value={ this.state.whitelist } />
-									</FormLabel>
-									<span className="jp-form-setting-explanation">
+						<FormFieldset>
+							{
+								this.props.currentIp && (
+									<p>
 										{
-											__( 'You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
-												components: {
-													br: <br />
-												}
-											} )
+											__( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
 										}
-									</span>
-								</FormFieldset>
-							)
-						}
+										<br />
+										{
+											<Button
+												disabled={ ! isProtectActive || unavailableInDevMode || this.currentIpIsWhitelisted() }
+												onClick={ this.addToWhitelist }
+												compact>{ __( 'Add to whitelist' ) }</Button>
+										}
+									</p>
+								)
+							}
+							<FormLabel>
+								<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
+								<Textarea
+									disabled={ ! isProtectActive || unavailableInDevMode }
+									name={ 'jetpack_protect_global_whitelist' }
+									placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
+									onChange={ this.updateText }
+									value={ this.state.whitelist } />
+							</FormLabel>
+							<span className="jp-form-setting-explanation">
+								{
+									__( 'You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
+										components: {
+											br: <br />
+										}
+									} )
+								}
+							</span>
+						</FormFieldset>
 					</SettingsGroup>
 				</SettingsCard>
 			)

@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
+import FormToggle from 'components/form/form-toggle';
 
 /**
  * Internal dependencies
@@ -12,17 +11,47 @@ import Card from 'components/card';
 import { FormFieldset } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { ModuleSettingCheckbox } from 'components/module-settings/form-components';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export const ThemeEnhancements = moduleSettingsForm(
 	React.createClass( {
 
+		/**
+		 * Get options for initial state.
+		 *
+		 * @returns {{infinite_scroll: *, infinite_scroll_google_analytics: *, wp_mobile_excerpt: *, wp_mobile_featured_images: *, wp_mobile_app_promos: *}}
+		 */
+		getInitialState() {
+			return {
+				infinite_scroll: this.props.getOptionValue( 'infinite_scroll', 'infinite-scroll' ),
+				infinite_scroll_google_analytics: this.props.getOptionValue( 'infinite_scroll_google_analytics', 'infinite-scroll' ),
+				wp_mobile_excerpt: this.props.getOptionValue( 'wp_mobile_excerpt', 'minileven' ),
+				wp_mobile_featured_images: this.props.getOptionValue( 'wp_mobile_featured_images', 'minileven' ),
+				wp_mobile_app_promos: this.props.getOptionValue( 'wp_mobile_app_promos', 'minileven' )
+			};
+		},
+
+		/**
+		 * Update state so toggles are updated.
+		 *
+		 * @param {string} optionName
+		 * @param {string} module
+		 */
+		updateOptions( optionName, module ) {
+			this.setState(
+				{
+					[ optionName ]: ! this.state[ optionName ]
+				},
+				this.props.updateFormStateModuleOption( module, optionName )
+			);
+		},
+
 		render() {
 			return (
 				<SettingsCard
 					{ ...this.props }
+					hideButton
 					header={ __( 'Theme enhancements' ) }>
 					{
 						[
@@ -57,11 +86,12 @@ export const ThemeEnhancements = moduleSettingsForm(
 								]
 							}
 						].map( item => {
+							let isItemActive = this.props.getOptionValue( item.module );
 							return (
 								<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` }>
 									<ModuleToggle slug={ item.module }
 												  compact
-												  activated={ this.props.getOptionValue( item.module ) }
+												  activated={ isItemActive }
 												  toggling={ this.props.isSavingAnyOption( item.module ) }
 												  toggleModule={ this.props.toggleModuleNow }>
 									<span className="jp-form-toggle-explanation">
@@ -72,16 +102,22 @@ export const ThemeEnhancements = moduleSettingsForm(
 									</ModuleToggle>
 									<FormFieldset support={ item.learn_more_button }>
 										{
-											this.props.getOptionValue( item.module ) && (
-												item.checkboxes.map( chkbx => {
-													return <ModuleSettingCheckbox
-														name={ chkbx.key }
-														{ ...this.props }
-														label={ chkbx.label }
-														key={ `${ item.module }_${ chkbx.key }`}
-													/>
-												} )
-											)
+											item.checkboxes.map( chkbx => {
+												return (
+													<FormToggle
+														compact
+														checked={ this.state[ chkbx.key ] }
+														disabled={ ! isItemActive }
+														onChange={ e => this.updateOptions( chkbx.key, item.module ) }
+														key={ `${ item.module }_${ chkbx.key }`}>
+														<span className="jp-form-toggle-explanation">
+															{
+																chkbx.label
+															}
+														</span>
+													</FormToggle>
+												);
+											} )
 										}
 									</FormFieldset>
 								</SettingsGroup>
