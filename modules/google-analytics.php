@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Google Analytics
- * Module Description: Lets you use Google Analytics to track your WordPress site statistics.
+ * Module Description: Set up Google Analytics without touching a line of code.
  * First Introduced: 4.5
  * Sort Order: 37
  * Requires Connection: Yes
