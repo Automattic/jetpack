@@ -116,6 +116,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved Compatibility**
 
+* Fix notices and warnings when using Jetpack on a server running PHP 7.1. #6118
+
 **Bug Fixes**
 
 * Admin Page: fix layout issues in IE11. #6109
