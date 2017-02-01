@@ -173,7 +173,7 @@ class Jetpack_Post_By_Email {
 	}
 
 	/**
-	 * Backend function to abstract the xmlrpc function calls to wpcom.
+	 * Back end function to abstract the xmlrpc function calls to wpcom.
 	 *
 	 * @param $endpoint
 	 * @param $error_message

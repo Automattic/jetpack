@@ -170,8 +170,14 @@ class Sharing_Service {
 		$enabled  = get_option( 'sharing-services' );
 		$services = $this->get_all_services();
 
-		if ( !is_array( $options ) )
+		/**
+		 * Check if options exist and are well formatted.
+		 * This avoids issues on sites with corrupted options.
+		 * @see https://github.com/Automattic/jetpack/issues/6121
+		 */
+		if ( ! is_array( $options ) || ! isset( $options['button_style'], $options['global'] ) ) {
 			$options = array( 'global' => $this->get_global_options() );
+		}
 
 		$global = $options['global'];
 
@@ -691,7 +697,7 @@ function sharing_display( $text = '', $echo = false ) {
 					/**
 					 * Filter the sharing buttons' headline structure.
 					 *
-					 * @module sharing
+					 * @module sharedaddy
 					 *
 					 * @since 4.4.0
 					 *

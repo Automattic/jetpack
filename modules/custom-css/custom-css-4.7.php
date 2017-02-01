@@ -149,6 +149,11 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * @return array $fields Modified array to include post_content_filtered.
 	 */
 	public static function _wp_post_revision_fields( $fields, $post ) {
+		// None of the fields in $post are required to be passed in this filter.
+		if ( ! isset( $post['post_type'], $post['ID'] ) ) {
+			return $fields;
+		}
+
 		// If we're passed in a revision, go get the main post instead.
 		if ( 'revision' === $post['post_type'] ) {
 			$main_post_id = wp_is_post_revision( $post['ID'] );

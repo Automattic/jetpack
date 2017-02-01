@@ -75,6 +75,10 @@ https://github.com/thoughtbot/bourbon
   box-sizing: border-box;
 }
 
+.jp-wpcom-connect__inner-container > a:first-child {
+  z-index: 1;
+}
+
 .jp-wpcom-connect__inner-container {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -91,9 +95,10 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-wpcom-connect__content-container {
-  max-width: 75rem;
+  max-width: 800px;
   position: relative;
   padding: 2rem;
+  z-index: 0;
 }
 
 @media (min-width: 782px) {

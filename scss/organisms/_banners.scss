@@ -59,6 +59,10 @@
 	box-sizing: border-box;
 }
 
+.jp-wpcom-connect__inner-container > a:first-child {
+	z-index: 1;
+}
+
 .jp-wpcom-connect__inner-container {
 	display: flex;
 	flex-direction: row;
@@ -67,9 +71,10 @@
 }
 
 .jp-wpcom-connect__content-container {
-	max-width: rem( 1200px );
+	max-width: 800px;
 	position: relative;
 	padding: rem( 32px );
+	z-index: 0;
 
 	@include minbreakpoint(tablet) {
 		padding: rem( 32px ) rem( 32px ) rem( 96px ) rem( 32px );

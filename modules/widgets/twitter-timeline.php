@@ -81,7 +81,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		echo $args['before_widget'];
 
 		$title = isset( $instance['title'] ) ? $instance['title'] : '';
-		
+
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title );
 		if ( ! empty( $title ) ) {
@@ -106,6 +106,12 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			if ( ! empty( $instance[ $att ] ) && ! is_array( $instance[ $att ] ) ) {
 				echo ' data-' . esc_attr( $att ) . '="' . esc_attr( $instance[ $att ] ) . '"';
 			}
+		}
+
+		/** This filter is documented in modules/shortcodes/tweet.php */
+		$partner = apply_filters( 'jetpack_twitter_partner_id', 'jetpack' );
+		if ( ! empty( $partner ) ) {
+			echo ' data-partner="' . esc_attr( $partner ) . '"';
 		}
 
 		if ( ! empty( $instance['chrome'] ) && is_array( $instance['chrome'] ) ) {
@@ -233,7 +239,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'noheader',
 			'nofooter',
 			'noborders',
-			'transparent'
+			'transparent',
+			'noscrollbar',
 		);
 		if ( isset( $new_instance['chrome'] ) ) {
 			foreach ( $new_instance['chrome'] as $chrome ) {
@@ -260,7 +267,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Back-end widget form.
+	 * Back end widget form.
 	 *
 	 * @see WP_Widget::form()
 	 *
@@ -423,6 +430,16 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			/>
 			<label for="<?php echo $this->get_field_id( 'chrome-noborders' ); ?>">
 				<?php esc_html_e( 'No Borders', 'jetpack' ); ?>
+			</label>
+			<br />
+			<input
+				type="checkbox"<?php checked( in_array( 'noscrollbar', $instance['chrome'] ) ); ?>
+				id="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>"
+				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
+				value="noscrollbar"
+			/>
+			<label for="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>">
+				<?php esc_html_e( 'No Scrollbar', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
