@@ -131,7 +131,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: force get sharing options when saved options are incorrect due to site configuration issues. Avoids potential fatal errors. #6122
 * Widgets: make sure that all widget class names include prefixes to avoid conflicts with other plugins using similar class names. #6149
 
-
 **Bug Fixes**
 
 * Admin Page: fix layout issues in IE11. #6109
@@ -144,6 +143,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Photon: Force only Photon URLs to HTTPS. Custom CDN URLs may use a different protocol. #6083
 * Publicize: respect status of Publicize connections: if a connection is not shared with all users on the site, do not trigger Publicize for the other users. #6098
 * Publicize: make sure Publicize is triggered for scheduled posts. #6186
+* SSO: Ensure that logging in via SSO doesn't stop you authenticating to your site using a third-party application relying on the WordPress.com REST API. #6194
 * Sync: avoid PHP notices with the Shortcodes module. #6115, #6151, #6153
 * Tonesque: avoid PHP warnings when an image doesn't exist. #6068
 * Twitter Widget: add noscrollbar option back. #6131
