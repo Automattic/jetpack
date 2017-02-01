@@ -37,7 +37,7 @@ export const SEO = moduleSettingsForm(
 						{
 							! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
 								<p>
-									<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ this.props.configureUrl }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
+									<ExternalLink className="jp-module-settings__external-link" href={ this.props.configureUrl }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
 								</p>
 							)
 						}

@@ -94,7 +94,7 @@ export const Subscriptions = moduleSettingsForm(
 								{
 									( isSubscriptionsActive || ! unavailableInDevMode ) && (
 										<p>
-											<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
+											<ExternalLink className="jp-module-settings__external-link" href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
 										</p>
 									)
 								}
