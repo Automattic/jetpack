@@ -117,6 +117,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: add information notices when a site uses WooCommerce and could benefit from the new USPS or CanadaPost shipping functionality. #6183
 * Sync: fix issues with some sites failing to sync posts that have illegal multibyte characters. #6155
 * WordPress.com REST API: Add a new API endpoint that will allow us to enable translation autoupdates. #5953
+* WP REST API: retrieve all module settings in the readable `/settings` endpoint. #6002
+
 **Improved Compatibility**
 
 * Fix notices and warnings when using Jetpack on a server running PHP 7.1. #6118, #5821
