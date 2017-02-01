@@ -230,9 +230,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Get last post, to build the link to Customizer in the Related Posts module.
 		$last_post = get_posts( array( 'posts_per_page' => 1 ) );
-		if ( $last_post[0] instanceof WP_Post ) {
-			$last_post = get_permalink( $last_post[0]->ID );
-		}
+		$last_post = isset( $last_post[0] ) && $last_post[0] instanceof WP_Post
+			? get_permalink( $last_post[0]->ID )
+			: get_home_url();
 
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
