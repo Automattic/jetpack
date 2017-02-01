@@ -36,7 +36,6 @@
 }
 
 .jp-dash-item .dops-section-header {
-	background: lighten( $gray, 35% );
 	width: 100%;
 
 	.dops-button {
@@ -45,10 +44,6 @@
 
 	.dops-section-header__label {
 		color: darken( $gray, 20% );
-	}
-
-	.dops-section-header__label:before {
-		@include long-content-fade( $color : lighten( $gray, 35% ) );
 	}
 
 	&.is-working,
@@ -79,14 +74,16 @@
 
 // conditional styles for content when items are inactive
 .jp-dash-item__is-inactive {
-	.dops-section-header .dops-section-header__label:before {
-		@include long-content-fade( $color : $gray-light );
-	}
-
 	.dops-card {
 		background-color: $gray-light;
 	}
+	.dops-section-header__label {
+		padding-right: rem( 8px );
 
+		&:before {
+			@include long-content-fade( $size: 8px, $color : $gray-light );
+		}
+	}
 	.jp-dash-item__description {
 		font-style: italic;
 		color: darken( $gray, 20% );

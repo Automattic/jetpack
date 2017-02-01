@@ -149,7 +149,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function get_i18n_data() {
 
-		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_locale() . '.json';
+		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . jetpack_get_user_locale() . '.json';
 
 		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
 			$locale_data = @file_get_contents( $i18n_json );
@@ -203,7 +203,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$localeSlug = explode( '_', get_locale() );
+		$localeSlug = explode( '_', jetpack_get_user_locale() );
 		$localeSlug = $localeSlug[0];
 
 		// Collecting roles that can view site stats
@@ -230,9 +230,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Get last post, to build the link to Customizer in the Related Posts module.
 		$last_post = get_posts( array( 'posts_per_page' => 1 ) );
-		if ( $last_post[0] instanceof WP_Post ) {
-			$last_post = get_permalink( $last_post[0]->ID );
-		}
+		$last_post = isset( $last_post[0] ) && $last_post[0] instanceof WP_Post
+			? get_permalink( $last_post[0]->ID )
+			: get_home_url();
 
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
@@ -446,4 +446,24 @@ function jetpack_current_user_data() {
 	);
 
 	return $current_user_data;
+}
+
+/**
+ * Set the admin language, based on user language.
+ *
+ * @since 4.5.0
+ *
+ * @return string
+ *
+ * @todo Remove this function when WordPress 4.8 is released
+ * and replace `jetpack_get_user_locale()` in this file with `get_user_locale()`.
+ */
+function jetpack_get_user_locale() {
+	$locale = get_locale();
+
+	if ( function_exists( 'get_user_locale' ) ) {
+		$locale = get_user_locale();
+	}
+
+	return $locale;
 }

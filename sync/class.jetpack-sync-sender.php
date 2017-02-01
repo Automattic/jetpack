@@ -159,7 +159,7 @@ class Jetpack_Sync_Sender {
 			}
 		}
 
-		return array( $items_to_send, $skipped_items_ids, $items );
+		return array( $items_to_send, $skipped_items_ids, $items, microtime( true ) - $start_time );
 	}
 
 	public function do_sync_for_queue( $queue ) {
@@ -174,16 +174,23 @@ class Jetpack_Sync_Sender {
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}
+
+		$checkout_start_time = microtime( true );
+
 		$buffer = $queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
+
 		if ( ! $buffer ) {
 			// buffer has no items
 			return false;
 		}
+
 		if ( is_wp_error( $buffer ) ) {
 			return $buffer;
 		}
 
-		list( $items_to_send, $skipped_items_ids, $items ) = $this->get_items_to_send( $buffer, true );
+		$checkout_duration = microtime( true ) - $checkout_start_time;
+
+		list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $this->get_items_to_send( $buffer, true );
 
 		/**
 		 * Fires when data is ready to send to the server.
@@ -198,7 +205,7 @@ class Jetpack_Sync_Sender {
 		 * @param string $queue The queue used to send ('sync' or 'full_sync')
 		 */
 		Jetpack_Sync_Settings::set_is_sending( true );
-		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id );
+		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration );
 		Jetpack_Sync_Settings::set_is_sending( false );
 		
 		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {

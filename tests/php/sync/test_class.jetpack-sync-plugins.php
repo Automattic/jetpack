@@ -103,7 +103,10 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		if ( is_wp_error( $api ) ) {
 			wp_die( $api );
 		}
-		$upgrader = new Plugin_Upgrader( new Plugin_Installer_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ) );
+		$upgrader = new Plugin_Upgrader(
+			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) )
+		);
+
 		$upgrader->install( $api->download_link );
 
 	}

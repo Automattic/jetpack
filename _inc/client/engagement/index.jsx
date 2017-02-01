@@ -68,6 +68,7 @@ export const Engagement = ( props ) => {
 	let cards = [
 		[ 'seo-tools', getModule( 'seo-tools' ).name, getModule( 'seo-tools' ).description, getModule( 'seo-tools' ).learn_more_button ],
 		[ 'wordads', getModule( 'wordads' ).name, getModule( 'wordads' ).description, getModule( 'wordads' ).learn_more_button ],
+		[ 'google-analytics', getModule( 'google-analytics' ).name, getModule( 'google-analytics' ).description, getModule( 'google-analytics' ).learn_more_button ],
 		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
 		[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description, getModule( 'sharedaddy' ).learn_more_button ],
 		[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
@@ -99,7 +100,7 @@ export const Engagement = ( props ) => {
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
 			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] ),
-			isPro = 'seo-tools' === element[0] || 'wordads' === element[0],
+			isPro = includes( [ 'seo-tools', 'wordads', 'google-analytics' ], element[0] ),
 			proProps = {
 				module: element[0],
 				configure_url: ''
@@ -107,7 +108,8 @@ export const Engagement = ( props ) => {
 			isModuleActive = isModuleActivated( element[0] ),
 			planLoaded = 'undefined' !== typeof props.sitePlan.product_slug,
 			hasBusiness = false,
-			hasPremiumOrBusiness = false;
+			hasPremiumOrBusiness = false,
+			wordAdsSubHeader = element[2];
 
 		hasBusiness =
 			planLoaded &&
@@ -125,6 +127,7 @@ export const Engagement = ( props ) => {
 			toggle = __( 'Unavailable in Dev Mode' );
 		} else if ( isAdmin ) {
 			if ( ( 'seo-tools' === element[0] && ! hasBusiness ) ||
+					( 'google-analytics' === element[0] && ! hasBusiness ) ||
 					( 'wordads' === element[0] && ! hasPremiumOrBusiness ) ) {
 				toggle = <ProStatus proFeature={ element[0] } />;
 			} else {
@@ -134,6 +137,15 @@ export const Engagement = ( props ) => {
 						activated={ isModuleActive }
 						toggling={ isTogglingModule( element[0] ) }
 						toggleModule={ toggleModule } />;
+
+				// Add text about TOS if inactive
+				if ( 'wordads' === element[0] && ! isModuleActive ) {
+					wordAdsSubHeader = <WordAdsSubHeaderTos subheader={ element[2] } />
+				}
+			}
+
+			if ( element[0] === 'google-analytics' && ! hasBusiness ) {
+				isModuleActive = false;
 			}
 
 			if ( isPro ) {
@@ -142,7 +154,7 @@ export const Engagement = ( props ) => {
 					<span>
 						{ element[1] }
 						<Button compact={ true } href="#/plans">
-							{ __( 'Pro' ) }
+							{ __( 'Paid' ) }
 						</Button>
 					</span>;
 			}
@@ -166,6 +178,12 @@ export const Engagement = ( props ) => {
 			}
 
 			moduleDescription = <AllModuleSettings module={ proProps } />;
+		} else if ( element[0] === 'google-analytics' ) {
+			proProps.configure_url = isModuleActive
+				? 'https://wordpress.com/settings/analytics/' + props.siteRawUrl
+				: 'inactive';
+
+			moduleDescription = <AllModuleSettings module={ proProps } />;
 		}
 
 		return adminAndNonAdmin ? (
@@ -173,7 +191,7 @@ export const Engagement = ( props ) => {
 				className={ customClasses }
 				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 				header={ element[1] }
-				subheader={ element[2] }
+				subheader={ 'wordads' === element[0] ? wordAdsSubHeader : element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
@@ -246,6 +264,24 @@ export const Engagement = ( props ) => {
 		</div>
 	);
 };
+
+export const WordAdsSubHeaderTos = React.createClass( {
+	render() {
+		return (
+			<div>
+				{ this.props.subheader }
+				<br/>
+				<small>
+					{ __( 'By activating ads, you agree to the Automattic Ads {{link}}Terms of Service{{/link}}.', {
+						components: {
+							link: <a href="https://wordpress.com/automattic-ads-tos/" target="_blank" />
+						}
+					} ) }
+				</small>
+			</div>
+		)
+	}
+} );
 
 function renderLongDescription( module ) {
 	// Rationale behind returning an object and not just the string

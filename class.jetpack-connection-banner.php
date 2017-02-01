@@ -22,52 +22,24 @@ class Jetpack_Connection_Banner {
 	 */
 	private function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
+		add_action( 'updating_jetpack_version', array( $this, 'cleanup_on_upgrade' ), 10, 2 );
 	}
 
-	/**
-	 * Checks whether the connection banner A/B test should be ran.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @param null $now
-	 *
-	 * @return bool
-	 */
-	static function check_ab_test_not_expired( $now = null ) {
-		// Get the current timestamp in GMT
-		$now = empty( $now ) ? current_time( 'timestamp', 1 ) : $now;
-
-		// Arguments are hour, minute, second, month, day, year. So, we are getting the timestamp for GMT timestamp
-		// for the 15th of December 2016.
-		$expiration = gmmktime( 0, 0, 0, 12, 15, 2016 );
-
-		return $expiration >= $now;
-	}
-
-	/**
-	 * Gets the value for which connection banner to show, and initializes if not set.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return int
-	 */
-	static function get_random_connection_banner_value() {
-		$random_connection_banner = Jetpack_Options::get_option( 'connection_banner_ab' );
-		if ( ! $random_connection_banner ) {
-			$random_connection_banner = mt_rand( 1, 2 );
-			Jetpack_Options::update_option( 'connection_banner_ab', $random_connection_banner );
+	function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
+		if ( version_compare( $old_version, '4.4', '>=' ) && version_compare( $old_version, '4.5', '<' ) ) {
+			// We don't use `Jetpack_Options` here since the option is no longer in that class.
+			delete_option( 'jetpack_connection_banner_ab' );
 		}
-
-		return $random_connection_banner;
 	}
 
 	/**
-	 * Will initialize hooks to display the new and legacy connection banners if the current user can
+	 * Will initialize hooks to display the new (as of 4.4) connection banner if the current user can
 	 * connect Jetpack, if Jetpack has not been deactivated, and if the current page is the plugins page.
 	 *
 	 * This method should not be called if the site is connected to WordPress.com or if the site is in development mode.
 	 *
 	 * @since 4.4.0
+	 * @since 4.5.0 Made the new (as of 4.4) connection banner display to everyone by default.
 	 *
 	 * @param $current_screen
 	 */
@@ -81,13 +53,8 @@ class Jetpack_Connection_Banner {
 			return;
 		}
 
-		if ( self::check_ab_test_not_expired() && 2 == self::get_random_connection_banner_value() ) {
-			add_action( 'admin_notices', array( $this, 'render_banner' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
-		} else {
-			add_action( 'admin_notices', array( $this, 'render_legacy_banner' ) );
-
-		}
+		add_action( 'admin_notices', array( $this, 'render_banner' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
 
 		add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
 
@@ -319,7 +286,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Professional Plan customers get access to advanced SEO tools as well as unlimited surveys and polls.',
+								'Professional Plan customers get access to advanced SEO tools.',
 								'jetpack'
 							);
 							?>

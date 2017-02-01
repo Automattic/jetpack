@@ -34,7 +34,6 @@ class Jetpack_Sync_Listener {
 	}
 
 	private function init() {
-
 		$handler = array( $this, 'action_handler' );
 		$full_sync_handler = array( $this, 'full_sync_action_handler' );
 
@@ -208,7 +207,9 @@ class Jetpack_Sync_Listener {
 		// since we've added some items, let's try to load the sender so we can send them as quickly as possible
 		if ( ! Jetpack_Sync_Actions::$sender ) {
 			add_filter( 'jetpack_sync_sender_should_load', '__return_true' );
-			Jetpack_Sync_Actions::add_sender_shutdown();
+			if ( did_action( 'init' ) ) {
+				Jetpack_Sync_Actions::add_sender_shutdown();
+			}
 		}
 	}
 

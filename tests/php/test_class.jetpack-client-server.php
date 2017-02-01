@@ -3,6 +3,7 @@
 class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	static public function setUpBeforeClass() {
+		parent::setUpBeforeClass();
 		self::$ignore_files = TRUE;
 	}
 
@@ -32,10 +33,9 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		) );
 		wp_set_current_user( $author_id );
 
-		$client_server = $this->getMock(
-			'Jetpack_Client_Server',
-			array( 'check_admin_referer', 'wp_safe_redirect', 'do_exit' )
-		);
+		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' )
+			->setMethods( array( 'check_admin_referer', 'wp_safe_redirect', 'do_exit' ) )
+			->getMock();
 
 		$result = $client_server->authorize();
 
@@ -55,10 +55,9 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		) );
 		wp_set_current_user( $author_id );
 
-		$client_server = $this->getMock(
-			'Jetpack_Client_Server',
-			array( 'check_admin_referer', 'wp_safe_redirect', 'do_exit' )
-		);
+		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' )
+			->setMethods( array( 'check_admin_referer', 'wp_safe_redirect', 'do_exit' ) )
+			->getMock();
 
 		$result = $client_server->authorize();
 
@@ -77,10 +76,9 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		) );
 		wp_set_current_user( $author_id );
 
-		$client_server = $this->getMock(
-			'Jetpack_Client_Server',
-			array( 'check_admin_referer', 'wp_safe_redirect', 'do_exit' )
-		);
+		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' )
+			->setMethods( array( 'check_admin_referer', 'wp_safe_redirect', 'do_exit' ) )
+			->getMock();
 
 		$result = $client_server->authorize( array( 'error' => 'test_error' ) );
 

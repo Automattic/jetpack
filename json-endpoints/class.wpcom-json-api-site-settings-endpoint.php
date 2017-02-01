@@ -158,6 +158,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$holiday_snow = (bool) get_option( jetpack_holiday_snow_option_name() );
 				}
 
+				$api_cache = $is_jetpack ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
+
 				$response[ $key ] = array(
 
 					// also exists as "options"
@@ -197,7 +199,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
 					'lang_id'                 => get_option( 'lang_id' ),
-					'wga'                     => get_option( 'wga' ),
+					'wga'                     => $this->get_google_analytics(),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
 					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
 					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
@@ -214,6 +216,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
+					'api_cache'               => $api_cache,
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -263,6 +266,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return false;
 	}
 
+	protected function get_google_analytics () {
+		$option_name = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wga' : 'jetpack_wga';
+		return get_option( $option_name );
+	}
 
 	/**
 	 * Updates site settings for authorized users
@@ -349,12 +356,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'wga':
+				case 'jetpack_wga':
 					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^UA-[\d-]+$/i', $value['code'] ) ) {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
-					$wga = get_option( 'wga', array() );
+
+					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+					$option_name = $is_wpcom ? 'wga' : 'jetpack_wga';
+
+					$wga = get_option( $option_name, array() );
 					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics
-					if ( update_option( 'wga', $wga ) ) {
+
+					if ( update_option( $option_name, $wga ) ) {
 						$updated[ $key ] = $value;
 					}
 
@@ -363,10 +376,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					/** This action is documented in modules/widgets/social-media-icons.php */
 					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
-					$business_plugins = WPCOM_Business_Plugins::instance();
-					$business_plugins->activate_plugin( 'wp-google-analytics' );
+					if ( $is_wpcom ) {
+						$business_plugins = WPCOM_Business_Plugins::instance();
+						$business_plugins->activate_plugin( 'wp-google-analytics' );
+					}
 					break;
-
 				case 'jetpack_testimonial':
 				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
@@ -416,6 +430,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							$updated[ $key ] = false;
 						}
 					} else if ( function_exists( 'jetpack_holiday_snow_option_name' ) && update_option( jetpack_holiday_snow_option_name(), 'letitsnow' ) ) {
+						$updated[ $key ] = true;
+					}
+					break;
+
+				case 'api_cache':
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( delete_option( 'jetpack_api_cache_enabled' ) ) {
+							$updated[ $key ] = false;
+						}
+					} else if ( update_option( 'jetpack_api_cache_enabled', true ) ) {
 						$updated[ $key ] = true;
 					}
 					break;
@@ -522,8 +546,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			// track new jetpack_relatedposts options against old
 			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
 			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
-				foreach( $jetpack_relatedposts_options as $key => $value ) {
-					if ( $value !== $old_relatedposts_options[ $key ] ) {
+				foreach ( $jetpack_relatedposts_options as $key => $value ) {
+					if ( isset( $old_relatedposts_options[ $key ] ) && $value !== $old_relatedposts_options[ $key ] ) {
 						$updated[ 'jetpack_relatedposts_' . $key ] = $value;
 					}
 				}

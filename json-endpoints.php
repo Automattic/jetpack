@@ -2500,6 +2500,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'verification_services_codes'          => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
 		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
+		'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache'
 
 	),
 
@@ -2575,6 +2576,7 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'verification_services_codes'  => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
 		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
+		'api_cache'                    => '(bool) Turn on/off the Jetpack JSON API cache'
 	),
 
 	'response_format' => array(

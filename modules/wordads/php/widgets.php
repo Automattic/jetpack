@@ -15,7 +15,7 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', 'Ads' ),
 			array(
-				'description' => __( 'Insert a WordAd wherever you can place a widget.', 'jetpack' ),
+				'description' => __( 'Insert an ad unit wherever you can place a widget.', 'jetpack' ),
 				'customize_selective_refresh' => true
 			)
 		);
@@ -27,9 +27,14 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			return false;
 		}
 
-		$about = __( 'About these ads', 'jetpack' );
+		if ( ! isset( $instance['unit'] ) ) {
+			$instance['unit'] = 'mrec';
+		}
+
+		$about = __( 'Advertisements', 'jetpack' );
 		$width = WordAds::$ad_tag_ids[$instance['unit']]['width'];
 		$height = WordAds::$ad_tag_ids[$instance['unit']]['height'];
+
 		$snippet = '';
 		if ( $wordads->option( 'wordads_house', true ) ) {
 			$ad_url = 'https://s0.wp.com/wp-content/blog-plugins/wordads/house/';

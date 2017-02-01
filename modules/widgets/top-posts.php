@@ -250,11 +250,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				'fallback_to_avatars' => true,
 				/** This filter is documented in modules/stats.php */
 				'gravatar_default' => apply_filters( 'jetpack_static_url', set_url_scheme( 'https://en.wordpress.com/i/logo/white-gray-80.png' ) ),
+				'avatar_size' => 40,
 			);
 			if ( 'grid' == $display ) {
 				$get_image_options['avatar_size'] = 200;
-			} else {
-				$get_image_options['avatar_size'] = 40;
 			}
 			/**
 			 * Top Posts Widget Image options.
@@ -312,7 +311,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		case 'list' :
 		case 'grid' :
 			foreach ( $posts as &$post ) {
-				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true ) );
+				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true, 'avatar_size' => (int) $get_image_options['avatar_size'] ) );
 				$post['image'] = $image['src'];
 				if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
 					$size = (int) $get_image_options['avatar_size'];

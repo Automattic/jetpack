@@ -1122,6 +1122,7 @@ class The_Neverending_Home_Page {
 	 */
 	function query() {
 		global $wp_customize;
+		global $wp_version;
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
@@ -1272,7 +1273,8 @@ class The_Neverending_Home_Page {
 			$results['type'] = 'empty';
 		}
 
-		if ( is_customize_preview() ) {
+		// This should be removed when WordPress 4.8 is released.
+		if ( version_compare( $wp_version, '4.7', '<' ) && is_customize_preview() ) {
 			$wp_customize->remove_preview_signature();
 		}
 

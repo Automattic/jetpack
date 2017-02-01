@@ -122,7 +122,7 @@ function stats_template_redirect() {
 	add_action( 'wp_footer', 'stats_footer', 101 );
 	add_action( 'wp_head', 'stats_add_shutdown_action' );
 
-	$script = set_url_scheme( '//stats.wp.com/e-' . gmdate( 'YW' ) . '.js' );
+	$script = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
 	$data = stats_build_view_data();
 	$data_stats_array = stats_array( $data );
 
@@ -1194,7 +1194,7 @@ function stats_get_csv( $table, $args = null ) {
 	$args['table'] = $table;
 	$args['blog_id'] = Jetpack_Options::get_option( 'id' );
 
-	$stats_csv_url = add_query_arg( $args, 'http://stats.wordpress.com/csv.php' );
+	$stats_csv_url = add_query_arg( $args, 'https://stats.wordpress.com/csv.php' );
 
 	$key = md5( $stats_csv_url );
 
