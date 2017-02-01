@@ -10,6 +10,23 @@ Once the module is enabled, go to **Settings → Analytics** [on WordPress.com](
 
 Once you've added the tracking ID, you should be able to see the Google Analytics tracking code in the source code of all pages on your site.
 
+### Publicize
+
+We've made a few changes to Publicize, and would appreciate your help testing the following scenarios:
+
+Test and make sure Publicize is triggered when **scheduling posts instead of publishing them directly**.
+
+
+Make sure Publicize works when scheduling posts **on a site that doesn't use the default WP Cron mechanism**. To test this, you can add `define( 'DISABLE_WP_CRON', true );` to your site's `wp-config.php` file, and then set up a cron job to hit `/wp-cron.php?doing_wp_cron` every 15 minutes or so.
+
+Make sure Publicize **respects the "Shared" connection settings on a site with multiple authors**. To test this, follow these steps:
+
+1. Add 2 authors to your site.
+2. Create a Publicize option with Author A, and set that connection as "Shared" when creating it.
+3. Publish a post while logged in as Author B; Publicize should be triggered and a post should be sent to your shared Publicize connection.
+4. With Author B, create a new, non shared Publicize connection.
+5. With Author A, publish a new post. That post should not be sent to the non-shared Publicize connection you created with Author B.
+
 ### Widgets
 
 **Twitter Widget:** We've added back an option that had been removed by mistake in a previous Jetpack release. To use the No Scrollbar" option, you should not specify a number of tweets in the widget settings, and check the "No Scrollbar" option.
