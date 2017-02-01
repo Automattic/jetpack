@@ -118,6 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Admin Page: fix layout issues in IE11. #6109
 * Ads: deactivate the module when the site doesn't use a plan that support Jetpack Ads. #6242
 * WordPress.com REST API: fix notices and warnings when updating data from the WordPress.com central interface. #6104
 
