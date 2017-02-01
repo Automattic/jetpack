@@ -1206,7 +1206,6 @@ function wp_cache_post_change( $post_id ) {
 	if( $all == true && get_option( 'show_on_front' ) == 'page' ) {
 		wp_cache_debug( "Post change: deleting page_on_front and page_for_posts pages.", 4 );
 		wp_cache_debug( "Post change: page_on_front " . get_option( 'page_on_front' ), 4 );
-		wp_cache_post_id_gc( $siteurl, get_option( 'page_on_front' ), 'single' );
 		$permalink = trailingslashit( str_replace( get_option( 'home' ), '', get_permalink( get_option( 'page_for_posts' ) ) ) );
 		$files_to_check = get_all_supercache_filenames( $dir . $permalink );
 		foreach( $files_to_check as $cache_file ) {
