@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Custom CSS: fix PHP notice. #6154
 * Custom CSS: fix warning appearing when migrating Custom CSS to Core's new CSS editor. #6158
 * General: fix issue with connection banner's "Dismiss" icon. #6182
+* Likes: Prevent a PHP notice when there is no $post object. #5988
 * Sync: avoid PHP notices with the Shortcodes module. #6115, #6151, #6153
 * Twitter Widget: add noscrollbar option back. #6131
 * Top Posts Widget: fix image size when using the List Layout. #6140
