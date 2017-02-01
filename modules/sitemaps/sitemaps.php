@@ -362,7 +362,7 @@ class Jetpack_Sitemap_Manager {
 
 		add_action(
 			'jp_sitemap_cron_hook',
-			array( $sitemap_builder, 'build_next_sitemap' )
+			array( $sitemap_builder, 'update_sitemap' )
 		);
 
 		if ( ! wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {

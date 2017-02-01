@@ -37,14 +37,30 @@ class Jetpack_Sitemap_State {
 	 *     @type int    last-added    The largest index to be added to a generated sitemap page.
 	 *     @type int    number        The index of the sitemap to be generated.
 	 *     @type string last-modified The latest timestamp seen.
+	 *     @type array  max           The latest index of each sitemap type seen.
 	 * }
 	 */
-	public static function initial() {
+	private static function initial() {
 		return array(
 			'sitemap-type'  => 'page-sitemap',
 			'last-added'    => 0,
-			'number'        => 1,
+			'number'        => 0,
 			'last-modified' => '1970-01-01 00:00:00',
+			'max'           => array(),
+		);
+	}
+
+	/**
+	 * Reset the sitemap state.
+	 *
+	 * @access public
+	 * @since 4.6.0
+	 */
+	public static function reset() {
+		delete_transient( 'jetpack-sitemap-state-lock' );
+		update_option(
+			'jetpack-sitemap-state',
+			self::initial()
 		);
 	}
 
@@ -62,8 +78,15 @@ class Jetpack_Sitemap_State {
 	 * }
 	 */
 	public static function check_in( $state ) {
+		// Get the old max value.
+		$state['max'] = get_option( 'jetpack-sitemap-state', self::initial() )['max'];
+
+		// Update the max value of the current type.
+		$state['max'][ $state['sitemap-type'] ]['number']  = $state['number'];
+		$state['max'][ $state['sitemap-type'] ]['lastmod'] = $state['last-modified'];
+
 		delete_transient( 'jetpack-sitemap-state-lock' );
-		update_option( 'jetpack-sitemap-state' , $state );
+		update_option( 'jetpack-sitemap-state', $state );
 	}
 
 	/**
@@ -77,6 +100,7 @@ class Jetpack_Sitemap_State {
 	 *     @type int    last-added    The largest index to be added to a generated sitemap page.
 	 *     @type int    number        The index of the sitemap to be generated.
 	 *     @type string last-modified The latest timestamp seen.
+	 *     @type array  max           The latest index of each sitemap type seen.
 	 * }
 	 */
 	public static function check_out() {
@@ -98,3 +122,4 @@ class Jetpack_Sitemap_State {
 
 }
 
+//Jetpack_Sitemap_State::delete();
