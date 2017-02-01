@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * General: add information notices when a site uses WooCommerce and could benefit from the new USPS or CanadaPost shipping functionality. #6183
+* Photon: switch to function introduced in WP 4.5 to improve performance. #6038
 * Sync: fix issues with some sites failing to sync posts that have illegal multibyte characters. #6155
 * Widgets: update Twitter Timeline for sane limit of number of tweets to display. #6021
 * WordPress.com REST API: Add a new API endpoint that will allow us to enable translation autoupdates. #5953
