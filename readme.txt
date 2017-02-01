@@ -117,7 +117,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved Compatibility**
 
 * Fix notices and warnings when using Jetpack on a server running PHP 7.1. #6118
-Sharing: force get sharing options when saved options are incorrect due to site configuration issues. Avoids potential fatal errors. #6122
+* Photon: avoid PHP notices when using plugins that do srcset CDN replacement. #6126
+* Sharing: force get sharing options when saved options are incorrect due to site configuration issues. Avoids potential fatal errors. #6122
 
 **Bug Fixes**
 
