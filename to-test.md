@@ -10,6 +10,19 @@ Once the module is enabled, go to **Settings → Analytics** [on WordPress.com](
 
 Once you've added the tracking ID, you should be able to see the Google Analytics tracking code in the source code of all pages on your site.
 
+### General
+
+In the past few releases we've refined our "Just In Time" message delivery system to display notices in specific area of the dashboard, when it's relevant for a site owner. In this release, we will start displaying notices to WooCommerce users.
+
+To test this, enable the WooCommerce plugin on your site, and make sure you are not using WooCommerce Services yet.
+
+The messages will be displayed on the following WooCommerce pages:
+- WooCommerce > Orders
+- WooCommerce > Edit Order
+- WooCommerce > Settings
+
+Make sure the messages are properly displayed when visiting one of those pages. You'll also want to make sure that clicking the "Install" button installs the WooCommerce Services plugin, and that the messages do not display anymore once you've installed and activated that plugin.
+
 ### Publicize
 
 We've made a few changes to Publicize, and would appreciate your help testing the following scenarios:
