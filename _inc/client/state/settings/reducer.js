@@ -8,7 +8,7 @@ import merge from 'lodash/merge';
 import includes from 'lodash/includes';
 import some from 'lodash/some';
 import filter from 'lodash/filter';
-import mapValues from 'lodash/mapvalues';
+import mapValues from 'lodash/mapValues';
 
 /**
  * Internal dependencies

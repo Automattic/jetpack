@@ -5,7 +5,7 @@ var React = require( 'react' ),
 	classnames = require( 'classnames' );
 import classNames from 'classnames';
 import omit from 'lodash/omit';
-import forOwn from 'lodash/forown';
+import forOwn from 'lodash/forOwn';
 import isEmpty from 'lodash/isEmpty';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
