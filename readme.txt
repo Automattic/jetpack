@@ -21,7 +21,7 @@ Traffic is the lifeblood of any website. Jetpack includes:
 * [paid] Advertising program that includes the best of AdSense, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
 
 = Security and Backup Services =
-Stop worrying about data loss, downtime, and hacking. Jetpack provides: 
+Stop worrying about data loss, downtime, and hacking. Jetpack provides:
 
 * [free] Brute force attack protection
 * [free] Downtime and uptime monitoring
@@ -53,7 +53,7 @@ We have an entire team of Happiness Engineers ready to help you. Ask your questi
 = Paid Services =
 Most of Jetpack's features and services are free. Jetpack also provides advanced security and backup services, video hosting, site monetization, priority support, and more SEO tools in three [simple and affordable plans](https://jetpack.com/pricing).
 
-= Get Started = 
+= Get Started =
 Installation is free, quick, and easy. Set up <a href="https://jetpack.com/install?from=wporg" rel="nofollow">the free plan</a> in minutes.
 
 == Installation ==
@@ -67,7 +67,7 @@ Alternatively, install Jetpack via the plugin directory, or upload the files man
 == Frequently Asked Questions ==
 
 = Is Jetpack Free? =
-Yes! Jetpack's core features are and always will be free. 
+Yes! Jetpack's core features are and always will be free.
 
 These include: [site stats](https://jetpack.com/features/traffic/site-stats), a [high-speed CDN](https://jetpack.com/features/writing/content-delivery-network/) for images, [related posts](https://jetpack.com/features/traffic/related-posts), [downtime monitoring](https://jetpack.com/features/security/downtime-monitoring), brute force [attack protection](https://jetpack.com/features/security/brute-force-attack-protection), [automated sharing](https://jetpack.com/features/traffic/automatic-publishing/) to social networks, [sidebar customization](https://jetpack.com/features/writing/sidebar-customization/), and many more.
 
@@ -102,6 +102,21 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
 
 == Changelog ==
+
+= 4.6 =
+
+* Release date: February 8, 2017
+* Release post:
+
+**Exciting New Features and Improvements**
+
+* New Google Analytics module. #5603
+
+**Enhancements**
+
+**Improved Compatibility**
+
+**Bug Fixes**
 
 = 4.5 =
 
