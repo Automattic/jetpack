@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publiclize: Show an error message in case Jetpack is not connected properly. #6060
 * Sync: fix issues with some sites failing to sync posts that have illegal multibyte characters. #6155
 * Widgets: update Twitter Timeline for sane limit of number of tweets to display. #6021
+* Widgets: Twitter's timeline widget and Twitter's shortcodes now pass Jetpack's partner ID to track usage. #6190
 * WordPress.com REST API: Add a new API endpoint that will allow us to enable translation autoupdates. #5953
 * WP REST API: retrieve all module settings in the readable `/settings` endpoint. #6002
 
