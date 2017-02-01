@@ -13,9 +13,6 @@ package.json
 gulpfile.js
 node_modules
 languages/jetpack.pot
-_inc/lib/icalendar-reader.php
-modules/shortcodes/upcoming-events.php
-modules/widgets/upcoming-events.php
 to-test.md
 .editorconfig
 _inc/client
