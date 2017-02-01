@@ -175,8 +175,12 @@ class Sharing_Service {
 		 * This avoids issues on sites with corrupted options.
 		 * @see https://github.com/Automattic/jetpack/issues/6121
 		 */
-		if ( ! is_array( $options ) || ! isset( $options['button_style'], $options['global'] ) ) {
+		if ( ! is_array( $options )  ) {
 			$options = array( 'global' => $this->get_global_options() );
+		}
+
+		if ( ! isset( $options['global'] ) || ! is_array( $options['global'] ) ) {
+			$options['global'] = $this->get_global_options();
 		}
 
 		$global = $options['global'];
@@ -201,8 +205,17 @@ class Sharing_Service {
 		}
 
 		// Cleanup after any filters that may have produced duplicate services
-		$enabled['visible'] = array_unique( $enabled['visible'] );
-		$enabled['hidden']  = array_unique( $enabled['hidden'] );
+		if ( is_array( $enabled['visible'] ) ) {
+			$enabled['visible'] = array_unique( $enabled['visible'] );
+		} else {
+			$enabled['visible'] = array();
+		}
+		
+		if ( is_array( $enabled['hidden'] ) ) {
+			$enabled['hidden']  = array_unique( $enabled['hidden'] );
+		} else {
+			$enabled['hidden'] = array();
+		}
 
 		// Form the enabled services
 		$blog = array( 'visible' => array(), 'hidden' => array() );
@@ -210,7 +223,10 @@ class Sharing_Service {
 		foreach ( $blog AS $area => $stuff ) {
 			foreach ( (array)$enabled[$area] AS $service ) {
 				if ( isset( $services[$service] ) ) {
-					$blog[$area][$service] = new $services[$service]( $service, array_merge( $global, isset( $options[$service] ) ? $options[$service] : array() ) );
+					if ( ! isset( $options[ $service ] ) || ! is_array( $options[ $service ] ) ) {
+						$options[ $service ] = array();
+					}
+					$blog[ $area ][ $service ] = new $services[ $service ]( $service, array_merge( $global, $options[ $service ] ) );
 				}
 			}
 		}
@@ -319,10 +335,11 @@ class Sharing_Service {
 		if ( $this->global === false ) {
 			$options = get_option( 'sharing-options' );
 
-			if ( is_array( $options ) && isset( $options['global'] ) )
+			if ( is_array( $options ) && isset( $options['global'] ) && is_array( $options['global'] ) ) {
 				$this->global = $options['global'];
-			else
+			} else {
 				$this->global = $this->set_global_options( $options['global'] );
+			}
 		}
 
 		if ( ! isset( $this->global['show'] ) ) {
