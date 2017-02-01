@@ -67,6 +67,9 @@ Removed malware URL in a code comment.
 * Fixed bug when by not running sem_remove after sem_release. See https://github.com/Automattic/wp-super-cache/issues/85
 * Fixed a PHP error impacting PHP 7.1.
 * Fixed a bug where we cached PUT and DELETE requests. We're treating them like POST requests now.
+* Updated the settings page, moving things around. [#173](https://github.com/Automattic/wp-super-cache/pull/173)
+* Make file locking less attractive on the settings page and fixed the WPSC_DISABLE_LOCKING constant so it really disables file locking even if the user has enabled it already.
+* Added a WPSC_REMOVE_SEMAPHORE constant that must be defined if sem_remove() is to be used as it may cause problems.  [#174](https://github.com/Automattic/wp-super-cache/pull/174)
 
 = 1.4.8 =
 * Removed malware URL in a code comment. (harmless to operation of plugin but gets flagged by A/V software)
@@ -564,6 +567,7 @@ If that doesn't work, add this line to your wp-config.php:
 	`AddDefaultCharset CHARSET`
 27. Use [Cron View](http://wordpress.org/plugins/cron-view/) to help diagnose garbage collection and preload problems. Use the plugin to make sure jobs are scheduled and for what time. Look for the wp_cache_gc and wp_cache_full_preload_hook jobs.
 18. The error message, "WP Super Cache is installed but broken. The constant WPCACHEHOME must be set in the file wp-config.php and point at the WP Super Cache plugin directory." appears at the end of every page. You can delete wp-content/advanced-cache.php and reload the plugin settings page or edit wp-config.php and look for WPCACHEHOME and make sure it points at the wp-super-cache folder. This will normally be wp-content/plugins/wp-super-cache/ but you'll likely need the full path to that file (so it's easier to let the settings page fix it). If it is not correct the caching engine will not load.
+19. If your server is running into trouble because of the number of semaphores used by the plugin it's because your users are using file locking which is not recommended (but is needed by a small number of users). You can globally disable file locking by defining the constant WPSC_DISABLE_LOCKING, or defining the constant WPSC_REMOVE_SEMAPHORE so that sem_remove() is called after every page is cached but that seems to cause problems for other processes requesting the same semaphore. Best to disable it.
 
 
 == CDN ==
