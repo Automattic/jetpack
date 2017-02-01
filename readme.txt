@@ -142,6 +142,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Likes: Prevent a PHP notice when there is no $post object. #5988
 * Photon: Force only Photon URLs to HTTPS. Custom CDN URLs may use a different protocol. #6083
 * Publicize: respect status of Publicize connections: if a connection is not shared with all users on the site, do not trigger Publicize for the other users. #6098
+* Publicize: make sure Publicize is triggered for scheduled posts. #6186
 * Sync: avoid PHP notices with the Shortcodes module. #6115, #6151, #6153
 * Tonesque: avoid PHP warnings when an image doesn't exist. #6068
 * Twitter Widget: add noscrollbar option back. #6131
