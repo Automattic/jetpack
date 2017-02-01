@@ -66,39 +66,35 @@ export const SSO = moduleSettingsForm(
 							}
 						</span>
 						</ModuleToggle>
-						{
-							isSSOActive && (
-								<FormFieldset>
-									<p className="jp-form-setting-explanation">
-										{
-											__( 'Use WordPress.com’s secure authentication.' )
-										}
-									</p>
-									<FormToggle
-										compact
-										checked={ this.state.jetpack_sso_match_by_email }
-										disabled={ unavailableInDevMode || this.props.isSavingAnyOption() }
-										onChange={ e => this.updateOptions( 'jetpack_sso_match_by_email' ) }>
-										<span className="jp-form-toggle-explanation">
-											{
-												__( 'Match accounts using email addresses.' )
-											}
-										</span>
-									</FormToggle>
-									<FormToggle
-										compact
-										checked={ this.state.jetpack_sso_require_two_step }
-										disabled={ unavailableInDevMode || this.props.isSavingAnyOption() }
-										onChange={ e => this.updateOptions( 'jetpack_sso_require_two_step' ) }>
-										<span className="jp-form-toggle-explanation">
-											{
-												__( 'Require two step authentication.' )
-											}
-										</span>
-									</FormToggle>
-								</FormFieldset>
-							)
-						}
+						<FormFieldset>
+							<p className="jp-form-setting-explanation">
+								{
+									__( 'Use WordPress.com’s secure authentication.' )
+								}
+							</p>
+							<FormToggle
+								compact
+								checked={ this.state.jetpack_sso_match_by_email }
+								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+								onChange={ e => this.updateOptions( 'jetpack_sso_match_by_email' ) }>
+								<span className="jp-form-toggle-explanation">
+									{
+										__( 'Match accounts using email addresses.' )
+									}
+								</span>
+							</FormToggle>
+							<FormToggle
+								compact
+								checked={ this.state.jetpack_sso_require_two_step }
+								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+								onChange={ e => this.updateOptions( 'jetpack_sso_require_two_step' ) }>
+								<span className="jp-form-toggle-explanation">
+									{
+										__( 'Require two step authentication.' )
+									}
+								</span>
+							</FormToggle>
+						</FormFieldset>
 					</SettingsGroup>
 				</SettingsCard>
 			);

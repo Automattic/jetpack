@@ -86,11 +86,12 @@ export const ThemeEnhancements = moduleSettingsForm(
 								]
 							}
 						].map( item => {
+							let isItemActive = this.props.getOptionValue( item.module );
 							return (
 								<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` }>
 									<ModuleToggle slug={ item.module }
 												  compact
-												  activated={ this.props.getOptionValue( item.module ) }
+												  activated={ isItemActive }
 												  toggling={ this.props.isSavingAnyOption( item.module ) }
 												  toggleModule={ this.props.toggleModuleNow }>
 									<span className="jp-form-toggle-explanation">
@@ -101,24 +102,22 @@ export const ThemeEnhancements = moduleSettingsForm(
 									</ModuleToggle>
 									<FormFieldset support={ item.learn_more_button }>
 										{
-											this.props.getOptionValue( item.module ) && (
-												item.checkboxes.map( chkbx => {
-													return (
-														<FormToggle
-															compact
-															checked={ this.state[ chkbx.key ] }
-															disabled={ this.props.isSavingAnyOption() }
-															onChange={ e => this.updateOptions( chkbx.key, item.module ) }
-															key={ `${ item.module }_${ chkbx.key }`}>
-															<span className="jp-form-toggle-explanation">
-																{
-																	chkbx.label
-																}
-															</span>
-														</FormToggle>
-													);
-												} )
-											)
+											item.checkboxes.map( chkbx => {
+												return (
+													<FormToggle
+														compact
+														checked={ this.state[ chkbx.key ] }
+														disabled={ ! isItemActive }
+														onChange={ e => this.updateOptions( chkbx.key, item.module ) }
+														key={ `${ item.module }_${ chkbx.key }`}>
+														<span className="jp-form-toggle-explanation">
+															{
+																chkbx.label
+															}
+														</span>
+													</FormToggle>
+												);
+											} )
 										}
 									</FormFieldset>
 								</SettingsGroup>

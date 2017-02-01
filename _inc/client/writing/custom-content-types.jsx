@@ -19,16 +19,14 @@ export const CustomContentTypes = moduleSettingsForm(
 	React.createClass( {
 
 		contentTypeConfigure( type, legend ) {
-			if ( ! this.state[ type ] ) {
-				return '';
-			}
-			return ! this.props.getSettingCurrentValue( 'jetpack_' + type, 'custom-content-types' )
-				? ''
-				: (
-					<Button compact href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-' + type }>
-						{ legend }
-					</Button>
-				);
+			let disabledOrHref = this.props.getSettingCurrentValue( 'jetpack_' + type, 'custom-content-types' )
+				? { href: this.props.siteAdminUrl + 'edit.php?post_type=jetpack-' + type }
+				: { disabled: true };
+			return (
+				<Button compact	{ ...disabledOrHref }>
+					{ legend }
+				</Button>
+			);
 		},
 
 		getInitialState() {
@@ -73,22 +71,18 @@ export const CustomContentTypes = moduleSettingsForm(
 								}
 							</span>
 						</FormToggle>
-						{
-							this.state.testimonial && (
-								<FormFieldset>
-									<p className="jp-form-setting-explanation">
-										{
-											__( "The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials." )
-										}
-									</p>
-									<p>
-										{
-											this.contentTypeConfigure( 'testimonial', __( 'Configure Testimonials' ) )
-										}
-									</p>
-								</FormFieldset>
-							)
-						}
+						<FormFieldset>
+							<p className="jp-form-setting-explanation">
+								{
+									__( "The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials." )
+								}
+							</p>
+							<p>
+								{
+									this.contentTypeConfigure( 'testimonial', __( 'Configure Testimonials' ) )
+								}
+							</p>
+						</FormFieldset>
 						<FormToggle compact
 									checked={ this.state.portfolio }
 									disabled={ this.props.isSavingAnyOption() }
@@ -99,22 +93,18 @@ export const CustomContentTypes = moduleSettingsForm(
 								}
 							</span>
 						</FormToggle>
-						{
-							this.state.portfolio && (
-								<FormFieldset>
-									<p className="jp-form-setting-explanation">
-										{
-											__( "The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios." )
-										}
-									</p>
-									<p>
-										{
-											this.contentTypeConfigure( 'portfolio', __( 'Configure Portfolios' ) )
-										}
-									</p>
-								</FormFieldset>
-							)
-						}
+						<FormFieldset>
+							<p className="jp-form-setting-explanation">
+								{
+									__( "The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios." )
+								}
+							</p>
+							<p>
+								{
+									this.contentTypeConfigure( 'portfolio', __( 'Configure Portfolios' ) )
+								}
+							</p>
+						</FormFieldset>
 					</SettingsGroup>
 				</SettingsCard>
 			);

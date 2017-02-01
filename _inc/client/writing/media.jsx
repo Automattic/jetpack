@@ -101,31 +101,28 @@ export const Media = moduleSettingsForm(
 									}
 								</span>
 						</ModuleToggle>
-						{
-							isCarouselActive && (
-								<FormFieldset>
-									<FormToggle
-										compact
-										checked={ this.state.carousel_display_exif }
-										disabled={ this.props.isSavingAnyOption() }
-										onChange={ e => this.updateOptions( 'carousel_display_exif' ) }>
-										<span className="jp-form-toggle-explanation">
-											{
-												__( 'Show photo metadata (Exif) in carousel, when available' )
-											}
-										</span>
-									</FormToggle>
-									<FormLabel>
-										<FormLegend className="jp-form-label-wide">{ __( 'Background color' ) }</FormLegend>
-										<FormSelect
-											name={ 'carousel_background_color' }
-											value={ this.props.getOptionValue( 'carousel_background_color' ) }
-											{ ...this.props }
-											validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
-									</FormLabel>
-								</FormFieldset>
-							)
-						}
+						<FormFieldset>
+							<FormToggle
+								compact
+								checked={ this.state.carousel_display_exif }
+								disabled={ ! isCarouselActive || this.props.isSavingAnyOption() }
+								onChange={ e => this.updateOptions( 'carousel_display_exif' ) }>
+									<span className="jp-form-toggle-explanation">
+										{
+											__( 'Show photo metadata (Exif) in carousel, when available' )
+										}
+									</span>
+							</FormToggle>
+							<FormLabel>
+								<FormLegend className="jp-form-label-wide">{ __( 'Background color' ) }</FormLegend>
+								<FormSelect
+									name={ 'carousel_background_color' }
+									value={ this.props.getOptionValue( 'carousel_background_color' ) }
+									disabled={ ! isCarouselActive || this.props.isSavingAnyOption( 'carousel_background_color' ) }
+									{ ...this.props }
+									validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
+							</FormLabel>
+						</FormFieldset>
 					</SettingsGroup>
 				</SettingsCard>
 			);

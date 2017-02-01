@@ -72,7 +72,7 @@ export const Composing = moduleSettingsForm(
 				<FormToggle
 					compact
 					checked={ this.state[ setting ] }
-					disabled={ this.props.isSavingAnyOption() }
+					disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) || this.props.isUnavailableInDevMode( 'after-the-deadline' ) || this.props.isSavingAnyOption( setting ) }
 					onChange={ e => this.updateOptions( setting ) }>
 					<span className="jp-form-toggle-explanation">
 						{ label }
@@ -127,6 +127,7 @@ export const Composing = moduleSettingsForm(
 						</FormLegend>
 						<TagsInput
 							name="ignored_phrases"
+							disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) }
 							placeholder={ __( 'Add a phrase' ) }
 							value={
 								'undefined' !== typeof ignoredPhrases && '' !== ignoredPhrases
@@ -173,11 +174,7 @@ export const Composing = moduleSettingsForm(
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
-							{
-								! atdUnavailableInDevMode && this.props.getOptionValue( 'after-the-deadline' ) && (
-									<InlineExpand label={ __( 'Advanced Options' ) }>{ this.getAtdSettings() }</InlineExpand>
-								)
-							}
+							<InlineExpand label={ __( 'Advanced Options' ) }>{ this.getAtdSettings() }</InlineExpand>
 						</FormFieldset>
 					</SettingsGroup>
 				</SettingsCard>

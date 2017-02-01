@@ -40,7 +40,8 @@ export const PostByEmail = moduleSettingsForm(
 
 		render() {
 			let postByEmail = this.props.getModule( 'post-by-email' ),
-				isPbeActive = this.props.getOptionValue( 'post-by-email' );
+				isPbeActive = this.props.getOptionValue( 'post-by-email' ),
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'post-by-email' );
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -49,7 +50,7 @@ export const PostByEmail = moduleSettingsForm(
 					<SettingsGroup hasChild disableInDevMode module={ postByEmail }>
 						<ModuleToggle slug="post-by-email"
 									  compact
-									  disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
+									  disabled={ unavailableInDevMode }
 									  activated={ isPbeActive }
 									  toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
 									  toggleModule={ this.props.toggleModuleNow }>
@@ -59,25 +60,23 @@ export const PostByEmail = moduleSettingsForm(
 							}
 						</span>
 						</ModuleToggle>
-						{
-							isPbeActive && (
-								<FormFieldset>
-									<FormLabel>
-										<FormLegend>{ __( 'Email Address' ) }</FormLegend>
-										<ClipboardButtonInput
-											value={ this.address() }
-											copy={ __( 'Copy', { context: 'verb' } ) }
-											copied={ __( 'Copied!' ) }
-											prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
-										/>
-									</FormLabel>
-									<Button
-										onClick={ this.regeneratePostByEmailAddress } >
-										{ __( 'Regenerate address' ) }
-									</Button>
-								</FormFieldset>
-							)
-						}
+						<FormFieldset>
+							<FormLabel>
+								<FormLegend>{ __( 'Email Address' ) }</FormLegend>
+								<ClipboardButtonInput
+									value={ this.address() }
+									disabled={ ! isPbeActive || unavailableInDevMode }
+									copy={ __( 'Copy', { context: 'verb' } ) }
+									copied={ __( 'Copied!' ) }
+									prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+								/>
+							</FormLabel>
+							<Button
+								disabled={ ! isPbeActive || unavailableInDevMode }
+								onClick={ this.regeneratePostByEmailAddress } >
+								{ __( 'Regenerate address' ) }
+							</Button>
+						</FormFieldset>
 					</SettingsGroup>
 				</SettingsCard>
 			);

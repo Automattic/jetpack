@@ -84,6 +84,7 @@ export const SiteStats = moduleSettingsForm(
 
 		render() {
 			let stats = this.props.getModule( 'stats' ),
+				isStatsActive = this.props.getOptionValue( 'stats' ),
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'stats' ),
 				siteRoles = this.props.getSiteRoles();
 			return (
@@ -96,82 +97,76 @@ export const SiteStats = moduleSettingsForm(
 						<FormFieldset>
 							<ModuleToggle slug="stats"
 										  compact
-										  disabled={ unavailableInDevMode }
+										  disabled={ ! isStatsActive || unavailableInDevMode }
 										  activated={ !!this.props.getOptionValue( 'admin_bar' ) }
 										  toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
 										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }>
-							<span className="jp-form-toggle-explanation">
-								{
-									__( 'Put a chart showing 48 hours of views in the admin bar.' )
-								}
-							</span>
+								<span className="jp-form-toggle-explanation">
+									{
+										__( 'Put a chart showing 48 hours of views in the admin bar.' )
+									}
+								</span>
 							</ModuleToggle>
 							<ModuleToggle slug="stats"
 										  compact
-										  disabled={ unavailableInDevMode }
+										  disabled={ ! isStatsActive || unavailableInDevMode }
 										  activated={ !!this.props.getOptionValue( 'hide_smile' ) }
 										  toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
 										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }>
-							<span className="jp-form-toggle-explanation">
-								{
-									__( 'Hide the stats smiley face image. The image helps collect stats, but should work when hidden.' )
-								}
-							</span>
+								<span className="jp-form-toggle-explanation">
+									{
+										__( 'Hide the stats smiley face image. The image helps collect stats, but should work when hidden.' )
+									}
+								</span>
 							</ModuleToggle>
 						</FormFieldset>
-						<InlineExpand
-							disabled={ unavailableInDevMode }
-							label={ __( 'Advanced Options' ) }>
-							{
-								! unavailableInDevMode && (
-									<div>
-										<FormFieldset>
-											<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
-											{
-												Object.keys( siteRoles ).map( key => (
-													<FormToggle
-														compact
-														checked={ this.state[ `count_roles_${key}` ] }
-														disabled={ unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] ) }
-														onChange={ e => this.updateOptions( key, 'count_roles' ) }
-														key={ `count_roles-${key}` }>
-														<span className="jp-form-toggle-explanation">
-															{ siteRoles[ key ].name }
-														</span>
-													</FormToggle>
-												) )
-											}
-										</FormFieldset>
-										<FormFieldset>
-											<FormLegend>{ __( 'Report Visibility: Select the roles that will be able to view stats reports' ) }</FormLegend>
+						<InlineExpand label={ __( 'Advanced Options' ) }>
+							<div>
+								<FormFieldset>
+									<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
+									{
+										Object.keys( siteRoles ).map( key => (
 											<FormToggle
 												compact
-												checked={ true }
-												disabled={ true }>
-													<span className="jp-form-toggle-explanation">
-														{ siteRoles.administrator.name }
-													</span>
+												checked={ this.state[ `count_roles_${key}` ] }
+												disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] ) }
+												onChange={ e => this.updateOptions( key, 'count_roles' ) }
+												key={ `count_roles-${key}` }>
+												<span className="jp-form-toggle-explanation">
+													{ siteRoles[ key ].name }
+												</span>
 											</FormToggle>
-											{
-												Object.keys( siteRoles ).map( key => (
-													( 'administrator' !== key ) && (
-														<FormToggle
-															compact
-															checked={ this.state[ `roles_${key}` ] }
-															disabled={ unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'roles' ] ) }
-															onChange={ e => this.updateOptions( key, 'roles' ) }
-															key={ `roles-${key}` }>
-															<span className="jp-form-toggle-explanation">
-																{ siteRoles[ key ].name }
-															</span>
-														</FormToggle>
-													)
-												) )
-											}
-										</FormFieldset>
-									</div>
-								)
-							}
+										) )
+									}
+								</FormFieldset>
+								<FormFieldset>
+									<FormLegend>{ __( 'Report Visibility: Select the roles that will be able to view stats reports' ) }</FormLegend>
+									<FormToggle
+										compact
+										checked={ true }
+										disabled={ true }>
+										<span className="jp-form-toggle-explanation">
+											{ siteRoles.administrator.name }
+										</span>
+									</FormToggle>
+									{
+										Object.keys( siteRoles ).map( key => (
+											( 'administrator' !== key ) && (
+												<FormToggle
+													compact
+													checked={ this.state[ `roles_${key}` ] }
+													disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'roles' ] ) }
+													onChange={ e => this.updateOptions( key, 'roles' ) }
+													key={ `roles-${key}` }>
+													<span className="jp-form-toggle-explanation">
+														{ siteRoles[ key ].name }
+													</span>
+												</FormToggle>
+											)
+										) )
+									}
+								</FormFieldset>
+							</div>
 						</InlineExpand>
 					</SettingsGroup>
 				</SettingsCard>

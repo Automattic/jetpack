@@ -68,39 +68,37 @@ export const Subscriptions = moduleSettingsForm(
 						</span>
 						</ModuleToggle>
 						{
-							isSubscriptionsActive && (
-								<FormFieldset>
-									<FormToggle
-										compact
-										checked={ this.state.stb_enabled }
-										disabled={ unavailableInDevMode || this.props.isSavingAnyOption() }
-										onChange={ e => this.updateOptions( 'stb_enabled' ) }>
-										<span className="jp-form-toggle-explanation">
-											{
-												__( 'Show a "follow blog" option in the comment form' )
-											}
-										</span>
-									</FormToggle>
-									<FormToggle
-										compact
-										checked={ this.state.stc_enabled }
-										disabled={ unavailableInDevMode || this.props.isSavingAnyOption() }
-										onChange={ e => this.updateOptions( 'stc_enabled' ) }>
-										<span className="jp-form-toggle-explanation">
-											{
-												__( 'Show a "follow comments" option in the comment form.' )
-											}
-										</span>
-									</FormToggle>
-									{
-										! unavailableInDevMode && (
-											<p>
-												<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
-											</p>
-										)
-									}
-								</FormFieldset>
-							)
+							<FormFieldset>
+								<FormToggle
+									compact
+									checked={ this.state.stb_enabled }
+									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+									onChange={ e => this.updateOptions( 'stb_enabled' ) }>
+									<span className="jp-form-toggle-explanation">
+										{
+											__( 'Show a "follow blog" option in the comment form' )
+										}
+									</span>
+								</FormToggle>
+								<FormToggle
+									compact
+									checked={ this.state.stc_enabled }
+									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+									onChange={ e => this.updateOptions( 'stc_enabled' ) }>
+									<span className="jp-form-toggle-explanation">
+										{
+											__( 'Show a "follow comments" option in the comment form.' )
+										}
+									</span>
+								</FormToggle>
+								{
+									( isSubscriptionsActive || ! unavailableInDevMode ) && (
+										<p>
+											<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
+										</p>
+									)
+								}
+							</FormFieldset>
 						}
 					</SettingsGroup>
 				</SettingsCard>
