@@ -339,6 +339,8 @@ Scroller.prototype.refresh = function() {
 					if ( response.lastbatch ) {
 						if ( self.click_handle ) {
 							$( '#infinite-handle' ).remove();
+							// Update body classes
+							self.body.addClass( 'infinity-end' ).removeClass( 'infinity-success' );
 						} else {
 							self.body.trigger( 'infinite-scroll-posts-end' );
 						}
