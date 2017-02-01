@@ -10,6 +10,29 @@ Once the module is enabled, go to **Settings → Analytics** [on WordPress.com](
 
 Once you've added the tracking ID, you should be able to see the Google Analytics tracking code in the source code of all pages on your site.
 
+### PHP 7.1 Compatibility
+
+We fixed multiple notices and warnings that were displayed on sites using Jetpack and PHP 7.1. If you can test Jetpack on a server using PHP 7.1, try to activate and deactivate features, browse posts and pages on the site, all the while monitoring your Debug log for errors.
+
+To make sure errors are logged on your site, you can add the following to your site's `wp-config.php` file:
+
+```php
+define( 'WP_DEBUG', true );
+
+if ( WP_DEBUG ) {
+
+	@error_reporting( E_ALL );
+	@ini_set( 'log_errors', true );
+	@ini_set( 'log_errors_max_len', '0' );
+
+	define( 'WP_DEBUG_LOG', true );
+	define( 'WP_DEBUG_DISPLAY', false );
+	define( 'CONCATENATE_SCRIPTS', false );
+	define( 'SAVEQUERIES', true );
+
+}
+```
+
 ### General
 
 In the past few releases we've refined our "Just In Time" message delivery system to display notices in specific area of the dashboard, when it's relevant for a site owner. In this release, we will start displaying notices to WooCommerce users.
