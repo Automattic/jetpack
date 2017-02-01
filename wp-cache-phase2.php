@@ -158,7 +158,7 @@ function wp_cache_is_rejected($uri) {
 function wp_cache_mutex_init() {
 	global $mutex, $wp_cache_mutex_disabled, $use_flock, $blog_cache_dir, $mutex_filename, $sem_id;
 
-	if( isset( $wp_cache_mutex_disabled) && $wp_cache_mutex_disabled )
+	if ( defined( 'WPSC_DISABLE_LOCKING' ) || ( isset( $wp_cache_mutex_disabled ) && $wp_cache_mutex_disabled ) )
 		return true;
 
 	if( !is_bool( $use_flock ) ) {
@@ -175,14 +175,14 @@ function wp_cache_mutex_init() {
 		$mutex = @fopen( $blog_cache_dir . $mutex_filename, 'w' );
 	} else {
 		wp_cache_debug( "Created mutex lock on semaphore: {$sem_id}", 5 );
-		$mutex = @sem_get( $sem_id, 1, 0644 | IPC_CREAT, 1 );
+		$mutex = @sem_get( $sem_id, 1, 0666, 1 );
 	}
 }
 
 function wp_cache_writers_entry() {
 	global $mutex, $wp_cache_mutex_disabled, $use_flock;
 
-	if( isset( $wp_cache_mutex_disabled ) && $wp_cache_mutex_disabled )
+	if ( defined( 'WPSC_DISABLE_LOCKING' ) || ( isset( $wp_cache_mutex_disabled ) && $wp_cache_mutex_disabled ) )
 		return true;
 
 	if( !$mutex ) {
@@ -195,7 +195,7 @@ function wp_cache_writers_entry() {
 		flock($mutex,  LOCK_EX);
 	} else {
 		wp_cache_debug( "grabbing lock using sem_acquire()", 5 );
-		sem_acquire($mutex);
+		@sem_acquire($mutex);
 	}
 
 	return true;
@@ -204,7 +204,7 @@ function wp_cache_writers_entry() {
 function wp_cache_writers_exit() {
 	global $mutex, $wp_cache_mutex_disabled, $use_flock;
 
-	if( isset( $wp_cache_mutex_disabled ) && $wp_cache_mutex_disabled )
+	if ( defined( 'WPSC_DISABLE_LOCKING' ) || ( isset( $wp_cache_mutex_disabled ) && $wp_cache_mutex_disabled ) )
 		return true;
 
 	if( !$mutex ) {
@@ -217,8 +217,9 @@ function wp_cache_writers_exit() {
 		flock( $mutex,  LOCK_UN );
 	} else {
 		wp_cache_debug( "releasing lock using sem_release() and sem_remove()", 5 );
-		sem_release( $mutex );
-		sem_remove( $mutex );
+		@sem_release( $mutex );
+		if ( defined( "WPSC_REMOVE_SEMAPHORE" ) )
+			@sem_remove( $mutex );
 	}
 }
 
