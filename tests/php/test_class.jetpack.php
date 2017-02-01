@@ -11,7 +11,8 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	static $activated_modules = array();
 	static $deactivated_modules = array();
 
-	function tearDown() {
+	public function tearDown() {
+		parent::tearDown();
 		Jetpack_Constants::clear_constants();
 	}
 

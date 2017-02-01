@@ -56,6 +56,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		self::$stats_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
+		Jetpack::load_xml_rpc_client();
+		$ixr_client = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$core_api_endpoint = new Jetpack_Core_API_Data( $ixr_client );
+
 		// Get current connection status of Jetpack
 		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -135,6 +139,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'modules' => array(
 					'default'           => '',
 					'type'              => 'array',
+					'items'             => array(
+						'type'          => 'string',
+					),
 					'required'          => true,
 					'validate_callback' => __CLASS__ . '::validate_module_list',
 				),
@@ -146,8 +153,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
-
-		Jetpack::load_xml_rpc_client();
 
 		// Return a single module and update it when needed
 		self::route(
@@ -200,28 +205,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 		);
 
 		// Update any Jetpack module option or setting
-		self::route(
-			'/settings',
-			'Jetpack_Core_API_Data',
-			WP_REST_Server::EDITABLE,
-			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
-			self::get_updateable_parameters( 'any' )
-		);
+		register_rest_route( 'jetpack/v4', '/settings', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => array( $core_api_endpoint, 'process' ),
+			'permission_callback' => array( $core_api_endpoint, 'can_request' ),
+			'args' => self::get_updateable_parameters( 'any' )
+		) );
 
 		// Update a module
-		self::route(
-			'/settings/(?P<slug>[a-z\-]+)',
-			'Jetpack_Core_API_Data',
-			WP_REST_Server::EDITABLE,
-			new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) ),
-			self::get_updateable_parameters()
-		);
+		register_rest_route( 'jetpack/v4', '/settings/(?P<slug>[a-z\-]+)', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => array( $core_api_endpoint, 'process' ),
+			'permission_callback' => array( $core_api_endpoint, 'can_request' ),
+			'args' => self::get_updateable_parameters()
+		) );
 
-		// Return miscellaneous settings
-		register_rest_route( 'jetpack/v4', '/settings', array(
+		// Return all module settings
+		register_rest_route( 'jetpack/v4', '/settings/', array(
 			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::get_settings',
-			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			'callback' => array( $core_api_endpoint, 'process' ),
+			'permission_callback' => array( $core_api_endpoint, 'can_request' ),
 		) );
 
 		// Reset all Jetpack options
@@ -231,14 +234,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
-		// Jumpstart
+		// Return current Jumpstart status
 		register_rest_route( 'jetpack/v4', '/jumpstart', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::jumpstart_toggle',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::jumpstart_status',
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+		) );
+
+		// Update Jumpstart
+		register_rest_route( 'jetpack/v4', '/jumpstart', array(
+			'methods'             => WP_REST_Server::EDITABLE,
+			'callback'            => __CLASS__ . '::jumpstart_toggle',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-			'args' => array(
+			'args'                => array(
 				'active' => array(
-					'required' => true,
+					'required'          => true,
 					'validate_callback' => __CLASS__  . '::validate_boolean',
 				),
 			),
@@ -559,24 +569,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Get miscellaneous settings for this Jetpack installation, like Holiday Snow.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @return object $response {
-	 *     Array of miscellaneous settings.
-	 *
-	 *     @type bool $holiday-snow Did Jack steal Christmas?
-	 * }
-	 */
-	public static function get_settings() {
-		$response = array(
-			self::holiday_snow_option_name() => get_option( self::holiday_snow_option_name() ) == 'letitsnow',
-		);
-		return rest_ensure_response( $response );
-	}
-
-	/**
 	 * Get miscellaneous user data related to the connection. Similar data available in old "My Jetpack".
 	 * Information about the master/primary user.
 	 * Information about the current user.
@@ -843,6 +835,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'required_param', esc_html__( 'Missing parameter "type".', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Retrieves the current status of Jumpstart.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @return bool
+	 */
+	public static function jumpstart_status() {
+		return array(
+			'status' => Jetpack_Options::get_option( 'jumpstart' )
+		);
 	}
 
 	/**
@@ -1525,6 +1530,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback'  => __CLASS__ . '::validate_boolean',
 				'jp_group'           => 'wordads',
 			),
+
+			// Google Analytics
+			'google_analytics_tracking_id' => array(
+				'description'        => esc_html__( 'Google Analytics', 'jetpack' ),
+				'type'               => 'string',
+				'default'            => '',
+				'validate_callback'  => __CLASS__ . '::validate_alphanum',
+				'jp_group'           => 'google-analytics',
+			),
+
 			// Stats
 			'admin_bar' => array(
 				'description'       => esc_html__( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ),
@@ -2098,6 +2113,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'verification-tools':
 				// It's local, but it must be broken apart since it's saved as an array.
 				$options = self::split_options( $options, get_option( 'verification_services_codes' ) );
+				break;
+
+			case 'google-analytics':
+				$wga = get_option( 'jetpack_wga' );
+				$code = '';
+				if ( is_array( $wga ) && array_key_exists( 'code', $wga ) ) {
+					 $code = $wga[ 'code' ];
+				}
+				$options[ 'google_analytics_tracking_id' ][ 'current_value' ] = $code;
 				break;
 
 			case 'sharedaddy':

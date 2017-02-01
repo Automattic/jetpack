@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import { includes } from 'lodash';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 
@@ -48,6 +49,10 @@ const ProStatus = React.createClass( {
 			pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature ?
 			'vaultpress/vaultpress.php' :
 			'akismet/akismet.php';
+
+		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
+			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
+			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug );
 
 		let getStatus = ( feature, active, installed ) => {
 			let vpData = this.props.getVaultPressData();
@@ -117,12 +122,40 @@ const ProStatus = React.createClass( {
 				);
 			}
 
+			if ( 'google-analytics' === feature && ! includes( [ 'jetpack_business', 'jetpack_business_monthly' ], sitePlan.product_slug ) ) {
+				if ( this.props.fetchingSiteData ) {
+					return '';
+				}
+
+				return (
+					<Button
+						compact={ true }
+						primary={ true }
+						href={ 'https://jetpack.com/redirect/?source=upgrade-google-analytics&site=' + this.props.siteRawUrl + '&feature=google-analytics' }
+					>
+						{ __( 'Upgrade' ) }
+					</Button>
+				);
+			}
+
 			if ( sitePlan.product_slug ) {
 				let btnVals = {};
 				if ( 'jetpack_free' !== sitePlan.product_slug ) {
 					btnVals = {
 						href: `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }`,
 						text: __( 'Set up' )
+					}
+
+					if ( 'scan' === feature && ! hasBusiness && ! hasPremium ) {
+						return (
+							<Button
+								compact={ true }
+								primary={ true }
+								href={ 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl }
+							>
+								{ __( 'Upgrade' ) }
+							</Button>
+						);
 					}
 				} else {
 					btnVals = {
@@ -146,7 +179,7 @@ const ProStatus = React.createClass( {
 				);
 			}
 
-			return active && installed ?
+			return active && installed && sitePlan.product_slug ?
 				<span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>
 				: '';
 		};

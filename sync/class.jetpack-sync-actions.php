@@ -22,8 +22,7 @@ class Jetpack_Sync_Actions {
 		if ( self::sync_via_cron_allowed() ) {
 			self::init_sync_cron_jobs();
 		} else if ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
-			wp_clear_scheduled_hook( 'jetpack_sync_cron' );
-			wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
+			self::clear_sync_cron_jobs();
 		}
 
 		// On jetpack authorization, schedule a full sync
@@ -113,7 +112,7 @@ class Jetpack_Sync_Actions {
 		Jetpack_Sync_Settings::set_importing( true );
 	}
 
-	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id ) {
+	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
 		Jetpack::load_xml_rpc_client();
 
 		$query_args = array(
@@ -123,6 +122,8 @@ class Jetpack_Sync_Actions {
 			'queue'     => $queue_id,       // sync or full_sync
 			'home'      => get_home_url(),  // Send home url option to check for Identity Crisis server-side
 			'siteurl'   => get_site_url(),  // Send siteurl option to check for Identity Crisis server-side
+			'cd'        => sprintf( '%.4f', $checkout_duration),   // Time spent retrieving queue items from the DB
+			'pd'        => sprintf( '%.4f', $preprocess_duration), // Time spent converting queue items into data to send
 		);
 
 		// Has the site opted in to IDC mitigation?
@@ -178,16 +179,17 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function do_initial_sync( $new_version = null, $old_version = null ) {
-		$initial_sync_config = array(
-			'options' => true,
-			'network_options' => true,
-			'functions' => true,
-			'constants' => true,
-		);
-
-		if ( $old_version && ( version_compare( $old_version, '4.2', '<' ) ) ) {
-			$initial_sync_config['users'] = 'initial';
+		if ( ! empty( $old_version ) && version_compare( $old_version, '4.2', '>=' ) ) {
+			return;
 		}
+
+		$initial_sync_config = array(
+			'options'         => true,
+			'network_options' => true,
+			'functions'       => true,
+			'constants'       => true,
+			'users'           => 'initial',
+		);
 
 		self::do_full_sync( $initial_sync_config );
 	}
@@ -226,6 +228,9 @@ class Jetpack_Sync_Actions {
 
 		self::initialize_sender();
 
+		$time_limit = Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
+		$start_time = time();
+
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time( 'sync' );
 
@@ -239,7 +244,7 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = self::$sender->do_sync();
-		} while ( $result );
+		} while ( $result && ( $start_time + $time_limit ) > time() );
 	}
 
 	static function do_cron_full_sync() {
@@ -248,6 +253,9 @@ class Jetpack_Sync_Actions {
 		}
 
 		self::initialize_sender();
+
+		$time_limit = Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
+		$start_time = time();
 
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
@@ -262,7 +270,7 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = self::$sender->do_full_sync();
-		} while ( $result );
+		} while ( $result && ( $start_time + $time_limit ) > time() );
 	}
 
 	static function initialize_listener() {
@@ -275,7 +283,19 @@ class Jetpack_Sync_Actions {
 		self::$sender = Jetpack_Sync_Sender::get_instance();
 
 		// bind the sending process
-		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 4 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 6 );
+	}
+
+	static function initialize_woocommerce() {
+		if ( class_exists( 'WooCommerce' ) ) {
+			add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
+		}
+	}
+
+	static function add_woocommerce_sync_module( $sync_modules ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-woocommerce.php';
+		$sync_modules[] = 'Jetpack_Sync_Module_WooCommerce';
+		return $sync_modules;
 	}
 
 	static function sanitize_filtered_sync_cron_schedule( $schedule ) {
@@ -290,28 +310,53 @@ class Jetpack_Sync_Actions {
 		return self::DEFAULT_SYNC_CRON_INTERVAL_NAME;
 	}
 
+	static function get_start_time_offset( $schedule = '', $hook = '' ) {
+		$start_time_offset =  is_multisite()
+			? mt_rand( 0, ( 2 * self::DEFAULT_SYNC_CRON_INTERVAL_VALUE ) )
+			: 0;
+
+		/**
+		 * Allows overriding the offset that the sync cron jobs will first run. This can be useful when scheduling
+		 * cron jobs across multiple sites in a network.
+		 *
+		 * @since 4.5
+		 *
+		 * @param int    $start_time_offset
+		 * @param string $hook
+		 * @param string $schedule
+		 */
+		return intval( apply_filters(
+			'jetpack_sync_cron_start_time_offset',
+			$start_time_offset,
+			$hook,
+			$schedule
+		) );
+	}
+
 	static function maybe_schedule_sync_cron( $schedule, $hook ) {
 		if ( ! $hook ) {
 			return;
 		}
 		$schedule = self::sanitize_filtered_sync_cron_schedule( $schedule );
 
+		$start_time = time() + self::get_start_time_offset( $schedule, $hook );
 		if ( ! wp_next_scheduled( $hook ) ) {
 			// Schedule a job to send pending queue items once a minute
-			wp_schedule_event( time(), $schedule, $hook );
+			wp_schedule_event( $start_time, $schedule, $hook );
 		} else if ( $schedule != wp_get_schedule( $hook ) ) {
 			// If the schedule has changed, update the schedule
 			wp_clear_scheduled_hook( $hook );
-			wp_schedule_event( time(), $schedule, $hook );
+			wp_schedule_event( $start_time, $schedule, $hook );
 		}
 	}
 
-	static function init_sync_cron_jobs() {
-		// Add a custom "every minute" cron schedule
-		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
+	static function clear_sync_cron_jobs() {
+		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
+		wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
+	}
 
-		// cron hooks
-		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
+	static function init_sync_cron_jobs() {
+		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
 
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
 		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
@@ -337,22 +382,55 @@ class Jetpack_Sync_Actions {
 		self::maybe_schedule_sync_cron( $full_sync_cron_schedule, 'jetpack_sync_full_cron' );
 	}
 
-	static function cleanup_on_upgrade() {
+	static function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
 		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
 		}
+
+		$is_new_sync_upgrade = version_compare( $old_version, '4.2', '>=' );
+		if ( ! empty( $old_version ) && $is_new_sync_upgrade && version_compare( $old_version, '4.5', '<' ) ) {
+			require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
+			self::clear_sync_cron_jobs();
+			Jetpack_Sync_Settings::update_settings( array(
+				'render_filtered_content' => Jetpack_Sync_Defaults::$default_render_filtered_content
+			) );
+		}
+	}
+
+	static function get_sync_status() {
+		self::initialize_sender();
+
+		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$queue       = self::$sender->get_sync_queue();
+		$full_queue  = self::$sender->get_full_sync_queue();
+		$cron_timestamps = array_keys( _get_cron_array() );
+		$next_cron = $cron_timestamps[0] - time();
+
+		return array_merge(
+			$sync_module->get_status(),
+			array(
+				'cron_size'             => count( $cron_timestamps ),
+				'next_cron'             => $next_cron,
+				'queue_size'            => $queue->size(),
+				'queue_lag'             => $queue->lag(),
+				'queue_next_sync'       => ( self::$sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
+				'full_queue_size'       => $full_queue->size(),
+				'full_queue_lag'        => $full_queue->lag(),
+				'full_queue_next_sync'  => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
+			)
+		);
 	}
 }
 
-/**
- * If the site is using alternate cron, we need to init the listener and sender before cron
- * runs. So, we init at a priority of 9.
- *
- * If the site is using a regular cron job, we init at a priority of 90 which gives plugins a chance
- * to add filters before we initialize.
+/*
+ * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
+ * with a high priority or sites that use alternate cron.
  */
 add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
+// Check for WooCommerce support
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
+
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ) );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );

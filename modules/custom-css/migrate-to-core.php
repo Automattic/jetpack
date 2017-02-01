@@ -41,6 +41,11 @@ class Jetpack_Custom_CSS_Data_Migration {
 		$preprocessors      = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 		$core_css_post      = wp_get_custom_css_post();
 		$jetpack_css_post   = self::get_post();
+
+		if ( ! $jetpack_css_post ) {
+			return;
+		}
+
 		$revisions          = self::get_all_revisions();
 
 		// Migrate the settings from revision meta to theme mod.
@@ -188,6 +193,11 @@ class Jetpack_Custom_CSS_Data_Migration {
 	 */
 	public static function get_all_revisions() {
 		$post = self::get_post();
+
+		if ( ! $post ) {
+			return array();
+		}
+
 		$revisions = wp_get_post_revisions( $post->ID, array(
 			'posts_per_page' => -1,
 			'orderby'        => 'date',

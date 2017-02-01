@@ -82,6 +82,21 @@ const AllModuleSettingsComponent = React.createClass( {
 				return ( <LikesSettings module={ module }  /> );
 			case 'wordads':
 				return ( <WordAdsSettings module={ module } /> );
+			case 'google-analytics':
+				if ( 'inactive' === module.configure_url ) {
+					return (
+						<div>
+							{ __( 'Activate this module to use Google Analytics.' ) }
+						</div>
+					);
+				} else {
+					return (
+						<div>
+							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
+						</div>
+					);
+				}
+			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':
 			case 'shortlinks':

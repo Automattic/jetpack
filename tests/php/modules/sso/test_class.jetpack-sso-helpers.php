@@ -9,7 +9,8 @@ require_once( dirname( __FILE__ ) . '/../../../../modules/sso/class.jetpack-sso-
 class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	protected $user_data;
 
-	function setUp() {
+	public function setUp() {
+		parent::setUp();
 		$this->user_data = (object) array(
 			'ID'           => 123456789,
 			'email'        => 'ssouser@testautomattic.com',
@@ -74,9 +75,11 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		remove_filter( 'jetpack_sso_match_by_email', '__return_false' );
 	}
 
-	function test_sso_helpers_new_user_override_filter_true() {
+	function test_sso_helpers_new_user_override_filter_true_returns_default_role() {
+		add_role( 'foo', 'Foo' );
+		update_option( 'default_role', 'foo' );
 		add_filter( 'jetpack_sso_new_user_override', '__return_true' );
-		$this->assertTrue( Jetpack_SSO_Helpers::new_user_override() );
+		$this->assertEquals( 'foo', Jetpack_SSO_Helpers::new_user_override() );
 		remove_filter( 'jetpack_sso_new_user_override', '__return_true' );
 	}
 
@@ -84,6 +87,20 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		add_filter( 'jetpack_sso_new_user_override', '__return_false' );
 		$this->assertFalse( Jetpack_SSO_Helpers::new_user_override() );
 		remove_filter( 'jetpack_sso_new_user_override', '__return_false' );
+	}
+
+	function test_sso_helpers_new_user_override_filter_rolename() {
+		add_filter( 'jetpack_sso_new_user_override', array( $this, 'return_administrator' ) );
+		$this->assertEquals( 'administrator', Jetpack_SSO_Helpers::new_user_override() );
+		remove_filter( 'jetpack_sso_new_user_override', array( $this, 'return_administrator' ) );
+	}
+
+	function test_sso_helpers_new_user_override_filter_bad_rolename_returns_default() {
+		add_role( 'foo', 'Foo' );
+		update_option( 'default_role', 'foo' );
+		add_filter( 'jetpack_sso_new_user_override', array( $this, 'return_foobarbaz' ) );
+		$this->assertEquals( 'foo', Jetpack_SSO_Helpers::new_user_override() );
+		remove_filter( 'jetpack_sso_new_user_override', array( $this, 'return_foobarbaz' ) );
 	}
 
 	function test_sso_helpers_sso_bypass_default_login_form_filter_true() {
@@ -133,7 +150,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			'http://fakesite.com/jetpack.'
 		);
 		$this->assertInternalType( 'array', $hosts );
-		$this->assertCount( 3, $hosts );
+		$this->assertCount( 4, $hosts );
 		$this->assertContains( 'test.com', $hosts );
 		$this->assertContains( 'wordpress.com', $hosts );
 		$this->assertContains( 'jetpack.wordpress.com', $hosts );
@@ -148,7 +165,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			'http://fakesite.com/jetpack.'
 		);
 		$this->assertInternalType( 'array', $hosts );
-		$this->assertCount( 4, $hosts );
+		$this->assertCount( 5, $hosts );
 		$this->assertContains( 'fakesite.com', $hosts );
 		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
@@ -160,7 +177,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			'http://fakesite.com/jetpack.'
 		);
 		$this->assertInternalType( 'array', $hosts );
-		$this->assertCount( 4, $hosts );
+		$this->assertCount( 5, $hosts );
 		$this->assertContains( 'fakesite.com', $hosts );
 		remove_filter( 'jetpack_development_version', '__return_true' );
 	}
@@ -194,6 +211,12 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertFalse( Jetpack_SSO_Helpers::generate_user( $this->user_data ) );
 	}
 
+	function test_generate_user_sets_user_role_when_provided() {
+		$this->user_data->role = 'administrator';
+		$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
+		$this->assertContains( 'administrator', get_userdata( $user->ID )->roles );
+	}
+
 	function test_extend_auth_cookie_casts_to_int() {
 		add_filter( 'jetpack_sso_auth_cookie_expirtation', array( $this, '__return_string_value' ) );
 		$this->assertSame( intval( $this->__return_string_value() ), Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
@@ -204,7 +227,60 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertGreaterThan( 2 * DAY_IN_SECONDS, Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
 	}
 
+	function test_display_sso_form_for_action() {
+		// Let's test the default cases
+		$this->assertTrue( Jetpack_SSO_Helpers::display_sso_form_for_action( 'login' ) );
+		$this->assertTrue( Jetpack_SSO_Helpers::display_sso_form_for_action( 'jetpack_json_api_authorization' ) );
+		$this->assertFalse( Jetpack_SSO_Helpers::display_sso_form_for_action( 'hello_world' ) );
+
+		add_filter( 'jetpack_sso_allowed_actions', array( $this, 'allow_hello_world_login_action_for_sso' ) );
+		$this->assertTrue( Jetpack_SSO_Helpers::display_sso_form_for_action( 'hello_world' ) );
+		remove_filter( 'jetpack_sso_allowed_actions', array( $this, 'allow_hello_world_login_action_for_sso' ) );
+	}
+
+	function test_get_json_api_auth_environment() {
+		// With no cookie returns false
+		$_COOKIE['jetpack_sso_original_request'] = '';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
+
+		// With empty query, returns false
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
+
+		// With empty no action query argument, returns false
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?hello=world';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
+
+		// When action is not for JSON API auth, return false
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?action=loggedout';
+		$this->assertFalse( Jetpack_SSO_Helpers::get_json_api_auth_environment() );
+
+		// If we pass the other tests, then let's make sure we get the right information back
+		$original_request = 'http://website.com/wp-login.php?action=jetpack_json_api_authorization&token=my-token';
+		$_COOKIE['jetpack_sso_original_request'] = $original_request;
+		$environment = Jetpack_SSO_Helpers::get_json_api_auth_environment();
+		$this->assertInternalType( 'array', $environment );
+		$this->assertSame( $environment, array(
+			'action' => 'jetpack_json_api_authorization',
+			'token'  => 'my-token',
+			'jetpack_json_api_original_query' => $original_request,
+		) );
+	}
+
 	function __return_string_value() {
 		return '1';
+	}
+
+	function return_administrator() {
+		return 'administrator';
+	}
+
+	function return_foobarbaz() {
+		return 'foobarbaz';
+	}
+
+	function allow_hello_world_login_action_for_sso( $actions ) {
+		$actions[] = 'hello_world';
+		return $actions;
 	}
 }

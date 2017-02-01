@@ -19,7 +19,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Transform image galleries into gorgeous, full-screen slideshows.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Brings your photos and images to life as full-size, easily navigable galleries.', 'Jumpstart Description', 'jetpack' ),
 			),
 
@@ -47,6 +47,11 @@ function jetpack_get_module_i18n( $key ) {
 			'enhanced-distribution' => array(
 				'name' => _x( 'Enhanced Distribution', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Increase reach and traffic.', 'Module Description', 'jetpack' ),
+			),
+
+			'google-analytics' => array(
+				'name' => _x( 'Google Analytics', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Lets you use Google Analytics to track your WordPress site statistics.', 'Module Description', 'jetpack' ),
 			),
 
 			'gravatar-hovercards' => array(
@@ -194,7 +199,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'videopress' => array(
 				'name' => _x( 'VideoPress', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Powerful, simple video hosting for WordPress', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Powerful, simple video hosting for WordPress.', 'Module Description', 'jetpack' ),
 			),
 
 			'widget-visibility' => array(
@@ -209,7 +214,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'wordads' => array(
 				'name' => _x( 'Ads', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Earn income by allowing Jetpack to insert high quality ads.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Earn income by allowing Jetpack to display high quality ads.', 'Module Description', 'jetpack' ),
 			),
 		);
 	}

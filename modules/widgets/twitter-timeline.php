@@ -81,7 +81,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		echo $args['before_widget'];
 
 		$title = isset( $instance['title'] ) ? $instance['title'] : '';
-		
+
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title );
 		if ( ! empty( $title ) ) {
@@ -106,6 +106,12 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			if ( ! empty( $instance[ $att ] ) && ! is_array( $instance[ $att ] ) ) {
 				echo ' data-' . esc_attr( $att ) . '="' . esc_attr( $instance[ $att ] ) . '"';
 			}
+		}
+
+		/** This filter is documented in modules/shortcodes/tweet.php */
+		$partner = apply_filters( 'jetpack_twitter_partner_id', 'jetpack' );
+		if ( ! empty( $partner ) ) {
+			echo ' data-partner="' . esc_attr( $partner ) . '"';
 		}
 
 		if ( ! empty( $instance['chrome'] ) && is_array( $instance['chrome'] ) ) {
@@ -183,7 +189,18 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		$tweet_limit = (int) $new_instance['tweet-limit'];
-		$instance['tweet-limit'] = ( $tweet_limit ? $tweet_limit : null );
+		if ( $tweet_limit ) {
+			$instance['tweet-limit'] = min( max( $tweet_limit, 1 ), 20 );
+			/**
+			 * A timeline with a specified limit is expanded to the height of those Tweets.
+			 * The specified height value no longer applies, so reject the height value
+			 * when a valid limit is set: a widget attempting to save both limit 5 and
+			 * height 400 would be saved with just limit 5.
+			 */
+			$instance['height'] = '';
+		} else {
+			$instance['tweet-limit'] = null;
+		}
 
 		// If they entered something that might be a full URL, try to parse it out
 		if ( is_string( $new_instance['widget-id'] ) ) {
@@ -222,7 +239,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'noheader',
 			'nofooter',
 			'noborders',
-			'transparent'
+			'transparent',
+			'noscrollbar',
 		);
 		if ( isset( $new_instance['chrome'] ) ) {
 			foreach ( $new_instance['chrome'] as $chrome ) {
@@ -249,7 +267,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Back-end widget form.
+	 * Back end widget form.
 	 *
 	 * @see WP_Widget::form()
 	 *
@@ -323,7 +341,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'tweet-limit' ); ?>">
-				<?php esc_html_e( '# of Tweets Shown:', 'jetpack' ); ?>
+				<?php esc_html_e( '# of Tweets Shown (1 to 20):', 'jetpack' ); ?>
 			</label>
 			<input
 				class="widefat"
@@ -412,6 +430,16 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			/>
 			<label for="<?php echo $this->get_field_id( 'chrome-noborders' ); ?>">
 				<?php esc_html_e( 'No Borders', 'jetpack' ); ?>
+			</label>
+			<br />
+			<input
+				type="checkbox"<?php checked( in_array( 'noscrollbar', $instance['chrome'] ) ); ?>
+				id="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>"
+				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
+				value="noscrollbar"
+			/>
+			<label for="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>">
+				<?php esc_html_e( 'No Scrollbar', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input

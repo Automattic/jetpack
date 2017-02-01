@@ -103,6 +103,10 @@ class Jetpack_Image_Widget extends WP_Widget {
 				</figure>'; // wp_kses_post caption on update
 			}
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
+		} else {
+			if ( current_user_can( 'edit_theme_options' ) ) {
+				echo '<p>' . sprintf( __( 'Image missing or invalid URL. Please check the Image widget URL in your <a href="%s">widget settings</a>.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
+			}
 		}
 
 		echo "\n" . $args['after_widget'];
@@ -174,7 +178,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 	}
 
 	/**
-	* Back-end widget form.
+	* Back end widget form.
 	*
 	* @see WP_Widget::form()
 	*
@@ -228,10 +232,10 @@ class Jetpack_Image_Widget extends WP_Widget {
 		}
 		echo '</select></label></p>';
 
-		echo '<p><label for="' .  $this->get_field_id( 'img_width' ) . '">' . esc_html__( 'Width:', 'jetpack' ) . '
+		echo '<p><label for="' .  $this->get_field_id( 'img_width' ) . '">' . esc_html__( 'Width in pixels:', 'jetpack' ) . '
 		<input size="3" id="' .  $this->get_field_id( 'img_width' ) . '" name="' . $this->get_field_name( 'img_width' ) . '" type="text" value="' .  $img_width . '" />
 		</label>
-		<label for="' . $this->get_field_id( 'img_height' ) . '">' . esc_html__( 'Height:', 'jetpack' ) . '
+		<label for="' . $this->get_field_id( 'img_height' ) . '">' . esc_html__( 'Height in pixels:', 'jetpack' ) . '
 		<input size="3" id="' . $this->get_field_id( 'img_height' ) . '" name="' . $this->get_field_name( 'img_height' ) . '" type="text" value="' . $img_height . '" />
 		</label><br />
 		<small>' . esc_html__( "If empty, we will attempt to determine the image size.", 'jetpack' ) . '</small></p>

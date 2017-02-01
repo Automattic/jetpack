@@ -54,19 +54,32 @@ class Jetpack_SSO_Helpers {
 	 *
 	 * @return bool
 	 */
-	static function new_user_override() {
+	static function new_user_override( $user_data = null ) {
 		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
 
 		/**
-		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations.
+		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations. 
+		 * If you return a string that corresponds to a user role, the user will be given that role.
 		 *
 		 * @module sso
 		 *
 		 * @since 2.6.0
+		 * @since 4.6   $user_data object is now passed to the jetpack_sso_new_user_override filter
 		 *
-		 * @param bool $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
+		 * @param bool        $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
+		 * @param object|null $user_data         An object containing the user data returned from WordPress.com.
 		 */
-		return (bool) apply_filters( 'jetpack_sso_new_user_override', $new_user_override );
+		$role = apply_filters( 'jetpack_sso_new_user_override', $new_user_override, $user_data );
+
+		if ( $role ) {
+			if ( is_string( $role ) && get_role( $role ) ) {
+				return $role;
+			} else {
+				return get_option( 'default_role' );
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -162,6 +175,7 @@ class Jetpack_SSO_Helpers {
 	 * default for $api_base due to restrictions with testing constants in our tests.
 	 *
 	 * @since 4.3.0
+	 * @since 4.6.0 Added public-api.wordpress.com as an allowed redirect
 	 *
 	 * @param array $hosts
 	 * @param string $api_base
@@ -175,6 +189,7 @@ class Jetpack_SSO_Helpers {
 
 		$hosts[] = 'wordpress.com';
 		$hosts[] = 'jetpack.wordpress.com';
+		$hosts[] = 'public-api.wordpress.com';
 
 		if (
 			( Jetpack::is_development_mode() || Jetpack::is_development_version() ) &&
@@ -221,6 +236,11 @@ class Jetpack_SSO_Helpers {
 		$user->last_name    = $user_data->last_name;
 		$user->url          = $user_data->url;
 		$user->description  = $user_data->description;
+
+		if ( isset( $user_data->role ) && $user_data->role ) {
+			$user->role     = $user_data->role;
+		}
+
 		wp_update_user( $user );
 
 		update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
@@ -239,6 +259,70 @@ class Jetpack_SSO_Helpers {
 		 * @param int YEAR_IN_SECONDS
 		 */
 		return intval( apply_filters( 'jetpack_sso_auth_cookie_expirtation', YEAR_IN_SECONDS ) );
+	}
+
+	/**
+	 * Determines if the SSO form should be displayed for the current action.
+	 *
+	 * @since 4.6.0
+	 *
+	 * @param string $action
+	 *
+	 * @return bool  Is SSO allowed for the current action?
+	 */
+	static function display_sso_form_for_action( $action ) {
+		/**
+		 * Allows plugins the ability to overwrite actions where the SSO form is allowed to be used.
+		 *
+		 * @module sso
+		 *
+		 * @since 4.6.0
+		 *
+		 * @param array $allowed_actions_for_sso
+		 */
+		$allowed_actions_for_sso = (array) apply_filters( 'jetpack_sso_allowed_actions', array(
+			'login',
+			'jetpack-sso',
+			'jetpack_json_api_authorization',
+		) );
+		return in_array( $action, $allowed_actions_for_sso );
+	}
+
+	/**
+	 * This method returns an environment array that is meant to simulate `$_REQUEST` when the initial
+	 * JSON API auth request was made.
+	 *
+	 * @since 4.6.0
+	 *
+	 * @return array|bool
+	 */
+	static function get_json_api_auth_environment() {
+		if ( empty( $_COOKIE['jetpack_sso_original_request'] ) ) {
+			return false;
+		}
+
+		$original_request = esc_url_raw( $_COOKIE['jetpack_sso_original_request'] );
+
+		$parsed_url = wp_parse_url( $original_request );
+		if ( empty( $parsed_url ) || empty( $parsed_url['query'] ) ) {
+			return false;
+		}
+
+		$args = array();
+		wp_parse_str( $parsed_url['query'], $args );
+
+		if ( empty( $args ) || empty( $args['action'] ) ) {
+			return false;
+		}
+
+		if ( 'jetpack_json_api_authorization' != $args['action'] ) {
+			return false;
+		}
+
+		return array_merge(
+			$args,
+			array( 'jetpack_json_api_original_query' => $original_request )
+		);
 	}
 }
 

@@ -269,7 +269,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( isset( $parsed_data->error ) ) {
 			return new WP_Error(
 				'remote_error',
-				__( 'We cannot display information for this blog.', 'jetpack' ),
+				__( 'It looks like the WordPress site URL is incorrectly configured. Please check it in your widget settings.', 'jetpack' ),
 				$parsed_data->error
 			);
 		}
@@ -731,13 +731,21 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'display_posts' );
 
-		/** This filter is documented in core/src/wp-includes/default-widgets.php */
-		$title = apply_filters( 'widget_title', $instance['title'] );
-
 		// Enqueue front end assets.
 		$this->enqueue_scripts();
 
 		echo $args['before_widget'];
+
+		if ( empty( $instance['url'] ) ) {
+			if ( current_user_can( 'manage_options' ) ) {
+				echo '<p>';
+				/* Translators: the "Blog URL" field mentioned is the input field labeled as such in the widget form. */
+				esc_html_e( 'The Blog URL is not properly setup in the widget.', 'jetpack' );
+				echo '</p>';
+			}
+			echo $args['after_widget'];
+			return;
+		}
 
 		$data = $this->get_blog_data( $instance['url'] );
 
@@ -751,8 +759,10 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		$site_info = $data['site_info']['data'];
 
-		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . esc_html( $title . ': ' . $site_info->name ) . $args['after_title'];
+		if ( ! empty( $instance['title'] ) ) {
+			/** This filter is documented in core/src/wp-includes/default-widgets.php */
+			$instance['title'] = apply_filters( 'widget_title', $instance['title'] );
+			echo $args['before_title'] . esc_html( $instance['title'] . ': ' . $site_info->name ) . $args['after_title'];
 		}
 		else {
 			echo $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];

@@ -896,6 +896,76 @@ new Jetpack_JSON_API_Maybe_Auto_Update_Endpoint( array(
 
 ) );
 
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-translations-endpoint.php' );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-translations-modify-endpoint.php' );
+
+new Jetpack_JSON_API_Translations_Endpoint( array(
+	'description'     => 'Gets info about a Jetpack blog\'s core installation',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/translations',
+	'stat'            => 'translations',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'translations' => '(array) A list of translations that are available',
+		'autoupdate' => '(bool) Whether or not we automatically update translations',
+		'log'     => '(array:safehtml) An array of log strings.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/translations'
+) );
+
+new Jetpack_JSON_API_Translations_Modify_Endpoint( array(
+	'description'     => 'Toggle automatic core updates for a Jetpack blog',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/translations',
+	'stat'            => 'translations',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'autoupdate'   => '(bool) Whether or not we automatically update translations',
+	),
+	'response_format' => array(
+		'translations' => '(array) A list of translations that are available',
+		'autoupdate' => '(bool) Whether or not we automatically update translations',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'autoupdate' => true,
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/translations'
+) );
+
+new Jetpack_JSON_API_Translations_Modify_Endpoint( array(
+	'description'     => 'Update All Translations installation on a Jetpack blog',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/translations/update',
+	'stat'            => 'translations:update',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'log'     => '(array:safehtml) An array of log strings.',
+		'success' => '(bool) Was the operation successful'
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/translations/update'
+) );
+
 // Options
 require_once( $json_jetpack_endpoints_dir . 'class.wpcom-json-api-get-option-endpoint.php' );
 
@@ -1058,4 +1128,30 @@ new Jetpack_JSON_API_Cron_Unschedule_Endpoint( array(
 			'timestamp' => 1476385523
 		),
 	),
+) );
+
+//	BACKUPS
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-post-backup-endpoint.php' );
+
+// GET /sites/%s/posts/%d/backup
+new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
+	'description'    => 'Fetch a backup of a post, along with all of its metadata',
+	'group'          => '__do_not_document',
+	'method'         => 'GET',
+	'path'           => '/sites/%s/posts/%d/backup',
+	'stat'           => 'posts:1:backup',
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+		'$post' => '(int) The post ID',
+	),
+	'response_format' => array(
+		'post' => '(array) Post table row',
+		'meta' => '(array) Associative array of key/value postmeta data',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/posts/1/backup'
 ) );

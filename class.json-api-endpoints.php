@@ -1169,7 +1169,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$file = basename( wp_get_attachment_url( $media_item->ID ) );
 		$file_info = pathinfo( $file );
-		$ext  = $file_info['extension'];
+		$ext  = isset( $file_info['extension'] ) ? $file_info['extension'] : null;
 
 		$response = array(
 			'ID'           => $media_item->ID,
@@ -1553,18 +1553,30 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	function is_post_type_allowed( $post_type ) {
 		// if the post type is empty, that's fine, WordPress will default to post
-		if ( empty( $post_type ) )
+		if ( empty( $post_type ) ) {
 			return true;
+		}
 
 		// allow special 'any' type
-		if ( 'any' == $post_type )
+		if ( 'any' == $post_type ) {
 			return true;
+		}
 
 		// check for allowed types
-		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) )
+		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) ) {
 			return true;
+		}
 
-		return false;
+		if ( $post_type_object = get_post_type_object( $post_type ) ) {
+			if ( ! empty( $post_type_object->show_in_rest ) ) {
+				return $post_type_object->show_in_rest;
+			}
+			if ( ! empty( $post_type_object->publicly_queryable ) ) {
+				return $post_type_object->publicly_queryable;
+			}
+		}
+
+		return ! empty( $post_type_object->public );
 	}
 
 	/**

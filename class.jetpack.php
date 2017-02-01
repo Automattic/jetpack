@@ -26,6 +26,7 @@ class Jetpack {
 	public $xmlrpc_server = null;
 
 	private $xmlrpc_verification = null;
+	private $rest_authentication_status = null;
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
@@ -487,6 +488,9 @@ class Jetpack {
 			Jetpack_Heartbeat::init();
 		}
 
+		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
+		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
+
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
@@ -861,7 +865,7 @@ class Jetpack {
 	 */
 	function devicepx() {
 		if ( Jetpack::is_active() ) {
-			wp_enqueue_script( 'devicepx', set_url_scheme( 'http://s0.wp.com/wp-content/js/devicepx-jetpack.js' ), array(), gmdate( 'oW' ), true );
+			wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
 		}
 	}
 
@@ -1213,14 +1217,14 @@ class Jetpack {
 
 		// Set the default options
 		if ( ! $plan ) {
-			$plan = array( 
-				'product_slug' => 'jetpack_free', 
-				'supports' => array(), 
+			$plan = array(
+				'product_slug' => 'jetpack_free',
+				'supports' => array(),
 			);
 		}
 
 		// Define what paid modules are supported by personal plans
-		$personal_plans = array( 
+		$personal_plans = array(
 			'jetpack_personal',
 			'jetpack_personal_monthly',
 		);
@@ -1242,6 +1246,7 @@ class Jetpack {
 				'videopress',
 				'akismet',
 				'vaultpress',
+				'wordads',
 			);
 		}
 
@@ -1257,6 +1262,8 @@ class Jetpack {
 				'akismet',
 				'vaultpress',
 				'seo-tools',
+				'google-analytics',
+				'wordads',
 			);
 		}
 
@@ -2288,7 +2295,7 @@ class Jetpack {
 	 */
 	public static function get_active_modules() {
 		$active = Jetpack_Options::get_option( 'active_modules' );
-		
+
 		if ( ! is_array( $active ) ) {
 			$active = array();
 		}
@@ -4470,7 +4477,12 @@ p {
 		} elseif ( 408 == $code ) {
 			return new Jetpack_Error( 'wpcom_408', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
 		} elseif ( ! empty( $json->error ) ) {
-			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+			if ( 'xml_rpc-32700' == $json->error && ! function_exists( 'xml_parser_create' ) ) {
+				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack' );
+			} else {
+				$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+			}
+			
 			return new Jetpack_Error( (string) $json->error, $error_description, $code );
 		} elseif ( 200 != $code ) {
 			return new Jetpack_Error( 'wpcom_bad_response', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
@@ -4618,6 +4630,14 @@ p {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-ixr-client.php';
 	}
 
+	/**
+	 * Resets the saved authentication state in between testing requests.
+	 */
+	public function reset_saved_auth_state() {
+		$this->xmlrpc_verification = null;
+		$this->rest_authentication_status = null;
+	}
+
 	function verify_xml_rpc_signature() {
 		if ( $this->xmlrpc_verification ) {
 			return $this->xmlrpc_verification;
@@ -4690,6 +4710,7 @@ p {
 		} else {
 			$body = null;
 		}
+
 		$signature = $jetpack_signature->sign_current_request(
 			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body, )
 		);
@@ -4742,6 +4763,116 @@ p {
 		nocache_headers();
 
 		return new WP_User( $token_details['user_id'] );
+	}
+
+	// Authenticates requests from Jetpack server to WP REST API endpoints.
+	// Uses the existing XMLRPC request signing implementation.
+	function wp_rest_authenticate( $user ) {
+		if ( ! empty( $user ) ) {
+			// Another authentication method is in effect.
+			return $user;
+		}
+
+		if ( ! isset( $_GET['_for'] ) || $_GET['_for'] !== 'jetpack' ) {
+			// Nothing to do for this authentication method.
+			return null;
+		}
+
+		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
+			// Nothing to do for this authentication method.
+			return null;
+		}
+
+		// Ensure that we always have the request body available.  At this
+		// point, the WP REST API code to determine the request body has not
+		// run yet.  That code may try to read from 'php://input' later, but
+		// this can only be done once per request in PHP versions prior to 5.6.
+		// So we will go ahead and perform this read now if needed, and save
+		// the request body where both the Jetpack signature verification code
+		// and the WP REST API code can see it.
+		if ( ! isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ) {
+			$GLOBALS['HTTP_RAW_POST_DATA'] = file_get_contents( 'php://input' );
+		}
+		$this->HTTP_RAW_POST_DATA = $GLOBALS['HTTP_RAW_POST_DATA'];
+
+		// Only support specific request parameters that have been tested and
+		// are known to work with signature verification.  A different method
+		// can be passed to the WP REST API via the '?_method=' parameter if
+		// needed.
+		if ( $_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_request',
+				__( 'This request method is not supported.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+		if ( $_SERVER['REQUEST_METHOD'] !== 'POST' && ! empty( $this->HTTP_RAW_POST_DATA ) ) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_request',
+				__( 'This request method does not support body parameters.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+
+		if ( ! empty( $_SERVER['CONTENT_TYPE'] ) ) {
+			$content_type = $_SERVER['CONTENT_TYPE'];
+		} elseif ( ! empty( $_SERVER['HTTP_CONTENT_TYPE'] ) ) {
+			$content_type = $_SERVER['HTTP_CONTENT_TYPE'];
+		}
+
+		if (
+			isset( $content_type ) &&
+			$content_type !== 'application/x-www-form-urlencoded' &&
+			$content_type !== 'application/json'
+		) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_request',
+				__( 'This Content-Type is not supported.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+
+		$verified = $this->verify_xml_rpc_signature();
+
+		if ( is_wp_error( $verified ) ) {
+			$this->rest_authentication_status = $verified;
+			return null;
+		}
+
+		if (
+			$verified &&
+			isset( $verified['type'] ) &&
+			'user' === $verified['type'] &&
+			! empty( $verified['user_id'] )
+		) {
+			// Authentication successful.
+			$this->rest_authentication_status = true;
+			return $verified['user_id'];
+		}
+
+		// Something else went wrong.  Probably a signature error.
+		$this->rest_authentication_status = new WP_Error(
+			'rest_invalid_signature',
+			__( 'The request is not signed correctly.', 'jetpack' ),
+			array( 'status' => 400 )
+		);
+		return null;
+	}
+
+	/**
+	 * Report authentication status to the WP REST API.
+	 *
+	 * @param  WP_Error|mixed $result Error from another authentication handler, null if we should handle it, or another value if not
+	 * @return WP_Error|boolean|null {@see WP_JSON_Server::check_authentication}
+	 */
+	public function wp_rest_authentication_errors( $value ) {
+		if ( $value !== null ) {
+			return $value;
+		}
+		return $this->rest_authentication_status;
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
@@ -5127,9 +5258,21 @@ p {
 		);
 	}
 
-	// Verifies the request by checking the signature
-	function verify_json_api_authorization_request() {
+
+	/**
+	 * Verifies the request by checking the signature
+	 *
+	 * @since 4.6.0 Method was updated to use `$_REQUEST` instead of `$_GET` and `$_POST`. Method also updated to allow
+	 * passing in an `$environment` argument that overrides `$_REQUEST`. This was useful for integrating with SSO.
+	 *
+	 * @param null|array $environment
+	 */
+	function verify_json_api_authorization_request( $environment = null ) {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
+
+		$environment = is_null( $environment )
+			? $_REQUEST
+			: $environment;
 
 		$token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 		if ( ! $token || empty( $token->secret ) ) {
@@ -5140,8 +5283,17 @@ p {
 
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
 
-		if ( isset( $_POST['jetpack_json_api_original_query'] ) ) {
-			$signature = $jetpack_signature->sign_request( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], '', 'GET', $_POST['jetpack_json_api_original_query'], null, true );
+		if ( isset( $environment['jetpack_json_api_original_query'] ) ) {
+			$signature = $jetpack_signature->sign_request(
+				$environment['token'],
+				$environment['timestamp'],
+				$environment['nonce'],
+				'',
+				'GET',
+				$environment['jetpack_json_api_original_query'],
+				null,
+				true
+			);
 		} else {
 			$signature = $jetpack_signature->sign_current_request( array( 'body' => null, 'method' => 'GET' ) );
 		}
@@ -5150,11 +5302,11 @@ p {
 			wp_die( $die_error );
 		} else if ( is_wp_error( $signature ) ) {
 			wp_die( $die_error );
-		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+		} else if ( ! hash_equals( $signature, $environment['signature'] ) ) {
 			if ( is_ssl() ) {
 				// If we signed an HTTP request on the Jetpack Servers, but got redirected to HTTPS by the local blog, check the HTTP signature as well
 				$signature = $jetpack_signature->sign_current_request( array( 'scheme' => 'http', 'body' => null, 'method' => 'GET' ) );
-				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $_GET['signature'] ) ) {
+				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) {
 					wp_die( $die_error );
 				}
 			} else {
@@ -5162,8 +5314,8 @@ p {
 			}
 		}
 
-		$timestamp = (int) $_GET['timestamp'];
-		$nonce     = stripslashes( (string) $_GET['nonce'] );
+		$timestamp = (int) $environment['timestamp'];
+		$nonce     = stripslashes( (string) $environment['nonce'] );
 
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
 			// De-nonce the nonce, at least for 5 minutes.
@@ -5174,7 +5326,7 @@ p {
 			}
 		}
 
-		$data = json_decode( base64_decode( stripslashes( $_GET['data'] ) ) );
+		$data = json_decode( base64_decode( stripslashes( $environment['data'] ) ) );
 		$data_filters = array(
 			'state'        => 'opaque',
 			'client_id'    => 'int',

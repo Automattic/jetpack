@@ -1,6 +1,6 @@
 <?php
 
-class WPCOM_JSON_API_Site_Settings_V1_2_endpoint extends WPCOM_JSON_API_Site_Settings_Endpoint {
+class WPCOM_JSON_API_Site_Settings_V1_2_Endpoint extends WPCOM_JSON_API_Site_Settings_Endpoint {
 
 	public static $site_format = array(
 		'ID'          => '(int) Site ID',
