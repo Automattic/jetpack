@@ -27,7 +27,9 @@ $ cd jetpack
 $ git checkout master-stable
 ```
 
-To build your own version of Jetpack, you can follow the instructions [here.](./docs/development-environment.md)
+### Development
+
+To build your own version of Jetpack, you can [follow the instructions here.](./docs/development-environment.md)
 
 ## Contribute
 
