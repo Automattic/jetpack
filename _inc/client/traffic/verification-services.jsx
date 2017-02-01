@@ -39,7 +39,7 @@ export const VerificationServices = moduleSettingsForm(
 								{
 									components: {
 										b: <strong />,
-										support: <a href="https://support.wordpress.com/webmaster-tools/" />,
+										support: <a href="https://jetpack.com/support/site-verification-tools/" />,
 										google: (
 											<ExternalLink
 												icon={ true }
