@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug Fixes**
 
 * Admin Page: fix layout issues in IE11. #6109
+* Admin: fix PHP notice when a site has no posts. #6142
 * Ads: deactivate the module when the site doesn't use a plan that support Jetpack Ads. #6242
 * Sync: avoid PHP notices with the Shortcodes module. #6115
 * Twitter Widget: add noscrollbar option back. #6131
