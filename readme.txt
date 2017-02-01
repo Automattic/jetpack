@@ -140,6 +140,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Custom CSS: fix warning appearing when migrating Custom CSS to Core's new CSS editor. #6158
 * General: fix issue with connection banner's "Dismiss" icon. #6182
 * Likes: Prevent a PHP notice when there is no $post object. #5988
+* Photon: Force only Photon URLs to HTTPS. Custom CDN URLs may use a different protocol. #6083
 * Sync: avoid PHP notices with the Shortcodes module. #6115, #6151, #6153
 * Tonesque: avoid PHP warnings when an image doesn't exist. #6068
 * Twitter Widget: add noscrollbar option back. #6131
