@@ -11,11 +11,7 @@
  */
 
 function jetpack_load_wordads() {
-	if ( Jetpack::active_plan_supports( 'wordads' ) ) {
-		require_once( dirname( __FILE__ ) . "/wordads/wordads.php" );
-	} else {
-		Jetpack::deactivate_module( 'wordads' );
-	}
+	require_once( dirname( __FILE__ ) . "/wordads/wordads.php" );
 }
 
 jetpack_load_wordads();
