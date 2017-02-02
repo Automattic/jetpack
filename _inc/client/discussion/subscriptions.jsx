@@ -87,7 +87,7 @@ export const Subscriptions = moduleSettingsForm(
 									onChange={ e => this.updateOptions( 'stc_enabled' ) }>
 									<span className="jp-form-toggle-explanation">
 										{
-											__( 'Show a "follow comments" option in the comment form.' )
+											__( 'Show a "follow comments" option in the comment form' )
 										}
 									</span>
 								</FormToggle>

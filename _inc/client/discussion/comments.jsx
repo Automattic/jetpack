@@ -90,7 +90,7 @@ export const Comments = moduleSettingsForm(
 										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'wpcom_publish_comments_with_markdown' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
-									__( 'Enable Markdown use for comments.' )
+									__( 'Enable Markdown use for comments' )
 								}
 							</span>
 							</ModuleToggle>
