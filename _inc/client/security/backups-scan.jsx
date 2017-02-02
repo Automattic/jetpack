@@ -40,7 +40,7 @@ export const BackupsScan = moduleSettingsForm(
 						{
 							! this.props.isUnavailableInDevMode( 'backups' ) && (
 								<p>
-									<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href="https://dashboard.vaultpress.com/" >{ __( 'Configure your Security Scans' ) }</ExternalLink>
+									<ExternalLink className="jp-module-settings__external-link" href="https://dashboard.vaultpress.com/" >{ __( 'Configure your Security Scans' ) }</ExternalLink>
 								</p>
 							)
 						}
