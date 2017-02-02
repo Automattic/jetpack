@@ -150,9 +150,7 @@ class Jetpack_Sitemap_Builder {
 				}
 
 				$this->librarian->delete_numbered_sitemap_rows_after(
-					Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX,
-					0,
-					Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
+					0, Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
 				);
 
 				return;
@@ -184,9 +182,7 @@ class Jetpack_Sitemap_Builder {
 				}
 
 				$this->librarian->delete_numbered_sitemap_rows_after(
-					Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX,
-					$state['number'],
-					Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
+					$state['number'], Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
 				);
 
 				return;
@@ -216,9 +212,7 @@ class Jetpack_Sitemap_Builder {
 			}
 
 			$this->librarian->delete_numbered_sitemap_rows_after(
-				Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX,
-				$state['number'] + 1,
-				Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
+				$state['number'] + 1, Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
 			);
 
 			return;
@@ -253,9 +247,7 @@ class Jetpack_Sitemap_Builder {
 				}
 
 				$this->librarian->delete_numbered_sitemap_rows_after(
-					Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX,
-					0,
-					Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
+					0, Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
 				);
 
 				return;
@@ -287,9 +279,7 @@ class Jetpack_Sitemap_Builder {
 				}
 
 				$this->librarian->delete_numbered_sitemap_rows_after(
-					Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX,
-					$state['number'],
-					Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
+					$state['number'],	Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
 				);
 
 				return;
@@ -319,9 +309,7 @@ class Jetpack_Sitemap_Builder {
 			}
 
 			$this->librarian->delete_numbered_sitemap_rows_after(
-				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX,
-				$state['number'] + 1,
-				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
+				$state['number'] + 1,	Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
 			);
 
 			return;
@@ -356,9 +344,7 @@ class Jetpack_Sitemap_Builder {
 				}
 
 				$this->librarian->delete_numbered_sitemap_rows_after(
-					Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_NAME_PREFIX,
-					0,
-					Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE
+					0, Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE
 				);
 
 				return;
@@ -388,9 +374,7 @@ class Jetpack_Sitemap_Builder {
 				}
 
 				$this->librarian->delete_numbered_sitemap_rows_after(
-					Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_NAME_PREFIX,
-					$state['number'],
-					Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE
+					$state['number'], Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE
 				);
 
 				return;
@@ -420,9 +404,7 @@ class Jetpack_Sitemap_Builder {
 			}
 
 			$this->librarian->delete_numbered_sitemap_rows_after(
-				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_NAME_PREFIX,
-				$state['number'] + 1,
-				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE
+				$state['number'] + 1, Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE
 			);
 
 			return;
@@ -478,9 +460,7 @@ class Jetpack_Sitemap_Builder {
 				}
 
 				$this->librarian->delete_numbered_sitemap_rows_after(
-					$sitemap_name_prefix,
-					$state['number'],
-					$sitemap_type
+					$state['number'], $sitemap_type
 				);
 
 				return;
@@ -513,9 +493,7 @@ class Jetpack_Sitemap_Builder {
 			}
 
 			$this->librarian->delete_numbered_sitemap_rows_after(
-				$sitemap_name_prefix,
-				$state['number'] + 1,
-				$sitemap_type
+				$state['number'] + 1, $sitemap_type
 			);
 
 			return;

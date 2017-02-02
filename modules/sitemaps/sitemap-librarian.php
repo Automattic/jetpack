@@ -33,25 +33,11 @@ class Jetpack_Sitemap_Librarian {
 	const MASTER_SITEMAP_TYPE = 'jp_sitemap_master';
 
 	/**
-	 * Sitemap name prefix string.
-	 *
-	 * @since 4.7.0
-	 */
-	const SITEMAP_NAME_PREFIX = 'sitemap-';
-
-	/**
 	 * Sitemap type string for custom database table.
 	 *
 	 * @since 4.7.0
 	 */
 	const SITEMAP_TYPE = 'jp_sitemap';
-
-	/**
-	 * Sitemap index name prefix string.
-	 *
-	 * @since 4.7.0
-	 */
-	const SITEMAP_INDEX_NAME_PREFIX = 'sitemap-index-';
 
 	/**
 	 * Sitemap index type string for custom database table.
@@ -61,25 +47,11 @@ class Jetpack_Sitemap_Librarian {
 	const SITEMAP_INDEX_TYPE = 'jp_sitemap_index';
 
 	/**
-	 * Image sitemap name prefix string.
-	 *
-	 * @since 4.7.0
-	 */
-	const IMAGE_SITEMAP_NAME_PREFIX = 'image-sitemap-';
-
-	/**
 	 * Image sitemap type string for custom database table.
 	 *
 	 * @since 4.7.0
 	 */
 	const IMAGE_SITEMAP_TYPE = 'jp_img_sitemap';
-
-	/**
-	 * Image sitemap index name prefix string.
-	 *
-	 * @since 4.7.0
-	 */
-	const IMAGE_SITEMAP_INDEX_NAME_PREFIX = 'image-sitemap-index-';
 
 	/**
 	 * Image sitemap index type string for custom database table.
@@ -89,13 +61,6 @@ class Jetpack_Sitemap_Librarian {
 	const IMAGE_SITEMAP_INDEX_TYPE = 'jp_img_sitemap_index';
 
 	/**
-	 * Video sitemap name prefix string.
-	 *
-	 * @since 4.7.0
-	 */
-	const VIDEO_SITEMAP_NAME_PREFIX = 'video-sitemap-';
-
-	/**
 	 * Video sitemap type string for custom database table.
 	 *
 	 * @since 4.7.0
@@ -103,18 +68,36 @@ class Jetpack_Sitemap_Librarian {
 	const VIDEO_SITEMAP_TYPE = 'jp_vid_sitemap';
 
 	/**
-	 * Video sitemap index name prefix string.
-	 *
-	 * @since 4.7.0
-	 */
-	const VIDEO_SITEMAP_INDEX_NAME_PREFIX = 'video-sitemap-index-';
-
-	/**
 	 * Video sitemap index type string for custom database table.
 	 *
 	 * @since 4.7.0
 	 */
 	const VIDEO_SITEMAP_INDEX_TYPE = 'jp_vid_sitemap_index';
+
+	/**
+	 * The name prefix for sitemaps of the given type.
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param string $type The sitemap type.
+	 *
+	 * @return string The sitemap name prefix.
+	 */
+	public static function name_prefix( $type ) {
+		if ( self::SITEMAP_TYPE === $type ) {
+			return 'sitemap-';
+		} elseif ( self::SITEMAP_INDEX_TYPE === $type ) {
+			return 'sitemap-index-';
+		} elseif ( self::IMAGE_SITEMAP_TYPE === $type ) {
+			return 'image-sitemap-';
+		} elseif ( self::IMAGE_SITEMAP_INDEX_TYPE === $type ) {
+			return 'image-sitemap-index-';
+		} elseif ( self::VIDEO_SITEMAP_TYPE === $type ) {
+			return 'video-sitemap-';
+		} elseif ( self::VIDEO_SITEMAP_INDEX_TYPE === $type ) {
+			return 'video-sitemap-index-';
+		}
+	}
 
 	/**
 	 * Retrieve a single sitemap with given name and type.
@@ -242,12 +225,13 @@ class Jetpack_Sitemap_Librarian {
 	 * @access public
 	 * @since 4.7.0
 	 *
-	 * @param string $prefix Sitemap name prefix.
 	 * @param int    $position Number before the first sitemap to be deleted.
 	 * @param string $type Sitemap type.
 	 */
-	public function delete_numbered_sitemap_rows_after( $prefix, $position, $type ) {
+	public function delete_numbered_sitemap_rows_after( $position, $type ) {
 		$any_left = true;
+
+		$prefix = self::name_prefix( $type );
 
 		while ( true === $any_left ) {
 			$position += 1;
@@ -269,27 +253,27 @@ class Jetpack_Sitemap_Librarian {
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			self::SITEMAP_NAME_PREFIX, 0, self::SITEMAP_TYPE
+			0, self::SITEMAP_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			self::SITEMAP_INDEX_NAME_PREFIX, 0, self::SITEMAP_INDEX_TYPE
+			0, self::SITEMAP_INDEX_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			self::IMAGE_SITEMAP_NAME_PREFIX, 0, self::IMAGE_SITEMAP_TYPE
+			0, self::IMAGE_SITEMAP_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			self::IMAGE_SITEMAP_INDEX_NAME_PREFIX, 0, self::IMAGE_SITEMAP_INDEX_TYPE
+			0, self::IMAGE_SITEMAP_INDEX_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			self::VIDEO_SITEMAP_NAME_PREFIX, 0, self::VIDEO_SITEMAP_TYPE
+			0, self::VIDEO_SITEMAP_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			self::VIDEO_SITEMAP_INDEX_NAME_PREFIX, 0, self::VIDEO_SITEMAP_INDEX_TYPE
+			0, self::VIDEO_SITEMAP_INDEX_TYPE
 		);
 		return;
 	}
