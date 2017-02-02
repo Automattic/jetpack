@@ -102,6 +102,9 @@ abstract class SAL_Site {
 	// wrap a WP_Post object with SAL methods
 	abstract public function wrap_post( $post, $context );
 
+	public function is_automated_transfer() {
+		return false;
+	}
 
 	public function get_post_by_id( $post_id, $context ) {
 		$post = get_post( $post_id, OBJECT, $context );
