@@ -1,12 +1,6 @@
-.jp-form-fieldset {
-	clear: both;
-}
-
 .jp-form-legend,
 .jp-form-label-wide {
-	margin-top: rem( 8px );
-	padding: 0;
-	margin-bottom: rem( 5px );
+	padding: rem( 16px ) 0 rem( 5px );
 	font-size: rem( 14px );
 	font-weight: 600;
 }
@@ -71,20 +65,12 @@
 }
 
 .jp-form-fieldset {
-	margin-bottom: rem( 24px );
+	clear: both;
 	position: relative;
 
 	.jp-form-legend + .jp-form-setting-explanation {
-		margin-top: rem( 8px );
-	}
-
-	.jp-form-setting-explanation + .jp-form-label {
-		margin-top: rem( 16px );
-	}
-
-	&:last-child,
-	& > p:last-child {
-		margin-bottom: 0;
+		margin-top: 0;
+		margin-bottom: rem( 8px );
 	}
 }
 
