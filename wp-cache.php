@@ -2480,8 +2480,7 @@ function wp_cache_files() {
 			$supercacheuri = trailingslashit( realpath( $cache_path . 'supercache/' . $supercacheuri ) );
 			if ( wp_cache_confirm_delete( $supercacheuri ) ) {
 				printf( __( "Deleting supercache file: <strong>%s</strong><br />", 'wp-super-cache' ), $supercacheuri );
-				@unlink( $supercacheuri . 'index.html' );
-				@unlink( $supercacheuri . 'index.html.gz' );
+				wpsc_delete_files( $supercacheuri );
 				prune_super_cache( $supercacheuri . 'page', true );
 				@rmdir( $supercacheuri );
 			}
