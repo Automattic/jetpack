@@ -127,8 +127,7 @@ class Jetpack_Sitemap_Builder {
 				$state,
 				array( $this, 'build_one_page_sitemap' ),
 				'page-sitemap-index',
-				Jetpack_Sitemap_Librarian::SITEMAP_TYPE,
-				Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX
+				Jetpack_Sitemap_Librarian::SITEMAP_TYPE
 			);
 			return;
 
@@ -162,7 +161,6 @@ class Jetpack_Sitemap_Builder {
 				$state['last-added'],
 				$state['last-modified'],
 				Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE,
-				Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX,
 				'Page Sitemap Index',
 				Jetpack_Sitemap_Librarian::SITEMAP_TYPE
 			);
@@ -224,8 +222,7 @@ class Jetpack_Sitemap_Builder {
 				$state,
 				array( $this, 'build_one_image_sitemap' ),
 				'image-sitemap-index',
-				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE,
-				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_NAME_PREFIX
+				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
 			);
 			return;
 
@@ -259,7 +256,6 @@ class Jetpack_Sitemap_Builder {
 				$state['last-added'],
 				$state['last-modified'],
 				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE,
-				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX,
 				'Image Sitemap Index',
 				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
 			);
@@ -321,8 +317,7 @@ class Jetpack_Sitemap_Builder {
 				$state,
 				array( $this, 'build_one_video_sitemap' ),
 				'video-sitemap-index',
-				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE,
-				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_NAME_PREFIX
+				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE
 			);
 			return;
 
@@ -355,7 +350,6 @@ class Jetpack_Sitemap_Builder {
 				$state['last-added'],
 				$state['last-modified'],
 				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE,
-				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_NAME_PREFIX,
 				'Video Sitemap Index',
 				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE
 			);
@@ -433,9 +427,8 @@ class Jetpack_Sitemap_Builder {
 	 * @param callback $build_one  A callback which builds a single sitemap file.
 	 * @param string   $index_type The name of the corresponding index type, for state advance.
 	 * @param string   $sitemap_type The type of the sitemap being generated.
-	 * @param string   $sitemap_name_prefix The name prefix of the current sitemap type.
 	 */
-	private function build_next_sitemap_of_type( $debug_name, $state, $build_one, $index_type, $sitemap_type, $sitemap_name_prefix ) {
+	private function build_next_sitemap_of_type( $debug_name, $state, $build_one, $index_type, $sitemap_type ) {
 			// Try to build a sitemap.
 			$result = call_user_func_array(
 				$build_one,
@@ -734,7 +727,7 @@ FOOTER
 
 		// Store the buffer as the content of a sitemap row.
 		$this->librarian->store_sitemap_data(
-			Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX . $number,
+			Jetpack_Sitemap_Librarian::name_prefix(Jetpack_Sitemap_Librarian::SITEMAP_TYPE) . $number,
 			Jetpack_Sitemap_Librarian::SITEMAP_TYPE,
 			$tree->asXML(),
 			$buffer->last_modified()
@@ -992,7 +985,6 @@ FOOTER
 	 * @param int    $from_id           The greatest lower bound of the IDs of the sitemaps to be included.
 	 * @param string $timestamp         Timestamp of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
 	 * @param string $index_type        Sitemap index type.
-	 * @param string $index_name_prefix The name prefix.
 	 * @param string $index_debug_name  The name used for debug messages.
 	 * @param string $sitemap_type      The type of sitemap being indexed.
 	 *
@@ -1002,7 +994,7 @@ FOOTER
 	 *   @type string $last_modified The most recent timestamp to appear on the sitemap.
 	 * }
 	 */
-	private function build_one_sitemap_index( $number, $from_id, $timestamp, $index_type, $index_name_prefix, $index_debug_name, $sitemap_type ) {
+	private function build_one_sitemap_index( $number, $from_id, $timestamp, $index_type, $index_debug_name, $sitemap_type ) {
 		$last_sitemap_id   = $from_id;
 		$any_sitemaps_left = true;
 
@@ -1038,7 +1030,7 @@ FOOTER
 		if ( 1 !== $number ) {
 			$i = $number - 1;
 			$prev_index_url = $this->finder->construct_sitemap_url(
-				$index_name_prefix . $i . '.xml'
+				Jetpack_Sitemap_Librarian::name_prefix( $index_type ) . $i . '.xml'
 			);
 
 			$item_array = array(
@@ -1088,7 +1080,7 @@ FOOTER
 		}
 
 		$this->librarian->store_sitemap_data(
-			$index_name_prefix . $number,
+			Jetpack_Sitemap_Librarian::name_prefix( $index_type ) . $number,
 			$index_type,
 			$buffer->contents(),
 			$buffer->last_modified()
