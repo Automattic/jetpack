@@ -103,6 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+
 = 4.5 =
 
 * Release date: January 17, 2017
