@@ -19,9 +19,6 @@ __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/action
 __( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:35
 __( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:28
 __( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:22
-__( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:47
-__( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:37
-__( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:29
 __( "Error regenerating %(slug)s address. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:304
 __( "Regenerated %(slug)s address .", "jetpack" ), // _inc/client/state/modules/actions.js:286
 __( "Updating %(slug)s address…", "jetpack" ), // _inc/client/state/modules/actions.js:266
@@ -34,6 +31,9 @@ __( "Deactivating %(slug)s…", "jetpack" ), // _inc/client/state/modules/action
 __( "%(slug)s failed to activate. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:127
 __( "%(slug)s has been activated.", "jetpack" ), // _inc/client/state/modules/actions.js:110
 __( "Activating %(slug)s…", "jetpack" ), // _inc/client/state/modules/actions.js:94
+__( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:47
+__( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:37
+__( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:29
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:82
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:68
 __( "Show falling snow on my blog from Dec 1st until Jan 4th.", "jetpack" ), // _inc/client/appearance/index.jsx:113
@@ -146,17 +146,6 @@ __( "Manage your Jetpack connection.", "jetpack" ), // _inc/client/general-setti
 __( "Connection Settings", "jetpack" ), // _inc/client/general-settings/index.jsx:88
 __( "Learn More", "jetpack" ), // _inc/client/general-settings/index.jsx:79
 __( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/general-settings/index.jsx:46
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:183
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:168
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:163
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:156
-__( "Set up", "jetpack" ), // _inc/client/pro-status/index.jsx:146
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:136
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:120
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:104
-__( "Invalid Key", "jetpack" ), // _inc/client/pro-status/index.jsx:86
-__( "Threats found!", "jetpack" ), // _inc/client/pro-status/index.jsx:71
-__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/pro-status/index.jsx:61
 __( "Compare Plans", "jetpack" ), // _inc/client/plans/plan-body.jsx:317
 __( "We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible. ", "jetpack" ), // _inc/client/plans/plan-body.jsx:312
 __( "Enjoy priority support", "jetpack" ), // _inc/client/plans/plan-body.jsx:311
@@ -234,6 +223,17 @@ __( "For less than the price of a coffee a month you can rest easy knowing your 
 __( "How much is your website worth?", "jetpack" ), // _inc/client/plans/plan-header.jsx:29
 __( "The Personal Plan keeps your data, site, and hard work safe.", "jetpack" ), // _inc/client/plans/plan-header.jsx:25
 __( "Introducing our most affordable backups and security plan yet", "jetpack" ), // _inc/client/plans/plan-header.jsx:22
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:183
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:168
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:163
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:156
+__( "Set up", "jetpack" ), // _inc/client/pro-status/index.jsx:146
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:136
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:120
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:104
+__( "Invalid Key", "jetpack" ), // _inc/client/pro-status/index.jsx:86
+__( "Threats found!", "jetpack" ), // _inc/client/pro-status/index.jsx:71
+__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/pro-status/index.jsx:61
 __( "No Results Found.", "jetpack" ), // _inc/client/search/index.jsx:223
 __( "Learn More", "jetpack" ), // _inc/client/search/index.jsx:212
 __( "Upgrade", "jetpack" ), // _inc/client/search/index.jsx:178
@@ -284,12 +284,10 @@ __( "Disconnect Jetpack", "jetpack" ), // _inc/client/components/connect-button/
 __( "Do you really want to disconnect your site from WordPress.com?", "jetpack" ), // _inc/client/components/connect-button/index.jsx:71
 __( "Link to WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:65
 __( "Unlink me from WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:48
+_x( "Settings", "Noun. Displayed to screen readers.", "jetpack" ), // _inc/client/components/dash-section-header/index.jsx:43
 __( "Paid", "jetpack" ), // _inc/client/components/dash-item/index.jsx:98
 __( "Active", "jetpack" ), // _inc/client/components/dash-item/index.jsx:87
 __( "Updates Needed", "jetpack" ), // _inc/client/components/dash-item/index.jsx:81
-_x( "Settings", "Noun. Displayed to screen readers.", "jetpack" ), // _inc/client/components/dash-section-header/index.jsx:43
-__( "Save Settings", "jetpack" ), // _inc/client/components/forms/index.jsx:146
-__( "Saving…", "jetpack" ), // _inc/client/components/forms/index.jsx:146
 _x( "Privacy", "Shorthand for Privacy Policy.", "jetpack" ), // _inc/client/components/footer/index.jsx:126
 __( "Automattic's Privacy Policy", "jetpack" ), // _inc/client/components/footer/index.jsx:124
 _x( "Terms", "Shorthand for Terms of Service.", "jetpack" ), // _inc/client/components/footer/index.jsx:117
@@ -301,6 +299,8 @@ __( "Test your site’s compatibility with Jetpack.", "jetpack" ), // _inc/clien
 _x( "Reset Options (dev versions only)", "Navigation item.", "jetpack" ), // _inc/client/components/footer/index.jsx:56
 __( "This will reset all Jetpack options, are you sure?", "jetpack" ), // _inc/client/components/footer/index.jsx:37
 __( "Do you really want to disconnect your site from WordPress.com?", "jetpack" ), // _inc/client/components/footer/index.jsx:30
+__( "Save Settings", "jetpack" ), // _inc/client/components/forms/index.jsx:146
+__( "Saving…", "jetpack" ), // _inc/client/components/forms/index.jsx:146
 __( "No account? Create one for free…", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:222
 __( "Join the millions of users who rely on Jetpack to enhance and secure their sites. We're passionate about WordPress and here to make your life easier.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:214
 __( "Jetpack is supported by some of the most technical and passionate people in the community. They're located around the globe and ready to help you.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:199
