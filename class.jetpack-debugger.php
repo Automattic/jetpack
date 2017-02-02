@@ -261,7 +261,7 @@ class Jetpack_Debugger {
 							<?php
 							echo wp_kses(
 								sprintf(
-									__( 'Jetpack works by connecting to WordPress.com for a lot of features. Sometimes that connection gets messed up, and you need to disconnect and reconnect to get things working again. <a href="%s" class="jetpack-disconnect-site">Disconnect from WordPress.com</a>, then reconnect and see if that helps.', 'jetpack' ),
+									__( 'Jetpack works by connecting to WordPress.com for a lot of features. Sometimes, when the connection gets messed up, you need to disconnect and reconnect to get things working properly. <a href="%s">Disconnect from WordPress.com</a>', 'jetpack' ),
 									wp_nonce_url(
 										Jetpack::admin_url( array( 'page' => 'jetpack-debugger', 'disconnect' => true ) ),
 										'jp_disconnect',
