@@ -549,7 +549,7 @@ add_action( 'jetpack_module_more_info_markdown', 'jetpack_markdown_more_info' );
  * Site Verification Tools
  */
 function jetpack_verification_tools_more_link() {
-	echo 'https://support.wordpress.com/webmaster-tools/';
+	echo 'https://jetpack.com/support/site-verification-tools/';
 }
 add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verification_tools_more_link' );
 
