@@ -153,7 +153,15 @@ function wp_cache_serve_cache_file() {
 			wp_cache_debug( "Meta array from object cache corrupt. Ignoring cache.", 1 );
 			return true;
 		}
-	} elseif ( file_exists( $cache_file ) ) {
+	} elseif ( file_exists( $cache_file ) || file_exists( get_current_url_supercache_dir() . 'meta/' . $cache_filename ) ) {
+		if ( file_exists( get_current_url_supercache_dir() . 'meta/' . $cache_filename ) ) {
+			$cache_file = get_current_url_supercache_dir() . $cache_filename;
+			$meta_pathname = get_current_url_supercache_dir() . 'meta/' . $cache_filename;
+		} elseif ( !file_exists( $cache_file ) ) {
+			wp_cache_debug( "wp_cache_serve_cache_file: found cache file but then it disappeared!" );
+			return false;
+		}
+
 		wp_cache_debug( "wp-cache file exists: $cache_file", 5 );
 		if ( !( $meta = json_decode( wp_cache_get_legacy_cache( $meta_pathname ), true ) ) ) {
 			wp_cache_debug( "couldn't load wp-cache meta file", 5 );
@@ -165,7 +173,7 @@ function wp_cache_serve_cache_file() {
 			@unlink( $cache_file );
 			return true;
 		}
-	} else {
+	} else { // no $cache_file
 		// last chance, check if a supercache file exists. Just in case .htaccess rules don't work on this host
 		$filename = supercache_filename();
 		$file = get_current_url_supercache_dir() . $filename;
