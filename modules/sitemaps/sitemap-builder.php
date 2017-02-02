@@ -592,6 +592,10 @@ class Jetpack_Sitemap_Builder {
 		$sitemap_index_xsl_url = $this->finder->construct_sitemap_url( 'sitemap-index.xsl' );
 		$jetpack_version = JETPACK__VERSION;
 
+		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+			$this->logger->report( '-- Building Master Sitemap.' );
+		}
+
 		$buffer = new Jetpack_Sitemap_Buffer(
 			Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS,
 			Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES,
