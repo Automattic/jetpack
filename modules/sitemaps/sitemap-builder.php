@@ -10,7 +10,6 @@
 require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
 require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
 require_once dirname( __FILE__ ) . '/sitemap-finder.php';
-require_once dirname( __FILE__ ) . '/sitemap-tree.php';
 require_once dirname( __FILE__ ) . '/sitemap-state.php';
 
 if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
@@ -511,131 +510,6 @@ FOOTER
 			$buffer->contents(),
 			''
 		);
-
-		return;
-	}
-
-	/**
-	 * Build a fresh tree of sitemaps.
-	 *
-	 * @access public
-	 * @since 4.6.0
-	 */
-	public function build_all_sitemaps() {
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$this->logger->report( 'Beginning sitemap generation.' );
-		}
-
-		$sitemap_index_xsl_url = $this->finder->construct_sitemap_url( 'sitemap-index.xsl' );
-		$jetpack_version = JETPACK__VERSION;
-
-		$buffer = new Jetpack_Sitemap_Buffer(
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS,
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES,
-			<<<HEADER
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- generator='jetpack-{$jetpack_version}' -->
-<?xml-stylesheet type='text/xsl' href='{$sitemap_index_xsl_url}'?>
-<sitemapindex xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
-HEADER
-			,
-			<<<FOOTER
-</sitemapindex>\n
-FOOTER
-			,
-			/* epoch */
-			'1970-01-01 00:00:00'
-		);
-
-		// Build and add page sitemaps.
-
-		$page_tree = new Jetpack_Sitemap_Tree(
-			array(
-				'sitemap_debug_name'  => 'Page Sitemaps',
-				'sitemap_name_prefix' => Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX,
-				'sitemap_type'        => Jetpack_Sitemap_Librarian::SITEMAP_TYPE,
-				'index_debug_name'    => 'Page Sitemap Index',
-				'index_name_prefix'   => Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX,
-				'index_type'          => Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE,
-			),
-			array( $this, 'build_one_page_sitemap' )
-		);
-
-		$page = $page_tree->build_sitemap_tree();
-
-		$buffer->try_to_add_item( Jetpack_Sitemap_Buffer::array_to_xml_string(
-			array(
-				'sitemap' => array(
-					'loc'     => $this->finder->construct_sitemap_url( $page['filename'] ),
-					'lastmod' => $page['last_modified'],
-				),
-			)
-		) );
-
-		// Build and add image sitemaps.
-
-		$image_tree = new Jetpack_Sitemap_Tree(
-			array(
-				'sitemap_debug_name'  => 'Image Sitemaps',
-				'sitemap_name_prefix' => Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_NAME_PREFIX,
-				'sitemap_type'        => Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE,
-				'index_debug_name'    => 'Image Sitemap Index',
-				'index_name_prefix'   => Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX,
-				'index_type'          => Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE,
-			),
-			array( $this, 'build_one_image_sitemap' )
-		);
-
-		$image = $image_tree->build_sitemap_tree();
-
-		if ( false !== $image ) {
-			$buffer->try_to_add_item( Jetpack_Sitemap_Buffer::array_to_xml_string(
-				array(
-					'sitemap' => array(
-						'loc'     => $this->finder->construct_sitemap_url( $image['filename'] ),
-						'lastmod' => $image['last_modified'],
-					),
-				)
-			) );
-		}
-
-		// Build and add video sitemaps.
-
-		$video_tree = new Jetpack_Sitemap_Tree(
-			array(
-				'sitemap_debug_name'  => 'Video Sitemaps',
-				'sitemap_name_prefix' => Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_NAME_PREFIX,
-				'sitemap_type'        => Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE,
-				'index_debug_name'    => 'Video Sitemap Index',
-				'index_name_prefix'   => Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_NAME_PREFIX,
-				'index_type'          => Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE,
-			),
-			array( $this, 'build_one_video_sitemap' )
-		);
-
-		$video = $video_tree->build_sitemap_tree();
-
-		if ( false !== $video ) {
-			$buffer->try_to_add_item( Jetpack_Sitemap_Buffer::array_to_xml_string(
-				array(
-					'sitemap' => array(
-						'loc'     => $this->finder->construct_sitemap_url( $video['filename'] ),
-						'lastmod' => $video['last_modified'],
-					),
-				)
-			) );
-		}
-
-		$this->librarian->store_sitemap_data(
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME,
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE,
-			$buffer->contents(),
-			''
-		);
-
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$this->logger->time( 'End sitemap generation.' );
-		}
 
 		return;
 	}
