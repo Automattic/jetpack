@@ -90,7 +90,7 @@ export const SSO = moduleSettingsForm(
 								onChange={ e => this.updateOptions( 'jetpack_sso_require_two_step' ) }>
 								<span className="jp-form-toggle-explanation">
 									{
-										__( 'Require two step authentication.' )
+										__( 'Require accounts to use WordPress.com Two-Step Authentication.' )
 									}
 								</span>
 							</FormToggle>

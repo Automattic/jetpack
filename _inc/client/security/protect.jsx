@@ -69,7 +69,7 @@ export const Protect = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
-					header={ __( 'Brute force protection', { context: 'Settings header' } ) } >
+					header={ __( 'Prevent brute force login attacks', { context: 'Settings header' } ) } >
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'protect' ) }>
 						<ModuleToggle slug="protect"
 									  compact
