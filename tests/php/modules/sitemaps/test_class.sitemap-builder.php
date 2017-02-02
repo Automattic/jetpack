@@ -3,7 +3,7 @@
  * Tests for the Jetpack_Sitemap_Builder class.
  *
  * @package Jetpack
- * @since 4.6.0
+ * @since 4.7.0
  */
 
 require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-builder.php';
@@ -11,7 +11,7 @@ require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-builder.php
 /**
  * Test class for Jetpack_Sitemap_Builder.
  *
- * @since 4.6.0
+ * @since 4.7.0
  */
 class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 
@@ -20,7 +20,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Builder::__construct
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_constructor() {
 		$buffer = new Jetpack_Sitemap_Builder();
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Builder::news_sitemap_xml
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_news_sitemap_xml_is_valid() {
 		$builder = new Jetpack_Sitemap_Builder();
@@ -48,7 +48,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Builder::news_sitemap_xml
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_news_sitemap_freshness() {
 		// Create a 1 day old post.
@@ -83,7 +83,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Builder::news_sitemap_xml
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_news_sitemap_items_added() {
 		// Create ten 1 day old posts.
@@ -114,7 +114,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Builder::news_sitemap_xml
 	 * @covers filter jetpack_sitemap_news_sitemap_count
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_news_sitemap_count_filter() {
 		// Create ten 1 day old posts.
@@ -165,7 +165,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Builder::news_sitemap_xml
 	 * @covers filter jetpack_sitemap_news_skip_post
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_news_sitemap_skip_post_filter() {
 		// Create ten 1 day old posts titled 'Woo!'.
@@ -231,7 +231,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Builder::news_sitemap_xml
 	 * @covers filter jetpack_sitemap_news_sitemap_item
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_news_sitemap_item_filter() {
 		// Create ten 1 day old posts.
@@ -285,7 +285,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Builder::news_sitemap_xml
 	 * @covers filter jetpack_sitemap_news_sitemap_post_types
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_news_sitemap_post_types_filter_add_new() {
 		// Create five 1 day old posts.
@@ -354,7 +354,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_add_posts() {
 		// Create ten 1 day old posts.
@@ -398,7 +398,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
 	 * @covers filter jetpack_sitemap_skip_post
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_skip_post_filter() {
 		// Create ten 1 day old posts titled 'Woo!'.
@@ -472,7 +472,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
 	 * @covers filter jetpack_sitemap_image_skip_post
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_image_skip_post_filter() {
 		// Create ten 1 day old images titled 'Woo!'.
@@ -557,7 +557,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
 	 * @covers filter jetpack_sitemap_url
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_sitemap_url_filter() {
 		// Create ten 1 day old posts.
@@ -613,7 +613,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
 	 * @covers filter jetpack_sitemap_url_home
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_sitemap_url_home_filter() {
 		// Create ten 1 day old posts.
@@ -669,7 +669,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
 	 * @covers filter jetpack_sitemap_image_sitemap_item
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_sitemap_image_sitemap_item_filter() {
 		// Create ten 1 day old posts.
@@ -729,7 +729,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
 	 * @covers filter jetpack_sitemap_post_types
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_sitemap_post_types_filter_add_new() {
 		// Create five 1 day old posts.
@@ -810,7 +810,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_master_sitemap() {
 		$builder   = new Jetpack_Sitemap_Builder();

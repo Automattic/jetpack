@@ -7,7 +7,7 @@
  * This file defines the Jetpack_Sitemap_Buffer class, which provides
  * an API for building and filling sitemaps.
  *
- * @since 4.6.0
+ * @since 4.7.0
  * @package Jetpack
  */
 
@@ -22,7 +22,7 @@
  * 3. each item has a timestamp, and we need to keep track
  *      of the latest timestamp of the items in the list.
  *
- * @since 4.6.0
+ * @since 4.7.0
  */
 class Jetpack_Sitemap_Buffer {
 
@@ -31,7 +31,7 @@ class Jetpack_Sitemap_Buffer {
 	 * Per the spec, max value is 10485760 (10MB).
 	 *
 	 * @link http://www.sitemaps.org/
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const SITEMAP_MAX_BYTES = 10485760;
 
@@ -40,7 +40,7 @@ class Jetpack_Sitemap_Buffer {
 	 * Per the spec, max value is 50000.
 	 *
 	 * @link http://www.sitemaps.org/
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const SITEMAP_MAX_ITEMS = 20; // 50000;
 
@@ -49,7 +49,7 @@ class Jetpack_Sitemap_Buffer {
 	 * Per the spec, max value is 1000.
 	 *
 	 * @link https://support.google.com/news/publisher/answer/74288?hl=en
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const NEWS_SITEMAP_MAX_ITEMS = 1000;
 
@@ -57,7 +57,7 @@ class Jetpack_Sitemap_Buffer {
 	 * Largest number of items the buffer can hold.
 	 *
 	 * @access private
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 * @var int $item_capacity The item capacity.
 	 */
 	private $item_capacity;
@@ -66,7 +66,7 @@ class Jetpack_Sitemap_Buffer {
 	 * Largest number of bytes the buffer can hold.
 	 *
 	 * @access private
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 * @var int $byte_capacity The byte capacity.
 	 */
 	private $byte_capacity;
@@ -75,7 +75,7 @@ class Jetpack_Sitemap_Buffer {
 	 * Footer text of the buffer; stored here so it can be appended when the buffer is full.
 	 *
 	 * @access private
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 * @var string $footer_text The footer text.
 	 */
 	private $footer_text;
@@ -84,7 +84,7 @@ class Jetpack_Sitemap_Buffer {
 	 * The buffer contents.
 	 *
 	 * @access private
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 * @var string The buffer contents.
 	 */
 	private $buffer;
@@ -93,7 +93,7 @@ class Jetpack_Sitemap_Buffer {
 	 * Flag which detects when the buffer is full.
 	 *
 	 * @access private
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 * @var bool $is_full_flag The flag value. This flag is set to false on construction and only flipped to true if we've tried to add something and failed.
 	 */
 	private $is_full_flag;
@@ -102,7 +102,7 @@ class Jetpack_Sitemap_Buffer {
 	 * Flag which detects when the buffer is empty.
 	 *
 	 * @access private
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 * @var bool $is_empty_flag The flag value. This flag is set to true on construction and only flipped to false if we've tried to add something and succeeded.
 	 */
 	private $is_empty_flag;
@@ -111,7 +111,7 @@ class Jetpack_Sitemap_Buffer {
 	 * The most recent timestamp seen by the buffer.
 	 *
 	 * @access private
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 * @var string $timestamp Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	private $timestamp;
@@ -119,7 +119,7 @@ class Jetpack_Sitemap_Buffer {
 	/**
 	 * Construct a new Jetpack_Sitemap_Buffer.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param int    $item_limit The maximum size of the buffer in items. Default is 50000.
 	 * @param int    $byte_limit The maximum size of the buffer in bytes. Default is 10485760 (10MB).
@@ -153,7 +153,7 @@ class Jetpack_Sitemap_Buffer {
 	 * If not, we set is_full_flag to true. If $item is null,
 	 * don't do anything and report success.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param string $item The item to be added.
 	 *
@@ -183,7 +183,7 @@ class Jetpack_Sitemap_Buffer {
 	/**
 	 * Retrieve the contents of the buffer.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @return string The contents of the buffer (with the footer included).
 	 */
@@ -194,7 +194,7 @@ class Jetpack_Sitemap_Buffer {
 	/**
 	 * Detect whether the buffer is full.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @return bool True if the buffer is full, false otherwise.
 	 */
@@ -205,7 +205,7 @@ class Jetpack_Sitemap_Buffer {
 	/**
 	 * Detect whether the buffer is empty.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @return bool True if the buffer is empty, false otherwise.
 	 */
@@ -216,7 +216,7 @@ class Jetpack_Sitemap_Buffer {
 	/**
 	 * Update the timestamp of the buffer.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param string $new_time A datetime string in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
@@ -228,7 +228,7 @@ class Jetpack_Sitemap_Buffer {
 	/**
 	 * Retrieve the timestamp of the buffer.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @return string A datetime string in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
@@ -258,7 +258,7 @@ class Jetpack_Sitemap_Buffer {
 	 *
 	 * @access public
 	 * @since 3.9.0
-	 * @since 4.6.0 Rename, add $depth parameter, change return type, handle attributes.
+	 * @since 4.7.0 Rename, add $depth parameter, change return type, handle attributes.
 	 *
 	 * @param array  $array A recursive associative array of tag/child relationships.
 	 * @param string $depth String to prepend to each line. For internal use only.
@@ -294,7 +294,7 @@ class Jetpack_Sitemap_Buffer {
 	 * Render an associative array of XML attribute key/value pairs.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param array  $array Key/value array of attributes.
 	 * @param string $sep An optional prefix string to prepend to each attribute.

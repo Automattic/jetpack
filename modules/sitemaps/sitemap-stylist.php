@@ -5,13 +5,13 @@
  * those strings.
  *
  * @package Jetpack
- * @since 4.6.0
+ * @since 4.7.0
  */
 
 /**
  * Builds the XSL files required by Jetpack_Sitemap_Manager.
  *
- * @since 4.6.0
+ * @since 4.7.0
  */
 class Jetpack_Sitemap_Stylist {
 
@@ -32,7 +32,7 @@ class Jetpack_Sitemap_Stylist {
 	 * and '%2$s' will substitute 'example.org'.
 	 *
 	 * @access private
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 * @link http://php.net/manual/en/function.vsprintf.php Format string documentation.
 	 *
 	 * @param string $format A vsprintf-style format string to be sanitized.
@@ -59,7 +59,7 @@ class Jetpack_Sitemap_Stylist {
 	 * Returns the xsl of a sitemap xml file as a string.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @return string The contents of the xsl file.
 	 */
@@ -171,7 +171,7 @@ XSL;
 	 * Returns the xsl of a sitemap index xml file as a string.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @return string The contents of the xsl file.
 	 */
@@ -282,7 +282,7 @@ XSL;
 	 * Returns the xsl of an image sitemap xml file as a string.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @return string The contents of the xsl file.
 	 */
@@ -422,7 +422,7 @@ XSL;
 	 * Returns the xsl of a video sitemap xml file as a string.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @return string The contents of the xsl file.
 	 */
@@ -565,7 +565,7 @@ XSL;
 	 * Returns the xsl of a news sitemap xml file as a string.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @return string The contents of the xsl file.
 	 */
@@ -686,7 +686,7 @@ XSL;
 	 * factored out for uniformity.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @return string The CSS.
 	 */

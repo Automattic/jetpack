@@ -3,7 +3,7 @@
  * Tests for the Jetpack_Sitemap_Buffer class.
  *
  * @package Jetpack
- * @since 4.6.0
+ * @since 4.7.0
  */
 
 require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-buffer.php';
@@ -11,7 +11,7 @@ require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-buffer.php'
 /**
  * Test class for Jetpack_Sitemap_Buffer.
  *
- * @since 4.6.0
+ * @since 4.7.0
  */
 class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 
@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS
 	 * @covers Jetpack_Sitemap_Buffer::NEWS_SITEMAP_MAX_ITEMS
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_builder_capacity_constants() {
 		// Test range of SITEMAP_MAX_BYTES.
@@ -51,7 +51,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::__construct
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_constructor() {
 		$buffer = new Jetpack_Sitemap_Buffer( 1, 10, 'hello', 'world', '1970-01-01 00:00:00' );
@@ -63,7 +63,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::__contents
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_empty() {
 		$buffer = new Jetpack_Sitemap_Buffer( 1, 10, '', '', '1970-01-01 00:00:00' );
@@ -75,7 +75,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_try_to_add_item() {
 		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1970-01-01 00:00:00' );
@@ -89,7 +89,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::is_empty()
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_is_empty() {
 		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1970-01-01 00:00:00' );
@@ -103,7 +103,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_at_item_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer( 1, 16, '(', ')', '1970-01-01 00:00:00' );
@@ -117,7 +117,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_at_byte_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer( 1, 16, '(', ')', '1970-01-01 00:00:00' );
@@ -131,7 +131,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_below_byte_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer( 1, 16, '(', ')', '1970-01-01 00:00:00' );
@@ -145,7 +145,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::is_full
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_is_full_item_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1970-01-01 00:00:00' );
@@ -162,7 +162,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::is_full
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_is_full_byte_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer( 10, 8, '(', ')', '1970-01-01 00:00:00' );
@@ -179,7 +179,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::last_modified
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_last_modified() {
 		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1970-01-01 00:00:00' );
@@ -191,7 +191,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::view_time
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_view_time_update() {
 		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1970-01-01 00:00:00' );
@@ -204,7 +204,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::view_time
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_view_time_do_not_update() {
 		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1971-01-01 00:00:00' );
@@ -217,7 +217,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::array_to_xml_string
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_array_to_xml_string() {
 		$array = array(
@@ -239,7 +239,7 @@ XML;
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::array_to_xml_string
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_array_to_xml_string_with_attribute() {
 		$array = array(
@@ -261,7 +261,7 @@ XML;
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::array_to_xml_string
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_array_to_xml_string_empty_array() {
 		$array = array();
@@ -279,7 +279,7 @@ XML;
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::array_to_xml_string
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_array_to_xml_string_nested_array() {
 		$array = array(

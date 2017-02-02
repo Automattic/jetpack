@@ -6,7 +6,7 @@
  * also includes the SQL used to retrieve posts and images to be included
  * in the sitemaps.
  *
- * @since 4.6.0
+ * @since 4.7.0
  * @package Jetpack
  */
 
@@ -14,105 +14,105 @@
  * This object handles any database interaction required
  * for sitemap generation.
  *
- * @since 4.6.0
+ * @since 4.7.0
  */
 class Jetpack_Sitemap_Librarian {
 
 	/**
 	 * Master sitemap name string.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const MASTER_SITEMAP_NAME = 'sitemap';
 
 	/**
 	 * Master sitemap type string for custom database table.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const MASTER_SITEMAP_TYPE = 'jp_sitemap_master';
 
 	/**
 	 * Sitemap name prefix string.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const SITEMAP_NAME_PREFIX = 'sitemap-';
 
 	/**
 	 * Sitemap type string for custom database table.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const SITEMAP_TYPE = 'jp_sitemap';
 
 	/**
 	 * Sitemap index name prefix string.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const SITEMAP_INDEX_NAME_PREFIX = 'sitemap-index-';
 
 	/**
 	 * Sitemap index type string for custom database table.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const SITEMAP_INDEX_TYPE = 'jp_sitemap_index';
 
 	/**
 	 * Image sitemap name prefix string.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const IMAGE_SITEMAP_NAME_PREFIX = 'image-sitemap-';
 
 	/**
 	 * Image sitemap type string for custom database table.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const IMAGE_SITEMAP_TYPE = 'jp_img_sitemap';
 
 	/**
 	 * Image sitemap index name prefix string.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const IMAGE_SITEMAP_INDEX_NAME_PREFIX = 'image-sitemap-index-';
 
 	/**
 	 * Image sitemap index type string for custom database table.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const IMAGE_SITEMAP_INDEX_TYPE = 'jp_img_sitemap_index';
 
 	/**
 	 * Video sitemap name prefix string.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const VIDEO_SITEMAP_NAME_PREFIX = 'video-sitemap-';
 
 	/**
 	 * Video sitemap type string for custom database table.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const VIDEO_SITEMAP_TYPE = 'jp_vid_sitemap';
 
 	/**
 	 * Video sitemap index name prefix string.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const VIDEO_SITEMAP_INDEX_NAME_PREFIX = 'video-sitemap-index-';
 
 	/**
 	 * Video sitemap index type string for custom database table.
 	 *
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	const VIDEO_SITEMAP_INDEX_TYPE = 'jp_vid_sitemap_index';
 
@@ -121,7 +121,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Returns null if no such sitemap exists.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param string $name Name of the sitemap to be retrieved.
 	 * @param string $type Type of the sitemap to be retrieved.
@@ -159,7 +159,7 @@ class Jetpack_Sitemap_Librarian {
 	 * If a sitemap with that type and name does exist, update it.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param string $name Name of the sitemap to be stored.
 	 * @param string $type Type of the sitemap to be stored.
@@ -194,7 +194,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Delete a sitemap by name and type.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param string $name Row name.
 	 * @param string $type Row type.
@@ -218,7 +218,7 @@ class Jetpack_Sitemap_Librarian {
 	 * returned string is run through wp_specialchars_decode.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param string $name Row name.
 	 * @param string $type Row type.
@@ -240,7 +240,7 @@ class Jetpack_Sitemap_Librarian {
 	 * until the first nonexistent sitemap is found.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param string $prefix Sitemap name prefix.
 	 * @param int    $position Number before the first sitemap to be deleted.
@@ -261,7 +261,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Deletes all stored sitemap data.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function delete_all_stored_sitemap_data() {
 		$this->delete_sitemap_data(
@@ -301,7 +301,7 @@ class Jetpack_Sitemap_Librarian {
 	 * of the given type which are larger than $from_id.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param string $type Type of the sitemap rows to retrieve.
 	 * @param int    $from_id Greatest lower bound of retrieved sitemap post IDs.
@@ -335,7 +335,7 @@ class Jetpack_Sitemap_Librarian {
 	 * (measured by ID) which are larger than $from_id.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param int $from_id Greatest lower bound of retrieved post IDs.
 	 * @param int $num_posts Largest number of posts to retrieve.
@@ -374,7 +374,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Get the most recent timestamp among approved comments for the given post_id.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param int $post_id Post identifier.
 	 *
@@ -400,7 +400,7 @@ class Jetpack_Sitemap_Librarian {
 	 * (measured by ID) which are larger than $from_id.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param int $from_id Greatest lower bound of retrieved image post IDs.
 	 * @param int $num_posts Largest number of image posts to retrieve.
@@ -432,7 +432,7 @@ class Jetpack_Sitemap_Librarian {
 	 * (measured by ID) which are larger than $from_id.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param int $from_id Greatest lower bound of retrieved video post IDs.
 	 * @param int $num_posts Largest number of video posts to retrieve.
@@ -461,7 +461,7 @@ class Jetpack_Sitemap_Librarian {
 	 * Retrieve an array of published posts from the last 2 days.
 	 *
 	 * @access public
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 *
 	 * @param int $num_posts Largest number of posts to retrieve.
 	 *

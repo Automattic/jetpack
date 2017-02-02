@@ -3,7 +3,7 @@
  * Tests for the Jetpack_Sitemap_Librarian class.
  *
  * @package Jetpack
- * @since 4.6.0
+ * @since 4.7.0
  */
 
 require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-librarian.php';
@@ -11,7 +11,7 @@ require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-librarian.p
 /**
  * Test class for Jetpack_Sitemap_Librarian.
  *
- * @since 4.6.0
+ * @since 4.7.0
  */
 class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 
@@ -24,7 +24,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
 	 * @covers Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_type_constants_distinct() {
 		$this->assertNotEquals(
@@ -78,7 +78,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * @covers Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_NAME_PREFIX
 	 * @covers Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_name_constants_distinct() {
 		$this->assertNotEquals(
@@ -128,7 +128,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Librarian::__construct
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_constructor() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -141,7 +141,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Librarian::read_sitemap_data
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_get_unset_row_is_null() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -155,7 +155,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Librarian::delete_sitemap_data
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_delete_unset_row_returns_false() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -169,7 +169,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Librarian::delete_sitemap_data
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_delete_set_row_returns_true() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -184,7 +184,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Librarian::store_sitemap_data
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_set_then_get_is_identity() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -211,7 +211,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * Setting the same name/type twice overwrites old data.
 	 *
 	 * @covers Jetpack_Sitemap_Librarian::store_sitemap_data
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_set_then_set_overwrites_data() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -239,7 +239,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Librarian::get_sitemap_text
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_set_then_get_text_is_identity() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -264,7 +264,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Librarian::delete_numbered_sitemap_rows_after
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_delete_contiguously_named_rows() {
 		$librarian = new Jetpack_Sitemap_Librarian();

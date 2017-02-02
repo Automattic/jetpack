@@ -9,7 +9,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Manager::__construct
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_manager_constructor() {
 		$manager = new Jetpack_Sitemap_Manager();
@@ -21,7 +21,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Manager::callback_action_filter_sitemap_location
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_manager_filter_sitemap_location_sets_option_default() {
 		$manager = new Jetpack_Sitemap_Manager();
@@ -43,7 +43,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Manager::callback_action_filter_sitemap_location
 	 * @group jetpack-sitemap
-	 * @since 4.6.0
+	 * @since 4.7.0
 	 */
 	public function test_sitemap_manager_filter_sitemap_location_sets_option_add() {
 		$manager = new Jetpack_Sitemap_Manager();
