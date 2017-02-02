@@ -12,6 +12,7 @@ import trim from 'lodash/trim';
 import analytics from 'lib/analytics';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
+import Gridicon from 'components/gridicon';
 
 /**
  * Internal dependencies
@@ -21,6 +22,8 @@ import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber
 } from 'state/initial-state';
+import { getSiteConnectionStatus } from 'state/connection';
+import { isModuleActivated } from 'state/modules';
 
 export const NavigationSettings = React.createClass( {
 	openSearch: function() {
@@ -92,6 +95,18 @@ export const NavigationSettings = React.createClass( {
 						selected={ this.props.route.path === '/security' }>
 						{ __( 'Security', { context: 'Navigation item.' } ) }
 					</NavItem>
+					{
+						( this.props.isModuleActivated( 'publicize' ) || this.props.isModuleActivated( 'sharedaddy' ) ) && (
+							<NavItem
+								path={ true === this.props.siteConnectionStatus
+									? 'https://wordpress.com/sharing/' + this.props.siteRawUrl
+									: this.props.siteAdminUrl + 'options-general.php?page=sharing'
+									}>
+								{ __( 'Sharing' ) }
+								<Gridicon icon="external" size={ 13 } />
+							</NavItem>
+						)
+					}
 				</NavTabs>
 			);
 		} else if ( this.props.isSubscriber ) {
@@ -140,7 +155,9 @@ export default connect(
 	( state ) => {
 		return {
 			userCanManageModules: _userCanManageModules( state ),
-			isSubscriber: _userIsSubscriber( state )
+			isSubscriber: _userIsSubscriber( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
+			isModuleActivated: module => isModuleActivated( state, module )
 		};
 	},
 	( dispatch ) => {
