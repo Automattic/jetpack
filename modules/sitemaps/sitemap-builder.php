@@ -96,11 +96,11 @@ class Jetpack_Sitemap_Builder {
 	 */
 	public function update_sitemap() {
 		for ( $i = 1; $i <= 200; $i++ ) {
-			$this->build_next_sitemap();
+			$this->build_next_sitemap_file();
 		}
 	}
 
-	public function build_next_sitemap() {
+	public function build_next_sitemap_file() {
 		$state = Jetpack_Sitemap_State::check_out();
 
 		// Do nothing if the state is locked.
@@ -526,7 +526,7 @@ FOOTER
 	}
 
 	/**
-	 * Build and store a single page sitemap.
+	 * Build and store a single page sitemap. Returns false if no sitemap is built.
 	 *
 	 * Side effect: Create/update a sitemap row.
 	 *
@@ -536,7 +536,7 @@ FOOTER
 	 * @param int $number The number of the current sitemap.
 	 * @param int $from_id The greatest lower bound of the IDs of the posts to be included.
 	 *
-	 * @return array @args {
+	 * @return bool|array @args {
 	 *   @type int    $last_id       The ID of the last item to be successfully added to the buffer.
 	 *   @type bool   $any_left      'true' if there are items which haven't been saved to a sitemap, 'false' otherwise.
 	 *   @type string $last_modified The most recent timestamp to appear on the sitemap.
@@ -616,6 +616,7 @@ FOOTER
 			$buffer->try_to_add_item( Jetpack_Sitemap_Buffer::array_to_xml_string( $item_array ) );
 		}
 
+		// Add as many items to the buffer as possible.
 		while ( false === $buffer->is_full() ) {
 			$posts = $this->librarian->query_posts_after_id( $last_post_id, 1000 );
 
@@ -634,6 +635,11 @@ FOOTER
 					break;
 				}
 			}
+		}
+
+		// If no items were added, return false.
+		if ( true === $buffer->is_empty() ) {
+			return false;
 		}
 
 		/**
@@ -672,7 +678,7 @@ FOOTER
 	}
 
 	/**
-	 * Build and store a single image sitemap.
+	 * Build and store a single image sitemap. Returns false if no sitemap is built.
 	 *
 	 * Side effect: Create/update an image sitemap row.
 	 *
@@ -682,7 +688,7 @@ FOOTER
 	 * @param int $number The number of the current sitemap.
 	 * @param int $from_id The greatest lower bound of the IDs of the posts to be included.
 	 *
-	 * @return array @args {
+	 * @return bool|array @args {
 	 *   @type int    $last_id       The ID of the last item to be successfully added to the buffer.
 	 *   @type bool   $any_left      'true' if there are items which haven't been saved to a sitemap, 'false' otherwise.
 	 *   @type string $last_modified The most recent timestamp to appear on the sitemap.
@@ -740,6 +746,7 @@ FOOTER
 			'1970-01-01 00:00:00'
 		);
 
+		// Add as many items to the buffer as possible.
 		while ( false === $buffer->is_full() ) {
 			$posts = $this->librarian->query_images_after_id( $last_post_id, 1000 );
 
@@ -758,6 +765,11 @@ FOOTER
 					break;
 				}
 			}
+		}
+
+		// If no items were added, return false.
+		if ( true === $buffer->is_empty() ) {
+			return false;
 		}
 
 		// Store the buffer as the content of a jp_sitemap post.
@@ -780,7 +792,7 @@ FOOTER
 	}
 
 	/**
-	 * Build and store a single video sitemap.
+	 * Build and store a single video sitemap. Returns false if no sitemap is built.
 	 *
 	 * Side effect: Create/update an video sitemap row.
 	 *
@@ -790,7 +802,7 @@ FOOTER
 	 * @param int $number The number of the current sitemap.
 	 * @param int $from_id The greatest lower bound of the IDs of the posts to be included.
 	 *
-	 * @return array @args {
+	 * @return bool|array @args {
 	 *   @type int    $last_id       The ID of the last item to be successfully added to the buffer.
 	 *   @type bool   $any_left      'true' if there are items which haven't been saved to a sitemap, 'false' otherwise.
 	 *   @type string $last_modified The most recent timestamp to appear on the sitemap.
@@ -848,6 +860,7 @@ FOOTER
 			'1970-01-01 00:00:00'
 		);
 
+		// Add as many items to the buffer as possible.
 		while ( false === $buffer->is_full() ) {
 			$posts = $this->librarian->query_videos_after_id( $last_post_id, 1000 );
 
@@ -866,6 +879,11 @@ FOOTER
 					break;
 				}
 			}
+		}
+
+		// If no items were added, return false.
+		if ( true === $buffer->is_empty() ) {
+			return false;
 		}
 
 		if ( false === $buffer->is_empty() ) {
@@ -889,7 +907,7 @@ FOOTER
 	}
 
 	/**
-	 * Build and store a single page sitemap index.
+	 * Build and store a single page sitemap index. Return false if no index is built.
 	 *
 	 * Side effect: Create/update a sitemap index row.
 	 *
@@ -904,7 +922,7 @@ FOOTER
 	 * @param string $index_debug_name  The name used for debug messages.
 	 * @param string $sitemap_type      The type of sitemap being indexed.
 	 *
-	 * @return array @args {
+	 * @return bool|array @args {
 	 *   @type int    $last_id       The ID of the last item to be successfully added to the buffer.
 	 *   @type bool   $any_left      'true' if there are items which haven't been saved to a sitemap, 'false' otherwise.
 	 *   @type string $last_modified The most recent timestamp to appear on the sitemap.
@@ -959,7 +977,7 @@ FOOTER
 			$buffer->try_to_add_item( Jetpack_Sitemap_Buffer::array_to_xml_string( $item_array ) );
 		}
 
-		// Loop until the buffer is too large.
+		// Add as many items to the buffer as possible.
 		while ( false === $buffer->is_full() ) {
 			// Retrieve a batch of posts (in order).
 			$posts = $this->librarian->query_sitemaps_after_id(
@@ -988,6 +1006,11 @@ FOOTER
 					break;
 				}
 			}
+		}
+
+		// If no items were added, return false.
+		if ( true === $buffer->is_empty() ) {
+			return false;
 		}
 
 		$this->librarian->store_sitemap_data(
