@@ -108,6 +108,8 @@ class Jetpack_Sitemap_Builder {
 			return;
 		}
 
+		// Otherwise, branch on the sitemap-type key of $state.
+
 		// Page Sitemap.
 		if ( 'page-sitemap' === $state['sitemap-type'] ) {
 			// Try to build a sitemap.
@@ -573,6 +575,10 @@ class Jetpack_Sitemap_Builder {
 
 			die();
 		}
+
+		// Otherwise, reset the state.
+		Jetpack_Sitemap_State::reset();
+		return;
 	}
 
 	/**
