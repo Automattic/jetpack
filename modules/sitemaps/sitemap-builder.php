@@ -115,16 +115,7 @@ class Jetpack_Sitemap_Builder {
 				$state['last-added']
 			);
 
-			Jetpack_Sitemap_State::check_in( array(
-				'sitemap-type'  => 'page-sitemap',
-				'last-added'    => $result['last_id'],
-				'number'        => $state['number'] + 1,
-				'last-modified' => $result['last_modified'],
-			) );
-
-			if ( true === $result['any_left'] ) {
-				return;
-			} else {
+			if ( false === $result ) {
 				Jetpack_Sitemap_State::check_in( array(
 					'sitemap-type'  => 'page-sitemap-index',
 					'last-added'    => 0,
@@ -139,18 +130,49 @@ class Jetpack_Sitemap_Builder {
 
 				$this->librarian->delete_numbered_sitemap_rows_after(
 					Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX,
-					$state['number'] + 1,
+					$state['number'],
 					Jetpack_Sitemap_Librarian::SITEMAP_TYPE
 				);
 
 				return;
 			}
 
+			Jetpack_Sitemap_State::check_in( array(
+				'sitemap-type'  => 'page-sitemap',
+				'last-added'    => $result['last_id'],
+				'number'        => $state['number'] + 1,
+				'last-modified' => $result['last_modified'],
+			) );
+
+			if ( true === $result['any_left'] ) {
+				return;
+			}
+
+			Jetpack_Sitemap_State::check_in( array(
+				'sitemap-type'  => 'page-sitemap-index',
+				'last-added'    => 0,
+				'number'        => 0,
+				'last-modified' => '1970-01-01 00:00:00',
+			) );
+
+			// Clean up old files.
+			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+				$this->logger->report( '-- Cleaning Up Page Sitemaps' );
+			}
+
+			$this->librarian->delete_numbered_sitemap_rows_after(
+				Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX,
+				$state['number'] + 1,
+				Jetpack_Sitemap_Librarian::SITEMAP_TYPE
+			);
+
+			return;
+
 		// Page Sitemap Indices.
 		} elseif ( 'page-sitemap-index' === $state['sitemap-type'] ) {
 
-			// If only one page sitemap, exit early.
-			if ( 1 === $state['max']['page-sitemap']['number'] ) {
+			// If 0 or 1 page sitemaps were built, exit early.
+			if ( 1 >= $state['max']['page-sitemap']['number'] ) {
 				Jetpack_Sitemap_State::check_in( array(
 					'sitemap-type'  => 'image-sitemap',
 					'last-added'    => 0,
@@ -192,27 +214,27 @@ class Jetpack_Sitemap_Builder {
 
 			if ( true === $result['any_left'] ) {
 				return;
-			} else {
-				Jetpack_Sitemap_State::check_in( array(
-					'sitemap-type'  => 'image-sitemap',
-					'last-added'    => 0,
-					'number'        => 0,
-					'last-modified' => '1970-01-01 00:00:00',
-				) );
-
-				// Clean up old files.
-				if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-					$this->logger->report( '-- Cleaning Up Page Sitemap Indices' );
-				}
-
-				$this->librarian->delete_numbered_sitemap_rows_after(
-					Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX,
-					$state['number'] + 1,
-					Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
-				);
-
-				return;
 			}
+
+			Jetpack_Sitemap_State::check_in( array(
+				'sitemap-type'  => 'image-sitemap',
+				'last-added'    => 0,
+				'number'        => 0,
+				'last-modified' => '1970-01-01 00:00:00',
+			) );
+
+			// Clean up old files.
+			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+				$this->logger->report( '-- Cleaning Up Page Sitemap Indices' );
+			}
+
+			$this->librarian->delete_numbered_sitemap_rows_after(
+				Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX,
+				$state['number'] + 1,
+				Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
+			);
+
+			return;
 
 		// Image Sitemaps.
 		} elseif ( 'image-sitemap' === $state['sitemap-type'] ) {

@@ -35,7 +35,7 @@ class Jetpack_Sitemap_State {
 	 * @return array $args {
 	 *     @type string sitemap-type  The type of sitemap to be generated.
 	 *     @type int    last-added    The largest index to be added to a generated sitemap page.
-	 *     @type int    number        The index of the sitemap to be generated.
+	 *     @type int    number        The index of the last sitemap to be generated.
 	 *     @type string last-modified The latest timestamp seen.
 	 *     @type array  max           The latest index of each sitemap type seen.
 	 * }
@@ -73,7 +73,7 @@ class Jetpack_Sitemap_State {
 	 * @param array $args {
 	 *     @type string sitemap-type  The type of sitemap to be generated.
 	 *     @type int    last-added    The largest index to be added to a generated sitemap page.
-	 *     @type int    number        The index of the sitemap to be generated.
+	 *     @type int    number        The index of the last sitemap to be generated.
 	 *     @type string last-modified The latest timestamp seen.
 	 * }
 	 */
@@ -98,7 +98,7 @@ class Jetpack_Sitemap_State {
 	 * @return bool|array $args {
 	 *     @type string sitemap-type  The type of sitemap to be generated.
 	 *     @type int    last-added    The largest index to be added to a generated sitemap page.
-	 *     @type int    number        The index of the sitemap to be generated.
+	 *     @type int    number        The index of the last sitemap to be generated.
 	 *     @type string last-modified The latest timestamp seen.
 	 *     @type array  max           The latest index of each sitemap type seen.
 	 * }
