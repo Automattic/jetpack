@@ -259,6 +259,11 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->upsert_user_locale( $user_id, $locale );
 				break;
 
+			case 'jetpack_sync_user_locale_delete':
+				list( $user_id ) = $args;
+				$this->store->delete_user_locale( $user_id );
+				break;
+
 			// plugins
 			case 'deleted_plugin':
 				list( $plugin_file, $deleted ) = $args;

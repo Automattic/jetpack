@@ -122,6 +122,8 @@ interface iJetpack_Sync_Replicastore {
 
 	public function upsert_user_locale( $user_id, $locale );
 
+	public function delete_user_locale( $user_id );
+
 	public function get_user_locale( $user_id );
 
 	public function get_allowed_mime_types( $user_id );

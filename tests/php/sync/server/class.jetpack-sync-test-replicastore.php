@@ -513,6 +513,10 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->users_locale[ $user_id ] = $user_locale;
 	}
 
+	function delete_user_locale( $user_id ) {
+		unset( $this->users_locale[ $user_id ] );
+	}
+
 	function get_user_locale( $user_id ) {
 		return isset( $this->users_locale[ $user_id ] ) ? $this->users_locale[ $user_id ] : null;
 	}
