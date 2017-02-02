@@ -7,15 +7,15 @@
 var multiline = require('multiline'),
 	xml2js = require('xml2js');
 
-var KABOB_REGEX = /\-(\w)/g;
+var KEBAB_REGEX = /\-(\w)/g;
 
 /**
- * Transforms kabob case names to camel case
+ * Transforms kebab case names to camel case
  * @param name        ex: foo-bar-baz
  * @returns {String}  ex: fooBarBaz
  */
-function kabobToCamelCase( name ) {
-	return name.replace( KABOB_REGEX, function replacer( match, capture ) {
+function kebabToCamelCase( name ) {
+	return name.replace( KEBAB_REGEX, function replacer( match, capture ) {
 		return capture.toUpperCase();
 	} );
 }
@@ -26,6 +26,8 @@ module.exports = function( grunt ) {
 
 	// Project configuration.
 	grunt.initConfig({
+
+		clean: [ 'svg-min-react' ],
 
 		// Minify SVGs from svg directory, output to svg-min
 		svgmin: {
@@ -211,9 +213,40 @@ module.exports = function( grunt ) {
 
 	});
 
+	grunt.registerTask( 'kebabToCamelCase', 'Rename any svg attributes to camel case for react', function() {
+		var svgFiles = grunt.file.expand( { filter: 'isFile', cwd: 'svg-min/' }, [ '**/*.svg' ] );
+
+		// Add stuff
+		svgFiles.forEach( function( svgFile ) {
+
+			// Grab the relevant bits from the file contents
+			var fileContent = grunt.file.read( 'svg-min/' + svgFile );
+
+			// Rename any attributes to camel case for react
+			xml2js.parseString( fileContent, {
+					async: false, // set callback is sync, since this task is sync
+					trim: true,
+					attrNameProcessors: [ kebabToCamelCase ]
+				},
+				function ( err, result ) {
+					if ( ! err ) {
+						var builder = new xml2js.Builder( {
+							renderOpts: { pretty: false },
+							headless: true //omit xml header
+						} );
+						fileContent = builder.buildObject( result );
+					}
+				} );
+
+			grunt.file.write( 'svg-min-react/' + svgFile, fileContent );
+
+		} );
+
+	});
+
 	// Create React component, output to react
 	grunt.registerTask( 'svgreact', 'Output a react component for SVGs', function() {
-		var svgFiles = grunt.file.expand( { filter: 'isFile', cwd: 'svg-min/' }, [ '**/*.svg' ] ),
+		var svgFiles = grunt.file.expand( { filter: 'isFile', cwd: 'svg-min-react/' }, [ '**/*.svg' ] ),
 			content, designContent;
 
 		// Start the React component
@@ -226,23 +259,7 @@ module.exports = function( grunt ) {
 			name = name[0]; // remove the logo- part from the name
 
 			// Grab the relevant bits from the file contents
-			var fileContent = grunt.file.read( 'svg-min/' + svgFile );
-			
-			// Rename any attributes to camel case for react
-			xml2js.parseString( fileContent, {
-					async: false, // set callback is sync, since this task is sync
-					trim: true,
-					attrNameProcessors: [ kabobToCamelCase ]
-				},
-				function ( err, result ) {
-				  if ( ! err ) {
-					  var builder = new xml2js.Builder( {
-						  renderOpts: { pretty: false },
-						  headless: true //omit xml header
-					  } );
-					  fileContent = builder.buildObject( result );
-				  }
-			} );
+			var fileContent = grunt.file.read( 'svg-min-react/' + svgFile );
 
 			// Add className, height, and width to the svg element
 			fileContent = fileContent.slice( 0, 4 ) +
@@ -329,6 +346,6 @@ module.exports = function( grunt ) {
 
 	// Default task(s).
 
-	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'babel', 'webfont', 'cssmin','addsquare']);
+	grunt.registerTask( 'default', [ 'svgmin', 'group', 'svgstore', 'rename', 'kebabToCamelCase', 'svgreact', 'babel', 'webfont', 'cssmin','addsquare', 'clean' ] );
 
 };
