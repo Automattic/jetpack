@@ -612,18 +612,19 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 }
 
 function wpsc_delete_files( $dir ) {
-	global $cache_path;
+	global $cache_path, $blog_cache_dir;
 
 	$dir = trailingslashit( realpath( $dir ) );
 	if ( substr( $dir, 0, strlen( $cache_path ) ) != $cache_path )
 		return false;
 
-	if ( trailingslashit( $dir ) == trailingslashit( $cache_path ) ) // cowardly refusing to delete files in wp-content/cache/
+	$protected = array( $cache_path, $cache_path . $blog_cache_dir, get_supercache_dir() );
+	if ( in_array( trailingslashit( $dir ), $protected ) )
 		return false;
 
 	if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
 		while ( ( $file = readdir( $dh ) ) !== false ) {
-			if ( $file != '.' && $file != '..' && is_file( $dir . $file ) )
+			if ( $file != '.' && $file != '..' && $file != '.htaccess' && is_file( $dir . $file ) )
 				@wp_cache_rebuild_or_delete( $dir . $file );
 		}
 		closedir( $dh );
