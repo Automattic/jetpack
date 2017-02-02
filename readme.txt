@@ -21,7 +21,7 @@ Traffic is the lifeblood of any website. Jetpack includes:
 * [paid] Advertising program that includes the best of AdSense, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
 
 = Security and Backup Services =
-Stop worrying about data loss, downtime, and hacking. Jetpack provides: 
+Stop worrying about data loss, downtime, and hacking. Jetpack provides:
 
 * [free] Brute force attack protection
 * [free] Downtime and uptime monitoring
@@ -53,7 +53,7 @@ We have an entire team of Happiness Engineers ready to help you. Ask your questi
 = Paid Services =
 Most of Jetpack's features and services are free. Jetpack also provides advanced security and backup services, video hosting, site monetization, priority support, and more SEO tools in three [simple and affordable plans](https://jetpack.com/pricing).
 
-= Get Started = 
+= Get Started =
 Installation is free, quick, and easy. Set up <a href="https://jetpack.com/install?from=wporg" rel="nofollow">the free plan</a> in minutes.
 
 == Installation ==
@@ -67,7 +67,7 @@ Alternatively, install Jetpack via the plugin directory, or upload the files man
 == Frequently Asked Questions ==
 
 = Is Jetpack Free? =
-Yes! Jetpack's core features are and always will be free. 
+Yes! Jetpack's core features are and always will be free.
 
 These include: [site stats](https://jetpack.com/features/traffic/site-stats), a [high-speed CDN](https://jetpack.com/features/writing/content-delivery-network/) for images, [related posts](https://jetpack.com/features/traffic/related-posts), [downtime monitoring](https://jetpack.com/features/security/downtime-monitoring), brute force [attack protection](https://jetpack.com/features/security/brute-force-attack-protection), [automated sharing](https://jetpack.com/features/traffic/automatic-publishing/) to social networks, [sidebar customization](https://jetpack.com/features/writing/sidebar-customization/), and many more.
 
@@ -102,6 +102,56 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
 
 == Changelog ==
+
+= 4.6 =
+
+* Release date: February 8, 2017
+* Release post:
+
+**Exciting New Features and Improvements**
+
+* New Google Analytics module. #5603
+
+**Enhancements**
+
+* General: add information notices when a site uses WooCommerce and could benefit from the new USPS or CanadaPost shipping functionality. #6183
+* General: update links to external resources to use HTTPS to improve performance. #6040
+* Photon: switch to function introduced in WP 4.5 to improve performance. #6038
+* Publicize: Show an error message in case Jetpack is not connected properly. #6060
+* Sync: fix issues with some sites failing to sync posts that have illegal multibyte characters. #6155
+* Widgets: update Twitter Timeline for sane limit of number of tweets to display. #6021
+* Widgets: Twitter's timeline widget and Twitter's shortcodes now pass Jetpack's partner ID to track usage. #6190
+* WordPress.com REST API: add a new API endpoint that will allow us to enable translation autoupdates. #5953
+* WordPress.com REST API: add a new API endpoint for pulling post rows and metadata for backups. #6230
+* WP REST API: retrieve all module settings in the readable `/settings` endpoint. #6002
+
+**Improved Compatibility**
+
+* Fix notices and warnings when using Jetpack on a server running PHP 7.1. #6118, #5821
+* Contact Form: avoid PHP warnings on servers where `print_r()` is disabled. #6234
+* Photon: avoid PHP notices when using plugins that do srcset CDN replacement. #6126, #6170
+* Sharing: force get sharing options when saved options are incorrect due to site configuration issues. Avoids potential fatal errors. #6122
+* Shortcodes: prefix the new Quiz Shortcode CSS classes to avoid conflicts with other Quiz plugins. #6232
+* Widgets: make sure that all widget class names include prefixes to avoid conflicts with other plugins using similar class names. #6149
+
+**Bug Fixes**
+
+* Admin Page: fix layout issues in IE11. #6109
+* Admin: fix PHP notice when a site has no posts. #6142
+* Ads: deactivate the module when the site doesn't use a plan that support Jetpack Ads. #6242
+* Custom CSS: fix PHP notice. #6154
+* Custom CSS: fix warning appearing when migrating Custom CSS to Core's new CSS editor. #6158
+* General: fix issue with connection banner's "Dismiss" icon. #6182
+* Likes: Prevent a PHP notice when there is no $post object. #5988
+* Photon: Force only Photon URLs to HTTPS. Custom CDN URLs may use a different protocol. #6083
+* Publicize: respect status of Publicize connections: if a connection is not shared with all users on the site, do not trigger Publicize for the other users. #6098
+* Publicize: make sure Publicize is triggered for scheduled posts. #6186
+* SSO: Ensure that logging in via SSO doesn't stop you authenticating to your site using a third-party application relying on the WordPress.com REST API. #6194
+* Sync: avoid PHP notices with the Shortcodes module. #6115, #6151, #6153
+* Tonesque: avoid PHP warnings when an image doesn't exist. #6068
+* Twitter Widget: add noscrollbar option back. #6131
+* Top Posts Widget: fix image size when using the List Layout. #6140
+* WordPress.com REST API: fix notices and warnings when updating data from the WordPress.com central interface. #6104
 
 = 4.5 =
 
