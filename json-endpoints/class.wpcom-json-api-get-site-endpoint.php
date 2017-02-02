@@ -95,6 +95,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'verification_services_codes',
 		'podcasting_archive',
 		'is_domain_only',
+		'is_automated_transfer',
 	);
 
 	protected static $jetpack_response_field_additions = array( 
@@ -108,7 +109,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	protected static $jetpack_response_option_additions = array( 
 		'publicize_permanently_disabled',
-		'ak_vp_bundle_enabled'
+		'ak_vp_bundle_enabled',
 	);
 
 	private $site;
@@ -477,6 +478,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'is_domain_only':
 					$options[ $key ] = $site->is_domain_only();
+					break;
+				case 'is_automated_transfer':
+					$options[ $key ] = $site->is_automated_transfer();
 					break;
 			}
 		}
