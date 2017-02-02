@@ -67,11 +67,6 @@ export const SSO = moduleSettingsForm(
 						</span>
 						</ModuleToggle>
 						<FormFieldset>
-							<p className="jp-form-setting-explanation">
-								{
-									__( 'Use WordPress.com’s secure authentication.' )
-								}
-							</p>
 							<FormToggle
 								compact
 								checked={ this.state.jetpack_sso_match_by_email }
