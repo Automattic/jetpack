@@ -435,6 +435,13 @@ class Jetpack_Sitemap_Builder {
 		}
 	}
 
+	/**
+	 * Builds the master sitemap index.
+	 *
+	 * @param array $max
+	 *
+	 * @since 4.7.0
+	 */
 	private function build_master_sitemap( $max ) {
 		$sitemap_index_xsl_url = $this->finder->construct_sitemap_url( 'sitemap-index.xsl' );
 		$jetpack_version = JETPACK__VERSION;
