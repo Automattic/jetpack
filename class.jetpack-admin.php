@@ -236,6 +236,7 @@ class Jetpack_Admin {
 	}
 
 	function admin_menu_debugger() {
+		Jetpack_Debugger::disconnect_and_redirect();
 		$debugger_hook = add_submenu_page( null, __( 'Jetpack Debugging Center', 'jetpack' ), '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
 	}

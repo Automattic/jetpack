@@ -43,16 +43,19 @@ class Jetpack_Debugger {
 		return 30; // seconds
 	}
 
-	public static function jetpack_debug_display_handler() {
-		if ( ! current_user_can( 'manage_options' ) )
-			wp_die( esc_html__('You do not have sufficient permissions to access this page.', 'jetpack' ) );
-
+	public static function disconnect_and_redirect() {
 		$can_disconnect = isset( $_GET['disconnect'] ) && $_GET['disconnect'] && isset( $_GET['nonce'] ) && wp_verify_nonce( $_GET['nonce'], 'jp_disconnect' );
 		if ( $can_disconnect ) {
 			if ( Jetpack::is_active() ) {
 				Jetpack::disconnect();
+				wp_redirect( Jetpack::admin_url() );
 			}
 		}
+	}
+
+	public static function jetpack_debug_display_handler() {
+		if ( ! current_user_can( 'manage_options' ) )
+			wp_die( esc_html__('You do not have sufficient permissions to access this page.', 'jetpack' ) );
 
 		$current_user = wp_get_current_user();
 
