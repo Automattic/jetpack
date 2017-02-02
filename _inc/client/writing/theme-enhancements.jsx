@@ -88,7 +88,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 						].map( item => {
 							let isItemActive = this.props.getOptionValue( item.module );
 							return (
-								<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` }>
+								<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` }  support={ item.learn_more_button }>
 									<ModuleToggle slug={ item.module }
 												  compact
 												  activated={ isItemActive }
@@ -100,7 +100,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 									}
 									</span>
 									</ModuleToggle>
-									<FormFieldset support={ item.learn_more_button }>
+									<FormFieldset>
 										{
 											item.checkboxes.map( chkbx => {
 												return (
