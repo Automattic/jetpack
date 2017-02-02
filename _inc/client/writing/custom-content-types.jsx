@@ -67,7 +67,7 @@ export const CustomContentTypes = moduleSettingsForm(
 									onChange={ e => this.updateCPTs( 'testimonial' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
-									__( 'Enable Testimonial custom content type.' )
+									__( 'Enable Testimonial custom content type' )
 								}
 							</span>
 						</FormToggle>
@@ -89,7 +89,7 @@ export const CustomContentTypes = moduleSettingsForm(
 									onChange={ e => this.updateCPTs( 'portfolio' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
-									__( 'Enable Portfolio custom content type.' )
+									__( 'Enable Portfolio custom content type' )
 								}
 							</span>
 						</FormToggle>
