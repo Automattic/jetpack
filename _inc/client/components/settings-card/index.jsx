@@ -20,6 +20,7 @@ import {
 	FEATURE_WORDADS_JETPACK,
 	getPlanClass
 } from 'lib/plans/constants';
+import { getSiteRawUrl } from 'state/initial-state';
 import {
 	getSitePlan,
 	isFetchingSiteData
@@ -38,7 +39,8 @@ const SettingsCard = props => {
 		isSaving = props.isSavingAnyOption(),
 		feature = props.feature
 			? props.feature
-			: false;
+			: false,
+		siteRawUrl = props.siteRawUrl;
 
 	if ( '' === header && module ) {
 		header = module.name;
@@ -47,6 +49,10 @@ const SettingsCard = props => {
 	let getBanner = ( feature ) => {
 		let planClass = getPlanClass( props.sitePlan.product_slug );
 		let list;
+		let commonProps = {
+			feature: feature,
+			href: 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + siteRawUrl
+		};
 
 		switch( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
@@ -59,11 +65,10 @@ const SettingsCard = props => {
 
 				return (
 					<Banner
-						feature={ feature }
 						title={ __( 'Add premium video' ) }
 						description={ __( 'Upgrade to the Premium plan to easily upload videos to your website and display them using a fast, unbranded, customizable player.' ) }
-						callToAction={ __( 'Upgrade' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
+						{ ...commonProps }
 					/>
 				);
 
@@ -85,15 +90,14 @@ const SettingsCard = props => {
 
 				return (
 					<Banner
-						feature={ feature }
 						title={ __( 'Upgrade to further protect your site' ) }
 						list={ list }
-						callToAction={ __( 'Upgrade' ) }
 						plan={
 							'is-premium-plan' !== planClass
-								? PLAN_JETPACK_PREMIUM
-								: PLAN_JETPACK_BUSINESS
-						}
+							? PLAN_JETPACK_PREMIUM
+							: PLAN_JETPACK_BUSINESS
+							 }
+						{ ...commonProps }
 					/>
 				);
 
@@ -115,15 +119,14 @@ const SettingsCard = props => {
 
 				return (
 					<Banner
-						feature={ feature }
 						title={ __( 'Upgrade to monetize your site and unlock more tools' ) }
 						list={ list }
-						callToAction={ __( 'Upgrade' ) }
 						plan={
 							'is-premium-plan' !== planClass
-								? PLAN_JETPACK_PREMIUM
-								: PLAN_JETPACK_BUSINESS
-						}
+							? PLAN_JETPACK_PREMIUM
+							: PLAN_JETPACK_BUSINESS
+							 }
+						{ ...commonProps }
 					/>
 				);
 
@@ -145,8 +148,8 @@ const SettingsCard = props => {
 							disabled={ isSaving || ! props.isDirty() }>
 							{
 								isSaving
-									? __( 'Saving…', { context: 'Button caption' } )
-									: __( 'Save settings', { context: 'Button caption' } )
+								? __( 'Saving…', { context: 'Button caption' } )
+								: __( 'Save settings', { context: 'Button caption' } )
 							}
 						</Button>
 					)
@@ -162,7 +165,8 @@ export default connect(
 	( state ) => {
 		return {
 			sitePlan: getSitePlan( state ),
-			fetchingSiteData: isFetchingSiteData( state )
+			fetchingSiteData: isFetchingSiteData( state ),
+			siteRawUrl: getSiteRawUrl( state ),
 		};
 	}
 )( SettingsCard );
