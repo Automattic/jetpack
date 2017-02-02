@@ -7,6 +7,7 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import { FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
 import ExternalLink from 'components/external-link';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
@@ -22,6 +23,7 @@ export const BackupsScan = moduleSettingsForm(
 		render() {
 			return (
 				<SettingsCard
+					feature={ FEATURE_SECURITY_SCANNING_JETPACK }
 					{ ...this.props }
 					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 					hideButton>
