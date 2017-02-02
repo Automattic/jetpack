@@ -91,7 +91,8 @@ class Jetpack_Sitemap_Builder {
 	}
 
 	/**
-	 * 
+	 * Update the sitemap.
+	 *
 	 * @since 4.7.0
 	 */
 	public function update_sitemap() {
@@ -100,7 +101,16 @@ class Jetpack_Sitemap_Builder {
 		}
 	}
 
-	public function build_next_sitemap_file() {
+	/**
+	 * Generate the next sitemap file.
+	 *
+	 * Reads the most recent state of the sitemap generation phase and
+	 * constructs the next file.
+	 *
+	 * @since 4.7.0
+	 */
+	private function build_next_sitemap_file() {
+		// Get the most recent state.
 		$state = Jetpack_Sitemap_State::check_out();
 
 		// Do nothing if the state is locked.
@@ -118,7 +128,7 @@ class Jetpack_Sitemap_Builder {
 				$state['last-added']
 			);
 
-			// Clean up if no sitemap was generated.
+			// If no sitemap was generated, advance to the next type.
 			if ( false === $result ) {
 				Jetpack_Sitemap_State::check_in( array(
 					'sitemap-type'  => 'page-sitemap-index',
@@ -149,7 +159,7 @@ class Jetpack_Sitemap_Builder {
 				'last-modified' => $result['last_modified'],
 			) );
 
-			// If there's more work to be done here, exit now.
+			// If there's more work to be done with this type, exit now.
 			if ( true === $result['any_left'] ) {
 				return;
 			}
