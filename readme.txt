@@ -58,15 +58,15 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.4.8 =
-Removed malware URL in a code comment.
+= 1.4.9 =
 
 == Changelog ==
 
 = 1.4.9 =
-* Fixed bug when by not running sem_remove after sem_release. See https://github.com/Automattic/wp-super-cache/issues/85
+* Fixed bug when not running sem_remove after sem_release. See https://github.com/Automattic/wp-super-cache/issues/85
 * Fixed a PHP error impacting PHP 7.1.
 * Fixed a bug where we cached PUT and DELETE requests. We're treating them like POST requests now.
+* Delete supercache cache files, even when supercache is disabled, because mod_rewrite rules might still be active.
 
 = 1.4.8 =
 * Removed malware URL in a code comment. (harmless to operation of plugin but gets flagged by A/V software)

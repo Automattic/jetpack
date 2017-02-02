@@ -132,6 +132,8 @@ function scossdl_off_options() {
 		update_option('ossdl_off_include_dirs', $_POST['ossdl_off_include_dirs'] == '' ? 'wp-content,wp-includes' : $_POST['ossdl_off_include_dirs']);
 		update_option('ossdl_off_exclude', $_POST['ossdl_off_exclude']);
 		update_option('ossdl_cname', $_POST['ossdl_cname']);
+		if ( !isset( $_POST[ 'ossdl_https' ] ) )
+			$_POST[ 'ossdl_https' ] = 0;
 		update_option('ossdl_https', (int)$_POST['ossdl_https']);
 		if ( isset( $_POST[ 'ossdlcdn' ] ) ) {
 			$ossdlcdn = 1;
@@ -163,7 +165,7 @@ function scossdl_off_options() {
 			<tr valign="top">
 				<th scope="row"><label for="ossdl_off_cdn_url"><?php _e( 'Off-site URL', 'wp-super-cache' ); ?></label></th>
 				<td>
-					<input type="text" name="ossdl_off_cdn_url" value="<?php echo(get_option('ossdl_off_cdn_url')); ?>" size="64" class="regular-text code" /><br />
+					<input type="text" name="ossdl_off_cdn_url" value="<?php echo esc_url( get_option( 'ossdl_off_cdn_url' ) ); ?>" size="64" class="regular-text code" /><br />
 					<span class="description"><?php printf( __( 'The new URL to be used in place of %1$s for rewriting. No trailing <code>/</code> please.<br />Example: <code>%2$s</code>.', 'wp-super-cache' ), get_option( 'siteurl' ), $example_cdn_uri ); ?></span>
 				</td>
 			</tr>

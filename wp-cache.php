@@ -428,8 +428,11 @@ function admin_bar_delete_page() {
 		if ( false == wp_cache_confirm_delete( $path ) || substr( $path, 0, strlen( get_supercache_dir() ) ) != get_supercache_dir() )
 			die( "Could not delete directory" );
 		$files = get_all_supercache_filenames( $path );
+		// remove supercache dir again to get safe URL path
+		$path = str_replace( get_supercache_dir(), '/', $path );
 		foreach( $files as $cache_file )
-			prune_super_cache( $path . $cache_file, true );
+			wpsc_delete_directory( $cache_file, true );
+			//prune_super_cache( $path . $cache_file, true );
 
 		wp_redirect( preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', $_GET[ 'path' ] ) );
 		die();
@@ -2691,7 +2694,7 @@ function wp_cache_delete_buttons() {
 	if ( ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && wpsupercache_site_admin() ) {
 		echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 		echo '<input type="hidden" name="wp_delete_all_cache" />';
-		echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" />';
+		echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" /></div>';
 		wp_nonce_field('wp-cache');
 		echo "</form>\n";
 	}
