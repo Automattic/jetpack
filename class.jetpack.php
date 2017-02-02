@@ -2753,6 +2753,7 @@ p {
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
 		if ( ! self::validate_sync_error_idc_option() ) {
+			JetpackTracking::record_user_event( 'disconnect_site', array() );
 			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.deregister' );
@@ -4447,7 +4448,7 @@ p {
 	public function get_remote_query_timeout_limit() {
 	    $timeout = (int) ini_get( 'max_execution_time' );
 	    if ( ! $timeout ) // Ensure exec time set in php.ini
-		$timeout = 30;
+				$timeout = 30;
 	    return intval( $timeout / 2 );
 	}
 
@@ -4460,7 +4461,7 @@ p {
 	 * @return true or Jetpack_Error
 	 **/
 	public function validate_remote_register_response( $response ) {
-	    	if ( is_wp_error( $response ) ) {
+	  if ( is_wp_error( $response ) ) {
 			return new Jetpack_Error( 'register_http_request_failed', $response->get_error_message() );
 		}
 
@@ -4482,7 +4483,7 @@ p {
 			} else {
 				$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
 			}
-			
+
 			return new Jetpack_Error( (string) $json->error, $error_description, $code );
 		} elseif ( 200 != $code ) {
 			return new Jetpack_Error( 'wpcom_bad_response', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
