@@ -100,6 +100,50 @@ class Jetpack_Sitemap_Librarian {
 	}
 
 	/**
+	 * A human-friendly name for each sitemap type (for debug messages).
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param string $type The sitemap type.
+	 *
+	 * @return string The sitemap debug name.
+	 */
+	public static function debug_name( $type ) {
+		if ( self::SITEMAP_TYPE === $type ) {
+			return 'Sitemap';
+		} elseif ( self::SITEMAP_INDEX_TYPE === $type ) {
+			return 'Sitemap Index';
+		} elseif ( self::IMAGE_SITEMAP_TYPE === $type ) {
+			return 'Image Sitemap';
+		} elseif ( self::IMAGE_SITEMAP_INDEX_TYPE === $type ) {
+			return 'Image Sitemap Index';
+		} elseif ( self::VIDEO_SITEMAP_TYPE === $type ) {
+			return 'Video Sitemap';
+		} elseif ( self::VIDEO_SITEMAP_INDEX_TYPE === $type ) {
+			return 'Video Sitemap Index';
+		}
+	}
+
+	/**
+	 * The index type corresponding to a sitemap type.
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param string $type The sitemap type.
+	 *
+	 * @return string The index type.
+	 */
+	public static function index_type( $type ) {
+		if ( self::SITEMAP_TYPE === $type ) {
+			return self::SITEMAP_INDEX_TYPE;
+		} elseif ( self::IMAGE_SITEMAP_TYPE === $type ) {
+			return self::IMAGE_SITEMAP_INDEX_TYPE;
+		} elseif ( self::VIDEO_SITEMAP_TYPE === $type ) {
+			return self::VIDEO_SITEMAP_INDEX_TYPE;
+		}
+	}
+
+	/**
 	 * Retrieve a single sitemap with given name and type.
 	 * Returns null if no such sitemap exists.
 	 *
