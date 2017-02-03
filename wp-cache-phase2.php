@@ -122,6 +122,10 @@ if ( !function_exists( 'wp_cache_user_agent_is_rejected' ) ) {
 function wp_cache_get_response_headers() {
 	if(function_exists('apache_response_headers')) {
 		$headers = apache_response_headers();
+		if ( empty( $headers ) ) {
+			flush();
+			$headers = apache_response_headers();
+		}
 	} else if(function_exists('headers_list')) {
 		$headers = array();
 		foreach(headers_list() as $hdr) {
