@@ -101,7 +101,7 @@ class Jetpack_Sitemap_Builder {
 			$this->logger->report( '-- Updating...' );
 		}
 
-		for ( $i = 1; $i <= 200; $i++ ) {
+		for ( $i = 1; $i <= 100; $i++ ) {
 			$this->build_next_sitemap_file();
 		}
 
@@ -395,8 +395,8 @@ class Jetpack_Sitemap_Builder {
 		}
 
 		$buffer = new Jetpack_Sitemap_Buffer(
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS,
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES,
+			JP_SITEMAP_MAX_ITEMS,
+			JP_SITEMAP_MAX_BYTES,
 			<<<HEADER
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- generator='jetpack-{$jetpack_version}' -->
@@ -534,8 +534,8 @@ FOOTER
 		);
 
 		$buffer = new Jetpack_Sitemap_Buffer(
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS,
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES,
+			JP_SITEMAP_MAX_ITEMS,
+			JP_SITEMAP_MAX_BYTES,
 			<<<HEADER
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- generator='jetpack-{$jetpack_version}' -->
@@ -691,8 +691,8 @@ FOOTER
 		);
 
 		$buffer = new Jetpack_Sitemap_Buffer(
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS,
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES,
+			JP_SITEMAP_MAX_ITEMS,
+			JP_SITEMAP_MAX_BYTES,
 			<<<HEADER
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- generator='jetpack-{$jetpack_version}' -->
@@ -809,8 +809,8 @@ FOOTER
 		);
 
 		$buffer = new Jetpack_Sitemap_Buffer(
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS,
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES,
+			JP_SITEMAP_MAX_ITEMS,
+			JP_SITEMAP_MAX_BYTES,
 			<<<HEADER
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- generator='jetpack-{$jetpack_version}' -->
@@ -907,8 +907,8 @@ FOOTER
 		$jetpack_version = JETPACK__VERSION;
 
 		$buffer = new Jetpack_Sitemap_Buffer(
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS,
-			Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES,
+			JP_SITEMAP_MAX_ITEMS,
+			JP_SITEMAP_MAX_BYTES,
 			<<<HEADER
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- generator='jetpack-{$jetpack_version}' -->
@@ -1059,7 +1059,7 @@ FOOTER
 			 */
 			$item_limit = apply_filters(
 				'jetpack_sitemap_news_sitemap_count',
-				Jetpack_Sitemap_Buffer::NEWS_SITEMAP_MAX_ITEMS
+				JP_NEWS_SITEMAP_MAX_ITEMS
 			);
 
 			$namespaces = Jetpack_Sitemap_Buffer::array_to_xml_attr_string(
@@ -1085,8 +1085,8 @@ FOOTER
 			);
 
 			$buffer = new Jetpack_Sitemap_Buffer(
-				min( $item_limit, Jetpack_Sitemap_Buffer::NEWS_SITEMAP_MAX_ITEMS ),
-				Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES,
+				min( $item_limit, JP_NEWS_SITEMAP_MAX_ITEMS ),
+				JP_SITEMAP_MAX_BYTES,
 				<<<HEADER
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- generator='jetpack-{$jetpack_version}' -->

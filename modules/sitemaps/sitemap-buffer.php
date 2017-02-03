@@ -27,33 +27,6 @@
 class Jetpack_Sitemap_Buffer {
 
 	/**
-	 * Maximum size (in bytes) of a sitemap xml file.
-	 * Per the spec, max value is 10485760 (10MB).
-	 *
-	 * @link http://www.sitemaps.org/
-	 * @since 4.7.0
-	 */
-	const SITEMAP_MAX_BYTES = 10485760;
-
-	/**
-	 * Maximum size (in url nodes) of a sitemap xml file.
-	 * Per the spec, max value is 50000.
-	 *
-	 * @link http://www.sitemaps.org/
-	 * @since 4.7.0
-	 */
-	const SITEMAP_MAX_ITEMS = 20; // 50000;
-
-	/**
-	 * Maximum size (in url nodes) of a news sitemap xml file.
-	 * Per the spec, max value is 1000.
-	 *
-	 * @link https://support.google.com/news/publisher/answer/74288?hl=en
-	 * @since 4.7.0
-	 */
-	const NEWS_SITEMAP_MAX_ITEMS = 1000;
-
-	/**
 	 * Largest number of items the buffer can hold.
 	 *
 	 * @access private
@@ -128,8 +101,8 @@ class Jetpack_Sitemap_Buffer {
 	 * @param string $time The initial timestamp of the buffer. Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	public function __construct(
-		$item_limit = 50000,
-		$byte_limit = 10485760,
+		$item_limit,
+		$byte_limit,
 		$header = '',
 		$footer = '',
 		$time
