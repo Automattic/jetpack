@@ -30,6 +30,7 @@
  * @author Automattic
  */
 
+require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
 require_once dirname( __FILE__ ) . '/sitemap-stylist.php';
 require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
@@ -204,7 +205,7 @@ class Jetpack_Sitemap_Manager {
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
 						Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME,
-						Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE
+						JP_MASTER_SITEMAP_TYPE
 					)
 				);
 			}
@@ -215,7 +216,7 @@ class Jetpack_Sitemap_Manager {
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
 						$request['sitemap_name'],
-						Jetpack_Sitemap_Librarian::SITEMAP_TYPE
+						JP_PAGE_SITEMAP_TYPE
 					)
 				);
 			}
@@ -226,7 +227,7 @@ class Jetpack_Sitemap_Manager {
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
 						$request['sitemap_name'],
-						Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
+						JP_PAGE_SITEMAP_INDEX_TYPE
 					)
 				);
 			}
@@ -253,7 +254,7 @@ class Jetpack_Sitemap_Manager {
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
 						$request['sitemap_name'],
-						Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
+						JP_IMAGE_SITEMAP_TYPE
 					)
 				);
 			}
@@ -264,7 +265,7 @@ class Jetpack_Sitemap_Manager {
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
 						$request['sitemap_name'],
-						Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
+						JP_IMAGE_SITEMAP_INDEX_TYPE
 					)
 				);
 			}
@@ -283,7 +284,7 @@ class Jetpack_Sitemap_Manager {
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
 						$request['sitemap_name'],
-						Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE
+						JP_VIDEO_SITEMAP_TYPE
 					)
 				);
 			}
@@ -294,7 +295,7 @@ class Jetpack_Sitemap_Manager {
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
 						$request['sitemap_name'],
-						Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE
+						JP_VIDEO_SITEMAP_INDEX_TYPE
 					)
 				);
 			}

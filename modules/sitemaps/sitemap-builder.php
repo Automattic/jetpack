@@ -7,6 +7,7 @@
  * @author Automattic
  */
 
+require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
 require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
 require_once dirname( __FILE__ ) . '/sitemap-finder.php';
@@ -129,67 +130,67 @@ class Jetpack_Sitemap_Builder {
 		// Otherwise, branch on the sitemap-type key of $state.
 
 		// Page Sitemap.
-		if ( Jetpack_Sitemap_Librarian::SITEMAP_TYPE === $state['sitemap-type'] ) {
+		if ( JP_PAGE_SITEMAP_TYPE === $state['sitemap-type'] ) {
 			$this->build_next_sitemap_of_type(
 				$state,
 				array( $this, 'build_one_page_sitemap' ),
-				Jetpack_Sitemap_Librarian::SITEMAP_TYPE
+				JP_PAGE_SITEMAP_TYPE
 			);
 			return;
 
 		// Page Sitemap Indices.
-		} elseif ( Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE === $state['sitemap-type'] ) {
+		} elseif ( JP_PAGE_SITEMAP_INDEX_TYPE === $state['sitemap-type'] ) {
 			$this->build_next_sitemap_index_of_type(
 				$state,
-				Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE,
-				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
+				JP_PAGE_SITEMAP_INDEX_TYPE,
+				JP_IMAGE_SITEMAP_TYPE
 			);
 			return;
 
 		// Image Sitemaps.
-		} elseif ( Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE === $state['sitemap-type'] ) {
+		} elseif ( JP_IMAGE_SITEMAP_TYPE === $state['sitemap-type'] ) {
 			$this->build_next_sitemap_of_type(
 				$state,
 				array( $this, 'build_one_image_sitemap' ),
-				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
+				JP_IMAGE_SITEMAP_TYPE
 			);
 			return;
 
 		// Image Sitemap Indices.
-		} elseif ( Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE === $state['sitemap-type'] ) {
+		} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $state['sitemap-type'] ) {
 			$this->build_next_sitemap_index_of_type(
 				$state,
-				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE,
-				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE
+				JP_IMAGE_SITEMAP_INDEX_TYPE,
+				JP_VIDEO_SITEMAP_TYPE
 			);
 			return;
 
 		// Video Sitemaps.
-		} elseif ( Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE === $state['sitemap-type'] ) {
+		} elseif ( JP_VIDEO_SITEMAP_TYPE === $state['sitemap-type'] ) {
 			$this->build_next_sitemap_of_type(
 				$state,
 				array( $this, 'build_one_video_sitemap' ),
-				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE
+				JP_VIDEO_SITEMAP_TYPE
 			);
 			return;
 
 		// Video Sitemap Indices.
-		} elseif ( Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE === $state['sitemap-type'] ) {
+		} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $state['sitemap-type'] ) {
 			$this->build_next_sitemap_index_of_type(
 				$state,
-				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE,
-				Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE
+				JP_VIDEO_SITEMAP_INDEX_TYPE,
+				JP_MASTER_SITEMAP_TYPE
 			);
 
 			return;
 
 		// Master Sitemap.
-		} elseif ( Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE === $state['sitemap-type'] ) {
+		} elseif ( JP_MASTER_SITEMAP_TYPE === $state['sitemap-type'] ) {
 			$this->build_master_sitemap( $state['max'] );
 
 			// Reset the state and quit.
 			Jetpack_Sitemap_State::reset(
-				Jetpack_Sitemap_Librarian::SITEMAP_TYPE
+				JP_PAGE_SITEMAP_TYPE
 			);
 
 			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
@@ -201,7 +202,7 @@ class Jetpack_Sitemap_Builder {
 
 		// Otherwise, reset the state.
 		Jetpack_Sitemap_State::reset(
-			Jetpack_Sitemap_Librarian::SITEMAP_TYPE
+			JP_PAGE_SITEMAP_TYPE
 		);
 		return;
 	}
@@ -295,7 +296,7 @@ class Jetpack_Sitemap_Builder {
 		$debug_name   = Jetpack_Sitemap_Librarian::debug_name( $index_type );
 		$sitemap_type = Jetpack_Sitemap_Librarian::sitemap_type( $index_type );
 
-		// If only 0 or 1 sitemaps were built, exit early.
+		// If only 0 or 1 sitemaps were built, advance to the next type and return.
 		if ( 1 >= $state['max'][ $sitemap_type ]['number'] ) {
 			Jetpack_Sitemap_State::check_in( array(
 				'sitemap-type'  => $next_type,
@@ -304,11 +305,11 @@ class Jetpack_Sitemap_Builder {
 				'last-modified' => '1970-01-01 00:00:00',
 			) );
 
-			// Clean up old files.
 			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-				$this->logger->report( "-- Cleaning Up $debug_name" );
+				$this->logger->report( "-- Cleaning Up: $debug_name" );
 			}
 
+			// There are no indices of this type.
 			$this->librarian->delete_numbered_sitemap_rows_after(
 				0, $index_type
 			);
@@ -324,7 +325,7 @@ class Jetpack_Sitemap_Builder {
 			$index_type
 		);
 
-		// Detect if no index was generated.
+		// If no index was built, advance to the next type and return.
 		if ( false === $result ) {
 			Jetpack_Sitemap_State::check_in( array(
 				'sitemap-type'  => $next_type,
@@ -333,11 +334,11 @@ class Jetpack_Sitemap_Builder {
 				'last-modified' => '1970-01-01 00:00:00',
 			) );
 
-			// Clean up old files.
 			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 				$this->logger->report( "-- Cleaning Up $debug_name" );
 			}
 
+			// Clean up old files.
 			$this->librarian->delete_numbered_sitemap_rows_after(
 				$state['number'], $index_type
 			);
@@ -345,6 +346,7 @@ class Jetpack_Sitemap_Builder {
 			return;
 		}
 
+		// Otherwise, check in the state.
 		Jetpack_Sitemap_State::check_in( array(
 			'sitemap-type'  => $index_type,
 			'last-added'    => $result['last_id'],
@@ -352,10 +354,12 @@ class Jetpack_Sitemap_Builder {
 			'last-modified' => $result['last_modified'],
 		) );
 
+		// If there are still sitemaps left to index, return.
 		if ( true === $result['any_left'] ) {
 			return;
 		}
 
+		// Otherwise, advance to the next type.
 		Jetpack_Sitemap_State::check_in( array(
 			'sitemap-type'  => $next_type,
 			'last-added'    => 0,
@@ -363,11 +367,11 @@ class Jetpack_Sitemap_Builder {
 			'last-modified' => '1970-01-01 00:00:00',
 		) );
 
-		// Clean up old files.
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 			$this->logger->report( "-- Cleaning Up $debug_name" );
 		}
 
+		// We're done generating indices of this type.
 		$this->librarian->delete_numbered_sitemap_rows_after(
 			$state['number'] + 1, $index_type
 		);
@@ -408,13 +412,13 @@ FOOTER
 			'1970-01-01 00:00:00'
 		);
 
-		if ( 0 < $max[ Jetpack_Sitemap_Librarian::SITEMAP_TYPE ]['number'] ) {
-			if ( 1 === $max[ Jetpack_Sitemap_Librarian::SITEMAP_TYPE ]['number'] ) {
-				$page['filename'] = Jetpack_Sitemap_Librarian::name_prefix(Jetpack_Sitemap_Librarian::SITEMAP_TYPE) . '1.xml';
-				$page['last_modified'] = $max[ Jetpack_Sitemap_Librarian::SITEMAP_TYPE ]['lastmod'];
+		if ( 0 < $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
+			if ( 1 === $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
+				$page['filename'] = Jetpack_Sitemap_Librarian::name_prefix( JP_PAGE_SITEMAP_TYPE ) . '1.xml';
+				$page['last_modified'] = $max[ JP_PAGE_SITEMAP_TYPE ]['lastmod'];
 			} else {
-				$page['filename'] = Jetpack_Sitemap_Librarian::name_prefix(Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE) . $max[ Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE ]['number'] . '.xml';
-				$page['last_modified'] = $max[ Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE ]['lastmod'];
+				$page['filename'] = Jetpack_Sitemap_Librarian::name_prefix( JP_PAGE_SITEMAP_INDEX_TYPE ) . $max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['number'] . '.xml';
+				$page['last_modified'] = $max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['lastmod'];
 			}
 
 			$buffer->try_to_add_item( Jetpack_Sitemap_Buffer::array_to_xml_string(
@@ -427,13 +431,13 @@ FOOTER
 			) );
 		}
 
-		if ( 0 < $max[ Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE ]['number'] ) {
-			if ( 1 === $max[ Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE ]['number'] ) {
-				$image['filename'] = Jetpack_Sitemap_Librarian::name_prefix(Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE) . '1.xml';
-				$image['last_modified'] = $max[ Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE ]['lastmod'];
+		if ( 0 < $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
+			if ( 1 === $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
+				$image['filename'] = Jetpack_Sitemap_Librarian::name_prefix(JP_IMAGE_SITEMAP_TYPE) . '1.xml';
+				$image['last_modified'] = $max[ JP_IMAGE_SITEMAP_TYPE ]['lastmod'];
 			} else {
-				$image['filename'] = Jetpack_Sitemap_Librarian::name_prefix(Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE) . $max[ Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE ]['number'] . '.xml';
-				$image['last_modified'] = $max[ Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE ]['lastmod'];
+				$image['filename'] = Jetpack_Sitemap_Librarian::name_prefix(JP_IMAGE_SITEMAP_INDEX_TYPE) . $max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['number'] . '.xml';
+				$image['last_modified'] = $max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['lastmod'];
 			}
 
 			$buffer->try_to_add_item( Jetpack_Sitemap_Buffer::array_to_xml_string(
@@ -446,13 +450,13 @@ FOOTER
 			) );
 		}
 
-		if ( 0 < $max[ Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE ]['number'] ) {
-			if ( 1 === $max[ Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE ]['number'] ) {
-				$video['filename'] = Jetpack_Sitemap_Librarian::name_prefix(Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE) . '1.xml';
-				$video['last_modified'] = $max[ Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE ]['lastmod'];
+		if ( 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
+			if ( 1 === $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
+				$video['filename'] = Jetpack_Sitemap_Librarian::name_prefix(JP_VIDEO_SITEMAP_TYPE) . '1.xml';
+				$video['last_modified'] = $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'];
 			} else {
-				$video['filename'] = Jetpack_Sitemap_Librarian::name_prefix(Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE) . $max[ Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE ]['number'] . '.xml';
-				$video['last_modified'] = $max[ Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'];
+				$video['filename'] = Jetpack_Sitemap_Librarian::name_prefix(JP_VIDEO_SITEMAP_INDEX_TYPE) . $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['number'] . '.xml';
+				$video['last_modified'] = $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'];
 			}
 
 			$buffer->try_to_add_item( Jetpack_Sitemap_Buffer::array_to_xml_string(
@@ -467,7 +471,7 @@ FOOTER
 
 		$this->librarian->store_sitemap_data(
 			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME,
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE,
+			JP_MASTER_SITEMAP_TYPE,
 			$buffer->contents(),
 			''
 		);
@@ -498,7 +502,7 @@ FOOTER
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 			$debug_name = Jetpack_Sitemap_Librarian::debug_name(
-				Jetpack_Sitemap_Librarian::SITEMAP_TYPE
+				JP_PAGE_SITEMAP_TYPE
 			);
 
 			$this->logger->report( "-- Building $debug_name " . $number . '.' );
@@ -614,8 +618,8 @@ FOOTER
 
 		// Store the buffer as the content of a sitemap row.
 		$this->librarian->store_sitemap_data(
-			Jetpack_Sitemap_Librarian::name_prefix(Jetpack_Sitemap_Librarian::SITEMAP_TYPE) . $number,
-			Jetpack_Sitemap_Librarian::SITEMAP_TYPE,
+			Jetpack_Sitemap_Librarian::name_prefix( JP_PAGE_SITEMAP_TYPE ) . $number,
+			JP_PAGE_SITEMAP_TYPE,
 			$tree->asXML(),
 			$buffer->last_modified()
 		);
@@ -654,7 +658,7 @@ FOOTER
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 			$debug_name = Jetpack_Sitemap_Librarian::debug_name(
-				Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
+				JP_IMAGE_SITEMAP_TYPE
 			);
 
 			$this->logger->report( "-- Building $debug_name $number." );
@@ -732,8 +736,8 @@ FOOTER
 
 		// Store the buffer as the content of a jp_sitemap post.
 		$this->librarian->store_sitemap_data(
-			Jetpack_Sitemap_Librarian::name_prefix(Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE) . $number,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE,
+			Jetpack_Sitemap_Librarian::name_prefix(JP_IMAGE_SITEMAP_TYPE) . $number,
+			JP_IMAGE_SITEMAP_TYPE,
 			$buffer->contents(),
 			$buffer->last_modified()
 		);
@@ -772,7 +776,7 @@ FOOTER
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 			$debug_name = Jetpack_Sitemap_Librarian::debug_name(
-				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE
+				JP_VIDEO_SITEMAP_TYPE
 			);
 
 			$this->logger->report( "-- Building $debug_name $number." );
@@ -850,8 +854,8 @@ FOOTER
 
 		if ( false === $buffer->is_empty() ) {
 			$this->librarian->store_sitemap_data(
-				Jetpack_Sitemap_Librarian::name_prefix(Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE) . $number,
-				Jetpack_Sitemap_Librarian::VIDEO_SITEMAP_TYPE,
+				Jetpack_Sitemap_Librarian::name_prefix(JP_VIDEO_SITEMAP_TYPE) . $number,
+				JP_VIDEO_SITEMAP_TYPE,
 				$buffer->contents(),
 				$buffer->last_modified()
 			);

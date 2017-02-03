@@ -10,6 +10,8 @@
  * @package Jetpack
  */
 
+require_once dirname( __FILE__ ) . '/sitemap-constants.php';
+
 /**
  * This object handles any database interaction required
  * for sitemap generation.
@@ -26,55 +28,6 @@ class Jetpack_Sitemap_Librarian {
 	const MASTER_SITEMAP_NAME = 'sitemap';
 
 	/**
-	 * Master sitemap type string for custom database table.
-	 *
-	 * @since 4.7.0
-	 */
-	const MASTER_SITEMAP_TYPE = 'jp_sitemap_master';
-
-	/**
-	 * Sitemap type string for custom database table.
-	 *
-	 * @since 4.7.0
-	 */
-	const SITEMAP_TYPE = 'jp_sitemap';
-
-	/**
-	 * Sitemap index type string for custom database table.
-	 *
-	 * @since 4.7.0
-	 */
-	const SITEMAP_INDEX_TYPE = 'jp_sitemap_index';
-
-	/**
-	 * Image sitemap type string for custom database table.
-	 *
-	 * @since 4.7.0
-	 */
-	const IMAGE_SITEMAP_TYPE = 'jp_img_sitemap';
-
-	/**
-	 * Image sitemap index type string for custom database table.
-	 *
-	 * @since 4.7.0
-	 */
-	const IMAGE_SITEMAP_INDEX_TYPE = 'jp_img_sitemap_index';
-
-	/**
-	 * Video sitemap type string for custom database table.
-	 *
-	 * @since 4.7.0
-	 */
-	const VIDEO_SITEMAP_TYPE = 'jp_vid_sitemap';
-
-	/**
-	 * Video sitemap index type string for custom database table.
-	 *
-	 * @since 4.7.0
-	 */
-	const VIDEO_SITEMAP_INDEX_TYPE = 'jp_vid_sitemap_index';
-
-	/**
 	 * The name prefix for sitemaps of the given type.
 	 *
 	 * @since 4.7.0
@@ -84,17 +37,17 @@ class Jetpack_Sitemap_Librarian {
 	 * @return string The sitemap name prefix.
 	 */
 	public static function name_prefix( $type ) {
-		if ( self::SITEMAP_TYPE === $type ) {
+		if ( JP_PAGE_SITEMAP_TYPE === $type ) {
 			return 'sitemap-';
-		} elseif ( self::SITEMAP_INDEX_TYPE === $type ) {
+		} elseif ( JP_PAGE_SITEMAP_INDEX_TYPE === $type ) {
 			return 'sitemap-index-';
-		} elseif ( self::IMAGE_SITEMAP_TYPE === $type ) {
+		} elseif ( JP_IMAGE_SITEMAP_TYPE === $type ) {
 			return 'image-sitemap-';
-		} elseif ( self::IMAGE_SITEMAP_INDEX_TYPE === $type ) {
+		} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $type ) {
 			return 'image-sitemap-index-';
-		} elseif ( self::VIDEO_SITEMAP_TYPE === $type ) {
+		} elseif ( JP_VIDEO_SITEMAP_TYPE === $type ) {
 			return 'video-sitemap-';
-		} elseif ( self::VIDEO_SITEMAP_INDEX_TYPE === $type ) {
+		} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
 			return 'video-sitemap-index-';
 		}
 	}
@@ -109,17 +62,17 @@ class Jetpack_Sitemap_Librarian {
 	 * @return string The sitemap debug name.
 	 */
 	public static function debug_name( $type ) {
-		if ( self::SITEMAP_TYPE === $type ) {
+		if ( JP_PAGE_SITEMAP_TYPE === $type ) {
 			return 'Sitemap';
-		} elseif ( self::SITEMAP_INDEX_TYPE === $type ) {
+		} elseif ( JP_PAGE_SITEMAP_INDEX_TYPE === $type ) {
 			return 'Sitemap Index';
-		} elseif ( self::IMAGE_SITEMAP_TYPE === $type ) {
+		} elseif ( JP_IMAGE_SITEMAP_TYPE === $type ) {
 			return 'Image Sitemap';
-		} elseif ( self::IMAGE_SITEMAP_INDEX_TYPE === $type ) {
+		} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $type ) {
 			return 'Image Sitemap Index';
-		} elseif ( self::VIDEO_SITEMAP_TYPE === $type ) {
+		} elseif ( JP_VIDEO_SITEMAP_TYPE === $type ) {
 			return 'Video Sitemap';
-		} elseif ( self::VIDEO_SITEMAP_INDEX_TYPE === $type ) {
+		} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
 			return 'Video Sitemap Index';
 		}
 	}
@@ -134,12 +87,12 @@ class Jetpack_Sitemap_Librarian {
 	 * @return string The index type.
 	 */
 	public static function index_type( $type ) {
-		if ( self::SITEMAP_TYPE === $type ) {
-			return self::SITEMAP_INDEX_TYPE;
-		} elseif ( self::IMAGE_SITEMAP_TYPE === $type ) {
-			return self::IMAGE_SITEMAP_INDEX_TYPE;
-		} elseif ( self::VIDEO_SITEMAP_TYPE === $type ) {
-			return self::VIDEO_SITEMAP_INDEX_TYPE;
+		if ( JP_PAGE_SITEMAP_TYPE === $type ) {
+			return JP_PAGE_SITEMAP_INDEX_TYPE;
+		} elseif ( JP_IMAGE_SITEMAP_TYPE === $type ) {
+			return JP_IMAGE_SITEMAP_INDEX_TYPE;
+		} elseif ( JP_VIDEO_SITEMAP_TYPE === $type ) {
+			return JP_VIDEO_SITEMAP_INDEX_TYPE;
 		}
 	}
 
@@ -153,12 +106,12 @@ class Jetpack_Sitemap_Librarian {
 	 * @return string The sitemap type.
 	 */
 	public static function sitemap_type( $type ) {
-		if ( self::SITEMAP_INDEX_TYPE === $type ) {
-			return self::SITEMAP_TYPE;
-		} elseif ( self::IMAGE_SITEMAP_INDEX_TYPE === $type ) {
-			return self::IMAGE_SITEMAP_TYPE;
-		} elseif ( self::VIDEO_SITEMAP_INDEX_TYPE === $type ) {
-			return self::VIDEO_SITEMAP_TYPE;
+		if ( JP_PAGE_SITEMAP_INDEX_TYPE === $type ) {
+			return JP_PAGE_SITEMAP_TYPE;
+		} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $type ) {
+			return JP_IMAGE_SITEMAP_TYPE;
+		} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
+			return JP_VIDEO_SITEMAP_TYPE;
 		}
 	}
 
@@ -312,31 +265,31 @@ class Jetpack_Sitemap_Librarian {
 	 */
 	public function delete_all_stored_sitemap_data() {
 		$this->delete_sitemap_data(
-			self::MASTER_SITEMAP_NAME, self::MASTER_SITEMAP_TYPE
+			self::MASTER_SITEMAP_NAME, JP_MASTER_SITEMAP_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			0, self::SITEMAP_TYPE
+			0, JP_PAGE_SITEMAP_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			0, self::SITEMAP_INDEX_TYPE
+			0, JP_PAGE_SITEMAP_INDEX_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			0, self::IMAGE_SITEMAP_TYPE
+			0, JP_IMAGE_SITEMAP_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			0, self::IMAGE_SITEMAP_INDEX_TYPE
+			0, JP_IMAGE_SITEMAP_INDEX_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			0, self::VIDEO_SITEMAP_TYPE
+			0, JP_VIDEO_SITEMAP_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(
-			0, self::VIDEO_SITEMAP_INDEX_TYPE
+			0, JP_VIDEO_SITEMAP_INDEX_TYPE
 		);
 		return;
 	}
