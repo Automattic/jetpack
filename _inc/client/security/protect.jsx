@@ -83,26 +83,22 @@ export const Protect = moduleSettingsForm(
 							}
 						</span>
 						</ModuleToggle>
-						<p className="jp-form-setting-explanation">
-							{
-								__( 'Secure user authentication.' )
-							}
-						</p>
 						<FormFieldset>
 							{
 								this.props.currentIp && (
-									<p>
-										{
-											__( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
-										}
-										<br />
+									<div>
+										<div className="jp-form-label-wide">
+											{
+												__( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
+											}
+										</div>
 										{
 											<Button
 												disabled={ ! isProtectActive || unavailableInDevMode || this.currentIpIsWhitelisted() }
 												onClick={ this.addToWhitelist }
-												compact>{ __( 'Add to whitelist' ) }</Button>
+												>{ __( 'Add to whitelist' ) }</Button>
 										}
-									</p>
+									</div>
 								)
 							}
 							<FormLabel>
