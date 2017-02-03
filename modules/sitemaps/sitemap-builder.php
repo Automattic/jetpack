@@ -576,7 +576,9 @@ FOOTER
 
 		// Add as many items to the buffer as possible.
 		while ( false === $buffer->is_full() ) {
-			$posts = $this->librarian->query_posts_after_id( $last_post_id, 1000 );
+			$posts = $this->librarian->query_posts_after_id(
+				$last_post_id, JP_SITEMAP_BATCH_SIZE
+			);
 
 			if ( null == $posts ) { // WPCS: loose comparison ok.
 				$any_posts_left = false;
@@ -710,7 +712,9 @@ FOOTER
 
 		// Add as many items to the buffer as possible.
 		while ( false === $buffer->is_full() ) {
-			$posts = $this->librarian->query_images_after_id( $last_post_id, 1000 );
+			$posts = $this->librarian->query_images_after_id(
+				$last_post_id, JP_SITEMAP_BATCH_SIZE
+			);
 
 			if ( null == $posts ) { // WPCS: loose comparison ok.
 				$any_posts_left = false;
@@ -828,7 +832,9 @@ FOOTER
 
 		// Add as many items to the buffer as possible.
 		while ( false === $buffer->is_full() ) {
-			$posts = $this->librarian->query_videos_after_id( $last_post_id, 1000 );
+			$posts = $this->librarian->query_videos_after_id(
+				$last_post_id, JP_SITEMAP_BATCH_SIZE
+			);
 
 			if ( null == $posts ) { // WPCS: loose comparison ok.
 				$any_posts_left = false;
@@ -947,9 +953,7 @@ FOOTER
 		while ( false === $buffer->is_full() ) {
 			// Retrieve a batch of posts (in order).
 			$posts = $this->librarian->query_sitemaps_after_id(
-				$sitemap_type,
-				$last_sitemap_id,
-				1000
+				$sitemap_type, $last_sitemap_id, JP_SITEMAP_BATCH_SIZE
 			);
 
 			// If there were no posts to get, make a note.
@@ -1102,7 +1106,7 @@ FOOTER
 				'1970-01-01 00:00:00'
 			);
 
-			$posts = $this->librarian->query_most_recent_posts( 1000 );
+			$posts = $this->librarian->query_most_recent_posts( JP_NEWS_SITEMAP_MAX_ITEMS );
 
 			foreach ( $posts as $post ) {
 				$current_item = $this->post_to_news_sitemap_item( $post );

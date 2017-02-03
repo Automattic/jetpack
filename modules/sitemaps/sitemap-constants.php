@@ -40,6 +40,17 @@ if ( ! defined( 'JP_NEWS_SITEMAP_MAX_ITEMS' ) ) {
 	define( 'JP_NEWS_SITEMAP_MAX_ITEMS', 1000 );
 }
 
+/**
+ * Batch size for building sitemap files.
+ *
+ * @since 4.7.0
+ */
+if ( ! defined( 'JP_SITEMAP_BATCH_SIZE' ) ) {
+	define( 'JP_SITEMAP_BATCH_SIZE', 1000 );
+}
+
+
+
 /*
  * These constants represent the types of various kinds of sitemaps.
  * Note: these strings are used as 'post_types' in the database, and
