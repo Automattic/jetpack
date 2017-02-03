@@ -1,3 +1,61 @@
+2017-02-03 17:17  donncha
+
+	* readme.txt, wp-cache.php: Bump version number to 1.4.9 and update
+	  changelog
+
+2017-02-03 17:11  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: * Github
+	  merge:
+	  * Make sure $cache_path has a trailing slash
+	  (https://github.com/Automattic/wp-super-cache/pull/77)
+	  * Remove flush()
+	  (https://github.com/Automattic/wp-super-cache/pull/127) but also
+	  check if headers are empty and flush and get headers again.
+	  (https://github.com/Automattic/wp-super-cache/pull/179)
+	  * Add fix for customizer
+	  (https://github.com/Automattic/wp-super-cache/pull/161) and don't
+	  cache PUT AND DELETE requests
+	  (https://github.com/Automattic/wp-super-cache/pull/178)
+	  * Check for superglobals before using them.
+	  (https://github.com/Automattic/wp-super-cache/pull/131)
+
+2017-02-03 16:54  donncha
+
+	* plugins/multisite.php, wp-cache-base.php, wp-cache.php: Github
+	  merge: Need to check more than WP_ALLOW_MULTISITE to detect
+	  multisite installs.
+	  https://github.com/Automattic/wp-super-cache/issues/97
+
+2017-02-03 15:07  donncha
+
+	* wp-cache-phase1.php: Github merge:
+	  https://github.com/Automattic/wp-super-cache/pull/161 and also
+	  don't cache PUT and DELETE requests (caught earlier than before)
+
+2017-02-03 14:45  donncha
+
+	* plugins/jetpack.php: Remove extra ">", props @dd32
+	  https://github.com/Automattic/wp-super-cache/pull/168
+
+2017-02-03 14:37  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2017-02-03 14:33  donncha
+
+	* wp-cache.php: github merge: some of the changes that were
+	  supposed to be checked in the previous merge didn't make it.
+
+2017-02-03 10:18  donncha
+
+	* readme.txt: * Bump the tested version.
+	  * Update the changelog
+
+2017-02-03 10:13  donncha
+
+	* Changelog.txt: Updated changelog
+
 2017-02-02 18:14  donncha
 
 	* readme.txt: Updated readme.txt changelog and docs
