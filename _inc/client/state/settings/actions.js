@@ -104,7 +104,7 @@ export const updateSettings = ( newOptionValues ) => {
 			dispatch( createNotice(
 				'is-success',
 				__( 'Updated settings.' ),
-				{ id: `module-setting-update` }
+				{ id: `module-setting-update`, duration: 2000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
