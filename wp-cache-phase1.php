@@ -47,7 +47,7 @@ if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon )
 
 do_cacheaction( 'cache_init' );
 
-if ( ! $cache_enabled || $_SERVER["REQUEST_METHOD"] == 'POST' || isset( $_GET['customize_changeset_uuid'] ) ) {
+if ( ! $cache_enabled || in_array( $_SERVER["REQUEST_METHOD"], array( 'POST', 'PUT', 'DELETE' ) ) || isset( $_GET['customize_changeset_uuid'] ) ) {
 	return true;
 }
 
