@@ -165,7 +165,8 @@ const Main = React.createClass( {
 		}
 
 		let pageComponent,
-			navComponent = <Navigation route={ this.props.route }/>;
+			navComponent = <Navigation route={ this.props.route }/>,
+			settingsNav = <NavigationSettings route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 		switch ( route ) {
 			case '/dashboard':
 				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
@@ -177,39 +178,39 @@ const Main = React.createClass( {
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/settings':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <GeneralSettings route={ this.props.route } />;
 				break;
 			case '/general':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <GeneralSettings route={ this.props.route } />;
 				break;
 			case '/engagement':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <Engagement route={ this.props.route } />;
 				break;
 			case '/discussion':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <Discussion route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } />;
 				break;
 			case '/security':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <Security route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/traffic':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <Traffic route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/appearance':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <Appearance route={ this.props.route } />;
 				break;
 			case '/writing':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/search':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <SearchPage siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 
