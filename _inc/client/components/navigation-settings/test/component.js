@@ -44,11 +44,6 @@ describe( 'NavigationSettings', () => {
 			expect( wrapper.find( '.dops-navigation' ) ).to.have.length( 1 );
 		} );
 
-		it( 'has /general as selected navigation item, accessing through /settings', () => {
-			expect( wrapper.find( 'NavItem' ).get( 0 ).props.selected ).to.be.true;
-			expect( wrapper.find( 'NavItem' ).get( 0 ).props.path ).to.equal( '#general' );
-		} );
-
 		it( 'renders NavigationSettings, SectionNav, NavTabs', () => {
 			expect( wrapper.find( 'NavigationSettings' ) ).to.exist;
 			expect( wrapper.find( 'SectionNav' ) ).to.exist;
@@ -59,14 +54,13 @@ describe( 'NavigationSettings', () => {
 	describe( 'for a Subscriber user', () => {
 		const wrapper = shallow( <NavigationSettings { ...testProps } /> );
 
-		it( 'renders only one tab: General', () => {
-			expect( wrapper.find( 'NavItem' ).children().text() ).to.be.equal( 'General' );
+		it( 'does not render Settings tabs', () => {
+			expect( wrapper.find( 'NavItem' ) ).to.have.length( 0 );
 		} );
 
 		it( 'does not display Search', () => {
 			expect( wrapper.find( 'Search' ) ).to.have.length( 0 );
 		} );
-
 	} );
 
 	describe( 'for Editor, Author and Contributor users', () => {
@@ -78,14 +72,18 @@ describe( 'NavigationSettings', () => {
 
 		const wrapper = shallow( <NavigationSettings { ...testProps } /> );
 
-		it( 'renders tabs with General, Writing', () => {
-			expect( wrapper.find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'General', 'Writing' ].includes( item ) ) ).to.be.true;
+		it( 'renders tabs with Writing', () => {
+			expect( wrapper.find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing' ].includes( item ) ) ).to.be.true;
+		} );
+
+		it( 'has /writing as selected navigation item, accessing through /settings', () => {
+			expect( wrapper.find( 'NavItem' ).get( 0 ).props.selected ).to.be.true;
+			expect( wrapper.find( 'NavItem' ).get( 0 ).props.path ).to.equal( '#writing' );
 		} );
 
 		it( 'does not display Search', () => {
 			expect( wrapper.find( 'Search' ) ).to.have.length( 0 );
 		} );
-
 	} );
 
 	describe( 'for an Admin user', () => {
@@ -97,8 +95,8 @@ describe( 'NavigationSettings', () => {
 
 		const wrapper = shallow( <NavigationSettings { ...testProps } /> );
 
-		it( 'renders tabs with General, Discussion, Security, Traffic, Writing, Sharing', () => {
-			expect( wrapper.find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'General', 'Writing', 'Discussion', 'Traffic', 'Security', 'Sharing' ].includes( item ) ) ).to.be.true;
+		it( 'renders tabs with Discussion, Security, Traffic, Writing, Sharing', () => {
+			expect( wrapper.find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing', 'Discussion', 'Traffic', 'Security', 'Sharing' ].includes( item ) ) ).to.be.true;
 		} );
 
 		it( 'displays Search', () => {
@@ -113,14 +111,13 @@ describe( 'NavigationSettings', () => {
 		it( 'switches to Security when the tab is clicked', () => {
 			Object.assign( testProps, {
 				route: {
-					'name': 'Security',
-					'path': '/security'
+					name: 'Security',
+					path: '/security'
 				}
 			} );
 			const wrapper = shallow( <NavigationSettings { ...testProps } /> );
 			expect( wrapper.find( 'SectionNav' ).props().selectedText ).to.be.equal( 'Security' );
 		} );
-
 	} );
 
 	describe( 'the Sharing link', () => {
@@ -151,7 +148,6 @@ describe( 'NavigationSettings', () => {
 			it( 'has an "external" icon', () => {
 				expect( wrapper.find( 'NavItem' ).children().find( 'Gridicon' ) ).to.have.length( 1 );
 			} );
-
 		} );
 
 		describe( 'if site is in dev mode', () => {
@@ -165,9 +161,6 @@ describe( 'NavigationSettings', () => {
 			it( 'does not have an icon', () => {
 				expect( wrapper.find( 'NavItem' ).children().find( 'Gridicon' ) ).to.have.length( 0 );
 			} );
-
 		} );
-
 	} );
-
 } );

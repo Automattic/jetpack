@@ -71,13 +71,8 @@ export const NavigationSettings = React.createClass( {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
-						path="#general"
-						selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
-						{ __( 'General', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
 						path="#writing"
-						selected={ this.props.route.path === '/writing' }>
+						selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
 						{ __( 'Writing', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
@@ -114,26 +109,13 @@ export const NavigationSettings = React.createClass( {
 				</NavTabs>
 			);
 		} else if ( this.props.isSubscriber ) {
-			navItems = (
-				<NavTabs selectedText={ this.props.route.name }>
-					<NavItem
-						path="#general"
-						selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
-						{ __( 'General', { context: 'Navigation item.' } ) }
-					</NavItem>
-				</NavTabs>
-			);
+			navItems = false;
 		} else {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
-						path="#general"
-						selected={ ( this.props.route.path === '/general' || this.props.route.path === '/settings' ) }>
-						{ __( 'General', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
 						path="#writing"
-						selected={ this.props.route.path === '/writing' }>
+						selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
 						{ __( 'Writing', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
