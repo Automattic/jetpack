@@ -17,8 +17,7 @@ import {
 	updateSettings,
 	isUpdatingSetting,
 	setUnsavedSettingsFlag,
-	clearUnsavedSettingsFlag,
-	regeneratePostByEmailAddress
+	clearUnsavedSettingsFlag
 } from 'state/settings';
 import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
 import {
@@ -59,8 +58,8 @@ export function connectModuleOptions( Component ) {
 			updateOptions: ( newOptions ) => {
 				return dispatch( updateSettings( newOptions ) );
 			},
-			regeneratePostByEmailAddress: () => {
-				return dispatch( regeneratePostByEmailAddress() );
+			regeneratePostByEmailAddress: newOptions => {
+				return dispatch( updateSettings( newOptions, 'regeneratePbE' ) );
 			},
 			setUnsavedSettingsFlag: () => {
 				return dispatch( setUnsavedSettingsFlag() );
