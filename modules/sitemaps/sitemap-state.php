@@ -40,9 +40,9 @@ class Jetpack_Sitemap_State {
 	 *     @type array  max           The latest index of each sitemap type seen.
 	 * }
 	 */
-	private static function initial() {
+	private static function initial( $type = '' ) {
 		return array(
-			'sitemap-type'  => 'page-sitemap',
+			'sitemap-type'  => $type,
 			'last-added'    => 0,
 			'number'        => 0,
 			'last-modified' => '1970-01-01 00:00:00',
@@ -56,11 +56,11 @@ class Jetpack_Sitemap_State {
 	 * @access public
 	 * @since 4.7.0
 	 */
-	public static function reset() {
+	public static function reset( $type ) {
 		delete_transient( 'jetpack-sitemap-state-lock' );
 		update_option(
 			'jetpack-sitemap-state',
-			self::initial()
+			self::initial( $type )
 		);
 	}
 

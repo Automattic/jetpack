@@ -144,6 +144,25 @@ class Jetpack_Sitemap_Librarian {
 	}
 
 	/**
+	 * The index type corresponding to a sitemap type.
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param string $type The index type.
+	 *
+	 * @return string The sitemap type.
+	 */
+	public static function sitemap_type( $type ) {
+		if ( self::SITEMAP_INDEX_TYPE === $type ) {
+			return self::SITEMAP_TYPE;
+		} elseif ( self::IMAGE_SITEMAP_INDEX_TYPE === $type ) {
+			return self::IMAGE_SITEMAP_TYPE;
+		} elseif ( self::VIDEO_SITEMAP_INDEX_TYPE === $type ) {
+			return self::VIDEO_SITEMAP_TYPE;
+		}
+	}
+
+	/**
 	 * Retrieve a single sitemap with given name and type.
 	 * Returns null if no such sitemap exists.
 	 *
