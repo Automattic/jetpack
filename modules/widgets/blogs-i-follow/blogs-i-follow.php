@@ -486,18 +486,23 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * @return void
 	 */
 	function enqueue_style() {
+		// TODO: Should this style instead be registered in a higher level file (widgets.php)?
+		// The common style may have been registered by another widget
+		if ( ! wp_style_is( 'widget-grid-and-list', 'registered' ) ) {
+			wp_register_style(
+				'widget-grid-and-list',
+				plugins_url( '../widget-grid-and-list.css', __FILE__ ),
+				array(),
+				JETPACK__VERSION
+			);
+		}
 		wp_enqueue_style(
 			'blogs-i-follow-widget',
 			plugins_url( 'blogs-i-follow.css', __FILE__ ),
 			array(),
 			'20120712a'
 		);
-		wp_enqueue_style(
-			'blogs-i-follow-widget-grid',
-			plugins_url( 'widget-grid-and-list.css', __FILE__ ),
-			array(),
-			JETPACK__VERSION
-		);
+		wp_enqueue_style( 'widget-grid-and-list' );
 		wp_enqueue_style(
 			'blogs-i-follow-widget-bubbles',
 			plugins_url( 'hover-bubbles.css', __FILE__ ),
