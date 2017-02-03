@@ -50,7 +50,7 @@ class Jetpack {
 		'gravatar-profile-widget',
 		'goodreads-widget',
 		'jetpack_social_media_icons_widget',
-		'jetpack-top-posts-widget',
+		'widget-grid-and-list',
 		'jetpack_image_widget',
 		'jetpack-my-community-widget',
 		'wordads',
