@@ -235,6 +235,24 @@ class Jetpack_Widget_Conditions {
 				</optgroup>
 				<?php
 			break;
+
+			default:
+				$posts = get_posts( array(
+					'posts_per_page' => -1,
+					'post_type'      => $major
+				) );
+
+				foreach ( $posts as $post ) {
+					?>
+					<option
+							value="<?php echo esc_attr( $major . '_' . $post->ID ); ?>"
+							<?php selected( $major . '_' . $post->ID, $minor ); ?>>
+							<?php echo $post->post_title; ?>
+					</option>
+					<?php
+				}
+
+			break;
 		}
 	}
 
@@ -301,6 +319,14 @@ class Jetpack_Widget_Conditions {
 		if ( empty( $conditions['rules'] ) )
 			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'has_children' => '' );
 
+		$post_types = get_post_types(
+			array(
+				'public'   => true,
+				'_builtin' => false,
+			),
+			'objects'
+		);
+
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
 			<input type="hidden" name="widget-conditions-visible" value="<?php if ( isset( $_POST['widget-conditions-visible'] ) ) { echo esc_attr( $_POST['widget-conditions-visible'] ); } else { ?>0<?php } ?>" />
@@ -335,6 +361,16 @@ class Jetpack_Widget_Conditions {
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 										<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
+									<option value="post" <?php selected( "post", $rule['major'] ); ?>><?php echo esc_html_x( 'Post', 'Example: The user is looking at a post, not a page.', 'jetpack' ); ?></option>
+									<?php
+									if ( !empty( $post_types ) ) {
+										foreach ($post_types as $post_type) {
+											?>
+												<option value="<?php echo $post_type->name ?>" <?php selected( $post_type->name, $rule['major'] ); ?>><?php echo esc_html_x( $post_type->label, 'Example: The user is looking at a ' . $post_type->label . ', not a page.', 'jetpack' ); ?></option>
+											<?php
+										}
+									}
+									?>
 								</select>
 
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
@@ -668,6 +704,10 @@ class Jetpack_Widget_Conditions {
 								$condition_result = true;
 							}
 						}
+					break;
+					default:
+						$id = str_replace( $rule['major'] . '_', '', $rule['minor'] );
+						$condition_result = is_single( $id );
 					break;
 				}
 
