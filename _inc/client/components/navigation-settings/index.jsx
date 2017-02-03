@@ -103,7 +103,11 @@ export const NavigationSettings = React.createClass( {
 									: this.props.siteAdminUrl + 'options-general.php?page=sharing'
 									}>
 								{ __( 'Sharing' ) }
-								<Gridicon icon="external" size={ 13 } />
+								{
+									true === this.props.siteConnectionStatus && (
+										<Gridicon icon="external" size={ 13 } />
+									)
+								}
 							</NavItem>
 						)
 					}
