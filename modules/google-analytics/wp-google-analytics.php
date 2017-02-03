@@ -35,7 +35,7 @@ class Jetpack_Google_Analytics {
 	 * @return void
 	 */
 	private function __construct() {
-		add_action( 'get_footer', array( $this, 'insert_code' ) );
+		add_action( 'wp_footer', array( $this, 'insert_code' ) );
 	}
 
 	/**
