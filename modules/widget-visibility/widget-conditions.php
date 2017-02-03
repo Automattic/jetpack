@@ -235,6 +235,50 @@ class Jetpack_Widget_Conditions {
 				</optgroup>
 				<?php
 			break;
+
+			case 'single_post':
+				// Get Post object.
+				$post_types = array(
+					'post' => get_post_type_object( 'post' )
+				);
+
+				$custom_post_types = get_post_types(
+					array(
+						'public'   => true,
+						'_builtin' => false,
+					),
+					'objects'
+				);
+
+				// Add "Post" object to other post types.
+				$post_types = array_merge( $post_types, $custom_post_types );
+
+				foreach ( $post_types as $post_type ) {
+				?>
+					<optgroup label="<?php printf( esc_attr( '%s :', 'jetpack' ), $post_type->label ); ?>">
+						<?php
+						$posts = get_posts( array(
+							'posts_per_page' => -1,
+							'post_type'      => $post_type->name
+						) );
+
+						foreach ( $posts as $post ) {
+							?>
+							<option
+									value="<?php echo esc_attr( 'single_post_' . $post->ID ); ?>"
+									<?php selected( 'single_post_' . $post->ID, $minor ); ?>>
+									<?php echo $post->post_title; ?>
+							</option>
+							<?php
+						}
+
+						?>
+					</optgroup>
+
+				<?php
+				}
+
+			break;
 		}
 	}
 
@@ -335,6 +379,7 @@ class Jetpack_Widget_Conditions {
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 										<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
+									<option value="single_post" <?php selected( "single_post", $rule['major'] ); ?>><?php echo esc_html_x( 'Custom Post', 'Example: The user is looking at a post, not a page.', 'jetpack' ); ?></option>
 								</select>
 
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
@@ -667,6 +712,11 @@ class Jetpack_Widget_Conditions {
 							if( $terms && ! is_wp_error( $terms ) ) {
 								$condition_result = true;
 							}
+						}
+					break;
+					case 'single_post':
+						if ( substr( $rule['minor'], 0, 12 ) == 'single_post_' ) {
+							$condition_result = is_single( substr( $rule['minor'], 12 ) );
 						}
 					break;
 				}
