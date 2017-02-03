@@ -40,7 +40,7 @@
 	background: #1a1a1a;
 	border-radius: 2px;
 	color: #fff;
-	font-family: Merriweather, Georgia, serif;
+	font-family: "Libre Franklin", "Helvetica Neue", helvetica, arial, sans-serif;
 	font-size: inherit;
 	font-weight: 700;
 	letter-spacing: 0.046875em;
@@ -59,10 +59,6 @@
 }
 
 /* Footer */
-body #infinite-footer {
-	display: none;
-	z-index: 999;
-}
 
 body #infinite-footer .container {
 	background-color: #fff;
@@ -73,7 +69,7 @@ body #infinite-footer .container {
 }
 
 body #infinite-footer .blog-info {
-	font-family: Merriweather, Georgia, serif;
+	font-family: "Libre Franklin", "Helvetica Neue", helvetica, arial, sans-serif;
 	height: 2.1875em;
 	line-height: 2.1875em;
 }
@@ -113,7 +109,7 @@ body #infinite-footer .blog-credits a:focus {
 		margin: 0 0 1em 0;
 		text-align: center;
 	}
-	
+
 	.has-sidebar #infinite-handle {
 		text-align: left;
 	}
@@ -121,20 +117,15 @@ body #infinite-footer .blog-credits a:focus {
 	.site-main #infinite-handle span {
 		display: inline-block;
 	}
-	
 
 	body #infinite-footer .container {
 		padding: 0 0.761904762em;
 		width: -webkit-calc(100% - 42px) !important;
 		width: calc(100% - 42px) !important;
 	}
-
-	body:not(.custom-background-image) #infinite-footer {
-		bottom: 21px !important;
-	}
 }
 
-@media screen and (min-width: 48em) {	
+@media screen and (min-width: 48em) {
 	.infinite-wrap > article {
 		padding-bottom: 4em;
 	}

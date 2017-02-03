@@ -10,12 +10,13 @@
  */
 function twentyseventeen_infinite_scroll_init() {
 	add_theme_support( 'infinite-scroll', array(
-		'container' => 'main',
-		'render'    => 'twentyseventeen_infinite_scroll_render',
-		'footer'    => 'content',
+		'container'      => 'main',
+		'render'         => 'twentyseventeen_infinite_scroll_render',
+		'footer'         => 'content',
+		'footer_widgets' => twentyseventeen_has_footer_widgets(),
 	) );
 }
-add_action( 'after_setup_theme', 'twentyseventeen_infinite_scroll_init' );
+add_action( 'init', 'twentyseventeen_infinite_scroll_init' );
 
 /**
  * Custom render function for Infinite Scroll.
@@ -28,6 +29,19 @@ function twentyseventeen_infinite_scroll_render() {
 		} else {
 			get_template_part( 'template-parts/post/content', get_post_format() );
 		}
+	}
+}
+
+/**
+ * Custom function to check for the presence of footer widgets or the social links menu
+ */
+function twentyseventeen_has_footer_widgets() {
+	if ( is_active_sidebar( 'sidebar-2' ) ||
+		 is_active_sidebar( 'sidebar-3' ) ||
+		 has_nav_menu( 'jetpack-social-menu' ) ) {
+		return true;
+	} else {
+		return false;
 	}
 }
 
