@@ -131,7 +131,8 @@ class Jetpack_Google_Analytics {
 			$custom_vars[] = "_gaq.push(['_trackPageview']);";
 		}
 
-		$async_code = "<script type='text/javascript'>
+		$async_code = "<!-- Jetpack Google Analytics -->
+		<script type='text/javascript'>
 							var _gaq = _gaq || [];
 							%custom_vars%
 
