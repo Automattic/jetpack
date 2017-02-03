@@ -101,7 +101,7 @@ class Jetpack_Sitemap_Builder {
 			$this->logger->report( '-- Updating...' );
 		}
 
-		for ( $i = 1; $i <= 100; $i++ ) {
+		for ( $i = 1; $i <= JP_SITEMAP_UPDATE_SIZE; $i++ ) {
 			$this->build_next_sitemap_file();
 		}
 

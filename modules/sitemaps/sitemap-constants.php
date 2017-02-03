@@ -41,7 +41,7 @@ if ( ! defined( 'JP_NEWS_SITEMAP_MAX_ITEMS' ) ) {
 }
 
 /**
- * Batch size for building sitemap files.
+ * Batch size for querying items.
  *
  * @since 4.7.0
  */
@@ -49,7 +49,14 @@ if ( ! defined( 'JP_SITEMAP_BATCH_SIZE' ) ) {
 	define( 'JP_SITEMAP_BATCH_SIZE', 1000 );
 }
 
-
+/**
+ * Number of sitemap files to update on each run.
+ *
+ * @since 4.7.0
+ */
+if ( ! defined( 'JP_SITEMAP_UPDATE_SIZE' ) ) {
+	define( 'JP_SITEMAP_UPDATE_SIZE', 20 );
+}
 
 /*
  * These constants represent the types of various kinds of sitemaps.
