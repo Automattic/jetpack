@@ -59,7 +59,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'address' => __( "3999 Mission Boulevard,\nSan Diego CA 92109", 'jetpack' ),
 				'phone'   => _x( '1-202-555-1212', 'Example of a phone number', 'jetpack' ),
 				'hours'   => __( "Lunch: 11am - 2pm \nDinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am", 'jetpack' ),
-				'email'   => get_bloginfo( 'admin_email' ),
+				'email'   => 'john.doe@example.com',
 				'showmap' => 0,
 				'apikey'  => null,
 				'lat'     => null,
@@ -125,7 +125,19 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			}
 
 			if ( '' != $instance['email'] ) {
-				echo '<div class="confit-email"><a href="' . esc_url( 'mailto:' . $instance['email'] ) . '">' . esc_html( $instance['email'] ) . "</a></div>";
+				echo '<div class="confit-email">';
+
+					if ( is_email( $instance['email'] ) ) {
+						echo '<a href="' . esc_url( 'mailto:' . $instance['email'] ) . '">';
+					}
+
+					echo esc_html( $instance['email'] );
+
+					if ( is_email( $instance['email'] ) ) {
+						echo '</a>';
+					}
+
+				echo '</div>';
 			}
 
 			if ( '' != $instance['hours'] ) {
