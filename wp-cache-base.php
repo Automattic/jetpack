@@ -5,7 +5,7 @@ $WPSC_HTTP_HOST = htmlentities( $_SERVER[ 'HTTP_HOST' ] );
 
 // We want to be able to identify each blog in a WordPress MU install
 $blogcacheid = '';
-if ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) {
+if ( ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) || defined( 'SUBDOMAIN_INSTALL' ) || defined( 'VHOST' ) || defined( 'SUNRISE' ) ) {
 	$blogcacheid = 'blog'; // main blog
 	if( defined( 'SUBDOMAIN_INSTALL' ) && constant( 'SUBDOMAIN_INSTALL' ) == true ) {
 		$blogcacheid = $WPSC_HTTP_HOST;
