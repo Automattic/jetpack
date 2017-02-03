@@ -82,7 +82,6 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 	return ( dispatch, getState ) => {
 
 		let messages = {
-				progress: __( 'Updating settings…' ),
 				success: __( 'Updated settings.' ),
 				error: error => __( 'Error updating settings. %(error)s', { args: { error: error } } )
 			},
@@ -91,7 +90,6 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 		// Adapt messages and data when regenerating Post by Email address
 		if ( 'regeneratePbE' === type ) {
 			messages = {
-				progress: __( 'Updating Post by Email address…' ),
 				success: __( 'Regenerated Post by Email address.' ),
 				error: error => __( 'Error regenerating Post by Email address. %(error)s', { args: { error: error } } )
 			};
@@ -103,12 +101,6 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 			newOptionValues = { post_by_email_address: 'regenerate' };
 		}
 
-		dispatch( removeNotice( `module-setting-update` ) );
-		dispatch( createNotice(
-			'is-info',
-			messages.progress,
-			{ id: `module-setting-update` }
-		) );
 		dispatch( {
 			type: JETPACK_SETTINGS_UPDATE,
 			updatedOptions: newOptionValues
