@@ -28,7 +28,7 @@ import {
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import ConnectButton from 'components/connect-button';
 
-const DashConnections = React.createClass( {
+export const DashConnections = React.createClass( {
 
 	/**
 	 * Render a card for site connection. If it's connected, indicate if user is the connection owner.
@@ -37,10 +37,6 @@ const DashConnections = React.createClass( {
 	 * @returns {string}
 	 */
 	siteConnection() {
-		const maybeShowDisconnectBtn = this.props.userCanDisconnectSite
-			? <ConnectButton asLink />
-			: null;
-
 		let cardContent = '';
 
 		if ( this.props.isDevMode ) {
@@ -73,7 +69,7 @@ const DashConnections = React.createClass( {
 							}
 							{
 								this.props.userIsMaster && (
-									<span><br /><em>{ __( 'You are the Jetpack owner.' ) }</em></span>
+									<span className="jp-connection-settings__is-owner"><br /><em>{ __( 'You are the Jetpack owner.' ) }</em></span>
 								)
 							}
 						</div>
@@ -81,7 +77,7 @@ const DashConnections = React.createClass( {
 					{
 						this.props.userCanDisconnectSite && (
 							<div className="jp-connection-settings__actions">
-								{ maybeShowDisconnectBtn }
+								<ConnectButton asLink />
 							</div>
 						)
 					}
@@ -175,6 +171,7 @@ const DashConnections = React.createClass( {
 } );
 
 DashConnections.propTypes = {
+	siteConnectionStatus: React.PropTypes.bool.isRequired,
 	isDevMode: React.PropTypes.bool.isRequired,
 	userCanDisconnectSite: React.PropTypes.bool.isRequired,
 	userIsMaster: React.PropTypes.bool.isRequired,
@@ -182,7 +179,7 @@ DashConnections.propTypes = {
 	userWpComLogin: React.PropTypes.any.isRequired,
 	userWpComEmail: React.PropTypes.any.isRequired,
 	userWpComAvatar: React.PropTypes.any.isRequired,
-	username: React.PropTypes.any.isRequired
+	username: React.PropTypes.any.isRequired,
 };
 
 export default connect(
