@@ -285,46 +285,23 @@
 }
 
 // Connection Settings
-.jp-connections, .jp-connection-settings__info {
-	display: flex;
-	width: 100%;
-}
 .jp-connection-type {
-	width: 50%;
-	flex-grow: 1;
+	.jp-dash-item__card {
+		align-items: flex-start;
+	}
+}
+.jp-connection-settings__info {
 	display: flex;
-	flex-direction: column;
+}
 
-	&:first-of-type {
-		margin-right: rem( 16px );
-	}
+.jp-connection-settings__actions {
+	margin: 1em 0 0;
 
-	& > .dops-section-header {
-		width: 100%;
-	}
-
-	& > .dops-card:last-child {
-		flex-grow: 1;
-		display: flex;
-		width: 100%;
-	}
-
-	.jp-connection-settings__actions {
-		margin: 1em 0 0;
-
-		a {
-			cursor: pointer;
-		}
+	a {
+		cursor: pointer;
 	}
 }
-@include breakpoint( "<660px" ) {
-	.jp-connections {
-		display: block;
-	}
-	.jp-connection-type {
-		width: 100%;
-	}
-}
+
 .jp-connection-settings__text {
 	width: 72%;
 	margin-left: rem( 16px );

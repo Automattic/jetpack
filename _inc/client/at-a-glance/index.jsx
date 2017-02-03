@@ -104,9 +104,7 @@ const AtAGlance = React.createClass( {
 							label={ __( 'Connections' ) }
 						/>
 					}
-					<div className="jp-at-a-glance__item-grid">
-						<DashConnections />
-					</div>
+					<DashConnections />
 				</div>
 			);
 		} else {

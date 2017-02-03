@@ -4,9 +4,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import SectionHeader from 'components/section-header';
 import Gridicon from 'components/gridicon';
+import DashItem from 'components/dash-item';
 
 /**
  * Internal dependencies
@@ -151,19 +150,23 @@ export const DashConnections = React.createClass( {
 	render() {
 
 		return(
-			<div className="jp-connections">
+			<div>
 				<QueryUserConnectionData />
-				<div className="jp-connection-type">
-					<SectionHeader label={ __( 'Site Connection' ) } />
-					<Card>
-						{ this.siteConnection() }
-					</Card>
-				</div>
-				<div className="jp-connection-type">
-					<SectionHeader label={ __( 'Account Connection' ) } />
-					<Card>
-						{ this.userConnection() }
-					</Card>
+				<div className="jp-at-a-glance__item-grid">
+					<div className="jp-at-a-glance__left">
+						<div className="jp-dash-item__interior">
+							<DashItem className="jp-connection-type" label={ __( 'Site Connection' ) }>
+								{ this.siteConnection() }
+							</DashItem>
+						</div>
+					</div>
+					<div className="jp-at-a-glance__right">
+						<div className="jp-dash-item__interior">
+							<DashItem className="jp-connection-type" label={ __( 'Account Connection' ) }>
+								{ this.userConnection() }
+							</DashItem>
+						</div>
+					</div>
 				</div>
 			</div>
 		);
