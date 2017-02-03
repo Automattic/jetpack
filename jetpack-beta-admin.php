@@ -89,7 +89,7 @@ class Jetpack_Beta_Admin {
 		?>
 		<div id="message" class="updated settings-error notice is-dismissible">
 			<p><?php _e( 'A new Jetpack Version was selected', 'jpbeta' ); ?> <a href="<?php echo esc_url( $update_url ); ?> "
-			   class="button button-primary"><?php _e( 'Update Now.', 'jpbeta' ); ?></a>
+			   class="button button-primary"><?php _e( 'Update Now', 'jpbeta' ); ?></a>
 			</p>
 		</div>
 		<?php

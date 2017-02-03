@@ -71,7 +71,7 @@ class Jetpack_Beta_Pressable {
 	}
 
 	public function install_1() {
-		if( !is_plugin_active( 'jetpack-pressable-beta/jetpack.php' ) ) {
+		if( ! is_plugin_active( 'jetpack-pressable-beta/jetpack.php' ) ) {
 
 			if ( is_plugin_active( 'jetpack/jetpack.php' ) ) {
 				deactivate_plugins( 'jetpack/jetpack.php' );
