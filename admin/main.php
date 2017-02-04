@@ -1,9 +1,9 @@
 <?php
 
+// do_action( 'jetpack_beta_header' );
 
 ?>
 <style type="text/css">
-
 	.j-beta-wrap {
 		max-width: 574px;
 	}
@@ -76,10 +76,20 @@
 	}
 </style>
 <?php
+
 $jp_beta_type       = get_option( 'jp_beta_type' );
 $jp_beta_autoupdate = get_option( 'jp_beta_autoupdate' );
 ?>
 <div class="wrap">
+	<div id="jp-plugin-container">
+		<div class="jp-masthead" >
+			<div class="jp-masthead__inside-container" >
+				<div class="jp-masthead__logo-container" >
+				</div>
+			</div>
+		</div>
+
+
 	<h1>Jetpack Beta</h1>
 
 	<div class="j-beta-wrap">

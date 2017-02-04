@@ -52,7 +52,6 @@ define( 'JETPACK_PLUGIN_ID', 'jetpack/jetpack.php' );
 define( 'JETPACK_DEV_PLUGIN', 'jetpack-dev/jetpack.php' );
 
 
-
 define( 'JPBETA_RC_URL', 'https://betadownload.jetpack.me/rc/rc.json' );
 define( 'JPBETA_BLEEDING_EDGE_URL', 'https://betadownload.jetpack.me/jetpack-bleeding-edge.json' );
 //
@@ -106,6 +105,15 @@ class Jetpack_Beta_Tester {
 	public static function deactivate() {
 		// delete the folder JETPACK_BETA_PLUGIN_FOLDER
 		// clean up any options that were set.
+		add_action( 'shutdown', array( __CLASS__, 'switch_active' ) );
+	}
+
+	/*
+	 * This needs to happen on shutdown. Other wise it doesn't work.
+	 */
+	static function switch_active() {
+		$self_install = Jetpack_Beta_Self_Install::instance();
+		$self_install->replace_active_plugin( JETPACK_DEV_PLUGIN, JETPACK_PLUGIN_ID );
 	}
 	/**
 	 * Constructor
@@ -131,8 +139,16 @@ class Jetpack_Beta_Tester {
 		add_filter( 'auto_update_plugin', array( $this, 'auto_update_jetpack_beta' ), 10, 2 );
 
 		if ( is_admin() ) {
-			require JPBETA__DIR . 'jetpack-beta-admin.php';
-			self::$admin = new Jetpack_Beta_Admin();
+			if ( class_exists( 'Jetpack' ) ) {
+				require JPBETA__DIR . 'admin/class.jetpack-beta-page.php';
+				$admin_page = new Jetpack_Beta_Page();
+				add_action( 'jetpack_admin_menu',            array( $admin_page, 'add_actions' ) );
+
+			} else {
+				require JPBETA__DIR . 'jetpack-beta-admin.php';
+				self::$admin = new Jetpack_Beta_Admin();
+			}
+
 		}
 	}
 
@@ -231,13 +247,18 @@ class Jetpack_Beta_Tester {
 		return $github_data;
 	}
 
-	public function get_beta_manifest() {
-		$manifest = get_site_transient( 'jetpack_beta_manifest', false );
-		if ( $manifest ) {
+	static function get_beta_manifest() {
+
+		return json_decode( '{"pr":{"enchance_jitm-indiv-dismiss":{"branch":"enchance\/jitm-indiv-dismiss","commit":"fdf7c1813df72891c514427a927f9ba001a728d9","download_url":"https:\/\/betadownload.jetpack.me\/branches\/enchance_jitm-indiv-dismiss\/jetpack-dev.zip","update_date":"2017-01-26 23:00:18","version":"4.6-alpha-4942-ge3f0c43","pr":6132},"add_jetpack-plan-support":{"branch":"add\/jetpack-plan-support","commit":"d6fb1f978269315bdda67979200f069c2f40017b","download_url":"https:\/\/betadownload.jetpack.me\/branches\/add_jetpack-plan-support\/jetpack-dev.zip","update_date":"2017-02-04 04:15:19","version":"4.6-alpha-4958-g690a03d","pr":6171},"add_docs":{"branch":"add\/docs","commit":"4f364a22ddfaf0f20ca0ee9f6f8fe0f39eda13fa","download_url":"https:\/\/betadownload.jetpack.me\/branches\/add_docs\/jetpack-dev.zip","update_date":"2017-02-04 04:15:20","version":"4.5-beta2-4768-g52a2fb5","pr":5985},"add_network-enable-them-on-install":{"branch":"add\/network-enable-them-on-install","commit":"28f7399e6ef2ac691fdcd7caa14e1e97b26eca33","download_url":"https:\/\/betadownload.jetpack.me\/branches\/add_network-enable-them-on-install\/jetpack-dev.zip","update_date":"2017-02-04 04:15:19","version":"4.6-alpha-4963-g1da29d8","pr":6201},"add_blogs-i-follow":{"branch":"add\/blogs-i-follow","commit":"77afc54d4fb9cab5b9d4e4ab688bc10d97077b3d","download_url":"https:\/\/betadownload.jetpack.me\/branches\/add_blogs-i-follow\/jetpack-dev.zip","update_date":"2017-02-04 05:12:34","version":"4.6-alpha-4978-gb074243","pr":6144},"update_sync-user-language-choice":{"branch":"update\/sync-user-language-choice","commit":"2ba5a7a8c77aa703ea8302205d9b637a91564792","download_url":"https:\/\/betadownload.jetpack.me\/branches\/update_sync-user-language-choice\/jetpack-dev.zip","update_date":"2017-02-02 23:05:17","version":"4.6-beta1-5034-g5476398","pr":6053},"update_sync-home-siteurl-from-db":{"branch":"update\/sync-home-siteurl-from-db","commit":"1f62380e00232371a83be73047a7dc9294d57447","download_url":"https:\/\/betadownload.jetpack.me\/branches\/update_sync-home-siteurl-from-db\/jetpack-dev.zip","update_date":"2017-01-30 22:20:18","version":"4.6-alpha-4998-g64d93f9","pr":5852},"change_infinite-scroll-rename-google-analytics-option-label":{"branch":"change\/infinite-scroll-rename-google-analytics-option-label","commit":"8fd532edbcff9472bdf18c9434d7f05d63a324c9","download_url":"https:\/\/betadownload.jetpack.me\/branches\/change_infinite-scroll-rename-google-analytics-option-label\/jetpack-dev.zip","update_date":"2017-01-31 08:15:17","version":"4.6-alpha-4988-g46a0bb1","pr":6239},"fix_photon-carousel-conflict":{"branch":"fix\/photon-carousel-conflict","commit":"f2c2100f3c8321a9f402c11440445a66835a9c92","download_url":"https:\/\/betadownload.jetpack.me\/branches\/fix_photon-carousel-conflict\/jetpack-dev.zip","update_date":"2017-02-01 10:35:17","version":"4.6-beta1-5020-g43d57df","pr":6243},"update_imrpove-site-endpoint-performance":{"branch":"update\/imrpove-site-endpoint-performance","commit":"0c24987178b9c93de697d7d331d04f6ff56e6cc1","download_url":"https:\/\/betadownload.jetpack.me\/branches\/update_imrpove-site-endpoint-performance\/jetpack-dev.zip","update_date":"2017-02-01 20:25:17","version":"4.6-beta1-5021-gd5da336","pr":6249},"merge-1feb2017-sharedaddy":{"branch":"merge-1feb2017-sharedaddy","commit":"dedc0fc43d85c3a998860142b1ae9858833411a0","download_url":"https:\/\/betadownload.jetpack.me\/branches\/merge-1feb2017-sharedaddy\/jetpack-dev.zip","update_date":"2017-02-01 22:30:17","version":"4.6-beta1-5072-g8466f62","pr":6253},"add_json-api-plugins-action-links":{"branch":"add\/json-api-plugins-action-links","commit":"1c88a3aeff7bcbf19c4bfaa8cb4e1c2a143ded62","download_url":"https:\/\/betadownload.jetpack.me\/branches\/add_json-api-plugins-action-links\/jetpack-dev.zip","update_date":"2017-02-04 04:15:20","version":"4.6-beta1-5030-g309f823","pr":6267},"update_vaultpress-in-settings-notice":{"branch":"update\/vaultpress-in-settings-notice","commit":"705c2c023819b55e9f02e11f2dfb1ed4c157deb2","download_url":"https:\/\/betadownload.jetpack.me\/branches\/update_vaultpress-in-settings-notice\/jetpack-dev.zip","update_date":"2017-02-02 21:25:19","version":"4.6-beta1-5128-g5c23c16","pr":6270},"add_contact-widget-email-field":{"branch":"add\/contact-widget-email-field","commit":"6de9fb9e6217fc9b62bcb29a5f84432b077b24d2","download_url":"https:\/\/betadownload.jetpack.me\/branches\/add_contact-widget-email-field\/jetpack-dev.zip","update_date":"2017-02-04 04:15:23","version":"4.6-beta1-5031-g5c555ed","pr":6275},"update_eslint-rules":{"branch":"update\/eslint-rules","commit":"ceab5393385914b37abe884b64c1be61585a8f0b","download_url":"https:\/\/betadownload.jetpack.me\/branches\/update_eslint-rules\/jetpack-dev.zip","update_date":"2017-02-03 15:55:15","version":"4.6-beta1-5031-g316e839","pr":6276},"add_widget-visiblity-post-id-field":{"branch":"add\/widget-visiblity-post-id-field","commit":"f4628a57ca7ac10596d7fad30059e20ad10f5717","download_url":"https:\/\/betadownload.jetpack.me\/branches\/add_widget-visiblity-post-id-field\/jetpack-dev.zip","update_date":"2017-02-03 20:25:17","version":"4.6-beta1-5030-g76e5aad","pr":6277},"fix_5566-remainder-php-errors":{"branch":"fix\/5566-remainder-php-errors","commit":"98a0757fdf94cd2df08eb65bdc08073a8494c224","download_url":"https:\/\/betadownload.jetpack.me\/branches\/fix_5566-remainder-php-errors\/jetpack-dev.zip","update_date":"2017-02-03 14:45:14","version":"4.6-beta1-5031-gff699c0","pr":6279},"add_widget-visibility-custom-post-options":{"branch":"add\/widget-visibility-custom-post-options","commit":"f3dca5feda372a48fd960a3e1e7b5d4dde0da1ad","download_url":"https:\/\/betadownload.jetpack.me\/branches\/add_widget-visibility-custom-post-options\/jetpack-dev.zip","update_date":"2017-02-04 04:15:20","version":"4.6-beta1-5030-g8c60f34","pr":6278},"update_changelog-46":{"branch":"update\/changelog-46","commit":"9f929fde782d6570de4dcb2121819934adaee6a6","download_url":"https:\/\/betadownload.jetpack.me\/branches\/update_changelog-46\/jetpack-dev.zip","update_date":"2017-02-03 15:15:19","version":"4.6-beta1-5030-g65886f4","pr":6280},"fix_sync-sender-max_enqueue_time":{"branch":"fix\/sync-sender-max_enqueue_time","commit":"e980323b9f1e181dc69294b861f5a01b19c792e8","download_url":"https:\/\/betadownload.jetpack.me\/branches\/fix_sync-sender-max_enqueue_time\/jetpack-dev.zip","update_date":"2017-02-03 16:45:16","version":"4.6-beta1-5030-g0d83dc5","pr":6281},"update_move-connections-to-at-a-glance":{"branch":"update\/move-connections-to-at-a-glance","commit":"fe47b0ac0034acfe91aa37bf5922ee29d69a93a1","download_url":"https:\/\/betadownload.jetpack.me\/branches\/update_move-connections-to-at-a-glance\/jetpack-dev.zip","update_date":"2017-02-03 22:30:16","version":"4.6-beta1-5139-g0cdf2de","pr":6287},"update_ga-description":{"branch":"update\/ga-description","commit":"8388f65a0357d1b98ac779a0059943cfc3992617","download_url":"https:\/\/betadownload.jetpack.me\/branches\/update_ga-description\/jetpack-dev.zip","update_date":"2017-02-04 03:04:06","version":"4.6-beta1-5032-gbddec65","pr":6291},"fix_sync-endpoint-start-sync":{"branch":"fix\/sync-endpoint-start-sync","commit":"2004c06384c5a7270005567b7fd40a0e20b914b6","download_url":"https:\/\/betadownload.jetpack.me\/branches\/fix_sync-endpoint-start-sync\/jetpack-dev.zip","update_date":"2017-02-04 02:56:32","version":"4.6-beta1-5032-g4d1f997","pr":6292}},"master":{"branch":"master","commit":"e917ca1d640ad70a622d25a8e0e121b2338ca2d5","download_url":"https:\/\/betadownload.jetpack.me\/branches\/master\/jetpack-dev.zip","update_date":"2017-02-04 04:15:23","version":"4.5-rc1-4944-g224075d","pr":5503},"rc":{"branch-4.6":{"branch":"branch-4.6","commit":"ba58184466f9e160bd3e320f7b4ca0fe860748d0","download_url":"https:\/\/betadownload.jetpack.me\/branches\/branch-4.6\/jetpack-dev.zip","update_date":"2017-02-04 04:05:25","version":"4.6-beta2-5028-gba58184","pr":false}}}' );
+		return wp_remote_get( JETPACK_BETA_MANIFEST_URL );
+
+		$manifest = get_site_transient( 'jetpack_beta_manifest' );
+		if ( false && $manifest ) {
 			return $manifest;
 		}
 
 		$manifest = wp_remote_get( JETPACK_BETA_MANIFEST_URL );
+		error_log( print_r( $manifest,1 ));
 		if ( is_wp_error( $manifest ) ) {
 			return false;
 		}
@@ -419,6 +440,7 @@ class Jetpack_Beta_Tester {
 
 register_activation_hook( __FILE__, array( 'Jetpack_Beta_Tester', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack_Beta_Tester', 'deactivate' ) );
+
 add_action( 'init', array( 'Jetpack_Beta_Tester', 'instance' ) );
 
 

@@ -1,5 +1,11 @@
 <?php
 
+if ( class_exists( 'Jetpack_Admin_Page' ) ) {
+	$admin_page = new Jetpack_Admin_Page();
+}
+
+
+
 class Jetpack_Beta_Admin {
 
 	function __construct() {
@@ -16,11 +22,10 @@ class Jetpack_Beta_Admin {
 			'jetpack-beta',
 			array( $this, 'render_admin_page' )
 		);
-
 	}
 
 	function render_admin_page() {
-		include JPBETA__DIR . 'admin/jpbeta-admin-main.php';
+		do_action( 'jetpack_beta_empty' );
 	}
 
 	/**
