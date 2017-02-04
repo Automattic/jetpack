@@ -41,7 +41,7 @@ if ( ! defined( 'JP_NEWS_SITEMAP_MAX_ITEMS' ) ) {
 }
 
 /**
- * Batch size for querying items.
+ * Batch size for database queries.
  *
  * @since 4.7.0
  */

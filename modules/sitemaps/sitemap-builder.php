@@ -469,7 +469,7 @@ FOOTER
 		}
 
 		$this->librarian->store_sitemap_data(
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME,
+			0,
 			JP_MASTER_SITEMAP_TYPE,
 			$buffer->contents(),
 			''
@@ -619,7 +619,7 @@ FOOTER
 
 		// Store the buffer as the content of a sitemap row.
 		$this->librarian->store_sitemap_data(
-			Jetpack_Sitemap_Librarian::name_prefix( JP_PAGE_SITEMAP_TYPE ) . $number,
+			$number,
 			JP_PAGE_SITEMAP_TYPE,
 			$tree->asXML(),
 			$buffer->last_modified()
@@ -739,7 +739,7 @@ FOOTER
 
 		// Store the buffer as the content of a jp_sitemap post.
 		$this->librarian->store_sitemap_data(
-			Jetpack_Sitemap_Librarian::name_prefix( JP_IMAGE_SITEMAP_TYPE ) . $number,
+			$number,
 			JP_IMAGE_SITEMAP_TYPE,
 			$buffer->contents(),
 			$buffer->last_modified()
@@ -859,7 +859,7 @@ FOOTER
 
 		if ( false === $buffer->is_empty() ) {
 			$this->librarian->store_sitemap_data(
-				Jetpack_Sitemap_Librarian::name_prefix( JP_VIDEO_SITEMAP_TYPE ) . $number,
+				$number,
 				JP_VIDEO_SITEMAP_TYPE,
 				$buffer->contents(),
 				$buffer->last_modified()
@@ -983,7 +983,7 @@ FOOTER
 		}
 
 		$this->librarian->store_sitemap_data(
-			Jetpack_Sitemap_Librarian::name_prefix( $index_type ) . $number,
+			$number,
 			$index_type,
 			$buffer->contents(),
 			$buffer->last_modified()

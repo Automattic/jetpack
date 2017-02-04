@@ -150,7 +150,7 @@ class Jetpack_Sitemap_Librarian {
 	}
 
 	/**
-	 * Store a sitemap in the database under a given type and name.
+	 * Store a sitemap of given type and index in the database.
 	 * Note that the sitemap contents are run through esc_html before
 	 * being stored, and the timestamp reencoded as 'Y-m-d H:i:s'.
 	 *
@@ -160,12 +160,18 @@ class Jetpack_Sitemap_Librarian {
 	 * @access public
 	 * @since 4.7.0
 	 *
-	 * @param string $name Name of the sitemap to be stored.
-	 * @param string $type Type of the sitemap to be stored.
-	 * @param string $contents Contents of the sitemap to be stored.
+	 * @param string $index     Index of the sitemap to be stored.
+	 * @param string $type      Type of the sitemap to be stored.
+	 * @param string $contents  Contents of the sitemap to be stored.
 	 * @param string $timestamp Timestamp of the sitemap to be stored, in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
-	public function store_sitemap_data( $name, $type, $contents, $timestamp ) {
+	public function store_sitemap_data( $index, $type, $contents, $timestamp ) {
+		if ( JP_MASTER_SITEMAP_TYPE === $type ) {
+			$name = 'sitemap';
+		} else {
+			$name = self::name_prefix( $type ) . $index;
+		}
+
 		$the_post = get_page_by_title( $name, 'OBJECT', $type );
 
 		if ( null === $the_post ) {
