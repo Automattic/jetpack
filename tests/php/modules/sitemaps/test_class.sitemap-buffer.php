@@ -16,37 +16,6 @@ require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-buffer.php'
 class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 
 	/**
-	 * The capacity constants SITEMAP_MAX_BYTES, SITEMAP_MAX_ITEMS,
-	 * and NEWS_SITEMAP_MAX_ITEMS must be positive integers and are bounded above
-	 * according to the sitemap and news sitemap protocols.
-	 *
-	 * @link http://www.sitemaps.org/ Sitemap protocol.
-	 * @link https://support.google.com/news/publisher/answer/74288?hl=en News sitemap extension.
-	 *
-	 * @covers Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES
-	 * @covers Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS
-	 * @covers Jetpack_Sitemap_Buffer::NEWS_SITEMAP_MAX_ITEMS
-	 * @group jetpack-sitemap
-	 * @since 4.7.0
-	 */
-	public function test_sitemap_builder_capacity_constants() {
-		// Test range of SITEMAP_MAX_BYTES.
-		$this->assertTrue( is_int( Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES ) );
-		$this->assertGreaterThan( 0, Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES );
-		$this->assertLessThanOrEqual( Jetpack_Sitemap_Buffer::SITEMAP_MAX_BYTES, 10485760 );
-
-		// Test range of SITEMAP_MAX_ITEMS.
-		$this->assertTrue( is_int( Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS ) );
-		$this->assertGreaterThan( 0, Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS );
-		$this->assertLessThanOrEqual( Jetpack_Sitemap_Buffer::SITEMAP_MAX_ITEMS, 50000 );
-
-		// Test range of NEWS_SITEMAP_MAX_ITEMS.
-		$this->assertTrue( is_int( Jetpack_Sitemap_Buffer::NEWS_SITEMAP_MAX_ITEMS ) );
-		$this->assertGreaterThan( 0, Jetpack_Sitemap_Buffer::NEWS_SITEMAP_MAX_ITEMS );
-		$this->assertLessThanOrEqual( Jetpack_Sitemap_Buffer::NEWS_SITEMAP_MAX_ITEMS, 1000 );
-	}
-
-	/**
 	 * Construct a new buffer.
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::__construct

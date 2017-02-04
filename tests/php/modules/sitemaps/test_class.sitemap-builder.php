@@ -6,6 +6,7 @@
  * @since 4.7.0
  */
 
+require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
 require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-builder.php';
 
 /**
@@ -352,7 +353,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	/**
 	 * Testing that posts appear in the plain sitemap.
 	 *
-	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
+	 * @covers Jetpack_Sitemap_Builder::update_sitemap
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -370,12 +371,12 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 		$builder = new Jetpack_Sitemap_Builder();
 		$librarian = new Jetpack_Sitemap_Librarian();
 
-		$builder->build_all_sitemaps();
+		$builder->update_sitemap();
 
 		$dom = new DOMDocument;
 		$dom->loadXml( $librarian->get_sitemap_text(
-			Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX . '1',
-			Jetpack_Sitemap_Librarian::SITEMAP_TYPE
+			Jetpack_Sitemap_Librarian::name_prefix( JP_SITEMAP_TYPE ) . '1',
+			JP_SITEMAP_TYPE
 		) );
 
 		// There are 10 posts.
@@ -395,7 +396,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * Testing that the jetpack_sitemap_skip_post filter
 	 * removes some items from the plain sitemap.
 	 *
-	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
+	 * @covers Jetpack_Sitemap_Builder::update_sitemap
 	 * @covers filter jetpack_sitemap_skip_post
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
@@ -443,12 +444,12 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 		$builder = new Jetpack_Sitemap_Builder();
 		$librarian = new Jetpack_Sitemap_Librarian();
 
-		$builder->build_all_sitemaps();
+		$builder->update_sitemap();
 
 		$dom = new DOMDocument;
 		$dom->loadXml( $librarian->get_sitemap_text(
-			Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX . '1',
-			Jetpack_Sitemap_Librarian::SITEMAP_TYPE
+			Jetpack_Sitemap_Librarian::name_prefix( JP_SITEMAP_TYPE ) . '1',
+			JP_SITEMAP_TYPE
 		) );
 
 		// There are 11 posts.
@@ -469,7 +470,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * Testing that the jetpack_sitemap_image_skip_post filter
 	 * removes some items from the image sitemap.
 	 *
-	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
+	 * @covers Jetpack_Sitemap_Builder::update_sitemap
 	 * @covers filter jetpack_sitemap_image_skip_post
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
@@ -525,12 +526,12 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 		$builder = new Jetpack_Sitemap_Builder();
 		$librarian = new Jetpack_Sitemap_Librarian();
 
-		$builder->build_all_sitemaps();
+		$builder->update_sitemap();
 
 		$dom = new DOMDocument;
 		$dom->loadXml( $librarian->get_sitemap_text(
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_NAME_PREFIX . '1',
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
+			Jetpack_Sitemap_Librarian::name_prefix( JP_IMAGE_SITEMAP_TYPE ) . '1',
+			JP_IMAGE_SITEMAP_TYPE
 		) );
 
 		// There are 11 attachment posts.
@@ -554,7 +555,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * Testing that the jetpack_sitemap_url filter alters
 	 * the url items in the plain sitemap.
 	 *
-	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
+	 * @covers Jetpack_Sitemap_Builder::update_sitemap
 	 * @covers filter jetpack_sitemap_url
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
@@ -591,12 +592,12 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 		$builder = new Jetpack_Sitemap_Builder();
 		$librarian = new Jetpack_Sitemap_Librarian();
 
-		$builder->build_all_sitemaps();
+		$builder->update_sitemap();
 
 		$dom = new DOMDocument;
 		$dom->loadXml( $librarian->get_sitemap_text(
-			Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX . '1',
-			Jetpack_Sitemap_Librarian::SITEMAP_TYPE
+			Jetpack_Sitemap_Librarian::name_prefix( JP_SITEMAP_TYPE ) . '1',
+			JP_SITEMAP_TYPE
 		) );
 
 		// 10 'foo' items appear in the sitemap.
@@ -610,7 +611,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * Testing that the jetpack_sitemap_url_home filter alters
 	 * the url item of the home page in the plain sitemap.
 	 *
-	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
+	 * @covers Jetpack_Sitemap_Builder::update_sitemap
 	 * @covers filter jetpack_sitemap_url_home
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
@@ -647,7 +648,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 		$builder = new Jetpack_Sitemap_Builder();
 		$librarian = new Jetpack_Sitemap_Librarian();
 
-		$builder->build_all_sitemaps();
+		$builder->update_sitemap();
 
 		$dom = new DOMDocument;
 		$dom->loadXml( $librarian->get_sitemap_text(
@@ -666,7 +667,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * Testing that the jetpack_sitemap_image_sitemap_item filter alters
 	 * the url items in the image sitemap.
 	 *
-	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
+	 * @covers Jetpack_Sitemap_Builder::update_sitemap
 	 * @covers filter jetpack_sitemap_image_sitemap_item
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
@@ -707,7 +708,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 		$builder = new Jetpack_Sitemap_Builder();
 		$librarian = new Jetpack_Sitemap_Librarian();
 
-		$builder->build_all_sitemaps();
+		$builder->update_sitemap();
 
 		$dom = new DOMDocument;
 		$dom->loadXml( $librarian->get_sitemap_text(
@@ -726,7 +727,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * Testing that the jetpack_sitemap_post_types filter
 	 * can add new post types to the plain sitemap.
 	 *
-	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
+	 * @covers Jetpack_Sitemap_Builder::update_sitemap
 	 * @covers filter jetpack_sitemap_post_types
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
@@ -757,7 +758,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$dom = new DOMDocument;
 
-		$builder->build_all_sitemaps();
+		$builder->update_sitemap();
 
 		$dom->loadXml( $librarian->get_sitemap_text(
 			Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX . '1',
@@ -790,7 +791,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 		// Need to instantiate a new builder because the jetpack_sitemap_post_types
 		// filter is only applied when a builder is constructed.
 		$builder = new Jetpack_Sitemap_Builder();
-		$builder->build_all_sitemaps();
+		$builder->update_sitemap();
 
 		$dom->loadXml( $librarian->get_sitemap_text(
 			Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX . '1',
@@ -808,7 +809,7 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 	 * Building all sitemaps stores a valid XML file as the master
 	 * sitemap, with root element 'sitemapindex'.
 	 *
-	 * @covers Jetpack_Sitemap_Builder::build_all_sitemaps
+	 * @covers Jetpack_Sitemap_Builder::update_sitemap
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -825,8 +826,8 @@ class WP_Test_Jetpack_Sitemap_Builder extends WP_UnitTestCase {
 
 		$this->assertNull( $result );
 
-		// Then call build_all_sitemaps() and verify that there is a master sitemap stored.
-		$builder->build_all_sitemaps();
+		// Then call update_sitemap() and verify that there is a master sitemap stored.
+		$builder->update_sitemap();
 		$result = $librarian->read_sitemap_data(
 			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME,
 			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE

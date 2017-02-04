@@ -6,6 +6,7 @@
  * @since 4.7.0
  */
 
+require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
 require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-librarian.php';
 
 /**
@@ -14,114 +15,6 @@ require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-librarian.p
  * @since 4.7.0
  */
 class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
-
-	/**
-	 * Sitemap type constants are all distinct.
-	 *
-	 * @covers Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE
-	 * @covers Jetpack_Sitemap_Librarian::SITEMAP_TYPE
-	 * @covers Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
-	 * @covers Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
-	 * @covers Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
-	 * @group jetpack-sitemap
-	 * @since 4.7.0
-	 */
-	public function test_sitemap_librarian_type_constants_distinct() {
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE,
-			Jetpack_Sitemap_Librarian::SITEMAP_TYPE
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE,
-			Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_TYPE,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::SITEMAP_TYPE,
-			Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::SITEMAP_TYPE,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::SITEMAP_TYPE,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::SITEMAP_INDEX_TYPE,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_TYPE,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_TYPE
-		);
-	}
-
-	/**
-	 * Sitemap name prefix constants are all distinct.
-	 *
-	 * @covers Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME
-	 * @covers Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX
-	 * @covers Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX
-	 * @covers Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_NAME_PREFIX
-	 * @covers Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX
-	 * @group jetpack-sitemap
-	 * @since 4.7.0
-	 */
-	public function test_sitemap_librarian_name_constants_distinct() {
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME,
-			Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME,
-			Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX,
-			Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::SITEMAP_NAME_PREFIX,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::SITEMAP_INDEX_NAME_PREFIX,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_NAME_PREFIX,
-			Jetpack_Sitemap_Librarian::IMAGE_SITEMAP_INDEX_NAME_PREFIX
-		);
-	}
 
 	/**
 	 * Constructor does not throw a fatal error.
@@ -270,12 +163,12 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$librarian = new Jetpack_Sitemap_Librarian();
 
 		// Store some contiguous data.
-		$librarian->store_sitemap_data( 'name-1', 'type', 'foo', '1970-01-01 00:00:00' );
-		$librarian->store_sitemap_data( 'name-2', 'type', 'foo', '1970-01-01 00:00:00' );
-		$librarian->store_sitemap_data( 'name-3', 'type', 'foo', '1970-01-01 00:00:00' );
+		$librarian->store_sitemap_data( 'name-1', JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
+		$librarian->store_sitemap_data( 'name-2', JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
+		$librarian->store_sitemap_data( 'name-3', JP_PAGE_SITEMAP_TYPE, 'foo', '1970-01-01 00:00:00' );
 
 		// Delete it.
-		$librarian->delete_numbered_sitemap_rows_after( 'name-', 0, 'type' );
+		$librarian->delete_numbered_sitemap_rows_after( 0, 'type' );
 
 		// It's gone!
 		$this->assertTrue( is_null( $librarian->read_sitemap_data( 'name-1', 'type' ) ) );
