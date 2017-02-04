@@ -5,7 +5,7 @@
  * This module generates two different base sitemaps.
  *
  * 1. sitemap.xml
- *    The basic sitemap is generated regularly by wp-cron. It is stored in the
+ *    The basic sitemap is updated regularly by wp-cron. It is stored in the
  *    database and retrieved when requested. This sitemap aims to include canonical
  *    URLs for all published content and abide by the sitemap spec. This is the root
  *    of a tree of sitemap and sitemap index xml files, depending on the number of URLs.
@@ -16,6 +16,7 @@
  *
  * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
  * @link https://support.google.com/webmasters/answer/178636 Image sitemap extension.
+ * @link https://developers.google.com/webmasters/videosearch/sitemaps Video sitemap extension.
  *
  * 2. news-sitemap.xml
  *    The news sitemap is generated on the fly when requested. It does not aim for
@@ -47,12 +48,6 @@ if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
  * @since 4.7.0
  */
 class Jetpack_Sitemap_Manager {
-
-	/**
-	 * @since 4.7.0
-	 * @var int SITEMAP_INTERVAL Number of seconds between sitemap generations.
-	 */
-	const SITEMAP_INTERVAL = 10;
 
 	/**
 	 * @see Jetpack_Sitemap_Librarian
@@ -342,7 +337,7 @@ class Jetpack_Sitemap_Manager {
 	 */
 	public function callback_add_sitemap_schedule( $schedules ) {
 		$schedules['sitemap-interval'] = array(
-			'interval' => Jetpack_Sitemap_Manager::SITEMAP_INTERVAL,
+			'interval' => JP_SITEMAP_INTERVAL,
 			'display'  => __( 'Sitemap Interval', 'jetpack' ),
 		);
 		return $schedules;
@@ -389,7 +384,6 @@ class Jetpack_Sitemap_Manager {
 		 * Filter whether to make the default sitemap discoverable to robots or not. Default true.
 		 *
 		 * @module sitemaps
-		 *
 		 * @since 3.9.0
 		 *
 		 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
@@ -405,7 +399,6 @@ class Jetpack_Sitemap_Manager {
 		 * Filter whether to make the news sitemap discoverable to robots or not. Default true.
 		 *
 		 * @module sitemaps
-		 *
 		 * @since 3.9.0
 		 *
 		 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.

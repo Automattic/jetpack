@@ -7,6 +7,7 @@
  * @author Automattic
  */
 
+require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
 
 if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
@@ -114,7 +115,7 @@ class Jetpack_Sitemap_State {
 			return false;
 		} else {
 			// Otherwise, lock the state for 15 minutes and then return it.
-			set_transient( 'jetpack-sitemap-state-lock', true, 60 * 15 );
+			set_transient( 'jetpack-sitemap-state-lock', true, JP_SITEMAP_LOCK_INTERVAL );
 			return get_option( 'jetpack-sitemap-state', self::initial() );
 		}
 	}

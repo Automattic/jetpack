@@ -58,6 +58,24 @@ if ( ! defined( 'JP_SITEMAP_UPDATE_SIZE' ) ) {
 	define( 'JP_SITEMAP_UPDATE_SIZE', 20 );
 }
 
+/**
+ * Number of seconds between sitemap updates.
+ *
+ * @since 4.7.0
+ */
+if ( ! defined( 'JP_SITEMAP_INTERVAL' ) ) {
+	define( 'JP_SITEMAP_INTERVAL', 10 );
+}
+
+/**
+ * Number of seconds to lock the sitemap state.
+ *
+ * @since 4.7.0
+ */
+if ( ! defined( 'JP_SITEMAP_LOCK_INTERVAL' ) ) {
+	define( 'JP_SITEMAP_LOCK_INTERVAL', 60 * 15 );
+}
+
 /*
  * These constants represent the types of various kinds of sitemaps.
  * Note: these strings are used as 'post_types' in the database, and
