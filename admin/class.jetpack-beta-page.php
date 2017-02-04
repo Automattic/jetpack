@@ -92,7 +92,7 @@ class Jetpack_Beta_Page extends Jetpack_Admin_Page {
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
-				Your current version: 
+				Your current version:
 			</div>
 		</div>
 		<?php
@@ -101,6 +101,22 @@ class Jetpack_Beta_Page extends Jetpack_Admin_Page {
 			$this->rc_branches();
 			$this->pr_branches();
 		?>
+
+		<div class="dops-foldable-card has-expanded-summary dops-card">
+			<div class="dops-foldable-card__header has-border" data-reactid=".0.0.1.2.1.1:$module-card_markdown.1:0">
+				<span class="dops-foldable-card__main" data-reactid=".0.0.1.2.1.1:$module-card_markdown.1:0.0">
+					<div class="dops-foldable-card__header-text">
+						<div class="dops-foldable-card__header-text"><?php _e( 'Found a bug?', 'jetpack-beta' ); ?></div>
+						<div class="dops-foldable-card__subheader"><?php _e( 'We would love to hear about it', 'jetpack-beta' ); ?></div>
+					</div>
+				</span>
+				<span class="dops-foldable-card__secondary" >
+					<span class="dops-foldable-card__summary">
+						<a type="button" href="https://github.com/Automattic/jetpack/issues/new" class="is-primary jp-form-button dops-button is-primary is-compact" >Report it!</a>
+					</span>
+				</span>
+			</div>
+		</div>
 
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card">
 			<div class="dops-foldable-card__header has-border">
@@ -125,6 +141,8 @@ class Jetpack_Beta_Page extends Jetpack_Admin_Page {
 				</form>
 			</div>
 		</div>
+
+
 		<?php
 	}
 
