@@ -32,6 +32,8 @@ class Jetpack_Sitemap_State {
 	 * @access public
 	 * @since 4.7.0
 	 *
+	 * @param string $type The initial sitemap type.
+	 *
 	 * @return array $args {
 	 *     @type string sitemap-type  The type of sitemap to be generated.
 	 *     @type int    last-added    The largest index to be added to a generated sitemap page.
@@ -53,6 +55,8 @@ class Jetpack_Sitemap_State {
 	/**
 	 * Reset the sitemap state.
 	 *
+	 * @param string $type The initial sitemap type.
+	 *
 	 * @access public
 	 * @since 4.7.0
 	 */
@@ -70,7 +74,7 @@ class Jetpack_Sitemap_State {
 	 * @access public
 	 * @since 4.7.0
 	 *
-	 * @param array $args {
+	 * @param array $state {
 	 *     @type string sitemap-type  The type of sitemap to be generated.
 	 *     @type int    last-added    The largest index to be added to a generated sitemap page.
 	 *     @type int    number        The index of the last sitemap to be generated.
@@ -91,7 +95,7 @@ class Jetpack_Sitemap_State {
 
 	/**
 	 * Read the stored sitemap state. Returns false if the state is locked.
-	 * 
+	 *
 	 * @access public
 	 * @since 4.7.0
 	 *
@@ -106,20 +110,24 @@ class Jetpack_Sitemap_State {
 	public static function check_out() {
 		// See if the state is locked.
 		if ( true === get_transient( 'jetpack-sitemap-state-lock' ) ) {
-			// If so, return false.
+			// If it is, return false.
 			return false;
 		} else {
 			// Otherwise, lock the state for 15 minutes and then return it.
-			set_transient( 'jetpack-sitemap-state-lock', true, 60*15 );
+			set_transient( 'jetpack-sitemap-state-lock', true, 60 * 15 );
 			return get_option( 'jetpack-sitemap-state', self::initial() );
 		}
 	}
 
+	/**
+	 * Delete the stored state and lock.
+	 *
+	 * @access public
+	 * @since 4.7.0
+	 */
 	public static function delete() {
 		delete_transient( 'jetpack-sitemap-state-lock' );
 		delete_option( 'jetpack-sitemap-state' );
 	}
 
 }
-
-//Jetpack_Sitemap_State::delete();
