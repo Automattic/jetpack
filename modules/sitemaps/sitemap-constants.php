@@ -55,7 +55,7 @@ if ( ! defined( 'JP_SITEMAP_BATCH_SIZE' ) ) {
  * @since 4.7.0
  */
 if ( ! defined( 'JP_SITEMAP_UPDATE_SIZE' ) ) {
-	define( 'JP_SITEMAP_UPDATE_SIZE', 20 );
+	define( 'JP_SITEMAP_UPDATE_SIZE', 400 );
 }
 
 /**
@@ -108,4 +108,35 @@ if ( ! defined( 'JP_VIDEO_SITEMAP_TYPE' ) ) {
 
 if ( ! defined( 'JP_VIDEO_SITEMAP_INDEX_TYPE' ) ) {
 	define( 'JP_VIDEO_SITEMAP_INDEX_TYPE', 'jp_vid_sitemap_index' );
+}
+
+/**
+ * The name (with extension) of a sitemap file of the given
+ * type and number.
+ *
+ * @param string $type The sitemap type.
+ * @param string $number The sitemap number.
+ *
+ * @return string The filename.
+ */
+function jp_sitemap_filename( $type, $number ) {
+	if ( ! is_int( $number ) ) {
+		return esc_html( "error-not-int-$type-$number.xml" );
+	} elseif ( JP_MASTER_SITEMAP_TYPE === $type ) {
+		return 'sitemap.xml';
+	} elseif ( JP_PAGE_SITEMAP_TYPE === $type ) {
+		return "sitemap-$number.xml";
+	} elseif ( JP_PAGE_SITEMAP_INDEX_TYPE === $type ) {
+		return "sitemap-index-$number.xml";
+	} elseif ( JP_IMAGE_SITEMAP_TYPE === $type ) {
+		return "image-sitemap-$number.xml";
+	} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $type ) {
+		return "image-sitemap-index-$number.xml";
+	} elseif ( JP_VIDEO_SITEMAP_TYPE === $type ) {
+		return "video-sitemap-$number.xml";
+	} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
+		return "video-sitemap-index-$number.xml";
+	} else {
+		return esc_html( "error-bad-type-$type-$number.xml" );
+	}
 }

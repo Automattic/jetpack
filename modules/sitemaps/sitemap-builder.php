@@ -413,10 +413,13 @@ FOOTER
 
 		if ( 0 < $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
-				$page['filename'] = Jetpack_Sitemap_Librarian::name_prefix( JP_PAGE_SITEMAP_TYPE ) . '1.xml';
+				$page['filename'] = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, 1 );
 				$page['last_modified'] = $max[ JP_PAGE_SITEMAP_TYPE ]['lastmod'];
 			} else {
-				$page['filename'] = Jetpack_Sitemap_Librarian::name_prefix( JP_PAGE_SITEMAP_INDEX_TYPE ) . $max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['number'] . '.xml';
+				$page['filename'] = jp_sitemap_filename(
+					JP_PAGE_SITEMAP_INDEX_TYPE,
+					$max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['number']
+				);
 				$page['last_modified'] = $max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['lastmod'];
 			}
 
@@ -432,10 +435,13 @@ FOOTER
 
 		if ( 0 < $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
-				$image['filename'] = Jetpack_Sitemap_Librarian::name_prefix( JP_IMAGE_SITEMAP_TYPE ) . '1.xml';
+				$image['filename'] = jp_sitemap_filename( JP_IMAGE_SITEMAP_TYPE, 1 );
 				$image['last_modified'] = $max[ JP_IMAGE_SITEMAP_TYPE ]['lastmod'];
 			} else {
-				$image['filename'] = Jetpack_Sitemap_Librarian::name_prefix( JP_IMAGE_SITEMAP_INDEX_TYPE ) . $max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['number'] . '.xml';
+				$image['filename'] = jp_sitemap_filename(
+					JP_IMAGE_SITEMAP_INDEX_TYPE,
+					$max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['number']
+				);
 				$image['last_modified'] = $max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['lastmod'];
 			}
 
@@ -451,10 +457,13 @@ FOOTER
 
 		if ( 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
-				$video['filename'] = Jetpack_Sitemap_Librarian::name_prefix( JP_VIDEO_SITEMAP_TYPE ) . '1.xml';
+				$video['filename'] = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, 1 );
 				$video['last_modified'] = $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'];
 			} else {
-				$video['filename'] = Jetpack_Sitemap_Librarian::name_prefix( JP_VIDEO_SITEMAP_INDEX_TYPE ) . $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['number'] . '.xml';
+				$video['filename'] = jp_sitemap_filename(
+					JP_VIDEO_SITEMAP_INDEX_TYPE,
+					$max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['number']
+				);
 				$video['last_modified'] = $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'];
 			}
 
