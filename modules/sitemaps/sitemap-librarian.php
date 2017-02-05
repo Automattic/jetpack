@@ -21,13 +21,6 @@ require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 class Jetpack_Sitemap_Librarian {
 
 	/**
-	 * Master sitemap name string.
-	 *
-	 * @since 4.7.0
-	 */
-	const MASTER_SITEMAP_NAME = 'sitemap';
-
-	/**
 	 * The index type corresponding to a sitemap type.
 	 *
 	 * @since 4.7.0
@@ -216,7 +209,8 @@ class Jetpack_Sitemap_Librarian {
 	 */
 	public function delete_all_stored_sitemap_data() {
 		$this->delete_sitemap_data(
-			self::MASTER_SITEMAP_NAME, JP_MASTER_SITEMAP_TYPE
+			jp_sitemap_filename( MASTER_SITEMAP_TYPE ),
+			JP_MASTER_SITEMAP_TYPE
 		);
 
 		$this->delete_numbered_sitemap_rows_after(

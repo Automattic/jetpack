@@ -165,5 +165,7 @@ function jp_sitemap_debug_name( $type ) {
 		return 'Video Sitemap';
 	} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
 		return 'Video Sitemap Index';
+	} else {
+		return esc_html( "error-bad-type-$type" );
 	}
 }
