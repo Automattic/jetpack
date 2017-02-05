@@ -894,10 +894,10 @@ FOOTER
 	 * @access private
 	 * @since 4.7.0
 	 *
-	 * @param int    $number            The number of the current sitemap index.
-	 * @param int    $from_id           The greatest lower bound of the IDs of the sitemaps to be included.
-	 * @param string $timestamp         Timestamp of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
-	 * @param string $index_type        Sitemap index type.
+	 * @param int    $number     The number of the current sitemap index.
+	 * @param int    $from_id    The greatest lower bound of the IDs of the sitemaps to be included.
+	 * @param string $timestamp  Timestamp of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
+	 * @param string $index_type Sitemap index type.
 	 *
 	 * @return bool|array @args {
 	 *   @type int    $last_id       The ID of the last item to be successfully added to the buffer.
@@ -944,7 +944,7 @@ FOOTER
 		if ( 1 !== $number ) {
 			$i = $number - 1;
 			$prev_index_url = $this->finder->construct_sitemap_url(
-				Jetpack_Sitemap_Librarian::name_prefix( $index_type ) . $i . '.xml'
+				jp_sitemap_filename( $index_type, $i )
 			);
 
 			$item_array = array(
@@ -1023,7 +1023,7 @@ FOOTER
 	 * @return string An XML fragment representing the post URL.
 	 */
 	private function sitemap_row_to_index_item( $row ) {
-		$url = $this->finder->construct_sitemap_url( $row['post_title'] . '.xml' );
+		$url = $this->finder->construct_sitemap_url( $row['post_title'] );
 
 		$item_array = array(
 			'sitemap' => array(

@@ -28,31 +28,6 @@ class Jetpack_Sitemap_Librarian {
 	const MASTER_SITEMAP_NAME = 'sitemap';
 
 	/**
-	 * The name prefix for sitemaps of the given type.
-	 *
-	 * @since 4.7.0
-	 *
-	 * @param string $type The sitemap type.
-	 *
-	 * @return string The sitemap name prefix.
-	 */
-	public static function name_prefix( $type ) {
-		if ( JP_PAGE_SITEMAP_TYPE === $type ) {
-			return 'sitemap-';
-		} elseif ( JP_PAGE_SITEMAP_INDEX_TYPE === $type ) {
-			return 'sitemap-index-';
-		} elseif ( JP_IMAGE_SITEMAP_TYPE === $type ) {
-			return 'image-sitemap-';
-		} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $type ) {
-			return 'image-sitemap-index-';
-		} elseif ( JP_VIDEO_SITEMAP_TYPE === $type ) {
-			return 'video-sitemap-';
-		} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
-			return 'video-sitemap-index-';
-		}
-	}
-
-	/**
 	 * A human-friendly name for each sitemap type (for debug messages).
 	 *
 	 * @since 4.7.0
@@ -166,11 +141,7 @@ class Jetpack_Sitemap_Librarian {
 	 * @param string $timestamp Timestamp of the sitemap to be stored, in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	public function store_sitemap_data( $index, $type, $contents, $timestamp ) {
-		if ( JP_MASTER_SITEMAP_TYPE === $type ) {
-			$name = 'sitemap';
-		} else {
-			$name = self::name_prefix( $type ) . $index;
-		}
+		$name = jp_sitemap_filename( $type, $index );
 
 		$the_post = get_page_by_title( $name, 'OBJECT', $type );
 
@@ -253,11 +224,10 @@ class Jetpack_Sitemap_Librarian {
 	public function delete_numbered_sitemap_rows_after( $position, $type ) {
 		$any_left = true;
 
-		$prefix = self::name_prefix( $type );
-
 		while ( true === $any_left ) {
 			$position += 1;
-			$any_left = $this->delete_sitemap_data( $prefix . $position, $type );
+			$name = jp_sitemap_filename( $type, $position );
+			$any_left = $this->delete_sitemap_data( $name, $type );
 		}
 
 		return;

@@ -90,7 +90,6 @@ class Jetpack_Sitemap_Finder {
 	 * @return array @args {
 	 *   @type string $sitemap_path The path where sitemaps are served.
 	 *   @type string $raw_uri The raw request URI.
-	 *   @type string $sitemap_uri The recognized sitemap path fragment (or null).
 	 *   @type string $sitemap_name The recognized sitemap name (or null).
 	 * }
 	 */
@@ -108,14 +107,11 @@ class Jetpack_Sitemap_Finder {
 
 			// Check that the remaining path fragment begins with one of the sitemap prefixes.
 			if ( preg_match( '/^sitemap|^image-sitemap|^news-sitemap|^video-sitemap/', $stripped_uri ) ) {
-				// Drop the last 4 characters (file extension).
-				$filename = substr( $stripped_uri, 0, -4 );
 
 				return array(
 					'sitemap_path' => $sitemap_path,
 					'raw_uri'      => $raw_uri,
-					'sitemap_uri'  => $stripped_uri,
-					'sitemap_name' => $filename,
+					'sitemap_name' => $stripped_uri,
 				);
 			}
 		}
@@ -123,7 +119,6 @@ class Jetpack_Sitemap_Finder {
 		return array(
 			'sitemap_path' => $sitemap_path,
 			'raw_uri'      => $raw_uri,
-			'sitemap_uri'  => null,
 			'sitemap_name' => null,
 		);
 	}

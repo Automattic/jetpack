@@ -181,7 +181,7 @@ class Jetpack_Sitemap_Manager {
 
 		$request = $this->finder->recognize_sitemap_uri( $raw_uri );
 
-		if ( isset( $request['sitemap_uri'] ) ) {
+		if ( isset( $request['sitemap_name'] ) ) {
 
 			/**
 			 * Filter the content type used to serve the sitemap XML files.
@@ -195,18 +195,18 @@ class Jetpack_Sitemap_Manager {
 			$xml_content_type = apply_filters( 'jetpack_sitemap_content_type', 'text/xml' );
 
 			// Catch master sitemap xml.
-			if ( preg_match( $regex['master'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['master'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
-						Jetpack_Sitemap_Librarian::MASTER_SITEMAP_NAME,
+						jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
 						JP_MASTER_SITEMAP_TYPE
 					)
 				);
 			}
 
 			// Catch sitemap xml.
-			if ( preg_match( $regex['sitemap'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['sitemap'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
@@ -217,7 +217,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch sitemap index xml.
-			if ( preg_match( $regex['index'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['index'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
@@ -228,7 +228,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch sitemap xsl.
-			if ( preg_match( $regex['sitemap-style'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['sitemap-style'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					'application/xml',
 					Jetpack_Sitemap_Stylist::sitemap_xsl()
@@ -236,7 +236,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch sitemap index xsl.
-			if ( preg_match( $regex['index-style'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['index-style'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					'application/xml',
 					Jetpack_Sitemap_Stylist::sitemap_index_xsl()
@@ -244,7 +244,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch image sitemap xml.
-			if ( preg_match( $regex['image'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['image'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
@@ -255,7 +255,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch image sitemap index xml.
-			if ( preg_match( $regex['image-index'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['image-index'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
@@ -266,7 +266,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch image sitemap xsl.
-			if ( preg_match( $regex['image-style'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['image-style'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					'application/xml',
 					Jetpack_Sitemap_Stylist::image_sitemap_xsl()
@@ -274,7 +274,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch video sitemap xml.
-			if ( preg_match( $regex['video'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['video'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
@@ -285,7 +285,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch video sitemap index xml.
-			if ( preg_match( $regex['video-index'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['video-index'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					$xml_content_type,
 					$this->librarian->get_sitemap_text(
@@ -296,7 +296,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch video sitemap xsl.
-			if ( preg_match( $regex['video-style'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['video-style'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					'application/xml',
 					Jetpack_Sitemap_Stylist::video_sitemap_xsl()
@@ -304,7 +304,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch news sitemap xml.
-			if ( preg_match( $regex['news'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['news'], $request['sitemap_name'] ) ) {
 				$sitemap_builder = new Jetpack_Sitemap_Builder();
 				$this->serve_raw_and_die(
 					$xml_content_type,
@@ -313,7 +313,7 @@ class Jetpack_Sitemap_Manager {
 			}
 
 			// Catch news sitemap xsl.
-			if ( preg_match( $regex['news-style'], $request['sitemap_uri'] ) ) {
+			if ( preg_match( $regex['news-style'], $request['sitemap_name'] ) ) {
 				$this->serve_raw_and_die(
 					'application/xml',
 					Jetpack_Sitemap_Stylist::news_sitemap_xsl()
