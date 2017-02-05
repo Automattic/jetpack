@@ -216,7 +216,7 @@ class Jetpack_Sitemap_Builder {
 	 * @param array    $state        A sitemap state.
 	 */
 	private function build_next_sitemap_of_type( $sitemap_type, $build_one, $state ) {
-		$debug_name = Jetpack_Sitemap_Librarian::debug_name( $sitemap_type );
+		$debug_name = jp_sitemap_debug_name( $sitemap_type );
 		$index_type = Jetpack_Sitemap_Librarian::index_type( $sitemap_type );
 
 		// Try to build a sitemap.
@@ -292,7 +292,7 @@ class Jetpack_Sitemap_Builder {
 	 * @param string $next_type  The next type to generate after this one.
 	 */
 	private function build_next_sitemap_index_of_type( $state, $index_type, $next_type ) {
-		$debug_name   = Jetpack_Sitemap_Librarian::debug_name( $index_type );
+		$debug_name   = jp_sitemap_debug_name( $index_type );
 		$sitemap_type = Jetpack_Sitemap_Librarian::sitemap_type( $index_type );
 
 		// If only 0 or 1 sitemaps were built, advance to the next type and return.
@@ -509,10 +509,7 @@ FOOTER
 		$any_posts_left = true;
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$debug_name = Jetpack_Sitemap_Librarian::debug_name(
-				JP_PAGE_SITEMAP_TYPE
-			);
-
+			$debug_name = jp_sitemap_debug_name( JP_PAGE_SITEMAP_TYPE );
 			$this->logger->report( "-- Building $debug_name " . $number . '.' );
 		}
 
@@ -667,10 +664,7 @@ FOOTER
 		$any_posts_left = true;
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$debug_name = Jetpack_Sitemap_Librarian::debug_name(
-				JP_IMAGE_SITEMAP_TYPE
-			);
-
+			$debug_name = jp_sitemap_debug_name( JP_IMAGE_SITEMAP_TYPE );
 			$this->logger->report( "-- Building $debug_name $number." );
 		}
 
@@ -787,10 +781,7 @@ FOOTER
 		$any_posts_left = true;
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$debug_name = Jetpack_Sitemap_Librarian::debug_name(
-				JP_VIDEO_SITEMAP_TYPE
-			);
-
+			$debug_name = jp_sitemap_debug_name( JP_VIDEO_SITEMAP_TYPE );
 			$this->logger->report( "-- Building $debug_name $number." );
 		}
 
@@ -909,7 +900,7 @@ FOOTER
 		$last_sitemap_id   = $from_id;
 		$any_sitemaps_left = true;
 
-		$index_debug_name = Jetpack_Sitemap_Librarian::debug_name( $index_type );
+		$index_debug_name = jp_sitemap_debug_name( $index_type );
 		$sitemap_type = Jetpack_Sitemap_Librarian::sitemap_type( $index_type );
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {

@@ -114,6 +114,8 @@ if ( ! defined( 'JP_VIDEO_SITEMAP_INDEX_TYPE' ) ) {
  * The name (with extension) of a sitemap file of the given
  * type and number.
  *
+ * @since 4.7.0
+ *
  * @param string $type The sitemap type.
  * @param string $number The sitemap number.
  *
@@ -138,5 +140,30 @@ function jp_sitemap_filename( $type, $number ) {
 		return "video-sitemap-index-$number.xml";
 	} else {
 		return esc_html( "error-bad-type-$type-$number.xml" );
+	}
+}
+
+/**
+ * A human-friendly name for each sitemap type (for debug messages).
+ *
+ * @since 4.7.0
+ *
+ * @param string $type The sitemap type.
+ *
+ * @return string The sitemap debug name.
+ */
+function jp_sitemap_debug_name( $type ) {
+	if ( JP_PAGE_SITEMAP_TYPE === $type ) {
+		return 'Sitemap';
+	} elseif ( JP_PAGE_SITEMAP_INDEX_TYPE === $type ) {
+		return 'Sitemap Index';
+	} elseif ( JP_IMAGE_SITEMAP_TYPE === $type ) {
+		return 'Image Sitemap';
+	} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $type ) {
+		return 'Image Sitemap Index';
+	} elseif ( JP_VIDEO_SITEMAP_TYPE === $type ) {
+		return 'Video Sitemap';
+	} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
+		return 'Video Sitemap Index';
 	}
 }
