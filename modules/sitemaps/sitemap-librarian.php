@@ -21,25 +21,6 @@ require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 class Jetpack_Sitemap_Librarian {
 
 	/**
-	 * The index type corresponding to a sitemap type.
-	 *
-	 * @since 4.7.0
-	 *
-	 * @param string $type The index type.
-	 *
-	 * @return string The sitemap type.
-	 */
-	public static function sitemap_type( $type ) {
-		if ( JP_PAGE_SITEMAP_INDEX_TYPE === $type ) {
-			return JP_PAGE_SITEMAP_TYPE;
-		} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $type ) {
-			return JP_IMAGE_SITEMAP_TYPE;
-		} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
-			return JP_VIDEO_SITEMAP_TYPE;
-		}
-	}
-
-	/**
 	 * Retrieve a single sitemap with given name and type.
 	 * Returns null if no such sitemap exists.
 	 *

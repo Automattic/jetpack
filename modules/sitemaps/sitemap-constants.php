@@ -190,3 +190,24 @@ function jp_sitemap_index_type_of( $type ) {
 		return esc_html( "error-bad-type-$type" );
 	}
 }
+
+/**
+ * The sitemap type corresponding to an index type.
+ *
+ * @since 4.7.0
+ *
+ * @param string $type The index type.
+ *
+ * @return string The sitemap type.
+ */
+function jp_sitemap_child_type_of( $type ) {
+	if ( JP_PAGE_SITEMAP_INDEX_TYPE === $type ) {
+		return JP_PAGE_SITEMAP_TYPE;
+	} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $type ) {
+		return JP_IMAGE_SITEMAP_TYPE;
+	} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
+		return JP_VIDEO_SITEMAP_TYPE;
+	} else {
+		return esc_html( "error-bad-type-$type" );
+	}
+}

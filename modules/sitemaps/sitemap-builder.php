@@ -293,7 +293,7 @@ class Jetpack_Sitemap_Builder {
 	 */
 	private function build_next_sitemap_index_of_type( $state, $index_type, $next_type ) {
 		$debug_name   = jp_sitemap_debug_name( $index_type );
-		$sitemap_type = Jetpack_Sitemap_Librarian::sitemap_type( $index_type );
+		$sitemap_type = jp_sitemap_child_type_of( $index_type );
 
 		// If only 0 or 1 sitemaps were built, advance to the next type and return.
 		if ( 1 >= $state['max'][ $sitemap_type ]['number'] ) {
@@ -901,7 +901,7 @@ FOOTER
 		$any_sitemaps_left = true;
 
 		$index_debug_name = jp_sitemap_debug_name( $index_type );
-		$sitemap_type = Jetpack_Sitemap_Librarian::sitemap_type( $index_type );
+		$sitemap_type = jp_sitemap_child_type_of( $index_type );
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 			$this->logger->report( "-- Building $index_debug_name $number." );
