@@ -414,13 +414,13 @@ FOOTER
 		if ( 0 < $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
 				$page['filename'] = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, 1 );
-				$page['last_modified'] = $max[ JP_PAGE_SITEMAP_TYPE ]['lastmod'];
+				$page['last_modified'] = jp_sitemap_datetime( $max[ JP_PAGE_SITEMAP_TYPE ]['lastmod'] );
 			} else {
 				$page['filename'] = jp_sitemap_filename(
 					JP_PAGE_SITEMAP_INDEX_TYPE,
 					$max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['number']
 				);
-				$page['last_modified'] = $max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['lastmod'];
+				$page['last_modified'] = jp_sitemap_datetime( $max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['lastmod'] );
 			}
 
 			$buffer->try_to_add_item( Jetpack_Sitemap_Buffer::array_to_xml_string(
@@ -436,13 +436,13 @@ FOOTER
 		if ( 0 < $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
 				$image['filename'] = jp_sitemap_filename( JP_IMAGE_SITEMAP_TYPE, 1 );
-				$image['last_modified'] = $max[ JP_IMAGE_SITEMAP_TYPE ]['lastmod'];
+				$image['last_modified'] = jp_sitemap_datetime( $max[ JP_IMAGE_SITEMAP_TYPE ]['lastmod'] );
 			} else {
 				$image['filename'] = jp_sitemap_filename(
 					JP_IMAGE_SITEMAP_INDEX_TYPE,
 					$max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['number']
 				);
-				$image['last_modified'] = $max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['lastmod'];
+				$image['last_modified'] = jp_sitemap_datetime( $max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['lastmod'] );
 			}
 
 			$buffer->try_to_add_item( Jetpack_Sitemap_Buffer::array_to_xml_string(
@@ -929,7 +929,7 @@ FOOTER
 			$timestamp
 		);
 
-		$new_timestamp = str_replace( ' ', 'T', $timestamp ) . 'Z';
+		$new_timestamp = jp_sitemap_datetime( $timestamp );
 
 		// Add pointer to the previous sitemap index (unless we're at the first one).
 		if ( 1 !== $number ) {
@@ -1019,7 +1019,7 @@ FOOTER
 		$item_array = array(
 			'sitemap' => array(
 				'loc'     => $url,
-				'lastmod' => str_replace( ' ', 'T', $row['post_date'] ) . 'Z',
+				'lastmod' => jp_sitemap_datetime( $row['post_date'] ),
 			),
 		);
 
@@ -1185,7 +1185,7 @@ FOOTER
 		$item_array = array(
 			'url' => array(
 				'loc'     => $url,
-				'lastmod' => str_replace( ' ', 'T', $last_modified ) . 'Z',
+				'lastmod' => jp_sitemap_datetime( $last_modified ),
 			),
 		);
 
@@ -1248,7 +1248,7 @@ FOOTER
 		$item_array = array(
 			'url' => array(
 				'loc'         => $parent_url,
-				'lastmod'     => str_replace( ' ', 'T', $post->post_modified_gmt ) . 'Z',
+				'lastmod'     => jp_sitemap_datetime( $post->post_modified_gmt ),
 				'image:image' => array(
 					'image:loc' => $url,
 				),
@@ -1328,7 +1328,7 @@ FOOTER
 		$item_array = array(
 			'url' => array(
 				'loc'         => $parent_url,
-				'lastmod'     => str_replace( ' ', 'T', $post->post_modified_gmt ) . 'Z',
+				'lastmod'     => jp_sitemap_datetime( $post->post_modified_gmt ),
 				'video:video' => array(
 					'video:title'         => esc_html( $post->post_title ),
 					'video:thumbnail_loc' => '',
@@ -1420,14 +1420,14 @@ FOOTER
 		$item_array = array(
 			'url' => array(
 				'loc' => $url,
-				'lastmod' => str_replace( ' ', 'T', $post->post_modified_gmt ) . 'Z',
+				'lastmod' => jp_sitemap_datetime( $post->post_modified_gmt ),
 				'news:news' => array(
 					'news:publication' => array(
 						'news:name'     => esc_html( get_bloginfo( 'name' ) ),
 						'news:language' => $language,
 					),
 					'news:title'            => esc_html( $post->post_title ),
-					'news:publication_date' => str_replace( ' ', 'T', $post->post_date_gmt ) . 'Z',
+					'news:publication_date' => jp_sitemap_datetime( $post->post_date_gmt ),
 					'news:genres'           => 'Blog',
 				),
 			),

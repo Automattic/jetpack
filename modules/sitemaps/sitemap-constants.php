@@ -220,3 +220,24 @@ function jp_sitemap_child_type_of( $type ) {
 		return esc_html( "error-bad-type-$type" );
 	}
 }
+
+/**
+ * Convert '0000-00-00 00:00:00' to '0000-00-00T00:00:00Z'.
+ * Note that the input is assumed to be in UTC (a.k.a. GMT).
+ *
+ * @link https://www.w3.org/TR/NOTE-datetime
+ * @since 4.7.0
+ *
+ * @param string $datetime The timestamp to convert.
+ *
+ * @return string The converted timestamp.
+ */
+function jp_sitemap_datetime( $datetime ) {
+	$regex = '/^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]$/';
+
+	if ( preg_match( $regex, $datetime ) ) {
+		return str_replace( ' ', 'T', $datetime ) . 'Z';
+	} else {
+		return $datetime;
+	}
+}
