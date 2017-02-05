@@ -88,8 +88,6 @@ class Jetpack_Sitemap_Finder {
 	 * @param string $raw_uri A URI (path+query only) to test for sitemap-ness.
 	 *
 	 * @return array @args {
-	 *   @type string $sitemap_path The path where sitemaps are served.
-	 *   @type string $raw_uri The raw request URI.
 	 *   @type string $sitemap_name The recognized sitemap name (or null).
 	 * }
 	 */
@@ -104,22 +102,19 @@ class Jetpack_Sitemap_Finder {
 		if ( preg_match( $path_regex, $raw_uri ) ) {
 			// Strip off the $sitemap_path and any trailing slash.
 			$stripped_uri = preg_replace( $path_regex, '', rtrim( $raw_uri, '/' ) );
+		} else {
+			$stripped_uri = '';
+		}
 
-			// Check that the remaining path fragment begins with one of the sitemap prefixes.
-			if ( preg_match( '/^sitemap|^image-sitemap|^news-sitemap|^video-sitemap/', $stripped_uri ) ) {
-
-				return array(
-					'sitemap_path' => $sitemap_path,
-					'raw_uri'      => $raw_uri,
-					'sitemap_name' => $stripped_uri,
-				);
-			}
+		// Check that the stripped uri begins with one of the sitemap prefixes.
+		if ( preg_match( '/^sitemap|^image-s|^news-s|^video-s/', $stripped_uri ) ) {
+			$filename = $stripped_uri;
+		} else {
+			$filename = null;
 		}
 
 		return array(
-			'sitemap_path' => $sitemap_path,
-			'raw_uri'      => $raw_uri,
-			'sitemap_name' => null,
+			'sitemap_name' => $filename,
 		);
 	}
 
