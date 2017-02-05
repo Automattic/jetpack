@@ -33,8 +33,8 @@ class Jetpack_Sitemap_Librarian {
 	 * @return array $args {
 	 *   @type int    $id        ID number of the sitemap in the database.
 	 *   @type string $timestamp Most recent timestamp of the resources pointed to.
-	 *   @type string $name      Name of the sitemap in the database. See *_NAME constants.
-	 *   @type string $type      Type of the sitemap in the database. See *_TYPE constants.
+	 *   @type string $name      Name of the sitemap in the database.
+	 *   @type string $type      Type of the sitemap in the database.
 	 *   @type string $text      The content of the sitemap.
 	 * }
 	 */
