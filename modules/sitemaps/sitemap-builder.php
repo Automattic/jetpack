@@ -217,7 +217,7 @@ class Jetpack_Sitemap_Builder {
 	 */
 	private function build_next_sitemap_of_type( $sitemap_type, $build_one, $state ) {
 		$debug_name = jp_sitemap_debug_name( $sitemap_type );
-		$index_type = Jetpack_Sitemap_Librarian::index_type( $sitemap_type );
+		$index_type = jp_sitemap_index_type_of( $sitemap_type );
 
 		// Try to build a sitemap.
 		$result = call_user_func_array(

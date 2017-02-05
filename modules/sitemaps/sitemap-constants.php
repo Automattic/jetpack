@@ -169,3 +169,24 @@ function jp_sitemap_debug_name( $type ) {
 		return esc_html( "error-bad-type-$type" );
 	}
 }
+
+/**
+ * The index type corresponding to a sitemap type.
+ *
+ * @since 4.7.0
+ *
+ * @param string $type The sitemap type.
+ *
+ * @return string The index type.
+ */
+function jp_sitemap_index_type_of( $type ) {
+	if ( JP_PAGE_SITEMAP_TYPE === $type ) {
+		return JP_PAGE_SITEMAP_INDEX_TYPE;
+	} elseif ( JP_IMAGE_SITEMAP_TYPE === $type ) {
+		return JP_IMAGE_SITEMAP_INDEX_TYPE;
+	} elseif ( JP_VIDEO_SITEMAP_TYPE === $type ) {
+		return JP_VIDEO_SITEMAP_INDEX_TYPE;
+	} else {
+		return esc_html( "error-bad-type-$type" );
+	}
+}

@@ -25,25 +25,6 @@ class Jetpack_Sitemap_Librarian {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param string $type The sitemap type.
-	 *
-	 * @return string The index type.
-	 */
-	public static function index_type( $type ) {
-		if ( JP_PAGE_SITEMAP_TYPE === $type ) {
-			return JP_PAGE_SITEMAP_INDEX_TYPE;
-		} elseif ( JP_IMAGE_SITEMAP_TYPE === $type ) {
-			return JP_IMAGE_SITEMAP_INDEX_TYPE;
-		} elseif ( JP_VIDEO_SITEMAP_TYPE === $type ) {
-			return JP_VIDEO_SITEMAP_INDEX_TYPE;
-		}
-	}
-
-	/**
-	 * The index type corresponding to a sitemap type.
-	 *
-	 * @since 4.7.0
-	 *
 	 * @param string $type The index type.
 	 *
 	 * @return string The sitemap type.
