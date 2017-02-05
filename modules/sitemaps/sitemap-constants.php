@@ -76,6 +76,15 @@ if ( ! defined( 'JP_SITEMAP_LOCK_INTERVAL' ) ) {
 	define( 'JP_SITEMAP_LOCK_INTERVAL', 60 * 15 );
 }
 
+/**
+ * Cache lifetime of news sitemap (in seconds).
+ *
+ * @since 4.7.0
+ */
+if ( ! defined( 'JP_NEWS_SITEMAP_INTERVAL' ) ) {
+	define( 'JP_NEWS_SITEMAP_INTERVAL', 12 * HOUR_IN_SECONDS );
+}
+
 /*
  * These constants represent the types of various kinds of sitemaps.
  * Note: these strings are used as 'post_types' in the database, and

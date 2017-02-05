@@ -1124,7 +1124,7 @@ FOOTER
 			set_transient(
 				'jetpack_news_sitemap_xml',
 				$the_stored_news_sitemap,
-				12 * HOUR_IN_SECONDS
+				JP_NEWS_SITEMAP_INTERVAL
 			);
 		}
 
