@@ -620,7 +620,7 @@ function get_all_supercache_filenames( $dir = '' ) {
 
 	$dir = realpath( $dir );
 	$rp_cache_path = realpath( $cache_path );
-	if ( substr( $dir, 0, strlen( $rpcache_path ) ) != $rp_cache_path )
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
 		return array();
 
 	$filenames = array( 'index.html', 'index-https.html', 'index.html.php' );
