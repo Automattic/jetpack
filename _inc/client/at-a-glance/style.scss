@@ -303,7 +303,7 @@
 }
 
 .jp-connection-settings__text {
-	width: 72%;
+	width: 70%;
 	margin-left: rem( 16px );
 }
 .jp-connection-settings__info {
@@ -314,19 +314,15 @@
 	.jp-connection-settings__site-icon {
 		background: #c8d7e1;
 		color: #fff;
+		min-width: rem( 64px );
 	}
 	.jp-connection-settings__gravatar {
+		display: inline-block;
+		min-width: rem( 64px );
+		background: $gray;
+		border-radius: 50%;
 		margin-bottom: 0;
 	}
-}
-
-.jp-connection-settings__gravatar {
-	display: inline-block;
-	margin-bottom: rem( 16px );
-	width: rem( 64px );
-	height: rem( 64px );
-	background: $gray;
-	border-radius: 50%;
 }
 
 .jp-connection-settings__username {

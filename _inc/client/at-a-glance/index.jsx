@@ -49,7 +49,13 @@ const AtAGlance = React.createClass( {
 						: 'https://wordpress.com/settings/security/' + this.props.siteRawUrl
 					}
 					externalLinkClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_security_wpcom_click', {} ) }
-				/>;
+				/>,
+			connections = (
+				<div>
+					<DashSectionHeader label={ __( 'Connections' ) } />
+					<DashConnections />
+				</div>
+			);
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
@@ -100,11 +106,8 @@ const AtAGlance = React.createClass( {
 					</div>
 
 					{
-						<DashSectionHeader
-							label={ __( 'Connections' ) }
-						/>
+						connections
 					}
-					<DashConnections />
 				</div>
 			);
 		} else {
@@ -128,6 +131,9 @@ const AtAGlance = React.createClass( {
 							securityHeader
 						}
 						{ protect }
+						{
+							connections
+						}
 					</div>
 				);
 			}

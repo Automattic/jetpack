@@ -174,7 +174,7 @@ export const DashConnections = React.createClass( {
 } );
 
 DashConnections.propTypes = {
-	siteConnectionStatus: React.PropTypes.bool.isRequired,
+	siteConnectionStatus: React.PropTypes.any.isRequired,
 	isDevMode: React.PropTypes.bool.isRequired,
 	userCanDisconnectSite: React.PropTypes.bool.isRequired,
 	userIsMaster: React.PropTypes.bool.isRequired,
