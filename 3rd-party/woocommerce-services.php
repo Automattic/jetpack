@@ -7,6 +7,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WC_Services_Installer {
 
 	/**
+	 * @var Jetpack
+	 **/
+	private $jetpack;
+
+	/**
 	 * @var WC_Services_Installer
 	 **/
 	private static $instance = null;
@@ -19,6 +24,8 @@ class WC_Services_Installer {
 	}
 
 	public function __construct() {
+		$this->jetpack = Jetpack::init();
+
 		add_action( 'admin_init', array( $this, 'add_error_notice' ) );
 		add_action( 'admin_init', array( $this, 'try_install' ) );
 	}
@@ -39,6 +46,8 @@ class WC_Services_Installer {
 
 			if ( false === $result ) {
 				$redirect = add_query_arg( 'wc-services-install-error', true, $redirect );
+			} else {
+				$this->jetpack->stat( 'jitm', 'wooservices-activated-' . JETPACK__VERSION );
 			}
 
 			wp_safe_redirect( $redirect );
@@ -73,8 +82,7 @@ class WC_Services_Installer {
 	 * @return bool result of installation/activation
 	 */
 	private function install() {
-		$jetpack = Jetpack::init();
-		$jetpack->stat( 'jitm', 'wooservices-activated-' . JETPACK__VERSION );
+		$this->jetpack->stat( 'jitm', 'wooservices-install-' . JETPACK__VERSION );
 
 		include_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		include_once( ABSPATH . '/wp-admin/includes/plugin-install.php' );
