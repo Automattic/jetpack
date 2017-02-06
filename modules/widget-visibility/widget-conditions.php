@@ -255,7 +255,7 @@ class Jetpack_Widget_Conditions {
 
 				foreach ( $post_types as $post_type ) {
 				?>
-					<optgroup label="<?php printf( esc_attr( '%s :', 'jetpack' ), $post_type->label ); ?>">
+					<optgroup label="<?php echo esc_attr( $post_type->label ); ?>">
 						<?php
 						$posts = get_posts( array(
 							'posts_per_page' => -1,
@@ -379,7 +379,7 @@ class Jetpack_Widget_Conditions {
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 										<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
-									<option value="single_post" <?php selected( "single_post", $rule['major'] ); ?>><?php echo esc_html_x( 'Custom Post', 'Example: The user is looking at a post, not a page.', 'jetpack' ); ?></option>
+									<option value="single_post" <?php selected( "single_post", $rule['major'] ); ?>><?php echo esc_html_x( 'Post', 'Example: The user is looking at a post, not a page.', 'jetpack' ); ?></option>
 								</select>
 
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
