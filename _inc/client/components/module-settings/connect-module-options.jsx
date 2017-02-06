@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { connect } from 'react-redux';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -9,12 +10,16 @@ import { connect } from 'react-redux';
 import {
 	updateModuleOptions,
 	getModuleOption,
-	getModuleOptionValidValues,
-	isUpdatingModuleOption,
-	regeneratePostByEmailAddress,
-	setUnsavedOptionFlag,
-	clearUnsavedOptionFlag
+	getModuleOptionValidValues
 } from 'state/modules';
+import {
+	getSetting,
+	updateSettings,
+	isUpdatingSetting,
+	setUnsavedSettingsFlag,
+	clearUnsavedSettingsFlag,
+	regeneratePostByEmailAddress
+} from 'state/settings';
 import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getSiteRoles,
@@ -34,10 +39,16 @@ export function connectModuleOptions( Component ) {
 	return connect(
 		( state, ownProps ) => {
 			return {
-				validValues: ( option_name ) => getModuleOptionValidValues( state, ownProps.module.module, option_name ),
+				validValues: ( option_name, module_slug = '' ) => {
+					if ( 'string' === typeof get( ownProps, [ 'module', 'module' ] ) ) {
+						module_slug = ownProps.module.module;
+					}
+					return getModuleOptionValidValues( state, module_slug, option_name );
+				},
 				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
+				getSettingCurrentValue: ( setting_name, moduleName = '' ) => getSetting( state, setting_name, moduleName ),
 				getSiteRoles: () => getSiteRoles( state ),
-				isUpdating: ( option_name ) => isUpdatingModuleOption( state, ownProps.module.module, option_name ),
+				isUpdating: settingName => isUpdatingSetting( state, settingName ),
 				adminEmailAddress: getAdminEmailAddress( state ),
 				currentIp: getCurrentIp( state ),
 				siteAdminUrl: getSiteAdminUrl( state ),
@@ -46,16 +57,16 @@ export function connectModuleOptions( Component ) {
 		},
 		( dispatch, ownProps ) => ( {
 			updateOptions: ( newOptions ) => {
-				return dispatch( updateModuleOptions( ownProps.module.module, newOptions ) );
+				return dispatch( updateSettings( newOptions ) );
 			},
 			regeneratePostByEmailAddress: () => {
 				return dispatch( regeneratePostByEmailAddress() );
 			},
-			setUnsavedOptionFlag: () => {
-				return dispatch( setUnsavedOptionFlag() );
+			setUnsavedSettingsFlag: () => {
+				return dispatch( setUnsavedSettingsFlag() );
 			},
-			clearUnsavedOptionFlag: () => {
-				return dispatch( clearUnsavedOptionFlag() );
+			clearUnsavedSettingsFlag: () => {
+				return dispatch( clearUnsavedSettingsFlag() );
 			}
 		} )
 	)( Component );

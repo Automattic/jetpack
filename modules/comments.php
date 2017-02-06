@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Comments
- * Module Description: Allow comments with WordPress.com, Twitter, Facebook, or Google+.
+ * Module Description: Let readers use WordPress.com, Twitter, Facebook, or Google+ accounts to comment
  * First Introduced: 1.4
  * Sort Order: 20
  * Requires Connection: Yes

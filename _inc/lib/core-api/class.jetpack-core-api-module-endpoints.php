@@ -470,7 +470,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						? $toggle_module->activate_module( $option )
 						: $toggle_module->deactivate_module( $option );
 
-					if ( is_wp_error( $toggle_result ) ) {
+					if (
+						is_wp_error( $toggle_result )
+						&& 'already_inactive' === $toggle_result->get_error_code()
+					) {
+
+						// If the module is already inactive, we don't fail
+						$updated = true;
+					} elseif ( is_wp_error( $toggle_result ) ) {
 						$error = $toggle_result->get_error_message();
 					} else {
 						$updated = true;
@@ -507,7 +514,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					continue;
 				}
 
-				if ( ! Jetpack::is_module_active( $option_attrs['jp_group'] ) ) {
+				if (
+					'any' !== $data['slug']
+					&& ! Jetpack::is_module_active( $option_attrs['jp_group'] )
+				) {
+
+					// We only take note of skipped options when updating one module
 					$not_updated[ $option ] = esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' );
 					continue;
 				}
@@ -718,6 +730,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? 'letitsnow' : '' ) : true;
 					break;
 
+				case 'akismet_show_user_comments_approved':
+
+					// Save Akismet option '1' or '0' like it's done in akismet/class.akismet-admin.php
+					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? '1' : '0' ) : true;
+					break;
+
 				case 'google_analytics_tracking_id':
 					$grouped_options = $grouped_options_current = (array) get_option( 'jetpack_wga' );
 					$grouped_options[ 'code' ] = $value;
@@ -761,18 +779,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				foreach ( $not_updated as $not_updated_option => $not_updated_message ) {
 					if ( ! empty( $not_updated_message ) ) {
 						$not_updated_messages[] = sprintf(
-						/* Translators: the first variable is a module option or slug, or setting. The second is the error message . */
-							__( 'Extra info for %1$s: %2$s', 'jetpack' ),
+							/* Translators: the first variable is a module option or slug, or setting. The second is the error message . */
+							__( '%1$s: %2$s', 'jetpack' ),
 							$not_updated_option, $not_updated_message );
 					}
 				}
 				if ( ! empty( $error ) ) {
 					$error .= ' ';
 				}
-				$error .= sprintf(
-				/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
-					_n( 'Option not updated: %s.', 'Options not updated: %s.', $not_updated_count, 'jetpack' ),
-					join( ', ', array_keys( $not_updated ) ) );
 				if ( ! empty( $not_updated_messages ) ) {
 					$error .= ' ' . join( '. ', $not_updated_messages );
 				}

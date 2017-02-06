@@ -8,11 +8,12 @@ const AdminNotices = React.createClass( {
 		if ( $vpNotice.length > 0 ) {
 			$vpNotice.each( function () {
 				let $notice = jQuery( this ).addClass( 'dops-notice is-warning' ).removeClass( 'wrap vp-notice' );
+				$notice.wrapInner( '<div class="dops-notice__content">' );
 				$notice.find( 'a' ).addClass( 'dops-notice__action' ).appendTo( $notice );
 				$notice.find( '.vp-message' ).removeClass( 'vp-message' ).addClass( 'dops-notice__text' );
 				$notice.find( 'h3' ).replaceWith( function () { return jQuery( '<strong />', { html: this.innerHTML } ); } );
 				$notice.find( 'p' ).replaceWith( function () { return jQuery( '<div/>', { html: this.innerHTML } ); } );
-				$notice.prependTo( $adminNotices ).wrapInner( '<div class="dops-notice__content">' ).show();
+				$notice.prependTo( $adminNotices ).show();
 			} );
 		}
 

@@ -12,26 +12,14 @@ import { translate as __ } from 'i18n-calypso';
 import {
 	isDevVersion as _isDevVersion,
 	getCurrentVersion,
-	userCanManageOptions,
-	userCanDisconnectSite
+	userCanManageOptions
 } from 'state/initial-state';
 import { resetOptions } from 'state/dev-version';
-import { disconnectSite } from 'state/connection';
-import { getSiteConnectionStatus, isInIdentityCrisis } from 'state/connection';
-import { isDevMode as _isDevMode } from 'state/connection';
+import { isInIdentityCrisis } from 'state/connection';
 import { getSiteAdminUrl } from 'state/initial-state';
 
 export const Footer = React.createClass( {
 	displayName: 'Footer',
-
-	disconnectSite() {
-		if (
-			this.props.isInIdentityCrisis ||
-			window.confirm( __( 'Do you really want to disconnect your site from WordPress.com?' ) )
-		) {
-			this.props.disconnectSite();
-		}
-	},
 
 	resetOnClick() {
 		if ( window.confirm( __( 'This will reset all Jetpack options, are you sure?' ) ) ) {
@@ -76,21 +64,6 @@ export const Footer = React.createClass( {
 			}
 		};
 
-		const maybeShowDisconnect = () => {
-			if ( this.props.userCanDisconnectSite && this.props.siteConnectionStatus && ! this.props.isDevMode ) {
-				return (
-					<li className="jp-footer__link-item">
-						<a
-							onClick={ this.disconnectSite }
-							title={ __( 'Disconnect from WordPress.com' ) }
-							className="jp-footer__link">
-							{ __( 'Disconnect Jetpack' ) }
-						</a>
-					</li>
-				);
-			}
-		};
-
 		return (
 			<div className={ classes }>
 				<div className="jp-footer__a8c-attr-container">
@@ -128,7 +101,6 @@ export const Footer = React.createClass( {
 					</li>
 					{ maybeShowDebug() }
 					{ maybeShowReset() }
-					{ maybeShowDisconnect() }
 				</ul>
 			</div>
 		);
@@ -140,19 +112,13 @@ export default connect(
 		return {
 			currentVersion: getCurrentVersion( state ),
 			userCanManageOptions: userCanManageOptions( state ),
-			userCanDisconnectSite: userCanDisconnectSite( state ),
 			isDevVersion: _isDevVersion( state ),
-			isDevMode: _isDevMode( state ),
-			siteConnectionStatus: getSiteConnectionStatus( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state )
 		}
 	},
 	( dispatch ) => {
 		return {
-			disconnectSite: () => {
-				return dispatch( disconnectSite() );
-			},
 			resetOptions: () => {
 				return dispatch( resetOptions( 'options' ) );
 			}

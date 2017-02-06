@@ -25,7 +25,7 @@ import {
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
 	JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG,
-	JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG
+	JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG,
 } from 'state/action-types';
 import { getModule } from 'state/modules/reducer';
 import restApi from 'rest-api';
@@ -190,7 +190,9 @@ export const deactivateModule = ( slug ) => {
 	}
 }
 
-export const updateModuleOptions = ( slug, newOptionValues ) => {
+export const updateModuleOptions = ( module, newOptionValues ) => {
+	let slug = module.module;
+
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_UPDATE_OPTIONS,

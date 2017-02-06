@@ -269,12 +269,18 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 				'roles' => $stats_roles,
 			),
+			'settings' => $this->get_flattened_settings( $modules ),
 			'settingNames' => array(
 				'jetpack_holiday_snow_enabled' => function_exists( 'jetpack_holiday_snow_option_name' ) ? jetpack_holiday_snow_option_name() : false,
 			),
 			'userData' => array(
 //				'othersLinked' => Jetpack::get_other_linked_admins(),
 				'currentUser'  => jetpack_current_user_data(),
+			),
+			'siteData' => array(
+				'icon' => has_site_icon()
+					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
+					: '',
 			),
 			'locale' => $this->get_i18n_data(),
 			'localeSlug' => $localeSlug,
@@ -287,6 +293,27 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
 			'lastPostUrl' => esc_url( $last_post ),
 		) );
+	}
+
+	/**
+	 * Returns an array of modules and settings both as first class members of the object.
+	 *
+	 * @param Array $modules the result of an API request to get all modules.
+	 *
+	 * @return Array flattened settings with modules.
+	 */
+	function get_flattened_settings( $modules ) {
+		$settings = array();
+
+		foreach ( $modules as $slug => $data ) {
+			$settings[ $slug ] = $data['activated'] ? true : false;
+
+			foreach ( $data['options'] as $name => $option ) {
+				$settings[ $name ] = $option['current_value'];
+			}
+		}
+
+		return $settings;
 	}
 }
 
