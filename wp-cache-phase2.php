@@ -1140,8 +1140,8 @@ function wp_cache_post_id_gc( $siteurl, $post_id, $all = 'all' ) {
 		prune_super_cache( $dir, true, true );
 		do_action( 'gc_cache', 'prune', $permalink );
 		@rmdir( $dir );
-		wp_cache_debug( "wp_cache_post_id_gc clearing cache in {$supercache_home}page/." );
 		$supercache_home = get_supercache_dir();
+		wp_cache_debug( "wp_cache_post_id_gc clearing cache in {$supercache_home}page/." );
 		prune_super_cache( $supercache_home . 'page/', true );
 		do_action( 'gc_cache', 'prune', 'page/' );
 	} else {
