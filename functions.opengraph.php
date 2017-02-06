@@ -351,7 +351,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 		$img_width  = '';
 		$img_height = '';
-		$image_id = attachment_url_to_postid( $image_url );
+		$image_id = get_option( 'site_icon' );
 		$image_size = wp_get_attachment_image_src( $image_id, $max_side >= 512
 			? 'full'
 			: array( $max_side, $max_side ) );
