@@ -73,6 +73,9 @@ class WC_Services_Installer {
 	 * @return bool result of installation/activation
 	 */
 	private function install() {
+		$jetpack = Jetpack::init();
+		$jetpack->stat( 'jitm', 'wooservices-activated-' . JETPACK__VERSION );
+
 		include_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		include_once( ABSPATH . '/wp-admin/includes/plugin-install.php' );
 		include_once( ABSPATH . '/wp-admin/includes/plugin.php' );
