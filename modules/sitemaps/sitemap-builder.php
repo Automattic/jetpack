@@ -107,6 +107,7 @@ class Jetpack_Sitemap_Builder {
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 			$this->logger->report( '-- ...done for now.' );
+			$this->logger->time();
 		}
 	}
 
@@ -194,6 +195,7 @@ class Jetpack_Sitemap_Builder {
 
 			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 				$this->logger->report( '-- Finished.' );
+				$this->logger->time();
 			}
 
 			die();
