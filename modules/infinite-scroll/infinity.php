@@ -1466,7 +1466,7 @@ class The_Neverending_Home_Page {
 		<div id="infinite-footer">
 			<div class="container">
 				<div class="blog-info">
-					<a id="infinity-blog-title" href="<?php echo home_url( '/' ); ?>" target="_blank" rel="home">
+					<a id="infinity-blog-title" href="<?php echo home_url( '/' ); ?>" rel="home">
 						<?php bloginfo( 'name' ); ?>
 					</a>
 				</div>
