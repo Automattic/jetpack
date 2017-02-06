@@ -216,7 +216,6 @@ class Jetpack_Sitemap_Builder {
 	 * @param array    $state        A sitemap state.
 	 */
 	private function build_next_sitemap_of_type( $sitemap_type, $build_one, $state ) {
-		$debug_name = jp_sitemap_debug_name( $sitemap_type );
 		$index_type = jp_sitemap_index_type_of( $sitemap_type );
 
 		// Try to build a sitemap.
@@ -238,7 +237,7 @@ class Jetpack_Sitemap_Builder {
 			) );
 
 			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-				$this->logger->report( "-- Cleaning Up $debug_name" );
+				$this->logger->report( "-- Cleaning Up $sitemap_type" );
 			}
 
 			// Clean up old files.
@@ -271,7 +270,7 @@ class Jetpack_Sitemap_Builder {
 		) );
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$this->logger->report( "-- Cleaning Up $debug_name" );
+			$this->logger->report( "-- Cleaning Up $sitemap_type" );
 		}
 
 		// Clean up old files.
@@ -292,7 +291,6 @@ class Jetpack_Sitemap_Builder {
 	 * @param string $next_type  The next type to generate after this one.
 	 */
 	private function build_next_sitemap_index_of_type( $state, $index_type, $next_type ) {
-		$debug_name   = jp_sitemap_debug_name( $index_type );
 		$sitemap_type = jp_sitemap_child_type_of( $index_type );
 
 		// If only 0 or 1 sitemaps were built, advance to the next type and return.
@@ -305,7 +303,7 @@ class Jetpack_Sitemap_Builder {
 			) );
 
 			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-				$this->logger->report( "-- Cleaning Up: $debug_name" );
+				$this->logger->report( "-- Cleaning Up: $index_type" );
 			}
 
 			// There are no indices of this type.
@@ -334,7 +332,7 @@ class Jetpack_Sitemap_Builder {
 			) );
 
 			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-				$this->logger->report( "-- Cleaning Up $debug_name" );
+				$this->logger->report( "-- Cleaning Up $index_type" );
 			}
 
 			// Clean up old files.
@@ -367,7 +365,7 @@ class Jetpack_Sitemap_Builder {
 		) );
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$this->logger->report( "-- Cleaning Up $debug_name" );
+			$this->logger->report( "-- Cleaning Up $index_type" );
 		}
 
 		// We're done generating indices of this type.
@@ -509,8 +507,8 @@ FOOTER
 		$any_posts_left = true;
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$debug_name = jp_sitemap_debug_name( JP_PAGE_SITEMAP_TYPE );
-			$this->logger->report( "-- Building $debug_name " . $number . '.' );
+			$debug_name = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, $number );
+			$this->logger->report( "-- Building $debug_name" );
 		}
 
 		$sitemap_xsl_url = $this->finder->construct_sitemap_url( 'sitemap.xsl' );
@@ -664,8 +662,8 @@ FOOTER
 		$any_posts_left = true;
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$debug_name = jp_sitemap_debug_name( JP_IMAGE_SITEMAP_TYPE );
-			$this->logger->report( "-- Building $debug_name $number." );
+			$debug_name = jp_sitemap_filename( JP_IMAGE_SITEMAP_TYPE, $number );
+			$this->logger->report( "-- Building $debug_name" );
 		}
 
 		$image_sitemap_xsl_url = $this->finder->construct_sitemap_url( 'image-sitemap.xsl' );
@@ -781,8 +779,8 @@ FOOTER
 		$any_posts_left = true;
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$debug_name = jp_sitemap_debug_name( JP_VIDEO_SITEMAP_TYPE );
-			$this->logger->report( "-- Building $debug_name $number." );
+			$debug_name = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, $number );
+			$this->logger->report( "-- Building $debug_name" );
 		}
 
 		$video_sitemap_xsl_url = $this->finder->construct_sitemap_url( 'video-sitemap.xsl' );
@@ -900,11 +898,11 @@ FOOTER
 		$last_sitemap_id   = $from_id;
 		$any_sitemaps_left = true;
 
-		$index_debug_name = jp_sitemap_debug_name( $index_type );
 		$sitemap_type = jp_sitemap_child_type_of( $index_type );
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-			$this->logger->report( "-- Building $index_debug_name $number." );
+			$index_debug_name = jp_sitemap_filename( $index_type, $number );
+			$this->logger->report( "-- Building $index_debug_name" );
 		}
 
 		$sitemap_index_xsl_url = $this->finder->construct_sitemap_url( 'sitemap-index.xsl' );

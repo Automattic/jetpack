@@ -153,33 +153,6 @@ function jp_sitemap_filename( $type, $number ) {
 }
 
 /**
- * A human-friendly name for each sitemap type (for debug messages).
- *
- * @since 4.7.0
- *
- * @param string $type The sitemap type.
- *
- * @return string The sitemap debug name.
- */
-function jp_sitemap_debug_name( $type ) {
-	if ( JP_PAGE_SITEMAP_TYPE === $type ) {
-		return 'Sitemap';
-	} elseif ( JP_PAGE_SITEMAP_INDEX_TYPE === $type ) {
-		return 'Sitemap Index';
-	} elseif ( JP_IMAGE_SITEMAP_TYPE === $type ) {
-		return 'Image Sitemap';
-	} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $type ) {
-		return 'Image Sitemap Index';
-	} elseif ( JP_VIDEO_SITEMAP_TYPE === $type ) {
-		return 'Video Sitemap';
-	} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
-		return 'Video Sitemap Index';
-	} else {
-		return esc_html( "error-bad-type-$type" );
-	}
-}
-
-/**
  * The index type corresponding to a sitemap type.
  *
  * @since 4.7.0
