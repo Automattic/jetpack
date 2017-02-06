@@ -79,7 +79,6 @@ function wpcache_do_rebuild( $dir ) {
 	$dir = trailingslashit( $dir );
 	if ( isset( $do_rebuild_list[ $dir ] ) )
 		return false;
-	$do_rebuild_list[ $dir ] = 1;
 	$files_to_check = get_all_supercache_filenames( $dir );
 	foreach( $files_to_check as $cache_file ) {
 		$cache_file = $dir . $cache_file;
@@ -89,6 +88,7 @@ function wpcache_do_rebuild( $dir ) {
 		if( $mtime && (time() - $mtime) < 10 ) {
 			wp_cache_debug( "Rebuild file renamed to cache file temporarily: $cache_file", 3 );
 			@rename( $cache_file . '.needs-rebuild', $cache_file );
+			$do_rebuild_list[ $dir ] = 1;
 		}
 		// cleanup old files or if rename fails
 		if( @file_exists( $cache_file . '.needs-rebuild' ) ) {
