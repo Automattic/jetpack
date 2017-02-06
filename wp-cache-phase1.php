@@ -619,7 +619,8 @@ function get_all_supercache_filenames( $dir = '' ) {
 	global $wp_cache_mobile_enabled, $cache_path;
 
 	$dir = realpath( $dir );
-	if ( substr( $dir, 0, strlen( $cache_path ) ) != $cache_path )
+	$rp_cache_path = realpath( $cache_path );
+	if ( substr( $dir, 0, strlen( $rpcache_path ) ) != $rp_cache_path )
 		return array();
 
 	$filenames = array( 'index.html', 'index-https.html', 'index.html.php' );
