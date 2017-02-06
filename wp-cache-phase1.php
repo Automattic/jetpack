@@ -73,6 +73,9 @@ if ($cache_compression) {
 }
 
 add_cacheaction( 'supercache_filename_str', 'wp_cache_check_mobile' );
+if ( function_exists( 'add_filter' ) ) { // loaded since WordPress 4.6
+	add_filter( 'supercache_filename_str', 'wp_cache_check_mobile' );
+}
 
 $wp_cache_request_uri = $_SERVER[ 'REQUEST_URI' ]; // Cache this in case any plugin modifies it.
 
