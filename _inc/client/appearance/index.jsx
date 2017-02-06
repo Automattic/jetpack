@@ -90,29 +90,32 @@ export const Page = ( props ) => {
 		);
 	} );
 
+	let holidaySnowCard = Initial_State.showHolidaySnow ? (
+		<FoldableCard
+			header={ __( 'Holiday Snow' ) }
+			subheader={ __( 'Show falling snow in the holiday period.' ) }
+			clickableHeaderText={ true }
+			disabled={ ! isAdmin }
+			summary={ isAdmin ? <Settings slug="snow" /> : '' }
+			expandedSummary={ isAdmin ? <Settings slug="snow" /> : '' }
+			onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+				{
+					card: 'holiday_snow',
+					path: props.route.path
+				}
+			) }
+		>
+			<span className="jp-form-setting-explanation">
+				{ __( 'Show falling snow on my blog from Dec 1st until Jan 4th.' ) }
+			</span>
+		</FoldableCard>
+	) : '';
+
 	return (
 		<div>
 			<QuerySite />
 			{ cards }
-
-			<FoldableCard
-				header={ __( 'Holiday Snow' ) }
-				subheader={ __( 'Show falling snow in the holiday period.' ) }
-				clickableHeaderText={ true }
-				disabled={ ! isAdmin }
-				summary={ isAdmin ? <Settings slug="snow" /> : '' }
-				expandedSummary={ isAdmin ? <Settings slug="snow" /> : '' }
-				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
-					{
-						card: 'holiday_snow',
-						path: props.route.path
-					}
-				) }
-			>
-				<span className="jp-form-setting-explanation">
-					{ __( 'Show falling snow on my blog from Dec 1st until Jan 4th.' ) }
-				</span>
-			</FoldableCard>
+			{ holidaySnowCard }
 		</div>
 	);
 };
