@@ -124,20 +124,11 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				}
 			}
 
-			if ( '' != $instance['email'] ) {
-				echo '<div class="confit-email">';
-
-					if ( is_email( $instance['email'] ) ) {
-						echo '<a href="' . esc_url( 'mailto:' . $instance['email'] ) . '">';
-					}
-
-					echo esc_html( $instance['email'] );
-
-					if ( is_email( $instance['email'] ) ) {
-						echo '</a>';
-					}
-
-				echo '</div>';
+			if ( is_email( $instance['email'] ) ) {
+				printf(
+					'<div class="confit-email"><a href="mailto:%1$s">%1$s</a></div>',
+					esc_html( $instance['email'] )
+				);
 			}
 
 			if ( '' != $instance['hours'] ) {
