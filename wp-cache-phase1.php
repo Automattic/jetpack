@@ -721,10 +721,10 @@ function wp_cache_confirm_delete( $dir ) {
 	// don't allow cache_path, blog cache dir, blog meta dir, supercache.
 	$dir = realpath( $dir );
 	if ( 
-		$dir == $cache_path || 
-		$dir == $blog_cache_dir ||
-		$dir == $blog_cache_dir . "meta/" ||
-		$dir == $cache_path . "supercache"
+		$dir == realpath( $cache_path ) ||
+		$dir == realpath( $blog_cache_dir ) ||
+		$dir == realpath( $blog_cache_dir . "meta/" ) ||
+		$dir == realpath( $cache_path . "supercache" )
 	) {
 		return false;
 	} else {
