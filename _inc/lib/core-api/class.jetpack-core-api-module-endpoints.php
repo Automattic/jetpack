@@ -133,7 +133,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	/**
 	 * A WordPress REST API callback method that accepts a request object and decides what to do with it.
 	 *
-	 * @param WP_REST_Request $request
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @since 4.3.0
 	 *
@@ -262,7 +262,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $request
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return bool does the current user have enough privilege.
 	 */
@@ -360,9 +360,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @since 4.6.0
 	 *
-	 * @param WP_REST_Request $request {
-	 *     Array of parameters received by request.
-	 * }
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return array
 	 */
@@ -821,7 +819,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $request
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return bool
 	 */
@@ -841,7 +839,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Allows the `settings` and `module/<slug>` EDITABLE endpoints to accept both JSON and multi-part POST bodies.
 	 *
-	 * @param $request A WP REST API Request Object
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * 
 	 * @return array|bool
 	 */
 	public function parse_settings_request_body( $request ) {
