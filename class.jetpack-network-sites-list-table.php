@@ -26,7 +26,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		$this->process_bulk_action();
 
 		$sites = get_sites( array( 
-			'offset' => 1, 
+			'site__not_in' => array( get_current_blog_id() ),
 			'archived' => false,
 		) );
 
