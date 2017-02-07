@@ -314,9 +314,9 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 			$img_width  = '';
 			$img_height = '';
 			$cached_image_id = get_transient( 'jp_' . $image_url );
-			if ( false !== $cached_image_id ){
+			if ( false !== $cached_image_id ) {
 				$image_id = $cached_image_id;
-			}else{
+			} else {
 				$image_id = attachment_url_to_postid( $image_url );
 				set_transient( 'jp_' . $image_url, $image_id );
 			}
@@ -359,9 +359,9 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		$img_height = '';
 		$cached_image_id = get_transient( 'jp_' . $image_url );
 
-		if ( false !== $cached_image_id ){
+		if ( false !== $cached_image_id ) {
 			$image_id = $cached_image_id;
-		}else{
+		} else {
 			$image_id = attachment_url_to_postid( $image_url );
 			set_transient( 'jp_' . $image_url, $image_id );
 		}
