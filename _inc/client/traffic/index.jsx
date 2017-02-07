@@ -12,6 +12,7 @@ import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
+import { Ads } from './ads';
 import { SiteStats } from './site-stats';
 import { RelatedPosts } from './related-posts';
 import { VerificationServices } from './verification-services';
@@ -33,6 +34,10 @@ export const Traffic = React.createClass( {
 				<SEO
 					{ ...commonProps }
 					configureUrl={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl }
+				/>
+				<Ads
+					{ ...commonProps }
+					configureUrl={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
 				/>
 				<SiteStats
 					{ ...commonProps }
