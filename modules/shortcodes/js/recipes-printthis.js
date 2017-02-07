@@ -1,3 +1,4 @@
+// jshint ignore: start
 /*
  * printThis v1.9.0
  * @desc Printing plug-in for jQuery
