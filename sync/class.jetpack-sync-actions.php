@@ -137,6 +137,8 @@ class Jetpack_Sync_Actions {
 
 		$query_args['timeout'] = Jetpack_Sync_Settings::is_doing_cron() ? 30 : 15;
 
+		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
+
 		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
 
 		$rpc = new Jetpack_IXR_Client( array(
