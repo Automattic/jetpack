@@ -105,12 +105,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.6 =
 
-* Release date: February 8, 2017
+* Release date: February 7, 2017
 * Release post: http://wp.me/p1moTy-40g
 
 **Exciting New Features and Improvements**
 
-* Enable Google Analytics and insert the necessary tracking code with this new Jetpack feature.
+* Enable Google Analytics without touching a line of code with this new Jetpack feature.
 
 **Performance Improvements**
 
@@ -125,7 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Slightly Less Exciting Enhancements:**
 
-* In an effort to help us better understand features that are being used Twitter's timeline widget and Twitter's shortcodes now pass Jetpack's partner ID.
+* In an effort to help us better understand features that are being used, Twitter's timeline widget and Twitter's shortcodes now pass Jetpack's partner ID.
 * We've added a new API endpoints giving allowing us to enable translation autoupdates and for pulling post rows and metadata for backups.
 * We're now retrieving all feature settings in the readable `/settings` endpoint.
 
@@ -141,7 +141,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Some sites were using illegal multibyte characters and failing to sync posts, this has been fixed.
 * IE11 was giving our admin layout a bit of a problem but we rectified that.
 * There were some PHP notices popping up when a site has no posts we got rid of them.
-* The new Jetpack Ads feature will no longer be visible if your plan doesn't support them.
+* The new Jetpack Ads feature will auto disable itself if your Jetpack plan doesn't support the feature.
 * We fixed a few PHP notices and warnings related to the Custom CSS feature.
 * The connection banner's "dismiss" icon was giving us a little trouble, but we got it fixed right up.
 * The Likes feature was showing a PHP notice when there was no $post object, this has been fixed.
