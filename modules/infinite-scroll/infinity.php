@@ -300,12 +300,22 @@ class The_Neverending_Home_Page {
 	 * Is this guaranteed to be the last batch of posts?
 	 */
 	static function is_last_batch() {
-		$post_type = get_post_type();
-		$entries = wp_count_posts( empty( $post_type ) ? 'post' : $post_type )->publish;
-		if ( self::wp_query()->get( 'paged' ) && self::wp_query()->get( 'paged' ) > 1 ) {
-			$entries -= self::get_settings()->posts_per_page * self::wp_query()->get( 'paged' );
+		$entries = (int) self::wp_query()->found_posts;
+		$posts_per_page = self::get_settings()->posts_per_page;
+		$paged = self::wp_query()->get( 'paged' );
+
+		// Are there enough posts for more than the first page?
+		if ( $entries <= $posts_per_page ) {
+			return true;
 		}
-		return $entries <= self::get_settings()->posts_per_page;
+
+		// Calculate entries left after a certain number of pages
+		if ( $paged && $paged > 1 ) {
+			$entries -= $posts_per_page * $paged;
+		}
+
+		// Are there some entries left to display?
+		return $entries <= 0;
 	}
 
 	/**
