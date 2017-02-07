@@ -916,6 +916,7 @@ class Jetpack_Likes {
 			$likes_locale
 		);
 
+		/* translators: The value of %d is not available at the time of output */
 		$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 		?>
 		<iframe src='<?php echo $src; ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>

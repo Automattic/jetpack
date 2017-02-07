@@ -742,6 +742,7 @@ class The_Neverending_Home_Page {
 				}
 
 				if ( isset( $cpt_text ) ) {
+					/* translators: %s is the name of a custom post type */
 					$click_handle_text = sprintf( __( 'Older %s', 'jetpack' ), $cpt_text );
 					unset( $cpt_text );
 				}
@@ -1448,6 +1449,7 @@ class The_Neverending_Home_Page {
 			__( 'Proudly powered by WordPress', 'jetpack' )
 		);
 		$credits .= sprintf(
+			/* translators: %1$s is the name of a theme */
 			__( 'Theme: %1$s.', 'jetpack' ),
 			function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme()
 		);
