@@ -840,12 +840,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 * Allows the `settings` and `module/<slug>` EDITABLE endpoints to accept both JSON and multi-part POST bodies.
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * 
+	 *
 	 * @return array|bool
 	 */
 	public function parse_settings_request_body( $request ) {
-		if ( is_array( $request->get_json_params() ) ) {
-			return $request->get_json_params();
+		$params = $request->get_json_params();
+		if ( is_array( $params ) ) {
+			return $params;
 		}
 		$params = $request->get_body_params();
 		if ( ! is_array( $params ) ) {
