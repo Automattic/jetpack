@@ -2529,7 +2529,6 @@ class Jetpack {
 		if ( 'protect' === $module ) {
 			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 			if ( ! jetpack_protect_get_ip() ) {
-				error_log( 'hello' );
 				Jetpack::state( 'message', 'protect_misconfigured_ip' );
 				return false;
 			}
