@@ -754,6 +754,7 @@ jQuery(document).ready(function(){
 #nav h2 {
 	border-bottom: 1px solid #ccc;
 	padding-bottom: 0;
+	height: 2em;
 }
 table.wpsc-settings-table {
 	clear: both;
