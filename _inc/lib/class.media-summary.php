@@ -6,7 +6,10 @@
  */
 class Jetpack_Media_Summary {
 
+	private static $cache = array();
+
 	static function get( $post_id, $blog_id = 0, $args = array() ) {
+
 		$defaults = array(
 			'max_words' => 16,
 			'max_chars' => 256,
@@ -19,6 +22,11 @@ class Jetpack_Media_Summary {
 			$switched = true;
 		} else {
 			$blog_id = get_current_blog_id();
+		}
+
+		$cache_key = "{$blog_id}_{$post_id}_{$args['max_words']}_{$args['max_chars']}";
+		if ( isset( self::$cache[ $cache_key ] ) ) {
+			return self::$cache[ $cache_key ];
 		}
 
 		if ( ! class_exists( 'Jetpack_Media_Meta_Extractor' ) ) {
@@ -241,6 +249,8 @@ class Jetpack_Media_Summary {
 		 * @param int $post_id The id of the post this data applies to.
 		 */
 		$return = apply_filters( 'jetpack_media_summary_output', $return, $post_id );
+
+		self::$cache[ $cache_key ] = $return;
 
 		return $return;
 	}
