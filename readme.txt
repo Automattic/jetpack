@@ -110,48 +110,49 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Exciting New Features and Improvements**
 
-* New Google Analytics module. #5603
+* Enable Google Analytics and insert the necessary tracking code with this new Jetpack feature.
+
+**Performance Improvements**
+
+* We've updated all outbound links to use HTTPS links to improve performance and security.
+* Photon took advantage of a new WordPress core function, which should improve performance a bit.
 
 **Enhancements**
 
-* General: add information notices when a site uses WooCommerce and could benefit from the new USPS or CanadaPost shipping functionality. #6183
-* General: update links to external resources to use HTTPS to improve performance. #6040
-* Photon: switch to function introduced in WP 4.5 to improve performance. #6038
-* Publicize: Show an error message in case Jetpack is not connected properly. #6060
-* Sync: fix issues with some sites failing to sync posts that have illegal multibyte characters. #6155
-* Widgets: update Twitter Timeline for sane limit of number of tweets to display. #6021
-* Widgets: Twitter's timeline widget and Twitter's shortcodes now pass Jetpack's partner ID to track usage. #6190
-* WordPress.com REST API: add a new API endpoint that will allow us to enable translation autoupdates. #5953
-* WordPress.com REST API: add a new API endpoint for pulling post rows and metadata for backups. #6230
-* WP REST API: retrieve all module settings in the readable `/settings` endpoint. #6002
+* Keep an eye our for a note from WooCommerce on how your e-commerce store may benefit from our new USPS and CanadaPost shipping functionality.
+* We've added an error message if Publicize isn't functioning as it should be.
+* The Twitter Widget timeline now displays the tweet limit count as 20, prior to this it appeared to have no limit.
+
+**Slightly Less Exciting Enhancements:**
+
+* In an effort to help us better understand features that are being used Twitter's timeline widget and Twitter's shortcodes now pass Jetpack's partner ID.
+* We've added a new API endpoints giving allowing us to enable translation autoupdates and for pulling post rows and metadata for backups.
+* We're now retrieving all feature settings in the readable `/settings` endpoint.
 
 **Improved Compatibility**
 
-* Fix notices and warnings when using Jetpack on a server running PHP 7.1. #6118, #5821
-* Contact Form: avoid PHP warnings on servers where `print_r()` is disabled. #6234
-* Photon: avoid PHP notices when using plugins that do srcset CDN replacement. #6126, #6170
-* Sharing: force get sharing options when saved options are incorrect due to site configuration issues. Avoids potential fatal errors. #6122
-* Shortcodes: prefix the new Quiz Shortcode CSS classes to avoid conflicts with other Quiz plugins. #6232
-* Widgets: make sure that all widget class names include prefixes to avoid conflicts with other plugins using similar class names. #6149
+* We've eliminated some notices and warnings when using Jetpack on a server running PHP 7.1 or on servers where `print_r()` is disabled.
+* Photon now avoids PHP notices when your site is using plugins that do srcset CDN replacement.
+* When the sharing options appear to be incorrect due to site configuration issues we force it to retrieve the right options avoiding potential fatal errors.
+* We've added some shortcode css and widget class names prefixes to avoid conflicts with other plugins.
 
 **Bug Fixes**
 
-* Admin Page: fix layout issues in IE11. #6109
-* Admin: fix PHP notice when a site has no posts. #6142
-* Ads: deactivate the module when the site doesn't use a plan that support Jetpack Ads. #6242
-* Custom CSS: fix PHP notice. #6154
-* Custom CSS: fix warning appearing when migrating Custom CSS to Core's new CSS editor. #6158
-* General: fix issue with connection banner's "Dismiss" icon. #6182
-* Likes: Prevent a PHP notice when there is no $post object. #5988
-* Photon: Force only Photon URLs to HTTPS. Custom CDN URLs may use a different protocol. #6083
-* Publicize: respect status of Publicize connections: if a connection is not shared with all users on the site, do not trigger Publicize for the other users. #6098
-* Publicize: make sure Publicize is triggered for scheduled posts. #6186
-* SSO: Ensure that logging in via SSO doesn't stop you authenticating to your site using a third-party application relying on the WordPress.com REST API. #6194
-* Sync: avoid PHP notices with the Shortcodes module. #6115, #6151, #6153
-* Tonesque: avoid PHP warnings when an image doesn't exist. #6068
-* Twitter Widget: add noscrollbar option back. #6131
-* Top Posts Widget: fix image size when using the List Layout. #6140
-* WordPress.com REST API: fix notices and warnings when updating data from the WordPress.com central interface. #6104
+* Some sites were using illegal multibyte characters and failing to sync posts, this has been fixed.
+* IE11 was giving our admin layout a bit of a problem but we rectified that.
+* There were some PHP notices popping up when a site has no posts we got rid of them.
+* The new Jetpack Ads feature will no longer be visible if your plan doesn't support them.
+* We fixed a few PHP notices and warnings related to the Custom CSS feature.
+* The connection banner's "dismiss" icon was giving us a little trouble, but we got it fixed right up.
+* The Likes feature was showing a PHP notice when there was no $post object, this has been fixed.
+* We've brought back the Twitter Widget "noscrollbar" option.
+* We're now forcing only Photon URLs to HTTPS as your custom CDN URLs may use a different protocol.
+* If a Publicize connection is not shared with all users on the site, do not trigger Publicize for the other users.
+* Publicize was having trouble working with scheduled posts, this should be fixed now.
+* SSO might have gotten in the way of let you authenticate to your site using a third-party application relying on the WordPress.com REST API, sorry about that.
+* We've eliminated some PHP notices that we showing with some Shortcodes.
+* The Top Posts Widget image size issue when using list layouts is no longer causing issues.
+* We fixed some notices and warnings when updating data from the WordPress.com central interface.
 
 = 4.5 =
 
