@@ -234,6 +234,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			? get_permalink( $last_post[0]->ID )
 			: get_home_url();
 
+		// Get information about current theme.
+		$current_theme = wp_get_theme();
+
+		// Get all themes that Infinite Scroll provides support for natively.
+		$is_support_themes = array();
+		foreach ( Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules/infinite-scroll/themes/*.php' ) as $path ) {
+			if ( is_readable( $path ) ) {
+				$is_support_themes[] = basename( $path, '.php' );
+			}
+		}
+
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
@@ -286,6 +297,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
 			'lastPostUrl' => esc_url( $last_post ),
+			'theme' => array(
+				'name'      => $current_theme->get( 'Name' ),
+				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
+				'support'   => array(
+					'infiniteScroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $is_support_themes ),
+				),
+			),
 		) );
 	}
 }

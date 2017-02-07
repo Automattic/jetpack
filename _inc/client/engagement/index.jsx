@@ -36,6 +36,7 @@ import {
 import { getSitePlan } from 'state/site';
 import QuerySite from 'components/data/query-site';
 import ExternalLink from 'components/external-link';
+import CardMessages from 'components/card-messages';
 
 export const Engagement = ( props ) => {
 	let {
@@ -49,16 +50,7 @@ export const Engagement = ( props ) => {
 		moduleList = Object.keys( props.moduleList );
 
 	if ( ! props.isSitePublic ) {
-		sitemapsDesc = <span>
-			{ sitemapsDesc }
-			{ <p className="jp-form-setting-explanation">
-				{ __( 'Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
-					components: {
-						a: <a href={ props.siteAdminUrl + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
-					}
-				} ) }
-			</p> }
-		</span>;
+		sitemapsDesc = <CardMessages module="sitemaps" desc={ sitemapsDesc } />;
 	}
 
 	/**

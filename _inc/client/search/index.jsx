@@ -19,6 +19,7 @@ import analytics from 'lib/analytics';
 import QuerySite from 'components/data/query-site';
 import { isUnavailableInDevMode } from 'state/connection';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
+import CardMessages from 'components/card-messages';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -37,8 +38,12 @@ import {
 	isFetchingPluginsData,
 	isPluginActive
 } from 'state/site/plugins';
-import { getSiteRawUrl } from 'state/initial-state';
-import { WordAdsSubHeaderTos } from 'engagement'
+import { WordAdsSubHeaderTos } from 'engagement';
+import {
+	getSiteRawUrl,
+	getThemeData,
+	isSitePublic
+} from 'state/initial-state';
 
 export const SearchResults = ( {
 	siteAdminUrl,
@@ -52,7 +57,9 @@ export const SearchResults = ( {
 	unavailableInDevMode,
 	isFetchingPluginsData,
 	isPluginActive,
-	siteRawUrl
+	siteRawUrl,
+	themeData,
+	isSitePublic
 	} ) => {
 	let modules = getModules(),
 		moduleList = [
@@ -168,16 +175,31 @@ export const SearchResults = ( {
 			}
 		}
 
-		if ( 'videopress' === element[0] ) {
-			if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug || /jetpack_personal*/.test( sitePlan.product_slug ) ) {
-				toggle = <Button
-					compact={ true }
-					primary={ true }
-					href={ 'https://jetpack.com/redirect/?source=upgrade-videopress&site=' + siteRawUrl }
-				>
-					{ __( 'Upgrade' ) }
-				</Button>;
-			}
+		switch ( element[0] ) {
+			case 'videopress':
+				if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug || /jetpack_personal*/.test( sitePlan.product_slug ) ) {
+					toggle = <Button
+						compact={ true }
+						primary={ true }
+						href={ 'https://jetpack.com/redirect/?source=upgrade-videopress&site=' + siteRawUrl }
+					>
+						{ __( 'Upgrade' ) }
+					</Button>;
+				}
+				break;
+
+			case 'infinite-scroll':
+				if ( ! themeData.support.infiniteScroll ) {
+					element[2] = <CardMessages module="infinite-scroll" desc={ element[2] } themeData={ themeData } />;
+					toggle = __( 'Theme support required' );
+				}
+				break;
+
+			case 'sitemaps':
+				if ( ! isSitePublic ) {
+					element[2] = <CardMessages module="sitemaps" desc={ element[2] } />;
+				}
+				break;
 		}
 
 		if ( 1 === element.length ) {
@@ -246,7 +268,9 @@ export default connect(
 			unavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			siteRawUrl: getSiteRawUrl( state )
+			siteRawUrl: getSiteRawUrl( state ),
+			themeData: getThemeData( state ),
+			isSitePublic: isSitePublic( state )
 		};
 	},
 	( dispatch ) => {

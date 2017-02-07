@@ -22,6 +22,10 @@
 	right: 17px;
 }
 
+.dops-info-popover__tooltip.jp-module-settings__infinite-scroll .dops-popover__inner {
+	white-space: nowrap;
+}
+
 // Connection Settings styles
 .jp-connection-settings {
 	margin: rem( 24px ) 0;

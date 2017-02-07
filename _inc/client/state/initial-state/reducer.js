@@ -163,3 +163,14 @@ export function getCurrentIp( state ) {
 export function getLastPostUrl( state ) {
 	return get( state.jetpack.initialState, 'lastPostUrl' );
 }
+
+/**
+ * Get information about the current theme: name, if there's an update available and feature support.
+ *
+ * @param {Object} state Global state tree
+ *
+ * @return {Array} Information about theme.
+ */
+export function getThemeData( state ) {
+	return get( state.jetpack.initialState, 'theme', { name: '', hasUpdate: false, support: { infiniteScroll: false } } );
+}
