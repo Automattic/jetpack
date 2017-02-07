@@ -108,14 +108,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: February 7, 2017
 * Release post: http://wp.me/p1moTy-40g
 
-**Exciting New Features and Improvements**
+**New Features and Improvements**
 
 * Enable Google Analytics without touching a line of code with this new Jetpack feature.
 
 **Performance Improvements**
 
-* We've updated all outbound links to use HTTPS links to improve performance and security.
-* Photon took advantage of a new WordPress core function, which should improve performance a bit.
+* We've updated all outbound links to use HTTPS to improve performance and security.
+* Photon now leverages a new WordPress core function to improve performance a bit.
 
 **Enhancements**
 
@@ -126,7 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Slightly Less Exciting Enhancements:**
 
 * In an effort to help us better understand features that are being used, Twitter's timeline widget and Twitter's shortcodes now pass Jetpack's partner ID.
-* We've added a new API endpoints giving allowing us to enable translation auto-updates and for pulling post rows and metadata for backups.
+* We've added new API endpoints allowing us to enable translation auto-updates and pull post rows and metadata for backups.
 * We're now retrieving all feature settings in the readable `/settings` endpoint.
 
 **Improved Compatibility**
@@ -150,8 +150,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * If a Publicize connection is not shared with all users on the site, do not trigger Publicize for the other users.
 * Publicize was having trouble working with scheduled posts, this should be fixed now.
 * SSO may not have been displaying the login form when using JSON API authorization.  Sorry about that, we've fixed it.
-* We've eliminated some PHP notices that we showing with some Shortcodes.
-* The Top Posts Widget image size issue when using list layouts is no longer causing issues.
+* We've eliminated some PHP notices that were showing with some Shortcodes.
+* There was a Top Posts Widget image size issue when using list layouts, but is no longer causing issues.
 * We fixed some notices and warnings when updating data from the WordPress.com central interface.
 
 = 4.5 =
