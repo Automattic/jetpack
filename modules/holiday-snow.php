@@ -116,7 +116,7 @@ function jetpack_show_holiday_snow_option() {
 
 	$today            = time();
 	$first_option_day = mktime( 0, 0, 0, 11, 24 ); // Nov 24
-	$last_option_day  = mktime( 0, 0, 0, 1, 11 );  // Jan 11
+	$last_option_day  = mktime( 0, 0, 0, 1, 4 );   // Jan 4
 
 	return ( $today >= $first_option_day || $today < $last_option_day );
 }
