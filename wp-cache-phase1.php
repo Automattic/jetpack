@@ -622,7 +622,8 @@ function get_all_supercache_filenames( $dir = '' ) {
 	global $wp_cache_mobile_enabled, $cache_path;
 
 	$dir = realpath( $dir );
-	if ( substr( $dir, 0, strlen( $cache_path ) ) != $cache_path )
+	$rp_cache_path = realpath( $cache_path );
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
 		return array();
 
 	$filenames = array( 'index.html', 'index-https.html', 'index.html.php' );
@@ -723,10 +724,10 @@ function wp_cache_confirm_delete( $dir ) {
 	// don't allow cache_path, blog cache dir, blog meta dir, supercache.
 	$dir = realpath( $dir );
 	if ( 
-		$dir == $cache_path || 
-		$dir == $blog_cache_dir ||
-		$dir == $blog_cache_dir . "meta/" ||
-		$dir == $cache_path . "supercache"
+		$dir == realpath( $cache_path ) ||
+		$dir == realpath( $blog_cache_dir ) ||
+		$dir == realpath( $blog_cache_dir . "meta/" ) ||
+		$dir == realpath( $cache_path . "supercache" )
 	) {
 		return false;
 	} else {
