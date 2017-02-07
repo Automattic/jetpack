@@ -1429,6 +1429,10 @@ class The_Neverending_Home_Page {
 		if ( 'scroll' != self::get_settings()->type || ! self::archive_supports_infinity() )
 			return;
 
+		if ( self::is_last_batch() ) {
+			return;
+		}
+
 		// Display a footer, either user-specified or a default
 		if ( false !== self::get_settings()->footer_callback && is_callable( self::get_settings()->footer_callback ) )
 			call_user_func( self::get_settings()->footer_callback, self::get_settings() );
