@@ -734,15 +734,13 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		// Enqueue front end assets.
 		$this->enqueue_scripts();
 
-		$content = '';
-
-		$content .= $args['before_widget'];
+		$content = $args['before_widget'];
 
 		if ( empty( $instance['url'] ) ) {
 			if ( current_user_can( 'manage_options' ) ) {
 				$content .= '<p>';
 				/* Translators: the "Blog URL" field mentioned is the input field labeled as such in the widget form. */
-				$content .= esc_html_e( 'The Blog URL is not properly setup in the widget.', 'jetpack' );
+				$content .= esc_html__( 'The Blog URL is not properly setup in the widget.', 'jetpack' );
 				$content .= '</p>';
 			}
 			$content .= $args['after_widget'];
