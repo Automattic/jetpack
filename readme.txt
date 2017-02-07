@@ -149,7 +149,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We're now forcing only Photon URLs to HTTPS as your custom CDN URLs may use a different protocol.
 * If a Publicize connection is not shared with all users on the site, do not trigger Publicize for the other users.
 * Publicize was having trouble working with scheduled posts, this should be fixed now.
-* SSO might have gotten in the way of let you authenticate to your site using a third-party application relying on the WordPress.com REST API, sorry about that.
+* SSO may not have been displaying the login form when using JSON API authorization.  Sorry about that, we've fixed it.
 * We've eliminated some PHP notices that we showing with some Shortcodes.
 * The Top Posts Widget image size issue when using list layouts is no longer causing issues.
 * We fixed some notices and warnings when updating data from the WordPress.com central interface.
