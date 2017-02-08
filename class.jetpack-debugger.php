@@ -230,6 +230,7 @@ class Jetpack_Debugger {
 							$default_theme = wp_get_theme( WP_DEFAULT_THEME );
 
 							if ( $default_theme->exists() ) {
+								/* translators: %s is the name of a theme */
 								echo esc_html( sprintf( __( "If your problem isn't known or caused by a plugin, try activating %s (the default WordPress theme).", 'jetpack' ), $default_theme->get( 'Name' ) ) );
 							} else {
 								esc_html_e( "If your problem isn't known or caused by a plugin, try activating the default WordPress theme.", 'jetpack' );
@@ -251,7 +252,7 @@ class Jetpack_Debugger {
 				<hr />
 				<?php if ( Jetpack::is_active() ) : ?>
 					<div id="connected-user-details">
-						<p><?php printf( __( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ), esc_html( Jetpack::get_master_user_email() ) ); ?></p>
+						<p><?php printf( /* translators: %s is an e-mail address */ __( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ), esc_html( Jetpack::get_master_user_email() ) ); ?></p>
 					</div>
 				<?php else : ?>
 					<div id="dev-mode-details">

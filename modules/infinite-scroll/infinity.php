@@ -352,7 +352,7 @@ class The_Neverending_Home_Page {
 			echo '<label>' . $notice . '</label>';
 		} else {
 			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
-			echo '<p class="description">' . sprintf( esc_html__( 'Shows %s posts on each load.', 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) . '</p>';
+			echo '<p class="description">' . esc_html( sprintf( _n( 'Shows %s post on each load.', 'Shows %s posts on each load.', self::get_settings()->posts_per_page, 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) ) . '</p>';
 		}
 	}
 
@@ -742,6 +742,7 @@ class The_Neverending_Home_Page {
 				}
 
 				if ( isset( $cpt_text ) ) {
+					/* translators: %s is the name of a custom post type */
 					$click_handle_text = sprintf( __( 'Older %s', 'jetpack' ), $cpt_text );
 					unset( $cpt_text );
 				}
@@ -1448,6 +1449,7 @@ class The_Neverending_Home_Page {
 			__( 'Proudly powered by WordPress', 'jetpack' )
 		);
 		$credits .= sprintf(
+			/* translators: %1$s is the name of a theme */
 			__( 'Theme: %1$s.', 'jetpack' ),
 			function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme()
 		);
