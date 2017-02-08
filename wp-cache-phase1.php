@@ -611,6 +611,14 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	return $dir;
 }
 
+/*
+ * Delete (or rebuild) all the files in one directory.
+ * Checks if it is in the cache directory but doesn't allow files in the following directories to be deleted:
+ * wp-content/cache/
+ * wp-content/cache/blogs/
+ * wp-content/cache/supercache/
+ *
+ */
 function wpsc_delete_files( $dir ) {
 	global $cache_path, $blog_cache_dir;
 	static $rp_cache_path = '';
