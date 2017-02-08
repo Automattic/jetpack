@@ -213,7 +213,15 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 				 $link_element = $link_elements->item( 0 );
 				 if ( $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
-					 $formatted_action_links[ $link_element->nodeValue ] = $link_element->getAttribute( 'href' );
+					 $link_url = trim( $link_element->getAttribute( 'href' ) );
+
+					 // Add the full admin path to the url if the plugin did not provide it
+					 $link_url_scheme = wp_parse_url( $link_url, PHP_URL_SCHEME );
+					 if ( empty( $link_url_scheme ) ) {
+						 $link_url = admin_url( $link_url );
+					 }
+
+					 $formatted_action_links[ $link_element->nodeValue ] = $link_url;
 				 }
 			 }
 		 }
