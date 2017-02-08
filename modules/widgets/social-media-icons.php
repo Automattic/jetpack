@@ -139,13 +139,12 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			$index += 10;
 
 			/** Check if full URL entered in configuration, use it instead of tinkering **/
-			if ( substr( $username, 0, 5 ) === "http:"
-				|| substr( $username, 0, 6 ) === "https:"
-			   ) {			
+			if ( preg_match( '#^https?://#', $username ) ) {		
 				$html[ $index ] =
 					'<a href="' . $username
 					. '" class="genericon genericon-' . $service . '" target="_blank"><span class="screen-reader-text">'
-					. 'View our profile on '. $service_name 
+					/* Translators: the placeholder is a social network name. */
+					. esc_html( sprintf( __( 'View our profile on %s', 'jetpack' ), $service_name ) )
 					. '</span></a>';
 
 				continue;
