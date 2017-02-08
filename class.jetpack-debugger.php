@@ -163,7 +163,7 @@ class Jetpack_Debugger {
 		$tests['IDENTITY_CRISIS']['result'] = $identity_crisis;
 		$tests['IDENTITY_CRISIS']['fail_message'] = esc_html__( 'Something has gotten mixed up in your Jetpack Connection!', 'jetpack' );
 
-		$self_xml_rpc_url = home_url( 'xmlrpc.php' );
+		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
 
 		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
 
