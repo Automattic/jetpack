@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved Compatibility**
 
 * Accessibility: enable keyboard focus styling in the new admin interface. #6300
+* Internationalization: improve translator comments to make translating new terms easier. #6307
 * Multisite: use Core functions to retrieve the list of sites for more accurate results. #3405
 
 **Bug Fixes**
