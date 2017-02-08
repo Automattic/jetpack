@@ -60,7 +60,7 @@ export const Ads = moduleSettingsForm(
 						<p>
 							{ __( 'By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!' ) }
 							<br />
-							<small>
+							<small className="jp-form-setting-explanation">
 								{ __( 'By activating ads, you agree to the Automattic Ads {{link}}Terms of Service{{/link}}.', {
 									components: {
 										link: <a href="https://wordpress.com/automattic-ads-tos/" target="_blank" />
@@ -90,16 +90,16 @@ export const Ads = moduleSettingsForm(
 									{ __( 'Display an additional ad unit at the top of each page' ) }
 								</span>
 							</FormToggle>
+							{ ! unavailableInDevMode && (
+								<p>
+									<ExternalLink
+										className="jp-module-settings__external-link"
+										href={ this.props.configureUrl }>
+										{ __( 'View your earnings' ) }
+									</ExternalLink>
+								</p>
+							) }
 						</FormFieldset>
-						{ ! unavailableInDevMode && (
-							<p>
-								<ExternalLink
-									className="jp-module-settings__external-link"
-									href={ this.props.configureUrl }>
-									{ __( 'View your earnings' ) }
-								</ExternalLink>
-							</p>
-						) }
 					</SettingsGroup>
 				</SettingsCard>
 			);
