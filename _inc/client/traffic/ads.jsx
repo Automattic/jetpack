@@ -25,7 +25,7 @@ export const Ads = moduleSettingsForm(
 		 */
 		getInitialState() {
 			return {
-				enable_header_ad: this.props.getOptionValue( 'enable_header_ad', 'wordads' ),
+				enable_header_ad: this.props.getOptionValue( 'enable_header_ad', 'wordads' )
 			};
 		},
 
