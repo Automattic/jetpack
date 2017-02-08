@@ -79,7 +79,6 @@ function wpcache_do_rebuild( $dir ) {
 	$dir = trailingslashit( $dir );
 	if ( isset( $do_rebuild_list[ $dir ] ) )
 		return false;
-	$do_rebuild_list[ $dir ] = 1;
 	if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
 		while ( ( $file = readdir( $dh ) ) !== false ) {
 			if ( $file != '.' && $file != '..' && is_file( $dir . $file ) ) {
@@ -90,6 +89,7 @@ function wpcache_do_rebuild( $dir ) {
 				if( $mtime && ( time() - $mtime ) < 10 ) {
 					wp_cache_debug( "Rebuild file renamed to cache file temporarily: $cache_file" );
 					@rename( $cache_file . '.needs-rebuild', $cache_file );
+					$do_rebuild_list[ $dir ] = 1;
 				}
 				// cleanup old files or if rename fails
 				if( @file_exists( $cache_file . '.needs-rebuild' ) ) {
