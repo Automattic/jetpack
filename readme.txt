@@ -103,6 +103,23 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.7 =
+
+* Release date:
+* Release post:
+
+**New Features and Improvements**
+
+**Performance Improvements**
+
+**Enhancements**
+
+* Widgets: add a filter to The Display Posts Widget content, so the content can be customized. #5883
+
+**Improved Compatibility**
+
+**Bug Fixes**
+
 = 4.6 =
 
 * Release date: February 7, 2017
