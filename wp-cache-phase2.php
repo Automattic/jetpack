@@ -75,8 +75,19 @@ function wp_cache_phase2() {
 }
 
 function wpcache_do_rebuild( $dir ) {
-	global $do_rebuild_list;
-	$dir = trailingslashit( $dir );
+	global $do_rebuild_list, $cache_path, $blog_cache_dir;
+
+	$dir = trailingslashit( realpath( $dir ) );
+	$protected = array( $cache_path, $cache_path . $blog_cache_dir, get_supercache_dir() );
+	$protected = array_walk( array_walk( $protected, 'realpath' ), 'trailingslashit' );
+	$rp_cache_path = trailingslashit( realpath( $cache_path ) );
+
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
+		return false;
+
+	if ( in_array( $dir, $protected ) )
+		return false;
+
 	if ( isset( $do_rebuild_list[ $dir ] ) )
 		return false;
 	if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
