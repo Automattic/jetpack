@@ -56,6 +56,7 @@ class Jetpack_Protect_Module {
 		add_action( 'wp_login_failed', array ( $this, 'log_failed_attempt' ) );
 		add_action( 'admin_init', array ( $this, 'maybe_update_headers' ) );
 		add_action( 'admin_init', array ( $this, 'maybe_display_security_warning' ) );
+		add_filter( 'login_errors', array( $this, 'filter_login_errors' ) );
 
 		// This is a backup in case $pagenow fails for some reason
 		add_action( 'login_head', array ( $this, 'check_login_ability' ) );
@@ -181,6 +182,22 @@ class Jetpack_Protect_Module {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Filters the login error message to a warning about guessing and becoming locked out.
+	 *
+	 * @param string $error The existing HTML error string.
+	 */
+	public function filter_login_errors( $error ) {
+		global $errors;
+		$err_codes = $errors->get_error_codes();
+
+		if ( in_array( 'invalid_username', $err_codes, true ) || in_array( 'incorrect_password', $err_codes, true ) ) {
+			$error .= __( '<br>If you have forgotten your login information, do not keep guessing as you could be locked out; instead, use the password reset link.' );
+		}
+
+		return $error;
 	}
 
 	/**
