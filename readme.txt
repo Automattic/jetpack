@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Holiday Snow: remove settings outside of Holiday Snow period. #6298
+* Infinite Scroll: update wording in settings to avoid any confusion. #6239
 * Widgets: add a filter to The Display Posts Widget content, so the content can be customized. #5883
 
 **Improved Compatibility**
