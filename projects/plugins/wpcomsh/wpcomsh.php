@@ -13,6 +13,28 @@ define( 'WPCOMSH__PLUGIN_FILE', __FILE__ );
 require_once( 'constants.php' );
 require_once( 'footer-credit/footer-credit.php' );
 
+function wpcomsh_remove_vaultpress_wpadmin_notices() {
+	if ( ! class_exists( 'VaultPress' ) ) {
+		return;
+	}
+
+	$vp_instance = VaultPress::init();
+
+	remove_action( 'user_admin_notices', array( $vp_instance, 'activated_notice' ) );
+	remove_action( 'admin_notices', array( $vp_instance, 'activated_notice' ) );
+
+	remove_action( 'user_admin_notices', array( $vp_instance, 'connect_notice' ) );
+	remove_action( 'admin_notices', array( $vp_instance, 'connect_notice' ) );
+
+	remove_action( 'user_admin_notices', array( $vp_instance, 'error_notice' ) );
+	remove_action( 'admin_notices', array( $vp_instance, 'error_notice' ) );
+}
+add_action(
+	'admin_head',
+	'wpcomsh_remove_vaultpress_wpadmin_notices',
+	11 // Priority 11 so it runs after VaultPress `admin_head` hook
+);
+
 function wpcomsh_register_plugins_action_links() {
 	// Hide WPComSH "Deactivate" and "Edit" links on WP Admin Plugins page
 	add_filter(
