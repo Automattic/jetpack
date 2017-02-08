@@ -361,7 +361,7 @@ function wp_cache_append_tag( &$buffer ) {
 		$msg = "\n<!-- Live page served on $timestamp -->\n";
 	}
 
-	if ( strpos( '<html', $buffer ) === false ) {
+	if ( strpos( $buffer, '<html' ) === false ) {
 		wp_cache_debug( site_url( $_SERVER[ 'REQUEST_URI' ] ) . " - " . $msg );
 		return false;
 	}
@@ -378,7 +378,7 @@ function wp_cache_add_to_buffer( &$buffer, $text ) {
 	if ( $wp_super_cache_comments == 0 )
 		return false;
 
-	if ( strpos( '<html', $buffer ) === false ) {
+	if ( strpos( $buffer, '<html' ) === false ) {
 		wp_cache_debug( site_url( $_SERVER[ 'REQUEST_URI' ] ) . " - " . $text );
 		return false;
 	}
