@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Holiday Snow: remove settings outside of Holiday Snow period. #6298
 * Infinite Scroll: update wording in settings to avoid any confusion. #6239
 * Publicize: add Unit Tests to make sure Publicize doesn't break when making changes to the Publicize process. #6018
+* Slideshow shortcode: add filter to customize speed of the slideshow. #3297
 * Widgets: add a filter to The Display Posts Widget content, so the content can be customized. #5883
 
 **Improved Compatibility**
