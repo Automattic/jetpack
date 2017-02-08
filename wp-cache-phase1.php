@@ -130,7 +130,10 @@ function wp_cache_serve_cache_file() {
 	global $wp_cache_object_cache, $cache_compression, $wp_cache_slash_check, $wp_supercache_304, $wp_cache_home_path, $wp_cache_no_cache_for_get;
 	global $wp_cache_disable_utf8, $wp_cache_mfunc_enabled;
 
-	extract( wp_super_cache_init() );
+	if ( is_admin() ) {
+		wp_cache_debug( 'Not serving wp-admin requests.', 5 );
+		return false;
+	}
 
 	if ( wp_cache_user_agent_is_rejected() ) {
 		wp_cache_debug( "No wp-cache file served as user agent rejected.", 5 );
@@ -141,6 +144,8 @@ function wp_cache_serve_cache_file() {
 		wp_cache_debug( "Non empty GET request. Caching disabled on settings page. " . json_encode( $_GET ), 1 );
 		return false;
 	}
+
+	extract( wp_super_cache_init() );
 
 	if ( $wp_cache_object_cache && wp_cache_get_cookies_values() == '' ) {
 		if ( !empty( $_GET ) ) {
