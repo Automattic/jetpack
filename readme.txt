@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Sharing: make sure the Site Icon is used on home page Open Graph Meta Tags. #6303
 * Sync: fix synchronization scheduling issues. #6281
 * Widgets: translate Follow Widget according to the site's language. #5941
 
